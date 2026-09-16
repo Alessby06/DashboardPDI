@@ -1189,12 +1189,38 @@ const DashboardView = {
     const barMod = document.getElementById("barMod");
     if (barMod) barMod.style.width = stats.pctMod + "%";
 
-    const comasEl = document.getElementById("comasProgress");
-    if (comasEl) comasEl.style.width = (stats.total > 0 ? (stats.comasCount / stats.total) * 100 : 0) + "%";
+    const coverageContainer = document.getElementById("dashDistrictCoverage");
+    if (coverageContainer) {
+      const pctComas = stats.total > 0 ? Math.round((stats.comasCount / stats.total) * 100) : 0;
+      const pctCarabayllo = stats.total > 0 ? Math.round((stats.carabaylloCount / stats.total) * 100) : 0;
+      coverageContainer.innerHTML = `
+        <div style="padding: 12px 16px; border-radius: var(--radius-md); background: var(--surface-2); border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+              <strong>Distrito de Comas</strong>
+              <div style="font-size: 12px; color: var(--text-muted);">Sedes: La Libertad, Año Nuevo, Collique</div>
+            </div>
+            <span class="badge badge-green">${stats.comasCount} Beneficiarios (${pctComas}%)</span>
+          </div>
+          <div style="height: 6px; width: 100%; background: var(--surface-3); border-radius: 999px; overflow: hidden;">
+            <div style="height: 100%; width: ${pctComas}%; background: var(--gt-green); border-radius: 999px; transition: width 0.4s ease;"></div>
+          </div>
+        </div>
 
-    const carabaylloEl = document.getElementById("carabaylloProgress");
-    if (carabaylloEl) carabaylloEl.style.width = (stats.total > 0 ? (stats.carabaylloCount / stats.total) * 100 : 0) + "%";
-
+        <div style="padding: 12px 16px; border-radius: var(--radius-md); background: var(--surface-2); border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div>
+              <strong>Distrito de Carabayllo</strong>
+              <div style="font-size: 12px; color: var(--text-muted);">Sedes: El Progreso, San Pedro</div>
+            </div>
+            <span class="badge badge-blue">${stats.carabaylloCount} Beneficiarios (${pctCarabayllo}%)</span>
+          </div>
+          <div style="height: 6px; width: 100%; background: var(--surface-3); border-radius: 999px; overflow: hidden;">
+            <div style="height: 100%; width: ${pctCarabayllo}%; background: var(--gt-blue, #0d9488); border-radius: 999px; transition: width 0.4s ease;"></div>
+          </div>
+        </div>
+      `;
+    }
     
     const anemiaContainer = document.getElementById("dashAnemiaBars");
     if (anemiaContainer) {
