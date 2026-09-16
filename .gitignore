@@ -1,0 +1,19 @@
+# Archivos del sistema y logs
+.DS_Store
+Thumbs.db
+*.log
+
+# Entornos y dependencias
+node_modules/
+__pycache__/
+*.pyc
+
+# Configuraciones de IDE / Editor
+.vscode/
+.idea/
+.impeccable/
+
+# Archivos de entorno y temporales
+.env
+.env.local
+*.tmp
