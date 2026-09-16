@@ -1,0 +1,139 @@
+/* Variables del Sistema PDI - Asociacion Cultural Johannes Gutenberg */
+:root {
+  --obsidian: #ffffff;
+  --bg-base: #f8fafc;
+  --bg-canvas: #f4f6f9;
+  --surface-1: #ffffff;
+  --surface-2: #f8fafc;
+  --surface-hover: rgba(0, 180, 148, 0.08);
+  --surface-glass: rgba(255, 255, 255, 0.95);
+  
+  --border-subtle: #e2e8f0;
+  --border-bright: rgba(0, 180, 148, 0.45);
+  
+  /* Gutenberg Official 4-Color Signature */
+  --gt-green: #00b494;
+  --gt-green-bg: rgba(0, 180, 148, 0.12);
+  --gt-green-border: rgba(0, 180, 148, 0.35);
+  
+  --gt-yellow: #d97706;
+  --gt-yellow-bg: rgba(217, 119, 6, 0.12);
+  --gt-yellow-border: rgba(217, 119, 6, 0.35);
+  
+  --gt-blue: #0284c7;
+  --gt-blue-bg: rgba(2, 132, 199, 0.12);
+  --gt-blue-border: rgba(2, 132, 199, 0.35);
+  
+  --gt-red: #dc2626;
+  --gt-red-bg: rgba(220, 38, 38, 0.12);
+  --gt-red-border: rgba(220, 38, 38, 0.35);
+
+  --brand-primary: var(--gt-green);
+  --brand-dark: #00715d;
+  --brand-dim: #046a58;
+  --brand-soft: var(--gt-green-bg);
+  
+  /* Pure Neutral Crisp Typography */
+  --text-main: #0f172a;
+  --text-muted: #334155;
+  --text-dim: #64748b;
+  
+  /* Status Semantics */
+  --status-danger: var(--gt-red);
+  --status-danger-bg: var(--gt-red-bg);
+  --status-danger-border: var(--gt-red-border);
+  
+  --status-warning: var(--gt-yellow);
+  --status-warning-bg: var(--gt-yellow-bg);
+  --status-warning-border: var(--gt-yellow-border);
+  
+  --status-success: var(--gt-green);
+  --status-success-bg: var(--gt-green-bg);
+  --status-success-border: var(--gt-green-border);
+  
+  --status-info: var(--gt-blue);
+  --status-info-bg: var(--gt-blue-bg);
+  --status-info-border: var(--gt-blue-border);
+
+  /* Typography */
+  --ui-font: 'Nunito Sans', 'Google Sans Flex', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+  
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-ambient: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+  --shadow-glow: none;
+  --modal-overlay-bg: rgba(15, 23, 42, 0.65);
+  
+  color-scheme: light;
+}
+
+[data-theme="light"] {
+  --obsidian: #ffffff;
+  --bg-base: #f8fafc;
+  --surface-1: #ffffff;
+  --surface-2: #f1f5f9;
+  --surface-hover: rgba(0, 122, 101, 0.08);
+  --surface-glass: rgba(255, 255, 255, 0.92);
+  
+  --border-subtle: #cbd5e1;
+  --border-bright: rgba(0, 122, 101, 0.45);
+  
+  --gt-green: #007a65;
+  --gt-green-bg: rgba(0, 122, 101, 0.12);
+  --gt-green-border: rgba(0, 122, 101, 0.35);
+  
+  --gt-yellow: #b45309;
+  --gt-yellow-bg: rgba(180, 83, 9, 0.12);
+  --gt-yellow-border: rgba(180, 83, 9, 0.35);
+  
+  --gt-blue: #0369a1;
+  --gt-blue-bg: rgba(3, 105, 161, 0.12);
+  --gt-blue-border: rgba(3, 105, 161, 0.35);
+  
+  --gt-red: #b91c1c;
+  --gt-red-bg: rgba(185, 28, 28, 0.12);
+  --gt-red-border: rgba(185, 28, 28, 0.35);
+
+  --brand-primary: var(--gt-green);
+  --brand-dark: #005a4a;
+  --brand-dim: #e6f4f1;
+  --brand-soft: var(--gt-green-bg);
+  
+  --text-main: #0f172a;
+  --text-muted: #334155;
+  --text-dim: #64748b;
+
+  /* Status Semantics */
+  --status-danger: var(--gt-red);
+  --status-danger-bg: var(--gt-red-bg);
+  --status-danger-border: var(--gt-red-border);
+  
+  --status-warning: var(--gt-yellow);
+  --status-warning-bg: var(--gt-yellow-bg);
+  --status-warning-border: var(--gt-yellow-border);
+  
+  --status-success: var(--gt-green);
+  --status-success-bg: var(--gt-green-bg);
+  --status-success-border: var(--gt-green-border);
+  
+  --status-info: var(--gt-blue);
+  --status-info-bg: var(--gt-blue-bg);
+  --status-info-border: var(--gt-blue-border);
+  
+  --shadow-ambient: 0 4px 16px -2px rgba(15, 23, 42, 0.08), 0 1px 3px 0 rgba(15, 23, 42, 0.05);
+  --shadow-glow: none;
+  --modal-overlay-bg: rgba(15, 23, 42, 0.55);
+  
+  color-scheme: light;
+}
+
+/* Logo Theme Switch */
+.brand-logo-dark { display: block; }
+.brand-logo-light { display: none; }
+[data-theme="light"] .brand-logo-dark { display: none !important; }
+[data-theme="light"] .brand-logo-light { display: block !important; }

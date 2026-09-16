@@ -1,0 +1,6 @@
+/* Sistema PDI - Asociacion Cultural Johannes Gutenberg */
+/* Arquitectura CSS Modular */
+@import './variables.css';
+@import './base.css';
+@import './components.css';
+@import './views.css';

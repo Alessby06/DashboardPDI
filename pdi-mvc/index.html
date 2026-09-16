@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="theme-color" content="#000000">
+  <meta name="color-scheme" content="dark">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Sistema PDI: Asociación Cultural Johannes Gutenberg (MVC)</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,300..900&family=Nunito+Sans:ital,opsz,wght@0,6..12,300..900;1,6..12,300..900&display=swap"
+    rel="stylesheet">
+
+  <script>
+    (function () { document.documentElement.setAttribute("data-theme", "light"); })();
+  </script>
+
+  <!-- Modular CSS Architecture -->
+  <link rel="stylesheet" href="./css/main.css">
+</head>
+
+<body>
+  <!-- Toast Notification Stack -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <div class="app-shell">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="appSidebar">
+      <div>
+        <div class="sidebar-header">
+          <img src="./assets/jg-icon.png" alt="Isotipo Johannes Gutenberg" class="logo-official-icon"
+            style="width:38px; height:38px; object-fit:contain; border-radius:6px; background:var(--surface-2); padding:3px; border:1px solid var(--border-subtle);">
+          <div class="logo-text">
+            <h1>Johannes Gutenberg</h1>
+            <span>Programa Infancia Saludable</span>
+          </div>
+        </div>
+
+        <nav class="nav-sections" id="sidebarNav">
+          <div class="nav-label">General</div>
+          <button type="button" class="nav-btn active" data-view="view-dashboard"
+            data-roles="coord,facilitadora,promotora,social,admin">
+            <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+            </svg>
+            <span>Dashboard</span>
+          </button>
+
+          <div class="nav-label">Módulos Operativos (PDI)</div>
+          <button type="button" class="nav-btn" data-view="view-beneficiarios"
+            data-roles="coord,facilitadora,promotora,social,admin">
+            <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+            </svg>
+            <span>Padrón de Menores</span>
+            <span class="nav-badge" id="badgeTotalBeneficiarios">28</span>
+          </button>
+
+          <button type="button" class="nav-btn" data-view="view-salud" data-roles="coord,facilitadora,admin">
+            <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+            </svg>
+            <span>Salud y Nutrición (CRED)</span>
+          </button>
+
+          <button type="button" class="nav-btn" data-view="view-educativo" data-roles="coord,promotora,admin">
+            <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" />
+            </svg>
+            <span>Casita del Saber</span>
+          </button>
+
+          <button type="button" class="nav-btn" data-view="view-social" data-roles="coord,social,admin">
+            <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+            </svg>
+            <span>Derivaciones Sociales (ASP)</span>
+            <span class="nav-badge"
+              style="background: var(--gt-red-bg); color: var(--gt-red); border-color: var(--gt-red-border);"
+              id="badgeCasosCriticos">4</span>
+          </button>
+
+          <button type="button" class="nav-btn" data-view="view-sedes" data-roles="coord,facilitadora,promotora,admin">
+            <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+            </svg>
+            <span>Sedes e Iglesias</span>
+          </button>
+
+          <div class="nav-label">Gobernanza</div>
+          <button type="button" class="nav-btn" data-view="view-auditoria" data-roles="coord,admin">
+            <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+            </svg>
+            <span>Auditoría (Ley 29733)</span>
+          </button>
+        </nav>
+      </div>
+
+    </aside>
+
+    <!-- Main Content Container -->
+    <div class="main-wrapper">
+      <!-- Top Navigation Bar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button type="button" class="btn-menu-toggle" id="btnSidebarToggle">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+          </button>
+
+          <div style="display:flex; align-items:center; gap:12px; margin-right:8px;">
+            <img src="./assets/logo-light-acjg.png" alt="Asociacion Cultural Johannes Gutenberg" class="brand-logo-dark"
+              style="height:32px; object-fit:contain;">
+            <img src="./assets/logo-asociacion.png" alt="Asociacion Cultural Johannes Gutenberg"
+              class="brand-logo-light" style="height:32px; object-fit:contain; display:none;">
+          </div>
+
+          <!-- Dynamic Role Selector -->
+          <div class="role-selector-wrap">
+            <label for="roleSelector">Rol Activo:</label>
+            <select class="role-select" id="roleSelector">
+              <option value="coord">Coordinador(a) General (Vista Completa)</option>
+              <option value="facilitadora">Facilitadora Comunitaria (Comedor / CRED)</option>
+              <option value="promotora">Promotora Educativa (Casitas del Saber)</option>
+              <option value="social">Trabajadora Social (ASP / Casos Críticos)</option>
+              <option value="admin">Administrador TI (Auditoría / Cumplimiento)</option>
+            </select>
+          </div>
+
+          <!-- Global Real-time Search -->
+          <div class="search-wrap search-hidden" style="display: none;">
+            <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+            <input type="text" class="search-input" id="globalSearchInput"
+              placeholder="Buscar menor por DNI, nombres o sede...">
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <!-- Theme Toggle Button -->
+          <button type="button" class="theme-toggle-btn" style="display:none !important;" id="btnThemeToggle"
+            onclick="toggleTheme(event)" title="Alternar Modo Claro / Modo Noche">
+            <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Viewport Body -->
+      <main class="content-viewport">
+        <!-- Role Active Context Banner -->
+        <div class="role-banner" id="roleContextBanner">
+          <div class="role-banner-info">
+            <svg width="22" height="22" fill="none" stroke="var(--brand-primary)" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+            </svg>
+            <div>
+              Perfil Activo: <strong id="roleBannerTitle">Coordinación General PDI</strong>
+              <div class="role-banner-desc" id="roleBannerDesc">Acceso total para supervisión ejecutiva, emisión de
+                reportes y toma de decisiones.</div>
+            </div>
+          </div>
+          <span class="badge badge-green" id="roleBannerAccessTag">Acceso Total</span>
+        </div>
+
+        <!-- ==========================================
+             VIEW 0: DASHBOARD EJECUTIVO
+             ========================================== -->
+        <section class="app-view active" id="view-dashboard">
+          <div class="view-header">
+            <div class="view-title-group">
+              <h2>Dashboard Directivo: "PDI"</h2>
+              <p>Métricas consolidadas de cobertura alimentaria, acompañamiento pedagógico y salud infantil en Comas y
+                Carabayllo.</p>
+            </div>
+            <button type="button" class="btn-action" onclick="exportDataCSV()">
+              <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+              </svg>
+              <span>Exportar Informe CSV</span>
+            </button>
+          </div>
+
+          <!-- KPI Cards Grid (4 Quadrants of the Gutenberg Official Logo) -->
+          <div class="kpi-grid" id="kpiDashboardContainer">
+            <!-- Quadrant 1: Verde Esmeralda (Padrón / Crecimiento) -->
+            <div class="kpi-card" style="border-top: 3px solid var(--gt-green);">
+              <div class="kpi-info">
+                <span>Beneficiarios Activos</span>
+                <h3 id="dashKpiBeneficiarios" style="color: var(--gt-green);">28</h3>
+                <div class="kpi-sub" style="color: var(--gt-green);">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18" />
+                  </svg>
+                  100% con Consentimiento Ley 29733
+                </div>
+              </div>
+              <div class="kpi-icon-wrap" style="background: var(--gt-green-bg); color: var(--gt-green);">
+                <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                </svg>
+              </div>
+            </div>
+
+            <!-- Quadrant 2: Amarillo Solar (Nutrición / Salud CRED) -->
+            <div class="kpi-card" style="border-top: 3px solid var(--gt-yellow);">
+              <div class="kpi-info">
+                <span>Tamizados CRED (Anemia)</span>
+                <h3 id="dashKpiTamizados" style="color: var(--gt-yellow);">28 / 28</h3>
+                <div class="kpi-sub" style="color: var(--gt-yellow);">
+                  <span>7 casos en recuperación ferrosa</span>
+                </div>
+              </div>
+              <div class="kpi-icon-wrap" style="background: var(--gt-yellow-bg); color: var(--gt-yellow);">
+                <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                </svg>
+              </div>
+            </div>
+
+            <!-- Quadrant 3: Azul Educación (Casitas del Saber / Retiro Seguro) -->
+            <div class="kpi-card" style="border-top: 3px solid var(--gt-blue);">
+              <div class="kpi-info">
+                <span>Asistencia en Casitas</span>
+                <h3 id="dashKpiAsistencia" style="color: var(--gt-blue);">92.4%</h3>
+                <div class="kpi-sub" style="color: var(--gt-blue);">
+                  <span>100% de apoderados acreditados</span>
+                </div>
+              </div>
+              <div class="kpi-icon-wrap" style="background: var(--gt-blue-bg); color: var(--gt-blue);">
+                <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+
+            <!-- Quadrant 4: Rojo Coral (Área Social / Alerta y Salvaguarda) -->
+            <div class="kpi-card" style="border-top: 3px solid var(--gt-red);">
+              <div class="kpi-info">
+                <span>Casos Críticos Derivados</span>
+                <h3 id="dashKpiCasosSociales" style="color: var(--gt-red);">4</h3>
+                <div class="kpi-sub" style="color: var(--gt-red);">
+                  <span>Canalizados a DEMUNA / BTF</span>
+                </div>
+              </div>
+              <div class="kpi-icon-wrap" style="background: var(--gt-red-bg); color: var(--gt-red);">
+                <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts & Visual Indicators Grid -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px;">
+            <!-- Anemia Status Breakdown Widget -->
+            <div class="card" id="widgetAnemiaStatus">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg width="19" height="19" fill="none" stroke="var(--gt-yellow)" stroke-width="2"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" />
+                  </svg>
+                  Semáforo de Anemia MINSA (Hemoglobina)
+                </div>
+                <span class="badge badge-yellow">28 Evaluados</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 14px;" id="dashAnemiaBars">
+                <!-- Injected via JS -->
+              </div>
+            </div>
+
+            <!-- Geographic Coverage Widget (Comas vs Carabayllo) -->
+            <div class="card" id="widgetCoverageStatus">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg width="19" height="19" fill="none" stroke="var(--gt-blue)" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                  </svg>
+                  Cobertura Territorial por Distrito
+                </div>
+                <span class="badge badge-blue">Lima Norte</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 14px;" id="dashDistrictCoverage">
+                <!-- Injected via JS -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             VIEW 1: PADRÓN ÚNICO DE BENEFICIARIOS
+             ========================================== -->
+        <section class="app-view" id="view-beneficiarios">
+          <div class="view-header">
+            <div class="view-title-group">
+              <h2>Padrón Único de Beneficiarios</h2>
+              <p>Identidad central del menor, seguro de salud, escolaridad, apoderados y consentimiento informado Ley
+                N.° 29733.</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <button type="button" class="btn-action primary" id="btnNuevoBeneficiario"
+                onclick="openModalNuevoMenor()">
+                <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                <span>Nuevo Menor</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Beneficiaries Table Card -->
+          <div class="card" id="cardPadronBeneficiarios">
+            <div class="table-container">
+              <table class="data-table" id="tablaBeneficiarios">
+                <thead>
+                  <tr>
+                    <th>Código</th>
+                    <th>Nombres y Apellidos</th>
+                    <th>DNI / Doc</th>
+                    <th>Edad / Sexo</th>
+                    <th>Distrito / Sede</th>
+                    <th>Servicios Activos</th>
+                    <th>Estado</th>
+                    <th style="text-align: right;">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyBeneficiarios">
+                  <!-- Injected via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             VIEW 2: SALUD Y NUTRICIÓN (CRED)
+             ========================================== -->
+        <section class="app-view" id="view-salud">
+          <div class="view-header">
+            <div class="view-title-group">
+              <h2>Salud y Nutrición CRED</h2>
+              <p>Control antropométrico, semáforo automatizado de anemia MINSA, dosaje de hemoglobina y suplementación
+                ferrosa.</p>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 340px; gap: 20px;">
+            <!-- CRED Registrations Table -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Historial de Evaluaciones CRED por Menor</div>
+                <span class="badge badge-yellow">Fórmula Oficial MINSA</span>
+              </div>
+              <div class="table-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Beneficiario</th>
+                      <th>Edad</th>
+                      <th>Peso / Talla</th>
+                      <th>Hemoglobina (Hb)</th>
+                      <th>Diagnóstico Anemia</th>
+                      <th>Suplementación</th>
+                      <th>Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbodySaludCred">
+                    <!-- Injected via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Antropometric Calculator Box -->
+            <div class="card" id="cardCalculadoraCred">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg width="19" height="19" fill="none" stroke="var(--gt-yellow)" stroke-width="2"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M15.75 15.75V18m-7.5-6.75h.008v.008H8.25v-.008zm0 2.25h.008v.008H8.25V13.5zm0 2.25h.008v.008H8.25v-.008zm0 2.25h.008v.008H8.25V18zm2.498-6.75h.007v.008h-.007v-.008zm0 2.25h.007v.008h-.007V13.5zm0 2.25h.007v.008h-.007v-.008zm0 2.25h.007v.008h-.007V18zm2.504-6.75h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V13.5zm0 2.25h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V18zm2.498-6.75h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V13.5zM8.25 6h7.5v2.25h-7.5V6zM12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25z" />
+                  </svg>
+                  Calculadora CRED
+                </div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div class="form-group">
+                  <label>Hemoglobina (g/dL):</label>
+                  <input type="number" step="0.1" class="form-control" id="calcHbInput" value="10.4"
+                    oninput="calculateAnemiaPreview()">
+                </div>
+                <div class="form-group">
+                  <label>Peso (kg):</label>
+                  <input type="number" step="0.1" class="form-control" id="calcPesoInput" value="14.2"
+                    oninput="calculateAnemiaPreview()">
+                </div>
+                <div class="form-group">
+                  <label>Talla (cm):</label>
+                  <input type="number" step="0.5" class="form-control" id="calcTallaInput" value="94.5"
+                    oninput="calculateAnemiaPreview()">
+                </div>
+
+                <div
+                  style="margin-top: 8px; padding: 14px; border-radius: var(--radius-md); background: var(--surface-2); border: 1px solid var(--border-subtle);"
+                  id="calcResultBox">
+                  <div style="font-size: 12px; color: var(--text-dim); text-transform: uppercase; font-weight: 700;">
+                    Resultado Automático:</div>
+                  <div style="font-size: 17px; font-weight: 700; color: var(--gt-yellow); margin-top: 4px;"
+                    id="calcDiagnosticoLabel">Anemia Leve (10.0 - 10.9 g/dL)</div>
+                  <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;" id="calcAccionSugerida">
+                    Acción: Iniciar suplementación con Sulfato Ferroso y control a los 30 días.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             VIEW 3: CASITA DEL SABER (EDUCATIVO)
+             ========================================== -->
+        <section class="app-view" id="view-educativo">
+          <div class="view-header">
+            <div class="view-title-group">
+              <h2>Acompañamiento Educativo: Casita del Saber</h2>
+              <p>Control de asistencia formativa rápida y padrón seguro de retiro de menores con acreditación legal .
+              </p>
+            </div>
+          </div>
+
+          <div class="card" id="cardAsistenciaCasita">
+            <div class="card-header">
+              <div class="card-title">Pase de Asistencia Rápida y Verificación de Salida</div>
+              <div style="font-size: 13px; color: var(--text-muted);">Sede: Casita del Saber: Año Nuevo (Comas)</div>
+            </div>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Menor</th>
+                    <th>Grado Escolar</th>
+                    <th>Colegio de Origen</th>
+                    <th>Estado Hoy</th>
+                    <th>Personas Acreditadas de Salida </th>
+                    <th style="text-align: right;">Marcar Asistencia</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyAsistenciaCasita">
+                  <!-- Injected via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             VIEW 4: DERIVACIONES SOCIALES (ASP)
+             ========================================== -->
+        <section class="app-view" id="view-social">
+          <div class="view-header">
+            <div class="view-title-group">
+              <h2>Área Social Pastoral (ASP): Derivaciones y Vulnerabilidad</h2>
+              <p>Bandeja de casos sociales clasificados y simulador interactivo de evaluación socioeconómica paramétrica
+                (0-100%).</p>
+            </div>
+          </div>
+
+          <!-- Kanban Board -->
+          <div class="kanban-board" id="kanbanCasosSociales">
+            <!-- Col 1: Pendientes -->
+            <div class="kanban-col">
+              <div class="kanban-col-header" style="border-top: 3px solid var(--gt-red);">
+                <span>Pendientes / Alerta</span>
+                <span class="badge badge-red" id="kanbanCountPendientes">0</span>
+              </div>
+              <div class="kanban-col-body" id="kanbanColPendientes"></div>
+            </div>
+
+            <!-- Col 2: En Evaluación -->
+            <div class="kanban-col">
+              <div class="kanban-col-header" style="border-top: 3px solid var(--gt-yellow);">
+                <span>En Evaluación Social</span>
+                <span class="badge badge-yellow" id="kanbanCountEvaluacion">0</span>
+              </div>
+              <div class="kanban-col-body" id="kanbanColEvaluacion"></div>
+            </div>
+
+            <!-- Col 3: Canalizados -->
+            <div class="kanban-col">
+              <div class="kanban-col-header" style="border-top: 3px solid var(--gt-blue);">
+                <span>Canalizados (DEMUNA / BTF)</span>
+                <span class="badge badge-blue" id="kanbanCountCanalizados">0</span>
+              </div>
+              <div class="kanban-col-body" id="kanbanColCanalizados"></div>
+            </div>
+
+            <!-- Col 4: Cerrados -->
+            <div class="kanban-col">
+              <div class="kanban-col-header" style="border-top: 3px solid var(--gt-green);">
+                <span>Cerrados con Informe</span>
+                <span class="badge badge-green" id="kanbanCountCerrados">0</span>
+              </div>
+              <div class="kanban-col-body" id="kanbanColCerrados"></div>
+            </div>
+          </div>
+
+          <!-- Parametric Socioeconomic Calculator Card -->
+          <div class="card" id="cardSimuladorVulnerabilidad" style="margin-top: 10px;">
+            <div class="card-header">
+              <div class="card-title">
+                <svg width="19" height="19" fill="none" stroke="var(--gt-red)" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" />
+                </svg>
+                Simulador de Evaluación Socioeconómica Paramétrica
+              </div>
+              <span class="badge badge-red">Fórmula Oficial: Evaluación Socioeconómica.xlsx</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px;">
+              <div class="calc-slider-group">
+                <div class="calc-slider-header">
+                  <span>Balance Ingreso/Egreso Económico</span>
+                  <span class="weight" id="valIngreso">28% (Puntaje: 24/28)</span>
+                </div>
+                <input type="range" min="0" max="28" value="24" id="sliderIngreso" oninput="calculateVulnerabilidad()">
+              </div>
+
+              <div class="calc-slider-group">
+                <div class="calc-slider-header">
+                  <span>Condición y Tenencia de Vivienda</span>
+                  <span class="weight" id="valVivienda">20% (Puntaje: 18/20)</span>
+                </div>
+                <input type="range" min="0" max="20" value="18" id="sliderVivienda" oninput="calculateVulnerabilidad()">
+              </div>
+
+              <div class="calc-slider-group">
+                <div class="calc-slider-header">
+                  <span>Empleo y Ocupación del Cuidador</span>
+                  <span class="weight" id="valEmpleo">16% (Puntaje: 14/16)</span>
+                </div>
+                <input type="range" min="0" max="16" value="14" id="sliderEmpleo" oninput="calculateVulnerabilidad()">
+              </div>
+
+              <div class="calc-slider-group">
+                <div class="calc-slider-header">
+                  <span>Nivel de Instrucción del Hogar</span>
+                  <span class="weight" id="valInstruccion">10% (Puntaje: 8/10)</span>
+                </div>
+                <input type="range" min="0" max="10" value="8" id="sliderInstruccion"
+                  oninput="calculateVulnerabilidad()">
+              </div>
+
+              <div class="calc-slider-group">
+                <div class="calc-slider-header">
+                  <span>Salud y Discapacidad en Familia</span>
+                  <span class="weight" id="valSaludFam">7% (Puntaje: 6/7)</span>
+                </div>
+                <input type="range" min="0" max="7" value="6" id="sliderSaludFam" oninput="calculateVulnerabilidad()">
+              </div>
+
+              <div class="calc-slider-group">
+                <div class="calc-slider-header">
+                  <span>Factores de Soporte y Carga Familiar</span>
+                  <span class="weight" id="valSoporte">19% (Puntaje: 16/19)</span>
+                </div>
+                <input type="range" min="0" max="19" value="16" id="sliderSoporte" oninput="calculateVulnerabilidad()">
+              </div>
+            </div>
+
+            <!-- Calculated Output Bar -->
+            <div
+              style="margin-top: 16px; padding: 18px; border-radius: var(--radius-md); background: var(--surface-2); border: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+              <div>
+                <div style="font-size: 12px; color: var(--text-dim); text-transform: uppercase; font-weight: 700;">
+                  Índice Ponderado de Vulnerabilidad Familiar:</div>
+                <div style="font-size: 26px; font-weight: 800; color: var(--gt-red); font-family: var(--mono-font);"
+                  id="totalVulnerabilidadScore">86 / 100: Pobreza Extrema / Vulnerabilidad Crítica</div>
+              </div>
+              <div style="text-align: right;">
+                <span class="badge badge-red">Recomendación Automática: Bolsa Alimentos BTF + Acompañamiento
+                  Pastoral</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             VIEW 5: SEDES, IGLESIAS Y REDES
+             ========================================== -->
+        <section class="app-view" id="view-sedes">
+          <div class="view-header">
+            <div class="view-title-group">
+              <h2>Directorio Territorial: Sedes, Iglesias y Voluntariado</h2>
+              <p>Mapeo de locales de atención, pastores de iglesias aliadas, directores de colegios públicos y
+                voluntarias.</p>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Sede Año Nuevo (Comas)</div>
+                <span class="badge badge-green">Operativa</span>
+              </div>
+              <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 8px;">A.H. Año Nuevo Sector B,
+                Comas. Servicios: Desayuno Infantil + Casita del Saber.</p>
+              <div style="font-size: 12.5px; color: var(--text-dim);">Aforo: 45 niños | Facilitadora: Carmen Mendoza |
+                Iglesia Aliada: Iglesia Bíblica Emanuel</div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Sede La Libertad (Comas)</div>
+                <span class="badge badge-green">Operativa</span>
+              </div>
+              <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 8px;">Mz. F Lote 12 A.H. La
+                Libertad, Comas. Servicios: Comedor Desayuno Infantil.</p>
+              <div style="font-size: 12.5px; color: var(--text-dim);">Aforo: 35 niños | Facilitadora: Rosa Flores |
+                Iglesia Aliada: Aposento Alto</div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Sede El Progreso (Carabayllo)</div>
+                <span class="badge badge-green">Operativa</span>
+              </div>
+              <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 8px;">Av. Túpac Amaru Km 21,
+                Carabayllo. Servicios: Casita del Saber + Lonchera.</p>
+              <div style="font-size: 12.5px; color: var(--text-dim);">Aforo: 50 niños | Directora I.E. Aliada: Lic.
+                Gladys Ramos (I.E. 3058)</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             VIEW 6: AUDITORÍA Y TRAZABILIDAD
+             ========================================== -->
+        <section class="app-view" id="view-auditoria">
+          <div class="view-header">
+            <div class="view-title-group">
+              <h2>Bitácora de Auditoría y Cumplimiento Normativo (Ley 29733)</h2>
+              <p>Registro inmutable de transacciones, modificaciones de expedientes y política de no-eliminación física
+                (*Soft Delete*).</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Timestamp</th>
+                    <th>Usuario / Perfil</th>
+                    <th>Acción</th>
+                    <th>Entidad Afectada</th>
+                    <th>Detalle de la Operación</th>
+                    <th>Estado de Registro</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyAuditLogs">
+                  <!-- Injected via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL: NUEVO MENOR (REGISTRO COMPLETO)
+       ========================================== -->
+  <!-- ==========================================
+       MODAL: NUEVO MENOR (FICHA COMPLETA A0, A1, A2, A3)
+       ========================================== -->
+  <div class="modal-backdrop" id="modalNuevoMenor">
+    <div class="modal-box" style="max-width: 840px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header">
+        <div>
+          <h3 style="margin:0; font-size:16px;">Ficha de Inscripción y Padrón Oficial de Usuarios 2026</h3>
+          <span style="font-size:12px; color:var(--text-dim);">Conforme a Fichas A0, A1, A2, A3 y Ley N.° 29733
+            (Desayuno Infantil y Casitas del Saber)</span>
+        </div>
+        <button type="button" class="btn-close-modal" onclick="closeModalNuevoMenor()">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form id="formNuevoMenor" onsubmit="guardarNuevoMenor(event)">
+
+          <!-- SECCIÓN 1: DATOS GENERALES DEL MENOR -->
+          <div style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 14px; margin-bottom: 16px;">
+            <h4
+              style="font-size:12.5px; text-transform:uppercase; color:var(--gt-green); letter-spacing:0.5px; margin:0 0 10px 0; font-weight:700;">
+              1. Datos de Filiación del Menor (Ficha A1 / Padrón IS2026)
+            </h4>
+            <div class="form-grid" style="grid-template-columns: repeat(3, 1fr); gap:12px;">
+              <div class="form-group">
+                <label for="regNombres">Nombres del Menor *</label>
+                <input type="text" id="regNombres" class="form-control" placeholder="Ej. Josué David" required>
+              </div>
+              <div class="form-group">
+                <label for="regApellidos">Apellidos *</label>
+                <input type="text" id="regApellidos" class="form-control" placeholder="Ej. Quispe Torres" required>
+              </div>
+              <div class="form-group">
+                <label for="regDni">DNI del Menor (8 dígitos) *</label>
+                <input type="text" id="regDni" class="form-control" maxlength="8" pattern="[0-9]{8}"
+                  placeholder="78491044" required>
+              </div>
+              <div class="form-group">
+                <label for="regFechaNacimiento">Fecha de Nacimiento *</label>
+                <input type="date" id="regFechaNacimiento" class="form-control" required
+                  onchange="calcularEdadAutomatica()">
+              </div>
+              <div class="form-group">
+                <label for="regEdad">Edad Calculada *</label>
+                <input type="text" id="regEdad" class="form-control" placeholder="Ej. 4 años" required>
+              </div>
+              <div class="form-group">
+                <label for="regSexo">Sexo *</label>
+                <select id="regSexo" class="form-control">
+                  <option value="M">Masculino (M)</option>
+                  <option value="F">Femenino (F)</option>
+                </select>
+              </div>
+              <div class="form-group" style="grid-column: span 2;">
+                <label for="regDireccion">Dirección Actual Domiciliaria *</label>
+                <input type="text" id="regDireccion" class="form-control"
+                  placeholder="Ej. Mz. 4W Lt. 30, Comité 12, San Benito" required>
+              </div>
+              <div class="form-group">
+                <label for="regReferencia">Referencia de Ubicación</label>
+                <input type="text" id="regReferencia" class="form-control"
+                  placeholder="Ej. Frente al Comedor San Benito">
+              </div>
+            </div>
+          </div>
+
+          <!-- SECCIÓN 2: ÁMBITO Y ESTRATEGIA OPERATIVA -->
+          <div style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 14px; margin-bottom: 16px;">
+            <h4
+              style="font-size:12.5px; text-transform:uppercase; color:var(--gt-yellow); letter-spacing:0.5px; margin:0 0 10px 0; font-weight:700;">
+              2. Ámbito Territorial y Estrategia Operativa (Fichas A0 / A1)
+            </h4>
+            <div class="form-grid" style="grid-template-columns: repeat(3, 1fr); gap:12px;">
+              <div class="form-group">
+                <label for="regDistritoSede">Distrito y Sede / Lugar *</label>
+                <select id="regDistritoSede" class="form-control">
+                  <option value="Comas - Año Nuevo">Comas: Año Nuevo</option>
+                  <option value="Comas - La Libertad">Comas: La Libertad</option>
+                  <option value="Comas - Carmen Alto">Comas: Carmen Alto</option>
+                  <option value="Carabayllo - El Progreso">Carabayllo: El Progreso</option>
+                  <option value="Carabayllo - San Pedro">Carabayllo: San Pedro</option>
+                  <option value="Carabayllo - Los Bendecidos">Carabayllo: Los Bendecidos</option>
+                  <option value="Carabayllo - Santa Rosa">Carabayllo: Santa Rosa</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="regModalidad">Modalidad de Intervención *</label>
+                <select id="regModalidad" class="form-control">
+                  <option value="Comunitaria">Comunitaria</option>
+                  <option value="Institución Educativa">Institución Educativa (I.E.)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="regEstrategia">Estrategia Asignada *</label>
+                <select id="regEstrategia" class="form-control">
+                  <option value="Desayuno Infantil">Desayuno Infantil</option>
+                  <option value="Lonchera Infantil">Lonchera Infantil</option>
+                  <option value="Casita del Saber">Casita del Saber</option>
+                  <option value="Mixto (Desayuno + Casita)">Mixto (Desayuno + Casita)</option>
+                </select>
+              </div>
+              <div class="form-group" style="grid-column: span 3;">
+                <label for="regExoneracion">Exoneración de Aporte Simbólico *</label>
+                <select id="regExoneracion" class="form-control">
+                  <option value="100% (Exonerado Vulnerabilidad Extrema)">100% (Exonerado Total - Extrema Pobreza / Caso
+                    Social)</option>
+                  <option value="50% (Semi-exonerado)">50% (Semi-exonerado - Vulnerabilidad Intermedia)</option>
+                  <option value="0% (Aporte Ordinario)">0% (Aporte Ordinario)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECCIÓN 3: SALUD Y EDUCACIÓN -->
+          <div style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 14px; margin-bottom: 16px;">
+            <h4
+              style="font-size:12.5px; text-transform:uppercase; color:var(--gt-blue); letter-spacing:0.5px; margin:0 0 10px 0; font-weight:700;">
+              3. Datos de Salud Base y Educación (Ficha A1 y CRED A6)
+            </h4>
+            <div class="form-grid" style="grid-template-columns: repeat(3, 1fr); gap:12px;">
+              <div class="form-group">
+                <label for="regSeguro">Tipo de Seguro *</label>
+                <select id="regSeguro" class="form-control">
+                  <option value="SIS Gratuito">SIS Gratuito</option>
+                  <option value="EsSalud">EsSalud</option>
+                  <option value="PNP / FFAA">PNP / FFAA</option>
+                  <option value="Ninguno">Ninguno</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="regCentroSalud">Centro de Salud de Referencia *</label>
+                <input type="text" id="regCentroSalud" class="form-control"
+                  placeholder="Ej. C.S. Año Nuevo / C.S. El Progreso" required>
+              </div>
+              <div class="form-group">
+                <label for="regAlergias">Alérgico a Medicamentos *</label>
+                <input type="text" id="regAlergias" class="form-control" placeholder="Ej. Ninguna o Penicilina"
+                  required>
+              </div>
+              <div class="form-group">
+                <label for="regNivelEducativo">Nivel Educativo *</label>
+                <select id="regNivelEducativo" class="form-control">
+                  <option value="Inicial">Inicial</option>
+                  <option value="Primaria">Primaria</option>
+                  <option value="Secundaria">Secundaria</option>
+                  <option value="N.A.">N.A. (Menor de 3 años)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="regGrado">Grado Escolar *</label>
+                <input type="text" id="regGrado" class="form-control" placeholder="Ej. 4 años / 1ro Primaria" required>
+              </div>
+              <div class="form-group">
+                <label for="regColegio">Nombre de la I.E. de Origen *</label>
+                <input type="text" id="regColegio" class="form-control" placeholder="Ej. I.E. 3054 / I.E. San Martín"
+                  required>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECCIÓN 4: APODERADO / CUIDADOR PRINCIPAL -->
+          <div style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 14px; margin-bottom: 16px;">
+            <h4
+              style="font-size:12.5px; text-transform:uppercase; color:var(--gt-red); letter-spacing:0.5px; margin:0 0 10px 0; font-weight:700;">
+              4. Datos del Apoderado / Cuidador Principal (Ficha A1)
+            </h4>
+            <div class="form-grid" style="grid-template-columns: repeat(3, 1fr); gap:12px;">
+              <div class="form-group">
+                <label for="regApoderado">Apellidos y Nombres *</label>
+                <input type="text" id="regApoderado" class="form-control" placeholder="Ej. Rosa Quispe Huamán" required>
+              </div>
+              <div class="form-group">
+                <label for="regApoderadoDni">DNI del Apoderado (8 dígitos) *</label>
+                <input type="text" id="regApoderadoDni" class="form-control" maxlength="8" pattern="[0-9]{8}"
+                  placeholder="41982341" required>
+              </div>
+              <div class="form-group">
+                <label for="regParentesco">Parentesco *</label>
+                <select id="regParentesco" class="form-control">
+                  <option value="Madre">Madre</option>
+                  <option value="Padre">Padre</option>
+                  <option value="Abuela">Abuela</option>
+                  <option value="Abuelo">Abuelo</option>
+                  <option value="Tía">Tía</option>
+                  <option value="Tío">Tío</option>
+                  <option value="Cuidador Legal">Cuidador Legal</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="regTelefono">Teléfono / Celular Principal *</label>
+                <input type="text" id="regTelefono" class="form-control" placeholder="987-654-321" required>
+              </div>
+              <div class="form-group" style="grid-column: span 2;">
+                <label for="regTelefonoAlt">Teléfono de Emergencia / Respaldo</label>
+                <input type="text" id="regTelefonoAlt" class="form-control"
+                  placeholder="Ej. 912-345-678 (Tía / Vecina)">
+              </div>
+            </div>
+          </div>
+
+          <!-- SECCIÓN 5: AUTORIZACIÓN DE SALIDA (ANEXO 2) -->
+          <div style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 14px; margin-bottom: 16px;">
+            <h4
+              style="font-size:12.5px; text-transform:uppercase; color:var(--text-main); letter-spacing:0.5px; margin:0 0 10px 0; font-weight:700;">
+              5. Autorización de Salida y Personas de Retiro (Anexo 2)
+            </h4>
+            <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap:12px;">
+              <div class="form-group">
+                <label for="regRetiroAcomp1">Persona Autorizada 1 (Nombre, DNI, Parentesco, Teléfono) *</label>
+                <input type="text" id="regRetiroAcomp1" class="form-control"
+                  placeholder="Ej. Rosa Quispe Huamán - DNI 41982341 (Madre) - Tel 987654321" required>
+              </div>
+              <div class="form-group">
+                <label for="regRetiroAcomp2">Persona Autorizada 2 (Opcional)</label>
+                <input type="text" id="regRetiroAcomp2" class="form-control"
+                  placeholder="Ej. Carlos Flores - DNI 09823412 (Padre) - Tel 976112445">
+              </div>
+            </div>
+          </div>
+
+          <!-- SECCIÓN 6: CONSENTIMIENTO INFORMADO LEY 29733 (FICHA A3) Y FIRMA -->
+          <div>
+            <h4
+              style="font-size:12.5px; text-transform:uppercase; color:var(--gt-green); letter-spacing:0.5px; margin:0 0 8px 0; font-weight:700;">
+              6. Consentimiento Informado Ley N.° 29733 y Firma Digital (Ficha A3)
+            </h4>
+            <div
+              style="background:var(--surface-hover); border:1px solid var(--border-subtle); padding:12px; border-radius:6px; margin-bottom:12px; font-size:12px; line-height:1.5;">
+              <div style="font-weight:700; color:var(--text-main); margin-bottom:8px;">Marque las autorizaciones
+                expresas otorgadas por el apoderado:</div>
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <label style="display:flex; align-items:flex-start; gap:8px; cursor:pointer;">
+                  <input type="checkbox" id="checkHistorialVida" checked style="margin-top:2px;">
+                  <span><strong>Evaluación social e historias de vida:</strong> Autoriza el uso de información familiar
+                    para elaboración de reseñas, historias de vida y seguimiento (Art. 13, num. 5 y 6 Ley 29733).</span>
+                </label>
+                <label style="display:flex; align-items:flex-start; gap:8px; cursor:pointer;">
+                  <input type="checkbox" id="checkFotoVideo" checked style="margin-top:2px;">
+                  <span><strong>Uso institucional de fotografía y video:</strong> Autoriza el uso de imágenes con fines
+                    institucionales, educativos y rendición de cuentas en plataformas oficiales (Art. 13, num. 5 Ley
+                    29733).</span>
+                </label>
+                <label style="display:flex; align-items:flex-start; gap:8px; cursor:pointer;">
+                  <input type="checkbox" id="checkDonaciones" checked style="margin-top:2px;">
+                  <span><strong>Gestión de donaciones y recaudación:</strong> Autoriza el uso de reportes e historias
+                    para sostenibilidad del proyecto y rendición a donantes (Art. 13, num. 5 y 6 Ley 29733).</span>
+                </label>
+                <label style="display:flex; align-items:flex-start; gap:8px; cursor:pointer;">
+                  <input type="checkbox" id="checkTransfronterizo" checked style="margin-top:2px;">
+                  <span><strong>Transferencia internacional (Flujo Transfronterizo):</strong> Autoriza la transferencia
+                    de datos y reportes a la cooperante Kinderwerk Lima e.V. (Alemania) con garantías de seguridad
+                    técnica (Art. 13, num. 5 y 6 Ley 29733).</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Canvas de Firma Digital -->
+            <div>
+              <label
+                style="font-size:12.5px; font-weight:700; color:var(--text-main); display:block; margin-bottom:6px;">
+                Firma Digital del Apoderado *
+              </label>
+              <div class="canvas-signature-wrap" style="height:120px;">
+                <canvas id="canvasSignature"></canvas>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+                <span style="font-size:11.5px; color:var(--text-dim);">Dibuje la firma con el mouse o puntero táctil
+                  para validar la inscripción.</span>
+                <button type="button" class="btn-action" style="padding:4px 10px; font-size:11.5px;"
+                  onclick="clearSignatureCanvas()">Limpiar Firma</button>
+              </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-action" onclick="closeModalNuevoMenor()">Cancelar</button>
+        <button type="submit" class="btn-action primary">Guardar Ficha de Inscripción</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL: EXPEDIENTE INTEGRAL DEL BENEFICIARIO (6 SECCIONES CON SIDEBAR)
+       ========================================== -->
+  <div class="modal-backdrop" id="modalExpediente">
+    <div class="modal-box modal-box-expediente">
+      <div class="modal-header"
+        style="padding: 16px 22px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; background: var(--surface-1);">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div
+            style="width: 38px; height: 38px; border-radius: 8px; background: rgba(0, 180, 148, 0.12); border: 1px solid var(--gt-green-border); display: flex; align-items: center; justify-content: center; color: var(--gt-green);">
+            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5zm6-10.125a1.875 1.875 0 11-3.75 0 1.875 1.875 0 013.75 0zm1.294 6.336a6.721 6.721 0 01-3.17.789 6.721 6.721 0 01-3.168-.789 3.376 3.376 0 016.338 0z" />
+            </svg>
+          </div>
+          <div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <h3 id="modalExpedienteTitle"
+                style="margin:0; font-size:16.5px; font-weight: 700; color: var(--text-main);">Expediente Integral del
+                Beneficiario</h3>
+            </div><span id="expEditingBadge" class="badge badge-yellow"
+              style="display:none; font-size:11px; margin-top:2px;">Modo Edición Habilitado</span><span
+              style="font-size:12px; color:var(--text-dim);">Historial Unificado de Filiación, Salud CRED, Escolaridad,
+              Entorno Familiar, Ley 29733 y Pastoral ASP</span>
+          </div>
+        </div>
+        <button type="button" class="btn-close-modal" onclick="closeModalExpediente()" title="Cerrar ventana">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body-split">
+        <!-- Sidebar de Navegación Lateral con Iconos -->
+        <aside class="expediente-sidebar">
+          <div class="expediente-sidebar-label">Secciones del Expediente</div>
+
+          <button type="button" class="modal-tab-btn expediente-nav-item active" data-tab="tab-identidad">
+            <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5zm6-10.125a1.875 1.875 0 11-3.75 0 1.875 1.875 0 013.75 0zm1.294 6.336a6.721 6.721 0 01-3.17.789 6.721 6.721 0 01-3.168-.789 3.376 3.376 0 016.338 0z" />
+            </svg>
+            <span>1. Identidad</span>
+          </button>
+
+          <button type="button" class="modal-tab-btn expediente-nav-item" data-tab="tab-salud">
+            <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+            </svg>
+            <span>2. Salud CRED</span>
+          </button>
+
+          <button type="button" class="modal-tab-btn expediente-nav-item" data-tab="tab-escolar">
+            <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
+            </svg>
+            <span>3. Escolaridad</span>
+          </button>
+
+          <button type="button" class="modal-tab-btn expediente-nav-item" data-tab="tab-apoderado">
+            <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+            </svg>
+            <span>4. Familia y Retiro</span>
+          </button>
+
+          <button type="button" class="modal-tab-btn expediente-nav-item" data-tab="tab-consentimiento">
+            <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+            </svg>
+            <span>5. Ley N.° 29733</span>
+          </button>
+
+          <button type="button" class="modal-tab-btn expediente-nav-item" data-tab="tab-asp">
+            <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-16.5-.52l-.568.083A2.25 2.25 0 003 7.74v8.261a2.25 2.25 0 001.682 2.187l.568.142m16.5-13.36l.568.083A2.25 2.25 0 0124 7.74v8.261a2.25 2.25 0 01-1.682 2.187l-.568.142" />
+            </svg>
+            <span>6. Social ASP</span>
+          </button>
+        </aside>
+
+        <!-- Contenedor de Contenido de la Sección Activa -->
+        <div class="expediente-content-area">
+
+          <!-- SECCIÓN 1: IDENTIDAD CON FOTO DEL MENOR / ADOLESCENTE -->
+          <div class="modal-tab-pane" id="tab-identidad">
+            <div class="child-identity-layout">
+
+              <!-- Carnet Fotográfico del Menor -->
+              <div class="child-photo-card">
+                <div class="child-photo-frame" id="expChildPhotoFrame">
+                  <!-- SVG Avatar o Foto Dinámica -->
+                </div>
+                <div style="width:100%;">
+                  <span class="badge badge-green"
+                    style="font-size:11px; display:inline-block; margin-bottom:4px;">Beneficiario Activo</span>
+                  <div id="expPhotoName"
+                    style="font-size:13.5px; font-weight:700; color:var(--text-main); line-height:1.3;"></div>
+                  <div id="expPhotoCode"
+                    style="font-size:11.5px; font-family:var(--mono-font); color:var(--gt-green); font-weight:700; margin-top:2px;">
+                  </div>
+                  <div id="expPhotoMeta" style="font-size:11.5px; color:var(--text-dim); margin-top:3px;"></div>
+                </div>
+                <div style="border-top:1px dashed var(--border-subtle); width:100%; padding-top:8px; margin-top:4px;">
+                  <label for="childPhotoInput" class="btn-action"
+                    style="font-size:11px; padding:5px 8px; width:100%; justify-content:center; cursor:pointer;">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                      <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+                    </svg>
+                    <span>Actualizar Foto</span>
+                  </label>
+                  <input type="file" id="childPhotoInput" accept="image/*" style="display:none;">
+                </div>
+              </div>
+
+              <!-- Formulario de Datos Normativos -->
+              <div style="flex:1;">
+                <div class="form-grid" style="grid-template-columns: repeat(2, 1fr); gap:12px;">
+                  <div class="form-group">
+                    <label>Código Correlativo:</label>
+                    <input type="text" class="form-control" id="expCodigo" readonly
+                      style="font-family: var(--mono-font); font-weight: bold; color: var(--gt-green);">
+                  </div>
+                  <div class="form-group">
+                    <label>DNI del Menor:</label>
+                    <input type="text" class="form-control" id="expDni" readonly>
+                  </div>
+                  <div class="form-group">
+                    <label>Nombres Completos:</label>
+                    <input type="text" class="form-control" id="expNombres" readonly>
+                  </div>
+                  <div class="form-group">
+                    <label>Apellidos:</label>
+                    <input type="text" class="form-control" id="expApellidos" readonly>
+                  </div>
+                  <div class="form-group">
+                    <label>Fecha de Nacimiento:</label>
+                    <input type="text" class="form-control" id="expFechaNac" readonly>
+                  </div>
+                  <div class="form-group">
+                    <label>Edad y Sexo:</label>
+                    <input type="text" class="form-control" id="expEdad" readonly>
+                  </div>
+                  <div class="form-group" style="grid-column: span 2;">
+                    <label>Dirección Actual Domiciliaria:</label>
+                    <input type="text" class="form-control" id="expDireccion" readonly>
+                  </div>
+                  <div class="form-group" style="grid-column: span 2;">
+                    <label>Referencia de Ubicación:</label>
+                    <input type="text" class="form-control" id="expReferencia" readonly>
+                  </div>
+                  <div class="form-group">
+                    <label>Distrito y Sede:</label>
+                    <input type="text" class="form-control" id="expDistritoSede" readonly>
+                  </div>
+                  <div class="form-group">
+                    <label>Exoneración de Aporte:</label>
+                    <input type="text" class="form-control" id="expExoneracion" readonly
+                      style="color:var(--gt-yellow); font-weight:700;">
+                  </div>
+                  <div class="form-group" style="grid-column: span 2;">
+                    <label>Modalidad y Estrategia:</label>
+                    <input type="text" class="form-control" id="expModalidadEstrategia" readonly>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- SECCIÓN 2: SALUD CRED -->
+          <div class="modal-tab-pane" id="tab-salud" style="display: none;">
+            <div class="form-grid" style="grid-template-columns: repeat(3, 1fr); gap:12px;">
+              <div class="form-group">
+                <label>Tipo de Seguro:</label>
+                <input type="text" class="form-control" id="expSeguro" readonly>
+              </div>
+              <div class="form-group">
+                <label>Centro de Salud de Referencia:</label>
+                <input type="text" class="form-control" id="expCentroSalud" readonly>
+              </div>
+              <div class="form-group">
+                <label>Alergias a Medicamentos:</label>
+                <input type="text" class="form-control" id="expAlergias" readonly
+                  style="color:var(--gt-red); font-weight:700;">
+              </div>
+              <div class="form-group">
+                <label>Antropometría (Peso / Talla):</label>
+                <input type="text" class="form-control" id="expPesoTalla" readonly>
+              </div>
+              <div class="form-group">
+                <label>Dosaje de Hemoglobina y Estado:</label>
+                <input type="text" class="form-control" id="expHb" readonly
+                  style="color:var(--gt-green); font-weight:700;">
+              </div>
+              <div class="form-group">
+                <label>Canasta Alimentaria:</label>
+                <input type="text" class="form-control" id="expCanasta" readonly>
+              </div>
+              <div class="form-group" style="grid-column: span 3;">
+                <label>Orientación Familiar en Nutrición:</label>
+                <input type="text" class="form-control" id="expOrientacion" readonly>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECCIÓN 3: ESCOLARIDAD -->
+          <div class="modal-tab-pane" id="tab-escolar" style="display: none;">
+            <div class="form-grid" style="grid-template-columns: repeat(2, 1fr); gap:12px;">
+              <div class="form-group">
+                <label>Nivel y Grado Escolar:</label>
+                <input type="text" class="form-control" id="expGrado" readonly>
+              </div>
+              <div class="form-group">
+                <label>Institución Educativa (I.E.):</label>
+                <input type="text" class="form-control" id="expColegio" readonly>
+              </div>
+              <div class="form-group">
+                <label>Monitoreo de Asistencia (Casitas):</label>
+                <input type="text" class="form-control" id="expAsistencia" readonly>
+              </div>
+              <div class="form-group">
+                <label>Entrega de Materiales y Kits:</label>
+                <input type="text" class="form-control" id="expKits" readonly>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECCIÓN 4: ENTORNO FAMILIAR Y RETIRO SEGURO CON FOTOS (ANEXO 2) -->
+          <div class="modal-tab-pane" id="tab-apoderado" style="display: none;">
+            <!-- Datos del Apoderado Principal -->
+            <div
+              style="background:var(--surface-1); border:1px solid var(--border-subtle); border-radius:10px; padding:16px; margin-bottom:18px;">
+              <div
+                style="display:flex; align-items:center; gap:8px; margin-bottom:12px; border-bottom:1px solid var(--border-subtle); padding-bottom:8px;">
+                <svg width="18" height="18" fill="none" stroke="var(--gt-green)" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                </svg>
+                <h4 style="margin:0; font-size:13.5px; font-weight:700; color:var(--text-main);">Apoderado(a) Principal
+                  Titular</h4>
+              </div>
+              <div class="form-grid" style="grid-template-columns: repeat(3, 1fr); gap:12px;">
+                <div class="form-group">
+                  <label>Nombres y Apellidos:</label>
+                  <input type="text" class="form-control" id="expApoderadoNombre" readonly>
+                </div>
+                <div class="form-group">
+                  <label>Parentesco:</label>
+                  <input type="text" class="form-control" id="expApoderadoParentesco" readonly>
+                </div>
+                <div class="form-group">
+                  <label>DNI del Apoderado:</label>
+                  <input type="text" class="form-control" id="expApoderadoDni" readonly>
+                </div>
+                <div class="form-group">
+                  <label>Teléfono Principal:</label>
+                  <input type="text" class="form-control" id="expApoderadoTel" readonly>
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                  <label>Teléfono Alternativo / Emergencia:</label>
+                  <input type="text" class="form-control" id="expTelefonoAlt" readonly>
+                </div>
+              </div>
+            </div>
+
+            <!-- Padrón de Personas Autorizadas para Retiro con Fotografía -->
+            <div style="border-top:1px solid var(--border-subtle); padding-top:14px;">
+              <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:10px;">
+                <div>
+                  <label
+                    style="font-size:13px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:8px;">
+                    <svg width="18" height="18" fill="none" stroke="var(--gt-green)" stroke-width="2"
+                      viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                    </svg>
+                    <span>Padrón de Personas Autorizadas para el Retiro del Menor (Anexo 2)</span>
+                  </label>
+                  <span style="font-size:11.5px; color:var(--text-dim); display:block; margin-top:2px;">
+                    Control biométrico visual y cotejo de DNI obligatorio para la entrega segura del menor al término de
+                    actividades.
+                  </span>
+                </div>
+                <span class="badge badge-green" style="font-size:11px; white-space:nowrap;">Padrón Vigente 2026</span>
+              </div>
+
+              <div id="expRetiroPadronContainer" class="retiro-padron-grid">
+                <!-- Tarjetas con foto de cada persona autorizada generadas dinámicamente -->
+              </div>
+            </div>
+          </div>
+
+          <!-- SECCIÓN 5: CONSENTIMIENTO LEY 29733 -->
+          <div class="modal-tab-pane" id="tab-consentimiento" style="display: none;">
+            <div style="font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px;">
+              Conforme a la <strong>Ley N.° 29733 (Ley de Protección de Datos Personales)</strong> y su Reglamento D.S.
+              N.° 016-2024-JUS, el apoderado otorgó las autorizaciones expresas para la atención integral y
+              sostenibilidad institucional:
+            </div>
+            <div id="expConsentimientoChecksContainer"></div>
+          </div>
+
+          <!-- SECCIÓN 6: SOCIAL PASTORAL ASP -->
+          <div class="modal-tab-pane" id="tab-asp" style="display: none;">
+            <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:14px;">
+              <div class="form-group">
+                <label>Puntaje de Vulnerabilidad Socioeconómica (0-100):</label>
+                <input type="text" class="form-control" id="expVulnerabilidad" readonly
+                  style="font-weight:700; color:var(--gt-yellow);">
+              </div>
+              <div class="form-group">
+                <label>Intervención Social Pastoral:</label>
+                <input type="text" class="form-control" value="Seguimiento Domiciliario y Soporte Integral" readonly>
+              </div>
+            </div>
+            <label style="font-size:12px; font-weight:700; color:var(--text-main); display:block; margin-bottom:6px;">
+              Ficha de Derivación de Caso Social (ASP):
+            </label>
+            <div id="expCasoSocialDetail"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="modal-footer modal-footer-pinned"
+        style="padding: 12px 22px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; background: var(--surface-1);">
+        <div>
+          <!-- Botón Eliminar: solo visible y permitido para Coordinador General o Admin TI -->
+          <button type="button" class="btn-action danger" id="btnDeleteBeneficiario"
+            onclick="deleteBeneficiarioExpediente()" title="Dar de baja definitiva al menor (Solo Dirección / Admin)">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+            </svg>
+            <span>Dar de Baja</span>
+          </button>
+        </div>
+
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <!-- Botón Editar Datos -->
+          <button type="button" class="btn-action" id="btnToggleEditExp" onclick="toggleEditExpediente()">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+            </svg>
+            <span>Editar Datos</span>
+          </button>
+
+          <!-- Botón Guardar Cambios -->
+          <button type="button" class="btn-action primary" id="btnSaveExpChanges" style="display: none;"
+            onclick="saveExpedienteChanges()">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+            <span>Guardar Cambios</span>
+          </button>
+
+          <button type="button" class="btn-action" onclick="closeModalExpediente()">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cargador Universal: ES Modules bajo HTTP y Bundle directo bajo file:/// -->
+  <script>
+    if (window.location.protocol === "file:") {
+      document.write('<script src="./js/bundle.js"><\/script>');
+    } else {
+      document.write('<script type="module" src="./js/app.js"><\/script>');
+    }
+  </script>
+</body>
+
+</html>
