@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/pdi-mvc/index.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/pdi-mvc/$1"
+    }
+  ]
+}
