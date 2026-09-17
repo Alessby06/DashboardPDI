@@ -10,6 +10,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Sistema PDI: Asociación Cultural Johannes Gutenberg (MVC)</title>
+  <link rel="icon" type="image/png" href="./assets/jg-icon.png">
+  <link rel="apple-touch-icon" href="./assets/jg-icon.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,6 +32,9 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <div class="app-shell">
+    <!-- Mobile Sidebar Backdrop Overlay -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
     <!-- Sidebar Navigation -->
     <aside class="sidebar" id="appSidebar">
       <div>
@@ -135,11 +140,11 @@
           <div class="role-selector-wrap">
             <label for="roleSelector">Rol Activo:</label>
             <select class="role-select" id="roleSelector">
-              <option value="coord">Coordinador(a) General (Vista Completa)</option>
-              <option value="facilitadora">Facilitadora Comunitaria (Comedor / CRED)</option>
-              <option value="promotora">Promotora Educativa (Casitas del Saber)</option>
-              <option value="social">Trabajadora Social (ASP / Casos Críticos)</option>
-              <option value="admin">Administrador TI (Auditoría / Cumplimiento)</option>
+              <option value="coord">Coordinador(a) General</option>
+              <option value="facilitadora">Facilitadora Comunitaria</option>
+              <option value="promotora">Promotora Educativa</option>
+              <option value="social">Trabajadora Social</option>
+              <option value="admin">Administrador TI</option>
             </select>
           </div>
 
@@ -185,12 +190,12 @@
         </div>
 
         <!-- ==========================================
-             VIEW 0: DASHBOARD EJECUTIVO
+             VIEW 0: DASHBOARD GENERAL
              ========================================== -->
         <section class="app-view active" id="view-dashboard">
           <div class="view-header">
             <div class="view-title-group">
-              <h2>Dashboard Directivo: "PDI"</h2>
+              <h2>Dashboard General</h2>
               <p>Métricas consolidadas de cobertura alimentaria, acompañamiento pedagógico y salud infantil en Comas y
                 Carabayllo.</p>
             </div>
@@ -340,7 +345,8 @@
 
           <!-- Beneficiaries Table Card -->
           <div class="card" id="cardPadronBeneficiarios">
-            <div class="table-container">
+            <!-- Vista de Tabla para Escritorio / Desktop -->
+            <div class="table-container desktop-table-view">
               <table class="data-table" id="tablaBeneficiarios">
                 <thead>
                   <tr>
@@ -358,6 +364,11 @@
                   <!-- Injected via JS -->
                 </tbody>
               </table>
+            </div>
+
+            <!-- Vista de Tarjetas Acordeón para Dispositivos Móviles / Smartphones -->
+            <div class="mobile-accordion-list" id="mobileCardsBeneficiarios">
+              <!-- Injected via JS -->
             </div>
           </div>
         </section>
@@ -381,7 +392,7 @@
                 <div class="card-title">Historial de Evaluaciones CRED por Menor</div>
                 <span class="badge badge-yellow">Fórmula Oficial MINSA</span>
               </div>
-              <div class="table-container">
+              <div class="table-container desktop-table-view">
                 <table class="data-table">
                   <thead>
                     <tr>
@@ -398,6 +409,9 @@
                     <!-- Injected via JS -->
                   </tbody>
                 </table>
+              </div>
+              <div class="mobile-accordion-list" id="mobileCardsSalud">
+                <!-- Injected via JS -->
               </div>
             </div>
 
@@ -462,15 +476,15 @@
               <div class="card-title">Pase de Asistencia Rápida y Verificación de Salida</div>
               <div style="font-size: 13px; color: var(--text-muted);">Sede: Casita del Saber: Año Nuevo (Comas)</div>
             </div>
-            <div class="table-container">
+            <div class="table-container desktop-table-view">
               <table class="data-table">
                 <thead>
                   <tr>
                     <th>Menor</th>
                     <th>Grado Escolar</th>
                     <th>Colegio de Origen</th>
+                    <th>Personas Acreditadas de Salida</th>
                     <th>Estado Hoy</th>
-                    <th>Personas Acreditadas de Salida </th>
                     <th style="text-align: right;">Marcar Asistencia</th>
                   </tr>
                 </thead>
@@ -478,6 +492,9 @@
                   <!-- Injected via JS -->
                 </tbody>
               </table>
+            </div>
+            <div class="mobile-accordion-list" id="mobileCardsCasita">
+              <!-- Injected via JS -->
             </div>
           </div>
         </section>
@@ -675,7 +692,7 @@
           </div>
 
           <div class="card">
-            <div class="table-container">
+            <div class="table-container desktop-table-view">
               <table class="data-table">
                 <thead>
                   <tr>
@@ -691,6 +708,9 @@
                   <!-- Injected via JS -->
                 </tbody>
               </table>
+            </div>
+            <div class="mobile-accordion-list" id="mobileCardsAuditoria">
+              <!-- Injected via JS -->
             </div>
           </div>
         </section>

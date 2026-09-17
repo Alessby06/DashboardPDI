@@ -39,6 +39,9 @@ export const AppController = {
     // 4. Configurar escuchadores de navegación
     this.bindNavigation();
 
+    // 4.1 Configurar botón menú lateral (hamburguesa) y responsive backdrop
+    this.bindSidebar();
+
     // 5. Configurar selector de rol
     this.bindRoleSelector();
 
@@ -193,9 +196,62 @@ export const AppController = {
         const viewId = btn.getAttribute("data-view");
         if (viewId && !btn.classList.contains("role-restricted")) {
           this.navigateToView(viewId);
+          this.closeSidebar();
         }
       });
     });
+  },
+
+  bindSidebar() {
+    const toggleBtn = document.getElementById("btnSidebarToggle");
+    const backdrop = document.getElementById("sidebarBackdrop");
+    const sidebar = document.getElementById("appSidebar");
+
+    if (toggleBtn && sidebar) {
+      toggleBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.toggleSidebar();
+      });
+    }
+
+    if (backdrop) {
+      backdrop.addEventListener("click", () => {
+        this.closeSidebar();
+      });
+    }
+
+    // Cerrar con tecla Escape en caso de estar abierto en móvil
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        this.closeSidebar();
+      }
+    });
+  },
+
+  toggleSidebar() {
+    const sidebar = document.getElementById("appSidebar");
+    const backdrop = document.getElementById("sidebarBackdrop");
+    if (!sidebar) return;
+
+    const isOpen = sidebar.classList.toggle("open");
+    if (backdrop) {
+      if (isOpen) {
+        backdrop.classList.add("active");
+      } else {
+        backdrop.classList.remove("active");
+      }
+    }
+  },
+
+  closeSidebar() {
+    const sidebar = document.getElementById("appSidebar");
+    const backdrop = document.getElementById("sidebarBackdrop");
+    if (sidebar && sidebar.classList.contains("open")) {
+      sidebar.classList.remove("open");
+    }
+    if (backdrop && backdrop.classList.contains("active")) {
+      backdrop.classList.remove("active");
+    }
   },
 
   bindRoleSelector() {

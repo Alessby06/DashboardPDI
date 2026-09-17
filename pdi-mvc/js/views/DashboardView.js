@@ -111,18 +111,84 @@ export const DashboardView = {
 
   renderAuditLogs(logs) {
     const tbody = document.getElementById("tbodyAuditLogs");
-    if (!tbody) return;
+    const mobileContainer = document.getElementById("mobileCardsAuditoria");
 
-    tbody.innerHTML = logs.map(l => `
-      <tr>
-        <td style="font-family:var(--mono-font); font-size:12px; color:var(--text-dim);">${l.timestamp}</td>
-        <td><strong>${l.user}</strong><div style="font-size:11px; color:var(--text-muted);">${l.role}</div></td>
-        <td><span class="badge badge-blue">${l.action}</span></td>
-        <td><code style="font-family:var(--mono-font);">${l.entity}</code></td>
-        <td style="font-size:12px;">${l.detail}</td>
-        <td><span class="badge badge-green">${l.status}</span></td>
-      </tr>
-    `).join("");
+    if (tbody) {
+      tbody.innerHTML = logs.map(l => `
+        <tr>
+          <td style="font-family:var(--mono-font); font-size:12px; color:var(--text-dim);">${l.timestamp}</td>
+          <td><strong>${l.user}</strong><div style="font-size:11px; color:var(--text-muted);">${l.role}</div></td>
+          <td><span class="badge badge-blue">${l.action}</span></td>
+          <td><code style="font-family:var(--mono-font);">${l.entity}</code></td>
+          <td style="font-size:12px;">${l.detail}</td>
+          <td><span class="badge badge-green">${l.status}</span></td>
+        </tr>
+      `).join("");
+    }
+
+    if (mobileContainer) {
+      mobileContainer.innerHTML = logs.map((l, index) => `
+        <div class="mobile-card-item" id="mobile-audit-${index}">
+          <!-- Cabecera: ID (Timestamp) + Badge Estado -->
+          <div class="datacard-header">
+            <div class="datacard-id">
+              <span>REG:</span> ${l.timestamp}
+            </div>
+            <div class="datacard-header-right">
+              <span class="badge badge-green">${l.status}</span>
+            </div>
+          </div>
+
+          <!-- Cuerpo: Datos principales siempre visibles -->
+          <div class="datacard-body">
+            <div class="datacard-row">
+              <span class="datacard-label">Acción Registrada</span>
+              <span class="datacard-value"><span class="badge badge-blue">${l.action}</span></span>
+            </div>
+            <div class="datacard-row">
+              <span class="datacard-label">Entidad Afectada</span>
+              <span class="datacard-value" style="color:var(--gt-green); font-weight:700;">${l.entity}</span>
+            </div>
+
+            <!-- Bloque Desplegable "Ver más" -->
+            <div class="datacard-extra" id="extra-audit-${index}">
+              <div class="datacard-row">
+                <span class="datacard-label">Usuario Responsable</span>
+                <span class="datacard-value">${l.user}</span>
+              </div>
+              <div class="datacard-row">
+                <span class="datacard-label">Perfil / Rol</span>
+                <span class="datacard-value">${l.role}</span>
+              </div>
+              <div class="datacard-row" style="flex-direction:column; align-items:flex-start; gap:6px;">
+                <span class="datacard-label">Detalle de la Operación</span>
+                <span class="datacard-value" style="text-align:left; font-size:12.5px; font-weight:500; color:var(--text-muted);">${l.detail}</span>
+              </div>
+            </div>
+
+            <!-- Botón Ver más / Ver menos -->
+            <button type="button" class="datacard-toggle-btn" id="btnToggleAudit-${index}" onclick="window.PDI ? window.PDI.DashboardView.toggleAuditCard(${index}) : DashboardView.toggleAuditCard(${index})">
+              <span class="btn-text">Ver más</span>
+              <svg fill="none" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      `).join("");
+    }
+  },
+
+  toggleAuditCard(index) {
+    const card = document.getElementById(`mobile-audit-${index}`);
+    const btn = document.getElementById(`btnToggleAudit-${index}`);
+    if (card) {
+      const isExp = card.classList.toggle("expanded");
+      if (btn) {
+        const textSpan = btn.querySelector(".btn-text");
+        if (textSpan) textSpan.textContent = isExp ? "Ver menos" : "Ver más";
+      }
+    }
   }
 };
 

@@ -126,6 +126,170 @@
       background: var(--surface-hover);
     }
 
+    /* Mobile Cards Accordion (Modo Móvil/Celulares) */
+    .mobile-accordion-list {
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Data Card estilo Beezlebub (Enterprise Mobile UX) */
+    .mobile-card-item {
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .datacard-header {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--surface-2);
+    }
+
+    .datacard-id {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .datacard-id span {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .datacard-header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .datacard-more-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+
+    .datacard-more-btn:hover {
+      background: var(--surface-hover);
+      color: var(--text-main);
+    }
+
+    .datacard-body {
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .datacard-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 13.5px;
+      gap: 12px;
+    }
+
+    .datacard-row:last-child {
+      border-bottom: none;
+    }
+
+    .datacard-label {
+      color: var(--text-muted);
+      font-weight: 500;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .datacard-value {
+      color: var(--text-main);
+      font-weight: 600;
+      text-align: right;
+      word-break: break-word;
+    }
+
+    /* Bloque expandible para "Ver más" / "View more" */
+    .datacard-extra {
+      display: none;
+      flex-direction: column;
+      animation: fadeInDataCard 0.25s ease-out;
+    }
+
+    .mobile-card-item.expanded .datacard-extra {
+      display: flex;
+    }
+
+    @keyframes fadeInDataCard {
+      from { opacity: 0; transform: translateY(-3px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .datacard-toggle-btn {
+      width: 100%;
+      padding: 11px 16px;
+      background: var(--surface-1);
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      color: var(--gt-green);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.15s ease, color 0.15s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .datacard-toggle-btn:hover {
+      background: var(--surface-hover);
+    }
+
+    .datacard-toggle-btn svg {
+      width: 15px;
+      height: 15px;
+      stroke: currentColor;
+      transition: transform 0.2s ease;
+    }
+
+    .mobile-card-item.expanded .datacard-toggle-btn svg {
+      transform: rotate(180deg);
+    }
+
+    .datacard-actions-footer {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border-subtle);
+      background: var(--surface-2);
+    }
+
+    /* Detección Responsiva para Celulares / Pantallas Menores a 768px */
+    @media (max-width: 768px) {
+      .desktop-table-view {
+        display: none !important;
+      }
+      .mobile-accordion-list {
+        display: flex !important;
+      }
+    }
+
     /* Badges & Pills */
     .badge {
       display: inline-flex;
@@ -142,6 +306,54 @@
     .badge-yellow { background: var(--gt-yellow-bg); color: var(--gt-yellow); border: 1px solid var(--gt-yellow-border); }
     .badge-blue { background: var(--gt-blue-bg); color: var(--gt-blue); border: 1px solid var(--gt-blue-border); }
     .badge-red { background: var(--gt-red-bg); color: var(--gt-red); border: 1px solid var(--gt-red-border); }
+    .badge-orange { background: rgba(249, 115, 22, 0.14); color: #f97316; border: 1px solid rgba(249, 115, 22, 0.35); }
+
+    /* Botones de Asistencia Reactivos (PC y Móvil) */
+    .btn-asist {
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+      background: var(--surface-2);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .btn-asist:hover {
+      background: var(--surface-hover);
+      color: var(--text-main);
+    }
+
+    .btn-asist.active-P {
+      background: var(--gt-green);
+      color: #ffffff !important;
+      border-color: var(--gt-green);
+      box-shadow: 0 2px 6px rgba(0, 180, 148, 0.35);
+    }
+
+    .btn-asist.active-T {
+      background: var(--gt-yellow);
+      color: #1e1b18 !important;
+      border-color: var(--gt-yellow);
+      box-shadow: 0 2px 6px rgba(245, 158, 11, 0.35);
+    }
+
+    .btn-asist.active-FJ {
+      background: #f97316;
+      color: #ffffff !important;
+      border-color: #f97316;
+      box-shadow: 0 2px 6px rgba(249, 115, 22, 0.35);
+    }
+
+    .btn-asist.active-FI {
+      background: var(--gt-red);
+      color: #ffffff !important;
+      border-color: var(--gt-red);
+      box-shadow: 0 2px 6px rgba(239, 68, 68, 0.35);
+    }
 
     .badge-danger { background: var(--status-danger-bg); color: var(--status-danger); border: 1px solid var(--status-danger-border); }
     .badge-warning { background: var(--status-warning-bg); color: var(--status-warning); border: 1px solid var(--status-warning-border); }

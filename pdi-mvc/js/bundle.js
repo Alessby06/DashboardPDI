@@ -1,12 +1,3 @@
-/* ==========================================================================
-   SISTEMA DE GESTIÓN INTEGRAL PDI - ASOCIACIÓN CULTURAL JOHANNES GUTENBERG
-   PRODUCCIÓN BUNDLE JS (DISTRIBUCIÓN MODULAR UNIFICADA)
-   ========================================================================== */
-
-
-/* --- Module: models/BeneficiarioModel.js --- */
-// Modelo de Beneficiarios (Padrón de Menores PDI)
-// Incorpora el 100% de los campos oficiales de las Fichas A0, A1, A2, A3, A6 CRED y ASP
 
 const defaultBeneficiarios = [
   {
@@ -908,7 +899,7 @@ const BeneficiarioModel = {
     const list = this.getAll();
     if (!query || query.trim() === "") return list;
     const q = query.toLowerCase().trim();
-    return list.filter(b => 
+    return list.filter(b =>
       b.nombres.toLowerCase().includes(q) ||
       b.apellidos.toLowerCase().includes(q) ||
       b.codigo.toLowerCase().includes(q) ||
@@ -1145,10 +1136,10 @@ const AuditModel = {
 
   log(user, role, action, entity, detail, status = "Válido") {
     const now = new Date();
-    const timestamp = now.getFullYear() + "-" + 
-      String(now.getMonth() + 1).padStart(2, '0') + "-" + 
-      String(now.getDate()).padStart(2, '0') + " " + 
-      String(now.getHours()).padStart(2, '0') + ":" + 
+    const timestamp = now.getFullYear() + "-" +
+      String(now.getMonth() + 1).padStart(2, '0') + "-" +
+      String(now.getDate()).padStart(2, '0') + " " +
+      String(now.getHours()).padStart(2, '0') + ":" +
       String(now.getMinutes()).padStart(2, '0');
 
     const entry = { timestamp, user, role, action, entity, detail, status };
@@ -1221,14 +1212,14 @@ const DashboardView = {
         </div>
       `;
     }
-    
+
     const anemiaContainer = document.getElementById("dashAnemiaBars");
     if (anemiaContainer) {
       const C = 251.32;
       const sNormal = (stats.pctNormal / 100) * C;
       const sLeve = (stats.pctLeve / 100) * C;
       const sMod = (stats.pctMod / 100) * C;
-      
+
       anemiaContainer.innerHTML = `
         <div style="display: flex; align-items: center; justify-content: space-around; gap: 20px; flex-wrap: wrap; padding: 6px 0;">
           <div style="position: relative; width: 140px; height: 140px; flex-shrink: 0;">
@@ -1278,18 +1269,84 @@ const DashboardView = {
 
   renderAuditLogs(logs) {
     const tbody = document.getElementById("tbodyAuditLogs");
-    if (!tbody) return;
+    const mobileContainer = document.getElementById("mobileCardsAuditoria");
 
-    tbody.innerHTML = logs.map(l => `
-      <tr>
-        <td style="font-family:var(--mono-font); font-size:12px; color:var(--text-dim);">${l.timestamp}</td>
-        <td><strong>${l.user}</strong><div style="font-size:11px; color:var(--text-muted);">${l.role}</div></td>
-        <td><span class="badge badge-blue">${l.action}</span></td>
-        <td><code style="font-family:var(--mono-font);">${l.entity}</code></td>
-        <td style="font-size:12px;">${l.detail}</td>
-        <td><span class="badge badge-green">${l.status}</span></td>
-      </tr>
-    `).join("");
+    if (tbody) {
+      tbody.innerHTML = logs.map(l => `
+        <tr>
+          <td style="font-family:var(--mono-font); font-size:12px; color:var(--text-dim);">${l.timestamp}</td>
+          <td><strong>${l.user}</strong><div style="font-size:11px; color:var(--text-muted);">${l.role}</div></td>
+          <td><span class="badge badge-blue">${l.action}</span></td>
+          <td><code style="font-family:var(--mono-font);">${l.entity}</code></td>
+          <td style="font-size:12px;">${l.detail}</td>
+          <td><span class="badge badge-green">${l.status}</span></td>
+        </tr>
+      `).join("");
+    }
+
+    if (mobileContainer) {
+      mobileContainer.innerHTML = logs.map((l, index) => `
+        <div class="mobile-card-item" id="mobile-audit-${index}">
+          <!-- Cabecera: ID (Timestamp) + Badge Estado -->
+          <div class="datacard-header">
+            <div class="datacard-id">
+              <span>REG:</span> ${l.timestamp}
+            </div>
+            <div class="datacard-header-right">
+              <span class="badge badge-green">${l.status}</span>
+            </div>
+          </div>
+
+          <!-- Cuerpo: Datos principales siempre visibles -->
+          <div class="datacard-body">
+            <div class="datacard-row">
+              <span class="datacard-label">Acción Registrada</span>
+              <span class="datacard-value"><span class="badge badge-blue">${l.action}</span></span>
+            </div>
+            <div class="datacard-row">
+              <span class="datacard-label">Entidad Afectada</span>
+              <span class="datacard-value" style="color:var(--gt-green); font-weight:700;">${l.entity}</span>
+            </div>
+
+            <!-- Bloque Desplegable "Ver más" -->
+            <div class="datacard-extra" id="extra-audit-${index}">
+              <div class="datacard-row">
+                <span class="datacard-label">Usuario Responsable</span>
+                <span class="datacard-value">${l.user}</span>
+              </div>
+              <div class="datacard-row">
+                <span class="datacard-label">Perfil / Rol</span>
+                <span class="datacard-value">${l.role}</span>
+              </div>
+              <div class="datacard-row" style="flex-direction:column; align-items:flex-start; gap:6px;">
+                <span class="datacard-label">Detalle de la Operación</span>
+                <span class="datacard-value" style="text-align:left; font-size:12.5px; font-weight:500; color:var(--text-muted);">${l.detail}</span>
+              </div>
+            </div>
+
+            <!-- Botón Ver más / Ver menos -->
+            <button type="button" class="datacard-toggle-btn" id="btnToggleAudit-${index}" onclick="window.PDI ? window.PDI.DashboardView.toggleAuditCard(${index}) : DashboardView.toggleAuditCard(${index})">
+              <span class="btn-text">Ver más</span>
+              <svg fill="none" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      `).join("");
+    }
+  },
+
+  toggleAuditCard(index) {
+    const card = document.getElementById(`mobile-audit-${index}`);
+    const btn = document.getElementById(`btnToggleAudit-${index}`);
+    if (card) {
+      const isExp = card.classList.toggle("expanded");
+      if (btn) {
+        const textSpan = btn.querySelector(".btn-text");
+        if (textSpan) textSpan.textContent = isExp ? "Ver menos" : "Ver más";
+      }
+    }
   }
 };
 
@@ -1304,29 +1361,112 @@ if (typeof window !== "undefined") {
 const BeneficiariosView = {
   renderTable(beneficiarios) {
     const tbody = document.getElementById("tbodyBeneficiarios");
-    if (!tbody) return;
+    const mobileContainer = document.getElementById("mobileCardsBeneficiarios");
 
     const badgeTotal = document.getElementById("badgeTotalBeneficiarios");
     if (badgeTotal) badgeTotal.textContent = beneficiarios.length;
 
-    tbody.innerHTML = beneficiarios.map(b => `
-      <tr>
-        <td><strong style="font-family:var(--mono-font); color:var(--gt-green);">${b.codigo}</strong></td>
-        <td><strong>${b.nombres} ${b.apellidos}</strong></td>
-        <td>${b.dni}</td>
-        <td>${b.edad} / ${b.sexo}</td>
-        <td>${b.distrito}: ${b.sede}</td>
-        <td>
-          ${b.servicios.map(s => `<span class="badge badge-blue" style="margin-right:4px;">${s}</span>`).join("")}
-        </td>
-        <td><span class="badge badge-green">${b.estado}</span></td>
-        <td style="text-align: right;">
-          <button type="button" class="btn-action" onclick="window.openExpediente ? window.openExpediente(${b.id}) : window.app.beneficiarioController.openExpediente(${b.id})">
-            Ver Expediente
-          </button>
-        </td>
-      </tr>
-    `).join("");
+    // 1. Renderizar tabla tradicional para pantallas grandes (Desktop)
+    if (tbody) {
+      tbody.innerHTML = beneficiarios.map(b => `
+        <tr>
+          <td><strong style="font-family:var(--mono-font); color:var(--gt-green);">${b.codigo}</strong></td>
+          <td><strong>${b.nombres} ${b.apellidos}</strong></td>
+          <td>${b.dni}</td>
+          <td>${b.edad} / ${b.sexo}</td>
+          <td>${b.distrito}: ${b.sede}</td>
+          <td>
+            ${b.servicios.map(s => `<span class="badge badge-blue" style="margin-right:4px;">${s}</span>`).join("")}
+          </td>
+          <td><span class="badge badge-green">${b.estado}</span></td>
+          <td style="text-align: right;">
+            <button type="button" class="btn-action" onclick="window.openExpediente ? window.openExpediente(${b.id}) : window.app.beneficiarioController.openExpediente(${b.id})">
+              Ver Expediente
+            </button>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    // 2. Renderizar lista de tarjetas Data Card para teléfonos móviles (Patrón Beezlebub)
+    if (mobileContainer) {
+      mobileContainer.innerHTML = beneficiarios.map(b => `
+        <div class="mobile-card-item" id="mobile-card-${b.id}">
+          <!-- Cabecera: ID + Badge Estado -->
+          <div class="datacard-header">
+            <div class="datacard-id">
+              <span>ID:</span> ${b.codigo}
+            </div>
+            <div class="datacard-header-right">
+              <span class="badge badge-green">${b.estado}</span>
+            </div>
+          </div>
+
+          <!-- Cuerpo: Datos principales siempre visibles -->
+          <div class="datacard-body">
+            <div class="datacard-row">
+              <span class="datacard-label">Nombre del Menor</span>
+              <span class="datacard-value">${b.nombres} ${b.apellidos}</span>
+            </div>
+            <div class="datacard-row">
+              <span class="datacard-label">DNI / Documento</span>
+              <span class="datacard-value">${b.dni}</span>
+            </div>
+            <div class="datacard-row">
+              <span class="datacard-label">Distrito / Sede</span>
+              <span class="datacard-value">${b.distrito}: ${b.sede}</span>
+            </div>
+
+            <!-- Bloque Desplegable "Ver más" -->
+            <div class="datacard-extra" id="extra-card-${b.id}">
+              <div class="datacard-row">
+                <span class="datacard-label">Edad / Sexo</span>
+                <span class="datacard-value">${b.edad} / ${b.sexo}</span>
+              </div>
+              <div class="datacard-row">
+                <span class="datacard-label">Servicios Activos</span>
+                <span class="datacard-value" style="display:flex; flex-wrap:wrap; gap:4px; justify-content:flex-end;">
+                  ${b.servicios.map(s => `<span class="badge badge-blue">${s}</span>`).join("")}
+                </span>
+              </div>
+              <div class="datacard-row">
+                <span class="datacard-label">Seguro de Salud</span>
+                <span class="datacard-value">${b.seguro || 'SIS Gratuito'}</span>
+              </div>
+              <div class="datacard-actions-footer">
+                <button type="button" class="btn-action primary" style="width:100%; justify-content:center;" onclick="event.stopPropagation(); window.openExpediente ? window.openExpediente(${b.id}) : window.app.beneficiarioController.openExpediente(${b.id})">
+                  <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:6px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  Ver Expediente Completo
+                </button>
+              </div>
+            </div>
+
+            <!-- Botón Ver más / Ver menos -->
+            <button type="button" class="datacard-toggle-btn" id="btnToggleCard-${b.id}" onclick="window.PDI ? window.PDI.BeneficiariosView.toggleCard(${b.id}) : BeneficiariosView.toggleCard(${b.id})">
+              <span class="btn-text">Ver más</span>
+              <svg fill="none" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      `).join("");
+    }
+  },
+
+  toggleCard(id) {
+    const card = document.getElementById(`mobile-card-${id}`);
+    const btn = document.getElementById(`btnToggleCard-${id}`);
+    if (card) {
+      const isExp = card.classList.toggle("expanded");
+      if (btn) {
+        const textSpan = btn.querySelector(".btn-text");
+        if (textSpan) textSpan.textContent = isExp ? "Ver menos" : "Ver más";
+      }
+    }
   }
 };
 
@@ -1369,18 +1509,192 @@ if (typeof window !== "undefined") {
 }
 
 
+/* --- Module: views/CasitasView.js --- */
+// Vista: Acompañamiento Educativo (Casita del Saber)
+const CasitasView = {
+  renderTable(beneficiarios) {
+    const tbody = document.getElementById("tbodyAsistenciaCasita");
+    const mobileContainer = document.getElementById("mobileCardsCasita");
+
+    const casitaList = beneficiarios.filter(b => b.servicios.includes("Casita del Saber"));
+
+    if (tbody) {
+      tbody.innerHTML = casitaList.map(b => `
+        <tr>
+          <td><strong>${b.nombres} ${b.apellidos}</strong><div style="font-size:11px; color:var(--text-dim);">${b.codigo}</div></td>
+          <td>${b.grado}</td>
+          <td>${b.colegio}</td>
+          <td>
+            <div style="font-weight:600; color:var(--text-main);">${b.apoderado}</div>
+            <div style="font-size:11.5px; color:var(--text-muted);">${b.parentesco} &bull; ${b.telefono || 'Sin tel'}</div>
+          </td>
+          <td>
+            <span class="badge badge-green" id="badgeAsist_${b.id}">Presente</span>
+          </td>
+          <td style="text-align: right;">
+            <div style="display: inline-flex; gap: 4px;" id="btnGroupAsist_${b.id}">
+              <button type="button" class="btn-asist active-P" data-asist-btn="P" onclick="window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'P') : CasitasController.toggleAsistencia(${b.id}, 'P')">P</button>
+              <button type="button" class="btn-asist" data-asist-btn="T" onclick="window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'T') : CasitasController.toggleAsistencia(${b.id}, 'T')">T</button>
+              <button type="button" class="btn-asist" data-asist-btn="FJ" onclick="window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'FJ') : CasitasController.toggleAsistencia(${b.id}, 'FJ')">FJ</button>
+              <button type="button" class="btn-asist" data-asist-btn="FI" onclick="window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'FI') : CasitasController.toggleAsistencia(${b.id}, 'FI')">FI</button>
+            </div>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    if (mobileContainer) {
+      mobileContainer.innerHTML = casitaList.map(b => `
+        <div class="mobile-card-item" id="mobile-casita-${b.id}">
+          <!-- Cabecera: ID + Badge Asistencia -->
+          <div class="datacard-header">
+            <div class="datacard-id">
+              <span>ID:</span> ${b.codigo}
+            </div>
+            <div class="datacard-header-right">
+              <span class="badge badge-green" id="badgeAsistMob_${b.id}">Presente</span>
+            </div>
+          </div>
+
+          <!-- Cuerpo: Datos principales y Botonera Rápida -->
+          <div class="datacard-body">
+            <div class="datacard-row">
+              <span class="datacard-label">Menor Beneficiario</span>
+              <span class="datacard-value">${b.nombres} ${b.apellidos}</span>
+            </div>
+            <div class="datacard-row">
+              <span class="datacard-label">Apoderado Autorizado</span>
+              <span class="datacard-value">${b.apoderado} <span style="color:var(--text-muted); font-size:11.5px;">(${b.parentesco})</span></span>
+            </div>
+
+            <!-- Botonera de Asistencia Rápida -->
+            <div style="padding: 10px 16px; border-bottom: 1px solid var(--border-subtle); background: var(--surface-2);">
+              <div style="font-size: 11px; font-weight: 800; color: var(--text-dim); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.04em;">
+                Marcar Asistencia Hoy:
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;" id="btnGroupMobAsist_${b.id}">
+                <button type="button" class="btn-asist active-P" data-asist-btn="P" onclick="event.stopPropagation(); window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'P') : CasitasController.toggleAsistencia(${b.id}, 'P')">P</button>
+                <button type="button" class="btn-asist" data-asist-btn="T" onclick="event.stopPropagation(); window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'T') : CasitasController.toggleAsistencia(${b.id}, 'T')">T</button>
+                <button type="button" class="btn-asist" data-asist-btn="FJ" onclick="event.stopPropagation(); window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'FJ') : CasitasController.toggleAsistencia(${b.id}, 'FJ')">FJ</button>
+                <button type="button" class="btn-asist" data-asist-btn="FI" onclick="event.stopPropagation(); window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'FI') : CasitasController.toggleAsistencia(${b.id}, 'FI')">FI</button>
+              </div>
+            </div>
+
+            <!-- Bloque Desplegable "Ver más" -->
+            <div class="datacard-extra" id="extra-casita-${b.id}">
+              <div class="datacard-row">
+                <span class="datacard-label">Grado Escolar</span>
+                <span class="datacard-value">${b.grado}</span>
+              </div>
+              <div class="datacard-row">
+                <span class="datacard-label">Colegio de Origen</span>
+                <span class="datacard-value">${b.colegio}</span>
+              </div>
+              <div class="datacard-row">
+                <span class="datacard-label">Sede Casita</span>
+                <span class="datacard-value">${b.distrito} - ${b.sede}</span>
+              </div>
+              <div class="datacard-row">
+                <span class="datacard-label">Teléfono de Salida</span>
+                <span class="datacard-value">${b.telefono || 'Sin registro'}</span>
+              </div>
+            </div>
+
+            <!-- Botón Ver más / Ver menos -->
+            <button type="button" class="datacard-toggle-btn" id="btnToggleCasita-${b.id}" onclick="window.PDI ? window.PDI.CasitasView.toggleCard(${b.id}) : CasitasView.toggleCard(${b.id})">
+              <span class="btn-text">Ver más</span>
+              <svg fill="none" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      `).join("");
+    }
+  },
+
+  toggleCard(id) {
+    const card = document.getElementById(`mobile-casita-${id}`);
+    const btn = document.getElementById(`btnToggleCasita-${id}`);
+    if (card) {
+      const isExp = card.classList.toggle("expanded");
+      if (btn) {
+        const textSpan = btn.querySelector(".btn-text");
+        if (textSpan) textSpan.textContent = isExp ? "Ver menos" : "Ver más";
+      }
+    }
+  }
+};
+
+const CasitasController = {
+  toggleAsistencia(id, estado) {
+    const config = {
+      "P": { label: "Presente", badgeClass: "badge badge-green", activeClass: "active-P" },
+      "T": { label: "Tardanza", badgeClass: "badge badge-yellow", activeClass: "active-T" },
+      "FJ": { label: "Falta Justificada", badgeClass: "badge badge-orange", activeClass: "active-FJ" },
+      "FI": { label: "Falta Injustificada", badgeClass: "badge badge-red", activeClass: "active-FI" }
+    };
+
+    const target = config[estado] || config["P"];
+
+    const badgeDesk = document.getElementById(`badgeAsist_${id}`);
+    if (badgeDesk) {
+      badgeDesk.textContent = target.label;
+      badgeDesk.className = target.badgeClass;
+    }
+
+    const badgeMob = document.getElementById(`badgeAsistMob_${id}`);
+    if (badgeMob) {
+      badgeMob.textContent = target.label;
+      badgeMob.className = target.badgeClass;
+    }
+
+    const btnGroupDesk = document.getElementById(`btnGroupAsist_${id}`);
+    if (btnGroupDesk) {
+      btnGroupDesk.querySelectorAll("button").forEach(btn => {
+        btn.className = "btn-asist";
+        if (btn.getAttribute("data-asist-btn") === estado) {
+          btn.classList.add(target.activeClass);
+        }
+      });
+    }
+
+    const btnGroupMob = document.getElementById(`btnGroupMobAsist_${id}`);
+    if (btnGroupMob) {
+      btnGroupMob.querySelectorAll("button").forEach(btn => {
+        btn.className = "btn-asist";
+        if (btn.getAttribute("data-asist-btn") === estado) {
+          btn.classList.add(target.activeClass);
+        }
+      });
+    }
+
+    const toast = window.PDI?.ToastView || ToastView;
+    if (toast && toast.show) {
+      toast.show("Asistencia Actualizada", `${target.label} registrado para el menor ID ${id}`, "info");
+    }
+  }
+};
+
+if (typeof window !== "undefined") {
+  window.PDI = window.PDI || {};
+  window.PDI.CasitasView = CasitasView;
+  window.PDI.CasitasController = CasitasController;
+}
+
+
 /* --- Module: views/ModalView.js --- */
 
-    // Generadores de Avatares Biométricos SVG para Niños y Adultos Autorizados
-    function getChildAvatarSvg(sex, name) {
-      const isFemale = (sex === 'F');
-      const bgColor = isFemale ? "#2a152f" : "#002b23";
-      const accent = isFemale ? "#d946ef" : "#00b494";
-      const skin = isFemale ? "#f0b88c" : "#e5a676";
-      const hair = "#1e1b18";
+// Generadores de Avatares Biométricos SVG para Niños y Adultos Autorizados
+function getChildAvatarSvg(sex, name) {
+  const isFemale = (sex === 'F');
+  const bgColor = isFemale ? "#2a152f" : "#002b23";
+  const accent = isFemale ? "#d946ef" : "#00b494";
+  const skin = isFemale ? "#f0b88c" : "#e5a676";
+  const hair = "#1e1b18";
 
-      if (!isFemale) {
-        return `<svg viewBox="0 0 120 120" width="100%" height="100%">
+  if (!isFemale) {
+    return `<svg viewBox="0 0 120 120" width="100%" height="100%">
           <rect width="120" height="120" rx="10" fill="${bgColor}"/>
           <circle cx="60" cy="52" r="26" fill="${skin}"/>
           <path d="M34 46 C34 30, 44 22, 60 22 C76 22, 86 30, 86 46 C80 40, 72 38, 60 38 C48 38, 40 40, 34 46 Z" fill="${hair}"/>
@@ -1391,8 +1705,8 @@ if (typeof window !== "undefined") {
           <path d="M30 120 C30 92, 45 84, 60 84 C75 84, 90 92, 90 120 Z" fill="${accent}"/>
           <polygon points="60,84 52,98 68,98" fill="#ffffff" opacity="0.9"/>
         </svg>`;
-      } else {
-        return `<svg viewBox="0 0 120 120" width="100%" height="100%">
+  } else {
+    return `<svg viewBox="0 0 120 120" width="100%" height="100%">
           <rect width="120" height="120" rx="10" fill="${bgColor}"/>
           <circle cx="60" cy="52" r="26" fill="${skin}"/>
           <path d="M32 50 C30 26, 44 20, 60 20 C76 20, 90 26, 88 50 C88 68, 84 76, 82 82 C78 72, 78 50, 78 40 C66 42, 54 42, 42 40 C42 50, 42 72, 38 82 C36 76, 32 68, 32 50 Z" fill="${hair}"/>
@@ -1405,18 +1719,18 @@ if (typeof window !== "undefined") {
           <path d="M28 120 C28 92, 44 84, 60 84 C76 84, 92 92, 92 120 Z" fill="${accent}"/>
           <path d="M50 84 Q60 94 70 84" fill="#ffffff" opacity="0.9"/>
         </svg>`;
-      }
-    }
+  }
+}
 
-    function getAdultAvatarSvg(parentesco, name) {
-      const isFemale = /madre|mama|mamá|tia|tía|abuela|hermana/i.test(parentesco || "");
-      const bgColor = isFemale ? "#241829" : "#131b2e";
-      const accent = isFemale ? "#f472b6" : "#38bdf8";
-      const skin = isFemale ? "#e8ab80" : "#d99b6e";
-      const hair = "#1e1b18";
+function getAdultAvatarSvg(parentesco, name) {
+  const isFemale = /madre|mama|mamá|tia|tía|abuela|hermana/i.test(parentesco || "");
+  const bgColor = isFemale ? "#241829" : "#131b2e";
+  const accent = isFemale ? "#f472b6" : "#38bdf8";
+  const skin = isFemale ? "#e8ab80" : "#d99b6e";
+  const hair = "#1e1b18";
 
-      if (!isFemale) {
-        return `<svg viewBox="0 0 100 100" width="100%" height="100%">
+  if (!isFemale) {
+    return `<svg viewBox="0 0 100 100" width="100%" height="100%">
           <rect width="100" height="100" rx="8" fill="${bgColor}"/>
           <circle cx="50" cy="42" r="21" fill="${skin}"/>
           <path d="M30 38 C30 24, 40 18, 50 18 C60 18, 70 24, 70 38 C64 33, 56 32, 50 32 C44 32, 36 33, 30 38 Z" fill="${hair}"/>
@@ -1429,8 +1743,8 @@ if (typeof window !== "undefined") {
           <path d="M22 100 C22 76, 36 70, 50 70 C64 70, 78 76, 78 100 Z" fill="${accent}"/>
           <polygon points="50,70 44,82 56,82" fill="#ffffff" opacity="0.9"/>
         </svg>`;
-      } else {
-        return `<svg viewBox="0 0 100 100" width="100%" height="100%">
+  } else {
+    return `<svg viewBox="0 0 100 100" width="100%" height="100%">
           <rect width="100" height="100" rx="8" fill="${bgColor}"/>
           <circle cx="50" cy="42" r="21" fill="${skin}"/>
           <path d="M28 42 C26 22, 38 16, 50 16 C62 16, 74 22, 72 42 C72 58, 68 64, 66 68 C64 56, 64 40, 64 32 C54 34, 46 34, 36 32 C36 40, 36 56, 34 68 C32 64, 28 58, 28 42 Z" fill="${hair}"/>
@@ -1445,8 +1759,8 @@ if (typeof window !== "undefined") {
           <path d="M20 100 C20 76, 35 70, 50 70 C65 70, 80 76, 80 100 Z" fill="${accent}"/>
           <path d="M42 70 Q50 80 58 70" fill="#ffffff" opacity="0.9"/>
         </svg>`;
-      }
-    }
+  }
+}
 
 // Vista: Modales (Expediente Integral, Registro Nuevo Menor, Informe Ejecutivo)
 // Muestra el 100% de los datos de todas las fichas oficiales del PDI
@@ -1454,7 +1768,7 @@ const ModalView = {
   openExpediente(b, caso) {
     if (!b) return;
 
-        ModalView._currentId = b.id;
+    ModalView._currentId = b.id;
     ModalView.isEditing = false;
 
     const editBtn = document.getElementById("btnToggleEditExp");
@@ -1581,7 +1895,7 @@ const ModalView = {
       const lista = (b.retiroPadron && b.retiroPadron.length > 0)
         ? b.retiroPadron
         : [{ nombre: b.apoderado, dni: b.apoderadoDni || '41982341', parentesco: b.parentesco || 'Madre', telefono: b.telefono }];
-      
+
       retiroPadronContainer.innerHTML = lista.map((p, idx) => {
         const avatarSvg = getAdultAvatarSvg(p.parentesco, p.nombre);
         return `
@@ -1676,8 +1990,8 @@ const ModalView = {
     }
   },
 
-  
-    toggleEdit() {
+
+  toggleEdit() {
     this.isEditing = !this.isEditing;
     const editBtn = document.getElementById("btnToggleEditExp");
     const saveBtn = document.getElementById("btnSaveExpChanges");
@@ -2169,6 +2483,9 @@ const AppController = {
     // 4. Configurar escuchadores de navegación
     this.bindNavigation();
 
+    // 4.1 Configurar botón menú lateral (hamburguesa) y responsive backdrop
+    this.bindSidebar();
+
     // 5. Configurar selector de rol
     this.bindRoleSelector();
 
@@ -2323,9 +2640,62 @@ const AppController = {
         const viewId = btn.getAttribute("data-view");
         if (viewId && !btn.classList.contains("role-restricted")) {
           this.navigateToView(viewId);
+          this.closeSidebar();
         }
       });
     });
+  },
+
+  bindSidebar() {
+    const toggleBtn = document.getElementById("btnSidebarToggle");
+    const backdrop = document.getElementById("sidebarBackdrop");
+    const sidebar = document.getElementById("appSidebar");
+
+    if (toggleBtn && sidebar) {
+      toggleBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.toggleSidebar();
+      });
+    }
+
+    if (backdrop) {
+      backdrop.addEventListener("click", () => {
+        this.closeSidebar();
+      });
+    }
+
+    // Cerrar con tecla Escape en caso de estar abierto en móvil
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        this.closeSidebar();
+      }
+    });
+  },
+
+  toggleSidebar() {
+    const sidebar = document.getElementById("appSidebar");
+    const backdrop = document.getElementById("sidebarBackdrop");
+    if (!sidebar) return;
+
+    const isOpen = sidebar.classList.toggle("open");
+    if (backdrop) {
+      if (isOpen) {
+        backdrop.classList.add("active");
+      } else {
+        backdrop.classList.remove("active");
+      }
+    }
+  },
+
+  closeSidebar() {
+    const sidebar = document.getElementById("appSidebar");
+    const backdrop = document.getElementById("sidebarBackdrop");
+    if (sidebar && sidebar.classList.contains("open")) {
+      sidebar.classList.remove("open");
+    }
+    if (backdrop && backdrop.classList.contains("active")) {
+      backdrop.classList.remove("active");
+    }
   },
 
   bindRoleSelector() {

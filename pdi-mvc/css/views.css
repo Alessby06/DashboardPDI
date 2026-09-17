@@ -298,23 +298,39 @@
 
 
     /* Responsive */
+    .sidebar-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 45;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
     @media (max-width: 900px) {
       .sidebar {
         position: fixed;
         left: 0;
         top: 0;
         bottom: 0;
+        z-index: 50;
         transform: translateX(-100%);
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
       }
       .sidebar.open {
         transform: translateX(0);
       }
-      .btn-menu-toggle {
+      .sidebar-backdrop.active {
         display: block;
+        opacity: 1;
       }
-      .spotlight-presenter-bar {
-        left: 20px;
-        right: 20px;
+      .btn-menu-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
       }
     }
 

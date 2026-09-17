@@ -3,8 +3,8 @@ import socketserver
 import webbrowser
 import os
 import sys
+import socket
 
-PORT = 8000
 DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
 class Handler(http.server.SimpleHTTPRequestHandler):
@@ -15,9 +15,23 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
         super().end_headers()
 
+class ReusableTCPServer(socketserver.TCPServer):
+    allow_reuse_address = True
+
+def get_free_port(start_port=8000, max_attempts=50):
+    for port in range(start_port, start_port + max_attempts):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            try:
+                s.bind(("", port))
+                return port
+            except OSError:
+                continue
+    return start_port
+
 if __name__ == '__main__':
-    with socketserver.TCPServer(("", PORT), Handler) as httpd:
-        url = f"http://localhost:{PORT}/index.html"
+    port = get_free_port(8000)
+    with ReusableTCPServer(("", port), Handler) as httpd:
+        url = f"http://localhost:{port}/index.html"
         print("=" * 65)
         print("  SISTEMA PDI: ASOCIACION CULTURAL JOHANNES GUTENBERG")
         print("  Arquitectura MVC Modular Iniciada")
