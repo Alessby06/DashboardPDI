@@ -1660,13 +1660,6 @@ const DashboardView = {
     this.renderAuditLogs(auditLogs);
   },
 
-  _auditSearchQuery: "",
-  _auditCurrentPage: 1,
-  _auditPageSize: 10,
-  _customDateSpecific: "",
-  _customDateRangeStart: "",
-  _customDateRangeEnd: "",
-
   renderAuditLogs(logs) {
     this._currentAuditLogs = logs || [];
     this.updateAuditKpis(this._currentAuditLogs);
@@ -1683,7 +1676,8 @@ const DashboardView = {
     if (sensEl) {
       const sensibles = logs.filter(l => 
         (l.action && l.action.toLowerCase().includes("derivaci")) || 
-        (l.detail && l.detail.toLowerCase().includes("demuna"))
+        (l.detail && l.detail.toLowerCase().includes("demuna")) ||
+        (l.status && l.status.toLowerCase().includes("sensible"))
       );
       sensEl.textContent = sensibles.length;
     }
@@ -1698,48 +1692,194 @@ const DashboardView = {
     }
   },
 
-  filterByAction(actionType) {
-    this._selectedAuditAction = actionType;
-    this._auditCurrentPage = 1;
-    const items = document.querySelectorAll("#dropdownAuditAction .custom-dropdown-item");
-    items.forEach(it => {
-      if (it.getAttribute("data-value") === actionType) {
-        it.classList.add("selected");
-        const labelEl = document.getElementById("labelAuditAction");
-        if (labelEl) {
-          const clone = it.cloneNode(true);
-          const badge = clone.querySelector(".badge");
-          if (badge) badge.remove();
-          labelEl.textContent = clone.textContent.trim();
-        }
+  _currentAuditLogs: [],
+  _auditSearchQuery: "",
+  _filterAuditAction: [], // array de acciones seleccionadas (vacío = todas)
+  _filterAuditDate: "all", // "all" | "today" | "week" | "specific" | "range"
+  _filterAuditRole: [],   // array de roles seleccionados (vacío = todos)
+  _filterAuditStatus: [], // array de estados seleccionados (vacío = todos)
+  _customDateSpecific: "",
+  _customDateRangeStart: "",
+  _customDateRangeEnd: "",
+  _auditCurrentPage: 1,
+  _auditPageSize: 10,
+
+  toggleInnerDropdown(dropdownId) {
+    const dropdown = document.getElementById(dropdownId);
+    if (!dropdown) return;
+    const isCurrentlyOpen = dropdown.classList.contains("open");
+    // Cerrar otros dropdowns internos abiertos
+    document.querySelectorAll(".padron-inner-dropdown.open").forEach(d => {
+      if (d !== dropdown) d.classList.remove("open");
+    });
+    dropdown.classList.toggle("open", !isCurrentlyOpen);
+  },
+
+  toggleAction(val) {
+    const allActions = ["salud", "social", "educativo", "padron"];
+    if (val === "all") {
+      this._filterAuditAction = [];
+    } else {
+      const idx = this._filterAuditAction.indexOf(val);
+      if (idx > -1) {
+        this._filterAuditAction.splice(idx, 1);
       } else {
-        it.classList.remove("selected");
+        this._filterAuditAction.push(val);
+      }
+      if (allActions.every(a => this._filterAuditAction.includes(a))) {
+        this._filterAuditAction = [];
+      }
+    }
+    this._updateActionDropdownUI();
+    this._auditCurrentPage = 1;
+    this.applyAuditFilters();
+  },
+
+  _updateActionDropdownUI() {
+    const isAll = this._filterAuditAction.length === 0;
+    const items = document.querySelectorAll("#menuAuditAction .padron-dropdown-item");
+    items.forEach(item => {
+      const v = item.getAttribute("data-value");
+      if (v === "all") {
+        item.classList.toggle("selected", isAll);
+      } else {
+        item.classList.toggle("selected", !isAll && this._filterAuditAction.includes(v));
       }
     });
-    this.updateActiveFiltersBadge();
-    this.applyAuditFilters();
+
+    const labelEl = document.getElementById("labelAuditActionSelect");
+    if (labelEl) {
+      if (isAll) {
+        labelEl.textContent = "Todos los Eventos";
+      } else if (this._filterAuditAction.length === 1) {
+        const a = this._filterAuditAction[0];
+        if (a === "salud") labelEl.textContent = "Salud y Nutrición CRED";
+        else if (a === "social") labelEl.textContent = "Derivación Social ASP";
+        else if (a === "educativo") labelEl.textContent = "Casitas del Saber CS";
+        else if (a === "padron") labelEl.textContent = "Padrón / Coordinación";
+      } else {
+        labelEl.textContent = `${this._filterAuditAction.length} seleccionados`;
+      }
+    }
   },
 
-  filterByRole(role) {
-    this._selectedAuditRole = role;
-    this._auditCurrentPage = 1;
-    this.updateActiveFiltersBadge();
-    this.applyAuditFilters();
-  },
+  selectDate(dateKey, label) {
+    this._filterAuditDate = dateKey || "all";
+    const items = document.querySelectorAll("#menuAuditDate .padron-dropdown-item");
+    items.forEach(item => {
+      item.classList.toggle("selected", item.getAttribute("data-value") === this._filterAuditDate);
+    });
 
-  filterByDate(dateKey) {
-    this._selectedAuditDate = dateKey;
-    this._auditCurrentPage = 1;
+    const labelEl = document.getElementById("labelAuditDateSelect");
+    if (labelEl) {
+      labelEl.textContent = label || "Todas las Fechas";
+    }
 
-    // Conmutar visibilidad de paneles interactivos de fecha
+    // Conmutar paneles de fecha
     const panelSpecific = document.getElementById("panelAuditDateSpecific");
     const panelRange = document.getElementById("panelAuditDateRange");
-
     if (panelSpecific) panelSpecific.style.display = (dateKey === "specific") ? "flex" : "none";
     if (panelRange) panelRange.style.display = (dateKey === "range") ? "flex" : "none";
 
-    this.updateActiveFiltersBadge();
+    // Cerrar dropdown si es selección directa de fecha fija
+    if (dateKey !== "specific" && dateKey !== "range") {
+      const drop = document.getElementById("dropdownAuditDate");
+      if (drop) drop.classList.remove("open");
+    }
+
+    this._auditCurrentPage = 1;
     this.applyAuditFilters();
+  },
+
+  toggleRole(val) {
+    const allRoles = ["Coordinación", "Facilitadora", "Promotora", "Trabajadora Social"];
+    if (val === "all") {
+      this._filterAuditRole = [];
+    } else {
+      const idx = this._filterAuditRole.indexOf(val);
+      if (idx > -1) {
+        this._filterAuditRole.splice(idx, 1);
+      } else {
+        this._filterAuditRole.push(val);
+      }
+      if (allRoles.every(r => this._filterAuditRole.includes(r))) {
+        this._filterAuditRole = [];
+      }
+    }
+    this._updateRoleDropdownUI();
+    this._auditCurrentPage = 1;
+    this.applyAuditFilters();
+  },
+
+  _updateRoleDropdownUI() {
+    const isAll = this._filterAuditRole.length === 0;
+    const items = document.querySelectorAll("#menuAuditRole .padron-dropdown-item");
+    items.forEach(item => {
+      const v = item.getAttribute("data-value");
+      if (v === "all") {
+        item.classList.toggle("selected", isAll);
+      } else {
+        item.classList.toggle("selected", !isAll && this._filterAuditRole.includes(v));
+      }
+    });
+
+    const labelEl = document.getElementById("labelAuditRoleSelect");
+    if (labelEl) {
+      if (isAll) {
+        labelEl.textContent = "Todos los Roles";
+      } else if (this._filterAuditRole.length === 1) {
+        labelEl.textContent = this._filterAuditRole[0];
+      } else {
+        labelEl.textContent = `${this._filterAuditRole.length} seleccionados`;
+      }
+    }
+  },
+
+  toggleStatus(val) {
+    const allStatuses = ["Registrado", "Sensible", "Observado"];
+    if (val === "all") {
+      this._filterAuditStatus = [];
+    } else {
+      const idx = this._filterAuditStatus.indexOf(val);
+      if (idx > -1) {
+        this._filterAuditStatus.splice(idx, 1);
+      } else {
+        this._filterAuditStatus.push(val);
+      }
+      if (allStatuses.every(s => this._filterAuditStatus.includes(s))) {
+        this._filterAuditStatus = [];
+      }
+    }
+    this._updateStatusDropdownUI();
+    this._auditCurrentPage = 1;
+    this.applyAuditFilters();
+  },
+
+  _updateStatusDropdownUI() {
+    const isAll = this._filterAuditStatus.length === 0;
+    const items = document.querySelectorAll("#menuAuditStatus .padron-dropdown-item");
+    items.forEach(item => {
+      const v = item.getAttribute("data-value");
+      if (v === "all") {
+        item.classList.toggle("selected", isAll);
+      } else {
+        item.classList.toggle("selected", !isAll && this._filterAuditStatus.includes(v));
+      }
+    });
+
+    const labelEl = document.getElementById("labelAuditStatusSelect");
+    if (labelEl) {
+      if (isAll) {
+        labelEl.textContent = "Todos los Estados";
+      } else if (this._filterAuditStatus.length === 1) {
+        const s = this._filterAuditStatus[0];
+        if (s === "Registrado") labelEl.textContent = "Registrado / Conforme";
+        else if (s === "Sensible") labelEl.textContent = "Sensible / Crítico";
+        else if (s === "Observado") labelEl.textContent = "Observado / Revisión";
+      } else {
+        labelEl.textContent = `${this._filterAuditStatus.length} seleccionados`;
+      }
+    }
   },
 
   handleDatePickerChange(type, yyyyMmDd) {
@@ -1761,7 +1901,6 @@ const DashboardView = {
         this._customDateRangeEnd = yyyyMmDd;
       }
       this._auditCurrentPage = 1;
-      this.updateActiveFiltersBadge();
       this.applyAuditFilters();
     }
   },
@@ -1797,7 +1936,6 @@ const DashboardView = {
         this._customDateRangeEnd = isoDate;
       }
       this._auditCurrentPage = 1;
-      this.updateActiveFiltersBadge();
       this.applyAuditFilters();
     } else if (val.length === 0) {
       if (type === "specific") this._customDateSpecific = "";
@@ -1823,10 +1961,38 @@ const DashboardView = {
     this.filterBySearch("");
   },
 
+  removeAuditFilter(filterKey, specificVal) {
+    if (filterKey === "search") this.clearSearch();
+    if (filterKey === "action") {
+      if (specificVal) this.toggleAction(specificVal);
+      else this.toggleAction("all");
+    }
+    if (filterKey === "date") this.selectDate("all", "Todas las Fechas");
+    if (filterKey === "role") {
+      if (specificVal) this.toggleRole(specificVal);
+      else this.toggleRole("all");
+    }
+    if (filterKey === "status") {
+      if (specificVal) this.toggleStatus(specificVal);
+      else this.toggleStatus("all");
+    }
+  },
+
   resetAuditFilters() {
+    this._filterAuditAction = [];
+    this._filterAuditDate = "all";
+    this._filterAuditRole = [];
+    this._filterAuditStatus = [];
     this._customDateSpecific = "";
     this._customDateRangeStart = "";
     this._customDateRangeEnd = "";
+    this._auditSearchQuery = "";
+    this._auditCurrentPage = 1;
+
+    const input = document.getElementById("inputAuditSearch");
+    if (input) input.value = "";
+    const clearBtn = document.getElementById("btnAuditSearchClear");
+    if (clearBtn) clearBtn.style.display = "none";
 
     const spText = document.getElementById("inputAuditSpecificDate");
     const rStartText = document.getElementById("inputAuditRangeStart");
@@ -1840,94 +2006,83 @@ const DashboardView = {
     if (panelSpecific) panelSpecific.style.display = "none";
     if (panelRange) panelRange.style.display = "none";
 
-    this.selectAction("all", "Todos los Eventos");
+    this._updateActionDropdownUI();
     this.selectDate("all", "Todas las Fechas");
-    this.selectRole("all", "Todos los Roles");
+    this._updateRoleDropdownUI();
+    this._updateStatusDropdownUI();
+
+    document.querySelectorAll(".padron-inner-dropdown.open").forEach(d => d.classList.remove("open"));
+
+    this.applyAuditFilters();
   },
 
-  updateActiveFiltersBadge() {
-    let count = 0;
-    if (this._selectedAuditAction && this._selectedAuditAction !== "all") count++;
-    if (this._selectedAuditDate && this._selectedAuditDate !== "all") count++;
-    if (this._selectedAuditRole && this._selectedAuditRole !== "all") count++;
-
-    const badge = document.getElementById("auditActiveFiltersCount");
-    const filterBtn = document.getElementById("btnDropdownAuditFilterPanel");
-
-    if (badge) {
-      badge.textContent = count;
-      badge.style.display = count > 0 ? "inline-flex" : "none";
-    }
-    if (filterBtn) {
-      if (count > 0) {
-        filterBtn.classList.add("has-filters");
-      } else {
-        filterBtn.classList.remove("has-filters");
+  _matchesAuditAction(log, actionKeys) {
+    if (!actionKeys || actionKeys.length === 0) return true;
+    return actionKeys.some(actionFilter => {
+      if (actionFilter === "salud") {
+        return (log.action && (log.action.toLowerCase().includes("cred") || log.action.toLowerCase().includes("tamizaje") || log.action.toLowerCase().includes("salud")));
+      } else if (actionFilter === "social") {
+        return (log.action && (log.action.toLowerCase().includes("derivaci") || log.action.toLowerCase().includes("social") || log.action.toLowerCase().includes("caso"))) || (log.role && log.role.toLowerCase().includes("social"));
+      } else if (actionFilter === "educativo") {
+        return (log.action && (log.action.toLowerCase().includes("asistencia") || log.action.toLowerCase().includes("casita") || log.action.toLowerCase().includes("saber"))) || (log.role && log.role.toLowerCase().includes("promotora"));
+      } else if (actionFilter === "padron") {
+        return (log.action && (log.action.toLowerCase().includes("padrón") || log.action.toLowerCase().includes("aprobación") || log.action.toLowerCase().includes("menor") || log.action.toLowerCase().includes("ingreso"))) || (log.role && log.role.toLowerCase().includes("coordinaci"));
       }
+      return false;
+    });
+  },
+
+  _matchesAuditRole(log, roleKeys) {
+    if (!roleKeys || roleKeys.length === 0) return true;
+    return roleKeys.some(r => log.role && log.role.toLowerCase().includes(r.toLowerCase()));
+  },
+
+  _matchesAuditStatus(log, statusKeys) {
+    if (!statusKeys || statusKeys.length === 0) return true;
+    return statusKeys.some(s => log.status && log.status.toLowerCase().includes(s.toLowerCase()));
+  },
+
+  _matchesAuditDate(log, dateKey) {
+    if (!dateKey || dateKey === "all") return true;
+    const now = new Date();
+    const todayStr = now.toISOString().slice(0, 10);
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const logDateStr = (log.timestamp || "").slice(0, 10);
+
+    if (dateKey === "today") {
+      return logDateStr === todayStr;
+    } else if (dateKey === "week") {
+      const logDate = new Date(logDateStr);
+      return !isNaN(logDate) && logDate >= sevenDaysAgo;
+    } else if (dateKey === "specific") {
+      if (this._customDateSpecific) {
+        return logDateStr === this._customDateSpecific;
+      }
+      return true;
+    } else if (dateKey === "range") {
+      const start = this._customDateRangeStart;
+      const end = this._customDateRangeEnd;
+      if (start && end) {
+        return logDateStr >= start && logDateStr <= end;
+      } else if (start) {
+        return logDateStr >= start;
+      } else if (end) {
+        return logDateStr <= end;
+      }
+      return true;
     }
-  },
-
-  changePage(page) {
-    this._auditCurrentPage = page;
-    this.applyAuditFilters();
-  },
-
-  changePageSize(size) {
-    this._auditPageSize = Number(size) || 10;
-    this._auditCurrentPage = 1;
-    this.applyAuditFilters();
+    return true;
   },
 
   applyAuditFilters() {
     const logs = this._currentAuditLogs || [];
-    const actionFilter = this._selectedAuditAction || "all";
-    const roleFilter = this._selectedAuditRole || "all";
-    const dateFilter = this._selectedAuditDate || "all";
     const query = this._auditSearchQuery || "";
 
-    const now = new Date();
-    const todayStr = now.toISOString().slice(0, 10);
-    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-
     const filtered = logs.filter(l => {
-      let matchAction = true;
-      if (actionFilter === "salud") {
-        matchAction = (l.action && l.action.toLowerCase().includes("cred")) || (l.action && l.action.toLowerCase().includes("tamizaje"));
-      } else if (actionFilter === "social") {
-        matchAction = (l.action && l.action.toLowerCase().includes("derivaci")) || (l.role && l.role.toLowerCase().includes("social"));
-      } else if (actionFilter === "educativo") {
-        matchAction = (l.action && l.action.toLowerCase().includes("asistencia")) || (l.role && l.role.toLowerCase().includes("promotora"));
-      } else if (actionFilter === "padron") {
-        matchAction = (l.action && l.action.toLowerCase().includes("padrón")) || (l.role && l.role.toLowerCase().includes("coordinaci"));
-      }
-
-      let matchRole = true;
-      if (roleFilter !== "all") {
-        matchRole = l.role && l.role.toLowerCase().includes(roleFilter.toLowerCase());
-      }
-
-      let matchDate = true;
-      const logDateStr = (l.timestamp || "").slice(0, 10);
-      if (dateFilter === "today") {
-        matchDate = logDateStr === todayStr;
-      } else if (dateFilter === "week") {
-        const logDate = new Date(logDateStr);
-        matchDate = !isNaN(logDate) && logDate >= sevenDaysAgo;
-      } else if (dateFilter === "specific") {
-        if (this._customDateSpecific) {
-          matchDate = logDateStr === this._customDateSpecific;
-        }
-      } else if (dateFilter === "range") {
-        const start = this._customDateRangeStart;
-        const end = this._customDateRangeEnd;
-        if (start && end) {
-          matchDate = logDateStr >= start && logDateStr <= end;
-        } else if (start) {
-          matchDate = logDateStr >= start;
-        } else if (end) {
-          matchDate = logDateStr <= end;
-        }
-      }
+      let matchAction = this._matchesAuditAction(l, this._filterAuditAction);
+      let matchRole = this._matchesAuditRole(l, this._filterAuditRole);
+      let matchStatus = this._matchesAuditStatus(l, this._filterAuditStatus);
+      let matchDate = this._matchesAuditDate(l, this._filterAuditDate);
 
       let matchQuery = true;
       if (query) {
@@ -1940,9 +2095,31 @@ const DashboardView = {
         matchQuery = user.includes(query) || role.includes(query) || action.includes(query) || entity.includes(query) || detail.includes(query) || id.includes(query);
       }
 
-      return matchAction && matchRole && matchDate && matchQuery;
+      return matchAction && matchRole && matchStatus && matchDate && matchQuery;
     });
 
+    // Actualizar badge de filtros activos
+    let count = 0;
+    if (this._filterAuditAction.length > 0) count += this._filterAuditAction.length;
+    if (this._filterAuditDate !== "all") count++;
+    if (this._filterAuditRole.length > 0) count += this._filterAuditRole.length;
+    if (this._filterAuditStatus.length > 0) count += this._filterAuditStatus.length;
+
+    const badge = document.getElementById("auditActiveFiltersCount");
+    const filterBtn = document.getElementById("btnDropdownAuditFilterPanel");
+
+    if (badge) {
+      badge.textContent = count;
+      badge.style.display = count > 0 ? "inline-flex" : "none";
+    }
+    if (filterBtn) {
+      filterBtn.classList.toggle("has-filters", count > 0);
+    }
+
+    this._updateAuditFacetCounts();
+    this._renderAuditActiveChips();
+
+    // Paginación
     const totalRecords = filtered.length;
     const pageSize = this._auditPageSize || 10;
     const totalPages = Math.ceil(totalRecords / pageSize) || 1;
@@ -1956,6 +2133,176 @@ const DashboardView = {
     this.renderAuditTableAndCards(paginatedLogs);
     this.renderAuditPagination(totalRecords, startIndex, endIndex, totalPages);
     this.updateAuditKpis(filtered);
+  },
+
+  _updateAuditFacetCounts() {
+    const getFilteredExcluding = (excludeKey) => {
+      let l = [...(this._currentAuditLogs || [])];
+      if (this._auditSearchQuery) {
+        const q = this._auditSearchQuery;
+        l = l.filter(log => {
+          const user = (log.user || "").toLowerCase();
+          const role = (log.role || "").toLowerCase();
+          const action = (log.action || "").toLowerCase();
+          const entity = (log.entity || "").toLowerCase();
+          const detail = (log.detail || "").toLowerCase();
+          const id = (log.id || "").toLowerCase();
+          return user.includes(q) || role.includes(q) || action.includes(q) || entity.includes(q) || detail.includes(q) || id.includes(q);
+        });
+      }
+      if (excludeKey !== "action" && this._filterAuditAction.length > 0) {
+        l = l.filter(log => this._matchesAuditAction(log, this._filterAuditAction));
+      }
+      if (excludeKey !== "date" && this._filterAuditDate !== "all") {
+        l = l.filter(log => this._matchesAuditDate(log, this._filterAuditDate));
+      }
+      if (excludeKey !== "role" && this._filterAuditRole.length > 0) {
+        l = l.filter(log => this._matchesAuditRole(log, this._filterAuditRole));
+      }
+      if (excludeKey !== "status" && this._filterAuditStatus.length > 0) {
+        l = l.filter(log => this._matchesAuditStatus(log, this._filterAuditStatus));
+      }
+      return l;
+    };
+
+    const setFacetBadge = (badgeId, text, isZero) => {
+      const el = document.getElementById(badgeId);
+      if (!el) return;
+      el.textContent = text;
+      const parentItem = el.closest(".padron-dropdown-item");
+      if (parentItem && parentItem.getAttribute("data-value") !== "all") {
+        parentItem.classList.toggle("zero-facet", isZero);
+      }
+    };
+
+    // 1. Facetas de Tipo de Evento
+    const forAction = getFilteredExcluding("action");
+    setFacetBadge("countFacetAuditAction-all", `(${forAction.length})`, forAction.length === 0);
+    const actionsList = ["salud", "social", "educativo", "padron"];
+    actionsList.forEach(act => {
+      const c = forAction.filter(log => this._matchesAuditAction(log, [act])).length;
+      setFacetBadge(`countFacetAuditAction-${act}`, `(${c})`, c === 0);
+    });
+
+    // 2. Facetas de Periodo Temporal
+    const forDate = getFilteredExcluding("date");
+    setFacetBadge("countFacetAuditDate-all", `(${forDate.length})`, forDate.length === 0);
+    const cToday = forDate.filter(log => this._matchesAuditDate(log, "today")).length;
+    const cWeek = forDate.filter(log => this._matchesAuditDate(log, "week")).length;
+    setFacetBadge("countFacetAuditDate-today", `(${cToday})`, cToday === 0);
+    setFacetBadge("countFacetAuditDate-week", `(${cWeek})`, cWeek === 0);
+
+    // 3. Facetas de Rol del Usuario
+    const forRole = getFilteredExcluding("role");
+    setFacetBadge("countFacetAuditRole-all", `(${forRole.length})`, forRole.length === 0);
+    const rolesList = ["Coordinación", "Facilitadora", "Promotora", "Trabajadora Social"];
+    rolesList.forEach(r => {
+      const c = forRole.filter(log => this._matchesAuditRole(log, [r])).length;
+      setFacetBadge(`countFacetAuditRole-${r}`, `(${c})`, c === 0);
+    });
+
+    // 4. Facetas de Estado de Registro
+    const forStatus = getFilteredExcluding("status");
+    setFacetBadge("countFacetAuditStatus-all", `(${forStatus.length})`, forStatus.length === 0);
+    const statusesList = ["Registrado", "Sensible", "Observado"];
+    statusesList.forEach(s => {
+      const c = forStatus.filter(log => this._matchesAuditStatus(log, [s])).length;
+      setFacetBadge(`countFacetAuditStatus-${s}`, `(${c})`, c === 0);
+    });
+  },
+
+  _renderAuditActiveChips() {
+    const bar = document.getElementById("auditActiveChipsBar");
+    const list = document.getElementById("auditActiveChipsList");
+    if (!bar || !list) return;
+
+    const chips = [];
+
+    if (this._auditSearchQuery) {
+      chips.push({
+        id: "search",
+        label: `Búsqueda: "${this._auditSearchQuery}"`
+      });
+    }
+
+    if (this._filterAuditAction.length > 0) {
+      this._filterAuditAction.forEach(act => {
+        let label = act;
+        if (act === "salud") label = "Salud CRED";
+        if (act === "social") label = "Social ASP";
+        if (act === "educativo") label = "Casitas CS";
+        if (act === "padron") label = "Padrón Coord.";
+        chips.push({
+          id: "action",
+          val: act,
+          label: `Evento: ${label}`
+        });
+      });
+    }
+
+    if (this._filterAuditDate !== "all") {
+      let dateLabel = this._filterAuditDate;
+      if (this._filterAuditDate === "today") dateLabel = "Fecha: Hoy";
+      if (this._filterAuditDate === "week") dateLabel = "Fecha: Últimos 7 días";
+      if (this._filterAuditDate === "specific") dateLabel = `Fecha: ${this._customDateSpecific || "Específica"}`;
+      if (this._filterAuditDate === "range") dateLabel = `Rango: ${this._customDateRangeStart || "..."} a ${this._customDateRangeEnd || "..."}`;
+      chips.push({
+        id: "date",
+        label: dateLabel
+      });
+    }
+
+    if (this._filterAuditRole.length > 0) {
+      this._filterAuditRole.forEach(r => {
+        chips.push({
+          id: "role",
+          val: r,
+          label: `Rol: ${r}`
+        });
+      });
+    }
+
+    if (this._filterAuditStatus.length > 0) {
+      this._filterAuditStatus.forEach(s => {
+        let sLabel = s;
+        if (s === "Registrado") sLabel = "Conforme";
+        if (s === "Sensible") sLabel = "Sensible / Crítico";
+        if (s === "Observado") sLabel = "En Revisión";
+        chips.push({
+          id: "status",
+          val: s,
+          label: `Estado: ${sLabel}`
+        });
+      });
+    }
+
+    if (chips.length === 0) {
+      bar.style.display = "none";
+      list.innerHTML = "";
+    } else {
+      bar.style.display = "flex";
+      list.innerHTML = chips.map(chip => `
+        <span class="padron-chip">
+          <span>${chip.label}</span>
+          <button type="button" class="padron-chip-remove" onclick="window.removeAuditChip ? window.removeAuditChip('${chip.id}', '${chip.val || ''}') : null" title="Eliminar filtro">
+            <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </span>
+      `).join("");
+    }
+  },
+
+  changePage(page) {
+    this._auditCurrentPage = page;
+    this.applyAuditFilters();
+  },
+
+  changePageSize(size) {
+    this._auditPageSize = Number(size) || 10;
+    this._auditCurrentPage = 1;
+    this.applyAuditFilters();
   },
 
   renderAuditPagination(total, start, end, totalPages) {
@@ -1983,10 +2330,10 @@ const DashboardView = {
 
     const getActionBadgeClass = (action) => {
       const act = (action || "").toLowerCase();
-      if (act.includes("cred") || act.includes("tamizaje")) return "badge-yellow";
-      if (act.includes("derivaci")) return "badge-red";
-      if (act.includes("asistencia")) return "badge-blue";
-      if (act.includes("padrón") || act.includes("aprobación")) return "badge-green";
+      if (act.includes("cred") || act.includes("tamizaje") || act.includes("salud")) return "badge-yellow";
+      if (act.includes("derivaci") || act.includes("social")) return "badge-red";
+      if (act.includes("asistencia") || act.includes("casita")) return "badge-blue";
+      if (act.includes("padrón") || act.includes("aprobación") || act.includes("ingreso")) return "badge-green";
       return "badge-blue";
     };
 
@@ -2150,6 +2497,7 @@ const DashboardView = {
     const target = document.getElementById(dropdownId);
     const allDropdowns = document.querySelectorAll(".custom-dropdown");
     allDropdowns.forEach(d => {
+      // No cerrar dropdowns anidados ni el contenedor padre si se está abriendo un hijo
       if (d !== target && !d.contains(target) && !target?.contains(d)) {
         d.classList.remove("open");
       }
@@ -2157,57 +2505,6 @@ const DashboardView = {
     if (target) {
       target.classList.toggle("open");
     }
-  },
-
-  toggleInnerDropdown(dropdownId) {
-    const target = document.getElementById(dropdownId);
-    const container = document.getElementById("menuAuditFilterPanel");
-    if (container) {
-      container.querySelectorAll(".custom-dropdown").forEach(d => {
-        if (d !== target) d.classList.remove("open");
-      });
-    }
-    if (target) {
-      target.classList.toggle("open");
-    }
-  },
-
-  selectDate(value, label) {
-    const selectEl = document.getElementById("selectAuditDateFilter");
-    if (selectEl && selectEl.value !== value) {
-      selectEl.value = value;
-    }
-    const labelEl = document.getElementById("labelAuditDate");
-    if (labelEl) labelEl.textContent = label;
-
-    this.filterByDate(value);
-  },
-
-  selectRole(value, label) {
-    const selectEl = document.getElementById("selectAuditRoleFilter");
-    if (selectEl && selectEl.value !== value) {
-      selectEl.value = value;
-    }
-    const labelEl = document.getElementById("labelAuditRole");
-    if (labelEl) labelEl.textContent = label;
-
-    this.filterByRole(value);
-  },
-
-  selectAction(value, label) {
-    const segButtons = document.querySelectorAll("#auditActionSegmented .audit-seg-btn");
-    segButtons.forEach(btn => {
-      if (btn.getAttribute("data-value") === value) {
-        btn.classList.add("active");
-      } else {
-        btn.classList.remove("active");
-      }
-    });
-
-    const labelEl = document.getElementById("labelAuditAction");
-    if (labelEl) labelEl.textContent = label;
-
-    this.filterByAction(value);
   }
 };
 
@@ -5371,6 +5668,13 @@ window.resetAuditFilters = () => DashboardView.resetAuditFilters();
 window.toggleInnerFilterDropdown = (id) => DashboardView.toggleInnerDropdown(id);
 window.handleAuditDatePickerChange = (type, val) => DashboardView.handleDatePickerChange(type, val);
 window.handleAuditDateManualInput = (type, el) => DashboardView.handleDateManualInput(type, el);
+window.toggleAuditInnerDropdown = (id) => DashboardView.toggleInnerDropdown(id);
+window.toggleAuditAction = (val) => DashboardView.toggleAction(val);
+window.selectAuditDate = (dateKey, label) => DashboardView.selectDate(dateKey, label);
+window.toggleAuditRole = (val) => DashboardView.toggleRole(val);
+window.toggleAuditStatus = (val) => DashboardView.toggleStatus(val);
+window.removeAuditChip = (filterKey, specificVal) => DashboardView.removeAuditFilter(filterKey, specificVal);
+window.resetAuditFilters = () => DashboardView.resetAuditFilters();
 
 window.toggleRoleInfo = (e) => {
   if (e) e.stopPropagation();

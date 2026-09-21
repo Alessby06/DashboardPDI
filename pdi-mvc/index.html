@@ -1338,52 +1338,131 @@
                     </div>
 
                     <div class="audit-filters-body">
-                      <!-- Filtro 1: Tipo de Evento / Módulo (Chips segmentados) -->
+                      <!-- Filtro 1: Tipo de Evento / Módulo (Dropdown Multi-selección con Checkbox) -->
                       <div class="audit-filter-field">
                         <label class="audit-field-label">Tipo de Evento</label>
-                        <div class="audit-filter-segmented" id="auditActionSegmented">
-                          <button type="button" class="audit-seg-btn active" data-value="all"
-                            onclick="window.selectAuditAction ? window.selectAuditAction('all', 'Todos los Eventos') : null">
-                            Todos
+                        <div class="padron-inner-dropdown" id="dropdownAuditAction">
+                          <button type="button" class="padron-inner-dropdown-btn"
+                            onclick="window.toggleAuditInnerDropdown ? window.toggleAuditInnerDropdown('dropdownAuditAction') : null">
+                            <span id="labelAuditActionSelect">Todos los Eventos</span>
+                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                            </svg>
                           </button>
-                          <button type="button" class="audit-seg-btn" data-value="salud"
-                            onclick="window.selectAuditAction ? window.selectAuditAction('salud', 'Salud y Nutrición CRED') : null">
-                            <span class="badge badge-yellow" style="padding:1px 5px; font-size:10px;">CRED</span> Salud
-                          </button>
-                          <button type="button" class="audit-seg-btn" data-value="social"
-                            onclick="window.selectAuditAction ? window.selectAuditAction('social', 'Derivación Social ASP') : null">
-                            <span class="badge badge-red" style="padding:1px 5px; font-size:10px;">ASP</span> Social
-                          </button>
-                          <button type="button" class="audit-seg-btn" data-value="educativo"
-                            onclick="window.selectAuditAction ? window.selectAuditAction('educativo', 'Casitas del Saber CS') : null">
-                            <span class="badge badge-blue" style="padding:1px 5px; font-size:10px;">CS</span> Casitas
-                          </button>
-                          <button type="button" class="audit-seg-btn" data-value="padron"
-                            onclick="window.selectAuditAction ? window.selectAuditAction('padron', 'Padrón / Coordinación') : null">
-                            <span class="badge badge-green" style="padding:1px 5px; font-size:10px;">Padrón</span> Coord.
-                          </button>
+                          <div class="padron-inner-dropdown-menu" id="menuAuditAction">
+                            <div class="padron-dropdown-item selected" data-value="all" onclick="window.toggleAuditAction ? window.toggleAuditAction('all') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="padron-item-label">Todos</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetAuditAction-all">(4)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="salud" onclick="window.toggleAuditAction ? window.toggleAuditAction('salud') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="badge badge-yellow" style="padding:1px 5px; font-size:10px;">CRED</span>
+                                <span class="padron-item-label">Salud y Nutrición</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetAuditAction-salud">(0)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="social" onclick="window.toggleAuditAction ? window.toggleAuditAction('social') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="badge badge-red" style="padding:1px 5px; font-size:10px;">ASP</span>
+                                <span class="padron-item-label">Derivación Social</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetAuditAction-social">(0)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="educativo" onclick="window.toggleAuditAction ? window.toggleAuditAction('educativo') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="badge badge-blue" style="padding:1px 5px; font-size:10px;">CS</span>
+                                <span class="padron-item-label">Casitas del Saber</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetAuditAction-educativo">(0)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="padron" onclick="window.toggleAuditAction ? window.toggleAuditAction('padron') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="badge badge-green" style="padding:1px 5px; font-size:10px;">Padrón</span>
+                                <span class="padron-item-label">Padrón / Coordinación</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetAuditAction-padron">(0)</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
 
-                      <!-- Filtro 2: Periodo Temporal y Selector de Fechas Avanzado -->
+                      <!-- Filtro 2: Periodo Temporal (Dropdown Desplegable con Radios y Panel Interactivo) -->
                       <div class="audit-filter-field">
-                        <label class="audit-field-label" for="selectAuditDateFilter">Periodo Temporal</label>
-                        <div class="audit-select-wrap">
-                          <select class="audit-filter-select" id="selectAuditDateFilter"
-                            onchange="window.selectAuditDate ? window.selectAuditDate(this.value, this.options[this.selectedIndex].text) : null">
-                            <option value="all" selected>Todas las Fechas</option>
-                            <option value="today">Hoy (Jornada en curso)</option>
-                            <option value="week">Últimos 7 días</option>
-                            <option value="specific">Fecha Específica (Calendario / Manual)</option>
-                            <option value="range">Rango de Fechas (Desde - Hasta)</option>
-                          </select>
-                          <svg class="select-arrow" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                          </svg>
+                        <label class="audit-field-label">Periodo Temporal</label>
+                        <div class="padron-inner-dropdown" id="dropdownAuditDate">
+                          <button type="button" class="padron-inner-dropdown-btn"
+                            onclick="window.toggleAuditInnerDropdown ? window.toggleAuditInnerDropdown('dropdownAuditDate') : null">
+                            <span id="labelAuditDateSelect">Todas las Fechas</span>
+                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                            </svg>
+                          </button>
+                          <div class="padron-inner-dropdown-menu" id="menuAuditDate">
+                            <div class="padron-dropdown-item selected" data-value="all" onclick="window.selectAuditDate ? window.selectAuditDate('all', 'Todas las Fechas') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-radio"></span>
+                                <span class="padron-item-label">Todas las Fechas</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetAuditDate-all">(4)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="today" onclick="window.selectAuditDate ? window.selectAuditDate('today', 'Hoy (Jornada en curso)') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-radio"></span>
+                                <span class="padron-item-label">Hoy (Jornada en curso)</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetAuditDate-today">(0)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="week" onclick="window.selectAuditDate ? window.selectAuditDate('week', 'Últimos 7 días') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-radio"></span>
+                                <span class="padron-item-label">Últimos 7 días</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetAuditDate-week">(0)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="specific" onclick="window.selectAuditDate ? window.selectAuditDate('specific', 'Fecha Específica') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-radio"></span>
+                                <span class="padron-item-label">Fecha Específica</span>
+                              </div>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="range" onclick="window.selectAuditDate ? window.selectAuditDate('range', 'Rango de Fechas') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-radio"></span>
+                                <span class="padron-item-label">Rango de Fechas (Desde - Hasta)</span>
+                              </div>
+                            </div>
+                          </div>
                         </div>
 
                         <!-- Panel Interactivo: Fecha Específica -->
-                        <div class="audit-date-custom-panel" id="panelAuditDateSpecific" style="display:none;">
+                        <div class="audit-date-custom-panel" id="panelAuditDateSpecific" style="display:none; margin-top:8px;">
                           <div class="audit-date-input-group">
                             <span class="audit-sub-label">Fecha del evento:</span>
                             <div class="audit-input-with-icon">
@@ -1402,7 +1481,7 @@
                         </div>
 
                         <!-- Panel Interactivo: Rango de Fechas (Desde / Hasta) -->
-                        <div class="audit-date-custom-panel" id="panelAuditDateRange" style="display:none;">
+                        <div class="audit-date-custom-panel" id="panelAuditDateRange" style="display:none; margin-top:8px;">
                           <div class="audit-range-grid">
                             <div class="audit-date-input-group">
                               <span class="audit-sub-label">Desde:</span>
@@ -1438,27 +1517,153 @@
                         </div>
                       </div>
 
-                      <!-- Filtro 3: Rol del Usuario -->
+                      <!-- Filtro 3: Rol del Usuario (Dropdown Multi-selección con Checkbox) -->
                       <div class="audit-filter-field">
-                        <label class="audit-field-label" for="selectAuditRoleFilter">Rol del Usuario</label>
-                        <div class="audit-select-wrap">
-                          <select class="audit-filter-select" id="selectAuditRoleFilter"
-                            onchange="window.selectAuditRole ? window.selectAuditRole(this.value, this.options[this.selectedIndex].text) : null">
-                            <option value="all" selected>Todos los Roles</option>
-                            <option value="Coordinación">Coordinación</option>
-                            <option value="Facilitadora">Facilitadora</option>
-                            <option value="Promotora">Promotora</option>
-                            <option value="Trabajadora Social">Trabajadora Social</option>
-                          </select>
-                          <svg class="select-arrow" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                          </svg>
+                        <label class="audit-field-label">Rol del Usuario</label>
+                        <div class="padron-inner-dropdown" id="dropdownAuditRole">
+                          <button type="button" class="padron-inner-dropdown-btn"
+                            onclick="window.toggleAuditInnerDropdown ? window.toggleAuditInnerDropdown('dropdownAuditRole') : null">
+                            <span id="labelAuditRoleSelect">Todos los Roles</span>
+                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                            </svg>
+                          </button>
+                          <div class="padron-inner-dropdown-menu" id="menuAuditRole">
+                            <div class="padron-dropdown-item selected" data-value="all" onclick="window.toggleAuditRole ? window.toggleAuditRole('all') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="padron-item-label">Todos los Roles</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetAuditRole-all">(4)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="Coordinación" onclick="window.toggleAuditRole ? window.toggleAuditRole('Coordinación') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="padron-item-label">Coordinación</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetAuditRole-Coordinación">(0)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="Facilitadora" onclick="window.toggleAuditRole ? window.toggleAuditRole('Facilitadora') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="padron-item-label">Facilitadora</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetAuditRole-Facilitadora">(0)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="Promotora" onclick="window.toggleAuditRole ? window.toggleAuditRole('Promotora') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="padron-item-label">Promotora</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetAuditRole-Promotora">(0)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="Trabajadora Social" onclick="window.toggleAuditRole ? window.toggleAuditRole('Trabajadora Social') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="padron-item-label">Trabajadora Social</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetAuditRole-Trabajadora Social">(0)</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
+
+                      <!-- Filtro 4: Estado de Registro / Criticidad (Dropdown Multi-selección con Checkbox) -->
+                      <div class="audit-filter-field">
+                        <label class="audit-field-label">Estado de Registro</label>
+                        <div class="padron-inner-dropdown" id="dropdownAuditStatus">
+                          <button type="button" class="padron-inner-dropdown-btn"
+                            onclick="window.toggleAuditInnerDropdown ? window.toggleAuditInnerDropdown('dropdownAuditStatus') : null">
+                            <span id="labelAuditStatusSelect">Todos los Estados</span>
+                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                            </svg>
+                          </button>
+                          <div class="padron-inner-dropdown-menu" id="menuAuditStatus">
+                            <div class="padron-dropdown-item selected" data-value="all" onclick="window.toggleAuditStatus ? window.toggleAuditStatus('all') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="padron-item-label">Todos</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetAuditStatus-all">(4)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="Registrado" onclick="window.toggleAuditStatus ? window.toggleAuditStatus('Registrado') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="badge badge-green" style="padding:1px 5px; font-size:10px;">Conforme</span>
+                                <span class="padron-item-label">Registrado</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetAuditStatus-Registrado">(0)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="Sensible" onclick="window.toggleAuditStatus ? window.toggleAuditStatus('Sensible') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="badge badge-red" style="padding:1px 5px; font-size:10px;">Sensible</span>
+                                <span class="padron-item-label">Alerta / Crítico</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetAuditStatus-Sensible">(0)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="Observado" onclick="window.toggleAuditStatus ? window.toggleAuditStatus('Observado') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="badge badge-yellow" style="padding:1px 5px; font-size:10px;">Observado</span>
+                                <span class="padron-item-label">En Revisión</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetAuditStatus-Observado">(0)</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
+
+            <!-- Barra de Píldoras de Filtros Activos de Auditoría (Chips Descartables) -->
+            <div class="padron-active-chips-bar" id="auditActiveChipsBar" style="display: none;">
+              <span class="padron-active-chips-label">Filtros aplicados:</span>
+              <div id="auditActiveChipsList" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;"></div>
+              <button type="button" class="btn-text-subtle" style="margin-left: auto; font-size: 11.5px;" onclick="window.resetAuditFilters ? window.resetAuditFilters() : null">
+                Borrar todos
+              </button>
             </div>
 
             <div class="table-container desktop-table-view">

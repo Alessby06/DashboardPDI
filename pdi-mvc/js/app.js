@@ -43,29 +43,77 @@ window.cargarCasoEnSimulador = (codigo) => SocialController.cargarCasoEnSimulado
 window.guardarNuevoMenor = (e) => BeneficiarioController.saveNuevoMenor(e, () => AppController.refreshAllViews());
 window.exportDataCSV = () => AppController.exportCSV();
 window.exportAuditCSV = () => AppController.exportAuditCSV();
-window.filterAuditAction = (action) => DashboardView.filterByAction(action);
-window.filterAuditRole = (role) => DashboardView.filterByRole(role);
-window.filterAuditDate = (dateKey) => DashboardView.filterByDate(dateKey);
+
+// Handlers de Auditoría / Historial de Cambios
+window.toggleAuditInnerDropdown = (id) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.toggleInnerDropdown(id);
+};
+window.toggleAuditAction = (val) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.toggleAction(val);
+};
+window.filterAuditAction = (action) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.toggleAction(action);
+};
+window.selectAuditAction = (val, label) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.toggleAction(val);
+};
+window.selectAuditDate = (val, label) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.selectDate(val, label);
+};
+window.filterAuditDate = (dateKey) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.selectDate(dateKey);
+};
+window.toggleAuditRole = (val) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.toggleRole(val);
+};
+window.filterAuditRole = (role) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.toggleRole(role);
+};
+window.selectAuditRole = (val, label) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.toggleRole(val);
+};
+window.toggleAuditStatus = (val) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.toggleStatus(val);
+};
+window.removeAuditChip = (key, val) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.removeAuditFilter(key, val);
+};
+window.resetAuditFilters = () => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.resetAuditFilters();
+};
+window.filterAuditSearch = (q) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.filterBySearch(q);
+};
+window.clearAuditSearch = () => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.clearSearch();
+};
+window.changeAuditPageSize = (size) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.changePageSize(size);
+};
+window.prevAuditPage = () => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.changePage((window.PDI.DashboardView._auditCurrentPage || 1) - 1);
+};
+window.nextAuditPage = () => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.changePage((window.PDI.DashboardView._auditCurrentPage || 1) + 1);
+};
+window.openAuditDetail = (logId) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.openLogDetail(logId);
+};
+window.closeModalAuditDetail = () => ModalView.closeAuditDetail();
+window.handleAuditDatePickerChange = (type, val) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.handleDatePickerChange(type, val);
+};
+window.handleAuditDateManualInput = (type, el) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.handleDateManualInput(type, el);
+};
+
 window.toggleCustomDropdown = (id) => DashboardView.toggleDropdown(id);
-window.selectAuditDate = (val, label) => DashboardView.selectDate(val, label);
-window.selectAuditRole = (val, label) => DashboardView.selectRole(val, label);
-window.selectAuditAction = (val, label) => DashboardView.selectAction(val, label);
+window.toggleInnerFilterDropdown = (id) => DashboardView.toggleInnerDropdown(id);
 window.selectActiveRole = (roleValue, roleTitle) => AppController.switchRole(roleValue, roleTitle);
 window.toggleTheme = (e) => AppController.toggleTheme(e);
 window.openExpediente = (id) => BeneficiarioController.openExpediente(id);
 window.openExpedienteByCodigo = (codigo) => BeneficiarioController.openExpedienteByCodigo(codigo);
 window.moverCaso = (id, etapa) => SocialController.moverCaso(id, etapa);
-window.filterAuditSearch = (q) => DashboardView.filterBySearch(q);
-window.changeAuditPageSize = (size) => DashboardView.changePageSize(size);
-window.prevAuditPage = () => DashboardView.changePage((DashboardView._auditCurrentPage || 1) - 1);
-window.nextAuditPage = () => DashboardView.changePage((DashboardView._auditCurrentPage || 1) + 1);
-window.openAuditDetail = (logId) => DashboardView.openLogDetail(logId);
-window.closeModalAuditDetail = () => ModalView.closeAuditDetail();
-window.clearAuditSearch = () => DashboardView.clearSearch();
-window.resetAuditFilters = () => DashboardView.resetAuditFilters();
-window.toggleInnerFilterDropdown = (id) => DashboardView.toggleInnerDropdown(id);
-window.handleAuditDatePickerChange = (type, val) => DashboardView.handleDatePickerChange(type, val);
-window.handleAuditDateManualInput = (type, el) => DashboardView.handleDateManualInput(type, el);
 
 window.toggleRoleInfo = (e) => {
   if (e) e.stopPropagation();
