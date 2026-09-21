@@ -73,6 +73,32 @@ window.toggleRoleInfo = (e) => {
   if (wrap) wrap.classList.toggle("open");
 };
 
+// Handlers de Búsqueda y Filtros de Padrón Único de Beneficiarios
+window.filterPadronSearch = (q) => {
+  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.filterBySearch(q);
+};
+window.clearPadronSearch = () => {
+  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.clearSearch();
+};
+window.selectPadronServicio = (val) => {
+  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.selectServicio(val);
+};
+window.selectPadronSede = (val) => {
+  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.selectSede(val);
+};
+window.selectPadronAnemia = (val) => {
+  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.selectAnemia(val);
+};
+window.selectPadronEdad = (val) => {
+  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.selectEdad(val);
+};
+window.selectPadronEstado = (val) => {
+  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.selectEstado(val);
+};
+window.resetPadronFilters = () => {
+  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.resetFilters();
+};
+
 // Cierre automático de Custom Dropdowns y Role Tooltips al hacer clic afuera
 document.addEventListener("click", (e) => {
   if (!e.target.closest(".custom-dropdown")) {

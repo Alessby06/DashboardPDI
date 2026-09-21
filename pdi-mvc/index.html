@@ -368,6 +368,160 @@
 
           <!-- Beneficiaries Table Card -->
           <div class="card" id="cardPadronBeneficiarios">
+            <!-- Barra de Filtros y Búsqueda Rápida de Padrón -->
+            <div class="audit-toolbar" style="margin-bottom: 16px;">
+              <!-- Buscador Rápido de Beneficiarios (Lado Izquierdo) -->
+              <div class="audit-search-wrap">
+                <svg class="audit-search-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+                <input type="text" id="inputPadronSearch" class="audit-search-input"
+                  placeholder="Buscar por Nombre, Apellidos, DNI o Código..."
+                  oninput="window.filterPadronSearch ? window.filterPadronSearch(this.value) : null">
+                <button type="button" class="audit-search-clear" id="btnPadronSearchClear"
+                  style="display:none;" onclick="window.clearPadronSearch ? window.clearPadronSearch() : null" title="Limpiar búsqueda">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Botón de Filtros y Panel Desplegable (Lado Derecho) -->
+              <div class="audit-filter-panel-wrap">
+                <div class="custom-dropdown audit-filters-dropdown" id="dropdownPadronFilterPanel">
+                  <button type="button" class="btn-action audit-filter-btn" id="btnDropdownPadronFilterPanel"
+                    onclick="window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownPadronFilterPanel') : null">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+                    </svg>
+                    <span>Filtros</span>
+                    <span class="audit-filter-badge" id="padronActiveFiltersCount" style="display:none;">0</span>
+                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" class="filter-caret">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                    </svg>
+                  </button>
+
+                  <!-- Panel Desplegable de Filtros de Padrón -->
+                  <div class="custom-dropdown-menu audit-filters-menu" id="menuPadronFilterPanel">
+                    <div class="audit-filters-header">
+                      <div class="audit-filters-header-title">
+                        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+                        </svg>
+                        <span>Filtros de Padrón</span>
+                      </div>
+                      <button type="button" class="btn-text-subtle" onclick="window.resetPadronFilters ? window.resetPadronFilters() : null">Restablecer</button>
+                    </div>
+
+                    <div class="audit-filters-body">
+                      <!-- Filtro 1: Servicio / Programa Asignado -->
+                      <div class="audit-filter-field">
+                        <label class="audit-field-label">Servicio / Programa</label>
+                        <div class="audit-filter-segmented" id="padronServicioSegmented">
+                          <button type="button" class="audit-seg-btn active" data-value="all"
+                            onclick="window.selectPadronServicio ? window.selectPadronServicio('all') : null">
+                            Todos
+                          </button>
+                          <button type="button" class="audit-seg-btn" data-value="desayuno"
+                            onclick="window.selectPadronServicio ? window.selectPadronServicio('desayuno') : null">
+                            Nutrición SAN
+                          </button>
+                          <button type="button" class="audit-seg-btn" data-value="casita"
+                            onclick="window.selectPadronServicio ? window.selectPadronServicio('casita') : null">
+                            Casita del Saber
+                          </button>
+                          <button type="button" class="audit-seg-btn" data-value="mixto"
+                            onclick="window.selectPadronServicio ? window.selectPadronServicio('mixto') : null">
+                            Mixto / Ambos
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- Filtro 2: Sede Operativa / Distrito -->
+                      <div class="audit-filter-field">
+                        <label class="audit-field-label" for="selectPadronSedeFilter">Sede Operativa</label>
+                        <div class="audit-select-wrap">
+                          <select class="audit-filter-select" id="selectPadronSedeFilter"
+                            onchange="window.selectPadronSede ? window.selectPadronSede(this.value) : null">
+                            <option value="all" selected>Todas las Sedes (Comas y Carabayllo)</option>
+                            <option value="Año Nuevo">Año Nuevo (Comas)</option>
+                            <option value="La Libertad">La Libertad (Comas)</option>
+                            <option value="San Pedro">San Pedro (Carabayllo)</option>
+                            <option value="El Progreso">El Progreso (Carabayllo)</option>
+                            <option value="Santa Rosa">Santa Rosa (Carabayllo)</option>
+                            <option value="Los Bendecidos">Los Bendecidos (Carabayllo)</option>
+                          </select>
+                          <svg class="select-arrow" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                          </svg>
+                        </div>
+                      </div>
+
+                      <!-- Filtro 3: Condición Nutricional / Semáforo Anemia MINSA -->
+                      <div class="audit-filter-field">
+                        <label class="audit-field-label">Condición Nutricional (Anemia)</label>
+                        <div class="audit-filter-segmented" id="padronAnemiaSegmented">
+                          <button type="button" class="audit-seg-btn active" data-value="all"
+                            onclick="window.selectPadronAnemia ? window.selectPadronAnemia('all') : null">
+                            Todos
+                          </button>
+                          <button type="button" class="audit-seg-btn" data-value="Normal"
+                            onclick="window.selectPadronAnemia ? window.selectPadronAnemia('Normal') : null">
+                            <span class="badge badge-green" style="padding:1px 5px; font-size:10px;">Normal</span>
+                          </button>
+                          <button type="button" class="audit-seg-btn" data-value="Leve"
+                            onclick="window.selectPadronAnemia ? window.selectPadronAnemia('Leve') : null">
+                            <span class="badge badge-yellow" style="padding:1px 5px; font-size:10px;">Leve</span>
+                          </button>
+                          <button type="button" class="audit-seg-btn" data-value="Moderada"
+                            onclick="window.selectPadronAnemia ? window.selectPadronAnemia('Moderada') : null">
+                            <span class="badge badge-red" style="padding:1px 5px; font-size:10px;">Mod / Sev</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- Filtro 4: Rango de Edad / Escolaridad -->
+                      <div class="audit-filter-field">
+                        <label class="audit-field-label" for="selectPadronEdadFilter">Rango de Edad</label>
+                        <div class="audit-select-wrap">
+                          <select class="audit-filter-select" id="selectPadronEdadFilter"
+                            onchange="window.selectPadronEdad ? window.selectPadronEdad(this.value) : null">
+                            <option value="all" selected>Todas las Edades</option>
+                            <option value="0-3">0 a 3 años (Primera Infancia)</option>
+                            <option value="4-5">4 a 5 años (Inicial)</option>
+                            <option value="6+">6 a más años (Primaria)</option>
+                          </select>
+                          <svg class="select-arrow" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                          </svg>
+                        </div>
+                      </div>
+
+                      <!-- Filtro 5: Estado de Matrícula -->
+                      <div class="audit-filter-field">
+                        <label class="audit-field-label" for="selectPadronEstadoFilter">Estado</label>
+                        <div class="audit-select-wrap">
+                          <select class="audit-filter-select" id="selectPadronEstadoFilter"
+                            onchange="window.selectPadronEstado ? window.selectPadronEstado(this.value) : null">
+                            <option value="all" selected>Todos los Estados</option>
+                            <option value="Activo">Solo Activos</option>
+                            <option value="Inactivo">Inactivos / Egresados</option>
+                          </select>
+                          <svg class="select-arrow" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                          </svg>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <!-- Vista de Tabla para Escritorio / Desktop -->
             <div class="table-container desktop-table-view">
               <table class="data-table" id="tablaBeneficiarios">
@@ -424,8 +578,6 @@
                 </div>
               </div>
               <div class="cred-calc-header-right">
-                <span class="badge badge-yellow">Fórmula Oficial MINSA</span>
-                <span class="cred-calc-badge-state" id="credCalcBadgeState">Desplegar</span>
                 <svg class="cred-calc-chevron" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                 </svg>
@@ -467,7 +619,6 @@
           <div class="card" style="margin-top: 18px;">
             <div class="card-header">
               <div class="card-title">Historial de Evaluaciones CRED por Menor</div>
-              <span class="badge badge-yellow">Fórmula Oficial MINSA</span>
             </div>
             <div class="table-container desktop-table-view">
               <table class="data-table">
