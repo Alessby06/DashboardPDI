@@ -1614,23 +1614,17 @@
        ========================================== -->
   <div class="modal-backdrop" id="modalExpediente">
     <div class="modal-box modal-box-expediente">
-      <div class="modal-header"
-        style="padding: 16px 22px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; background: var(--surface-1);">
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <div
-            style="width: 38px; height: 38px; border-radius: 8px; background: rgba(0, 180, 148, 0.12); border: 1px solid var(--gt-green-border); display: flex; align-items: center; justify-content: center; color: var(--gt-green);">
+      <div class="modal-header expediente-modal-header">
+        <div class="expediente-title-wrap">
+          <div class="expediente-icon-box">
             <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
                 d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5zm6-10.125a1.875 1.875 0 11-3.75 0 1.875 1.875 0 013.75 0zm1.294 6.336a6.721 6.721 0 01-3.17.789 6.721 6.721 0 01-3.168-.789 3.376 3.376 0 016.338 0z" />
             </svg>
           </div>
-          <div>
-            <div style="display:flex; align-items:center; gap:10px;">
-              <h3 id="modalExpedienteTitle"
-                style="margin:0; font-size:16.5px; font-weight: 700; color: var(--text-main);">Expediente Integral del
-                Beneficiario</h3>
-            </div><span id="expEditingBadge" class="badge badge-yellow"
-              style="display:none; font-size:11px; margin-top:2px;">Modo Edición Habilitado</span>
+          <div class="expediente-title-text-group">
+            <h3 id="modalExpedienteTitle">Expediente Integral del Beneficiario</h3>
+            <span id="expEditingBadge" class="badge badge-yellow" style="display:none; font-size:11px; margin-top:2px;">Modo Edición Habilitado</span>
           </div>
         </div>
         <button type="button" class="btn-close-modal" onclick="closeModalExpediente()" title="Cerrar ventana">
@@ -2000,8 +1994,6 @@
             </svg>
             <span>Guardar Cambios</span>
           </button>
-
-          <button type="button" class="btn-action" onclick="closeModalExpediente()">Cerrar</button>
         </div>
       </div>
     </div>
