@@ -2,10 +2,10 @@
 export const BeneficiariosView = {
   _allBeneficiarios: [],
   _searchQuery: "",
-  _filterServicio: "all",
+  _filterServicio: [], // array de servicios seleccionados (vacío = todos)
   _filterSede: "all",
-  _filterAnemia: "all",
-  _filterEdad: "all", // "all" or specific number (e.g. 4)
+  _filterAnemia: [],   // array de anemias seleccionadas (vacío = todos)
+  _filterEdad: "all",  // "all" o número específico (0-18)
   _filterEstado: "all",
 
   init(beneficiarios) {
@@ -35,13 +35,37 @@ export const BeneficiariosView = {
     this.filterBySearch("");
   },
 
-  selectServicio(servicioKey) {
-    this._filterServicio = servicioKey || "all";
-    const btns = document.querySelectorAll("#padronServicioSegmented .audit-seg-btn");
-    btns.forEach(b => {
-      b.classList.toggle("active", b.getAttribute("data-value") === this._filterServicio);
-    });
+  toggleServicio(val) {
+    const allServicios = ["desayuno", "casita", "pastoral"];
+    if (val === "all") {
+      this._filterServicio = [];
+    } else {
+      const idx = this._filterServicio.indexOf(val);
+      if (idx > -1) {
+        this._filterServicio.splice(idx, 1);
+      } else {
+        this._filterServicio.push(val);
+      }
+      // Si se seleccionaron individualmente todas las opciones, se restablece a Todos automáticamente
+      if (allServicios.every(s => this._filterServicio.includes(s))) {
+        this._filterServicio = [];
+      }
+    }
+    this._updateServicioSegmentedUI();
     this.applyFilters();
+  },
+
+  _updateServicioSegmentedUI() {
+    const btns = document.querySelectorAll("#padronServicioSegmented .audit-seg-btn");
+    const isAll = this._filterServicio.length === 0;
+    btns.forEach(b => {
+      const v = b.getAttribute("data-value");
+      if (v === "all") {
+        b.classList.toggle("active", isAll);
+      } else {
+        b.classList.toggle("active", !isAll && this._filterServicio.includes(v));
+      }
+    });
   },
 
   selectSede(sedeVal) {
@@ -51,13 +75,37 @@ export const BeneficiariosView = {
     this.applyFilters();
   },
 
-  selectAnemia(anemiaVal) {
-    this._filterAnemia = anemiaVal || "all";
-    const btns = document.querySelectorAll("#padronAnemiaSegmented .audit-seg-btn");
-    btns.forEach(b => {
-      b.classList.toggle("active", b.getAttribute("data-value") === this._filterAnemia);
-    });
+  toggleAnemia(val) {
+    const allAnemias = ["Normal", "Leve", "Moderada"];
+    if (val === "all") {
+      this._filterAnemia = [];
+    } else {
+      const idx = this._filterAnemia.indexOf(val);
+      if (idx > -1) {
+        this._filterAnemia.splice(idx, 1);
+      } else {
+        this._filterAnemia.push(val);
+      }
+      // Si se seleccionaron individualmente todas las opciones, se restablece a Todos automáticamente
+      if (allAnemias.every(a => this._filterAnemia.includes(a))) {
+        this._filterAnemia = [];
+      }
+    }
+    this._updateAnemiaSegmentedUI();
     this.applyFilters();
+  },
+
+  _updateAnemiaSegmentedUI() {
+    const btns = document.querySelectorAll("#padronAnemiaSegmented .audit-seg-btn");
+    const isAll = this._filterAnemia.length === 0;
+    btns.forEach(b => {
+      const v = b.getAttribute("data-value");
+      if (v === "all") {
+        b.classList.toggle("active", isAll);
+      } else {
+        b.classList.toggle("active", !isAll && this._filterAnemia.includes(v));
+      }
+    });
   },
 
   syncEdad(val, source) {
@@ -74,14 +122,27 @@ export const BeneficiariosView = {
 
     const slider = document.getElementById("sliderPadronEdad");
     const numInput = document.getElementById("numPadronEdad");
+    const btnTodas = document.getElementById("btnPadronEdadTodas");
+    const labelSlider = document.getElementById("labelPadronEdadSliderVal");
 
-    if (source === "slider") {
-      if (numInput) numInput.value = this._filterEdad === "all" ? "" : this._filterEdad;
-    } else if (source === "num") {
-      if (slider) slider.value = this._filterEdad === "all" ? 0 : this._filterEdad;
+    const isAll = this._filterEdad === "all";
+
+    if (btnTodas) btnTodas.classList.toggle("active", isAll);
+
+    if (isAll) {
+      if (numInput) numInput.value = "";
+      if (slider) slider.value = 0;
+      if (labelSlider) labelSlider.textContent = "0 a 18 años";
     } else {
-      if (slider) slider.value = this._filterEdad === "all" ? 0 : this._filterEdad;
-      if (numInput) numInput.value = this._filterEdad === "all" ? "" : this._filterEdad;
+      if (source === "slider") {
+        if (numInput) numInput.value = this._filterEdad;
+      } else if (source === "num") {
+        if (slider) slider.value = this._filterEdad;
+      } else {
+        if (slider) slider.value = this._filterEdad;
+        if (numInput) numInput.value = this._filterEdad;
+      }
+      if (labelSlider) labelSlider.textContent = `${this._filterEdad} años`;
     }
 
     this.applyFilters();
@@ -100,20 +161,32 @@ export const BeneficiariosView = {
     this.applyFilters();
   },
 
-  removeFilter(filterKey) {
+  removeFilter(filterKey, specificVal) {
     if (filterKey === "search") this.clearSearch();
-    if (filterKey === "servicio") this.selectServicio("all");
+    if (filterKey === "servicio") {
+      if (specificVal) {
+        this.toggleServicio(specificVal);
+      } else {
+        this.toggleServicio("all");
+      }
+    }
     if (filterKey === "sede") this.selectSede("all");
-    if (filterKey === "anemia") this.selectAnemia("all");
+    if (filterKey === "anemia") {
+      if (specificVal) {
+        this.toggleAnemia(specificVal);
+      } else {
+        this.toggleAnemia("all");
+      }
+    }
     if (filterKey === "edad") this.clearEdad();
     if (filterKey === "estado") this.selectEstado("all");
   },
 
   resetFilters() {
     this._searchQuery = "";
-    this._filterServicio = "all";
+    this._filterServicio = [];
     this._filterSede = "all";
-    this._filterAnemia = "all";
+    this._filterAnemia = [];
     this._filterEdad = "all";
     this._filterEstado = "all";
 
@@ -129,17 +202,45 @@ export const BeneficiariosView = {
     if (slider) slider.value = 0;
     const numInput = document.getElementById("numPadronEdad");
     if (numInput) numInput.value = "";
+    const labelSlider = document.getElementById("labelPadronEdadSliderVal");
+    if (labelSlider) labelSlider.textContent = "0 a 18 años";
+    const btnTodas = document.getElementById("btnPadronEdadTodas");
+    if (btnTodas) btnTodas.classList.add("active");
 
-    const sServBtns = document.querySelectorAll("#padronServicioSegmented .audit-seg-btn");
-    sServBtns.forEach(b => b.classList.toggle("active", b.getAttribute("data-value") === "all"));
-
-    const sAnemiaBtns = document.querySelectorAll("#padronAnemiaSegmented .audit-seg-btn");
-    sAnemiaBtns.forEach(b => b.classList.toggle("active", b.getAttribute("data-value") === "all"));
+    this._updateServicioSegmentedUI();
+    this._updateAnemiaSegmentedUI();
 
     const sEstadoBtns = document.querySelectorAll("#padronEstadoSegmented .audit-seg-btn");
     sEstadoBtns.forEach(b => b.classList.toggle("active", b.getAttribute("data-value") === "all"));
 
     this.applyFilters();
+  },
+
+  _matchesServicio(beneficiario, servicioKeys) {
+    if (!servicioKeys || servicioKeys.length === 0) return true;
+    if (!beneficiario.servicios) return false;
+    return servicioKeys.some(key => {
+      if (key === "desayuno") {
+        return beneficiario.servicios.some(s => s.toLowerCase().includes("desayuno") || s.toLowerCase().includes("alimento") || s.toLowerCase().includes("nutric"));
+      }
+      if (key === "casita") {
+        return beneficiario.servicios.some(s => s.toLowerCase().includes("casita") || s.toLowerCase().includes("educativ"));
+      }
+      if (key === "pastoral") {
+        return beneficiario.servicios.some(s => s.toLowerCase().includes("pastoral") || s.toLowerCase().includes("social") || s.toLowerCase().includes("asp")) || (beneficiario.vulnerabilidad && beneficiario.vulnerabilidad >= 80);
+      }
+      return false;
+    });
+  },
+
+  _matchesAnemia(beneficiario, anemiaKeys) {
+    if (!anemiaKeys || anemiaKeys.length === 0) return true;
+    return anemiaKeys.some(key => {
+      if (key === "Moderada") {
+        return beneficiario.anemia === "Moderada" || beneficiario.anemia === "Severa";
+      }
+      return beneficiario.anemia === key;
+    });
   },
 
   applyFilters() {
@@ -154,15 +255,9 @@ export const BeneficiariosView = {
       });
     }
 
-    // 2. Servicio / Programa
-    if (this._filterServicio !== "all") {
-      if (this._filterServicio === "desayuno") {
-        list = list.filter(b => b.servicios && b.servicios.some(s => s.toLowerCase().includes("desayuno") || s.toLowerCase().includes("alimento")));
-      } else if (this._filterServicio === "casita") {
-        list = list.filter(b => b.servicios && b.servicios.some(s => s.toLowerCase().includes("casita") || s.toLowerCase().includes("educativ")));
-      } else if (this._filterServicio === "mixto") {
-        list = list.filter(b => b.servicios && b.servicios.length >= 2);
-      }
+    // 2. Servicio / Programa (Multi-selección)
+    if (this._filterServicio.length > 0) {
+      list = list.filter(b => this._matchesServicio(b, this._filterServicio));
     }
 
     // 3. Sede Operativa
@@ -170,13 +265,9 @@ export const BeneficiariosView = {
       list = list.filter(b => b.sede && b.sede.toLowerCase().includes(this._filterSede.toLowerCase()));
     }
 
-    // 4. Condición Nutricional (Anemia)
-    if (this._filterAnemia !== "all") {
-      if (this._filterAnemia === "Moderada") {
-        list = list.filter(b => b.anemia === "Moderada" || b.anemia === "Severa");
-      } else {
-        list = list.filter(b => b.anemia === this._filterAnemia);
-      }
+    // 4. Condición Nutricional (Anemia - Multi-selección)
+    if (this._filterAnemia.length > 0) {
+      list = list.filter(b => this._matchesAnemia(b, this._filterAnemia));
     }
 
     // 5. Edad Exacta (0 a 18 años)
@@ -195,9 +286,9 @@ export const BeneficiariosView = {
 
     // Actualizar badge de filtros activos
     let activeFiltersCount = 0;
-    if (this._filterServicio !== "all") activeFiltersCount++;
+    if (this._filterServicio.length > 0) activeFiltersCount += this._filterServicio.length;
     if (this._filterSede !== "all") activeFiltersCount++;
-    if (this._filterAnemia !== "all") activeFiltersCount++;
+    if (this._filterAnemia.length > 0) activeFiltersCount += this._filterAnemia.length;
     if (this._filterEdad !== "all") activeFiltersCount++;
     if (this._filterEstado !== "all") activeFiltersCount++;
 
@@ -225,17 +316,14 @@ export const BeneficiariosView = {
         const q = this._searchQuery;
         l = l.filter(b => `${b.nombres} ${b.apellidos} ${b.codigo} ${b.dni} ${b.sede} ${b.distrito} ${b.apoderado}`.toLowerCase().includes(q));
       }
-      if (excludeKey !== "servicio" && this._filterServicio !== "all") {
-        if (this._filterServicio === "desayuno") l = l.filter(b => b.servicios && b.servicios.some(s => s.toLowerCase().includes("desayuno") || s.toLowerCase().includes("alimento")));
-        else if (this._filterServicio === "casita") l = l.filter(b => b.servicios && b.servicios.some(s => s.toLowerCase().includes("casita") || s.toLowerCase().includes("educativ")));
-        else if (this._filterServicio === "mixto") l = l.filter(b => b.servicios && b.servicios.length >= 2);
+      if (excludeKey !== "servicio" && this._filterServicio.length > 0) {
+        l = l.filter(b => this._matchesServicio(b, this._filterServicio));
       }
       if (excludeKey !== "sede" && this._filterSede !== "all") {
         l = l.filter(b => b.sede && b.sede.toLowerCase().includes(this._filterSede.toLowerCase()));
       }
-      if (excludeKey !== "anemia" && this._filterAnemia !== "all") {
-        if (this._filterAnemia === "Moderada") l = l.filter(b => b.anemia === "Moderada" || b.anemia === "Severa");
-        else l = l.filter(b => b.anemia === this._filterAnemia);
+      if (excludeKey !== "anemia" && this._filterAnemia.length > 0) {
+        l = l.filter(b => this._matchesAnemia(b, this._filterAnemia));
       }
       if (excludeKey !== "edad" && this._filterEdad !== "all") {
         const tEdad = parseInt(this._filterEdad, 10);
@@ -249,9 +337,9 @@ export const BeneficiariosView = {
 
     // 1. Facetas de Servicio
     const forServ = getFilteredExcluding("servicio");
-    const countServDesayuno = forServ.filter(b => b.servicios && b.servicios.some(s => s.toLowerCase().includes("desayuno") || s.toLowerCase().includes("alimento"))).length;
-    const countServCasita = forServ.filter(b => b.servicios && b.servicios.some(s => s.toLowerCase().includes("casita") || s.toLowerCase().includes("educativ"))).length;
-    const countServMixto = forServ.filter(b => b.servicios && b.servicios.length >= 2).length;
+    const countServDesayuno = forServ.filter(b => this._matchesServicio(b, ["desayuno"])).length;
+    const countServCasita = forServ.filter(b => this._matchesServicio(b, ["casita"])).length;
+    const countServPastoral = forServ.filter(b => this._matchesServicio(b, ["pastoral"])).length;
     const countServAll = forServ.length;
 
     const servBtns = document.querySelectorAll("#padronServicioSegmented .audit-seg-btn");
@@ -261,7 +349,7 @@ export const BeneficiariosView = {
       let label = "Todos";
       if (val === "desayuno") { c = countServDesayuno; label = "Nutrición SAN"; }
       if (val === "casita") { c = countServCasita; label = "Casita del Saber"; }
-      if (val === "mixto") { c = countServMixto; label = "Mixto / Ambos"; }
+      if (val === "pastoral") { c = countServPastoral; label = "Social Pastoral"; }
 
       btn.classList.toggle("zero-facet", c === 0 && val !== "all");
       btn.innerHTML = `${label} <span class="audit-seg-count">(${c})</span>`;
@@ -337,14 +425,17 @@ export const BeneficiariosView = {
       });
     }
 
-    if (this._filterServicio !== "all") {
-      let servLabel = this._filterServicio;
-      if (this._filterServicio === "desayuno") servLabel = "Nutrición SAN";
-      if (this._filterServicio === "casita") servLabel = "Casita del Saber";
-      if (this._filterServicio === "mixto") servLabel = "Mixto / Ambos";
-      chips.push({
-        id: "servicio",
-        label: `Programa: ${servLabel}`,
+    if (this._filterServicio.length > 0) {
+      this._filterServicio.forEach(s => {
+        let servLabel = s;
+        if (s === "desayuno") servLabel = "Nutrición SAN";
+        if (s === "casita") servLabel = "Casita del Saber";
+        if (s === "pastoral") servLabel = "Social Pastoral";
+        chips.push({
+          id: "servicio",
+          val: s,
+          label: `Programa: ${servLabel}`,
+        });
       });
     }
 
@@ -355,10 +446,13 @@ export const BeneficiariosView = {
       });
     }
 
-    if (this._filterAnemia !== "all") {
-      chips.push({
-        id: "anemia",
-        label: `Anemia: ${this._filterAnemia === "Moderada" ? "Mod / Severa" : this._filterAnemia}`,
+    if (this._filterAnemia.length > 0) {
+      this._filterAnemia.forEach(a => {
+        chips.push({
+          id: "anemia",
+          val: a,
+          label: `Anemia: ${a === "Moderada" ? "Mod / Severa" : a}`,
+        });
       });
     }
 
@@ -384,7 +478,7 @@ export const BeneficiariosView = {
       list.innerHTML = chips.map(chip => `
         <span class="padron-chip">
           <span>${chip.label}</span>
-          <button type="button" class="padron-chip-remove" onclick="window.removePadronChip ? window.removePadronChip('${chip.id}') : null" title="Eliminar filtro">
+          <button type="button" class="padron-chip-remove" onclick="window.removePadronChip ? window.removePadronChip('${chip.id}', '${chip.val || ''}') : null" title="Eliminar filtro">
             <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>

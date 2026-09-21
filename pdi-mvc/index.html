@@ -417,25 +417,25 @@
                     </div>
 
                     <div class="audit-filters-body">
-                      <!-- Filtro 1: Servicio / Programa Asignado -->
+                      <!-- Filtro 1: Servicio / Programa Asignado (Multi-selección) -->
                       <div class="audit-filter-field">
                         <label class="audit-field-label">Servicio / Programa</label>
                         <div class="audit-filter-segmented" id="padronServicioSegmented">
                           <button type="button" class="audit-seg-btn active" data-value="all"
-                            onclick="window.selectPadronServicio ? window.selectPadronServicio('all') : null">
+                            onclick="window.togglePadronServicio ? window.togglePadronServicio('all') : null">
                             Todos
                           </button>
                           <button type="button" class="audit-seg-btn" data-value="desayuno"
-                            onclick="window.selectPadronServicio ? window.selectPadronServicio('desayuno') : null">
+                            onclick="window.togglePadronServicio ? window.togglePadronServicio('desayuno') : null">
                             Nutrición SAN
                           </button>
                           <button type="button" class="audit-seg-btn" data-value="casita"
-                            onclick="window.selectPadronServicio ? window.selectPadronServicio('casita') : null">
+                            onclick="window.togglePadronServicio ? window.togglePadronServicio('casita') : null">
                             Casita del Saber
                           </button>
-                          <button type="button" class="audit-seg-btn" data-value="mixto"
-                            onclick="window.selectPadronServicio ? window.selectPadronServicio('mixto') : null">
-                            Mixto / Ambos
+                          <button type="button" class="audit-seg-btn" data-value="pastoral"
+                            onclick="window.togglePadronServicio ? window.togglePadronServicio('pastoral') : null">
+                            Social Pastoral
                           </button>
                         </div>
                       </div>
@@ -460,42 +460,55 @@
                         </div>
                       </div>
 
-                      <!-- Filtro 3: Condición Nutricional / Semáforo Anemia MINSA -->
+                      <!-- Filtro 3: Condición Nutricional / Semáforo Anemia MINSA (Multi-selección) -->
                       <div class="audit-filter-field">
                         <label class="audit-field-label">Condición Nutricional (Anemia)</label>
                         <div class="audit-filter-segmented" id="padronAnemiaSegmented">
                           <button type="button" class="audit-seg-btn active" data-value="all"
-                            onclick="window.selectPadronAnemia ? window.selectPadronAnemia('all') : null">
+                            onclick="window.togglePadronAnemia ? window.togglePadronAnemia('all') : null">
                             Todos
                           </button>
                           <button type="button" class="audit-seg-btn" data-value="Normal"
-                            onclick="window.selectPadronAnemia ? window.selectPadronAnemia('Normal') : null">
+                            onclick="window.togglePadronAnemia ? window.togglePadronAnemia('Normal') : null">
                             <span class="badge badge-green" style="padding:1px 5px; font-size:10px;">Normal</span>
                           </button>
                           <button type="button" class="audit-seg-btn" data-value="Leve"
-                            onclick="window.selectPadronAnemia ? window.selectPadronAnemia('Leve') : null">
+                            onclick="window.togglePadronAnemia ? window.togglePadronAnemia('Leve') : null">
                             <span class="badge badge-yellow" style="padding:1px 5px; font-size:10px;">Leve</span>
                           </button>
                           <button type="button" class="audit-seg-btn" data-value="Moderada"
-                            onclick="window.selectPadronAnemia ? window.selectPadronAnemia('Moderada') : null">
+                            onclick="window.togglePadronAnemia ? window.togglePadronAnemia('Moderada') : null">
                             <span class="badge badge-red" style="padding:1px 5px; font-size:10px;">Mod / Sev</span>
                           </button>
                         </div>
                       </div>
 
-                      <!-- Filtro 4: Edad del Beneficiario (0 a 18 años con teclado o slider) -->
+                      <!-- Filtro 4: Edad del Beneficiario (0 a 18 años con Cuadro, Rango/Slider y Botón Todas) -->
                       <div class="audit-filter-field">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                          <label class="audit-field-label" for="numPadronEdad">Edad Exacta (0 a 18 años)</label>
-                          <button type="button" class="btn-text-subtle" style="font-size:11px; padding:0 4px;" onclick="window.clearPadronEdad ? window.clearPadronEdad() : null">Todas</button>
+                        <div class="facet-edad-header">
+                          <label class="audit-field-label" style="margin-bottom:0;">Edad del Beneficiario</label>
+                          <button type="button" class="btn-facet-all-edad active" id="btnPadronEdadTodas"
+                            onclick="window.clearPadronEdad ? window.clearPadronEdad() : null">
+                            Todas las edades
+                          </button>
                         </div>
-                        <div class="facet-edad-slider-wrap">
-                          <input type="range" min="0" max="18" value="0" id="sliderPadronEdad"
-                            oninput="window.syncPadronEdad ? window.syncPadronEdad(this.value, 'slider') : null">
-                          <div style="display: flex; align-items: center; gap: 4px;">
-                            <input type="number" min="0" max="18" placeholder="Todas" id="numPadronEdad" class="form-control facet-edad-num-input"
-                              oninput="window.syncPadronEdad ? window.syncPadronEdad(this.value, 'num') : null">
-                            <span style="font-size: 11.5px; color: var(--text-dim); font-weight: 600;">años</span>
+                        <div class="facet-edad-card">
+                          <div class="facet-edad-input-row">
+                            <span class="facet-edad-input-label">Edad específica:</span>
+                            <div class="facet-edad-input-box">
+                              <input type="number" min="0" max="18" placeholder="—" id="numPadronEdad" class="facet-edad-num-input"
+                                oninput="window.syncPadronEdad ? window.syncPadronEdad(this.value, 'num') : null">
+                              <span class="facet-edad-unit">años</span>
+                            </div>
+                          </div>
+                          <div class="facet-edad-slider-section">
+                            <div class="facet-edad-slider-labels">
+                              <span>0 años</span>
+                              <span id="labelPadronEdadSliderVal" style="font-weight:700; color:var(--gt-green);">0 a 18 años</span>
+                              <span>18 años</span>
+                            </div>
+                            <input type="range" min="0" max="18" value="0" id="sliderPadronEdad" class="facet-edad-range-slider"
+                              oninput="window.syncPadronEdad ? window.syncPadronEdad(this.value, 'slider') : null">
                           </div>
                         </div>
                       </div>

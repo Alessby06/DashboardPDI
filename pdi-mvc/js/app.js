@@ -80,14 +80,20 @@ window.filterPadronSearch = (q) => {
 window.clearPadronSearch = () => {
   if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.clearSearch();
 };
+window.togglePadronServicio = (val) => {
+  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.toggleServicio(val);
+};
 window.selectPadronServicio = (val) => {
-  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.selectServicio(val);
+  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.toggleServicio(val);
 };
 window.selectPadronSede = (val) => {
   if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.selectSede(val);
 };
+window.togglePadronAnemia = (val) => {
+  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.toggleAnemia(val);
+};
 window.selectPadronAnemia = (val) => {
-  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.selectAnemia(val);
+  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.toggleAnemia(val);
 };
 window.syncPadronEdad = (val, source) => {
   if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.syncEdad(val, source);
@@ -95,8 +101,8 @@ window.syncPadronEdad = (val, source) => {
 window.clearPadronEdad = () => {
   if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.clearEdad();
 };
-window.removePadronChip = (filterKey) => {
-  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.removeFilter(filterKey);
+window.removePadronChip = (filterKey, specificVal) => {
+  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.removeFilter(filterKey, specificVal);
 };
 window.selectPadronEstado = (val) => {
   if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.selectEstado(val);
