@@ -417,73 +417,220 @@
                     </div>
 
                     <div class="audit-filters-body">
-                      <!-- Filtro 1: Servicio / Programa Asignado (Multi-selección) -->
+                      <!-- Filtro 1: Servicio / Programa (Dropdown Multi-selección con Checkbox) -->
                       <div class="audit-filter-field">
                         <label class="audit-field-label">Servicio / Programa</label>
-                        <div class="audit-filter-segmented" id="padronServicioSegmented">
-                          <button type="button" class="audit-seg-btn active" data-value="all"
-                            onclick="window.togglePadronServicio ? window.togglePadronServicio('all') : null">
-                            Todos
+                        <div class="padron-inner-dropdown" id="dropdownPadronServicio">
+                          <button type="button" class="padron-inner-dropdown-btn"
+                            onclick="window.togglePadronInnerDropdown ? window.togglePadronInnerDropdown('dropdownPadronServicio') : null">
+                            <span id="labelPadronServicioSelect">Todos los Servicios</span>
+                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                            </svg>
                           </button>
-                          <button type="button" class="audit-seg-btn" data-value="desayuno"
-                            onclick="window.togglePadronServicio ? window.togglePadronServicio('desayuno') : null">
-                            Nutrición SAN
-                          </button>
-                          <button type="button" class="audit-seg-btn" data-value="casita"
-                            onclick="window.togglePadronServicio ? window.togglePadronServicio('casita') : null">
-                            Casita del Saber
-                          </button>
-                          <button type="button" class="audit-seg-btn" data-value="pastoral"
-                            onclick="window.togglePadronServicio ? window.togglePadronServicio('pastoral') : null">
-                            Social Pastoral
-                          </button>
+                          <div class="padron-inner-dropdown-menu" id="menuPadronServicio">
+                            <div class="padron-dropdown-item selected" data-value="all" onclick="window.togglePadronServicio ? window.togglePadronServicio('all') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="padron-item-label">Todos</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetServicio-all">(28)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="desayuno" onclick="window.togglePadronServicio ? window.togglePadronServicio('desayuno') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="padron-item-label">Servicio Alimentario Nutricional</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetServicio-desayuno">(0)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="casita" onclick="window.togglePadronServicio ? window.togglePadronServicio('casita') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="padron-item-label">Servicio Acompañamiento Educativo</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetServicio-casita">(0)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="pastoral" onclick="window.togglePadronServicio ? window.togglePadronServicio('pastoral') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="padron-item-label">Área Social Pastoral</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetServicio-pastoral">(0)</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
 
-                      <!-- Filtro 2: Sede Operativa / Distrito -->
+                      <!-- Filtro 2: Sede Operativa (Dropdown Multi-selección con Checkbox) -->
                       <div class="audit-filter-field">
-                        <label class="audit-field-label" for="selectPadronSedeFilter">Sede Operativa</label>
-                        <div class="audit-select-wrap">
-                          <select class="audit-filter-select" id="selectPadronSedeFilter"
-                            onchange="window.selectPadronSede ? window.selectPadronSede(this.value) : null">
-                            <option value="all" selected>Todas las Sedes (Comas y Carabayllo)</option>
-                            <option value="Año Nuevo">Año Nuevo (Comas)</option>
-                            <option value="La Libertad">La Libertad (Comas)</option>
-                            <option value="San Pedro">San Pedro (Carabayllo)</option>
-                            <option value="El Progreso">El Progreso (Carabayllo)</option>
-                            <option value="Santa Rosa">Santa Rosa (Carabayllo)</option>
-                            <option value="Los Bendecidos">Los Bendecidos (Carabayllo)</option>
-                          </select>
-                          <svg class="select-arrow" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                          </svg>
+                        <label class="audit-field-label">Sede Operativa</label>
+                        <div class="padron-inner-dropdown" id="dropdownPadronSede">
+                          <button type="button" class="padron-inner-dropdown-btn"
+                            onclick="window.togglePadronInnerDropdown ? window.togglePadronInnerDropdown('dropdownPadronSede') : null">
+                            <span id="labelPadronSedeSelect">Todas las Sedes</span>
+                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                            </svg>
+                          </button>
+                          <div class="padron-inner-dropdown-menu" id="menuPadronSede">
+                            <div class="padron-dropdown-item selected" data-value="all" onclick="window.togglePadronSede ? window.togglePadronSede('all') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="padron-item-label">Todas las Sedes</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetSede-all">(28)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="Año Nuevo" onclick="window.togglePadronSede ? window.togglePadronSede('Año Nuevo') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="padron-item-label">Año Nuevo (Comas)</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetSede-Año Nuevo">(0)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="La Libertad" onclick="window.togglePadronSede ? window.togglePadronSede('La Libertad') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="padron-item-label">La Libertad (Comas)</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetSede-La Libertad">(0)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="San Pedro" onclick="window.togglePadronSede ? window.togglePadronSede('San Pedro') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="padron-item-label">San Pedro (Carabayllo)</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetSede-San Pedro">(0)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="El Progreso" onclick="window.togglePadronSede ? window.togglePadronSede('El Progreso') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="padron-item-label">El Progreso (Carabayllo)</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetSede-El Progreso">(0)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="Santa Rosa" onclick="window.togglePadronSede ? window.togglePadronSede('Santa Rosa') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="padron-item-label">Santa Rosa (Carabayllo)</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetSede-Santa Rosa">(0)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="Los Bendecidos" onclick="window.togglePadronSede ? window.togglePadronSede('Los Bendecidos') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="padron-item-label">Los Bendecidos (Carabayllo)</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetSede-Los Bendecidos">(0)</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
 
-                      <!-- Filtro 3: Condición Nutricional / Semáforo Anemia MINSA (Multi-selección) -->
+                      <!-- Filtro 3: Condición Nutricional / Semáforo Anemia MINSA (Dropdown Multi-selección con Checkbox) -->
                       <div class="audit-filter-field">
                         <label class="audit-field-label">Condición Nutricional (Anemia)</label>
-                        <div class="audit-filter-segmented" id="padronAnemiaSegmented">
-                          <button type="button" class="audit-seg-btn active" data-value="all"
-                            onclick="window.togglePadronAnemia ? window.togglePadronAnemia('all') : null">
-                            Todos
+                        <div class="padron-inner-dropdown" id="dropdownPadronAnemia">
+                          <button type="button" class="padron-inner-dropdown-btn"
+                            onclick="window.togglePadronInnerDropdown ? window.togglePadronInnerDropdown('dropdownPadronAnemia') : null">
+                            <span id="labelPadronAnemiaSelect">Todas las Condiciones</span>
+                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                            </svg>
                           </button>
-                          <button type="button" class="audit-seg-btn" data-value="Normal"
-                            onclick="window.togglePadronAnemia ? window.togglePadronAnemia('Normal') : null">
-                            <span class="badge badge-green" style="padding:1px 5px; font-size:10px;">Normal</span>
-                          </button>
-                          <button type="button" class="audit-seg-btn" data-value="Leve"
-                            onclick="window.togglePadronAnemia ? window.togglePadronAnemia('Leve') : null">
-                            <span class="badge badge-yellow" style="padding:1px 5px; font-size:10px;">Leve</span>
-                          </button>
-                          <button type="button" class="audit-seg-btn" data-value="Moderada"
-                            onclick="window.togglePadronAnemia ? window.togglePadronAnemia('Moderada') : null">
-                            <span class="badge badge-red" style="padding:1px 5px; font-size:10px;">Mod / Sev</span>
-                          </button>
+                          <div class="padron-inner-dropdown-menu" id="menuPadronAnemia">
+                            <div class="padron-dropdown-item selected" data-value="all" onclick="window.togglePadronAnemia ? window.togglePadronAnemia('all') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="padron-item-label">Todos</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetAnemia-all">(28)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="Normal" onclick="window.togglePadronAnemia ? window.togglePadronAnemia('Normal') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="badge badge-green" style="padding:1px 5px; font-size:10.5px;">Normal</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetAnemia-Normal">(0)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="Leve" onclick="window.togglePadronAnemia ? window.togglePadronAnemia('Leve') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="badge badge-yellow" style="padding:1px 5px; font-size:10.5px;">Leve</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetAnemia-Leve">(0)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="Moderada" onclick="window.togglePadronAnemia ? window.togglePadronAnemia('Moderada') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="badge badge-red" style="padding:1px 5px; font-size:10.5px;">Mod / Sev</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetAnemia-Moderada">(0)</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
 
-                      <!-- Filtro 4: Edad del Beneficiario (0 a 18 años con Cuadro, Rango/Slider y Botón Todas) -->
+                      <!-- Filtro 4: Edad del Beneficiario (0 a 18 años con Cuadro de Edad Específica, Barra Slider de Rango 0-18 y Botón Todas) -->
                       <div class="audit-filter-field">
                         <div class="facet-edad-header">
                           <label class="audit-field-label" style="margin-bottom:0;">Edad del Beneficiario</label>
@@ -497,7 +644,7 @@
                             <span class="facet-edad-input-label">Edad específica:</span>
                             <div class="facet-edad-input-box">
                               <input type="number" min="0" max="18" placeholder="—" id="numPadronEdad" class="facet-edad-num-input"
-                                oninput="window.syncPadronEdad ? window.syncPadronEdad(this.value, 'num') : null">
+                                oninput="window.setPadronEdadExacta ? window.setPadronEdadExacta(this.value) : null">
                               <span class="facet-edad-unit">años</span>
                             </div>
                           </div>
@@ -507,28 +654,52 @@
                               <span id="labelPadronEdadSliderVal" style="font-weight:700; color:var(--gt-green);">0 a 18 años</span>
                               <span>18 años</span>
                             </div>
-                            <input type="range" min="0" max="18" value="0" id="sliderPadronEdad" class="facet-edad-range-slider"
-                              oninput="window.syncPadronEdad ? window.syncPadronEdad(this.value, 'slider') : null">
+                            <div class="facet-range-slider-wrapper">
+                              <div class="facet-range-slider-track"></div>
+                              <div class="facet-range-slider-highlight" id="sliderPadronEdadHighlight" style="left:0%; right:0%;"></div>
+                              <input type="range" min="0" max="18" value="0" id="sliderPadronEdadMin" class="facet-range-slider-input"
+                                oninput="window.syncPadronEdadRango ? window.syncPadronEdadRango('min', this.value) : null">
+                              <input type="range" min="0" max="18" value="18" id="sliderPadronEdadMax" class="facet-range-slider-input"
+                                oninput="window.syncPadronEdadRango ? window.syncPadronEdadRango('max', this.value) : null">
+                            </div>
                           </div>
                         </div>
                       </div>
 
-                      <!-- Filtro 5: Estado de Matrícula -->
+                      <!-- Filtro 5: Estado de Matrícula (Dropdown Desplegable) -->
                       <div class="audit-filter-field">
                         <label class="audit-field-label">Estado de Matrícula</label>
-                        <div class="audit-filter-segmented" id="padronEstadoSegmented">
-                          <button type="button" class="audit-seg-btn active" data-value="all"
-                            onclick="window.selectPadronEstado ? window.selectPadronEstado('all') : null">
-                            Todos
+                        <div class="padron-inner-dropdown" id="dropdownPadronEstado">
+                          <button type="button" class="padron-inner-dropdown-btn"
+                            onclick="window.togglePadronInnerDropdown ? window.togglePadronInnerDropdown('dropdownPadronEstado') : null">
+                            <span id="labelPadronEstadoSelect">Todos los Estados</span>
+                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                            </svg>
                           </button>
-                          <button type="button" class="audit-seg-btn" data-value="Activo"
-                            onclick="window.selectPadronEstado ? window.selectPadronEstado('Activo') : null">
-                            Activo
-                          </button>
-                          <button type="button" class="audit-seg-btn" data-value="Inactivo"
-                            onclick="window.selectPadronEstado ? window.selectPadronEstado('Inactivo') : null">
-                            Inactivo / Baja
-                          </button>
+                          <div class="padron-inner-dropdown-menu" id="menuPadronEstado">
+                            <div class="padron-dropdown-item selected" data-value="all" onclick="window.selectPadronEstado ? window.selectPadronEstado('all') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-radio"></span>
+                                <span class="padron-item-label">Todos</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetEstado-all">(28)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="Activo" onclick="window.selectPadronEstado ? window.selectPadronEstado('Activo') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-radio"></span>
+                                <span class="padron-item-label">Activo</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetEstado-Activo">(0)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="Inactivo" onclick="window.selectPadronEstado ? window.selectPadronEstado('Inactivo') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-radio"></span>
+                                <span class="padron-item-label">Inactivo / Baja</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetEstado-Inactivo">(0)</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
 

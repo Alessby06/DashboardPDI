@@ -80,14 +80,20 @@ window.filterPadronSearch = (q) => {
 window.clearPadronSearch = () => {
   if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.clearSearch();
 };
+window.togglePadronInnerDropdown = (id) => {
+  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.toggleInnerDropdown(id);
+};
 window.togglePadronServicio = (val) => {
   if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.toggleServicio(val);
 };
 window.selectPadronServicio = (val) => {
   if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.toggleServicio(val);
 };
+window.togglePadronSede = (val) => {
+  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.toggleSede(val);
+};
 window.selectPadronSede = (val) => {
-  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.selectSede(val);
+  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.toggleSede(val);
 };
 window.togglePadronAnemia = (val) => {
   if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.toggleAnemia(val);
@@ -95,8 +101,18 @@ window.togglePadronAnemia = (val) => {
 window.selectPadronAnemia = (val) => {
   if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.toggleAnemia(val);
 };
+window.setPadronEdadExacta = (val) => {
+  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.setEdadExacta(val);
+};
+window.syncPadronEdadRango = (handle, val) => {
+  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.syncEdadRango(handle, val);
+};
 window.syncPadronEdad = (val, source) => {
-  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.syncEdad(val, source);
+  if (source === "slider") {
+    if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.syncEdadRango("min", val);
+  } else {
+    if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.setEdadExacta(val);
+  }
 };
 window.clearPadronEdad = () => {
   if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.clearEdad();
@@ -111,10 +127,13 @@ window.resetPadronFilters = () => {
   if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.resetFilters();
 };
 
-// Cierre automático de Custom Dropdowns y Role Tooltips al hacer clic afuera
+// Cierre automático de Custom Dropdowns, Inner Dropdowns y Role Tooltips al hacer clic afuera
 document.addEventListener("click", (e) => {
   if (!e.target.closest(".custom-dropdown")) {
     document.querySelectorAll(".custom-dropdown.open").forEach(d => d.classList.remove("open"));
+  }
+  if (!e.target.closest(".padron-inner-dropdown")) {
+    document.querySelectorAll(".padron-inner-dropdown.open").forEach(d => d.classList.remove("open"));
   }
   if (!e.target.closest(".role-info-wrap")) {
     const wrap = document.querySelector(".role-info-wrap");
@@ -124,6 +143,7 @@ document.addEventListener("click", (e) => {
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     document.querySelectorAll(".custom-dropdown.open").forEach(d => d.classList.remove("open"));
+    document.querySelectorAll(".padron-inner-dropdown.open").forEach(d => d.classList.remove("open"));
   }
 });
 

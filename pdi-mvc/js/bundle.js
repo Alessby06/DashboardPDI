@@ -2223,10 +2223,12 @@ const BeneficiariosView = {
   _allBeneficiarios: [],
   _searchQuery: "",
   _filterServicio: [], // array de servicios seleccionados (vacío = todos)
-  _filterSede: "all",
+  _filterSede: [],     // array de sedes seleccionadas (vacío = todas)
   _filterAnemia: [],   // array de anemias seleccionadas (vacío = todos)
-  _filterEdad: "all",  // "all" o número específico (0-18)
-  _filterEstado: "all",
+  _filterEdadModo: "all", // "all" | "exacta" | "rango"
+  _filterEdadExacta: null, // number 0-18 o null
+  _filterEdadRango: { min: 0, max: 18 },
+  _filterEstado: "all", // "all" | "Activo" | "Inactivo"
 
   init(beneficiarios) {
     this._allBeneficiarios = beneficiarios || [];
@@ -2255,6 +2257,17 @@ const BeneficiariosView = {
     this.filterBySearch("");
   },
 
+  toggleInnerDropdown(dropdownId) {
+    const dropdown = document.getElementById(dropdownId);
+    if (!dropdown) return;
+    const isCurrentlyOpen = dropdown.classList.contains("open");
+    // Cerrar otros dropdowns internos abiertos
+    document.querySelectorAll(".padron-inner-dropdown.open").forEach(d => {
+      if (d !== dropdown) d.classList.remove("open");
+    });
+    dropdown.classList.toggle("open", !isCurrentlyOpen);
+  },
+
   toggleServicio(val) {
     const allServicios = ["desayuno", "casita", "pastoral"];
     if (val === "all") {
@@ -2271,28 +2284,81 @@ const BeneficiariosView = {
         this._filterServicio = [];
       }
     }
-    this._updateServicioSegmentedUI();
+    this._updateServicioDropdownUI();
     this.applyFilters();
   },
 
-  _updateServicioSegmentedUI() {
-    const btns = document.querySelectorAll("#padronServicioSegmented .audit-seg-btn");
+  _updateServicioDropdownUI() {
     const isAll = this._filterServicio.length === 0;
-    btns.forEach(b => {
-      const v = b.getAttribute("data-value");
+    const items = document.querySelectorAll("#menuPadronServicio .padron-dropdown-item");
+    items.forEach(item => {
+      const v = item.getAttribute("data-value");
       if (v === "all") {
-        b.classList.toggle("active", isAll);
+        item.classList.toggle("selected", isAll);
       } else {
-        b.classList.toggle("active", !isAll && this._filterServicio.includes(v));
+        item.classList.toggle("selected", !isAll && this._filterServicio.includes(v));
       }
     });
+
+    const labelEl = document.getElementById("labelPadronServicioSelect");
+    if (labelEl) {
+      if (isAll) {
+        labelEl.textContent = "Todos los Servicios";
+      } else if (this._filterServicio.length === 1) {
+        const s = this._filterServicio[0];
+        if (s === "desayuno") labelEl.textContent = "Servicio Alimentario Nutricional";
+        else if (s === "casita") labelEl.textContent = "Servicio Acompañamiento Educativo";
+        else if (s === "pastoral") labelEl.textContent = "Área Social Pastoral";
+      } else {
+        labelEl.textContent = `${this._filterServicio.length} seleccionados`;
+      }
+    }
   },
 
-  selectSede(sedeVal) {
-    this._filterSede = sedeVal || "all";
-    const select = document.getElementById("selectPadronSedeFilter");
-    if (select) select.value = this._filterSede;
+  toggleSede(val) {
+    const allSedes = ["Año Nuevo", "La Libertad", "San Pedro", "El Progreso", "Santa Rosa", "Los Bendecidos"];
+    if (val === "all") {
+      this._filterSede = [];
+    } else {
+      const idx = this._filterSede.indexOf(val);
+      if (idx > -1) {
+        this._filterSede.splice(idx, 1);
+      } else {
+        this._filterSede.push(val);
+      }
+      // Si se seleccionaron individualmente todas las sedes, se restablece a Todas automáticamente
+      if (allSedes.every(s => this._filterSede.includes(s))) {
+        this._filterSede = [];
+      }
+    }
+    this._updateSedeDropdownUI();
     this.applyFilters();
+  },
+
+  _updateSedeDropdownUI() {
+    const isAll = this._filterSede.length === 0;
+    const items = document.querySelectorAll("#menuPadronSede .padron-dropdown-item");
+    items.forEach(item => {
+      const v = item.getAttribute("data-value");
+      if (v === "all") {
+        item.classList.toggle("selected", isAll);
+      } else {
+        item.classList.toggle("selected", !isAll && this._filterSede.includes(v));
+      }
+    });
+
+    const labelEl = document.getElementById("labelPadronSedeSelect");
+    if (labelEl) {
+      if (isAll) {
+        labelEl.textContent = "Todas las Sedes";
+      } else if (this._filterSede.length === 1) {
+        const s = this._filterSede[0];
+        const dist = (s === "Año Nuevo" || s === "La Libertad") ? "Comas" : "Carabayllo";
+        labelEl.textContent = `${s} (${dist})`;
+      } else {
+        labelEl.textContent = `${this._filterSede.length} seleccionadas`;
+      }
+    }
   },
 
   toggleAnemia(val) {
@@ -2311,73 +2377,173 @@ const BeneficiariosView = {
         this._filterAnemia = [];
       }
     }
-    this._updateAnemiaSegmentedUI();
+    this._updateAnemiaDropdownUI();
     this.applyFilters();
   },
 
-  _updateAnemiaSegmentedUI() {
-    const btns = document.querySelectorAll("#padronAnemiaSegmented .audit-seg-btn");
+  _updateAnemiaDropdownUI() {
     const isAll = this._filterAnemia.length === 0;
-    btns.forEach(b => {
-      const v = b.getAttribute("data-value");
+    const items = document.querySelectorAll("#menuPadronAnemia .padron-dropdown-item");
+    items.forEach(item => {
+      const v = item.getAttribute("data-value");
       if (v === "all") {
-        b.classList.toggle("active", isAll);
+        item.classList.toggle("selected", isAll);
       } else {
-        b.classList.toggle("active", !isAll && this._filterAnemia.includes(v));
+        item.classList.toggle("selected", !isAll && this._filterAnemia.includes(v));
       }
     });
+
+    const labelEl = document.getElementById("labelPadronAnemiaSelect");
+    if (labelEl) {
+      if (isAll) {
+        labelEl.textContent = "Todas las Condiciones";
+      } else if (this._filterAnemia.length === 1) {
+        const a = this._filterAnemia[0];
+        labelEl.textContent = a === "Moderada" ? "Mod / Severa" : a;
+      } else {
+        labelEl.textContent = `${this._filterAnemia.length} seleccionadas`;
+      }
+    }
   },
 
-  syncEdad(val, source) {
+  setEdadExacta(val) {
     if (val === "" || val === null || val === undefined) {
-      this._filterEdad = "all";
+      this._filterEdadModo = "all";
+      this._filterEdadExacta = null;
+      this._filterEdadRango = { min: 0, max: 18 };
+      this._updateEdadUI();
+      this.applyFilters();
+      return;
+    }
+
+    const num = parseInt(val, 10);
+    if (isNaN(num) || num < 0) {
+      this._filterEdadModo = "all";
+      this._filterEdadExacta = null;
     } else {
-      const num = parseInt(val, 10);
-      if (isNaN(num) || num < 0) {
-        this._filterEdad = "all";
-      } else {
-        this._filterEdad = Math.min(18, Math.max(0, num));
+      this._filterEdadModo = "exacta";
+      this._filterEdadExacta = Math.min(18, Math.max(0, num));
+      // Al usar edad específica, reseteamos el rango a 0-18
+      this._filterEdadRango = { min: 0, max: 18 };
+    }
+    this._updateEdadUI();
+    this.applyFilters();
+  },
+
+  syncEdadRango(handle, val) {
+    let num = parseInt(val, 10);
+    if (isNaN(num)) num = handle === "min" ? 0 : 18;
+    num = Math.min(18, Math.max(0, num));
+
+    let min = this._filterEdadRango.min;
+    let max = this._filterEdadRango.max;
+
+    if (handle === "min") {
+      min = num;
+      if (min > max) {
+        max = min;
+        const maxInput = document.getElementById("sliderPadronEdadMax");
+        if (maxInput) maxInput.value = max;
+      }
+    } else if (handle === "max") {
+      max = num;
+      if (max < min) {
+        min = max;
+        const minInput = document.getElementById("sliderPadronEdadMin");
+        if (minInput) minInput.value = min;
       }
     }
 
-    const slider = document.getElementById("sliderPadronEdad");
+    this._filterEdadRango = { min, max };
+    // Al usar rango, borramos el dígito de edad específica
+    this._filterEdadExacta = null;
     const numInput = document.getElementById("numPadronEdad");
-    const btnTodas = document.getElementById("btnPadronEdadTodas");
-    const labelSlider = document.getElementById("labelPadronEdadSliderVal");
+    if (numInput) numInput.value = "";
 
-    const isAll = this._filterEdad === "all";
-
-    if (btnTodas) btnTodas.classList.toggle("active", isAll);
-
-    if (isAll) {
-      if (numInput) numInput.value = "";
-      if (slider) slider.value = 0;
-      if (labelSlider) labelSlider.textContent = "0 a 18 años";
+    if (min === 0 && max === 18) {
+      this._filterEdadModo = "all";
     } else {
-      if (source === "slider") {
-        if (numInput) numInput.value = this._filterEdad;
-      } else if (source === "num") {
-        if (slider) slider.value = this._filterEdad;
-      } else {
-        if (slider) slider.value = this._filterEdad;
-        if (numInput) numInput.value = this._filterEdad;
-      }
-      if (labelSlider) labelSlider.textContent = `${this._filterEdad} años`;
+      this._filterEdadModo = "rango";
     }
 
+    this._updateEdadUI();
     this.applyFilters();
   },
 
   clearEdad() {
-    this.syncEdad("", "all");
+    this._filterEdadModo = "all";
+    this._filterEdadExacta = null;
+    this._filterEdadRango = { min: 0, max: 18 };
+    const numInput = document.getElementById("numPadronEdad");
+    if (numInput) numInput.value = "";
+    this._updateEdadUI();
+    this.applyFilters();
+  },
+
+  _updateEdadUI() {
+    const btnTodas = document.getElementById("btnPadronEdadTodas");
+    const numInput = document.getElementById("numPadronEdad");
+    const sliderMin = document.getElementById("sliderPadronEdadMin");
+    const sliderMax = document.getElementById("sliderPadronEdadMax");
+    const highlight = document.getElementById("sliderPadronEdadHighlight");
+    const labelSlider = document.getElementById("labelPadronEdadSliderVal");
+
+    const isAll = this._filterEdadModo === "all";
+    if (btnTodas) btnTodas.classList.toggle("active", isAll);
+
+    if (this._filterEdadModo === "exacta") {
+      if (numInput && this._filterEdadExacta !== null) numInput.value = this._filterEdadExacta;
+      if (sliderMin) sliderMin.value = 0;
+      if (sliderMax) sliderMax.value = 18;
+      if (highlight) {
+        highlight.style.left = "0%";
+        highlight.style.right = "0%";
+      }
+      if (labelSlider) labelSlider.textContent = "0 a 18 años";
+    } else if (this._filterEdadModo === "rango") {
+      if (numInput) numInput.value = "";
+      const { min, max } = this._filterEdadRango;
+      if (sliderMin) sliderMin.value = min;
+      if (sliderMax) sliderMax.value = max;
+      if (highlight) {
+        const leftPct = (min / 18) * 100;
+        const rightPct = 100 - (max / 18) * 100;
+        highlight.style.left = `${leftPct}%`;
+        highlight.style.right = `${rightPct}%`;
+      }
+      if (labelSlider) {
+        labelSlider.textContent = min === max ? `Exactamente ${min} años` : `${min} a ${max} años`;
+      }
+    } else { // "all"
+      if (numInput) numInput.value = "";
+      if (sliderMin) sliderMin.value = 0;
+      if (sliderMax) sliderMax.value = 18;
+      if (highlight) {
+        highlight.style.left = "0%";
+        highlight.style.right = "0%";
+      }
+      if (labelSlider) labelSlider.textContent = "0 a 18 años";
+    }
   },
 
   selectEstado(estadoVal) {
     this._filterEstado = estadoVal || "all";
-    const btns = document.querySelectorAll("#padronEstadoSegmented .audit-seg-btn");
-    btns.forEach(b => {
-      b.classList.toggle("active", b.getAttribute("data-value") === this._filterEstado);
+    const items = document.querySelectorAll("#menuPadronEstado .padron-dropdown-item");
+    items.forEach(item => {
+      item.classList.toggle("selected", item.getAttribute("data-value") === this._filterEstado);
     });
+
+    const labelEl = document.getElementById("labelPadronEstadoSelect");
+    if (labelEl) {
+      if (this._filterEstado === "all") labelEl.textContent = "Todos los Estados";
+      else if (this._filterEstado === "Activo") labelEl.textContent = "Activo";
+      else if (this._filterEstado === "Inactivo") labelEl.textContent = "Inactivo / Baja";
+    }
+
+    // Cerrar dropdown de estado al seleccionar
+    const drop = document.getElementById("dropdownPadronEstado");
+    if (drop) drop.classList.remove("open");
+
     this.applyFilters();
   },
 
@@ -2390,7 +2556,13 @@ const BeneficiariosView = {
         this.toggleServicio("all");
       }
     }
-    if (filterKey === "sede") this.selectSede("all");
+    if (filterKey === "sede") {
+      if (specificVal) {
+        this.toggleSede(specificVal);
+      } else {
+        this.toggleSede("all");
+      }
+    }
     if (filterKey === "anemia") {
       if (specificVal) {
         this.toggleAnemia(specificVal);
@@ -2405,9 +2577,11 @@ const BeneficiariosView = {
   resetFilters() {
     this._searchQuery = "";
     this._filterServicio = [];
-    this._filterSede = "all";
+    this._filterSede = [];
     this._filterAnemia = [];
-    this._filterEdad = "all";
+    this._filterEdadModo = "all";
+    this._filterEdadExacta = null;
+    this._filterEdadRango = { min: 0, max: 18 };
     this._filterEstado = "all";
 
     const input = document.getElementById("inputPadronSearch");
@@ -2415,23 +2589,18 @@ const BeneficiariosView = {
     const clearBtn = document.getElementById("btnPadronSearchClear");
     if (clearBtn) clearBtn.style.display = "none";
 
-    const sSede = document.getElementById("selectPadronSedeFilter");
-    if (sSede) sSede.value = "all";
+    this._updateServicioDropdownUI();
+    this._updateSedeDropdownUI();
+    this._updateAnemiaDropdownUI();
+    this._updateEdadUI();
 
-    const slider = document.getElementById("sliderPadronEdad");
-    if (slider) slider.value = 0;
-    const numInput = document.getElementById("numPadronEdad");
-    if (numInput) numInput.value = "";
-    const labelSlider = document.getElementById("labelPadronEdadSliderVal");
-    if (labelSlider) labelSlider.textContent = "0 a 18 años";
-    const btnTodas = document.getElementById("btnPadronEdadTodas");
-    if (btnTodas) btnTodas.classList.add("active");
+    const estadoItems = document.querySelectorAll("#menuPadronEstado .padron-dropdown-item");
+    estadoItems.forEach(item => item.classList.toggle("selected", item.getAttribute("data-value") === "all"));
+    const labelEstado = document.getElementById("labelPadronEstadoSelect");
+    if (labelEstado) labelEstado.textContent = "Todos los Estados";
 
-    this._updateServicioSegmentedUI();
-    this._updateAnemiaSegmentedUI();
-
-    const sEstadoBtns = document.querySelectorAll("#padronEstadoSegmented .audit-seg-btn");
-    sEstadoBtns.forEach(b => b.classList.toggle("active", b.getAttribute("data-value") === "all"));
+    // Cerrar cualquier dropdown interno que haya quedado abierto
+    document.querySelectorAll(".padron-inner-dropdown.open").forEach(d => d.classList.remove("open"));
 
     this.applyFilters();
   },
@@ -2480,9 +2649,9 @@ const BeneficiariosView = {
       list = list.filter(b => this._matchesServicio(b, this._filterServicio));
     }
 
-    // 3. Sede Operativa
-    if (this._filterSede !== "all") {
-      list = list.filter(b => b.sede && b.sede.toLowerCase().includes(this._filterSede.toLowerCase()));
+    // 3. Sede Operativa (Multi-selección)
+    if (this._filterSede.length > 0) {
+      list = list.filter(b => b.sede && this._filterSede.some(s => b.sede.toLowerCase().includes(s.toLowerCase())));
     }
 
     // 4. Condición Nutricional (Anemia - Multi-selección)
@@ -2490,12 +2659,18 @@ const BeneficiariosView = {
       list = list.filter(b => this._matchesAnemia(b, this._filterAnemia));
     }
 
-    // 5. Edad Exacta (0 a 18 años)
-    if (this._filterEdad !== "all") {
-      const targetEdad = parseInt(this._filterEdad, 10);
+    // 5. Edad (Exacta o Rango)
+    if (this._filterEdadModo === "exacta" && this._filterEdadExacta !== null) {
+      const targetEdad = this._filterEdadExacta;
       list = list.filter(b => {
         const numEdad = parseInt(b.edad, 10);
         return !isNaN(numEdad) && numEdad === targetEdad;
+      });
+    } else if (this._filterEdadModo === "rango") {
+      const { min, max } = this._filterEdadRango;
+      list = list.filter(b => {
+        const numEdad = parseInt(b.edad, 10);
+        return !isNaN(numEdad) && numEdad >= min && numEdad <= max;
       });
     }
 
@@ -2507,9 +2682,9 @@ const BeneficiariosView = {
     // Actualizar badge de filtros activos
     let activeFiltersCount = 0;
     if (this._filterServicio.length > 0) activeFiltersCount += this._filterServicio.length;
-    if (this._filterSede !== "all") activeFiltersCount++;
+    if (this._filterSede.length > 0) activeFiltersCount += this._filterSede.length;
     if (this._filterAnemia.length > 0) activeFiltersCount += this._filterAnemia.length;
-    if (this._filterEdad !== "all") activeFiltersCount++;
+    if (this._filterEdadModo !== "all") activeFiltersCount++;
     if (this._filterEstado !== "all") activeFiltersCount++;
 
     const badgeEl = document.getElementById("padronActiveFiltersCount");
@@ -2539,15 +2714,23 @@ const BeneficiariosView = {
       if (excludeKey !== "servicio" && this._filterServicio.length > 0) {
         l = l.filter(b => this._matchesServicio(b, this._filterServicio));
       }
-      if (excludeKey !== "sede" && this._filterSede !== "all") {
-        l = l.filter(b => b.sede && b.sede.toLowerCase().includes(this._filterSede.toLowerCase()));
+      if (excludeKey !== "sede" && this._filterSede.length > 0) {
+        l = l.filter(b => b.sede && this._filterSede.some(s => b.sede.toLowerCase().includes(s.toLowerCase())));
       }
       if (excludeKey !== "anemia" && this._filterAnemia.length > 0) {
         l = l.filter(b => this._matchesAnemia(b, this._filterAnemia));
       }
-      if (excludeKey !== "edad" && this._filterEdad !== "all") {
-        const tEdad = parseInt(this._filterEdad, 10);
-        l = l.filter(b => (parseInt(b.edad, 10) || 0) === tEdad);
+      if (excludeKey !== "edad") {
+        if (this._filterEdadModo === "exacta" && this._filterEdadExacta !== null) {
+          const tEdad = this._filterEdadExacta;
+          l = l.filter(b => (parseInt(b.edad, 10) || 0) === tEdad);
+        } else if (this._filterEdadModo === "rango") {
+          const { min, max } = this._filterEdadRango;
+          l = l.filter(b => {
+            const numEdad = parseInt(b.edad, 10);
+            return !isNaN(numEdad) && numEdad >= min && numEdad <= max;
+          });
+        }
       }
       if (excludeKey !== "estado" && this._filterEstado !== "all") {
         l = l.filter(b => b.estado === this._filterEstado);
@@ -2560,39 +2743,20 @@ const BeneficiariosView = {
     const countServDesayuno = forServ.filter(b => this._matchesServicio(b, ["desayuno"])).length;
     const countServCasita = forServ.filter(b => this._matchesServicio(b, ["casita"])).length;
     const countServPastoral = forServ.filter(b => this._matchesServicio(b, ["pastoral"])).length;
-    const countServAll = forServ.length;
 
-    const servBtns = document.querySelectorAll("#padronServicioSegmented .audit-seg-btn");
-    servBtns.forEach(btn => {
-      const val = btn.getAttribute("data-value");
-      let c = countServAll;
-      let label = "Todos";
-      if (val === "desayuno") { c = countServDesayuno; label = "Nutrición SAN"; }
-      if (val === "casita") { c = countServCasita; label = "Casita del Saber"; }
-      if (val === "pastoral") { c = countServPastoral; label = "Social Pastoral"; }
-
-      btn.classList.toggle("zero-facet", c === 0 && val !== "all");
-      btn.innerHTML = `${label} <span class="audit-seg-count">(${c})</span>`;
-    });
+    this._setFacetBadge("countFacetServicio-all", `(${forServ.length})`, forServ.length === 0);
+    this._setFacetBadge("countFacetServicio-desayuno", `(${countServDesayuno})`, countServDesayuno === 0);
+    this._setFacetBadge("countFacetServicio-casita", `(${countServCasita})`, countServCasita === 0);
+    this._setFacetBadge("countFacetServicio-pastoral", `(${countServPastoral})`, countServPastoral === 0);
 
     // 2. Facetas de Sede
     const forSede = getFilteredExcluding("sede");
-    const selectSede = document.getElementById("selectPadronSedeFilter");
-    if (selectSede) {
-      Array.from(selectSede.options).forEach(opt => {
-        const val = opt.value;
-        if (val === "all") {
-          opt.textContent = `Todas las Sedes (${forSede.length})`;
-          opt.classList.remove("zero-facet");
-        } else {
-          const c = forSede.filter(b => b.sede && b.sede.toLowerCase().includes(val.toLowerCase())).length;
-          const baseName = val.includes("Comas") || val.includes("Carabayllo") ? val : `${val} (${val === "Año Nuevo" || val === "La Libertad" ? "Comas" : "Carabayllo"})`;
-          opt.textContent = `${baseName} (${c})`;
-          opt.disabled = c === 0;
-          opt.classList.toggle("zero-facet", c === 0);
-        }
-      });
-    }
+    this._setFacetBadge("countFacetSede-all", `(${forSede.length})`, forSede.length === 0);
+    const sedesList = ["Año Nuevo", "La Libertad", "San Pedro", "El Progreso", "Santa Rosa", "Los Bendecidos"];
+    sedesList.forEach(s => {
+      const c = forSede.filter(b => b.sede && b.sede.toLowerCase().includes(s.toLowerCase())).length;
+      this._setFacetBadge(`countFacetSede-${s}`, `(${c})`, c === 0);
+    });
 
     // 3. Facetas de Anemia
     const forAnemia = getFilteredExcluding("anemia");
@@ -2600,35 +2764,29 @@ const BeneficiariosView = {
     const countAnemiaLeve = forAnemia.filter(b => b.anemia === "Leve").length;
     const countAnemiaMod = forAnemia.filter(b => b.anemia === "Moderada" || b.anemia === "Severa").length;
 
-    const anemiaBtns = document.querySelectorAll("#padronAnemiaSegmented .audit-seg-btn");
-    anemiaBtns.forEach(btn => {
-      const val = btn.getAttribute("data-value");
-      let c = forAnemia.length;
-      let badgeHtml = `Todos`;
-      if (val === "Normal") { c = countAnemiaNormal; badgeHtml = `<span class="badge badge-green" style="padding:1px 5px; font-size:10px;">Normal</span>`; }
-      if (val === "Leve") { c = countAnemiaLeve; badgeHtml = `<span class="badge badge-yellow" style="padding:1px 5px; font-size:10px;">Leve</span>`; }
-      if (val === "Moderada") { c = countAnemiaMod; badgeHtml = `<span class="badge badge-red" style="padding:1px 5px; font-size:10px;">Mod / Sev</span>`; }
-
-      btn.classList.toggle("zero-facet", c === 0 && val !== "all");
-      btn.innerHTML = `${badgeHtml} <span class="audit-seg-count">(${c})</span>`;
-    });
+    this._setFacetBadge("countFacetAnemia-all", `(${forAnemia.length})`, forAnemia.length === 0);
+    this._setFacetBadge("countFacetAnemia-Normal", `(${countAnemiaNormal})`, countAnemiaNormal === 0);
+    this._setFacetBadge("countFacetAnemia-Leve", `(${countAnemiaLeve})`, countAnemiaLeve === 0);
+    this._setFacetBadge("countFacetAnemia-Moderada", `(${countAnemiaMod})`, countAnemiaMod === 0);
 
     // 4. Facetas de Estado
     const forEstado = getFilteredExcluding("estado");
     const countActivo = forEstado.filter(b => b.estado === "Activo").length;
     const countInactivo = forEstado.filter(b => b.estado === "Inactivo" || b.estado === "Baja").length;
 
-    const estadoBtns = document.querySelectorAll("#padronEstadoSegmented .audit-seg-btn");
-    estadoBtns.forEach(btn => {
-      const val = btn.getAttribute("data-value");
-      let c = forEstado.length;
-      let label = "Todos";
-      if (val === "Activo") { c = countActivo; label = "Activo"; }
-      if (val === "Inactivo") { c = countInactivo; label = "Inactivo / Baja"; }
+    this._setFacetBadge("countFacetEstado-all", `(${forEstado.length})`, forEstado.length === 0);
+    this._setFacetBadge("countFacetEstado-Activo", `(${countActivo})`, countActivo === 0);
+    this._setFacetBadge("countFacetEstado-Inactivo", `(${countInactivo})`, countInactivo === 0);
+  },
 
-      btn.classList.toggle("zero-facet", c === 0 && val !== "all");
-      btn.innerHTML = `${label} <span class="audit-seg-count">(${c})</span>`;
-    });
+  _setFacetBadge(badgeId, text, isZero) {
+    const el = document.getElementById(badgeId);
+    if (!el) return;
+    el.textContent = text;
+    const parentItem = el.closest(".padron-dropdown-item");
+    if (parentItem && parentItem.getAttribute("data-value") !== "all") {
+      parentItem.classList.toggle("zero-facet", isZero);
+    }
   },
 
   _renderActiveChips() {
@@ -2649,7 +2807,7 @@ const BeneficiariosView = {
       this._filterServicio.forEach(s => {
         let servLabel = s;
         if (s === "desayuno") servLabel = "Nutrición SAN";
-        if (s === "casita") servLabel = "Casita del Saber";
+        if (s === "casita") servLabel = "Acompañamiento Casita";
         if (s === "pastoral") servLabel = "Social Pastoral";
         chips.push({
           id: "servicio",
@@ -2659,10 +2817,14 @@ const BeneficiariosView = {
       });
     }
 
-    if (this._filterSede !== "all") {
-      chips.push({
-        id: "sede",
-        label: `Sede: ${this._filterSede}`,
+    if (this._filterSede.length > 0) {
+      this._filterSede.forEach(s => {
+        const dist = (s === "Año Nuevo" || s === "La Libertad") ? "Comas" : "Carabayllo";
+        chips.push({
+          id: "sede",
+          val: s,
+          label: `Sede: ${s} (${dist})`,
+        });
       });
     }
 
@@ -2676,17 +2838,23 @@ const BeneficiariosView = {
       });
     }
 
-    if (this._filterEdad !== "all") {
+    if (this._filterEdadModo === "exacta" && this._filterEdadExacta !== null) {
       chips.push({
         id: "edad",
-        label: `Edad: ${this._filterEdad} años`,
+        label: `Edad: ${this._filterEdadExacta} años`,
+      });
+    } else if (this._filterEdadModo === "rango") {
+      const { min, max } = this._filterEdadRango;
+      chips.push({
+        id: "edad",
+        label: min === max ? `Edad: ${min} años` : `Edad: ${min} a ${max} años`,
       });
     }
 
     if (this._filterEstado !== "all") {
       chips.push({
         id: "estado",
-        label: `Estado: ${this._filterEstado}`,
+        label: `Estado: ${this._filterEstado === "Inactivo" ? "Inactivo / Baja" : this._filterEstado}`,
       });
     }
 
@@ -2806,6 +2974,7 @@ const BeneficiariosView = {
                   <button type="button" class="btn-action primary" style="width:100%; justify-content:center;" onclick="event.stopPropagation(); window.openExpediente ? window.openExpediente(${b.id}) : window.app.beneficiarioController.openExpediente(${b.id})">
                     <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:6px;">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                     Ver Expediente Completo
                   </button>
@@ -5216,14 +5385,20 @@ window.filterPadronSearch = (q) => {
 window.clearPadronSearch = () => {
   if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.clearSearch();
 };
+window.togglePadronInnerDropdown = (id) => {
+  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.toggleInnerDropdown(id);
+};
 window.togglePadronServicio = (val) => {
   if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.toggleServicio(val);
 };
 window.selectPadronServicio = (val) => {
   if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.toggleServicio(val);
 };
+window.togglePadronSede = (val) => {
+  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.toggleSede(val);
+};
 window.selectPadronSede = (val) => {
-  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.selectSede(val);
+  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.toggleSede(val);
 };
 window.togglePadronAnemia = (val) => {
   if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.toggleAnemia(val);
@@ -5231,8 +5406,18 @@ window.togglePadronAnemia = (val) => {
 window.selectPadronAnemia = (val) => {
   if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.toggleAnemia(val);
 };
+window.setPadronEdadExacta = (val) => {
+  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.setEdadExacta(val);
+};
+window.syncPadronEdadRango = (handle, val) => {
+  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.syncEdadRango(handle, val);
+};
 window.syncPadronEdad = (val, source) => {
-  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.syncEdad(val, source);
+  if (source === "slider") {
+    if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.syncEdadRango("min", val);
+  } else {
+    if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.setEdadExacta(val);
+  }
 };
 window.clearPadronEdad = () => {
   if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.clearEdad();
@@ -5247,10 +5432,13 @@ window.resetPadronFilters = () => {
   if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.resetFilters();
 };
 
-// Cierre automático de Custom Dropdowns y Role Tooltips al hacer clic afuera o presionar Escape
+// Cierre automático de Custom Dropdowns, Inner Dropdowns y Role Tooltips al hacer clic afuera o presionar Escape
 document.addEventListener("click", (e) => {
   if (!e.target.closest(".custom-dropdown")) {
     document.querySelectorAll(".custom-dropdown.open").forEach(d => d.classList.remove("open"));
+  }
+  if (!e.target.closest(".padron-inner-dropdown")) {
+    document.querySelectorAll(".padron-inner-dropdown.open").forEach(d => d.classList.remove("open"));
   }
   if (!e.target.closest(".role-info-wrap")) {
     const wrap = document.querySelector(".role-info-wrap");
@@ -5260,6 +5448,7 @@ document.addEventListener("click", (e) => {
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     document.querySelectorAll(".custom-dropdown.open").forEach(d => d.classList.remove("open"));
+    document.querySelectorAll(".padron-inner-dropdown.open").forEach(d => d.classList.remove("open"));
     const wrap = document.querySelector(".role-info-wrap");
     if (wrap) wrap.classList.remove("open");
   }
@@ -5286,4 +5475,5 @@ window.deleteBeneficiarioExpediente = () => {
 window.closeModalExpediente = () => {
   if (window.PDI?.ModalView) window.PDI.ModalView.closeExpediente();
 };
+
 
