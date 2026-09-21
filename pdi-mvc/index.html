@@ -1246,45 +1246,74 @@
           <div class="view-header audit-view-header">
             <div class="view-title-group">
               <div class="audit-header-title-row">
-                <h2>Auditoría - Historial de cambios</h2>
+                <div class="audit-header-left">
+                  <h2>Auditoría - Historial de cambios</h2>
+                  <!-- Icono de Ley N.° 29733 con Popover Informativo Interactivo -->
+                  <div class="audit-legal-popover-wrapper" id="wrapAuditLegalPopover">
+                    <button type="button" class="audit-legal-icon-btn" id="btnAuditLegalInfo"
+                      onclick="window.toggleAuditLegalInfo ? window.toggleAuditLegalInfo(event) : null"
+                      aria-label="Información legal Ley N.° 29733"
+                      title="Registro inmutable de trazabilidad conforme a la Ley N.° 29733 de Protección de Datos Personales">
+                      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                      </svg>
+                    </button>
+                    <div class="audit-legal-popover" id="popoverAuditLegal">
+                      <div class="audit-legal-popover-header">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                        </svg>
+                        <span>Ley N.° 29733 · Registro Inmutable</span>
+                      </div>
+                      <p class="audit-legal-popover-text">
+                        Registro inmutable de trazabilidad y auditoría forense conforme a la Ley de Protección de Datos Personales. Las acciones son de solo lectura y no pueden alterarse.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 <div class="audit-header-badge-actions">
-                  <span class="audit-legal-badge"
-                    title="Registro inmutable de trazabilidad conforme a la Ley N.° 29733 de Protección de Datos Personales">
-                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-                    </svg>
-                    <span>Ley N.° 29733 · Inmutable</span>
-                  </span>
-                  <button type="button" class="btn-action btn-audit-export" id="btnExportAuditCSV"
-                    onclick="window.exportAuditCSV ? window.exportAuditCSV() : (window.PDI?.AppController?.exportAuditCSV ? window.PDI.AppController.exportAuditCSV() : null)"
-                    title="Descargar Bitácora CSV">
-                    <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
+                  <!-- Botón Descargar Bitácora CSV en formato icono con apertura de confirmación -->
+                  <button type="button" class="btn-action-icon btn-audit-export-icon" id="btnExportAuditCSV"
+                    onclick="window.openModalExportAudit ? window.openModalExportAudit() : null"
+                    aria-label="Descargar Bitácora CSV"
+                    title="Descargar Bitácora Oficial CSV">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round"
                         d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                     </svg>
-                    <span>Descargar Bitácora CSV</span>
                   </button>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Barra Resumen Compacta de Auditoría -->
+          <!-- Barra Resumen Dinámica y Compacta de Auditoría (Solo KPIs estilizados, sin última actividad) -->
           <div class="audit-summary-bar">
-            <div class="audit-summary-item">
-              <span class="audit-summary-label">Total Registros</span>
-              <strong class="audit-summary-value" id="auditKpiTotal">0</strong>
+            <div class="audit-kpi-chip">
+              <div class="audit-kpi-icon-box total">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
+                </svg>
+              </div>
+              <div class="audit-kpi-info">
+                <span class="audit-kpi-label">Total Registros</span>
+                <strong class="audit-kpi-value" id="auditKpiTotal">0</strong>
+              </div>
             </div>
-            <div class="audit-summary-divider"></div>
-            <div class="audit-summary-item">
-              <span class="audit-summary-label">Acciones Sensibles</span>
-              <strong class="audit-summary-value text-sensibles" id="auditKpiSensibles">0</strong>
-            </div>
-            <div class="audit-summary-divider"></div>
-            <div class="audit-summary-item audit-summary-item-wide">
-              <span class="audit-summary-label">Última Actividad Registrada</span>
-              <span class="audit-summary-sub" id="auditLastActivity">Sin registros recientes</span>
+
+            <div class="audit-kpi-chip">
+              <div class="audit-kpi-icon-box sensibles">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+              </div>
+              <div class="audit-kpi-info">
+                <span class="audit-kpi-label">Acciones Sensibles</span>
+                <strong class="audit-kpi-value text-sensibles" id="auditKpiSensibles">0</strong>
+              </div>
             </div>
           </div>
 
@@ -2644,6 +2673,70 @@
           Información verificada
         </span>
         <button type="button" class="btn-action" onclick="closeModalAuditDetail()">Cerrar Detalle</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL: CONFIRMACIÓN Y DETALLE PREVIO DE DESCARGA CSV AUDITORÍA
+       ========================================== -->
+  <div class="modal-backdrop" id="modalConfirmExportAudit">
+    <div class="modal-box" style="max-width: 480px; width: 92%;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 38px; height: 38px; border-radius: var(--radius-md); background: rgba(0, 180, 148, 0.12); border: 1px solid var(--gt-green-border); display: flex; align-items: center; justify-content: center; color: var(--gt-green); flex-shrink: 0;">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+          </div>
+          <div>
+            <h3 style="margin: 0; font-size: 15.5px; font-weight: 700; color: var(--text-main);">Descarga de Bitácora de Auditoría</h3>
+            <p style="margin: 2px 0 0; font-size: 12px; color: var(--text-muted);">Confirmación de generación de reporte forense</p>
+          </div>
+        </div>
+        <button type="button" class="btn-close-modal" onclick="window.closeModalExportAudit ? window.closeModalExportAudit() : null">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body" style="padding: 18px 20px; display: flex; flex-direction: column; gap: 14px;">
+        <div style="font-size: 13px; color: var(--text-main); line-height: 1.5;">
+          Se generará un archivo consolidado en formato <strong style="font-family: var(--mono-font); color: var(--gt-green);">.CSV</strong> con la trazabilidad completa de eventos registrados.
+        </div>
+
+        <div style="background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; justify-content: space-between; font-size: 12.5px;">
+            <span style="color: var(--text-dim);">Registros a Exportar:</span>
+            <strong style="color: var(--text-main); font-family: var(--mono-font);" id="exportAuditCountBadge">0 eventos</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 12.5px;">
+            <span style="color: var(--text-dim);">Marco Regulatorio:</span>
+            <span style="color: var(--gt-green); font-weight: 600;">Ley N.° 29733 (Datos Personales)</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 12.5px;">
+            <span style="color: var(--text-dim);">Codificación:</span>
+            <span style="color: var(--text-muted); font-family: var(--mono-font);">UTF-8 con BOM</span>
+          </div>
+        </div>
+
+        <div style="font-size: 11.5px; color: var(--text-muted); display: flex; align-items: flex-start; gap: 6px; line-height: 1.4;">
+          <svg width="14" height="14" fill="none" stroke="var(--gt-yellow)" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink: 0; margin-top: 1px;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+          </svg>
+          <span>El documento descargado contiene registros confidenciales de operaciones internas de la Asociación Johannes Gutenberg.</span>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="padding: 12px 20px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: flex-end; gap: 10px; background: var(--surface-1);">
+        <button type="button" class="btn-action" onclick="window.closeModalExportAudit ? window.closeModalExportAudit() : null">Cancelar</button>
+        <button type="button" class="btn-action primary" onclick="window.confirmExportAuditCSV ? window.confirmExportAuditCSV() : null" style="gap: 6px;">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+          <span>Iniciar Descarga</span>
+        </button>
       </div>
     </div>
   </div>

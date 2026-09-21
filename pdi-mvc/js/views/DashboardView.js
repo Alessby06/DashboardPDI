@@ -118,26 +118,19 @@ export const DashboardView = {
   updateAuditKpis(logs) {
     const totalEl = document.getElementById("auditKpiTotal");
     const sensEl = document.getElementById("auditKpiSensibles");
-    const lastActivityEl = document.getElementById("auditLastActivity");
+    const exportCountEl = document.getElementById("exportAuditCountBadge");
 
-    if (totalEl) totalEl.textContent = logs.length;
+    const totalCount = (logs && logs.length) || 0;
+    if (totalEl) totalEl.textContent = totalCount;
+    if (exportCountEl) exportCountEl.textContent = `${totalCount} eventos`;
     
     if (sensEl) {
-      const sensibles = logs.filter(l => 
+      const sensibles = logs ? logs.filter(l => 
         (l.action && l.action.toLowerCase().includes("derivaci")) || 
         (l.detail && l.detail.toLowerCase().includes("demuna")) ||
         (l.status && l.status.toLowerCase().includes("sensible"))
-      );
+      ) : [];
       sensEl.textContent = sensibles.length;
-    }
-
-    if (lastActivityEl) {
-      if (logs && logs.length > 0) {
-        const latest = logs[0];
-        lastActivityEl.textContent = `${latest.timestamp} · ${latest.user} (${latest.action})`;
-      } else {
-        lastActivityEl.textContent = "Sin registros coincidentes";
-      }
     }
   },
 

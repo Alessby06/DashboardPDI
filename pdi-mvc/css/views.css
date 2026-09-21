@@ -644,40 +644,138 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 14px;
-      flex-wrap: wrap;
+      gap: 12px;
       width: 100%;
+    }
+
+    .audit-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .audit-header-left h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    /* Contenedor y Botón de Icono Legal Ley N.° 29733 */
+    .audit-legal-popover-wrapper {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .audit-legal-icon-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-full);
+      background: rgba(0, 180, 148, 0.12);
+      border: 1px solid var(--gt-green-border);
+      color: var(--gt-green);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+      transition: all var(--dur-fast) var(--ease-smooth);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .audit-legal-icon-btn:hover {
+      background: rgba(0, 180, 148, 0.22);
+      border-color: var(--gt-green);
+      transform: scale(1.06);
+    }
+
+    /* Popover Flotante de Ley N.° 29733 */
+    .audit-legal-popover {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      width: 260px;
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+      padding: 12px 14px;
+      z-index: 200;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-4px);
+      transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+      pointer-events: none;
+    }
+
+    /* Mostrar al pasar el mouse en PC */
+    .audit-legal-popover-wrapper:hover .audit-legal-popover {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    /* Mostrar al activar en móvil (tap) */
+    .audit-legal-popover-wrapper.open .audit-legal-popover {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .audit-legal-popover-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--gt-green);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+    }
+
+    .audit-legal-popover-text {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.45;
+      margin: 0;
     }
 
     .audit-header-badge-actions {
       display: flex;
       align-items: center;
       gap: 10px;
-      flex-wrap: wrap;
     }
 
-    .btn-audit-export {
-      padding: 7px 14px;
-      font-size: 13px;
-      gap: 6px;
-      white-space: nowrap;
-    }
-
-    .audit-legal-badge {
+    /* Botón Icono de Descarga CSV */
+    .btn-action-icon.btn-audit-export-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      padding: 4px 10px;
-      border-radius: var(--radius-full);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      background: rgba(0, 180, 148, 0.08);
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+      transition: all var(--dur-fast) var(--ease-smooth);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-action-icon.btn-audit-export-icon:hover {
+      background: var(--surface-hover);
+      border-color: var(--gt-green);
       color: var(--gt-green);
-      border: 1px solid var(--gt-green-border);
-      text-transform: uppercase;
-      user-select: none;
-      white-space: nowrap;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 180, 148, 0.15);
+    }
+
+    .btn-action-icon.btn-audit-export-icon:active {
+      transform: scale(0.95);
     }
 
     /* === BUSCADOR Y FILTROS FACETADOS (PADRÓN DE BENEFICIARIOS) === */
@@ -823,126 +921,181 @@
       font-weight: 700;
     }
 
-    /* Barra Resumen Compacta de Auditoría */
+    /* Barra Resumen Dinámica y Compacta de Auditoría */
     .audit-summary-bar {
       display: flex;
       align-items: center;
-      gap: 18px;
-      padding: 10px 18px;
-      background: var(--surface-1);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      margin-bottom: 16px;
-      box-shadow: var(--shadow-sm);
+      gap: 12px;
+      margin-bottom: 12px;
       flex-wrap: wrap;
     }
 
-    .audit-summary-item {
+    .audit-kpi-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 14px;
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      transition: all var(--dur-fast) var(--ease-smooth);
+    }
+
+    .audit-kpi-chip:hover {
+      border-color: var(--border-bright);
+      transform: translateY(-1px);
+    }
+
+    .audit-kpi-icon-box {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .audit-kpi-icon-box.total {
+      background: rgba(0, 180, 148, 0.12);
+      color: var(--gt-green);
+      border: 1px solid var(--gt-green-border);
+    }
+
+    .audit-kpi-icon-box.sensibles {
+      background: rgba(220, 38, 38, 0.12);
+      color: var(--gt-red);
+      border: 1px solid rgba(220, 38, 38, 0.25);
+    }
+
+    .audit-kpi-info {
       display: flex;
       align-items: baseline;
-      gap: 8px;
+      gap: 6px;
     }
 
-    .audit-summary-item-wide {
-      margin-left: auto;
-    }
-
-    .audit-summary-label {
+    .audit-kpi-label {
       font-size: 11.5px;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--text-dim);
       text-transform: uppercase;
       letter-spacing: 0.03em;
     }
 
-    .audit-summary-value {
-      font-size: 15px;
-      font-weight: 700;
+    .audit-kpi-value {
+      font-size: 14.5px;
+      font-weight: 800;
       color: var(--text-main);
       font-family: var(--mono-font);
     }
 
-    .audit-summary-value.text-sensibles {
+    .audit-kpi-value.text-sensibles {
       color: var(--gt-red);
-    }
-
-    .audit-summary-sub {
-      font-size: 12.5px;
-      color: var(--text-muted);
-      font-weight: 500;
-    }
-
-    .audit-summary-divider {
-      width: 1px;
-      height: 18px;
-      background: var(--border-subtle);
     }
 
     @media (max-width: 768px) {
       .audit-view-header {
-        margin-bottom: 12px;
+        margin-bottom: 8px !important;
       }
       .audit-header-title-row {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 8px !important;
       }
-      .audit-header-title-row h2 {
-        font-size: 18px;
+      .audit-header-left {
+        gap: 6px !important;
+      }
+      .audit-header-left h2 {
+        font-size: 16px !important;
+        line-height: 1.25 !important;
+      }
+      .audit-legal-icon-btn {
+        width: 24px !important;
+        height: 24px !important;
+      }
+      .audit-legal-icon-btn svg {
+        width: 13px !important;
+        height: 13px !important;
+      }
+      .audit-legal-popover {
+        position: fixed !important;
+        top: 65px !important;
+        left: 12px !important;
+        right: 12px !important;
+        width: auto !important;
+        max-width: calc(100vw - 24px) !important;
+        z-index: 1600 !important;
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35) !important;
       }
       .audit-header-badge-actions {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
+        width: auto !important;
       }
-      .audit-header-badge-actions .btn-audit-export {
-        padding: 6px 10px;
-        font-size: 12px;
-        margin-left: auto;
+      .btn-action-icon.btn-audit-export-icon {
+        width: 32px !important;
+        height: 32px !important;
       }
-      .audit-header-badge-actions .btn-audit-export svg {
-        width: 15px;
-        height: 15px;
-      }
-      .audit-toolbar {
-        flex-direction: row;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 14px;
-      }
-      .audit-search-wrap {
-        flex: 1;
-        min-width: 0;
-        max-width: none;
-      }
-      .audit-filter-panel-wrap {
-        flex-shrink: 0;
-      }
-      .audit-filter-btn {
-        padding: 0 12px;
-        height: 38px;
-        font-size: 12.5px;
-      }
-      .audit-filters-menu {
-        width: min(320px, calc(100vw - 32px));
-        right: 0;
-        left: auto;
+      .btn-action-icon.btn-audit-export-icon svg {
+        width: 16px !important;
+        height: 16px !important;
       }
       .audit-summary-bar {
-        gap: 12px;
-        padding: 8px 12px;
-        margin-bottom: 12px;
+        gap: 8px !important;
+        margin-bottom: 8px !important;
       }
-      .audit-summary-item-wide {
-        margin-left: 0;
-        width: 100%;
-        border-top: 1px solid var(--border-subtle);
-        padding-top: 8px;
+      .audit-kpi-chip {
+        padding: 4px 10px !important;
+        border-radius: var(--radius-sm) !important;
+        gap: 6px !important;
       }
-      .audit-summary-divider {
-        display: none;
+      .audit-kpi-icon-box {
+        width: 22px !important;
+        height: 22px !important;
+      }
+      .audit-kpi-icon-box svg {
+        width: 12px !important;
+        height: 12px !important;
+      }
+      .audit-kpi-label {
+        font-size: 10.5px !important;
+      }
+      .audit-kpi-value {
+        font-size: 13px !important;
+      }
+      .audit-toolbar {
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 8px !important;
+        margin-bottom: 10px !important;
+      }
+      .audit-search-wrap {
+        flex: 1 !important;
+        min-width: 0 !important;
+        max-width: none !important;
+      }
+      .audit-search-input {
+        height: 36px !important;
+        font-size: 12px !important;
+        padding-left: 32px !important;
+      }
+      .audit-search-icon {
+        left: 8px !important;
+        width: 15px !important;
+        height: 15px !important;
+      }
+      .audit-filter-panel-wrap {
+        flex-shrink: 0 !important;
+      }
+      .audit-filter-btn {
+        padding: 0 10px !important;
+        height: 36px !important;
+        font-size: 12px !important;
+      }
+      .audit-filters-menu {
+        width: min(320px, calc(100vw - 24px)) !important;
+        right: 0 !important;
+        left: auto !important;
       }
     }
 

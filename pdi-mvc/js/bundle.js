@@ -1669,26 +1669,19 @@ const DashboardView = {
   updateAuditKpis(logs) {
     const totalEl = document.getElementById("auditKpiTotal");
     const sensEl = document.getElementById("auditKpiSensibles");
-    const lastActivityEl = document.getElementById("auditLastActivity");
+    const exportCountEl = document.getElementById("exportAuditCountBadge");
 
-    if (totalEl) totalEl.textContent = logs.length;
+    const totalCount = (logs && logs.length) || 0;
+    if (totalEl) totalEl.textContent = totalCount;
+    if (exportCountEl) exportCountEl.textContent = `${totalCount} eventos`;
     
     if (sensEl) {
-      const sensibles = logs.filter(l => 
+      const sensibles = logs ? logs.filter(l => 
         (l.action && l.action.toLowerCase().includes("derivaci")) || 
         (l.detail && l.detail.toLowerCase().includes("demuna")) ||
         (l.status && l.status.toLowerCase().includes("sensible"))
-      );
+      ) : [];
       sensEl.textContent = sensibles.length;
-    }
-
-    if (lastActivityEl) {
-      if (logs && logs.length > 0) {
-        const latest = logs[0];
-        lastActivityEl.textContent = `${latest.timestamp} · ${latest.user} (${latest.action})`;
-      } else {
-        lastActivityEl.textContent = "Sin registros coincidentes";
-      }
     }
   },
 
@@ -5676,6 +5669,35 @@ window.toggleAuditStatus = (val) => DashboardView.toggleStatus(val);
 window.removeAuditChip = (filterKey, specificVal) => DashboardView.removeAuditFilter(filterKey, specificVal);
 window.resetAuditFilters = () => DashboardView.resetAuditFilters();
 
+// Handlers de Información Legal y Confirmación de Exportación de Auditoría
+window.toggleAuditLegalInfo = (e) => {
+  if (e) e.stopPropagation();
+  const wrap = document.getElementById("wrapAuditLegalPopover");
+  if (wrap) wrap.classList.toggle("open");
+};
+
+window.openModalExportAudit = () => {
+  const modal = document.getElementById("modalConfirmExportAudit");
+  const countBadge = document.getElementById("exportAuditCountBadge");
+  const currentLogs = (DashboardView && DashboardView._filteredAuditLogs) 
+    ? DashboardView._filteredAuditLogs 
+    : (DashboardView && DashboardView._currentAuditLogs ? DashboardView._currentAuditLogs : []);
+  if (countBadge) countBadge.textContent = `${currentLogs.length} eventos`;
+  if (modal) modal.classList.add("active");
+};
+
+window.closeModalExportAudit = () => {
+  const modal = document.getElementById("modalConfirmExportAudit");
+  if (modal) modal.classList.remove("active");
+};
+
+window.confirmExportAuditCSV = () => {
+  window.closeModalExportAudit();
+  if (AppController.exportAuditCSV) {
+    AppController.exportAuditCSV();
+  }
+};
+
 window.toggleRoleInfo = (e) => {
   if (e) e.stopPropagation();
   const wrap = document.querySelector(".role-info-wrap");
@@ -5736,7 +5758,7 @@ window.resetPadronFilters = () => {
   if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.resetFilters();
 };
 
-// Cierre automático de Custom Dropdowns, Inner Dropdowns y Role Tooltips al hacer clic afuera o presionar Escape
+// Cierre automático de Custom Dropdowns, Inner Dropdowns, Role Tooltips y Audit Legal Popover al hacer clic afuera o presionar Escape
 document.addEventListener("click", (e) => {
   if (!e.target.closest(".custom-dropdown")) {
     document.querySelectorAll(".custom-dropdown.open").forEach(d => d.classList.remove("open"));
@@ -5748,13 +5770,21 @@ document.addEventListener("click", (e) => {
     const wrap = document.querySelector(".role-info-wrap");
     if (wrap) wrap.classList.remove("open");
   }
+  if (!e.target.closest(".audit-legal-popover-wrapper")) {
+    const pop = document.getElementById("wrapAuditLegalPopover");
+    if (pop) pop.classList.remove("open");
+  }
 });
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     document.querySelectorAll(".custom-dropdown.open").forEach(d => d.classList.remove("open"));
     document.querySelectorAll(".padron-inner-dropdown.open").forEach(d => d.classList.remove("open"));
-    const wrap = document.querySelector(".role-info-wrap");
-    if (wrap) wrap.classList.remove("open");
+    const pop = document.getElementById("wrapAuditLegalPopover");
+    if (pop) pop.classList.remove("open");
+    const exportModal = document.getElementById("modalConfirmExportAudit");
+    if (exportModal && exportModal.classList.contains("active")) {
+      exportModal.classList.remove("active");
+    }
   }
 });
 
