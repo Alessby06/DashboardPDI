@@ -73,6 +73,23 @@ export const RoleController = {
       bannerTag.style.color = conf.tagCol;
     }
 
+    // Actualizar Tooltip dinámico del botón de información de rol
+    const tipTitle = document.getElementById("roleTooltipTitle");
+    const tipDesc = document.getElementById("roleTooltipDesc");
+    const tipTag = document.getElementById("roleTooltipTag");
+    const btnInfo = document.getElementById("btnRoleInfo");
+
+    if (tipTitle) tipTitle.textContent = conf.title;
+    if (tipDesc) tipDesc.textContent = conf.desc;
+    if (tipTag) {
+      tipTag.textContent = conf.tag;
+      tipTag.style.color = conf.tagCol;
+      tipTag.style.background = `${conf.tagCol}20`;
+    }
+    if (btnInfo) {
+      btnInfo.setAttribute("title", `${conf.title}: ${conf.desc}`);
+    }
+
     const toast = window.PDI?.ToastView || ToastView;
     toast.show("Perfil Simulado", `Cambiando a vista: ${conf.title}`, "info");
 

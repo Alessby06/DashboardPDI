@@ -8,8 +8,8 @@
       const hair = "#1e1b18";
 
       if (!isFemale) {
-        return `<svg viewBox="0 0 120 120" width="100%" height="100%">
-          <rect width="120" height="120" rx="10" fill="${bgColor}"/>
+        return `<svg viewBox="0 0 120 120" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" style="display:block; width:100%; height:100%; background:${bgColor};">
+          <rect width="120" height="120" fill="${bgColor}"/>
           <circle cx="60" cy="52" r="26" fill="${skin}"/>
           <path d="M34 46 C34 30, 44 22, 60 22 C76 22, 86 30, 86 46 C80 40, 72 38, 60 38 C48 38, 40 40, 34 46 Z" fill="${hair}"/>
           <ellipse cx="50" cy="52" rx="3" ry="3.5" fill="#1e293b"/>
@@ -20,8 +20,8 @@
           <polygon points="60,84 52,98 68,98" fill="#ffffff" opacity="0.9"/>
         </svg>`;
       } else {
-        return `<svg viewBox="0 0 120 120" width="100%" height="100%">
-          <rect width="120" height="120" rx="10" fill="${bgColor}"/>
+        return `<svg viewBox="0 0 120 120" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" style="display:block; width:100%; height:100%; background:${bgColor};">
+          <rect width="120" height="120" fill="${bgColor}"/>
           <circle cx="60" cy="52" r="26" fill="${skin}"/>
           <path d="M32 50 C30 26, 44 20, 60 20 C76 20, 90 26, 88 50 C88 68, 84 76, 82 82 C78 72, 78 50, 78 40 C66 42, 54 42, 42 40 C42 50, 42 72, 38 82 C36 76, 32 68, 32 50 Z" fill="${hair}"/>
           <circle cx="36" cy="34" r="6" fill="${accent}"/>
@@ -174,8 +174,70 @@ export const ModalView = {
     setSafe("expReferencia", b.referencia || "Sin referencia adicional");
     setSafe("expDistritoSede", `${b.distrito} - Sede ${b.sede}`);
     setSafe("expSede", `${b.distrito} - Sede ${b.sede}`);
-    setSafe("expModalidadEstrategia", `${b.modalidad || 'Comunitaria'} | ${b.estrategia || (b.servicios ? b.servicios.join(' + ') : 'Desayuno Infantil')}`);
-    setSafe("expExoneracion", b.exoneracionAporte || "100% (Exonerado Vulnerabilidad Extrema)");
+
+    // Exoneración: solo nomenclatura limpia (100%, 50%, 0%)
+    let exoneracionLimpia = "100%";
+    if (b.exoneracionAporte) {
+      if (b.exoneracionAporte.includes("50%")) exoneracionLimpia = "50%";
+      else if (b.exoneracionAporte.includes("0%")) exoneracionLimpia = "0%";
+      else if (b.exoneracionAporte.includes("100%")) exoneracionLimpia = "100%";
+      else exoneracionLimpia = b.exoneracionAporte;
+    }
+    setSafe("expExoneracion", exoneracionLimpia);
+
+    // Listado institucional de programas inscritos con checkbox
+    const programasContainer = document.getElementById("expProgramasInscritosContainer");
+    if (programasContainer) {
+      const serviciosArray = Array.isArray(b.servicios) ? b.servicios : [];
+      const estrategiaStr = (b.estrategia || "").toLowerCase();
+      
+      const hasDesayuno = serviciosArray.some(s => s.toLowerCase().includes("desayuno")) || 
+                          estrategiaStr.includes("desayuno") || 
+                          estrategiaStr.includes("mixto");
+      
+      const hasCasita = serviciosArray.some(s => s.toLowerCase().includes("casita")) || 
+                        estrategiaStr.includes("casita") || 
+                        estrategiaStr.includes("mixto");
+      
+      const hasLonchera = serviciosArray.some(s => s.toLowerCase().includes("lonchera")) || 
+                          estrategiaStr.includes("lonchera");
+
+      const programasList = [
+        {
+          id: "prog_desayuno",
+          nombre: "Programa Nutricional: Desayuno Infantil Comunitario",
+          desc: "Ración matutina balanceada y tamizaje antropométrico periódico",
+          active: hasDesayuno
+        },
+        {
+          id: "prog_casitas",
+          nombre: "Programa Pedagógico: Casitas del Saber (Refuerzo Escolar)",
+          desc: "Acompañamiento psicopedagógico, tutoría y entrega de kits escolares",
+          active: hasCasita
+        },
+        {
+          id: "prog_lonchera",
+          nombre: "Programa de Lonchera Infantil Saludable",
+          desc: "Complemento nutricional para instituciones educativas focalizadas",
+          active: hasLonchera
+        }
+      ];
+
+      programasContainer.innerHTML = programasList.map(prog => `
+        <div class="programa-item ${prog.active ? 'active' : ''}">
+          <div class="programa-check-box">
+            ${prog.active ? `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>` : ''}
+          </div>
+          <div class="programa-details">
+            <span class="programa-name">${prog.nombre}</span>
+            <span class="programa-desc">${prog.desc}</span>
+          </div>
+          <span class="badge ${prog.active ? 'badge-green' : 'badge-gray'}" style="font-size:10px; padding:2px 7px;">
+            ${prog.active ? 'Inscrito y Activo' : 'No Asignado'}
+          </span>
+        </div>
+      `).join("");
+    }
 
     // 2. Salud Base y CRED
     setSafe("expSeguro", b.seguro || "SIS Gratuito");
@@ -239,30 +301,70 @@ export const ModalView = {
       }).join("");
     }
 
-    // 5. Consentimiento Informado Ley N.° 29733 (Ficha A3)
+    // 5. Consentimiento Informado Ley N.° 29733 (Ficha A3) - Rediseño Moderno
     const consentContainer = document.getElementById("expConsentimientoChecksContainer");
     if (consentContainer) {
       consentContainer.innerHTML = `
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
-          <div style="background:var(--surface-hover); padding:10px; border-radius:6px; border:1px solid var(--gt-green-border);">
-            <div style="color:var(--gt-green); font-weight:700; font-size:12px;">[AUTORIZADO] Evaluación Social</div>
-            <div style="font-size:11px; color:var(--text-dim); margin-top:2px;">Elaboración de historias de vida y seguimiento del impacto (Art. 13 num 5 y 6).</div>
+        <div class="ley-consent-grid">
+          <div class="ley-consent-card">
+            <div class="ley-card-header">
+              <div class="ley-card-title">
+                <svg width="15" height="15" fill="none" stroke="var(--gt-green)" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                <span>Evaluación y Seguimiento Social</span>
+              </div>
+              <span class="badge badge-green" style="font-size:10px; padding:2px 6px;">Autorizado</span>
+            </div>
+            <div class="ley-card-desc">Elaboración de historias de vida, encuestas de vulnerabilidad y métricas de impacto socioeconómico.</div>
+            <span class="ley-card-art">Art. 13, num. 5 y 6 Ley 29733</span>
           </div>
-          <div style="background:var(--surface-hover); padding:10px; border-radius:6px; border:1px solid var(--gt-green-border);">
-            <div style="color:var(--gt-green); font-weight:700; font-size:12px;">[AUTORIZADO] Fotografías y Videos</div>
-            <div style="font-size:11px; color:var(--text-dim); margin-top:2px;">Difusión institucional y rendición de cuentas en plataformas oficiales (Art. 13 num 5).</div>
+
+          <div class="ley-consent-card">
+            <div class="ley-card-header">
+              <div class="ley-card-title">
+                <svg width="15" height="15" fill="none" stroke="var(--gt-green)" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                <span>Registro Audiovisual Institucional</span>
+              </div>
+              <span class="badge badge-green" style="font-size:10px; padding:2px 6px;">Autorizado</span>
+            </div>
+            <div class="ley-card-desc">Toma de fotografías y videos para memorias anuales, rendición de cuentas e informes a benefactores.</div>
+            <span class="ley-card-art">Art. 13, num. 5 Ley 29733</span>
           </div>
-          <div style="background:var(--surface-hover); padding:10px; border-radius:6px; border:1px solid var(--gt-green-border);">
-            <div style="color:var(--gt-green); font-weight:700; font-size:12px;">[AUTORIZADO] Gestión de Donaciones</div>
-            <div style="font-size:11px; color:var(--text-dim); margin-top:2px;">Recaudación de fondos y reportes institucionales de sostenibilidad (Art. 13 num 5 y 6).</div>
+
+          <div class="ley-consent-card">
+            <div class="ley-card-header">
+              <div class="ley-card-title">
+                <svg width="15" height="15" fill="none" stroke="var(--gt-green)" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                <span>Gestión de Fondos y Sostenibilidad</span>
+              </div>
+              <span class="badge badge-green" style="font-size:10px; padding:2px 6px;">Autorizado</span>
+            </div>
+            <div class="ley-card-desc">Recaudación de aportes, auditorías de donantes y reportes financieros de permanencia del programa.</div>
+            <span class="ley-card-art">Art. 13, num. 5 y 6 Ley 29733</span>
           </div>
-          <div style="background:var(--surface-hover); padding:10px; border-radius:6px; border:1px solid var(--gt-green-border);">
-            <div style="color:var(--gt-green); font-weight:700; font-size:12px;">[AUTORIZADO] Flujo Transfronterizo</div>
-            <div style="font-size:11px; color:var(--text-dim); margin-top:2px;">Transferencia a cooperante Kinderwerk Lima e.V. (Alemania) con garantías de seguridad.</div>
+
+          <div class="ley-consent-card">
+            <div class="ley-card-header">
+              <div class="ley-card-title">
+                <svg width="15" height="15" fill="none" stroke="var(--gt-green)" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                <span>Flujo Transfronterizo de Datos</span>
+              </div>
+              <span class="badge badge-green" style="font-size:10px; padding:2px 6px;">Autorizado</span>
+            </div>
+            <div class="ley-card-desc">Transferencia a la entidad cooperante Kinderwerk Lima e.V. (Alemania) con cifrado y medidas de seguridad.</div>
+            <span class="ley-card-art">D.S. N.° 016-2024-JUS</span>
           </div>
         </div>
-        <div style="border:1.5px dashed var(--gt-green); border-radius:8px; padding:12px; text-align:center; background:rgba(0,180,148,0.06); color:var(--gt-green); font-size:12.5px; font-weight:700;">
-          Consentimiento Informado Firmado Digitalmente &bull; Titular: ${b.apoderado} (DNI ${b.apoderadoDni || '41982341'}) &bull; Ley N.° 29733 / D.S. N.° 016-2024-JUS
+
+        <div class="ley-cert-box">
+          <div class="ley-cert-badge-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+            </svg>
+          </div>
+          <div class="ley-cert-text">
+            <strong>Certificación de Consentimiento Informado Válido (Ficha A3)</strong><br>
+            Otorgado y firmado digitalmente por el apoderado legal: <strong>${b.apoderado}</strong> (DNI: <strong>${b.apoderadoDni || '41982341'}</strong>). Cumplimiento normativo vigente bajo la <strong>Ley N.° 29733</strong> y el <strong>D.S. N.° 016-2024-JUS</strong>.
+          </div>
         </div>
       `;
     }
@@ -510,6 +612,81 @@ export const ModalView = {
 
   closeInforme() {
     const modal = document.getElementById("modalInformeEjecutivo") || document.getElementById("modalInforme");
+    if (modal) modal.classList.remove("open");
+  },
+
+  openAuditDetail(log) {
+    if (!log) return;
+    const modal = document.getElementById("modalAuditDetail");
+    if (!modal) return;
+
+    const setEl = (id, text) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    };
+
+    setEl("auditDetailId", log.id || "LOG-2026-REG");
+    setEl("auditDetailTimestamp", log.timestamp);
+    setEl("auditDetailUser", log.user);
+    setEl("auditDetailRole", log.role);
+    setEl("auditDetailAction", log.action);
+    setEl("auditDetailStatus", log.status);
+    setEl("auditDetailIp", log.ip || "192.168.1.x (Red Segura)");
+    setEl("auditDetailSede", log.sede || "Central");
+    setEl("auditDetailDetail", log.detail);
+
+    const entityContainer = document.getElementById("auditDetailEntityLink");
+    if (entityContainer) {
+      if (log.entity && log.entity.startsWith("PDI-")) {
+        entityContainer.innerHTML = `
+          <a href="javascript:void(0)" onclick="window.openExpedienteByCodigo ? window.openExpedienteByCodigo('${log.entity}') : (window.PDI?.BeneficiarioController?.openExpedienteByCodigo ? window.PDI.BeneficiarioController.openExpedienteByCodigo('${log.entity}') : null)" class="audit-entity-link" title="Abrir expediente del menor">
+            <code style="font-family:var(--mono-font); font-size:13px; font-weight:700; color:var(--gt-green); text-decoration:underline;">${log.entity}</code>
+            <span style="font-size:11px; margin-left:4px; color:var(--gt-green); font-weight:600;">(Ver Expediente &rarr;)</span>
+          </a>
+        `;
+      } else {
+        entityContainer.innerHTML = `<code style="font-family:var(--mono-font); font-size:13px; font-weight:700; color:var(--text-main);">${log.entity || 'N/A'}</code>`;
+      }
+    }
+
+    // Render diff table
+    const diffContainer = document.getElementById("auditDetailDiffContainer");
+    if (diffContainer) {
+      if (log.diff && log.diff.length > 0) {
+        diffContainer.innerHTML = `
+          <table class="audit-diff-table">
+            <thead>
+              <tr>
+                <th>Campo Modificado</th>
+                <th>Estado Anterior</th>
+                <th>Nuevo Valor Asignado</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${log.diff.map(d => `
+                <tr>
+                  <td><strong>${d.campo}</strong></td>
+                  <td class="diff-prev"><span>${d.valorAnterior || '-'}</span></td>
+                  <td class="diff-curr"><span>${d.valorNuevo || '-'}</span></td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        `;
+      } else {
+        diffContainer.innerHTML = `
+          <div style="padding:14px; background:var(--surface-2); border-radius:var(--radius-sm); border:1px solid var(--border-subtle); color:var(--text-dim); font-size:12.5px;">
+            Este evento registra una operación de consulta o certificación sin alteración de campos individuales.
+          </div>
+        `;
+      }
+    }
+
+    modal.classList.add("open");
+  },
+
+  closeAuditDetail() {
+    const modal = document.getElementById("modalAuditDetail");
     if (modal) modal.classList.remove("open");
   }
 };

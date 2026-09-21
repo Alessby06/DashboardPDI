@@ -68,6 +68,14 @@
   --shadow-ambient: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
   --shadow-glow: none;
   --modal-overlay-bg: rgba(15, 23, 42, 0.65);
+
+  /* Performance & Animation Tokens */
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-smooth: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast: 150ms;
+  --dur-norm: 220ms;
+  --dur-fluid: 280ms;
   
   color-scheme: light;
 }

@@ -45,18 +45,12 @@ export const AppController = {
     // 5. Configurar selector de rol
     this.bindRoleSelector();
 
-    // 6. Configurar búsqueda contextual en tiempo real
-    this.bindSearch();
-
-    // 7. Configurar tabs en modales
+    // 6. Configurar tabs en modales
     this.bindModalTabs();
 
-    // 8. Inicializar valores de calculadoras
+    // 7. Inicializar valores de calculadoras
     SaludController.handleHbChange(10.4);
     SocialController.handleVulnerabilidadChange();
-
-    // 9. Estado inicial de la barra de búsqueda (en Dashboard se oculta)
-    this.updateSearchVisibility("view-dashboard");
 
     console.log('Sistema "PDI" MVC inicializado correctamente.');
   },
@@ -89,104 +83,6 @@ export const AppController = {
 
     const mainContent = document.getElementById("mainContent");
     if (mainContent) mainContent.scrollTop = 0;
-
-    // Control de visibilidad de la barra de búsqueda: solo en módulos con tablas
-    this.updateSearchVisibility(viewId);
-  },
-
-  updateSearchVisibility(viewId) {
-    const searchWrap = document.querySelector(".search-wrap");
-    const searchInput = document.getElementById("globalSearchInput");
-    if (!searchWrap) return;
-
-    // Módulos con tablas y sus placeholders específicos
-    const viewsConTablas = {
-      "view-beneficiarios": "Buscar en padrón por DNI, nombres o sede...",
-      "view-salud": "Buscar en tamizaje CRED por DNI, menor o sede...",
-      "view-educativo": "Buscar en asistencia Casitas por menor o grado...",
-      "view-auditoria": "Buscar en auditoría por acción, usuario o entidad..."
-    };
-
-    if (viewsConTablas[viewId]) {
-      searchWrap.classList.remove("search-hidden");
-      searchWrap.style.removeProperty("display");
-      searchWrap.style.display = "flex";
-      if (searchInput) {
-        searchInput.placeholder = viewsConTablas[viewId];
-        searchInput.disabled = false;
-        // Si hay una búsqueda previa, aplicarla al módulo actual
-        if (searchInput.value.trim() !== "") {
-          this.executeFilter(searchInput.value, viewId);
-        }
-      }
-    } else {
-      // Módulos sin tablas (Dashboard, Social ASP, Sedes): Ocultar barra de búsqueda
-      searchWrap.classList.add("search-hidden");
-      searchWrap.style.display = "none";
-      if (searchInput) {
-        searchInput.disabled = true;
-        searchInput.value = "";
-      }
-    }
-  },
-
-  executeFilter(query, viewId) {
-    const q = query.toLowerCase().trim();
-    const bModel = window.PDI?.BeneficiarioModel || BeneficiarioModel;
-    const allBeneficiarios = bModel.getAll();
-
-    if (viewId === "view-beneficiarios") {
-      const filtered = q === "" ? allBeneficiarios : allBeneficiarios.filter(b =>
-        b.nombres.toLowerCase().includes(q) ||
-        b.apellidos.toLowerCase().includes(q) ||
-        b.codigo.toLowerCase().includes(q) ||
-        b.dni.includes(q) ||
-        b.distrito.toLowerCase().includes(q) ||
-        b.sede.toLowerCase().includes(q)
-      );
-      BeneficiariosView.renderTable(filtered);
-    } else if (viewId === "view-salud") {
-      const filtered = q === "" ? allBeneficiarios : allBeneficiarios.filter(b =>
-        b.nombres.toLowerCase().includes(q) ||
-        b.apellidos.toLowerCase().includes(q) ||
-        b.dni.includes(q) ||
-        b.sede.toLowerCase().includes(q) ||
-        (b.anemia && b.anemia.toLowerCase().includes(q))
-      );
-      SaludCredView.renderTable(filtered);
-    } else if (viewId === "view-educativo") {
-      const filtered = q === "" ? allBeneficiarios : allBeneficiarios.filter(b =>
-        b.nombres.toLowerCase().includes(q) ||
-        b.apellidos.toLowerCase().includes(q) ||
-        (b.grado && b.grado.toLowerCase().includes(q)) ||
-        (b.colegio && b.colegio.toLowerCase().includes(q)) ||
-        b.sede.toLowerCase().includes(q)
-      );
-      CasitasView.renderTable(filtered);
-    } else if (viewId === "view-auditoria") {
-      const audit = window.PDI?.AuditModel || AuditModel;
-      const logs = audit.getAll();
-      const filtered = q === "" ? logs : logs.filter(l =>
-        (l.action && l.action.toLowerCase().includes(q)) ||
-        (l.user && l.user.toLowerCase().includes(q)) ||
-        (l.entity && l.entity.toLowerCase().includes(q)) ||
-        (l.detail && l.detail.toLowerCase().includes(q))
-      );
-      // Re-render audit table if container exists
-      const auditTbody = document.getElementById("auditTableBody");
-      if (auditTbody) {
-        auditTbody.innerHTML = filtered.map(log => `
-          <tr>
-            <td style="font-family:var(--mono-font); font-size:12px; color:var(--text-dim);">${log.timestamp}</td>
-            <td><strong>${log.user}</strong> <span style="font-size:11px; color:var(--text-dim);">(${log.role})</span></td>
-            <td><span class="badge badge-blue">${log.action}</span></td>
-            <td style="font-family:var(--mono-font); font-size:12px; color:var(--gt-green);">${log.entity}</td>
-            <td style="font-size:12.5px;">${log.detail}</td>
-            <td><span class="badge badge-green">${log.status}</span></td>
-          </tr>
-        `).join("");
-      }
-    }
   },
 
   bindNavigation() {
@@ -233,12 +129,16 @@ export const AppController = {
     const backdrop = document.getElementById("sidebarBackdrop");
     if (!sidebar) return;
 
-    const isOpen = sidebar.classList.toggle("open");
-    if (backdrop) {
-      if (isOpen) {
-        backdrop.classList.add("active");
-      } else {
-        backdrop.classList.remove("active");
+    if (window.innerWidth > 900) {
+      sidebar.classList.toggle("collapsed");
+    } else {
+      const isOpen = sidebar.classList.toggle("open");
+      if (backdrop) {
+        if (isOpen) {
+          backdrop.classList.add("active");
+        } else {
+          backdrop.classList.remove("active");
+        }
       }
     }
   },
@@ -246,11 +146,15 @@ export const AppController = {
   closeSidebar() {
     const sidebar = document.getElementById("appSidebar");
     const backdrop = document.getElementById("sidebarBackdrop");
-    if (sidebar && sidebar.classList.contains("open")) {
-      sidebar.classList.remove("open");
-    }
-    if (backdrop && backdrop.classList.contains("active")) {
-      backdrop.classList.remove("active");
+    if (!sidebar) return;
+
+    if (window.innerWidth <= 900) {
+      if (sidebar.classList.contains("open")) {
+        sidebar.classList.remove("open");
+      }
+      if (backdrop && backdrop.classList.contains("active")) {
+        backdrop.classList.remove("active");
+      }
     }
   },
 
@@ -264,14 +168,36 @@ export const AppController = {
     }
   },
 
-  bindSearch() {
-    const searchInput = document.getElementById("globalSearchInput");
-    if (searchInput) {
-      searchInput.addEventListener("input", (e) => {
-        const activeViewEl = document.querySelector(".app-view.active, .content-view.active");
-        const activeViewId = activeViewEl ? activeViewEl.id : "view-beneficiarios";
-        this.executeFilter(e.target.value, activeViewId);
-      });
+  switchRole(roleValue, roleTitle) {
+    const labelEl = document.getElementById("labelActiveRole");
+    if (labelEl) labelEl.textContent = roleTitle;
+
+    const menuEl = document.querySelector("#dropdownRoleSelector .custom-dropdown-menu");
+    const items = document.querySelectorAll("#dropdownRoleSelector .custom-dropdown-item");
+    let selectedItem = null;
+    items.forEach(it => {
+      if (it.getAttribute("data-value") === roleValue) {
+        it.classList.add("selected");
+        selectedItem = it;
+      } else {
+        it.classList.remove("selected");
+      }
+    });
+
+    // Mover el rol activo primero en la lista visual del desplegable
+    if (menuEl && selectedItem) {
+      menuEl.prepend(selectedItem);
+    }
+
+    const dropdown = document.getElementById("dropdownRoleSelector");
+    if (dropdown) dropdown.classList.remove("open");
+
+    const hiddenInput = document.getElementById("roleSelector");
+    if (hiddenInput) {
+      hiddenInput.value = roleValue;
+      hiddenInput.dispatchEvent(new Event("change"));
+    } else {
+      RoleController.applyRolePermissions(roleValue, (view) => this.navigateToView(view));
     }
   },
 
@@ -340,6 +266,15 @@ export const AppController = {
     const data = BeneficiarioModel.getAll();
     CsvExporter.exportBeneficiarios(data);
     ToastView.show("Reporte Exportado", 'Consolidado oficial "PDI" descargado en formato CSV', "success");
+  },
+
+  exportAuditCSV() {
+    const audit = window.PDI?.AuditModel || AuditModel;
+    const logs = audit.getAll();
+    const exporter = window.PDI?.CsvExporter || CsvExporter;
+    exporter.exportAuditLogs(logs);
+    const toast = window.PDI?.ToastView || ToastView;
+    toast.show("Bitácora Descargada", "Registro oficial de auditoría descargado en formato CSV (Ley 29733)", "success");
   }
 };
 

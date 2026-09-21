@@ -866,6 +866,13 @@ export const BeneficiarioModel = {
     return list.find(b => b.id === Number(id)) || null;
   },
 
+  getByCodigo(codigo) {
+    if (!codigo) return null;
+    const list = this.getAll();
+    const clean = codigo.trim().toLowerCase();
+    return list.find(b => (b.codigo || "").toLowerCase() === clean) || null;
+  },
+
   add(nuevoMenor) {
     const list = this.getAll();
     list.unshift(nuevoMenor);

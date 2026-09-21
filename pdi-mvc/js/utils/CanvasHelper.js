@@ -72,6 +72,27 @@ export const CanvasHelper = {
       },
       toDataURL() {
         return canvas.toDataURL();
+      },
+      loadFromImage(file, callback) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Calcular aspect ratio para centrar la imagen en el canvas
+            const scale = Math.min((canvas.width / 2) / img.width, (canvas.height / 2) / img.height, 1);
+            const w = img.width * scale;
+            const h = img.height * scale;
+            const x = ((canvas.width / 2) - w) / 2;
+            const y = ((canvas.height / 2) - h) / 2;
+            ctx.drawImage(img, x, y, w, h);
+            hasDrawn = true;
+            if (callback) callback();
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
       }
     };
   }

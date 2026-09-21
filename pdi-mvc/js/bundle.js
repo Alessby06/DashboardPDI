@@ -1,3 +1,86 @@
+/* --- Module: models/StorageService.js --- */
+// Servicio de Almacenamiento Local (Persistence Layer)
+const StorageService = {
+  getItem(key, defaultValue = null) {
+    try {
+      const data = localStorage.getItem(key);
+      return data ? JSON.parse(data) : defaultValue;
+    } catch (e) {
+      console.error("Error al leer StorageService:", e);
+      return defaultValue;
+    }
+  },
+  setItem(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (e) {
+      console.error("Error al escribir StorageService:", e);
+    }
+  },
+  removeItem(key) {
+    try {
+      localStorage.removeItem(key);
+    } catch (e) {
+      console.error("Error al eliminar StorageService:", e);
+    }
+  }
+};
+
+if (typeof window !== "undefined") {
+  window.PDI = window.PDI || {};
+  window.PDI.StorageService = StorageService;
+}
+
+/* --- Module: utils/AnemiaCalculator.js --- */
+// Utilidad: Calculadora de Anemia según Norma Técnica MINSA
+const AnemiaCalculator = {
+  calculate(hb) {
+    const val = parseFloat(hb);
+    if (isNaN(val)) {
+      return {
+        label: "Dato inválido",
+        accion: "Ingrese un valor numérico de hemoglobina",
+        color: "var(--text-muted)",
+        badgeClass: "badge-blue"
+      };
+    }
+
+    if (val < 7.0) {
+      return {
+        label: "Anemia Severa",
+        accion: "Derivación Hospitalaria Inmediata + Alerta Médica",
+        color: "var(--gt-red)",
+        badgeClass: "badge-red"
+      };
+    } else if (val < 10.0) {
+      return {
+        label: "Anemia Moderada",
+        accion: "Sulfato Ferroso 2 gotas/kg/día + Visita Domiciliaria ASP",
+        color: "var(--gt-red)",
+        badgeClass: "badge-red"
+      };
+    } else if (val < 11.0) {
+      return {
+        label: "Anemia Leve",
+        accion: "Suplementación con Gotas de Hierro + Taller Nutricional",
+        color: "var(--gt-yellow)",
+        badgeClass: "badge-yellow"
+      };
+    } else {
+      return {
+        label: "Normal (Sin Anemia)",
+        accion: "Desayuno Fortificado Diario + Control de Crecimiento cada 3 meses",
+        color: "var(--gt-green)",
+        badgeClass: "badge-green"
+      };
+    }
+  }
+};
+
+if (typeof window !== "undefined") {
+  window.PDI = window.PDI || {};
+  window.PDI.AnemiaCalculator = AnemiaCalculator;
+}
 
 const defaultBeneficiarios = [
   {
@@ -863,6 +946,13 @@ const BeneficiarioModel = {
     return list.find(b => b.id === Number(id)) || null;
   },
 
+  getByCodigo(codigo) {
+    if (!codigo) return null;
+    const list = this.getAll();
+    const clean = codigo.trim().toLowerCase();
+    return list.find(b => (b.codigo || "").toLowerCase() === clean) || null;
+  },
+
   add(nuevoMenor) {
     const list = this.getAll();
     list.unshift(nuevoMenor);
@@ -946,7 +1036,7 @@ if (typeof window !== "undefined") {
 
 /* --- Module: models/CasoSocialModel.js --- */
 // Modelo de Casos Sociales (Derivaciones ASP - Área Social Pastoral)
-// Basado fielmente en la FICHA DE DERIVACIÓN DE CASO SOCIAL oficial
+// Sincronizado integralmente con los menores del Padrón Oficial de Beneficiarios
 
 const defaultCasosSociales = [
   {
@@ -955,87 +1045,206 @@ const defaultCasosSociales = [
     codigo: "PDI-2026-003",
     etapa: "pendiente",
     urgencia: "Alta",
-    tipoProblematica: "Salud",
+    tipoProblematica: "Nutricional / Abandono",
     fechaDerivacion: "2026-04-12",
     quienDeriva: {
       nombre: "Lic. Miriam Soto Paredes",
       cargo: "Facilitadora Nutricional",
       telefono: "987-223-114"
     },
-    situacionEncontrada: "Hb 9.6 g/dL (Anemia Moderada). Cuidadora principal es abuela de 64 años sin empleo formal ni pensión.",
-    accionesPrevias: "Prescripción de gotas de sulfato ferroso y primera sesión demostrativa de alimentos ricos en hierro.",
+    situacionEncontrada: "Hb 9.6 g/dL (Anemia Moderada). Cuidadora principal es abuela Gladys Diaz (64 años) sin empleo formal ni pensión; alto riesgo de deserción alimentaria.",
+    accionesPrevias: "Prescripción de sulfato ferroso y primera visita domiciliaria preliminar en El Progreso.",
     soporteFamiliar: {
       tiene: false,
       detalle: "Padres ausentes. Solo cuenta con apoyo esporádico de vecina de la capilla."
     },
-    detalle: "Hb: 9.6 g/dL (Anemia Moderada) + Abuela a cargo sin ingresos fijos.",
-    sede: "El Progreso (Carabayllo)"
+    detalle: "Hb: 9.6 g/dL (Anemia Moderada) + Abuela a cargo sin ingresos fijos en El Progreso.",
+    sede: "El Progreso (Carabayllo)",
+    vulnerabilidadPuntaje: 92
   },
   {
     id: 102,
+    menor: "Dylan Josué Quispe Córdova",
+    codigo: "PDI-2026-008",
+    etapa: "pendiente",
+    urgencia: "Alta",
+    tipoProblematica: "Nutricional / Extrema Pobreza",
+    fechaDerivacion: "2026-04-10",
+    quienDeriva: {
+      nombre: "Lic. Miriam Soto Paredes",
+      cargo: "Facilitadora Nutricional",
+      telefono: "987-223-114"
+    },
+    situacionEncontrada: "Hb 9.8 g/dL (Anemia Moderada). Hogar monoparental con madre Karina Córdova a cargo de 3 dependientes en vivienda precaria de madera sin red de agua.",
+    accionesPrevias: "Sesión demostrativa de alimentos ricos en hierro y entrega de suplementos ferrosos.",
+    soporteFamiliar: {
+      tiene: false,
+      detalle: "Madre soltera sin pensión de alimentos ni apoyo de familiares directos."
+    },
+    detalle: "Hb 9.8 g/dL + Madre sola con 3 hijos en AA.HH. San Pedro sin agua potable.",
+    sede: "San Pedro (Carabayllo)",
+    vulnerabilidadPuntaje: 90
+  },
+  {
+    id: 103,
+    menor: "Lucas Alejandro Torres Vilchez",
+    codigo: "PDI-2026-010",
+    etapa: "pendiente",
+    urgencia: "Media",
+    tipoProblematica: "Socioeconómica",
+    fechaDerivacion: "2026-04-09",
+    quienDeriva: {
+      nombre: "Lic. Carmen Vargas",
+      cargo: "Trabajadora Social ASP",
+      telefono: "945-667-889"
+    },
+    situacionEncontrada: "Cuidadora Sonia Vilchez en desempleo prolongado. Solicita canasta de contingencia y exoneración de aporte simbólico.",
+    accionesPrevias: "Evaluación preliminar de balance de ingresos y encuesta de vulnerabilidad.",
+    soporteFamiliar: {
+      tiene: true,
+      detalle: "Tía materna brinda apoyo con alimentos de forma quincenal."
+    },
+    detalle: "Desempleo prolongado del hogar en Los Bendecidos; requiere canasta de contingencia.",
+    sede: "Los Bendecidos (Carabayllo)",
+    vulnerabilidadPuntaje: 82
+  },
+  {
+    id: 104,
     menor: "Thiago Gael Flores Quispe",
     codigo: "PDI-2026-001",
     etapa: "evaluacion",
     urgencia: "Media",
-    tipoProblematica: "Familiar",
+    tipoProblematica: "Familiar / Hábitat",
     fechaDerivacion: "2026-04-08",
     quienDeriva: {
       nombre: "Prof. Delia Morales",
       cargo: "Promotora Educativa Casitas",
       telefono: "912-334-556"
     },
-    situacionEncontrada: "Vivienda precaria con piso de tierra y hacinamiento severo (5 miembros en 1 habitación).",
-    accionesPrevias: "Visita domiciliaria preliminar y llenado de Ficha Socioeconómica de 6 factores.",
+    situacionEncontrada: "Vivienda precaria con piso de tierra y hacinamiento en Comité 12 de Año Nuevo. Se realiza evaluación socioeconómica de 6 dimensiones.",
+    accionesPrevias: "Visita domiciliaria preliminar realizada y aplicación de ficha socioeconómica en curso.",
     soporteFamiliar: {
       tiene: true,
-      detalle: "Padre trabaja de estibador eventual; madre apoya en el cuidado pero sin ingresos estables."
+      detalle: "Padre trabaja de estibador eventual; madre Rosa Quispe al cuidado del hogar."
     },
-    detalle: "Evaluación de vivienda y soporte de alimentos familiares.",
-    sede: "Año Nuevo (Comas)"
+    detalle: "Evaluación socioeconómica y de hábitat en curso en Año Nuevo.",
+    sede: "Año Nuevo (Comas)",
+    vulnerabilidadPuntaje: 84
   },
   {
-    id: 103,
+    id: 105,
+    menor: "Benjamín Elías Navarro Huamán",
+    codigo: "PDI-2026-006",
+    etapa: "evaluacion",
+    urgencia: "Media",
+    tipoProblematica: "Familiar / Salud",
+    fechaDerivacion: "2026-04-05",
+    quienDeriva: {
+      nombre: "Lic. Carmen Vargas",
+      cargo: "Trabajadora Social ASP",
+      telefono: "945-667-889"
+    },
+    situacionEncontrada: "Madre Patricia Huamán con tratamiento médico crónico. En evaluación para subsidio nutricional y acompañamiento pastoral.",
+    accionesPrevias: "Coordinación con posta médica Santa Rosa para verificación de recetas y atenciones.",
+    soporteFamiliar: {
+      tiene: true,
+      detalle: "Abuelo apoya en traslados del menor hacia la sede de atención."
+    },
+    detalle: "Salud crónica de la madre y evaluación de subsidio alimentario en Santa Rosa.",
+    sede: "Santa Rosa (Carabayllo)",
+    vulnerabilidadPuntaje: 78
+  },
+  {
+    id: 106,
+    menor: "Camila Fernanda Rojas Morales",
+    codigo: "PDI-2026-007",
+    etapa: "evaluacion",
+    urgencia: "Media",
+    tipoProblematica: "Vulnerabilidad Intermedia",
+    fechaDerivacion: "2026-04-02",
+    quienDeriva: {
+      nombre: "Prof. Delia Morales",
+      cargo: "Promotora Educativa Casitas",
+      telefono: "912-334-556"
+    },
+    situacionEncontrada: "Madre Miriam Morales solicita reconsideración para exoneración total debido al cese laboral del cónyuge.",
+    accionesPrevias: "Recepción de solicitud escrita y programación de visita domiciliaria de constatación.",
+    soporteFamiliar: {
+      tiene: true,
+      detalle: "Núcleo familiar nuclear con apoyo de abuela materna."
+    },
+    detalle: "Revisión de aporte y estado laboral de los cuidadores en Año Nuevo.",
+    sede: "Año Nuevo (Comas)",
+    vulnerabilidadPuntaje: 68
+  },
+  {
+    id: 107,
     menor: "Mateo Sebastian Castillo Ruiz",
     codigo: "PDI-2026-005",
     etapa: "canalizado",
     urgencia: "Alta",
-    tipoProblematica: "Familiar",
+    tipoProblematica: "Legal / Abandono",
     fechaDerivacion: "2026-03-28",
     quienDeriva: {
       nombre: "Lic. Carmen Vargas",
       cargo: "Trabajadora Social ASP",
       telefono: "945-667-889"
     },
-    situacionEncontrada: "Presunto abandono económico y riesgo de vulneración de derechos alimentarios.",
-    accionesPrevias: "Derivación con oficio oficial a DEMUNA Carabayllo y entrega de Canasta Alimentaria BTF.",
+    situacionEncontrada: "Presunto abandono económico paterno y riesgo de vulneración de derechos de alimentos del menor.",
+    accionesPrevias: "Derivación mediante Oficio Oficial a DEMUNA Carabayllo y asignación de Canasta Familiar Banco BTF.",
     soporteFamiliar: {
       tiene: false,
-      detalle: "Madre sola a cargo de 3 menores dependientes."
+      detalle: "Madre Elena Ruiz sola al cuidado de 3 hijos dependientes."
     },
-    detalle: "Derivado a DEMUNA y asignada Bolsa de Alimentos BTF.",
-    sede: "San Pedro (Carabayllo)"
+    detalle: "Derivado a DEMUNA Carabayllo con Canasta de Alimentos BTF asignada.",
+    sede: "San Pedro (Carabayllo)",
+    vulnerabilidadPuntaje: 88
   },
   {
-    id: 104,
+    id: 108,
     menor: "Mia Valentina Mendoza Ramos",
     codigo: "PDI-2026-002",
     etapa: "cerrado",
     urgencia: "Baja",
-    tipoProblematica: "Salud",
+    tipoProblematica: "Salud / Recuperación",
     fechaDerivacion: "2026-03-10",
     quienDeriva: {
       nombre: "Lic. Miriam Soto Paredes",
       cargo: "Facilitadora Nutricional",
       telefono: "987-223-114"
     },
-    situacionEncontrada: "Ingresó con anemia leve (Hb 10.8 g/dL).",
-    accionesPrevias: "Cumplió tratamiento de hierro supervisado y sesiones de platos saludables.",
+    situacionEncontrada: "Ingresó con anemia leve y vulnerabilidad económica. Madre Carmen Ramos completó sesiones demostrativas y el menor recuperó niveles normales de hemoglobina (Hb 11.6 g/dL).",
+    accionesPrevias: "Cumplió esquema de suplementación y asistencia perfecta al comedor.",
     soporteFamiliar: {
       tiene: true,
-      detalle: "Ambos padres comprometidos con la alimentación del hogar."
+      detalle: "Ambos padres plenamente comprometidos y con empleo recuperado."
     },
-    detalle: "Recuperada a Hb 11.6 g/dL con informe social final archivado.",
-    sede: "La Libertad (Comas)"
+    detalle: "Recuperada a Hb 11.6 g/dL (Normal). Caso cerrado con informe favorable.",
+    sede: "La Libertad (Comas)",
+    vulnerabilidadPuntaje: 62
+  },
+  {
+    id: 109,
+    menor: "Luciana Sofia Alvarez Vega",
+    codigo: "PDI-2026-004",
+    etapa: "cerrado",
+    urgencia: "Baja",
+    tipoProblematica: "Escolaridad / Nivelación",
+    fechaDerivacion: "2026-03-05",
+    quienDeriva: {
+      nombre: "Prof. Delia Morales",
+      cargo: "Promotora Educativa Casitas",
+      telefono: "912-334-556"
+    },
+    situacionEncontrada: "Presentaba rezago en lectoescritura al inicio de año. Culminó módulo de refuerzo escolar con materiales Faber-Castell con 96% de asistencia.",
+    accionesPrevias: "Tutoría personalizada semanal y entrega de kit de útiles escolares.",
+    soporteFamiliar: {
+      tiene: true,
+      detalle: "Padre Jorge Alvarez brinda acompañamiento activo en tareas."
+    },
+    detalle: "Nivelación escolar completada en Casitas del Saber. Informe favorable.",
+    sede: "Año Nuevo (Comas)",
+    vulnerabilidadPuntaje: 45
   }
 ];
 
@@ -1090,40 +1299,70 @@ if (typeof window !== "undefined") {
 // Modelo de Trazabilidad y Auditoría de Seguridad
 const defaultAuditLogs = [
   {
+    id: "LOG-2026-001",
     timestamp: "2026-09-13 17:30",
     user: "Carmen Mendoza",
     role: "Facilitadora",
     action: "Tamizaje CRED",
     entity: "PDI-2026-001",
-    detail: "Registro Hb: 10.4 g/dL (Anemia Leve)",
-    status: "Válido"
+    detail: "Registro de control nutricional mensual y tamizaje de hemoglobina",
+    status: "Registrado",
+    ip: "192.168.1.45",
+    sede: "Año Nuevo",
+    diff: [
+      { campo: "Hemoglobina (Hb)", valorAnterior: "9.8 g/dL (Moderada)", valorNuevo: "10.4 g/dL (Leve)" },
+      { campo: "Peso / Talla", valorAnterior: "13.9 kg / 93.0 cm", valorNuevo: "14.2 kg / 94.5 cm" },
+      { campo: "Diagnóstico Anemia", valorAnterior: "Anemia Moderada", valorNuevo: "Anemia Leve" }
+    ]
   },
   {
+    id: "LOG-2026-002",
     timestamp: "2026-09-13 16:45",
     user: "Lic. Ruth Soto",
     role: "Trabajadora Social",
     action: "Derivación Caso",
     entity: "PDI-2026-003",
-    detail: "Canalización a DEMUNA Carabayllo",
-    status: "Activo"
+    detail: "Canalización de caso social de urgencia alta a DEMUNA Carabayllo",
+    status: "Sensible",
+    ip: "192.168.1.18",
+    sede: "El Progreso",
+    diff: [
+      { campo: "Estado Caso Social", valorAnterior: "Evaluación Preliminar", valorNuevo: "Canalizado a DEMUNA" },
+      { campo: "Nivel de Urgencia", valorAnterior: "Media", valorNuevo: "Alta (Vulnerabilidad Extrema)" },
+      { campo: "Oficio Notificación", valorAnterior: "-", valorNuevo: "OF-DEMUNA-2026-089" }
+    ]
   },
   {
+    id: "LOG-2026-003",
     timestamp: "2026-09-13 15:20",
     user: "Rosa Flores",
     role: "Promotora",
     action: "Pase Asistencia",
     entity: "Sede Año Nuevo",
-    detail: "Asistencia 18/20 niños",
-    status: "Conforme"
+    detail: "Registro y cierre de asistencia diaria en Casita del Saber",
+    status: "Registrado",
+    ip: "192.168.1.22",
+    sede: "Año Nuevo",
+    diff: [
+      { campo: "Menores Presentes", valorAnterior: "0 / 20", valorNuevo: "18 / 20 presentes" },
+      { campo: "Ración Lonchera", valorAnterior: "Pendiente", valorNuevo: "18 raciones distribuidas" }
+    ]
   },
   {
+    id: "LOG-2026-004",
     timestamp: "2026-09-13 14:10",
     user: "Dirección Gutenberg",
     role: "Coordinación",
     action: "Aprobación Padrón",
     entity: "Padrón 2026",
-    detail: "Validación de 28 expedientes",
-    status: "Aprobado"
+    detail: "Validación de expedientes del padrón institucional 2026 conforme a Ley 29733",
+    status: "Registrado",
+    ip: "192.168.1.10",
+    sede: "Central Lima",
+    diff: [
+      { campo: "Expedientes Auditados", valorAnterior: "20 revisados", valorNuevo: "28 expedientes aprobados" },
+      { campo: "Consentimientos Ley 29733", valorAnterior: "92%", valorNuevo: "100% verificados" }
+    ]
   }
 ];
 
@@ -1134,7 +1373,11 @@ const AuditModel = {
     return this._logs;
   },
 
-  log(user, role, action, entity, detail, status = "Válido") {
+  getById(id) {
+    return this._logs.find(l => l.id === id) || null;
+  },
+
+  log(user, role, action, entity, detail, status = "Registrado", diff = null, ip = "192.168.1.x", sede = "Central") {
     const now = new Date();
     const timestamp = now.getFullYear() + "-" +
       String(now.getMonth() + 1).padStart(2, '0') + "-" +
@@ -1142,7 +1385,8 @@ const AuditModel = {
       String(now.getHours()).padStart(2, '0') + ":" +
       String(now.getMinutes()).padStart(2, '0');
 
-    const entry = { timestamp, user, role, action, entity, detail, status };
+    const id = "LOG-" + now.getFullYear() + "-" + String(this._logs.length + 1).padStart(3, '0');
+    const entry = { id, timestamp, user, role, action, entity, detail, status, ip, sede, diff };
     this._logs.unshift(entry);
     return entry;
   }
@@ -1154,6 +1398,155 @@ if (typeof window !== "undefined") {
   window.PDI.AuditModel = AuditModel;
 }
 
+/* --- Module: views/ToastView.js --- */
+// Vista: Sistema de Notificaciones Toast Flotantes
+const ToastView = {
+  show(title, message, type = "success") {
+    const container = document.getElementById("toastContainer");
+    if (!container) return;
+
+    const toast = document.createElement("div");
+    toast.className = "toast-msg";
+
+    let borderCol = "var(--gt-green)";
+    if (type === "warning") borderCol = "var(--gt-yellow)";
+    if (type === "danger") borderCol = "var(--gt-red)";
+    if (type === "info") borderCol = "var(--gt-blue)";
+
+    toast.style.borderColor = borderCol;
+    toast.innerHTML = `
+      <div style="flex:1;">
+        <strong style="color:${borderCol}; display:block; font-size:13px;">${title}</strong>
+        <span style="font-size:12px; color:var(--text-muted);">${message}</span>
+      </div>
+    `;
+
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = "0";
+      toast.style.transform = "translateX(40px)";
+      setTimeout(() => toast.remove(), 250);
+    }, 3200);
+  }
+};
+
+if (typeof window !== "undefined") {
+  window.PDI = window.PDI || {};
+  window.PDI.ToastView = ToastView;
+}
+
+/* --- Module: views/SpotlightView.js --- */
+// Vista: Tour Interactivo Spotlight (10 Minutos)
+const spotlightSteps = [
+  {
+    targetId: "roleSelector",
+    title: "1. Selector de Roles y RBAC Dinámico",
+    desc: "Permite simular en vivo las 5 perspectivas operativas: Coordinación, Facilitadora Nutricional (CRED), Promotora Educativa, Área Social Pastoral y Administrador TI. Cada rol filtra estrictamente las pestañas y controles visibles.",
+    view: "view-dashboard"
+  },
+  {
+    targetId: "quickCredSlider",
+    title: "2. Métricas y Tamizaje Anemia CRED",
+    desc: "En el Dashboard y módulo CRED, calcule en vivo la severidad de anemia según normas MINSA ingresando el valor de hemoglobina. El sistema prescribe automáticamente el esquema de suplementación.",
+    view: "view-dashboard"
+  },
+  {
+    targetId: "tbodyBeneficiarios",
+    title: "3. Padrón Nominal y Filtro Reactivo",
+    desc: "Muestra la ficha técnica consolidada de los menores atendidos en las sedes Año Nuevo, La Libertad, El Progreso y San Pedro. Use el buscador superior para filtrar instantáneamente por nombre o DNI.",
+    view: "view-beneficiarios"
+  },
+  {
+    targetId: "boardKanbanSocial",
+    title: "4. Flujograma Social y Tablero Kanban ASP",
+    desc: "Tablero de 4 fases para canalización de casos de riesgo social y desnutrición: Pendiente, Evaluación, Canalizado y Cerrado. Puede avanzar los casos con un solo clic conforme avanza la intervención.",
+    view: "view-social"
+  },
+  {
+    targetId: "btnNuevoMenorHeader",
+    title: "5. Firma Ley 29733 y Ficha Integral",
+    desc: "Al registrar un menor o consultar su expediente, el sistema integra la firma digital manuscrita de consentimiento del apoderado, cumpliendo con la Ley de Protección de Datos Personales del Perú.",
+    view: "view-beneficiarios"
+  }
+];
+
+const SpotlightView = {
+  currentStep: 0,
+
+  startTour(onNavigate) {
+    this.currentStep = 0;
+    this.showStep(this.currentStep, onNavigate);
+  },
+
+  showStep(index, onNavigate) {
+    this.clearHighlight();
+    const bar = document.getElementById("spotlightBar");
+    if (!bar) return;
+
+    if (index < 0 || index >= spotlightSteps.length) {
+      this.closeTour();
+      return;
+    }
+
+    this.currentStep = index;
+    const step = spotlightSteps[index];
+
+    const stepNum = document.getElementById("spotlightStepNum");
+    if (stepNum) stepNum.textContent = `${index + 1}/${spotlightSteps.length}`;
+
+    const titleEl = document.getElementById("spotlightTitle");
+    if (titleEl) titleEl.textContent = step.title;
+
+    const descEl = document.getElementById("spotlightDesc");
+    if (descEl) descEl.textContent = step.desc;
+
+    bar.classList.add("visible");
+
+    if (onNavigate && step.view) {
+      onNavigate(step.view);
+    }
+
+    setTimeout(() => {
+      const target = document.getElementById(step.targetId);
+      if (target) {
+        target.classList.add("spotlight-highlight-target");
+        target.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }, 180);
+  },
+
+  next(onNavigate) {
+    if (this.currentStep < spotlightSteps.length - 1) {
+      this.showStep(this.currentStep + 1, onNavigate);
+    } else {
+      this.closeTour();
+    }
+  },
+
+  prev(onNavigate) {
+    if (this.currentStep > 0) {
+      this.showStep(this.currentStep - 1, onNavigate);
+    }
+  },
+
+  clearHighlight() {
+    document.querySelectorAll(".spotlight-highlight-target").forEach(el => {
+      el.classList.remove("spotlight-highlight-target");
+    });
+  },
+
+  closeTour() {
+    this.clearHighlight();
+    const bar = document.getElementById("spotlightBar");
+    if (bar) bar.classList.remove("visible");
+  }
+};
+
+if (typeof window !== "undefined") {
+  window.PDI = window.PDI || {};
+  window.PDI.spotlightSteps = spotlightSteps;
+  window.PDI.SpotlightView = SpotlightView;
+}
 
 /* --- Module: views/DashboardView.js --- */
 // Vista: Tablero Principal Dashboard
@@ -1185,29 +1578,29 @@ const DashboardView = {
       const pctComas = stats.total > 0 ? Math.round((stats.comasCount / stats.total) * 100) : 0;
       const pctCarabayllo = stats.total > 0 ? Math.round((stats.carabaylloCount / stats.total) * 100) : 0;
       coverageContainer.innerHTML = `
-        <div style="padding: 12px 16px; border-radius: var(--radius-md); background: var(--surface-2); border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 8px;">
-          <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div class="district-coverage-card">
+          <div class="district-coverage-header">
             <div>
               <strong>Distrito de Comas</strong>
-              <div style="font-size: 12px; color: var(--text-muted);">Sedes: La Libertad, Año Nuevo, Collique</div>
+              <div class="district-coverage-sedes">Sedes: La Libertad, Año Nuevo, Collique</div>
             </div>
-            <span class="badge badge-green">${stats.comasCount} Beneficiarios (${pctComas}%)</span>
+            <span class="badge badge-green district-coverage-badge">${stats.comasCount} Beneficiarios (${pctComas}%)</span>
           </div>
-          <div style="height: 6px; width: 100%; background: var(--surface-3); border-radius: 999px; overflow: hidden;">
-            <div style="height: 100%; width: ${pctComas}%; background: var(--gt-green); border-radius: 999px; transition: width 0.4s ease;"></div>
+          <div class="district-coverage-track">
+            <div class="district-coverage-bar" style="width: ${pctComas}%; background: var(--gt-green);"></div>
           </div>
         </div>
 
-        <div style="padding: 12px 16px; border-radius: var(--radius-md); background: var(--surface-2); border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 8px;">
-          <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div class="district-coverage-card">
+          <div class="district-coverage-header">
             <div>
               <strong>Distrito de Carabayllo</strong>
-              <div style="font-size: 12px; color: var(--text-muted);">Sedes: El Progreso, San Pedro</div>
+              <div class="district-coverage-sedes">Sedes: El Progreso, San Pedro</div>
             </div>
-            <span class="badge badge-blue">${stats.carabaylloCount} Beneficiarios (${pctCarabayllo}%)</span>
+            <span class="badge badge-blue district-coverage-badge">${stats.carabaylloCount} Beneficiarios (${pctCarabayllo}%)</span>
           </div>
-          <div style="height: 6px; width: 100%; background: var(--surface-3); border-radius: 999px; overflow: hidden;">
-            <div style="height: 100%; width: ${pctCarabayllo}%; background: var(--gt-blue, #0d9488); border-radius: 999px; transition: width 0.4s ease;"></div>
+          <div class="district-coverage-track">
+            <div class="district-coverage-bar" style="width: ${pctCarabayllo}%; background: var(--gt-blue, #0d9488);"></div>
           </div>
         </div>
       `;
@@ -1267,73 +1660,477 @@ const DashboardView = {
     this.renderAuditLogs(auditLogs);
   },
 
+  _auditSearchQuery: "",
+  _auditCurrentPage: 1,
+  _auditPageSize: 10,
+  _customDateSpecific: "",
+  _customDateRangeStart: "",
+  _customDateRangeEnd: "",
+
   renderAuditLogs(logs) {
+    this._currentAuditLogs = logs || [];
+    this.updateAuditKpis(this._currentAuditLogs);
+    this.applyAuditFilters();
+  },
+
+  updateAuditKpis(logs) {
+    const totalEl = document.getElementById("auditKpiTotal");
+    const sensEl = document.getElementById("auditKpiSensibles");
+    const lastActivityEl = document.getElementById("auditLastActivity");
+
+    if (totalEl) totalEl.textContent = logs.length;
+    
+    if (sensEl) {
+      const sensibles = logs.filter(l => 
+        (l.action && l.action.toLowerCase().includes("derivaci")) || 
+        (l.detail && l.detail.toLowerCase().includes("demuna"))
+      );
+      sensEl.textContent = sensibles.length;
+    }
+
+    if (lastActivityEl) {
+      if (logs && logs.length > 0) {
+        const latest = logs[0];
+        lastActivityEl.textContent = `${latest.timestamp} · ${latest.user} (${latest.action})`;
+      } else {
+        lastActivityEl.textContent = "Sin registros coincidentes";
+      }
+    }
+  },
+
+  filterByAction(actionType) {
+    this._selectedAuditAction = actionType;
+    this._auditCurrentPage = 1;
+    const items = document.querySelectorAll("#dropdownAuditAction .custom-dropdown-item");
+    items.forEach(it => {
+      if (it.getAttribute("data-value") === actionType) {
+        it.classList.add("selected");
+        const labelEl = document.getElementById("labelAuditAction");
+        if (labelEl) {
+          const clone = it.cloneNode(true);
+          const badge = clone.querySelector(".badge");
+          if (badge) badge.remove();
+          labelEl.textContent = clone.textContent.trim();
+        }
+      } else {
+        it.classList.remove("selected");
+      }
+    });
+    this.updateActiveFiltersBadge();
+    this.applyAuditFilters();
+  },
+
+  filterByRole(role) {
+    this._selectedAuditRole = role;
+    this._auditCurrentPage = 1;
+    this.updateActiveFiltersBadge();
+    this.applyAuditFilters();
+  },
+
+  filterByDate(dateKey) {
+    this._selectedAuditDate = dateKey;
+    this._auditCurrentPage = 1;
+
+    // Conmutar visibilidad de paneles interactivos de fecha
+    const panelSpecific = document.getElementById("panelAuditDateSpecific");
+    const panelRange = document.getElementById("panelAuditDateRange");
+
+    if (panelSpecific) panelSpecific.style.display = (dateKey === "specific") ? "flex" : "none";
+    if (panelRange) panelRange.style.display = (dateKey === "range") ? "flex" : "none";
+
+    this.updateActiveFiltersBadge();
+    this.applyAuditFilters();
+  },
+
+  handleDatePickerChange(type, yyyyMmDd) {
+    if (!yyyyMmDd) return;
+    const parts = yyyyMmDd.split("-");
+    if (parts.length === 3) {
+      const ddMmYyyy = `${parts[2]}/${parts[1]}/${parts[0]}`;
+      if (type === "specific") {
+        const input = document.getElementById("inputAuditSpecificDate");
+        if (input) input.value = ddMmYyyy;
+        this._customDateSpecific = yyyyMmDd;
+      } else if (type === "range-start") {
+        const input = document.getElementById("inputAuditRangeStart");
+        if (input) input.value = ddMmYyyy;
+        this._customDateRangeStart = yyyyMmDd;
+      } else if (type === "range-end") {
+        const input = document.getElementById("inputAuditRangeEnd");
+        if (input) input.value = ddMmYyyy;
+        this._customDateRangeEnd = yyyyMmDd;
+      }
+      this._auditCurrentPage = 1;
+      this.updateActiveFiltersBadge();
+      this.applyAuditFilters();
+    }
+  },
+
+  handleDateManualInput(type, inputEl) {
+    if (!inputEl) return;
+    let val = inputEl.value;
+    
+    // Auto-formateo con slashes si el usuario escribe solo dígitos
+    const cleanDigits = val.replace(/\D/g, "").slice(0, 8);
+    if (cleanDigits.length >= 5) {
+      val = `${cleanDigits.slice(0, 2)}/${cleanDigits.slice(2, 4)}/${cleanDigits.slice(4)}`;
+    } else if (cleanDigits.length >= 3) {
+      val = `${cleanDigits.slice(0, 2)}/${cleanDigits.slice(2)}`;
+    } else {
+      val = cleanDigits;
+    }
+    inputEl.value = val;
+
+    // Si tiene 10 caracteres (DD/MM/AAAA) validar y parsear
+    if (val.length === 10 && /^\d{2}\/\d{2}\/\d{4}$/.test(val)) {
+      const [d, m, y] = val.split("/");
+      const isoDate = `${y}-${m}-${d}`;
+      const pickerId = (type === "specific") ? "pickerAuditSpecificDate" : (type === "range-start" ? "pickerAuditRangeStart" : "pickerAuditRangeEnd");
+      const picker = document.getElementById(pickerId);
+      if (picker) picker.value = isoDate;
+
+      if (type === "specific") {
+        this._customDateSpecific = isoDate;
+      } else if (type === "range-start") {
+        this._customDateRangeStart = isoDate;
+      } else if (type === "range-end") {
+        this._customDateRangeEnd = isoDate;
+      }
+      this._auditCurrentPage = 1;
+      this.updateActiveFiltersBadge();
+      this.applyAuditFilters();
+    } else if (val.length === 0) {
+      if (type === "specific") this._customDateSpecific = "";
+      if (type === "range-start") this._customDateRangeStart = "";
+      if (type === "range-end") this._customDateRangeEnd = "";
+      this.applyAuditFilters();
+    }
+  },
+
+  filterBySearch(query) {
+    this._auditSearchQuery = (query || "").trim().toLowerCase();
+    this._auditCurrentPage = 1;
+    const clearBtn = document.getElementById("btnAuditSearchClear");
+    if (clearBtn) {
+      clearBtn.style.display = query && query.length > 0 ? "flex" : "none";
+    }
+    this.applyAuditFilters();
+  },
+
+  clearSearch() {
+    const input = document.getElementById("inputAuditSearch");
+    if (input) input.value = "";
+    this.filterBySearch("");
+  },
+
+  resetAuditFilters() {
+    this._customDateSpecific = "";
+    this._customDateRangeStart = "";
+    this._customDateRangeEnd = "";
+
+    const spText = document.getElementById("inputAuditSpecificDate");
+    const rStartText = document.getElementById("inputAuditRangeStart");
+    const rEndText = document.getElementById("inputAuditRangeEnd");
+    if (spText) spText.value = "";
+    if (rStartText) rStartText.value = "";
+    if (rEndText) rEndText.value = "";
+
+    const panelSpecific = document.getElementById("panelAuditDateSpecific");
+    const panelRange = document.getElementById("panelAuditDateRange");
+    if (panelSpecific) panelSpecific.style.display = "none";
+    if (panelRange) panelRange.style.display = "none";
+
+    this.selectAction("all", "Todos los Eventos");
+    this.selectDate("all", "Todas las Fechas");
+    this.selectRole("all", "Todos los Roles");
+  },
+
+  updateActiveFiltersBadge() {
+    let count = 0;
+    if (this._selectedAuditAction && this._selectedAuditAction !== "all") count++;
+    if (this._selectedAuditDate && this._selectedAuditDate !== "all") count++;
+    if (this._selectedAuditRole && this._selectedAuditRole !== "all") count++;
+
+    const badge = document.getElementById("auditActiveFiltersCount");
+    const filterBtn = document.getElementById("btnDropdownAuditFilterPanel");
+
+    if (badge) {
+      badge.textContent = count;
+      badge.style.display = count > 0 ? "inline-flex" : "none";
+    }
+    if (filterBtn) {
+      if (count > 0) {
+        filterBtn.classList.add("has-filters");
+      } else {
+        filterBtn.classList.remove("has-filters");
+      }
+    }
+  },
+
+  changePage(page) {
+    this._auditCurrentPage = page;
+    this.applyAuditFilters();
+  },
+
+  changePageSize(size) {
+    this._auditPageSize = Number(size) || 10;
+    this._auditCurrentPage = 1;
+    this.applyAuditFilters();
+  },
+
+  applyAuditFilters() {
+    const logs = this._currentAuditLogs || [];
+    const actionFilter = this._selectedAuditAction || "all";
+    const roleFilter = this._selectedAuditRole || "all";
+    const dateFilter = this._selectedAuditDate || "all";
+    const query = this._auditSearchQuery || "";
+
+    const now = new Date();
+    const todayStr = now.toISOString().slice(0, 10);
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    const filtered = logs.filter(l => {
+      let matchAction = true;
+      if (actionFilter === "salud") {
+        matchAction = (l.action && l.action.toLowerCase().includes("cred")) || (l.action && l.action.toLowerCase().includes("tamizaje"));
+      } else if (actionFilter === "social") {
+        matchAction = (l.action && l.action.toLowerCase().includes("derivaci")) || (l.role && l.role.toLowerCase().includes("social"));
+      } else if (actionFilter === "educativo") {
+        matchAction = (l.action && l.action.toLowerCase().includes("asistencia")) || (l.role && l.role.toLowerCase().includes("promotora"));
+      } else if (actionFilter === "padron") {
+        matchAction = (l.action && l.action.toLowerCase().includes("padrón")) || (l.role && l.role.toLowerCase().includes("coordinaci"));
+      }
+
+      let matchRole = true;
+      if (roleFilter !== "all") {
+        matchRole = l.role && l.role.toLowerCase().includes(roleFilter.toLowerCase());
+      }
+
+      let matchDate = true;
+      const logDateStr = (l.timestamp || "").slice(0, 10);
+      if (dateFilter === "today") {
+        matchDate = logDateStr === todayStr;
+      } else if (dateFilter === "week") {
+        const logDate = new Date(logDateStr);
+        matchDate = !isNaN(logDate) && logDate >= sevenDaysAgo;
+      } else if (dateFilter === "specific") {
+        if (this._customDateSpecific) {
+          matchDate = logDateStr === this._customDateSpecific;
+        }
+      } else if (dateFilter === "range") {
+        const start = this._customDateRangeStart;
+        const end = this._customDateRangeEnd;
+        if (start && end) {
+          matchDate = logDateStr >= start && logDateStr <= end;
+        } else if (start) {
+          matchDate = logDateStr >= start;
+        } else if (end) {
+          matchDate = logDateStr <= end;
+        }
+      }
+
+      let matchQuery = true;
+      if (query) {
+        const user = (l.user || "").toLowerCase();
+        const role = (l.role || "").toLowerCase();
+        const action = (l.action || "").toLowerCase();
+        const entity = (l.entity || "").toLowerCase();
+        const detail = (l.detail || "").toLowerCase();
+        const id = (l.id || "").toLowerCase();
+        matchQuery = user.includes(query) || role.includes(query) || action.includes(query) || entity.includes(query) || detail.includes(query) || id.includes(query);
+      }
+
+      return matchAction && matchRole && matchDate && matchQuery;
+    });
+
+    const totalRecords = filtered.length;
+    const pageSize = this._auditPageSize || 10;
+    const totalPages = Math.ceil(totalRecords / pageSize) || 1;
+    if (this._auditCurrentPage > totalPages) this._auditCurrentPage = totalPages;
+    if (this._auditCurrentPage < 1) this._auditCurrentPage = 1;
+
+    const startIndex = (this._auditCurrentPage - 1) * pageSize;
+    const endIndex = Math.min(startIndex + pageSize, totalRecords);
+    const paginatedLogs = filtered.slice(startIndex, endIndex);
+
+    this.renderAuditTableAndCards(paginatedLogs);
+    this.renderAuditPagination(totalRecords, startIndex, endIndex, totalPages);
+    this.updateAuditKpis(filtered);
+  },
+
+  renderAuditPagination(total, start, end, totalPages) {
+    const infoEl = document.getElementById("auditPaginationInfo");
+    if (infoEl) {
+      if (total === 0) {
+        infoEl.textContent = "Sin registros coincidentes";
+      } else {
+        infoEl.textContent = `Mostrando ${start + 1} a ${end} de ${total} eventos`;
+      }
+    }
+
+    const btnPrev = document.getElementById("btnAuditPagePrev");
+    const btnNext = document.getElementById("btnAuditPageNext");
+    const pageNumEl = document.getElementById("auditCurrentPageNum");
+
+    if (pageNumEl) pageNumEl.textContent = `Página ${this._auditCurrentPage} de ${totalPages}`;
+    if (btnPrev) btnPrev.disabled = (this._auditCurrentPage <= 1);
+    if (btnNext) btnNext.disabled = (this._auditCurrentPage >= totalPages);
+  },
+
+  renderAuditTableAndCards(logs) {
     const tbody = document.getElementById("tbodyAuditLogs");
     const mobileContainer = document.getElementById("mobileCardsAuditoria");
 
+    const getActionBadgeClass = (action) => {
+      const act = (action || "").toLowerCase();
+      if (act.includes("cred") || act.includes("tamizaje")) return "badge-yellow";
+      if (act.includes("derivaci")) return "badge-red";
+      if (act.includes("asistencia")) return "badge-blue";
+      if (act.includes("padrón") || act.includes("aprobación")) return "badge-green";
+      return "badge-blue";
+    };
+
+    const getStatusBadgeClass = (status) => {
+      const s = (status || "").toLowerCase();
+      if (s.includes("sensible") || s.includes("crítico") || s.includes("derivaci")) return "badge-red";
+      if (s.includes("observado") || s.includes("revisión") || s.includes("pendiente")) return "badge-yellow";
+      return "badge-green"; // Registrado / Conforme
+    };
+
+    const getInitials = (name) => {
+      if (!name) return "US";
+      const parts = name.trim().split(" ");
+      if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+      return parts[0].substring(0, 2).toUpperCase();
+    };
+
     if (tbody) {
-      tbody.innerHTML = logs.map(l => `
-        <tr>
-          <td style="font-family:var(--mono-font); font-size:12px; color:var(--text-dim);">${l.timestamp}</td>
-          <td><strong>${l.user}</strong><div style="font-size:11px; color:var(--text-muted);">${l.role}</div></td>
-          <td><span class="badge badge-blue">${l.action}</span></td>
-          <td><code style="font-family:var(--mono-font);">${l.entity}</code></td>
-          <td style="font-size:12px;">${l.detail}</td>
-          <td><span class="badge badge-green">${l.status}</span></td>
-        </tr>
-      `).join("");
+      if (logs.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align:center; padding:32px; color:var(--text-dim);">
+              No se encontraron eventos de auditoría con los filtros y búsqueda especificados.
+            </td>
+          </tr>
+        `;
+      } else {
+        tbody.innerHTML = logs.map(l => {
+          const isMenor = (l.entity && l.entity.startsWith("PDI-"));
+          const entityHtml = isMenor 
+            ? `<a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo ? window.openExpedienteByCodigo('${l.entity}') : (window.PDI?.BeneficiarioController?.openExpedienteByCodigo ? window.PDI.BeneficiarioController.openExpedienteByCodigo('${l.entity}') : null)" class="audit-entity-link" title="Abrir expediente del menor"><code style="font-family:var(--mono-font); font-weight:700; color:var(--gt-green); text-decoration:underline;">${l.entity}</code></a>`
+            : `<code style="font-family:var(--mono-font); font-weight:700; color:var(--text-main);">${l.entity}</code>`;
+
+          const logIdStr = l.id || "";
+          return `
+            <tr class="audit-row-interactive" onclick="window.openAuditDetail ? window.openAuditDetail('${logIdStr}') : (window.PDI?.DashboardView?.openLogDetail ? window.PDI.DashboardView.openLogDetail('${logIdStr}') : null)" title="Clic para ver detalle de auditoría y cambios">
+              <td style="font-family:var(--mono-font); font-size:12px; color:var(--text-dim); white-space:nowrap;">${l.timestamp}</td>
+              <td>
+                <div class="audit-user-cell">
+                  <div class="audit-user-avatar">${getInitials(l.user)}</div>
+                  <div>
+                    <strong>${l.user}</strong>
+                    <div style="font-size:11px; color:var(--text-muted);">${l.role}</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge ${getActionBadgeClass(l.action)}">${l.action}</span></td>
+              <td>${entityHtml}</td>
+              <td style="font-size:12.5px; color:var(--text-muted); max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${l.detail}</td>
+              <td><span class="badge ${getStatusBadgeClass(l.status)}">${l.status}</span></td>
+              <td style="text-align:right;">
+                <button type="button" class="btn-action-sm" onclick="event.stopPropagation(); window.openAuditDetail ? window.openAuditDetail('${logIdStr}') : (window.PDI?.DashboardView?.openLogDetail ? window.PDI.DashboardView.openLogDetail('${logIdStr}') : null)" title="Ver detalle de trazabilidad">
+                  <span>Detalle</span>
+                  <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                  </svg>
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join("");
+      }
     }
 
     if (mobileContainer) {
-      mobileContainer.innerHTML = logs.map((l, index) => `
-        <div class="mobile-card-item" id="mobile-audit-${index}">
-          <!-- Cabecera: ID (Timestamp) + Badge Estado -->
-          <div class="datacard-header">
-            <div class="datacard-id">
-              <span>REG:</span> ${l.timestamp}
-            </div>
-            <div class="datacard-header-right">
-              <span class="badge badge-green">${l.status}</span>
-            </div>
+      if (logs.length === 0) {
+        mobileContainer.innerHTML = `
+          <div style="text-align:center; padding:32px; color:var(--text-dim); background:var(--surface-1); border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
+            No se encontraron eventos con los filtros seleccionados.
           </div>
+        `;
+      } else {
+        mobileContainer.innerHTML = logs.map((l, index) => {
+          const isMenor = (l.entity && l.entity.startsWith("PDI-"));
+          const entityHtml = isMenor 
+            ? `<a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo ? window.openExpedienteByCodigo('${l.entity}') : (window.PDI?.BeneficiarioController?.openExpedienteByCodigo ? window.PDI.BeneficiarioController.openExpedienteByCodigo('${l.entity}') : null)" class="audit-entity-link" title="Abrir expediente del menor"><code style="font-family:var(--mono-font); font-weight:700; color:var(--gt-green); text-decoration:underline;">${l.entity}</code></a>`
+            : `<code style="font-family:var(--mono-font); font-weight:700; color:var(--text-main);">${l.entity}</code>`;
 
-          <!-- Cuerpo: Datos principales siempre visibles -->
-          <div class="datacard-body">
-            <div class="datacard-row">
-              <span class="datacard-label">Acción Registrada</span>
-              <span class="datacard-value"><span class="badge badge-blue">${l.action}</span></span>
-            </div>
-            <div class="datacard-row">
-              <span class="datacard-label">Entidad Afectada</span>
-              <span class="datacard-value" style="color:var(--gt-green); font-weight:700;">${l.entity}</span>
-            </div>
+          const logIdStr = l.id || "";
+          return `
+            <div class="mobile-card-item" id="mobile-audit-${index}">
+              <div class="datacard-header">
+                <div class="datacard-id">
+                  <span>REG:</span> ${l.timestamp}
+                </div>
+                <div class="datacard-header-right">
+                  <span class="badge ${getStatusBadgeClass(l.status)}">${l.status}</span>
+                </div>
+              </div>
 
-            <!-- Bloque Desplegable "Ver más" -->
-            <div class="datacard-extra" id="extra-audit-${index}">
-              <div class="datacard-row">
-                <span class="datacard-label">Usuario Responsable</span>
-                <span class="datacard-value">${l.user}</span>
-              </div>
-              <div class="datacard-row">
-                <span class="datacard-label">Perfil / Rol</span>
-                <span class="datacard-value">${l.role}</span>
-              </div>
-              <div class="datacard-row" style="flex-direction:column; align-items:flex-start; gap:6px;">
-                <span class="datacard-label">Detalle de la Operación</span>
-                <span class="datacard-value" style="text-align:left; font-size:12.5px; font-weight:500; color:var(--text-muted);">${l.detail}</span>
+              <div class="datacard-body">
+                <div class="datacard-row">
+                  <span class="datacard-label">Acción Registrada</span>
+                  <span class="datacard-value"><span class="badge ${getActionBadgeClass(l.action)}">${l.action}</span></span>
+                </div>
+                <div class="datacard-row">
+                  <span class="datacard-label">Entidad Afectada</span>
+                  <span class="datacard-value">${entityHtml}</span>
+                </div>
+
+                <div class="datacard-extra" id="extra-audit-${index}">
+                  <div class="datacard-row">
+                    <span class="datacard-label">Usuario Responsable</span>
+                    <span class="datacard-value" style="display:flex; align-items:center; gap:6px;">
+                      <span class="audit-user-avatar" style="width:22px; height:22px; font-size:9.5px;">${getInitials(l.user)}</span>
+                      ${l.user}
+                    </span>
+                  </div>
+                  <div class="datacard-row">
+                    <span class="datacard-label">Perfil / Rol</span>
+                    <span class="datacard-value">${l.role}</span>
+                  </div>
+                  <div class="datacard-row" style="flex-direction:column; align-items:flex-start; gap:6px;">
+                    <span class="datacard-label">Detalle de la Operación</span>
+                    <span class="datacard-value" style="text-align:left; font-size:12.5px; font-weight:500; color:var(--text-muted);">${l.detail}</span>
+                  </div>
+                  <div style="margin-top:10px;">
+                    <button type="button" class="btn-action-sm primary" style="width:100%; justify-content:center;" onclick="window.openAuditDetail ? window.openAuditDetail('${logIdStr}') : (window.PDI?.DashboardView?.openLogDetail ? window.PDI.DashboardView.openLogDetail('${logIdStr}') : null)">
+                      <span>Ver Ficha Completa de Auditoría</span>
+                    </button>
+                  </div>
+                </div>
+
+                <button type="button" class="datacard-toggle-btn" id="btnToggleAudit-${index}" onclick="window.PDI ? window.PDI.DashboardView.toggleAuditCard(${index}) : DashboardView.toggleAuditCard(${index})">
+                  <span class="btn-text">Ver más</span>
+                  <svg fill="none" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                  </svg>
+                </button>
               </div>
             </div>
+          `;
+        }).join("");
+      }
+    }
+  },
 
-            <!-- Botón Ver más / Ver menos -->
-            <button type="button" class="datacard-toggle-btn" id="btnToggleAudit-${index}" onclick="window.PDI ? window.PDI.DashboardView.toggleAuditCard(${index}) : DashboardView.toggleAuditCard(${index})">
-              <span class="btn-text">Ver más</span>
-              <svg fill="none" stroke-width="2.5" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      `).join("");
+  openLogDetail(logId) {
+    const logs = this._currentAuditLogs || [];
+    const log = logs.find(l => l.id === logId) || (logs.length > 0 ? logs[0] : null);
+    if (!log) return;
+    const modalView = window.PDI?.ModalView || ModalView;
+    if (modalView && modalView.openAuditDetail) {
+      modalView.openAuditDetail(log);
     }
   },
 
@@ -1347,6 +2144,70 @@ const DashboardView = {
         if (textSpan) textSpan.textContent = isExp ? "Ver menos" : "Ver más";
       }
     }
+  },
+
+  toggleDropdown(dropdownId) {
+    const target = document.getElementById(dropdownId);
+    const allDropdowns = document.querySelectorAll(".custom-dropdown");
+    allDropdowns.forEach(d => {
+      if (d !== target && !d.contains(target) && !target?.contains(d)) {
+        d.classList.remove("open");
+      }
+    });
+    if (target) {
+      target.classList.toggle("open");
+    }
+  },
+
+  toggleInnerDropdown(dropdownId) {
+    const target = document.getElementById(dropdownId);
+    const container = document.getElementById("menuAuditFilterPanel");
+    if (container) {
+      container.querySelectorAll(".custom-dropdown").forEach(d => {
+        if (d !== target) d.classList.remove("open");
+      });
+    }
+    if (target) {
+      target.classList.toggle("open");
+    }
+  },
+
+  selectDate(value, label) {
+    const selectEl = document.getElementById("selectAuditDateFilter");
+    if (selectEl && selectEl.value !== value) {
+      selectEl.value = value;
+    }
+    const labelEl = document.getElementById("labelAuditDate");
+    if (labelEl) labelEl.textContent = label;
+
+    this.filterByDate(value);
+  },
+
+  selectRole(value, label) {
+    const selectEl = document.getElementById("selectAuditRoleFilter");
+    if (selectEl && selectEl.value !== value) {
+      selectEl.value = value;
+    }
+    const labelEl = document.getElementById("labelAuditRole");
+    if (labelEl) labelEl.textContent = label;
+
+    this.filterByRole(value);
+  },
+
+  selectAction(value, label) {
+    const segButtons = document.querySelectorAll("#auditActionSegmented .audit-seg-btn");
+    segButtons.forEach(btn => {
+      if (btn.getAttribute("data-value") === value) {
+        btn.classList.add("active");
+      } else {
+        btn.classList.remove("active");
+      }
+    });
+
+    const labelEl = document.getElementById("labelAuditAction");
+    if (labelEl) labelEl.textContent = label;
+
+    this.filterByAction(value);
   }
 };
 
@@ -1694,8 +2555,8 @@ function getChildAvatarSvg(sex, name) {
   const hair = "#1e1b18";
 
   if (!isFemale) {
-    return `<svg viewBox="0 0 120 120" width="100%" height="100%">
-          <rect width="120" height="120" rx="10" fill="${bgColor}"/>
+    return `<svg viewBox="0 0 120 120" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" style="display:block; width:100%; height:100%; background:${bgColor};">
+          <rect width="120" height="120" fill="${bgColor}"/>
           <circle cx="60" cy="52" r="26" fill="${skin}"/>
           <path d="M34 46 C34 30, 44 22, 60 22 C76 22, 86 30, 86 46 C80 40, 72 38, 60 38 C48 38, 40 40, 34 46 Z" fill="${hair}"/>
           <ellipse cx="50" cy="52" rx="3" ry="3.5" fill="#1e293b"/>
@@ -1706,8 +2567,8 @@ function getChildAvatarSvg(sex, name) {
           <polygon points="60,84 52,98 68,98" fill="#ffffff" opacity="0.9"/>
         </svg>`;
   } else {
-    return `<svg viewBox="0 0 120 120" width="100%" height="100%">
-          <rect width="120" height="120" rx="10" fill="${bgColor}"/>
+    return `<svg viewBox="0 0 120 120" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" style="display:block; width:100%; height:100%; background:${bgColor};">
+          <rect width="120" height="120" fill="${bgColor}"/>
           <circle cx="60" cy="52" r="26" fill="${skin}"/>
           <path d="M32 50 C30 26, 44 20, 60 20 C76 20, 90 26, 88 50 C88 68, 84 76, 82 82 C78 72, 78 50, 78 40 C66 42, 54 42, 42 40 C42 50, 42 72, 38 82 C36 76, 32 68, 32 50 Z" fill="${hair}"/>
           <circle cx="36" cy="34" r="6" fill="${accent}"/>
@@ -1860,8 +2721,70 @@ const ModalView = {
     setSafe("expReferencia", b.referencia || "Sin referencia adicional");
     setSafe("expDistritoSede", `${b.distrito} - Sede ${b.sede}`);
     setSafe("expSede", `${b.distrito} - Sede ${b.sede}`);
-    setSafe("expModalidadEstrategia", `${b.modalidad || 'Comunitaria'} | ${b.estrategia || (b.servicios ? b.servicios.join(' + ') : 'Desayuno Infantil')}`);
-    setSafe("expExoneracion", b.exoneracionAporte || "100% (Exonerado Vulnerabilidad Extrema)");
+
+    // Exoneración: solo nomenclatura limpia (100%, 50%, 0%)
+    let exoneracionLimpia = "100%";
+    if (b.exoneracionAporte) {
+      if (b.exoneracionAporte.includes("50%")) exoneracionLimpia = "50%";
+      else if (b.exoneracionAporte.includes("0%")) exoneracionLimpia = "0%";
+      else if (b.exoneracionAporte.includes("100%")) exoneracionLimpia = "100%";
+      else exoneracionLimpia = b.exoneracionAporte;
+    }
+    setSafe("expExoneracion", exoneracionLimpia);
+
+    // Listado institucional de programas inscritos con checkbox
+    const programasContainer = document.getElementById("expProgramasInscritosContainer");
+    if (programasContainer) {
+      const serviciosArray = Array.isArray(b.servicios) ? b.servicios : [];
+      const estrategiaStr = (b.estrategia || "").toLowerCase();
+      
+      const hasDesayuno = serviciosArray.some(s => s.toLowerCase().includes("desayuno")) || 
+                          estrategiaStr.includes("desayuno") || 
+                          estrategiaStr.includes("mixto");
+      
+      const hasCasita = serviciosArray.some(s => s.toLowerCase().includes("casita")) || 
+                        estrategiaStr.includes("casita") || 
+                        estrategiaStr.includes("mixto");
+      
+      const hasLonchera = serviciosArray.some(s => s.toLowerCase().includes("lonchera")) || 
+                          estrategiaStr.includes("lonchera");
+
+      const programasList = [
+        {
+          id: "prog_desayuno",
+          nombre: "Programa Nutricional: Desayuno Infantil Comunitario",
+          desc: "Ración matutina balanceada y tamizaje antropométrico periódico",
+          active: hasDesayuno
+        },
+        {
+          id: "prog_casitas",
+          nombre: "Programa Pedagógico: Casitas del Saber (Refuerzo Escolar)",
+          desc: "Acompañamiento psicopedagógico, tutoría y entrega de kits escolares",
+          active: hasCasita
+        },
+        {
+          id: "prog_lonchera",
+          nombre: "Programa de Lonchera Infantil Saludable",
+          desc: "Complemento nutricional para instituciones educativas focalizadas",
+          active: hasLonchera
+        }
+      ];
+
+      programasContainer.innerHTML = programasList.map(prog => `
+        <div class="programa-item ${prog.active ? 'active' : ''}">
+          <div class="programa-check-box">
+            ${prog.active ? `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>` : ''}
+          </div>
+          <div class="programa-details">
+            <span class="programa-name">${prog.nombre}</span>
+            <span class="programa-desc">${prog.desc}</span>
+          </div>
+          <span class="badge ${prog.active ? 'badge-green' : 'badge-gray'}" style="font-size:10px; padding:2px 7px;">
+            ${prog.active ? 'Inscrito y Activo' : 'No Asignado'}
+          </span>
+        </div>
+      `).join("");
+    }
 
     // 2. Salud Base y CRED
     setSafe("expSeguro", b.seguro || "SIS Gratuito");
@@ -1925,30 +2848,70 @@ const ModalView = {
       }).join("");
     }
 
-    // 5. Consentimiento Informado Ley N.° 29733 (Ficha A3)
+    // 5. Consentimiento Informado Ley N.° 29733 (Ficha A3) - Rediseño Moderno
     const consentContainer = document.getElementById("expConsentimientoChecksContainer");
     if (consentContainer) {
       consentContainer.innerHTML = `
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
-          <div style="background:var(--surface-hover); padding:10px; border-radius:6px; border:1px solid var(--gt-green-border);">
-            <div style="color:var(--gt-green); font-weight:700; font-size:12px;">[AUTORIZADO] Evaluación Social</div>
-            <div style="font-size:11px; color:var(--text-dim); margin-top:2px;">Elaboración de historias de vida y seguimiento del impacto (Art. 13 num 5 y 6).</div>
+        <div class="ley-consent-grid">
+          <div class="ley-consent-card">
+            <div class="ley-card-header">
+              <div class="ley-card-title">
+                <svg width="15" height="15" fill="none" stroke="var(--gt-green)" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                <span>Evaluación y Seguimiento Social</span>
+              </div>
+              <span class="badge badge-green" style="font-size:10px; padding:2px 6px;">Autorizado</span>
+            </div>
+            <div class="ley-card-desc">Elaboración de historias de vida, encuestas de vulnerabilidad y métricas de impacto socioeconómico.</div>
+            <span class="ley-card-art">Art. 13, num. 5 y 6 Ley 29733</span>
           </div>
-          <div style="background:var(--surface-hover); padding:10px; border-radius:6px; border:1px solid var(--gt-green-border);">
-            <div style="color:var(--gt-green); font-weight:700; font-size:12px;">[AUTORIZADO] Fotografías y Videos</div>
-            <div style="font-size:11px; color:var(--text-dim); margin-top:2px;">Difusión institucional y rendición de cuentas en plataformas oficiales (Art. 13 num 5).</div>
+
+          <div class="ley-consent-card">
+            <div class="ley-card-header">
+              <div class="ley-card-title">
+                <svg width="15" height="15" fill="none" stroke="var(--gt-green)" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                <span>Registro Audiovisual Institucional</span>
+              </div>
+              <span class="badge badge-green" style="font-size:10px; padding:2px 6px;">Autorizado</span>
+            </div>
+            <div class="ley-card-desc">Toma de fotografías y videos para memorias anuales, rendición de cuentas e informes a benefactores.</div>
+            <span class="ley-card-art">Art. 13, num. 5 Ley 29733</span>
           </div>
-          <div style="background:var(--surface-hover); padding:10px; border-radius:6px; border:1px solid var(--gt-green-border);">
-            <div style="color:var(--gt-green); font-weight:700; font-size:12px;">[AUTORIZADO] Gestión de Donaciones</div>
-            <div style="font-size:11px; color:var(--text-dim); margin-top:2px;">Recaudación de fondos y reportes institucionales de sostenibilidad (Art. 13 num 5 y 6).</div>
+
+          <div class="ley-consent-card">
+            <div class="ley-card-header">
+              <div class="ley-card-title">
+                <svg width="15" height="15" fill="none" stroke="var(--gt-green)" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                <span>Gestión de Fondos y Sostenibilidad</span>
+              </div>
+              <span class="badge badge-green" style="font-size:10px; padding:2px 6px;">Autorizado</span>
+            </div>
+            <div class="ley-card-desc">Recaudación de aportes, auditorías de donantes y reportes financieros de permanencia del programa.</div>
+            <span class="ley-card-art">Art. 13, num. 5 y 6 Ley 29733</span>
           </div>
-          <div style="background:var(--surface-hover); padding:10px; border-radius:6px; border:1px solid var(--gt-green-border);">
-            <div style="color:var(--gt-green); font-weight:700; font-size:12px;">[AUTORIZADO] Flujo Transfronterizo</div>
-            <div style="font-size:11px; color:var(--text-dim); margin-top:2px;">Transferencia a cooperante Kinderwerk Lima e.V. (Alemania) con garantías de seguridad.</div>
+
+          <div class="ley-consent-card">
+            <div class="ley-card-header">
+              <div class="ley-card-title">
+                <svg width="15" height="15" fill="none" stroke="var(--gt-green)" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                <span>Flujo Transfronterizo de Datos</span>
+              </div>
+              <span class="badge badge-green" style="font-size:10px; padding:2px 6px;">Autorizado</span>
+            </div>
+            <div class="ley-card-desc">Transferencia a la entidad cooperante Kinderwerk Lima e.V. (Alemania) con cifrado y medidas de seguridad.</div>
+            <span class="ley-card-art">D.S. N.° 016-2024-JUS</span>
           </div>
         </div>
-        <div style="border:1.5px dashed var(--gt-green); border-radius:8px; padding:12px; text-align:center; background:rgba(0,180,148,0.06); color:var(--gt-green); font-size:12.5px; font-weight:700;">
-          Consentimiento Informado Firmado Digitalmente &bull; Titular: ${b.apoderado} (DNI ${b.apoderadoDni || '41982341'}) &bull; Ley N.° 29733 / D.S. N.° 016-2024-JUS
+
+        <div class="ley-cert-box">
+          <div class="ley-cert-badge-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+            </svg>
+          </div>
+          <div class="ley-cert-text">
+            <strong>Certificación de Consentimiento Informado Válido (Ficha A3)</strong><br>
+            Otorgado y firmado digitalmente por el apoderado legal: <strong>${b.apoderado}</strong> (DNI: <strong>${b.apoderadoDni || '41982341'}</strong>). Cumplimiento normativo vigente bajo la <strong>Ley N.° 29733</strong> y el <strong>D.S. N.° 016-2024-JUS</strong>.
+          </div>
         </div>
       `;
     }
@@ -2197,6 +3160,80 @@ const ModalView = {
   closeInforme() {
     const modal = document.getElementById("modalInformeEjecutivo") || document.getElementById("modalInforme");
     if (modal) modal.classList.remove("open");
+  },
+
+  openAuditDetail(log) {
+    if (!log) return;
+    const modal = document.getElementById("modalAuditDetail");
+    if (!modal) return;
+
+    const setEl = (id, text) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    };
+
+    setEl("auditDetailId", log.id || "LOG-2026-REG");
+    setEl("auditDetailTimestamp", log.timestamp);
+    setEl("auditDetailUser", log.user);
+    setEl("auditDetailRole", log.role);
+    setEl("auditDetailAction", log.action);
+    setEl("auditDetailStatus", log.status);
+    setEl("auditDetailIp", log.ip || "192.168.1.x (Red Segura)");
+    setEl("auditDetailSede", log.sede || "Central");
+    setEl("auditDetailDetail", log.detail);
+
+    const entityContainer = document.getElementById("auditDetailEntityLink");
+    if (entityContainer) {
+      if (log.entity && log.entity.startsWith("PDI-")) {
+        entityContainer.innerHTML = `
+          <a href="javascript:void(0)" onclick="window.openExpedienteByCodigo ? window.openExpedienteByCodigo('${log.entity}') : (window.PDI?.BeneficiarioController?.openExpedienteByCodigo ? window.PDI.BeneficiarioController.openExpedienteByCodigo('${log.entity}') : null)" class="audit-entity-link" title="Abrir expediente del menor">
+            <code style="font-family:var(--mono-font); font-size:13px; font-weight:700; color:var(--gt-green); text-decoration:underline;">${log.entity}</code>
+            <span style="font-size:11px; margin-left:4px; color:var(--gt-green); font-weight:600;">(Ver Expediente &rarr;)</span>
+          </a>
+        `;
+      } else {
+        entityContainer.innerHTML = `<code style="font-family:var(--mono-font); font-size:13px; font-weight:700; color:var(--text-main);">${log.entity || 'N/A'}</code>`;
+      }
+    }
+
+    const diffContainer = document.getElementById("auditDetailDiffContainer");
+    if (diffContainer) {
+      if (log.diff && log.diff.length > 0) {
+        diffContainer.innerHTML = `
+          <table class="audit-diff-table">
+            <thead>
+              <tr>
+                <th>Campo Modificado</th>
+                <th>Estado Anterior</th>
+                <th>Nuevo Valor Asignado</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${log.diff.map(d => `
+                <tr>
+                  <td><strong>${d.campo}</strong></td>
+                  <td class="diff-prev"><span>${d.valorAnterior || '-'}</span></td>
+                  <td class="diff-curr"><span>${d.valorNuevo || '-'}</span></td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        `;
+      } else {
+        diffContainer.innerHTML = `
+          <div style="padding:14px; background:var(--surface-2); border-radius:var(--radius-sm); border:1px solid var(--border-subtle); color:var(--text-dim); font-size:12.5px;">
+            Este evento registra una operación de consulta o certificación sin alteración de campos individuales.
+          </div>
+        `;
+      }
+    }
+
+    modal.classList.add("open");
+  },
+
+  closeAuditDetail() {
+    const modal = document.getElementById("modalAuditDetail");
+    if (modal) modal.classList.remove("open");
   }
 };
 
@@ -2206,12 +3243,121 @@ if (typeof window !== "undefined") {
 }
 
 
+/* --- Module: utils/CanvasHelper.js --- */
+// Utilidad: Manejo de Firma Digital en Canvas (Ley N° 29733)
+const CanvasHelper = {
+  init(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return null;
+
+    const ctx = canvas.getContext("2d");
+    let isDrawing = false;
+    let hasDrawn = false;
+
+    // Ajustar escala de resolución
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * 2;
+    canvas.height = rect.height * 2;
+    ctx.scale(2, 2);
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    const isLight = document.documentElement.getAttribute("data-theme") === "light";
+    ctx.strokeStyle = isLight ? "#007a65" : "#00b494";
+
+    function getCoords(e) {
+      const r = canvas.getBoundingClientRect();
+      if (e.touches && e.touches[0]) {
+        return {
+          x: e.touches[0].clientX - r.left,
+          y: e.touches[0].clientY - r.top
+        };
+      }
+      return {
+        x: e.clientX - r.left,
+        y: e.clientY - r.top
+      };
+    }
+
+    function startDrawing(e) {
+      isDrawing = true;
+      hasDrawn = true;
+      const coords = getCoords(e);
+      ctx.beginPath();
+      ctx.moveTo(coords.x, coords.y);
+      e.preventDefault();
+    }
+
+    function draw(e) {
+      if (!isDrawing) return;
+      const coords = getCoords(e);
+      ctx.lineTo(coords.x, coords.y);
+      ctx.stroke();
+      e.preventDefault();
+    }
+
+    function stopDrawing() {
+      isDrawing = false;
+    }
+
+    canvas.addEventListener("mousedown", startDrawing);
+    canvas.addEventListener("mousemove", draw);
+    window.addEventListener("mouseup", stopDrawing);
+
+    canvas.addEventListener("touchstart", startDrawing, { passive: false });
+    canvas.addEventListener("touchmove", draw, { passive: false });
+    canvas.addEventListener("touchend", stopDrawing);
+
+    return {
+      clear() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        hasDrawn = false;
+      },
+      hasSignature() {
+        return hasDrawn;
+      },
+      toDataURL() {
+        return canvas.toDataURL();
+      },
+      loadFromImage(file, callback) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const scale = Math.min((canvas.width / 2) / img.width, (canvas.height / 2) / img.height, 1);
+            const w = img.width * scale;
+            const h = img.height * scale;
+            const x = ((canvas.width / 2) - w) / 2;
+            const y = ((canvas.height / 2) - h) / 2;
+            ctx.drawImage(img, x, y, w, h);
+            hasDrawn = true;
+            if (callback) callback();
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+  }
+};
+
+if (typeof window !== "undefined") {
+  window.PDI = window.PDI || {};
+  window.PDI.CanvasHelper = CanvasHelper;
+}
+
 /* --- Module: controllers/BeneficiarioController.js --- */
 // Controlador: Gestión de Menores Beneficiarios y Expediente
 // Maneja el 100% de los campos normativos de inscripción PDI
 
 const BeneficiarioController = {
   signatureCanvasHelper: null,
+  tempFotoMenor: null,
+  tempFotoApoderado: null,
+  tempFotoRetiro1: null,
+  tempFotoRetiro2: null,
 
   initSignature() {
     this.signatureCanvasHelper = CanvasHelper.init("canvasSignature");
@@ -2220,6 +3366,155 @@ const BeneficiarioController = {
   clearSignature() {
     if (this.signatureCanvasHelper) {
       this.signatureCanvasHelper.clear();
+    }
+  },
+
+  handleFotoUpload(input, previewId, roleKey) {
+    const file = input.files && input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64 = e.target.result;
+      const previewEl = document.getElementById(previewId);
+      if (previewEl) {
+        previewEl.innerHTML = `<img src="${base64}" style="width:100%; height:100%; object-fit:cover; border-radius:6px;" alt="Foto">`;
+      }
+      if (roleKey === 'menor') this.tempFotoMenor = base64;
+      if (roleKey === 'apoderado') {
+        this.tempFotoApoderado = base64;
+        const checkMismo = document.getElementById("checkMismoApoderado1");
+        if (checkMismo && checkMismo.checked) {
+          this.tempFotoRetiro1 = base64;
+          const p1Preview = document.getElementById("regFotoRetiro1Preview");
+          if (p1Preview) {
+            p1Preview.innerHTML = `<img src="${base64}" style="width:100%; height:100%; object-fit:cover; border-radius:6px;" alt="Foto">`;
+          }
+        }
+      }
+      if (roleKey === 'retiro1') this.tempFotoRetiro1 = base64;
+      if (roleKey === 'retiro2') this.tempFotoRetiro2 = base64;
+
+      const toast = window.PDI?.ToastView || ToastView;
+      if (toast) toast.show("Foto Cargada", "Fotografía incorporada al registro correctamente.", "info");
+    };
+    reader.readAsDataURL(file);
+  },
+
+  resetPhotos() {
+    this.tempFotoMenor = null;
+    this.tempFotoApoderado = null;
+    this.tempFotoRetiro1 = null;
+    this.tempFotoRetiro2 = null;
+
+    const resetBox = (id, label) => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.innerHTML = `
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" style="color:var(--text-muted); margin-bottom:2px;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+          </svg>
+          <span style="font-size:9.5px; font-weight:600; color:var(--text-muted);">${label}</span>
+        `;
+      }
+    };
+
+    resetBox("regFotoMenorPreview", "Foto Menor");
+    resetBox("regFotoApoderadoPreview", "Foto Apoderado");
+    resetBox("regFotoRetiro1Preview", "Foto P1");
+    resetBox("regFotoRetiro2Preview", "Foto P2");
+
+    const ids = ["regFotoMenorInput", "regFotoApoderadoInput", "regFotoRetiro1Input", "regFotoRetiro2Input"];
+    ids.forEach(i => {
+      const input = document.getElementById(i);
+      if (input) input.value = "";
+    });
+
+    const box1 = document.getElementById("boxFotoRetiro1");
+    if (box1) {
+      box1.style.pointerEvents = "auto";
+      box1.style.opacity = "1";
+    }
+  },
+
+  loadSignatureFile(file) {
+    if (this.signatureCanvasHelper && file) {
+      this.signatureCanvasHelper.loadFromImage(file, () => {
+        const toast = window.PDI?.ToastView || ToastView;
+        if (toast) toast.show("Firma Cargada", "La imagen de la firma fue procesada e incorporada al formulario.", "success");
+      });
+    }
+  },
+
+  syncMismoApoderado(checked) {
+    const getVal = (id) => document.getElementById(id)?.value || "";
+    const nombre1 = document.getElementById("regRetiroNombre1");
+    const dni1 = document.getElementById("regRetiroDni1");
+    const parentesco1 = document.getElementById("regRetiroParentesco1");
+    const tel1 = document.getElementById("regRetiroTel1");
+    const p1Preview = document.getElementById("regFotoRetiro1Preview");
+    const box1 = document.getElementById("boxFotoRetiro1");
+
+    if (checked) {
+      if (nombre1) {
+        nombre1.value = getVal("regApoderado");
+        nombre1.readOnly = true;
+        nombre1.style.background = "var(--surface-hover)";
+        nombre1.style.color = "var(--text-muted)";
+      }
+      if (dni1) {
+        dni1.value = getVal("regApoderadoDni");
+        dni1.readOnly = true;
+        dni1.style.background = "var(--surface-hover)";
+        dni1.style.color = "var(--text-muted)";
+      }
+      if (parentesco1) {
+        parentesco1.value = getVal("regParentesco") || "Madre";
+        parentesco1.disabled = true;
+        parentesco1.style.background = "var(--surface-hover)";
+        parentesco1.style.color = "var(--text-muted)";
+      }
+      if (tel1) {
+        tel1.value = getVal("regTelefono");
+        tel1.readOnly = true;
+        tel1.style.background = "var(--surface-hover)";
+        tel1.style.color = "var(--text-muted)";
+      }
+      if (this.tempFotoApoderado) {
+        this.tempFotoRetiro1 = this.tempFotoApoderado;
+        if (p1Preview) {
+          p1Preview.innerHTML = `<img src="${this.tempFotoApoderado}" style="width:100%; height:100%; object-fit:cover; border-radius:6px;" alt="Foto">`;
+        }
+      }
+      if (box1) {
+        box1.style.pointerEvents = "none";
+        box1.style.opacity = "0.75";
+      }
+    } else {
+      if (nombre1) {
+        nombre1.readOnly = false;
+        nombre1.style.background = "#ffffff";
+        nombre1.style.color = "var(--text-main)";
+      }
+      if (dni1) {
+        dni1.readOnly = false;
+        dni1.style.background = "#ffffff";
+        dni1.style.color = "var(--text-main)";
+      }
+      if (parentesco1) {
+        parentesco1.disabled = false;
+        parentesco1.style.background = "#ffffff";
+        parentesco1.style.color = "var(--text-main)";
+      }
+      if (tel1) {
+        tel1.readOnly = false;
+        tel1.style.background = "#ffffff";
+        tel1.style.color = "var(--text-main)";
+      }
+      if (box1) {
+        box1.style.pointerEvents = "auto";
+        box1.style.opacity = "1";
+      }
     }
   },
 
@@ -2241,6 +3536,23 @@ const BeneficiarioController = {
     const casos = cModel.getAll();
     const caso = casos.find(c => c.codigo === menor.codigo);
 
+    mView.openExpediente(menor, caso);
+  },
+
+  openExpedienteByCodigo(codigo) {
+    const bModel = window.PDI?.BeneficiarioModel || BeneficiarioModel;
+    const cModel = window.PDI?.CasoSocialModel || CasoSocialModel;
+    const mView = window.PDI?.ModalView || ModalView;
+    const tView = window.PDI?.ToastView || ToastView;
+
+    const menor = bModel.getByCodigo(codigo);
+    if (!menor) {
+      if (tView) tView.show("Expediente no encontrado", `No se encontró un expediente activo para el código ${codigo}`, "info");
+      return;
+    }
+
+    const casos = cModel.getAll();
+    const caso = casos.find(c => c.codigo === menor.codigo);
     mView.openExpediente(menor, caso);
   },
 
@@ -2288,8 +3600,17 @@ const BeneficiarioController = {
     const telefono = getVal("regTelefono");
     const telefonoAlt = getVal("regTelefonoAlt");
 
-    const acomp1 = getVal("regRetiroAcomp1");
-    const acomp2 = getVal("regRetiroAcomp2");
+    // Datos de Persona Autorizada 1
+    const retiroNombre1 = getVal("regRetiroNombre1") || apoderado;
+    const retiroDni1 = getVal("regRetiroDni1") || apoderadoDni;
+    const retiroParentesco1 = getVal("regRetiroParentesco1") || parentesco;
+    const retiroTel1 = getVal("regRetiroTel1") || telefono;
+
+    // Datos de Persona Autorizada 2 (Opcional)
+    const retiroNombre2 = getVal("regRetiroNombre2");
+    const retiroDni2 = getVal("regRetiroDni2");
+    const retiroParentesco2 = getVal("regRetiroParentesco2") || "Familiar";
+    const retiroTel2 = getVal("regRetiroTel2");
 
     const consentimientos = {
       evaluacionSocial: getChecked("checkHistorialVida"),
@@ -2302,7 +3623,7 @@ const BeneficiarioController = {
 
     // Validación de firma digital (Ley 29733)
     if (this.signatureCanvasHelper && !this.signatureCanvasHelper.hasSignature()) {
-      toast.show("Firma Obligatoria", "El apoderado debe estampar su firma digital en el recuadro para validar el Consentimiento Ley N.° 29733.", "warning");
+      toast.show("Firma Obligatoria", "El apoderado debe estampar o subir su firma para validar el Consentimiento Ley N.° 29733.", "warning");
       return;
     }
 
@@ -2312,13 +3633,32 @@ const BeneficiarioController = {
     const correlativo = `PDI-2026-${String(newId).padStart(3, "0")}`;
 
     const padronRetiro = [];
-    if (acomp1) {
-      padronRetiro.push({ nombre: acomp1, dni: apoderadoDni, parentesco: parentesco, telefono: telefono });
-    } else {
-      padronRetiro.push({ nombre: apoderado, dni: apoderadoDni, parentesco: parentesco, telefono: telefono });
+    if (retiroNombre1) {
+      padronRetiro.push({
+        nombre: retiroNombre1,
+        dni: retiroDni1,
+        parentesco: retiroParentesco1,
+        telefono: retiroTel1,
+        fotoUrl: this.tempFotoRetiro1 || this.tempFotoApoderado || null
+      });
     }
-    if (acomp2) {
-      padronRetiro.push({ nombre: acomp2, dni: "Por validar", parentesco: "Familiar", telefono: telefonoAlt || "-" });
+    if (retiroNombre2) {
+      padronRetiro.push({
+        nombre: retiroNombre2,
+        dni: retiroDni2 || "Por validar",
+        parentesco: retiroParentesco2,
+        telefono: retiroTel2 || "-",
+        fotoUrl: this.tempFotoRetiro2 || null
+      });
+    }
+    if (padronRetiro.length === 0) {
+      padronRetiro.push({
+        nombre: apoderado,
+        dni: apoderadoDni,
+        parentesco: parentesco,
+        telefono: telefono,
+        fotoUrl: this.tempFotoApoderado || null
+      });
     }
 
     const nuevoObj = {
@@ -2327,6 +3667,7 @@ const BeneficiarioController = {
       nombres,
       apellidos,
       dni,
+      fotoUrl: this.tempFotoMenor || null,
       fechaNacimiento: fechaNacimiento || "2022-01-01",
       edad: edad || "4 años",
       sexo,
@@ -2356,7 +3697,7 @@ const BeneficiarioController = {
       anemia: "Normal",
       canastaEntregada: exoneracionAporte.includes("100%"),
       orientacionFamiliar: true,
-      retiroAutorizado: acomp1 ? acomp1 : `${apoderado} (${parentesco})`,
+      retiroAutorizado: `${retiroNombre1} (${retiroParentesco1})`,
       retiroPadron: padronRetiro,
       consentimientos,
       firmaDigital: true,
@@ -2385,6 +3726,7 @@ const BeneficiarioController = {
     const form = document.getElementById("formNuevoMenor");
     if (form) form.reset();
     this.clearSignature();
+    this.resetPhotos();
 
     if (onComplete) onComplete();
   }
@@ -2396,6 +3738,194 @@ if (typeof window !== "undefined") {
 }
 
 
+/* --- Module: utils/VulnerabilityCalculator.js --- */
+// Utilidad: Algoritmo Paramétrico Oficial de Vulnerabilidad Familiar ASP (0-100 pts)
+const VulnerabilityCalculator = {
+  calculate(factors) {
+    const ing = Math.min(28, Math.max(0, Number(factors.ing) || 0));
+    const viv = Math.min(20, Math.max(0, Number(factors.viv) || 0));
+    const emp = Math.min(16, Math.max(0, Number(factors.emp) || 0));
+    const sop = Math.min(19, Math.max(0, Number(factors.sop) || 0));
+    const ins = Math.min(10, Math.max(0, Number(factors.ins) || 0));
+    const sal = Math.min(7, Math.max(0, Number(factors.sal) || 0));
+
+    const total = ing + viv + emp + sop + ins + sal;
+
+    let category = "Baja Vulnerabilidad / Situación Estable";
+    let badgeClass = "badge-green";
+    let color = "var(--gt-green)";
+    let exoneracion = "0% (Aporte Ordinario)";
+    const recomendaciones = [];
+
+    if (total >= 80) {
+      category = "Extrema Pobreza / Vulnerabilidad Crítica";
+      badgeClass = "badge-red";
+      color = "var(--gt-red)";
+      exoneracion = "100% Exoneración Total (Caso Social Extremo)";
+      recomendaciones.push("Aprobación inmediata de exoneración del 100% de aporte mensual por vulnerabilidad extrema.");
+      recomendaciones.push("Asignación prioritaria de Canasta Nutricional complementaria (Banco de Alimentos BTF).");
+      recomendaciones.push("Apertura de expediente en Área Social Pastoral (ASP) y visitas domiciliarias quincenales de seguimiento.");
+    } else if (total >= 60) {
+      category = "Vulnerabilidad Alta / Prioridad Social";
+      badgeClass = "badge-yellow";
+      color = "var(--gt-yellow)";
+      exoneracion = "50% Semi-exoneración (Aporte Solidario)";
+      recomendaciones.push("Aprobación de 50% de semi-exoneración de aporte mensual como alivio socioeconómico al hogar.");
+      recomendaciones.push("Monitoreo mensual de asistencia y evaluación de canasta de contingencia ante emergencias.");
+      recomendaciones.push("Acompañamiento sociofamiliar e integración a la red de apoyo comunitario de la sede.");
+    } else if (total >= 40) {
+      category = "Vulnerabilidad Moderada";
+      badgeClass = "badge-blue";
+      color = "var(--gt-blue)";
+      exoneracion = "Aporte Ordinario / Semi-exoneración Condicionada";
+      recomendaciones.push("Evaluación socioeconómica periódica trimestral de la estabilidad de ingresos del hogar.");
+      recomendaciones.push("Participación obligatoria del apoderado en la Escuela de Familias y talleres de nutrición.");
+    } else {
+      category = "Baja Vulnerabilidad / Situación Estable";
+      badgeClass = "badge-green";
+      color = "var(--gt-green)";
+      exoneracion = "0% Aporte Ordinario";
+      recomendaciones.push("Monitoreo regular de asistencia en comedor y talleres pedagógicos de Casitas del Saber.");
+      recomendaciones.push("Mantenimiento del esquema de aporte ordinario para sostenibilidad del programa.");
+    }
+
+    // Recomendaciones específicas por factor de riesgo individual
+    if (ing >= 22) {
+      recomendaciones.push("Balance crítico de ingresos: Gestionar inclusión en programas complementarios de comedores populares aliados.");
+    }
+    if (viv >= 15) {
+      recomendaciones.push("Hábitat de alta precariedad: Priorizar al menor en campañas de abrigo, kits de invierno y filtros de agua.");
+    }
+    if (emp >= 12) {
+      recomendaciones.push("Desempleo o subempleo severo del cuidador: Orientación para vinculación a bolsa de empleo y talleres técnicos locales.");
+    }
+    if (sop >= 14) {
+      recomendaciones.push("Alta sobrecarga o monoparentalidad crítica: Articular con DEMUNA / MIMP para protección integral de derechos.");
+    }
+    if (sal >= 5) {
+      recomendaciones.push("Enfermedad o condición médica crónica en el núcleo: Coordinación prioritaria con Centro de Salud de referencia y SIS.");
+    }
+
+    return {
+      total,
+      breakdown: { ing, viv, emp, sop, ins, sal },
+      category,
+      badgeClass,
+      color,
+      exoneracion,
+      recomendaciones
+    };
+  }
+};
+
+if (typeof window !== "undefined") {
+  window.PDI = window.PDI || {};
+  window.PDI.VulnerabilityCalculator = VulnerabilityCalculator;
+}
+
+/* --- Module: views/SocialKanbanView.js --- */
+// Vista: Tablero Kanban de Casos Sociales (ASP)
+const SocialKanbanView = {
+  renderKanban(casos) {
+    const pCol = document.getElementById("kanbanColPendientes");
+    const eCol = document.getElementById("kanbanColEvaluacion");
+    const cCol = document.getElementById("kanbanColCanalizados");
+    const zCol = document.getElementById("kanbanColCerrados");
+
+    if (!pCol || !eCol || !cCol || !zCol) return;
+
+    pCol.innerHTML = "";
+    eCol.innerHTML = "";
+    cCol.innerHTML = "";
+    zCol.innerHTML = "";
+
+    let countP = 0;
+    let countE = 0;
+    let countC = 0;
+    let countZ = 0;
+
+    casos.forEach(c => {
+      const card = document.createElement("div");
+      card.className = "kanban-card";
+
+      let actionsHtml = "";
+      if (c.etapa === "pendiente") {
+        countP++;
+        actionsHtml = `
+          <div style="display:flex; gap:6px; margin-top:8px;">
+            <button type="button" class="btn-action-sm primary" style="width:100%; justify-content:center; font-size:11px;" onclick="window.app?.socialController ? window.app.socialController.moverCaso(${c.id}, 'evaluacion') : (window.PDI?.SocialController?.moverCaso ? window.PDI.SocialController.moverCaso(${c.id}, 'evaluacion') : null)">
+              <span>Iniciar Evaluación &rarr;</span>
+            </button>
+          </div>
+        `;
+      } else if (c.etapa === "evaluacion") {
+        countE++;
+        actionsHtml = `
+          <div style="display:flex; gap:6px; margin-top:8px;">
+            <button type="button" class="btn-action-sm" style="flex:1; justify-content:center; font-size:10.5px;" onclick="window.app?.socialController ? window.app.socialController.moverCaso(${c.id}, 'pendiente') : (window.PDI?.SocialController?.moverCaso ? window.PDI.SocialController.moverCaso(${c.id}, 'pendiente') : null)">&larr; Alerta</button>
+            <button type="button" class="btn-action-sm primary" style="flex:1; justify-content:center; font-size:10.5px;" onclick="window.app?.socialController ? window.app.socialController.moverCaso(${c.id}, 'canalizado') : (window.PDI?.SocialController?.moverCaso ? window.PDI.SocialController.moverCaso(${c.id}, 'canalizado') : null)">Canalizar &rarr;</button>
+          </div>
+        `;
+      } else if (c.etapa === "canalizado") {
+        countC++;
+        actionsHtml = `
+          <div style="display:flex; gap:6px; margin-top:8px;">
+            <button type="button" class="btn-action-sm" style="flex:1; justify-content:center; font-size:10.5px;" onclick="window.app?.socialController ? window.app.socialController.moverCaso(${c.id}, 'evaluacion') : (window.PDI?.SocialController?.moverCaso ? window.PDI.SocialController.moverCaso(${c.id}, 'evaluacion') : null)">&larr; Evaluar</button>
+            <button type="button" class="btn-action-sm success" style="flex:1; justify-content:center; font-size:10.5px;" onclick="window.app?.socialController ? window.app.socialController.moverCaso(${c.id}, 'cerrado') : (window.PDI?.SocialController?.moverCaso ? window.PDI.SocialController.moverCaso(${c.id}, 'cerrado') : null)">Cerrar &check;</button>
+          </div>
+        `;
+      } else if (c.etapa === "cerrado") {
+        countZ++;
+        actionsHtml = `
+          <div style="display:flex; gap:6px; margin-top:8px;">
+            <button type="button" class="btn-action-sm" style="width:100%; justify-content:center; font-size:10.5px;" onclick="window.app?.socialController ? window.app.socialController.moverCaso(${c.id}, 'canalizado') : (window.PDI?.SocialController?.moverCaso ? window.PDI.SocialController.moverCaso(${c.id}, 'canalizado') : null)">&larr; Reabrir Caso</button>
+          </div>
+        `;
+      }
+
+      card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:6px; margin-bottom:4px;">
+          <strong style="font-size:13px; color:var(--text-main); font-weight:700;">${c.menor}</strong>
+          <span class="badge badge-${c.urgencia === 'Alta' ? 'red' : (c.urgencia === 'Media' ? 'yellow' : 'blue')}" style="font-size:10px; padding:2px 6px;">${c.urgencia}</span>
+        </div>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+          <a href="javascript:void(0)" onclick="window.openExpedienteByCodigo ? window.openExpedienteByCodigo('${c.codigo}') : null" style="font-size:11.5px; font-family:var(--mono-font); color:var(--gt-green); font-weight:700; text-decoration:underline;" title="Abrir expediente">
+            ${c.codigo}
+          </a>
+          <span style="font-size:11px; color:var(--text-dim);">${c.sede}</span>
+        </div>
+        <div style="font-size:12px; color:var(--text-muted); line-height:1.4; margin-bottom:6px; background:var(--surface-hover); padding:7px 9px; border-radius:5px; border:1px solid var(--border-subtle);">
+          <strong style="color:var(--text-main);">Situación:</strong> ${c.situacionEncontrada || c.detalle}
+        </div>
+        <div style="font-size:11px; color:var(--text-dim); display:flex; justify-content:space-between; align-items:center;">
+          <span>Deriva: <strong>${c.quienDeriva ? c.quienDeriva.nombre.split(' ')[0] + ' ' + (c.quienDeriva.nombre.split(' ')[1] || '') : 'PDI'}</strong></span>
+          <span style="font-family:var(--mono-font);">${c.fechaDerivacion}</span>
+        </div>
+        ${actionsHtml}
+      `;
+
+      if (c.etapa === "pendiente") pCol.appendChild(card);
+      if (c.etapa === "evaluacion") eCol.appendChild(card);
+      if (c.etapa === "canalizado") cCol.appendChild(card);
+      if (c.etapa === "cerrado") zCol.appendChild(card);
+    });
+
+    const setBadge = (id, count) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = count;
+    };
+    setBadge("kanbanCountPendientes", countP);
+    setBadge("kanbanCountEvaluacion", countE);
+    setBadge("kanbanCountCanalizados", countC);
+    setBadge("kanbanCountCerrados", countZ);
+  }
+};
+
+if (typeof window !== "undefined") {
+  window.PDI = window.PDI || {};
+  window.PDI.SocialKanbanView = SocialKanbanView;
+}
+
 /* --- Module: controllers/SocialController.js --- */
 // Controlador: Tablero Kanban y Evaluación de Vulnerabilidad ASP
 
@@ -2406,56 +3936,316 @@ const SocialController = {
     if (!caso) return;
 
     const audit = window.PDI?.AuditModel || AuditModel;
-    audit.log(
-      "Lic. Ruth Soto",
-      "Trabajadora Social",
-      "Transición Kanban",
-      caso.codigo,
-      `Caso de ${caso.menor} trasladado a etapa: ${nuevaEtapa.toUpperCase()}`,
-      "Activo"
-    );
+    if (audit) {
+      audit.log(
+        "Lic. Ruth Soto",
+        "Trabajadora Social ASP",
+        "Transición Kanban",
+        caso.codigo,
+        `Caso de ${caso.menor} trasladado a etapa: ${nuevaEtapa.toUpperCase()}`,
+        "Válido"
+      );
+    }
 
     const toast = window.PDI?.ToastView || ToastView;
-    toast.show("Tablero Kanban Actualizado", `Caso ${caso.codigo} ahora en etapa: ${nuevaEtapa}`, "success");
+    if (toast) {
+      toast.show("Tablero Kanban Actualizado", `Caso ${caso.codigo} ahora en etapa: ${nuevaEtapa.toUpperCase()}`, "success");
+    }
 
     const view = window.PDI?.SocialKanbanView || SocialKanbanView;
-    view.renderKanban(model.getAll());
+    if (view) {
+      view.renderKanban(model.getAll());
+    }
   },
 
-  handleVulnerabilidadChange() {
+  syncScore(dimKey, value) {
+    const num = Number(value) || 0;
+    const slider = document.getElementById(`slider${dimKey}`);
+    const input = document.getElementById(`score${dimKey}`);
+    const label = document.getElementById(`lblScore${dimKey}`);
+
+    if (slider && slider.value != num) slider.value = num;
+    if (input && input.value != num) input.value = num;
+    if (label) label.textContent = `${num} pts`;
+  },
+
+  cargarCasoEnSimulador(codigo) {
+    if (!codigo || codigo === "custom") return;
+    const bModel = window.PDI?.BeneficiarioModel || BeneficiarioModel;
+    const menor = bModel.getByCodigo(codigo);
+    if (!menor) return;
+
+    const vScore = menor.vulnerabilidad || 75;
+    
+    // Distribuir proporcionalmente el puntaje oficial de vulnerabilidad entre las 6 dimensiones
+    const factor = vScore / 100;
+    const ing = Math.round(28 * factor);
+    const viv = Math.round(20 * factor);
+    const emp = Math.round(16 * factor);
+    const sop = Math.round(19 * factor);
+    const ins = Math.round(10 * factor);
+    const sal = Math.round(7 * factor);
+
+    this.syncScore("Ingreso", ing);
+    this.syncScore("Vivienda", viv);
+    this.syncScore("Empleo", emp);
+    this.syncScore("Soporte", sop);
+    this.syncScore("Instruccion", ins);
+    this.syncScore("SaludFam", sal);
+
+    const toast = window.PDI?.ToastView || ToastView;
+    if (toast) {
+      toast.show("Perfil Cargado", `Datos de ${menor.nombres} ${menor.apellidos} cargados en el simulador. Presione 'Calcular Evaluación' para procesar.`, "info");
+    }
+  },
+
+  calcularEvaluacion() {
+    const getVal = (id, fallback) => {
+      const el = document.getElementById(id);
+      return el ? (Number(el.value) || 0) : fallback;
+    };
+
     const factors = {
-      ing: document.getElementById("valIngreso")?.value || 70,
-      viv: document.getElementById("valVivienda")?.value || 80,
-      emp: document.getElementById("valEmpleo")?.value || 60,
-      ins: document.getElementById("valInseguridad")?.value || 85,
-      sal: document.getElementById("valSalud")?.value || 75,
-      sop: document.getElementById("valSoporte")?.value || 90
+      ing: getVal("scoreIngreso", 24),
+      viv: getVal("scoreVivienda", 18),
+      emp: getVal("scoreEmpleo", 14),
+      sop: getVal("scoreSoporte", 16),
+      ins: getVal("scoreInstruccion", 8),
+      sal: getVal("scoreSaludFam", 6)
     };
 
     const calc = window.PDI?.VulnerabilityCalculator || VulnerabilityCalculator;
     const res = calc.calculate(factors);
 
-    const scoreEl = document.getElementById("scoreVulnerabilidad");
-    const badgeEl = document.getElementById("badgeNivelVulnerabilidad");
-    const accionEl = document.getElementById("accionVulnerabilidad");
+    // Renderizar resultados en la interfaz
+    const scoreValEl = document.getElementById("socioTotalScoreVal");
+    const scoreBarEl = document.getElementById("socioTotalScoreBar");
+    const categoryBadgeEl = document.getElementById("socioCategoryBadge");
+    const exoneracionEl = document.getElementById("socioExoneracionText");
+    const listaRecomEl = document.getElementById("listaRecomendacionesSocio");
+    const resultBox = document.getElementById("containerResultadoSocioeconomico");
 
-    if (scoreEl) scoreEl.textContent = `${res.total}/100`;
-
-    if (badgeEl) {
-      badgeEl.textContent = res.category;
-      badgeEl.className = `badge ${res.badgeClass}`;
+    if (scoreValEl) scoreValEl.textContent = `${res.total} / 100`;
+    if (scoreBarEl) {
+      scoreBarEl.style.width = `${res.total}%`;
+      scoreBarEl.style.backgroundColor = res.color;
+    }
+    if (categoryBadgeEl) {
+      categoryBadgeEl.textContent = res.category;
+      categoryBadgeEl.className = `badge ${res.badgeClass}`;
+    }
+    if (exoneracionEl) {
+      exoneracionEl.textContent = res.exoneracion;
+      exoneracionEl.style.color = res.color;
     }
 
-    if (accionEl) {
-      accionEl.textContent = res.accion;
-      accionEl.style.color = res.color;
+    if (listaRecomEl) {
+      listaRecomEl.innerHTML = res.recomendaciones.map(r => `
+        <li class="socio-recommendation-item">
+          <div class="socio-rec-icon">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+          </div>
+          <span>${r}</span>
+        </li>
+      `).join("");
     }
+
+    if (resultBox) {
+      resultBox.style.display = "block";
+      if (typeof resultBox.scrollIntoView === "function") {
+        resultBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    }
+
+    const toast = window.PDI?.ToastView || ToastView;
+    if (toast && typeof toast.show === "function") {
+      toast.show("Evaluación Calculada", `Índice de Vulnerabilidad: ${res.total}/100 (${res.category})`, "success");
+    }
+  },
+
+  handleVulnerabilidadChange() {
+    this.calcularEvaluacion();
   }
 };
 
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
   window.PDI.SocialController = SocialController;
+}
+
+/* --- Module: utils/CsvExporter.js --- */
+// Utilidad: Exportador Tabular de Datos CSV
+const CsvExporter = {
+  exportBeneficiarios(beneficiarios) {
+    let csv = "Codigo,Nombres,Apellidos,DNI,Edad,Sexo,Distrito,Sede,Servicios,Seguro,Hb,Anemia,Vulnerabilidad\n";
+    beneficiarios.forEach(b => {
+      csv += `"${b.codigo}","${b.nombres}","${b.apellidos}","${b.dni}","${b.edad}","${b.sexo}","${b.distrito}","${b.sede}","${b.servicios.join(';') }","${b.seguro}",${b.hb},"${b.anemia}",${b.vulnerabilidad}\n`;
+    });
+
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "padron_pdi_beneficiarios_2026.csv";
+    link.click();
+  },
+
+  exportAuditLogs(logs) {
+    let csv = "Timestamp,Usuario,Rol,Accion,Entidad_Afectada,Detalle_Operacion,Estado_Registro\n";
+    logs.forEach(l => {
+      csv += `"${l.timestamp}","${l.user}","${l.role}","${l.action}","${l.entity}","${(l.detail || '').replace(/"/g, '""')}","${l.status}"\n`;
+    });
+
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "bitacora_auditoria_pdi_ley29733.csv";
+    link.click();
+  }
+};
+
+if (typeof window !== "undefined") {
+  window.PDI = window.PDI || {};
+  window.PDI.CsvExporter = CsvExporter;
+}
+
+
+/* --- Module: controllers/RoleController.js --- */
+// Controlador: Simulador de Roles y RBAC Dinámico
+const RoleController = {
+  rolesConfig: {
+    coord: {
+      title: "Dirección y Coordinación General",
+      desc: "Acceso global integral para supervisión estratégica de sedes, validación de padrón e indicadores de impacto.",
+      tag: "Acceso Total / Dirección",
+      tagCol: "var(--gt-green)",
+      allowedViews: ["view-dashboard", "view-beneficiarios", "view-salud", "view-educativo", "view-social"]
+    },
+    facilitadora: {
+      title: "Facilitadora Nutricional / CRED",
+      desc: "Especializada en tamizaje de anemia, curvas de peso/talla MINSA y prescripción de suplementos.",
+      tag: "Operativo Nutrición / CRED",
+      tagCol: "var(--gt-blue)",
+      allowedViews: ["view-dashboard", "view-beneficiarios", "view-salud"]
+    },
+    promotora: {
+      title: "Promotora Educativa (Casitas del Saber)",
+      desc: "Responsable del pase de asistencia escolar, nivelación pedagógica y talleres con materiales Faber-Castell.",
+      tag: "Operativo Pedagógico",
+      tagCol: "var(--gt-yellow)",
+      allowedViews: ["view-dashboard", "view-beneficiarios", "view-educativo"]
+    },
+    social: {
+      title: "Trabajadora Social (Área Social Pastoral)",
+      desc: "Canalización de casos vulnerables, derivaciones a DEMUNA y evaluación del núcleo familiar completo.",
+      tag: "Protección Social / ASP",
+      tagCol: "var(--gt-red)",
+      allowedViews: ["view-dashboard", "view-beneficiarios", "view-social"]
+    },
+    admin: {
+      title: "Administrador de Sistemas TI",
+      desc: "Gestión de seguridad perimetral, trazabilidad de accesos, auditoría inviolable y exportación de bases de datos.",
+      tag: "Sistemas & Seguridad TI",
+      tagCol: "var(--text-muted)",
+      allowedViews: ["view-dashboard", "view-beneficiarios", "view-salud", "view-educativo", "view-social"]
+    }
+  },
+
+  applyRolePermissions(role, onNavigate) {
+    const navButtons = document.querySelectorAll(".nav-btn");
+    const bannerTitle = document.getElementById("roleBannerTitle");
+    const bannerDesc = document.getElementById("roleBannerDesc");
+    const bannerTag = document.getElementById("roleBannerAccessTag");
+
+    const conf = this.rolesConfig[role] || this.rolesConfig.coord;
+
+    navButtons.forEach(btn => {
+      const allowedRoles = btn.getAttribute("data-roles")?.split(",") || [];
+      const view = btn.getAttribute("data-view");
+
+      if (allowedRoles.includes(role)) {
+        btn.classList.remove("role-restricted");
+        btn.removeAttribute("disabled");
+        btn.style.opacity = "1";
+        btn.style.pointerEvents = "auto";
+      } else {
+        btn.classList.add("role-restricted");
+        btn.setAttribute("disabled", "true");
+        btn.style.opacity = "0.35";
+        btn.style.pointerEvents = "none";
+      }
+    });
+
+    if (bannerTitle) bannerTitle.textContent = conf.title;
+    if (bannerDesc) bannerDesc.textContent = conf.desc;
+    if (bannerTag) {
+      bannerTag.textContent = conf.tag;
+      bannerTag.style.borderColor = conf.tagCol;
+      bannerTag.style.color = conf.tagCol;
+    }
+
+    // Actualizar Tooltip dinámico del botón de información de rol
+    const tipTitle = document.getElementById("roleTooltipTitle");
+    const tipDesc = document.getElementById("roleTooltipDesc");
+    const tipTag = document.getElementById("roleTooltipTag");
+    const btnInfo = document.getElementById("btnRoleInfo");
+
+    if (tipTitle) tipTitle.textContent = conf.title;
+    if (tipDesc) tipDesc.textContent = conf.desc;
+    if (tipTag) {
+      tipTag.textContent = conf.tag;
+      tipTag.style.color = conf.tagCol;
+      tipTag.style.background = `${conf.tagCol}20`;
+    }
+    if (btnInfo) {
+      btnInfo.setAttribute("title", `${conf.title}: ${conf.desc}`);
+    }
+
+    const toast = window.PDI?.ToastView || ToastView;
+    toast.show("Perfil Simulado", `Cambiando a vista: ${conf.title}`, "info");
+
+    const currentActiveBtn = document.querySelector(".nav-btn.active");
+    const currentViewId = currentActiveBtn?.getAttribute("data-view");
+
+    if (!conf.allowedViews.includes(currentViewId)) {
+      if (onNavigate) {
+        onNavigate("view-dashboard");
+      }
+    }
+  }
+};
+
+if (typeof window !== "undefined") {
+  window.PDI = window.PDI || {};
+  window.PDI.RoleController = RoleController;
+}
+
+
+/* --- Module: controllers/SaludController.js --- */
+// Controlador: Módulo de Salud y Nutrición CRED
+const SaludController = {
+  handleHbChange(hb) {
+    const calc = window.PDI?.AnemiaCalculator || AnemiaCalculator;
+    const res = calc.calculate(hb);
+
+    const labelEl = document.getElementById("anemiaCalcResult");
+    const accionEl = document.getElementById("anemiaCalcAccion");
+
+    if (labelEl) {
+      labelEl.textContent = res.label;
+      labelEl.style.color = res.color;
+    }
+
+    if (accionEl) {
+      accionEl.textContent = `Acción Prescrita: ${res.accion}`;
+    }
+  }
+};
+
+if (typeof window !== "undefined") {
+  window.PDI = window.PDI || {};
+  window.PDI.SaludController = SaludController;
 }
 
 
@@ -2489,18 +4279,12 @@ const AppController = {
     // 5. Configurar selector de rol
     this.bindRoleSelector();
 
-    // 6. Configurar búsqueda contextual en tiempo real
-    this.bindSearch();
-
-    // 7. Configurar tabs en modales
+    // 6. Configurar tabs en modales
     this.bindModalTabs();
 
-    // 8. Inicializar valores de calculadoras
+    // 7. Inicializar valores de calculadoras
     SaludController.handleHbChange(10.4);
     SocialController.handleVulnerabilidadChange();
-
-    // 9. Estado inicial de la barra de búsqueda (en Dashboard se oculta)
-    this.updateSearchVisibility("view-dashboard");
 
     console.log('Sistema "PDI" MVC inicializado correctamente.');
   },
@@ -2533,104 +4317,6 @@ const AppController = {
 
     const mainContent = document.getElementById("mainContent");
     if (mainContent) mainContent.scrollTop = 0;
-
-    // Control de visibilidad de la barra de búsqueda: solo en módulos con tablas
-    this.updateSearchVisibility(viewId);
-  },
-
-  updateSearchVisibility(viewId) {
-    const searchWrap = document.querySelector(".search-wrap");
-    const searchInput = document.getElementById("globalSearchInput");
-    if (!searchWrap) return;
-
-    // Módulos con tablas y sus placeholders específicos
-    const viewsConTablas = {
-      "view-beneficiarios": "Buscar en padrón por DNI, nombres o sede...",
-      "view-salud": "Buscar en tamizaje CRED por DNI, menor o sede...",
-      "view-educativo": "Buscar en asistencia Casitas por menor o grado...",
-      "view-auditoria": "Buscar en auditoría por acción, usuario o entidad..."
-    };
-
-    if (viewsConTablas[viewId]) {
-      searchWrap.classList.remove("search-hidden");
-      searchWrap.style.removeProperty("display");
-      searchWrap.style.display = "flex";
-      if (searchInput) {
-        searchInput.placeholder = viewsConTablas[viewId];
-        searchInput.disabled = false;
-        // Si hay una búsqueda previa, aplicarla al módulo actual
-        if (searchInput.value.trim() !== "") {
-          this.executeFilter(searchInput.value, viewId);
-        }
-      }
-    } else {
-      // Módulos sin tablas (Dashboard, Social ASP, Sedes): Ocultar barra de búsqueda
-      searchWrap.classList.add("search-hidden");
-      searchWrap.style.display = "none";
-      if (searchInput) {
-        searchInput.disabled = true;
-        searchInput.value = "";
-      }
-    }
-  },
-
-  executeFilter(query, viewId) {
-    const q = query.toLowerCase().trim();
-    const bModel = window.PDI?.BeneficiarioModel || BeneficiarioModel;
-    const allBeneficiarios = bModel.getAll();
-
-    if (viewId === "view-beneficiarios") {
-      const filtered = q === "" ? allBeneficiarios : allBeneficiarios.filter(b =>
-        b.nombres.toLowerCase().includes(q) ||
-        b.apellidos.toLowerCase().includes(q) ||
-        b.codigo.toLowerCase().includes(q) ||
-        b.dni.includes(q) ||
-        b.distrito.toLowerCase().includes(q) ||
-        b.sede.toLowerCase().includes(q)
-      );
-      BeneficiariosView.renderTable(filtered);
-    } else if (viewId === "view-salud") {
-      const filtered = q === "" ? allBeneficiarios : allBeneficiarios.filter(b =>
-        b.nombres.toLowerCase().includes(q) ||
-        b.apellidos.toLowerCase().includes(q) ||
-        b.dni.includes(q) ||
-        b.sede.toLowerCase().includes(q) ||
-        (b.anemia && b.anemia.toLowerCase().includes(q))
-      );
-      SaludCredView.renderTable(filtered);
-    } else if (viewId === "view-educativo") {
-      const filtered = q === "" ? allBeneficiarios : allBeneficiarios.filter(b =>
-        b.nombres.toLowerCase().includes(q) ||
-        b.apellidos.toLowerCase().includes(q) ||
-        (b.grado && b.grado.toLowerCase().includes(q)) ||
-        (b.colegio && b.colegio.toLowerCase().includes(q)) ||
-        b.sede.toLowerCase().includes(q)
-      );
-      CasitasView.renderTable(filtered);
-    } else if (viewId === "view-auditoria") {
-      const audit = window.PDI?.AuditModel || AuditModel;
-      const logs = audit.getAll();
-      const filtered = q === "" ? logs : logs.filter(l =>
-        (l.action && l.action.toLowerCase().includes(q)) ||
-        (l.user && l.user.toLowerCase().includes(q)) ||
-        (l.entity && l.entity.toLowerCase().includes(q)) ||
-        (l.detail && l.detail.toLowerCase().includes(q))
-      );
-      // Re-render audit table if container exists
-      const auditTbody = document.getElementById("auditTableBody");
-      if (auditTbody) {
-        auditTbody.innerHTML = filtered.map(log => `
-          <tr>
-            <td style="font-family:var(--mono-font); font-size:12px; color:var(--text-dim);">${log.timestamp}</td>
-            <td><strong>${log.user}</strong> <span style="font-size:11px; color:var(--text-dim);">(${log.role})</span></td>
-            <td><span class="badge badge-blue">${log.action}</span></td>
-            <td style="font-family:var(--mono-font); font-size:12px; color:var(--gt-green);">${log.entity}</td>
-            <td style="font-size:12.5px;">${log.detail}</td>
-            <td><span class="badge badge-green">${log.status}</span></td>
-          </tr>
-        `).join("");
-      }
-    }
   },
 
   bindNavigation() {
@@ -2677,12 +4363,16 @@ const AppController = {
     const backdrop = document.getElementById("sidebarBackdrop");
     if (!sidebar) return;
 
-    const isOpen = sidebar.classList.toggle("open");
-    if (backdrop) {
-      if (isOpen) {
-        backdrop.classList.add("active");
-      } else {
-        backdrop.classList.remove("active");
+    if (window.innerWidth > 900) {
+      sidebar.classList.toggle("collapsed");
+    } else {
+      const isOpen = sidebar.classList.toggle("open");
+      if (backdrop) {
+        if (isOpen) {
+          backdrop.classList.add("active");
+        } else {
+          backdrop.classList.remove("active");
+        }
       }
     }
   },
@@ -2690,11 +4380,15 @@ const AppController = {
   closeSidebar() {
     const sidebar = document.getElementById("appSidebar");
     const backdrop = document.getElementById("sidebarBackdrop");
-    if (sidebar && sidebar.classList.contains("open")) {
-      sidebar.classList.remove("open");
-    }
-    if (backdrop && backdrop.classList.contains("active")) {
-      backdrop.classList.remove("active");
+    if (!sidebar) return;
+
+    if (window.innerWidth <= 900) {
+      if (sidebar.classList.contains("open")) {
+        sidebar.classList.remove("open");
+      }
+      if (backdrop && backdrop.classList.contains("active")) {
+        backdrop.classList.remove("active");
+      }
     }
   },
 
@@ -2708,16 +4402,40 @@ const AppController = {
     }
   },
 
-  bindSearch() {
-    const searchInput = document.getElementById("globalSearchInput");
-    if (searchInput) {
-      searchInput.addEventListener("input", (e) => {
-        const activeViewEl = document.querySelector(".app-view.active, .content-view.active");
-        const activeViewId = activeViewEl ? activeViewEl.id : "view-beneficiarios";
-        this.executeFilter(e.target.value, activeViewId);
-      });
+  switchRole(roleValue, roleTitle) {
+    const labelEl = document.getElementById("labelActiveRole");
+    if (labelEl) labelEl.textContent = roleTitle;
+
+    const menuEl = document.querySelector("#dropdownRoleSelector .custom-dropdown-menu");
+    const items = document.querySelectorAll("#dropdownRoleSelector .custom-dropdown-item");
+    let selectedItem = null;
+    items.forEach(it => {
+      if (it.getAttribute("data-value") === roleValue) {
+        it.classList.add("selected");
+        selectedItem = it;
+      } else {
+        it.classList.remove("selected");
+      }
+    });
+
+    // Mover el rol activo primero en la lista visual del desplegable
+    if (menuEl && selectedItem) {
+      menuEl.prepend(selectedItem);
+    }
+
+    const dropdown = document.getElementById("dropdownRoleSelector");
+    if (dropdown) dropdown.classList.remove("open");
+
+    const hiddenInput = document.getElementById("roleSelector");
+    if (hiddenInput) {
+      hiddenInput.value = roleValue;
+      hiddenInput.dispatchEvent(new Event("change"));
+    } else {
+      RoleController.applyRolePermissions(roleValue, (view) => this.navigateToView(view));
     }
   },
+
+
 
   bindModalTabs() {
     const tabBtns = document.querySelectorAll(".modal-tab-btn");
@@ -2784,6 +4502,15 @@ const AppController = {
     const data = BeneficiarioModel.getAll();
     CsvExporter.exportBeneficiarios(data);
     ToastView.show("Reporte Exportado", 'Consolidado oficial "PDI" descargado en formato CSV', "success");
+  },
+
+  exportAuditCSV() {
+    const audit = window.PDI?.AuditModel || AuditModel;
+    const logs = audit.getAll();
+    const exporter = window.PDI?.CsvExporter || CsvExporter;
+    exporter.exportAuditLogs(logs);
+    const toast = window.PDI?.ToastView || ToastView;
+    toast.show("Bitácora Descargada", "Registro oficial de auditoría descargado en formato CSV (Ley 29733)", "success");
   }
 };
 
@@ -2801,6 +4528,12 @@ window.app = AppController;
 
 // Exponer funciones invocadas por inline handlers en el HTML
 window.clearSignatureCanvas = () => BeneficiarioController.clearSignature();
+window.subirImagenFirma = (e) => {
+  const file = e.target.files[0];
+  if (file) BeneficiarioController.loadSignatureFile(file);
+};
+window.handleFotoUpload = (input, previewId, roleKey) => BeneficiarioController.handleFotoUpload(input, previewId, roleKey);
+window.toggleMismoApoderado = (checked) => BeneficiarioController.syncMismoApoderado(checked);
 window.closeModalExpediente = () => ModalView.closeExpediente();
 window.closeModalNuevoMenor = () => ModalView.closeNuevoMenor();
 window.openModalNuevoMenor = () => ModalView.openNuevoMenor();
@@ -2813,17 +4546,56 @@ window.calculateAnemiaPreview = () => {
   SaludController.handleHbChange(val);
 };
 window.calculateVulnerabilidad = () => SocialController.handleVulnerabilidadChange();
+window.calcularEvaluacionSocioeconomica = () => SocialController.calcularEvaluacion();
+window.syncScoreSimulador = (dimKey, val) => SocialController.syncScore(dimKey, val);
+window.cargarCasoEnSimulador = (codigo) => SocialController.cargarCasoEnSimulador(codigo);
 window.guardarNuevoMenor = (e) => BeneficiarioController.saveNuevoMenor(e, () => AppController.refreshAllViews());
 window.exportDataCSV = () => AppController.exportCSV();
+window.exportAuditCSV = () => AppController.exportAuditCSV();
+window.filterAuditAction = (action) => DashboardView.filterByAction(action);
+window.filterAuditRole = (role) => DashboardView.filterByRole(role);
+window.filterAuditDate = (dateKey) => DashboardView.filterByDate(dateKey);
+window.toggleCustomDropdown = (id) => DashboardView.toggleDropdown(id);
+window.selectAuditDate = (val, label) => DashboardView.selectDate(val, label);
+window.selectAuditRole = (val, label) => DashboardView.selectRole(val, label);
+window.selectAuditAction = (val, label) => DashboardView.selectAction(val, label);
+window.selectActiveRole = (roleValue, roleTitle) => AppController.switchRole(roleValue, roleTitle);
 window.toggleTheme = (e) => AppController.toggleTheme(e);
 window.openExpediente = (id) => BeneficiarioController.openExpediente(id);
+window.openExpedienteByCodigo = (codigo) => BeneficiarioController.openExpedienteByCodigo(codigo);
 window.moverCaso = (id, etapa) => SocialController.moverCaso(id, etapa);
+window.filterAuditSearch = (q) => DashboardView.filterBySearch(q);
+window.changeAuditPageSize = (size) => DashboardView.changePageSize(size);
+window.prevAuditPage = () => DashboardView.changePage((DashboardView._auditCurrentPage || 1) - 1);
+window.nextAuditPage = () => DashboardView.changePage((DashboardView._auditCurrentPage || 1) + 1);
+window.openAuditDetail = (logId) => DashboardView.openLogDetail(logId);
+window.closeModalAuditDetail = () => ModalView.closeAuditDetail();
+window.clearAuditSearch = () => DashboardView.clearSearch();
+window.resetAuditFilters = () => DashboardView.resetAuditFilters();
+window.toggleInnerFilterDropdown = (id) => DashboardView.toggleInnerDropdown(id);
+window.handleAuditDatePickerChange = (type, val) => DashboardView.handleDatePickerChange(type, val);
+window.handleAuditDateManualInput = (type, el) => DashboardView.handleDateManualInput(type, el);
 
-// Arrancar cuando el DOM esté listo
-document.addEventListener("DOMContentLoaded", () => {
-  AppController.init();
+// Cierre automático de Custom Dropdowns al hacer clic afuera o presionar Escape
+document.addEventListener("click", (e) => {
+  if (!e.target.closest(".custom-dropdown")) {
+    document.querySelectorAll(".custom-dropdown.open").forEach(d => d.classList.remove("open"));
+  }
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    document.querySelectorAll(".custom-dropdown.open").forEach(d => d.classList.remove("open"));
+  }
 });
 
+// Arrancar cuando el DOM esté listo (tolerante a readyState interactive o complete)
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
+    AppController.init();
+  });
+} else {
+  AppController.init();
+}
 
 window.toggleEditExpediente = () => {
   if (window.PDI?.ModalView) window.PDI.ModalView.toggleEdit();
