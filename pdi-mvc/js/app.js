@@ -26,8 +26,15 @@ window.closeSpotlightTour = () => SpotlightView.closeTour();
 window.spotlightNext = () => SpotlightView.next((view) => AppController.navigateToView(view));
 window.spotlightPrev = () => SpotlightView.prev((view) => AppController.navigateToView(view));
 window.calculateAnemiaPreview = () => {
-  const val = document.getElementById("quickHbSlider")?.value || 10.4;
+  const inputEl = document.getElementById("calcHbInput");
+  const sliderEl = document.getElementById("quickHbSlider");
+  const val = inputEl ? inputEl.value : (sliderEl ? sliderEl.value : 10.4);
   SaludController.handleHbChange(val);
+};
+window.toggleCalculadoraCred = () => {
+  if (window.PDI && window.PDI.SaludCredView) {
+    window.PDI.SaludCredView.toggleCalculadora();
+  }
 };
 window.calculateVulnerabilidad = () => SocialController.handleVulnerabilidadChange();
 window.calcularEvaluacionSocioeconomica = () => SocialController.calcularEvaluacion();
@@ -60,10 +67,20 @@ window.toggleInnerFilterDropdown = (id) => DashboardView.toggleInnerDropdown(id)
 window.handleAuditDatePickerChange = (type, val) => DashboardView.handleDatePickerChange(type, val);
 window.handleAuditDateManualInput = (type, el) => DashboardView.handleDateManualInput(type, el);
 
-// Cierre automático de Custom Dropdowns al hacer clic afuera o presionar Escape
+window.toggleRoleInfo = (e) => {
+  if (e) e.stopPropagation();
+  const wrap = document.querySelector(".role-info-wrap");
+  if (wrap) wrap.classList.toggle("open");
+};
+
+// Cierre automático de Custom Dropdowns y Role Tooltips al hacer clic afuera
 document.addEventListener("click", (e) => {
   if (!e.target.closest(".custom-dropdown")) {
     document.querySelectorAll(".custom-dropdown.open").forEach(d => d.classList.remove("open"));
+  }
+  if (!e.target.closest(".role-info-wrap")) {
+    const wrap = document.querySelector(".role-info-wrap");
+    if (wrap) wrap.classList.remove("open");
   }
 });
 document.addEventListener("keydown", (e) => {

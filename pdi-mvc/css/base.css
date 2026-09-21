@@ -301,7 +301,8 @@
     }
 
     .role-info-wrap:hover .role-info-tooltip,
-    .role-info-wrap:focus-within .role-info-tooltip {
+    .role-info-wrap:focus-within .role-info-tooltip,
+    .role-info-wrap.open .role-info-tooltip {
       display: block;
     }
 

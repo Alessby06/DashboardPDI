@@ -23,7 +23,7 @@ export const ToastView = {
     container.appendChild(toast);
     setTimeout(() => {
       toast.style.opacity = "0";
-      toast.style.transform = "translateX(40px)";
+      toast.style.transform = "translateY(20px)";
       setTimeout(() => toast.remove(), 250);
     }, 3200);
   }

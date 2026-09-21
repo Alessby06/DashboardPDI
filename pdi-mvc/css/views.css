@@ -1207,39 +1207,252 @@
       will-change: width;
     }
 
+    /* === CALCULADORA CRED DESPLEGABLE / ACCORDION === */
+    .cred-calc-accordion {
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-ambient);
+      transition: border-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth);
+    }
+
+    .cred-calc-accordion:hover {
+      border-color: var(--border-bright);
+    }
+
+    .cred-calc-accordion.open {
+      border-color: var(--gt-yellow-border, rgba(245, 158, 11, 0.35));
+      box-shadow: 0 4px 20px rgba(245, 158, 11, 0.08);
+    }
+
+    .cred-calc-toggle-btn {
+      width: 100%;
+      background: var(--surface-1);
+      border: none;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      cursor: pointer;
+      text-align: left;
+      transition: background-color var(--dur-fast) var(--ease-smooth);
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .cred-calc-toggle-btn:hover {
+      background: var(--surface-hover);
+    }
+
+    .cred-calc-header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .cred-calc-icon-box {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      background: var(--gt-yellow-bg, rgba(245, 158, 11, 0.12));
+      color: var(--gt-yellow, #f59e0b);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border: 1px solid var(--gt-yellow-border, rgba(245, 158, 11, 0.25));
+    }
+
+    .cred-calc-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cred-calc-subtitle {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .cred-calc-header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .cred-calc-badge-state {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gt-green);
+      background: var(--brand-soft);
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-bright);
+      transition: background-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth);
+    }
+
+    .cred-calc-chevron {
+      color: var(--text-muted);
+      transition: transform var(--dur-fast) var(--ease-spring), color var(--dur-fast) var(--ease-smooth);
+      flex-shrink: 0;
+    }
+
+    .cred-calc-accordion.open .cred-calc-chevron {
+      transform: rotate(180deg);
+      color: var(--gt-yellow);
+    }
+
+    .cred-calc-body {
+      padding: 18px 20px 22px;
+      border-top: 1px solid var(--border-subtle);
+      background: var(--surface-2);
+      animation: fadeInDataCard 0.25s ease-out;
+    }
+
+    .cred-calc-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .cred-calc-result-box {
+      margin-top: 16px;
+      padding: 16px 18px;
+      border-radius: var(--radius-md);
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .cred-calc-result-tag {
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-dim);
+    }
+
+    .cred-calc-result-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--gt-yellow);
+      font-family: var(--ui-font);
+    }
+
+    .cred-calc-result-action {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
     @media (max-width: 768px) {
       .topbar {
-        padding: 0 14px !important;
+        padding: 0 12px !important;
         gap: 8px !important;
+      }
+      .topbar-brand-wrap {
+        display: none !important;
       }
       .topbar-left {
         gap: 8px !important;
+        flex: 1 !important;
+        min-width: 0 !important;
       }
       .role-selector-wrap {
         gap: 6px !important;
+        flex: 1 !important;
+        min-width: 0 !important;
+        justify-content: flex-end !important;
       }
       /* En móviles el label estático 'ROL ACTIVO:' se oculta para que el desplegable sea el elemento principal */
       .role-selector-label {
         display: none !important;
       }
+      .custom-dropdown {
+        flex: 1 !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+      }
       .custom-dropdown-btn {
-        height: 34px !important;
+        height: 36px !important;
         padding: 0 10px !important;
-        font-size: 12px !important;
-        max-width: 175px !important;
+        font-size: 12.5px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        justify-content: space-between !important;
       }
       .custom-dropdown-btn .dropdown-label {
         overflow: hidden !important;
         text-overflow: ellipsis !important;
         white-space: nowrap !important;
+        flex: 1 !important;
+        text-align: left !important;
+      }
+      .custom-dropdown-menu {
+        left: auto !important;
+        right: 0 !important;
+        min-width: 210px !important;
+        max-width: calc(100vw - 24px) !important;
       }
       .btn-role-info {
-        width: 26px !important;
-        height: 26px !important;
+        width: 28px !important;
+        height: 28px !important;
+        flex-shrink: 0 !important;
       }
       .role-info-tooltip {
-        left: -10px !important;
-        width: 260px !important;
+        position: fixed !important;
+        top: 66px !important;
+        left: 12px !important;
+        right: 12px !important;
+        width: auto !important;
+        max-width: calc(100vw - 24px) !important;
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.28) !important;
+        z-index: 1500 !important;
+      }
+      .cred-calc-toggle-btn {
+        padding: 12px 14px !important;
+      }
+      .cred-calc-header-left {
+        gap: 10px !important;
+      }
+      .cred-calc-icon-box {
+        width: 34px !important;
+        height: 34px !important;
+      }
+      .cred-calc-icon-box svg {
+        width: 17px !important;
+        height: 17px !important;
+      }
+      .cred-calc-title {
+        font-size: 13.5px !important;
+      }
+      .cred-calc-subtitle {
+        display: none !important;
+      }
+      .cred-calc-header-right .badge {
+        display: none !important;
+      }
+      .cred-calc-badge-state {
+        font-size: 11px !important;
+        padding: 3px 8px !important;
+      }
+      .cred-calc-body {
+        padding: 14px 12px 16px !important;
+      }
+      .cred-calc-grid {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
       }
       .content-viewport {
         padding: 14px 12px !important;
@@ -1264,6 +1477,16 @@
       }
       .district-coverage-sedes {
         font-size: 11.5px !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .topbar {
+        padding: 0 10px !important;
+      }
+      .custom-dropdown-btn {
+        font-size: 11.5px !important;
+        padding: 0 8px !important;
       }
     }
 

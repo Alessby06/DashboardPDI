@@ -129,7 +129,7 @@
             </svg>
           </button>
 
-          <div style="display:flex; align-items:center; gap:12px; margin-right:8px;">
+          <div class="topbar-brand-wrap" style="display:flex; align-items:center; gap:12px; margin-right:8px;">
             <img src="./assets/logo-light-acjg.png" alt="Asociacion Cultural Johannes Gutenberg" class="brand-logo-dark"
               style="height:32px; object-fit:contain;">
             <img src="./assets/logo-asociacion.png" alt="Asociacion Cultural Johannes Gutenberg"
@@ -140,7 +140,7 @@
           <div class="role-selector-wrap">
             <!-- Icono de información útil del rol activo -->
             <div class="role-info-wrap">
-              <button type="button" class="btn-role-info" id="btnRoleInfo" title="Información y permisos del rol activo" aria-label="Información del rol activo">
+              <button type="button" class="btn-role-info" id="btnRoleInfo" title="Información y permisos del rol activo" aria-label="Información del rol activo" onclick="window.toggleRoleInfo ? window.toggleRoleInfo(event) : null">
                 <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
                 </svg>
@@ -408,76 +408,87 @@
             </div>
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 340px; gap: 20px;">
-            <!-- CRED Registrations Table -->
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title">Historial de Evaluaciones CRED por Menor</div>
-                <span class="badge badge-yellow">Fórmula Oficial MINSA</span>
-              </div>
-              <div class="table-container desktop-table-view">
-                <table class="data-table">
-                  <thead>
-                    <tr>
-                      <th>Beneficiario</th>
-                      <th>Edad</th>
-                      <th>Peso / Talla</th>
-                      <th>Hemoglobina (Hb)</th>
-                      <th>Diagnóstico Anemia</th>
-                      <th>Suplementación</th>
-                      <th>Acción</th>
-                    </tr>
-                  </thead>
-                  <tbody id="tbodySaludCred">
-                    <!-- Injected via JS -->
-                  </tbody>
-                </table>
-              </div>
-              <div class="mobile-accordion-list" id="mobileCardsSalud">
-                <!-- Injected via JS -->
-              </div>
-            </div>
-
-            <!-- Antropometric Calculator Box -->
-            <div class="card" id="cardCalculadoraCred">
-              <div class="card-header">
-                <div class="card-title">
-                  <svg width="19" height="19" fill="none" stroke="var(--gt-yellow)" stroke-width="2"
-                    viewBox="0 0 24 24">
+          <!-- Calculadora Antropométrica CRED Desplegable (Oculta por defecto) -->
+          <div class="cred-calc-accordion" id="cardCalculadoraCred">
+            <button type="button" class="cred-calc-toggle-btn" id="btnToggleCredCalc" onclick="window.toggleCalculadoraCred ? window.toggleCalculadoraCred() : null">
+              <div class="cred-calc-header-left">
+                <div class="cred-calc-icon-box">
+                  <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round"
                       d="M15.75 15.75V18m-7.5-6.75h.008v.008H8.25v-.008zm0 2.25h.008v.008H8.25V13.5zm0 2.25h.008v.008H8.25v-.008zm0 2.25h.008v.008H8.25V18zm2.498-6.75h.007v.008h-.007v-.008zm0 2.25h.007v.008h-.007V13.5zm0 2.25h.007v.008h-.007v-.008zm0 2.25h.007v.008h-.007V18zm2.504-6.75h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V13.5zm0 2.25h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V18zm2.498-6.75h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V13.5zM8.25 6h7.5v2.25h-7.5V6zM12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25z" />
                   </svg>
-                  Calculadora CRED
+                </div>
+                <div>
+                  <div class="cred-calc-title">Calculadora Antropométrica CRED</div>
+                  <div class="cred-calc-subtitle">Dosaje de Hemoglobina y semáforo automatizado de anemia MINSA</div>
                 </div>
               </div>
-              <div style="display: flex; flex-direction: column; gap: 12px;">
+              <div class="cred-calc-header-right">
+                <span class="badge badge-yellow">Fórmula Oficial MINSA</span>
+                <span class="cred-calc-badge-state" id="credCalcBadgeState">Desplegar</span>
+                <svg class="cred-calc-chevron" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                </svg>
+              </div>
+            </button>
+
+            <div class="cred-calc-body" id="credCalcBody" style="display: none;">
+              <div class="cred-calc-grid">
                 <div class="form-group">
-                  <label>Hemoglobina (g/dL):</label>
+                  <label for="calcHbInput">Hemoglobina (g/dL):</label>
                   <input type="number" step="0.1" class="form-control" id="calcHbInput" value="10.4"
                     oninput="calculateAnemiaPreview()">
                 </div>
                 <div class="form-group">
-                  <label>Peso (kg):</label>
+                  <label for="calcPesoInput">Peso (kg):</label>
                   <input type="number" step="0.1" class="form-control" id="calcPesoInput" value="14.2"
                     oninput="calculateAnemiaPreview()">
                 </div>
                 <div class="form-group">
-                  <label>Talla (cm):</label>
+                  <label for="calcTallaInput">Talla (cm):</label>
                   <input type="number" step="0.5" class="form-control" id="calcTallaInput" value="94.5"
                     oninput="calculateAnemiaPreview()">
                 </div>
+              </div>
 
-                <div
-                  style="margin-top: 8px; padding: 14px; border-radius: var(--radius-md); background: var(--surface-2); border: 1px solid var(--border-subtle);"
-                  id="calcResultBox">
-                  <div style="font-size: 12px; color: var(--text-dim); text-transform: uppercase; font-weight: 700;">
-                    Resultado Automático:</div>
-                  <div style="font-size: 17px; font-weight: 700; color: var(--gt-yellow); margin-top: 4px;"
-                    id="calcDiagnosticoLabel">Anemia Leve (10.0 - 10.9 g/dL)</div>
-                  <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;" id="calcAccionSugerida">
-                    Acción: Iniciar suplementación con Sulfato Ferroso y control a los 30 días.</div>
+              <div class="cred-calc-result-box" id="calcResultBox">
+                <div class="cred-calc-result-header">
+                  <span class="cred-calc-result-tag">Diagnóstico Clínico Automatizado:</span>
+                </div>
+                <div class="cred-calc-result-title" id="calcDiagnosticoLabel">Anemia Leve (10.0 - 10.9 g/dL)</div>
+                <div class="cred-calc-result-action" id="calcAccionSugerida">
+                  Acción: Iniciar suplementación con Sulfato Ferroso y control a los 30 días.
                 </div>
               </div>
+            </div>
+          </div>
+
+          <!-- CRED Registrations Table & Mobile Cards -->
+          <div class="card" style="margin-top: 18px;">
+            <div class="card-header">
+              <div class="card-title">Historial de Evaluaciones CRED por Menor</div>
+              <span class="badge badge-yellow">Fórmula Oficial MINSA</span>
+            </div>
+            <div class="table-container desktop-table-view">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Beneficiario</th>
+                    <th>Edad</th>
+                    <th>Peso / Talla</th>
+                    <th>Hemoglobina (Hb)</th>
+                    <th>Diagnóstico Anemia</th>
+                    <th>Suplementación</th>
+                    <th style="text-align: right;">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodySaludCred">
+                  <!-- Injected via JS -->
+                </tbody>
+              </table>
+            </div>
+            <div class="mobile-accordion-list" id="mobileCardsSalud">
+              <!-- Injected via JS -->
             </div>
           </div>
         </section>

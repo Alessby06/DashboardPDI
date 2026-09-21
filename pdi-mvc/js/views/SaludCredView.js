@@ -12,13 +12,13 @@ export const SaludCredView = {
 
         return `
           <tr>
-            <td><strong>${b.nombres} ${b.apellidos}</strong><div style="font-size:11.5px; color:var(--text-dim);">${b.codigo}</div></td>
+            <td><strong>${b.nombres} ${b.apellidos}</strong><div style="font-size:11.5px; color:var(--text-dim); font-family:var(--mono-font);">${b.codigo}</div></td>
             <td>${b.edad}</td>
             <td>${b.peso} kg / ${b.talla} cm</td>
             <td><strong style="font-family:var(--mono-font);">${b.hb} g/dL</strong></td>
             <td><span class="badge ${badgeClass}">${b.anemia}</span></td>
             <td>${b.anemia !== "Normal" ? "Sulfato Ferroso 1 dosis/día" : "Dieta Preventiva"}</td>
-            <td><button type="button" class="btn-action" onclick="window.app ? window.app.beneficiarioController.openExpediente(${b.id}) : window.openExpediente(${b.id})">Detalle</button></td>
+            <td style="text-align: right;"><button type="button" class="btn-action" onclick="window.openExpediente ? window.openExpediente(${b.id}) : (window.app ? window.app.beneficiarioController.openExpediente(${b.id}) : null)">Ver Historial</button></td>
           </tr>
         `;
       }).join("");
@@ -50,7 +50,7 @@ export const SaludCredView = {
               </div>
               <div class="datacard-row">
                 <span class="datacard-label">Hemoglobina (Hb)</span>
-                <span class="datacard-value" style="color:var(--gt-yellow); font-weight:800;">${b.hb} g/dL</span>
+                <span class="datacard-value" style="color:var(--gt-yellow); font-weight:800; font-family:var(--mono-font);">${b.hb} g/dL</span>
               </div>
               <div class="datacard-row">
                 <span class="datacard-label">Diagnóstico Anemia</span>
@@ -72,7 +72,11 @@ export const SaludCredView = {
                   <span class="datacard-value">${b.anemia !== "Normal" ? "Sulfato Ferroso 1 dosis/día" : "Dieta Preventiva"}</span>
                 </div>
                 <div class="datacard-actions-footer">
-                  <button type="button" class="btn-action primary" style="width:100%; justify-content:center;" onclick="event.stopPropagation(); window.app ? window.app.beneficiarioController.openExpediente(${b.id}) : window.openExpediente(${b.id})">
+                  <button type="button" class="btn-action primary" style="width:100%; justify-content:center;" onclick="event.stopPropagation(); window.openExpediente ? window.openExpediente(${b.id}) : (window.app ? window.app.beneficiarioController.openExpediente(${b.id}) : null)">
+                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:6px;">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
                     Ver Historial CRED Completo
                   </button>
                 </div>
@@ -102,10 +106,27 @@ export const SaludCredView = {
         if (textSpan) textSpan.textContent = isExp ? "Ver menos" : "Ver más";
       }
     }
+  },
+
+  toggleCalculadora() {
+    const card = document.getElementById("cardCalculadoraCred");
+    const body = document.getElementById("credCalcBody");
+    const badgeState = document.getElementById("credCalcBadgeState");
+    if (!body) return;
+
+    const isHidden = body.style.display === "none";
+    body.style.display = isHidden ? "block" : "none";
+    if (card) {
+      card.classList.toggle("open", isHidden);
+    }
+    if (badgeState) {
+      badgeState.textContent = isHidden ? "Ocultar" : "Desplegar";
+    }
   }
 };
 
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
   window.PDI.SaludCredView = SaludCredView;
+  window.toggleCalculadoraCred = () => SaludCredView.toggleCalculadora();
 }
