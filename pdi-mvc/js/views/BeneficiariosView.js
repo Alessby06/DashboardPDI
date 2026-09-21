@@ -5,7 +5,7 @@ export const BeneficiariosView = {
   _filterServicio: "all",
   _filterSede: "all",
   _filterAnemia: "all",
-  _filterEdad: "all",
+  _filterEdad: "all", // "all" or specific number (e.g. 4)
   _filterEstado: "all",
 
   init(beneficiarios) {
@@ -60,18 +60,53 @@ export const BeneficiariosView = {
     this.applyFilters();
   },
 
-  selectEdad(edadKey) {
-    this._filterEdad = edadKey || "all";
-    const select = document.getElementById("selectPadronEdadFilter");
-    if (select) select.value = this._filterEdad;
+  syncEdad(val, source) {
+    if (val === "" || val === null || val === undefined) {
+      this._filterEdad = "all";
+    } else {
+      const num = parseInt(val, 10);
+      if (isNaN(num) || num < 0) {
+        this._filterEdad = "all";
+      } else {
+        this._filterEdad = Math.min(18, Math.max(0, num));
+      }
+    }
+
+    const slider = document.getElementById("sliderPadronEdad");
+    const numInput = document.getElementById("numPadronEdad");
+
+    if (source === "slider") {
+      if (numInput) numInput.value = this._filterEdad === "all" ? "" : this._filterEdad;
+    } else if (source === "num") {
+      if (slider) slider.value = this._filterEdad === "all" ? 0 : this._filterEdad;
+    } else {
+      if (slider) slider.value = this._filterEdad === "all" ? 0 : this._filterEdad;
+      if (numInput) numInput.value = this._filterEdad === "all" ? "" : this._filterEdad;
+    }
+
     this.applyFilters();
+  },
+
+  clearEdad() {
+    this.syncEdad("", "all");
   },
 
   selectEstado(estadoVal) {
     this._filterEstado = estadoVal || "all";
-    const select = document.getElementById("selectPadronEstadoFilter");
-    if (select) select.value = this._filterEstado;
+    const btns = document.querySelectorAll("#padronEstadoSegmented .audit-seg-btn");
+    btns.forEach(b => {
+      b.classList.toggle("active", b.getAttribute("data-value") === this._filterEstado);
+    });
     this.applyFilters();
+  },
+
+  removeFilter(filterKey) {
+    if (filterKey === "search") this.clearSearch();
+    if (filterKey === "servicio") this.selectServicio("all");
+    if (filterKey === "sede") this.selectSede("all");
+    if (filterKey === "anemia") this.selectAnemia("all");
+    if (filterKey === "edad") this.clearEdad();
+    if (filterKey === "estado") this.selectEstado("all");
   },
 
   resetFilters() {
@@ -90,17 +125,19 @@ export const BeneficiariosView = {
     const sSede = document.getElementById("selectPadronSedeFilter");
     if (sSede) sSede.value = "all";
 
-    const sEdad = document.getElementById("selectPadronEdadFilter");
-    if (sEdad) sEdad.value = "all";
-
-    const sEstado = document.getElementById("selectPadronEstadoFilter");
-    if (sEstado) sEstado.value = "all";
+    const slider = document.getElementById("sliderPadronEdad");
+    if (slider) slider.value = 0;
+    const numInput = document.getElementById("numPadronEdad");
+    if (numInput) numInput.value = "";
 
     const sServBtns = document.querySelectorAll("#padronServicioSegmented .audit-seg-btn");
     sServBtns.forEach(b => b.classList.toggle("active", b.getAttribute("data-value") === "all"));
 
     const sAnemiaBtns = document.querySelectorAll("#padronAnemiaSegmented .audit-seg-btn");
     sAnemiaBtns.forEach(b => b.classList.toggle("active", b.getAttribute("data-value") === "all"));
+
+    const sEstadoBtns = document.querySelectorAll("#padronEstadoSegmented .audit-seg-btn");
+    sEstadoBtns.forEach(b => b.classList.toggle("active", b.getAttribute("data-value") === "all"));
 
     this.applyFilters();
   },
@@ -142,14 +179,12 @@ export const BeneficiariosView = {
       }
     }
 
-    // 5. Rango de Edad
+    // 5. Edad Exacta (0 a 18 años)
     if (this._filterEdad !== "all") {
+      const targetEdad = parseInt(this._filterEdad, 10);
       list = list.filter(b => {
-        const numEdad = parseInt(b.edad, 10) || 0;
-        if (this._filterEdad === "0-3") return numEdad <= 3;
-        if (this._filterEdad === "4-5") return numEdad >= 4 && numEdad <= 5;
-        if (this._filterEdad === "6+") return numEdad >= 6;
-        return true;
+        const numEdad = parseInt(b.edad, 10);
+        return !isNaN(numEdad) && numEdad === targetEdad;
       });
     }
 
@@ -177,7 +212,186 @@ export const BeneficiariosView = {
       btnFilterEl.classList.toggle("has-filters", activeFiltersCount > 0);
     }
 
+    this._updateFacetCounts();
+    this._renderActiveChips();
     this._renderFilteredList(list);
+  },
+
+  _updateFacetCounts() {
+    // Calculo facetado con respecto a los otros filtros activos excepto la propia categoría
+    const getFilteredExcluding = (excludeKey) => {
+      let l = [...this._allBeneficiarios];
+      if (this._searchQuery) {
+        const q = this._searchQuery;
+        l = l.filter(b => `${b.nombres} ${b.apellidos} ${b.codigo} ${b.dni} ${b.sede} ${b.distrito} ${b.apoderado}`.toLowerCase().includes(q));
+      }
+      if (excludeKey !== "servicio" && this._filterServicio !== "all") {
+        if (this._filterServicio === "desayuno") l = l.filter(b => b.servicios && b.servicios.some(s => s.toLowerCase().includes("desayuno") || s.toLowerCase().includes("alimento")));
+        else if (this._filterServicio === "casita") l = l.filter(b => b.servicios && b.servicios.some(s => s.toLowerCase().includes("casita") || s.toLowerCase().includes("educativ")));
+        else if (this._filterServicio === "mixto") l = l.filter(b => b.servicios && b.servicios.length >= 2);
+      }
+      if (excludeKey !== "sede" && this._filterSede !== "all") {
+        l = l.filter(b => b.sede && b.sede.toLowerCase().includes(this._filterSede.toLowerCase()));
+      }
+      if (excludeKey !== "anemia" && this._filterAnemia !== "all") {
+        if (this._filterAnemia === "Moderada") l = l.filter(b => b.anemia === "Moderada" || b.anemia === "Severa");
+        else l = l.filter(b => b.anemia === this._filterAnemia);
+      }
+      if (excludeKey !== "edad" && this._filterEdad !== "all") {
+        const tEdad = parseInt(this._filterEdad, 10);
+        l = l.filter(b => (parseInt(b.edad, 10) || 0) === tEdad);
+      }
+      if (excludeKey !== "estado" && this._filterEstado !== "all") {
+        l = l.filter(b => b.estado === this._filterEstado);
+      }
+      return l;
+    };
+
+    // 1. Facetas de Servicio
+    const forServ = getFilteredExcluding("servicio");
+    const countServDesayuno = forServ.filter(b => b.servicios && b.servicios.some(s => s.toLowerCase().includes("desayuno") || s.toLowerCase().includes("alimento"))).length;
+    const countServCasita = forServ.filter(b => b.servicios && b.servicios.some(s => s.toLowerCase().includes("casita") || s.toLowerCase().includes("educativ"))).length;
+    const countServMixto = forServ.filter(b => b.servicios && b.servicios.length >= 2).length;
+    const countServAll = forServ.length;
+
+    const servBtns = document.querySelectorAll("#padronServicioSegmented .audit-seg-btn");
+    servBtns.forEach(btn => {
+      const val = btn.getAttribute("data-value");
+      let c = countServAll;
+      let label = "Todos";
+      if (val === "desayuno") { c = countServDesayuno; label = "Nutrición SAN"; }
+      if (val === "casita") { c = countServCasita; label = "Casita del Saber"; }
+      if (val === "mixto") { c = countServMixto; label = "Mixto / Ambos"; }
+
+      btn.classList.toggle("zero-facet", c === 0 && val !== "all");
+      btn.innerHTML = `${label} <span class="audit-seg-count">(${c})</span>`;
+    });
+
+    // 2. Facetas de Sede
+    const forSede = getFilteredExcluding("sede");
+    const selectSede = document.getElementById("selectPadronSedeFilter");
+    if (selectSede) {
+      Array.from(selectSede.options).forEach(opt => {
+        const val = opt.value;
+        if (val === "all") {
+          opt.textContent = `Todas las Sedes (${forSede.length})`;
+          opt.classList.remove("zero-facet");
+        } else {
+          const c = forSede.filter(b => b.sede && b.sede.toLowerCase().includes(val.toLowerCase())).length;
+          const baseName = val.includes("Comas") || val.includes("Carabayllo") ? val : `${val} (${val === "Año Nuevo" || val === "La Libertad" ? "Comas" : "Carabayllo"})`;
+          opt.textContent = `${baseName} (${c})`;
+          opt.disabled = c === 0;
+          opt.classList.toggle("zero-facet", c === 0);
+        }
+      });
+    }
+
+    // 3. Facetas de Anemia
+    const forAnemia = getFilteredExcluding("anemia");
+    const countAnemiaNormal = forAnemia.filter(b => b.anemia === "Normal").length;
+    const countAnemiaLeve = forAnemia.filter(b => b.anemia === "Leve").length;
+    const countAnemiaMod = forAnemia.filter(b => b.anemia === "Moderada" || b.anemia === "Severa").length;
+
+    const anemiaBtns = document.querySelectorAll("#padronAnemiaSegmented .audit-seg-btn");
+    anemiaBtns.forEach(btn => {
+      const val = btn.getAttribute("data-value");
+      let c = forAnemia.length;
+      let badgeHtml = `Todos`;
+      if (val === "Normal") { c = countAnemiaNormal; badgeHtml = `<span class="badge badge-green" style="padding:1px 5px; font-size:10px;">Normal</span>`; }
+      if (val === "Leve") { c = countAnemiaLeve; badgeHtml = `<span class="badge badge-yellow" style="padding:1px 5px; font-size:10px;">Leve</span>`; }
+      if (val === "Moderada") { c = countAnemiaMod; badgeHtml = `<span class="badge badge-red" style="padding:1px 5px; font-size:10px;">Mod / Sev</span>`; }
+
+      btn.classList.toggle("zero-facet", c === 0 && val !== "all");
+      btn.innerHTML = `${badgeHtml} <span class="audit-seg-count">(${c})</span>`;
+    });
+
+    // 4. Facetas de Estado
+    const forEstado = getFilteredExcluding("estado");
+    const countActivo = forEstado.filter(b => b.estado === "Activo").length;
+    const countInactivo = forEstado.filter(b => b.estado === "Inactivo" || b.estado === "Baja").length;
+
+    const estadoBtns = document.querySelectorAll("#padronEstadoSegmented .audit-seg-btn");
+    estadoBtns.forEach(btn => {
+      const val = btn.getAttribute("data-value");
+      let c = forEstado.length;
+      let label = "Todos";
+      if (val === "Activo") { c = countActivo; label = "Activo"; }
+      if (val === "Inactivo") { c = countInactivo; label = "Inactivo / Baja"; }
+
+      btn.classList.toggle("zero-facet", c === 0 && val !== "all");
+      btn.innerHTML = `${label} <span class="audit-seg-count">(${c})</span>`;
+    });
+  },
+
+  _renderActiveChips() {
+    const bar = document.getElementById("padronActiveChipsBar");
+    const list = document.getElementById("padronActiveChipsList");
+    if (!bar || !list) return;
+
+    const chips = [];
+
+    if (this._searchQuery) {
+      chips.push({
+        id: "search",
+        label: `Búsqueda: "${this._searchQuery}"`,
+      });
+    }
+
+    if (this._filterServicio !== "all") {
+      let servLabel = this._filterServicio;
+      if (this._filterServicio === "desayuno") servLabel = "Nutrición SAN";
+      if (this._filterServicio === "casita") servLabel = "Casita del Saber";
+      if (this._filterServicio === "mixto") servLabel = "Mixto / Ambos";
+      chips.push({
+        id: "servicio",
+        label: `Programa: ${servLabel}`,
+      });
+    }
+
+    if (this._filterSede !== "all") {
+      chips.push({
+        id: "sede",
+        label: `Sede: ${this._filterSede}`,
+      });
+    }
+
+    if (this._filterAnemia !== "all") {
+      chips.push({
+        id: "anemia",
+        label: `Anemia: ${this._filterAnemia === "Moderada" ? "Mod / Severa" : this._filterAnemia}`,
+      });
+    }
+
+    if (this._filterEdad !== "all") {
+      chips.push({
+        id: "edad",
+        label: `Edad: ${this._filterEdad} años`,
+      });
+    }
+
+    if (this._filterEstado !== "all") {
+      chips.push({
+        id: "estado",
+        label: `Estado: ${this._filterEstado}`,
+      });
+    }
+
+    if (chips.length === 0) {
+      bar.style.display = "none";
+      list.innerHTML = "";
+    } else {
+      bar.style.display = "flex";
+      list.innerHTML = chips.map(chip => `
+        <span class="padron-chip">
+          <span>${chip.label}</span>
+          <button type="button" class="padron-chip-remove" onclick="window.removePadronChip ? window.removePadronChip('${chip.id}') : null" title="Eliminar filtro">
+            <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </span>
+      `).join("");
+    }
   },
 
   _renderFilteredList(beneficiarios) {

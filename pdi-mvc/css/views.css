@@ -680,6 +680,108 @@
       white-space: nowrap;
     }
 
+    /* === BUSCADOR Y FILTROS FACETADOS (PADRÓN DE BENEFICIARIOS) === */
+    .padron-active-chips-bar {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+      padding: 8px 12px;
+      background: var(--surface-2);
+      border: 1px dashed var(--border-subtle);
+      border-radius: var(--radius-md);
+      animation: fadeInDataCard var(--dur-fast) var(--ease-smooth);
+    }
+
+    .padron-active-chips-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .padron-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: var(--surface-1);
+      border: 1px solid var(--border-bright);
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-main);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .padron-chip-remove {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: rgba(220, 38, 38, 0.12);
+      color: var(--gt-red);
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      transition: background-color var(--dur-fast) var(--ease-smooth);
+    }
+
+    .padron-chip-remove:hover {
+      background: var(--gt-red);
+      color: #ffffff;
+    }
+
+    /* Estilo para Facetas con conteo Cero (Deshabilitadas y en gris) */
+    .audit-seg-btn.zero-facet {
+      opacity: 0.45 !important;
+      background: var(--surface-2) !important;
+      color: var(--text-dim) !important;
+      border-color: var(--border-subtle) !important;
+      cursor: not-allowed !important;
+      pointer-events: none !important;
+    }
+
+    .audit-seg-count {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: inherit;
+      opacity: 0.85;
+      margin-left: 2px;
+    }
+
+    .facet-edad-slider-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .facet-edad-slider-wrap input[type="range"] {
+      flex: 1;
+      accent-color: var(--gt-green);
+      cursor: pointer;
+    }
+
+    .facet-edad-num-input {
+      width: 65px !important;
+      font-family: var(--mono-font) !important;
+      font-weight: 700 !important;
+      text-align: center !important;
+      padding: 5px 8px !important;
+      font-size: 13px !important;
+    }
+
+    @media (max-width: 768px) {
+      .padron-active-chips-bar {
+        display: none !important;
+      }
+    }
+
     .audit-chips-wrap {
       display: flex;
       flex-wrap: wrap;
@@ -2822,3 +2924,109 @@
   justify-content: center;
   margin-top: 1px;
 }
+
+/* ==========================================================================
+   PADRÓN BENEFICIARIOS: Búsqueda Facetada, Píldoras de Chips y Slider de Edad
+   ========================================================================== */
+.padron-active-chips-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.padron-active-chips-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-right: 4px;
+}
+
+.padron-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  transition: all var(--dur-fast) var(--ease-smooth);
+}
+
+.padron-chip:hover {
+  border-color: var(--border-bright);
+}
+
+.padron-chip-remove {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--text-dim);
+  border: none;
+  padding: 0;
+  transition: all var(--dur-fast) var(--ease-smooth);
+}
+
+.padron-chip-remove:hover {
+  background: var(--gt-red);
+  color: #ffffff;
+}
+
+.audit-seg-btn.zero-facet,
+.audit-filter-select option.zero-facet {
+  opacity: 0.45 !important;
+  color: var(--text-dim) !important;
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+}
+
+.audit-seg-count {
+  font-size: 10px;
+  font-weight: 700;
+  margin-left: 3px;
+  opacity: 0.8;
+}
+
+.facet-edad-slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.facet-edad-slider-wrap input[type="range"] {
+  flex: 1;
+  accent-color: var(--gt-green);
+  cursor: pointer;
+}
+
+.facet-edad-num-input {
+  width: 62px;
+  height: 28px;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .padron-active-chips-bar {
+    display: none !important;
+  }
+}
+

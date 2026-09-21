@@ -89,8 +89,14 @@ window.selectPadronSede = (val) => {
 window.selectPadronAnemia = (val) => {
   if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.selectAnemia(val);
 };
-window.selectPadronEdad = (val) => {
-  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.selectEdad(val);
+window.syncPadronEdad = (val, source) => {
+  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.syncEdad(val, source);
+};
+window.clearPadronEdad = () => {
+  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.clearEdad();
+};
+window.removePadronChip = (filterKey) => {
+  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.removeFilter(filterKey);
 };
 window.selectPadronEstado = (val) => {
   if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.selectEstado(val);
