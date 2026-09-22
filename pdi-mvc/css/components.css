@@ -511,6 +511,11 @@
       white-space: nowrap;
     }
 
+    #labelActiveRole,
+    .dropdown-label {
+      font-size: 13px;
+    }
+
     .custom-dropdown-btn:hover {
       background: var(--surface-hover);
       border-color: var(--border-bright);
