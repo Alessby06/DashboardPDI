@@ -1,6 +1,5 @@
 /* --- Module: models/StorageService.js --- */
-// Servicio de Almacenamiento Local (Persistence Layer)
-const StorageService = {
+// Servicio de Almacenamiento Local (Persistence Layer) StorageService = {
   getItem(key, defaultValue = null) {
     try {
       const data = localStorage.getItem(key);
@@ -32,8 +31,7 @@ if (typeof window !== "undefined") {
 }
 
 /* --- Module: utils/AnemiaCalculator.js --- */
-// Utilidad: Calculadora de Anemia según Norma Técnica MINSA
-const AnemiaCalculator = {
+// Utilidad: Calculadora de Anemia según Norma Técnica MINSA AnemiaCalculator = {
   calculate(hb) {
     const val = parseFloat(hb);
     if (isNaN(val)) {
@@ -82,7 +80,9 @@ if (typeof window !== "undefined") {
   window.PDI.AnemiaCalculator = AnemiaCalculator;
 }
 
-const defaultBeneficiarios = [
+/* --- Module: models/BeneficiarioModel.js --- */
+// Modelo de Beneficiarios (Padrón de Menores PDI)
+// Incorpora el 100% de los campos oficiales de las Fichas A0, A1, A2, A3, A6 CRED y ASP defaultBeneficiarios = [
   {
     "id": 1,
     "codigo": "PDI-2026-001",
@@ -136,6 +136,11 @@ const defaultBeneficiarios = [
         "telefono": "976-112-445"
       }
     ],
+    "coordenadas": {
+      "lat": -11.9056,
+      "lng": -77.0421
+    },
+    "fotoFachada": null,
     "consentimientos": {
       "evaluacionSocial": true,
       "usoFotografia": true,
@@ -925,9 +930,7 @@ const defaultBeneficiarios = [
     "firmaDigital": true,
     "vulnerabilidad": 42
   }
-];
-
-const BeneficiarioModel = {
+]; BeneficiarioModel = {
   _data: null,
 
   init() {
@@ -989,7 +992,7 @@ const BeneficiarioModel = {
     const list = this.getAll();
     if (!query || query.trim() === "") return list;
     const q = query.toLowerCase().trim();
-    return list.filter(b =>
+    return list.filter(b => 
       b.nombres.toLowerCase().includes(q) ||
       b.apellidos.toLowerCase().includes(q) ||
       b.codigo.toLowerCase().includes(q) ||
@@ -1033,12 +1036,10 @@ if (typeof window !== "undefined") {
   window.PDI.BeneficiarioModel = BeneficiarioModel;
 }
 
-
 /* --- Module: models/CasoSocialModel.js --- */
 // Modelo de Casos Sociales (Derivaciones ASP - Área Social Pastoral)
 // Sincronizado integralmente con los menores del Padrón Oficial de Beneficiarios
-
-const defaultCasosSociales = [
+ defaultCasosSociales = [
   {
     id: 101,
     menor: "Liam Mateo Sanchez Diaz",
@@ -1247,8 +1248,7 @@ const defaultCasosSociales = [
     vulnerabilidadPuntaje: 45
   }
 ];
-
-const CasoSocialModel = {
+ CasoSocialModel = {
   _data: null,
 
   init() {
@@ -1294,10 +1294,8 @@ if (typeof window !== "undefined") {
   window.PDI.CasoSocialModel = CasoSocialModel;
 }
 
-
 /* --- Module: models/AuditModel.js --- */
-// Modelo de Trazabilidad y Auditoría de Seguridad
-const defaultAuditLogs = [
+// Modelo de Trazabilidad y Auditoría de Seguridad defaultAuditLogs = [
   {
     id: "LOG-2026-001",
     timestamp: "2026-09-13 17:30",
@@ -1364,9 +1362,7 @@ const defaultAuditLogs = [
       { campo: "Consentimientos Ley 29733", valorAnterior: "92%", valorNuevo: "100% verificados" }
     ]
   }
-];
-
-const AuditModel = {
+]; AuditModel = {
   _logs: [...defaultAuditLogs],
 
   getAll() {
@@ -1379,10 +1375,10 @@ const AuditModel = {
 
   log(user, role, action, entity, detail, status = "Registrado", diff = null, ip = "192.168.1.x", sede = "Central") {
     const now = new Date();
-    const timestamp = now.getFullYear() + "-" +
-      String(now.getMonth() + 1).padStart(2, '0') + "-" +
-      String(now.getDate()).padStart(2, '0') + " " +
-      String(now.getHours()).padStart(2, '0') + ":" +
+    const timestamp = now.getFullYear() + "-" + 
+      String(now.getMonth() + 1).padStart(2, '0') + "-" + 
+      String(now.getDate()).padStart(2, '0') + " " + 
+      String(now.getHours()).padStart(2, '0') + ":" + 
       String(now.getMinutes()).padStart(2, '0');
 
     const id = "LOG-" + now.getFullYear() + "-" + String(this._logs.length + 1).padStart(3, '0');
@@ -1399,8 +1395,7 @@ if (typeof window !== "undefined") {
 }
 
 /* --- Module: views/ToastView.js --- */
-// Vista: Sistema de Notificaciones Toast Flotantes
-const ToastView = {
+// Vista: Sistema de Notificaciones Toast Flotantes ToastView = {
   show(title, message, type = "success") {
     const container = document.getElementById("toastContainer");
     if (!container) return;
@@ -1436,8 +1431,7 @@ if (typeof window !== "undefined") {
 }
 
 /* --- Module: views/SpotlightView.js --- */
-// Vista: Tour Interactivo Spotlight (10 Minutos)
-const spotlightSteps = [
+// Vista: Tour Interactivo Spotlight (10 Minutos) spotlightSteps = [
   {
     targetId: "roleSelector",
     title: "1. Selector de Roles y RBAC Dinámico",
@@ -1468,9 +1462,7 @@ const spotlightSteps = [
     desc: "Al registrar un menor o consultar su expediente, el sistema integra la firma digital manuscrita de consentimiento del apoderado, cumpliendo con la Ley de Protección de Datos Personales del Perú.",
     view: "view-beneficiarios"
   }
-];
-
-const SpotlightView = {
+]; SpotlightView = {
   currentStep: 0,
 
   startTour(onNavigate) {
@@ -1550,7 +1542,7 @@ if (typeof window !== "undefined") {
 
 /* --- Module: views/DashboardView.js --- */
 // Vista: Tablero Principal Dashboard
-const DashboardView = {
+ DashboardView = {
   render(stats, auditLogs) {
     const statEl = document.getElementById("statTotalNinos");
     if (statEl) statEl.textContent = stats.total;
@@ -1605,14 +1597,14 @@ const DashboardView = {
         </div>
       `;
     }
-
+    
     const anemiaContainer = document.getElementById("dashAnemiaBars");
     if (anemiaContainer) {
       const C = 251.32;
       const sNormal = (stats.pctNormal / 100) * C;
       const sLeve = (stats.pctLeve / 100) * C;
       const sMod = (stats.pctMod / 100) * C;
-
+      
       anemiaContainer.innerHTML = `
         <div style="display: flex; align-items: center; justify-content: space-around; gap: 20px; flex-wrap: wrap; padding: 6px 0;">
           <div style="position: relative; width: 140px; height: 140px; flex-shrink: 0;">
@@ -2381,7 +2373,7 @@ const DashboardView = {
                 <button type="button" class="btn-action-sm" onclick="event.stopPropagation(); window.openAuditDetail ? window.openAuditDetail('${logIdStr}') : (window.PDI?.DashboardView?.openLogDetail ? window.PDI.DashboardView.openLogDetail('${logIdStr}') : null)" title="Ver detalle de trazabilidad">
                   <span>Detalle</span>
                   <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5-7.5" />
                   </svg>
                 </button>
               </td>
@@ -2506,10 +2498,9 @@ if (typeof window !== "undefined") {
   window.PDI.DashboardView = DashboardView;
 }
 
-
 /* --- Module: views/BeneficiariosView.js --- */
 // Vista: Padrón de Menores Beneficiarios
-const BeneficiariosView = {
+ BeneficiariosView = {
   _allBeneficiarios: [],
   _searchQuery: "",
   _filterServicio: [], // array de servicios seleccionados (vacío = todos)
@@ -3303,10 +3294,8 @@ if (typeof window !== "undefined") {
   window.PDI.BeneficiariosView = BeneficiariosView;
 }
 
-
 /* --- Module: views/SaludCredView.js --- */
-// Vista: Módulo de Salud y Nutrición CRED
-const SaludCredView = {
+// Vista: Módulo de Salud y Nutrición CRED SaludCredView = {
   renderTable(beneficiarios) {
     const tbody = document.getElementById("tbodySaludCred");
     const mobileContainer = document.getElementById("mobileCardsSalud");
@@ -3382,6 +3371,7 @@ const SaludCredView = {
                   <button type="button" class="btn-action primary" style="width:100%; justify-content:center;" onclick="event.stopPropagation(); window.openExpediente ? window.openExpediente(${b.id}) : (window.app ? window.app.beneficiarioController.openExpediente(${b.id}) : null)">
                     <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:6px;">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                     Ver Historial CRED Completo
                   </button>
@@ -3417,12 +3407,16 @@ const SaludCredView = {
   toggleCalculadora() {
     const card = document.getElementById("cardCalculadoraCred");
     const body = document.getElementById("credCalcBody");
+    const badgeState = document.getElementById("credCalcBadgeState");
     if (!body) return;
 
     const isHidden = body.style.display === "none";
     body.style.display = isHidden ? "block" : "none";
     if (card) {
       card.classList.toggle("open", isHidden);
+    }
+    if (badgeState) {
+      badgeState.textContent = isHidden ? "Ocultar" : "Desplegar";
     }
   }
 };
@@ -3433,10 +3427,8 @@ if (typeof window !== "undefined") {
   window.toggleCalculadoraCred = () => SaludCredView.toggleCalculadora();
 }
 
-
 /* --- Module: views/CasitasView.js --- */
-// Vista: Acompañamiento Educativo (Casita del Saber)
-const CasitasView = {
+// Vista: Acompañamiento Educativo (Casita del Saber) CasitasView = {
   renderTable(beneficiarios) {
     const tbody = document.getElementById("tbodyAsistenciaCasita");
     const mobileContainer = document.getElementById("mobileCardsCasita");
@@ -3458,10 +3450,10 @@ const CasitasView = {
           </td>
           <td style="text-align: right;">
             <div style="display: inline-flex; gap: 4px;" id="btnGroupAsist_${b.id}">
-              <button type="button" class="btn-asist active-P" data-asist-btn="P" onclick="window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'P') : CasitasController.toggleAsistencia(${b.id}, 'P')">P</button>
-              <button type="button" class="btn-asist" data-asist-btn="T" onclick="window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'T') : CasitasController.toggleAsistencia(${b.id}, 'T')">T</button>
-              <button type="button" class="btn-asist" data-asist-btn="FJ" onclick="window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'FJ') : CasitasController.toggleAsistencia(${b.id}, 'FJ')">FJ</button>
-              <button type="button" class="btn-asist" data-asist-btn="FI" onclick="window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'FI') : CasitasController.toggleAsistencia(${b.id}, 'FI')">FI</button>
+              <button type="button" class="btn-asist active-P" data-asist-btn="P" onclick="window.app.casitasController.toggleAsistencia(${b.id}, 'P')">P</button>
+              <button type="button" class="btn-asist" data-asist-btn="T" onclick="window.app.casitasController.toggleAsistencia(${b.id}, 'T')">T</button>
+              <button type="button" class="btn-asist" data-asist-btn="FJ" onclick="window.app.casitasController.toggleAsistencia(${b.id}, 'FJ')">FJ</button>
+              <button type="button" class="btn-asist" data-asist-btn="FI" onclick="window.app.casitasController.toggleAsistencia(${b.id}, 'FI')">FI</button>
             </div>
           </td>
         </tr>
@@ -3498,10 +3490,10 @@ const CasitasView = {
                 Marcar Asistencia Hoy:
               </div>
               <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;" id="btnGroupMobAsist_${b.id}">
-                <button type="button" class="btn-asist active-P" data-asist-btn="P" onclick="event.stopPropagation(); window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'P') : CasitasController.toggleAsistencia(${b.id}, 'P')">P</button>
-                <button type="button" class="btn-asist" data-asist-btn="T" onclick="event.stopPropagation(); window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'T') : CasitasController.toggleAsistencia(${b.id}, 'T')">T</button>
-                <button type="button" class="btn-asist" data-asist-btn="FJ" onclick="event.stopPropagation(); window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'FJ') : CasitasController.toggleAsistencia(${b.id}, 'FJ')">FJ</button>
-                <button type="button" class="btn-asist" data-asist-btn="FI" onclick="event.stopPropagation(); window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'FI') : CasitasController.toggleAsistencia(${b.id}, 'FI')">FI</button>
+                <button type="button" class="btn-asist active-P" data-asist-btn="P" onclick="event.stopPropagation(); window.app.casitasController.toggleAsistencia(${b.id}, 'P')">P</button>
+                <button type="button" class="btn-asist" data-asist-btn="T" onclick="event.stopPropagation(); window.app.casitasController.toggleAsistencia(${b.id}, 'T')">T</button>
+                <button type="button" class="btn-asist" data-asist-btn="FJ" onclick="event.stopPropagation(); window.app.casitasController.toggleAsistencia(${b.id}, 'FJ')">FJ</button>
+                <button type="button" class="btn-asist" data-asist-btn="FI" onclick="event.stopPropagation(); window.app.casitasController.toggleAsistencia(${b.id}, 'FI')">FI</button>
               </div>
             </div>
 
@@ -3551,75 +3543,22 @@ const CasitasView = {
   }
 };
 
-const CasitasController = {
-  toggleAsistencia(id, estado) {
-    const config = {
-      "P": { label: "Presente", badgeClass: "badge badge-green", activeClass: "active-P" },
-      "T": { label: "Tardanza", badgeClass: "badge badge-yellow", activeClass: "active-T" },
-      "FJ": { label: "Falta Justificada", badgeClass: "badge badge-orange", activeClass: "active-FJ" },
-      "FI": { label: "Falta Injustificada", badgeClass: "badge badge-red", activeClass: "active-FI" }
-    };
-
-    const target = config[estado] || config["P"];
-
-    const badgeDesk = document.getElementById(`badgeAsist_${id}`);
-    if (badgeDesk) {
-      badgeDesk.textContent = target.label;
-      badgeDesk.className = target.badgeClass;
-    }
-
-    const badgeMob = document.getElementById(`badgeAsistMob_${id}`);
-    if (badgeMob) {
-      badgeMob.textContent = target.label;
-      badgeMob.className = target.badgeClass;
-    }
-
-    const btnGroupDesk = document.getElementById(`btnGroupAsist_${id}`);
-    if (btnGroupDesk) {
-      btnGroupDesk.querySelectorAll("button").forEach(btn => {
-        btn.className = "btn-asist";
-        if (btn.getAttribute("data-asist-btn") === estado) {
-          btn.classList.add(target.activeClass);
-        }
-      });
-    }
-
-    const btnGroupMob = document.getElementById(`btnGroupMobAsist_${id}`);
-    if (btnGroupMob) {
-      btnGroupMob.querySelectorAll("button").forEach(btn => {
-        btn.className = "btn-asist";
-        if (btn.getAttribute("data-asist-btn") === estado) {
-          btn.classList.add(target.activeClass);
-        }
-      });
-    }
-
-    const toast = window.PDI?.ToastView || ToastView;
-    if (toast && toast.show) {
-      toast.show("Asistencia Actualizada", `${target.label} registrado para el menor ID ${id}`, "info");
-    }
-  }
-};
-
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
   window.PDI.CasitasView = CasitasView;
-  window.PDI.CasitasController = CasitasController;
 }
 
-
 /* --- Module: views/ModalView.js --- */
-
 // Generadores de Avatares Biométricos SVG para Niños y Adultos Autorizados
-function getChildAvatarSvg(sex, name) {
-  const isFemale = (sex === 'F');
-  const bgColor = isFemale ? "#2a152f" : "#002b23";
-  const accent = isFemale ? "#d946ef" : "#00b494";
-  const skin = isFemale ? "#f0b88c" : "#e5a676";
-  const hair = "#1e1b18";
+    function getChildAvatarSvg(sex, name) {
+      const isFemale = (sex === 'F');
+      const bgColor = isFemale ? "#2a152f" : "#002b23";
+      const accent = isFemale ? "#d946ef" : "#00b494";
+      const skin = isFemale ? "#f0b88c" : "#e5a676";
+      const hair = "#1e1b18";
 
-  if (!isFemale) {
-    return `<svg viewBox="0 0 120 120" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" style="display:block; width:100%; height:100%; background:${bgColor};">
+      if (!isFemale) {
+        return `<svg viewBox="0 0 120 120" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" style="display:block; width:100%; height:100%; background:${bgColor};">
           <rect width="120" height="120" fill="${bgColor}"/>
           <circle cx="60" cy="52" r="26" fill="${skin}"/>
           <path d="M34 46 C34 30, 44 22, 60 22 C76 22, 86 30, 86 46 C80 40, 72 38, 60 38 C48 38, 40 40, 34 46 Z" fill="${hair}"/>
@@ -3630,8 +3569,8 @@ function getChildAvatarSvg(sex, name) {
           <path d="M30 120 C30 92, 45 84, 60 84 C75 84, 90 92, 90 120 Z" fill="${accent}"/>
           <polygon points="60,84 52,98 68,98" fill="#ffffff" opacity="0.9"/>
         </svg>`;
-  } else {
-    return `<svg viewBox="0 0 120 120" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" style="display:block; width:100%; height:100%; background:${bgColor};">
+      } else {
+        return `<svg viewBox="0 0 120 120" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" style="display:block; width:100%; height:100%; background:${bgColor};">
           <rect width="120" height="120" fill="${bgColor}"/>
           <circle cx="60" cy="52" r="26" fill="${skin}"/>
           <path d="M32 50 C30 26, 44 20, 60 20 C76 20, 90 26, 88 50 C88 68, 84 76, 82 82 C78 72, 78 50, 78 40 C66 42, 54 42, 42 40 C42 50, 42 72, 38 82 C36 76, 32 68, 32 50 Z" fill="${hair}"/>
@@ -3644,18 +3583,18 @@ function getChildAvatarSvg(sex, name) {
           <path d="M28 120 C28 92, 44 84, 60 84 C76 84, 92 92, 92 120 Z" fill="${accent}"/>
           <path d="M50 84 Q60 94 70 84" fill="#ffffff" opacity="0.9"/>
         </svg>`;
-  }
-}
+      }
+    }
 
-function getAdultAvatarSvg(parentesco, name) {
-  const isFemale = /madre|mama|mamá|tia|tía|abuela|hermana/i.test(parentesco || "");
-  const bgColor = isFemale ? "#241829" : "#131b2e";
-  const accent = isFemale ? "#f472b6" : "#38bdf8";
-  const skin = isFemale ? "#e8ab80" : "#d99b6e";
-  const hair = "#1e1b18";
+    function getAdultAvatarSvg(parentesco, name) {
+      const isFemale = /madre|mama|mamá|tia|tía|abuela|hermana/i.test(parentesco || "");
+      const bgColor = isFemale ? "#241829" : "#131b2e";
+      const accent = isFemale ? "#f472b6" : "#38bdf8";
+      const skin = isFemale ? "#e8ab80" : "#d99b6e";
+      const hair = "#1e1b18";
 
-  if (!isFemale) {
-    return `<svg viewBox="0 0 100 100" width="100%" height="100%">
+      if (!isFemale) {
+        return `<svg viewBox="0 0 100 100" width="100%" height="100%">
           <rect width="100" height="100" rx="8" fill="${bgColor}"/>
           <circle cx="50" cy="42" r="21" fill="${skin}"/>
           <path d="M30 38 C30 24, 40 18, 50 18 C60 18, 70 24, 70 38 C64 33, 56 32, 50 32 C44 32, 36 33, 30 38 Z" fill="${hair}"/>
@@ -3668,8 +3607,8 @@ function getAdultAvatarSvg(parentesco, name) {
           <path d="M22 100 C22 76, 36 70, 50 70 C64 70, 78 76, 78 100 Z" fill="${accent}"/>
           <polygon points="50,70 44,82 56,82" fill="#ffffff" opacity="0.9"/>
         </svg>`;
-  } else {
-    return `<svg viewBox="0 0 100 100" width="100%" height="100%">
+      } else {
+        return `<svg viewBox="0 0 100 100" width="100%" height="100%">
           <rect width="100" height="100" rx="8" fill="${bgColor}"/>
           <circle cx="50" cy="42" r="21" fill="${skin}"/>
           <path d="M28 42 C26 22, 38 16, 50 16 C62 16, 74 22, 72 42 C72 58, 68 64, 66 68 C64 56, 64 40, 64 32 C54 34, 46 34, 36 32 C36 40, 36 56, 34 68 C32 64, 28 58, 28 42 Z" fill="${hair}"/>
@@ -3684,16 +3623,15 @@ function getAdultAvatarSvg(parentesco, name) {
           <path d="M20 100 C20 76, 35 70, 50 70 C65 70, 80 76, 80 100 Z" fill="${accent}"/>
           <path d="M42 70 Q50 80 58 70" fill="#ffffff" opacity="0.9"/>
         </svg>`;
-  }
-}
+      }
+    }
 
 // Vista: Modales (Expediente Integral, Registro Nuevo Menor, Informe Ejecutivo)
-// Muestra el 100% de los datos de todas las fichas oficiales del PDI
-const ModalView = {
+// Muestra el 100% de los datos de todas las fichas oficiales del PDI ModalView = {
   openExpediente(b, caso) {
     if (!b) return;
 
-    ModalView._currentId = b.id;
+        ModalView._currentId = b.id;
     ModalView.isEditing = false;
 
     const editBtn = document.getElementById("btnToggleEditExp");
@@ -3850,6 +3788,62 @@ const ModalView = {
       `).join("");
     }
 
+    // Renderizado de Croquis Google Maps y Fachada en Expediente
+    const expIframe = document.getElementById("expGoogleMapIframe");
+    const expNavLink = document.getElementById("expLinkGoogleMapsNav");
+    const expFachadaPreview = document.getElementById("expFachadaPreview");
+    const expFachadaControls = document.getElementById("expFachadaUploadControls");
+    const expFachadaInput = document.getElementById("expFotoFachadaInput");
+
+    const queryAddress = encodeURIComponent(`${b.direccion || ''}, ${b.referencia || ''}, ${b.distrito || 'Comas'}, Lima, Peru`);
+    
+    if (expIframe) {
+      if (b.coordenadas && b.coordenadas.lat && b.coordenadas.lng) {
+        expIframe.src = `https://maps.google.com/maps?q=${b.coordenadas.lat},${b.coordenadas.lng}&t=&z=17&ie=UTF8&iwloc=&output=embed`;
+      } else {
+        expIframe.src = `https://maps.google.com/maps?q=${queryAddress}&t=&z=16&ie=UTF8&iwloc=&output=embed`;
+      }
+    }
+
+    if (expNavLink) {
+      if (b.coordenadas && b.coordenadas.lat && b.coordenadas.lng) {
+        expNavLink.href = `https://www.google.com/maps/dir/?api=1&destination=${b.coordenadas.lat},${b.coordenadas.lng}`;
+      } else {
+        expNavLink.href = `https://www.google.com/maps/dir/?api=1&destination=${queryAddress}`;
+      }
+    }
+
+    if (expFachadaPreview) {
+      if (b.fotoFachada) {
+        expFachadaPreview.innerHTML = `<img src="${b.fotoFachada}" alt="Fachada de vivienda de ${b.nombres}">`;
+      } else {
+        expFachadaPreview.innerHTML = `
+          <div class="croquis-fachada-placeholder">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+            </svg>
+            <span>Sin foto de fachada</span>
+          </div>
+        `;
+      }
+    }
+
+    if (expFachadaInput) {
+      expFachadaInput.onchange = (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (re) => {
+            b.fotoFachada = re.target.result;
+            if (expFachadaPreview) {
+              expFachadaPreview.innerHTML = `<img src="${b.fotoFachada}" alt="Fachada de vivienda de ${b.nombres}">`;
+            }
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+    }
+
     // 2. Salud Base y CRED
     setSafe("expSeguro", b.seguro || "SIS Gratuito");
     setSafe("expCentroSalud", b.centroSalud || `C.S. ${b.sede}`);
@@ -3882,7 +3876,7 @@ const ModalView = {
       const lista = (b.retiroPadron && b.retiroPadron.length > 0)
         ? b.retiroPadron
         : [{ nombre: b.apoderado, dni: b.apoderadoDni || '41982341', parentesco: b.parentesco || 'Madre', telefono: b.telefono }];
-
+      
       retiroPadronContainer.innerHTML = lista.map((p, idx) => {
         const avatarSvg = getAdultAvatarSvg(p.parentesco, p.nombre);
         return `
@@ -4017,8 +4011,8 @@ const ModalView = {
     }
   },
 
-
-  toggleEdit() {
+  
+    toggleEdit() {
     this.isEditing = !this.isEditing;
     const editBtn = document.getElementById("btnToggleEditExp");
     const saveBtn = document.getElementById("btnSaveExpChanges");
@@ -4051,6 +4045,11 @@ const ModalView = {
         }
       }
     });
+
+    const expFachadaUpload = document.getElementById("expFachadaUploadControls");
+    if (expFachadaUpload) {
+      expFachadaUpload.style.display = this.isEditing ? "block" : "none";
+    }
 
     if (this.isEditing) {
       if (editBtn) {
@@ -4260,6 +4259,7 @@ const ModalView = {
       }
     }
 
+    // Render diff table
     const diffContainer = document.getElementById("auditDetailDiffContainer");
     if (diffContainer) {
       if (log.diff && log.diff.length > 0) {
@@ -4306,10 +4306,8 @@ if (typeof window !== "undefined") {
   window.PDI.ModalView = ModalView;
 }
 
-
 /* --- Module: utils/CanvasHelper.js --- */
-// Utilidad: Manejo de Firma Digital en Canvas (Ley N° 29733)
-const CanvasHelper = {
+// Utilidad: Manejo de Firma Digital en Canvas (Ley N° 29733) CanvasHelper = {
   init(canvasId) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return null;
@@ -4390,6 +4388,7 @@ const CanvasHelper = {
           const img = new Image();
           img.onload = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Calcular aspect ratio para centrar la imagen en el canvas
             const scale = Math.min((canvas.width / 2) / img.width, (canvas.height / 2) / img.height, 1);
             const w = img.width * scale;
             const h = img.height * scale;
@@ -4414,14 +4413,15 @@ if (typeof window !== "undefined") {
 
 /* --- Module: controllers/BeneficiarioController.js --- */
 // Controlador: Gestión de Menores Beneficiarios y Expediente
-// Maneja el 100% de los campos normativos de inscripción PDI
-
-const BeneficiarioController = {
+// Maneja el 100% de los campos normativos de inscripción PDI BeneficiarioController = {
   signatureCanvasHelper: null,
   tempFotoMenor: null,
   tempFotoApoderado: null,
   tempFotoRetiro1: null,
   tempFotoRetiro2: null,
+  tempFotoFachada: null,
+  tempCoords: null,
+  debounceMapTimer: null,
 
   initSignature() {
     this.signatureCanvasHelper = CanvasHelper.init("canvasSignature");
@@ -4431,6 +4431,94 @@ const BeneficiarioController = {
     if (this.signatureCanvasHelper) {
       this.signatureCanvasHelper.clear();
     }
+  },
+
+  handleAddressDebounce(context = 'reg') {
+    if (this.debounceMapTimer) {
+      clearTimeout(this.debounceMapTimer);
+    }
+
+    const indicator = document.getElementById(context === 'reg' ? 'regMapLoadingIndicator' : 'expMapLoadingIndicator');
+    if (indicator) indicator.style.display = 'flex';
+
+    this.debounceMapTimer = setTimeout(() => {
+      this.updateMapPreview(context);
+    }, 2000);
+  },
+
+  updateMapPreview(context = 'reg') {
+    const dirInput = document.getElementById(context === 'reg' ? 'regDireccion' : 'expDireccion');
+    const refInput = document.getElementById(context === 'reg' ? 'regReferencia' : 'expReferencia');
+    const distInput = document.getElementById(context === 'reg' ? 'regDistritoSede' : 'expDistritoSede');
+    const iframe = document.getElementById(context === 'reg' ? 'regGoogleMapIframe' : 'expGoogleMapIframe');
+    const indicator = document.getElementById(context === 'reg' ? 'regMapLoadingIndicator' : 'expMapLoadingIndicator');
+
+    if (!iframe) return;
+
+    const direccion = dirInput ? dirInput.value.trim() : "";
+    const referencia = refInput ? refInput.value.trim() : "";
+    let distrito = "Comas";
+
+    if (distInput) {
+      const val = distInput.value || "";
+      if (val.toLowerCase().includes("carabayllo")) distrito = "Carabayllo";
+      else if (val.toLowerCase().includes("comas")) distrito = "Comas";
+    }
+
+    let queryParts = [];
+    if (direccion) queryParts.push(direccion);
+    if (referencia) queryParts.push(referencia);
+    queryParts.push(distrito);
+    queryParts.push("Lima");
+    queryParts.push("Peru");
+
+    const searchQuery = encodeURIComponent(queryParts.join(", "));
+    iframe.src = `https://maps.google.com/maps?q=${searchQuery}&t=&z=16&ie=UTF8&iwloc=&output=embed`;
+
+    // Actualizar enlace de navegación si está en expediente
+    const navLink = document.getElementById("expLinkGoogleMapsNav");
+    if (navLink) {
+      navLink.href = `https://www.google.com/maps/dir/?api=1&destination=${searchQuery}`;
+    }
+
+    if (indicator) indicator.style.display = 'none';
+  },
+
+  capturarGps(context = 'reg') {
+    const toast = window.PDI?.ToastView || ToastView;
+    if (!navigator.geolocation) {
+      if (toast) toast.show("GPS no soportado", "Su navegador no soporta geolocalización satelital.", "warning");
+      return;
+    }
+
+    const indicator = document.getElementById(context === 'reg' ? 'regMapLoadingIndicator' : 'expMapLoadingIndicator');
+    if (indicator) indicator.style.display = 'flex';
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        this.tempCoords = { lat, lng };
+
+        const iframe = document.getElementById(context === 'reg' ? 'regGoogleMapIframe' : 'expGoogleMapIframe');
+        if (iframe) {
+          iframe.src = `https://maps.google.com/maps?q=${lat},${lng}&t=&z=17&ie=UTF8&iwloc=&output=embed`;
+        }
+
+        const navLink = document.getElementById("expLinkGoogleMapsNav");
+        if (navLink) {
+          navLink.href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+        }
+
+        if (indicator) indicator.style.display = 'none';
+        if (toast) toast.show("Coordenadas GPS Obtenidas", `Ubicación satelital fijada: ${lat.toFixed(5)}, ${lng.toFixed(5)}`, "success");
+      },
+      (error) => {
+        if (indicator) indicator.style.display = 'none';
+        if (toast) toast.show("Aviso de GPS", "No se pudo obtener la señal satelital directa. Se utilizará la dirección escrita.", "info");
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
   },
 
   handleFotoUpload(input, previewId, roleKey) {
@@ -4457,6 +4545,7 @@ const BeneficiarioController = {
       }
       if (roleKey === 'retiro1') this.tempFotoRetiro1 = base64;
       if (roleKey === 'retiro2') this.tempFotoRetiro2 = base64;
+      if (roleKey === 'fachada') this.tempFotoFachada = base64;
 
       const toast = window.PDI?.ToastView || ToastView;
       if (toast) toast.show("Foto Cargada", "Fotografía incorporada al registro correctamente.", "info");
@@ -4469,6 +4558,8 @@ const BeneficiarioController = {
     this.tempFotoApoderado = null;
     this.tempFotoRetiro1 = null;
     this.tempFotoRetiro2 = null;
+    this.tempFotoFachada = null;
+    this.tempCoords = null;
 
     const resetBox = (id, label) => {
       const el = document.getElementById(id);
@@ -4488,7 +4579,19 @@ const BeneficiarioController = {
     resetBox("regFotoRetiro1Preview", "Foto P1");
     resetBox("regFotoRetiro2Preview", "Foto P2");
 
-    const ids = ["regFotoMenorInput", "regFotoApoderadoInput", "regFotoRetiro1Input", "regFotoRetiro2Input"];
+    const fachadaBox = document.getElementById("regFachadaPreview");
+    if (fachadaBox) {
+      fachadaBox.innerHTML = `
+        <div class="croquis-fachada-placeholder">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+          </svg>
+          <span>Subir foto de vivienda</span>
+        </div>
+      `;
+    }
+
+    const ids = ["regFotoMenorInput", "regFotoApoderadoInput", "regFotoRetiro1Input", "regFotoRetiro2Input", "regFotoFachadaInput"];
     ids.forEach(i => {
       const input = document.getElementById(i);
       if (input) input.value = "";
@@ -4611,7 +4714,7 @@ const BeneficiarioController = {
 
     const menor = bModel.getByCodigo(codigo);
     if (!menor) {
-      if (tView) tView.show("Expediente no encontrado", `No se encontró un expediente activo para el código ${codigo}`, "info");
+      if (tView) tView.show(`No se encontró un expediente activo para el código ${codigo}`, "info");
       return;
     }
 
@@ -4763,6 +4866,8 @@ const BeneficiarioController = {
       orientacionFamiliar: true,
       retiroAutorizado: `${retiroNombre1} (${retiroParentesco1})`,
       retiroPadron: padronRetiro,
+      coordenadas: this.tempCoords || null,
+      fotoFachada: this.tempFotoFachada || null,
       consentimientos,
       firmaDigital: true,
       vulnerabilidad: exoneracionAporte.includes("100%") ? 82 : 55
@@ -4801,10 +4906,10 @@ if (typeof window !== "undefined") {
   window.PDI.BeneficiarioController = BeneficiarioController;
 }
 
-
 /* --- Module: utils/VulnerabilityCalculator.js --- */
 // Utilidad: Algoritmo Paramétrico Oficial de Vulnerabilidad Familiar ASP (0-100 pts)
-const VulnerabilityCalculator = {
+// Metodología paramétrica institucional del Programa de Desarrollo Infantil
+ VulnerabilityCalculator = {
   calculate(factors) {
     const ing = Math.min(28, Math.max(0, Number(factors.ing) || 0));
     const viv = Math.min(20, Math.max(0, Number(factors.viv) || 0));
@@ -4889,7 +4994,7 @@ if (typeof window !== "undefined") {
 
 /* --- Module: views/SocialKanbanView.js --- */
 // Vista: Tablero Kanban de Casos Sociales (ASP)
-const SocialKanbanView = {
+ SocialKanbanView = {
   renderKanban(casos) {
     const pCol = document.getElementById("kanbanColPendientes");
     const eCol = document.getElementById("kanbanColEvaluacion");
@@ -4992,8 +5097,7 @@ if (typeof window !== "undefined") {
 
 /* --- Module: controllers/SocialController.js --- */
 // Controlador: Tablero Kanban y Evaluación de Vulnerabilidad ASP
-
-const SocialController = {
+ SocialController = {
   moverCaso(id, nuevaEtapa) {
     const model = window.PDI?.CasoSocialModel || CasoSocialModel;
     const caso = model.updateStage(id, nuevaEtapa);
@@ -5140,8 +5244,7 @@ if (typeof window !== "undefined") {
 }
 
 /* --- Module: utils/CsvExporter.js --- */
-// Utilidad: Exportador Tabular de Datos CSV
-const CsvExporter = {
+// Utilidad: Exportador Tabular de Datos CSV CsvExporter = {
   exportBeneficiarios(beneficiarios) {
     let csv = "Codigo,Nombres,Apellidos,DNI,Edad,Sexo,Distrito,Sede,Servicios,Seguro,Hb,Anemia,Vulnerabilidad\n";
     beneficiarios.forEach(b => {
@@ -5174,10 +5277,8 @@ if (typeof window !== "undefined") {
   window.PDI.CsvExporter = CsvExporter;
 }
 
-
 /* --- Module: controllers/RoleController.js --- */
-// Controlador: Simulador de Roles y RBAC Dinámico
-const RoleController = {
+// Controlador: Simulador de Roles y RBAC Dinámico RoleController = {
   rolesConfig: {
     coord: {
       title: "Dirección y Coordinación General",
@@ -5285,15 +5386,13 @@ if (typeof window !== "undefined") {
   window.PDI.RoleController = RoleController;
 }
 
-
 /* --- Module: controllers/SaludController.js --- */
-// Controlador: Módulo de Salud y Nutrición CRED
-const SaludController = {
+// Controlador: Módulo de Salud y Nutrición CRED SaludController = {
   handleHbChange(hb) {
     const calc = window.PDI?.AnemiaCalculator || AnemiaCalculator;
     const res = calc.calculate(hb);
 
-    // Actualizar calculadora CRED integrada
+    // Update embedded CRED calculator
     const diagLabel = document.getElementById("calcDiagnosticoLabel");
     const accionLabel = document.getElementById("calcAccionSugerida");
     if (diagLabel) {
@@ -5306,7 +5405,7 @@ const SaludController = {
       accionLabel.textContent = `Acción: ${res.accion}`;
     }
 
-    // Actualizar elementos de modal si existen
+    // Update modal elements if present
     const labelEl = document.getElementById("anemiaCalcResult");
     const accionEl = document.getElementById("anemiaCalcAccion");
     if (labelEl) {
@@ -5324,11 +5423,8 @@ if (typeof window !== "undefined") {
   window.PDI.SaludController = SaludController;
 }
 
-
 /* --- Module: controllers/AppController.js --- */
-// Controlador Principal: Enrutador de Vistas, Temas y Ciclo de Vida
-
-const AppController = {
+// Controlador Principal: Enrutador de Vistas, Temas y Ciclo de Vida AppController = {
   roleController: RoleController,
   beneficiarioController: BeneficiarioController,
   saludController: SaludController,
@@ -5511,8 +5607,6 @@ const AppController = {
     }
   },
 
-
-
   bindModalTabs() {
     const tabBtns = document.querySelectorAll(".modal-tab-btn");
     tabBtns.forEach(btn => {
@@ -5595,9 +5689,14 @@ if (typeof window !== "undefined") {
   window.PDI.AppController = AppController;
 }
 
-
 /* --- Module: app.js --- */
 // Punto de Entrada Principal (Bootstrap MVC)
+
+
+
+
+
+
 
 // Asignar al contexto global para handlers inline de compatibilidad
 window.app = AppController;
@@ -5623,12 +5722,9 @@ window.calculateAnemiaPreview = () => {
   const val = inputEl ? inputEl.value : (sliderEl ? sliderEl.value : 10.4);
   SaludController.handleHbChange(val);
 };
-
 window.toggleCalculadoraCred = () => {
   if (window.PDI && window.PDI.SaludCredView) {
     window.PDI.SaludCredView.toggleCalculadora();
-  } else if (typeof SaludCredView !== "undefined" && SaludCredView.toggleCalculadora) {
-    SaludCredView.toggleCalculadora();
   }
 };
 window.calculateVulnerabilidad = () => SocialController.handleVulnerabilidadChange();
@@ -5638,36 +5734,83 @@ window.cargarCasoEnSimulador = (codigo) => SocialController.cargarCasoEnSimulado
 window.guardarNuevoMenor = (e) => BeneficiarioController.saveNuevoMenor(e, () => AppController.refreshAllViews());
 window.exportDataCSV = () => AppController.exportCSV();
 window.exportAuditCSV = () => AppController.exportAuditCSV();
-window.filterAuditAction = (action) => DashboardView.filterByAction(action);
-window.filterAuditRole = (role) => DashboardView.filterByRole(role);
-window.filterAuditDate = (dateKey) => DashboardView.filterByDate(dateKey);
+
+// Handlers de Auditoría / Historial de Cambios
+window.toggleAuditInnerDropdown = (id) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.toggleInnerDropdown(id);
+};
+window.toggleAuditAction = (val) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.toggleAction(val);
+};
+window.filterAuditAction = (action) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.toggleAction(action);
+};
+window.selectAuditAction = (val, label) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.toggleAction(val);
+};
+window.selectAuditDate = (val, label) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.selectDate(val, label);
+};
+window.filterAuditDate = (dateKey) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.selectDate(dateKey);
+};
+window.toggleAuditRole = (val) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.toggleRole(val);
+};
+window.filterAuditRole = (role) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.toggleRole(role);
+};
+window.selectAuditRole = (val, label) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.toggleRole(val);
+};
+window.toggleAuditStatus = (val) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.toggleStatus(val);
+};
+window.removeAuditChip = (key, val) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.removeAuditFilter(key, val);
+};
+window.resetAuditFilters = () => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.resetAuditFilters();
+};
+window.filterAuditSearch = (q) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.filterBySearch(q);
+};
+window.clearAuditSearch = () => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.clearSearch();
+};
+window.changeAuditPageSize = (size) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.changePageSize(size);
+};
+window.prevAuditPage = () => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.changePage((window.PDI.DashboardView._auditCurrentPage || 1) - 1);
+};
+window.nextAuditPage = () => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.changePage((window.PDI.DashboardView._auditCurrentPage || 1) + 1);
+};
+window.openAuditDetail = (logId) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.openLogDetail(logId);
+};
+window.closeModalAuditDetail = () => ModalView.closeAuditDetail();
+window.handleAuditDatePickerChange = (type, val) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.handleDatePickerChange(type, val);
+};
+window.handleAuditDateManualInput = (type, el) => {
+  if (window.PDI?.DashboardView) window.PDI.DashboardView.handleDateManualInput(type, el);
+};
+
 window.toggleCustomDropdown = (id) => DashboardView.toggleDropdown(id);
-window.selectAuditDate = (val, label) => DashboardView.selectDate(val, label);
-window.selectAuditRole = (val, label) => DashboardView.selectRole(val, label);
-window.selectAuditAction = (val, label) => DashboardView.selectAction(val, label);
+window.toggleInnerFilterDropdown = (id) => DashboardView.toggleInnerDropdown(id);
 window.selectActiveRole = (roleValue, roleTitle) => AppController.switchRole(roleValue, roleTitle);
 window.toggleTheme = (e) => AppController.toggleTheme(e);
 window.openExpediente = (id) => BeneficiarioController.openExpediente(id);
 window.openExpedienteByCodigo = (codigo) => BeneficiarioController.openExpedienteByCodigo(codigo);
 window.moverCaso = (id, etapa) => SocialController.moverCaso(id, etapa);
-window.filterAuditSearch = (q) => DashboardView.filterBySearch(q);
-window.changeAuditPageSize = (size) => DashboardView.changePageSize(size);
-window.prevAuditPage = () => DashboardView.changePage((DashboardView._auditCurrentPage || 1) - 1);
-window.nextAuditPage = () => DashboardView.changePage((DashboardView._auditCurrentPage || 1) + 1);
-window.openAuditDetail = (logId) => DashboardView.openLogDetail(logId);
-window.closeModalAuditDetail = () => ModalView.closeAuditDetail();
-window.clearAuditSearch = () => DashboardView.clearSearch();
-window.resetAuditFilters = () => DashboardView.resetAuditFilters();
-window.toggleInnerFilterDropdown = (id) => DashboardView.toggleInnerDropdown(id);
-window.handleAuditDatePickerChange = (type, val) => DashboardView.handleDatePickerChange(type, val);
-window.handleAuditDateManualInput = (type, el) => DashboardView.handleDateManualInput(type, el);
-window.toggleAuditInnerDropdown = (id) => DashboardView.toggleInnerDropdown(id);
-window.toggleAuditAction = (val) => DashboardView.toggleAction(val);
-window.selectAuditDate = (dateKey, label) => DashboardView.selectDate(dateKey, label);
-window.toggleAuditRole = (val) => DashboardView.toggleRole(val);
-window.toggleAuditStatus = (val) => DashboardView.toggleStatus(val);
-window.removeAuditChip = (filterKey, specificVal) => DashboardView.removeAuditFilter(filterKey, specificVal);
-window.resetAuditFilters = () => DashboardView.resetAuditFilters();
+
+window.toggleRoleInfo = (e) => {
+  if (e) e.stopPropagation();
+  const wrap = document.querySelector(".role-info-wrap");
+  if (wrap) wrap.classList.toggle("open");
+};
 
 // Handlers de Información Legal y Confirmación de Exportación de Auditoría
 window.toggleAuditLegalInfo = (e) => {
@@ -5679,9 +5822,9 @@ window.toggleAuditLegalInfo = (e) => {
 window.openModalExportAudit = () => {
   const modal = document.getElementById("modalConfirmExportAudit");
   const countBadge = document.getElementById("exportAuditCountBadge");
-  const currentLogs = (DashboardView && DashboardView._filteredAuditLogs) 
-    ? DashboardView._filteredAuditLogs 
-    : (DashboardView && DashboardView._currentAuditLogs ? DashboardView._currentAuditLogs : []);
+  const currentLogs = (window.PDI?.DashboardView && window.PDI.DashboardView._filteredAuditLogs) 
+    ? window.PDI.DashboardView._filteredAuditLogs 
+    : (window.PDI?.DashboardView && window.PDI.DashboardView._currentAuditLogs ? window.PDI.DashboardView._currentAuditLogs : []);
   if (countBadge) countBadge.textContent = `${currentLogs.length} eventos`;
   if (modal) {
     modal.classList.add("active");
@@ -5699,15 +5842,11 @@ window.closeModalExportAudit = () => {
 
 window.confirmExportAuditCSV = () => {
   window.closeModalExportAudit();
-  if (AppController.exportAuditCSV) {
-    AppController.exportAuditCSV();
+  if (window.PDI?.AppController?.exportAuditCSV) {
+    window.PDI.AppController.exportAuditCSV();
+  } else if (window.exportAuditCSV) {
+    window.exportAuditCSV();
   }
-};
-
-window.toggleRoleInfo = (e) => {
-  if (e) e.stopPropagation();
-  const wrap = document.querySelector(".role-info-wrap");
-  if (wrap) wrap.classList.toggle("open");
 };
 
 // Handlers de Búsqueda y Filtros de Padrón Único de Beneficiarios
@@ -5764,7 +5903,7 @@ window.resetPadronFilters = () => {
   if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.resetFilters();
 };
 
-// Cierre automático de Custom Dropdowns, Inner Dropdowns, Role Tooltips y Audit Legal Popover al hacer clic afuera o presionar Escape
+// Cierre automático de Custom Dropdowns, Inner Dropdowns, Role Tooltips y Audit Legal Popover al hacer clic afuera
 document.addEventListener("click", (e) => {
   if (!e.target.closest(".custom-dropdown")) {
     document.querySelectorAll(".custom-dropdown.open").forEach(d => d.classList.remove("open"));
@@ -5816,4 +5955,13 @@ window.closeModalExpediente = () => {
   if (window.PDI?.ModalView) window.PDI.ModalView.closeExpediente();
 };
 
+window.handleAddressInputDebounce = (ctx = 'reg') => {
+  if (window.PDI?.BeneficiarioController) window.PDI.BeneficiarioController.handleAddressDebounce(ctx);
+};
+window.capturarGpsCampo = (ctx = 'reg') => {
+  if (window.PDI?.BeneficiarioController) window.PDI.BeneficiarioController.capturarGps(ctx);
+};
+window.handleFotoUpload = (input, previewId, roleKey) => {
+  if (window.PDI?.BeneficiarioController) window.PDI.BeneficiarioController.handleFotoUpload(input, previewId, roleKey);
+};
 

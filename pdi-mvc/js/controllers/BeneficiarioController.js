@@ -14,6 +14,9 @@ export const BeneficiarioController = {
   tempFotoApoderado: null,
   tempFotoRetiro1: null,
   tempFotoRetiro2: null,
+  tempFotoFachada: null,
+  tempCoords: null,
+  debounceMapTimer: null,
 
   initSignature() {
     this.signatureCanvasHelper = CanvasHelper.init("canvasSignature");
@@ -23,6 +26,94 @@ export const BeneficiarioController = {
     if (this.signatureCanvasHelper) {
       this.signatureCanvasHelper.clear();
     }
+  },
+
+  handleAddressDebounce(context = 'reg') {
+    if (this.debounceMapTimer) {
+      clearTimeout(this.debounceMapTimer);
+    }
+
+    const indicator = document.getElementById(context === 'reg' ? 'regMapLoadingIndicator' : 'expMapLoadingIndicator');
+    if (indicator) indicator.style.display = 'flex';
+
+    this.debounceMapTimer = setTimeout(() => {
+      this.updateMapPreview(context);
+    }, 2000);
+  },
+
+  updateMapPreview(context = 'reg') {
+    const dirInput = document.getElementById(context === 'reg' ? 'regDireccion' : 'expDireccion');
+    const refInput = document.getElementById(context === 'reg' ? 'regReferencia' : 'expReferencia');
+    const distInput = document.getElementById(context === 'reg' ? 'regDistritoSede' : 'expDistritoSede');
+    const iframe = document.getElementById(context === 'reg' ? 'regGoogleMapIframe' : 'expGoogleMapIframe');
+    const indicator = document.getElementById(context === 'reg' ? 'regMapLoadingIndicator' : 'expMapLoadingIndicator');
+
+    if (!iframe) return;
+
+    const direccion = dirInput ? dirInput.value.trim() : "";
+    const referencia = refInput ? refInput.value.trim() : "";
+    let distrito = "Comas";
+
+    if (distInput) {
+      const val = distInput.value || "";
+      if (val.toLowerCase().includes("carabayllo")) distrito = "Carabayllo";
+      else if (val.toLowerCase().includes("comas")) distrito = "Comas";
+    }
+
+    let queryParts = [];
+    if (direccion) queryParts.push(direccion);
+    if (referencia) queryParts.push(referencia);
+    queryParts.push(distrito);
+    queryParts.push("Lima");
+    queryParts.push("Peru");
+
+    const searchQuery = encodeURIComponent(queryParts.join(", "));
+    iframe.src = `https://maps.google.com/maps?q=${searchQuery}&t=&z=16&ie=UTF8&iwloc=&output=embed`;
+
+    // Actualizar enlace de navegación si está en expediente
+    const navLink = document.getElementById("expLinkGoogleMapsNav");
+    if (navLink) {
+      navLink.href = `https://www.google.com/maps/dir/?api=1&destination=${searchQuery}`;
+    }
+
+    if (indicator) indicator.style.display = 'none';
+  },
+
+  capturarGps(context = 'reg') {
+    const toast = window.PDI?.ToastView || ToastView;
+    if (!navigator.geolocation) {
+      if (toast) toast.show("GPS no soportado", "Su navegador no soporta geolocalización satelital.", "warning");
+      return;
+    }
+
+    const indicator = document.getElementById(context === 'reg' ? 'regMapLoadingIndicator' : 'expMapLoadingIndicator');
+    if (indicator) indicator.style.display = 'flex';
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        this.tempCoords = { lat, lng };
+
+        const iframe = document.getElementById(context === 'reg' ? 'regGoogleMapIframe' : 'expGoogleMapIframe');
+        if (iframe) {
+          iframe.src = `https://maps.google.com/maps?q=${lat},${lng}&t=&z=17&ie=UTF8&iwloc=&output=embed`;
+        }
+
+        const navLink = document.getElementById("expLinkGoogleMapsNav");
+        if (navLink) {
+          navLink.href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+        }
+
+        if (indicator) indicator.style.display = 'none';
+        if (toast) toast.show("Coordenadas GPS Obtenidas", `Ubicación satelital fijada: ${lat.toFixed(5)}, ${lng.toFixed(5)}`, "success");
+      },
+      (error) => {
+        if (indicator) indicator.style.display = 'none';
+        if (toast) toast.show("Aviso de GPS", "No se pudo obtener la señal satelital directa. Se utilizará la dirección escrita.", "info");
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
   },
 
   handleFotoUpload(input, previewId, roleKey) {
@@ -49,6 +140,7 @@ export const BeneficiarioController = {
       }
       if (roleKey === 'retiro1') this.tempFotoRetiro1 = base64;
       if (roleKey === 'retiro2') this.tempFotoRetiro2 = base64;
+      if (roleKey === 'fachada') this.tempFotoFachada = base64;
 
       const toast = window.PDI?.ToastView || ToastView;
       if (toast) toast.show("Foto Cargada", "Fotografía incorporada al registro correctamente.", "info");
@@ -61,6 +153,8 @@ export const BeneficiarioController = {
     this.tempFotoApoderado = null;
     this.tempFotoRetiro1 = null;
     this.tempFotoRetiro2 = null;
+    this.tempFotoFachada = null;
+    this.tempCoords = null;
 
     const resetBox = (id, label) => {
       const el = document.getElementById(id);
@@ -80,7 +174,19 @@ export const BeneficiarioController = {
     resetBox("regFotoRetiro1Preview", "Foto P1");
     resetBox("regFotoRetiro2Preview", "Foto P2");
 
-    const ids = ["regFotoMenorInput", "regFotoApoderadoInput", "regFotoRetiro1Input", "regFotoRetiro2Input"];
+    const fachadaBox = document.getElementById("regFachadaPreview");
+    if (fachadaBox) {
+      fachadaBox.innerHTML = `
+        <div class="croquis-fachada-placeholder">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+          </svg>
+          <span>Subir foto de vivienda</span>
+        </div>
+      `;
+    }
+
+    const ids = ["regFotoMenorInput", "regFotoApoderadoInput", "regFotoRetiro1Input", "regFotoRetiro2Input", "regFotoFachadaInput"];
     ids.forEach(i => {
       const input = document.getElementById(i);
       if (input) input.value = "";
@@ -355,6 +461,8 @@ export const BeneficiarioController = {
       orientacionFamiliar: true,
       retiroAutorizado: `${retiroNombre1} (${retiroParentesco1})`,
       retiroPadron: padronRetiro,
+      coordenadas: this.tempCoords || null,
+      fotoFachada: this.tempFotoFachada || null,
       consentimientos,
       firmaDigital: true,
       vulnerabilidad: exoneracionAporte.includes("100%") ? 82 : 55

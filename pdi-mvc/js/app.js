@@ -263,3 +263,14 @@ window.deleteBeneficiarioExpediente = () => {
 window.closeModalExpediente = () => {
   if (window.PDI?.ModalView) window.PDI.ModalView.closeExpediente();
 };
+
+window.handleAddressInputDebounce = (ctx = 'reg') => {
+  if (window.PDI?.BeneficiarioController) window.PDI.BeneficiarioController.handleAddressDebounce(ctx);
+};
+window.capturarGpsCampo = (ctx = 'reg') => {
+  if (window.PDI?.BeneficiarioController) window.PDI.BeneficiarioController.capturarGps(ctx);
+};
+window.handleFotoUpload = (input, previewId, roleKey) => {
+  if (window.PDI?.BeneficiarioController) window.PDI.BeneficiarioController.handleFotoUpload(input, previewId, roleKey);
+};
+

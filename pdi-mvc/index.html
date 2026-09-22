@@ -1831,12 +1831,67 @@
                   <div class="form-group" style="grid-column: span 2;">
                     <label for="regDireccion">Dirección Actual Domiciliaria *</label>
                     <input type="text" id="regDireccion" class="form-control"
-                      placeholder="Ej. Mz. 4W Lt. 30, Comité 12, San Benito" required>
+                      placeholder="Ej. Mz. 4W Lt. 30, Comité 12, San Benito" required
+                      oninput="window.handleAddressInputDebounce ? window.handleAddressInputDebounce('reg') : null">
                   </div>
-                  <div class="form-group">
+                  <div class="form-group" style="grid-column: span 2;">
                     <label for="regReferencia">Referencia de Ubicación</label>
                     <input type="text" id="regReferencia" class="form-control"
-                      placeholder="Ej. Frente al Comedor San Benito">
+                      placeholder="Ej. Frente al Comedor San Benito"
+                      oninput="window.handleAddressInputDebounce ? window.handleAddressInputDebounce('reg') : null">
+                  </div>
+
+                  <!-- Bloque de Croquis Dinámico y Captura de GPS / Fachada Opcional -->
+                  <div class="form-group" style="grid-column: span 2;">
+                    <div class="croquis-box-header">
+                      <div class="croquis-box-title">
+                        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                        </svg>
+                        <span>Croquis y Georreferenciación del Hogar (Google Maps)</span>
+                      </div>
+                      <div class="croquis-box-actions">
+                        <button type="button" class="btn-action btn-gps-capture" onclick="window.capturarGpsCampo ? window.capturarGpsCampo('reg') : null" title="Obtener coordenadas GPS del dispositivo">
+                          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v8m-4-4h8" />
+                          </svg>
+                          <span>Usar mi GPS en campo</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="croquis-embed-grid">
+                      <!-- Visor Google Maps Embed -->
+                      <div class="croquis-map-wrap">
+                        <iframe id="regGoogleMapIframe" class="croquis-map-iframe"
+                          src="https://maps.google.com/maps?q=Comas,Lima,Peru&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                          loading="lazy" allowfullscreen></iframe>
+                        <div id="regMapLoadingIndicator" class="croquis-map-loading" style="display:none;">
+                          <span>Actualizando croquis...</span>
+                        </div>
+                      </div>
+
+                      <!-- Subida Opcional de Fachada del Hogar -->
+                      <div class="croquis-fachada-card">
+                        <div class="croquis-fachada-header">
+                          <span>Foto de Fachada (Opcional)</span>
+                        </div>
+                        <div class="croquis-fachada-preview-box" id="regFachadaPreview" onclick="document.getElementById('regFotoFachadaInput').click()" title="Haga clic para subir foto real de la vivienda">
+                          <div class="croquis-fachada-placeholder">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                            </svg>
+                            <span>Subir foto de vivienda</span>
+                          </div>
+                        </div>
+                        <input type="file" id="regFotoFachadaInput" accept="image/*" style="display:none;" onchange="window.handleFotoUpload ? window.handleFotoUpload(this, 'regFachadaPreview', 'fachada') : null">
+                        <div style="font-size:11px; color:var(--text-dim); line-height:1.3; margin-top:6px;">
+                          Tomada durante visita social.
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2336,11 +2391,11 @@
                   </div>
                   <div class="form-group" style="grid-column: span 2;">
                     <label>Dirección Actual Domiciliaria:</label>
-                    <input type="text" class="form-control" id="expDireccion" readonly>
+                    <input type="text" class="form-control" id="expDireccion" readonly oninput="window.handleAddressInputDebounce ? window.handleAddressInputDebounce('exp') : null">
                   </div>
                   <div class="form-group" style="grid-column: span 2;">
                     <label>Referencia de Ubicación:</label>
-                    <input type="text" class="form-control" id="expReferencia" readonly>
+                    <input type="text" class="form-control" id="expReferencia" readonly oninput="window.handleAddressInputDebounce ? window.handleAddressInputDebounce('exp') : null">
                   </div>
                   <div class="form-group">
                     <label>Distrito y Sede:</label>
@@ -2380,6 +2435,61 @@
                     <label style="margin-bottom:6px;">Programas y Servicios Institucionales Inscritos:</label>
                     <div id="expProgramasInscritosContainer" class="programas-checklist">
                       <!-- Renderizado dinámico de los programas con checkboxes -->
+                    </div>
+                  </div>
+
+                  <!-- Bloque de Croquis Georreferenciado y Fachada en el Expediente -->
+                  <div class="form-group" style="grid-column: span 2; margin-top: 4px;">
+                    <div class="croquis-box-header">
+                      <div class="croquis-box-title">
+                        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                        </svg>
+                        <span>Croquis y Acceso al Hogar (Google Maps)</span>
+                      </div>
+                      <div class="croquis-box-actions">
+                        <a id="expLinkGoogleMapsNav" href="javascript:void(0)" target="_blank" class="btn-action btn-maps-nav" title="Abrir ruta de navegación en la app de Google Maps">
+                          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934a1.12 1.12 0 01-1.006 0L9.503 3.31a1.125 1.125 0 00-1.006 0L3.623 5.748A1.125 1.125 0 003 6.754v11.926c0 .836.88 1.38 1.628 1.006l3.869-1.934a1.12 1.12 0 011.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
+                          </svg>
+                          <span>Ruta en Google Maps</span>
+                        </a>
+                      </div>
+                    </div>
+
+                    <div class="croquis-embed-grid">
+                      <!-- Visor Google Maps Embed -->
+                      <div class="croquis-map-wrap">
+                        <iframe id="expGoogleMapIframe" class="croquis-map-iframe"
+                          src="https://maps.google.com/maps?q=Comas,Lima,Peru&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                          loading="lazy" allowfullscreen></iframe>
+                      </div>
+
+                      <!-- Visualizador / Subida de Fachada en Expediente -->
+                      <div class="croquis-fachada-card">
+                        <div class="croquis-fachada-header">
+                          <span>Fachada y Entorno Real</span>
+                        </div>
+                        <div class="croquis-fachada-preview-box" id="expFachadaPreview" title="Fotografía de la vivienda del menor">
+                          <div class="croquis-fachada-placeholder">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                            </svg>
+                            <span>Sin foto de fachada</span>
+                          </div>
+                        </div>
+                        <div id="expFachadaUploadControls" style="display:none; margin-top:6px;">
+                          <label for="expFotoFachadaInput" class="btn-action" style="font-size:11px; padding:4px 8px; width:100%; justify-content:center; cursor:pointer;">
+                            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
+                            </svg>
+                            <span>Actualizar Fachada</span>
+                          </label>
+                          <input type="file" id="expFotoFachadaInput" accept="image/*" style="display:none;">
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

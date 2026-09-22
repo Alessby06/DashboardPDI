@@ -56,6 +56,11 @@ export const defaultBeneficiarios = [
         "telefono": "976-112-445"
       }
     ],
+    "coordenadas": {
+      "lat": -11.9056,
+      "lng": -77.0421
+    },
+    "fotoFachada": null,
     "consentimientos": {
       "evaluacionSocial": true,
       "usoFotografia": true,

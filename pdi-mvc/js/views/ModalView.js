@@ -239,6 +239,62 @@ export const ModalView = {
       `).join("");
     }
 
+    // Renderizado de Croquis Google Maps y Fachada en Expediente
+    const expIframe = document.getElementById("expGoogleMapIframe");
+    const expNavLink = document.getElementById("expLinkGoogleMapsNav");
+    const expFachadaPreview = document.getElementById("expFachadaPreview");
+    const expFachadaControls = document.getElementById("expFachadaUploadControls");
+    const expFachadaInput = document.getElementById("expFotoFachadaInput");
+
+    const queryAddress = encodeURIComponent(`${b.direccion || ''}, ${b.referencia || ''}, ${b.distrito || 'Comas'}, Lima, Peru`);
+    
+    if (expIframe) {
+      if (b.coordenadas && b.coordenadas.lat && b.coordenadas.lng) {
+        expIframe.src = `https://maps.google.com/maps?q=${b.coordenadas.lat},${b.coordenadas.lng}&t=&z=17&ie=UTF8&iwloc=&output=embed`;
+      } else {
+        expIframe.src = `https://maps.google.com/maps?q=${queryAddress}&t=&z=16&ie=UTF8&iwloc=&output=embed`;
+      }
+    }
+
+    if (expNavLink) {
+      if (b.coordenadas && b.coordenadas.lat && b.coordenadas.lng) {
+        expNavLink.href = `https://www.google.com/maps/dir/?api=1&destination=${b.coordenadas.lat},${b.coordenadas.lng}`;
+      } else {
+        expNavLink.href = `https://www.google.com/maps/dir/?api=1&destination=${queryAddress}`;
+      }
+    }
+
+    if (expFachadaPreview) {
+      if (b.fotoFachada) {
+        expFachadaPreview.innerHTML = `<img src="${b.fotoFachada}" alt="Fachada de vivienda de ${b.nombres}">`;
+      } else {
+        expFachadaPreview.innerHTML = `
+          <div class="croquis-fachada-placeholder">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+            </svg>
+            <span>Sin foto de fachada</span>
+          </div>
+        `;
+      }
+    }
+
+    if (expFachadaInput) {
+      expFachadaInput.onchange = (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (re) => {
+            b.fotoFachada = re.target.result;
+            if (expFachadaPreview) {
+              expFachadaPreview.innerHTML = `<img src="${b.fotoFachada}" alt="Fachada de vivienda de ${b.nombres}">`;
+            }
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+    }
+
     // 2. Salud Base y CRED
     setSafe("expSeguro", b.seguro || "SIS Gratuito");
     setSafe("expCentroSalud", b.centroSalud || `C.S. ${b.sede}`);
@@ -440,6 +496,11 @@ export const ModalView = {
         }
       }
     });
+
+    const expFachadaUpload = document.getElementById("expFachadaUploadControls");
+    if (expFachadaUpload) {
+      expFachadaUpload.style.display = this.isEditing ? "block" : "none";
+    }
 
     if (this.isEditing) {
       if (editBtn) {
