@@ -246,7 +246,7 @@ export const ModalView = {
     const expFachadaControls = document.getElementById("expFachadaUploadControls");
     const expFachadaInput = document.getElementById("expFotoFachadaInput");
 
-    const queryAddress = encodeURIComponent(`${b.direccion || ''}, ${b.referencia || ''}, ${b.distrito || 'Comas'}, Lima, Peru`);
+    const queryAddress = encodeURIComponent(`${b.direccion || ''}, ${b.distrito || 'Comas'}, Lima, Peru`);
     
     if (expIframe) {
       if (b.coordenadas && b.coordenadas.lat && b.coordenadas.lng) {

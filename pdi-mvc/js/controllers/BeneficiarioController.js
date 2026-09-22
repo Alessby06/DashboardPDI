@@ -43,7 +43,6 @@ export const BeneficiarioController = {
 
   updateMapPreview(context = 'reg') {
     const dirInput = document.getElementById(context === 'reg' ? 'regDireccion' : 'expDireccion');
-    const refInput = document.getElementById(context === 'reg' ? 'regReferencia' : 'expReferencia');
     const distInput = document.getElementById(context === 'reg' ? 'regDistritoSede' : 'expDistritoSede');
     const iframe = document.getElementById(context === 'reg' ? 'regGoogleMapIframe' : 'expGoogleMapIframe');
     const indicator = document.getElementById(context === 'reg' ? 'regMapLoadingIndicator' : 'expMapLoadingIndicator');
@@ -51,7 +50,6 @@ export const BeneficiarioController = {
     if (!iframe) return;
 
     const direccion = dirInput ? dirInput.value.trim() : "";
-    const referencia = refInput ? refInput.value.trim() : "";
     let distrito = "Comas";
 
     if (distInput) {
@@ -62,7 +60,6 @@ export const BeneficiarioController = {
 
     let queryParts = [];
     if (direccion) queryParts.push(direccion);
-    if (referencia) queryParts.push(referencia);
     queryParts.push(distrito);
     queryParts.push("Lima");
     queryParts.push("Peru");

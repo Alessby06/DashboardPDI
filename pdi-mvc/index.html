@@ -1837,8 +1837,7 @@
                   <div class="form-group" style="grid-column: span 2;">
                     <label for="regReferencia">Referencia de Ubicación</label>
                     <input type="text" id="regReferencia" class="form-control"
-                      placeholder="Ej. Frente al Comedor San Benito"
-                      oninput="window.handleAddressInputDebounce ? window.handleAddressInputDebounce('reg') : null">
+                      placeholder="Ej. Frente al Comedor San Benito">
                   </div>
 
                   <!-- Bloque de Croquis Dinámico y Captura de GPS / Fachada Opcional -->
@@ -1907,7 +1906,7 @@
             <div class="form-grid" style="grid-template-columns: repeat(3, 1fr); gap:12px;">
               <div class="form-group">
                 <label for="regDistritoSede">Distrito y Sede / Lugar *</label>
-                <select id="regDistritoSede" class="form-control">
+                <select id="regDistritoSede" class="form-control" onchange="window.handleAddressInputDebounce ? window.handleAddressInputDebounce('reg') : null">
                   <option value="Comas - Año Nuevo">Comas: Año Nuevo</option>
                   <option value="Comas - La Libertad">Comas: La Libertad</option>
                   <option value="Comas - Carmen Alto">Comas: Carmen Alto</option>
@@ -2395,7 +2394,7 @@
                   </div>
                   <div class="form-group" style="grid-column: span 2;">
                     <label>Referencia de Ubicación:</label>
-                    <input type="text" class="form-control" id="expReferencia" readonly oninput="window.handleAddressInputDebounce ? window.handleAddressInputDebounce('exp') : null">
+                    <input type="text" class="form-control" id="expReferencia" readonly>
                   </div>
                   <div class="form-group">
                     <label>Distrito y Sede:</label>

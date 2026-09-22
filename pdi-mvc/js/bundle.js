@@ -4080,7 +4080,7 @@ if (typeof window !== "undefined") {
     const expFachadaControls = document.getElementById("expFachadaUploadControls");
     const expFachadaInput = document.getElementById("expFotoFachadaInput");
 
-    const queryAddress = encodeURIComponent(`${b.direccion || ''}, ${b.referencia || ''}, ${b.distrito || 'Comas'}, Lima, Peru`);
+    const queryAddress = encodeURIComponent(`${b.direccion || ''}, ${b.distrito || 'Comas'}, Lima, Peru`);
     
     if (expIframe) {
       if (b.coordenadas && b.coordenadas.lat && b.coordenadas.lng) {
@@ -4628,7 +4628,6 @@ if (typeof window !== "undefined") {
 
   updateMapPreview(context = 'reg') {
     const dirInput = document.getElementById(context === 'reg' ? 'regDireccion' : 'expDireccion');
-    const refInput = document.getElementById(context === 'reg' ? 'regReferencia' : 'expReferencia');
     const distInput = document.getElementById(context === 'reg' ? 'regDistritoSede' : 'expDistritoSede');
     const iframe = document.getElementById(context === 'reg' ? 'regGoogleMapIframe' : 'expGoogleMapIframe');
     const indicator = document.getElementById(context === 'reg' ? 'regMapLoadingIndicator' : 'expMapLoadingIndicator');
@@ -4636,7 +4635,6 @@ if (typeof window !== "undefined") {
     if (!iframe) return;
 
     const direccion = dirInput ? dirInput.value.trim() : "";
-    const referencia = refInput ? refInput.value.trim() : "";
     let distrito = "Comas";
 
     if (distInput) {
@@ -4647,7 +4645,6 @@ if (typeof window !== "undefined") {
 
     let queryParts = [];
     if (direccion) queryParts.push(direccion);
-    if (referencia) queryParts.push(referencia);
     queryParts.push(distrito);
     queryParts.push("Lima");
     queryParts.push("Peru");
