@@ -135,12 +135,18 @@ window.openModalExportAudit = () => {
     ? window.PDI.DashboardView._filteredAuditLogs 
     : (window.PDI?.DashboardView && window.PDI.DashboardView._currentAuditLogs ? window.PDI.DashboardView._currentAuditLogs : []);
   if (countBadge) countBadge.textContent = `${currentLogs.length} eventos`;
-  if (modal) modal.classList.add("active");
+  if (modal) {
+    modal.classList.add("active");
+    modal.classList.add("open");
+  }
 };
 
 window.closeModalExportAudit = () => {
   const modal = document.getElementById("modalConfirmExportAudit");
-  if (modal) modal.classList.remove("active");
+  if (modal) {
+    modal.classList.remove("active");
+    modal.classList.remove("open");
+  }
 };
 
 window.confirmExportAuditCSV = () => {

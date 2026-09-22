@@ -15,7 +15,8 @@
       will-change: opacity, visibility;
     }
 
-    .modal-backdrop.open {
+    .modal-backdrop.open,
+    .modal-backdrop.active {
       opacity: 1;
       visibility: visible;
       background: rgba(0, 0, 0, 0.88);
@@ -37,7 +38,8 @@
       will-change: transform;
     }
 
-    .modal-backdrop.open .modal-box {
+    .modal-backdrop.open .modal-box,
+    .modal-backdrop.active .modal-box {
       transform: scale(1) translateY(0);
     }
 
@@ -258,8 +260,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 14px;
-      margin-bottom: 18px;
+      gap: 12px;
+      margin-bottom: 10px;
     }
 
     .audit-search-wrap {
@@ -640,11 +642,15 @@
       gap: 8px;
     }
 
+    .audit-view-header {
+      margin-bottom: 8px !important;
+    }
+
     .audit-header-title-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 10px;
       width: 100%;
     }
 
@@ -657,7 +663,8 @@
 
     .audit-header-left h2 {
       margin: 0;
-      font-size: 20px;
+      font-size: 19px;
+      line-height: 1.2;
     }
 
     /* Contenedor y Botón de Icono Legal Ley N.° 29733 */
@@ -925,8 +932,8 @@
     .audit-summary-bar {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
+      gap: 10px;
+      margin-bottom: 8px !important;
       flex-wrap: wrap;
     }
 

@@ -5683,12 +5683,18 @@ window.openModalExportAudit = () => {
     ? DashboardView._filteredAuditLogs 
     : (DashboardView && DashboardView._currentAuditLogs ? DashboardView._currentAuditLogs : []);
   if (countBadge) countBadge.textContent = `${currentLogs.length} eventos`;
-  if (modal) modal.classList.add("active");
+  if (modal) {
+    modal.classList.add("active");
+    modal.classList.add("open");
+  }
 };
 
 window.closeModalExportAudit = () => {
   const modal = document.getElementById("modalConfirmExportAudit");
-  if (modal) modal.classList.remove("active");
+  if (modal) {
+    modal.classList.remove("active");
+    modal.classList.remove("open");
+  }
 };
 
 window.confirmExportAuditCSV = () => {
