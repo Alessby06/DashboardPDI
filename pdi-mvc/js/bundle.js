@@ -1394,6 +1394,231 @@ if (typeof window !== "undefined") {
   window.PDI.AuditModel = AuditModel;
 }
 
+/* --- Module: utils/CanvasHelper.js --- */
+// Utilidad: Manejo de Firma Digital en Canvas (Ley N° 29733) CanvasHelper = {
+  init(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return null;
+
+    const ctx = canvas.getContext("2d");
+    let isDrawing = false;
+    let hasDrawn = false;
+
+    // Ajustar escala de resolución
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * 2;
+    canvas.height = rect.height * 2;
+    ctx.scale(2, 2);
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    const isLight = document.documentElement.getAttribute("data-theme") === "light";
+    ctx.strokeStyle = isLight ? "#007a65" : "#00b494";
+
+    function getCoords(e) {
+      const r = canvas.getBoundingClientRect();
+      if (e.touches && e.touches[0]) {
+        return {
+          x: e.touches[0].clientX - r.left,
+          y: e.touches[0].clientY - r.top
+        };
+      }
+      return {
+        x: e.clientX - r.left,
+        y: e.clientY - r.top
+      };
+    }
+
+    function startDrawing(e) {
+      isDrawing = true;
+      hasDrawn = true;
+      const coords = getCoords(e);
+      ctx.beginPath();
+      ctx.moveTo(coords.x, coords.y);
+      e.preventDefault();
+    }
+
+    function draw(e) {
+      if (!isDrawing) return;
+      const coords = getCoords(e);
+      ctx.lineTo(coords.x, coords.y);
+      ctx.stroke();
+      e.preventDefault();
+    }
+
+    function stopDrawing() {
+      isDrawing = false;
+    }
+
+    canvas.addEventListener("mousedown", startDrawing);
+    canvas.addEventListener("mousemove", draw);
+    window.addEventListener("mouseup", stopDrawing);
+
+    canvas.addEventListener("touchstart", startDrawing, { passive: false });
+    canvas.addEventListener("touchmove", draw, { passive: false });
+    canvas.addEventListener("touchend", stopDrawing);
+
+    return {
+      clear() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        hasDrawn = false;
+      },
+      hasSignature() {
+        return hasDrawn;
+      },
+      toDataURL() {
+        return canvas.toDataURL();
+      },
+      loadFromImage(file, callback) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Calcular aspect ratio para centrar la imagen en el canvas
+            const scale = Math.min((canvas.width / 2) / img.width, (canvas.height / 2) / img.height, 1);
+            const w = img.width * scale;
+            const h = img.height * scale;
+            const x = ((canvas.width / 2) - w) / 2;
+            const y = ((canvas.height / 2) - h) / 2;
+            ctx.drawImage(img, x, y, w, h);
+            hasDrawn = true;
+            if (callback) callback();
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+  }
+};
+
+if (typeof window !== "undefined") {
+  window.PDI = window.PDI || {};
+  window.PDI.CanvasHelper = CanvasHelper;
+}
+
+/* --- Module: utils/VulnerabilityCalculator.js --- */
+// Utilidad: Algoritmo Paramétrico Oficial de Vulnerabilidad Familiar ASP (0-100 pts)
+// Metodología paramétrica institucional del Programa de Desarrollo Infantil
+ VulnerabilityCalculator = {
+  calculate(factors) {
+    const ing = Math.min(28, Math.max(0, Number(factors.ing) || 0));
+    const viv = Math.min(20, Math.max(0, Number(factors.viv) || 0));
+    const emp = Math.min(16, Math.max(0, Number(factors.emp) || 0));
+    const sop = Math.min(19, Math.max(0, Number(factors.sop) || 0));
+    const ins = Math.min(10, Math.max(0, Number(factors.ins) || 0));
+    const sal = Math.min(7, Math.max(0, Number(factors.sal) || 0));
+
+    const total = ing + viv + emp + sop + ins + sal;
+
+    let category = "Baja Vulnerabilidad / Situación Estable";
+    let badgeClass = "badge-green";
+    let color = "var(--gt-green)";
+    let exoneracion = "0% (Aporte Ordinario)";
+    const recomendaciones = [];
+
+    if (total >= 80) {
+      category = "Extrema Pobreza / Vulnerabilidad Crítica";
+      badgeClass = "badge-red";
+      color = "var(--gt-red)";
+      exoneracion = "100% Exoneración Total (Caso Social Extremo)";
+      recomendaciones.push("Aprobación inmediata de exoneración del 100% de aporte mensual por vulnerabilidad extrema.");
+      recomendaciones.push("Asignación prioritaria de Canasta Nutricional complementaria (Banco de Alimentos BTF).");
+      recomendaciones.push("Apertura de expediente en Área Social Pastoral (ASP) y visitas domiciliarias quincenales de seguimiento.");
+    } else if (total >= 60) {
+      category = "Vulnerabilidad Alta / Prioridad Social";
+      badgeClass = "badge-yellow";
+      color = "var(--gt-yellow)";
+      exoneracion = "50% Semi-exoneración (Aporte Solidario)";
+      recomendaciones.push("Aprobación de 50% de semi-exoneración de aporte mensual como alivio socioeconómico al hogar.");
+      recomendaciones.push("Monitoreo mensual de asistencia y evaluación de canasta de contingencia ante emergencias.");
+      recomendaciones.push("Acompañamiento sociofamiliar e integración a la red de apoyo comunitario de la sede.");
+    } else if (total >= 40) {
+      category = "Vulnerabilidad Moderada";
+      badgeClass = "badge-blue";
+      color = "var(--gt-blue)";
+      exoneracion = "Aporte Ordinario / Semi-exoneración Condicionada";
+      recomendaciones.push("Evaluación socioeconómica periódica trimestral de la estabilidad de ingresos del hogar.");
+      recomendaciones.push("Participación obligatoria del apoderado en la Escuela de Familias y talleres de nutrición.");
+    } else {
+      category = "Baja Vulnerabilidad / Situación Estable";
+      badgeClass = "badge-green";
+      color = "var(--gt-green)";
+      exoneracion = "0% Aporte Ordinario";
+      recomendaciones.push("Monitoreo regular de asistencia en comedor y talleres pedagógicos de Casitas del Saber.");
+      recomendaciones.push("Mantenimiento del esquema de aporte ordinario para sostenibilidad del programa.");
+    }
+
+    // Recomendaciones específicas por factor de riesgo individual
+    if (ing >= 22) {
+      recomendaciones.push("Balance crítico de ingresos: Gestionar inclusión en programas complementarios de comedores populares aliados.");
+    }
+    if (viv >= 15) {
+      recomendaciones.push("Hábitat de alta precariedad: Priorizar al menor en campañas de abrigo, kits de invierno y filtros de agua.");
+    }
+    if (emp >= 12) {
+      recomendaciones.push("Desempleo o subempleo severo del cuidador: Orientación para vinculación a bolsa de empleo y talleres técnicos locales.");
+    }
+    if (sop >= 14) {
+      recomendaciones.push("Alta sobrecarga o monoparentalidad crítica: Articular con DEMUNA / MIMP para protección integral de derechos.");
+    }
+    if (sal >= 5) {
+      recomendaciones.push("Enfermedad o condición médica crónica en el núcleo: Coordinación prioritaria con Centro de Salud de referencia y SIS.");
+    }
+
+    return {
+      total,
+      breakdown: { ing, viv, emp, sop, ins, sal },
+      category,
+      badgeClass,
+      color,
+      exoneracion,
+      recomendaciones
+    };
+  }
+};
+
+if (typeof window !== "undefined") {
+  window.PDI = window.PDI || {};
+  window.PDI.VulnerabilityCalculator = VulnerabilityCalculator;
+}
+
+/* --- Module: utils/CsvExporter.js --- */
+// Utilidad: Exportador Tabular de Datos CSV CsvExporter = {
+  exportBeneficiarios(beneficiarios) {
+    let csv = "Codigo,Nombres,Apellidos,DNI,Edad,Sexo,Distrito,Sede,Servicios,Seguro,Hb,Anemia,Vulnerabilidad\n";
+    beneficiarios.forEach(b => {
+      csv += `"${b.codigo}","${b.nombres}","${b.apellidos}","${b.dni}","${b.edad}","${b.sexo}","${b.distrito}","${b.sede}","${b.servicios.join(';') }","${b.seguro}",${b.hb},"${b.anemia}",${b.vulnerabilidad}\n`;
+    });
+
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "padron_pdi_beneficiarios_2026.csv";
+    link.click();
+  },
+
+  exportAuditLogs(logs) {
+    let csv = "Timestamp,Usuario,Rol,Accion,Entidad_Afectada,Detalle_Operacion,Estado_Registro\n";
+    logs.forEach(l => {
+      csv += `"${l.timestamp}","${l.user}","${l.role}","${l.action}","${l.entity}","${(l.detail || '').replace(/"/g, '""')}","${l.status}"\n`;
+    });
+
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "bitacora_auditoria_pdi_ley29733.csv";
+    link.click();
+  }
+};
+
+if (typeof window !== "undefined") {
+  window.PDI = window.PDI || {};
+  window.PDI.CsvExporter = CsvExporter;
+}
+
 /* --- Module: views/ToastView.js --- */
 // Vista: Sistema de Notificaciones Toast Flotantes ToastView = {
   show(title, message, type = "success") {
@@ -3548,6 +3773,66 @@ if (typeof window !== "undefined") {
   window.PDI.CasitasView = CasitasView;
 }
 
+/* --- Module: controllers/CasitasController.js --- */
+// Controlador: Acompañamiento Educativo (Casita del Saber) CasitasController = {
+  toggleAsistencia(id, estado) {
+    const config = {
+      "P": { label: "Presente", badgeClass: "badge badge-green", activeClass: "active-P" },
+      "T": { label: "Tardanza", badgeClass: "badge badge-yellow", activeClass: "active-T" },
+      "FJ": { label: "Falta Justificada", badgeClass: "badge badge-orange", activeClass: "active-FJ" },
+      "FI": { label: "Falta Injustificada", badgeClass: "badge badge-red", activeClass: "active-FI" }
+    };
+
+    const target = config[estado] || config["P"];
+
+    // 1. Sincronizar badge de Escritorio (PC)
+    const badgeDesk = document.getElementById(`badgeAsist_${id}`);
+    if (badgeDesk) {
+      badgeDesk.textContent = target.label;
+      badgeDesk.className = target.badgeClass;
+    }
+
+    // 2. Sincronizar badge de Móvil
+    const badgeMob = document.getElementById(`badgeAsistMob_${id}`);
+    if (badgeMob) {
+      badgeMob.textContent = target.label;
+      badgeMob.className = target.badgeClass;
+    }
+
+    // 3. Sincronizar botones activos en Escritorio
+    const btnGroupDesk = document.getElementById(`btnGroupAsist_${id}`);
+    if (btnGroupDesk) {
+      btnGroupDesk.querySelectorAll("button").forEach(btn => {
+        btn.className = "btn-asist";
+        if (btn.getAttribute("data-asist-btn") === estado) {
+          btn.classList.add(target.activeClass);
+        }
+      });
+    }
+
+    // 4. Sincronizar botones activos en Móvil
+    const btnGroupMob = document.getElementById(`btnGroupMobAsist_${id}`);
+    if (btnGroupMob) {
+      btnGroupMob.querySelectorAll("button").forEach(btn => {
+        btn.className = "btn-asist";
+        if (btn.getAttribute("data-asist-btn") === estado) {
+          btn.classList.add(target.activeClass);
+        }
+      });
+    }
+
+    const toast = window.PDI?.ToastView || ToastView;
+    if (toast && toast.show) {
+      toast.show("Asistencia Actualizada", `${target.label} registrado para el menor ID ${id}`, "info");
+    }
+  }
+};
+
+if (typeof window !== "undefined") {
+  window.PDI = window.PDI || {};
+  window.PDI.CasitasController = CasitasController;
+}
+
 /* --- Module: views/ModalView.js --- */
 // Generadores de Avatares Biométricos SVG para Niños y Adultos Autorizados
     function getChildAvatarSvg(sex, name) {
@@ -4306,111 +4591,6 @@ if (typeof window !== "undefined") {
   window.PDI.ModalView = ModalView;
 }
 
-/* --- Module: utils/CanvasHelper.js --- */
-// Utilidad: Manejo de Firma Digital en Canvas (Ley N° 29733) CanvasHelper = {
-  init(canvasId) {
-    const canvas = document.getElementById(canvasId);
-    if (!canvas) return null;
-
-    const ctx = canvas.getContext("2d");
-    let isDrawing = false;
-    let hasDrawn = false;
-
-    // Ajustar escala de resolución
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * 2;
-    canvas.height = rect.height * 2;
-    ctx.scale(2, 2);
-    ctx.lineWidth = 2;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    const isLight = document.documentElement.getAttribute("data-theme") === "light";
-    ctx.strokeStyle = isLight ? "#007a65" : "#00b494";
-
-    function getCoords(e) {
-      const r = canvas.getBoundingClientRect();
-      if (e.touches && e.touches[0]) {
-        return {
-          x: e.touches[0].clientX - r.left,
-          y: e.touches[0].clientY - r.top
-        };
-      }
-      return {
-        x: e.clientX - r.left,
-        y: e.clientY - r.top
-      };
-    }
-
-    function startDrawing(e) {
-      isDrawing = true;
-      hasDrawn = true;
-      const coords = getCoords(e);
-      ctx.beginPath();
-      ctx.moveTo(coords.x, coords.y);
-      e.preventDefault();
-    }
-
-    function draw(e) {
-      if (!isDrawing) return;
-      const coords = getCoords(e);
-      ctx.lineTo(coords.x, coords.y);
-      ctx.stroke();
-      e.preventDefault();
-    }
-
-    function stopDrawing() {
-      isDrawing = false;
-    }
-
-    canvas.addEventListener("mousedown", startDrawing);
-    canvas.addEventListener("mousemove", draw);
-    window.addEventListener("mouseup", stopDrawing);
-
-    canvas.addEventListener("touchstart", startDrawing, { passive: false });
-    canvas.addEventListener("touchmove", draw, { passive: false });
-    canvas.addEventListener("touchend", stopDrawing);
-
-    return {
-      clear() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        hasDrawn = false;
-      },
-      hasSignature() {
-        return hasDrawn;
-      },
-      toDataURL() {
-        return canvas.toDataURL();
-      },
-      loadFromImage(file, callback) {
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const img = new Image();
-          img.onload = () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            // Calcular aspect ratio para centrar la imagen en el canvas
-            const scale = Math.min((canvas.width / 2) / img.width, (canvas.height / 2) / img.height, 1);
-            const w = img.width * scale;
-            const h = img.height * scale;
-            const x = ((canvas.width / 2) - w) / 2;
-            const y = ((canvas.height / 2) - h) / 2;
-            ctx.drawImage(img, x, y, w, h);
-            hasDrawn = true;
-            if (callback) callback();
-          };
-          img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-      }
-    };
-  }
-};
-
-if (typeof window !== "undefined") {
-  window.PDI = window.PDI || {};
-  window.PDI.CanvasHelper = CanvasHelper;
-}
-
 /* --- Module: controllers/BeneficiarioController.js --- */
 // Controlador: Gestión de Menores Beneficiarios y Expediente
 // Maneja el 100% de los campos normativos de inscripción PDI BeneficiarioController = {
@@ -4906,92 +5086,6 @@ if (typeof window !== "undefined") {
   window.PDI.BeneficiarioController = BeneficiarioController;
 }
 
-/* --- Module: utils/VulnerabilityCalculator.js --- */
-// Utilidad: Algoritmo Paramétrico Oficial de Vulnerabilidad Familiar ASP (0-100 pts)
-// Metodología paramétrica institucional del Programa de Desarrollo Infantil
- VulnerabilityCalculator = {
-  calculate(factors) {
-    const ing = Math.min(28, Math.max(0, Number(factors.ing) || 0));
-    const viv = Math.min(20, Math.max(0, Number(factors.viv) || 0));
-    const emp = Math.min(16, Math.max(0, Number(factors.emp) || 0));
-    const sop = Math.min(19, Math.max(0, Number(factors.sop) || 0));
-    const ins = Math.min(10, Math.max(0, Number(factors.ins) || 0));
-    const sal = Math.min(7, Math.max(0, Number(factors.sal) || 0));
-
-    const total = ing + viv + emp + sop + ins + sal;
-
-    let category = "Baja Vulnerabilidad / Situación Estable";
-    let badgeClass = "badge-green";
-    let color = "var(--gt-green)";
-    let exoneracion = "0% (Aporte Ordinario)";
-    const recomendaciones = [];
-
-    if (total >= 80) {
-      category = "Extrema Pobreza / Vulnerabilidad Crítica";
-      badgeClass = "badge-red";
-      color = "var(--gt-red)";
-      exoneracion = "100% Exoneración Total (Caso Social Extremo)";
-      recomendaciones.push("Aprobación inmediata de exoneración del 100% de aporte mensual por vulnerabilidad extrema.");
-      recomendaciones.push("Asignación prioritaria de Canasta Nutricional complementaria (Banco de Alimentos BTF).");
-      recomendaciones.push("Apertura de expediente en Área Social Pastoral (ASP) y visitas domiciliarias quincenales de seguimiento.");
-    } else if (total >= 60) {
-      category = "Vulnerabilidad Alta / Prioridad Social";
-      badgeClass = "badge-yellow";
-      color = "var(--gt-yellow)";
-      exoneracion = "50% Semi-exoneración (Aporte Solidario)";
-      recomendaciones.push("Aprobación de 50% de semi-exoneración de aporte mensual como alivio socioeconómico al hogar.");
-      recomendaciones.push("Monitoreo mensual de asistencia y evaluación de canasta de contingencia ante emergencias.");
-      recomendaciones.push("Acompañamiento sociofamiliar e integración a la red de apoyo comunitario de la sede.");
-    } else if (total >= 40) {
-      category = "Vulnerabilidad Moderada";
-      badgeClass = "badge-blue";
-      color = "var(--gt-blue)";
-      exoneracion = "Aporte Ordinario / Semi-exoneración Condicionada";
-      recomendaciones.push("Evaluación socioeconómica periódica trimestral de la estabilidad de ingresos del hogar.");
-      recomendaciones.push("Participación obligatoria del apoderado en la Escuela de Familias y talleres de nutrición.");
-    } else {
-      category = "Baja Vulnerabilidad / Situación Estable";
-      badgeClass = "badge-green";
-      color = "var(--gt-green)";
-      exoneracion = "0% Aporte Ordinario";
-      recomendaciones.push("Monitoreo regular de asistencia en comedor y talleres pedagógicos de Casitas del Saber.");
-      recomendaciones.push("Mantenimiento del esquema de aporte ordinario para sostenibilidad del programa.");
-    }
-
-    // Recomendaciones específicas por factor de riesgo individual
-    if (ing >= 22) {
-      recomendaciones.push("Balance crítico de ingresos: Gestionar inclusión en programas complementarios de comedores populares aliados.");
-    }
-    if (viv >= 15) {
-      recomendaciones.push("Hábitat de alta precariedad: Priorizar al menor en campañas de abrigo, kits de invierno y filtros de agua.");
-    }
-    if (emp >= 12) {
-      recomendaciones.push("Desempleo o subempleo severo del cuidador: Orientación para vinculación a bolsa de empleo y talleres técnicos locales.");
-    }
-    if (sop >= 14) {
-      recomendaciones.push("Alta sobrecarga o monoparentalidad crítica: Articular con DEMUNA / MIMP para protección integral de derechos.");
-    }
-    if (sal >= 5) {
-      recomendaciones.push("Enfermedad o condición médica crónica en el núcleo: Coordinación prioritaria con Centro de Salud de referencia y SIS.");
-    }
-
-    return {
-      total,
-      breakdown: { ing, viv, emp, sop, ins, sal },
-      category,
-      badgeClass,
-      color,
-      exoneracion,
-      recomendaciones
-    };
-  }
-};
-
-if (typeof window !== "undefined") {
-  window.PDI = window.PDI || {};
-  window.PDI.VulnerabilityCalculator = VulnerabilityCalculator;
-}
-
 /* --- Module: views/SocialKanbanView.js --- */
 // Vista: Tablero Kanban de Casos Sociales (ASP)
  SocialKanbanView = {
@@ -5241,40 +5335,6 @@ if (typeof window !== "undefined") {
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
   window.PDI.SocialController = SocialController;
-}
-
-/* --- Module: utils/CsvExporter.js --- */
-// Utilidad: Exportador Tabular de Datos CSV CsvExporter = {
-  exportBeneficiarios(beneficiarios) {
-    let csv = "Codigo,Nombres,Apellidos,DNI,Edad,Sexo,Distrito,Sede,Servicios,Seguro,Hb,Anemia,Vulnerabilidad\n";
-    beneficiarios.forEach(b => {
-      csv += `"${b.codigo}","${b.nombres}","${b.apellidos}","${b.dni}","${b.edad}","${b.sexo}","${b.distrito}","${b.sede}","${b.servicios.join(';') }","${b.seguro}",${b.hb},"${b.anemia}",${b.vulnerabilidad}\n`;
-    });
-
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "padron_pdi_beneficiarios_2026.csv";
-    link.click();
-  },
-
-  exportAuditLogs(logs) {
-    let csv = "Timestamp,Usuario,Rol,Accion,Entidad_Afectada,Detalle_Operacion,Estado_Registro\n";
-    logs.forEach(l => {
-      csv += `"${l.timestamp}","${l.user}","${l.role}","${l.action}","${l.entity}","${(l.detail || '').replace(/"/g, '""')}","${l.status}"\n`;
-    });
-
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "bitacora_auditoria_pdi_ley29733.csv";
-    link.click();
-  }
-};
-
-if (typeof window !== "undefined") {
-  window.PDI = window.PDI || {};
-  window.PDI.CsvExporter = CsvExporter;
 }
 
 /* --- Module: controllers/RoleController.js --- */
