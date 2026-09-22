@@ -3,16 +3,19 @@ import { StorageService } from '../models/StorageService.js';
 import { BeneficiarioModel } from '../models/BeneficiarioModel.js';
 import { CasoSocialModel } from '../models/CasoSocialModel.js';
 import { AuditModel } from '../models/AuditModel.js';
+import { SedeModel } from '../models/SedeModel.js';
 import { RoleController } from './RoleController.js';
 import { BeneficiarioController } from './BeneficiarioController.js';
 import { SaludController } from './SaludController.js';
 import { SocialController } from './SocialController.js';
 import { CasitasController } from './CasitasController.js';
+import { SedesController } from './SedesController.js';
 import { DashboardView } from '../views/DashboardView.js';
 import { BeneficiariosView } from '../views/BeneficiariosView.js';
 import { SaludCredView } from '../views/SaludCredView.js';
 import { CasitasView } from '../views/CasitasView.js';
 import { SocialKanbanView } from '../views/SocialKanbanView.js';
+import { SedesView } from '../views/SedesView.js';
 import { ModalView } from '../views/ModalView.js';
 import { SpotlightView } from '../views/SpotlightView.js';
 import { ToastView } from '../views/ToastView.js';
@@ -24,11 +27,13 @@ export const AppController = {
   saludController: SaludController,
   socialController: SocialController,
   casitasController: CasitasController,
+  sedesController: SedesController,
 
   init() {
     // 1. Inicializar modelos
     BeneficiarioModel.init();
     CasoSocialModel.init();
+    SedeModel.init();
 
     // 2. Inicializar componentes de vista
     this.refreshAllViews();
@@ -66,6 +71,7 @@ export const AppController = {
     SaludCredView.renderTable(beneficiarios);
     CasitasView.renderTable(beneficiarios);
     SocialKanbanView.renderKanban(casos);
+    SedesView.render();
   },
 
   navigateToView(viewId) {

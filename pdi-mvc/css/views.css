@@ -3688,5 +3688,310 @@
   }
 }
 
+/* === REDISEÑO DE DIRECTORIO TERRITORIAL: SEDES E IGLESIAS === */
+.sedes-toolbar-card {
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-bottom: 20px;
+}
 
+.sedes-toolbar-row {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+}
 
+.sedes-search-wrap {
+  flex: 1;
+  min-width: 260px;
+  position: relative;
+}
+
+.sedes-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.sedes-search-wrap input {
+  padding-left: 36px;
+  padding-right: 32px;
+  height: 38px;
+  font-size: 13px;
+}
+
+.sedes-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.sedes-filter-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-right: 2px;
+}
+
+.sedes-chip-btn {
+  height: 30px;
+  padding: 0 12px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--dur-fast), border-color var(--dur-fast), color var(--dur-fast), box-shadow var(--dur-fast);
+}
+
+.sedes-chip-btn:hover {
+  background: var(--surface-hover);
+  color: var(--text-main);
+  border-color: var(--border-medium);
+}
+
+.sedes-chip-btn.active {
+  background: var(--gt-green);
+  border-color: var(--gt-green);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 180, 148, 0.28);
+}
+
+.sedes-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 18px;
+}
+
+.sede-card {
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  transition: transform var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast);
+  position: relative;
+}
+
+.sede-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border-color: var(--border-bright);
+}
+
+.sede-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.sede-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sede-distrito-tag {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--gt-green);
+  letter-spacing: 0.5px;
+}
+
+.sede-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+  line-height: 1.25;
+}
+
+.sede-servicios-wrap {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.sede-servicio-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  padding: 2px 8px;
+  color: var(--text-main);
+}
+
+.sede-servicio-pill svg {
+  color: var(--gt-green);
+  flex-shrink: 0;
+}
+
+.sede-aforo-section {
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  border: 1px solid var(--border-subtle);
+}
+
+.sede-aforo-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.sede-aforo-title {
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.sede-aforo-count {
+  font-weight: 600;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+}
+
+.sede-aforo-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--border-subtle);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.sede-aforo-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.sede-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.sede-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sede-info-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.sede-info-label svg {
+  color: var(--gt-green);
+  flex-shrink: 0;
+}
+
+.sede-info-val {
+  color: var(--text-main);
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+
+.sede-info-sub {
+  font-size: 11px;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.sede-tel-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gt-green);
+  text-decoration: none;
+  background: var(--gt-green-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: background-color var(--dur-fast);
+}
+
+.sede-tel-link:hover {
+  text-decoration: underline;
+  background: rgba(0, 180, 148, 0.22);
+}
+
+.sede-card-footer {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.btn-sede-map {
+  flex: 1;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.btn-sede-padron {
+  flex: 1.4;
+  justify-content: center;
+  font-size: 12px;
+}
+
+@media (max-width: 768px) {
+  .sedes-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .sede-info-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .sedes-toolbar-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .sedes-search-wrap {
+    width: 100%;
+  }
+  .sedes-filter-group {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}

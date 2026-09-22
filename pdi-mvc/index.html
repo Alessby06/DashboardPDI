@@ -1197,45 +1197,59 @@
         <section class="app-view" id="view-sedes">
           <div class="view-header">
             <div class="view-title-group">
-              <h2>Directorio Territorial: Sedes, Iglesias y Voluntariado</h2>
-              <p>Mapeo de locales de atención, pastores de iglesias aliadas, directores de colegios públicos y
-                voluntarias.</p>
+              <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; width: 100%;">
+                <div>
+                  <h2 style="font-size: 22px; margin: 0 0 4px 0;">Directorio Territorial: Sedes, Iglesias y Voluntariado</h2>
+                  <p style="margin: 0; color: var(--text-muted); font-size: 13.5px;">Mapeo operativo de locales de atención, pastores de iglesias aliadas, directores de colegios públicos y aforos en campo.</p>
+                </div>
+                <span class="badge badge-green" id="sedesCountBadge" style="font-size: 12px; padding: 4px 10px;">7 sedes operativas</span>
+              </div>
             </div>
           </div>
 
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title">Sede Año Nuevo (Comas)</div>
-                <span class="badge badge-green">Operativa</span>
-              </div>
-              <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 8px;">A.H. Año Nuevo Sector B,
-                Comas. Servicios: Desayuno Infantil + Casita del Saber.</p>
-              <div style="font-size: 12.5px; color: var(--text-dim);">Aforo: 45 niños | Facilitadora: Carmen Mendoza |
-                Iglesia Aliada: Iglesia Bíblica Emanuel</div>
-            </div>
+          <!-- Barra Resumen de KPIs Territoriales -->
+          <div class="kpi-grid" id="sedesKpiContainer" style="margin-bottom: 18px;">
+            <!-- Renderizado dinámico desde SedesView -->
+          </div>
 
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title">Sede La Libertad (Comas)</div>
-                <span class="badge badge-green">Operativa</span>
+          <!-- Barra de Búsqueda y Filtros de Sedes -->
+          <div class="sedes-toolbar-card">
+            <div class="sedes-toolbar-row">
+              <!-- Buscador en tiempo real -->
+              <div class="sedes-search-wrap">
+                <svg width="15" height="15" fill="none" stroke="var(--text-dim)" stroke-width="2" viewBox="0 0 24 24" class="sedes-search-icon">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+                <input type="text" id="inputSedesSearch" class="form-control" placeholder="Buscar sede, facilitadora, pastor o iglesia aliada..." oninput="window.filterSedesSearch ? window.filterSedesSearch(this.value) : null">
+                <button type="button" id="btnSedesSearchClear" onclick="window.clearSedesSearch ? window.clearSedesSearch() : null" class="btn-search-clear" title="Limpiar búsqueda">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
-              <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 8px;">Mz. F Lote 12 A.H. La
-                Libertad, Comas. Servicios: Comedor Desayuno Infantil.</p>
-              <div style="font-size: 12.5px; color: var(--text-dim);">Aforo: 35 niños | Facilitadora: Rosa Flores |
-                Iglesia Aliada: Aposento Alto</div>
-            </div>
 
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title">Sede El Progreso (Carabayllo)</div>
-                <span class="badge badge-green">Operativa</span>
+              <!-- Filtros por Distrito -->
+              <div class="sedes-filter-group">
+                <span class="sedes-filter-title">Distrito:</span>
+                <button type="button" class="sedes-chip-btn sedes-chip-distrito active" data-distrito="all" onclick="window.filterSedesByDistrito ? window.filterSedesByDistrito('all') : null">Todos</button>
+                <button type="button" class="sedes-chip-btn sedes-chip-distrito" data-distrito="Comas" onclick="window.filterSedesByDistrito ? window.filterSedesByDistrito('Comas') : null">Comas</button>
+                <button type="button" class="sedes-chip-btn sedes-chip-distrito" data-distrito="Carabayllo" onclick="window.filterSedesByDistrito ? window.filterSedesByDistrito('Carabayllo') : null">Carabayllo</button>
               </div>
-              <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 8px;">Av. Túpac Amaru Km 21,
-                Carabayllo. Servicios: Casita del Saber + Lonchera.</p>
-              <div style="font-size: 12.5px; color: var(--text-dim);">Aforo: 50 niños | Directora I.E. Aliada: Lic.
-                Gladys Ramos (I.E. 3058)</div>
+
+              <!-- Filtros por Servicio / Programa -->
+              <div class="sedes-filter-group">
+                <span class="sedes-filter-title">Servicio:</span>
+                <button type="button" class="sedes-chip-btn sedes-chip-servicio active" data-servicio="all" onclick="window.filterSedesByServicio ? window.filterSedesByServicio('all') : null">Todos</button>
+                <button type="button" class="sedes-chip-btn sedes-chip-servicio" data-servicio="Desayuno" onclick="window.filterSedesByServicio ? window.filterSedesByServicio('Desayuno') : null">Desayuno</button>
+                <button type="button" class="sedes-chip-btn sedes-chip-servicio" data-servicio="Casita" onclick="window.filterSedesByServicio ? window.filterSedesByServicio('Casita') : null">Casitas</button>
+                <button type="button" class="sedes-chip-btn sedes-chip-servicio" data-servicio="Lonchera" onclick="window.filterSedesByServicio ? window.filterSedesByServicio('Lonchera') : null">Loncheras</button>
+              </div>
             </div>
+          </div>
+
+          <!-- Contenedor Grid Dinámico de Sedes -->
+          <div id="sedesGridContainer" class="sedes-cards-grid">
+            <!-- Inyectado dinámicamente por SedesView.js -->
           </div>
         </section>
 

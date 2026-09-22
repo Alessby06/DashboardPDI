@@ -274,3 +274,38 @@ window.handleFotoUpload = (input, previewId, roleKey) => {
   if (window.PDI?.BeneficiarioController) window.PDI.BeneficiarioController.handleFotoUpload(input, previewId, roleKey);
 };
 
+window.filterSedesSearch = (val) => {
+  if (window.PDI?.SedesController) window.PDI.SedesController.handleSearch(val);
+  else if (window.PDI?.SedesView) window.PDI.SedesView.filterBySearch(val);
+};
+window.clearSedesSearch = () => {
+  if (window.PDI?.SedesController) window.PDI.SedesController.clearSearch();
+  else if (window.PDI?.SedesView) window.PDI.SedesView.clearSearch();
+};
+window.filterSedesByDistrito = (dist) => {
+  if (window.PDI?.SedesController) window.PDI.SedesController.handleDistritoFilter(dist);
+  else if (window.PDI?.SedesView) window.PDI.SedesView.filterByDistrito(dist);
+};
+window.filterSedesByServicio = (serv) => {
+  if (window.PDI?.SedesController) window.PDI.SedesController.handleServicioFilter(serv);
+  else if (window.PDI?.SedesView) window.PDI.SedesView.filterByServicio(serv);
+};
+window.clearSedesFilters = () => {
+  if (window.PDI?.SedesController) window.PDI.SedesController.clearFilters();
+};
+window.filterPadronBySede = (sedeName) => {
+  if (window.PDI?.BeneficiariosView) {
+    window.PDI.BeneficiariosView._filterSede = [sedeName];
+    if (window.PDI.BeneficiariosView._updateSedeDropdownUI) {
+      window.PDI.BeneficiariosView._updateSedeDropdownUI();
+    }
+    window.PDI.BeneficiariosView.applyFilters();
+  }
+  if (window.app && window.app.navigateToView) {
+    window.app.navigateToView("view-beneficiarios");
+  } else if (window.PDI?.AppController) {
+    window.PDI.AppController.navigateToView("view-beneficiarios");
+  }
+};
+
+
