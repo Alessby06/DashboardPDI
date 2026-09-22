@@ -663,7 +663,7 @@
 
     .audit-header-left h2 {
       margin: 0;
-      font-size: 19px;
+      font-size: 22px;
       line-height: 1.2;
     }
 
@@ -1015,7 +1015,7 @@
         gap: 6px !important;
       }
       .audit-header-left h2 {
-        font-size: 16px !important;
+        font-size: 22px !important;
         line-height: 1.25 !important;
       }
       .audit-legal-icon-btn {
