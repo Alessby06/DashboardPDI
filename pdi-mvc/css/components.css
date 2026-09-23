@@ -355,6 +355,20 @@
       font-size: 12px;
       font-weight: 700;
       letter-spacing: 0.02em;
+      line-height: 1.3;
+      white-space: nowrap;
+    }
+
+    .servicios-badge-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 8px;
+      padding: 2px 0;
+    }
+
+    .servicios-badge-group.align-end {
+      justify-content: flex-end;
     }
 
     .badge-green { background: var(--gt-green-bg); color: var(--gt-green); border: 1px solid var(--gt-green-border); }

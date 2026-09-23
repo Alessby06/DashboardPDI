@@ -857,7 +857,9 @@ export const BeneficiariosView = {
             <td>${b.edad} / ${b.sexo}</td>
             <td>${b.distrito}: ${b.sede}</td>
             <td>
-              ${b.servicios.map(s => `<span class="badge badge-blue" style="margin-right:4px;">${s}</span>`).join("")}
+              <div class="servicios-badge-group">
+                ${b.servicios.map(s => `<span class="badge badge-blue">${s}</span>`).join("")}
+              </div>
             </td>
             <td><span class="badge ${b.estado === 'Activo' ? 'badge-green' : 'badge-yellow'}">${b.estado}</span></td>
             <td style="text-align: right;">
@@ -914,9 +916,9 @@ export const BeneficiariosView = {
                 </div>
                 <div class="datacard-row">
                   <span class="datacard-label">Servicios Activos</span>
-                  <span class="datacard-value" style="display:flex; flex-wrap:wrap; gap:4px; justify-content:flex-end;">
+                  <div class="servicios-badge-group align-end">
                     ${b.servicios.map(s => `<span class="badge badge-blue">${s}</span>`).join("")}
-                  </span>
+                  </div>
                 </div>
                 <div class="datacard-row">
                   <span class="datacard-label">Seguro de Salud</span>

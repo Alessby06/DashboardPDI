@@ -21,7 +21,8 @@ export const defaultBeneficiarios = [
     "exoneracionAporte": "100% (Exonerado Vulnerabilidad Extrema)",
     "servicios": [
       "Servicio Alimentario Nutricional",
-      "Servicio Acompañamiento Educativo"
+      "Servicio Acompañamiento Educativo",
+      "Lonchera Saludable"
     ],
     "seguro": "SIS Gratuito",
     "centroSalud": "C.S. Año Nuevo",
@@ -860,7 +861,9 @@ export function normalizeBeneficiarioServicios(b) {
 
   rawServicios.forEach(s => {
     const low = (s || "").toLowerCase();
-    if (low.includes("desayuno") || low.includes("alimento") || low.includes("lonchera") || low.includes("nutric")) {
+    if (low.includes("lonchera")) {
+      normalized.add("Lonchera Saludable");
+    } else if (low.includes("desayuno") || low.includes("alimento") || low.includes("nutric")) {
       normalized.add("Servicio Alimentario Nutricional");
     } else if (low.includes("casita") || low.includes("educativ") || low.includes("refuerzo") || low.includes("escolar") || low.includes("acompañ")) {
       normalized.add("Servicio Acompañamiento Educativo");
@@ -872,7 +875,10 @@ export function normalizeBeneficiarioServicios(b) {
   });
 
   if (normalized.size === 0) {
-    if (lowerEstrategia.includes("desayuno") || lowerEstrategia.includes("lonchera") || lowerEstrategia.includes("alimento")) {
+    if (lowerEstrategia.includes("lonchera")) {
+      normalized.add("Lonchera Saludable");
+    }
+    if (lowerEstrategia.includes("desayuno") || lowerEstrategia.includes("alimento")) {
       normalized.add("Servicio Alimentario Nutricional");
     }
     if (lowerEstrategia.includes("casita") || lowerEstrategia.includes("educat") || lowerEstrategia.includes("acompañ")) {
@@ -884,6 +890,7 @@ export function normalizeBeneficiarioServicios(b) {
     if (lowerEstrategia.includes("mixto")) {
       normalized.add("Servicio Alimentario Nutricional");
       normalized.add("Servicio Acompañamiento Educativo");
+      normalized.add("Lonchera Saludable");
     }
   }
 

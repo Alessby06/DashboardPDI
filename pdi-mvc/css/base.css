@@ -28,14 +28,115 @@
         radial-gradient(circle at 85% 85%, rgba(3, 105, 161, 0.03) 0%, transparent 55%);
     }
 
+    [data-theme="dark"] body {
+      background-color: #101010;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(0, 180, 148, 0.04) 0%, transparent 50%),
+        radial-gradient(circle at 85% 85%, rgba(56, 189, 248, 0.03) 0%, transparent 55%);
+    }
 
-    /* Transition Animations */
+    /* Transición Suave y Fluida al Cambiar entre Modo Claro y Oscuro */
+    body,
+    .app-shell,
+    .topbar,
+    .main-wrapper,
+    .main-content,
+    .card,
+    .expediente-sidebar,
+    .expediente-content-area,
+    .form-control,
+    input,
+    select,
+    textarea,
+    .btn-action,
+    .nav-btn,
+    .sedes-master-column,
+    .sedes-detail-column,
+    .sedes-master-header,
+    .theme-option-btn,
+    .audit-search-wrap,
+    .custom-dropdown-btn,
+    .custom-dropdown-menu {
+      transition: background-color 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+                  color 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+                  border-color 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+                  box-shadow 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Animaciones de Transición de Vistas (Fade-Up) y Micro-Interacciones (IxD) */
+    .app-view, .content-view {
+      display: none;
+      opacity: 0;
+      transform: translateY(12px);
+      will-change: opacity, transform;
+    }
+
+    .app-view.active, .content-view.active {
+      display: block;
+      animation: fadeUpView 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes fadeUpView {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Carga en Cascada (Stagger Assembly) */
+    .stagger-item {
+      opacity: 0;
+      transform: translateY(14px);
+      will-change: opacity, transform;
+    }
+
+    .stagger-animate {
+      animation: staggerEntrance 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes staggerEntrance {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Micro-Interacciones en Botones (Spring Feedback) */
+    .btn-action, .nav-btn, .theme-toggle-btn, .btn-menu-toggle {
+      transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1),
+                  background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                  box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                  border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-action:hover, .theme-toggle-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-action:active, .nav-btn:active, .theme-toggle-btn:active, .btn-menu-toggle:active {
+      transform: scale(0.94) !important;
+    }
+
+    /* View Transitions API (Circular Ripple Reveal Animation) */
     ::view-transition-old(root),
-    ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
-    ::view-transition-old(root) { z-index: 1; }
-    ::view-transition-new(root) { z-index: 9999; }
-    .theme-transitioning-to-dark::view-transition-old(root) { z-index: 9999; }
-    .theme-transitioning-to-dark::view-transition-new(root) { z-index: 1; }
+    ::view-transition-new(root) {
+      animation: none;
+      mix-blend-mode: normal;
+    }
+    ::view-transition-old(root) {
+      z-index: 1;
+    }
+    ::view-transition-new(root) {
+      z-index: 9999;
+    }
 
     /* App Shell Layout */
     .app-shell {
@@ -44,27 +145,31 @@
       overflow: hidden;
     }
 
-    /* Sidebar Navigation */
+    /* Sidebar Navigation - Transición Fluida */
     .sidebar {
       width: 280px;
       min-width: 280px;
       background: var(--surface-1);
       backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border-right: 1px solid var(--border-subtle);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       z-index: 50;
-      transform: translateZ(0);
+      transform: translate3d(0, 0, 0);
       backface-visibility: hidden;
       will-change: transform, margin-left;
-      transition: transform var(--dur-fluid) var(--ease-spring), margin-left var(--dur-fluid) var(--ease-spring);
+      transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+                  margin-left 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+                  background-color 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+                  border-color 0.38s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     @media (min-width: 901px) {
       .sidebar.collapsed {
         margin-left: -280px;
-        transform: translateZ(0);
+        transform: translate3d(0, 0, 0);
       }
     }
 

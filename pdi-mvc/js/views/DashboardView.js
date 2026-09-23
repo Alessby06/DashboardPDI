@@ -1,39 +1,57 @@
 // Vista: Tablero Principal Dashboard
 export const DashboardView = {
   render(stats, auditLogs) {
+    const animateNum = (el, val, isPct = false) => {
+      if (!el) return;
+      if (window.PDI && window.PDI.AnimationEngine) {
+        window.PDI.AnimationEngine.animateCounter(el, val, { suffix: isPct ? "%" : "" });
+      } else {
+        el.textContent = isPct ? `${val}%` : val;
+      }
+    };
+
     const statEl = document.getElementById("statTotalNinos");
-    if (statEl) statEl.textContent = stats.total;
+    if (statEl) animateNum(statEl, stats.total);
 
     const dashBenEl = document.getElementById("dashKpiBeneficiarios");
-    if (dashBenEl) dashBenEl.textContent = stats.total;
+    if (dashBenEl) animateNum(dashBenEl, stats.total);
 
     const dashTamEl = document.getElementById("dashKpiTamizados");
     if (dashTamEl) dashTamEl.textContent = `${stats.total} / ${stats.total}`;
 
     const pctNormalEl = document.getElementById("pctNormal");
-    if (pctNormalEl) pctNormalEl.textContent = stats.pctNormal + "%";
+    if (pctNormalEl) animateNum(pctNormalEl, stats.pctNormal, true);
 
     const pctLeveEl = document.getElementById("pctLeve");
-    if (pctLeveEl) pctLeveEl.textContent = stats.pctLeve + "%";
+    if (pctLeveEl) animateNum(pctLeveEl, stats.pctLeve, true);
 
     const pctModEl = document.getElementById("pctModerada");
-    if (pctModEl) pctModEl.textContent = stats.pctMod + "%";
+    if (pctModEl) animateNum(pctModEl, stats.pctMod, true);
 
     const barNormal = document.getElementById("barNormal");
-    if (barNormal) barNormal.style.width = stats.pctNormal + "%";
+    if (barNormal) {
+      barNormal.style.width = "0%";
+      setTimeout(() => { barNormal.style.width = stats.pctNormal + "%"; }, 50);
+    }
 
     const barLeve = document.getElementById("barLeve");
-    if (barLeve) barLeve.style.width = stats.pctLeve + "%";
+    if (barLeve) {
+      barLeve.style.width = "0%";
+      setTimeout(() => { barLeve.style.width = stats.pctLeve + "%"; }, 50);
+    }
 
     const barMod = document.getElementById("barMod");
-    if (barMod) barMod.style.width = stats.pctMod + "%";
+    if (barMod) {
+      barMod.style.width = "0%";
+      setTimeout(() => { barMod.style.width = stats.pctMod + "%"; }, 50);
+    }
 
     const coverageContainer = document.getElementById("dashDistrictCoverage");
     if (coverageContainer) {
       const pctComas = stats.total > 0 ? Math.round((stats.comasCount / stats.total) * 100) : 0;
       const pctCarabayllo = stats.total > 0 ? Math.round((stats.carabaylloCount / stats.total) * 100) : 0;
       coverageContainer.innerHTML = `
-        <div class="district-coverage-card">
+        <div class="district-coverage-card stagger-item">
           <div class="district-coverage-header">
             <div>
               <strong>Distrito de Comas</strong>
@@ -42,11 +60,11 @@ export const DashboardView = {
             <span class="badge badge-green district-coverage-badge">${stats.comasCount} Beneficiarios (${pctComas}%)</span>
           </div>
           <div class="district-coverage-track">
-            <div class="district-coverage-bar" style="width: ${pctComas}%; background: var(--gt-green);"></div>
+            <div class="district-coverage-bar" style="width: 0%; background: var(--gt-green);" id="barDistrictComas"></div>
           </div>
         </div>
 
-        <div class="district-coverage-card">
+        <div class="district-coverage-card stagger-item">
           <div class="district-coverage-header">
             <div>
               <strong>Distrito de Carabayllo</strong>
@@ -55,12 +73,22 @@ export const DashboardView = {
             <span class="badge badge-blue district-coverage-badge">${stats.carabaylloCount} Beneficiarios (${pctCarabayllo}%)</span>
           </div>
           <div class="district-coverage-track">
-            <div class="district-coverage-bar" style="width: ${pctCarabayllo}%; background: var(--gt-blue, #0d9488);"></div>
+            <div class="district-coverage-bar" style="width: 0%; background: var(--gt-blue, #0d9488);" id="barDistrictCarabayllo"></div>
           </div>
         </div>
       `;
+      setTimeout(() => {
+        const bComas = document.getElementById("barDistrictComas");
+        const bCara = document.getElementById("barDistrictCarabayllo");
+        if (bComas) bComas.style.width = `${pctComas}%`;
+        if (bCara) bCara.style.width = `${pctCarabayllo}%`;
+      }, 50);
     }
-    
+
+    if (window.PDI && window.PDI.AnimationEngine) {
+      window.PDI.AnimationEngine.triggerStagger("view-dashboard");
+    }
+
     const anemiaContainer = document.getElementById("dashAnemiaBars");
     if (anemiaContainer) {
       const C = 251.32;
@@ -73,15 +101,15 @@ export const DashboardView = {
           <div style="position: relative; width: 140px; height: 140px; flex-shrink: 0;">
             <svg viewBox="0 0 100 100" width="140" height="140" style="transform: rotate(-90deg);">
               <circle cx="50" cy="50" r="40" fill="transparent" stroke="var(--border-subtle)" stroke-width="14" />
-              <circle cx="50" cy="50" r="40" fill="transparent" stroke="var(--gt-green)" stroke-width="14"
-                stroke-dasharray="${sNormal} ${C}" stroke-dashoffset="0" stroke-linecap="round" />
-              <circle cx="50" cy="50" r="40" fill="transparent" stroke="var(--gt-yellow)" stroke-width="14"
-                stroke-dasharray="${sLeve} ${C}" stroke-dashoffset="${-sNormal}" stroke-linecap="round" />
-              <circle cx="50" cy="50" r="40" fill="transparent" stroke="var(--gt-red)" stroke-width="14"
-                stroke-dasharray="${sMod} ${C}" stroke-dashoffset="${-(sNormal + sLeve)}" stroke-linecap="round" />
+              <circle id="semNormalCircle" cx="50" cy="50" r="40" fill="transparent" stroke="var(--gt-green)" stroke-width="14"
+                stroke-dasharray="0 ${C}" stroke-dashoffset="0" stroke-linecap="round" style="transition: stroke-dasharray 1.2s cubic-bezier(0.16, 1, 0.3, 1);" />
+              <circle id="semLeveCircle" cx="50" cy="50" r="40" fill="transparent" stroke="var(--gt-yellow)" stroke-width="14"
+                stroke-dasharray="0 ${C}" stroke-dashoffset="${-sNormal}" stroke-linecap="round" style="transition: stroke-dasharray 1.2s cubic-bezier(0.16, 1, 0.3, 1);" />
+              <circle id="semModCircle" cx="50" cy="50" r="40" fill="transparent" stroke="var(--gt-red)" stroke-width="14"
+                stroke-dasharray="0 ${C}" stroke-dashoffset="${-(sNormal + sLeve)}" stroke-linecap="round" style="transition: stroke-dasharray 1.2s cubic-bezier(0.16, 1, 0.3, 1);" />
             </svg>
             <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; pointer-events: none;">
-              <span style="font-size: 20px; font-weight: 800; color: var(--text-main); font-family: var(--mono-font);">${stats.total}</span>
+              <span id="dashChartCenterNum" style="font-size: 20px; font-weight: 800; color: var(--text-main); font-family: var(--mono-font);">0</span>
               <span style="font-size: 10px; color: var(--text-dim); text-transform: uppercase; font-weight: 700;">Menores</span>
             </div>
           </div>
@@ -110,6 +138,17 @@ export const DashboardView = {
           </div>
         </div>
       `;
+
+      setTimeout(() => {
+        const cNorm = document.getElementById("semNormalCircle");
+        const cLeve = document.getElementById("semLeveCircle");
+        const cMod = document.getElementById("semModCircle");
+        const cNum = document.getElementById("dashChartCenterNum");
+        if (cNorm) cNorm.style.strokeDasharray = `${sNormal} ${C}`;
+        if (cLeve) cLeve.style.strokeDasharray = `${sLeve} ${C}`;
+        if (cMod) cMod.style.strokeDasharray = `${sMod} ${C}`;
+        if (cNum) animateNum(cNum, stats.total);
+      }, 60);
     }
 
     this.renderAuditLogs(auditLogs);

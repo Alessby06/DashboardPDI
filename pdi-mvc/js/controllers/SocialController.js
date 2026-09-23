@@ -76,7 +76,7 @@ export const SocialController = {
     }
   },
 
-  calcularEvaluacion() {
+  calcularEvaluacion(showToast = true) {
     const getVal = (id, fallback) => {
       const el = document.getElementById(id);
       return el ? (Number(el.value) || 0) : fallback;
@@ -131,19 +131,18 @@ export const SocialController = {
 
     if (resultBox) {
       resultBox.style.display = "block";
-      if (typeof resultBox.scrollIntoView === "function") {
-        resultBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      }
     }
 
-    const toast = window.PDI?.ToastView || ToastView;
-    if (toast && typeof toast.show === "function") {
-      toast.show("Evaluación Calculada", `Índice de Vulnerabilidad: ${res.total}/100 (${res.category})`, "success");
+    if (showToast) {
+      const toast = window.PDI?.ToastView || ToastView;
+      if (toast && typeof toast.show === "function") {
+        toast.show("Evaluación Calculada", `Índice de Vulnerabilidad: ${res.total}/100 (${res.category})`, "success");
+      }
     }
   },
 
-  handleVulnerabilidadChange() {
-    this.calcularEvaluacion();
+  handleVulnerabilidadChange(showToast = false) {
+    this.calcularEvaluacion(showToast);
   }
 };
 

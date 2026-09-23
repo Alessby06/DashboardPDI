@@ -40,7 +40,7 @@ export const RoleController = {
     }
   },
 
-  applyRolePermissions(role, onNavigate) {
+  applyRolePermissions(role, onNavigate, showToast = true) {
     const navButtons = document.querySelectorAll(".nav-btn");
     const bannerTitle = document.getElementById("roleBannerTitle");
     const bannerDesc = document.getElementById("roleBannerDesc");
@@ -90,8 +90,12 @@ export const RoleController = {
       btnInfo.setAttribute("title", `${conf.title}: ${conf.desc}`);
     }
 
-    const toast = window.PDI?.ToastView || ToastView;
-    toast.show("Perfil Simulado", `Cambiando a vista: ${conf.title}`, "info");
+    if (showToast) {
+      const toast = window.PDI?.ToastView || ToastView;
+      if (toast && typeof toast.show === "function") {
+        toast.show("Perfil Simulado", `Cambiando a vista: ${conf.title}`, "info");
+      }
+    }
 
     const currentActiveBtn = document.querySelector(".nav-btn.active");
     const currentViewId = currentActiveBtn?.getAttribute("data-view");

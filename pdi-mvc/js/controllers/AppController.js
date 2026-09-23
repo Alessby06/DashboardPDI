@@ -16,6 +16,7 @@ import { SaludCredView } from '../views/SaludCredView.js';
 import { CasitasView } from '../views/CasitasView.js';
 import { SocialKanbanView } from '../views/SocialKanbanView.js';
 import { SedesView } from '../views/SedesView.js';
+import { AjustesView } from '../views/AjustesView.js';
 import { ModalView } from '../views/ModalView.js';
 import { SpotlightView } from '../views/SpotlightView.js';
 import { ToastView } from '../views/ToastView.js';
@@ -34,6 +35,9 @@ export const AppController = {
     BeneficiarioModel.init();
     CasoSocialModel.init();
     SedeModel.init();
+
+    // 1.5 Inicializar tema visual y ajustes
+    AjustesView.init();
 
     // 2. Inicializar componentes de vista
     this.refreshAllViews();
@@ -89,6 +93,12 @@ export const AppController = {
 
     const mainContent = document.getElementById("mainContent");
     if (mainContent) mainContent.scrollTop = 0;
+
+    if (viewId === "view-dashboard") {
+      const stats = BeneficiarioModel.getStats();
+      const auditLogs = AuditModel.getAll();
+      DashboardView.render(stats, auditLogs);
+    }
   },
 
   bindNavigation() {
@@ -107,22 +117,27 @@ export const AppController = {
   bindSidebar() {
     const toggleBtn = document.getElementById("btnSidebarToggle");
     const backdrop = document.getElementById("sidebarBackdrop");
-    const sidebar = document.getElementById("appSidebar");
 
-    if (toggleBtn && sidebar) {
-      toggleBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
+    if (toggleBtn) {
+      toggleBtn.onclick = (e) => {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
         this.toggleSidebar();
-      });
+      };
     }
 
     if (backdrop) {
-      backdrop.addEventListener("click", () => {
+      backdrop.onclick = (e) => {
+        if (e) e.preventDefault();
         this.closeSidebar();
-      });
+      };
     }
 
-    // Cerrar con tecla Escape en caso de estar abierto en móvil
+    window.toggleSidebar = () => this.toggleSidebar();
+    window.closeSidebar = () => this.closeSidebar();
+
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
         this.closeSidebar();
@@ -137,6 +152,7 @@ export const AppController = {
 
     if (window.innerWidth > 900) {
       sidebar.classList.toggle("collapsed");
+      if (backdrop) backdrop.classList.remove("active");
     } else {
       const isOpen = sidebar.classList.toggle("open");
       if (backdrop) {
@@ -152,25 +168,17 @@ export const AppController = {
   closeSidebar() {
     const sidebar = document.getElementById("appSidebar");
     const backdrop = document.getElementById("sidebarBackdrop");
-    if (!sidebar) return;
-
-    if (window.innerWidth <= 900) {
-      if (sidebar.classList.contains("open")) {
-        sidebar.classList.remove("open");
-      }
-      if (backdrop && backdrop.classList.contains("active")) {
-        backdrop.classList.remove("active");
-      }
-    }
+    if (sidebar) sidebar.classList.remove("open");
+    if (backdrop) backdrop.classList.remove("active");
   },
 
   bindRoleSelector() {
     const selector = document.getElementById("roleSelector");
     if (selector) {
       selector.addEventListener("change", (e) => {
-        RoleController.applyRolePermissions(e.target.value, (view) => this.navigateToView(view));
+        RoleController.applyRolePermissions(e.target.value, (view) => this.navigateToView(view), true);
       });
-      RoleController.applyRolePermissions(selector.value, (view) => this.navigateToView(view));
+      RoleController.applyRolePermissions(selector.value, (view) => this.navigateToView(view), false);
     }
   },
 

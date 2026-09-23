@@ -1,3 +1,55 @@
+/* --- Module: utils/AnimationEngine.js --- */
+// Motor de Animaciones e Interacciones Web (AnimationEngine)
+AnimationEngine = {
+  animateCounter(elementOrId, targetVal, options = {}) {
+    const el = typeof elementOrId === "string" ? document.getElementById(elementOrId) : elementOrId;
+    if (!el) return;
+
+    const duration = options.duration || 1000;
+    const decimals = options.decimals !== undefined ? options.decimals : (targetVal % 1 !== 0 ? 1 : 0);
+    const prefix = options.prefix || "";
+    const suffix = options.suffix || "";
+
+    const startVal = 0;
+    const startTime = performance.now();
+
+    const updateCounter = (currentTime) => {
+      const elapsedTime = currentTime - startTime;
+      const progress = Math.min(elapsedTime / duration, 1);
+      const easeProgress = 1 - Math.pow(1 - progress, 3);
+      const currentVal = startVal + (targetVal - startVal) * easeProgress;
+
+      el.textContent = `${prefix}${currentVal.toFixed(decimals)}${suffix}`;
+
+      if (progress < 1) {
+        requestAnimationFrame(updateCounter);
+      } else {
+        el.textContent = `${prefix}${targetVal.toFixed(decimals)}${suffix}`;
+      }
+    };
+
+    requestAnimationFrame(updateCounter);
+  },
+
+  triggerStagger(parentOrId, itemSelector = ".stagger-item") {
+    const parent = typeof parentOrId === "string" ? document.getElementById(parentOrId) : parentOrId;
+    if (!parent) return;
+
+    const items = parent.querySelectorAll(itemSelector);
+    items.forEach((item, index) => {
+      item.style.animationDelay = `${index * 40}ms`;
+      item.classList.remove("stagger-animate");
+      void item.offsetWidth;
+      item.classList.add("stagger-animate");
+    });
+  }
+};
+
+if (typeof window !== "undefined") {
+  window.PDI = window.PDI || {};
+  window.PDI.AnimationEngine = AnimationEngine;
+}
+
 /* --- Module: models/StorageService.js --- */
 // Servicio de Almacenamiento Local (Persistence Layer) StorageService = {
   getItem(key, defaultValue = null) {
@@ -100,8 +152,9 @@ if (typeof window !== "undefined") {
     "estrategia": "Mixto (Desayuno + Casita)",
     "exoneracionAporte": "100% (Exonerado Vulnerabilidad Extrema)",
     "servicios": [
-      "Desayuno Infantil",
-      "Casita del Saber"
+      "Servicio Alimentario Nutricional",
+      "Servicio Acompañamiento Educativo",
+      "Lonchera Saludable"
     ],
     "seguro": "SIS Gratuito",
     "centroSalud": "C.S. Año Nuevo",
@@ -940,7 +993,9 @@ function normalizeBeneficiarioServicios(b) {
 
   rawServicios.forEach(s => {
     const low = (s || "").toLowerCase();
-    if (low.includes("desayuno") || low.includes("alimento") || low.includes("lonchera") || low.includes("nutric")) {
+    if (low.includes("lonchera")) {
+      normalized.add("Lonchera Saludable");
+    } else if (low.includes("desayuno") || low.includes("alimento") || low.includes("nutric")) {
       normalized.add("Servicio Alimentario Nutricional");
     } else if (low.includes("casita") || low.includes("educativ") || low.includes("refuerzo") || low.includes("escolar") || low.includes("acompañ")) {
       normalized.add("Servicio Acompañamiento Educativo");
@@ -952,7 +1007,10 @@ function normalizeBeneficiarioServicios(b) {
   });
 
   if (normalized.size === 0) {
-    if (lowerEstrategia.includes("desayuno") || lowerEstrategia.includes("lonchera") || lowerEstrategia.includes("alimento")) {
+    if (lowerEstrategia.includes("lonchera")) {
+      normalized.add("Lonchera Saludable");
+    }
+    if (lowerEstrategia.includes("desayuno") || lowerEstrategia.includes("alimento")) {
       normalized.add("Servicio Alimentario Nutricional");
     }
     if (lowerEstrategia.includes("casita") || lowerEstrategia.includes("educat") || lowerEstrategia.includes("acompañ")) {
@@ -964,6 +1022,7 @@ function normalizeBeneficiarioServicios(b) {
     if (lowerEstrategia.includes("mixto")) {
       normalized.add("Servicio Alimentario Nutricional");
       normalized.add("Servicio Acompañamiento Educativo");
+      normalized.add("Lonchera Saludable");
     }
   }
 
@@ -2010,39 +2069,57 @@ if (typeof window !== "undefined") {
 // Vista: Tablero Principal Dashboard
  DashboardView = {
   render(stats, auditLogs) {
+    const animateNum = (el, val, isPct = false) => {
+      if (!el) return;
+      if (window.PDI && window.PDI.AnimationEngine) {
+        window.PDI.AnimationEngine.animateCounter(el, val, { suffix: isPct ? "%" : "" });
+      } else {
+        el.textContent = isPct ? `${val}%` : val;
+      }
+    };
+
     const statEl = document.getElementById("statTotalNinos");
-    if (statEl) statEl.textContent = stats.total;
+    if (statEl) animateNum(statEl, stats.total);
 
     const dashBenEl = document.getElementById("dashKpiBeneficiarios");
-    if (dashBenEl) dashBenEl.textContent = stats.total;
+    if (dashBenEl) animateNum(dashBenEl, stats.total);
 
     const dashTamEl = document.getElementById("dashKpiTamizados");
     if (dashTamEl) dashTamEl.textContent = `${stats.total} / ${stats.total}`;
 
     const pctNormalEl = document.getElementById("pctNormal");
-    if (pctNormalEl) pctNormalEl.textContent = stats.pctNormal + "%";
+    if (pctNormalEl) animateNum(pctNormalEl, stats.pctNormal, true);
 
     const pctLeveEl = document.getElementById("pctLeve");
-    if (pctLeveEl) pctLeveEl.textContent = stats.pctLeve + "%";
+    if (pctLeveEl) animateNum(pctLeveEl, stats.pctLeve, true);
 
     const pctModEl = document.getElementById("pctModerada");
-    if (pctModEl) pctModEl.textContent = stats.pctMod + "%";
+    if (pctModEl) animateNum(pctModEl, stats.pctMod, true);
 
     const barNormal = document.getElementById("barNormal");
-    if (barNormal) barNormal.style.width = stats.pctNormal + "%";
+    if (barNormal) {
+      barNormal.style.width = "0%";
+      setTimeout(() => { barNormal.style.width = stats.pctNormal + "%"; }, 50);
+    }
 
     const barLeve = document.getElementById("barLeve");
-    if (barLeve) barLeve.style.width = stats.pctLeve + "%";
+    if (barLeve) {
+      barLeve.style.width = "0%";
+      setTimeout(() => { barLeve.style.width = stats.pctLeve + "%"; }, 50);
+    }
 
     const barMod = document.getElementById("barMod");
-    if (barMod) barMod.style.width = stats.pctMod + "%";
+    if (barMod) {
+      barMod.style.width = "0%";
+      setTimeout(() => { barMod.style.width = stats.pctMod + "%"; }, 50);
+    }
 
     const coverageContainer = document.getElementById("dashDistrictCoverage");
     if (coverageContainer) {
       const pctComas = stats.total > 0 ? Math.round((stats.comasCount / stats.total) * 100) : 0;
       const pctCarabayllo = stats.total > 0 ? Math.round((stats.carabaylloCount / stats.total) * 100) : 0;
       coverageContainer.innerHTML = `
-        <div class="district-coverage-card">
+        <div class="district-coverage-card stagger-item">
           <div class="district-coverage-header">
             <div>
               <strong>Distrito de Comas</strong>
@@ -2051,11 +2128,11 @@ if (typeof window !== "undefined") {
             <span class="badge badge-green district-coverage-badge">${stats.comasCount} Beneficiarios (${pctComas}%)</span>
           </div>
           <div class="district-coverage-track">
-            <div class="district-coverage-bar" style="width: ${pctComas}%; background: var(--gt-green);"></div>
+            <div class="district-coverage-bar" style="width: 0%; background: var(--gt-green);" id="barDistrictComas"></div>
           </div>
         </div>
 
-        <div class="district-coverage-card">
+        <div class="district-coverage-card stagger-item">
           <div class="district-coverage-header">
             <div>
               <strong>Distrito de Carabayllo</strong>
@@ -2064,12 +2141,22 @@ if (typeof window !== "undefined") {
             <span class="badge badge-blue district-coverage-badge">${stats.carabaylloCount} Beneficiarios (${pctCarabayllo}%)</span>
           </div>
           <div class="district-coverage-track">
-            <div class="district-coverage-bar" style="width: ${pctCarabayllo}%; background: var(--gt-blue, #0d9488);"></div>
+            <div class="district-coverage-bar" style="width: 0%; background: var(--gt-blue, #0d9488);" id="barDistrictCarabayllo"></div>
           </div>
         </div>
       `;
+      setTimeout(() => {
+        const bComas = document.getElementById("barDistrictComas");
+        const bCara = document.getElementById("barDistrictCarabayllo");
+        if (bComas) bComas.style.width = `${pctComas}%`;
+        if (bCara) bCara.style.width = `${pctCarabayllo}%`;
+      }, 50);
     }
-    
+
+    if (window.PDI && window.PDI.AnimationEngine) {
+      window.PDI.AnimationEngine.triggerStagger("view-dashboard");
+    }
+
     const anemiaContainer = document.getElementById("dashAnemiaBars");
     if (anemiaContainer) {
       const C = 251.32;
@@ -2082,15 +2169,15 @@ if (typeof window !== "undefined") {
           <div style="position: relative; width: 140px; height: 140px; flex-shrink: 0;">
             <svg viewBox="0 0 100 100" width="140" height="140" style="transform: rotate(-90deg);">
               <circle cx="50" cy="50" r="40" fill="transparent" stroke="var(--border-subtle)" stroke-width="14" />
-              <circle cx="50" cy="50" r="40" fill="transparent" stroke="var(--gt-green)" stroke-width="14"
-                stroke-dasharray="${sNormal} ${C}" stroke-dashoffset="0" stroke-linecap="round" />
-              <circle cx="50" cy="50" r="40" fill="transparent" stroke="var(--gt-yellow)" stroke-width="14"
-                stroke-dasharray="${sLeve} ${C}" stroke-dashoffset="${-sNormal}" stroke-linecap="round" />
-              <circle cx="50" cy="50" r="40" fill="transparent" stroke="var(--gt-red)" stroke-width="14"
-                stroke-dasharray="${sMod} ${C}" stroke-dashoffset="${-(sNormal + sLeve)}" stroke-linecap="round" />
+              <circle id="semNormalCircle" cx="50" cy="50" r="40" fill="transparent" stroke="var(--gt-green)" stroke-width="14"
+                stroke-dasharray="0 ${C}" stroke-dashoffset="0" stroke-linecap="round" style="transition: stroke-dasharray 1.2s cubic-bezier(0.16, 1, 0.3, 1);" />
+              <circle id="semLeveCircle" cx="50" cy="50" r="40" fill="transparent" stroke="var(--gt-yellow)" stroke-width="14"
+                stroke-dasharray="0 ${C}" stroke-dashoffset="${-sNormal}" stroke-linecap="round" style="transition: stroke-dasharray 1.2s cubic-bezier(0.16, 1, 0.3, 1);" />
+              <circle id="semModCircle" cx="50" cy="50" r="40" fill="transparent" stroke="var(--gt-red)" stroke-width="14"
+                stroke-dasharray="0 ${C}" stroke-dashoffset="${-(sNormal + sLeve)}" stroke-linecap="round" style="transition: stroke-dasharray 1.2s cubic-bezier(0.16, 1, 0.3, 1);" />
             </svg>
             <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; pointer-events: none;">
-              <span style="font-size: 20px; font-weight: 800; color: var(--text-main); font-family: var(--mono-font);">${stats.total}</span>
+              <span id="dashChartCenterNum" style="font-size: 20px; font-weight: 800; color: var(--text-main); font-family: var(--mono-font);">0</span>
               <span style="font-size: 10px; color: var(--text-dim); text-transform: uppercase; font-weight: 700;">Menores</span>
             </div>
           </div>
@@ -2119,6 +2206,17 @@ if (typeof window !== "undefined") {
           </div>
         </div>
       `;
+
+      setTimeout(() => {
+        const cNorm = document.getElementById("semNormalCircle");
+        const cLeve = document.getElementById("semLeveCircle");
+        const cMod = document.getElementById("semModCircle");
+        const cNum = document.getElementById("dashChartCenterNum");
+        if (cNorm) cNorm.style.strokeDasharray = `${sNormal} ${C}`;
+        if (cLeve) cLeve.style.strokeDasharray = `${sLeve} ${C}`;
+        if (cMod) cMod.style.strokeDasharray = `${sMod} ${C}`;
+        if (cNum) animateNum(cNum, stats.total);
+      }, 60);
     }
 
     this.renderAuditLogs(auditLogs);
@@ -3831,7 +3929,9 @@ BeneficiariosView = {
             <td>${b.edad} / ${b.sexo}</td>
             <td>${b.distrito}: ${b.sede}</td>
             <td>
-              ${b.servicios.map(s => `<span class="badge badge-blue" style="margin-right:4px;">${s}</span>`).join("")}
+              <div class="servicios-badge-group">
+                ${b.servicios.map(s => `<span class="badge badge-blue">${s}</span>`).join("")}
+              </div>
             </td>
             <td><span class="badge ${b.estado === 'Activo' ? 'badge-green' : 'badge-yellow'}">${b.estado}</span></td>
             <td style="text-align: right;">
@@ -3888,9 +3988,9 @@ BeneficiariosView = {
                 </div>
                 <div class="datacard-row">
                   <span class="datacard-label">Servicios Activos</span>
-                  <span class="datacard-value" style="display:flex; flex-wrap:wrap; gap:4px; justify-content:flex-end;">
+                  <div class="servicios-badge-group align-end">
                     ${b.servicios.map(s => `<span class="badge badge-blue">${s}</span>`).join("")}
-                  </span>
+                  </div>
                 </div>
                 <div class="datacard-row">
                   <span class="datacard-label">Seguro de Salud</span>
@@ -5699,7 +5799,7 @@ if (typeof window !== "undefined") {
     }
   },
 
-  calcularEvaluacion() {
+  calcularEvaluacion(showToast = true) {
     const getVal = (id, fallback) => {
       const el = document.getElementById(id);
       return el ? (Number(el.value) || 0) : fallback;
@@ -5754,19 +5854,18 @@ if (typeof window !== "undefined") {
 
     if (resultBox) {
       resultBox.style.display = "block";
-      if (typeof resultBox.scrollIntoView === "function") {
-        resultBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      }
     }
 
-    const toast = window.PDI?.ToastView || ToastView;
-    if (toast && typeof toast.show === "function") {
-      toast.show("Evaluación Calculada", `Índice de Vulnerabilidad: ${res.total}/100 (${res.category})`, "success");
+    if (showToast) {
+      const toast = window.PDI?.ToastView || ToastView;
+      if (toast && typeof toast.show === "function") {
+        toast.show("Evaluación Calculada", `Índice de Vulnerabilidad: ${res.total}/100 (${res.category})`, "success");
+      }
     }
   },
 
-  handleVulnerabilidadChange() {
-    this.calcularEvaluacion();
+  handleVulnerabilidadChange(showToast = false) {
+    this.calcularEvaluacion(showToast);
   }
 };
 
@@ -5960,7 +6059,7 @@ if (typeof window !== "undefined") {
       chipsHTML.push(`
         <span class="padron-chip">
           <span>Distrito: ${this._filterDistrito}</span>
-          <button type="button" onclick="window.PDI?.SedesView?.removeFilterChip('distrito')">
+          <button type="button" class="padron-chip-remove" onclick="window.PDI?.SedesView?.removeFilterChip('distrito')" title="Eliminar filtro">
             <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
             </svg>
@@ -5972,14 +6071,14 @@ if (typeof window !== "undefined") {
     if (this._filterServicio !== "all") {
       activeCount++;
       const names = {
-        "Desayuno": "Nutricional",
-        "Casita": "Educativo",
-        "Lonchera": "Loncheras"
+        "Desayuno": "Servicio Alimentario Nutricional",
+        "Casita": "Acompañamiento Educativo",
+        "Lonchera": "Lonchera Saludable"
       };
       chipsHTML.push(`
         <span class="padron-chip">
           <span>Servicio: ${names[this._filterServicio] || this._filterServicio}</span>
-          <button type="button" onclick="window.PDI?.SedesView?.removeFilterChip('servicio')">
+          <button type="button" class="padron-chip-remove" onclick="window.PDI?.SedesView?.removeFilterChip('servicio')" title="Eliminar filtro">
             <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
             </svg>
@@ -6402,7 +6501,7 @@ if (typeof window !== "undefined") {
     }
   },
 
-  applyRolePermissions(role, onNavigate) {
+  applyRolePermissions(role, onNavigate, showToast = true) {
     const navButtons = document.querySelectorAll(".nav-btn");
     const bannerTitle = document.getElementById("roleBannerTitle");
     const bannerDesc = document.getElementById("roleBannerDesc");
@@ -6452,8 +6551,12 @@ if (typeof window !== "undefined") {
       btnInfo.setAttribute("title", `${conf.title}: ${conf.desc}`);
     }
 
-    const toast = window.PDI?.ToastView || ToastView;
-    toast.show("Perfil Simulado", `Cambiando a vista: ${conf.title}`, "info");
+    if (showToast) {
+      const toast = window.PDI?.ToastView || ToastView;
+      if (toast && typeof toast.show === "function") {
+        toast.show("Perfil Simulado", `Cambiando a vista: ${conf.title}`, "info");
+      }
+    }
 
     const currentActiveBtn = document.querySelector(".nav-btn.active");
     const currentViewId = currentActiveBtn?.getAttribute("data-view");
@@ -6577,6 +6680,12 @@ if (typeof window !== "undefined") {
 
     const mainContent = document.getElementById("mainContent");
     if (mainContent) mainContent.scrollTop = 0;
+
+    if (viewId === "view-dashboard") {
+      const stats = BeneficiarioModel.getStats();
+      const auditLogs = AuditModel.getAll();
+      DashboardView.render(stats, auditLogs);
+    }
   },
 
   bindNavigation() {
@@ -6595,22 +6704,27 @@ if (typeof window !== "undefined") {
   bindSidebar() {
     const toggleBtn = document.getElementById("btnSidebarToggle");
     const backdrop = document.getElementById("sidebarBackdrop");
-    const sidebar = document.getElementById("appSidebar");
 
-    if (toggleBtn && sidebar) {
-      toggleBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
+    if (toggleBtn) {
+      toggleBtn.onclick = (e) => {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
         this.toggleSidebar();
-      });
+      };
     }
 
     if (backdrop) {
-      backdrop.addEventListener("click", () => {
+      backdrop.onclick = (e) => {
+        if (e) e.preventDefault();
         this.closeSidebar();
-      });
+      };
     }
 
-    // Cerrar con tecla Escape en caso de estar abierto en móvil
+    window.toggleSidebar = () => this.toggleSidebar();
+    window.closeSidebar = () => this.closeSidebar();
+
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
         this.closeSidebar();
@@ -6625,6 +6739,7 @@ if (typeof window !== "undefined") {
 
     if (window.innerWidth > 900) {
       sidebar.classList.toggle("collapsed");
+      if (backdrop) backdrop.classList.remove("active");
     } else {
       const isOpen = sidebar.classList.toggle("open");
       if (backdrop) {
@@ -6640,25 +6755,17 @@ if (typeof window !== "undefined") {
   closeSidebar() {
     const sidebar = document.getElementById("appSidebar");
     const backdrop = document.getElementById("sidebarBackdrop");
-    if (!sidebar) return;
-
-    if (window.innerWidth <= 900) {
-      if (sidebar.classList.contains("open")) {
-        sidebar.classList.remove("open");
-      }
-      if (backdrop && backdrop.classList.contains("active")) {
-        backdrop.classList.remove("active");
-      }
-    }
+    if (sidebar) sidebar.classList.remove("open");
+    if (backdrop) backdrop.classList.remove("active");
   },
 
   bindRoleSelector() {
     const selector = document.getElementById("roleSelector");
     if (selector) {
       selector.addEventListener("change", (e) => {
-        RoleController.applyRolePermissions(e.target.value, (view) => this.navigateToView(view));
+        RoleController.applyRolePermissions(e.target.value, (view) => this.navigateToView(view), true);
       });
-      RoleController.applyRolePermissions(selector.value, (view) => this.navigateToView(view));
+      RoleController.applyRolePermissions(selector.value, (view) => this.navigateToView(view), false);
     }
   },
 
@@ -7092,4 +7199,237 @@ window.filterPadronBySede = (sedeName) => {
     window.PDI.AppController.navigateToView("view-beneficiarios");
   }
 };
+
+// ==========================================
+// VISTA: AJUSTES Y MODO OSCURO (#101010)
+// ==========================================
+const AjustesView = {
+  _currentTheme: 'light',
+  _mediaListenerBound: false,
+
+  init() {
+    this._loadTheme();
+    this.bindThemeButtons();
+    this._updateThemeUI();
+  },
+
+  bindThemeButtons() {
+    const btnLight = document.getElementById('btnThemeLight');
+    const btnDark = document.getElementById('btnThemeDark');
+    const btnSystem = document.getElementById('btnThemeSystem');
+
+    if (btnLight) {
+      btnLight.onclick = (e) => {
+        this.setTheme('light', true, e);
+      };
+    }
+    if (btnDark) {
+      btnDark.onclick = (e) => {
+        this.setTheme('dark', true, e);
+      };
+    }
+    if (btnSystem) {
+      btnSystem.onclick = (e) => {
+        this.setTheme('system', true, e);
+      };
+    }
+  },
+
+  _loadTheme() {
+    let savedTheme = null;
+    try {
+      savedTheme = localStorage.getItem('pdi_theme');
+    } catch (e) {}
+
+    if (!savedTheme && typeof document !== 'undefined') {
+      const match = document.cookie.match(/(?:^|; )pdi_theme=([^;]*)/);
+      if (match) savedTheme = match[1];
+    }
+
+    this.setTheme(savedTheme || 'light', false);
+  },
+
+  _bindSystemListener() {
+    if (this._mediaListenerBound || !window.matchMedia) return;
+    this._mediaListenerBound = true;
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = (e) => {
+      if (this._currentTheme === 'system') {
+        document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+      }
+    };
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', handler);
+    } else if (mediaQuery.addListener) {
+      mediaQuery.addListener(handler);
+    }
+  },
+
+  setTheme(themeName, showToast = true, clickEvent = null) {
+    const applyThemeChange = () => {
+      this._currentTheme = themeName;
+
+      try {
+        localStorage.setItem('pdi_theme', themeName);
+      } catch (e) {}
+
+      if (typeof document !== 'undefined') {
+        document.cookie = `pdi_theme=${themeName}; path=/; max-age=31536000; SameSite=Lax`;
+      }
+
+      const root = document.documentElement;
+
+      if (themeName === 'system') {
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+        this._bindSystemListener();
+      } else {
+        root.setAttribute('data-theme', themeName);
+      }
+
+      this._updateThemeUI();
+    };
+
+    // Animación Circular Ripple Reveal (View Transitions API)
+    if (typeof document !== 'undefined' && document.startViewTransition && clickEvent && clickEvent.clientX) {
+      const x = clickEvent.clientX;
+      const y = clickEvent.clientY;
+      const endRadius = Math.hypot(
+        Math.max(x, window.innerWidth - x),
+        Math.max(y, window.innerHeight - y)
+      );
+
+      const transition = document.startViewTransition(() => {
+        applyThemeChange();
+      });
+
+      transition.ready.then(() => {
+        const clipPath = [
+          `circle(0px at ${x}px ${y}px)`,
+          `circle(${endRadius}px at ${x}px ${y}px)`
+        ];
+        document.documentElement.animate(
+          { clipPath: clipPath },
+          {
+            duration: 500,
+            easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+            pseudoElement: '::view-transition-new(root)'
+          }
+        );
+      });
+    } else {
+      applyThemeChange();
+    }
+
+    if (showToast && window.showToast) {
+      const names = { light: 'Tema Claro', dark: 'Tema Oscuro', system: 'Tema Automático (SO)' };
+      window.showToast(`Tema visual actualizado a ${names[themeName] || themeName}`, 'info');
+    }
+  },
+
+  _updateThemeUI() {
+    const btnLight = document.getElementById('btnThemeLight');
+    const btnDark = document.getElementById('btnThemeDark');
+    const btnSystem = document.getElementById('btnThemeSystem');
+
+    const badgeLight = document.getElementById('badgeThemeLight');
+    const badgeDark = document.getElementById('badgeThemeDark');
+    const badgeSystem = document.getElementById('badgeThemeSystem');
+
+    if (!btnLight || !btnDark || !btnSystem) return;
+
+    [btnLight, btnDark, btnSystem].forEach(btn => btn.classList.remove('active'));
+    [badgeLight, badgeDark, badgeSystem].forEach(badge => {
+      if (badge) badge.style.display = 'none';
+    });
+
+    if (this._currentTheme === 'dark') {
+      btnDark.classList.add('active');
+      if (badgeDark) badgeDark.style.display = 'inline-flex';
+    } else if (this._currentTheme === 'system') {
+      btnSystem.classList.add('active');
+      if (badgeSystem) badgeSystem.style.display = 'inline-flex';
+    } else {
+      btnLight.classList.add('active');
+      if (badgeLight) badgeLight.style.display = 'inline-flex';
+    }
+  },
+
+  triggerSync() {
+    const btn = document.getElementById('btnTriggerSync');
+    const badge = document.getElementById('syncStatusBadge');
+    const timeLabel = document.getElementById('labelLastSyncTime');
+
+    if (btn) {
+      btn.disabled = true;
+      btn.style.opacity = '0.7';
+      btn.innerHTML = `
+        <svg class="spin" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+        </svg>
+        <span>Sincronizando...</span>
+      `;
+    }
+
+    if (badge) {
+      badge.className = 'badge badge-yellow';
+      badge.innerHTML = `<span class="status-dot yellow"></span> Sincronizando BD...`;
+    }
+
+    setTimeout(() => {
+      if (btn) {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.innerHTML = `
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+          </svg>
+          <span>Sincronizar Ahora</span>
+        `;
+      }
+
+      if (badge) {
+        badge.className = 'badge badge-green';
+        badge.innerHTML = `<span class="status-dot green"></span> En Línea (Sincronizado)`;
+      }
+
+      const now = new Date();
+      const timeStr = `Hoy a las ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+      if (timeLabel) timeLabel.textContent = timeStr;
+
+      if (window.showToast) {
+        window.showToast('Base de datos sincronizada exitosamente con el servidor remoto', 'success');
+      }
+    }, 1200);
+  },
+
+  toggleAlertSetting(key, enabled) {
+    localStorage.setItem(`pdi_alert_${key}`, enabled ? 'true' : 'false');
+    if (window.showToast) {
+      window.showToast(`Preferencia de alertas actualizada (${enabled ? 'activado' : 'desactivado'})`, 'info');
+    }
+  },
+
+  clearCache() {
+    if (window.showToast) {
+      window.showToast('Caché local limpiada. Refrescando plataforma...', 'warning');
+    }
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
+  }
+};
+
+window.PDI = window.PDI || {};
+window.PDI.AjustesView = AjustesView;
+window.setTheme = (t) => AjustesView.setTheme(t);
+window.triggerSync = () => AjustesView.triggerSync();
+window.clearCache = () => AjustesView.clearCache();
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => AjustesView.init());
+} else {
+  AjustesView.init();
+}
+
 

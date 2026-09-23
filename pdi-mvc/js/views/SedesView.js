@@ -184,7 +184,7 @@ export const SedesView = {
       chipsHTML.push(`
         <span class="padron-chip">
           <span>Distrito: ${this._filterDistrito}</span>
-          <button type="button" onclick="window.PDI?.SedesView?.removeFilterChip('distrito')">
+          <button type="button" class="padron-chip-remove" onclick="window.PDI?.SedesView?.removeFilterChip('distrito')" title="Eliminar filtro">
             <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
             </svg>
@@ -196,14 +196,14 @@ export const SedesView = {
     if (this._filterServicio !== "all") {
       activeCount++;
       const names = {
-        "Desayuno": "Nutricional",
-        "Casita": "Educativo",
-        "Lonchera": "Loncheras"
+        "Desayuno": "Servicio Alimentario Nutricional",
+        "Casita": "Acompañamiento Educativo",
+        "Lonchera": "Lonchera Saludable"
       };
       chipsHTML.push(`
         <span class="padron-chip">
           <span>Servicio: ${names[this._filterServicio] || this._filterServicio}</span>
-          <button type="button" onclick="window.PDI?.SedesView?.removeFilterChip('servicio')">
+          <button type="button" class="padron-chip-remove" onclick="window.PDI?.SedesView?.removeFilterChip('servicio')" title="Eliminar filtro">
             <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
             </svg>
