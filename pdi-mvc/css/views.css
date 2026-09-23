@@ -3880,9 +3880,9 @@
   background: var(--surface-1);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 16px 24px;
-  margin-bottom: 10px;
-  gap: 18px;
+  padding: 18px 28px;
+  margin-bottom: 12px;
+  gap: 20px;
   flex-wrap: wrap;
   width: 100%;
   box-sizing: border-box;
@@ -3891,14 +3891,14 @@
 .sedes-metric-item {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
   flex: 1;
-  min-width: 170px;
+  min-width: 180px;
 }
 
 .sedes-metric-icon {
-  width: 48px;
-  height: 48px;
+  width: 55px;
+  height: 55px;
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
@@ -3907,8 +3907,8 @@
 }
 
 .sedes-metric-icon svg {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
 }
 
 .sedes-metric-icon.green {
@@ -3943,7 +3943,7 @@
 }
 
 .sedes-metric-num {
-  font-size: 22px;
+  font-size: 25px;
   font-weight: 800;
   color: var(--text-main);
   line-height: 1.15;
@@ -3951,7 +3951,7 @@
 }
 
 .sedes-metric-lbl {
-  font-size: 13px;
+  font-size: 14.5px;
   color: var(--text-muted);
   font-weight: 500;
   margin-top: 2px;
@@ -3960,7 +3960,7 @@
 
 .sedes-metric-divider {
   width: 1px;
-  height: 42px;
+  height: 48px;
   background: var(--border-subtle);
 }
 
@@ -3968,33 +3968,37 @@
   .sedes-metric-strip {
     display: grid;
     grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-    gap: 14px 10px;
-    padding: 12px 10px;
+    gap: 18px 14px;
+    padding: 18px 14px;
     width: 100%;
     box-sizing: border-box;
   }
   .sedes-metric-item {
     min-width: 0;
-    gap: 8px;
+    gap: 14px;
     overflow: hidden;
   }
   .sedes-metric-icon {
-    width: 38px;
-    height: 38px;
+    width: 53px;
+    height: 53px;
   }
   .sedes-metric-icon svg {
-    width: 18px;
-    height: 18px;
+    width: 27px;
+    height: 27px;
   }
   .sedes-metric-num {
-    font-size: 15px;
+    font-size: 22px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
   .sedes-metric-lbl {
-    font-size: 10.5px;
-    white-space: nowrap;
+    font-size: 13px;
+    line-height: 1.25;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
   }

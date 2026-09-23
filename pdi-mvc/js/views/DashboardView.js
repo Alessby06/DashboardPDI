@@ -4,6 +4,12 @@ export const DashboardView = {
     const statEl = document.getElementById("statTotalNinos");
     if (statEl) statEl.textContent = stats.total;
 
+    const dashBenEl = document.getElementById("dashKpiBeneficiarios");
+    if (dashBenEl) dashBenEl.textContent = stats.total;
+
+    const dashTamEl = document.getElementById("dashKpiTamizados");
+    if (dashTamEl) dashTamEl.textContent = `${stats.total} / ${stats.total}`;
+
     const pctNormalEl = document.getElementById("pctNormal");
     if (pctNormalEl) pctNormalEl.textContent = stats.pctNormal + "%";
 
