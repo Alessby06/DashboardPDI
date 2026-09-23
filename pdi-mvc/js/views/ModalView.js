@@ -191,35 +191,41 @@ export const ModalView = {
       const serviciosArray = Array.isArray(b.servicios) ? b.servicios : [];
       const estrategiaStr = (b.estrategia || "").toLowerCase();
       
-      const hasDesayuno = serviciosArray.some(s => s.toLowerCase().includes("desayuno")) || 
-                          estrategiaStr.includes("desayuno") || 
-                          estrategiaStr.includes("mixto");
+      const hasNutricional = serviciosArray.some(s => s.toLowerCase().includes("alimentario") || s.toLowerCase().includes("nutric") || s.toLowerCase().includes("desayuno") || s.toLowerCase().includes("lonchera")) || 
+                             estrategiaStr.includes("desayuno") || 
+                             estrategiaStr.includes("lonchera") || 
+                             estrategiaStr.includes("nutric") ||
+                             estrategiaStr.includes("mixto");
       
-      const hasCasita = serviciosArray.some(s => s.toLowerCase().includes("casita")) || 
-                        estrategiaStr.includes("casita") || 
-                        estrategiaStr.includes("mixto");
+      const hasEducativo = serviciosArray.some(s => s.toLowerCase().includes("educativo") || s.toLowerCase().includes("acompañ") || s.toLowerCase().includes("casita")) || 
+                           estrategiaStr.includes("casita") || 
+                           estrategiaStr.includes("educat") ||
+                           estrategiaStr.includes("mixto");
       
-      const hasLonchera = serviciosArray.some(s => s.toLowerCase().includes("lonchera")) || 
-                          estrategiaStr.includes("lonchera");
+      const hasPastoral = serviciosArray.some(s => s.toLowerCase().includes("pastoral") || s.toLowerCase().includes("social") || s.toLowerCase().includes("asp")) || 
+                          estrategiaStr.includes("pastoral") ||
+                          estrategiaStr.includes("social") ||
+                          (b.exoneracionAporte && b.exoneracionAporte.includes("100%")) ||
+                          (b.vulnerabilidad && b.vulnerabilidad >= 80);
 
       const programasList = [
         {
-          id: "prog_desayuno",
-          nombre: "Programa Nutricional: Desayuno Infantil Comunitario",
-          desc: "Ración matutina balanceada y tamizaje antropométrico periódico",
-          active: hasDesayuno
+          id: "prog_nutricional",
+          nombre: "Servicio Alimentario Nutricional",
+          desc: "Ración matutina balanceada, complemento alimentario y tamizaje antropométrico periódico",
+          active: hasNutricional
         },
         {
-          id: "prog_casitas",
-          nombre: "Programa Pedagógico: Casitas del Saber (Refuerzo Escolar)",
-          desc: "Acompañamiento psicopedagógico, tutoría y entrega de kits escolares",
-          active: hasCasita
+          id: "prog_educativo",
+          nombre: "Servicio Acompañamiento Educativo",
+          desc: "Acompañamiento psicopedagógico, tutoría, refuerzo escolar y entrega de kits de útiles",
+          active: hasEducativo
         },
         {
-          id: "prog_lonchera",
-          nombre: "Programa de Lonchera Infantil Saludable",
-          desc: "Complemento nutricional para instituciones educativas focalizadas",
-          active: hasLonchera
+          id: "prog_pastoral",
+          nombre: "Área Social Pastoral",
+          desc: "Acompañamiento espiritual-familiar, soporte socioemocional y visitas de riesgo",
+          active: hasPastoral
         }
       ];
 
@@ -232,9 +238,6 @@ export const ModalView = {
             <span class="programa-name">${prog.nombre}</span>
             <span class="programa-desc">${prog.desc}</span>
           </div>
-          <span class="badge ${prog.active ? 'badge-green' : 'badge-gray'}" style="font-size:10px; padding:2px 7px;">
-            ${prog.active ? 'Inscrito y Activo' : 'No Asignado'}
-          </span>
         </div>
       `).join("");
     }
@@ -347,17 +350,13 @@ export const ModalView = {
                 <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg>
                 <span>Tel: ${p.telefono}</span>
               </div>
-              <div style="margin-top:6px; display:flex; align-items:center; justify-content:space-between;">
-                <span class="badge badge-green" style="font-size:10px; padding:2px 6px;">Acreditado Anexo 2</span>
-                <span style="font-size:10.5px; color:var(--gt-green); font-weight:700;"></span>
-              </div>
             </div>
           </div>
         `;
       }).join("");
     }
 
-    // 5. Consentimiento Informado Ley N.° 29733 (Ficha A3) - Rediseño Moderno
+    // 5. Consentimiento Informado Ley N.° 29733 - Rediseño Moderno
     const consentContainer = document.getElementById("expConsentimientoChecksContainer");
     if (consentContainer) {
       consentContainer.innerHTML = `
@@ -368,7 +367,6 @@ export const ModalView = {
                 <svg width="15" height="15" fill="none" stroke="var(--gt-green)" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
                 <span>Evaluación y Seguimiento Social</span>
               </div>
-              <span class="badge badge-green" style="font-size:10px; padding:2px 6px;">Autorizado</span>
             </div>
             <div class="ley-card-desc">Elaboración de historias de vida, encuestas de vulnerabilidad y métricas de impacto socioeconómico.</div>
             <span class="ley-card-art">Art. 13, num. 5 y 6 Ley 29733</span>
@@ -380,7 +378,6 @@ export const ModalView = {
                 <svg width="15" height="15" fill="none" stroke="var(--gt-green)" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
                 <span>Registro Audiovisual Institucional</span>
               </div>
-              <span class="badge badge-green" style="font-size:10px; padding:2px 6px;">Autorizado</span>
             </div>
             <div class="ley-card-desc">Toma de fotografías y videos para memorias anuales, rendición de cuentas e informes a benefactores.</div>
             <span class="ley-card-art">Art. 13, num. 5 Ley 29733</span>
@@ -392,7 +389,6 @@ export const ModalView = {
                 <svg width="15" height="15" fill="none" stroke="var(--gt-green)" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
                 <span>Gestión de Fondos y Sostenibilidad</span>
               </div>
-              <span class="badge badge-green" style="font-size:10px; padding:2px 6px;">Autorizado</span>
             </div>
             <div class="ley-card-desc">Recaudación de aportes, auditorías de donantes y reportes financieros de permanencia del programa.</div>
             <span class="ley-card-art">Art. 13, num. 5 y 6 Ley 29733</span>
@@ -404,7 +400,6 @@ export const ModalView = {
                 <svg width="15" height="15" fill="none" stroke="var(--gt-green)" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
                 <span>Flujo Transfronterizo de Datos</span>
               </div>
-              <span class="badge badge-green" style="font-size:10px; padding:2px 6px;">Autorizado</span>
             </div>
             <div class="ley-card-desc">Transferencia a la entidad cooperante Kinderwerk Lima e.V. (Alemania) con cifrado y medidas de seguridad.</div>
             <span class="ley-card-art">D.S. N.° 016-2024-JUS</span>
@@ -418,7 +413,7 @@ export const ModalView = {
             </svg>
           </div>
           <div class="ley-cert-text">
-            <strong>Certificación de Consentimiento Informado Válido (Ficha A3)</strong><br>
+            <strong>Certificación de Consentimiento Informado Válido</strong><br>
             Otorgado y firmado digitalmente por el apoderado legal: <strong>${b.apoderado}</strong> (DNI: <strong>${b.apoderadoDni || '41982341'}</strong>). Cumplimiento normativo vigente bajo la <strong>Ley N.° 29733</strong> y el <strong>D.S. N.° 016-2024-JUS</strong>.
           </div>
         </div>

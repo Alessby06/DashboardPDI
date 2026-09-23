@@ -20,7 +20,9 @@ window.handleFotoUpload = (input, previewId, roleKey) => BeneficiarioController.
 window.toggleMismoApoderado = (checked) => BeneficiarioController.syncMismoApoderado(checked);
 window.closeModalExpediente = () => ModalView.closeExpediente();
 window.closeModalNuevoMenor = () => ModalView.closeNuevoMenor();
+window.closeModalNuevoBeneficiario = () => ModalView.closeNuevoMenor();
 window.openModalNuevoMenor = () => ModalView.openNuevoMenor();
+window.openModalNuevoBeneficiario = () => ModalView.openNuevoMenor();
 window.closeModalInforme = () => ModalView.closeInforme();
 window.closeSpotlightTour = () => SpotlightView.closeTour();
 window.spotlightNext = () => SpotlightView.next((view) => AppController.navigateToView(view));
@@ -41,6 +43,7 @@ window.calcularEvaluacionSocioeconomica = () => SocialController.calcularEvaluac
 window.syncScoreSimulador = (dimKey, val) => SocialController.syncScore(dimKey, val);
 window.cargarCasoEnSimulador = (codigo) => SocialController.cargarCasoEnSimulador(codigo);
 window.guardarNuevoMenor = (e) => BeneficiarioController.saveNuevoMenor(e, () => AppController.refreshAllViews());
+window.guardarNuevoBeneficiario = (e) => BeneficiarioController.saveNuevoMenor(e, () => AppController.refreshAllViews());
 window.exportDataCSV = () => AppController.exportCSV();
 window.exportAuditCSV = () => AppController.exportAuditCSV();
 

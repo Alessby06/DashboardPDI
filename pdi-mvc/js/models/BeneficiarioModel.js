@@ -20,8 +20,8 @@ export const defaultBeneficiarios = [
     "estrategia": "Mixto (Desayuno + Casita)",
     "exoneracionAporte": "100% (Exonerado Vulnerabilidad Extrema)",
     "servicios": [
-      "Desayuno Infantil",
-      "Casita del Saber"
+      "Servicio Alimentario Nutricional",
+      "Servicio Acompañamiento Educativo"
     ],
     "seguro": "SIS Gratuito",
     "centroSalud": "C.S. Año Nuevo",
@@ -84,10 +84,10 @@ export const defaultBeneficiarios = [
     "distrito": "Comas",
     "sede": "La Libertad",
     "modalidad": "Comunitaria",
-    "estrategia": "Desayuno Infantil",
+    "estrategia": "Servicio Alimentario Nutricional",
     "exoneracionAporte": "50% (Semi-exonerado)",
     "servicios": [
-      "Desayuno Infantil"
+      "Servicio Alimentario Nutricional"
     ],
     "seguro": "SIS Gratuito",
     "centroSalud": "C.S. La Libertad",
@@ -142,8 +142,8 @@ export const defaultBeneficiarios = [
     "estrategia": "Mixto (Desayuno + Casita)",
     "exoneracionAporte": "100% (Exonerado Vulnerabilidad Extrema)",
     "servicios": [
-      "Desayuno Infantil",
-      "Casita del Saber"
+      "Servicio Alimentario Nutricional",
+      "Servicio Acompañamiento Educativo"
     ],
     "seguro": "SIS Gratuito",
     "centroSalud": "C.S. El Progreso",
@@ -195,10 +195,10 @@ export const defaultBeneficiarios = [
     "distrito": "Comas",
     "sede": "Año Nuevo",
     "modalidad": "Institución Educativa",
-    "estrategia": "Casita del Saber",
+    "estrategia": "Servicio Acompañamiento Educativo",
     "exoneracionAporte": "0% (Aporte Ordinario)",
     "servicios": [
-      "Casita del Saber"
+      "Servicio Acompañamiento Educativo"
     ],
     "seguro": "EsSalud",
     "centroSalud": "Policlínico Comas",
@@ -250,10 +250,10 @@ export const defaultBeneficiarios = [
     "distrito": "Carabayllo",
     "sede": "San Pedro",
     "modalidad": "Comunitaria",
-    "estrategia": "Desayuno Infantil",
+    "estrategia": "Servicio Alimentario Nutricional",
     "exoneracionAporte": "100% (Exonerado Vulnerabilidad Extrema)",
     "servicios": [
-      "Desayuno Infantil"
+      "Servicio Alimentario Nutricional"
     ],
     "seguro": "SIS Gratuito",
     "centroSalud": "P.S. San Pedro",
@@ -308,8 +308,8 @@ export const defaultBeneficiarios = [
     "estrategia": "Mixto (Desayuno + Casita)",
     "exoneracionAporte": "100% (Exonerado Vulnerabilidad Extrema)",
     "servicios": [
-      "Desayuno Infantil",
-      "Casita del Saber"
+      "Servicio Alimentario Nutricional",
+      "Servicio Acompañamiento Educativo"
     ],
     "seguro": "SIS Gratuito",
     "centroSalud": "C.S. San Benito",
@@ -361,10 +361,10 @@ export const defaultBeneficiarios = [
     "distrito": "Comas",
     "sede": "Año Nuevo",
     "modalidad": "Comunitaria",
-    "estrategia": "Desayuno Infantil",
+    "estrategia": "Servicio Alimentario Nutricional",
     "exoneracionAporte": "50% (Semi-exonerado)",
     "servicios": [
-      "Desayuno Infantil"
+      "Servicio Alimentario Nutricional"
     ],
     "seguro": "SIS Gratuito",
     "centroSalud": "C.S. Año Nuevo",
@@ -422,10 +422,10 @@ export const defaultBeneficiarios = [
     "distrito": "Carabayllo",
     "sede": "San Pedro",
     "modalidad": "Comunitaria",
-    "estrategia": "Desayuno Infantil",
+    "estrategia": "Servicio Alimentario Nutricional",
     "exoneracionAporte": "100% (Exonerado Vulnerabilidad Extrema)",
     "servicios": [
-      "Desayuno Infantil"
+      "Servicio Alimentario Nutricional"
     ],
     "seguro": "SIS Gratuito",
     "centroSalud": "P.S. San Pedro",
@@ -477,10 +477,10 @@ export const defaultBeneficiarios = [
     "distrito": "Comas",
     "sede": "La Libertad",
     "modalidad": "Institución Educativa",
-    "estrategia": "Casita del Saber",
+    "estrategia": "Servicio Acompañamiento Educativo",
     "exoneracionAporte": "0% (Aporte Ordinario)",
     "servicios": [
-      "Casita del Saber"
+      "Servicio Acompañamiento Educativo"
     ],
     "seguro": "EsSalud",
     "centroSalud": "Policlínico Comas",
@@ -535,8 +535,8 @@ export const defaultBeneficiarios = [
     "estrategia": "Mixto (Desayuno + Casita)",
     "exoneracionAporte": "100% (Exonerado Vulnerabilidad Extrema)",
     "servicios": [
-      "Desayuno Infantil",
-      "Casita del Saber"
+      "Servicio Alimentario Nutricional",
+      "Servicio Acompañamiento Educativo"
     ],
     "seguro": "SIS Gratuito",
     "centroSalud": "C.S. El Progreso",
@@ -588,10 +588,10 @@ export const defaultBeneficiarios = [
     "distrito": "Comas",
     "sede": "Carmen Alto",
     "modalidad": "Institución Educativa",
-    "estrategia": "Casita del Saber",
+    "estrategia": "Servicio Acompañamiento Educativo",
     "exoneracionAporte": "50% (Semi-exonerado)",
     "servicios": [
-      "Casita del Saber"
+      "Servicio Acompañamiento Educativo"
     ],
     "seguro": "SIS Gratuito",
     "centroSalud": "C.S. Año Nuevo",
@@ -643,10 +643,10 @@ export const defaultBeneficiarios = [
     "distrito": "Carabayllo",
     "sede": "San Pedro",
     "modalidad": "Comunitaria",
-    "estrategia": "Desayuno Infantil",
+    "estrategia": "Servicio Alimentario Nutricional",
     "exoneracionAporte": "100% (Exonerado Vulnerabilidad Extrema)",
     "servicios": [
-      "Desayuno Infantil"
+      "Servicio Alimentario Nutricional"
     ],
     "seguro": "SIS Gratuito",
     "centroSalud": "P.S. San Pedro",
@@ -701,8 +701,8 @@ export const defaultBeneficiarios = [
     "estrategia": "Mixto (Desayuno + Casita)",
     "exoneracionAporte": "50% (Semi-exonerado)",
     "servicios": [
-      "Desayuno Infantil",
-      "Casita del Saber"
+      "Servicio Alimentario Nutricional",
+      "Servicio Acompañamiento Educativo"
     ],
     "seguro": "SIS Gratuito",
     "centroSalud": "C.S. Año Nuevo",
@@ -754,10 +754,10 @@ export const defaultBeneficiarios = [
     "distrito": "Carabayllo",
     "sede": "El Progreso",
     "modalidad": "Comunitaria",
-    "estrategia": "Desayuno Infantil",
+    "estrategia": "Servicio Alimentario Nutricional",
     "exoneracionAporte": "100% (Exonerado Vulnerabilidad Extrema)",
     "servicios": [
-      "Desayuno Infantil"
+      "Servicio Alimentario Nutricional"
     ],
     "seguro": "SIS Gratuito",
     "centroSalud": "C.S. El Progreso",
@@ -809,10 +809,10 @@ export const defaultBeneficiarios = [
     "distrito": "Comas",
     "sede": "La Libertad",
     "modalidad": "Institución Educativa",
-    "estrategia": "Casita del Saber",
+    "estrategia": "Servicio Acompañamiento Educativo",
     "exoneracionAporte": "0% (Aporte Ordinario)",
     "servicios": [
-      "Casita del Saber"
+      "Servicio Acompañamiento Educativo"
     ],
     "seguro": "EsSalud",
     "centroSalud": "Policlínico Comas",
@@ -852,12 +852,61 @@ export const defaultBeneficiarios = [
   }
 ];
 
+export function normalizeBeneficiarioServicios(b) {
+  if (!b) return b;
+  const rawServicios = Array.isArray(b.servicios) ? b.servicios : [];
+  const normalized = new Set();
+  const lowerEstrategia = (b.estrategia || "").toLowerCase();
+
+  rawServicios.forEach(s => {
+    const low = (s || "").toLowerCase();
+    if (low.includes("desayuno") || low.includes("alimento") || low.includes("lonchera") || low.includes("nutric")) {
+      normalized.add("Servicio Alimentario Nutricional");
+    } else if (low.includes("casita") || low.includes("educativ") || low.includes("refuerzo") || low.includes("escolar") || low.includes("acompañ")) {
+      normalized.add("Servicio Acompañamiento Educativo");
+    } else if (low.includes("pastoral") || low.includes("social") || low.includes("asp")) {
+      normalized.add("Área Social Pastoral");
+    } else {
+      normalized.add(s);
+    }
+  });
+
+  if (normalized.size === 0) {
+    if (lowerEstrategia.includes("desayuno") || lowerEstrategia.includes("lonchera") || lowerEstrategia.includes("alimento")) {
+      normalized.add("Servicio Alimentario Nutricional");
+    }
+    if (lowerEstrategia.includes("casita") || lowerEstrategia.includes("educat") || lowerEstrategia.includes("acompañ")) {
+      normalized.add("Servicio Acompañamiento Educativo");
+    }
+    if (lowerEstrategia.includes("pastoral") || lowerEstrategia.includes("social")) {
+      normalized.add("Área Social Pastoral");
+    }
+    if (lowerEstrategia.includes("mixto")) {
+      normalized.add("Servicio Alimentario Nutricional");
+      normalized.add("Servicio Acompañamiento Educativo");
+    }
+  }
+
+  if (normalized.size === 0) {
+    normalized.add("Servicio Alimentario Nutricional");
+  }
+
+  b.servicios = Array.from(normalized);
+  return b;
+}
+
 export const BeneficiarioModel = {
   _data: null,
 
   init() {
     const storage = window.PDI?.StorageService || StorageService;
-    this._data = storage.getItem("pdi_mock_beneficiarios", defaultBeneficiarios);
+    let list = storage.getItem("pdi_mock_beneficiarios", defaultBeneficiarios);
+    if (!list || !Array.isArray(list) || list.length === 0) {
+      list = defaultBeneficiarios;
+    }
+    // Normalizar servicios de todos los beneficiarios (existentes y por defecto)
+    this._data = list.map(b => normalizeBeneficiarioServicios(b));
+    storage.setItem("pdi_mock_beneficiarios", this._data);
     return this._data;
   },
 
@@ -880,6 +929,7 @@ export const BeneficiarioModel = {
 
   add(nuevoMenor) {
     const list = this.getAll();
+    normalizeBeneficiarioServicios(nuevoMenor);
     list.unshift(nuevoMenor);
     const storage = window.PDI?.StorageService || StorageService;
     storage.setItem("pdi_mock_beneficiarios", list);
@@ -890,7 +940,7 @@ export const BeneficiarioModel = {
     const list = this.getAll();
     const idx = list.findIndex(b => b.id === Number(id));
     if (idx !== -1) {
-      list[idx] = { ...list[idx], ...updatedData };
+      list[idx] = normalizeBeneficiarioServicios({ ...list[idx], ...updatedData });
       const storage = window.PDI?.StorageService || StorageService;
       storage.setItem("pdi_mock_beneficiarios", list);
       return list[idx];

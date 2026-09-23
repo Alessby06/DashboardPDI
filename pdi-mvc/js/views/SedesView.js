@@ -189,38 +189,77 @@ export const SedesView = {
       const mapQuery = encodeURIComponent(`${sede.direccion}, ${sede.distrito}, Lima, Peru`);
       const mapsNavUrl = `https://www.google.com/maps/dir/?api=1&destination=${mapQuery}`;
 
+      // Homologar visualización de nombres de servicios
+      const servicioLabels = {
+        "Desayuno Infantil": "Desayuno Nutricional",
+        "Casita del Saber": "Acompañamiento Educativo",
+        "Lonchera Infantil": "Lonchera Saludable"
+      };
+
       return `
         <div class="sede-card">
-          <!-- Cabecera de Sede -->
+          <!-- Cabecera de Sede Renovada -->
           <div class="sede-card-header">
-            <div class="sede-header-info">
-              <div class="sede-distrito-tag">${sede.distrito}</div>
-              <h3 class="sede-card-title">Sede ${sede.nombre}</h3>
+            <div class="sede-header-identity">
+              <div class="sede-avatar-box" title="Sede Territorial PDI">
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.333A1.125 1.125 0 0018.375 9.21H5.625A1.125 1.125 0 004.5 10.333V21h15z" />
+                </svg>
+              </div>
+              <div class="sede-header-info">
+                <span class="sede-distrito-tag">${sede.distrito}</span>
+                <h3 class="sede-card-title">Sede ${sede.nombre}</h3>
+              </div>
             </div>
             <div class="sede-header-badge">
               <span class="badge ${sede.estado === 'Operativa' ? 'badge-green' : 'badge-gray'}">${sede.estado}</span>
             </div>
           </div>
 
-          <!-- Servicios Institucionales que operan en la Sede -->
+          <!-- Servicios Institucionales Homologados (SVGs específicos) -->
           <div class="sede-servicios-wrap">
-            ${sede.servicios.map(serv => `
-              <span class="sede-servicio-pill">
-                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            ${sede.servicios.map(serv => {
+              const displayServ = servicioLabels[serv] || serv;
+              let sIcon = `
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
                 </svg>
-                <span>${serv}</span>
-              </span>
-            `).join("")}
+              `;
+              if (serv.toLowerCase().includes("desayuno") || serv.toLowerCase().includes("nutricional")) {
+                sIcon = `
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                  </svg>
+                `;
+              } else if (serv.toLowerCase().includes("casita") || serv.toLowerCase().includes("educativ")) {
+                sIcon = `
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                  </svg>
+                `;
+              } else if (serv.toLowerCase().includes("lonchera")) {
+                sIcon = `
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                  </svg>
+                `;
+              }
+              return `
+                <span class="sede-servicio-pill">
+                  ${sIcon}
+                  <span>${displayServ}</span>
+                </span>
+              `;
+            }).join("")}
           </div>
 
-          <!-- Barra de Aforo y Ocupación -->
+          <!-- Barra de Aforo y Ocupación Pulida -->
           <div class="sede-aforo-section">
             <div class="sede-aforo-labels">
               <span class="sede-aforo-title">Aforo y Capacidad:</span>
               <span class="sede-aforo-count">
-                <strong>${sede.ninosInscritos}</strong> / ${sede.aforoMax} niños
-                <span class="badge ${badgeAforoClass}" style="font-size:10px; padding:1px 5px; margin-left:4px;">${pct}%</span>
+                <strong>${sede.ninosInscritos}</strong> / ${sede.aforoMax} beneficiarios
+                <span class="badge ${badgeAforoClass}" style="font-size:10.5px; padding:1px 6px;">${pct}%</span>
               </span>
             </div>
             <div class="sede-aforo-bar">
@@ -228,21 +267,21 @@ export const SedesView = {
             </div>
           </div>
 
-          <!-- Grid de Detalles Operativos, Aliados y Contacto -->
+          <!-- Grid de Detalles Operativos con Iconos Nítidos -->
           <div class="sede-info-grid">
             <!-- Facilitadora a Cargo -->
             <div class="sede-info-item">
               <div class="sede-info-label">
-                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                 </svg>
                 <span>Responsable de Sede:</span>
               </div>
-              <div class="sede-info-val"><strong>${sede.facilitadora}</strong></div>
+              <div class="sede-info-val">${sede.facilitadora}</div>
               <div class="sede-info-sub">
                 <span>${sede.facilitadoraCargo}</span>
-                <a href="tel:${sede.facilitadoraTel.replace(/[^0-9]/g, '')}" class="sede-tel-link" title="Llamar a responsable de sede">
-                  <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <a href="tel:${sede.facilitadoraTel.replace(/[^0-9]/g, '')}" class="sede-tel-link" title="Llamar al ${sede.facilitadoraTel}">
+                  <svg width="10.5" height="10.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
                   </svg>
                   <span>${sede.facilitadoraTel}</span>
@@ -253,44 +292,44 @@ export const SedesView = {
             <!-- Iglesia o Institución Aliada -->
             <div class="sede-info-item">
               <div class="sede-info-label">
-                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.333A1.125 1.125 0 0018.375 9.21H5.625A1.125 1.125 0 004.5 10.333V21h15z" />
                 </svg>
                 <span>${sede.tipoAliado}:</span>
               </div>
-              <div class="sede-info-val"><strong>${sede.iglesiaAliada}</strong></div>
+              <div class="sede-info-val">${sede.iglesiaAliada}</div>
               <div class="sede-info-sub" style="color:var(--text-muted);">${sede.pastorAliado}</div>
             </div>
 
             <!-- Dirección Física y Ubicación -->
-            <div class="sede-info-item" style="grid-column: 1 / -1;">
+            <div class="sede-info-item sede-info-address">
               <div class="sede-info-label">
-                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                 </svg>
-                <span>Dirección y Referencia:</span>
+                <span>Ubicación y Referencia:</span>
               </div>
-              <div class="sede-info-val" style="font-size:12.5px; line-height:1.4;">
+              <div class="sede-info-val">
                 ${sede.direccion}
-                <div style="font-size:11.5px; color:var(--text-dim); margin-top:2px;">Ref: ${sede.referencia}</div>
+                <div style="font-size:11px; font-weight:normal; color:var(--text-dim); margin-top:2px;">Ref: ${sede.referencia}</div>
               </div>
             </div>
           </div>
 
           <!-- Pie de Acciones de Sede -->
           <div class="sede-card-footer">
-            <a href="${mapsNavUrl}" target="_blank" class="btn-action btn-sede-map" title="Ver ubicación en Google Maps">
-              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <a href="${mapsNavUrl}" target="_blank" class="btn-action btn-sede-map" title="Abrir ubicación en Google Maps">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934a1.12 1.12 0 01-1.006 0L9.503 3.31a1.125 1.125 0 00-1.006 0L3.623 5.748A1.125 1.125 0 003 6.754v11.926c0 .836.88 1.38 1.628 1.006l3.869-1.934a1.12 1.12 0 011.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
               </svg>
               <span>Ver Mapa</span>
             </a>
-            <button type="button" class="btn-action primary btn-sede-padron" onclick="window.filterPadronBySede ? window.filterPadronBySede('${sede.nombre}') : null" title="Ver listado de menores en esta sede">
-              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <button type="button" class="btn-action primary btn-sede-padron" onclick="window.filterPadronBySede ? window.filterPadronBySede('${sede.nombre}') : null" title="Ver beneficiarios de esta sede en el Padrón">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
               </svg>
-              <span>Ver Niños en Padrón</span>
+              <span>Ver Beneficiarios</span>
             </button>
           </div>
         </div>

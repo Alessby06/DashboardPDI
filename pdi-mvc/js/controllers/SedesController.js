@@ -40,6 +40,8 @@ export const SedesController = {
   clearFilters() {
     const input = document.getElementById("inputSedesSearch");
     if (input) input.value = "";
+    const clearBtn = document.getElementById("btnSedesSearchClear");
+    if (clearBtn) clearBtn.style.display = "none";
     const sView = window.PDI?.SedesView || SedesView;
     if (sView) {
       sView._searchQuery = "";

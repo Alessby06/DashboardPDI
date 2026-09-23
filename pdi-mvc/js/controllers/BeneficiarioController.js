@@ -437,7 +437,21 @@ export const BeneficiarioController = {
       modalidad,
       estrategia,
       exoneracionAporte,
-      servicios: estrategia.includes("Mixto") ? ["Desayuno Infantil", "Casita del Saber"] : [estrategia],
+      servicios: (() => {
+        const s = new Set();
+        const estLow = (estrategia || "").toLowerCase();
+        if (estLow.includes("desayuno") || estLow.includes("lonchera") || estLow.includes("alimento") || estLow.includes("nutric") || estLow.includes("mixto")) {
+          s.add("Servicio Alimentario Nutricional");
+        }
+        if (estLow.includes("casita") || estLow.includes("educativ") || estLow.includes("acompañ") || estLow.includes("mixto")) {
+          s.add("Servicio Acompañamiento Educativo");
+        }
+        if (estLow.includes("pastoral") || estLow.includes("social") || (exoneracionAporte && exoneracionAporte.includes("100%"))) {
+          s.add("Área Social Pastoral");
+        }
+        if (s.size === 0) s.add("Servicio Alimentario Nutricional");
+        return Array.from(s);
+      })(),
       seguro,
       centroSalud,
       alergias,

@@ -1006,21 +1006,38 @@
         margin-bottom: 8px !important;
       }
       .audit-header-title-row {
+        display: flex !important;
         flex-direction: row !important;
         align-items: center !important;
         justify-content: space-between !important;
+        flex-wrap: nowrap !important;
         gap: 8px !important;
+        width: 100% !important;
       }
       .audit-header-left {
+        display: flex !important;
+        align-items: center !important;
         gap: 6px !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        flex-wrap: nowrap !important;
       }
       .audit-header-left h2 {
-        font-size: 22px !important;
+        font-size: 18px !important;
         line-height: 1.25 !important;
+        margin: 0 !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+      }
+      .audit-legal-popover-wrapper {
+        flex-shrink: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
       }
       .audit-legal-icon-btn {
-        width: 24px !important;
-        height: 24px !important;
+        width: 26px !important;
+        height: 26px !important;
+        flex-shrink: 0 !important;
       }
       .audit-legal-icon-btn svg {
         width: 13px !important;
@@ -1038,10 +1055,14 @@
       }
       .audit-header-badge-actions {
         width: auto !important;
+        flex-shrink: 0 !important;
+        display: flex !important;
+        align-items: center !important;
       }
       .btn-action-icon.btn-audit-export-icon {
         width: 32px !important;
         height: 32px !important;
+        flex-shrink: 0 !important;
       }
       .btn-action-icon.btn-audit-export-icon svg {
         width: 16px !important;
@@ -1184,7 +1205,8 @@
     }
 
     /* Barra de Paginación y Densidad */
-    .audit-pagination-bar {
+    .audit-pagination-bar,
+    .padron-pagination-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -1193,13 +1215,43 @@
       background: var(--surface-1);
       flex-wrap: wrap;
       gap: 12px;
+      border-bottom-left-radius: var(--radius-lg);
+      border-bottom-right-radius: var(--radius-lg);
     }
 
     .audit-pagination-left,
-    .audit-pagination-right {
+    .audit-pagination-right,
+    .padron-pagination-left,
+    .padron-pagination-right {
       display: flex;
       align-items: center;
       gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 640px) {
+      .padron-pagination-bar,
+      .audit-pagination-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 12px 14px;
+      }
+      .padron-pagination-left,
+      .audit-pagination-left {
+        justify-content: space-between;
+        width: 100%;
+      }
+      .padron-pagination-right,
+      .audit-pagination-right {
+        justify-content: space-between;
+        width: 100%;
+      }
+      .padron-pagination-right .btn-page,
+      .audit-pagination-right .btn-page {
+        flex: 1;
+        justify-content: center;
+      }
     }
 
     .audit-density-select {
@@ -1777,6 +1829,12 @@
       }
       #labelActiveRole {
         font-size: 13px !important;
+      }
+      .audit-header-left h2 {
+        font-size: 16.5px !important;
+      }
+      .audit-header-title-row {
+        gap: 6px !important;
       }
     }
 
@@ -3693,21 +3751,24 @@
   background: var(--surface-1);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 14px 16px;
+  padding: 12px 16px;
   margin-bottom: 20px;
+  box-shadow: var(--shadow-ambient);
 }
 
 .sedes-toolbar-row {
   display: flex;
-  gap: 14px;
+  gap: 12px;
   align-items: center;
   flex-wrap: wrap;
 }
 
 .sedes-search-wrap {
   flex: 1;
-  min-width: 260px;
+  min-width: 250px;
   position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .sedes-search-icon {
@@ -3716,13 +3777,31 @@
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
+  color: var(--text-dim);
 }
 
 .sedes-search-wrap input {
   padding-left: 36px;
-  padding-right: 32px;
+  padding-right: 36px;
   height: 38px;
   font-size: 13px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  transition: all var(--dur-fast) var(--ease-smooth);
+}
+
+.sedes-search-wrap input:focus {
+  background: var(--surface-1);
+  border-color: var(--gt-green);
+  box-shadow: 0 0 0 2px var(--gt-green-bg);
+}
+
+.sedes-search-wrap .audit-search-clear {
+  position: absolute;
+  right: 9px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .sedes-filter-group {
@@ -3733,7 +3812,7 @@
 }
 
 .sedes-filter-title {
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -3772,7 +3851,7 @@
 
 .sedes-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   gap: 18px;
 }
 
@@ -3780,17 +3859,18 @@
   background: var(--surface-1);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 16px;
+  padding: 18px;
   display: flex;
   flex-direction: column;
-  gap: 13px;
+  gap: 14px;
   transition: transform var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast);
   position: relative;
+  overflow: hidden;
 }
 
 .sede-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
   border-color: var(--border-bright);
 }
 
@@ -3798,13 +3878,35 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 10px;
+  gap: 12px;
+}
+
+.sede-header-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.sede-avatar-box {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  background: var(--gt-green-bg);
+  border: 1px solid var(--gt-green-border);
+  color: var(--gt-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .sede-header-info {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 
 .sede-distrito-tag {
@@ -3821,6 +3923,9 @@
   color: var(--text-main);
   margin: 0;
   line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sede-servicios-wrap {
@@ -3832,13 +3937,13 @@
 .sede-servicio-pill {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 11px;
+  gap: 5px;
+  font-size: 11.5px;
   font-weight: 600;
   background: var(--surface-2);
   border: 1px solid var(--border-subtle);
-  border-radius: 4px;
-  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  padding: 3px 10px;
   color: var(--text-main);
 }
 
@@ -3872,6 +3977,7 @@
   color: var(--text-main);
   display: flex;
   align-items: center;
+  gap: 4px;
 }
 
 .sede-aforo-bar {
@@ -3891,21 +3997,25 @@
 .sede-info-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 12px;
   font-size: 12px;
 }
 
 .sede-info-item {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
 }
 
 .sede-info-label {
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -3919,8 +4029,9 @@
 
 .sede-info-val {
   color: var(--text-main);
-  font-size: 12.5px;
+  font-size: 12px;
   line-height: 1.35;
+  font-weight: 600;
 }
 
 .sede-info-sub {
@@ -3943,8 +4054,9 @@
   color: var(--gt-green);
   text-decoration: none;
   background: var(--gt-green-bg);
-  padding: 2px 6px;
-  border-radius: 4px;
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--gt-green-border);
   transition: background-color var(--dur-fast);
 }
 
@@ -3953,11 +4065,15 @@
   background: rgba(0, 180, 148, 0.22);
 }
 
+.sede-info-address {
+  grid-column: 1 / -1;
+}
+
 .sede-card-footer {
   display: flex;
   gap: 8px;
   margin-top: auto;
-  padding-top: 12px;
+  padding-top: 14px;
   border-top: 1px solid var(--border-subtle);
 }
 
@@ -3965,12 +4081,14 @@
   flex: 1;
   justify-content: center;
   font-size: 12px;
+  height: 34px;
 }
 
 .btn-sede-padron {
   flex: 1.4;
   justify-content: center;
   font-size: 12px;
+  height: 34px;
 }
 
 @media (max-width: 768px) {

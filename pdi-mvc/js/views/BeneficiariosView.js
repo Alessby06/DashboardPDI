@@ -1,6 +1,9 @@
-// Vista: Padrón de Menores Beneficiarios
+// Vista: Padrón de Beneficiarios
 export const BeneficiariosView = {
   _allBeneficiarios: [],
+  _filteredBeneficiarios: [],
+  _currentPage: 1,
+  _pageSize: 20,
   _searchQuery: "",
   _filterServicio: [], // array de servicios seleccionados (vacío = todos)
   _filterSede: [],     // array de sedes seleccionadas (vacío = todas)
@@ -9,17 +12,78 @@ export const BeneficiariosView = {
   _filterEdadExacta: null, // number 0-18 o null
   _filterEdadRango: { min: 0, max: 18 },
   _filterEstado: "all", // "all" | "Activo" | "Inactivo"
+  _filterSexo: "all",   // "all" | "M" | "F"
 
   init(beneficiarios) {
     this._allBeneficiarios = beneficiarios || [];
-    this.applyFilters();
+    this._currentPage = 1;
+    this._pageSize = this._getEffectivePageSize();
+    this._syncPageSizeSelectUI();
+    this.applyFilters(true);
   },
 
   renderTable(beneficiarios) {
     if (beneficiarios) {
       this._allBeneficiarios = beneficiarios;
     }
-    this.applyFilters();
+    this.applyFilters(false);
+  },
+
+  _getEffectivePageSize() {
+    const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+    if (isMobile) {
+      return Math.min(20, this._pageSize || 20);
+    }
+    return Math.min(50, this._pageSize || 20);
+  },
+
+  _syncPageSizeSelectUI() {
+    const select = document.getElementById("selectPadronPageSize");
+    if (select) {
+      const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+      // En móvil, deshabilitar opción 50 y ajustar a 20 si estaba en 50
+      const opt50 = select.querySelector('option[value="50"]');
+      if (opt50) {
+        opt50.disabled = isMobile;
+        if (isMobile && select.value === "50") {
+          select.value = "20";
+          this._pageSize = 20;
+        }
+      }
+      select.value = String(this._pageSize);
+    }
+  },
+
+  setPageSize(size) {
+    const num = parseInt(size, 10);
+    const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+    const maxAllowed = isMobile ? 20 : 50;
+    this._pageSize = isNaN(num) ? 20 : Math.min(maxAllowed, Math.max(5, num));
+    this._currentPage = 1;
+    this._syncPageSizeSelectUI();
+    this.applyFilters(false);
+  },
+
+  goToPage(page) {
+    const pageSize = this._getEffectivePageSize();
+    const totalPages = Math.max(1, Math.ceil(this._filteredBeneficiarios.length / pageSize));
+    this._currentPage = Math.min(totalPages, Math.max(1, page));
+    this._renderPagination(this._filteredBeneficiarios.length);
+    this._renderCurrentPage();
+  },
+
+  prevPage() {
+    if (this._currentPage > 1) {
+      this.goToPage(this._currentPage - 1);
+    }
+  },
+
+  nextPage() {
+    const pageSize = this._getEffectivePageSize();
+    const totalPages = Math.max(1, Math.ceil(this._filteredBeneficiarios.length / pageSize));
+    if (this._currentPage < totalPages) {
+      this.goToPage(this._currentPage + 1);
+    }
   },
 
   filterBySearch(query) {
@@ -327,6 +391,39 @@ export const BeneficiariosView = {
     this.applyFilters();
   },
 
+  selectSexo(sexoVal) {
+    this._filterSexo = sexoVal || "all";
+    const items = document.querySelectorAll("#menuPadronSexo .padron-dropdown-item");
+    items.forEach(item => {
+      item.classList.toggle("selected", item.getAttribute("data-value") === this._filterSexo);
+    });
+
+    const labelEl = document.getElementById("labelPadronSexoSelect");
+    if (labelEl) {
+      if (this._filterSexo === "all") labelEl.textContent = "Todos";
+      else if (this._filterSexo === "M") labelEl.textContent = "Niños (M)";
+      else if (this._filterSexo === "F") labelEl.textContent = "Niñas (F)";
+    }
+
+    const drop = document.getElementById("dropdownPadronSexo");
+    if (drop) drop.classList.remove("open");
+
+    this.applyFilters();
+  },
+
+  _updateSexoDropdownUI() {
+    const items = document.querySelectorAll("#menuPadronSexo .padron-dropdown-item");
+    items.forEach(item => {
+      item.classList.toggle("selected", item.getAttribute("data-value") === this._filterSexo);
+    });
+    const labelEl = document.getElementById("labelPadronSexoSelect");
+    if (labelEl) {
+      if (this._filterSexo === "all") labelEl.textContent = "Todos";
+      else if (this._filterSexo === "M") labelEl.textContent = "Niños (M)";
+      else if (this._filterSexo === "F") labelEl.textContent = "Niñas (F)";
+    }
+  },
+
   removeFilter(filterKey, specificVal) {
     if (filterKey === "search") this.clearSearch();
     if (filterKey === "servicio") {
@@ -352,6 +449,7 @@ export const BeneficiariosView = {
     }
     if (filterKey === "edad") this.clearEdad();
     if (filterKey === "estado") this.selectEstado("all");
+    if (filterKey === "sexo") this.selectSexo("all");
   },
 
   resetFilters() {
@@ -363,6 +461,7 @@ export const BeneficiariosView = {
     this._filterEdadExacta = null;
     this._filterEdadRango = { min: 0, max: 18 };
     this._filterEstado = "all";
+    this._filterSexo = "all";
 
     const input = document.getElementById("inputPadronSearch");
     if (input) input.value = "";
@@ -373,6 +472,7 @@ export const BeneficiariosView = {
     this._updateSedeDropdownUI();
     this._updateAnemiaDropdownUI();
     this._updateEdadUI();
+    this._updateSexoDropdownUI();
 
     const estadoItems = document.querySelectorAll("#menuPadronEstado .padron-dropdown-item");
     estadoItems.forEach(item => item.classList.toggle("selected", item.getAttribute("data-value") === "all"));
@@ -412,7 +512,10 @@ export const BeneficiariosView = {
     });
   },
 
-  applyFilters() {
+  applyFilters(resetPage = true) {
+    if (resetPage) {
+      this._currentPage = 1;
+    }
     let list = [...this._allBeneficiarios];
 
     // 1. Buscador texto libre
@@ -459,6 +562,13 @@ export const BeneficiariosView = {
       list = list.filter(b => b.estado === this._filterEstado);
     }
 
+    // 7. Sexo (Niñas F / Niños M)
+    if (this._filterSexo !== "all") {
+      list = list.filter(b => (b.sexo || "").toUpperCase() === this._filterSexo.toUpperCase());
+    }
+
+    this._filteredBeneficiarios = list;
+
     // Actualizar badge de filtros activos
     let activeFiltersCount = 0;
     if (this._filterServicio.length > 0) activeFiltersCount += this._filterServicio.length;
@@ -466,6 +576,7 @@ export const BeneficiariosView = {
     if (this._filterAnemia.length > 0) activeFiltersCount += this._filterAnemia.length;
     if (this._filterEdadModo !== "all") activeFiltersCount++;
     if (this._filterEstado !== "all") activeFiltersCount++;
+    if (this._filterSexo !== "all") activeFiltersCount++;
 
     const badgeEl = document.getElementById("padronActiveFiltersCount");
     const btnFilterEl = document.getElementById("btnDropdownPadronFilterPanel");
@@ -480,7 +591,58 @@ export const BeneficiariosView = {
 
     this._updateFacetCounts();
     this._renderActiveChips();
-    this._renderFilteredList(list);
+
+    // Validar rango de página actual
+    const pageSize = this._getEffectivePageSize();
+    const totalPages = Math.max(1, Math.ceil(this._filteredBeneficiarios.length / pageSize));
+    if (this._currentPage > totalPages) {
+      this._currentPage = totalPages;
+    }
+    if (this._currentPage < 1) {
+      this._currentPage = 1;
+    }
+
+    this._renderPagination(this._filteredBeneficiarios.length);
+    this._renderCurrentPage();
+  },
+
+  _renderCurrentPage() {
+    const list = this._filteredBeneficiarios || [];
+    const pageSize = this._getEffectivePageSize();
+    const startIndex = (this._currentPage - 1) * pageSize;
+    const pageItems = list.slice(startIndex, startIndex + pageSize);
+    this._renderFilteredList(pageItems, list.length);
+  },
+
+  _renderPagination(totalCount) {
+    const pageSize = this._getEffectivePageSize();
+    const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+    const startRecord = totalCount === 0 ? 0 : (this._currentPage - 1) * pageSize + 1;
+    const endRecord = Math.min(totalCount, this._currentPage * pageSize);
+
+    const infoEl = document.getElementById("padronPaginationInfo");
+    if (infoEl) {
+      infoEl.textContent = totalCount === 0
+        ? "Mostrando 0 de 0 beneficiarios"
+        : `Mostrando ${startRecord}–${endRecord} de ${totalCount} beneficiarios`;
+    }
+
+    const pageNumEl = document.getElementById("padronCurrentPageNum");
+    if (pageNumEl) {
+      pageNumEl.textContent = `Página ${this._currentPage} de ${totalPages}`;
+    }
+
+    const btnPrev = document.getElementById("btnPadronPagePrev");
+    if (btnPrev) {
+      btnPrev.disabled = this._currentPage <= 1 || totalCount === 0;
+    }
+
+    const btnNext = document.getElementById("btnPadronPageNext");
+    if (btnNext) {
+      btnNext.disabled = this._currentPage >= totalPages || totalCount === 0;
+    }
+
+    this._syncPageSizeSelectUI();
   },
 
   _updateFacetCounts() {
@@ -515,6 +677,9 @@ export const BeneficiariosView = {
       if (excludeKey !== "estado" && this._filterEstado !== "all") {
         l = l.filter(b => b.estado === this._filterEstado);
       }
+      if (excludeKey !== "sexo" && this._filterSexo !== "all") {
+        l = l.filter(b => (b.sexo || "").toUpperCase() === this._filterSexo.toUpperCase());
+      }
       return l;
     };
 
@@ -532,35 +697,35 @@ export const BeneficiariosView = {
     // 2. Facetas de Sede
     const forSede = getFilteredExcluding("sede");
     this._setFacetBadge("countFacetSede-all", `(${forSede.length})`, forSede.length === 0);
-    const sedesList = ["Año Nuevo", "La Libertad", "San Pedro", "El Progreso", "Santa Rosa", "Los Bendecidos"];
-    sedesList.forEach(s => {
-      const c = forSede.filter(b => b.sede && b.sede.toLowerCase().includes(s.toLowerCase())).length;
-      this._setFacetBadge(`countFacetSede-${s}`, `(${c})`, c === 0);
-    });
+    this._setFacetBadge("countFacetSede-an", `(${forSede.filter(b => (b.sede || '').includes("Año Nuevo")).length})`, forSede.filter(b => (b.sede || '').includes("Año Nuevo")).length === 0);
+    this._setFacetBadge("countFacetSede-lib", `(${forSede.filter(b => (b.sede || '').includes("La Libertad")).length})`, forSede.filter(b => (b.sede || '').includes("La Libertad")).length === 0);
+    this._setFacetBadge("countFacetSede-sp", `(${forSede.filter(b => (b.sede || '').includes("San Pedro")).length})`, forSede.filter(b => (b.sede || '').includes("San Pedro")).length === 0);
+    this._setFacetBadge("countFacetSede-prog", `(${forSede.filter(b => (b.sede || '').includes("El Progreso")).length})`, forSede.filter(b => (b.sede || '').includes("El Progreso")).length === 0);
+    this._setFacetBadge("countFacetSede-sr", `(${forSede.filter(b => (b.sede || '').includes("Santa Rosa")).length})`, forSede.filter(b => (b.sede || '').includes("Santa Rosa")).length === 0);
+    this._setFacetBadge("countFacetSede-bend", `(${forSede.filter(b => (b.sede || '').includes("Los Bendecidos")).length})`, forSede.filter(b => (b.sede || '').includes("Los Bendecidos")).length === 0);
 
     // 3. Facetas de Anemia
     const forAnemia = getFilteredExcluding("anemia");
-    const countAnemiaNormal = forAnemia.filter(b => b.anemia === "Normal").length;
-    const countAnemiaLeve = forAnemia.filter(b => b.anemia === "Leve").length;
-    const countAnemiaMod = forAnemia.filter(b => b.anemia === "Moderada" || b.anemia === "Severa").length;
-
     this._setFacetBadge("countFacetAnemia-all", `(${forAnemia.length})`, forAnemia.length === 0);
-    this._setFacetBadge("countFacetAnemia-Normal", `(${countAnemiaNormal})`, countAnemiaNormal === 0);
-    this._setFacetBadge("countFacetAnemia-Leve", `(${countAnemiaLeve})`, countAnemiaLeve === 0);
-    this._setFacetBadge("countFacetAnemia-Moderada", `(${countAnemiaMod})`, countAnemiaMod === 0);
+    this._setFacetBadge("countFacetAnemia-normal", `(${forAnemia.filter(b => b.anemia === "Normal").length})`, forAnemia.filter(b => b.anemia === "Normal").length === 0);
+    this._setFacetBadge("countFacetAnemia-leve", `(${forAnemia.filter(b => b.anemia === "Leve").length})`, forAnemia.filter(b => b.anemia === "Leve").length === 0);
+    this._setFacetBadge("countFacetAnemia-mod", `(${forAnemia.filter(b => b.anemia === "Moderada" || b.anemia === "Severa").length})`, forAnemia.filter(b => b.anemia === "Moderada" || b.anemia === "Severa").length === 0);
 
     // 4. Facetas de Estado
     const forEstado = getFilteredExcluding("estado");
-    const countActivo = forEstado.filter(b => b.estado === "Activo").length;
-    const countInactivo = forEstado.filter(b => b.estado === "Inactivo" || b.estado === "Baja").length;
-
     this._setFacetBadge("countFacetEstado-all", `(${forEstado.length})`, forEstado.length === 0);
-    this._setFacetBadge("countFacetEstado-Activo", `(${countActivo})`, countActivo === 0);
-    this._setFacetBadge("countFacetEstado-Inactivo", `(${countInactivo})`, countInactivo === 0);
+    this._setFacetBadge("countFacetEstado-activo", `(${forEstado.filter(b => b.estado === "Activo").length})`, forEstado.filter(b => b.estado === "Activo").length === 0);
+    this._setFacetBadge("countFacetEstado-inactivo", `(${forEstado.filter(b => b.estado === "Inactivo").length})`, forEstado.filter(b => b.estado === "Inactivo").length === 0);
+
+    // 5. Facetas de Sexo
+    const forSexo = getFilteredExcluding("sexo");
+    this._setFacetBadge("countFacetSexo-all", `(${forSexo.length})`, forSexo.length === 0);
+    this._setFacetBadge("countFacetSexo-m", `(${forSexo.filter(b => (b.sexo || '').toUpperCase() === 'M').length})`, forSexo.filter(b => (b.sexo || '').toUpperCase() === 'M').length === 0);
+    this._setFacetBadge("countFacetSexo-f", `(${forSexo.filter(b => (b.sexo || '').toUpperCase() === 'F').length})`, forSexo.filter(b => (b.sexo || '').toUpperCase() === 'F').length === 0);
   },
 
-  _setFacetBadge(badgeId, text, isZero) {
-    const el = document.getElementById(badgeId);
+  _setFacetBadge(id, text, isZero) {
+    const el = document.getElementById(id);
     if (!el) return;
     el.textContent = text;
     const parentItem = el.closest(".padron-dropdown-item");
@@ -585,10 +750,10 @@ export const BeneficiariosView = {
 
     if (this._filterServicio.length > 0) {
       this._filterServicio.forEach(s => {
-        let servLabel = s;
-        if (s === "desayuno") servLabel = "Nutrición SAN";
-        if (s === "casita") servLabel = "Acompañamiento Casita";
-        if (s === "pastoral") servLabel = "Social Pastoral";
+        let servLabel = "Servicio";
+        if (s === "desayuno") servLabel = "Servicio Alimentario Nutricional";
+        if (s === "casita") servLabel = "Servicio Acompañamiento Educativo";
+        if (s === "pastoral") servLabel = "Área Social Pastoral";
         chips.push({
           id: "servicio",
           val: s,
@@ -638,6 +803,13 @@ export const BeneficiariosView = {
       });
     }
 
+    if (this._filterSexo !== "all") {
+      chips.push({
+        id: "sexo",
+        label: `Sexo: ${this._filterSexo === "F" ? "Niñas (F)" : "Niños (M)"}`,
+      });
+    }
+
     if (chips.length === 0) {
       bar.style.display = "none";
       list.innerHTML = "";
@@ -656,12 +828,12 @@ export const BeneficiariosView = {
     }
   },
 
-  _renderFilteredList(beneficiarios) {
+  _renderFilteredList(beneficiarios, totalCount) {
     const tbody = document.getElementById("tbodyBeneficiarios");
     const mobileContainer = document.getElementById("mobileCardsBeneficiarios");
 
     const badgeTotal = document.getElementById("badgeTotalBeneficiarios");
-    if (badgeTotal) badgeTotal.textContent = beneficiarios.length;
+    if (badgeTotal) badgeTotal.textContent = totalCount !== undefined ? totalCount : beneficiarios.length;
 
     // 1. Renderizar tabla tradicional para pantallas grandes (Desktop)
     if (tbody) {
@@ -791,4 +963,13 @@ export const BeneficiariosView = {
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
   window.PDI.BeneficiariosView = BeneficiariosView;
+
+  window.padronSetPageSize = (size) => BeneficiariosView.setPageSize(size);
+  window.padronGoToPage = (page) => BeneficiariosView.goToPage(page);
+  window.padronPrevPage = () => BeneficiariosView.prevPage();
+  window.padronNextPage = () => BeneficiariosView.nextPage();
+
+  window.addEventListener("resize", () => {
+    BeneficiariosView._syncPageSizeSelectUI();
+  });
 }

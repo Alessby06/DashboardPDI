@@ -930,12 +930,62 @@ if (typeof window !== "undefined") {
     "firmaDigital": true,
     "vulnerabilidad": 42
   }
-]; BeneficiarioModel = {
+];
+
+function normalizeBeneficiarioServicios(b) {
+  if (!b) return b;
+  const rawServicios = Array.isArray(b.servicios) ? b.servicios : [];
+  const normalized = new Set();
+  const lowerEstrategia = (b.estrategia || "").toLowerCase();
+
+  rawServicios.forEach(s => {
+    const low = (s || "").toLowerCase();
+    if (low.includes("desayuno") || low.includes("alimento") || low.includes("lonchera") || low.includes("nutric")) {
+      normalized.add("Servicio Alimentario Nutricional");
+    } else if (low.includes("casita") || low.includes("educativ") || low.includes("refuerzo") || low.includes("escolar") || low.includes("acompañ")) {
+      normalized.add("Servicio Acompañamiento Educativo");
+    } else if (low.includes("pastoral") || low.includes("social") || low.includes("asp")) {
+      normalized.add("Área Social Pastoral");
+    } else {
+      normalized.add(s);
+    }
+  });
+
+  if (normalized.size === 0) {
+    if (lowerEstrategia.includes("desayuno") || lowerEstrategia.includes("lonchera") || lowerEstrategia.includes("alimento")) {
+      normalized.add("Servicio Alimentario Nutricional");
+    }
+    if (lowerEstrategia.includes("casita") || lowerEstrategia.includes("educat") || lowerEstrategia.includes("acompañ")) {
+      normalized.add("Servicio Acompañamiento Educativo");
+    }
+    if (lowerEstrategia.includes("pastoral") || lowerEstrategia.includes("social")) {
+      normalized.add("Área Social Pastoral");
+    }
+    if (lowerEstrategia.includes("mixto")) {
+      normalized.add("Servicio Alimentario Nutricional");
+      normalized.add("Servicio Acompañamiento Educativo");
+    }
+  }
+
+  if (normalized.size === 0) {
+    normalized.add("Servicio Alimentario Nutricional");
+  }
+
+  b.servicios = Array.from(normalized);
+  return b;
+}
+
+BeneficiarioModel = {
   _data: null,
 
   init() {
     const storage = window.PDI?.StorageService || StorageService;
-    this._data = storage.getItem("pdi_mock_beneficiarios", defaultBeneficiarios);
+    let list = storage.getItem("pdi_mock_beneficiarios", defaultBeneficiarios);
+    if (!list || !Array.isArray(list) || list.length === 0) {
+      list = defaultBeneficiarios;
+    }
+    this._data = list.map(b => normalizeBeneficiarioServicios(b));
+    storage.setItem("pdi_mock_beneficiarios", this._data);
     return this._data;
   },
 
@@ -958,6 +1008,7 @@ if (typeof window !== "undefined") {
 
   add(nuevoMenor) {
     const list = this.getAll();
+    normalizeBeneficiarioServicios(nuevoMenor);
     list.unshift(nuevoMenor);
     const storage = window.PDI?.StorageService || StorageService;
     storage.setItem("pdi_mock_beneficiarios", list);
@@ -968,7 +1019,7 @@ if (typeof window !== "undefined") {
     const list = this.getAll();
     const idx = list.findIndex(b => b.id === Number(id));
     if (idx !== -1) {
-      list[idx] = { ...list[idx], ...updatedData };
+      list[idx] = normalizeBeneficiarioServicios({ ...list[idx], ...updatedData });
       const storage = window.PDI?.StorageService || StorageService;
       storage.setItem("pdi_mock_beneficiarios", list);
       return list[idx];
@@ -2914,9 +2965,13 @@ if (typeof window !== "undefined") {
 }
 
 /* --- Module: views/BeneficiariosView.js --- */
-// Vista: Padrón de Menores Beneficiarios
- BeneficiariosView = {
+// Vista: Padrón de Beneficiarios
+ // Vista: Padrón de Beneficiarios
+BeneficiariosView = {
   _allBeneficiarios: [],
+  _filteredBeneficiarios: [],
+  _currentPage: 1,
+  _pageSize: 20,
   _searchQuery: "",
   _filterServicio: [], // array de servicios seleccionados (vacío = todos)
   _filterSede: [],     // array de sedes seleccionadas (vacío = todas)
@@ -2925,17 +2980,78 @@ if (typeof window !== "undefined") {
   _filterEdadExacta: null, // number 0-18 o null
   _filterEdadRango: { min: 0, max: 18 },
   _filterEstado: "all", // "all" | "Activo" | "Inactivo"
+  _filterSexo: "all",   // "all" | "M" | "F"
 
   init(beneficiarios) {
     this._allBeneficiarios = beneficiarios || [];
-    this.applyFilters();
+    this._currentPage = 1;
+    this._pageSize = this._getEffectivePageSize();
+    this._syncPageSizeSelectUI();
+    this.applyFilters(true);
   },
 
   renderTable(beneficiarios) {
     if (beneficiarios) {
       this._allBeneficiarios = beneficiarios;
     }
-    this.applyFilters();
+    this.applyFilters(false);
+  },
+
+  _getEffectivePageSize() {
+    const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+    if (isMobile) {
+      return Math.min(20, this._pageSize || 20);
+    }
+    return Math.min(50, this._pageSize || 20);
+  },
+
+  _syncPageSizeSelectUI() {
+    const select = document.getElementById("selectPadronPageSize");
+    if (select) {
+      const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+      // En móvil, deshabilitar opción 50 y ajustar a 20 si estaba en 50
+      const opt50 = select.querySelector('option[value="50"]');
+      if (opt50) {
+        opt50.disabled = isMobile;
+        if (isMobile && select.value === "50") {
+          select.value = "20";
+          this._pageSize = 20;
+        }
+      }
+      select.value = String(this._pageSize);
+    }
+  },
+
+  setPageSize(size) {
+    const num = parseInt(size, 10);
+    const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+    const maxAllowed = isMobile ? 20 : 50;
+    this._pageSize = isNaN(num) ? 20 : Math.min(maxAllowed, Math.max(5, num));
+    this._currentPage = 1;
+    this._syncPageSizeSelectUI();
+    this.applyFilters(false);
+  },
+
+  goToPage(page) {
+    const pageSize = this._getEffectivePageSize();
+    const totalPages = Math.max(1, Math.ceil(this._filteredBeneficiarios.length / pageSize));
+    this._currentPage = Math.min(totalPages, Math.max(1, page));
+    this._renderPagination(this._filteredBeneficiarios.length);
+    this._renderCurrentPage();
+  },
+
+  prevPage() {
+    if (this._currentPage > 1) {
+      this.goToPage(this._currentPage - 1);
+    }
+  },
+
+  nextPage() {
+    const pageSize = this._getEffectivePageSize();
+    const totalPages = Math.max(1, Math.ceil(this._filteredBeneficiarios.length / pageSize));
+    if (this._currentPage < totalPages) {
+      this.goToPage(this._currentPage + 1);
+    }
   },
 
   filterBySearch(query) {
@@ -3243,6 +3359,39 @@ if (typeof window !== "undefined") {
     this.applyFilters();
   },
 
+  selectSexo(sexoVal) {
+    this._filterSexo = sexoVal || "all";
+    const items = document.querySelectorAll("#menuPadronSexo .padron-dropdown-item");
+    items.forEach(item => {
+      item.classList.toggle("selected", item.getAttribute("data-value") === this._filterSexo);
+    });
+
+    const labelEl = document.getElementById("labelPadronSexoSelect");
+    if (labelEl) {
+      if (this._filterSexo === "all") labelEl.textContent = "Todos";
+      else if (this._filterSexo === "M") labelEl.textContent = "Niños (M)";
+      else if (this._filterSexo === "F") labelEl.textContent = "Niñas (F)";
+    }
+
+    const drop = document.getElementById("dropdownPadronSexo");
+    if (drop) drop.classList.remove("open");
+
+    this.applyFilters();
+  },
+
+  _updateSexoDropdownUI() {
+    const items = document.querySelectorAll("#menuPadronSexo .padron-dropdown-item");
+    items.forEach(item => {
+      item.classList.toggle("selected", item.getAttribute("data-value") === this._filterSexo);
+    });
+    const labelEl = document.getElementById("labelPadronSexoSelect");
+    if (labelEl) {
+      if (this._filterSexo === "all") labelEl.textContent = "Todos";
+      else if (this._filterSexo === "M") labelEl.textContent = "Niños (M)";
+      else if (this._filterSexo === "F") labelEl.textContent = "Niñas (F)";
+    }
+  },
+
   removeFilter(filterKey, specificVal) {
     if (filterKey === "search") this.clearSearch();
     if (filterKey === "servicio") {
@@ -3268,6 +3417,7 @@ if (typeof window !== "undefined") {
     }
     if (filterKey === "edad") this.clearEdad();
     if (filterKey === "estado") this.selectEstado("all");
+    if (filterKey === "sexo") this.selectSexo("all");
   },
 
   resetFilters() {
@@ -3279,6 +3429,7 @@ if (typeof window !== "undefined") {
     this._filterEdadExacta = null;
     this._filterEdadRango = { min: 0, max: 18 };
     this._filterEstado = "all";
+    this._filterSexo = "all";
 
     const input = document.getElementById("inputPadronSearch");
     if (input) input.value = "";
@@ -3289,6 +3440,7 @@ if (typeof window !== "undefined") {
     this._updateSedeDropdownUI();
     this._updateAnemiaDropdownUI();
     this._updateEdadUI();
+    this._updateSexoDropdownUI();
 
     const estadoItems = document.querySelectorAll("#menuPadronEstado .padron-dropdown-item");
     estadoItems.forEach(item => item.classList.toggle("selected", item.getAttribute("data-value") === "all"));
@@ -3328,7 +3480,10 @@ if (typeof window !== "undefined") {
     });
   },
 
-  applyFilters() {
+  applyFilters(resetPage = true) {
+    if (resetPage) {
+      this._currentPage = 1;
+    }
     let list = [...this._allBeneficiarios];
 
     // 1. Buscador texto libre
@@ -3375,6 +3530,13 @@ if (typeof window !== "undefined") {
       list = list.filter(b => b.estado === this._filterEstado);
     }
 
+    // 7. Sexo (Niñas F / Niños M)
+    if (this._filterSexo !== "all") {
+      list = list.filter(b => (b.sexo || "").toUpperCase() === this._filterSexo.toUpperCase());
+    }
+
+    this._filteredBeneficiarios = list;
+
     // Actualizar badge de filtros activos
     let activeFiltersCount = 0;
     if (this._filterServicio.length > 0) activeFiltersCount += this._filterServicio.length;
@@ -3382,6 +3544,7 @@ if (typeof window !== "undefined") {
     if (this._filterAnemia.length > 0) activeFiltersCount += this._filterAnemia.length;
     if (this._filterEdadModo !== "all") activeFiltersCount++;
     if (this._filterEstado !== "all") activeFiltersCount++;
+    if (this._filterSexo !== "all") activeFiltersCount++;
 
     const badgeEl = document.getElementById("padronActiveFiltersCount");
     const btnFilterEl = document.getElementById("btnDropdownPadronFilterPanel");
@@ -3396,7 +3559,58 @@ if (typeof window !== "undefined") {
 
     this._updateFacetCounts();
     this._renderActiveChips();
-    this._renderFilteredList(list);
+
+    // Validar rango de página actual
+    const pageSize = this._getEffectivePageSize();
+    const totalPages = Math.max(1, Math.ceil(this._filteredBeneficiarios.length / pageSize));
+    if (this._currentPage > totalPages) {
+      this._currentPage = totalPages;
+    }
+    if (this._currentPage < 1) {
+      this._currentPage = 1;
+    }
+
+    this._renderPagination(this._filteredBeneficiarios.length);
+    this._renderCurrentPage();
+  },
+
+  _renderCurrentPage() {
+    const list = this._filteredBeneficiarios || [];
+    const pageSize = this._getEffectivePageSize();
+    const startIndex = (this._currentPage - 1) * pageSize;
+    const pageItems = list.slice(startIndex, startIndex + pageSize);
+    this._renderFilteredList(pageItems, list.length);
+  },
+
+  _renderPagination(totalCount) {
+    const pageSize = this._getEffectivePageSize();
+    const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+    const startRecord = totalCount === 0 ? 0 : (this._currentPage - 1) * pageSize + 1;
+    const endRecord = Math.min(totalCount, this._currentPage * pageSize);
+
+    const infoEl = document.getElementById("padronPaginationInfo");
+    if (infoEl) {
+      infoEl.textContent = totalCount === 0
+        ? "Mostrando 0 de 0 beneficiarios"
+        : `Mostrando ${startRecord}–${endRecord} de ${totalCount} beneficiarios`;
+    }
+
+    const pageNumEl = document.getElementById("padronCurrentPageNum");
+    if (pageNumEl) {
+      pageNumEl.textContent = `Página ${this._currentPage} de ${totalPages}`;
+    }
+
+    const btnPrev = document.getElementById("btnPadronPagePrev");
+    if (btnPrev) {
+      btnPrev.disabled = this._currentPage <= 1 || totalCount === 0;
+    }
+
+    const btnNext = document.getElementById("btnPadronPageNext");
+    if (btnNext) {
+      btnNext.disabled = this._currentPage >= totalPages || totalCount === 0;
+    }
+
+    this._syncPageSizeSelectUI();
   },
 
   _updateFacetCounts() {
@@ -3431,6 +3645,9 @@ if (typeof window !== "undefined") {
       if (excludeKey !== "estado" && this._filterEstado !== "all") {
         l = l.filter(b => b.estado === this._filterEstado);
       }
+      if (excludeKey !== "sexo" && this._filterSexo !== "all") {
+        l = l.filter(b => (b.sexo || "").toUpperCase() === this._filterSexo.toUpperCase());
+      }
       return l;
     };
 
@@ -3448,35 +3665,35 @@ if (typeof window !== "undefined") {
     // 2. Facetas de Sede
     const forSede = getFilteredExcluding("sede");
     this._setFacetBadge("countFacetSede-all", `(${forSede.length})`, forSede.length === 0);
-    const sedesList = ["Año Nuevo", "La Libertad", "San Pedro", "El Progreso", "Santa Rosa", "Los Bendecidos"];
-    sedesList.forEach(s => {
-      const c = forSede.filter(b => b.sede && b.sede.toLowerCase().includes(s.toLowerCase())).length;
-      this._setFacetBadge(`countFacetSede-${s}`, `(${c})`, c === 0);
-    });
+    this._setFacetBadge("countFacetSede-an", `(${forSede.filter(b => (b.sede || '').includes("Año Nuevo")).length})`, forSede.filter(b => (b.sede || '').includes("Año Nuevo")).length === 0);
+    this._setFacetBadge("countFacetSede-lib", `(${forSede.filter(b => (b.sede || '').includes("La Libertad")).length})`, forSede.filter(b => (b.sede || '').includes("La Libertad")).length === 0);
+    this._setFacetBadge("countFacetSede-sp", `(${forSede.filter(b => (b.sede || '').includes("San Pedro")).length})`, forSede.filter(b => (b.sede || '').includes("San Pedro")).length === 0);
+    this._setFacetBadge("countFacetSede-prog", `(${forSede.filter(b => (b.sede || '').includes("El Progreso")).length})`, forSede.filter(b => (b.sede || '').includes("El Progreso")).length === 0);
+    this._setFacetBadge("countFacetSede-sr", `(${forSede.filter(b => (b.sede || '').includes("Santa Rosa")).length})`, forSede.filter(b => (b.sede || '').includes("Santa Rosa")).length === 0);
+    this._setFacetBadge("countFacetSede-bend", `(${forSede.filter(b => (b.sede || '').includes("Los Bendecidos")).length})`, forSede.filter(b => (b.sede || '').includes("Los Bendecidos")).length === 0);
 
     // 3. Facetas de Anemia
     const forAnemia = getFilteredExcluding("anemia");
-    const countAnemiaNormal = forAnemia.filter(b => b.anemia === "Normal").length;
-    const countAnemiaLeve = forAnemia.filter(b => b.anemia === "Leve").length;
-    const countAnemiaMod = forAnemia.filter(b => b.anemia === "Moderada" || b.anemia === "Severa").length;
-
     this._setFacetBadge("countFacetAnemia-all", `(${forAnemia.length})`, forAnemia.length === 0);
-    this._setFacetBadge("countFacetAnemia-Normal", `(${countAnemiaNormal})`, countAnemiaNormal === 0);
-    this._setFacetBadge("countFacetAnemia-Leve", `(${countAnemiaLeve})`, countAnemiaLeve === 0);
-    this._setFacetBadge("countFacetAnemia-Moderada", `(${countAnemiaMod})`, countAnemiaMod === 0);
+    this._setFacetBadge("countFacetAnemia-normal", `(${forAnemia.filter(b => b.anemia === "Normal").length})`, forAnemia.filter(b => b.anemia === "Normal").length === 0);
+    this._setFacetBadge("countFacetAnemia-leve", `(${forAnemia.filter(b => b.anemia === "Leve").length})`, forAnemia.filter(b => b.anemia === "Leve").length === 0);
+    this._setFacetBadge("countFacetAnemia-mod", `(${forAnemia.filter(b => b.anemia === "Moderada" || b.anemia === "Severa").length})`, forAnemia.filter(b => b.anemia === "Moderada" || b.anemia === "Severa").length === 0);
 
     // 4. Facetas de Estado
     const forEstado = getFilteredExcluding("estado");
-    const countActivo = forEstado.filter(b => b.estado === "Activo").length;
-    const countInactivo = forEstado.filter(b => b.estado === "Inactivo" || b.estado === "Baja").length;
-
     this._setFacetBadge("countFacetEstado-all", `(${forEstado.length})`, forEstado.length === 0);
-    this._setFacetBadge("countFacetEstado-Activo", `(${countActivo})`, countActivo === 0);
-    this._setFacetBadge("countFacetEstado-Inactivo", `(${countInactivo})`, countInactivo === 0);
+    this._setFacetBadge("countFacetEstado-activo", `(${forEstado.filter(b => b.estado === "Activo").length})`, forEstado.filter(b => b.estado === "Activo").length === 0);
+    this._setFacetBadge("countFacetEstado-inactivo", `(${forEstado.filter(b => b.estado === "Inactivo").length})`, forEstado.filter(b => b.estado === "Inactivo").length === 0);
+
+    // 5. Facetas de Sexo
+    const forSexo = getFilteredExcluding("sexo");
+    this._setFacetBadge("countFacetSexo-all", `(${forSexo.length})`, forSexo.length === 0);
+    this._setFacetBadge("countFacetSexo-m", `(${forSexo.filter(b => (b.sexo || '').toUpperCase() === 'M').length})`, forSexo.filter(b => (b.sexo || '').toUpperCase() === 'M').length === 0);
+    this._setFacetBadge("countFacetSexo-f", `(${forSexo.filter(b => (b.sexo || '').toUpperCase() === 'F').length})`, forSexo.filter(b => (b.sexo || '').toUpperCase() === 'F').length === 0);
   },
 
-  _setFacetBadge(badgeId, text, isZero) {
-    const el = document.getElementById(badgeId);
+  _setFacetBadge(id, text, isZero) {
+    const el = document.getElementById(id);
     if (!el) return;
     el.textContent = text;
     const parentItem = el.closest(".padron-dropdown-item");
@@ -3501,10 +3718,10 @@ if (typeof window !== "undefined") {
 
     if (this._filterServicio.length > 0) {
       this._filterServicio.forEach(s => {
-        let servLabel = s;
-        if (s === "desayuno") servLabel = "Nutrición SAN";
-        if (s === "casita") servLabel = "Acompañamiento Casita";
-        if (s === "pastoral") servLabel = "Social Pastoral";
+        let servLabel = "Servicio";
+        if (s === "desayuno") servLabel = "Servicio Alimentario Nutricional";
+        if (s === "casita") servLabel = "Servicio Acompañamiento Educativo";
+        if (s === "pastoral") servLabel = "Área Social Pastoral";
         chips.push({
           id: "servicio",
           val: s,
@@ -3554,6 +3771,13 @@ if (typeof window !== "undefined") {
       });
     }
 
+    if (this._filterSexo !== "all") {
+      chips.push({
+        id: "sexo",
+        label: `Sexo: ${this._filterSexo === "F" ? "Niñas (F)" : "Niños (M)"}`,
+      });
+    }
+
     if (chips.length === 0) {
       bar.style.display = "none";
       list.innerHTML = "";
@@ -3572,12 +3796,12 @@ if (typeof window !== "undefined") {
     }
   },
 
-  _renderFilteredList(beneficiarios) {
+  _renderFilteredList(beneficiarios, totalCount) {
     const tbody = document.getElementById("tbodyBeneficiarios");
     const mobileContainer = document.getElementById("mobileCardsBeneficiarios");
 
     const badgeTotal = document.getElementById("badgeTotalBeneficiarios");
-    if (badgeTotal) badgeTotal.textContent = beneficiarios.length;
+    if (badgeTotal) badgeTotal.textContent = totalCount !== undefined ? totalCount : beneficiarios.length;
 
     // 1. Renderizar tabla tradicional para pantallas grandes (Desktop)
     if (tbody) {
@@ -3707,7 +3931,17 @@ if (typeof window !== "undefined") {
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
   window.PDI.BeneficiariosView = BeneficiariosView;
+
+  window.padronSetPageSize = (size) => BeneficiariosView.setPageSize(size);
+  window.padronGoToPage = (page) => BeneficiariosView.goToPage(page);
+  window.padronPrevPage = () => BeneficiariosView.prevPage();
+  window.padronNextPage = () => BeneficiariosView.nextPage();
+
+  window.addEventListener("resize", () => {
+    BeneficiariosView._syncPageSizeSelectUI();
+  });
 }
+
 
 /* --- Module: views/SaludCredView.js --- */
 // Vista: Módulo de Salud y Nutrición CRED SaludCredView = {
@@ -3848,7 +4082,9 @@ if (typeof window !== "undefined") {
     const tbody = document.getElementById("tbodyAsistenciaCasita");
     const mobileContainer = document.getElementById("mobileCardsCasita");
 
-    const casitaList = beneficiarios.filter(b => b.servicios.includes("Casita del Saber"));
+    const casitaList = beneficiarios.filter(b => 
+      b.servicios && b.servicios.some(s => s.toLowerCase().includes("casita") || s.toLowerCase().includes("educativ") || s.toLowerCase().includes("acompañ"))
+    );
 
     if (tbody) {
       tbody.innerHTML = casitaList.map(b => `
@@ -4215,35 +4451,41 @@ if (typeof window !== "undefined") {
       const serviciosArray = Array.isArray(b.servicios) ? b.servicios : [];
       const estrategiaStr = (b.estrategia || "").toLowerCase();
       
-      const hasDesayuno = serviciosArray.some(s => s.toLowerCase().includes("desayuno")) || 
-                          estrategiaStr.includes("desayuno") || 
-                          estrategiaStr.includes("mixto");
+      const hasNutricional = serviciosArray.some(s => s.toLowerCase().includes("alimentario") || s.toLowerCase().includes("nutric") || s.toLowerCase().includes("desayuno") || s.toLowerCase().includes("lonchera")) || 
+                             estrategiaStr.includes("desayuno") || 
+                             estrategiaStr.includes("lonchera") || 
+                             estrategiaStr.includes("nutric") ||
+                             estrategiaStr.includes("mixto");
       
-      const hasCasita = serviciosArray.some(s => s.toLowerCase().includes("casita")) || 
-                        estrategiaStr.includes("casita") || 
-                        estrategiaStr.includes("mixto");
+      const hasEducativo = serviciosArray.some(s => s.toLowerCase().includes("educativo") || s.toLowerCase().includes("acompañ") || s.toLowerCase().includes("casita")) || 
+                           estrategiaStr.includes("casita") || 
+                           estrategiaStr.includes("educat") ||
+                           estrategiaStr.includes("mixto");
       
-      const hasLonchera = serviciosArray.some(s => s.toLowerCase().includes("lonchera")) || 
-                          estrategiaStr.includes("lonchera");
+      const hasPastoral = serviciosArray.some(s => s.toLowerCase().includes("pastoral") || s.toLowerCase().includes("social") || s.toLowerCase().includes("asp")) || 
+                          estrategiaStr.includes("pastoral") ||
+                          estrategiaStr.includes("social") ||
+                          (b.exoneracionAporte && b.exoneracionAporte.includes("100%")) ||
+                          (b.vulnerabilidad && b.vulnerabilidad >= 80);
 
       const programasList = [
         {
-          id: "prog_desayuno",
-          nombre: "Programa Nutricional: Desayuno Infantil Comunitario",
-          desc: "Ración matutina balanceada y tamizaje antropométrico periódico",
-          active: hasDesayuno
+          id: "prog_nutricional",
+          nombre: "Servicio Alimentario Nutricional",
+          desc: "Ración matutina balanceada, complemento alimentario y tamizaje antropométrico periódico",
+          active: hasNutricional
         },
         {
-          id: "prog_casitas",
-          nombre: "Programa Pedagógico: Casitas del Saber (Refuerzo Escolar)",
-          desc: "Acompañamiento psicopedagógico, tutoría y entrega de kits escolares",
-          active: hasCasita
+          id: "prog_educativo",
+          nombre: "Servicio Acompañamiento Educativo",
+          desc: "Acompañamiento psicopedagógico, tutoría, refuerzo escolar y entrega de kits de útiles",
+          active: hasEducativo
         },
         {
-          id: "prog_lonchera",
-          nombre: "Programa de Lonchera Infantil Saludable",
-          desc: "Complemento nutricional para instituciones educativas focalizadas",
-          active: hasLonchera
+          id: "prog_pastoral",
+          nombre: "Área Social Pastoral",
+          desc: "Acompañamiento espiritual-familiar, soporte socioemocional y visitas de riesgo",
+          active: hasPastoral
         }
       ];
 
@@ -4256,9 +4498,6 @@ if (typeof window !== "undefined") {
             <span class="programa-name">${prog.nombre}</span>
             <span class="programa-desc">${prog.desc}</span>
           </div>
-          <span class="badge ${prog.active ? 'badge-green' : 'badge-gray'}" style="font-size:10px; padding:2px 7px;">
-            ${prog.active ? 'Inscrito y Activo' : 'No Asignado'}
-          </span>
         </div>
       `).join("");
     }
@@ -4345,7 +4584,7 @@ if (typeof window !== "undefined") {
     setSafe("expTelefonoAlt", b.telefonoAlt || "No registrado");
     setSafe("expRetiro", b.retiroAutorizado || `${b.apoderado} (Apoderado Principal)`);
 
-    // Padrón Anexo 2: Personas autorizadas de retiro con Fotografía
+    // Padrón de Personas Autorizadas para Retiro con Fotografía
     const retiroPadronContainer = document.getElementById("expRetiroPadronContainer");
     if (retiroPadronContainer) {
       const lista = (b.retiroPadron && b.retiroPadron.length > 0)
@@ -4371,17 +4610,13 @@ if (typeof window !== "undefined") {
                 <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg>
                 <span>Tel: ${p.telefono}</span>
               </div>
-              <div style="margin-top:6px; display:flex; align-items:center; justify-content:space-between;">
-                <span class="badge badge-green" style="font-size:10px; padding:2px 6px;">Acreditado Anexo 2</span>
-                <span style="font-size:10.5px; color:var(--gt-green); font-weight:700;"></span>
-              </div>
             </div>
           </div>
         `;
       }).join("");
     }
 
-    // 5. Consentimiento Informado Ley N.° 29733 (Ficha A3) - Rediseño Moderno
+    // 5. Consentimiento Informado Ley N.° 29733 - Rediseño Moderno
     const consentContainer = document.getElementById("expConsentimientoChecksContainer");
     if (consentContainer) {
       consentContainer.innerHTML = `
@@ -4392,7 +4627,6 @@ if (typeof window !== "undefined") {
                 <svg width="15" height="15" fill="none" stroke="var(--gt-green)" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
                 <span>Evaluación y Seguimiento Social</span>
               </div>
-              <span class="badge badge-green" style="font-size:10px; padding:2px 6px;">Autorizado</span>
             </div>
             <div class="ley-card-desc">Elaboración de historias de vida, encuestas de vulnerabilidad y métricas de impacto socioeconómico.</div>
             <span class="ley-card-art">Art. 13, num. 5 y 6 Ley 29733</span>
@@ -4404,7 +4638,6 @@ if (typeof window !== "undefined") {
                 <svg width="15" height="15" fill="none" stroke="var(--gt-green)" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
                 <span>Registro Audiovisual Institucional</span>
               </div>
-              <span class="badge badge-green" style="font-size:10px; padding:2px 6px;">Autorizado</span>
             </div>
             <div class="ley-card-desc">Toma de fotografías y videos para memorias anuales, rendición de cuentas e informes a benefactores.</div>
             <span class="ley-card-art">Art. 13, num. 5 Ley 29733</span>
@@ -4416,7 +4649,6 @@ if (typeof window !== "undefined") {
                 <svg width="15" height="15" fill="none" stroke="var(--gt-green)" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
                 <span>Gestión de Fondos y Sostenibilidad</span>
               </div>
-              <span class="badge badge-green" style="font-size:10px; padding:2px 6px;">Autorizado</span>
             </div>
             <div class="ley-card-desc">Recaudación de aportes, auditorías de donantes y reportes financieros de permanencia del programa.</div>
             <span class="ley-card-art">Art. 13, num. 5 y 6 Ley 29733</span>
@@ -4428,7 +4660,6 @@ if (typeof window !== "undefined") {
                 <svg width="15" height="15" fill="none" stroke="var(--gt-green)" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
                 <span>Flujo Transfronterizo de Datos</span>
               </div>
-              <span class="badge badge-green" style="font-size:10px; padding:2px 6px;">Autorizado</span>
             </div>
             <div class="ley-card-desc">Transferencia a la entidad cooperante Kinderwerk Lima e.V. (Alemania) con cifrado y medidas de seguridad.</div>
             <span class="ley-card-art">D.S. N.° 016-2024-JUS</span>
@@ -4442,7 +4673,7 @@ if (typeof window !== "undefined") {
             </svg>
           </div>
           <div class="ley-cert-text">
-            <strong>Certificación de Consentimiento Informado Válido (Ficha A3)</strong><br>
+            <strong>Certificación de Consentimiento Informado Válido</strong><br>
             Otorgado y firmado digitalmente por el apoderado legal: <strong>${b.apoderado}</strong> (DNI: <strong>${b.apoderadoDni || '41982341'}</strong>). Cumplimiento normativo vigente bajo la <strong>Ley N.° 29733</strong> y el <strong>D.S. N.° 016-2024-JUS</strong>.
           </div>
         </div>
@@ -5212,7 +5443,21 @@ if (typeof window !== "undefined") {
       modalidad,
       estrategia,
       exoneracionAporte,
-      servicios: estrategia.includes("Mixto") ? ["Desayuno Infantil", "Casita del Saber"] : [estrategia],
+      servicios: (() => {
+        const s = new Set();
+        const estLow = (estrategia || "").toLowerCase();
+        if (estLow.includes("desayuno") || estLow.includes("lonchera") || estLow.includes("alimento") || estLow.includes("nutric") || estLow.includes("mixto")) {
+          s.add("Servicio Alimentario Nutricional");
+        }
+        if (estLow.includes("casita") || estLow.includes("educativ") || estLow.includes("acompañ") || estLow.includes("mixto")) {
+          s.add("Servicio Acompañamiento Educativo");
+        }
+        if (estLow.includes("pastoral") || estLow.includes("social") || (exoneracionAporte && exoneracionAporte.includes("100%"))) {
+          s.add("Área Social Pastoral");
+        }
+        if (s.size === 0) s.add("Servicio Alimentario Nutricional");
+        return Array.from(s);
+      })(),
       seguro,
       centroSalud,
       alergias,
@@ -5714,38 +5959,77 @@ if (typeof window !== "undefined") {
       const mapQuery = encodeURIComponent(`${sede.direccion}, ${sede.distrito}, Lima, Peru`);
       const mapsNavUrl = `https://www.google.com/maps/dir/?api=1&destination=${mapQuery}`;
 
+      // Homologar visualización de nombres de servicios
+      const servicioLabels = {
+        "Desayuno Infantil": "Desayuno Nutricional",
+        "Casita del Saber": "Acompañamiento Educativo",
+        "Lonchera Infantil": "Lonchera Saludable"
+      };
+
       return `
         <div class="sede-card">
-          <!-- Cabecera de Sede -->
+          <!-- Cabecera de Sede Renovada -->
           <div class="sede-card-header">
-            <div class="sede-header-info">
-              <div class="sede-distrito-tag">${sede.distrito}</div>
-              <h3 class="sede-card-title">Sede ${sede.nombre}</h3>
+            <div class="sede-header-identity">
+              <div class="sede-avatar-box" title="Sede Territorial PDI">
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.333A1.125 1.125 0 0018.375 9.21H5.625A1.125 1.125 0 004.5 10.333V21h15z" />
+                </svg>
+              </div>
+              <div class="sede-header-info">
+                <span class="sede-distrito-tag">${sede.distrito}</span>
+                <h3 class="sede-card-title">Sede ${sede.nombre}</h3>
+              </div>
             </div>
             <div class="sede-header-badge">
               <span class="badge ${sede.estado === 'Operativa' ? 'badge-green' : 'badge-gray'}">${sede.estado}</span>
             </div>
           </div>
 
-          <!-- Servicios Institucionales que operan en la Sede -->
+          <!-- Servicios Institucionales Homologados (SVGs específicos) -->
           <div class="sede-servicios-wrap">
-            ${sede.servicios.map(serv => `
-              <span class="sede-servicio-pill">
-                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            ${sede.servicios.map(serv => {
+              const displayServ = servicioLabels[serv] || serv;
+              let sIcon = `
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
                 </svg>
-                <span>${serv}</span>
-              </span>
-            `).join("")}
+              `;
+              if (serv.toLowerCase().includes("desayuno") || serv.toLowerCase().includes("nutricional")) {
+                sIcon = `
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                  </svg>
+                `;
+              } else if (serv.toLowerCase().includes("casita") || serv.toLowerCase().includes("educativ")) {
+                sIcon = `
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                  </svg>
+                `;
+              } else if (serv.toLowerCase().includes("lonchera")) {
+                sIcon = `
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                  </svg>
+                `;
+              }
+              return `
+                <span class="sede-servicio-pill">
+                  ${sIcon}
+                  <span>${displayServ}</span>
+                </span>
+              `;
+            }).join("")}
           </div>
 
-          <!-- Barra de Aforo y Ocupación -->
+          <!-- Barra de Aforo y Ocupación Pulida -->
           <div class="sede-aforo-section">
             <div class="sede-aforo-labels">
               <span class="sede-aforo-title">Aforo y Capacidad:</span>
               <span class="sede-aforo-count">
-                <strong>${sede.ninosInscritos}</strong> / ${sede.aforoMax} niños
-                <span class="badge ${badgeAforoClass}" style="font-size:10px; padding:1px 5px; margin-left:4px;">${pct}%</span>
+                <strong>${sede.ninosInscritos}</strong> / ${sede.aforoMax} beneficiarios
+                <span class="badge ${badgeAforoClass}" style="font-size:10.5px; padding:1px 6px;">${pct}%</span>
               </span>
             </div>
             <div class="sede-aforo-bar">
@@ -5753,21 +6037,21 @@ if (typeof window !== "undefined") {
             </div>
           </div>
 
-          <!-- Grid de Detalles Operativos, Aliados y Contacto -->
+          <!-- Grid de Detalles Operativos con Iconos Nítidos -->
           <div class="sede-info-grid">
             <!-- Facilitadora a Cargo -->
             <div class="sede-info-item">
               <div class="sede-info-label">
-                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                 </svg>
                 <span>Responsable de Sede:</span>
               </div>
-              <div class="sede-info-val"><strong>${sede.facilitadora}</strong></div>
+              <div class="sede-info-val">${sede.facilitadora}</div>
               <div class="sede-info-sub">
                 <span>${sede.facilitadoraCargo}</span>
-                <a href="tel:${sede.facilitadoraTel.replace(/[^0-9]/g, '')}" class="sede-tel-link" title="Llamar a responsable de sede">
-                  <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <a href="tel:${sede.facilitadoraTel.replace(/[^0-9]/g, '')}" class="sede-tel-link" title="Llamar al ${sede.facilitadoraTel}">
+                  <svg width="10.5" height="10.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
                   </svg>
                   <span>${sede.facilitadoraTel}</span>
@@ -5778,44 +6062,44 @@ if (typeof window !== "undefined") {
             <!-- Iglesia o Institución Aliada -->
             <div class="sede-info-item">
               <div class="sede-info-label">
-                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.333A1.125 1.125 0 0018.375 9.21H5.625A1.125 1.125 0 004.5 10.333V21h15z" />
                 </svg>
                 <span>${sede.tipoAliado}:</span>
               </div>
-              <div class="sede-info-val"><strong>${sede.iglesiaAliada}</strong></div>
+              <div class="sede-info-val">${sede.iglesiaAliada}</div>
               <div class="sede-info-sub" style="color:var(--text-muted);">${sede.pastorAliado}</div>
             </div>
 
             <!-- Dirección Física y Ubicación -->
-            <div class="sede-info-item" style="grid-column: 1 / -1;">
+            <div class="sede-info-item sede-info-address">
               <div class="sede-info-label">
-                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                 </svg>
-                <span>Dirección y Referencia:</span>
+                <span>Ubicación y Referencia:</span>
               </div>
-              <div class="sede-info-val" style="font-size:12.5px; line-height:1.4;">
+              <div class="sede-info-val">
                 ${sede.direccion}
-                <div style="font-size:11.5px; color:var(--text-dim); margin-top:2px;">Ref: ${sede.referencia}</div>
+                <div style="font-size:11px; font-weight:normal; color:var(--text-dim); margin-top:2px;">Ref: ${sede.referencia}</div>
               </div>
             </div>
           </div>
 
           <!-- Pie de Acciones de Sede -->
           <div class="sede-card-footer">
-            <a href="${mapsNavUrl}" target="_blank" class="btn-action btn-sede-map" title="Ver ubicación en Google Maps">
-              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <a href="${mapsNavUrl}" target="_blank" class="btn-action btn-sede-map" title="Abrir ubicación en Google Maps">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934a1.12 1.12 0 01-1.006 0L9.503 3.31a1.125 1.125 0 00-1.006 0L3.623 5.748A1.125 1.125 0 003 6.754v11.926c0 .836.88 1.38 1.628 1.006l3.869-1.934a1.12 1.12 0 011.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
               </svg>
               <span>Ver Mapa</span>
             </a>
-            <button type="button" class="btn-action primary btn-sede-padron" onclick="window.filterPadronBySede ? window.filterPadronBySede('${sede.nombre}') : null" title="Ver listado de menores en esta sede">
-              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <button type="button" class="btn-action primary btn-sede-padron" onclick="window.filterPadronBySede ? window.filterPadronBySede('${sede.nombre}') : null" title="Ver beneficiarios de esta sede en el Padrón">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
               </svg>
-              <span>Ver Niños en Padrón</span>
+              <span>Ver Beneficiarios</span>
             </button>
           </div>
         </div>
@@ -5869,6 +6153,8 @@ if (typeof window !== "undefined") {
   clearFilters() {
     const input = document.getElementById("inputSedesSearch");
     if (input) input.value = "";
+    const clearBtn = document.getElementById("btnSedesSearchClear");
+    if (clearBtn) clearBtn.style.display = "none";
     const sView = window.PDI?.SedesView || SedesView;
     if (sView) {
       sView._searchQuery = "";
@@ -6325,7 +6611,9 @@ window.handleFotoUpload = (input, previewId, roleKey) => BeneficiarioController.
 window.toggleMismoApoderado = (checked) => BeneficiarioController.syncMismoApoderado(checked);
 window.closeModalExpediente = () => ModalView.closeExpediente();
 window.closeModalNuevoMenor = () => ModalView.closeNuevoMenor();
+window.closeModalNuevoBeneficiario = () => ModalView.closeNuevoMenor();
 window.openModalNuevoMenor = () => ModalView.openNuevoMenor();
+window.openModalNuevoBeneficiario = () => ModalView.openNuevoMenor();
 window.closeModalInforme = () => ModalView.closeInforme();
 window.closeSpotlightTour = () => SpotlightView.closeTour();
 window.spotlightNext = () => SpotlightView.next((view) => AppController.navigateToView(view));
@@ -6346,6 +6634,7 @@ window.calcularEvaluacionSocioeconomica = () => SocialController.calcularEvaluac
 window.syncScoreSimulador = (dimKey, val) => SocialController.syncScore(dimKey, val);
 window.cargarCasoEnSimulador = (codigo) => SocialController.cargarCasoEnSimulador(codigo);
 window.guardarNuevoMenor = (e) => BeneficiarioController.saveNuevoMenor(e, () => AppController.refreshAllViews());
+window.guardarNuevoBeneficiario = (e) => BeneficiarioController.saveNuevoMenor(e, () => AppController.refreshAllViews());
 window.exportDataCSV = () => AppController.exportCSV();
 window.exportAuditCSV = () => AppController.exportAuditCSV();
 
@@ -6512,6 +6801,9 @@ window.removePadronChip = (filterKey, specificVal) => {
 };
 window.selectPadronEstado = (val) => {
   if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.selectEstado(val);
+};
+window.selectPadronSexo = (val) => {
+  if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.selectSexo(val);
 };
 window.resetPadronFilters = () => {
   if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.resetFilters();

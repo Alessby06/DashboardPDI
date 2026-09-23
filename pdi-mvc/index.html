@@ -65,7 +65,7 @@
               <path stroke-linecap="round" stroke-linejoin="round"
                 d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
             </svg>
-            <span>Padrón de Menores</span>
+            <span>Padrón de Beneficiarios</span>
             <span class="nav-badge" id="badgeTotalBeneficiarios">28</span>
           </button>
 
@@ -357,11 +357,11 @@
             </div>
             <div style="display: flex; gap: 10px;">
               <button type="button" class="btn-action primary" id="btnNuevoBeneficiario"
-                onclick="openModalNuevoMenor()">
+                onclick="window.openModalNuevoBeneficiario ? window.openModalNuevoBeneficiario() : openModalNuevoMenor()">
                 <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
-                <span>Nuevo Menor</span>
+                <span>Nuevo Beneficiario</span>
               </button>
             </div>
           </div>
@@ -703,6 +703,43 @@
                         </div>
                       </div>
 
+                      <!-- Filtro 6: Sexo del Beneficiario (Niñas / Niños) -->
+                      <div class="audit-filter-field">
+                        <label class="audit-field-label">Sexo del Beneficiario</label>
+                        <div class="padron-inner-dropdown" id="dropdownPadronSexo">
+                          <button type="button" class="padron-inner-dropdown-btn"
+                            onclick="window.togglePadronInnerDropdown ? window.togglePadronInnerDropdown('dropdownPadronSexo') : null">
+                            <span id="labelPadronSexoSelect">Todos</span>
+                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                            </svg>
+                          </button>
+                          <div class="padron-inner-dropdown-menu" id="menuPadronSexo">
+                            <div class="padron-dropdown-item selected" data-value="all" onclick="window.selectPadronSexo ? window.selectPadronSexo('all') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-radio"></span>
+                                <span class="padron-item-label">Todos</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetSexo-all">(28)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="F" onclick="window.selectPadronSexo ? window.selectPadronSexo('F') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-radio"></span>
+                                <span class="padron-item-label">Niñas (Femenino)</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetSexo-F">(0)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="M" onclick="window.selectPadronSexo ? window.selectPadronSexo('M') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-radio"></span>
+                                <span class="padron-item-label">Niños (Masculino)</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetSexo-M">(0)</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
                     </div>
                   </div>
                 </div>
@@ -742,6 +779,41 @@
             <!-- Vista de Tarjetas Acordeón para Dispositivos Móviles / Smartphones -->
             <div class="mobile-accordion-list" id="mobileCardsBeneficiarios">
               <!-- Injected via JS -->
+            </div>
+
+            <!-- Controles de Paginación Padrón de Beneficiarios (PC / Móvil) -->
+            <div class="padron-pagination-bar" id="padronPaginationBar">
+              <div class="padron-pagination-left">
+                <span id="padronPaginationInfo" style="font-size:12.5px; color:var(--text-muted); font-weight:500;">
+                  Mostrando 0 de 0 beneficiarios
+                </span>
+                <div class="padron-density-wrapper" id="padronDensityWrapper" style="display:flex; align-items:center; gap:6px;">
+                  <span style="font-size:12px; color:var(--text-dim);">Mostrar:</span>
+                  <select class="audit-density-select padron-density-select" id="selectPadronPageSize"
+                    onchange="window.padronSetPageSize ? window.padronSetPageSize(this.value) : (window.PDI?.BeneficiariosView?.setPageSize ? window.PDI.BeneficiariosView.setPageSize(this.value) : null)">
+                    <option value="10">10 por página</option>
+                    <option value="20" selected>20 por página</option>
+                    <option value="50">50 por página (Máx)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="padron-pagination-right">
+                <button type="button" class="btn-page" id="btnPadronPagePrev"
+                  onclick="window.padronPrevPage ? window.padronPrevPage() : (window.PDI?.BeneficiariosView?.prevPage ? window.PDI.BeneficiariosView.prevPage() : null)">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                  </svg>
+                  <span>Anterior</span>
+                </button>
+                <span class="audit-page-indicator" id="padronCurrentPageNum">Página 1</span>
+                <button type="button" class="btn-page" id="btnPadronPageNext"
+                  onclick="window.padronNextPage ? window.padronNextPage() : (window.PDI?.BeneficiariosView?.nextPage ? window.PDI.BeneficiariosView.nextPage() : null)">
+                  <span>Siguiente</span>
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
         </section>
@@ -1221,8 +1293,8 @@
                   <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                 </svg>
                 <input type="text" id="inputSedesSearch" class="form-control" placeholder="Buscar sede, facilitadora, pastor o iglesia aliada..." oninput="window.filterSedesSearch ? window.filterSedesSearch(this.value) : null">
-                <button type="button" id="btnSedesSearchClear" onclick="window.clearSedesSearch ? window.clearSedesSearch() : null" class="btn-search-clear" title="Limpiar búsqueda">
-                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <button type="button" id="btnSedesSearchClear" onclick="window.clearSedesSearch ? window.clearSedesSearch() : null" class="audit-search-clear" style="display: none;" title="Limpiar búsqueda">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
@@ -2315,7 +2387,7 @@
           <button type="button" class="modal-tab-btn expediente-nav-item" data-tab="tab-apoderado">
             <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
-                d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
             </svg>
             <span>4. Familia y Retiro</span>
           </button>
@@ -2323,7 +2395,7 @@
           <button type="button" class="modal-tab-btn expediente-nav-item" data-tab="tab-consentimiento">
             <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
-                d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
             </svg>
             <span>5. Ley N.° 29733</span>
           </button>
@@ -2331,7 +2403,7 @@
           <button type="button" class="modal-tab-btn expediente-nav-item" data-tab="tab-asp">
             <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
-                d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-16.5-.52l-.568.083A2.25 2.25 0 003 7.74v8.261a2.25 2.25 0 001.682 2.187l.568.142m16.5-13.36l.568.083A2.25 2.25 0 0124 7.74v8.261a2.25 2.25 0 01-1.682 2.187l-.568.142" />
+                d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
             </svg>
             <span>6. Social ASP</span>
           </button>
@@ -2609,23 +2681,20 @@
 
             <!-- Padrón de Personas Autorizadas para Retiro con Fotografía -->
             <div style="border-top:1px solid var(--border-subtle); padding-top:14px;">
-              <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:10px;">
-                <div>
-                  <label
-                    style="font-size:13px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:8px;">
-                    <svg width="18" height="18" fill="none" stroke="var(--gt-green)" stroke-width="2"
-                      viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-                    </svg>
-                    <span>Padrón de Personas Autorizadas para el Retiro del Menor (Anexo 2)</span>
-                  </label>
-                  <span style="font-size:11.5px; color:var(--text-dim); display:block; margin-top:2px;">
-                    Control biométrico visual y cotejo de DNI obligatorio para la entrega segura del menor al término de
-                    actividades.
-                  </span>
-                </div>
-                <span class="badge badge-green" style="font-size:11px; white-space:nowrap;">Padrón Vigente 2026</span>
+              <div style="margin-bottom:10px;">
+                <label
+                  style="font-size:13px; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:8px;">
+                  <svg width="18" height="18" fill="none" stroke="var(--gt-green)" stroke-width="2"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                  </svg>
+                  <span>Padrón de Personas Autorizadas para el Retiro del Menor</span>
+                </label>
+                <span style="font-size:11.5px; color:var(--text-dim); display:block; margin-top:2px;">
+                  Control biométrico visual y cotejo de DNI obligatorio para la entrega segura del menor al término de
+                  actividades.
+                </span>
               </div>
 
               <div id="expRetiroPadronContainer" class="retiro-padron-grid">
