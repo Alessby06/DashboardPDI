@@ -658,12 +658,15 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
+      flex: 1 1 auto;
+      min-width: 0;
     }
 
     .audit-header-left h2 {
       margin: 0;
-      font-size: 22px;
+      font-size: 22px !important;
+      font-weight: 700;
       line-height: 1.2;
     }
 
@@ -1023,11 +1026,12 @@
         flex-wrap: nowrap !important;
       }
       .audit-header-left h2 {
-        font-size: 18px !important;
+        font-size: clamp(18px, 4.5vw, 22px) !important;
         line-height: 1.25 !important;
         margin: 0 !important;
-        white-space: normal !important;
-        word-break: break-word !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
       }
       .audit-legal-popover-wrapper {
         flex-shrink: 0 !important;
@@ -1848,7 +1852,7 @@
         font-size: 13px !important;
       }
       .audit-header-left h2 {
-        font-size: 16.5px !important;
+        font-size: clamp(17px, 4.5vw, 22px) !important;
       }
       .audit-header-title-row {
         gap: 6px !important;

@@ -5955,20 +5955,6 @@ if (typeof window !== "undefined") {
     let activeCount = 0;
     const chipsHTML = [];
 
-    if (this._searchQuery) {
-      activeCount++;
-      chipsHTML.push(`
-        <span class="padron-chip">
-          <span>Búsqueda: "${this._searchQuery}"</span>
-          <button type="button" onclick="window.PDI?.SedesView?.removeFilterChip('search')">
-            <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-          </button>
-        </span>
-      `);
-    }
-
     if (this._filterDistrito !== "all") {
       activeCount++;
       chipsHTML.push(`
