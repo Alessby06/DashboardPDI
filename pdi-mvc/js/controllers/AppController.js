@@ -238,43 +238,9 @@ export const AppController = {
   },
 
   toggleTheme(event) {
-    const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
+    const currentTheme = document.documentElement.getAttribute("data-theme") || "light";
     const nextTheme = currentTheme === "light" ? "dark" : "light";
-
-    const applyTheme = () => {
-      if (nextTheme === "light") {
-        document.documentElement.setAttribute("data-theme", "light");
-        StorageService.setItem("pdi_app_theme", "light");
-      } else {
-        document.documentElement.removeAttribute("data-theme");
-        StorageService.setItem("pdi_app_theme", "dark");
-      }
-    };
-
-    if (!document.startViewTransition) {
-      applyTheme();
-      return;
-    }
-
-    const btn = event.currentTarget || document.getElementById("btnThemeToggle");
-    const rect = btn.getBoundingClientRect();
-    const x = rect.left + rect.width / 2;
-    const y = rect.top + rect.height / 2;
-    const endRadius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
-
-    if (nextTheme === "dark") {
-      document.documentElement.classList.add("theme-transitioning-to-dark");
-    }
-
-    const transition = document.startViewTransition(applyTheme);
-    transition.ready.then(() => {
-      if (nextTheme === "light") {
-        document.documentElement.animate(
-          [{ clipPath: `circle(0px at ${x}px ${y}px)` }, { clipPath: `circle(${endRadius}px at ${x}px ${y}px)` }],
-          { duration: 400, easing: "cubic-bezier(0.2, 0, 0, 1)", pseudoElement: "::view-transition-new(root)" }
-        );
-      }
-    });
+    AjustesView.setTheme(nextTheme, true, event);
   },
 
   exportCSV() {

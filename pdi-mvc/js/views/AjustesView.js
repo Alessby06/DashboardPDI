@@ -74,76 +74,35 @@ export const AjustesView = {
   },
 
   setTheme(themeName, showToast = true, clickEvent = null) {
-    const applyThemeChange = () => {
-      this._currentTheme = themeName;
+    this._currentTheme = themeName;
 
-      try {
-        localStorage.setItem('pdi_theme', themeName);
-      } catch (e) {}
+    try {
+      localStorage.setItem('pdi_theme', themeName);
+    } catch (e) {}
 
-      if (typeof document !== 'undefined') {
-        document.cookie = `pdi_theme=${themeName}; path=/; max-age=31536000; SameSite=Lax`;
-      }
-
-      const root = document.documentElement;
-
-      if (themeName === 'system') {
-        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
-        this._bindSystemListener();
-      } else {
-        root.setAttribute('data-theme', themeName);
-      }
-
-      this._updateThemeUI();
-    };
-
-    // Obtener coordenadas de origen para la onda circular (Ripple Reveal)
-    let x = window.innerWidth / 2;
-    let y = window.innerHeight / 2;
-
-    if (clickEvent && clickEvent.clientX) {
-      x = clickEvent.clientX;
-      y = clickEvent.clientY;
-    } else {
-      const focoEl = document.getElementById('focoInteractiveTrigger');
-      const btnEl = document.getElementById(`btnTheme${themeName.charAt(0).toUpperCase() + themeName.slice(1)}`);
-      const targetEl = focoEl || btnEl;
-      if (targetEl) {
-        const rect = targetEl.getBoundingClientRect();
-        x = rect.left + rect.width / 2;
-        y = rect.top + rect.height / 2;
-      }
+    if (typeof document !== 'undefined') {
+      document.cookie = `pdi_theme=${themeName}; path=/; max-age=31536000; SameSite=Lax`;
     }
 
-    const endRadius = Math.hypot(
-      Math.max(x, window.innerWidth - x),
-      Math.max(y, window.innerHeight - y)
-    );
+    const root = document.documentElement;
 
-    // Animación Circular Ripple Reveal (View Transitions API acelerada por GPU)
-    if (typeof document !== 'undefined' && document.startViewTransition) {
-      const transition = document.startViewTransition(() => {
-        applyThemeChange();
-      });
+    // Técnica GitHub / Stripe: Activa interpolación suave de tokens (180ms) sin congelamiento de GPU
+    root.classList.add('theme-switching');
 
-      transition.ready.then(() => {
-        const clipPath = [
-          `circle(0px at ${x}px ${y}px)`,
-          `circle(${endRadius}px at ${x}px ${y}px)`
-        ];
-        document.documentElement.animate(
-          { clipPath: clipPath },
-          {
-            duration: 380,
-            easing: 'cubic-bezier(0.2, 0.9, 0.3, 1)',
-            pseudoElement: '::view-transition-new(root)'
-          }
-        );
-      });
+    if (themeName === 'system') {
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+      this._bindSystemListener();
     } else {
-      applyThemeChange();
+      root.setAttribute('data-theme', themeName);
     }
+
+    this._updateThemeUI();
+
+    // Limpiar clase de transición temporal una vez completada
+    setTimeout(() => {
+      root.classList.remove('theme-switching');
+    }, 220);
 
     if (showToast && window.showToast) {
       const names = { light: 'Tema Claro', dark: 'Tema Oscuro', system: 'Tema Automático (SO)' };

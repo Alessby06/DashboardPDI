@@ -6917,44 +6917,10 @@ if (typeof window !== "undefined") {
     });
   },
 
-  toggleTheme(event) {
-    const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
+  toggleTheme(event = null) {
+    const currentTheme = document.documentElement.getAttribute("data-theme") || "light";
     const nextTheme = currentTheme === "light" ? "dark" : "light";
-
-    const applyTheme = () => {
-      if (nextTheme === "light") {
-        document.documentElement.setAttribute("data-theme", "light");
-        StorageService.setItem("pdi_app_theme", "light");
-      } else {
-        document.documentElement.removeAttribute("data-theme");
-        StorageService.setItem("pdi_app_theme", "dark");
-      }
-    };
-
-    if (!document.startViewTransition) {
-      applyTheme();
-      return;
-    }
-
-    const btn = event.currentTarget || document.getElementById("btnThemeToggle");
-    const rect = btn.getBoundingClientRect();
-    const x = rect.left + rect.width / 2;
-    const y = rect.top + rect.height / 2;
-    const endRadius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
-
-    if (nextTheme === "dark") {
-      document.documentElement.classList.add("theme-transitioning-to-dark");
-    }
-
-    const transition = document.startViewTransition(applyTheme);
-    transition.ready.then(() => {
-      if (nextTheme === "light") {
-        document.documentElement.animate(
-          [{ clipPath: `circle(0px at ${x}px ${y}px)` }, { clipPath: `circle(${endRadius}px at ${x}px ${y}px)` }],
-          { duration: 400, easing: "cubic-bezier(0.2, 0, 0, 1)", pseudoElement: "::view-transition-new(root)" }
-        );
-      }
-    });
+    AjustesView.setTheme(nextTheme, true, event);
   },
 
   exportCSV() {
@@ -7389,28 +7355,7 @@ const AjustesView = {
       this._updateThemeUI();
     };
 
-    let x = window.innerWidth / 2;
-    let y = window.innerHeight / 2;
-
-    if (clickEvent && clickEvent.clientX) {
-      x = clickEvent.clientX;
-      y = clickEvent.clientY;
-    } else {
-      const focoEl = document.getElementById('focoInteractiveTrigger');
-      const btnEl = document.getElementById(`btnTheme${themeName.charAt(0).toUpperCase() + themeName.slice(1)}`);
-      const targetEl = focoEl || btnEl;
-      if (targetEl) {
-        const rect = targetEl.getBoundingClientRect();
-        x = rect.left + rect.width / 2;
-        y = rect.top + rect.height / 2;
-      }
-    }
-
-    const endRadius = Math.hypot(
-      Math.max(x, window.innerWidth - x),
-      Math.max(y, window.innerHeight - y)
-    );
-
+    // Animación de Barrido Diagonal Aurora a 45° (View Transitions API acelerada por GPU - Estilo Linear / Vercel)
     if (typeof document !== 'undefined' && document.startViewTransition) {
       const transition = document.startViewTransition(() => {
         applyThemeChange();
@@ -7418,14 +7363,14 @@ const AjustesView = {
 
       transition.ready.then(() => {
         const clipPath = [
-          `circle(0px at ${x}px ${y}px)`,
-          `circle(${endRadius}px at ${x}px ${y}px)`
+          'polygon(0 0, 0 0, 0 0, 0 0)',
+          'polygon(0 0, 280% 0, 0 280%, 0 0)'
         ];
         document.documentElement.animate(
           { clipPath: clipPath },
           {
-            duration: 380,
-            easing: 'cubic-bezier(0.2, 0.9, 0.3, 1)',
+            duration: 400,
+            easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
             pseudoElement: '::view-transition-new(root)'
           }
         );
