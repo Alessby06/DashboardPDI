@@ -5,8 +5,29 @@ AnimationEngine = {
     const el = typeof elementOrId === "string" ? document.getElementById(elementOrId) : elementOrId;
     if (!el) return;
 
+    if (typeof targetVal === "string" && targetVal.includes("/")) {
+      const parts = targetVal.split("/").map(s => parseFloat(s.trim()));
+      if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+        const duration = options.duration || 1000;
+        const startTime = performance.now();
+        const updateRatio = (currentTime) => {
+          const elapsedTime = currentTime - startTime;
+          const progress = Math.min(elapsedTime / duration, 1);
+          const easeProgress = 1 - Math.pow(1 - progress, 3);
+          const cur1 = Math.round(parts[0] * easeProgress);
+          const cur2 = Math.round(parts[1] * easeProgress);
+          el.textContent = `${cur1} / ${cur2}`;
+          if (progress < 1) requestAnimationFrame(updateRatio);
+          else el.textContent = targetVal;
+        };
+        requestAnimationFrame(updateRatio);
+        return;
+      }
+    }
+
     const duration = options.duration || 1000;
-    const decimals = options.decimals !== undefined ? options.decimals : (targetVal % 1 !== 0 ? 1 : 0);
+    const numVal = typeof targetVal === "number" ? targetVal : parseFloat(targetVal) || 0;
+    const decimals = options.decimals !== undefined ? options.decimals : (numVal % 1 !== 0 ? 1 : 0);
     const prefix = options.prefix || "";
     const suffix = options.suffix || "";
 
@@ -17,14 +38,14 @@ AnimationEngine = {
       const elapsedTime = currentTime - startTime;
       const progress = Math.min(elapsedTime / duration, 1);
       const easeProgress = 1 - Math.pow(1 - progress, 3);
-      const currentVal = startVal + (targetVal - startVal) * easeProgress;
+      const currentVal = startVal + (numVal - startVal) * easeProgress;
 
       el.textContent = `${prefix}${currentVal.toFixed(decimals)}${suffix}`;
 
       if (progress < 1) {
         requestAnimationFrame(updateCounter);
       } else {
-        el.textContent = `${prefix}${targetVal.toFixed(decimals)}${suffix}`;
+        el.textContent = `${prefix}${numVal.toFixed(decimals)}${suffix}`;
       }
     };
 
@@ -2085,7 +2106,19 @@ if (typeof window !== "undefined") {
     if (dashBenEl) animateNum(dashBenEl, stats.total);
 
     const dashTamEl = document.getElementById("dashKpiTamizados");
-    if (dashTamEl) dashTamEl.textContent = `${stats.total} / ${stats.total}`;
+    if (dashTamEl) {
+      if (window.PDI && window.PDI.AnimationEngine) {
+        window.PDI.AnimationEngine.animateCounter(dashTamEl, `${stats.total} / ${stats.total}`);
+      } else {
+        dashTamEl.textContent = `${stats.total} / ${stats.total}`;
+      }
+    }
+
+    const dashAsisEl = document.getElementById("dashKpiAsistencia");
+    if (dashAsisEl) animateNum(dashAsisEl, 92.4, true);
+
+    const dashCasosEl = document.getElementById("dashKpiCasosSociales");
+    if (dashCasosEl) animateNum(dashCasosEl, 4);
 
     const pctNormalEl = document.getElementById("pctNormal");
     if (pctNormalEl) animateNum(pctNormalEl, stats.pctNormal, true);
@@ -2125,7 +2158,7 @@ if (typeof window !== "undefined") {
               <strong>Distrito de Comas</strong>
               <div class="district-coverage-sedes">Sedes: La Libertad, Año Nuevo, Collique</div>
             </div>
-            <span class="badge badge-green district-coverage-badge">${stats.comasCount} Beneficiarios (${pctComas}%)</span>
+            <span class="badge badge-green district-coverage-badge" id="badgeDistrictComas">${stats.comasCount} Beneficiarios (${pctComas}%)</span>
           </div>
           <div class="district-coverage-track">
             <div class="district-coverage-bar" style="width: 0%; background: var(--gt-green);" id="barDistrictComas"></div>
@@ -2138,7 +2171,7 @@ if (typeof window !== "undefined") {
               <strong>Distrito de Carabayllo</strong>
               <div class="district-coverage-sedes">Sedes: El Progreso, San Pedro</div>
             </div>
-            <span class="badge badge-blue district-coverage-badge">${stats.carabaylloCount} Beneficiarios (${pctCarabayllo}%)</span>
+            <span class="badge badge-blue district-coverage-badge" id="badgeDistrictCarabayllo">${stats.carabaylloCount} Beneficiarios (${pctCarabayllo}%)</span>
           </div>
           <div class="district-coverage-track">
             <div class="district-coverage-bar" style="width: 0%; background: var(--gt-blue, #0d9488);" id="barDistrictCarabayllo"></div>
@@ -2150,6 +2183,41 @@ if (typeof window !== "undefined") {
         const bCara = document.getElementById("barDistrictCarabayllo");
         if (bComas) bComas.style.width = `${pctComas}%`;
         if (bCara) bCara.style.width = `${pctCarabayllo}%`;
+
+        const badgeComasEl = document.getElementById("badgeDistrictComas");
+        const badgeCaraEl = document.getElementById("badgeDistrictCarabayllo");
+
+        if (window.PDI && window.PDI.AnimationEngine) {
+          if (badgeComasEl) {
+            const startT = performance.now();
+            const dur = 2000;
+            const updateB1 = (t) => {
+              const p = Math.min((t - startT) / dur, 1);
+              const ep = 1 - Math.pow(1 - p, 3);
+              const cVal = Math.round(stats.comasCount * ep);
+              const cPct = Math.round(pctComas * ep);
+              badgeComasEl.textContent = `${cVal} Beneficiarios (${cPct}%)`;
+              if (p < 1) requestAnimationFrame(updateB1);
+              else badgeComasEl.textContent = `${stats.comasCount} Beneficiarios (${pctComas}%)`;
+            };
+            requestAnimationFrame(updateB1);
+          }
+
+          if (badgeCaraEl) {
+            const startT = performance.now();
+            const dur = 2000;
+            const updateB2 = (t) => {
+              const p = Math.min((t - startT) / dur, 1);
+              const ep = 1 - Math.pow(1 - p, 3);
+              const cVal = Math.round(stats.carabaylloCount * ep);
+              const cPct = Math.round(pctCarabayllo * ep);
+              badgeCaraEl.textContent = `${cVal} Beneficiarios (${cPct}%)`;
+              if (p < 1) requestAnimationFrame(updateB2);
+              else badgeCaraEl.textContent = `${stats.carabaylloCount} Beneficiarios (${pctCarabayllo}%)`;
+            };
+            requestAnimationFrame(updateB2);
+          }
+        }
       }, 50);
     }
 
@@ -2170,11 +2238,11 @@ if (typeof window !== "undefined") {
             <svg viewBox="0 0 100 100" width="140" height="140" style="transform: rotate(-90deg);">
               <circle cx="50" cy="50" r="40" fill="transparent" stroke="var(--border-subtle)" stroke-width="14" />
               <circle id="semNormalCircle" cx="50" cy="50" r="40" fill="transparent" stroke="var(--gt-green)" stroke-width="14"
-                stroke-dasharray="0 ${C}" stroke-dashoffset="0" stroke-linecap="round" style="transition: stroke-dasharray 1.2s cubic-bezier(0.16, 1, 0.3, 1);" />
+                stroke-dasharray="0 ${C}" stroke-dashoffset="0" stroke-linecap="round" style="transition: stroke-dasharray 2s cubic-bezier(0.16, 1, 0.3, 1);" />
               <circle id="semLeveCircle" cx="50" cy="50" r="40" fill="transparent" stroke="var(--gt-yellow)" stroke-width="14"
-                stroke-dasharray="0 ${C}" stroke-dashoffset="${-sNormal}" stroke-linecap="round" style="transition: stroke-dasharray 1.2s cubic-bezier(0.16, 1, 0.3, 1);" />
+                stroke-dasharray="0 ${C}" stroke-dashoffset="${-sNormal}" stroke-linecap="round" style="transition: stroke-dasharray 2s cubic-bezier(0.16, 1, 0.3, 1);" />
               <circle id="semModCircle" cx="50" cy="50" r="40" fill="transparent" stroke="var(--gt-red)" stroke-width="14"
-                stroke-dasharray="0 ${C}" stroke-dashoffset="${-(sNormal + sLeve)}" stroke-linecap="round" style="transition: stroke-dasharray 1.2s cubic-bezier(0.16, 1, 0.3, 1);" />
+                stroke-dasharray="0 ${C}" stroke-dashoffset="${-(sNormal + sLeve)}" stroke-linecap="round" style="transition: stroke-dasharray 2s cubic-bezier(0.16, 1, 0.3, 1);" />
             </svg>
             <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; pointer-events: none;">
               <span id="dashChartCenterNum" style="font-size: 20px; font-weight: 800; color: var(--text-main); font-family: var(--mono-font);">0</span>
@@ -2187,21 +2255,21 @@ if (typeof window !== "undefined") {
                 <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--gt-green); display: inline-block;"></span>
                 <span>Normal (&ge; 11.0)</span>
               </div>
-              <strong style="color: var(--gt-green); font-family: var(--mono-font);">${stats.normales} (${stats.pctNormal}%)</strong>
+              <strong style="color: var(--gt-green); font-family: var(--mono-font);" id="anemiaLegendNormal">${stats.normales} (${stats.pctNormal}%)</strong>
             </div>
             <div style="display: flex; align-items: center; justify-content: space-between; font-size: 12.5px;">
               <div style="display: flex; align-items: center; gap: 8px;">
                 <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--gt-yellow); display: inline-block;"></span>
                 <span>Anemia Leve</span>
               </div>
-              <strong style="color: var(--gt-yellow); font-family: var(--mono-font);">${stats.leves} (${stats.pctLeve}%)</strong>
+              <strong style="color: var(--gt-yellow); font-family: var(--mono-font);" id="anemiaLegendLeve">${stats.leves} (${stats.pctLeve}%)</strong>
             </div>
             <div style="display: flex; align-items: center; justify-content: space-between; font-size: 12.5px;">
               <div style="display: flex; align-items: center; gap: 8px;">
                 <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--gt-red); display: inline-block;"></span>
                 <span>Anemia Mod/Sev</span>
               </div>
-              <strong style="color: var(--gt-red); font-family: var(--mono-font);">${stats.moderadas} (${stats.pctMod}%)</strong>
+              <strong style="color: var(--gt-red); font-family: var(--mono-font);" id="anemiaLegendMod">${stats.moderadas} (${stats.pctMod}%)</strong>
             </div>
           </div>
         </div>
@@ -2216,6 +2284,31 @@ if (typeof window !== "undefined") {
         if (cLeve) cLeve.style.strokeDasharray = `${sLeve} ${C}`;
         if (cMod) cMod.style.strokeDasharray = `${sMod} ${C}`;
         if (cNum) animateNum(cNum, stats.total);
+
+        const legNorm = document.getElementById("anemiaLegendNormal");
+        const legLeve = document.getElementById("anemiaLegendLeve");
+        const legMod = document.getElementById("anemiaLegendMod");
+
+        if (window.PDI && window.PDI.AnimationEngine) {
+          const runLegendAnim = (el, val, pct) => {
+            if (!el) return;
+            const startT = performance.now();
+            const dur = 2000;
+            const updateLeg = (t) => {
+              const p = Math.min((t - startT) / dur, 1);
+              const ep = 1 - Math.pow(1 - p, 3);
+              const cVal = Math.round(val * ep);
+              const cPct = Math.round(pct * ep);
+              el.textContent = `${cVal} (${cPct}%)`;
+              if (p < 1) requestAnimationFrame(updateLeg);
+              else el.textContent = `${val} (${pct}%)`;
+            };
+            requestAnimationFrame(updateLeg);
+          };
+          runLegendAnim(legNorm, stats.normales, stats.pctNormal);
+          runLegendAnim(legLeve, stats.leves, stats.pctLeve);
+          runLegendAnim(legMod, stats.moderadas, stats.pctMod);
+        }
       }, 60);
     }
 
@@ -6705,6 +6798,11 @@ if (typeof window !== "undefined") {
     const toggleBtn = document.getElementById("btnSidebarToggle");
     const backdrop = document.getElementById("sidebarBackdrop");
 
+    // Asignación de índice para animación de cascada escalonada en móviles
+    document.querySelectorAll(".nav-sections .nav-btn").forEach((btn, idx) => {
+      btn.style.setProperty("--nav-idx", idx);
+    });
+
     if (toggleBtn) {
       toggleBtn.onclick = (e) => {
         if (e) {
@@ -6737,18 +6835,14 @@ if (typeof window !== "undefined") {
     const backdrop = document.getElementById("sidebarBackdrop");
     if (!sidebar) return;
 
-    if (window.innerWidth > 900) {
+    if (window.innerWidth <= 900) {
+      // En móvil / pantalla angosta: alternar clase open con backdrop inteligente
+      const isOpen = sidebar.classList.toggle("open");
+      if (backdrop) backdrop.classList.toggle("active", isOpen);
+    } else {
+      // En PC / pantalla completa o dividida: alternar colapso Icon Rail (72px)
       sidebar.classList.toggle("collapsed");
       if (backdrop) backdrop.classList.remove("active");
-    } else {
-      const isOpen = sidebar.classList.toggle("open");
-      if (backdrop) {
-        if (isOpen) {
-          backdrop.classList.add("active");
-        } else {
-          backdrop.classList.remove("active");
-        }
-      }
     }
   },
 
@@ -7265,6 +7359,11 @@ const AjustesView = {
     }
   },
 
+  toggleFocoMode(event = null) {
+    const targetTheme = (this._currentTheme === 'light') ? 'dark' : 'light';
+    this.setTheme(targetTheme, true, event);
+  },
+
   setTheme(themeName, showToast = true, clickEvent = null) {
     const applyThemeChange = () => {
       this._currentTheme = themeName;
@@ -7290,15 +7389,29 @@ const AjustesView = {
       this._updateThemeUI();
     };
 
-    // Animación Circular Ripple Reveal (View Transitions API)
-    if (typeof document !== 'undefined' && document.startViewTransition && clickEvent && clickEvent.clientX) {
-      const x = clickEvent.clientX;
-      const y = clickEvent.clientY;
-      const endRadius = Math.hypot(
-        Math.max(x, window.innerWidth - x),
-        Math.max(y, window.innerHeight - y)
-      );
+    let x = window.innerWidth / 2;
+    let y = window.innerHeight / 2;
 
+    if (clickEvent && clickEvent.clientX) {
+      x = clickEvent.clientX;
+      y = clickEvent.clientY;
+    } else {
+      const focoEl = document.getElementById('focoInteractiveTrigger');
+      const btnEl = document.getElementById(`btnTheme${themeName.charAt(0).toUpperCase() + themeName.slice(1)}`);
+      const targetEl = focoEl || btnEl;
+      if (targetEl) {
+        const rect = targetEl.getBoundingClientRect();
+        x = rect.left + rect.width / 2;
+        y = rect.top + rect.height / 2;
+      }
+    }
+
+    const endRadius = Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y)
+    );
+
+    if (typeof document !== 'undefined' && document.startViewTransition) {
       const transition = document.startViewTransition(() => {
         applyThemeChange();
       });
@@ -7311,8 +7424,8 @@ const AjustesView = {
         document.documentElement.animate(
           { clipPath: clipPath },
           {
-            duration: 500,
-            easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+            duration: 380,
+            easing: 'cubic-bezier(0.2, 0.9, 0.3, 1)',
             pseudoElement: '::view-transition-new(root)'
           }
         );
@@ -7336,22 +7449,81 @@ const AjustesView = {
     const badgeDark = document.getElementById('badgeThemeDark');
     const badgeSystem = document.getElementById('badgeThemeSystem');
 
-    if (!btnLight || !btnDark || !btnSystem) return;
+    if (btnLight && btnDark && btnSystem) {
+      [btnLight, btnDark, btnSystem].forEach(btn => btn.classList.remove('active'));
+      [badgeLight, badgeDark, badgeSystem].forEach(badge => {
+        if (badge) badge.style.display = 'none';
+      });
 
-    [btnLight, btnDark, btnSystem].forEach(btn => btn.classList.remove('active'));
-    [badgeLight, badgeDark, badgeSystem].forEach(badge => {
-      if (badge) badge.style.display = 'none';
-    });
+      if (this._currentTheme === 'dark') {
+        btnDark.classList.add('active');
+        if (badgeDark) badgeDark.style.display = 'inline-flex';
+      } else if (this._currentTheme === 'system') {
+        btnSystem.classList.add('active');
+        if (badgeSystem) badgeSystem.style.display = 'inline-flex';
+      } else {
+        btnLight.classList.add('active');
+        if (badgeLight) badgeLight.style.display = 'inline-flex';
+      }
+    }
 
-    if (this._currentTheme === 'dark') {
-      btnDark.classList.add('active');
-      if (badgeDark) badgeDark.style.display = 'inline-flex';
-    } else if (this._currentTheme === 'system') {
-      btnSystem.classList.add('active');
-      if (badgeSystem) badgeSystem.style.display = 'inline-flex';
+    this._updateFocoMascot(this._currentTheme);
+  },
+
+  _updateFocoMascot(themeName) {
+    const focoTrigger = document.getElementById('focoInteractiveTrigger');
+    const bubbleTitle = document.getElementById('focoBubbleTitle');
+    const bubbleBadge = document.getElementById('focoBubbleBadge');
+    const bubbleMsg = document.getElementById('focoBubbleMsg');
+    const bubbleIcon = document.getElementById('focoBubbleIcon');
+
+    if (!focoTrigger) return;
+
+    focoTrigger.classList.remove('state-light', 'state-dark', 'state-system');
+    focoTrigger.classList.add(`state-${themeName}`);
+
+    if (themeName === 'dark') {
+      if (bubbleTitle) bubbleTitle.textContent = 'Modo Nocturno Activo';
+      if (bubbleBadge) bubbleBadge.textContent = 'Foco Encendido';
+      if (bubbleMsg) {
+        bubbleMsg.textContent = 'Ambiente nocturno activado. El foco está encendido para iluminar tu espacio de trabajo. Haz clic sobre mí para volver al modo diurno.';
+      }
+      if (bubbleIcon) {
+        bubbleIcon.innerHTML = `
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+          </svg>
+        `;
+      }
+    } else if (themeName === 'system') {
+      if (bubbleTitle) bubbleTitle.textContent = 'Modo Sensor Inteligente';
+      if (bubbleBadge) bubbleBadge.textContent = 'Sincronizado con SO';
+      if (bubbleMsg) {
+        bubbleMsg.textContent = 'Sensor automático sincronizado. La iluminación se adapta en tiempo real a las preferencias del sistema operativo de tu dispositivo.';
+      }
+      if (bubbleIcon) {
+        bubbleIcon.innerHTML = `
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0h-18" />
+          </svg>
+        `;
+      }
     } else {
-      btnLight.classList.add('active');
-      if (badgeLight) badgeLight.style.display = 'inline-flex';
+      if (bubbleTitle) bubbleTitle.textContent = 'Modo Diurno Activo';
+      if (bubbleBadge) bubbleBadge.textContent = 'Foco en Reposo';
+      if (bubbleMsg) {
+        bubbleMsg.textContent = 'Ambiente diurno detectado. El foco permanece en reposo para ahorrar energía. Haz clic sobre mí o usa los botones para alternar al modo noche.';
+      }
+      if (bubbleIcon) {
+        bubbleIcon.innerHTML = `
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 3v2.25m0 13.5V21m8.966-8.966h-2.25M4.284 12h-2.25m15.303-6.343l-1.591 1.591M6.257 17.743l-1.591 1.591m0-13.5l1.591 1.591m11.485 11.485l1.591 1.591M12 7.5a4.5 4.5 0 100 9 4.5 4.5 0 000-9z" />
+          </svg>
+        `;
+      }
     }
   },
 
@@ -7422,7 +7594,8 @@ const AjustesView = {
 
 window.PDI = window.PDI || {};
 window.PDI.AjustesView = AjustesView;
-window.setTheme = (t) => AjustesView.setTheme(t);
+window.setTheme = (t, showToast = true, e = null) => AjustesView.setTheme(t, showToast, e);
+window.toggleFocoMode = (e = null) => AjustesView.toggleFocoMode(e);
 window.triggerSync = () => AjustesView.triggerSync();
 window.clearCache = () => AjustesView.clearCache();
 

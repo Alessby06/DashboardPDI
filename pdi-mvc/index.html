@@ -60,7 +60,7 @@
 
         <nav class="nav-sections" id="sidebarNav">
           <div class="nav-label">General</div>
-          <button type="button" class="nav-btn active" data-view="view-dashboard"
+          <button type="button" class="nav-btn active" data-view="view-dashboard" data-tooltip="Dashboard"
             data-roles="coord,facilitadora,promotora,social,admin">
             <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
@@ -70,7 +70,7 @@
           </button>
 
           <div class="nav-label">Módulos Operativos (PDI)</div>
-          <button type="button" class="nav-btn" data-view="view-beneficiarios"
+          <button type="button" class="nav-btn" data-view="view-beneficiarios" data-tooltip="Padrón de Beneficiarios"
             data-roles="coord,facilitadora,promotora,social,admin">
             <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
@@ -80,7 +80,7 @@
             <span class="nav-badge" id="badgeTotalBeneficiarios">28</span>
           </button>
 
-          <button type="button" class="nav-btn" data-view="view-salud" data-roles="coord,facilitadora,admin">
+          <button type="button" class="nav-btn" data-view="view-salud" data-tooltip="Salud y Nutrición (CRED)" data-roles="coord,facilitadora,admin">
             <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
                 d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
@@ -88,7 +88,7 @@
             <span>Salud y Nutrición (CRED)</span>
           </button>
 
-          <button type="button" class="nav-btn" data-view="view-educativo" data-roles="coord,promotora,admin">
+          <button type="button" class="nav-btn" data-view="view-educativo" data-tooltip="Casita del Saber" data-roles="coord,promotora,admin">
             <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
                 d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" />
@@ -96,7 +96,7 @@
             <span>Casita del Saber</span>
           </button>
 
-          <button type="button" class="nav-btn" data-view="view-social" data-roles="coord,social,admin">
+          <button type="button" class="nav-btn" data-view="view-social" data-tooltip="Derivaciones Sociales (ASP)" data-roles="coord,social,admin">
             <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
                 d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
@@ -107,7 +107,7 @@
               id="badgeCasosCriticos">4</span>
           </button>
 
-          <button type="button" class="nav-btn" data-view="view-sedes" data-roles="coord,facilitadora,promotora,admin">
+          <button type="button" class="nav-btn" data-view="view-sedes" data-tooltip="Sedes e Iglesias" data-roles="coord,facilitadora,promotora,admin">
             <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
               <path stroke-linecap="round" stroke-linejoin="round"
@@ -117,7 +117,7 @@
           </button>
 
           <div class="nav-label">Auditoría</div>
-          <button type="button" class="nav-btn" data-view="view-auditoria" data-roles="coord,admin">
+          <button type="button" class="nav-btn" data-view="view-auditoria" data-tooltip="Historial de Cambios" data-roles="coord,admin">
             <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
                 d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
@@ -126,7 +126,7 @@
           </button>
 
           <div class="nav-label">Configuración</div>
-          <button type="button" class="nav-btn" data-view="view-ajustes"
+          <button type="button" class="nav-btn" data-view="view-ajustes" data-tooltip="Ajustes"
             data-roles="coord,facilitadora,promotora,social,admin">
             <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
@@ -2238,9 +2238,104 @@
               </div>
 
               <div class="settings-card-body">
+                <!-- Mascota Foco Interactivo Lumie (Vector SVG 100% puro) -->
+                <div class="foco-interactive-card" id="focoInteractiveCard">
+                  <div class="foco-mascot-wrap">
+                    <button type="button" class="foco-trigger-btn state-light" id="focoInteractiveTrigger"
+                      onclick="window.PDI?.AjustesView?.toggleFocoMode ? window.PDI.AjustesView.toggleFocoMode(event) : (window.toggleFocoMode ? window.toggleFocoMode(event) : null)"
+                      title="Haz clic sobre el foco para encender o apagar la luz">
+                      <!-- SVG Foco Vectorial Interactivo -->
+                      <svg class="foco-svg" viewBox="0 0 160 165" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Resplandor exterior (Modo Noche) -->
+                        <circle class="foco-halo" cx="80" cy="64" r="56" />
+                        <!-- Rayos de luz radiantes -->
+                        <g class="foco-rays">
+                          <line x1="80" y1="6" x2="80" y2="16" stroke-width="3" stroke-linecap="round" />
+                          <line x1="126" y1="22" x2="119" y2="29" stroke-width="3" stroke-linecap="round" />
+                          <line x1="146" y1="64" x2="136" y2="64" stroke-width="3" stroke-linecap="round" />
+                          <line x1="126" y1="106" x2="119" y2="99" stroke-width="3" stroke-linecap="round" />
+                          <line x1="34" y1="22" x2="41" y2="29" stroke-width="3" stroke-linecap="round" />
+                          <line x1="14" y1="64" x2="24" y2="64" stroke-width="3" stroke-linecap="round" />
+                          <line x1="34" y1="106" x2="41" y2="99" stroke-width="3" stroke-linecap="round" />
+                        </g>
+                        <!-- Cadena interruptor / tirador -->
+                        <line class="foco-pull-cord" x1="96" y1="106" x2="96" y2="148" stroke-width="2" stroke-dasharray="2 3" stroke-linecap="round" />
+                        <circle class="foco-pull-knob" cx="96" cy="151" r="5" />
+                        <!-- Casquillo y base metálica -->
+                        <rect class="foco-base-thread" x="65" y="102" width="30" height="6" rx="2" />
+                        <rect class="foco-base-thread" x="67" y="108" width="26" height="5" rx="2" />
+                        <rect class="foco-base-thread" x="69" y="113" width="22" height="5" rx="2" />
+                        <path class="foco-base-tip" d="M73 118 H87 C87 122 84 125 80 125 C76 125 73 122 73 118 Z" />
+                        <!-- Cuerpo de cristal del foco -->
+                        <path class="foco-glass-body"
+                          d="M48 64 C48 38 62 20 80 20 C98 20 112 38 112 64 C112 80 102 92 97 102 H63 C58 92 48 80 48 64 Z" />
+                        <!-- Reflejo curvo de cristal -->
+                        <path class="foco-glass-shine"
+                          d="M56 46 C60 34 70 28 80 26" stroke-width="3" stroke-linecap="round" />
+                        <!-- Filamento interior -->
+                        <path class="foco-filament-wire" d="M68 76 L74 54 L80 58 L86 54 L92 76" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                        <circle class="foco-filament-spark" cx="80" cy="58" r="3" />
+                        <!-- Antena Sensor (Modo Automático) -->
+                        <g class="foco-sensor-antenna">
+                          <line x1="80" y1="20" x2="80" y2="8" stroke-width="2.5" stroke-linecap="round" />
+                          <circle cx="80" cy="6" r="4" />
+                        </g>
+                        <!-- Expresión Facial SVG: Ojos y Boca -->
+                        <!-- Ojos Despiertos Brillantes (Noche) -->
+                        <g class="foco-eyes-awake">
+                          <circle cx="69" cy="62" r="4.5" />
+                          <circle cx="67.5" cy="60.5" r="1.5" fill="#ffffff" />
+                          <circle cx="91" cy="62" r="4.5" />
+                          <circle cx="89.5" cy="60.5" r="1.5" fill="#ffffff" />
+                        </g>
+                        <!-- Ojos Sonrientes de Día (Claro) -->
+                        <g class="foco-eyes-happy">
+                          <path d="M64 63 C67 58 72 58 75 63" stroke-width="2.5" stroke-linecap="round" fill="none" />
+                          <path d="M85 63 C88 58 93 58 96 63" stroke-width="2.5" stroke-linecap="round" fill="none" />
+                        </g>
+                        <!-- Gafas inteligentes (Modo Auto) -->
+                        <g class="foco-eyes-sensor">
+                          <rect x="62" y="56" width="14" height="11" rx="3" stroke-width="2" />
+                          <rect x="84" y="56" width="14" height="11" rx="3" stroke-width="2" />
+                          <line x1="76" y1="61" x2="84" y2="61" stroke-width="2" />
+                        </g>
+                        <!-- Mejillas sonrosadas -->
+                        <ellipse class="foco-cheek left" cx="62" cy="71" rx="3.5" ry="2" />
+                        <ellipse class="foco-cheek right" cx="98" cy="71" rx="3.5" ry="2" />
+                        <!-- Boca sonriente -->
+                        <path class="foco-smile" d="M73 73 Q80 81 87 73" stroke-width="2.4" stroke-linecap="round" fill="none" />
+                      </svg>
+                      <span class="foco-touch-hint">
+                        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zM12 2.25V4.5m5.834 1.416l-1.591 1.591M20.25 12h-2.25m-1.416 5.834l-1.591-1.591M4.5 12H2.25m3.666-5.834L4.325 4.575M4.325 19.425l1.591-1.591" />
+                        </svg>
+                        Tócame
+                      </span>
+                    </button>
+                  </div>
+
+                  <!-- Globo de Diálogo de Cómic -->
+                  <div class="foco-speech-bubble" id="focoSpeechBubble">
+                    <div class="foco-bubble-header">
+                      <span class="foco-bubble-icon" id="focoBubbleIcon">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 3v2.25m0 13.5V21m8.966-8.966h-2.25M4.284 12h-2.25m15.303-6.343l-1.591 1.591M6.257 17.743l-1.591 1.591m0-13.5l1.591 1.591m11.485 11.485l1.591 1.591M12 7.5a4.5 4.5 0 100 9 4.5 4.5 0 000-9z" />
+                        </svg>
+                      </span>
+                      <strong id="focoBubbleTitle">Modo Diurno Activo</strong>
+                      <span class="foco-bubble-badge" id="focoBubbleBadge">Foco en Reposo</span>
+                    </div>
+                    <p class="foco-bubble-msg" id="focoBubbleMsg">
+                      Ambiente diurno detectado. El foco permanece apagado para ahorrar energía. Haz clic sobre mí o usa los botones para alternar al modo noche.
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Botones de Selección Rápida de Tema -->
                 <div class="settings-theme-selector">
                   <button type="button" class="theme-option-btn active" id="btnThemeLight"
-                    onclick="window.setTheme ? window.setTheme('light') : (window.PDI?.AjustesView?.setTheme ? window.PDI.AjustesView.setTheme('light') : null)">
+                    onclick="window.PDI?.AjustesView?.setTheme ? window.PDI.AjustesView.setTheme('light', true, event) : (window.setTheme ? window.setTheme('light', true, event) : null)">
                     <div class="theme-icon-box">
                       <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
                         viewBox="0 0 24 24">
@@ -2258,7 +2353,7 @@
                   </button>
 
                   <button type="button" class="theme-option-btn" id="btnThemeDark"
-                    onclick="window.setTheme ? window.setTheme('dark') : (window.PDI?.AjustesView?.setTheme ? window.PDI.AjustesView.setTheme('dark') : null)">
+                    onclick="window.PDI?.AjustesView?.setTheme ? window.PDI.AjustesView.setTheme('dark', true, event) : (window.setTheme ? window.setTheme('dark', true, event) : null)">
                     <div class="theme-icon-box">
                       <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
                         viewBox="0 0 24 24">
@@ -2276,7 +2371,7 @@
                   </button>
 
                   <button type="button" class="theme-option-btn" id="btnThemeSystem"
-                    onclick="window.setTheme ? window.setTheme('system') : (window.PDI?.AjustesView?.setTheme ? window.PDI.AjustesView.setTheme('system') : null)">
+                    onclick="window.PDI?.AjustesView?.setTheme ? window.PDI.AjustesView.setTheme('system', true, event) : (window.setTheme ? window.setTheme('system', true, event) : null)">
                     <div class="theme-icon-box">
                       <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
                         viewBox="0 0 24 24">
@@ -2295,7 +2390,7 @@
                   </button>
                 </div>
 
-                <div class="settings-row" style="border-bottom:none; margin-top: 4px;">
+                <div class="settings-row" style="border-bottom:none; margin-top: 14px;">
                   <div class="settings-info-text" style="flex:1;">
                     <strong>Persistencia de Preferencias</strong>
                     <span>La configuración se guarda automáticamente en cookies y almacenamiento local para mantener tu tema al volver a abrir la plataforma.</span>
@@ -2541,20 +2636,20 @@
                       <option value="F">Femenino (F)</option>
                     </select>
                   </div>
-                  <div class="form-group" style="grid-column: span 2;">
+                  <div class="form-group" style="grid-column: 1 / -1;">
                     <label for="regDireccion">Dirección Actual Domiciliaria *</label>
                     <input type="text" id="regDireccion" class="form-control"
                       placeholder="Ej. Mz. 4W Lt. 30, Comité 12, San Benito" required
                       oninput="window.handleAddressInputDebounce ? window.handleAddressInputDebounce('reg') : null">
                   </div>
-                  <div class="form-group" style="grid-column: span 2;">
+                  <div class="form-group" style="grid-column: 1 / -1;">
                     <label for="regReferencia">Referencia de Ubicación</label>
                     <input type="text" id="regReferencia" class="form-control"
                       placeholder="Ej. Frente al Comedor San Benito">
                   </div>
 
                   <!-- Bloque de Croquis Dinámico y Captura de GPS / Fachada Opcional -->
-                  <div class="form-group" style="grid-column: span 2;">
+                  <div class="form-group" style="grid-column: 1 / -1;">
                     <div class="croquis-box-header">
                       <div class="croquis-box-title">
                         <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"

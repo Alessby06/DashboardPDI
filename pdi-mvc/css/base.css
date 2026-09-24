@@ -145,7 +145,7 @@
       overflow: hidden;
     }
 
-    /* Sidebar Navigation - Transición Fluida */
+    /* Sidebar Navigation - Pattern Icon Rail Moderno (Shadcn UI Style) */
     .sidebar {
       width: 280px;
       min-width: 280px;
@@ -159,17 +159,117 @@
       z-index: 50;
       transform: translate3d(0, 0, 0);
       backface-visibility: hidden;
-      will-change: transform, margin-left;
-      transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1),
-                  margin-left 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+      overflow-x: hidden; /* Evita cualquier scrollbar horizontal */
+      will-change: width, min-width;
+      transition: width 0.28s cubic-bezier(0.2, 0, 0, 1),
+                  min-width 0.28s cubic-bezier(0.2, 0, 0, 1),
                   background-color 0.38s cubic-bezier(0.16, 1, 0.3, 1),
                   border-color 0.38s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     @media (min-width: 901px) {
       .sidebar.collapsed {
-        margin-left: -280px;
-        transform: translate3d(0, 0, 0);
+        width: 72px !important;
+        min-width: 72px !important;
+        margin-left: 0 !important;
+        overflow-x: hidden !important;
+      }
+
+      .sidebar.collapsed .sidebar-header {
+        padding: 16px 12px;
+        justify-content: center;
+      }
+
+      .sidebar.collapsed .logo-official-icon {
+        width: 36px !important;
+        height: 36px !important;
+      }
+
+      .sidebar.collapsed .logo-text,
+      .sidebar.collapsed .nav-btn > span {
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+        white-space: nowrap !important;
+        width: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+      }
+
+      .sidebar.collapsed .nav-label {
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        line-height: 0 !important;
+      }
+
+      .sidebar.collapsed .nav-sections {
+        padding: 10px 8px;
+        gap: 4px;
+        overflow-x: hidden;
+      }
+
+      .sidebar.collapsed .nav-btn {
+        justify-content: center;
+        padding: 10px 0;
+        gap: 0;
+        width: 100%;
+        overflow: visible;
+        transition: padding 0.28s cubic-bezier(0.2, 0, 0, 1),
+                    background-color var(--dur-fast) var(--ease-smooth),
+                    color var(--dur-fast) var(--ease-smooth),
+                    border-color var(--dur-fast) var(--ease-smooth),
+                    transform var(--dur-fast) var(--ease-smooth);
+      }
+
+      .sidebar.collapsed .nav-btn:hover {
+        transform: scale(1.06);
+      }
+
+      .sidebar.collapsed .nav-badge {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        padding: 2px 5px;
+        font-size: 10px;
+        line-height: 1;
+        margin-left: 0;
+        opacity: 1 !important;
+        visibility: visible !important;
+        width: auto !important;
+      }
+
+      /* Tooltip Flotante para Mini-Sidebar Colapsada (Shadcn/Vercel Rail UX) */
+      .sidebar.collapsed .nav-btn[data-tooltip]::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        left: calc(100% + 14px);
+        top: 50%;
+        transform: translateY(-50%) translateX(-6px);
+        background: var(--obsidian);
+        color: var(--text-main);
+        padding: 6px 12px;
+        border-radius: var(--radius-sm);
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25);
+        border: 1px solid var(--border-subtle);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.18s ease, transform 0.18s ease;
+        z-index: 100;
+      }
+
+      .sidebar.collapsed .nav-btn[data-tooltip]:hover::after {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0);
       }
     }
 
@@ -179,6 +279,14 @@
       display: flex;
       align-items: center;
       gap: 12px;
+      overflow: hidden;
+      transition: padding 0.28s ease;
+    }
+
+    .logo-text {
+      transition: opacity 0.2s ease, visibility 0.2s ease;
+      white-space: nowrap;
+      overflow: hidden;
     }
 
     .logo-text h1 {
@@ -197,6 +305,7 @@
     .nav-sections {
       flex: 1;
       overflow-y: auto;
+      overflow-x: hidden;
       padding: 14px 12px;
       display: flex;
       flex-direction: column;
@@ -210,6 +319,12 @@
       letter-spacing: 0.08em;
       color: var(--text-dim);
       padding: 10px 10px 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: opacity 0.24s cubic-bezier(0.2, 0, 0, 1),
+                  height 0.28s cubic-bezier(0.2, 0, 0, 1),
+                  padding 0.28s cubic-bezier(0.2, 0, 0, 1),
+                  margin 0.28s cubic-bezier(0.2, 0, 0, 1);
     }
 
     .nav-btn {
@@ -226,10 +341,17 @@
       font-weight: 600;
       cursor: pointer;
       text-align: left;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
       transition: background-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth);
       width: 100%;
       position: relative;
+      white-space: nowrap;
       will-change: transform;
+    }
+
+    .nav-btn > span {
+      transition: opacity 0.18s ease, width 0.18s ease;
     }
 
     .nav-btn svg {
@@ -283,6 +405,7 @@
       background: var(--surface-2);
       color: var(--text-muted);
       border: 1px solid var(--border-subtle);
+      transition: opacity 0.2s ease;
     }
 
     .sidebar-footer {
@@ -337,6 +460,8 @@
       padding: 8px;
       border-radius: var(--radius-md);
       cursor: pointer;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
       transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth);
     }
 

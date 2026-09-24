@@ -118,6 +118,11 @@ export const AppController = {
     const toggleBtn = document.getElementById("btnSidebarToggle");
     const backdrop = document.getElementById("sidebarBackdrop");
 
+    // Asignación de índice para animación de cascada escalonada en móviles
+    document.querySelectorAll(".nav-sections .nav-btn").forEach((btn, idx) => {
+      btn.style.setProperty("--nav-idx", idx);
+    });
+
     if (toggleBtn) {
       toggleBtn.onclick = (e) => {
         if (e) {
@@ -150,18 +155,14 @@ export const AppController = {
     const backdrop = document.getElementById("sidebarBackdrop");
     if (!sidebar) return;
 
-    if (window.innerWidth > 900) {
+    if (window.innerWidth <= 900) {
+      // En móvil / pantalla angosta: alternar clase open con backdrop inteligente
+      const isOpen = sidebar.classList.toggle("open");
+      if (backdrop) backdrop.classList.toggle("active", isOpen);
+    } else {
+      // En PC / pantalla completa o dividida: alternar colapso Icon Rail (72px)
       sidebar.classList.toggle("collapsed");
       if (backdrop) backdrop.classList.remove("active");
-    } else {
-      const isOpen = sidebar.classList.toggle("open");
-      if (backdrop) {
-        if (isOpen) {
-          backdrop.classList.add("active");
-        } else {
-          backdrop.classList.remove("active");
-        }
-      }
     }
   },
 

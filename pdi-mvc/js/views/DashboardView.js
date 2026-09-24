@@ -17,7 +17,19 @@ export const DashboardView = {
     if (dashBenEl) animateNum(dashBenEl, stats.total);
 
     const dashTamEl = document.getElementById("dashKpiTamizados");
-    if (dashTamEl) dashTamEl.textContent = `${stats.total} / ${stats.total}`;
+    if (dashTamEl) {
+      if (window.PDI && window.PDI.AnimationEngine) {
+        window.PDI.AnimationEngine.animateCounter(dashTamEl, `${stats.total} / ${stats.total}`);
+      } else {
+        dashTamEl.textContent = `${stats.total} / ${stats.total}`;
+      }
+    }
+
+    const dashAsisEl = document.getElementById("dashKpiAsistencia");
+    if (dashAsisEl) animateNum(dashAsisEl, 92.4, true);
+
+    const dashCasosEl = document.getElementById("dashKpiCasosSociales");
+    if (dashCasosEl) animateNum(dashCasosEl, 4);
 
     const pctNormalEl = document.getElementById("pctNormal");
     if (pctNormalEl) animateNum(pctNormalEl, stats.pctNormal, true);
@@ -57,7 +69,7 @@ export const DashboardView = {
               <strong>Distrito de Comas</strong>
               <div class="district-coverage-sedes">Sedes: La Libertad, Año Nuevo, Collique</div>
             </div>
-            <span class="badge badge-green district-coverage-badge">${stats.comasCount} Beneficiarios (${pctComas}%)</span>
+            <span class="badge badge-green district-coverage-badge" id="badgeDistrictComas">${stats.comasCount} Beneficiarios (${pctComas}%)</span>
           </div>
           <div class="district-coverage-track">
             <div class="district-coverage-bar" style="width: 0%; background: var(--gt-green);" id="barDistrictComas"></div>
@@ -70,7 +82,7 @@ export const DashboardView = {
               <strong>Distrito de Carabayllo</strong>
               <div class="district-coverage-sedes">Sedes: El Progreso, San Pedro</div>
             </div>
-            <span class="badge badge-blue district-coverage-badge">${stats.carabaylloCount} Beneficiarios (${pctCarabayllo}%)</span>
+            <span class="badge badge-blue district-coverage-badge" id="badgeDistrictCarabayllo">${stats.carabaylloCount} Beneficiarios (${pctCarabayllo}%)</span>
           </div>
           <div class="district-coverage-track">
             <div class="district-coverage-bar" style="width: 0%; background: var(--gt-blue, #0d9488);" id="barDistrictCarabayllo"></div>
@@ -82,6 +94,41 @@ export const DashboardView = {
         const bCara = document.getElementById("barDistrictCarabayllo");
         if (bComas) bComas.style.width = `${pctComas}%`;
         if (bCara) bCara.style.width = `${pctCarabayllo}%`;
+
+        const badgeComasEl = document.getElementById("badgeDistrictComas");
+        const badgeCaraEl = document.getElementById("badgeDistrictCarabayllo");
+
+        if (window.PDI && window.PDI.AnimationEngine) {
+          if (badgeComasEl) {
+            const startT = performance.now();
+            const dur = 2000;
+            const updateB1 = (t) => {
+              const p = Math.min((t - startT) / dur, 1);
+              const ep = 1 - Math.pow(1 - p, 3);
+              const cVal = Math.round(stats.comasCount * ep);
+              const cPct = Math.round(pctComas * ep);
+              badgeComasEl.textContent = `${cVal} Beneficiarios (${cPct}%)`;
+              if (p < 1) requestAnimationFrame(updateB1);
+              else badgeComasEl.textContent = `${stats.comasCount} Beneficiarios (${pctComas}%)`;
+            };
+            requestAnimationFrame(updateB1);
+          }
+
+          if (badgeCaraEl) {
+            const startT = performance.now();
+            const dur = 2000;
+            const updateB2 = (t) => {
+              const p = Math.min((t - startT) / dur, 1);
+              const ep = 1 - Math.pow(1 - p, 3);
+              const cVal = Math.round(stats.carabaylloCount * ep);
+              const cPct = Math.round(pctCarabayllo * ep);
+              badgeCaraEl.textContent = `${cVal} Beneficiarios (${cPct}%)`;
+              if (p < 1) requestAnimationFrame(updateB2);
+              else badgeCaraEl.textContent = `${stats.carabaylloCount} Beneficiarios (${pctCarabayllo}%)`;
+            };
+            requestAnimationFrame(updateB2);
+          }
+        }
       }, 50);
     }
 
@@ -102,11 +149,11 @@ export const DashboardView = {
             <svg viewBox="0 0 100 100" width="140" height="140" style="transform: rotate(-90deg);">
               <circle cx="50" cy="50" r="40" fill="transparent" stroke="var(--border-subtle)" stroke-width="14" />
               <circle id="semNormalCircle" cx="50" cy="50" r="40" fill="transparent" stroke="var(--gt-green)" stroke-width="14"
-                stroke-dasharray="0 ${C}" stroke-dashoffset="0" stroke-linecap="round" style="transition: stroke-dasharray 1.2s cubic-bezier(0.16, 1, 0.3, 1);" />
+                stroke-dasharray="0 ${C}" stroke-dashoffset="0" stroke-linecap="round" style="transition: stroke-dasharray 2s cubic-bezier(0.16, 1, 0.3, 1);" />
               <circle id="semLeveCircle" cx="50" cy="50" r="40" fill="transparent" stroke="var(--gt-yellow)" stroke-width="14"
-                stroke-dasharray="0 ${C}" stroke-dashoffset="${-sNormal}" stroke-linecap="round" style="transition: stroke-dasharray 1.2s cubic-bezier(0.16, 1, 0.3, 1);" />
+                stroke-dasharray="0 ${C}" stroke-dashoffset="${-sNormal}" stroke-linecap="round" style="transition: stroke-dasharray 2s cubic-bezier(0.16, 1, 0.3, 1);" />
               <circle id="semModCircle" cx="50" cy="50" r="40" fill="transparent" stroke="var(--gt-red)" stroke-width="14"
-                stroke-dasharray="0 ${C}" stroke-dashoffset="${-(sNormal + sLeve)}" stroke-linecap="round" style="transition: stroke-dasharray 1.2s cubic-bezier(0.16, 1, 0.3, 1);" />
+                stroke-dasharray="0 ${C}" stroke-dashoffset="${-(sNormal + sLeve)}" stroke-linecap="round" style="transition: stroke-dasharray 2s cubic-bezier(0.16, 1, 0.3, 1);" />
             </svg>
             <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; pointer-events: none;">
               <span id="dashChartCenterNum" style="font-size: 20px; font-weight: 800; color: var(--text-main); font-family: var(--mono-font);">0</span>
@@ -119,21 +166,21 @@ export const DashboardView = {
                 <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--gt-green); display: inline-block;"></span>
                 <span>Normal (&ge; 11.0)</span>
               </div>
-              <strong style="color: var(--gt-green); font-family: var(--mono-font);">${stats.normales} (${stats.pctNormal}%)</strong>
+              <strong style="color: var(--gt-green); font-family: var(--mono-font);" id="anemiaLegendNormal">${stats.normales} (${stats.pctNormal}%)</strong>
             </div>
             <div style="display: flex; align-items: center; justify-content: space-between; font-size: 12.5px;">
               <div style="display: flex; align-items: center; gap: 8px;">
                 <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--gt-yellow); display: inline-block;"></span>
                 <span>Anemia Leve</span>
               </div>
-              <strong style="color: var(--gt-yellow); font-family: var(--mono-font);">${stats.leves} (${stats.pctLeve}%)</strong>
+              <strong style="color: var(--gt-yellow); font-family: var(--mono-font);" id="anemiaLegendLeve">${stats.leves} (${stats.pctLeve}%)</strong>
             </div>
             <div style="display: flex; align-items: center; justify-content: space-between; font-size: 12.5px;">
               <div style="display: flex; align-items: center; gap: 8px;">
                 <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--gt-red); display: inline-block;"></span>
                 <span>Anemia Mod/Sev</span>
               </div>
-              <strong style="color: var(--gt-red); font-family: var(--mono-font);">${stats.moderadas} (${stats.pctMod}%)</strong>
+              <strong style="color: var(--gt-red); font-family: var(--mono-font);" id="anemiaLegendMod">${stats.moderadas} (${stats.pctMod}%)</strong>
             </div>
           </div>
         </div>
@@ -148,6 +195,31 @@ export const DashboardView = {
         if (cLeve) cLeve.style.strokeDasharray = `${sLeve} ${C}`;
         if (cMod) cMod.style.strokeDasharray = `${sMod} ${C}`;
         if (cNum) animateNum(cNum, stats.total);
+
+        const legNorm = document.getElementById("anemiaLegendNormal");
+        const legLeve = document.getElementById("anemiaLegendLeve");
+        const legMod = document.getElementById("anemiaLegendMod");
+
+        if (window.PDI && window.PDI.AnimationEngine) {
+          const runLegendAnim = (el, val, pct) => {
+            if (!el) return;
+            const startT = performance.now();
+            const dur = 2000;
+            const updateLeg = (t) => {
+              const p = Math.min((t - startT) / dur, 1);
+              const ep = 1 - Math.pow(1 - p, 3);
+              const cVal = Math.round(val * ep);
+              const cPct = Math.round(pct * ep);
+              el.textContent = `${cVal} (${cPct}%)`;
+              if (p < 1) requestAnimationFrame(updateLeg);
+              else el.textContent = `${val} (${pct}%)`;
+            };
+            requestAnimationFrame(updateLeg);
+          };
+          runLegendAnim(legNorm, stats.normales, stats.pctNormal);
+          runLegendAnim(legLeve, stats.leves, stats.pctLeve);
+          runLegendAnim(legMod, stats.moderadas, stats.pctMod);
+        }
       }, 60);
     }
 

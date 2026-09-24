@@ -1471,7 +1471,7 @@
 
 
     /* Responsive */
-    /* Responsive Mobile Sidebar Backdrop Overlay */
+    /* Responsive Mobile Sidebar Backdrop Overlay - 60/120fps GPU Scrim */
     .sidebar-backdrop {
       display: block;
       position: fixed;
@@ -1481,15 +1481,15 @@
       bottom: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(0, 0, 0, 0.65);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      background: rgba(15, 23, 42, 0.65);
       z-index: 1040;
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
-      transition: opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1), 
-                  visibility 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      transition: opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1), 
+                  visibility 0.24s cubic-bezier(0.16, 1, 0.3, 1);
       will-change: opacity, visibility;
     }
 
@@ -1507,19 +1507,50 @@
         top: 0 !important;
         bottom: 0 !important;
         height: 100vh !important;
+        height: 100dvh !important;
+        width: min(300px, 84vw) !important;
+        min-width: min(300px, 84vw) !important;
         z-index: 1050 !important;
-        transform: translateX(-100%) translateZ(0) !important;
-        box-shadow: 0 0 40px rgba(0, 0, 0, 0.35) !important;
+        transform: translate3d(-100%, 0, 0) !important;
+        box-shadow: 12px 0 35px rgba(0, 0, 0, 0.3) !important;
+        contain: layout style;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
         will-change: transform;
-        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
       }
+
       .sidebar.open {
-        transform: translateX(0) translateZ(0) !important;
+        transform: translate3d(0, 0, 0) !important;
       }
+
       .btn-menu-toggle {
         display: inline-flex !important;
         align-items: center;
         justify-content: center;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      /* Animación de entrada viva y escalonada (Staggered Reveal) en móviles */
+      @keyframes mobileNavSlideIn {
+        0% {
+          opacity: 0;
+          transform: translate3d(-14px, 0, 0);
+        }
+        100% {
+          opacity: 1;
+          transform: translate3d(0, 0, 0);
+        }
+      }
+
+      .sidebar.open .nav-btn {
+        animation: mobileNavSlideIn 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
+        animation-delay: calc(var(--nav-idx, 0) * 22ms);
       }
     }
 
@@ -4576,6 +4607,327 @@
   flex: 1;
 }
 
+/* View Transitions Global GPU Optimization - Cero Lag y Cero Parpadeo */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 999999;
+}
+
+/* Foco Interactivo Lumie & Tarjeta de Diálogo en Ajustes */
+.foco-interactive-card {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  margin-bottom: 8px;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.foco-mascot-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.foco-trigger-btn {
+  background: transparent;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  outline: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  user-select: none;
+}
+
+.foco-trigger-btn:hover {
+  transform: scale(1.08);
+}
+
+.foco-trigger-btn:active {
+  transform: scale(0.92) translateY(5px);
+}
+
+.foco-svg {
+  width: 96px;
+  height: 99px;
+  overflow: visible;
+}
+
+.foco-touch-hint {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  background: var(--surface-1);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.foco-trigger-btn:hover .foco-touch-hint {
+  color: var(--brand-primary);
+  border-color: var(--brand-primary);
+}
+
+/* Elementos del SVG por Defecto (Transparente / Reposo) */
+.foco-halo {
+  display: none;
+}
+.foco-rays line {
+  stroke: transparent;
+  transition: stroke 0.3s ease;
+}
+.foco-pull-cord {
+  stroke: var(--text-dim);
+}
+.foco-pull-knob {
+  fill: var(--text-muted);
+}
+.foco-base-thread {
+  fill: #94a3b8;
+}
+.foco-base-tip {
+  fill: #64748b;
+}
+.foco-glass-shine {
+  stroke: rgba(255, 255, 255, 0.7);
+}
+.foco-eyes-awake {
+  display: none;
+}
+.foco-eyes-sensor {
+  display: none;
+}
+.foco-sensor-antenna {
+  display: none;
+}
+
+/* Estado 1: Modo Claro (Día - Foco en Reposo) */
+.foco-trigger-btn.state-light .foco-glass-body {
+  fill: rgba(226, 232, 240, 0.5);
+  stroke: #94a3b8;
+  stroke-width: 2.2;
+}
+.foco-trigger-btn.state-light .foco-filament-wire {
+  stroke: #94a3b8;
+}
+.foco-trigger-btn.state-light .foco-filament-spark {
+  fill: #94a3b8;
+}
+.foco-trigger-btn.state-light .foco-eyes-happy {
+  display: block;
+  stroke: #475569;
+}
+.foco-trigger-btn.state-light .foco-cheek {
+  fill: rgba(244, 114, 182, 0.45);
+}
+.foco-trigger-btn.state-light .foco-smile {
+  stroke: #475569;
+}
+
+/* Estado 2: Modo Oscuro (Noche - Foco Encendido Radiante) */
+.foco-trigger-btn.state-dark .foco-halo {
+  display: block;
+  fill: rgba(251, 191, 36, 0.2);
+  filter: blur(5px);
+  animation: pulseFocoHalo 2.2s infinite ease-in-out;
+}
+.foco-trigger-btn.state-dark .foco-rays line {
+  stroke: #f59e0b;
+  animation: pulseFocoRays 1.8s infinite alternate ease-in-out;
+}
+.foco-trigger-btn.state-dark .foco-glass-body {
+  fill: #f59e0b;
+  stroke: #d97706;
+  stroke-width: 2.2;
+  filter: drop-shadow(0 0 14px rgba(245, 158, 11, 0.65));
+}
+.foco-trigger-btn.state-dark .foco-filament-wire {
+  stroke: #92400e;
+  stroke-width: 2.6;
+}
+.foco-trigger-btn.state-dark .foco-filament-spark {
+  fill: #ffffff;
+}
+.foco-trigger-btn.state-dark .foco-eyes-happy {
+  display: none;
+}
+.foco-trigger-btn.state-dark .foco-eyes-awake {
+  display: block;
+  fill: #1e293b;
+}
+.foco-trigger-btn.state-dark .foco-cheek {
+  fill: rgba(239, 68, 68, 0.5);
+}
+.foco-trigger-btn.state-dark .foco-smile {
+  stroke: #1e293b;
+}
+
+/* Estado 3: Modo Auto (Sensor Inteligente) */
+.foco-trigger-btn.state-system .foco-halo {
+  display: block;
+  fill: rgba(2, 132, 199, 0.18);
+  filter: blur(4px);
+}
+.foco-trigger-btn.state-system .foco-rays line {
+  stroke: var(--gt-blue);
+}
+.foco-trigger-btn.state-system .foco-glass-body {
+  fill: rgba(2, 132, 199, 0.35);
+  stroke: var(--gt-blue);
+  stroke-width: 2.2;
+}
+.foco-trigger-btn.state-system .foco-filament-wire {
+  stroke: var(--gt-blue);
+}
+.foco-trigger-btn.state-system .foco-filament-spark {
+  fill: var(--gt-blue);
+}
+.foco-trigger-btn.state-system .foco-eyes-happy {
+  display: none;
+}
+.foco-trigger-btn.state-system .foco-eyes-awake {
+  display: none;
+}
+.foco-trigger-btn.state-system .foco-eyes-sensor {
+  display: block;
+  stroke: var(--gt-blue);
+  fill: rgba(2, 132, 199, 0.25);
+}
+.foco-trigger-btn.state-system .foco-sensor-antenna {
+  display: block;
+  stroke: var(--gt-blue);
+  fill: var(--gt-blue);
+  animation: antennaPulse 1.5s infinite ease-in-out;
+}
+.foco-trigger-btn.state-system .foco-cheek {
+  fill: rgba(2, 132, 199, 0.35);
+}
+.foco-trigger-btn.state-system .foco-smile {
+  stroke: var(--text-main);
+}
+
+@keyframes pulseFocoHalo {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+
+@keyframes pulseFocoRays {
+  0% { opacity: 0.6; stroke-width: 2.2; }
+  100% { opacity: 1; stroke-width: 3.2; }
+}
+
+@keyframes antennaPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* Globo de Diálogo de Cómic */
+.foco-speech-bubble {
+  flex: 1;
+  background: var(--surface-1);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  position: relative;
+  box-shadow: var(--shadow-sm);
+}
+
+.foco-speech-bubble::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+  width: 14px;
+  height: 14px;
+  background: var(--surface-1);
+  border-left: 1px solid var(--border-bright);
+  border-bottom: 1px solid var(--border-bright);
+}
+
+.foco-bubble-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.foco-bubble-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand-primary);
+}
+
+.foco-bubble-header strong {
+  font-size: 14px;
+  color: var(--text-main);
+}
+
+.foco-bubble-badge {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+}
+
+.foco-bubble-msg {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .foco-interactive-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  .foco-speech-bubble::before {
+    left: 50%;
+    top: -7px;
+    transform: translateX(-50%) rotate(45deg);
+    border-left: none;
+    border-bottom: none;
+    border-top: 1px solid var(--border-bright);
+    border-left: 1px solid var(--border-bright);
+  }
+  .foco-bubble-header {
+    justify-content: center;
+  }
+  .foco-bubble-badge {
+    margin-left: 0;
+  }
+}
+
 .settings-theme-selector {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -4766,5 +5118,155 @@ input:checked + .toggle-slider:before {
 .check-apoderado-label:hover {
   background: var(--surface-hover) !important;
   border-color: var(--brand-primary) !important;
+}
+
+/* ==========================================
+   ESTILOS: CROQUIS Y MAPA GOOGLE EMBED
+   ========================================== */
+.croquis-box-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.croquis-box-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gt-green);
+}
+
+.btn-gps-capture {
+  font-size: 11px !important;
+  padding: 4px 10px !important;
+  height: 28px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  background: var(--gt-green-bg) !important;
+  color: var(--gt-green) !important;
+  border: 1px solid var(--gt-green-border) !important;
+  border-radius: var(--radius-sm) !important;
+  font-weight: 700 !important;
+}
+
+.btn-gps-capture:hover {
+  background: var(--gt-green) !important;
+  color: #ffffff !important;
+}
+
+.croquis-embed-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  align-items: stretch;
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .croquis-embed-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.croquis-map-wrap {
+  position: relative;
+  width: 100%;
+  height: 190px;
+  min-height: 190px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-2);
+}
+
+.croquis-map-iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.croquis-map-loading {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(15, 23, 42, 0.6);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  backdrop-filter: blur(2px);
+}
+
+.croquis-fachada-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  height: 190px;
+  min-height: 190px;
+  background: var(--surface-2);
+  border: 1px dashed var(--border-bright);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  box-sizing: border-box;
+}
+
+.croquis-fachada-header {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-main);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.croquis-fachada-preview-box {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  border: 1.5px dashed var(--border-subtle);
+  background: var(--surface-1);
+  margin: 6px 0;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.croquis-fachada-preview-box:hover {
+  border-color: var(--brand-primary);
+  background: var(--surface-hover);
+}
+
+.croquis-fachada-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  gap: 4px;
+  text-align: center;
+  padding: 6px;
+  color: var(--text-muted);
+}
+
+.croquis-fachada-placeholder span {
+  font-size: 10.5px;
+  font-weight: 600;
 }
 

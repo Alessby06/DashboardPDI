@@ -67,6 +67,12 @@ export const AjustesView = {
     }
   },
 
+  toggleFocoMode(event = null) {
+    // Si está en claro -> pasa a oscuro. Si está en oscuro o sistema -> pasa a claro.
+    const targetTheme = (this._currentTheme === 'light') ? 'dark' : 'light';
+    this.setTheme(targetTheme, true, event);
+  },
+
   setTheme(themeName, showToast = true, clickEvent = null) {
     const applyThemeChange = () => {
       this._currentTheme = themeName;
@@ -92,15 +98,31 @@ export const AjustesView = {
       this._updateThemeUI();
     };
 
-    // Animación Circular Ripple Reveal (View Transitions API)
-    if (typeof document !== 'undefined' && document.startViewTransition && clickEvent && clickEvent.clientX) {
-      const x = clickEvent.clientX;
-      const y = clickEvent.clientY;
-      const endRadius = Math.hypot(
-        Math.max(x, window.innerWidth - x),
-        Math.max(y, window.innerHeight - y)
-      );
+    // Obtener coordenadas de origen para la onda circular (Ripple Reveal)
+    let x = window.innerWidth / 2;
+    let y = window.innerHeight / 2;
 
+    if (clickEvent && clickEvent.clientX) {
+      x = clickEvent.clientX;
+      y = clickEvent.clientY;
+    } else {
+      const focoEl = document.getElementById('focoInteractiveTrigger');
+      const btnEl = document.getElementById(`btnTheme${themeName.charAt(0).toUpperCase() + themeName.slice(1)}`);
+      const targetEl = focoEl || btnEl;
+      if (targetEl) {
+        const rect = targetEl.getBoundingClientRect();
+        x = rect.left + rect.width / 2;
+        y = rect.top + rect.height / 2;
+      }
+    }
+
+    const endRadius = Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y)
+    );
+
+    // Animación Circular Ripple Reveal (View Transitions API acelerada por GPU)
+    if (typeof document !== 'undefined' && document.startViewTransition) {
       const transition = document.startViewTransition(() => {
         applyThemeChange();
       });
@@ -113,8 +135,8 @@ export const AjustesView = {
         document.documentElement.animate(
           { clipPath: clipPath },
           {
-            duration: 500,
-            easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+            duration: 380,
+            easing: 'cubic-bezier(0.2, 0.9, 0.3, 1)',
             pseudoElement: '::view-transition-new(root)'
           }
         );
@@ -138,22 +160,82 @@ export const AjustesView = {
     const badgeDark = document.getElementById('badgeThemeDark');
     const badgeSystem = document.getElementById('badgeThemeSystem');
 
-    if (!btnLight || !btnDark || !btnSystem) return;
+    if (btnLight && btnDark && btnSystem) {
+      [btnLight, btnDark, btnSystem].forEach(btn => btn.classList.remove('active'));
+      [badgeLight, badgeDark, badgeSystem].forEach(badge => {
+        if (badge) badge.style.display = 'none';
+      });
 
-    [btnLight, btnDark, btnSystem].forEach(btn => btn.classList.remove('active'));
-    [badgeLight, badgeDark, badgeSystem].forEach(badge => {
-      if (badge) badge.style.display = 'none';
-    });
+      if (this._currentTheme === 'dark') {
+        btnDark.classList.add('active');
+        if (badgeDark) badgeDark.style.display = 'inline-flex';
+      } else if (this._currentTheme === 'system') {
+        btnSystem.classList.add('active');
+        if (badgeSystem) badgeSystem.style.display = 'inline-flex';
+      } else {
+        btnLight.classList.add('active');
+        if (badgeLight) badgeLight.style.display = 'inline-flex';
+      }
+    }
 
-    if (this._currentTheme === 'dark') {
-      btnDark.classList.add('active');
-      if (badgeDark) badgeDark.style.display = 'inline-flex';
-    } else if (this._currentTheme === 'system') {
-      btnSystem.classList.add('active');
-      if (badgeSystem) badgeSystem.style.display = 'inline-flex';
+    // Actualización de la Mascota Foco y Globo de Diálogo (Sin emojis, 100% SVG y texto vectorial)
+    this._updateFocoMascot(this._currentTheme);
+  },
+
+  _updateFocoMascot(themeName) {
+    const focoTrigger = document.getElementById('focoInteractiveTrigger');
+    const bubbleTitle = document.getElementById('focoBubbleTitle');
+    const bubbleBadge = document.getElementById('focoBubbleBadge');
+    const bubbleMsg = document.getElementById('focoBubbleMsg');
+    const bubbleIcon = document.getElementById('focoBubbleIcon');
+
+    if (!focoTrigger) return;
+
+    focoTrigger.classList.remove('state-light', 'state-dark', 'state-system');
+    focoTrigger.classList.add(`state-${themeName}`);
+
+    if (themeName === 'dark') {
+      if (bubbleTitle) bubbleTitle.textContent = 'Modo Nocturno Activo';
+      if (bubbleBadge) bubbleBadge.textContent = 'Foco Encendido';
+      if (bubbleMsg) {
+        bubbleMsg.textContent = 'Ambiente nocturno activado. El foco está encendido para iluminar tu espacio de trabajo. Haz clic sobre mí para volver al modo diurno.';
+      }
+      if (bubbleIcon) {
+        bubbleIcon.innerHTML = `
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+          </svg>
+        `;
+      }
+    } else if (themeName === 'system') {
+      if (bubbleTitle) bubbleTitle.textContent = 'Modo Sensor Inteligente';
+      if (bubbleBadge) bubbleBadge.textContent = 'Sincronizado con SO';
+      if (bubbleMsg) {
+        bubbleMsg.textContent = 'Sensor automático sincronizado. La iluminación se adapta en tiempo real a las preferencias del sistema operativo de tu dispositivo.';
+      }
+      if (bubbleIcon) {
+        bubbleIcon.innerHTML = `
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0h-18" />
+          </svg>
+        `;
+      }
     } else {
-      btnLight.classList.add('active');
-      if (badgeLight) badgeLight.style.display = 'inline-flex';
+      if (bubbleTitle) bubbleTitle.textContent = 'Modo Diurno Activo';
+      if (bubbleBadge) bubbleBadge.textContent = 'Foco en Reposo';
+      if (bubbleMsg) {
+        bubbleMsg.textContent = 'Ambiente diurno detectado. El foco permanece en reposo para ahorrar energía. Haz clic sobre mí o usa los botones para alternar al modo noche.';
+      }
+      if (bubbleIcon) {
+        bubbleIcon.innerHTML = `
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 3v2.25m0 13.5V21m8.966-8.966h-2.25M4.284 12h-2.25m15.303-6.343l-1.591 1.591M6.257 17.743l-1.591 1.591m0-13.5l1.591 1.591m11.485 11.485l1.591 1.591M12 7.5a4.5 4.5 0 100 9 4.5 4.5 0 000-9z" />
+          </svg>
+        `;
+      }
     }
   },
 
@@ -225,7 +307,8 @@ export const AjustesView = {
 if (typeof window !== 'undefined') {
   window.PDI = window.PDI || {};
   window.PDI.AjustesView = AjustesView;
-  window.setTheme = (theme) => AjustesView.setTheme(theme);
+  window.setTheme = (theme, showToast = true, event = null) => AjustesView.setTheme(theme, showToast, event);
+  window.toggleFocoMode = (event = null) => AjustesView.toggleFocoMode(event);
   window.triggerSync = () => AjustesView.triggerSync();
   window.clearCache = () => AjustesView.clearCache();
 }

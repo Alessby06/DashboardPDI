@@ -48,23 +48,37 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     allow_reuse_address = True
     daemon_threads = True
 
-def get_free_port(start_port=8000, max_attempts=50):
+def is_port_in_use(port):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.settimeout(0.5)
+        # Si connect_ex devuelve 0, significa que alguien ya está escuchando en este puerto
+        return s.connect_ex(('127.0.0.1', port)) == 0
+
+def get_free_port(start_port=8080, max_attempts=100):
     for port in range(start_port, start_port + max_attempts):
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            try:
-                s.bind(("", port))
+        if is_port_in_use(port):
+            continue
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind(('127.0.0.1', port))
                 return port
-            except OSError:
-                continue
+        except OSError:
+            continue
     return start_port
 
 if __name__ == '__main__':
-    port = get_free_port(8000)
+    # Permite especificar puerto por argumento: python serve.py 8080
+    requested_port = 8080
+    if len(sys.argv) > 1 and sys.argv[1].isdigit():
+        requested_port = int(sys.argv[1])
+
+    port = get_free_port(requested_port)
     try:
         with ThreadedTCPServer(("", port), FastHTTPHandler) as httpd:
             url = f"http://localhost:{port}/index.html"
             print("=" * 65)
             print("  SISTEMA PDI: ASOCIACION CULTURAL JOHANNES GUTENBERG")
+            print(f"  Servidor HTTP activo en el puerto: {port}")
             print(f"  Acceso directo: {url}")
             print("=" * 65)
             
@@ -74,5 +88,5 @@ if __name__ == '__main__':
         print("\n[INFO] Servidor PDI detenido.")
         sys.exit(0)
     except Exception as e:
-        print(f"\n[ERROR] Fallo al iniciar el servidor: {e}")
+        print(f"\n[ERROR] Fallo al iniciar el servidor en el puerto {port}: {e}")
         sys.exit(1)

@@ -12,8 +12,30 @@ export const AnimationEngine = {
     const el = typeof elementOrId === "string" ? document.getElementById(elementOrId) : elementOrId;
     if (!el) return;
 
-    const duration = options.duration || 1000; // ms
-    const decimals = options.decimals !== undefined ? options.decimals : (targetVal % 1 !== 0 ? 1 : 0);
+    // Soporte para formato de fracción/ratio "X / Y" (ej. "15 / 15")
+    if (typeof targetVal === "string" && targetVal.includes("/")) {
+      const parts = targetVal.split("/").map(s => parseFloat(s.trim()));
+      if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+        const duration = options.duration || 2000;
+        const startTime = performance.now();
+        const updateRatio = (currentTime) => {
+          const elapsedTime = currentTime - startTime;
+          const progress = Math.min(elapsedTime / duration, 1);
+          const easeProgress = 1 - Math.pow(1 - progress, 3);
+          const cur1 = Math.round(parts[0] * easeProgress);
+          const cur2 = Math.round(parts[1] * easeProgress);
+          el.textContent = `${cur1} / ${cur2}`;
+          if (progress < 1) requestAnimationFrame(updateRatio);
+          else el.textContent = targetVal;
+        };
+        requestAnimationFrame(updateRatio);
+        return;
+      }
+    }
+
+    const duration = options.duration || 2000; // ms
+    const numVal = typeof targetVal === "number" ? targetVal : parseFloat(targetVal) || 0;
+    const decimals = options.decimals !== undefined ? options.decimals : (numVal % 1 !== 0 ? 1 : 0);
     const prefix = options.prefix || "";
     const suffix = options.suffix || "";
 
@@ -24,16 +46,16 @@ export const AnimationEngine = {
       const elapsedTime = currentTime - startTime;
       const progress = Math.min(elapsedTime / duration, 1);
       
-      // Funki de Easing (Out Cubic: 1 - Math.pow(1 - progress, 3))
+      // Función de Easing (Out Cubic)
       const easeProgress = 1 - Math.pow(1 - progress, 3);
-      const currentVal = startVal + (targetVal - startVal) * easeProgress;
+      const currentVal = startVal + (numVal - startVal) * easeProgress;
 
       el.textContent = `${prefix}${currentVal.toFixed(decimals)}${suffix}`;
 
       if (progress < 1) {
         requestAnimationFrame(updateCounter);
       } else {
-        el.textContent = `${prefix}${targetVal.toFixed(decimals)}${suffix}`;
+        el.textContent = `${prefix}${numVal.toFixed(decimals)}${suffix}`;
       }
     };
 
