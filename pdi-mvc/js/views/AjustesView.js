@@ -157,7 +157,6 @@ export const AjustesView = {
   _updateFocoMascot(themeName) {
     const focoTrigger = document.getElementById('focoInteractiveTrigger');
     const bubbleTitle = document.getElementById('focoBubbleTitle');
-    const bubbleBadge = document.getElementById('focoBubbleBadge');
     const bubbleMsg = document.getElementById('focoBubbleMsg');
     const bubbleIcon = document.getElementById('focoBubbleIcon');
 
@@ -168,7 +167,6 @@ export const AjustesView = {
 
     if (themeName === 'dark') {
       if (bubbleTitle) bubbleTitle.textContent = 'Modo Nocturno Activo';
-      if (bubbleBadge) bubbleBadge.textContent = 'Foco Encendido';
       if (bubbleMsg) {
         bubbleMsg.textContent = 'Ambiente nocturno activado. El foco está encendido para iluminar tu espacio de trabajo. Haz clic sobre mí para volver al modo diurno.';
       }
@@ -182,7 +180,6 @@ export const AjustesView = {
       }
     } else if (themeName === 'system') {
       if (bubbleTitle) bubbleTitle.textContent = 'Modo Sensor Inteligente';
-      if (bubbleBadge) bubbleBadge.textContent = 'Sincronizado con SO';
       if (bubbleMsg) {
         bubbleMsg.textContent = 'Sensor automático sincronizado. La iluminación se adapta en tiempo real a las preferencias del sistema operativo de tu dispositivo.';
       }
@@ -196,7 +193,6 @@ export const AjustesView = {
       }
     } else {
       if (bubbleTitle) bubbleTitle.textContent = 'Modo Diurno Activo';
-      if (bubbleBadge) bubbleBadge.textContent = 'Foco en Reposo';
       if (bubbleMsg) {
         bubbleMsg.textContent = 'Ambiente diurno detectado. El foco permanece en reposo para ahorrar energía. Haz clic sobre mí o usa los botones para alternar al modo noche.';
       }
@@ -246,7 +242,7 @@ export const AjustesView = {
 
       if (badge) {
         badge.className = 'badge badge-green';
-        badge.innerHTML = `<span class="status-dot green"></span> En Línea (Sincronizado)`;
+        badge.innerHTML = `<span class="status-dot green"></span> En Línea`;
       }
 
       const now = new Date();

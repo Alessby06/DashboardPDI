@@ -557,7 +557,10 @@
       position: absolute;
       top: calc(100% + 6px);
       left: 0;
+      right: 0;
+      width: 100%;
       min-width: 100%;
+      box-sizing: border-box;
       background: var(--surface-1);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
@@ -599,6 +602,15 @@
       gap: 10px;
       transition: background-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth);
       white-space: nowrap;
+      user-select: none;
+    }
+
+    .custom-dropdown-item .item-text {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-align: left;
     }
 
     .custom-dropdown-item .item-check-icon {

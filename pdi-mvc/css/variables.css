@@ -29,6 +29,7 @@
   --gt-red-border: rgba(220, 38, 38, 0.35);
 
   --brand-primary: var(--gt-green);
+  --brand-hover: #00997d;
   --brand-dark: #00715d;
   --brand-dim: #046a58;
   --brand-soft: var(--gt-green-bg);
