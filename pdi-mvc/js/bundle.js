@@ -7355,25 +7355,20 @@ const AjustesView = {
       this._updateThemeUI();
     };
 
-    // Animación de Barrido Diagonal Aurora a 45° (View Transitions API acelerada por GPU - Estilo Linear / Vercel)
+    // Estilo Linear / Raycast: Cross-Fade de Opacidad Pura (200ms) acelerado 100% por hardware
+    const root = document.documentElement;
     if (typeof document !== 'undefined' && document.startViewTransition) {
+      // 1. Congelar temporalmente transiciones individuales para evitar sobrecarga GPU
+      root.classList.add('disable-theme-transitions');
+
+      // 2. Ejecutar Cross-Fade de opacidad nativo
       const transition = document.startViewTransition(() => {
         applyThemeChange();
       });
 
-      transition.ready.then(() => {
-        const clipPath = [
-          'polygon(0 0, 0 0, 0 0, 0 0)',
-          'polygon(0 0, 280% 0, 0 280%, 0 0)'
-        ];
-        document.documentElement.animate(
-          { clipPath: clipPath },
-          {
-            duration: 400,
-            easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
-            pseudoElement: '::view-transition-new(root)'
-          }
-        );
+      // 3. Restaurar transiciones al concluir el desvanecimiento
+      transition.finished.finally(() => {
+        root.classList.remove('disable-theme-transitions');
       });
     } else {
       applyThemeChange();

@@ -4607,14 +4607,36 @@
   flex: 1;
 }
 
-/* Estilo GitHub / Stripe: Suave interpolación de tokens de color sin congelamiento de GPU */
-.theme-switching,
-.theme-switching * {
-  transition: background-color 0.18s cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 0.18s cubic-bezier(0.16, 1, 0.3, 1),
-              color 0.18s cubic-bezier(0.16, 1, 0.3, 1),
-              fill 0.18s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+/* Estilo Linear / Raycast: Cross-Fade de Opacidad Pura (200ms) - Cero Lag y 120 FPS */
+::view-transition-group(root) {
+  animation-duration: 0.2s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+::view-transition-old(root) {
+  animation: 0.2s cubic-bezier(0.16, 1, 0.3, 1) both fadeOutTheme;
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  animation: 0.2s cubic-bezier(0.16, 1, 0.3, 1) both fadeInTheme;
+  z-index: 2;
+}
+
+@keyframes fadeOutTheme {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes fadeInTheme {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Congelar transiciones del DOM durante el Cross-Fade para garantizar 120 FPS nativos */
+.disable-theme-transitions,
+.disable-theme-transitions * {
+  transition: none !important;
 }
 
 /* Foco Interactivo Lumie & Tarjeta de Diálogo en Ajustes */

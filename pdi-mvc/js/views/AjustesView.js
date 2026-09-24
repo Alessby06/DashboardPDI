@@ -74,35 +74,48 @@ export const AjustesView = {
   },
 
   setTheme(themeName, showToast = true, clickEvent = null) {
-    this._currentTheme = themeName;
+    const applyThemeChange = () => {
+      this._currentTheme = themeName;
 
-    try {
-      localStorage.setItem('pdi_theme', themeName);
-    } catch (e) {}
+      try {
+        localStorage.setItem('pdi_theme', themeName);
+      } catch (e) {}
 
-    if (typeof document !== 'undefined') {
-      document.cookie = `pdi_theme=${themeName}; path=/; max-age=31536000; SameSite=Lax`;
-    }
+      if (typeof document !== 'undefined') {
+        document.cookie = `pdi_theme=${themeName}; path=/; max-age=31536000; SameSite=Lax`;
+      }
 
+      const root = document.documentElement;
+
+      if (themeName === 'system') {
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+        this._bindSystemListener();
+      } else {
+        root.setAttribute('data-theme', themeName);
+      }
+
+      this._updateThemeUI();
+    };
+
+    // Estilo Linear / Raycast: Cross-Fade de Opacidad Pura (200ms) acelerado 100% por hardware
     const root = document.documentElement;
+    if (typeof document !== 'undefined' && document.startViewTransition) {
+      // 1. Congelar temporalmente transiciones individuales para evitar sobrecarga GPU
+      root.classList.add('disable-theme-transitions');
 
-    // Técnica GitHub / Stripe: Activa interpolación suave de tokens (180ms) sin congelamiento de GPU
-    root.classList.add('theme-switching');
+      // 2. Ejecutar Cross-Fade de opacidad nativo
+      const transition = document.startViewTransition(() => {
+        applyThemeChange();
+      });
 
-    if (themeName === 'system') {
-      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
-      this._bindSystemListener();
+      // 3. Restaurar transiciones al concluir el desvanecimiento
+      transition.finished.finally(() => {
+        root.classList.remove('disable-theme-transitions');
+      });
     } else {
-      root.setAttribute('data-theme', themeName);
+      applyThemeChange();
     }
-
-    this._updateThemeUI();
-
-    // Limpiar clase de transición temporal una vez completada
-    setTimeout(() => {
-      root.classList.remove('theme-switching');
-    }, 220);
 
     if (showToast && window.showToast) {
       const names = { light: 'Tema Claro', dark: 'Tema Oscuro', system: 'Tema Automático (SO)' };
