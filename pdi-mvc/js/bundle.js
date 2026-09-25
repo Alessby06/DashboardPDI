@@ -5,39 +5,46 @@ AnimationEngine = {
     const el = typeof elementOrId === "string" ? document.getElementById(elementOrId) : elementOrId;
     if (!el) return;
 
+    const prefix = options.prefix || "";
+    const suffix = options.suffix || "";
+
     if (typeof targetVal === "string" && targetVal.includes("/")) {
       const parts = targetVal.split("/").map(s => parseFloat(s.trim()));
       if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
-        const duration = options.duration || 1000;
+        const duration = options.duration || 750;
         const startTime = performance.now();
         const updateRatio = (currentTime) => {
           const elapsedTime = currentTime - startTime;
           const progress = Math.min(elapsedTime / duration, 1);
-          const easeProgress = 1 - Math.pow(1 - progress, 3);
+          const easeProgress = 1 - Math.pow(1 - progress, 4);
           const cur1 = Math.round(parts[0] * easeProgress);
           const cur2 = Math.round(parts[1] * easeProgress);
           el.textContent = `${cur1} / ${cur2}`;
-          if (progress < 1) requestAnimationFrame(updateRatio);
-          else el.textContent = targetVal;
+          if (progress < 1) {
+            requestAnimationFrame(updateRatio);
+          } else {
+            el.textContent = targetVal;
+            el.classList.remove("vitality-glow");
+            void el.offsetWidth;
+            el.classList.add("vitality-glow");
+          }
         };
         requestAnimationFrame(updateRatio);
         return;
       }
     }
 
-    const duration = options.duration || 1000;
     const numVal = typeof targetVal === "number" ? targetVal : parseFloat(targetVal) || 0;
     const decimals = options.decimals !== undefined ? options.decimals : (numVal % 1 !== 0 ? 1 : 0);
-    const prefix = options.prefix || "";
-    const suffix = options.suffix || "";
 
+    const duration = options.duration || 750;
     const startVal = 0;
     const startTime = performance.now();
 
     const updateCounter = (currentTime) => {
       const elapsedTime = currentTime - startTime;
       const progress = Math.min(elapsedTime / duration, 1);
-      const easeProgress = 1 - Math.pow(1 - progress, 3);
+      const easeProgress = 1 - Math.pow(1 - progress, 4);
       const currentVal = startVal + (numVal - startVal) * easeProgress;
 
       el.textContent = `${prefix}${currentVal.toFixed(decimals)}${suffix}`;
@@ -46,6 +53,9 @@ AnimationEngine = {
         requestAnimationFrame(updateCounter);
       } else {
         el.textContent = `${prefix}${numVal.toFixed(decimals)}${suffix}`;
+        el.classList.remove("vitality-glow");
+        void el.offsetWidth;
+        el.classList.add("vitality-glow");
       }
     };
 
@@ -58,7 +68,7 @@ AnimationEngine = {
 
     const items = parent.querySelectorAll(itemSelector);
     items.forEach((item, index) => {
-      item.style.animationDelay = `${index * 40}ms`;
+      item.style.animationDelay = `${index * 45}ms`;
       item.classList.remove("stagger-animate");
       void item.offsetWidth;
       item.classList.add("stagger-animate");
@@ -2129,92 +2139,137 @@ if (typeof window !== "undefined") {
     const barNormal = document.getElementById("barNormal");
     if (barNormal) {
       barNormal.style.width = "0%";
-      setTimeout(() => { barNormal.style.width = stats.pctNormal + "%"; }, 50);
+      void barNormal.offsetWidth;
+      requestAnimationFrame(() => { barNormal.style.width = stats.pctNormal + "%"; });
     }
 
     const barLeve = document.getElementById("barLeve");
     if (barLeve) {
       barLeve.style.width = "0%";
-      setTimeout(() => { barLeve.style.width = stats.pctLeve + "%"; }, 50);
+      void barLeve.offsetWidth;
+      requestAnimationFrame(() => { barLeve.style.width = stats.pctLeve + "%"; });
     }
 
     const barMod = document.getElementById("barMod");
     if (barMod) {
       barMod.style.width = "0%";
-      setTimeout(() => { barMod.style.width = stats.pctMod + "%"; }, 50);
+      void barMod.offsetWidth;
+      requestAnimationFrame(() => { barMod.style.width = stats.pctMod + "%"; });
     }
 
     const coverageContainer = document.getElementById("dashDistrictCoverage");
     if (coverageContainer) {
-      const pctComas = stats.total > 0 ? Math.round((stats.comasCount / stats.total) * 100) : 0;
-      const pctCarabayllo = stats.total > 0 ? Math.round((stats.carabaylloCount / stats.total) * 100) : 0;
-      coverageContainer.innerHTML = `
-        <div class="district-coverage-card stagger-item">
-          <div class="district-coverage-header">
-            <div>
-              <strong>Distrito de Comas</strong>
-              <div class="district-coverage-sedes">Sedes: La Libertad, Año Nuevo, Collique</div>
-            </div>
-            <span class="badge badge-green district-coverage-badge" id="badgeDistrictComas">${stats.comasCount} Beneficiarios (${pctComas}%)</span>
-          </div>
-          <div class="district-coverage-track">
-            <div class="district-coverage-bar" style="width: 0%; background: var(--gt-green);" id="barDistrictComas"></div>
-          </div>
-        </div>
+      const sedesModel = window.PDI?.SedeModel || (typeof SedeModel !== "undefined" ? SedeModel : null);
+      const allSedes = sedesModel && sedesModel.getAll ? sedesModel.getAll() : [];
+      
+      const bModel = window.PDI?.BeneficiarioModel || (typeof BeneficiarioModel !== "undefined" ? BeneficiarioModel : null);
+      const allBeneficiarios = bModel && bModel.getAll ? bModel.getAll() : [];
+      const totalBeneficiarios = stats.total || allBeneficiarios.length || 1;
 
-        <div class="district-coverage-card stagger-item">
-          <div class="district-coverage-header">
-            <div>
-              <strong>Distrito de Carabayllo</strong>
-              <div class="district-coverage-sedes">Sedes: El Progreso, San Pedro</div>
-            </div>
-            <span class="badge badge-blue district-coverage-badge" id="badgeDistrictCarabayllo">${stats.carabaylloCount} Beneficiarios (${pctCarabayllo}%)</span>
-          </div>
-          <div class="district-coverage-track">
-            <div class="district-coverage-bar" style="width: 0%; background: var(--gt-blue, #0d9488);" id="barDistrictCarabayllo"></div>
-          </div>
-        </div>
-      `;
-      setTimeout(() => {
-        const bComas = document.getElementById("barDistrictComas");
-        const bCara = document.getElementById("barDistrictCarabayllo");
-        if (bComas) bComas.style.width = `${pctComas}%`;
-        if (bCara) bCara.style.width = `${pctCarabayllo}%`;
-
-        const badgeComasEl = document.getElementById("badgeDistrictComas");
-        const badgeCaraEl = document.getElementById("badgeDistrictCarabayllo");
-
-        if (window.PDI && window.PDI.AnimationEngine) {
-          if (badgeComasEl) {
-            const startT = performance.now();
-            const dur = 2000;
-            const updateB1 = (t) => {
-              const p = Math.min((t - startT) / dur, 1);
-              const ep = 1 - Math.pow(1 - p, 3);
-              const cVal = Math.round(stats.comasCount * ep);
-              const cPct = Math.round(pctComas * ep);
-              badgeComasEl.textContent = `${cVal} Beneficiarios (${cPct}%)`;
-              if (p < 1) requestAnimationFrame(updateB1);
-              else badgeComasEl.textContent = `${stats.comasCount} Beneficiarios (${pctComas}%)`;
-            };
-            requestAnimationFrame(updateB1);
-          }
-
-          if (badgeCaraEl) {
-            const startT = performance.now();
-            const dur = 2000;
-            const updateB2 = (t) => {
-              const p = Math.min((t - startT) / dur, 1);
-              const ep = 1 - Math.pow(1 - p, 3);
-              const cVal = Math.round(stats.carabaylloCount * ep);
-              const cPct = Math.round(pctCarabayllo * ep);
-              badgeCaraEl.textContent = `${cVal} Beneficiarios (${cPct}%)`;
-              if (p < 1) requestAnimationFrame(updateB2);
-              else badgeCaraEl.textContent = `${stats.carabaylloCount} Beneficiarios (${pctCarabayllo}%)`;
-            };
-            requestAnimationFrame(updateB2);
-          }
+      const distritosMap = {
+        "Comas": {
+          sedes: ["Año Nuevo", "La Libertad", "Carmen Alto"],
+          color: "var(--gt-green)",
+          badgeClass: "badge-green"
+        },
+        "Carabayllo": {
+          sedes: ["El Progreso", "San Pedro", "Los Bendecidos", "Santa Rosa"],
+          color: "var(--gt-blue, #0d9488)",
+          badgeClass: "badge-blue"
         }
+      };
+
+      if (allSedes.length > 0) {
+        allSedes.forEach(s => {
+          const dist = s.distrito || "Comas";
+          if (!distritosMap[dist]) {
+            distritosMap[dist] = {
+              sedes: [],
+              color: dist.toLowerCase() === "comas" ? "var(--gt-green)" : (dist.toLowerCase() === "carabayllo" ? "var(--gt-blue, #0d9488)" : "var(--gt-yellow, #f59e0b)"),
+              badgeClass: dist.toLowerCase() === "comas" ? "badge-green" : (dist.toLowerCase() === "carabayllo" ? "badge-blue" : "badge-yellow")
+            };
+          }
+          if (!distritosMap[dist].sedes.includes(s.nombre)) {
+            distritosMap[dist].sedes.push(s.nombre);
+          }
+        });
+      }
+
+      const distritosKeys = Object.keys(distritosMap);
+
+      coverageContainer.innerHTML = distritosKeys.map(dist => {
+        const dInfo = distritosMap[dist];
+        const distSlug = dist.toLowerCase().replace(/[^a-z0-9]/g, "");
+        const sedesText = dInfo.sedes.length > 0 ? `Sedes (${dInfo.sedes.length}): ${dInfo.sedes.join(", ")}` : "Sedes activas";
+
+        return `
+          <div class="district-coverage-card stagger-item">
+            <div class="district-coverage-header">
+              <div>
+                <strong>Distrito de ${dist}</strong>
+                <div class="district-coverage-sedes">${sedesText}</div>
+              </div>
+              <span class="badge ${dInfo.badgeClass} district-coverage-badge" id="badgeDistrict_${distSlug}">0 Beneficiarios (0%)</span>
+            </div>
+            <div class="district-coverage-track">
+              <div class="district-coverage-bar" style="width: 0%; background: ${dInfo.color};" id="barDistrict_${distSlug}"></div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      setTimeout(() => {
+        distritosKeys.forEach(dist => {
+          const distSlug = dist.toLowerCase().replace(/[^a-z0-9]/g, "");
+          const distCount = allBeneficiarios.length > 0
+            ? allBeneficiarios.filter(b => (b.distrito || "").toLowerCase() === dist.toLowerCase()).length
+            : (dist.toLowerCase() === "comas" ? stats.comasCount : (dist.toLowerCase() === "carabayllo" ? stats.carabaylloCount : 0));
+          
+          const distPct = totalBeneficiarios > 0 ? Math.round((distCount / totalBeneficiarios) * 100) : 0;
+
+          const barEl = document.getElementById(`barDistrict_${distSlug}`);
+          const badgeEl = document.getElementById(`badgeDistrict_${distSlug}`);
+
+          if (barEl) {
+            barEl.style.transition = "none";
+            barEl.style.width = "0%";
+          }
+
+          const startT = performance.now();
+          const dur = 1000; // 1.0s de subida continua y sedosa
+          
+          const updateDistrict = (now) => {
+            const elapsed = now - startT;
+            const p = Math.min(elapsed / dur, 1);
+            // Curva orgánica Out-Cubic (aceleración inicial y desaceleración ultra-suave)
+            const ep = 1 - Math.pow(1 - p, 3);
+
+            if (barEl) {
+              const currentW = (distPct * ep).toFixed(2);
+              barEl.style.width = `${currentW}%`;
+            }
+
+            if (badgeEl) {
+              const currentVal = Math.round(distCount * ep);
+              const currentPct = Math.round(distPct * ep);
+              badgeEl.textContent = `${currentVal} Beneficiarios (${currentPct}%)`;
+            }
+
+            if (p < 1) {
+              requestAnimationFrame(updateDistrict);
+            } else {
+              if (barEl) barEl.style.width = `${distPct}%`;
+              if (badgeEl) {
+                badgeEl.textContent = `${distCount} Beneficiarios (${distPct}%)`;
+                badgeEl.classList.remove("vitality-glow");
+                void badgeEl.offsetWidth;
+                badgeEl.classList.add("vitality-glow");
+              }
+            }
+          };
+
+          requestAnimationFrame(updateDistrict);
+        });
       }, 50);
     }
 
@@ -2235,11 +2290,11 @@ if (typeof window !== "undefined") {
             <svg viewBox="0 0 100 100" width="140" height="140" style="transform: rotate(-90deg);">
               <circle cx="50" cy="50" r="40" fill="transparent" stroke="var(--border-subtle)" stroke-width="14" />
               <circle id="semNormalCircle" cx="50" cy="50" r="40" fill="transparent" stroke="var(--gt-green)" stroke-width="14"
-                stroke-dasharray="0 ${C}" stroke-dashoffset="0" stroke-linecap="round" style="transition: stroke-dasharray 2s cubic-bezier(0.16, 1, 0.3, 1);" />
+                stroke-dasharray="0 ${C}" stroke-dashoffset="0" stroke-linecap="round" />
               <circle id="semLeveCircle" cx="50" cy="50" r="40" fill="transparent" stroke="var(--gt-yellow)" stroke-width="14"
-                stroke-dasharray="0 ${C}" stroke-dashoffset="${-sNormal}" stroke-linecap="round" style="transition: stroke-dasharray 2s cubic-bezier(0.16, 1, 0.3, 1);" />
+                stroke-dasharray="0 ${C}" stroke-dashoffset="0" stroke-linecap="round" />
               <circle id="semModCircle" cx="50" cy="50" r="40" fill="transparent" stroke="var(--gt-red)" stroke-width="14"
-                stroke-dasharray="0 ${C}" stroke-dashoffset="${-(sNormal + sLeve)}" stroke-linecap="round" style="transition: stroke-dasharray 2s cubic-bezier(0.16, 1, 0.3, 1);" />
+                stroke-dasharray="0 ${C}" stroke-dashoffset="0" stroke-linecap="round" />
             </svg>
             <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; pointer-events: none;">
               <span id="dashChartCenterNum" style="font-size: 20px; font-weight: 800; color: var(--text-main); font-family: var(--mono-font);">0</span>
@@ -2252,21 +2307,21 @@ if (typeof window !== "undefined") {
                 <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--gt-green); display: inline-block;"></span>
                 <span>Normal (&ge; 11.0)</span>
               </div>
-              <strong style="color: var(--gt-green); font-family: var(--mono-font);" id="anemiaLegendNormal">${stats.normales} (${stats.pctNormal}%)</strong>
+              <strong style="color: var(--gt-green); font-family: var(--mono-font);" id="anemiaLegendNormal">0 (0%)</strong>
             </div>
             <div style="display: flex; align-items: center; justify-content: space-between; font-size: 12.5px;">
               <div style="display: flex; align-items: center; gap: 8px;">
                 <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--gt-yellow); display: inline-block;"></span>
                 <span>Anemia Leve</span>
               </div>
-              <strong style="color: var(--gt-yellow); font-family: var(--mono-font);" id="anemiaLegendLeve">${stats.leves} (${stats.pctLeve}%)</strong>
+              <strong style="color: var(--gt-yellow); font-family: var(--mono-font);" id="anemiaLegendLeve">0 (0%)</strong>
             </div>
             <div style="display: flex; align-items: center; justify-content: space-between; font-size: 12.5px;">
               <div style="display: flex; align-items: center; gap: 8px;">
                 <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--gt-red); display: inline-block;"></span>
                 <span>Anemia Mod/Sev</span>
               </div>
-              <strong style="color: var(--gt-red); font-family: var(--mono-font);" id="anemiaLegendMod">${stats.moderadas} (${stats.pctMod}%)</strong>
+              <strong style="color: var(--gt-red); font-family: var(--mono-font);" id="anemiaLegendMod">0 (0%)</strong>
             </div>
           </div>
         </div>
@@ -2277,36 +2332,80 @@ if (typeof window !== "undefined") {
         const cLeve = document.getElementById("semLeveCircle");
         const cMod = document.getElementById("semModCircle");
         const cNum = document.getElementById("dashChartCenterNum");
-        if (cNorm) cNorm.style.strokeDasharray = `${sNormal} ${C}`;
-        if (cLeve) cLeve.style.strokeDasharray = `${sLeve} ${C}`;
-        if (cMod) cMod.style.strokeDasharray = `${sMod} ${C}`;
-        if (cNum) animateNum(cNum, stats.total);
-
         const legNorm = document.getElementById("anemiaLegendNormal");
         const legLeve = document.getElementById("anemiaLegendLeve");
         const legMod = document.getElementById("anemiaLegendMod");
 
-        if (window.PDI && window.PDI.AnimationEngine) {
-          const runLegendAnim = (el, val, pct) => {
-            if (!el) return;
-            const startT = performance.now();
-            const dur = 2000;
-            const updateLeg = (t) => {
-              const p = Math.min((t - startT) / dur, 1);
-              const ep = 1 - Math.pow(1 - p, 3);
-              const cVal = Math.round(val * ep);
-              const cPct = Math.round(pct * ep);
-              el.textContent = `${cVal} (${cPct}%)`;
-              if (p < 1) requestAnimationFrame(updateLeg);
-              else el.textContent = `${val} (${pct}%)`;
-            };
-            requestAnimationFrame(updateLeg);
-          };
-          runLegendAnim(legNorm, stats.normales, stats.pctNormal);
-          runLegendAnim(legLeve, stats.leves, stats.pctLeve);
-          runLegendAnim(legMod, stats.moderadas, stats.pctMod);
-        }
-      }, 60);
+        const dur = 950;
+        const startT = performance.now();
+
+        const tickDonut = (now) => {
+          const p = Math.min((now - startT) / dur, 1);
+          const ep = 1 - Math.pow(1 - p, 3); // Curva suave Out-Cubic
+
+          const curNorm = sNormal * ep;
+          const curLeve = sLeve * ep;
+          const curMod = sMod * ep;
+
+          if (cNorm) {
+            cNorm.setAttribute("stroke-dasharray", `${curNorm} ${C}`);
+            cNorm.setAttribute("stroke-dashoffset", `0`);
+          }
+          if (cLeve) {
+            cLeve.setAttribute("stroke-dasharray", `${curLeve} ${C}`);
+            cLeve.setAttribute("stroke-dashoffset", `${-curNorm}`);
+          }
+          if (cMod) {
+            cMod.setAttribute("stroke-dasharray", `${curMod} ${C}`);
+            cMod.setAttribute("stroke-dashoffset", `${-(curNorm + curLeve)}`);
+          }
+
+          if (cNum) {
+            cNum.textContent = Math.round(stats.total * ep);
+          }
+
+          if (legNorm) {
+            const v = Math.round(stats.normales * ep);
+            const pct = Math.round(stats.pctNormal * ep);
+            legNorm.textContent = `${v} (${pct}%)`;
+          }
+          if (legLeve) {
+            const v = Math.round(stats.leves * ep);
+            const pct = Math.round(stats.pctLeve * ep);
+            legLeve.textContent = `${v} (${pct}%)`;
+          }
+          if (legMod) {
+            const v = Math.round(stats.moderadas * ep);
+            const pct = Math.round(stats.pctMod * ep);
+            legMod.textContent = `${v} (${pct}%)`;
+          }
+
+          if (p < 1) {
+            requestAnimationFrame(tickDonut);
+          } else {
+            if (cNorm) cNorm.setAttribute("stroke-dasharray", `${sNormal} ${C}`);
+            if (cLeve) {
+              cLeve.setAttribute("stroke-dasharray", `${sLeve} ${C}`);
+              cLeve.setAttribute("stroke-dashoffset", `${-sNormal}`);
+            }
+            if (cMod) {
+              cMod.setAttribute("stroke-dasharray", `${sMod} ${C}`);
+              cMod.setAttribute("stroke-dashoffset", `${-(sNormal + sLeve)}`);
+            }
+            if (cNum) {
+              cNum.textContent = stats.total;
+              cNum.classList.remove("vitality-glow");
+              void cNum.offsetWidth;
+              cNum.classList.add("vitality-glow");
+            }
+            if (legNorm) legNorm.textContent = `${stats.normales} (${stats.pctNormal}%)`;
+            if (legLeve) legLeve.textContent = `${stats.leves} (${stats.pctLeve}%)`;
+            if (legMod) legMod.textContent = `${stats.moderadas} (${stats.pctMod}%)`;
+          }
+        };
+
+        requestAnimationFrame(tickDonut);
+      }, 50);
     }
 
     this.renderAuditLogs(auditLogs);
@@ -2863,12 +2962,6 @@ if (typeof window !== "undefined") {
 
     const chips = [];
 
-    if (this._auditSearchQuery) {
-      chips.push({
-        id: "search",
-        label: `Búsqueda: "${this._auditSearchQuery}"`
-      });
-    }
 
     if (this._filterAuditAction.length > 0) {
       this._filterAuditAction.forEach(act => {
@@ -3931,12 +4024,6 @@ BeneficiariosView = {
 
     const chips = [];
 
-    if (this._searchQuery) {
-      chips.push({
-        id: "search",
-        label: `Búsqueda: "${this._searchQuery}"`,
-      });
-    }
 
     if (this._filterServicio.length > 0) {
       this._filterServicio.forEach(s => {
@@ -4168,10 +4255,354 @@ if (typeof window !== "undefined") {
 
 
 /* --- Module: views/SaludCredView.js --- */
-// Vista: Módulo de Salud y Nutrición CRED SaludCredView = {
+/// Vista: Módulo de Salud y Nutrición CRED
+SaludCredView = {
+  _allBeneficiarios: [],
+  _filteredBeneficiarios: [],
+  _searchQuery: "",
+  _filterAnemia: [],
+  _filterSede: [],
+  _filterHbNivel: "all",
+
   renderTable(beneficiarios) {
+    if (beneficiarios && Array.isArray(beneficiarios)) {
+      this._allBeneficiarios = beneficiarios;
+    } else if (window.PDI?.BeneficiarioModel) {
+      this._allBeneficiarios = window.PDI.BeneficiarioModel.getAll();
+    }
+    this.applyFilters();
+  },
+
+  filterBySearch(query) {
+    this._searchQuery = (query || "").trim().toLowerCase();
+    const clearBtn = document.getElementById("btnSaludSearchClear");
+    if (clearBtn) {
+      clearBtn.style.display = this._searchQuery.length > 0 ? "flex" : "none";
+    }
+    this.applyFilters();
+  },
+
+  clearSearch() {
+    const input = document.getElementById("inputSaludSearch");
+    if (input) input.value = "";
+    this.filterBySearch("");
+  },
+
+  toggleAnemia(val) {
+    const allAnemias = ["Normal", "Leve", "Moderada"];
+    if (val === "all") {
+      this._filterAnemia = [];
+    } else {
+      const idx = this._filterAnemia.indexOf(val);
+      if (idx > -1) {
+        this._filterAnemia.splice(idx, 1);
+      } else {
+        this._filterAnemia.push(val);
+      }
+      if (allAnemias.every(a => this._filterAnemia.includes(a))) {
+        this._filterAnemia = [];
+      }
+    }
+    this._updateAnemiaDropdownUI();
+    this.applyFilters();
+  },
+
+  _updateAnemiaDropdownUI() {
+    const isAll = this._filterAnemia.length === 0;
+    const items = document.querySelectorAll("#menuSaludAnemia .padron-dropdown-item");
+    items.forEach(item => {
+      const v = item.getAttribute("data-value");
+      if (v === "all") {
+        item.classList.toggle("selected", isAll);
+      } else {
+        item.classList.toggle("selected", !isAll && this._filterAnemia.includes(v));
+      }
+    });
+
+    const labelEl = document.getElementById("labelSaludAnemiaSelect");
+    if (labelEl) {
+      if (isAll) {
+        labelEl.textContent = "Todas las Condiciones";
+      } else if (this._filterAnemia.length === 1) {
+        const a = this._filterAnemia[0];
+        labelEl.textContent = a === "Moderada" ? "Mod / Severa" : a;
+      } else {
+        labelEl.textContent = `${this._filterAnemia.length} seleccionadas`;
+      }
+    }
+  },
+
+  toggleSede(val) {
+    const allSedes = ["Año Nuevo", "La Libertad", "San Pedro", "El Progreso", "Santa Rosa", "Los Bendecidos"];
+    if (val === "all") {
+      this._filterSede = [];
+    } else {
+      const idx = this._filterSede.indexOf(val);
+      if (idx > -1) {
+        this._filterSede.splice(idx, 1);
+      } else {
+        this._filterSede.push(val);
+      }
+      if (allSedes.every(s => this._filterSede.includes(s))) {
+        this._filterSede = [];
+      }
+    }
+    this._updateSedeDropdownUI();
+    this.applyFilters();
+  },
+
+  _updateSedeDropdownUI() {
+    const isAll = this._filterSede.length === 0;
+    const items = document.querySelectorAll("#menuSaludSede .padron-dropdown-item");
+    items.forEach(item => {
+      const v = item.getAttribute("data-value");
+      if (v === "all") {
+        item.classList.toggle("selected", isAll);
+      } else {
+        item.classList.toggle("selected", !isAll && this._filterSede.includes(v));
+      }
+    });
+
+    const labelEl = document.getElementById("labelSaludSedeSelect");
+    if (labelEl) {
+      if (isAll) {
+        labelEl.textContent = "Todas las Sedes";
+      } else if (this._filterSede.length === 1) {
+        const s = this._filterSede[0];
+        const dist = (s === "Año Nuevo" || s === "La Libertad") ? "Comas" : "Carabayllo";
+        labelEl.textContent = `${s} (${dist})`;
+      } else {
+        labelEl.textContent = `${this._filterSede.length} seleccionadas`;
+      }
+    }
+  },
+
+  selectHbNivel(val, label) {
+    this._filterHbNivel = val || "all";
+    const items = document.querySelectorAll("#menuSaludHb .padron-dropdown-item");
+    items.forEach(item => {
+      item.classList.toggle("selected", item.getAttribute("data-value") === this._filterHbNivel);
+    });
+
+    const labelEl = document.getElementById("labelSaludHbSelect");
+    if (labelEl) {
+      labelEl.textContent = label || "Todos los Niveles";
+    }
+
+    const drop = document.getElementById("dropdownSaludHb");
+    if (drop) drop.classList.remove("open");
+
+    this.applyFilters();
+  },
+
+  removeFilter(filterKey, specificVal) {
+    if (filterKey === "search") this.clearSearch();
+    if (filterKey === "anemia") {
+      if (specificVal) this.toggleAnemia(specificVal);
+      else this.toggleAnemia("all");
+    }
+    if (filterKey === "sede") {
+      if (specificVal) this.toggleSede(specificVal);
+      else this.toggleSede("all");
+    }
+    if (filterKey === "hb") {
+      this.selectHbNivel("all", "Todos los Niveles");
+    }
+  },
+
+  resetFilters() {
+    this._searchQuery = "";
+    this._filterAnemia = [];
+    this._filterSede = [];
+    this._filterHbNivel = "all";
+
+    const input = document.getElementById("inputSaludSearch");
+    if (input) input.value = "";
+    const clearBtn = document.getElementById("btnSaludSearchClear");
+    if (clearBtn) clearBtn.style.display = "none";
+
+    this._updateAnemiaDropdownUI();
+    this._updateSedeDropdownUI();
+    this.selectHbNivel("all", "Todos los Niveles");
+
+    document.querySelectorAll(".padron-inner-dropdown.open").forEach(d => d.classList.remove("open"));
+
+    this.applyFilters();
+  },
+
+  _matchesAnemia(b, anemiaKeys) {
+    if (!anemiaKeys || anemiaKeys.length === 0) return true;
+    return anemiaKeys.some(key => {
+      if (key === "Moderada") {
+        return b.anemia === "Moderada" || b.anemia === "Severa";
+      }
+      return b.anemia === key;
+    });
+  },
+
+  _matchesHbNivel(b, nivelKey) {
+    if (!nivelKey || nivelKey === "all") return true;
+    const hbVal = parseFloat(b.hb);
+    if (isNaN(hbVal)) return true;
+
+    if (nivelKey === "anemia") return hbVal < 11.0;
+    if (nivelKey === "normal") return hbVal >= 11.0;
+    if (nivelKey === "critico") return hbVal < 10.0;
+    return true;
+  },
+
+  applyFilters() {
+    let list = [...(this._allBeneficiarios || [])];
+
+    // 1. Buscador de texto
+    if (this._searchQuery) {
+      const q = this._searchQuery;
+      list = list.filter(b => {
+        const full = `${b.nombres} ${b.apellidos} ${b.codigo} ${b.dni} ${b.sede} ${b.distrito} ${b.apoderado}`.toLowerCase();
+        return full.includes(q);
+      });
+    }
+
+    // 2. Condición Anemia
+    if (this._filterAnemia.length > 0) {
+      list = list.filter(b => this._matchesAnemia(b, this._filterAnemia));
+    }
+
+    // 3. Sede Operativa
+    if (this._filterSede.length > 0) {
+      list = list.filter(b => b.sede && this._filterSede.some(s => b.sede.toLowerCase().includes(s.toLowerCase())));
+    }
+
+    // 4. Rango Hemoglobina
+    if (this._filterHbNivel !== "all") {
+      list = list.filter(b => this._matchesHbNivel(b, this._filterHbNivel));
+    }
+
+    this._filteredBeneficiarios = list;
+
+    // Actualizar badge de filtros activos
+    let count = 0;
+    if (this._filterAnemia.length > 0) count += this._filterAnemia.length;
+    if (this._filterSede.length > 0) count += this._filterSede.length;
+    if (this._filterHbNivel !== "all") count++;
+
+    const badgeEl = document.getElementById("saludActiveFiltersCount");
+    const btnFilterEl = document.getElementById("btnDropdownSaludFilterPanel");
+    if (badgeEl) {
+      badgeEl.textContent = count;
+      badgeEl.style.display = count > 0 ? "inline-flex" : "none";
+    }
+    if (btnFilterEl) {
+      btnFilterEl.classList.toggle("has-filters", count > 0);
+    }
+
+    const countHeaderEl = document.getElementById("saludRecordsCount");
+    if (countHeaderEl) {
+      countHeaderEl.textContent = `Mostrando ${list.length} de ${this._allBeneficiarios.length} menores`;
+    }
+
+    this._renderActiveChips();
+    this._renderTableAndCards(list);
+  },
+
+  _renderActiveChips() {
+    const bar = document.getElementById("saludActiveChipsBar");
+    const list = document.getElementById("saludActiveChipsList");
+    if (!bar || !list) return;
+
+    const chips = [];
+
+    if (this._filterAnemia.length > 0) {
+      this._filterAnemia.forEach(a => {
+        chips.push({
+          id: "anemia",
+          val: a,
+          label: `Anemia: ${a === "Moderada" ? "Mod / Severa" : a}`
+        });
+      });
+    }
+
+    if (this._filterSede.length > 0) {
+      this._filterSede.forEach(s => {
+        const dist = (s === "Año Nuevo" || s === "La Libertad") ? "Comas" : "Carabayllo";
+        chips.push({
+          id: "sede",
+          val: s,
+          label: `Sede: ${s} (${dist})`
+        });
+      });
+    }
+
+    if (this._filterHbNivel !== "all") {
+      let hbLabel = "Todos los Niveles";
+      if (this._filterHbNivel === "anemia") hbLabel = "Hb < 11.0 g/dL (Anemia)";
+      if (this._filterHbNivel === "normal") hbLabel = "Hb ≥ 11.0 g/dL (Normal)";
+      if (this._filterHbNivel === "critico") hbLabel = "Hb < 10.0 g/dL (Crítico)";
+      chips.push({
+        id: "hb",
+        label: `Nivel: ${hbLabel}`
+      });
+    }
+
+    if (chips.length > 0) {
+      bar.style.display = "flex";
+      list.innerHTML = chips.map(chip => `
+        <span class="padron-chip">
+          <span>${chip.label}</span>
+          <button type="button" class="padron-chip-remove" onclick="window.removeSaludChip ? window.removeSaludChip('${chip.id}', '${chip.val || ''}') : null" title="Eliminar filtro">
+            <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </span>
+      `).join("");
+    } else {
+      bar.style.display = "none";
+      list.innerHTML = "";
+    }
+  },
+
+  _renderTableAndCards(beneficiarios) {
     const tbody = document.getElementById("tbodySaludCred");
     const mobileContainer = document.getElementById("mobileCardsSalud");
+
+    if (beneficiarios.length === 0) {
+      const emptyHtml = `
+        <tr>
+          <td colspan="7" style="text-align: center; padding: 36px 16px;">
+            <div style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; background: var(--gt-green-bg, rgba(52, 211, 153, 0.12)); display: flex; align-items: center; justify-content: center; color: var(--gt-green, #34d399);">
+              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+              </svg>
+            </div>
+            <div style="font-weight: 700; color: var(--text-main); font-size: 14.5px;">No se encontraron evaluaciones CRED</div>
+            <div style="color: var(--text-muted); font-size: 12.5px; margin-top: 4px;">Prueba ajustando el término de búsqueda o restableciendo los filtros.</div>
+            <button type="button" class="btn-action btn-secondary" style="margin-top: 14px; display: inline-flex;" onclick="window.resetSaludFilters ? window.resetSaludFilters() : null">
+              Restablecer Filtros
+            </button>
+          </td>
+        </tr>
+      `;
+      if (tbody) tbody.innerHTML = emptyHtml;
+
+      if (mobileContainer) {
+        mobileContainer.innerHTML = `
+          <div style="text-align: center; padding: 36px 16px; background: var(--surface-card); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-top: 8px;">
+            <div style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; background: var(--gt-green-bg, rgba(52, 211, 153, 0.12)); display: flex; align-items: center; justify-content: center; color: var(--gt-green, #34d399);">
+              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+              </svg>
+            </div>
+            <div style="font-weight: 700; color: var(--text-main); font-size: 14px;">No se encontraron evaluaciones</div>
+            <div style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">No hay registros que coincidan con la búsqueda o filtros.</div>
+            <button type="button" class="btn-action btn-secondary" style="margin-top: 12px; display: inline-flex;" onclick="window.resetSaludFilters ? window.resetSaludFilters() : null">
+              Restablecer Filtros
+            </button>
+          </div>
+        `;
+      }
+      return;
+    }
 
     if (tbody) {
       tbody.innerHTML = beneficiarios.map(b => {
@@ -4298,17 +4729,342 @@ if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
   window.PDI.SaludCredView = SaludCredView;
   window.toggleCalculadoraCred = () => SaludCredView.toggleCalculadora();
+  window.filterSaludSearch = (val) => SaludCredView.filterBySearch(val);
+  window.clearSaludSearch = () => SaludCredView.clearSearch();
+  window.toggleSaludAnemia = (val) => SaludCredView.toggleAnemia(val);
+  window.toggleSaludSede = (val) => SaludCredView.toggleSede(val);
+  window.selectSaludHb = (val, label) => SaludCredView.selectHbNivel(val, label);
+  window.removeSaludChip = (key, val) => SaludCredView.removeFilter(key, val);
+  window.resetSaludFilters = () => SaludCredView.resetFilters();
 }
 
 /* --- Module: views/CasitasView.js --- */
-// Vista: Acompañamiento Educativo (Casita del Saber) CasitasView = {
+/// Vista: Acompañamiento Educativo (Casita del Saber)
+CasitasView = {
+  _allBeneficiarios: [],
+  _filteredBeneficiarios: [],
+  _searchQuery: "",
+  _filterAsistencia: "all",
+  _filterSede: [],
+  _filterGrado: "all",
+
   renderTable(beneficiarios) {
+    if (beneficiarios && Array.isArray(beneficiarios)) {
+      this._allBeneficiarios = beneficiarios;
+    } else if (window.PDI?.BeneficiarioModel) {
+      this._allBeneficiarios = window.PDI.BeneficiarioModel.getAll();
+    }
+    this.applyFilters();
+  },
+
+  filterBySearch(query) {
+    this._searchQuery = (query || "").trim().toLowerCase();
+    const clearBtn = document.getElementById("btnCasitasSearchClear");
+    if (clearBtn) {
+      clearBtn.style.display = this._searchQuery.length > 0 ? "flex" : "none";
+    }
+    this.applyFilters();
+  },
+
+  clearSearch() {
+    const input = document.getElementById("inputCasitasSearch");
+    if (input) input.value = "";
+    this.filterBySearch("");
+  },
+
+  selectAsistencia(val, label) {
+    this._filterAsistencia = val || "all";
+    const items = document.querySelectorAll("#menuCasitasAsistencia .padron-dropdown-item");
+    items.forEach(item => {
+      item.classList.toggle("selected", item.getAttribute("data-value") === this._filterAsistencia);
+    });
+
+    const labelEl = document.getElementById("labelCasitasAsistenciaSelect");
+    if (labelEl) {
+      labelEl.textContent = label || "Todos los Estados";
+    }
+
+    const drop = document.getElementById("dropdownCasitasAsistencia");
+    if (drop) drop.classList.remove("open");
+
+    this.applyFilters();
+  },
+
+  toggleSede(val) {
+    const allSedes = ["Año Nuevo", "La Libertad", "San Pedro", "El Progreso", "Santa Rosa", "Los Bendecidos"];
+    if (val === "all") {
+      this._filterSede = [];
+    } else {
+      const idx = this._filterSede.indexOf(val);
+      if (idx > -1) {
+        this._filterSede.splice(idx, 1);
+      } else {
+        this._filterSede.push(val);
+      }
+      if (allSedes.every(s => this._filterSede.includes(s))) {
+        this._filterSede = [];
+      }
+    }
+    this._updateSedeDropdownUI();
+    this.applyFilters();
+  },
+
+  _updateSedeDropdownUI() {
+    const isAll = this._filterSede.length === 0;
+    const items = document.querySelectorAll("#menuCasitasSede .padron-dropdown-item");
+    items.forEach(item => {
+      const v = item.getAttribute("data-value");
+      if (v === "all") {
+        item.classList.toggle("selected", isAll);
+      } else {
+        item.classList.toggle("selected", !isAll && this._filterSede.includes(v));
+      }
+    });
+
+    const labelEl = document.getElementById("labelCasitasSedeSelect");
+    if (labelEl) {
+      if (isAll) {
+        labelEl.textContent = "Todas las Sedes";
+      } else if (this._filterSede.length === 1) {
+        const s = this._filterSede[0];
+        const dist = (s === "Año Nuevo" || s === "La Libertad") ? "Comas" : "Carabayllo";
+        labelEl.textContent = `${s} (${dist})`;
+      } else {
+        labelEl.textContent = `${this._filterSede.length} seleccionadas`;
+      }
+    }
+  },
+
+  selectGrado(val, label) {
+    this._filterGrado = val || "all";
+    const items = document.querySelectorAll("#menuCasitasGrado .padron-dropdown-item");
+    items.forEach(item => {
+      item.classList.toggle("selected", item.getAttribute("data-value") === this._filterGrado);
+    });
+
+    const labelEl = document.getElementById("labelCasitasGradoSelect");
+    if (labelEl) {
+      labelEl.textContent = label || "Todos los Grados";
+    }
+
+    const drop = document.getElementById("dropdownCasitasGrado");
+    if (drop) drop.classList.remove("open");
+
+    this.applyFilters();
+  },
+
+  removeFilter(filterKey, specificVal) {
+    if (filterKey === "search") this.clearSearch();
+    if (filterKey === "asistencia") {
+      this.selectAsistencia("all", "Todos los Estados");
+    }
+    if (filterKey === "sede") {
+      if (specificVal) this.toggleSede(specificVal);
+      else this.toggleSede("all");
+    }
+    if (filterKey === "grado") {
+      this.selectGrado("all", "Todos los Grados");
+    }
+  },
+
+  resetFilters() {
+    this._searchQuery = "";
+    this._filterAsistencia = "all";
+    this._filterSede = [];
+    this._filterGrado = "all";
+
+    const input = document.getElementById("inputCasitasSearch");
+    if (input) input.value = "";
+    const clearBtn = document.getElementById("btnCasitasSearchClear");
+    if (clearBtn) clearBtn.style.display = "none";
+
+    this.selectAsistencia("all", "Todos los Estados");
+    this._updateSedeDropdownUI();
+    this.selectGrado("all", "Todos los Grados");
+
+    document.querySelectorAll(".padron-inner-dropdown.open").forEach(d => d.classList.remove("open"));
+
+    this.applyFilters();
+  },
+
+  _matchesGrado(b, gradoKey) {
+    if (!gradoKey || gradoKey === "all") return true;
+    const g = (b.grado || "").toLowerCase();
+    if (gradoKey === "inicial") return g.includes("inicial") || g.includes("kinder") || g.includes("pre");
+    if (gradoKey === "primaria") return g.includes("prim") || g.includes("1°") || g.includes("2°") || g.includes("3°") || g.includes("4°") || g.includes("5°") || g.includes("6°");
+    if (gradoKey === "secundaria") return g.includes("sec") || g.includes("secundaria");
+    return true;
+  },
+
+  applyFilters() {
+    // Filtrar base casita (servicio de acompañamiento educativo)
+    let casitaList = (this._allBeneficiarios || []).filter(b => 
+      Array.isArray(b.servicios) && b.servicios.some(s => 
+        s === "Servicio Acompañamiento Educativo" || 
+        s === "Casita del Saber" || 
+        (s || "").toLowerCase().includes("educat") || 
+        (s || "").toLowerCase().includes("casita") || 
+        (s || "").toLowerCase().includes("acompañ")
+      )
+    );
+
+    // 1. Buscador texto libre
+    if (this._searchQuery) {
+      const q = this._searchQuery;
+      casitaList = casitaList.filter(b => {
+        const full = `${b.nombres} ${b.apellidos} ${b.codigo} ${b.colegio} ${b.grado} ${b.apoderado} ${b.sede} ${b.distrito}`.toLowerCase();
+        return full.includes(q);
+      });
+    }
+
+    // 2. Sede
+    if (this._filterSede.length > 0) {
+      casitaList = casitaList.filter(b => b.sede && this._filterSede.some(s => b.sede.toLowerCase().includes(s.toLowerCase())));
+    }
+
+    // 3. Grado / Nivel
+    if (this._filterGrado !== "all") {
+      casitaList = casitaList.filter(b => this._matchesGrado(b, this._filterGrado));
+    }
+
+    // 4. Asistencia
+    if (this._filterAsistencia !== "all") {
+      const targetAsist = this._filterAsistencia;
+      casitaList = casitaList.filter(b => {
+        const currentAsist = (window.PDI?.CasitasController && window.PDI.CasitasController._asistenciaMap && window.PDI.CasitasController._asistenciaMap[b.id]) || "P";
+        return currentAsist === targetAsist;
+      });
+    }
+
+    this._filteredBeneficiarios = casitaList;
+
+    // Actualizar badge de filtros activos
+    let count = 0;
+    if (this._filterAsistencia !== "all") count++;
+    if (this._filterSede.length > 0) count += this._filterSede.length;
+    if (this._filterGrado !== "all") count++;
+
+    const badgeEl = document.getElementById("casitasActiveFiltersCount");
+    const btnFilterEl = document.getElementById("btnDropdownCasitasFilterPanel");
+    if (badgeEl) {
+      badgeEl.textContent = count;
+      badgeEl.style.display = count > 0 ? "inline-flex" : "none";
+    }
+    if (btnFilterEl) {
+      btnFilterEl.classList.toggle("has-filters", count > 0);
+    }
+
+    const countHeaderEl = document.getElementById("casitasRecordsCount");
+    if (countHeaderEl) {
+      countHeaderEl.textContent = `Mostrando ${casitaList.length} de ${(this._allBeneficiarios || []).length} menores`;
+    }
+
+    this._renderActiveChips();
+    this._renderTableAndCards(casitaList);
+  },
+
+  _renderActiveChips() {
+    const bar = document.getElementById("casitasActiveChipsBar");
+    const list = document.getElementById("casitasActiveChipsList");
+    if (!bar || !list) return;
+
+    const chips = [];
+
+    if (this._filterAsistencia !== "all") {
+      const asistNames = {
+        "P": "Presente",
+        "T": "Tardanza",
+        "FJ": "Falta Justificada",
+        "FI": "Falta Injustificada"
+      };
+      chips.push({
+        id: "asistencia",
+        label: `Asistencia: ${asistNames[this._filterAsistencia] || this._filterAsistencia}`
+      });
+    }
+
+    if (this._filterSede.length > 0) {
+      this._filterSede.forEach(s => {
+        const dist = (s === "Año Nuevo" || s === "La Libertad") ? "Comas" : "Carabayllo";
+        chips.push({
+          id: "sede",
+          val: s,
+          label: `Sede: ${s} (${dist})`
+        });
+      });
+    }
+
+    if (this._filterGrado !== "all") {
+      const gradoNames = {
+        "inicial": "Inicial / Pre-escolar",
+        "primaria": "Primaria (1° a 6°)",
+        "secundaria": "Secundaria (1° a 5°)"
+      };
+      chips.push({
+        id: "grado",
+        label: `Nivel: ${gradoNames[this._filterGrado] || this._filterGrado}`
+      });
+    }
+
+    if (chips.length > 0) {
+      bar.style.display = "flex";
+      list.innerHTML = chips.map(chip => `
+        <span class="padron-chip">
+          <span>${chip.label}</span>
+          <button type="button" class="padron-chip-remove" onclick="window.removeCasitasChip ? window.removeCasitasChip('${chip.id}', '${chip.val || ''}') : null" title="Eliminar filtro">
+            <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </span>
+      `).join("");
+    } else {
+      bar.style.display = "none";
+      list.innerHTML = "";
+    }
+  },
+
+  _renderTableAndCards(casitaList) {
     const tbody = document.getElementById("tbodyAsistenciaCasita");
     const mobileContainer = document.getElementById("mobileCardsCasita");
 
-    const casitaList = beneficiarios.filter(b => 
-      b.servicios && b.servicios.some(s => s.toLowerCase().includes("casita") || s.toLowerCase().includes("educativ") || s.toLowerCase().includes("acompañ"))
-    );
+    if (casitaList.length === 0) {
+      const emptyHtml = `
+        <tr>
+          <td colspan="6" style="text-align: center; padding: 36px 16px;">
+            <div style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; background: var(--gt-yellow-bg, rgba(254, 215, 102, 0.12)); display: flex; align-items: center; justify-content: center; color: var(--gt-yellow, #fed766);">
+              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+              </svg>
+            </div>
+            <div style="font-weight: 700; color: var(--text-main); font-size: 14.5px;">No se encontraron registros de asistencia</div>
+            <div style="color: var(--text-muted); font-size: 12.5px; margin-top: 4px;">Prueba con otro término de búsqueda o restablece los filtros.</div>
+            <button type="button" class="btn-action btn-secondary" style="margin-top: 14px; display: inline-flex;" onclick="window.resetCasitasFilters ? window.resetCasitasFilters() : null">
+              Restablecer Filtros
+            </button>
+          </td>
+        </tr>
+      `;
+      if (tbody) tbody.innerHTML = emptyHtml;
+
+      if (mobileContainer) {
+        mobileContainer.innerHTML = `
+          <div style="text-align: center; padding: 36px 16px; background: var(--surface-card); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-top: 8px;">
+            <div style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; background: var(--gt-yellow-bg, rgba(254, 215, 102, 0.12)); display: flex; align-items: center; justify-content: center; color: var(--gt-yellow, #fed766);">
+              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+              </svg>
+            </div>
+            <div style="font-weight: 700; color: var(--text-main); font-size: 14px;">No se encontraron menores</div>
+            <div style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">No hay menores que coincidan con la búsqueda o filtros.</div>
+            <button type="button" class="btn-action btn-secondary" style="margin-top: 12px; display: inline-flex;" onclick="window.resetCasitasFilters ? window.resetCasitasFilters() : null">
+              Restablecer Filtros
+            </button>
+          </div>
+        `;
+      }
+      return;
+    }
 
     if (tbody) {
       tbody.innerHTML = casitaList.map(b => `
@@ -4325,10 +5081,10 @@ if (typeof window !== "undefined") {
           </td>
           <td style="text-align: right;">
             <div style="display: inline-flex; gap: 4px;" id="btnGroupAsist_${b.id}">
-              <button type="button" class="btn-asist active-P" data-asist-btn="P" onclick="window.app.casitasController.toggleAsistencia(${b.id}, 'P')">P</button>
-              <button type="button" class="btn-asist" data-asist-btn="T" onclick="window.app.casitasController.toggleAsistencia(${b.id}, 'T')">T</button>
-              <button type="button" class="btn-asist" data-asist-btn="FJ" onclick="window.app.casitasController.toggleAsistencia(${b.id}, 'FJ')">FJ</button>
-              <button type="button" class="btn-asist" data-asist-btn="FI" onclick="window.app.casitasController.toggleAsistencia(${b.id}, 'FI')">FI</button>
+              <button type="button" class="btn-asist active-P" data-asist-btn="P" onclick="window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'P') : (window.PDI?.CasitasController ? window.PDI.CasitasController.toggleAsistencia(${b.id}, 'P') : null)">P</button>
+              <button type="button" class="btn-asist" data-asist-btn="T" onclick="window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'T') : (window.PDI?.CasitasController ? window.PDI.CasitasController.toggleAsistencia(${b.id}, 'T') : null)">T</button>
+              <button type="button" class="btn-asist" data-asist-btn="FJ" onclick="window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'FJ') : (window.PDI?.CasitasController ? window.PDI.CasitasController.toggleAsistencia(${b.id}, 'FJ') : null)">FJ</button>
+              <button type="button" class="btn-asist" data-asist-btn="FI" onclick="window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'FI') : (window.PDI?.CasitasController ? window.PDI.CasitasController.toggleAsistencia(${b.id}, 'FI') : null)">FI</button>
             </div>
           </td>
         </tr>
@@ -4365,10 +5121,10 @@ if (typeof window !== "undefined") {
                 Marcar Asistencia Hoy:
               </div>
               <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;" id="btnGroupMobAsist_${b.id}">
-                <button type="button" class="btn-asist active-P" data-asist-btn="P" onclick="event.stopPropagation(); window.app.casitasController.toggleAsistencia(${b.id}, 'P')">P</button>
-                <button type="button" class="btn-asist" data-asist-btn="T" onclick="event.stopPropagation(); window.app.casitasController.toggleAsistencia(${b.id}, 'T')">T</button>
-                <button type="button" class="btn-asist" data-asist-btn="FJ" onclick="event.stopPropagation(); window.app.casitasController.toggleAsistencia(${b.id}, 'FJ')">FJ</button>
-                <button type="button" class="btn-asist" data-asist-btn="FI" onclick="event.stopPropagation(); window.app.casitasController.toggleAsistencia(${b.id}, 'FI')">FI</button>
+                <button type="button" class="btn-asist active-P" data-asist-btn="P" onclick="event.stopPropagation(); window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'P') : (window.PDI?.CasitasController ? window.PDI.CasitasController.toggleAsistencia(${b.id}, 'P') : null)">P</button>
+                <button type="button" class="btn-asist" data-asist-btn="T" onclick="event.stopPropagation(); window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'T') : (window.PDI?.CasitasController ? window.PDI.CasitasController.toggleAsistencia(${b.id}, 'T') : null)">T</button>
+                <button type="button" class="btn-asist" data-asist-btn="FJ" onclick="event.stopPropagation(); window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'FJ') : (window.PDI?.CasitasController ? window.PDI.CasitasController.toggleAsistencia(${b.id}, 'FJ') : null)">FJ</button>
+                <button type="button" class="btn-asist" data-asist-btn="FI" onclick="event.stopPropagation(); window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'FI') : (window.PDI?.CasitasController ? window.PDI.CasitasController.toggleAsistencia(${b.id}, 'FI') : null)">FI</button>
               </div>
             </div>
 
@@ -4421,6 +5177,13 @@ if (typeof window !== "undefined") {
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
   window.PDI.CasitasView = CasitasView;
+  window.filterCasitasSearch = (val) => CasitasView.filterBySearch(val);
+  window.clearCasitasSearch = () => CasitasView.clearSearch();
+  window.selectCasitasAsistencia = (val, label) => CasitasView.selectAsistencia(val, label);
+  window.toggleCasitasSede = (val) => CasitasView.toggleSede(val);
+  window.selectCasitasGrado = (val, label) => CasitasView.selectGrado(val, label);
+  window.removeCasitasChip = (key, val) => CasitasView.removeFilter(key, val);
+  window.resetCasitasFilters = () => CasitasView.resetFilters();
 }
 
 /* --- Module: controllers/CasitasController.js --- */
@@ -6190,14 +6953,6 @@ SocialKanbanView = {
       });
     }
 
-    if (this._searchQuery.trim()) {
-      activeCount++;
-      chips.push({
-        label: `Búsqueda: "${this._searchQuery.trim()}"`,
-        clear: () => this.handleSearch("")
-      });
-    }
-
     if (countBadge) {
       if (activeCount > 0) {
         countBadge.textContent = activeCount;
@@ -7266,6 +8021,10 @@ if (typeof window !== "undefined") {
     }
   },
 
+  get ROLES() {
+    return this.rolesConfig;
+  },
+
   applyRolePermissions(role, onNavigate, showToast = true) {
     const navButtons = document.querySelectorAll(".nav-btn");
     const bannerTitle = document.getElementById("roleBannerTitle");
@@ -7316,12 +8075,8 @@ if (typeof window !== "undefined") {
       btnInfo.setAttribute("title", `${conf.title}: ${conf.desc}`);
     }
 
-    if (showToast) {
-      const toast = window.PDI?.ToastView || ToastView;
-      if (toast && typeof toast.show === "function") {
-        toast.show("Perfil Simulado", `Cambiando a vista: ${conf.title}`, "info");
-      }
-    }
+    // No se muestra toast al cambiar de rol (eliminado según requerimiento)
+
 
     const currentActiveBtn = document.querySelector(".nav-btn.active");
     const currentViewId = currentActiveBtn?.getAttribute("data-view");
@@ -7542,18 +8297,59 @@ if (typeof window !== "undefined") {
   },
 
   bindRoleSelector() {
+    let savedRole = "coord";
+    try {
+      savedRole = localStorage.getItem("pdi_active_role") || "coord";
+    } catch (e) {
+      console.warn("No se pudo leer pdi_active_role de localStorage:", e);
+    }
+
     const selector = document.getElementById("roleSelector");
     if (selector) {
+      selector.value = savedRole;
       selector.addEventListener("change", (e) => {
-        RoleController.applyRolePermissions(e.target.value, (view) => this.navigateToView(view), true);
+        RoleController.applyRolePermissions(e.target.value, (view) => this.navigateToView(view), false);
       });
-      RoleController.applyRolePermissions(selector.value, (view) => this.navigateToView(view), false);
     }
+
+    // Sincronizar UI del dropdown visual con el rol inicial / guardado
+    const menuEl = document.querySelector("#dropdownRoleSelector .custom-dropdown-menu");
+    const items = document.querySelectorAll("#dropdownRoleSelector .custom-dropdown-item");
+    let selectedItem = null;
+    items.forEach(it => {
+      if (it.getAttribute("data-value") === savedRole) {
+        it.classList.add("selected");
+        selectedItem = it;
+      } else {
+        it.classList.remove("selected");
+      }
+    });
+
+    if (selectedItem) {
+      const itemText = selectedItem.querySelector(".item-text")?.textContent?.trim();
+      const labelEl = document.getElementById("labelActiveRole");
+      if (labelEl && itemText) {
+        labelEl.textContent = itemText;
+      }
+      if (menuEl) {
+        menuEl.prepend(selectedItem);
+      }
+    }
+
+    RoleController.applyRolePermissions(savedRole, (view) => this.navigateToView(view), false);
   },
 
   switchRole(roleValue, roleTitle) {
+    try {
+      localStorage.setItem("pdi_active_role", roleValue);
+    } catch (e) {
+      console.warn("No se pudo guardar pdi_active_role en localStorage:", e);
+    }
+
     const labelEl = document.getElementById("labelActiveRole");
-    if (labelEl) labelEl.textContent = roleTitle;
+    if (labelEl && roleTitle) {
+      labelEl.textContent = roleTitle;
+    }
 
     const menuEl = document.querySelector("#dropdownRoleSelector .custom-dropdown-menu");
     const items = document.querySelectorAll("#dropdownRoleSelector .custom-dropdown-item");
@@ -7578,10 +8374,9 @@ if (typeof window !== "undefined") {
     const hiddenInput = document.getElementById("roleSelector");
     if (hiddenInput) {
       hiddenInput.value = roleValue;
-      hiddenInput.dispatchEvent(new Event("change"));
-    } else {
-      RoleController.applyRolePermissions(roleValue, (view) => this.navigateToView(view));
     }
+
+    RoleController.applyRolePermissions(roleValue, (view) => this.navigateToView(view), false);
   },
 
   bindModalTabs() {
@@ -7753,9 +8548,20 @@ window.openExpedienteByCodigo = (codigo) => BeneficiarioController.openExpedient
 window.moverCaso = (id, etapa) => SocialController.moverCaso(id, etapa);
 
 window.toggleRoleInfo = (e) => {
+  // En modo PC (desktop > 768px), el tooltip se muestra puramente por hover y no reacciona al clic
+  if (window.innerWidth > 768) return;
   if (e) e.stopPropagation();
   const wrap = document.querySelector(".role-info-wrap");
-  if (wrap) wrap.classList.toggle("open");
+  const btn = document.getElementById("btnRoleInfo");
+  if (wrap) {
+    const isCurrentlyOpen = wrap.classList.contains("open");
+    if (isCurrentlyOpen) {
+      wrap.classList.remove("open");
+      if (btn) btn.blur();
+    } else {
+      wrap.classList.add("open");
+    }
+  }
 };
 
 // Handlers de Información Legal y Confirmación de Exportación de Auditoría
@@ -7863,6 +8669,8 @@ document.addEventListener("click", (e) => {
   if (!e.target.closest(".role-info-wrap")) {
     const wrap = document.querySelector(".role-info-wrap");
     if (wrap) wrap.classList.remove("open");
+    const btn = document.getElementById("btnRoleInfo");
+    if (btn) btn.blur();
   }
   if (!e.target.closest(".audit-legal-popover-wrapper")) {
     const pop = document.getElementById("wrapAuditLegalPopover");

@@ -190,18 +190,59 @@ export const AppController = {
   },
 
   bindRoleSelector() {
+    let savedRole = "coord";
+    try {
+      savedRole = localStorage.getItem("pdi_active_role") || "coord";
+    } catch (e) {
+      console.warn("No se pudo leer pdi_active_role de localStorage:", e);
+    }
+
     const selector = document.getElementById("roleSelector");
     if (selector) {
+      selector.value = savedRole;
       selector.addEventListener("change", (e) => {
-        RoleController.applyRolePermissions(e.target.value, (view) => this.navigateToView(view), true);
+        RoleController.applyRolePermissions(e.target.value, (view) => this.navigateToView(view), false);
       });
-      RoleController.applyRolePermissions(selector.value, (view) => this.navigateToView(view), false);
     }
+
+    // Sincronizar UI del dropdown visual con el rol inicial / guardado
+    const menuEl = document.querySelector("#dropdownRoleSelector .custom-dropdown-menu");
+    const items = document.querySelectorAll("#dropdownRoleSelector .custom-dropdown-item");
+    let selectedItem = null;
+    items.forEach(it => {
+      if (it.getAttribute("data-value") === savedRole) {
+        it.classList.add("selected");
+        selectedItem = it;
+      } else {
+        it.classList.remove("selected");
+      }
+    });
+
+    if (selectedItem) {
+      const itemText = selectedItem.querySelector(".item-text")?.textContent?.trim();
+      const labelEl = document.getElementById("labelActiveRole");
+      if (labelEl && itemText) {
+        labelEl.textContent = itemText;
+      }
+      if (menuEl) {
+        menuEl.prepend(selectedItem);
+      }
+    }
+
+    RoleController.applyRolePermissions(savedRole, (view) => this.navigateToView(view), false);
   },
 
   switchRole(roleValue, roleTitle) {
+    try {
+      localStorage.setItem("pdi_active_role", roleValue);
+    } catch (e) {
+      console.warn("No se pudo guardar pdi_active_role en localStorage:", e);
+    }
+
     const labelEl = document.getElementById("labelActiveRole");
-    if (labelEl) labelEl.textContent = roleTitle;
+    if (labelEl && roleTitle) {
+      labelEl.textContent = roleTitle;
+    }
 
     const menuEl = document.querySelector("#dropdownRoleSelector .custom-dropdown-menu");
     const items = document.querySelectorAll("#dropdownRoleSelector .custom-dropdown-item");
@@ -226,10 +267,9 @@ export const AppController = {
     const hiddenInput = document.getElementById("roleSelector");
     if (hiddenInput) {
       hiddenInput.value = roleValue;
-      hiddenInput.dispatchEvent(new Event("change"));
-    } else {
-      RoleController.applyRolePermissions(roleValue, (view) => this.navigateToView(view));
     }
+
+    RoleController.applyRolePermissions(roleValue, (view) => this.navigateToView(view), false);
   },
 
   bindModalTabs() {

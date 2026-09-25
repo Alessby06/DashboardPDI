@@ -87,26 +87,38 @@
       }
     }
 
-    /* Carga en Cascada (Stagger Assembly) */
+    /* Carga en Cascada Viva (Stagger Assembly con Física Orgánica) */
     .stagger-item {
       opacity: 0;
-      transform: translateY(14px);
+      transform: translateY(14px) scale(0.98);
       will-change: opacity, transform;
     }
 
     .stagger-animate {
-      animation: staggerEntrance 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation: staggerEntrance 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
 
     @keyframes staggerEntrance {
       from {
         opacity: 0;
-        transform: translateY(14px);
+        transform: translateY(14px) scale(0.98);
       }
       to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
       }
+    }
+
+    /* Destello / Glow Sutil de Métricas al completar el contador (Opción 1) */
+    @keyframes vitalityGlow {
+      0% { text-shadow: 0 0 0 rgba(13, 148, 136, 0); }
+      40% { text-shadow: 0 0 14px rgba(13, 148, 136, 0.75), 0 0 6px rgba(13, 148, 136, 0.5); }
+      100% { text-shadow: 0 0 0 rgba(13, 148, 136, 0); }
+    }
+
+    .vitality-glow {
+      display: inline-block;
+      animation: vitalityGlow 0.65s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     /* Micro-Interacciones en Botones (Spring Feedback) */
@@ -393,12 +405,15 @@
       stroke: var(--brand-primary);
     }
 
-    /* Role Restricted Tab Styles */
-    .nav-btn.role-restricted {
-      opacity: 0.35;
-      cursor: not-allowed;
-      pointer-events: none;
-      filter: grayscale(80%);
+    /* Role Restricted Tab Styles (Grisáceo / Deshabilitado tanto en PC como en Móvil) */
+    .nav-btn.role-restricted,
+    .sidebar .nav-btn.role-restricted,
+    .sidebar.open .nav-btn.role-restricted {
+      opacity: 0.35 !important;
+      cursor: not-allowed !important;
+      pointer-events: none !important;
+      filter: grayscale(90%) !important;
+      color: var(--text-muted) !important;
     }
 
     .nav-btn.role-hidden {
@@ -505,7 +520,7 @@
       align-items: center;
       justify-content: center;
       color: var(--gt-green);
-      cursor: pointer;
+      cursor: default;
       padding: 0;
       transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth);
       flex-shrink: 0;
@@ -541,8 +556,13 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    .role-info-wrap:hover .role-info-tooltip,
-    .role-info-wrap:focus-within .role-info-tooltip,
+    @media (hover: hover) and (pointer: fine) {
+      .role-info-wrap:hover .role-info-tooltip,
+      .role-info-wrap:focus-within .role-info-tooltip {
+        display: block;
+      }
+    }
+
     .role-info-wrap.open .role-info-tooltip {
       display: block;
     }
@@ -582,6 +602,14 @@
       color: var(--gt-green);
       white-space: nowrap;
       user-select: none;
+    }
+
+    .role-label-full {
+      display: inline;
+    }
+
+    .role-label-short {
+      display: none;
     }
 
     .role-select {

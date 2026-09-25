@@ -43,92 +43,140 @@ export const DashboardView = {
     const barNormal = document.getElementById("barNormal");
     if (barNormal) {
       barNormal.style.width = "0%";
-      setTimeout(() => { barNormal.style.width = stats.pctNormal + "%"; }, 50);
+      void barNormal.offsetWidth;
+      requestAnimationFrame(() => { barNormal.style.width = stats.pctNormal + "%"; });
     }
 
     const barLeve = document.getElementById("barLeve");
     if (barLeve) {
       barLeve.style.width = "0%";
-      setTimeout(() => { barLeve.style.width = stats.pctLeve + "%"; }, 50);
+      void barLeve.offsetWidth;
+      requestAnimationFrame(() => { barLeve.style.width = stats.pctLeve + "%"; });
     }
 
     const barMod = document.getElementById("barMod");
     if (barMod) {
       barMod.style.width = "0%";
-      setTimeout(() => { barMod.style.width = stats.pctMod + "%"; }, 50);
+      void barMod.offsetWidth;
+      requestAnimationFrame(() => { barMod.style.width = stats.pctMod + "%"; });
     }
 
     const coverageContainer = document.getElementById("dashDistrictCoverage");
     if (coverageContainer) {
-      const pctComas = stats.total > 0 ? Math.round((stats.comasCount / stats.total) * 100) : 0;
-      const pctCarabayllo = stats.total > 0 ? Math.round((stats.carabaylloCount / stats.total) * 100) : 0;
-      coverageContainer.innerHTML = `
-        <div class="district-coverage-card stagger-item">
-          <div class="district-coverage-header">
-            <div>
-              <strong>Distrito de Comas</strong>
-              <div class="district-coverage-sedes">Sedes: La Libertad, Año Nuevo, Collique</div>
-            </div>
-            <span class="badge badge-green district-coverage-badge" id="badgeDistrictComas">${stats.comasCount} Beneficiarios (${pctComas}%)</span>
-          </div>
-          <div class="district-coverage-track">
-            <div class="district-coverage-bar" style="width: 0%; background: var(--gt-green);" id="barDistrictComas"></div>
-          </div>
-        </div>
+      // Obtener sedes actualizadas del modelo de Sedes e Iglesias
+      const sedesModel = window.PDI?.SedeModel || (typeof SedeModel !== "undefined" ? SedeModel : null);
+      const allSedes = sedesModel && sedesModel.getAll ? sedesModel.getAll() : [];
+      
+      const bModel = window.PDI?.BeneficiarioModel || (typeof BeneficiarioModel !== "undefined" ? BeneficiarioModel : null);
+      const allBeneficiarios = bModel && bModel.getAll ? bModel.getAll() : [];
+      const totalBeneficiarios = stats.total || allBeneficiarios.length || 1;
 
-        <div class="district-coverage-card stagger-item">
-          <div class="district-coverage-header">
-            <div>
-              <strong>Distrito de Carabayllo</strong>
-              <div class="district-coverage-sedes">Sedes: El Progreso, San Pedro</div>
-            </div>
-            <span class="badge badge-blue district-coverage-badge" id="badgeDistrictCarabayllo">${stats.carabaylloCount} Beneficiarios (${pctCarabayllo}%)</span>
-          </div>
-          <div class="district-coverage-track">
-            <div class="district-coverage-bar" style="width: 0%; background: var(--gt-blue, #0d9488);" id="barDistrictCarabayllo"></div>
-          </div>
-        </div>
-      `;
-      setTimeout(() => {
-        const bComas = document.getElementById("barDistrictComas");
-        const bCara = document.getElementById("barDistrictCarabayllo");
-        if (bComas) bComas.style.width = `${pctComas}%`;
-        if (bCara) bCara.style.width = `${pctCarabayllo}%`;
-
-        const badgeComasEl = document.getElementById("badgeDistrictComas");
-        const badgeCaraEl = document.getElementById("badgeDistrictCarabayllo");
-
-        if (window.PDI && window.PDI.AnimationEngine) {
-          if (badgeComasEl) {
-            const startT = performance.now();
-            const dur = 2000;
-            const updateB1 = (t) => {
-              const p = Math.min((t - startT) / dur, 1);
-              const ep = 1 - Math.pow(1 - p, 3);
-              const cVal = Math.round(stats.comasCount * ep);
-              const cPct = Math.round(pctComas * ep);
-              badgeComasEl.textContent = `${cVal} Beneficiarios (${cPct}%)`;
-              if (p < 1) requestAnimationFrame(updateB1);
-              else badgeComasEl.textContent = `${stats.comasCount} Beneficiarios (${pctComas}%)`;
-            };
-            requestAnimationFrame(updateB1);
-          }
-
-          if (badgeCaraEl) {
-            const startT = performance.now();
-            const dur = 2000;
-            const updateB2 = (t) => {
-              const p = Math.min((t - startT) / dur, 1);
-              const ep = 1 - Math.pow(1 - p, 3);
-              const cVal = Math.round(stats.carabaylloCount * ep);
-              const cPct = Math.round(pctCarabayllo * ep);
-              badgeCaraEl.textContent = `${cVal} Beneficiarios (${cPct}%)`;
-              if (p < 1) requestAnimationFrame(updateB2);
-              else badgeCaraEl.textContent = `${stats.carabaylloCount} Beneficiarios (${pctCarabayllo}%)`;
-            };
-            requestAnimationFrame(updateB2);
-          }
+      // Agrupación de sedes por distrito
+      const distritosMap = {
+        "Comas": {
+          sedes: ["Año Nuevo", "La Libertad", "Carmen Alto"],
+          color: "var(--gt-green)",
+          badgeClass: "badge-green"
+        },
+        "Carabayllo": {
+          sedes: ["El Progreso", "San Pedro", "Los Bendecidos", "Santa Rosa"],
+          color: "var(--gt-blue, #0d9488)",
+          badgeClass: "badge-blue"
         }
+      };
+
+      if (allSedes.length > 0) {
+        allSedes.forEach(s => {
+          const dist = s.distrito || "Comas";
+          if (!distritosMap[dist]) {
+            distritosMap[dist] = {
+              sedes: [],
+              color: dist.toLowerCase() === "comas" ? "var(--gt-green)" : (dist.toLowerCase() === "carabayllo" ? "var(--gt-blue, #0d9488)" : "var(--gt-yellow, #f59e0b)"),
+              badgeClass: dist.toLowerCase() === "comas" ? "badge-green" : (dist.toLowerCase() === "carabayllo" ? "badge-blue" : "badge-yellow")
+            };
+          }
+          if (!distritosMap[dist].sedes.includes(s.nombre)) {
+            distritosMap[dist].sedes.push(s.nombre);
+          }
+        });
+      }
+
+      const distritosKeys = Object.keys(distritosMap);
+
+      coverageContainer.innerHTML = distritosKeys.map(dist => {
+        const dInfo = distritosMap[dist];
+        const distSlug = dist.toLowerCase().replace(/[^a-z0-9]/g, "");
+        const sedesText = dInfo.sedes.length > 0 ? `Sedes (${dInfo.sedes.length}): ${dInfo.sedes.join(", ")}` : "Sedes activas";
+
+        return `
+          <div class="district-coverage-card stagger-item">
+            <div class="district-coverage-header">
+              <div>
+                <strong>Distrito de ${dist}</strong>
+                <div class="district-coverage-sedes">${sedesText}</div>
+              </div>
+              <span class="badge ${dInfo.badgeClass} district-coverage-badge" id="badgeDistrict_${distSlug}">0 Beneficiarios (0%)</span>
+            </div>
+            <div class="district-coverage-track">
+              <div class="district-coverage-bar" style="width: 0%; background: ${dInfo.color};" id="barDistrict_${distSlug}"></div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      // Animación continua y garantizada cuadro a cuadro (sin dependencias ni conflictos CSS)
+      setTimeout(() => {
+        distritosKeys.forEach(dist => {
+          const distSlug = dist.toLowerCase().replace(/[^a-z0-9]/g, "");
+          const distCount = allBeneficiarios.length > 0
+            ? allBeneficiarios.filter(b => (b.distrito || "").toLowerCase() === dist.toLowerCase()).length
+            : (dist.toLowerCase() === "comas" ? stats.comasCount : (dist.toLowerCase() === "carabayllo" ? stats.carabaylloCount : 0));
+          
+          const distPct = totalBeneficiarios > 0 ? Math.round((distCount / totalBeneficiarios) * 100) : 0;
+
+          const barEl = document.getElementById(`barDistrict_${distSlug}`);
+          const badgeEl = document.getElementById(`badgeDistrict_${distSlug}`);
+
+          if (barEl) {
+            barEl.style.transition = "none";
+            barEl.style.width = "0%";
+          }
+
+          const startT = performance.now();
+          const dur = 1000; // 1.0s de subida continua y sedosa
+          
+          const updateDistrict = (now) => {
+            const elapsed = now - startT;
+            const p = Math.min(elapsed / dur, 1);
+            // Curva orgánica Out-Cubic (aceleración inicial y desaceleración ultra-suave)
+            const ep = 1 - Math.pow(1 - p, 3);
+
+            if (barEl) {
+              const currentW = (distPct * ep).toFixed(2);
+              barEl.style.width = `${currentW}%`;
+            }
+
+            if (badgeEl) {
+              const currentVal = Math.round(distCount * ep);
+              const currentPct = Math.round(distPct * ep);
+              badgeEl.textContent = `${currentVal} Beneficiarios (${currentPct}%)`;
+            }
+
+            if (p < 1) {
+              requestAnimationFrame(updateDistrict);
+            } else {
+              if (barEl) barEl.style.width = `${distPct}%`;
+              if (badgeEl) {
+                badgeEl.textContent = `${distCount} Beneficiarios (${distPct}%)`;
+                badgeEl.classList.remove("vitality-glow");
+                void badgeEl.offsetWidth;
+                badgeEl.classList.add("vitality-glow");
+              }
+            }
+          };
+
+          requestAnimationFrame(updateDistrict);
+        });
       }, 50);
     }
 
@@ -149,11 +197,11 @@ export const DashboardView = {
             <svg viewBox="0 0 100 100" width="140" height="140" style="transform: rotate(-90deg);">
               <circle cx="50" cy="50" r="40" fill="transparent" stroke="var(--border-subtle)" stroke-width="14" />
               <circle id="semNormalCircle" cx="50" cy="50" r="40" fill="transparent" stroke="var(--gt-green)" stroke-width="14"
-                stroke-dasharray="0 ${C}" stroke-dashoffset="0" stroke-linecap="round" style="transition: stroke-dasharray 2s cubic-bezier(0.16, 1, 0.3, 1);" />
+                stroke-dasharray="0 ${C}" stroke-dashoffset="0" stroke-linecap="round" />
               <circle id="semLeveCircle" cx="50" cy="50" r="40" fill="transparent" stroke="var(--gt-yellow)" stroke-width="14"
-                stroke-dasharray="0 ${C}" stroke-dashoffset="${-sNormal}" stroke-linecap="round" style="transition: stroke-dasharray 2s cubic-bezier(0.16, 1, 0.3, 1);" />
+                stroke-dasharray="0 ${C}" stroke-dashoffset="0" stroke-linecap="round" />
               <circle id="semModCircle" cx="50" cy="50" r="40" fill="transparent" stroke="var(--gt-red)" stroke-width="14"
-                stroke-dasharray="0 ${C}" stroke-dashoffset="${-(sNormal + sLeve)}" stroke-linecap="round" style="transition: stroke-dasharray 2s cubic-bezier(0.16, 1, 0.3, 1);" />
+                stroke-dasharray="0 ${C}" stroke-dashoffset="0" stroke-linecap="round" />
             </svg>
             <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; pointer-events: none;">
               <span id="dashChartCenterNum" style="font-size: 20px; font-weight: 800; color: var(--text-main); font-family: var(--mono-font);">0</span>
@@ -166,21 +214,21 @@ export const DashboardView = {
                 <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--gt-green); display: inline-block;"></span>
                 <span>Normal (&ge; 11.0)</span>
               </div>
-              <strong style="color: var(--gt-green); font-family: var(--mono-font);" id="anemiaLegendNormal">${stats.normales} (${stats.pctNormal}%)</strong>
+              <strong style="color: var(--gt-green); font-family: var(--mono-font);" id="anemiaLegendNormal">0 (0%)</strong>
             </div>
             <div style="display: flex; align-items: center; justify-content: space-between; font-size: 12.5px;">
               <div style="display: flex; align-items: center; gap: 8px;">
                 <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--gt-yellow); display: inline-block;"></span>
                 <span>Anemia Leve</span>
               </div>
-              <strong style="color: var(--gt-yellow); font-family: var(--mono-font);" id="anemiaLegendLeve">${stats.leves} (${stats.pctLeve}%)</strong>
+              <strong style="color: var(--gt-yellow); font-family: var(--mono-font);" id="anemiaLegendLeve">0 (0%)</strong>
             </div>
             <div style="display: flex; align-items: center; justify-content: space-between; font-size: 12.5px;">
               <div style="display: flex; align-items: center; gap: 8px;">
                 <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--gt-red); display: inline-block;"></span>
                 <span>Anemia Mod/Sev</span>
               </div>
-              <strong style="color: var(--gt-red); font-family: var(--mono-font);" id="anemiaLegendMod">${stats.moderadas} (${stats.pctMod}%)</strong>
+              <strong style="color: var(--gt-red); font-family: var(--mono-font);" id="anemiaLegendMod">0 (0%)</strong>
             </div>
           </div>
         </div>
@@ -191,36 +239,80 @@ export const DashboardView = {
         const cLeve = document.getElementById("semLeveCircle");
         const cMod = document.getElementById("semModCircle");
         const cNum = document.getElementById("dashChartCenterNum");
-        if (cNorm) cNorm.style.strokeDasharray = `${sNormal} ${C}`;
-        if (cLeve) cLeve.style.strokeDasharray = `${sLeve} ${C}`;
-        if (cMod) cMod.style.strokeDasharray = `${sMod} ${C}`;
-        if (cNum) animateNum(cNum, stats.total);
-
         const legNorm = document.getElementById("anemiaLegendNormal");
         const legLeve = document.getElementById("anemiaLegendLeve");
         const legMod = document.getElementById("anemiaLegendMod");
 
-        if (window.PDI && window.PDI.AnimationEngine) {
-          const runLegendAnim = (el, val, pct) => {
-            if (!el) return;
-            const startT = performance.now();
-            const dur = 2000;
-            const updateLeg = (t) => {
-              const p = Math.min((t - startT) / dur, 1);
-              const ep = 1 - Math.pow(1 - p, 3);
-              const cVal = Math.round(val * ep);
-              const cPct = Math.round(pct * ep);
-              el.textContent = `${cVal} (${cPct}%)`;
-              if (p < 1) requestAnimationFrame(updateLeg);
-              else el.textContent = `${val} (${pct}%)`;
-            };
-            requestAnimationFrame(updateLeg);
-          };
-          runLegendAnim(legNorm, stats.normales, stats.pctNormal);
-          runLegendAnim(legLeve, stats.leves, stats.pctLeve);
-          runLegendAnim(legMod, stats.moderadas, stats.pctMod);
-        }
-      }, 60);
+        const dur = 950;
+        const startT = performance.now();
+
+        const tickDonut = (now) => {
+          const p = Math.min((now - startT) / dur, 1);
+          const ep = 1 - Math.pow(1 - p, 3); // Curva suave Out-Cubic
+
+          const curNorm = sNormal * ep;
+          const curLeve = sLeve * ep;
+          const curMod = sMod * ep;
+
+          if (cNorm) {
+            cNorm.setAttribute("stroke-dasharray", `${curNorm} ${C}`);
+            cNorm.setAttribute("stroke-dashoffset", `0`);
+          }
+          if (cLeve) {
+            cLeve.setAttribute("stroke-dasharray", `${curLeve} ${C}`);
+            cLeve.setAttribute("stroke-dashoffset", `${-curNorm}`);
+          }
+          if (cMod) {
+            cMod.setAttribute("stroke-dasharray", `${curMod} ${C}`);
+            cMod.setAttribute("stroke-dashoffset", `${-(curNorm + curLeve)}`);
+          }
+
+          if (cNum) {
+            cNum.textContent = Math.round(stats.total * ep);
+          }
+
+          if (legNorm) {
+            const v = Math.round(stats.normales * ep);
+            const pct = Math.round(stats.pctNormal * ep);
+            legNorm.textContent = `${v} (${pct}%)`;
+          }
+          if (legLeve) {
+            const v = Math.round(stats.leves * ep);
+            const pct = Math.round(stats.pctLeve * ep);
+            legLeve.textContent = `${v} (${pct}%)`;
+          }
+          if (legMod) {
+            const v = Math.round(stats.moderadas * ep);
+            const pct = Math.round(stats.pctMod * ep);
+            legMod.textContent = `${v} (${pct}%)`;
+          }
+
+          if (p < 1) {
+            requestAnimationFrame(tickDonut);
+          } else {
+            if (cNorm) cNorm.setAttribute("stroke-dasharray", `${sNormal} ${C}`);
+            if (cLeve) {
+              cLeve.setAttribute("stroke-dasharray", `${sLeve} ${C}`);
+              cLeve.setAttribute("stroke-dashoffset", `${-sNormal}`);
+            }
+            if (cMod) {
+              cMod.setAttribute("stroke-dasharray", `${sMod} ${C}`);
+              cMod.setAttribute("stroke-dashoffset", `${-(sNormal + sLeve)}`);
+            }
+            if (cNum) {
+              cNum.textContent = stats.total;
+              cNum.classList.remove("vitality-glow");
+              void cNum.offsetWidth;
+              cNum.classList.add("vitality-glow");
+            }
+            if (legNorm) legNorm.textContent = `${stats.normales} (${stats.pctNormal}%)`;
+            if (legLeve) legLeve.textContent = `${stats.leves} (${stats.pctLeve}%)`;
+            if (legMod) legMod.textContent = `${stats.moderadas} (${stats.pctMod}%)`;
+          }
+        };
+
+        requestAnimationFrame(tickDonut);
+      }, 50);
     }
 
     this.renderAuditLogs(auditLogs);
@@ -777,12 +869,6 @@ export const DashboardView = {
 
     const chips = [];
 
-    if (this._auditSearchQuery) {
-      chips.push({
-        id: "search",
-        label: `Búsqueda: "${this._auditSearchQuery}"`
-      });
-    }
 
     if (this._filterAuditAction.length > 0) {
       this._filterAuditAction.forEach(act => {

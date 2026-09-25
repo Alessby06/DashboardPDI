@@ -505,6 +505,19 @@
       display: inline-block;
     }
 
+    #dropdownRoleSelector {
+      min-width: 240px;
+    }
+
+    #dropdownRoleSelector .custom-dropdown-btn {
+      width: 100%;
+    }
+
+    #dropdownRoleSelector .custom-dropdown-menu {
+      width: 100%;
+      min-width: 100%;
+    }
+
     .custom-dropdown-btn {
       display: inline-flex;
       align-items: center;

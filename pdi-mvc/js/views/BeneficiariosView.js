@@ -769,12 +769,6 @@ export const BeneficiariosView = {
 
     const chips = [];
 
-    if (this._searchQuery) {
-      chips.push({
-        id: "search",
-        label: `Búsqueda: "${this._searchQuery}"`,
-      });
-    }
 
     if (this._filterServicio.length > 0) {
       this._filterServicio.forEach(s => {

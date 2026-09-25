@@ -40,6 +40,10 @@ export const RoleController = {
     }
   },
 
+  get ROLES() {
+    return this.rolesConfig;
+  },
+
   applyRolePermissions(role, onNavigate, showToast = true) {
     const navButtons = document.querySelectorAll(".nav-btn");
     const bannerTitle = document.getElementById("roleBannerTitle");
@@ -90,12 +94,8 @@ export const RoleController = {
       btnInfo.setAttribute("title", `${conf.title}: ${conf.desc}`);
     }
 
-    if (showToast) {
-      const toast = window.PDI?.ToastView || ToastView;
-      if (toast && typeof toast.show === "function") {
-        toast.show("Perfil Simulado", `Cambiando a vista: ${conf.title}`, "info");
-      }
-    }
+    // No se muestra toast al cambiar de rol (eliminado según requerimiento)
+
 
     const currentActiveBtn = document.querySelector(".nav-btn.active");
     const currentViewId = currentActiveBtn?.getAttribute("data-view");

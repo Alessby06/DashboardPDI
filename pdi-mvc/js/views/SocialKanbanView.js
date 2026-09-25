@@ -264,14 +264,6 @@ export const SocialKanbanView = {
       });
     }
 
-    if (this._searchQuery.trim()) {
-      activeCount++;
-      chips.push({
-        label: `Búsqueda: "${this._searchQuery.trim()}"`,
-        clear: () => this.handleSearch("")
-      });
-    }
-
     if (countBadge) {
       if (activeCount > 0) {
         countBadge.textContent = activeCount;

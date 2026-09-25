@@ -119,9 +119,20 @@ window.openExpedienteByCodigo = (codigo) => BeneficiarioController.openExpedient
 window.moverCaso = (id, etapa) => SocialController.moverCaso(id, etapa);
 
 window.toggleRoleInfo = (e) => {
+  // En modo PC (desktop > 768px), el tooltip se muestra puramente por hover y no reacciona al clic
+  if (window.innerWidth > 768) return;
   if (e) e.stopPropagation();
   const wrap = document.querySelector(".role-info-wrap");
-  if (wrap) wrap.classList.toggle("open");
+  const btn = document.getElementById("btnRoleInfo");
+  if (wrap) {
+    const isCurrentlyOpen = wrap.classList.contains("open");
+    if (isCurrentlyOpen) {
+      wrap.classList.remove("open");
+      if (btn) btn.blur();
+    } else {
+      wrap.classList.add("open");
+    }
+  }
 };
 
 // Handlers de Información Legal y Confirmación de Exportación de Auditoría
@@ -215,6 +226,66 @@ window.resetPadronFilters = () => {
   if (window.PDI?.BeneficiariosView) window.PDI.BeneficiariosView.resetFilters();
 };
 
+// Handlers de Búsqueda y Filtros de Salud CRED
+window.filterSaludSearch = (val) => {
+  if (window.PDI?.SaludCredView) window.PDI.SaludCredView.filterBySearch(val);
+  else if (SaludCredView) SaludCredView.filterBySearch(val);
+};
+window.clearSaludSearch = () => {
+  if (window.PDI?.SaludCredView) window.PDI.SaludCredView.clearSearch();
+  else if (SaludCredView) SaludCredView.clearSearch();
+};
+window.toggleSaludAnemia = (val) => {
+  if (window.PDI?.SaludCredView) window.PDI.SaludCredView.toggleAnemia(val);
+  else if (SaludCredView) SaludCredView.toggleAnemia(val);
+};
+window.toggleSaludSede = (val) => {
+  if (window.PDI?.SaludCredView) window.PDI.SaludCredView.toggleSede(val);
+  else if (SaludCredView) SaludCredView.toggleSede(val);
+};
+window.selectSaludHb = (val, label) => {
+  if (window.PDI?.SaludCredView) window.PDI.SaludCredView.selectHbNivel(val, label);
+  else if (SaludCredView) SaludCredView.selectHbNivel(val, label);
+};
+window.removeSaludChip = (key, val) => {
+  if (window.PDI?.SaludCredView) window.PDI.SaludCredView.removeFilter(key, val);
+  else if (SaludCredView) SaludCredView.removeFilter(key, val);
+};
+window.resetSaludFilters = () => {
+  if (window.PDI?.SaludCredView) window.PDI.SaludCredView.resetFilters();
+  else if (SaludCredView) SaludCredView.resetFilters();
+};
+
+// Handlers de Búsqueda y Filtros de Casitas del Saber
+window.filterCasitasSearch = (val) => {
+  if (window.PDI?.CasitasView) window.PDI.CasitasView.filterBySearch(val);
+  else if (CasitasView) CasitasView.filterBySearch(val);
+};
+window.clearCasitasSearch = () => {
+  if (window.PDI?.CasitasView) window.PDI.CasitasView.clearSearch();
+  else if (CasitasView) CasitasView.clearSearch();
+};
+window.selectCasitasAsistencia = (val, label) => {
+  if (window.PDI?.CasitasView) window.PDI.CasitasView.selectAsistencia(val, label);
+  else if (CasitasView) CasitasView.selectAsistencia(val, label);
+};
+window.toggleCasitasSede = (val) => {
+  if (window.PDI?.CasitasView) window.PDI.CasitasView.toggleSede(val);
+  else if (CasitasView) CasitasView.toggleSede(val);
+};
+window.selectCasitasGrado = (val, label) => {
+  if (window.PDI?.CasitasView) window.PDI.CasitasView.selectGrado(val, label);
+  else if (CasitasView) CasitasView.selectGrado(val, label);
+};
+window.removeCasitasChip = (key, val) => {
+  if (window.PDI?.CasitasView) window.PDI.CasitasView.removeFilter(key, val);
+  else if (CasitasView) CasitasView.removeFilter(key, val);
+};
+window.resetCasitasFilters = () => {
+  if (window.PDI?.CasitasView) window.PDI.CasitasView.resetFilters();
+  else if (CasitasView) CasitasView.resetFilters();
+};
+
 // Cierre automático de Custom Dropdowns, Inner Dropdowns, Role Tooltips y Audit Legal Popover al hacer clic afuera
 document.addEventListener("click", (e) => {
   if (!e.target.closest(".custom-dropdown")) {
@@ -226,6 +297,8 @@ document.addEventListener("click", (e) => {
   if (!e.target.closest(".role-info-wrap")) {
     const wrap = document.querySelector(".role-info-wrap");
     if (wrap) wrap.classList.remove("open");
+    const btn = document.getElementById("btnRoleInfo");
+    if (btn) btn.blur();
   }
   if (!e.target.closest(".audit-legal-popover-wrapper")) {
     const pop = document.getElementById("wrapAuditLegalPopover");
