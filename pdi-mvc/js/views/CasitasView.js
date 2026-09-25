@@ -4,7 +4,7 @@ export const CasitasView = {
     const tbody = document.getElementById("tbodyAsistenciaCasita");
     const mobileContainer = document.getElementById("mobileCardsCasita");
 
-    const casitaList = beneficiarios.filter(b => b.servicios.includes("Casita del Saber"));
+    const casitaList = beneficiarios.filter(b => Array.isArray(b.servicios) && b.servicios.some(s => s === "Servicio Acompañamiento Educativo" || s === "Casita del Saber" || (s || "").toLowerCase().includes("educat") || (s || "").toLowerCase().includes("casita") || (s || "").toLowerCase().includes("acompañ")));
 
     if (tbody) {
       tbody.innerHTML = casitaList.map(b => `

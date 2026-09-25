@@ -2049,33 +2049,42 @@
 
 
     /* Responsive */
-    /* Responsive Mobile Sidebar Backdrop Overlay - 60/120fps GPU Scrim */
     .sidebar-backdrop {
-      display: block;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(15, 23, 42, 0.65);
-      z-index: 1040;
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-      touch-action: manipulation;
-      -webkit-tap-highlight-color: transparent;
-      transition: opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1), 
-                  visibility 0.24s cubic-bezier(0.16, 1, 0.3, 1);
-      will-change: opacity, visibility;
+      display: none !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
     }
 
-    .sidebar-backdrop.active {
-      opacity: 1 !important;
-      visibility: visible !important;
-      pointer-events: auto !important;
-      cursor: pointer;
+    @media (max-width: 900px) {
+      .sidebar-backdrop {
+        display: block !important;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100vw;
+        height: 100vh;
+        height: 100dvh;
+        background: rgba(15, 23, 42, 0.65);
+        z-index: 1040;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        transition: opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1), 
+                    visibility 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+        will-change: opacity, visibility;
+      }
+
+      .sidebar-backdrop.active {
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+        cursor: pointer;
+      }
     }
 
     @media (max-width: 900px) {
@@ -2813,16 +2822,28 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 6px 8px;
+      padding: 8px 10px;
       border-radius: 6px;
-      background: #ffffff;
+      background: var(--surface-1, #ffffff);
       border: 1px solid var(--border-subtle);
-      transition: border-color 0.15s ease;
+      transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: default;
+      user-select: none;
+    }
+
+    .programa-item.editable {
+      cursor: pointer;
+    }
+
+    .programa-item.editable:hover {
+      border-color: var(--gt-green, #00b494);
+      background: rgba(0, 180, 148, 0.04);
+      transform: translateY(-1px);
     }
 
     .programa-item.active {
       border-color: var(--gt-green-border);
-      background: rgba(0, 180, 148, 0.04);
+      background: rgba(0, 180, 148, 0.07);
     }
 
     .programa-check-box {

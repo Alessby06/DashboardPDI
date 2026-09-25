@@ -148,6 +148,22 @@ export const AppController = {
         this.closeSidebar();
       }
     });
+
+    // Sincronización al cambiar tamaño de ventana entre PC y Móvil
+    window.addEventListener("resize", () => {
+      const sidebar = document.getElementById("appSidebar");
+      const backdrop = document.getElementById("sidebarBackdrop");
+      if (!sidebar) return;
+
+      if (window.innerWidth > 900) {
+        // Al pasar a PC: cerrar drawer móvil y desactivar overlay
+        sidebar.classList.remove("open");
+        if (backdrop) backdrop.classList.remove("active");
+      } else {
+        // Al pasar a Móvil: remover colapso de PC
+        sidebar.classList.remove("collapsed");
+      }
+    });
   },
 
   toggleSidebar() {

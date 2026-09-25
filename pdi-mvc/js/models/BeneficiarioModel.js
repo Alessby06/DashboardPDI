@@ -855,46 +855,43 @@ export const defaultBeneficiarios = [
 
 export function normalizeBeneficiarioServicios(b) {
   if (!b) return b;
-  const rawServicios = Array.isArray(b.servicios) ? b.servicios : [];
+  const rawServicios = Array.isArray(b.servicios) ? b.servicios : null;
   const normalized = new Set();
   const lowerEstrategia = (b.estrategia || "").toLowerCase();
 
-  rawServicios.forEach(s => {
-    const low = (s || "").toLowerCase();
-    if (low.includes("lonchera")) {
-      normalized.add("Lonchera Saludable");
-    } else if (low.includes("desayuno") || low.includes("alimento") || low.includes("nutric")) {
-      normalized.add("Servicio Alimentario Nutricional");
-    } else if (low.includes("casita") || low.includes("educativ") || low.includes("refuerzo") || low.includes("escolar") || low.includes("acompañ")) {
-      normalized.add("Servicio Acompañamiento Educativo");
-    } else if (low.includes("pastoral") || low.includes("social") || low.includes("asp")) {
-      normalized.add("Área Social Pastoral");
-    } else {
-      normalized.add(s);
-    }
-  });
-
-  if (normalized.size === 0) {
-    if (lowerEstrategia.includes("lonchera")) {
-      normalized.add("Lonchera Saludable");
-    }
-    if (lowerEstrategia.includes("desayuno") || lowerEstrategia.includes("alimento")) {
+  if (rawServicios !== null) {
+    rawServicios.forEach(s => {
+      if (!s) return;
+      const low = String(s).toLowerCase();
+      if (low.includes("desayuno") || low.includes("alimento") || low.includes("nutric") || low.includes("lonchera")) {
+        normalized.add("Servicio Alimentario Nutricional");
+      } else if (low.includes("casita") || low.includes("educativ") || low.includes("refuerzo") || low.includes("escolar") || low.includes("acompañ")) {
+        normalized.add("Servicio Acompañamiento Educativo");
+      } else if (low.includes("pastoral") || low.includes("social") || low.includes("asp")) {
+        normalized.add("Área Social Pastoral");
+      } else {
+        normalized.add(s);
+      }
+    });
+  } else {
+    // Si no tiene arreglo de servicios definido, inferir de estrategia y vulnerabilidad
+    if (lowerEstrategia.includes("desayuno") || lowerEstrategia.includes("alimento") || lowerEstrategia.includes("nutric") || lowerEstrategia.includes("lonchera")) {
       normalized.add("Servicio Alimentario Nutricional");
     }
     if (lowerEstrategia.includes("casita") || lowerEstrategia.includes("educat") || lowerEstrategia.includes("acompañ")) {
       normalized.add("Servicio Acompañamiento Educativo");
     }
-    if (lowerEstrategia.includes("pastoral") || lowerEstrategia.includes("social")) {
+    if (lowerEstrategia.includes("pastoral") || lowerEstrategia.includes("social") || lowerEstrategia.includes("asp") || (b.vulnerabilidad && b.vulnerabilidad >= 80) || (b.exoneracionAporte && b.exoneracionAporte.includes("100%"))) {
       normalized.add("Área Social Pastoral");
     }
     if (lowerEstrategia.includes("mixto")) {
       normalized.add("Servicio Alimentario Nutricional");
       normalized.add("Servicio Acompañamiento Educativo");
-      normalized.add("Lonchera Saludable");
     }
   }
 
-  if (normalized.size === 0) {
+  // Si no se asignó ninguno por defecto en datos iniciales
+  if (normalized.size === 0 && rawServicios === null) {
     normalized.add("Servicio Alimentario Nutricional");
   }
 

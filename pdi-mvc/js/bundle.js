@@ -1008,46 +1008,43 @@ if (typeof window !== "undefined") {
 
 function normalizeBeneficiarioServicios(b) {
   if (!b) return b;
-  const rawServicios = Array.isArray(b.servicios) ? b.servicios : [];
+  const rawServicios = Array.isArray(b.servicios) ? b.servicios : null;
   const normalized = new Set();
   const lowerEstrategia = (b.estrategia || "").toLowerCase();
 
-  rawServicios.forEach(s => {
-    const low = (s || "").toLowerCase();
-    if (low.includes("lonchera")) {
-      normalized.add("Lonchera Saludable");
-    } else if (low.includes("desayuno") || low.includes("alimento") || low.includes("nutric")) {
-      normalized.add("Servicio Alimentario Nutricional");
-    } else if (low.includes("casita") || low.includes("educativ") || low.includes("refuerzo") || low.includes("escolar") || low.includes("acompañ")) {
-      normalized.add("Servicio Acompañamiento Educativo");
-    } else if (low.includes("pastoral") || low.includes("social") || low.includes("asp")) {
-      normalized.add("Área Social Pastoral");
-    } else {
-      normalized.add(s);
-    }
-  });
-
-  if (normalized.size === 0) {
-    if (lowerEstrategia.includes("lonchera")) {
-      normalized.add("Lonchera Saludable");
-    }
-    if (lowerEstrategia.includes("desayuno") || lowerEstrategia.includes("alimento")) {
+  if (rawServicios !== null) {
+    rawServicios.forEach(s => {
+      if (!s) return;
+      const low = String(s).toLowerCase();
+      if (low.includes("desayuno") || low.includes("alimento") || low.includes("nutric") || low.includes("lonchera")) {
+        normalized.add("Servicio Alimentario Nutricional");
+      } else if (low.includes("casita") || low.includes("educativ") || low.includes("refuerzo") || low.includes("escolar") || low.includes("acompañ")) {
+        normalized.add("Servicio Acompañamiento Educativo");
+      } else if (low.includes("pastoral") || low.includes("social") || low.includes("asp")) {
+        normalized.add("Área Social Pastoral");
+      } else {
+        normalized.add(s);
+      }
+    });
+  } else {
+    // Si no tiene arreglo de servicios definido, inferir de estrategia y vulnerabilidad
+    if (lowerEstrategia.includes("desayuno") || lowerEstrategia.includes("alimento") || lowerEstrategia.includes("nutric") || lowerEstrategia.includes("lonchera")) {
       normalized.add("Servicio Alimentario Nutricional");
     }
     if (lowerEstrategia.includes("casita") || lowerEstrategia.includes("educat") || lowerEstrategia.includes("acompañ")) {
       normalized.add("Servicio Acompañamiento Educativo");
     }
-    if (lowerEstrategia.includes("pastoral") || lowerEstrategia.includes("social")) {
+    if (lowerEstrategia.includes("pastoral") || lowerEstrategia.includes("social") || lowerEstrategia.includes("asp") || (b.vulnerabilidad && b.vulnerabilidad >= 80) || (b.exoneracionAporte && b.exoneracionAporte.includes("100%"))) {
       normalized.add("Área Social Pastoral");
     }
     if (lowerEstrategia.includes("mixto")) {
       normalized.add("Servicio Alimentario Nutricional");
       normalized.add("Servicio Acompañamiento Educativo");
-      normalized.add("Lonchera Saludable");
     }
   }
 
-  if (normalized.size === 0) {
+  // Si no se asignó ninguno por defecto en datos iniciales
+  if (normalized.size === 0 && rawServicios === null) {
     normalized.add("Servicio Alimentario Nutricional");
   }
 
@@ -3652,19 +3649,47 @@ BeneficiariosView = {
 
   _matchesServicio(beneficiario, servicioKeys) {
     if (!servicioKeys || servicioKeys.length === 0) return true;
-    if (!beneficiario.servicios) return false;
+    const servs = Array.isArray(beneficiario.servicios) ? beneficiario.servicios : [];
     return servicioKeys.some(key => {
       if (key === "desayuno") {
-        return beneficiario.servicios.some(s => s.toLowerCase().includes("desayuno") || s.toLowerCase().includes("alimento") || s.toLowerCase().includes("nutric"));
+        return servs.some(s => {
+          const low = (s || "").toLowerCase();
+          return s === "Servicio Alimentario Nutricional" || low.includes("desayuno") || low.includes("alimento") || low.includes("nutric") || low.includes("lonchera");
+        });
       }
       if (key === "casita") {
-        return beneficiario.servicios.some(s => s.toLowerCase().includes("casita") || s.toLowerCase().includes("educativ"));
+        return servs.some(s => {
+          const low = (s || "").toLowerCase();
+          return s === "Servicio Acompañamiento Educativo" || low.includes("casita") || low.includes("educativ") || low.includes("acompañ") || low.includes("refuerzo");
+        });
       }
       if (key === "pastoral") {
-        return beneficiario.servicios.some(s => s.toLowerCase().includes("pastoral") || s.toLowerCase().includes("social") || s.toLowerCase().includes("asp")) || (beneficiario.vulnerabilidad && beneficiario.vulnerabilidad >= 80);
+        return servs.some(s => {
+          const low = (s || "").toLowerCase();
+          return s === "Área Social Pastoral" || low.includes("pastoral") || low.includes("social") || low.includes("asp");
+        }) || (beneficiario.vulnerabilidad && beneficiario.vulnerabilidad >= 80);
       }
       return false;
     });
+  },
+
+  _getServiciosBadgesHtml(servicios) {
+    const list = Array.isArray(servicios) ? servicios : [];
+    if (list.length === 0) {
+      return `<span class="badge" style="background:var(--surface-3); color:var(--text-dim); border:1px dashed var(--border-subtle); font-size:10.5px;">Sin servicios activos</span>`;
+    }
+    return list.map(s => {
+      const low = (s || "").toLowerCase();
+      let badgeCls = "badge-blue";
+      if (s === "Servicio Alimentario Nutricional" || low.includes("nutric") || low.includes("aliment") || low.includes("desayuno") || low.includes("lonchera")) {
+        badgeCls = "badge-green";
+      } else if (s === "Área Social Pastoral" || low.includes("pastoral") || low.includes("social") || low.includes("asp")) {
+        badgeCls = "badge-red";
+      } else {
+        badgeCls = "badge-blue";
+      }
+      return `<span class="badge ${badgeCls}">${s}</span>`;
+    }).join("");
   },
 
   _matchesAnemia(beneficiario, anemiaKeys) {
@@ -4023,7 +4048,7 @@ BeneficiariosView = {
             <td>${b.distrito}: ${b.sede}</td>
             <td>
               <div class="servicios-badge-group">
-                ${b.servicios.map(s => `<span class="badge badge-blue">${s}</span>`).join("")}
+                ${this._getServiciosBadgesHtml(b.servicios)}
               </div>
             </td>
             <td><span class="badge ${b.estado === 'Activo' ? 'badge-green' : 'badge-yellow'}">${b.estado}</span></td>
@@ -4082,7 +4107,7 @@ BeneficiariosView = {
                 <div class="datacard-row">
                   <span class="datacard-label">Servicios Activos</span>
                   <div class="servicios-badge-group align-end">
-                    ${b.servicios.map(s => `<span class="badge badge-blue">${s}</span>`).join("")}
+                    ${this._getServiciosBadgesHtml(b.servicios)}
                   </div>
                 </div>
                 <div class="datacard-row">
@@ -4642,64 +4667,9 @@ if (typeof window !== "undefined") {
       else if (b.exoneracionAporte.includes("100%")) exoneracionLimpia = "100%";
       else exoneracionLimpia = b.exoneracionAporte;
     }
-    setSafe("expExoneracion", exoneracionLimpia);
-
-    // Listado institucional de programas inscritos con checkbox
-    const programasContainer = document.getElementById("expProgramasInscritosContainer");
-    if (programasContainer) {
-      const serviciosArray = Array.isArray(b.servicios) ? b.servicios : [];
-      const estrategiaStr = (b.estrategia || "").toLowerCase();
-      
-      const hasNutricional = serviciosArray.some(s => s.toLowerCase().includes("alimentario") || s.toLowerCase().includes("nutric") || s.toLowerCase().includes("desayuno") || s.toLowerCase().includes("lonchera")) || 
-                             estrategiaStr.includes("desayuno") || 
-                             estrategiaStr.includes("lonchera") || 
-                             estrategiaStr.includes("nutric") ||
-                             estrategiaStr.includes("mixto");
-      
-      const hasEducativo = serviciosArray.some(s => s.toLowerCase().includes("educativo") || s.toLowerCase().includes("acompañ") || s.toLowerCase().includes("casita")) || 
-                           estrategiaStr.includes("casita") || 
-                           estrategiaStr.includes("educat") ||
-                           estrategiaStr.includes("mixto");
-      
-      const hasPastoral = serviciosArray.some(s => s.toLowerCase().includes("pastoral") || s.toLowerCase().includes("social") || s.toLowerCase().includes("asp")) || 
-                          estrategiaStr.includes("pastoral") ||
-                          estrategiaStr.includes("social") ||
-                          (b.exoneracionAporte && b.exoneracionAporte.includes("100%")) ||
-                          (b.vulnerabilidad && b.vulnerabilidad >= 80);
-
-      const programasList = [
-        {
-          id: "prog_nutricional",
-          nombre: "Servicio Alimentario Nutricional",
-          desc: "Ración matutina balanceada, complemento alimentario y tamizaje antropométrico periódico",
-          active: hasNutricional
-        },
-        {
-          id: "prog_educativo",
-          nombre: "Servicio Acompañamiento Educativo",
-          desc: "Acompañamiento psicopedagógico, tutoría, refuerzo escolar y entrega de kits de útiles",
-          active: hasEducativo
-        },
-        {
-          id: "prog_pastoral",
-          nombre: "Área Social Pastoral",
-          desc: "Acompañamiento espiritual-familiar, soporte socioemocional y visitas de riesgo",
-          active: hasPastoral
-        }
-      ];
-
-      programasContainer.innerHTML = programasList.map(prog => `
-        <div class="programa-item ${prog.active ? 'active' : ''}">
-          <div class="programa-check-box">
-            ${prog.active ? `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>` : ''}
-          </div>
-          <div class="programa-details">
-            <span class="programa-name">${prog.nombre}</span>
-            <span class="programa-desc">${prog.desc}</span>
-          </div>
-        </div>
-      `).join("");
-    }
+    // Listado institucional de programas inscritos (Lectura limpia por defecto)
+    this._editServicios = Array.isArray(b.servicios) ? [...b.servicios] : [];
+    this.renderProgramasInscritos(b.servicios, false);
 
     // Renderizado de Croquis Google Maps y Fachada en Expediente
     const expIframe = document.getElementById("expGoogleMapIframe");
@@ -4917,11 +4887,104 @@ if (typeof window !== "undefined") {
   },
 
   
-    toggleEdit() {
+  renderProgramasInscritos(serviciosList, isEditing = false) {
+    const programasContainer = document.getElementById("expProgramasInscritosContainer");
+    if (!programasContainer) return;
+
+    const serviciosArray = Array.isArray(serviciosList) ? serviciosList : [];
+    
+    const hasNutricional = serviciosArray.some(s => s === "Servicio Alimentario Nutricional" || (s && (s.toLowerCase().includes("alimentario") || s.toLowerCase().includes("nutric") || s.toLowerCase().includes("desayuno") || s.toLowerCase().includes("lonchera"))));
+    const hasEducativo = serviciosArray.some(s => s === "Servicio Acompañamiento Educativo" || (s && (s.toLowerCase().includes("educativo") || s.toLowerCase().includes("acompañ") || s.toLowerCase().includes("casita") || s.toLowerCase().includes("refuerzo"))));
+    const hasPastoral = serviciosArray.some(s => s === "Área Social Pastoral" || (s && (s.toLowerCase().includes("pastoral") || s.toLowerCase().includes("social") || s.toLowerCase().includes("asp"))));
+
+    const programasList = [
+      {
+        id: "prog_nutricional",
+        nombre: "Servicio Alimentario Nutricional",
+        desc: "Ración matutina balanceada, complemento alimentario y tamizaje antropométrico periódico",
+        active: hasNutricional
+      },
+      {
+        id: "prog_educativo",
+        nombre: "Servicio Acompañamiento Educativo",
+        desc: "Acompañamiento psicopedagógico, tutoría, refuerzo escolar y entrega de kits de útiles",
+        active: hasEducativo
+      },
+      {
+        id: "prog_pastoral",
+        nombre: "Área Social Pastoral",
+        desc: "Acompañamiento espiritual-familiar, soporte socioemocional y visitas de riesgo",
+        active: hasPastoral
+      }
+    ];
+
+    programasContainer.innerHTML = programasList.map(prog => `
+      <div class="programa-item ${prog.active ? 'active' : ''} ${isEditing ? 'editable' : ''}" 
+           ${isEditing ? `title="Haz clic para ${prog.active ? 'deseleccionar' : 'seleccionar'} este servicio" onclick="window.PDI?.ModalView ? window.PDI.ModalView.toggleEditServicio('${prog.nombre}') : ModalView.toggleEditServicio('${prog.nombre}')"` : ''}>
+        <div class="programa-check-box">
+          ${prog.active ? `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>` : ''}
+        </div>
+        <div class="programa-details">
+          <span class="programa-name">${prog.nombre}</span>
+          <span class="programa-desc">${prog.desc}</span>
+        </div>
+      </div>
+    `).join("");
+  },
+
+  toggleEditServicio(progNombre) {
+    if (!this.isEditing) return;
+    if (!Array.isArray(this._editServicios)) this._editServicios = [];
+    
+    let canonicalName = progNombre;
+    const low = (progNombre || "").toLowerCase();
+    if (low.includes("nutric") || low.includes("aliment") || low.includes("desayuno") || low.includes("lonchera")) {
+      canonicalName = "Servicio Alimentario Nutricional";
+    } else if (low.includes("educat") || low.includes("casita") || low.includes("acompañ") || low.includes("refuerzo")) {
+      canonicalName = "Servicio Acompañamiento Educativo";
+    } else if (low.includes("pastoral") || low.includes("social") || low.includes("asp")) {
+      canonicalName = "Área Social Pastoral";
+    }
+
+    const idx = this._editServicios.findIndex(s => {
+      const sLow = (s || "").toLowerCase();
+      if (canonicalName === "Servicio Alimentario Nutricional") {
+        return s === canonicalName || sLow.includes("nutric") || sLow.includes("aliment") || sLow.includes("desayuno") || sLow.includes("lonchera");
+      }
+      if (canonicalName === "Servicio Acompañamiento Educativo") {
+        return s === canonicalName || sLow.includes("educat") || sLow.includes("casita") || sLow.includes("acompañ");
+      }
+      if (canonicalName === "Área Social Pastoral") {
+        return s === canonicalName || sLow.includes("pastoral") || sLow.includes("social") || sLow.includes("asp");
+      }
+      return s === canonicalName;
+    });
+
+    if (idx !== -1) {
+      this._editServicios.splice(idx, 1);
+    } else {
+      this._editServicios.push(canonicalName);
+    }
+
+    this.renderProgramasInscritos(this._editServicios, true);
+  },
+
+  toggleEdit() {
     this.isEditing = !this.isEditing;
     const editBtn = document.getElementById("btnToggleEditExp");
     const saveBtn = document.getElementById("btnSaveExpChanges");
     const editBadge = document.getElementById("expEditingBadge");
+
+    const bModel = window.PDI?.BeneficiarioModel;
+    const b = bModel ? bModel.getById(this._currentId) : null;
+
+    if (this.isEditing) {
+      this._editServicios = b && Array.isArray(b.servicios) ? [...b.servicios] : [];
+      this.renderProgramasInscritos(this._editServicios, true);
+    } else {
+      this._editServicios = b && Array.isArray(b.servicios) ? [...b.servicios] : [];
+      this.renderProgramasInscritos(b ? b.servicios : [], false);
+    }
 
     const editableInputs = [
       "expNombres", "expApellidos", "expDni", "expFechaNac", "expEdad",
@@ -4967,7 +5030,7 @@ if (typeof window !== "undefined") {
       if (saveBtn) saveBtn.style.display = "inline-flex";
       if (editBadge) editBadge.style.display = "inline-flex";
       const tView = window.PDI?.ToastView;
-      if (tView) tView.show("Modo Edición Activado", "Los campos son editables. Modifique los datos y presione Guardar Cambios.", "info");
+      if (tView) tView.show("Modo Edición Activado", "Los campos y servicios son editables. Modifique los datos y presione Guardar Cambios.", "info");
     } else {
       if (editBtn) {
         editBtn.classList.remove("danger");
@@ -5006,7 +5069,37 @@ if (typeof window !== "undefined") {
     b.telefono = getVal("expApoderadoTel") || b.telefono;
     b.telefonoAlt = getVal("expTelefonoAlt") || b.telefonoAlt;
 
+    // Actualizar servicios guardados
+    if (Array.isArray(this._editServicios)) {
+      b.servicios = Array.from(new Set(this._editServicios));
+    }
+
     bModel.update(id, b);
+
+    // Sincronizar CasoSocialModel si se activó Área Social Pastoral
+    if (b.servicios && b.servicios.some(s => s === "Área Social Pastoral" || (s && (s.toLowerCase().includes("pastoral") || s.toLowerCase().includes("social") || s.toLowerCase().includes("asp"))))) {
+      const socialModel = window.PDI?.CasoSocialModel;
+      if (socialModel) {
+        const listCasos = socialModel.getAll ? socialModel.getAll() : [];
+        const existing = listCasos.find(c => c.beneficiarioId === Number(id) || (c.codigo && c.codigo.toLowerCase() === (b.codigo || "").toLowerCase()));
+        if (!existing) {
+          socialModel.addCaso?.({
+            beneficiarioId: Number(id),
+            codigo: b.codigo,
+            menor: `${b.nombres} ${b.apellidos}`,
+            sede: b.sede,
+            distrito: b.distrito,
+            estado: "Evaluación",
+            prioridad: "Alta",
+            motivo: "Activación de Área Social Pastoral desde Expediente",
+            fecha: new Date().toISOString().split("T")[0],
+            scoreVulnerabilidad: b.vulnerabilidad || 82,
+            apoderado: b.apoderado,
+            telefono: b.telefono
+          });
+        }
+      }
+    }
 
     // Auditoría
     const roleBanner = document.getElementById("roleBannerTitle")?.textContent || "Coordinador General";
@@ -5016,7 +5109,7 @@ if (typeof window !== "undefined") {
         role: "Dirección",
         action: "Edición de Expediente",
         entity: b.codigo,
-        detail: `Actualización de datos del menor ${b.nombres} ${b.apellidos} en el padrón`,
+        detail: `Actualización de datos y servicios del menor ${b.nombres} ${b.apellidos} en el padrón`,
         status: "Auditado"
       });
     }
@@ -5709,12 +5802,127 @@ if (typeof window !== "undefined") {
     this.resetPhotos();
 
     if (onComplete) onComplete();
+  },
+
+  toggleServicio(id, servicioNombre) {
+    const bModel = window.PDI?.BeneficiarioModel || BeneficiarioModel;
+    const toast = window.PDI?.ToastView || ToastView;
+    const menor = bModel.getById(id);
+    if (!menor) return;
+
+    if (!Array.isArray(menor.servicios)) menor.servicios = [];
+
+    // Resolver nombre canónico oficial
+    let canonicalName = servicioNombre;
+    const low = (servicioNombre || "").toLowerCase();
+    if (low.includes("nutric") || low.includes("aliment") || low.includes("desayuno") || low.includes("lonchera")) {
+      canonicalName = "Servicio Alimentario Nutricional";
+    } else if (low.includes("educat") || low.includes("casita") || low.includes("acompañ") || low.includes("refuerzo")) {
+      canonicalName = "Servicio Acompañamiento Educativo";
+    } else if (low.includes("pastoral") || low.includes("social") || low.includes("asp")) {
+      canonicalName = "Área Social Pastoral";
+    }
+
+    const idx = menor.servicios.findIndex(s => {
+      const sLow = (s || "").toLowerCase();
+      if (canonicalName === "Servicio Alimentario Nutricional") {
+        return s === canonicalName || sLow.includes("nutric") || sLow.includes("aliment") || sLow.includes("desayuno") || sLow.includes("lonchera");
+      }
+      if (canonicalName === "Servicio Acompañamiento Educativo") {
+        return s === canonicalName || sLow.includes("educat") || sLow.includes("casita") || sLow.includes("acompañ");
+      }
+      if (canonicalName === "Área Social Pastoral") {
+        return s === canonicalName || sLow.includes("pastoral") || sLow.includes("social") || sLow.includes("asp");
+      }
+      return s === canonicalName;
+    });
+
+    let isAdded = false;
+    if (idx !== -1) {
+      menor.servicios.splice(idx, 1);
+      isAdded = false;
+    } else {
+      menor.servicios.push(canonicalName);
+      isAdded = true;
+    }
+
+    // Actualizar en el modelo y persistir
+    bModel.update(id, { servicios: menor.servicios });
+
+    // Sincronizar con CasoSocialModel si es Área Social Pastoral
+    if (canonicalName === "Área Social Pastoral") {
+      const socialModel = window.PDI?.CasoSocialModel || CasoSocialModel;
+      if (socialModel) {
+        if (isAdded) {
+          const listCasos = socialModel.getAll ? socialModel.getAll() : [];
+          const existing = listCasos.find(c => c.beneficiarioId === Number(id) || (c.codigo && c.codigo.toLowerCase() === (menor.codigo || "").toLowerCase()));
+          if (!existing) {
+            socialModel.addCaso?.({
+              beneficiarioId: Number(id),
+              codigo: menor.codigo,
+              menor: `${menor.nombres} ${menor.apellidos}`,
+              sede: menor.sede,
+              distrito: menor.distrito,
+              estado: "Evaluación",
+              prioridad: "Alta",
+              motivo: "Activación de Área Social Pastoral desde Expediente",
+              fecha: new Date().toISOString().split("T")[0],
+              scoreVulnerabilidad: menor.vulnerabilidad || 82,
+              apoderado: menor.apoderado,
+              telefono: menor.telefono
+            });
+          }
+        }
+      }
+    }
+
+    // Registro en Log de Auditoría Inviolable
+    const audit = window.PDI?.AuditModel || AuditModel;
+    if (audit) {
+      audit.log(
+        "Usuario Activo",
+        "Coordinación",
+        isAdded ? "Activación de Servicio" : "Desactivación de Servicio",
+        menor.codigo,
+        `${isAdded ? 'Habilitado' : 'Deshabilitado'} servicio "${canonicalName}" para el menor ${menor.nombres} ${menor.apellidos}`,
+        "Válido"
+      );
+    }
+
+    // Notificación Toast
+    if (toast) {
+      toast.show(
+        isAdded ? "Servicio Activado" : "Servicio Desactivado",
+        `${canonicalName} ${isAdded ? 'habilitado para' : 'retirado de'} ${menor.nombres} ${menor.apellidos}`,
+        isAdded ? "success" : "info"
+      );
+    }
+
+    // Refrescar Expediente si está abierto
+    const modalView = window.PDI?.ModalView || ModalView;
+    if (modalView && typeof modalView.renderExpediente === "function") {
+      modalView.renderExpediente(menor);
+    }
+
+    // Refrescar vistas en tiempo real
+    const bView = window.PDI?.BeneficiariosView || BeneficiariosView;
+    if (bView && typeof bView.renderTable === "function") {
+      bView.renderTable(bModel.getAll());
+    }
+    if (window.app) {
+      if (window.app.beneficiariosView) window.app.beneficiariosView.renderTable(bModel.getAll());
+      if (window.app.casitasView) window.app.casitasView.renderTable(bModel.getAll());
+      if (window.app.socialKanbanView && (window.PDI?.CasoSocialModel || CasoSocialModel)) {
+        window.app.socialKanbanView.renderBoard((window.PDI?.CasoSocialModel || CasoSocialModel).getAll());
+      }
+    }
   }
 };
 
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
   window.PDI.BeneficiarioController = BeneficiarioController;
+  window.toggleBeneficiarioServicio = (id, servicio) => BeneficiarioController.toggleServicio(id, servicio);
 }
 
 /* --- Module: views/SocialKanbanView.js --- */
@@ -7290,6 +7498,22 @@ if (typeof window !== "undefined") {
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
         this.closeSidebar();
+      }
+    });
+
+    // Sincronización al cambiar tamaño de ventana entre PC y Móvil
+    window.addEventListener("resize", () => {
+      const sidebar = document.getElementById("appSidebar");
+      const backdrop = document.getElementById("sidebarBackdrop");
+      if (!sidebar) return;
+
+      if (window.innerWidth > 900) {
+        // Al pasar a PC: cerrar drawer móvil y desactivar overlay
+        sidebar.classList.remove("open");
+        if (backdrop) backdrop.classList.remove("active");
+      } else {
+        // Al pasar a Móvil: remover colapso de PC
+        sidebar.classList.remove("collapsed");
       }
     });
   },

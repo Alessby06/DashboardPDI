@@ -487,19 +487,47 @@ export const BeneficiariosView = {
 
   _matchesServicio(beneficiario, servicioKeys) {
     if (!servicioKeys || servicioKeys.length === 0) return true;
-    if (!beneficiario.servicios) return false;
+    const servs = Array.isArray(beneficiario.servicios) ? beneficiario.servicios : [];
     return servicioKeys.some(key => {
       if (key === "desayuno") {
-        return beneficiario.servicios.some(s => s.toLowerCase().includes("desayuno") || s.toLowerCase().includes("alimento") || s.toLowerCase().includes("nutric"));
+        return servs.some(s => {
+          const low = (s || "").toLowerCase();
+          return s === "Servicio Alimentario Nutricional" || low.includes("desayuno") || low.includes("alimento") || low.includes("nutric") || low.includes("lonchera");
+        });
       }
       if (key === "casita") {
-        return beneficiario.servicios.some(s => s.toLowerCase().includes("casita") || s.toLowerCase().includes("educativ"));
+        return servs.some(s => {
+          const low = (s || "").toLowerCase();
+          return s === "Servicio Acompañamiento Educativo" || low.includes("casita") || low.includes("educativ") || low.includes("acompañ") || low.includes("refuerzo");
+        });
       }
       if (key === "pastoral") {
-        return beneficiario.servicios.some(s => s.toLowerCase().includes("pastoral") || s.toLowerCase().includes("social") || s.toLowerCase().includes("asp")) || (beneficiario.vulnerabilidad && beneficiario.vulnerabilidad >= 80);
+        return servs.some(s => {
+          const low = (s || "").toLowerCase();
+          return s === "Área Social Pastoral" || low.includes("pastoral") || low.includes("social") || low.includes("asp");
+        }) || (beneficiario.vulnerabilidad && beneficiario.vulnerabilidad >= 80);
       }
       return false;
     });
+  },
+
+  _getServiciosBadgesHtml(servicios) {
+    const list = Array.isArray(servicios) ? servicios : [];
+    if (list.length === 0) {
+      return `<span class="badge" style="background:var(--surface-3); color:var(--text-dim); border:1px dashed var(--border-subtle); font-size:10.5px;">Sin servicios activos</span>`;
+    }
+    return list.map(s => {
+      const low = (s || "").toLowerCase();
+      let badgeCls = "badge-blue";
+      if (s === "Servicio Alimentario Nutricional" || low.includes("nutric") || low.includes("aliment") || low.includes("desayuno") || low.includes("lonchera")) {
+        badgeCls = "badge-green";
+      } else if (s === "Área Social Pastoral" || low.includes("pastoral") || low.includes("social") || low.includes("asp")) {
+        badgeCls = "badge-red";
+      } else {
+        badgeCls = "badge-blue";
+      }
+      return `<span class="badge ${badgeCls}">${s}</span>`;
+    }).join("");
   },
 
   _matchesAnemia(beneficiario, anemiaKeys) {
@@ -858,7 +886,7 @@ export const BeneficiariosView = {
             <td>${b.distrito}: ${b.sede}</td>
             <td>
               <div class="servicios-badge-group">
-                ${b.servicios.map(s => `<span class="badge badge-blue">${s}</span>`).join("")}
+                ${this._getServiciosBadgesHtml(b.servicios)}
               </div>
             </td>
             <td><span class="badge ${b.estado === 'Activo' ? 'badge-green' : 'badge-yellow'}">${b.estado}</span></td>
@@ -917,7 +945,7 @@ export const BeneficiariosView = {
                 <div class="datacard-row">
                   <span class="datacard-label">Servicios Activos</span>
                   <div class="servicios-badge-group align-end">
-                    ${b.servicios.map(s => `<span class="badge badge-blue">${s}</span>`).join("")}
+                    ${this._getServiciosBadgesHtml(b.servicios)}
                   </div>
                 </div>
                 <div class="datacard-row">

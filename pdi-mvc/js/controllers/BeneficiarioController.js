@@ -504,10 +504,125 @@ export const BeneficiarioController = {
     this.resetPhotos();
 
     if (onComplete) onComplete();
+  },
+
+  toggleServicio(id, servicioNombre) {
+    const bModel = window.PDI?.BeneficiarioModel || BeneficiarioModel;
+    const toast = window.PDI?.ToastView || ToastView;
+    const menor = bModel.getById(id);
+    if (!menor) return;
+
+    if (!Array.isArray(menor.servicios)) menor.servicios = [];
+
+    // Resolver nombre canónico oficial
+    let canonicalName = servicioNombre;
+    const low = (servicioNombre || "").toLowerCase();
+    if (low.includes("nutric") || low.includes("aliment") || low.includes("desayuno") || low.includes("lonchera")) {
+      canonicalName = "Servicio Alimentario Nutricional";
+    } else if (low.includes("educat") || low.includes("casita") || low.includes("acompañ") || low.includes("refuerzo")) {
+      canonicalName = "Servicio Acompañamiento Educativo";
+    } else if (low.includes("pastoral") || low.includes("social") || low.includes("asp")) {
+      canonicalName = "Área Social Pastoral";
+    }
+
+    const idx = menor.servicios.findIndex(s => {
+      const sLow = (s || "").toLowerCase();
+      if (canonicalName === "Servicio Alimentario Nutricional") {
+        return s === canonicalName || sLow.includes("nutric") || sLow.includes("aliment") || sLow.includes("desayuno") || sLow.includes("lonchera");
+      }
+      if (canonicalName === "Servicio Acompañamiento Educativo") {
+        return s === canonicalName || sLow.includes("educat") || sLow.includes("casita") || sLow.includes("acompañ");
+      }
+      if (canonicalName === "Área Social Pastoral") {
+        return s === canonicalName || sLow.includes("pastoral") || sLow.includes("social") || sLow.includes("asp");
+      }
+      return s === canonicalName;
+    });
+
+    let isAdded = false;
+    if (idx !== -1) {
+      menor.servicios.splice(idx, 1);
+      isAdded = false;
+    } else {
+      menor.servicios.push(canonicalName);
+      isAdded = true;
+    }
+
+    // Actualizar en el modelo y persistir
+    bModel.update(id, { servicios: menor.servicios });
+
+    // Sincronizar con CasoSocialModel si es Área Social Pastoral
+    if (canonicalName === "Área Social Pastoral") {
+      const socialModel = window.PDI?.CasoSocialModel || CasoSocialModel;
+      if (socialModel) {
+        if (isAdded) {
+          const listCasos = socialModel.getAll ? socialModel.getAll() : [];
+          const existing = listCasos.find(c => c.beneficiarioId === Number(id) || (c.codigo && c.codigo.toLowerCase() === (menor.codigo || "").toLowerCase()));
+          if (!existing) {
+            socialModel.addCaso?.({
+              beneficiarioId: Number(id),
+              codigo: menor.codigo,
+              menor: `${menor.nombres} ${menor.apellidos}`,
+              sede: menor.sede,
+              distrito: menor.distrito,
+              estado: "Evaluación",
+              prioridad: "Alta",
+              motivo: "Activación de Área Social Pastoral desde Expediente",
+              fecha: new Date().toISOString().split("T")[0],
+              scoreVulnerabilidad: menor.vulnerabilidad || 82,
+              apoderado: menor.apoderado,
+              telefono: menor.telefono
+            });
+          }
+        }
+      }
+    }
+
+    // Registro en Log de Auditoría Inviolable
+    const audit = window.PDI?.AuditModel || AuditModel;
+    if (audit) {
+      audit.log(
+        "Usuario Activo",
+        "Coordinación",
+        isAdded ? "Activación de Servicio" : "Desactivación de Servicio",
+        menor.codigo,
+        `${isAdded ? 'Habilitado' : 'Deshabilitado'} servicio "${canonicalName}" para el menor ${menor.nombres} ${menor.apellidos}`,
+        "Válido"
+      );
+    }
+
+    // Notificación Toast
+    if (toast) {
+      toast.show(
+        isAdded ? "Servicio Activado" : "Servicio Desactivado",
+        `${canonicalName} ${isAdded ? 'habilitado para' : 'retirado de'} ${menor.nombres} ${menor.apellidos}`,
+        isAdded ? "success" : "info"
+      );
+    }
+
+    // Refrescar Expediente si está abierto
+    const modalView = window.PDI?.ModalView || ModalView;
+    if (modalView && typeof modalView.renderExpediente === "function") {
+      modalView.renderExpediente(menor);
+    }
+
+    // Refrescar vistas en tiempo real
+    const bView = window.PDI?.BeneficiariosView || BeneficiariosView;
+    if (bView && typeof bView.renderTable === "function") {
+      bView.renderTable(bModel.getAll());
+    }
+    if (window.app) {
+      if (window.app.beneficiariosView) window.app.beneficiariosView.renderTable(bModel.getAll());
+      if (window.app.casitasView) window.app.casitasView.renderTable(bModel.getAll());
+      if (window.app.socialKanbanView && (window.PDI?.CasoSocialModel || CasoSocialModel)) {
+        window.app.socialKanbanView.renderBoard((window.PDI?.CasoSocialModel || CasoSocialModel).getAll());
+      }
+    }
   }
 };
 
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
   window.PDI.BeneficiarioController = BeneficiarioController;
+  window.toggleBeneficiarioServicio = (id, servicio) => BeneficiarioController.toggleServicio(id, servicio);
 }
