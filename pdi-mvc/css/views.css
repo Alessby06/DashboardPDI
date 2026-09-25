@@ -312,13 +312,13 @@
       .social-mobile-stage-select-btn {
         width: 100% !important;
         height: 38px !important;
-        padding: 0 10px !important;
+        padding: 0 12px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: space-between !important;
-        background: var(--surface-2) !important;
+        background: var(--surface-1) !important;
         border: 1px solid var(--border-subtle) !important;
-        border-radius: var(--radius-sm) !important;
+        border-radius: var(--radius-md) !important;
         font-family: var(--ui-font) !important;
         font-size: 12.5px !important;
         font-weight: 600 !important;
@@ -327,14 +327,24 @@
         box-shadow: none !important;
         touch-action: manipulation !important;
         -webkit-tap-highlight-color: transparent !important;
-        transition: border-color var(--dur-fast) var(--ease-smooth), background-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth) !important;
-        gap: 4px !important;
+        transition: border-color var(--dur-fast) var(--ease-smooth), background-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-spring) !important;
+        gap: 6px !important;
         box-sizing: border-box !important;
+        will-change: transform;
       }
 
       .social-mobile-stage-select-btn:hover {
         border-color: var(--border-bright) !important;
         background: var(--surface-hover) !important;
+      }
+
+      .social-mobile-stage-select-btn:active {
+        transform: scale(0.97) !important;
+      }
+
+      .social-mobile-stage-dropdown.open .social-mobile-stage-select-btn {
+        border-color: var(--gt-green) !important;
+        box-shadow: 0 0 0 3px var(--gt-green-bg) !important;
       }
 
       .social-mobile-stage-select-btn .stage-select-btn-left {
@@ -381,15 +391,16 @@
 
       .social-mobile-stage-select-btn .caret {
         color: var(--text-dim) !important;
-        transition: transform var(--dur-fast) var(--ease-spring) !important;
+        transition: transform var(--dur-norm) var(--ease-spring), color var(--dur-fast) var(--ease-smooth) !important;
         flex-shrink: 0 !important;
-        width: 12px !important;
-        height: 12px !important;
+        width: 14px !important;
+        height: 14px !important;
+        will-change: transform;
       }
 
       .social-mobile-stage-dropdown.open .social-mobile-stage-select-btn .caret {
         transform: rotate(180deg) !important;
-        color: var(--brand-primary) !important;
+        color: var(--gt-green) !important;
       }
 
       .social-mobile-stage-menu {
@@ -400,16 +411,17 @@
         min-width: 240px !important;
         max-width: calc(100vw - 28px) !important;
         background: var(--surface-1) !important;
-        border: 1px solid var(--border-bright) !important;
+        border: 1px solid var(--border-subtle) !important;
         border-radius: var(--radius-md) !important;
-        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45) !important;
+        box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.35), 0 8px 12px -6px rgba(0, 0, 0, 0.2) !important;
         padding: 6px !important;
         z-index: 9999 !important;
         display: none !important;
         flex-direction: column !important;
-        gap: 4px !important;
+        gap: 3px !important;
         animation: dropdownFadeIn var(--dur-fast) var(--ease-spring) !important;
         box-sizing: border-box !important;
+        will-change: transform, opacity;
       }
 
       .social-mobile-stage-dropdown.open .social-mobile-stage-menu {
@@ -420,7 +432,7 @@
         padding: 9px 12px;
         border-radius: var(--radius-sm);
         font-size: 13px;
-        font-weight: 600;
+        font-weight: 500;
         color: var(--text-main);
         display: flex;
         align-items: center;
@@ -428,7 +440,11 @@
         cursor: pointer;
         touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
-        transition: background-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth);
+        transition: background-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-spring) !important;
+      }
+
+      .social-mobile-dropdown-item:active {
+        transform: scale(0.98) !important;
       }
 
       .social-mobile-dropdown-item .item-left {
@@ -442,7 +458,8 @@
       }
 
       .social-mobile-dropdown-item.selected {
-        background: var(--surface-2);
+        background: var(--gt-green-bg) !important;
+        color: var(--gt-green) !important;
         font-weight: 700;
       }
 
