@@ -5976,3 +5976,105 @@ input:checked + .toggle-slider:before {
   font-weight: 600;
 }
 
+/* ==========================================
+   MÓDULO: VOLUNTARIADOS Y PERSONAL COMUNITARIO
+   ========================================== */
+#view-voluntarios .card {
+  padding: 0;
+  overflow: hidden;
+}
+
+#view-voluntarios .audit-toolbar {
+  padding: 14px 16px;
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--surface-1);
+}
+
+#view-voluntarios .padron-active-chips-bar {
+  margin: 0;
+  padding: 10px 16px;
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+#view-voluntarios .table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+#view-voluntarios .table-responsive .data-table {
+  margin-bottom: 0;
+  border: none;
+}
+
+#view-voluntarios .padron-mobile-cards {
+  display: none;
+  padding: 12px;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media (max-width: 860px) {
+  #view-voluntarios .table-responsive {
+    display: none !important;
+  }
+  #view-voluntarios .padron-mobile-cards {
+    display: flex !important;
+  }
+}
+
+.padron-mobile-card {
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: border-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth);
+}
+
+.padron-mobile-card:hover {
+  border-color: var(--border-bright);
+  box-shadow: var(--shadow-sm);
+}
+
+#menuVoluntariosFilterPanel [data-vol-distrito],
+#menuVoluntariosFilterPanel [data-vol-servicio],
+#menuVoluntariosFilterPanel [data-vol-rol],
+#menuVoluntariosFilterPanel [data-vol-estado] {
+  transition: all var(--dur-fast) var(--ease-smooth);
+}
+
+#menuVoluntariosFilterPanel [data-vol-distrito].selected,
+#menuVoluntariosFilterPanel [data-vol-servicio].selected,
+#menuVoluntariosFilterPanel [data-vol-rol].selected,
+#menuVoluntariosFilterPanel [data-vol-estado].selected {
+  background: var(--gt-green-bg) !important;
+  color: var(--gt-green) !important;
+  border-color: var(--gt-green) !important;
+  font-weight: 700 !important;
+}
+
+.audit-filters-reset-link {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  transition: all var(--dur-fast) var(--ease-smooth);
+}
+
+.audit-filters-reset-link:hover {
+  color: var(--gt-red);
+  background: rgba(239, 68, 68, 0.08);
+}
+
+
+

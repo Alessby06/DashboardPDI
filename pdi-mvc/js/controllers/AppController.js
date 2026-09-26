@@ -4,18 +4,21 @@ import { BeneficiarioModel } from '../models/BeneficiarioModel.js';
 import { CasoSocialModel } from '../models/CasoSocialModel.js';
 import { AuditModel } from '../models/AuditModel.js';
 import { SedeModel } from '../models/SedeModel.js';
+import { VoluntarioModel } from '../models/VoluntarioModel.js';
 import { RoleController } from './RoleController.js';
 import { BeneficiarioController } from './BeneficiarioController.js';
 import { SaludController } from './SaludController.js';
 import { SocialController } from './SocialController.js';
 import { CasitasController } from './CasitasController.js';
 import { SedesController } from './SedesController.js';
+import { VoluntariadosController } from './VoluntariadosController.js';
 import { DashboardView } from '../views/DashboardView.js';
 import { BeneficiariosView } from '../views/BeneficiariosView.js';
 import { SaludCredView } from '../views/SaludCredView.js';
 import { CasitasView } from '../views/CasitasView.js';
 import { SocialKanbanView } from '../views/SocialKanbanView.js';
 import { SedesView } from '../views/SedesView.js';
+import { VoluntariadosView } from '../views/VoluntariadosView.js';
 import { AjustesView } from '../views/AjustesView.js';
 import { ModalView } from '../views/ModalView.js';
 import { SpotlightView } from '../views/SpotlightView.js';
@@ -29,12 +32,14 @@ export const AppController = {
   socialController: SocialController,
   casitasController: CasitasController,
   sedesController: SedesController,
+  voluntariadosController: VoluntariadosController,
 
   init() {
     // 1. Inicializar modelos
     BeneficiarioModel.init();
     CasoSocialModel.init();
     SedeModel.init();
+    VoluntarioModel.init();
 
     // 1.5 Inicializar tema visual y ajustes
     AjustesView.init();
@@ -76,6 +81,7 @@ export const AppController = {
     CasitasView.renderTable(beneficiarios);
     SocialKanbanView.renderKanban(casos);
     SedesView.render();
+    VoluntariadosView.render();
   },
 
   navigateToView(viewId) {
@@ -98,6 +104,8 @@ export const AppController = {
       const stats = BeneficiarioModel.getStats();
       const auditLogs = AuditModel.getAll();
       DashboardView.render(stats, auditLogs);
+    } else if (viewId === "view-voluntarios") {
+      VoluntariadosView.render();
     }
   },
 

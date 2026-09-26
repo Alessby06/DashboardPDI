@@ -8,35 +8,35 @@ export const RoleController = {
       desc: "Acceso global integral para supervisión estratégica de sedes, validación de padrón e indicadores de impacto.",
       tag: "Acceso Total / Dirección",
       tagCol: "var(--gt-green)",
-      allowedViews: ["view-dashboard", "view-beneficiarios", "view-salud", "view-educativo", "view-social"]
+      allowedViews: ["view-dashboard", "view-beneficiarios", "view-salud", "view-educativo", "view-social", "view-sedes", "view-voluntarios", "view-auditoria", "view-ajustes"]
     },
     facilitadora: {
       title: "Facilitadora Nutricional / CRED",
       desc: "Especializada en tamizaje de anemia, curvas de peso/talla MINSA y prescripción de suplementos.",
       tag: "Operativo Nutrición / CRED",
       tagCol: "var(--gt-blue)",
-      allowedViews: ["view-dashboard", "view-beneficiarios", "view-salud"]
+      allowedViews: ["view-dashboard", "view-beneficiarios", "view-salud", "view-sedes", "view-voluntarios", "view-ajustes"]
     },
     promotora: {
       title: "Promotora Educativa (Casitas del Saber)",
       desc: "Responsable del pase de asistencia escolar, nivelación pedagógica y talleres con materiales Faber-Castell.",
       tag: "Operativo Pedagógico",
       tagCol: "var(--gt-yellow)",
-      allowedViews: ["view-dashboard", "view-beneficiarios", "view-educativo"]
+      allowedViews: ["view-dashboard", "view-beneficiarios", "view-educativo", "view-sedes", "view-voluntarios", "view-ajustes"]
     },
     social: {
       title: "Trabajadora Social (Área Social Pastoral)",
       desc: "Canalización de casos vulnerables, derivaciones a DEMUNA y evaluación del núcleo familiar completo.",
       tag: "Protección Social / ASP",
       tagCol: "var(--gt-red)",
-      allowedViews: ["view-dashboard", "view-beneficiarios", "view-social"]
+      allowedViews: ["view-dashboard", "view-beneficiarios", "view-social", "view-voluntarios", "view-ajustes"]
     },
     admin: {
       title: "Administrador de Sistemas TI",
       desc: "Gestión de seguridad perimetral, trazabilidad de accesos, auditoría inviolable y exportación de bases de datos.",
       tag: "Sistemas & Seguridad TI",
       tagCol: "var(--text-muted)",
-      allowedViews: ["view-dashboard", "view-beneficiarios", "view-salud", "view-educativo", "view-social"]
+      allowedViews: ["view-dashboard", "view-beneficiarios", "view-salud", "view-educativo", "view-social", "view-sedes", "view-voluntarios", "view-auditoria", "view-ajustes"]
     }
   },
 
