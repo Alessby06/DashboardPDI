@@ -227,64 +227,22 @@ window.resetPadronFilters = () => {
 };
 
 // Handlers de Búsqueda y Filtros de Salud CRED
-window.filterSaludSearch = (val) => {
-  if (window.PDI?.SaludCredView) window.PDI.SaludCredView.filterBySearch(val);
-  else if (SaludCredView) SaludCredView.filterBySearch(val);
-};
-window.clearSaludSearch = () => {
-  if (window.PDI?.SaludCredView) window.PDI.SaludCredView.clearSearch();
-  else if (SaludCredView) SaludCredView.clearSearch();
-};
-window.toggleSaludAnemia = (val) => {
-  if (window.PDI?.SaludCredView) window.PDI.SaludCredView.toggleAnemia(val);
-  else if (SaludCredView) SaludCredView.toggleAnemia(val);
-};
-window.toggleSaludSede = (val) => {
-  if (window.PDI?.SaludCredView) window.PDI.SaludCredView.toggleSede(val);
-  else if (SaludCredView) SaludCredView.toggleSede(val);
-};
-window.selectSaludHb = (val, label) => {
-  if (window.PDI?.SaludCredView) window.PDI.SaludCredView.selectHbNivel(val, label);
-  else if (SaludCredView) SaludCredView.selectHbNivel(val, label);
-};
-window.removeSaludChip = (key, val) => {
-  if (window.PDI?.SaludCredView) window.PDI.SaludCredView.removeFilter(key, val);
-  else if (SaludCredView) SaludCredView.removeFilter(key, val);
-};
-window.resetSaludFilters = () => {
-  if (window.PDI?.SaludCredView) window.PDI.SaludCredView.resetFilters();
-  else if (SaludCredView) SaludCredView.resetFilters();
-};
+window.filterSaludSearch = (val) => window.PDI?.SaludCredView.filterBySearch(val);
+window.clearSaludSearch = () => window.PDI?.SaludCredView.clearSearch();
+window.toggleSaludAnemia = (val) => window.PDI?.SaludCredView.toggleAnemia(val);
+window.toggleSaludSede = (val) => window.PDI?.SaludCredView.toggleSede(val);
+window.selectSaludHb = (val, label) => window.PDI?.SaludCredView.selectHbNivel(val, label);
+window.removeSaludChip = (key, val) => window.PDI?.SaludCredView.removeFilter(key, val);
+window.resetSaludFilters = () => window.PDI?.SaludCredView.resetFilters();
 
 // Handlers de Búsqueda y Filtros de Casitas del Saber
-window.filterCasitasSearch = (val) => {
-  if (window.PDI?.CasitasView) window.PDI.CasitasView.filterBySearch(val);
-  else if (CasitasView) CasitasView.filterBySearch(val);
-};
-window.clearCasitasSearch = () => {
-  if (window.PDI?.CasitasView) window.PDI.CasitasView.clearSearch();
-  else if (CasitasView) CasitasView.clearSearch();
-};
-window.selectCasitasAsistencia = (val, label) => {
-  if (window.PDI?.CasitasView) window.PDI.CasitasView.selectAsistencia(val, label);
-  else if (CasitasView) CasitasView.selectAsistencia(val, label);
-};
-window.toggleCasitasSede = (val) => {
-  if (window.PDI?.CasitasView) window.PDI.CasitasView.toggleSede(val);
-  else if (CasitasView) CasitasView.toggleSede(val);
-};
-window.selectCasitasGrado = (val, label) => {
-  if (window.PDI?.CasitasView) window.PDI.CasitasView.selectGrado(val, label);
-  else if (CasitasView) CasitasView.selectGrado(val, label);
-};
-window.removeCasitasChip = (key, val) => {
-  if (window.PDI?.CasitasView) window.PDI.CasitasView.removeFilter(key, val);
-  else if (CasitasView) CasitasView.removeFilter(key, val);
-};
-window.resetCasitasFilters = () => {
-  if (window.PDI?.CasitasView) window.PDI.CasitasView.resetFilters();
-  else if (CasitasView) CasitasView.resetFilters();
-};
+window.filterCasitasSearch = (val) => window.PDI?.CasitasView.filterBySearch(val);
+window.clearCasitasSearch = () => window.PDI?.CasitasView.clearSearch();
+window.selectCasitasAsistencia = (val, label) => window.PDI?.CasitasView.selectAsistencia(val, label);
+window.toggleCasitasSede = (val) => window.PDI?.CasitasView.toggleSede(val);
+window.selectCasitasGrado = (val, label) => window.PDI?.CasitasView.selectGrado(val, label);
+window.removeCasitasChip = (key, val) => window.PDI?.CasitasView.removeFilter(key, val);
+window.resetCasitasFilters = () => window.PDI?.CasitasView.resetFilters();
 
 // Cierre automático de Custom Dropdowns, Inner Dropdowns, Role Tooltips y Audit Legal Popover al hacer clic afuera
 document.addEventListener("click", (e) => {
