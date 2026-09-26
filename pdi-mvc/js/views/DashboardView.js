@@ -1,13 +1,11 @@
+import { AnimationEngine } from '../utils/AnimationEngine.js';
+
 // Vista: Tablero Principal Dashboard
 export const DashboardView = {
   render(stats, auditLogs) {
     const animateNum = (el, val, isPct = false) => {
       if (!el) return;
-      if (window.PDI && window.PDI.AnimationEngine) {
-        window.PDI.AnimationEngine.animateCounter(el, val, { suffix: isPct ? "%" : "" });
-      } else {
-        el.textContent = isPct ? `${val}%` : val;
-      }
+      AnimationEngine.animateCounter(el, val, { suffix: isPct ? "%" : "" });
     };
 
     const statEl = document.getElementById("statTotalNinos");
@@ -17,13 +15,7 @@ export const DashboardView = {
     if (dashBenEl) animateNum(dashBenEl, stats.total);
 
     const dashTamEl = document.getElementById("dashKpiTamizados");
-    if (dashTamEl) {
-      if (window.PDI && window.PDI.AnimationEngine) {
-        window.PDI.AnimationEngine.animateCounter(dashTamEl, `${stats.total} / ${stats.total}`);
-      } else {
-        dashTamEl.textContent = `${stats.total} / ${stats.total}`;
-      }
-    }
+    if (dashTamEl) animateNum(dashTamEl, `${stats.total} / ${stats.total}`);
 
     const dashAsisEl = document.getElementById("dashKpiAsistencia");
     if (dashAsisEl) animateNum(dashAsisEl, 92.4, true);
@@ -180,9 +172,9 @@ export const DashboardView = {
       }, 50);
     }
 
-    if (window.PDI && window.PDI.AnimationEngine) {
-      window.PDI.AnimationEngine.triggerStagger("view-dashboard");
-    }
+    // Da entrada a los elementos .stagger-item del tablero. Sin esto permanecen
+    // en opacity:0 (estado inicial de base.css) y la seccion queda invisible.
+    AnimationEngine.triggerStagger("view-dashboard");
 
     const anemiaContainer = document.getElementById("dashAnemiaBars");
     if (anemiaContainer) {

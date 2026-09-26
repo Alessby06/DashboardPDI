@@ -35,11 +35,20 @@ if %errorlevel% equ 0 (
     goto end
 )
 
-:: 4. Fallback directo al navegador
+:: 4. Sin Python ni Node no se puede levantar un servidor HTTP.
+::    El proyecto usa modulos ES nativos, que el navegador bloquea bajo file://
+::    por CORS, asi que abrir index.html directamente dejaria la pagina en blanco.
 echo.
-echo [ADVERTENCIA] No se detecto Python ni Node.js.
-echo Abriendo index.html directamente en el navegador...
-start "" "index.html"
+echo [ERROR] No se detecto Python ni Node.js en este equipo.
+echo.
+echo El sistema necesita un servidor HTTP local. Instala cualquiera de:
+echo   - Python 3   (https://python.org)  ->  python serve.py 8080
+echo   - Node.js    (https://nodejs.org)  ->  npx http-server -p 8080 -c-1
+echo.
+echo No se puede abrir index.html con doble clic: los modulos ES no cargan
+echo mediante file:// por politica de origen del navegador.
+echo.
+goto end
 
 :end
 pause

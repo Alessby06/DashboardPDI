@@ -47,6 +47,45 @@ window.guardarNuevoBeneficiario = (e) => BeneficiarioController.saveNuevoMenor(e
 window.exportDataCSV = () => AppController.exportCSV();
 window.exportAuditCSV = () => AppController.exportAuditCSV();
 
+// Calcula la edad en años a partir de la fecha de nacimiento y la refleja en el
+// campo "Edad Calculada" del modal de alta. El onchange de #regFechaNacimiento
+// en index.html lo invoca; sin esta definición el alta lanzaba ReferenceError.
+window.calcularEdadAutomatica = () => {
+  const inputFecha = document.getElementById("regFechaNacimiento");
+  const inputEdad = document.getElementById("regEdad");
+  if (!inputFecha || !inputEdad) return;
+
+  const valor = inputFecha.value;
+  if (!valor) {
+    inputEdad.value = "";
+    return;
+  }
+
+  // Se interpreta como fecha local. new Date("AAAA-MM-DD") se resuelve en UTC y
+  // puede retroceder un día según la zona horaria del dispositivo.
+  const [anio, mes, dia] = valor.split("-").map(Number);
+  const nacimiento = new Date(anio, mes - 1, dia);
+  if (isNaN(nacimiento.getTime())) return;
+
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+
+  if (nacimiento > hoy) {
+    console.warn("calcularEdadAutomatica: la fecha de nacimiento es futura, se omite el cálculo.");
+    inputEdad.value = "";
+    return;
+  }
+
+  // Años cumplidos: se descuenta si el cumpleaños de este año aún no ha ocurrido.
+  let anios = hoy.getFullYear() - nacimiento.getFullYear();
+  const cumpleEsteAnio = hoy.getMonth() > nacimiento.getMonth() ||
+    (hoy.getMonth() === nacimiento.getMonth() && hoy.getDate() >= nacimiento.getDate());
+  if (!cumpleEsteAnio) anios--;
+  if (anios < 0) anios = 0;
+
+  inputEdad.value = anios === 1 ? "1 año" : `${anios} años`;
+};
+
 // Handlers de Auditoría / Historial de Cambios
 window.toggleAuditInnerDropdown = (id) => {
   if (window.PDI?.DashboardView) window.PDI.DashboardView.toggleInnerDropdown(id);
