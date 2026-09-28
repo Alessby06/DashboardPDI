@@ -107,7 +107,9 @@ window.openExpedienteByCodigo = (codigo) => {
 window.toggleEditExpediente = () => window.PDI?.ExpedienteView?.toggleEdit?.();
 window.saveExpedienteChanges = () => window.PDI?.ExpedienteView?.saveChanges?.();
 window.deleteBeneficiarioExpediente = () => window.PDI?.ExpedienteView?.deleteBeneficiario?.();
-window.closeModalExpediente = () => window.location.href = urlDe("padron");
+// No queda shim de cerrar el expediente: el boton de cerrar estaba en el marco
+// del modal, y el modal se fue. Quien quiera volver al padron usa el enlace de
+// la cabecera de la pagina, que sale de RouteMap.
 
 // ---------------------------------------------------------------------------
 //  CALCULADORAS
@@ -171,6 +173,15 @@ window.calcularEdadAutomatica = () => {
 // ---------------------------------------------------------------------------
 //  TEMA, ROL Y EXPORTACION
 // ---------------------------------------------------------------------------
+
+// showToast(mensaje, tipo) era el nombre que usaba el codigo de AjustesView para
+// pedir un aviso. No habia puente: los cuatro avisos de esa vista (cambio de
+// tema, sincronizacion, las preferencias de alertas y la limpieza de cache) caian
+// `if (window.showToast)` que nunca se cumplia, asi que ninguno se mostraba y
+// nadie se enteraba. La comprobacion existia para que un TypeError no tumbara
+// la accion; lo que hacia era tapar que faltaba la funcion.
+window.showToast = (mensaje, tipo = "success") => ToastView.show(mensaje, undefined, tipo);
+
 window.toggleTheme = (e) => AppController.toggleTheme(e);
 window.setTheme = (theme, showToast = true, event = null) => AjustesView.setTheme(theme, showToast, event);
 window.toggleFocoMode = (event = null) => AjustesView.toggleFocoMode(event);

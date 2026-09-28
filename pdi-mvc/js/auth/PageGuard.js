@@ -210,13 +210,22 @@ export const PageGuard = {
     }
     const toaster = window.PDI?.ToastView;
     if (toaster && typeof toaster.show === "function") {
-      toaster.show(mensaje, "warning");
+      // show(titulo, mensaje, tipo): aqui solo hay un texto que decir, y el
+      // mensaje es opcional. Pasar el texto dos veces lo dibujaba dos veces.
+      toaster.show(mensaje, undefined, "warning");
       return;
     }
     // El ToastView puede no estar montado todavia (esta es una redireccion
     // temprana): se muestra un aviso propio para que el motivo no se pierda.
+    // La clase es toast-msg, la que tiene estilo; antes se usaba "toast
+    // toast-warning", que no aparece en ninguna hoja, y el aviso salia como un
+    // texto pelado dentro de la pila. Se rellena con textContent y no con
+    // innerHTML: el mensaje es texto, no marcado.
     const aviso = document.createElement("div");
-    aviso.className = "toast toast-warning";
+    aviso.className = "toast-msg";
+    aviso.style.borderColor = "var(--gt-yellow)";
+    aviso.style.color = "var(--gt-yellow)";
+    aviso.style.fontWeight = "700";
     aviso.textContent = mensaje;
     pila.appendChild(aviso);
     setTimeout(() => aviso.remove(), 4000);

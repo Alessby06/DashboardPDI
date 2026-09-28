@@ -1,4 +1,4 @@
-// Controlador: Gestión de Menores Beneficiarios y Expediente
+// Controlador: Alta y edicion de menores beneficiarios
 // Maneja el 100% de los campos normativos de inscripción PDI
 import { BeneficiarioModel } from '../models/BeneficiarioModel.js';
 import { CasoSocialModel } from '../models/CasoSocialModel.js';
@@ -282,37 +282,6 @@ export const BeneficiarioController = {
     const view = window.PDI?.BeneficiariosView || BeneficiariosView;
     const filtered = model.search(query);
     view.renderTable(filtered);
-  },
-
-  openExpediente(id) {
-    const bModel = window.PDI?.BeneficiarioModel || BeneficiarioModel;
-    const cModel = window.PDI?.CasoSocialModel || CasoSocialModel;
-    const mView = window.PDI?.ModalView || ModalView;
-
-    const menor = bModel.getById(id);
-    if (!menor) return;
-
-    const casos = cModel.getAll();
-    const caso = casos.find(c => c.codigo === menor.codigo);
-
-    mView.openExpediente(menor, caso);
-  },
-
-  openExpedienteByCodigo(codigo) {
-    const bModel = window.PDI?.BeneficiarioModel || BeneficiarioModel;
-    const cModel = window.PDI?.CasoSocialModel || CasoSocialModel;
-    const mView = window.PDI?.ModalView || ModalView;
-    const tView = window.PDI?.ToastView || ToastView;
-
-    const menor = bModel.getByCodigo(codigo);
-    if (!menor) {
-      if (tView) tView.show(`No se encontró un expediente activo para el código ${codigo}`, "info");
-      return;
-    }
-
-    const casos = cModel.getAll();
-    const caso = casos.find(c => c.codigo === menor.codigo);
-    mView.openExpediente(menor, caso);
   },
 
   saveNuevoMenor(event, onComplete) {
@@ -600,24 +569,16 @@ export const BeneficiarioController = {
       );
     }
 
-    // Refrescar Expediente si está abierto
-    const modalView = window.PDI?.ModalView || ModalView;
-    if (modalView && typeof modalView.renderExpediente === "function") {
-      modalView.renderExpediente(menor);
-    }
-
-    // Refrescar vistas en tiempo real
-    const bView = window.PDI?.BeneficiariosView || BeneficiariosView;
-    if (bView && typeof bView.renderTable === "function") {
-      bView.renderTable(bModel.getAll());
-    }
-    if (window.app) {
-      if (window.app.beneficiariosView) window.app.beneficiariosView.renderTable(bModel.getAll());
-      if (window.app.casitasView) window.app.casitasView.renderTable(bModel.getAll());
-      if (window.app.socialKanbanView && (window.PDI?.CasoSocialModel || CasoSocialModel)) {
-        window.app.socialKanbanView.renderBoard((window.PDI?.CasoSocialModel || CasoSocialModel).getAll());
-      }
-    }
+    // Un solo refresco: el de la pagina que esta abierta.
+    //
+    // Esto antes redibujaba el padron, las casitas y el kanban a la vez, porque
+    // las tres vivian en el mismo documento y por eso la SPA tenia un
+    // window.app con las nueve vistas colgando. En la MPA cada pagina carga solo
+    // la suya, asi que la pregunta no es "que vistas hay" sino "cual se esta
+    // viendo": la contesta publicarRefresco(), que cada pagina registro en su
+    // arranque. Asi el mismo codigo sirve para activar un servicio desde el
+    // padron, desde salud o desde el propio expediente, sin enumerarlos.
+    window.PDI?.refrescarVistaActual?.();
   }
 };
 

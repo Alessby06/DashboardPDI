@@ -114,7 +114,14 @@ def parsear_sidebar():
     return enlaces
 
 
-def comprobar(paginas, orden, sidebar, build_paginas):
+def comprobar(paginas, orden, sidebar, build_paginas, sin_enlace_menu):
+    """Contrasta las cuatro fuentes de verdad.
+
+    paginas         fichas de RouteMap
+    sidebar         enlaces de src/chrome/sidebar.html
+    build_paginas   tabla PAGINAS de build.py
+    sin_enlace_menu paginas que build.py declara sin enlace de menu
+    """
     problemas = []
     avisos = []
 
@@ -123,15 +130,36 @@ def comprobar(paginas, orden, sidebar, build_paginas):
     slugs_sidebar = [e["data_page"] for e in sidebar]
 
     # --- 1. RouteMap <-> build.py -------------------------------------------
-    solo_routemap = sorted(set(slugs_menu) - set(slugs_build))
-    solo_build = sorted(set(slugs_build) - set(slugs_menu))
+    # build.py genera todas las paginas, no solo las del menu, asi que se
+    # contrasta contra todas las fichas. Comparar solo contra las del menu
+    # reportaba como sobra el expediente, que es justamente la pagina de
+    # detalle: existe, se genera y se llega a ella por id, y no por un enlace.
+    solo_routemap = sorted(set(paginas) - set(slugs_build))
+    solo_build = sorted(set(slugs_build) - set(paginas))
     if solo_routemap:
         problemas.append(
-            "en RouteMap enMenu:true pero no en build.py: %s" % ", ".join(solo_routemap)
+            "en RouteMap pero no en build.py (no se genera su documento): %s"
+            % ", ".join(solo_routemap)
         )
     if solo_build:
         problemas.append(
-            "en build.py pero no en RouteMap enMenu:true: %s" % ", ".join(solo_build)
+            "en build.py pero no en RouteMap (PageGuard no sabria de quien es): %s"
+            % ", ".join(solo_build)
+        )
+
+    # Y el reparto entre "con enlace de menu" y "sin ella" tiene que coincidir en
+    # los dos archivos. Aqui es donde se esconden los fallos de este tipo: una
+    # pagina que uno da por del menu y el otro por de detalle se genera sin
+    # enlace activo, y el lateral no marca nada.
+    detalle_routemap = {s for s, f in paginas.items() if not f["enMenu"]}
+    detalle_build = sin_enlace_menu
+    if detalle_routemap != detalle_build:
+        problemas.append(
+            "las paginas de detalle no coinciden.\n"
+            "        detalle en RouteMap, con enlace en build.py: %s\n"
+            "        detalle en build.py, con enlace en RouteMap: %s"
+            % (", ".join(sorted(detalle_routemap - detalle_build)) or "ninguna",
+               ", ".join(sorted(detalle_build - detalle_routemap)) or "ninguna")
         )
 
     for slug, entry, view_id in build_paginas:
@@ -246,7 +274,8 @@ def main():
         print("  [FALLA] No se pudo leer PAGINAS de RouteMap.js.")
         return 1
 
-    problemas, avisos = comprobar(paginas, orden, sidebar, build.PAGINAS)
+    problemas, avisos = comprobar(paginas, orden, sidebar, build.PAGINAS,
+                                  build.SIN_ENLACE_DE_MENU)
 
     for a in avisos:
         print("  [AVISO] %s" % a)

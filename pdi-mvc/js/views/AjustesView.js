@@ -137,7 +137,10 @@ export const AjustesView = {
       applyThemeChange();
     }
 
-    if (showToast && window.showToast) {
+    // Sin guarda: window.showToast lo define legacy-globals en todas las
+    // paginas. Antes habia un `if (window.showToast)` que nunca se cumplia, y
+    // por eso ninguno de los cuatro avisos de esta vista llegaba a verse.
+    if (showToast) {
       const names = { light: 'Tema Claro', dark: 'Tema Oscuro', system: 'Tema Automático (SO)' };
       window.showToast(`Tema visual actualizado a ${names[themeName] || themeName}`, 'info');
     }
@@ -269,23 +272,17 @@ export const AjustesView = {
       const timeStr = `Hoy a las ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
       if (timeLabel) timeLabel.textContent = timeStr;
 
-      if (window.showToast) {
-        window.showToast('Base de datos sincronizada exitosamente con el servidor remoto', 'success');
-      }
+      window.showToast('Base de datos sincronizada exitosamente con el servidor remoto', 'success');
     }, 1200);
   },
 
   toggleAlertSetting(key, enabled) {
     localStorage.setItem(`pdi_alert_${key}`, enabled ? 'true' : 'false');
-    if (window.showToast) {
-      window.showToast(`Preferencia de alertas actualizada (${enabled ? 'activado' : 'desactivado'})`, 'info');
-    }
+    window.showToast(`Preferencia de alertas actualizada (${enabled ? 'activado' : 'desactivado'})`, 'info');
   },
 
   clearCache() {
-    if (window.showToast) {
-      window.showToast('Caché local limpiada. Refrescando plataforma...', 'warning');
-    }
+    window.showToast('Caché local limpiada. Refrescando plataforma...', 'warning');
     setTimeout(() => {
       window.location.reload();
     }, 1000);

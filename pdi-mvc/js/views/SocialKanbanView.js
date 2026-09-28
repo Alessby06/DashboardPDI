@@ -187,7 +187,7 @@ export const SocialKanbanView = {
           <span class="badge badge-${c.urgencia === 'Alta' ? 'red' : (c.urgencia === 'Media' ? 'yellow' : 'blue')}" style="font-size:10.5px; padding:2px 7px;">${c.urgencia}</span>
         </div>
         <div class="kanban-card-meta">
-          <a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo ? window.openExpedienteByCodigo('${c.codigo}') : null" style="font-size:11.5px; font-family:var(--mono-font); color:var(--gt-green); font-weight:700; text-decoration:underline;" title="Abrir expediente">
+          <a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${c.codigo}')" style="font-size:11.5px; font-family:var(--mono-font); color:var(--gt-green); font-weight:700; text-decoration:underline;" title="Abrir expediente">
             ${c.codigo}
           </a>
           <span style="font-size:11.5px; color:var(--text-dim);">${c.sede}</span>
@@ -501,9 +501,7 @@ export const SocialKanbanView = {
     if (!this._activeCaso) return;
     const codigo = this._activeCaso.codigo;
     this.closeModalDetalleCaso();
-    if (window.openExpedienteByCodigo) {
-      window.openExpedienteByCodigo(codigo);
-    }
+    window.openExpedienteByCodigo(codigo);
   },
 
   openInSimuladorFromModal() {

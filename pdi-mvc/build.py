@@ -48,7 +48,17 @@ PAGINAS = [
     ("voluntariados", "js/pages/voluntariados.js", "view-voluntarios"),
     ("auditoria",     "js/pages/auditoria.js",     "view-auditoria"),
     ("ajustes",       "js/pages/ajustes.js",       "view-ajustes"),
+    # No va en el menu lateral: se llega desde el padron con expediente?id=N. Por
+    # eso build.py no tiene ningun enlace que marcar como activo en esta pagina,
+    # y marcar_activo() fallaria al no encontrarlo. La pagina genera su propio
+    # boton de vuelta al padron en su cabecera.
+    ("expediente",    "js/pages/expediente.js",    "view-expediente"),
 ]
+
+# Paginas que existen pero no tienen entrada en el menu lateral. Se separan de
+# PAGINAS para que la comprobacion sea explicita: anadir una pagina de detalle
+# es una decision, no un olvido, y conviene que se vea al leer la tabla.
+SIN_ENLACE_DE_MENU = {"expediente"}
 
 PLANTILLA = """{head}
 <body data-page="{slug}">
@@ -113,7 +123,11 @@ def marcar_activo(sidebar, slug):
 
 def construir(slug, entry):
     head = leer_bloque("head.html")
-    sidebar = marcar_activo(leer_bloque("sidebar.html"), slug)
+    sidebar = leer_bloque("sidebar.html")
+    # Una pagina de detalle no tiene enlace propio en el lateral, y marcarlo
+    # buscaria un enlace que no esta: marcar_activo() no sabria que hacer.
+    if slug not in SIN_ENLACE_DE_MENU:
+        sidebar = marcar_activo(sidebar, slug)
     topbar = leer_bloque("topbar.html")
     modales = leer_bloque("modals.html")
     contenido = leer(os.path.join(PAGES, "%s.html" % slug)).rstrip("\n")
@@ -181,6 +195,30 @@ def validar(slug, html, entry, view_id):
             "el <section> deberia ser id='%s' (segun RouteMap) pero hay: %s"
             % (view_id, encontrados or "ninguno")
         )
+
+    # Una pagina de detalle no tiene enlace en el lateral, asi que exigirlo seria
+    # exigir algo que no debe existir. Lo que si tiene que cumplirse es lo
+    # contrario: ningun enlace puede quedar marcado como activo, porque en una
+    # pagina a la que se llega por id el menu no esta en ninguna parte.
+    #
+    # Se busca la palabra "active" dentro del atributo class y no la cadena
+    # class="active": al marcar, el orden de las clases depende de como este
+    # escrito el enlace en el origen, y un enlace con class="nav-btn active" es
+    # exactamente el que hay que notar.
+    if slug in SIN_ENLACE_DE_MENU:
+        nav = re.search(r"<nav\b.*?</nav>", html, re.DOTALL)
+        if nav:
+            marcados = re.findall(
+                r'<a href="\./(\w+)\.html" class="([^"]*\bactive\b[^"]*)"',
+                nav.group(0),
+            )
+            if marcados:
+                problemas.append(
+                    "esta pagina no va en el menu, pero se genero con enlaces "
+                    "marcados como activos: %s"
+                    % ", ".join(sorted({s[0] for s in marcados}))
+                )
+        return problemas
 
     # Exactly one nav link, and it must carry the same view id as the section.
     enlaces = re.findall(r'<a href="\./%s\.html"[^>]*>' % re.escape(slug), html)
