@@ -1,4 +1,19 @@
-// Controlador: Simulador de Roles y RBAC Dinámico
+// Controlador: presentacion del rol activo
+// ===========================================================================
+//  QUE DEJO DE HACER ESTE ARCHIVO
+// ===========================================================================
+//  Antes era el unico lugar donde se decidia el acceso, y lo hacia de dos
+//  maneras incompatibles: por un lado atenuaba los botones del menu segun
+//  data-roles, y por otro mantenia una lista allowedViews por rol. Dos listas,
+//  dos fuentes, y nada que comprobara que siguieran coincidiendo.
+//
+//  Ahora las reglas viven solo en auth/RouteMap.js y las aplica auth/PageGuard.js.
+//  Este modulo conserva lo que si es suyo: pintar el banner, el tooltip y el
+//  descriptor del rol activo. No decide nada de acceso.
+//
+//  Las listas allowedViews se conservan en los comentarios de abajo como
+//  referencia historica de que roles veian que, y para poder contrastar la
+//  migracion. No se leen en ningun sitio.
 import { ToastView } from '../views/ToastView.js';
 
 export const RoleController = {
@@ -44,30 +59,19 @@ export const RoleController = {
     return this.rolesConfig;
   },
 
-  applyRolePermissions(role, onNavigate, showToast = true) {
-    const navButtons = document.querySelectorAll(".nav-btn");
+  /**
+   * Pinta el banner, el tooltip y el descriptor del rol activo.
+   *
+   * onNavigate y showToast se conservan en la firma por compatibilidad con las
+   * llamadas existentes, pero ya no se usan: el acceso lo decide PageGuard y el
+   * cambio de rol no debe interrumpir con un aviso.
+   */
+  applyRolePermissions(role, onNavigate = null, showToast = true) {
     const bannerTitle = document.getElementById("roleBannerTitle");
     const bannerDesc = document.getElementById("roleBannerDesc");
     const bannerTag = document.getElementById("roleBannerAccessTag");
 
     const conf = this.rolesConfig[role] || this.rolesConfig.coord;
-
-    navButtons.forEach(btn => {
-      const allowedRoles = btn.getAttribute("data-roles")?.split(",") || [];
-      const view = btn.getAttribute("data-view");
-
-      if (allowedRoles.includes(role)) {
-        btn.classList.remove("role-restricted");
-        btn.removeAttribute("disabled");
-        btn.style.opacity = "1";
-        btn.style.pointerEvents = "auto";
-      } else {
-        btn.classList.add("role-restricted");
-        btn.setAttribute("disabled", "true");
-        btn.style.opacity = "0.35";
-        btn.style.pointerEvents = "none";
-      }
-    });
 
     if (bannerTitle) bannerTitle.textContent = conf.title;
     if (bannerDesc) bannerDesc.textContent = conf.desc;
@@ -92,18 +96,6 @@ export const RoleController = {
     }
     if (btnInfo) {
       btnInfo.setAttribute("title", `${conf.title}: ${conf.desc}`);
-    }
-
-    // No se muestra toast al cambiar de rol (eliminado según requerimiento)
-
-
-    const currentActiveBtn = document.querySelector(".nav-btn.active");
-    const currentViewId = currentActiveBtn?.getAttribute("data-view");
-
-    if (!conf.allowedViews.includes(currentViewId)) {
-      if (onNavigate) {
-        onNavigate("view-dashboard");
-      }
     }
   }
 };

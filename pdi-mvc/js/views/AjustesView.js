@@ -46,7 +46,8 @@ export const AjustesView = {
       if (match) savedTheme = match[1];
     }
 
-    this.setTheme(savedTheme || 'light', false);
+    // Restauro, no cambio: sin transicion. Ver el comentario de setTheme().
+    this.setTheme(savedTheme || 'light', false, null, false);
   },
 
   _mediaListenerBound: false,
@@ -73,7 +74,18 @@ export const AjustesView = {
     this.setTheme(targetTheme, true, event);
   },
 
-  setTheme(themeName, showToast = true, clickEvent = null) {
+  /**
+   * Aplica un tema.
+   *
+   * animar distingue dos cosas que antes iban juntas. Cuando el usuario pulsa el
+   * conmutador, un fundido de 200 ms hace que el cambio se lea como intencionado.
+   * Cuando la pagina arranca y hay que RESTAURAR el tema guardado, ese mismo
+   * fundido es un fallo: en la SPA pasaba una sola vez al cargar, pero en la MPA
+   * se repetiria en cada navegacion, con un destello en cada clic del menu. Por
+   * eso _loadTheme() restaura sin animar, y ademas el script antiflash de
+   * <head> ya habia puesto el atributo en el HTML antes de que se pintara nada.
+   */
+  setTheme(themeName, showToast = true, clickEvent = null, animar = true) {
     const applyThemeChange = () => {
       this._currentTheme = themeName;
 
@@ -98,9 +110,11 @@ export const AjustesView = {
       this._updateThemeUI();
     };
 
-    // Estilo Linear / Raycast: Cross-Fade de Opacidad Pura (200ms) acelerado 100% por hardware
+    // Estilo Linear / Raycast: Cross-Fade de Opacidad Pura (200ms) acelerado por hardware.
+    // Solo cuando hay un cambio real de tema pedido por la persona: ver el
+    // comentario del parametro animar.
     const root = document.documentElement;
-    if (typeof document !== 'undefined' && document.startViewTransition) {
+    if (animar && typeof document !== 'undefined' && document.startViewTransition) {
       // 1. Congelar temporalmente transiciones individuales para evitar sobrecarga GPU
       root.classList.add('disable-theme-transitions');
 
@@ -110,9 +124,15 @@ export const AjustesView = {
       });
 
       // 3. Restaurar transiciones al concluir el desvanecimiento
-      transition.finished.finally(() => {
-        root.classList.remove('disable-theme-transitions');
-      });
+      transition.finished
+        .catch(() => {
+          // Si otra transicion empezo antes de que acabara esta, el navegador la
+          // aborta. No es un fallo del tema: el atributo ya quedo aplicado y hay
+          // que quitar igualmente la clase de congelacion.
+        })
+        .finally(() => {
+          root.classList.remove('disable-theme-transitions');
+        });
     } else {
       applyThemeChange();
     }

@@ -6,8 +6,54 @@ export const CasitasView = {
   _filterAsistencia: "all",
   _filterSede: [],
   _filterGrado: "all",
+  _asistenciaDelegada: false,
+
+  /**
+   * Botonera de asistencia. Antes cada boton llevaba un onclick que buscaba el
+   * controlador en window.app o window.PDI: un acoplamiento invisible que se
+   * rompio en cuanto el punto de entrada cambio. Ahora el boton solo lleva los
+   * datos, y un unico listener delegado los resuelve.
+   */
+  _botonesAsistencia(id) {
+    const estados = [["P", "active-P"], ["T", ""], ["FJ", ""], ["FI", ""]];
+    return estados.map(([clave, activa]) => `
+      <button type="button" class="btn-asist${clave === "P" ? " active-P" : ""}" data-asist-btn="${clave}" data-asist-id="${id}">${clave}</button>
+    `).join("");
+  },
+
+  /**
+   * Delega la pulsacion de la botonera de asistencia. Se engancha una sola vez
+   * por carga: los botones se recrean en cada render, pero el contenedor no, y
+   * por eso conviene delegar en el y no enganchar a cada boton.
+   */
+  _delegarAsistencia() {
+    if (this._asistenciaDelegada) return;
+    this._asistenciaDelegada = true;
+
+    const alPulsar = (e) => {
+      const boton = e.target.closest(".btn-asist[data-asist-btn]");
+      if (!boton) return;
+
+      // En la vista de tarjeta, la pulsacion no debe desplegarla.
+      e.stopPropagation();
+
+      const id = boton.getAttribute("data-asist-id");
+      const estado = boton.getAttribute("data-asist-btn");
+      if (!id || !estado) return;
+
+      const controlador = window.PDI?.CasitasController;
+      if (controlador && typeof controlador.toggleAsistencia === "function") {
+        controlador.toggleAsistencia(id, estado);
+      } else {
+        console.error("[CasitasView] CasitasController no esta disponible:", id, estado);
+      }
+    };
+
+    document.addEventListener("click", alPulsar);
+  },
 
   renderTable(beneficiarios) {
+    this._delegarAsistencia();
     if (beneficiarios && Array.isArray(beneficiarios)) {
       this._allBeneficiarios = beneficiarios;
     } else if (window.PDI?.BeneficiarioModel) {
@@ -341,10 +387,7 @@ export const CasitasView = {
           </td>
           <td style="text-align: right;">
             <div style="display: inline-flex; gap: 4px;" id="btnGroupAsist_${b.id}">
-              <button type="button" class="btn-asist active-P" data-asist-btn="P" onclick="window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'P') : (window.PDI?.CasitasController ? window.PDI.CasitasController.toggleAsistencia(${b.id}, 'P') : null)">P</button>
-              <button type="button" class="btn-asist" data-asist-btn="T" onclick="window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'T') : (window.PDI?.CasitasController ? window.PDI.CasitasController.toggleAsistencia(${b.id}, 'T') : null)">T</button>
-              <button type="button" class="btn-asist" data-asist-btn="FJ" onclick="window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'FJ') : (window.PDI?.CasitasController ? window.PDI.CasitasController.toggleAsistencia(${b.id}, 'FJ') : null)">FJ</button>
-              <button type="button" class="btn-asist" data-asist-btn="FI" onclick="window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'FI') : (window.PDI?.CasitasController ? window.PDI.CasitasController.toggleAsistencia(${b.id}, 'FI') : null)">FI</button>
+              ${this._botonesAsistencia(b.id)}
             </div>
           </td>
         </tr>
@@ -381,10 +424,7 @@ export const CasitasView = {
                 Marcar Asistencia Hoy:
               </div>
               <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;" id="btnGroupMobAsist_${b.id}">
-                <button type="button" class="btn-asist active-P" data-asist-btn="P" onclick="event.stopPropagation(); window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'P') : (window.PDI?.CasitasController ? window.PDI.CasitasController.toggleAsistencia(${b.id}, 'P') : null)">P</button>
-                <button type="button" class="btn-asist" data-asist-btn="T" onclick="event.stopPropagation(); window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'T') : (window.PDI?.CasitasController ? window.PDI.CasitasController.toggleAsistencia(${b.id}, 'T') : null)">T</button>
-                <button type="button" class="btn-asist" data-asist-btn="FJ" onclick="event.stopPropagation(); window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'FJ') : (window.PDI?.CasitasController ? window.PDI.CasitasController.toggleAsistencia(${b.id}, 'FJ') : null)">FJ</button>
-                <button type="button" class="btn-asist" data-asist-btn="FI" onclick="event.stopPropagation(); window.app ? window.app.casitasController.toggleAsistencia(${b.id}, 'FI') : (window.PDI?.CasitasController ? window.PDI.CasitasController.toggleAsistencia(${b.id}, 'FI') : null)">FI</button>
+                ${this._botonesAsistencia(b.id)}
               </div>
             </div>
 
