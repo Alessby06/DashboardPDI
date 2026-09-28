@@ -25,23 +25,29 @@ SRC = os.path.join(BASE, "src")
 CHROME = os.path.join(SRC, "chrome")
 PAGES = os.path.join(SRC, "pages")
 
-# (slug, etiqueta, entry point, id del <section>)
+# (slug, entry point, id del <section>)
+#
+# El slug es la clave con la que RouteMap y el PageGuard llaman a la pagina: es
+# el data-page del <body> y el prefijo de los nombres de archivo. El nombre
+# legible de cada pagina vive solo en RouteMap; antes esta tabla lo repetia sin
+# que nada lo usara, que es la forma de que las dos copias se separen.
 #
 # El id del section no es decorativo: es el campo 'view' que declara
 # js/auth/RouteMap.js, y slugDesdeView() lo usa para traducir los
 # identificadores que el codigo heredado todavia menciona. Si build.py escribe
 # una pagina cuyo section no coincide con lo que dice RouteMap, el mapa queda
-# mintiendo y el error aparece lejos de su causa. Por eso se valida aqui.
+# mintiendo y el error aparece lejos de su causa. Por eso se valida aqui, y por
+# eso verificar_topologia.py exige ademas que los dos coincidan.
 PAGINAS = [
-    ("dashboard",     "Dashboard General",            "js/pages/dashboard.js",     "view-dashboard"),
-    ("padron",        "Padrón de Beneficiarios",      "js/pages/padron.js",        "view-beneficiarios"),
-    ("salud",         "Salud y Nutrición (CRED)",     "js/pages/salud.js",         "view-salud"),
-    ("educativo",     "Casita del Saber",             "js/pages/educativo.js",     "view-educativo"),
-    ("social",        "Derivaciones Sociales (ASP)", "js/pages/social.js",        "view-social"),
-    ("sedes",         "Sedes e Iglesias",             "js/pages/sedes.js",         "view-sedes"),
-    ("voluntariados", "Voluntariados",               "js/pages/voluntariados.js", "view-voluntarios"),
-    ("auditoria",     "Historial de Cambios",         "js/pages/auditoria.js",     "view-auditoria"),
-    ("ajustes",       "Ajustes",                      "js/pages/ajustes.js",       "view-ajustes"),
+    ("dashboard",     "js/pages/dashboard.js",     "view-dashboard"),
+    ("padron",        "js/pages/padron.js",        "view-beneficiarios"),
+    ("salud",         "js/pages/salud.js",         "view-salud"),
+    ("educativo",     "js/pages/educativo.js",     "view-educativo"),
+    ("social",        "js/pages/social.js",        "view-social"),
+    ("sedes",         "js/pages/sedes.js",         "view-sedes"),
+    ("voluntariados", "js/pages/voluntariados.js", "view-voluntarios"),
+    ("auditoria",     "js/pages/auditoria.js",     "view-auditoria"),
+    ("ajustes",       "js/pages/ajustes.js",       "view-ajustes"),
 ]
 
 PLANTILLA = """{head}
@@ -105,7 +111,7 @@ def marcar_activo(sidebar, slug):
     return salida
 
 
-def construir(slug, etiqueta, entry):
+def construir(slug, entry):
     head = leer_bloque("head.html")
     sidebar = marcar_activo(leer_bloque("sidebar.html"), slug)
     topbar = leer_bloque("topbar.html")
@@ -200,9 +206,9 @@ def main():
     check = "--check" in sys.argv
     problemas = 0
 
-    for slug, etiqueta, entry, view_id in PAGINAS:
+    for slug, entry, view_id in PAGINAS:
         destino = os.path.join(BASE, "%s.html" % slug)
-        nuevo = construir(slug, etiqueta, entry)
+        nuevo = construir(slug, entry)
 
         fallos = validar(slug, nuevo, entry, view_id)
         for f in fallos:

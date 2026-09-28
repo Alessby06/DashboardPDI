@@ -76,7 +76,10 @@ export const PAGINAS = {
     allowedRoles: ["coord", "facilitadora", "promotora", "admin"],
   },
 
-  voluntarios: {
+  // La clave es el slug, y el slug es data-page del <body>: "voluntariados",
+  // no "voluntarios". El identificador de vista heredado si es "view-voluntarios"
+  // y no tiene por que coincidir, porque lo traduce slugDesdeView().
+  voluntariados: {
     archivo: "voluntariados.html",
     etiqueta: "Voluntariados",
     view: "view-voluntarios",
@@ -126,7 +129,7 @@ export const ORDEN_MENU = [
   "educativo",
   "social",
   "sedes",
-  "voluntarios",
+  "voluntariados",
   "auditoria",
   "ajustes",
 ];
