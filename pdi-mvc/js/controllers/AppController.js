@@ -21,7 +21,6 @@ import { SedesView } from '../views/SedesView.js';
 import { VoluntariadosView } from '../views/VoluntariadosView.js';
 import { AjustesView } from '../views/AjustesView.js';
 import { ModalView } from '../views/ModalView.js';
-import { SpotlightView } from '../views/SpotlightView.js';
 import { ToastView } from '../views/ToastView.js';
 import { CsvExporter } from '../utils/CsvExporter.js';
 
@@ -43,6 +42,9 @@ export const AppController = {
 
     // 1.5 Inicializar tema visual y ajustes
     AjustesView.init();
+
+    // 1.6 Inicializar eventos del Padrón de Voluntariados (búsqueda, filtros y dropdowns)
+    VoluntariadosView.init();
 
     // 2. Inicializar componentes de vista
     this.refreshAllViews();

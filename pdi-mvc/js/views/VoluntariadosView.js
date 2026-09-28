@@ -3,6 +3,13 @@
 
 import { VoluntarioModel, TEMATICAS_CAPACITACION } from '../models/VoluntarioModel.js';
 
+// Etiquetas cortas para los nombres largos de servicio (chips y dropdowns de filtro)
+const SERVICIO_LABELS = {
+  "Desayuno Infantil": "Desayuno Infantil",
+  "Casita del Saber": "Casita del Saber",
+  "Área Social Pastoral (ASP)": "Pastoral ASP"
+};
+
 export const VoluntariadosView = {
   _voluntarios: [],
   _searchQuery: "",
@@ -112,8 +119,24 @@ export const VoluntariadosView = {
       countHeaderEl.textContent = `Mostrando ${list.length} de ${this._voluntarios.length} voluntarias y personal comunitario`;
     }
 
+    this._updateActiveFilterBadge();
     this._renderActiveChips();
     this._renderTableAndCards(list);
+  },
+
+  _updateActiveFilterBadge() {
+    const count = this._filterDistrito.length
+      + this._filterServicio.length
+      + (this._filterEstado !== "all" ? 1 : 0);
+
+    const badge = document.getElementById("voluntariosActiveFiltersCount");
+    if (badge) {
+      badge.textContent = count;
+      badge.style.display = count > 0 ? "inline-flex" : "none";
+    }
+
+    const btn = document.getElementById("btnDropdownVoluntariosFilterPanel");
+    if (btn) btn.classList.toggle("has-filters", count > 0);
   },
 
   _renderActiveChips() {
@@ -131,7 +154,7 @@ export const VoluntariadosView = {
 
     if (this._filterServicio.length > 0) {
       this._filterServicio.forEach(s => {
-        chips.push({ id: "servicio", val: s, label: `Servicio: ${s}` });
+        chips.push({ id: "servicio", val: s, label: `Servicio: ${SERVICIO_LABELS[s] || s}` });
       });
     }
 
@@ -188,7 +211,7 @@ export const VoluntariadosView = {
 
       if (mobileContainer) {
         mobileContainer.innerHTML = `
-          <div style="text-align: center; padding: 36px 16px; background: var(--surface-card); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-top: 8px;">
+          <div style="text-align: center; padding: 36px 16px; background: var(--surface-1); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-top: 8px;">
             <div style="width: 48px; height: 48px; margin: 0 auto 12px; border-radius: 50%; background: var(--gt-green-bg, rgba(52, 211, 153, 0.12)); display: flex; align-items: center; justify-content: center; color: var(--gt-green, #34d399);">
               <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
@@ -247,7 +270,10 @@ export const VoluntariadosView = {
                 </span>
                 ${v.canastasRecibidas > 0 ? `
                   <span class="badge badge-blue" title="Canastas de alimentos entregadas">
-                    🧺 ${v.canastasRecibidas}
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true" style="flex-shrink: 0;">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                    </svg>
+                    <span>${v.canastasRecibidas}</span>
                   </span>
                 ` : ''}
               </div>
@@ -281,7 +307,7 @@ export const VoluntariadosView = {
         const capCount = (v.capacitaciones && v.capacitaciones.length) || 0;
 
         return `
-          <div class="padron-mobile-card" style="background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px; margin-bottom: 10px;">
+          <div class="padron-mobile-card" style="background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px; margin-bottom: 10px;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
               <div>
                 <strong style="font-size: 14.5px; color: var(--text-main);">${v.nombres} ${v.apellidos}</strong>
@@ -300,9 +326,19 @@ export const VoluntariadosView = {
             </div>
 
             <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 6px; border-top: 1px solid var(--border-subtle);">
-              <div style="font-size: 11.5px; color: var(--text-muted); display: flex; gap: 6px;">
-                <span>🎓 ${capCount} cap.</span>
-                ${v.canastasRecibidas > 0 ? `<span>🧺 ${v.canastasRecibidas} canastas</span>` : ''}
+              <div style="font-size: 11.5px; color: var(--text-muted); display: flex; gap: 10px; align-items: center;">
+                <span style="display: inline-flex; align-items: center; gap: 4px;">
+                  <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" />
+                  </svg>
+                  ${capCount} cap.
+                </span>
+                ${v.canastasRecibidas > 0 ? `<span style="display: inline-flex; align-items: center; gap: 4px;">
+                  <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                  </svg>
+                  ${v.canastasRecibidas} canastas
+                </span>` : ''}
               </div>
               <div style="display: flex; gap: 6px;">
                 <button type="button" class="btn-action" style="padding: 4px 10px; font-size: 11.5px;" onclick="window.openFichaVoluntario ? window.openFichaVoluntario(${v.id}) : null">
@@ -671,15 +707,6 @@ export const VoluntariadosView = {
     }
   },
 
-  clearSearch() {
-    this._searchQuery = "";
-    const input = document.getElementById("inputVoluntariosSearch");
-    if (input) input.value = "";
-    const clearBtn = document.getElementById("btnVoluntariosSearchClear");
-    if (clearBtn) clearBtn.style.display = "none";
-    this.applyFilters();
-  },
-
   resetFilters() {
     this._searchQuery = "";
     this._filterDistrito = [];
@@ -696,38 +723,66 @@ export const VoluntariadosView = {
     this.applyFilters();
   },
 
+  _updateDistritoDropdownUI() {
+    const isAll = this._filterDistrito.length === 0;
+    const items = document.querySelectorAll("#menuVoluntariosDistrito .padron-dropdown-item");
+    items.forEach(item => {
+      const v = item.getAttribute("data-value");
+      if (v === "all") {
+        item.classList.toggle("selected", isAll);
+      } else {
+        item.classList.toggle("selected", !isAll && this._filterDistrito.includes(v));
+      }
+    });
+
+    const label = document.getElementById("labelVoluntariosDistritoSelect");
+    if (label) {
+      if (isAll) label.textContent = "Todos los Distritos";
+      else if (this._filterDistrito.length === 1) label.textContent = this._filterDistrito[0];
+      else label.textContent = `${this._filterDistrito.length} seleccionados`;
+    }
+  },
+
+  _updateServicioDropdownUI() {
+    const isAll = this._filterServicio.length === 0;
+    const items = document.querySelectorAll("#menuVoluntariosServicio .padron-dropdown-item");
+    items.forEach(item => {
+      const v = item.getAttribute("data-value");
+      if (v === "all") {
+        item.classList.toggle("selected", isAll);
+      } else {
+        item.classList.toggle("selected", !isAll && this._filterServicio.includes(v));
+      }
+    });
+
+    const label = document.getElementById("labelVoluntariosServicioSelect");
+    if (label) {
+      if (isAll) {
+        label.textContent = "Todos los Servicios";
+      } else if (this._filterServicio.length === 1) {
+        label.textContent = SERVICIO_LABELS[this._filterServicio[0]] || this._filterServicio[0];
+      } else {
+        label.textContent = `${this._filterServicio.length} seleccionados`;
+      }
+    }
+  },
+
+  _updateEstadoDropdownUI() {
+    const items = document.querySelectorAll("#menuVoluntariosEstado .padron-dropdown-item");
+    items.forEach(item => {
+      item.classList.toggle("selected", item.getAttribute("data-value") === this._filterEstado);
+    });
+
+    const label = document.getElementById("labelVoluntariosEstadoSelect");
+    if (label) {
+      label.textContent = this._filterEstado === "all" ? "Todos los Estados" : this._filterEstado;
+    }
+  },
+
   _updateFilterDropdownUI() {
-    document.querySelectorAll("[data-vol-distrito]").forEach(el => {
-      const val = el.dataset.volDistrito;
-      if (val === "all") {
-        el.classList.toggle("selected", this._filterDistrito.length === 0);
-      } else {
-        el.classList.toggle("selected", this._filterDistrito.includes(val));
-      }
-    });
-
-    document.querySelectorAll("[data-vol-servicio]").forEach(el => {
-      const val = el.dataset.volServicio;
-      if (val === "all") {
-        el.classList.toggle("selected", this._filterServicio.length === 0);
-      } else {
-        el.classList.toggle("selected", this._filterServicio.includes(val));
-      }
-    });
-
-    document.querySelectorAll("[data-vol-rol]").forEach(el => {
-      const val = el.dataset.volRol;
-      if (val === "all") {
-        el.classList.toggle("selected", this._filterRol.length === 0);
-      } else {
-        el.classList.toggle("selected", this._filterRol.includes(val));
-      }
-    });
-
-    document.querySelectorAll("[data-vol-estado]").forEach(el => {
-      const val = el.dataset.volEstado;
-      el.classList.toggle("selected", this._filterEstado === val);
-    });
+    this._updateDistritoDropdownUI();
+    this._updateServicioDropdownUI();
+    this._updateEstadoDropdownUI();
   }
 };
 
@@ -752,4 +807,14 @@ if (typeof window !== "undefined") {
   window.toggleVoluntariosServicio = (s) => VoluntariadosView.toggleServicio(s);
   window.toggleVoluntariosRol = (r) => VoluntariadosView.toggleRol(r);
   window.toggleVoluntariosEstado = (e) => VoluntariadosView.toggleEstado(e);
+  window.toggleVoluntariosInnerDropdown = function (dropdownId) {
+    const dropdown = document.getElementById(dropdownId);
+    if (!dropdown) return;
+    const isOpen = dropdown.classList.contains("open");
+    // Cerrar los demás dropdowns internos del panel
+    document.querySelectorAll("#menuVoluntariosFilterPanel .padron-inner-dropdown.open").forEach(d => {
+      if (d !== dropdown) d.classList.remove("open");
+    });
+    dropdown.classList.toggle("open", !isOpen);
+  };
 }

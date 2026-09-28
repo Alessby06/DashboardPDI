@@ -5,7 +5,6 @@ import { SaludController } from './controllers/SaludController.js';
 import { SocialController } from './controllers/SocialController.js';
 import { DashboardView } from './views/DashboardView.js';
 import { ModalView } from './views/ModalView.js';
-import { SpotlightView } from './views/SpotlightView.js';
 
 // Asignar al contexto global para handlers inline de compatibilidad
 window.app = AppController;
@@ -24,9 +23,6 @@ window.closeModalNuevoBeneficiario = () => ModalView.closeNuevoMenor();
 window.openModalNuevoMenor = () => ModalView.openNuevoMenor();
 window.openModalNuevoBeneficiario = () => ModalView.openNuevoMenor();
 window.closeModalInforme = () => ModalView.closeInforme();
-window.closeSpotlightTour = () => SpotlightView.closeTour();
-window.spotlightNext = () => SpotlightView.next((view) => AppController.navigateToView(view));
-window.spotlightPrev = () => SpotlightView.prev((view) => AppController.navigateToView(view));
 window.calculateAnemiaPreview = () => {
   const inputEl = document.getElementById("calcHbInput");
   const sliderEl = document.getElementById("quickHbSlider");

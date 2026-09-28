@@ -10,6 +10,7 @@
   
   --border-subtle: #e2e8f0;
   --border-bright: rgba(0, 180, 148, 0.45);
+  --border-medium: #cbd5e1;
   
   /* Gutenberg Official 4-Color Signature */
   --gt-green: #00b494;
@@ -91,6 +92,7 @@
   
   --border-subtle: #cbd5e1;
   --border-bright: rgba(0, 122, 101, 0.45);
+  --border-medium: #94a3b8;
   
   --gt-green: #00b494;
   --gt-green-bg: rgba(0, 180, 148, 0.12);
@@ -158,6 +160,7 @@
   
   --border-subtle: #2d2d2d;
   --border-bright: rgba(0, 180, 148, 0.55);
+  --border-medium: #454545;
   
   --gt-green: #10b981;
   --gt-green-bg: rgba(16, 185, 129, 0.15);

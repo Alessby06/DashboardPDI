@@ -393,17 +393,7 @@ export const BeneficiariosView = {
 
   selectSexo(sexoVal) {
     this._filterSexo = sexoVal || "all";
-    const items = document.querySelectorAll("#menuPadronSexo .padron-dropdown-item");
-    items.forEach(item => {
-      item.classList.toggle("selected", item.getAttribute("data-value") === this._filterSexo);
-    });
-
-    const labelEl = document.getElementById("labelPadronSexoSelect");
-    if (labelEl) {
-      if (this._filterSexo === "all") labelEl.textContent = "Todos";
-      else if (this._filterSexo === "M") labelEl.textContent = "Niños (M)";
-      else if (this._filterSexo === "F") labelEl.textContent = "Niñas (F)";
-    }
+    this._updateSexoDropdownUI();
 
     const drop = document.getElementById("dropdownPadronSexo");
     if (drop) drop.classList.remove("open");
@@ -514,7 +504,7 @@ export const BeneficiariosView = {
   _getServiciosBadgesHtml(servicios) {
     const list = Array.isArray(servicios) ? servicios : [];
     if (list.length === 0) {
-      return `<span class="badge" style="background:var(--surface-3); color:var(--text-dim); border:1px dashed var(--border-subtle); font-size:10.5px;">Sin servicios activos</span>`;
+      return `<span class="badge" style="background:var(--surface-2); color:var(--text-dim); border:1px dashed var(--border-subtle); font-size:10.5px;">Sin servicios activos</span>`;
     }
     return list.map(s => {
       const low = (s || "").toLowerCase();
@@ -725,36 +715,39 @@ export const BeneficiariosView = {
     // 2. Facetas de Sede
     const forSede = getFilteredExcluding("sede");
     this._setFacetBadge("countFacetSede-all", `(${forSede.length})`, forSede.length === 0);
-    this._setFacetBadge("countFacetSede-an", `(${forSede.filter(b => (b.sede || '').includes("Año Nuevo")).length})`, forSede.filter(b => (b.sede || '').includes("Año Nuevo")).length === 0);
-    this._setFacetBadge("countFacetSede-lib", `(${forSede.filter(b => (b.sede || '').includes("La Libertad")).length})`, forSede.filter(b => (b.sede || '').includes("La Libertad")).length === 0);
-    this._setFacetBadge("countFacetSede-sp", `(${forSede.filter(b => (b.sede || '').includes("San Pedro")).length})`, forSede.filter(b => (b.sede || '').includes("San Pedro")).length === 0);
-    this._setFacetBadge("countFacetSede-prog", `(${forSede.filter(b => (b.sede || '').includes("El Progreso")).length})`, forSede.filter(b => (b.sede || '').includes("El Progreso")).length === 0);
-    this._setFacetBadge("countFacetSede-sr", `(${forSede.filter(b => (b.sede || '').includes("Santa Rosa")).length})`, forSede.filter(b => (b.sede || '').includes("Santa Rosa")).length === 0);
-    this._setFacetBadge("countFacetSede-bend", `(${forSede.filter(b => (b.sede || '').includes("Los Bendecidos")).length})`, forSede.filter(b => (b.sede || '').includes("Los Bendecidos")).length === 0);
+    this._setFacetBadge("countFacetSede-Año Nuevo", `(${forSede.filter(b => (b.sede || '').includes("Año Nuevo")).length})`, forSede.filter(b => (b.sede || '').includes("Año Nuevo")).length === 0);
+    this._setFacetBadge("countFacetSede-La Libertad", `(${forSede.filter(b => (b.sede || '').includes("La Libertad")).length})`, forSede.filter(b => (b.sede || '').includes("La Libertad")).length === 0);
+    this._setFacetBadge("countFacetSede-San Pedro", `(${forSede.filter(b => (b.sede || '').includes("San Pedro")).length})`, forSede.filter(b => (b.sede || '').includes("San Pedro")).length === 0);
+    this._setFacetBadge("countFacetSede-El Progreso", `(${forSede.filter(b => (b.sede || '').includes("El Progreso")).length})`, forSede.filter(b => (b.sede || '').includes("El Progreso")).length === 0);
+    this._setFacetBadge("countFacetSede-Santa Rosa", `(${forSede.filter(b => (b.sede || '').includes("Santa Rosa")).length})`, forSede.filter(b => (b.sede || '').includes("Santa Rosa")).length === 0);
+    this._setFacetBadge("countFacetSede-Los Bendecidos", `(${forSede.filter(b => (b.sede || '').includes("Los Bendecidos")).length})`, forSede.filter(b => (b.sede || '').includes("Los Bendecidos")).length === 0);
 
     // 3. Facetas de Anemia
     const forAnemia = getFilteredExcluding("anemia");
     this._setFacetBadge("countFacetAnemia-all", `(${forAnemia.length})`, forAnemia.length === 0);
-    this._setFacetBadge("countFacetAnemia-normal", `(${forAnemia.filter(b => b.anemia === "Normal").length})`, forAnemia.filter(b => b.anemia === "Normal").length === 0);
-    this._setFacetBadge("countFacetAnemia-leve", `(${forAnemia.filter(b => b.anemia === "Leve").length})`, forAnemia.filter(b => b.anemia === "Leve").length === 0);
-    this._setFacetBadge("countFacetAnemia-mod", `(${forAnemia.filter(b => b.anemia === "Moderada" || b.anemia === "Severa").length})`, forAnemia.filter(b => b.anemia === "Moderada" || b.anemia === "Severa").length === 0);
+    this._setFacetBadge("countFacetAnemia-Normal", `(${forAnemia.filter(b => b.anemia === "Normal").length})`, forAnemia.filter(b => b.anemia === "Normal").length === 0);
+    this._setFacetBadge("countFacetAnemia-Leve", `(${forAnemia.filter(b => b.anemia === "Leve").length})`, forAnemia.filter(b => b.anemia === "Leve").length === 0);
+    this._setFacetBadge("countFacetAnemia-Moderada", `(${forAnemia.filter(b => b.anemia === "Moderada" || b.anemia === "Severa").length})`, forAnemia.filter(b => b.anemia === "Moderada" || b.anemia === "Severa").length === 0);
 
     // 4. Facetas de Estado
     const forEstado = getFilteredExcluding("estado");
     this._setFacetBadge("countFacetEstado-all", `(${forEstado.length})`, forEstado.length === 0);
-    this._setFacetBadge("countFacetEstado-activo", `(${forEstado.filter(b => b.estado === "Activo").length})`, forEstado.filter(b => b.estado === "Activo").length === 0);
-    this._setFacetBadge("countFacetEstado-inactivo", `(${forEstado.filter(b => b.estado === "Inactivo").length})`, forEstado.filter(b => b.estado === "Inactivo").length === 0);
+    this._setFacetBadge("countFacetEstado-Activo", `(${forEstado.filter(b => b.estado === "Activo").length})`, forEstado.filter(b => b.estado === "Activo").length === 0);
+    this._setFacetBadge("countFacetEstado-Inactivo", `(${forEstado.filter(b => b.estado === "Inactivo").length})`, forEstado.filter(b => b.estado === "Inactivo").length === 0);
 
     // 5. Facetas de Sexo
     const forSexo = getFilteredExcluding("sexo");
     this._setFacetBadge("countFacetSexo-all", `(${forSexo.length})`, forSexo.length === 0);
-    this._setFacetBadge("countFacetSexo-m", `(${forSexo.filter(b => (b.sexo || '').toUpperCase() === 'M').length})`, forSexo.filter(b => (b.sexo || '').toUpperCase() === 'M').length === 0);
-    this._setFacetBadge("countFacetSexo-f", `(${forSexo.filter(b => (b.sexo || '').toUpperCase() === 'F').length})`, forSexo.filter(b => (b.sexo || '').toUpperCase() === 'F').length === 0);
+    this._setFacetBadge("countFacetSexo-M", `(${forSexo.filter(b => (b.sexo || '').toUpperCase() === 'M').length})`, forSexo.filter(b => (b.sexo || '').toUpperCase() === 'M').length === 0);
+    this._setFacetBadge("countFacetSexo-F", `(${forSexo.filter(b => (b.sexo || '').toUpperCase() === 'F').length})`, forSexo.filter(b => (b.sexo || '').toUpperCase() === 'F').length === 0);
   },
 
   _setFacetBadge(id, text, isZero) {
     const el = document.getElementById(id);
-    if (!el) return;
+    if (!el) {
+      console.warn(`[BeneficiariosView] Faceta sin elemento en el DOM: #${id}`);
+      return;
+    }
     el.textContent = text;
     const parentItem = el.closest(".padron-dropdown-item");
     if (parentItem && parentItem.getAttribute("data-value") !== "all") {
@@ -992,6 +985,7 @@ if (typeof window !== "undefined") {
   window.padronGoToPage = (page) => BeneficiariosView.goToPage(page);
   window.padronPrevPage = () => BeneficiariosView.prevPage();
   window.padronNextPage = () => BeneficiariosView.nextPage();
+  window.selectPadronSexo = (sexo) => BeneficiariosView.selectSexo(sexo);
 
   window.addEventListener("resize", () => {
     BeneficiariosView._syncPageSizeSelectUI();
