@@ -1,17 +1,75 @@
 // Vista: Tablero Kanban de Casos Sociales (ASP), Filtros y Ficha Detallada
 import { CasoSocialModel } from '../models/CasoSocialModel.js';
+import { crear as crearFiltros } from '../utils/Filters.js';
+
+// Filtros del tablero que viajan en la URL. Los valores son los de los
+// desplegables de src/pages/social.html.
+const FILTROS_SOCIAL = {
+  q:        { valor: "" },
+  urgencia: { valor: "all", valores: ["all", "Alta", "Media", "Baja"] },
+  sede:     { valor: "all", valores: ["all", "El Progreso", "San Pedro", "Año Nuevo", "Santa Rosa", "Los Bendecidos", "La Libertad"] },
+  // En movil el tablero muestra una etapa por vez. Tambien es estado de vista,
+  // asi que va en la URL: compartir un enlace debe mostrar la misma columna.
+  etapa:    { valor: "pendiente", valores: ["pendiente", "evaluacion", "canalizado", "cerrado"] },
+};
 
 export const SocialKanbanView = {
   _searchQuery: "",
   _filterUrgencia: "all",
   _filterSede: "all",
   _activeCaso: null,
+  _mobileActiveStage: "pendiente",
+
+  _filtros: null,
+  _filtrosLeidos: false,
+
+  _obtenerFiltros() {
+    if (!this._filtros) {
+      this._filtros = crearFiltros(FILTROS_SOCIAL);
+    }
+    return this._filtros;
+  },
+
+  _persistirFiltros(extra) {
+    this._obtenerFiltros().escribir({
+      q: this._searchQuery,
+      urgencia: this._filterUrgencia,
+      sede: this._filterSede,
+      etapa: this._mobileActiveStage,
+      ...(extra || {}),
+    });
+  },
+
+  _leerFiltrosDeURL() {
+    if (this._filtrosLeidos) return;
+    this._filtrosLeidos = true;
+
+    const f = this._obtenerFiltros().leer();
+    this._searchQuery = f.q;
+    this._filterUrgencia = f.urgencia;
+    this._filterSede = f.sede;
+    this._mobileActiveStage = f.etapa;
+
+    const input = document.getElementById("inputSearchCasosSociales");
+    if (input) input.value = f.q;
+
+    this._updateUrgenciaUI();
+    this._updateSedeUI();
+
+    // El HTML trae data-mobile-active-stage="pendiente" fijo. Sin esto, un
+    // enlace con ?etapa=evaluacion mostraria el tablero de alerta en movil
+    // mientras el selector dice "Evaluacion".
+    const board = document.getElementById("kanbanCasosSociales");
+    if (board) board.setAttribute("data-mobile-active-stage", f.etapa);
+  },
 
   init() {
     this.renderKanban();
   },
 
   renderKanban(casos) {
+    this._leerFiltrosDeURL();
+
     const pCol = document.getElementById("kanbanColPendientes");
     const eCol = document.getElementById("kanbanColEvaluacion");
     const cCol = document.getElementById("kanbanColCanalizados");
@@ -168,6 +226,11 @@ export const SocialKanbanView = {
 
     // Actualizar barra de chips y badge de filtros
     this._updateFilterChips();
+
+    // Un solo punto de escritura para los cuatro filtros: handleSearch(),
+    // filterByUrgencia(), filterBySede() y clearFilters() terminan todos aqui,
+    // y en cuanto cambian un filtro lo unico que hacen falta es repintar.
+    this._persistirFiltros({ q: this._searchQuery });
   },
 
   handleSearch(query) {
@@ -177,40 +240,38 @@ export const SocialKanbanView = {
 
   filterByUrgencia(urgencia) {
     this._filterUrgencia = urgencia;
+    this._updateUrgenciaUI();
+    this.renderKanban();
+  },
+
+  _updateUrgenciaUI() {
     const label = document.getElementById("labelSocialUrgenciaSelect");
     if (label) {
-      label.textContent = (urgencia === 'all') ? "Todas las Urgencias" : urgencia;
+      label.textContent = (this._filterUrgencia === 'all') ? "Todas las Urgencias" : this._filterUrgencia;
     }
 
     const items = document.querySelectorAll("#menuSocialUrgencia .padron-dropdown-item");
     items.forEach(item => {
-      if (item.getAttribute("data-value") === urgencia) {
-        item.classList.add("selected");
-      } else {
-        item.classList.remove("selected");
-      }
+      item.classList.toggle("selected", item.getAttribute("data-value") === this._filterUrgencia);
     });
-
-    this.renderKanban();
   },
 
   filterBySede(sede) {
     this._filterSede = sede;
+    this._updateSedeUI();
+    this.renderKanban();
+  },
+
+  _updateSedeUI() {
     const label = document.getElementById("labelSocialSedeSelect");
     if (label) {
-      label.textContent = (sede === 'all') ? "Todas las Sedes" : sede;
+      label.textContent = (this._filterSede === 'all') ? "Todas las Sedes" : this._filterSede;
     }
 
     const items = document.querySelectorAll("#menuSocialSede .padron-dropdown-item");
     items.forEach(item => {
-      if (item.getAttribute("data-value") === sede) {
-        item.classList.add("selected");
-      } else {
-        item.classList.remove("selected");
-      }
+      item.classList.toggle("selected", item.getAttribute("data-value") === this._filterSede);
     });
-
-    this.renderKanban();
   },
 
   clearFilters() {
@@ -221,21 +282,8 @@ export const SocialKanbanView = {
     const searchInput = document.getElementById("inputSearchCasosSociales");
     if (searchInput) searchInput.value = "";
 
-    const labelUrgencia = document.getElementById("labelSocialUrgenciaSelect");
-    if (labelUrgencia) labelUrgencia.textContent = "Todas las Urgencias";
-
-    const labelSede = document.getElementById("labelSocialSedeSelect");
-    if (labelSede) labelSede.textContent = "Todas las Sedes";
-
-    document.querySelectorAll("#menuSocialUrgencia .padron-dropdown-item").forEach(i => {
-      if (i.getAttribute("data-value") === "all") i.classList.add("selected");
-      else i.classList.remove("selected");
-    });
-
-    document.querySelectorAll("#menuSocialSede .padron-dropdown-item").forEach(i => {
-      if (i.getAttribute("data-value") === "all") i.classList.add("selected");
-      else i.classList.remove("selected");
-    });
+    this._updateUrgenciaUI();
+    this._updateSedeUI();
 
     this.renderKanban();
   },
@@ -549,6 +597,11 @@ export const SocialKanbanView = {
     if (dropdown) {
       dropdown.classList.remove("open");
     }
+
+    // Este metodo no repinta el tablero: cambiar de columna en movil no altera
+    // los datos. Aun asi la etapa es parte de lo que se esta viendo, asi que
+    // va a la URL.
+    this._persistirFiltros();
   }
 };
 

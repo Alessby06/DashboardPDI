@@ -1,5 +1,17 @@
 // Vista: Directorio Territorial de Sedes, Iglesias y Redes Aliadas
 import { SedeModel } from '../models/SedeModel.js';
+import { crear as crearFiltros } from '../utils/Filters.js';
+
+// Filtros del directorio que viajan en la URL. Valores tomados de los
+// desplegables de src/pages/sedes.html.
+const FILTROS_SEDES = {
+  q:        { valor: "" },
+  distrito: { valor: "all", valores: ["all", "Comas", "Carabayllo"] },
+  servicio: { valor: "all", valores: ["all", "Desayuno", "Casita", "Lonchera"] },
+  // La sede abierta en el panel de detalle tambien es parte de lo que se esta
+  // viendo: un enlace a una sede concreta tiene que abrirla.
+  sede:     { valor: "" },
+};
 
 export const SedesView = {
   _allSedes: [],
@@ -9,12 +21,52 @@ export const SedesView = {
   _filterDistrito: "all",
   _filterServicio: "all",
 
+  _filtros: null,
+  _filtrosLeidos: false,
+
+  _obtenerFiltros() {
+    if (!this._filtros) {
+      this._filtros = crearFiltros(FILTROS_SEDES);
+    }
+    return this._filtros;
+  },
+
+  _persistirFiltros(extra) {
+    this._obtenerFiltros().escribir({
+      q: this._searchQuery,
+      distrito: this._filterDistrito,
+      servicio: this._filterServicio,
+      sede: this._selectedSedeId || "",
+      ...(extra || {}),
+    });
+  },
+
+  _leerFiltrosDeURL() {
+    if (this._filtrosLeidos) return;
+    this._filtrosLeidos = true;
+
+    const f = this._obtenerFiltros().leer();
+    this._searchQuery = (f.q || "").toLowerCase();
+    this._filterDistrito = f.distrito;
+    this._filterServicio = f.servicio;
+    this._selectedSedeId = f.sede || null;
+
+    const input = document.getElementById("inputSedesSearch");
+    if (input) input.value = f.q;
+    const clearBtn = document.getElementById("btnSedesSearchClear");
+    if (clearBtn) clearBtn.style.display = f.q ? "flex" : "none";
+
+    this._updateDistritoDropdownUI();
+    this._updateServicioDropdownUI();
+  },
+
   init(sedes) {
     this._allSedes = sedes || (window.PDI?.SedeModel?.getAll() || SedeModel.getAll());
     this.render();
   },
 
   render(sedes) {
+    this._leerFiltrosDeURL();
     if (sedes) {
       this._allSedes = sedes;
     } else {
@@ -98,6 +150,7 @@ export const SedesView = {
       clearBtn.style.display = this._searchQuery.length > 0 ? "flex" : "none";
     }
     this.applyFilters();
+    this._persistirFiltros({ q: query || "" });
   },
 
   clearSearch() {
@@ -110,12 +163,14 @@ export const SedesView = {
     this._filterDistrito = distrito;
     this._updateDistritoDropdownUI();
     this.applyFilters();
+    this._persistirFiltros();
   },
 
   filterByServicio(servicio) {
     this._filterServicio = servicio;
     this._updateServicioDropdownUI();
     this.applyFilters();
+    this._persistirFiltros();
   },
 
   _updateDistritoDropdownUI() {
@@ -162,6 +217,7 @@ export const SedesView = {
     this._updateDistritoDropdownUI();
     this._updateServicioDropdownUI();
     this.applyFilters();
+    this._persistirFiltros();
   },
 
   removeFilterChip(key) {
@@ -234,6 +290,7 @@ export const SedesView = {
     this._selectedSedeId = id;
     this.renderMasterList();
     this.renderDetailPanel();
+    this._persistirFiltros();
   },
 
   applyFilters() {

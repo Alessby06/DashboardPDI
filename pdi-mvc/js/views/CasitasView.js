@@ -1,4 +1,15 @@
 // Vista: Acompañamiento Educativo (Casita del Saber)
+import { crear as crearFiltros } from '../utils/Filters.js';
+
+// Filtros del módulo educativo que viajan en la URL. Valores tomados de los
+// desplegables de src/pages/educativo.html.
+const FILTROS_CASITAS = {
+  q:          { valor: "" },
+  asistencia: { valor: "all", valores: ["all", "P", "T", "FJ", "FI"] },
+  sede:       { valor: [], valores: ["Año Nuevo", "La Libertad", "San Pedro", "El Progreso", "Santa Rosa", "Los Bendecidos"], multiple: true },
+  grado:      { valor: "all", valores: ["all", "inicial", "primaria", "secundaria"] },
+};
+
 export const CasitasView = {
   _allBeneficiarios: [],
   _filteredBeneficiarios: [],
@@ -7,6 +18,71 @@ export const CasitasView = {
   _filterSede: [],
   _filterGrado: "all",
   _asistenciaDelegada: false,
+
+  _filtros: null,
+  _filtrosLeidos: false,
+
+  _obtenerFiltros() {
+    if (!this._filtros) {
+      this._filtros = crearFiltros(FILTROS_CASITAS);
+    }
+    return this._filtros;
+  },
+
+  _persistirFiltros(extra) {
+    this._obtenerFiltros().escribir({
+      q: this._searchQuery,
+      asistencia: this._filterAsistencia,
+      sede: this._filterSede,
+      grado: this._filterGrado,
+      ...(extra || {}),
+    });
+  },
+
+  _leerFiltrosDeURL() {
+    if (this._filtrosLeidos) return;
+    this._filtrosLeidos = true;
+
+    const f = this._obtenerFiltros().leer();
+    this._searchQuery = (f.q || "").toLowerCase();
+    this._filterAsistencia = f.asistencia;
+    this._filterSede = f.sede;
+    this._filterGrado = f.grado;
+
+    const input = document.getElementById("inputCasitasSearch");
+    if (input) input.value = f.q;
+    const clearBtn = document.getElementById("btnCasitasSearchClear");
+    if (clearBtn) clearBtn.style.display = f.q ? "flex" : "none";
+
+    this._updateAsistenciaUI();
+    this._updateSedeDropdownUI();
+    this._updateGradoUI();
+  },
+
+  /**
+   * Pinta un desplegable de opcion única leyendo la etiqueta del propio HTML.
+   *
+   * Los tres menus de esta pagina (asistencia, sede, grado) tienen el mismo
+   * patron: un .padron-item-label por opcion. Leerlo de ahi evita mantener el
+   * mismo texto en el onclick y en el marcado, que es como acaban apareciendo
+   * etiquetas que no coinciden con lo que se ve.
+   */
+  _pintarOpcionUnica(idMenu, idBoton, idEtiqueta, valor, alternativa) {
+    const items = document.querySelectorAll("#" + idMenu + " .padron-dropdown-item");
+    let texto = null;
+    items.forEach(item => {
+      const coincide = item.getAttribute("data-value") === valor;
+      item.classList.toggle("selected", coincide);
+      if (coincide) {
+        const span = item.querySelector(".padron-item-label");
+        if (span) texto = span.textContent.trim();
+      }
+    });
+
+    const labelEl = document.getElementById(idEtiqueta);
+    if (labelEl) labelEl.textContent = texto || alternativa || "";
+    return texto;
+  },
 
   /**
    * Botonera de asistencia. Antes cada boton llevaba un onclick que buscaba el
@@ -54,6 +130,7 @@ export const CasitasView = {
 
   renderTable(beneficiarios) {
     this._delegarAsistencia();
+    this._leerFiltrosDeURL();
     if (beneficiarios && Array.isArray(beneficiarios)) {
       this._allBeneficiarios = beneficiarios;
     } else if (window.PDI?.BeneficiarioModel) {
@@ -69,6 +146,7 @@ export const CasitasView = {
       clearBtn.style.display = this._searchQuery.length > 0 ? "flex" : "none";
     }
     this.applyFilters();
+    this._persistirFiltros({ q: query || "" });
   },
 
   clearSearch() {
@@ -79,20 +157,21 @@ export const CasitasView = {
 
   selectAsistencia(val, label) {
     this._filterAsistencia = val || "all";
-    const items = document.querySelectorAll("#menuCasitasAsistencia .padron-dropdown-item");
-    items.forEach(item => {
-      item.classList.toggle("selected", item.getAttribute("data-value") === this._filterAsistencia);
-    });
-
-    const labelEl = document.getElementById("labelCasitasAsistenciaSelect");
-    if (labelEl) {
-      labelEl.textContent = label || "Todos los Estados";
-    }
+    this._updateAsistenciaUI(label);
 
     const drop = document.getElementById("dropdownCasitasAsistencia");
     if (drop) drop.classList.remove("open");
 
     this.applyFilters();
+    this._persistirFiltros();
+  },
+
+  _updateAsistenciaUI(alternativa) {
+    this._pintarOpcionUnica(
+      "menuCasitasAsistencia", "btnDropdownCasitasAsistencia",
+      "labelCasitasAsistenciaSelect", this._filterAsistencia,
+      alternativa || "Todos los Estados"
+    );
   },
 
   toggleSede(val) {
@@ -112,6 +191,7 @@ export const CasitasView = {
     }
     this._updateSedeDropdownUI();
     this.applyFilters();
+    this._persistirFiltros();
   },
 
   _updateSedeDropdownUI() {
@@ -142,20 +222,21 @@ export const CasitasView = {
 
   selectGrado(val, label) {
     this._filterGrado = val || "all";
-    const items = document.querySelectorAll("#menuCasitasGrado .padron-dropdown-item");
-    items.forEach(item => {
-      item.classList.toggle("selected", item.getAttribute("data-value") === this._filterGrado);
-    });
-
-    const labelEl = document.getElementById("labelCasitasGradoSelect");
-    if (labelEl) {
-      labelEl.textContent = label || "Todos los Grados";
-    }
+    this._updateGradoUI(label);
 
     const drop = document.getElementById("dropdownCasitasGrado");
     if (drop) drop.classList.remove("open");
 
     this.applyFilters();
+    this._persistirFiltros();
+  },
+
+  _updateGradoUI(alternativa) {
+    this._pintarOpcionUnica(
+      "menuCasitasGrado", "btnDropdownCasitasGrado",
+      "labelCasitasGradoSelect", this._filterGrado,
+      alternativa || "Todos los Grados"
+    );
   },
 
   removeFilter(filterKey, specificVal) {
@@ -183,13 +264,14 @@ export const CasitasView = {
     const clearBtn = document.getElementById("btnCasitasSearchClear");
     if (clearBtn) clearBtn.style.display = "none";
 
-    this.selectAsistencia("all", "Todos los Estados");
+    this._updateAsistenciaUI();
     this._updateSedeDropdownUI();
-    this.selectGrado("all", "Todos los Grados");
+    this._updateGradoUI();
 
     document.querySelectorAll(".padron-inner-dropdown.open").forEach(d => d.classList.remove("open"));
 
     this.applyFilters();
+    this._persistirFiltros();
   },
 
   _matchesGrado(b, gradoKey) {

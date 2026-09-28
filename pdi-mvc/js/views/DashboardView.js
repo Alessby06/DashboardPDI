@@ -1,7 +1,85 @@
 import { AnimationEngine } from '../utils/AnimationEngine.js';
+import { crear as crearFiltros } from '../utils/Filters.js';
+
+// Filtros del historial de cambios que viajan en la URL. Los mismos sirven para
+// dashboard.html y para auditoria.html: es la misma vista en las dos paginas,
+// y el fragmento de auditoria es solo su version a pantalla completa.
+//
+// Valores tomados de los desplegables de src/pages/auditoria.html.
+const FILTROS_AUDITORIA = {
+  q:       { valor: "" },
+  accion:  { valor: [], valores: ["salud", "social", "educativo", "padron"], multiple: true },
+  fecha:   { valor: "all", valores: ["all", "today", "week", "specific", "range"] },
+  // Las fechas sueltas son YYYY-MM-DD, que entra en la lista de caracteres
+  // permitidos para texto libre.
+  fechaEspecifica: { valor: "" },
+  rangoDesde:      { valor: "" },
+  rangoHasta:      { valor: "" },
+  rol:     { valor: [], valores: ["Coordinación", "Facilitadora", "Promotora", "Trabajadora Social"], multiple: true },
+  estado:  { valor: [], valores: ["Registrado", "Sensible", "Observado"], multiple: true },
+  pagina:  { valor: 1, numeros: { min: 1, max: 10000 } },
+  tam:     { valor: 10, numeros: { min: 5, max: 100 } },
+};
 
 // Vista: Tablero Principal Dashboard
 export const DashboardView = {
+  _filtros: null,
+  _filtrosLeidos: false,
+
+  _obtenerFiltros() {
+    if (!this._filtros) {
+      this._filtros = crearFiltros(FILTROS_AUDITORIA);
+    }
+    return this._filtros;
+  },
+
+  _persistirFiltros(extra) {
+    this._obtenerFiltros().escribir({
+      q: this._auditSearchQuery,
+      accion: this._filterAuditAction,
+      fecha: this._filterAuditDate,
+      fechaEspecifica: this._customDateSpecific,
+      rangoDesde: this._customDateRangeStart,
+      rangoHasta: this._customDateRangeEnd,
+      rol: this._filterAuditRole,
+      estado: this._filterAuditStatus,
+      pagina: this._auditCurrentPage,
+      tam: this._auditPageSize,
+      ...(extra || {}),
+    });
+  },
+
+  _leerFiltrosDeURL() {
+    if (this._filtrosLeidos) return;
+    this._filtrosLeidos = true;
+
+    const f = this._obtenerFiltros().leer();
+    this._auditSearchQuery = (f.q || "").toLowerCase();
+    this._filterAuditAction = f.accion;
+    this._filterAuditDate = f.fecha;
+    this._filterAuditRole = f.rol;
+    this._filterAuditStatus = f.estado;
+    this._auditCurrentPage = f.pagina;
+    this._auditPageSize = f.tam;
+
+    // El rango personalizado necesita los dos extremos. Si solo llega uno, se
+    // descarta el rango entero: filtrar por un intervalo con un extremo
+    // inventado no significaria nada.
+    this._customDateSpecific = f.fechaEspecifica || "";
+    this._customDateRangeStart = f.rangoDesde || "";
+    this._customDateRangeEnd = f.rangoHasta || "";
+
+    const input = document.getElementById("inputAuditSearch");
+    if (input) input.value = f.q;
+    const clearBtn = document.getElementById("btnAuditSearchClear");
+    if (clearBtn) clearBtn.style.display = f.q ? "inline-flex" : "none";
+
+    this._updateActionDropdownUI();
+    this._updateRoleDropdownUI();
+    this._updateStatusDropdownUI();
+    this._updateDateUI();
+  },
+
   render(stats, auditLogs) {
     const animateNum = (el, val, isPct = false) => {
       if (!el) return;
@@ -311,6 +389,9 @@ export const DashboardView = {
   },
 
   renderAuditLogs(logs) {
+    // La lectura va antes de los indicadores: si se lee despues, el total que
+    // se muestra es el de la pagina entera y no el de lo que se esta viendo.
+    this._leerFiltrosDeURL();
     this._currentAuditLogs = logs || [];
     this.updateAuditKpis(this._currentAuditLogs);
     this.applyAuditFilters();
@@ -408,21 +489,7 @@ export const DashboardView = {
 
   selectDate(dateKey, label) {
     this._filterAuditDate = dateKey || "all";
-    const items = document.querySelectorAll("#menuAuditDate .padron-dropdown-item");
-    items.forEach(item => {
-      item.classList.toggle("selected", item.getAttribute("data-value") === this._filterAuditDate);
-    });
-
-    const labelEl = document.getElementById("labelAuditDateSelect");
-    if (labelEl) {
-      labelEl.textContent = label || "Todas las Fechas";
-    }
-
-    // Conmutar paneles de fecha
-    const panelSpecific = document.getElementById("panelAuditDateSpecific");
-    const panelRange = document.getElementById("panelAuditDateRange");
-    if (panelSpecific) panelSpecific.style.display = (dateKey === "specific") ? "flex" : "none";
-    if (panelRange) panelRange.style.display = (dateKey === "range") ? "flex" : "none";
+    this._updateDateUI(label);
 
     // Cerrar dropdown si es selección directa de fecha fija
     if (dateKey !== "specific" && dateKey !== "range") {
@@ -432,6 +499,45 @@ export const DashboardView = {
 
     this._auditCurrentPage = 1;
     this.applyAuditFilters();
+  },
+
+  /**
+   * Pinta el desplegable de fecha y muestra el panel que corresponda.
+   *
+   * Se separa de selectDate() porque al restaurar desde la URL hay que mostrar
+   * el panel de fecha especifica o de rango sin cerrar el desplegable ni
+   * reiniciar la paginacion: en ese momento no hay pulsacion, hay una URL.
+   */
+  _updateDateUI(alternativa) {
+    const items = document.querySelectorAll("#menuAuditDate .padron-dropdown-item");
+    let texto = null;
+    items.forEach(item => {
+      const coincide = item.getAttribute("data-value") === this._filterAuditDate;
+      item.classList.toggle("selected", coincide);
+      if (coincide) {
+        const span = item.querySelector(".padron-item-label");
+        if (span) texto = span.textContent.trim();
+      }
+    });
+
+    const labelEl = document.getElementById("labelAuditDateSelect");
+    if (labelEl) {
+      labelEl.textContent = texto || alternativa || "Todas las Fechas";
+    }
+
+    const panelSpecific = document.getElementById("panelAuditDateSpecific");
+    const panelRange = document.getElementById("panelAuditDateRange");
+    if (panelSpecific) panelSpecific.style.display = (this._filterAuditDate === "specific") ? "flex" : "none";
+    if (panelRange) panelRange.style.display = (this._filterAuditDate === "range") ? "flex" : "none";
+
+    // Los <input type="date"> del panel de rango conservan su valor: al recargar
+    // un enlace con rango, los dos campos tienen que mostrarlo.
+    const inputSpecific = document.getElementById("inputAuditDateSpecific");
+    if (inputSpecific) inputSpecific.value = this._customDateSpecific || "";
+    const inputDesde = document.getElementById("inputAuditDateRangeStart");
+    if (inputDesde) inputDesde.value = this._customDateRangeStart || "";
+    const inputHasta = document.getElementById("inputAuditDateRangeEnd");
+    if (inputHasta) inputHasta.value = this._customDateRangeEnd || "";
   },
 
   toggleRole(val) {
@@ -596,6 +702,9 @@ export const DashboardView = {
       clearBtn.style.display = query && query.length > 0 ? "flex" : "none";
     }
     this.applyAuditFilters();
+    // Se escribe lo tecleado, no _auditSearchQuery: este va en minusculas y sin
+    // espacios, y al recargar el buscador mostraria un texto que nadie escribio.
+    this._persistirFiltros({ q: query || "" });
   },
 
   clearSearch() {
@@ -776,6 +885,15 @@ export const DashboardView = {
     this.renderAuditTableAndCards(paginatedLogs);
     this.renderAuditPagination(totalRecords, startIndex, endIndex, totalPages);
     this.updateAuditKpis(filtered);
+
+    // Un solo punto de escritura para los nueve filtros: toggleAction(),
+    // selectDate(), toggleRole(), toggleStatus(), handleDatePickerChange(),
+    // handleDateManualInput(), filterBySearch(), changePage(), changePageSize()
+    // y resetAuditFilters() terminan todos en applyAuditFilters(), y en cuanto
+    // cambian algo lo unico que hacen falta es repintar. Se escribe al final, ya
+    // con la pagina normalizada, para que la URL no anuncie una pagina que
+    // despues el propio filtro deja fuera de rango.
+    this._persistirFiltros();
   },
 
   _updateAuditFacetCounts() {

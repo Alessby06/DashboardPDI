@@ -1,4 +1,26 @@
 // Vista: Padrón de Beneficiarios
+import { crear as crearFiltros } from "../utils/Filters.js";
+
+// Qué filtros del padrón viajan en la URL, con qué valores y cuáles son los
+// defectos. La lista de valores no se inventa: es la misma que admiten los
+// desplegables de src/pages/padron.html. Si algún día se añade un filtro
+// aquí, hay que añadirlo también a src/pages/, o el enlace que comparta
+// alguien no reproducirá lo que veía.
+const FILTROS_PADRON = {
+  q:         { valor: "" },
+  servicio:  { valor: [], valores: ["desayuno", "casita", "pastoral"], multiple: true },
+  sede:      { valor: [], valores: ["Año Nuevo", "La Libertad", "San Pedro", "El Progreso", "Santa Rosa", "Los Bendecidos"], multiple: true },
+  anemia:    { valor: [], valores: ["Normal", "Leve", "Moderada"], multiple: true },
+  edadModo:  { valor: "all", valores: ["all", "exacta", "rango"] },
+  edadValor: { valor: null, numeros: { min: 0, max: 18 } },
+  edadMin:   { valor: 0, numeros: { min: 0, max: 18 } },
+  edadMax:   { valor: 18, numeros: { min: 0, max: 18 } },
+  estado:    { valor: "all", valores: ["all", "Activo", "Inactivo"] },
+  sexo:      { valor: "all", valores: ["all", "F", "M"] },
+  pagina:    { valor: 1, numeros: { min: 1, max: 1000 } },
+  tam:       { valor: 20, numeros: { min: 5, max: 50 } },
+};
+
 export const BeneficiariosView = {
   _allBeneficiarios: [],
   _filteredBeneficiarios: [],
@@ -14,15 +36,116 @@ export const BeneficiariosView = {
   _filterEstado: "all", // "all" | "Activo" | "Inactivo"
   _filterSexo: "all",   // "all" | "M" | "F"
 
-  init(beneficiarios) {
-    this._allBeneficiarios = beneficiarios || [];
-    this._currentPage = 1;
-    this._pageSize = this._getEffectivePageSize();
-    this._syncPageSizeSelectUI();
-    this.applyFilters(true);
+  // Controlador de filtros en la URL. Se crea la primera vez porque el objeto
+  // es un singleton de modulo: crearlo arriba del todo exigiria que window
+  // existiera al cargarlo, y en la prueba de grafos se importa sin DOM.
+  _filtros: null,
+
+  // El estado de la URL se lee una sola vez por carga. Sin este guardia,
+  // publicarRefresco() vuelve a pintar la vista despues de cada guardado y
+  // releeria la URL, pisando lo que la persona acaba de filtrar a mano.
+  _filtrosLeidos: false,
+
+  _obtenerFiltros() {
+    if (!this._filtros) {
+      this._filtros = crearFiltros(FILTROS_PADRON);
+    }
+    return this._filtros;
   },
 
+  /**
+   * Vuelca el estado de filtrado actual a la barra de direcciones.
+   *
+   * Se llama desde todos los metodos publicos que cambian un filtro. Escriben
+   * el estado completo, no un trozo, porque un filtro de este patron casi
+   * siempre viene con un resets de pagina: si solo se escribiera la clave que
+   * cambia, la pagina 7 se quedaria colgada en la URL al filtrar.
+   *
+   * @param {Object} [extra]  Valores que ganan a los del estado. Lo usa el
+   *   buscador para escribir el texto tal como se escribio, con su capitalizacion,
+   *   en vez de la version normalizada que se usa para comparar.
+   */
+  _persistirFiltros(extra) {
+    this._obtenerFiltros().escribir({
+      q: this._searchQuery,
+      servicio: this._filterServicio,
+      sede: this._filterSede,
+      anemia: this._filterAnemia,
+      edadModo: this._filterEdadModo,
+      edadValor: this._filterEdadExacta,
+      edadMin: this._filterEdadRango.min,
+      edadMax: this._filterEdadRango.max,
+      estado: this._filterEstado,
+      sexo: this._filterSexo,
+      pagina: this._currentPage,
+      tam: this._pageSize,
+      ...(extra || {}),
+    });
+  },
+
+  /**
+   * Toma el estado de filtrado de la URL y lo refleja en los controles.
+   *
+   * Se ejecuta antes de applyFilters, y por eso actualiza la interfaz a mano en
+   * vez de llamar a los selectEstado()/setEdadExacta() de la vista: esos metodos
+   * terminan en applyFilters(), y llamarlos aqui filtraria contra una lista
+   * todavia vacia.
+   *
+   * Solo la primera vez: ver el guardia _filtrosLeidos.
+   */
+  _leerFiltrosDeURL() {
+    if (this._filtrosLeidos) return;
+    this._filtrosLeidos = true;
+
+    const f = this._obtenerFiltros().leer();
+
+    this._searchQuery = (f.q || "").toLowerCase();
+    this._filterServicio = f.servicio;
+    this._filterSede = f.sede;
+    this._filterAnemia = f.anemia;
+    this._filterEstado = f.estado;
+    this._filterSexo = f.sexo;
+    this._filterEdadModo = f.edadModo;
+    this._filterEdadExacta = f.edadValor;
+    this._currentPage = f.pagina;
+    this._pageSize = f.tam;
+
+    // Una URL puede pedir min=14 y max=3, porque los dos parametros se
+    // acotan por separado. Aqui se ordenan, porque un rango invertido no
+    // significa nada.
+    const min = f.edadMin;
+    const max = f.edadMax;
+    this._filterEdadRango = { min: Math.min(min, max), max: Math.max(min, max) };
+
+    const input = document.getElementById("inputPadronSearch");
+    if (input) input.value = f.q;
+    const clearBtn = document.getElementById("btnPadronSearchClear");
+    if (clearBtn) clearBtn.style.display = f.q ? "flex" : "none";
+
+    this._updateServicioDropdownUI();
+    this._updateSedeDropdownUI();
+    this._updateAnemiaDropdownUI();
+    this._updateEdadUI();
+    this._updateSexoDropdownUI();
+    this._updateEstadoUI();
+  },
+
+  init(beneficiarios) {
+    this._allBeneficiarios = beneficiarios || [];
+    this._leerFiltrosDeURL();
+    this._pageSize = this._getEffectivePageSize();
+    this._syncPageSizeSelectUI();
+    this.applyFilters(false);
+  },
+
+  /**
+   * Punto de entrada real de esta vista. El punto de entrada de la pagina
+   * llama a renderTable() y no a init(), asi que el estado de la URL tiene que
+   * leerse tambien aqui.
+   */
   renderTable(beneficiarios) {
+    this._leerFiltrosDeURL();
+    this._pageSize = this._getEffectivePageSize();
     if (beneficiarios) {
       this._allBeneficiarios = beneficiarios;
     }
@@ -62,6 +185,7 @@ export const BeneficiariosView = {
     this._currentPage = 1;
     this._syncPageSizeSelectUI();
     this.applyFilters(false);
+    this._persistirFiltros();
   },
 
   goToPage(page) {
@@ -70,6 +194,7 @@ export const BeneficiariosView = {
     this._currentPage = Math.min(totalPages, Math.max(1, page));
     this._renderPagination(this._filteredBeneficiarios.length);
     this._renderCurrentPage();
+    this._persistirFiltros();
   },
 
   prevPage() {
@@ -93,6 +218,10 @@ export const BeneficiariosView = {
       clearBtn.style.display = this._searchQuery.length > 0 ? "flex" : "none";
     }
     this.applyFilters();
+    // Se escribe el texto tal como se escribio, no _searchQuery: este ultimo va
+    // en minusculas y sin espacios, y al recargar el buscador mostraria algo que
+    // la persona nunca habia tecleado.
+    this._persistirFiltros({ q: query || "" });
   },
 
   clearSearch() {
@@ -130,6 +259,7 @@ export const BeneficiariosView = {
     }
     this._updateServicioDropdownUI();
     this.applyFilters();
+    this._persistirFiltros();
   },
 
   _updateServicioDropdownUI() {
@@ -177,6 +307,7 @@ export const BeneficiariosView = {
     }
     this._updateSedeDropdownUI();
     this.applyFilters();
+    this._persistirFiltros();
   },
 
   _updateSedeDropdownUI() {
@@ -223,6 +354,7 @@ export const BeneficiariosView = {
     }
     this._updateAnemiaDropdownUI();
     this.applyFilters();
+    this._persistirFiltros();
   },
 
   _updateAnemiaDropdownUI() {
@@ -257,6 +389,7 @@ export const BeneficiariosView = {
       this._filterEdadRango = { min: 0, max: 18 };
       this._updateEdadUI();
       this.applyFilters();
+      this._persistirFiltros();
       return;
     }
 
@@ -272,6 +405,7 @@ export const BeneficiariosView = {
     }
     this._updateEdadUI();
     this.applyFilters();
+    this._persistirFiltros();
   },
 
   syncEdadRango(handle, val) {
@@ -312,6 +446,7 @@ export const BeneficiariosView = {
 
     this._updateEdadUI();
     this.applyFilters();
+    this._persistirFiltros();
   },
 
   clearEdad() {
@@ -322,6 +457,7 @@ export const BeneficiariosView = {
     if (numInput) numInput.value = "";
     this._updateEdadUI();
     this.applyFilters();
+    this._persistirFiltros();
   },
 
   _updateEdadUI() {
@@ -372,6 +508,18 @@ export const BeneficiariosView = {
 
   selectEstado(estadoVal) {
     this._filterEstado = estadoVal || "all";
+    this._updateEstadoUI();
+
+    // Cerrar dropdown de estado al seleccionar
+    const drop = document.getElementById("dropdownPadronEstado");
+    if (drop) drop.classList.remove("open");
+
+    this.applyFilters();
+    this._persistirFiltros();
+  },
+
+  /** Pinta el desplegable y la etiqueta del filtro de estado. */
+  _updateEstadoUI() {
     const items = document.querySelectorAll("#menuPadronEstado .padron-dropdown-item");
     items.forEach(item => {
       item.classList.toggle("selected", item.getAttribute("data-value") === this._filterEstado);
@@ -383,12 +531,6 @@ export const BeneficiariosView = {
       else if (this._filterEstado === "Activo") labelEl.textContent = "Activo";
       else if (this._filterEstado === "Inactivo") labelEl.textContent = "Inactivo / Baja";
     }
-
-    // Cerrar dropdown de estado al seleccionar
-    const drop = document.getElementById("dropdownPadronEstado");
-    if (drop) drop.classList.remove("open");
-
-    this.applyFilters();
   },
 
   selectSexo(sexoVal) {
@@ -399,6 +541,7 @@ export const BeneficiariosView = {
     if (drop) drop.classList.remove("open");
 
     this.applyFilters();
+    this._persistirFiltros();
   },
 
   _updateSexoDropdownUI() {
@@ -463,16 +606,13 @@ export const BeneficiariosView = {
     this._updateAnemiaDropdownUI();
     this._updateEdadUI();
     this._updateSexoDropdownUI();
-
-    const estadoItems = document.querySelectorAll("#menuPadronEstado .padron-dropdown-item");
-    estadoItems.forEach(item => item.classList.toggle("selected", item.getAttribute("data-value") === "all"));
-    const labelEstado = document.getElementById("labelPadronEstadoSelect");
-    if (labelEstado) labelEstado.textContent = "Todos los Estados";
+    this._updateEstadoUI();
 
     // Cerrar cualquier dropdown interno que haya quedado abierto
     document.querySelectorAll(".padron-inner-dropdown.open").forEach(d => d.classList.remove("open"));
 
     this.applyFilters();
+    this._persistirFiltros();
   },
 
   _matchesServicio(beneficiario, servicioKeys) {

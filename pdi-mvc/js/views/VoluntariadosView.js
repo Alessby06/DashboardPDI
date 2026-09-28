@@ -2,12 +2,27 @@
 // Asociación Cultural Johannes Gutenberg - Lima Norte
 
 import { VoluntarioModel, TEMATICAS_CAPACITACION } from '../models/VoluntarioModel.js';
+import { crear as crearFiltros } from '../utils/Filters.js';
 
 // Etiquetas cortas para los nombres largos de servicio (chips y dropdowns de filtro)
 const SERVICIO_LABELS = {
   "Desayuno Infantil": "Desayuno Infantil",
   "Casita del Saber": "Casita del Saber",
   "Área Social Pastoral (ASP)": "Pastoral ASP"
+};
+
+// Filtros del padrón de voluntarios que viajan en la URL.
+const FILTROS_VOLUNTARIOS = {
+  q:        { valor: "" },
+  distrito: { valor: [], valores: ["Comas", "Carabayllo"], multiple: true },
+  servicio: { valor: [], valores: ["Desayuno Infantil", "Casita del Saber", "Área Social Pastoral (ASP)"], multiple: true },
+  // El rol no tiene desplegable: se marca desde las pildoras de cada fila, asi
+  // que el dominio son los roles que existan en los datos, no una lista cerrada.
+  // Por eso se declara sin `valores` y Filters.js lo acota por longitud y
+  // caracteres. Fijar aqui una lista seria hacer que un rol nuevo no se pudiera
+  // filtrar ni compartir por enlace.
+  rol:      { valor: [], multiple: true },
+  estado:   { valor: "all", valores: ["all", "Activo", "En Pausa"] },
 };
 
 export const VoluntariadosView = {
@@ -17,7 +32,49 @@ export const VoluntariadosView = {
   _filterServicio: [],
   _filterRol: [],
   _filterEstado: "all",
+  // Estado de edicion en curso. No va en la URL: es un modal, no una vista, y
+  // relajar a alguien a mitad de una ficha es peor que no recorderlo.
   _currentEditingId: null,
+
+  _filtros: null,
+  _filtrosLeidos: false,
+
+  _obtenerFiltros() {
+    if (!this._filtros) {
+      this._filtros = crearFiltros(FILTROS_VOLUNTARIOS);
+    }
+    return this._filtros;
+  },
+
+  _persistirFiltros(extra) {
+    this._obtenerFiltros().escribir({
+      q: this._searchQuery,
+      distrito: this._filterDistrito,
+      servicio: this._filterServicio,
+      rol: this._filterRol,
+      estado: this._filterEstado,
+      ...(extra || {}),
+    });
+  },
+
+  _leerFiltrosDeURL() {
+    if (this._filtrosLeidos) return;
+    this._filtrosLeidos = true;
+
+    const f = this._obtenerFiltros().leer();
+    this._searchQuery = (f.q || "").toLowerCase();
+    this._filterDistrito = f.distrito;
+    this._filterServicio = f.servicio;
+    this._filterRol = f.rol;
+    this._filterEstado = f.estado;
+
+    const input = document.getElementById("inputVoluntariosSearch");
+    if (input) input.value = f.q;
+    const clearBtn = document.getElementById("btnVoluntariosSearchClear");
+    if (clearBtn) clearBtn.style.display = f.q ? "inline-flex" : "none";
+
+    this._updateFilterDropdownUI();
+  },
 
   init(voluntarios) {
     this._voluntarios = voluntarios || VoluntarioModel.getAll();
@@ -33,6 +90,7 @@ export const VoluntariadosView = {
         const clearBtn = document.getElementById("btnVoluntariosSearchClear");
         if (clearBtn) clearBtn.style.display = this._searchQuery ? "inline-flex" : "none";
         this.applyFilters();
+        this._persistirFiltros({ q: e.target.value });
       });
     }
 
@@ -49,6 +107,7 @@ export const VoluntariadosView = {
   },
 
   render() {
+    this._leerFiltrosDeURL();
     this._voluntarios = VoluntarioModel.getAll();
     this._renderKPIs();
     this._renderActiveChips();
@@ -645,6 +704,7 @@ export const VoluntariadosView = {
     const clearBtn = document.getElementById("btnVoluntariosSearchClear");
     if (clearBtn) clearBtn.style.display = "none";
     this.applyFilters();
+    this._persistirFiltros();
   },
 
   toggleDistrito(dist) {
@@ -657,6 +717,7 @@ export const VoluntariadosView = {
     }
     this._updateFilterDropdownUI();
     this.applyFilters();
+    this._persistirFiltros();
   },
 
   toggleServicio(serv) {
@@ -669,6 +730,7 @@ export const VoluntariadosView = {
     }
     this._updateFilterDropdownUI();
     this.applyFilters();
+    this._persistirFiltros();
   },
 
   toggleRol(rol) {
@@ -681,12 +743,14 @@ export const VoluntariadosView = {
     }
     this._updateFilterDropdownUI();
     this.applyFilters();
+    this._persistirFiltros();
   },
 
   toggleEstado(estado) {
     this._filterEstado = estado;
     this._updateFilterDropdownUI();
     this.applyFilters();
+    this._persistirFiltros();
   },
 
   removeFilter(filterKey, specificVal) {
@@ -721,6 +785,7 @@ export const VoluntariadosView = {
 
     this._updateFilterDropdownUI();
     this.applyFilters();
+    this._persistirFiltros();
   },
 
   _updateDistritoDropdownUI() {

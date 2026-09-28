@@ -1,4 +1,15 @@
 // Vista: Módulo de Salud y Nutrición CRED
+import { crear as crearFiltros } from '../utils/Filters.js';
+
+// Filtros del modulo CRED que viajan en la URL. Valores tomados de los
+// desplegables de src/pages/salud.html.
+const FILTROS_SALUD = {
+  q:       { valor: "" },
+  anemia:  { valor: [], valores: ["Normal", "Leve", "Moderada"], multiple: true },
+  sede:    { valor: [], valores: ["Año Nuevo", "La Libertad", "San Pedro", "El Progreso", "Santa Rosa", "Los Bendecidos"], multiple: true },
+  hb:      { valor: "all", valores: ["all", "anemia", "normal", "critico"] },
+};
+
 export const SaludCredView = {
   _allBeneficiarios: [],
   _filteredBeneficiarios: [],
@@ -7,7 +18,48 @@ export const SaludCredView = {
   _filterSede: [],
   _filterHbNivel: "all",
 
+  _filtros: null,
+  _filtrosLeidos: false,
+
+  _obtenerFiltros() {
+    if (!this._filtros) {
+      this._filtros = crearFiltros(FILTROS_SALUD);
+    }
+    return this._filtros;
+  },
+
+  _persistirFiltros(extra) {
+    this._obtenerFiltros().escribir({
+      q: this._searchQuery,
+      anemia: this._filterAnemia,
+      sede: this._filterSede,
+      hb: this._filterHbNivel,
+      ...(extra || {}),
+    });
+  },
+
+  _leerFiltrosDeURL() {
+    if (this._filtrosLeidos) return;
+    this._filtrosLeidos = true;
+
+    const f = this._obtenerFiltros().leer();
+    this._searchQuery = (f.q || "").toLowerCase();
+    this._filterAnemia = f.anemia;
+    this._filterSede = f.sede;
+    this._filterHbNivel = f.hb;
+
+    const input = document.getElementById("inputSaludSearch");
+    if (input) input.value = f.q;
+    const clearBtn = document.getElementById("btnSaludSearchClear");
+    if (clearBtn) clearBtn.style.display = f.q ? "flex" : "none";
+
+    this._updateAnemiaDropdownUI();
+    this._updateSedeDropdownUI();
+    this._updateHbUI();
+  },
+
   renderTable(beneficiarios) {
+    this._leerFiltrosDeURL();
     if (beneficiarios && Array.isArray(beneficiarios)) {
       this._allBeneficiarios = beneficiarios;
     } else if (window.PDI?.BeneficiarioModel) {
@@ -23,6 +75,7 @@ export const SaludCredView = {
       clearBtn.style.display = this._searchQuery.length > 0 ? "flex" : "none";
     }
     this.applyFilters();
+    this._persistirFiltros({ q: query || "" });
   },
 
   clearSearch() {
@@ -48,6 +101,7 @@ export const SaludCredView = {
     }
     this._updateAnemiaDropdownUI();
     this.applyFilters();
+    this._persistirFiltros();
   },
 
   _updateAnemiaDropdownUI() {
@@ -92,6 +146,7 @@ export const SaludCredView = {
     }
     this._updateSedeDropdownUI();
     this.applyFilters();
+    this._persistirFiltros();
   },
 
   _updateSedeDropdownUI() {
@@ -122,20 +177,39 @@ export const SaludCredView = {
 
   selectHbNivel(val, label) {
     this._filterHbNivel = val || "all";
-    const items = document.querySelectorAll("#menuSaludHb .padron-dropdown-item");
-    items.forEach(item => {
-      item.classList.toggle("selected", item.getAttribute("data-value") === this._filterHbNivel);
-    });
-
-    const labelEl = document.getElementById("labelSaludHbSelect");
-    if (labelEl) {
-      labelEl.textContent = label || "Todos los Niveles";
-    }
+    this._updateHbUI(label);
 
     const drop = document.getElementById("dropdownSaludHb");
     if (drop) drop.classList.remove("open");
 
     this.applyFilters();
+    this._persistirFiltros();
+  },
+
+  /**
+   * Pinta el desplegable de hemoglobina.
+   *
+   * La etiqueta se lee del propio <span class="padron-item-label"> y no del
+   * argumento que le pasa el onclick. El texto ya está escrito en el HTML, y
+   * duplicarlo en JavaScript es garantizar que acaben discrepando; además, al
+   * restaurar desde la URL no hay ningún onclick que consultar.
+   */
+  _updateHbUI(etiquetaAlternativa) {
+    const items = document.querySelectorAll("#menuSaludHb .padron-dropdown-item");
+    let texto = null;
+    items.forEach(item => {
+      const coincide = item.getAttribute("data-value") === this._filterHbNivel;
+      item.classList.toggle("selected", coincide);
+      if (coincide) {
+        const span = item.querySelector(".padron-item-label");
+        if (span) texto = span.textContent.trim();
+      }
+    });
+
+    const labelEl = document.getElementById("labelSaludHbSelect");
+    if (labelEl) {
+      labelEl.textContent = texto || etiquetaAlternativa || "Todos los Niveles";
+    }
   },
 
   removeFilter(filterKey, specificVal) {
@@ -166,11 +240,12 @@ export const SaludCredView = {
 
     this._updateAnemiaDropdownUI();
     this._updateSedeDropdownUI();
-    this.selectHbNivel("all", "Todos los Niveles");
+    this._updateHbUI();
 
     document.querySelectorAll(".padron-inner-dropdown.open").forEach(d => d.classList.remove("open"));
 
     this.applyFilters();
+    this._persistirFiltros();
   },
 
   _matchesAnemia(b, anemiaKeys) {
