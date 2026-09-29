@@ -585,5 +585,4 @@ export const BeneficiarioController = {
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
   window.PDI.BeneficiarioController = BeneficiarioController;
-  window.toggleBeneficiarioServicio = (id, servicio) => BeneficiarioController.toggleServicio(id, servicio);
 }

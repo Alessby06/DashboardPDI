@@ -87,8 +87,6 @@ window.capturarGpsCampo = (ctx = "reg") => window.PDI?.BeneficiarioController?.c
 
 window.guardarNuevoMenor = (e) =>
   window.PDI?.BeneficiarioController?.saveNuevoMenor?.(e, refrescarVistaActual);
-window.guardarNuevoBeneficiario = (e) =>
-  window.PDI?.BeneficiarioController?.saveNuevoMenor?.(e, refrescarVistaActual);
 
 // ---------------------------------------------------------------------------
 //  MODALES
@@ -96,8 +94,6 @@ window.guardarNuevoBeneficiario = (e) =>
 window.openModalNuevoMenor = () => ModalView.openNuevoMenor();
 window.openModalNuevoBeneficiario = () => ModalView.openNuevoMenor();
 window.closeModalNuevoMenor = () => ModalView.closeNuevoMenor();
-window.closeModalNuevoBeneficiario = () => ModalView.closeNuevoMenor();
-window.closeModalInforme = () => ModalView.closeInforme();
 window.closeModalAuditDetail = () => ModalView.closeAuditDetail();
 window.openModalExportAudit = () => {
   const modal = document.getElementById("modalConfirmExportAudit");
@@ -144,17 +140,18 @@ window.deleteBeneficiarioExpediente = () => window.PDI?.ExpedienteView?.deleteBe
 // ---------------------------------------------------------------------------
 //  CALCULADORAS
 // ---------------------------------------------------------------------------
-//  Las tres resuelven por window.PDI. Sus controladores los cargan las paginas
-//  que los necesitan y solo esas: salud.js y social.js. Antes los importaba
-//  este archivo, y eso metia en las otras ocho paginas SaludController, que
-//  arrastra SaludCredView, y SocialController, que arrastra SocialKanbanView.
+//  CALCULADORAS
+// ---------------------------------------------------------------------------
+//  Resuelven por window.PDI. Sus controladores los cargan las paginas que los
+//  necesitan y solo esas: salud.js y social.js. Antes los importaba este
+//  archivo, y eso metia en las otras ocho paginas SaludController, que arrastra
+//  SaludCredView, y SocialController, que arrastra SocialKanbanView.
 window.calculateAnemiaPreview = () => {
   const inputEl = document.getElementById("calcHbInput");
   const sliderEl = document.getElementById("quickHbSlider");
   const val = inputEl ? inputEl.value : sliderEl ? sliderEl.value : 10.4;
   window.PDI?.SaludController?.handleHbChange?.(val);
 };
-window.calculateVulnerabilidad = () => window.PDI?.SocialController?.handleVulnerabilidadChange?.();
 window.calcularEvaluacionSocioeconomica = () => window.PDI?.SocialController?.calcularEvaluacion?.();
 window.syncScoreSimulador = (dimKey, val) => window.PDI?.SocialController?.syncScore?.(dimKey, val);
 window.cargarCasoEnSimulador = (codigo) => window.PDI?.SocialController?.cargarCasoEnSimulador?.(codigo);
@@ -245,13 +242,8 @@ window.exportAuditCSV = () => window.PDI?.AppController?.exportAuditCSV?.();
 // ---------------------------------------------------------------------------
 window.toggleAuditInnerDropdown = (id) => window.PDI?.DashboardView?.toggleInnerDropdown?.(id);
 window.toggleAuditAction = (val) => window.PDI?.DashboardView?.toggleAction?.(val);
-window.filterAuditAction = (action) => window.PDI?.DashboardView?.toggleAction?.(action);
-window.selectAuditAction = (val, label) => window.PDI?.DashboardView?.toggleAction?.(val);
 window.selectAuditDate = (val, label) => window.PDI?.DashboardView?.selectDate?.(val, label);
-window.filterAuditDate = (dateKey) => window.PDI?.DashboardView?.selectDate?.(dateKey);
 window.toggleAuditRole = (val) => window.PDI?.DashboardView?.toggleRole?.(val);
-window.filterAuditRole = (role) => window.PDI?.DashboardView?.toggleRole?.(role);
-window.selectAuditRole = (val, label) => window.PDI?.DashboardView?.toggleRole?.(val);
 window.toggleAuditStatus = (val) => window.PDI?.DashboardView?.toggleStatus?.(val);
 window.removeAuditChip = (key, val) => window.PDI?.DashboardView?.removeAuditFilter?.(key, val);
 window.resetAuditFilters = () => window.PDI?.DashboardView?.resetAuditFilters?.();
@@ -309,16 +301,10 @@ window.filterPadronSearch = vista("BeneficiariosView", "filterBySearch");
 window.clearPadronSearch = vista("BeneficiariosView", "clearSearch");
 window.togglePadronInnerDropdown = vista("BeneficiariosView", "toggleInnerDropdown");
 window.togglePadronServicio = vista("BeneficiariosView", "toggleServicio");
-window.selectPadronServicio = vista("BeneficiariosView", "toggleServicio");
 window.togglePadronSede = vista("BeneficiariosView", "toggleSede");
-window.selectPadronSede = vista("BeneficiariosView", "toggleSede");
 window.togglePadronAnemia = vista("BeneficiariosView", "toggleAnemia");
-window.selectPadronAnemia = vista("BeneficiariosView", "toggleAnemia");
 window.setPadronEdadExacta = vista("BeneficiariosView", "setEdadExacta");
 window.syncPadronEdadRango = vista("BeneficiariosView", "syncEdadRango");
-window.syncPadronEdad = (val, source) =>
-  source === "slider" ? vista("BeneficiariosView", "syncEdadRango")("min", val)
-                     : vista("BeneficiariosView", "setEdadExacta")(val);
 window.clearPadronEdad = vista("BeneficiariosView", "clearEdad");
 window.removePadronChip = vista("BeneficiariosView", "removeFilter");
 window.selectPadronEstado = vista("BeneficiariosView", "selectEstado");

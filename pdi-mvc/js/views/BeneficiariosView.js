@@ -1149,7 +1149,6 @@ if (typeof window !== "undefined") {
   window.PDI.BeneficiariosView = BeneficiariosView;
 
   window.padronSetPageSize = (size) => BeneficiariosView.setPageSize(size);
-  window.padronGoToPage = (page) => BeneficiariosView.goToPage(page);
   window.padronPrevPage = () => BeneficiariosView.prevPage();
   window.padronNextPage = () => BeneficiariosView.nextPage();
   window.selectPadronSexo = (sexo) => BeneficiariosView.selectSexo(sexo);

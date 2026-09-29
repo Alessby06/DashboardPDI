@@ -606,5 +606,4 @@ export const SocialKanbanView = {
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
   window.PDI.SocialKanbanView = SocialKanbanView;
-  window.toggleSimuladorSocio = () => SocialKanbanView.toggleSimulador();
 }
