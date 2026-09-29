@@ -33,8 +33,12 @@ for flujo in (sys.stdout, sys.stderr):
         pass
 
 # La raiz del sitio es el directorio padre: los scripts viven en scripts/.
+# ROOT es el proyecto (pdi-mvc/) y APP la raiz web (pdi-mvc/app/), que es
+# lo que se publica. Los modulos y los HTML viven en APP; las plantillas
+# de src/ y las herramientas de scripts/ se quedan en ROOT.
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-RAIZES_POR_DEFECTO = [os.path.join(BASE, "js"), os.path.join(BASE, "src"), os.path.join(BASE, "data")]
+APP = os.path.join(BASE, "app")
+RAIZES_POR_DEFECTO = [os.path.join(APP, "js"), os.path.join(BASE, "src"), os.path.join(APP, "data")]
 
 EXTENSIONES = {".js", ".html", ".css", ".py", ".json", ".md", ".mjs"}
 EXCLUIDOS = {"node_modules", ".git", "__pycache__", ".vercel", "assets"}

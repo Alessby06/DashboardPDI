@@ -6,9 +6,13 @@ import sys
 import socket
 import mimetypes
 
-# El sitio se sirve desde la raiz de pdi-mvc/, que es el directorio
-# padre: este script vive en scripts/, junto a las demas herramientas.
-DIRECTORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Se sirve desde pdi-mvc/app/, que es la raiz web: lo unico que publica
+# vercel.json. Este script vive en scripts/, asi que la raiz son dos niveles
+# hacia arriba. Servir la raiz del proyecto (un nivel) expondría src/, que es
+# fuente de las plantillas y no debe llegar al navegador.
+DIRECTORY = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "app"
+)
 os.chdir(DIRECTORY)
 
 # MIME types explícitos para evitar bloqueos en Windows

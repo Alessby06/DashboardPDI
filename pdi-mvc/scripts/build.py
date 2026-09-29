@@ -14,10 +14,13 @@ Uso:
 No requiere dependencias externas. El proyecto sigue sin build step en tiempo
 de ejecucion: las paginas generadas se versionan y se sirven tal cual.
 
-Este script esta en scripts/, asi que todo lo que sigue es relativo: la raiz
-del sitio es el directorio padre, que es el que se publica. Nada se copia ni se
-duplica: build.py solo escribe los HTML, y el resto (js, css, assets) ya esta
-en su sitio y lo sirve el navegador desde ahi.
+Hay dos raices y conviene no confundirlas. ROOT es pdi-mvc/, el proyecto, donde
+viven las plantillas de src/ y las herramientas de scripts/. APP es pdi-mvc/app/,
+que es la raiz web: lo unico que se publica y lo unico que vercel.json sirve.
+
+build.py lee de ROOT/src y escribe en APP. No copia nada: js, css, assets y data
+ya estan en APP y el navegador los carga desde ahi, con rutas relativas que no
+cambian al mover el conjunto.
 """
 
 import io
@@ -26,7 +29,8 @@ import re
 import sys
 
 BASE = os.path.dirname(os.path.abspath(__file__))   # scripts/
-ROOT = os.path.dirname(BASE)                        # pdi-mvc/, la raiz del sitio
+ROOT = os.path.dirname(BASE)                        # pdi-mvc/, el proyecto
+APP = os.path.join(ROOT, "app")                     # pdi-mvc/app/, la raiz web
 SRC = os.path.join(ROOT, "src")
 CHROME = os.path.join(SRC, "chrome")
 PAGES = os.path.join(SRC, "pages")
@@ -215,7 +219,7 @@ def validar(slug, html, entry, view_id):
     # pagina. Antes esta comprobacion comparaba el valor contra si mismo (el
     # mismo string que la plantilla acaba de escribir), asi que no podia fallar
     # nunca. Ahora mira el disco.
-    if not os.path.isfile(os.path.join(ROOT, entry.replace("/", os.sep))):
+    if not os.path.isfile(os.path.join(APP, entry.replace("/", os.sep))):
         problemas.append("el punto de entrada %s no existe" % entry)
 
     esperado = "js/pages/%s.js" % slug
@@ -284,7 +288,7 @@ def main():
     problemas = 0
 
     for slug, entry, view_id in PAGINAS:
-        destino = os.path.join(ROOT, "%s.html" % slug)
+        destino = os.path.join(APP, "%s.html" % slug)
         nuevo = construir(slug, entry)
 
         fallos = validar(slug, nuevo, entry, view_id)
@@ -303,7 +307,7 @@ def main():
             print("  generado %-22s (%5d lineas)" % (slug + ".html", nuevo.count("\n") + 1))
 
     # index.html queda como puerta de entrada al dashboard
-    with io.open(os.path.join(ROOT, "index.html"), "w", encoding="utf-8", newline="\n") as f:
+    with io.open(os.path.join(APP, "index.html"), "w", encoding="utf-8", newline="\n") as f:
         f.write(INDICE_REDIRECT)
 
     if problemas:

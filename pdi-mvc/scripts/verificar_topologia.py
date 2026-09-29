@@ -31,9 +31,13 @@ import re
 import sys
 
 # La raiz del sitio es el directorio padre: los scripts viven en scripts/.
+# ROOT es el proyecto (pdi-mvc/) y APP la raiz web (pdi-mvc/app/), que es
+# lo que se publica. Los modulos y los HTML viven en APP; las plantillas
+# de src/ y las herramientas de scripts/ se quedan en ROOT.
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+APP = os.path.join(BASE, "app")
 
-ROUTE_MAP = os.path.join(BASE, "js", "auth", "RouteMap.js")
+ROUTE_MAP = os.path.join(APP, "js", "auth", "RouteMap.js")
 SIDEBAR = os.path.join(BASE, "src", "chrome", "sidebar.html")
 
 # Fichas que no van en el menu: son paginas de detalle, a las que se llega por
@@ -177,9 +181,9 @@ def comprobar(paginas, orden, sidebar, build_paginas, sin_enlace_menu):
                 "%s: RouteMap declara archivo='%s', se esperaba '%s.html'"
                 % (slug, ficha["archivo"], slug)
             )
-        if not os.path.isfile(os.path.join(BASE, entry.replace("/", os.sep))):
+        if not os.path.isfile(os.path.join(APP, entry.replace("/", os.sep))):
             problemas.append("%s: el punto de entrada %s no existe" % (slug, entry))
-        if not os.path.isfile(os.path.join(BASE, "%s.html" % slug)):
+        if not os.path.isfile(os.path.join(APP, "%s.html" % slug)):
             problemas.append(
                 "%s: RouteMap lo declara en el menu pero %s.html no esta generado "
                 "(ejecuta python build.py)" % (slug, slug)
@@ -229,7 +233,7 @@ def comprobar(paginas, orden, sidebar, build_paginas, sin_enlace_menu):
     for slug, ficha in paginas.items():
         if ficha["enMenu"]:
             continue
-        if not os.path.isfile(os.path.join(BASE, "%s.html" % slug)):
+        if not os.path.isfile(os.path.join(APP, "%s.html" % slug)):
             problemas.append(
                 "%s: RouteMap lo declara (%s) y el codigo construye enlaces hacia el, "
                 "pero %s.html no existe: esos enlaces dan 404"

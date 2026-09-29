@@ -2,11 +2,11 @@
   "rewrites": [
     {
       "source": "/",
-      "destination": "/pdi-mvc/index.html"
+      "destination": "/pdi-mvc/app/index.html"
     },
     {
       "source": "/(.*)",
-      "destination": "/pdi-mvc/$1"
+      "destination": "/pdi-mvc/app/$1"
     }
   ]
 }

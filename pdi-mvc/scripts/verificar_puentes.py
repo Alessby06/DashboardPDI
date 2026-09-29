@@ -88,11 +88,15 @@ import re
 import sys
 
 # La raiz del sitio es el directorio padre: los scripts viven en scripts/.
+# ROOT es el proyecto (pdi-mvc/) y APP la raiz web (pdi-mvc/app/), que es
+# lo que se publica. Los modulos y los HTML viven en APP; las plantillas
+# de src/ y las herramientas de scripts/ se quedan en ROOT.
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+APP = os.path.join(BASE, "app")
 
-LEGACY = os.path.join(BASE, "js", "core", "legacy-globals.js")
-VISTAS = os.path.join(BASE, "js", "views")
-PAGINAS = os.path.join(BASE, "src", "pages")
+LEGACY = os.path.join(APP, "js", "core", "legacy-globals.js")
+VISTAS = os.path.join(APP, "js", "views")
+PAGINAS = os.path.join(BASE, "src", "pages")  # las plantillas siguen en el proyecto
 
 CARPETAS_JS = ["views", "controllers", "core", "utils", "models", "auth", "pages"]
 
@@ -276,7 +280,7 @@ def modulos_registrados():
     """
     archivos = []
     for carpeta in CARPETAS_JS:
-        raiz = os.path.join(BASE, "js", carpeta)
+        raiz = os.path.join(APP, "js", carpeta)
         if not os.path.isdir(raiz):
             continue
         for entrada in sorted(os.listdir(raiz)):
@@ -316,7 +320,7 @@ def puentes_por_archivo():
     """
     tabla = {}
     for carpeta in CARPETAS_JS:
-        raiz = os.path.join(BASE, "js", carpeta)
+        raiz = os.path.join(APP, "js", carpeta)
         if not os.path.isdir(raiz):
             continue
         for entrada in sorted(os.listdir(raiz)):
@@ -350,7 +354,7 @@ def atributos_con_eventos():
                 for fragmento in RE_ATRIBUTO_JS.findall(linea):
                     hallazgos.append(("src/%s/%s" % (carpeta, entrada), numero, fragmento))
     for carpeta in CARPETAS_JS:
-        raiz = os.path.join(BASE, "js", carpeta)
+        raiz = os.path.join(APP, "js", carpeta)
         if not os.path.isdir(raiz):
             continue
         for entrada in sorted(os.listdir(raiz)):
@@ -372,7 +376,7 @@ def llamadas_en_codigo():
     """
     nombres = set()
     for carpeta in CARPETAS_JS:
-        raiz = os.path.join(BASE, "js", carpeta)
+        raiz = os.path.join(APP, "js", carpeta)
         if not os.path.isdir(raiz):
             continue
         for entrada in sorted(os.listdir(raiz)):
@@ -431,7 +435,7 @@ def comprobar():
     # y un nombre mal escrito en cualquiera de ellos se comeria igual de
     # silencioso. El mensaje dice el archivo para que se sepa donde mirar.
     for carpeta in CARPETAS_JS:
-        raiz = os.path.join(BASE, "js", carpeta)
+        raiz = os.path.join(APP, "js", carpeta)
         if not os.path.isdir(raiz):
             continue
         for entrada in sorted(os.listdir(raiz)):

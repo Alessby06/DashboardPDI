@@ -28,15 +28,19 @@ import re
 import sys
 
 # La raiz del sitio es el directorio padre: los scripts viven en scripts/.
+# ROOT es el proyecto (pdi-mvc/) y APP la raiz web (pdi-mvc/app/), que es
+# lo que se publica. Los modulos y los HTML viven en APP; las plantillas
+# de src/ y las herramientas de scripts/ se quedan en ROOT.
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PAGES_DIR = os.path.join(BASE, "js", "pages")
+APP = os.path.join(BASE, "app")
+PAGES_DIR = os.path.join(APP, "js", "pages")
 
 # Directorios que nunca contienen modulos de la aplicacion.
 EXCLUIDOS = {"node_modules", ".git", "src", "__pycache__", ".vercel"}
 
 # Entrada historica de la SPA. Se conserva mientras exista, para no reportar
 # como inalcanzable un grafo que todavia no se haya dividido.
-ENTRADA_LEGACY = os.path.join(BASE, "js", "app.js")
+ENTRADA_LEGACY = os.path.join(APP, "js", "app.js")
 
 # import { a, b } from './x.js'  |  import './x.js'  |  export ... from './x.js'
 RE_IMPORT = re.compile(
@@ -66,7 +70,7 @@ def clave_de(ruta):
 def modulos_js():
     """Todos los .js del proyecto, indexados por ruta normalizada con /."""
     encontrados = {}
-    for raiz, dirs, archivos in os.walk(BASE):
+    for raiz, dirs, archivos in os.walk(APP):
         dirs[:] = [d for d in dirs if d not in EXCLUIDOS]
         for nombre in archivos:
             if nombre.endswith(".js"):
