@@ -3,7 +3,7 @@ import { crear as crearFiltros } from '../utils/Filters.js';
 import { Responsive } from '../utils/Responsive.js';
 
 // Filtros del módulo educativo que viajan en la URL. Valores tomados de los
-// desplegables de src/pages/educativo.html.
+// desplegables de educativo.html.
 const FILTROS_CASITAS = {
   q:          { valor: "" },
   asistencia: { valor: "all", valores: ["all", "P", "T", "FJ", "FI"] },

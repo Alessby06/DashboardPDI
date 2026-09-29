@@ -296,7 +296,7 @@
      =========================================================================
      Esta pagina no figura en el menu lateral: RouteMap la declara con
      enMenu:false y se llega a ella desde el padron con expediente?id=N. Por eso
-     no hay un enlace que la build.py pueda marcar como activo en el lateral, y
+     no hay un enlace que pueda marcarse como activo en el lateral, y
      por eso el boton de volver al padron va en su propia cabecera.
 
      El marcado de las seis secciones es el que tinha el modal, sin cambios. Lo
@@ -310,8 +310,9 @@
      de aqui este archivo se edita a mano, y volver a ejecutarlo sobrescribiria
      los cambios.
 
-     El id del <section> lo declara RouteMap como view-expediente y lo valida
-     build.py; cambiarlo rompe el mapa de rutas.
+     El id del <section> lo declara RouteMap como view-expediente. Ya no hay
+     nada que lo compruebe automaticamente, asi que si se cambia hay que
+     cambiarlo tambien en js/auth/RouteMap.js, o el mapa quedaria mintiendo.
      -->
 <section class="app-view active" id="view-expediente">
 

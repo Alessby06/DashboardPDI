@@ -6,7 +6,7 @@
 //  pagina es un documento mas, con su propia URL, y eso cambia tres cosas:
 //
 //    1. Ya no hay una ventana que abrir. Esta vista se pinta sobre el DOM que
-//       declaro src/pages/expediente.html, y no hay ningun 'modal.classList'.
+//       declara expediente.html, y no hay ningun 'modal.classList'.
 //    2. El menor lo decide la URL (expediente?id=3), no un argumento. Por eso
 //       render() lo lee, y por eso se puede compartir y recargar.
 //    3. Una URL sin id, o con un id que no existe, es un caso real: un enlace

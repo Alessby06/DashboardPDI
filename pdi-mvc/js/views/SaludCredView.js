@@ -3,7 +3,7 @@ import { crear as crearFiltros } from '../utils/Filters.js';
 import { Responsive } from '../utils/Responsive.js';
 
 // Filtros del modulo CRED que viajan en la URL. Valores tomados de los
-// desplegables de src/pages/salud.html.
+// desplegables de salud.html.
 const FILTROS_SALUD = {
   q:       { valor: "" },
   anemia:  { valor: [], valores: ["Normal", "Leve", "Moderada"], multiple: true },

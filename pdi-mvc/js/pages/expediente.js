@@ -4,7 +4,7 @@
 //  La unica pagina de la MPA que no esta en el menu lateral. RouteMap la declara
 //  con enMenu:false y se llega desde el padron con expediente?id=N, o desde el
 //  kanban social y el dashboard con expediente?codigo=PDI-2026-001. Al no
-//  figurar en el menu, build.py no tiene ningun enlace que marcar como activo, y
+//  figurar en el menu, no hay ningun enlace que marcar como activo, y
 //  por eso esta pagina lleva su propio boton de vuelta.
 //
 //  Montar y enlazar van separados a proposito, como en las otras ocho paginas:

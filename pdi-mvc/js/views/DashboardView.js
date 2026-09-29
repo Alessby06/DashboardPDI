@@ -7,7 +7,7 @@ import { Responsive } from '../utils/Responsive.js';
 // dashboard.html y para auditoria.html: es la misma vista en las dos paginas,
 // y el fragmento de auditoria es solo su version a pantalla completa.
 //
-// Valores tomados de los desplegables de src/pages/auditoria.html.
+// Valores tomados de los desplegables de auditoria.html.
 const FILTROS_AUDITORIA = {
   q:       { valor: "" },
   accion:  { valor: [], valores: ["salud", "social", "educativo", "padron"], multiple: true },

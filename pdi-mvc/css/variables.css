@@ -61,7 +61,7 @@
   /* 'Google Sans Flex' se queda en la pila pero no se descarga: es un
      respaldo para quien la tenga instalada en su sistema, no para el comun.
      Pedirla a Google Fonts costaba 89 KB en cada pagina sin dibujar ni una
-     letra. Ver el comentario de la carga de fuentes en src/chrome/head.html. */
+     letra. Ver el comentario de la carga de fuentes en el <head> de los HTML. */
   --ui-font: 'Nunito Sans', 'Google Sans Flex', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --mono-font: var(--ui-font);
   

@@ -6,13 +6,10 @@ import sys
 import socket
 import mimetypes
 
-# Se sirve desde pdi-mvc/app/, que es la raiz web: lo unico que publica
-# vercel.json. Este script vive en scripts/, asi que la raiz son dos niveles
-# hacia arriba. Servir la raiz del proyecto (un nivel) expondría src/, que es
-# fuente de las plantillas y no debe llegar al navegador.
-DIRECTORY = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "app"
-)
+# Se sirve desde pdi-mvc/, que es la raiz del sitio: los HTML, js/, css/,
+# assets/ y data/ viven aqui y es lo que publica vercel.json. Este script esta
+# en scripts/, asi que la raiz es un nivel hacia arriba.
+DIRECTORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(DIRECTORY)
 
 # MIME types explícitos para evitar bloqueos en Windows
@@ -38,6 +35,17 @@ class FastHTTPHandler(http.server.SimpleHTTPRequestHandler):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=DIRECTORY, **kwargs)
+
+    def send_head(self):
+        # scripts/ es la carpeta de herramientas y no forma parte del sitio: se
+        # sirve el resto de la raiz, pero dentro de scripts/ se responde 404 para
+        # que el codigo del servidor no quede descargable desde el navegador.
+        # El despliegue real (Vercel) no tiene este script, asi que la regla solo
+        # aplica al servidor local.
+        if self.path.split("?")[0].lstrip("/").startswith("scripts/"):
+            self.send_error(404, "Not Found")
+            return None
+        return super().send_head()
 
     def end_headers(self):
         # Permitir revalidación inmediata pero usando caché de memoria ligera

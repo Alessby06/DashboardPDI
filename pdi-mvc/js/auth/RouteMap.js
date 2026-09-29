@@ -12,8 +12,9 @@
 //  Al agregar una pagina nueva hay que:
 //    1. Crear el HTML y su js/pages/<slug>.js
 //    2. Anadirla aqui en PAGINAS
-//    3. Anadirla en build.py (PAGINAS)
-//    4. Anadir el <a href> en src/chrome/sidebar.html, si debe figurar en el menu
+//    3. Anadir el <a href> en el menu lateral de los HTML, si debe figurar.
+//       El menu no se genera: esta copiado en cada pagina, asi que el
+//       enlace hay que ponerlo a mano en las que lo muestren.
 // ===========================================================================
 
 /**
@@ -121,7 +122,10 @@ export const PAGINAS = {
   },
 };
 
-/** Orden del menu lateral. Debe coincidir con src/chrome/sidebar.html. */
+/** Orden del menu lateral. Debe coincidir con el orden del <nav> en los HTML.
+ *  El menu esta copiado en cada pagina, asi que no hay un unico archivo que
+ *  revisar: hay que comprobar que las diez siguen en el mismo orden.
+ */
 export const ORDEN_MENU = [
   "dashboard",
   "padron",

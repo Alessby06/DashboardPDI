@@ -3,7 +3,7 @@ import { SedeModel } from '../models/SedeModel.js';
 import { crear as crearFiltros } from '../utils/Filters.js';
 
 // Filtros del directorio que viajan en la URL. Valores tomados de los
-// desplegables de src/pages/sedes.html.
+// desplegables de sedes.html.
 const FILTROS_SEDES = {
   q:        { valor: "" },
   distrito: { valor: "all", valores: ["all", "Comas", "Carabayllo"] },

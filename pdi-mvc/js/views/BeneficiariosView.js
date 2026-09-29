@@ -4,8 +4,8 @@ import { Responsive } from "../utils/Responsive.js";
 
 // Qué filtros del padrón viajan en la URL, con qué valores y cuáles son los
 // defectos. La lista de valores no se inventa: es la misma que admiten los
-// desplegables de src/pages/padron.html. Si algún día se añade un filtro
-// aquí, hay que añadirlo también a src/pages/, o el enlace que comparta
+// desplegables de padron.html. Si algún día se añade un filtro
+// aquí, hay que añadirlo también a padron.html, o el enlace que comparta
 // alguien no reproducirá lo que veía.
 const FILTROS_PADRON = {
   q:         { valor: "" },

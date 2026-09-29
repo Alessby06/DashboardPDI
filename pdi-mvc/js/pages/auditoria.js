@@ -22,7 +22,8 @@ import { arrancarComun, publicarRefresco } from "../core/Bootstrap.js";
 import { AuditModel } from '../models/AuditModel.js';
 import { DashboardView } from '../views/DashboardView.js';
 // El boton de confirmar la exportacion vive en el chrome comun
-// (src/chrome/modals.html) y su puente resuelve por window.PDI, asi que el
+// (el chrome comun, que ahora va en linea en cada HTML) y su puente resuelve
+// por window.PDI, asi que el
 // controlador tiene que estar cargado aqui. Antes lo traia legacy-globals a
 // todas las paginas; con 2 KB en las que lo necesitan basta.
 import { AppController } from '../controllers/AppController.js';

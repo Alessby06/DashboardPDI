@@ -3,7 +3,7 @@ import { CasoSocialModel } from '../models/CasoSocialModel.js';
 import { crear as crearFiltros } from '../utils/Filters.js';
 
 // Filtros del tablero que viajan en la URL. Los valores son los de los
-// desplegables de src/pages/social.html.
+// desplegables de social.html.
 const FILTROS_SOCIAL = {
   q:        { valor: "" },
   urgencia: { valor: "all", valores: ["all", "Alta", "Media", "Baja"] },
