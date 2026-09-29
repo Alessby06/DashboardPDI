@@ -330,7 +330,8 @@ window.resetPadronFilters = vista("BeneficiariosView", "resetFilters");
 // encadenamiento opcional no sonaba ningun error, y en la pagina de
 // voluntarios ganaba la definicion correcta de la vista, asi que el fallo pasaba
 // inadvertido: en cuanto la pagina no carga la vista, esos botones se quedaban
-// mudos. verificar_puentes.py vigila las dos cosas.
+// mudos. Cada boton sigue al metodo que la vista si declara, con encadenamiento
+// opcional para que una vista ausente no rompa la pagina ni avise de nada.
 window.closeModalInscripcionVoluntario = () =>
   window.PDI?.VoluntariadosView?.closeModalInscripcion?.();
 window.closeModalFichaVoluntario = () =>

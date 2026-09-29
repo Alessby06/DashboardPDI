@@ -46,8 +46,10 @@ PAGES = os.path.join(SRC, "pages")
 # js/auth/RouteMap.js, y slugDesdeView() lo usa para traducir los
 # identificadores que el codigo heredado todavia menciona. Si build.py escribe
 # una pagina cuyo section no coincide con lo que dice RouteMap, el mapa queda
-# mintiendo y el error aparece lejos de su causa. Por eso se valida aqui, y por
-# eso verificar_topologia.py exige ademas que los dos coincidan.
+# mintiendo y el error aparece lejos de su causa. Por eso se valida aqui: la
+# comprobacion de que la pagina y el mapa dicen lo mismo vive en este mismo
+# archivo, para que no dependa de una segunda herramienta que alguien pueda
+# borrar sin darse cuenta.
 PAGINAS = [
     ("dashboard",     "js/pages/dashboard.js",     "view-dashboard"),
     ("padron",        "js/pages/padron.js",        "view-beneficiarios"),
