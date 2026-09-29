@@ -936,7 +936,11 @@
       text-align: left !important;
       cursor: pointer !important;
       transition: background-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-spring) !important;
-      will-change: transform;
+      /* Sin will-change: este boton es de la barra lateral del expediente, o
+         sea que esta DENTRO del elemento cuya anchura se anima al plegar el
+         menu. Con el aviso cada uno era una capa propia, y al cambiar el ancho
+         habia que rasterizar todas esas capas en cada fotograma. Ademas este
+         boton no anima transform al plegarse, asi que la capa no servia. */
     }
 
     .expediente-nav-item:hover {
@@ -1043,7 +1047,10 @@
       cursor: pointer;
       padding: 0;
       transition: background-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-spring);
-      will-change: transform;
+      /* Sin will-change: aqui solo hay transform en :hover. El aviso permanente
+         le costaba una capa propia para siempre, y como esto vive dentro de
+         la columna de contenido, al plegar el menu habia que rasterizar
+         todas esas capas en cada fotograma. */
     }
 
     .btn-exoneracion-info:hover {
@@ -1070,8 +1077,11 @@
       visibility: hidden;
       transform: translateY(6px) translateZ(0);
       transition: opacity var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-spring), visibility var(--dur-fast) var(--ease-smooth);
-      will-change: opacity, transform;
       pointer-events: none;
+      /* Sin will-change: aqui solo hay transform en :hover. El aviso permanente
+         le costaba una capa propia para siempre, y como esto vive dentro de
+         la columna de contenido, al plegar el menu habia que rasterizar
+         todas esas capas en cada fotograma. */
     }
 
     .exoneracion-info-wrap:hover .exoneracion-tooltip,
@@ -1225,7 +1235,10 @@
       gap: 6px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
       transition: transform var(--dur-fast) var(--ease-spring), box-shadow var(--dur-fast) var(--ease-smooth);
-      will-change: transform;
+      /* Sin will-change: aqui solo hay transform en :hover. El aviso permanente
+         le costaba una capa propia para siempre, y como esto vive dentro de
+         la columna de contenido, al plegar el menu habia que rasterizar
+         todas esas capas en cada fotograma. */
     }
 
     .ley-consent-card:hover {
@@ -1316,7 +1329,10 @@
       gap: 14px;
       align-items: center;
       transition: transform var(--dur-fast) var(--ease-spring), border-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth);
-      will-change: transform;
+      /* Sin will-change: aqui solo hay transform en :hover. El aviso permanente
+         le costaba una capa propia para siempre, y como esto vive dentro de
+         la columna de contenido, al plegar el menu habia que rasterizar
+         todas esas capas en cada fotograma. */
     }
 
     .retiro-person-card:hover {
@@ -1840,7 +1856,10 @@
   border: 1.5px dashed var(--border-medium);
   transition: border-color var(--dur-fast) var(--ease-smooth), background-color var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-spring);
   user-select: none;
-  will-change: transform;
+      /* Sin will-change: aqui solo hay transform en :hover. El aviso permanente
+         le costaba una capa propia para siempre, y como esto vive dentro de
+         la columna de contenido, al plegar el menu habia que rasterizar
+         todas esas capas en cada fotograma. */
 }
 
 .photo-uploader-box:hover {

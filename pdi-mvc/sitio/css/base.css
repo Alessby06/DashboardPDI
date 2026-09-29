@@ -73,7 +73,12 @@
       display: none;
       opacity: 0;
       transform: translateY(12px);
-      will-change: opacity, transform;
+      /* Sin will-change. Esta es la columna de contenido, o sea el elemento cuyo
+         ancho cambia al plegar el menu. Con el aviso el navegador le reserva una
+         capa propia, y al cambiar el ancho tiene que reasignar el buffer de esa
+         capa y rasterizarla entera. La primera vez, tras cargar la pagina, es
+         cuando mas se nota; a partir de la segunda ya esta hecha. La entrada de
+         la vista dura 0.38 s y el motor compone opacity y transform sin ayuda. */
     }
 
     .app-view.active, .content-view.active {
@@ -96,7 +101,8 @@
     .stagger-item {
       opacity: 0;
       transform: translateY(14px) scale(0.98);
-      will-change: opacity, transform;
+      /* Sin will-change, por lo mismo que arriba: la entrada es corta y el
+         compositor ya la resuelve sin el aviso. */
     }
 
     .stagger-animate {
@@ -409,7 +415,11 @@
       min-width: 0;
       position: relative;
       white-space: nowrap;
-      will-change: transform;
+      /* Sin will-change. Este es el punto mas caro de todos: los nueve botones
+         del menu estaban promovidos a capa propia, y estan DENTRO del elemento
+         cuya anchura se anima. Al plegarse hay que rasterizar esas nueve capas
+         en cada fotograma, y la primera vez que se hace no hay nada cacheado.
+         Ademas el boton no anima transform al plegarse. */
       box-sizing: border-box;
     }
 
@@ -585,7 +595,8 @@
       display: none;
       pointer-events: none;
       animation: fadeInTooltip var(--dur-fast) var(--ease-spring) forwards;
-      will-change: transform, opacity;
+      /* Sin will-change: este globo vive dentro del lateral, que es el elemento
+         cuya anchura se anima, y solo aparece a peticion. */
       transform: translateZ(0);
     }
 

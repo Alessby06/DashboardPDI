@@ -1119,7 +1119,10 @@
       gap: 6px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
       transition: transform var(--dur-fast) var(--ease-spring), box-shadow var(--dur-fast) var(--ease-smooth);
-      will-change: transform;
+      /* Sin will-change: aqui solo hay transform en :hover. El aviso permanente
+         le costaba una capa propia para siempre, y como esto vive dentro de
+         la columna de contenido, al plegar el menu habia que rasterizar
+         todas esas capas en cada fotograma. */
     }
 
     .ley-consent-card:hover {
@@ -1202,7 +1205,10 @@
       gap: 14px;
       align-items: center;
       transition: transform var(--dur-fast) var(--ease-spring), border-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth);
-      will-change: transform;
+      /* Sin will-change: aqui solo hay transform en :hover. El aviso permanente
+         le costaba una capa propia para siempre, y como esto vive dentro de
+         la columna de contenido, al plegar el menu habia que rasterizar
+         todas esas capas en cada fotograma. */
     }
 
     .retiro-person-card:hover {
@@ -1708,7 +1714,10 @@
   border: 1.5px dashed var(--border-medium);
   transition: border-color var(--dur-fast) var(--ease-smooth), background-color var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-spring);
   user-select: none;
-  will-change: transform;
+      /* Sin will-change: aqui solo hay transform en :hover. El aviso permanente
+         le costaba una capa propia para siempre, y como esto vive dentro de
+         la columna de contenido, al plegar el menu habia que rasterizar
+         todas esas capas en cada fotograma. */
 }
 
 .photo-uploader-box:hover {
