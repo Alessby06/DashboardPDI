@@ -852,6 +852,13 @@ export const VoluntariadosView = {
 };
 
 // Global handlers for window onclick bindings
+//
+// Los de abrir y guardar son de esta pagina, asi que viven aqui. Los de cerrar el
+// modal no: los botones de cerrar estan en el chrome, que va en las diez paginas,
+// y esta vista solo se importa en la suya. Esos cuatro los define
+// legacy-globals.js, para que existan tambien donde la vista no esta cargada. Un
+// puente, un solo dueno: antes cada uno estaba definido aqui y alla, y ganaba el
+// ultimo en evaluarse.
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
   window.PDI.VoluntariadosView = VoluntariadosView;
@@ -859,11 +866,7 @@ if (typeof window !== "undefined") {
   window.openInscripcionVoluntario = () => VoluntariadosView.openModalInscripcion();
   window.openEditVoluntario = (id) => VoluntariadosView.openModalInscripcion(id);
   window.openFichaVoluntario = (id) => VoluntariadosView.openModalFicha(id);
-  window.closeModalInscripcionVoluntario = () => VoluntariadosView.closeModalInscripcion();
-  window.closeModalFichaVoluntario = () => VoluntariadosView.closeModalFicha();
-  window.closeModalCapacitacionVoluntarias = () => VoluntariadosView.closeModalCapacitacion();
   window.saveInscripcionVoluntario = (e) => VoluntariadosView.saveInscripcion(e);
-  window.saveCapacitacionVoluntaria = () => VoluntariadosView.saveCapacitacion();
   window.removeVoluntarioChip = (k, v) => VoluntariadosView.removeFilter(k, v);
   window.resetVoluntariosFilters = () => VoluntariadosView.resetFilters();
   window.clearVoluntariosSearch = () => VoluntariadosView.clearSearch();

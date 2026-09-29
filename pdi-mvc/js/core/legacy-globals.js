@@ -120,13 +120,11 @@ window.calculateAnemiaPreview = () => {
   const val = inputEl ? inputEl.value : sliderEl ? sliderEl.value : 10.4;
   SaludController.handleHbChange(val);
 };
-window.toggleCalculadoraCred = () => window.PDI?.SaludCredView?.toggleCalculadora?.();
 window.calculateVulnerabilidad = () => SocialController.handleVulnerabilidadChange();
 window.calcularEvaluacionSocioeconomica = () => SocialController.calcularEvaluacion();
 window.syncScoreSimulador = (dimKey, val) => SocialController.syncScore(dimKey, val);
 window.cargarCasoEnSimulador = (codigo) => SocialController.cargarCasoEnSimulador(codigo);
 window.moverCaso = (id, etapa) => SocialController.moverCaso(id, etapa);
-window.toggleSimuladorSocio = () => window.PDI?.SocialKanbanView?.toggleSimulador?.();
 
 /**
  * Calcula la edad en años a partir de la fecha de nacimiento y la refleja en el
@@ -183,10 +181,6 @@ window.calcularEdadAutomatica = () => {
 window.showToast = (mensaje, tipo = "success") => ToastView.show(mensaje, undefined, tipo);
 
 window.toggleTheme = (e) => AppController.toggleTheme(e);
-window.setTheme = (theme, showToast = true, event = null) => AjustesView.setTheme(theme, showToast, event);
-window.toggleFocoMode = (event = null) => AjustesView.toggleFocoMode(event);
-window.triggerSync = () => AjustesView.triggerSync();
-window.clearCache = () => AjustesView.clearCache();
 window.selectActiveRole = (roleValue, roleTitle) =>
   Navigation.seleccionarRol(roleValue, roleTitle);
 window.toggleRoleInfo = (e) => {
@@ -204,7 +198,6 @@ window.toggleRoleInfo = (e) => {
 
 window.exportDataCSV = () => AppController.exportCSV();
 window.exportAuditCSV = () => AppController.exportAuditCSV();
-window.exportVoluntariosCSV = () => window.PDI?.VoluntariadosView?.exportCSV?.();
 
 // ---------------------------------------------------------------------------
 //  AUDITORIA
@@ -244,7 +237,27 @@ window.toggleAuditLegalInfo = (e) => {
 window.toggleCustomDropdown = (id) => DashboardView.toggleDropdown(id);
 window.toggleInnerFilterDropdown = (id) => DashboardView.toggleInnerDropdown(id);
 
-const vista = (nombre) => (fn) => (fn ? (...args) => window.PDI?.[nombre]?.[fn]?.(...args) : undefined);
+// Puente a un metodo de una vista registrada en window.PDI. Se resuelve en la
+// llamada, no al definir el puente: la vista se cuelga de PDI al importarse, y
+// el orden de los modulos no es cosa de este archivo.
+//
+// Se declaraba asi:
+//
+//     const vista = (nombre) => (fn) => (fn ? (...args) => ... : undefined);
+//
+// Es decir, curryingada y de un solo argumento, mientras que los usos de abajo la
+// llamaban con los dos a la vez: vista("BeneficiariosView", "filterBySearch"). El
+// segundo argumento se descartaba sin avisar, y lo que acababa en
+// window.filterPadronSearch era la funcion intermedia. Cuando el HTML la llamaba
+// con el texto tecleado, ese texto ocupaba el hueco del nombre del metodo, la
+// busqueda daba undefined y no se filtraba nada. Sin error en consola y con el
+// puente correctamente definido, asi que no habia forma de verlo desde fuera: la
+// tabla se dibujaba entera y, al teclear, no cambiaba. Por aquel entonces esto
+// rompia los cinco buscadores y filtros del padron, salud, educativo, sedes y
+// voluntarios. De los cuarenta y dos puentes que aqui se cableaban, hoy quedan
+// diecisiete: los demas los define su propia vista, al final de su archivo, y
+// estan comentados mas abajo.
+const vista = (nombre, fn) => (...args) => window.PDI?.[nombre]?.[fn]?.(...args);
 
 // Padrón
 window.filterPadronSearch = vista("BeneficiariosView", "filterBySearch");
@@ -266,51 +279,35 @@ window.removePadronChip = vista("BeneficiariosView", "removeFilter");
 window.selectPadronEstado = vista("BeneficiariosView", "selectEstado");
 window.resetPadronFilters = vista("BeneficiariosView", "resetFilters");
 
-// Salud CRED
-window.filterSaludSearch = vista("SaludCredView", "filterBySearch");
-window.clearSaludSearch = vista("SaludCredView", "clearSearch");
-window.toggleSaludAnemia = vista("SaludCredView", "toggleAnemia");
-window.toggleSaludSede = vista("SaludCredView", "toggleSede");
-window.selectSaludHb = vista("SaludCredView", "selectHbNivel");
-window.removeSaludChip = vista("SaludCredView", "removeFilter");
-window.resetSaludFilters = vista("SaludCredView", "resetFilters");
-
-// Casitas del Saber
-window.filterCasitasSearch = vista("CasitasView", "filterBySearch");
-window.clearCasitasSearch = vista("CasitasView", "clearSearch");
-window.selectCasitasAsistencia = vista("CasitasView", "selectAsistencia");
-window.toggleCasitasSede = vista("CasitasView", "toggleSede");
-window.selectCasitasGrado = vista("CasitasView", "selectGrado");
-window.removeCasitasChip = vista("CasitasView", "removeFilter");
-window.resetCasitasFilters = vista("CasitasView", "resetFilters");
-
-// Sedes. Antes pasaba por SedesController, un envoltorio que solo reenviaba a
-// SedesView sin anadir nada. Se llama a la vista directamente.
-window.filterSedesSearch = vista("SedesView", "filterBySearch");
-window.clearSedesSearch = vista("SedesView", "clearSearch");
-window.filterSedesByDistrito = vista("SedesView", "filterByDistrito");
-window.filterSedesByServicio = vista("SedesView", "filterByServicio");
-window.clearSedesFilters = vista("SedesView", "resetFilters");
-
-// Voluntariados
-window.openInscripcionVoluntario = () => window.PDI?.VoluntariadosView?.openInscripcion?.();
-window.closeModalInscripcionVoluntario = () => window.PDI?.VoluntariadosView?.closeInscripcion?.();
-window.openEditVoluntario = (id) => window.PDI?.VoluntariadosView?.openEdicion?.(id);
-window.openFichaVoluntario = (id) => window.PDI?.VoluntariadosView?.openFicha?.(id);
-window.closeModalFichaVoluntario = () => window.PDI?.VoluntariadosView?.closeFicha?.();
-window.saveInscripcionVoluntario = (e) =>
-  window.PDI?.VoluntariadosView?.saveInscripcion?.(e, refrescarVistaActual);
-window.saveCapacitacionVoluntaria = (e) =>
-  window.PDI?.VoluntariadosView?.saveCapacitacion?.(e, refrescarVistaActual);
-window.closeModalCapacitacionVoluntarias = () => window.PDI?.VoluntariadosView?.closeCapacitacion?.();
-window.removeVoluntarioChip = vista("VoluntariadosView", "removeFilter");
-window.resetVoluntariosFilters = vista("VoluntariadosView", "resetFilters");
-window.toggleVoluntariosDistrito = vista("VoluntariadosView", "toggleDistrito");
-window.toggleVoluntariosEstado = vista("VoluntariadosView", "toggleEstado");
-window.toggleVoluntariosRol = vista("VoluntariadosView", "toggleRol");
-window.toggleVoluntariosServicio = vista("VoluntariadosView", "toggleServicio");
-window.toggleVoluntariosInnerDropdown = vista("VoluntariadosView", "toggleInnerDropdown");
-window.toggleSedesInnerDropdown = vista("SedesView", "toggleInnerDropdown");
+// Salud CRED, Casitas del Saber, Sedes y los filtros de la tabla de
+// voluntarios ya NO se cablean aqui. Cada una de esas vistas cuelga de window
+// sus propios puentes al final de su archivo, y son los que mandan: antes los
+// definian los dos sitios y gana el ultimo que se evalua, que hoy es la vista
+// porque se importa despues. Depender de ese orden es un fallo esperando a que
+// alguien reordene las importaciones, asi que se deja un solo dueno por puente.
+// La tabla degia de 42 puentes duplicados.
+//
+// Quedan cuatro, los de cerrar y guardar los modales de voluntarios. Viven en
+// el chrome, que esta en las diez paginas, mientras que VoluntariadosView solo
+// se importa en la suya. Si el puente viviera en la vista, en las otras nueve
+// paginas el boton de cerrar no tendria a quien llamar. Es la unica excepcion a
+// la regla de un solo dueno, y por eso esta aqui y no en la vista.
+//
+// Antes Apuntaban a metodos que la vista no declara: closeInscripcion,
+// closeFicha, closeCapacitacion y saveCapacitacion, en vez de closeModalInscripcion,
+// closeModalFicha, closeModalCapacitacion y saveCapacitacion. Con el
+// encadenamiento opcional no sonaba ningun error, y en la pagina de
+// voluntarios ganaba la definicion correcta de la vista, asi que el fallo pasaba
+// inadvertido: en cuanto la pagina no carga la vista, esos botones se quedaban
+// mudos. verificar_puentes.py vigila las dos cosas.
+window.closeModalInscripcionVoluntario = () =>
+  window.PDI?.VoluntariadosView?.closeModalInscripcion?.();
+window.closeModalFichaVoluntario = () =>
+  window.PDI?.VoluntariadosView?.closeModalFicha?.();
+window.closeModalCapacitacionVoluntarias = () =>
+  window.PDI?.VoluntariadosView?.closeModalCapacitacion?.();
+window.saveCapacitacionVoluntaria = () =>
+  window.PDI?.VoluntariadosView?.saveCapacitacion?.();
 
 // ---------------------------------------------------------------------------
 //  CRUZADO ENTRE PAGINAS
