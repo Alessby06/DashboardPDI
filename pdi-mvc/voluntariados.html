@@ -15,8 +15,25 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!--
+    Solo Nunito Sans, y sin cursiva.
+
+    Antes se pedian dos familias: Google Sans Flex (opsz,wght@6..144,300..900) y
+    Nunito Sans con cursiva. De las 89 KB de Google Sans Flex no se dibujaba ni
+    una letra: estaba solo como segunda opcion de la pila --ui-font, detras de
+    'Nunito Sans', que siempre esta disponible. El navegador la descargaba igual
+    en las diez paginas, 89 KB por pagina, para no usarla nunca. Sigue estando en
+    la pila por si alguien la tiene instalada en su sistema, que es lo que
+    serves un respaldo: si Nunito Sans fallara, el siguiente salto es
+    -apple-system / Segoe UI / Roboto / sans-serif.
+
+    La cursiva tambien se pidio y no se usa: no hay ni un font-style: italic en
+    las hojas de estilo. El eje optico (opsz) tampoco hace falta aqui, asi que
+    se pide solo el de grosor, del 300 al 900, y el navegador descarga un solo
+    archivo con los caracteres que hay en pantalla.
+  -->
   <link
-    href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,300..900&family=Nunito+Sans:ital,opsz,wght@0,6..12,300..900;1,6..12,300..900&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300..900&display=swap"
     rel="stylesheet">
 
   <script>
@@ -35,8 +52,8 @@
   <link rel="stylesheet" href="./css/variables.css">
   <link rel="stylesheet" href="./css/base.css">
   <link rel="stylesheet" href="./css/components.css">
-  <link rel="stylesheet" href="./css/views.css">
-  <link rel="stylesheet" href="./css/expediente.css">
+  <link rel="stylesheet" href="./css/views-comun.css">
+  <link rel="stylesheet" href="./css/views-voluntariados.css">
 </head>
 <body data-page="voluntariados">
   <!-- Toast Notification Stack -->

@@ -121,8 +121,41 @@ def marcar_activo(sidebar, slug):
     return salida
 
 
+def hojas_de_pagina(slug):
+    """Los <link> de las hojas que dependen de la pagina, ya no del chrome.
+
+    Dos cosas se han quitado de la cabecera comun:
+
+    views.css eran 131 KB y se cargaba entero en las diez paginas, cuando cada
+    una usa entre la mitad y los dos tercios. Se ha partido en una parte comun a
+    todas y otra propia de cada pagina. El reparto se hizo preguntando al DOM
+    real de cada pagina que reglas encuentra un elemento suyo, no leyendo el
+    nombre de los selectores ni suponiendo a que vista pertenece cada bloque.
+
+    expediente.css son 11 KB y solo la usa la pagina del expediente: se
+    comprobo quitando el <link> en caliente y comparando el estilo de las diez
+    paginas una a una.
+
+    El orden importa: la comun va antes que la propia, porque de el depende la
+    cascada. Por eso la comun solo lleva lo que aparece antes que la primera
+    regla propia de cualquier pagina, y lo que viene despues va al archivo de
+    la pagina que lo necesita. Un reparto por pertenencia en vez de por orden
+    rompia la cascada: .padron-active-chips-bar esta en las diez paginas, asi
+    que su segunda regla era comun, y al partir el archivo la primera, que es
+    del padron, paso a ganarle y le cambiaba el borde y el margen.
+    """
+    hojas = ['  <link rel="stylesheet" href="./css/views-comun.css">',
+             '  <link rel="stylesheet" href="./css/views-%s.css">' % slug]
+    if slug == "expediente":
+        hojas.append('  <link rel="stylesheet" href="./css/expediente.css">')
+    return "\n".join(hojas)
+
+
 def construir(slug, entry):
     head = leer_bloque("head.html")
+    if "<!--CSS_PAGINA-->" not in head:
+        raise SystemExit("[ERROR] head.html no tiene el marcador <!--CSS_PAGINA-->")
+    head = head.replace("<!--CSS_PAGINA-->", hojas_de_pagina(slug))
     sidebar = leer_bloque("sidebar.html")
     # Una pagina de detalle no tiene enlace propio en el lateral, y marcarlo
     # buscaria un enlace que no esta: marcar_activo() no sabria que hacer.
