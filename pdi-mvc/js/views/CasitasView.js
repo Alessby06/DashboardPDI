@@ -1,5 +1,6 @@
 // Vista: Acompañamiento Educativo (Casita del Saber)
 import { crear as crearFiltros } from '../utils/Filters.js';
+import { Responsive } from '../utils/Responsive.js';
 
 // Filtros del módulo educativo que viajan en la URL. Valores tomados de los
 // desplegables de src/pages/educativo.html.
@@ -136,7 +137,19 @@ export const CasitasView = {
     } else if (window.PDI?.BeneficiarioModel) {
       this._allBeneficiarios = window.PDI.BeneficiarioModel.getAll();
     }
+    this._vigilarVariante();
     this.applyFilters();
+  },
+
+  /**
+   * Se suscribe una sola vez por carga al cruce del corte de 768 px. Cuando se
+   * cruza hay que repintar, porque la variante que estaba vacia es la que pasa
+   * a verse: solo se dibuja la que se ve, y no las dos.
+   */
+  _vigilarVariante() {
+    if (this._vigilaVariante) return;
+    this._vigilaVariante = true;
+    Responsive.alCambiarDeVariante(() => this.applyFilters());
   },
 
   filterBySearch(query) {
@@ -416,6 +429,17 @@ export const CasitasView = {
     const tbody = document.getElementById("tbodyAsistenciaCasita");
     const mobileContainer = document.getElementById("mobileCardsCasita");
 
+    // Solo se dibuja la variante que se va a ver. La lista de tarjetas
+    // ocupaba 342 de los 1401 nodos del documento y 30 KB de marcado, y se
+    // regeneraba en cada pulsacion del buscador. Al cruzar el corte,
+    // _vigilarVariante() repinta.
+    const enMovil = Responsive.esMovil();
+
+    // La que no se dibuja se vacia, y no se deja con lo que hubiera de antes:
+    // si no, girar el movil con la ventana sola dejaria las dos pintadas.
+    if (enMovil) { if (tbody) tbody.innerHTML = ""; }
+    else { if (mobileContainer) mobileContainer.innerHTML = ""; }
+
     if (casitaList.length === 0) {
       const emptyHtml = `
         <tr>
@@ -433,9 +457,9 @@ export const CasitasView = {
           </td>
         </tr>
       `;
-      if (tbody) tbody.innerHTML = emptyHtml;
+      if (tbody && !enMovil) tbody.innerHTML = emptyHtml;
 
-      if (mobileContainer) {
+      if (mobileContainer && enMovil) {
         mobileContainer.innerHTML = `
           <div style="text-align: center; padding: 36px 16px; background: var(--surface-1); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-top: 8px;">
             <div style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; background: var(--gt-yellow-bg, rgba(254, 215, 102, 0.12)); display: flex; align-items: center; justify-content: center; color: var(--gt-yellow, #fed766);">
@@ -454,7 +478,7 @@ export const CasitasView = {
       return;
     }
 
-    if (tbody) {
+    if (tbody && !enMovil) {
       tbody.innerHTML = casitaList.map(b => `
         <tr>
           <td><strong>${b.nombres} ${b.apellidos}</strong><div style="font-size:11px; color:var(--text-dim);">${b.codigo}</div></td>
@@ -476,7 +500,7 @@ export const CasitasView = {
       `).join("");
     }
 
-    if (mobileContainer) {
+    if (mobileContainer && enMovil) {
       mobileContainer.innerHTML = casitaList.map(b => `
         <div class="mobile-card-item" id="mobile-casita-${b.id}">
           <!-- Cabecera: ID + Badge Asistencia -->

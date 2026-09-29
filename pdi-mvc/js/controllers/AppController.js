@@ -11,23 +11,16 @@
 //    - El control de acceso     -> auth/PageGuard.js
 //    - El dibujo de cada pagina  -> js/pages/<slug>.js
 //
-//  Lo que sobrevive es lo que no pertenece a ninguna de esas piezas: cambiar
-//  el tema y exportar datos. Son acciones de un clic, sin estado y sin DOM que
-//  sobre, asi que un modulo de funciones sueltas es el alcance correcto.
-import { AjustesView } from "../views/AjustesView.js";
+//  Lo que sobrevive es lo que no pertenece a ninguna de esas piezas: exportar
+//  datos. Es una accion de un clic, sin estado y sin DOM que sobre, asi que un
+//  modulo de funciones sueltas es el alcance correcto. El tema se fue a
+//  core/Theme.js, que lo carga Bootstrap en todas las paginas.
 import { BeneficiarioModel } from "../models/BeneficiarioModel.js";
 import { AuditModel } from "../models/AuditModel.js";
 import { CsvExporter } from "../utils/CsvExporter.js";
 import { ToastView } from "../views/ToastView.js";
 
 export const AppController = {
-  /** Alterna entre tema claro y oscuro. */
-  toggleTheme(event) {
-    const actual = document.documentElement.getAttribute("data-theme") || "light";
-    const siguiente = actual === "light" ? "dark" : "light";
-    AjustesView.setTheme(siguiente, true, event);
-  },
-
   /** Descarga el padron completo en CSV. */
   exportCSV() {
     const datos = BeneficiarioModel.getAll();

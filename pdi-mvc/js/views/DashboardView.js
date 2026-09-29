@@ -1,5 +1,7 @@
 import { AnimationEngine } from '../utils/AnimationEngine.js';
 import { crear as crearFiltros } from '../utils/Filters.js';
+import { Dropdown } from '../utils/Dropdown.js';
+import { Responsive } from '../utils/Responsive.js';
 
 // Filtros del historial de cambios que viajan en la URL. Los mismos sirven para
 // dashboard.html y para auditoria.html: es la misma vista en las dos paginas,
@@ -429,14 +431,7 @@ export const DashboardView = {
   _auditPageSize: 10,
 
   toggleInnerDropdown(dropdownId) {
-    const dropdown = document.getElementById(dropdownId);
-    if (!dropdown) return;
-    const isCurrentlyOpen = dropdown.classList.contains("open");
-    // Cerrar otros dropdowns internos abiertos
-    document.querySelectorAll(".padron-inner-dropdown.open").forEach(d => {
-      if (d !== dropdown) d.classList.remove("open");
-    });
-    dropdown.classList.toggle("open", !isCurrentlyOpen);
+    Dropdown.alternarInterno(dropdownId);
   },
 
   toggleAction(val) {
@@ -826,7 +821,21 @@ export const DashboardView = {
     return true;
   },
 
+  /**
+   * Se suscribe una sola vez por carga al cruce del corte de 768 px. Se
+   * registra desde applyAuditFilters(), que es el unico camino por el que la
+   * tabla de auditoria se dibuja, para que valga tanto desde el panel como
+   * desde la pagina de auditoria. Al cruzar, hay que repintar: la variante que
+   * estaba vacia es la que pasa a verse.
+   */
+  _vigilarVariante() {
+    if (this._vigilaVariante) return;
+    this._vigilaVariante = true;
+    Responsive.alCambiarDeVariante(() => this.applyAuditFilters());
+  },
+
   applyAuditFilters() {
+    this._vigilarVariante();
     const logs = this._currentAuditLogs || [];
     const query = this._auditSearchQuery || "";
 
@@ -1083,6 +1092,17 @@ export const DashboardView = {
     const tbody = document.getElementById("tbodyAuditLogs");
     const mobileContainer = document.getElementById("mobileCardsAuditoria");
 
+    // Solo se dibuja la variante que se va a ver. La lista de tarjetas
+    // ocupaba 135 de los 1251 nodos del documento y 13 KB de marcado, y se
+    // regeneraba en cada filtrado. Al cruzar el corte, _vigilarVariante()
+    // repinta.
+    const enMovil = Responsive.esMovil();
+
+    // La que no se dibuja se vacia, y no se deja con lo que hubiera de antes:
+    // si no, girar el movil con la ventana sola dejaria las dos pintadas.
+    if (enMovil) { if (tbody) tbody.innerHTML = ""; }
+    else { if (mobileContainer) mobileContainer.innerHTML = ""; }
+
     const getActionBadgeClass = (action) => {
       const act = (action || "").toLowerCase();
       if (act.includes("cred") || act.includes("tamizaje") || act.includes("salud")) return "badge-yellow";
@@ -1106,7 +1126,7 @@ export const DashboardView = {
       return parts[0].substring(0, 2).toUpperCase();
     };
 
-    if (tbody) {
+    if (tbody && !enMovil) {
       if (logs.length === 0) {
         tbody.innerHTML = `
           <tr>
@@ -1153,7 +1173,7 @@ export const DashboardView = {
       }
     }
 
-    if (mobileContainer) {
+    if (mobileContainer && enMovil) {
       if (logs.length === 0) {
         mobileContainer.innerHTML = `
           <div style="text-align:center; padding:32px; color:var(--text-dim); background:var(--surface-1); border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
@@ -1249,17 +1269,7 @@ export const DashboardView = {
   },
 
   toggleDropdown(dropdownId) {
-    const target = document.getElementById(dropdownId);
-    const allDropdowns = document.querySelectorAll(".custom-dropdown");
-    allDropdowns.forEach(d => {
-      // No cerrar dropdowns anidados ni el contenedor padre si se está abriendo un hijo
-      if (d !== target && !d.contains(target) && !target?.contains(d)) {
-        d.classList.remove("open");
-      }
-    });
-    if (target) {
-      target.classList.toggle("open");
-    }
+    Dropdown.alternar(dropdownId);
   }
 };
 

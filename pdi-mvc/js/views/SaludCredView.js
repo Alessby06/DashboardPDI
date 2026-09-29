@@ -1,5 +1,6 @@
 // Vista: Módulo de Salud y Nutrición CRED
 import { crear as crearFiltros } from '../utils/Filters.js';
+import { Responsive } from '../utils/Responsive.js';
 
 // Filtros del modulo CRED que viajan en la URL. Valores tomados de los
 // desplegables de src/pages/salud.html.
@@ -65,7 +66,19 @@ export const SaludCredView = {
     } else if (window.PDI?.BeneficiarioModel) {
       this._allBeneficiarios = window.PDI.BeneficiarioModel.getAll();
     }
+    this._vigilarVariante();
     this.applyFilters();
+  },
+
+  /**
+   * Se suscribe una sola vez por carga al cruce del corte de 768 px. Cuando se
+   * cruza hay que repintar, porque la variante que estaba vacia es la que pasa
+   * a verse: solo se dibuja la que se ve, y no las dos.
+   */
+  _vigilarVariante() {
+    if (this._vigilaVariante) return;
+    this._vigilaVariante = true;
+    Responsive.alCambiarDeVariante(() => this.applyFilters());
   },
 
   filterBySearch(query) {
@@ -384,6 +397,17 @@ export const SaludCredView = {
     const tbody = document.getElementById("tbodySaludCred");
     const mobileContainer = document.getElementById("mobileCardsSalud");
 
+    // Solo se dibuja la variante que se va a ver. La lista de tarjetas
+    // ocupaba 525 de los 1657 nodos del documento y 50 KB de marcado, y se
+    // regeneraba en cada pulsacion del buscador. Al cruzar el corte,
+    // _vigilarVariante() repinta.
+    const enMovil = Responsive.esMovil();
+
+    // La que no se dibuja se vacia, y no se deja con lo que hubiera de antes:
+    // si no, girar el movil con la ventana sola dejaria las dos pintadas.
+    if (enMovil) { if (tbody) tbody.innerHTML = ""; }
+    else { if (mobileContainer) mobileContainer.innerHTML = ""; }
+
     if (beneficiarios.length === 0) {
       const emptyHtml = `
         <tr>
@@ -401,9 +425,9 @@ export const SaludCredView = {
           </td>
         </tr>
       `;
-      if (tbody) tbody.innerHTML = emptyHtml;
+      if (tbody && !enMovil) tbody.innerHTML = emptyHtml;
 
-      if (mobileContainer) {
+      if (mobileContainer && enMovil) {
         mobileContainer.innerHTML = `
           <div style="text-align: center; padding: 36px 16px; background: var(--surface-1); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-top: 8px;">
             <div style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; background: var(--gt-green-bg, rgba(52, 211, 153, 0.12)); display: flex; align-items: center; justify-content: center; color: var(--gt-green, #34d399);">
@@ -422,7 +446,7 @@ export const SaludCredView = {
       return;
     }
 
-    if (tbody) {
+    if (tbody && !enMovil) {
       tbody.innerHTML = beneficiarios.map(b => {
         let badgeClass = "badge-green";
         if (b.anemia === "Leve") badgeClass = "badge-yellow";
@@ -442,7 +466,7 @@ export const SaludCredView = {
       }).join("");
     }
 
-    if (mobileContainer) {
+    if (mobileContainer && enMovil) {
       mobileContainer.innerHTML = beneficiarios.map(b => {
         let badgeClass = "badge-green";
         if (b.anemia === "Leve") badgeClass = "badge-yellow";

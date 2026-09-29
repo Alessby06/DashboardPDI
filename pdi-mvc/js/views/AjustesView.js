@@ -1,10 +1,17 @@
 // Vista: Ajustes del Sistema y Preferencias (Modo Oscuro & Sync BD)
+//
+// El tema vive en js/core/Theme.js, no aqui. Antes estaba en esta vista y
+// arrastraba sus 11 KB a las diez paginas, porque el conmutador de la barra
+// superior es del chrome comun y llegaba a traves de legacy-globals. Aqui solo
+// queda la parte que es de esta pagina: los tres botones y la mascota de foco.
+// Los metodos setTheme y toggleFocoMode se mantienen porque ajustes.html los
+// invoca por window.PDI.AjustesView, y ahora delegan en Theme.
+import { Theme } from "../core/Theme.js";
 
 export const AjustesView = {
-  _currentTheme: 'light',
-
   init() {
-    this._loadTheme();
+    // El tema ya quedo restaurado por Theme.cargar() dentro de arrancarComun(),
+    // que corre en todas las paginas. Aqui solo queda su parte propia.
     this.bindThemeButtons();
     this.render();
   },
@@ -36,114 +43,24 @@ export const AjustesView = {
   },
 
   _loadTheme() {
-    let savedTheme = null;
-    try {
-      savedTheme = localStorage.getItem('pdi_theme');
-    } catch (e) {}
-
-    if (!savedTheme && typeof document !== 'undefined') {
-      const match = document.cookie.match(/(?:^|; )pdi_theme=([^;]*)/);
-      if (match) savedTheme = match[1];
-    }
-
-    // Restauro, no cambio: sin transicion. Ver el comentario de setTheme().
-    this.setTheme(savedTheme || 'light', false, null, false);
+    // El estado del tema y su restauracion son de Theme. Este metodo se queda
+    // para que cualquier llamada antigua siga significando lo mismo.
+    Theme.cargar();
   },
 
-  _mediaListenerBound: false,
-
-  _bindSystemListener() {
-    if (this._mediaListenerBound || !window.matchMedia) return;
-    this._mediaListenerBound = true;
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handler = (e) => {
-      if (this._currentTheme === 'system') {
-        document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
-      }
-    };
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener('change', handler);
-    } else if (mediaQuery.addListener) {
-      mediaQuery.addListener(handler);
-    }
-  },
-
+  /** Mascota de foco. El modo de alternar propio esta en Theme.alternarFoco(). */
   toggleFocoMode(event = null) {
-    // Si está en claro -> pasa a oscuro. Si está en oscuro o sistema -> pasa a claro.
-    const targetTheme = (this._currentTheme === 'light') ? 'dark' : 'light';
-    this.setTheme(targetTheme, true, event);
+    Theme.alternarFoco(event);
   },
 
   /**
-   * Aplica un tema.
+   * Aplica un tema. Delegacion pura: toda la logica esta en Theme, y este metodo
+   * sobrevive porque ajustes.html lo invoca por window.PDI.AjustesView.
    *
-   * animar distingue dos cosas que antes iban juntas. Cuando el usuario pulsa el
-   * conmutador, un fundido de 200 ms hace que el cambio se lea como intencionado.
-   * Cuando la pagina arranca y hay que RESTAURAR el tema guardado, ese mismo
-   * fundido es un fallo: en la SPA pasaba una sola vez al cargar, pero en la MPA
-   * se repetiria en cada navegacion, con un destello en cada clic del menu. Por
-   * eso _loadTheme() restaura sin animar, y ademas el script antiflash de
-   * <head> ya habia puesto el atributo en el HTML antes de que se pintara nada.
+   * Ver en Theme.setTheme() por que animar distingue restaurar de cambiar.
    */
   setTheme(themeName, showToast = true, clickEvent = null, animar = true) {
-    const applyThemeChange = () => {
-      this._currentTheme = themeName;
-
-      try {
-        localStorage.setItem('pdi_theme', themeName);
-      } catch (e) {}
-
-      if (typeof document !== 'undefined') {
-        document.cookie = `pdi_theme=${themeName}; path=/; max-age=31536000; SameSite=Lax`;
-      }
-
-      const root = document.documentElement;
-
-      if (themeName === 'system') {
-        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
-        this._bindSystemListener();
-      } else {
-        root.setAttribute('data-theme', themeName);
-      }
-
-      this._updateThemeUI();
-    };
-
-    // Estilo Linear / Raycast: Cross-Fade de Opacidad Pura (200ms) acelerado por hardware.
-    // Solo cuando hay un cambio real de tema pedido por la persona: ver el
-    // comentario del parametro animar.
-    const root = document.documentElement;
-    if (animar && typeof document !== 'undefined' && document.startViewTransition) {
-      // 1. Congelar temporalmente transiciones individuales para evitar sobrecarga GPU
-      root.classList.add('disable-theme-transitions');
-
-      // 2. Ejecutar Cross-Fade de opacidad nativo
-      const transition = document.startViewTransition(() => {
-        applyThemeChange();
-      });
-
-      // 3. Restaurar transiciones al concluir el desvanecimiento
-      transition.finished
-        .catch(() => {
-          // Si otra transicion empezo antes de que acabara esta, el navegador la
-          // aborta. No es un fallo del tema: el atributo ya quedo aplicado y hay
-          // que quitar igualmente la clase de congelacion.
-        })
-        .finally(() => {
-          root.classList.remove('disable-theme-transitions');
-        });
-    } else {
-      applyThemeChange();
-    }
-
-    // Sin guarda: window.showToast lo define legacy-globals en todas las
-    // paginas. Antes habia un `if (window.showToast)` que nunca se cumplia, y
-    // por eso ninguno de los cuatro avisos de esta vista llegaba a verse.
-    if (showToast) {
-      const names = { light: 'Tema Claro', dark: 'Tema Oscuro', system: 'Tema Automático (SO)' };
-      window.showToast(`Tema visual actualizado a ${names[themeName] || themeName}`, 'info');
-    }
+    Theme.setTheme(themeName, showToast, clickEvent, animar);
   },
 
   _updateThemeUI() {
@@ -161,10 +78,11 @@ export const AjustesView = {
         if (badge) badge.style.display = 'none';
       });
 
-      if (this._currentTheme === 'dark') {
+      const actual = Theme.estado();
+      if (actual === 'dark') {
         btnDark.classList.add('active');
         if (badgeDark) badgeDark.style.display = 'inline-flex';
-      } else if (this._currentTheme === 'system') {
+      } else if (actual === 'system') {
         btnSystem.classList.add('active');
         if (badgeSystem) badgeSystem.style.display = 'inline-flex';
       } else {
@@ -174,7 +92,7 @@ export const AjustesView = {
     }
 
     // Actualización de la Mascota Foco y Globo de Diálogo (Sin emojis, 100% SVG y texto vectorial)
-    this._updateFocoMascot(this._currentTheme);
+    this._updateFocoMascot(Theme.estado());
   },
 
   _updateFocoMascot(themeName) {

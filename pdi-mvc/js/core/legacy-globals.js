@@ -14,22 +14,37 @@
 //  siguiente migracion natural, cuando el tiempo lo permita, es sustituirlos por
 //  delegacion de eventos o por data-atributos, y borrar este archivo entero.
 //
-//  No debe importarse desde los modelos: se carga una vez por pagina desde
-//  Bootstrap, que es el unico que conoce el orden de arranque.
-import { BeneficiarioController } from "../controllers/BeneficiarioController.js";
-import { SaludController } from "../controllers/SaludController.js";
-import { SocialController } from "../controllers/SocialController.js";
-import { DashboardView } from "../views/DashboardView.js";
+//  No debe importarse desde los modelos: cada entrada de js/pages lo importa
+//  una vez, y el orden de arranque lo fija arrancarComun() dentro de Bootstrap.
+//
+// ---------------------------------------------------------------------------
+//  Las importaciones, que son cuatro y por cuatro razones
+// ---------------------------------------------------------------------------
+//  Eran catorce, y por eso las diez paginas descargaban 338 KB de JavaScript
+//  de media para llegar a este archivo. Lo que se arrastraba no era codigo de
+//  aqui: eran las vistas ajenas de las que dependian los puentes de mas abajo.
+//  Treinta y tres archivos de JavaScript se cargaban en las diez paginas,
+//  incluidas DashboardView (53 KB) o BeneficiariosView (44 KB) en la de sedes.
+//  Ahora son veintiuno, y la media baja a 188 KB.
+//
+//  - ModalView: los seis botones de abrir y cerrar modales. Los modales viven
+//    en el chrome comun, o sea en las diez paginas, y no los carga nadie mas
+//    (BeneficiarioController solo llega al padron). Si esto se difiriera, en
+//    auditoria el boton de cerrar el detalle se quedaria mudo.
+//  - Dropdown: el conmutador de la barra superior y los filtros de ocho paginas
+//    lo invocan desde el marcado, asi que tiene que estar en las diez. Son
+//    1 KB, frente a los 53 KB de DashboardView donde vivia antes.
+//  - urlDe: lo traen PageGuard y, por el, Bootstrap, asi que no cuesta un byte.
+//  - Theme: tambien lo carga Bootstrap en todas las paginas.
+//
+//  Todo lo demas se resuelve en la llamada por window.PDI, que es donde cada
+//  modulo se publica a si mismo al importarse. Una pagina que no necesita la
+//  vista de salud no la descarga, y los puentes de las que si la necesitan
+//  siguen funcionando porque alli si esta.
 import { ModalView } from "../views/ModalView.js";
-import { AjustesView } from "../views/AjustesView.js";
-import { AppController } from "../controllers/AppController.js";
-import { BeneficiarioModel } from "../models/BeneficiarioModel.js";
-import { AuditModel } from "../models/AuditModel.js";
-import { CsvExporter } from "../utils/CsvExporter.js";
-import { ToastView } from "../views/ToastView.js";
-import { PageGuard } from "../auth/PageGuard.js";
-import { Navigation } from "./Navigation.js";
+import { Dropdown } from "../utils/Dropdown.js";
 import { urlDe } from "../auth/RouteMap.js";
+import { Theme } from "./Theme.js";
 
 /**
  * Refresca lo que haya que refrescar en la pagina actual.
@@ -44,21 +59,36 @@ function refrescarVistaActual() {
 // ---------------------------------------------------------------------------
 //  Firma, fotos y alta de BENEFICIARIOS
 // ---------------------------------------------------------------------------
-window.clearSignatureCanvas = () => BeneficiarioController.clearSignature();
+//  Todos resuelven por window.PDI, y no por importacion. Antes todos usaban el
+//  BeneficiarioController importado, lo que arrastraba 66 KB (el controlador y
+//  BeneficiariosView) a las diez paginas para once botones de un modal.
+//
+//  Quedan mudos en las nueve paginas que no son el padron, y eso es lo
+//  correcto: viven dentro de modalNuevoMenor, que solo se abre desde alli. El
+//  patron ya estaba probado dos lineas mas abajo, en capturarGpsCampo y
+//  handleAddressInputDebounce, que ya resolvian asi.
+window.clearSignatureCanvas = () => window.PDI?.BeneficiarioController?.clearSignature?.();
 window.subirImagenFirma = (e) => {
   const file = e.target.files[0];
-  if (file) BeneficiarioController.loadSignatureFile(file);
+  if (file) window.PDI?.BeneficiarioController?.loadSignatureFile?.(file);
 };
 window.handleFotoUpload = (input, previewId, roleKey) =>
-  BeneficiarioController.handleFotoUpload(input, previewId, roleKey);
-window.toggleMismoApoderado = (checked) => BeneficiarioController.syncMismoApoderado(checked);
+  window.PDI?.BeneficiarioController?.handleFotoUpload?.(input, previewId, roleKey);
+window.toggleMismoApoderado = (checked) =>
+  window.PDI?.BeneficiarioController?.syncMismoApoderado?.(checked);
 window.handleAddressInputDebounce = (ctx = "reg") =>
-  window.PDI?.BeneficiarioController?.handleAddressDebounce(ctx);
-window.capturarGpsCampo = (ctx = "reg") => window.PDI?.BeneficiarioController?.capturarGps(ctx);
-window.toggleBeneficiarioServicio = (id, servicio) => BeneficiarioController.toggleServicio(id, servicio);
+  window.PDI?.BeneficiarioController?.handleAddressDebounce?.(ctx);
+window.capturarGpsCampo = (ctx = "reg") => window.PDI?.BeneficiarioController?.capturarGps?.(ctx);
 
-window.guardarNuevoMenor = (e) => BeneficiarioController.saveNuevoMenor(e, refrescarVistaActual);
-window.guardarNuevoBeneficiario = (e) => BeneficiarioController.saveNuevoMenor(e, refrescarVistaActual);
+// toggleBeneficiarioServicio no se cablea aqui: lo define al final
+// BeneficiarioController.js. Estaba en los dos sitios a la vez y ganaba el
+// ultimo que se evaluaba, que dependia del orden de las importaciones. Ahora
+// manda el controlador y solo uno de los dos puede equivocarce.
+
+window.guardarNuevoMenor = (e) =>
+  window.PDI?.BeneficiarioController?.saveNuevoMenor?.(e, refrescarVistaActual);
+window.guardarNuevoBeneficiario = (e) =>
+  window.PDI?.BeneficiarioController?.saveNuevoMenor?.(e, refrescarVistaActual);
 
 // ---------------------------------------------------------------------------
 //  MODALES
@@ -89,7 +119,7 @@ window.closeModalExportAudit = () => {
 };
 window.confirmExportAuditCSV = () => {
   window.closeModalExportAudit();
-  AppController.exportAuditCSV();
+  window.PDI?.AppController?.exportAuditCSV?.();
 };
 
 // ---------------------------------------------------------------------------
@@ -114,17 +144,21 @@ window.deleteBeneficiarioExpediente = () => window.PDI?.ExpedienteView?.deleteBe
 // ---------------------------------------------------------------------------
 //  CALCULADORAS
 // ---------------------------------------------------------------------------
+//  Las tres resuelven por window.PDI. Sus controladores los cargan las paginas
+//  que los necesitan y solo esas: salud.js y social.js. Antes los importaba
+//  este archivo, y eso metia en las otras ocho paginas SaludController, que
+//  arrastra SaludCredView, y SocialController, que arrastra SocialKanbanView.
 window.calculateAnemiaPreview = () => {
   const inputEl = document.getElementById("calcHbInput");
   const sliderEl = document.getElementById("quickHbSlider");
   const val = inputEl ? inputEl.value : sliderEl ? sliderEl.value : 10.4;
-  SaludController.handleHbChange(val);
+  window.PDI?.SaludController?.handleHbChange?.(val);
 };
-window.calculateVulnerabilidad = () => SocialController.handleVulnerabilidadChange();
-window.calcularEvaluacionSocioeconomica = () => SocialController.calcularEvaluacion();
-window.syncScoreSimulador = (dimKey, val) => SocialController.syncScore(dimKey, val);
-window.cargarCasoEnSimulador = (codigo) => SocialController.cargarCasoEnSimulador(codigo);
-window.moverCaso = (id, etapa) => SocialController.moverCaso(id, etapa);
+window.calculateVulnerabilidad = () => window.PDI?.SocialController?.handleVulnerabilidadChange?.();
+window.calcularEvaluacionSocioeconomica = () => window.PDI?.SocialController?.calcularEvaluacion?.();
+window.syncScoreSimulador = (dimKey, val) => window.PDI?.SocialController?.syncScore?.(dimKey, val);
+window.cargarCasoEnSimulador = (codigo) => window.PDI?.SocialController?.cargarCasoEnSimulador?.(codigo);
+window.moverCaso = (id, etapa) => window.PDI?.SocialController?.moverCaso?.(id, etapa);
 
 /**
  * Calcula la edad en años a partir de la fecha de nacimiento y la refleja en el
@@ -178,11 +212,15 @@ window.calcularEdadAutomatica = () => {
 // `if (window.showToast)` que nunca se cumplia, asi que ninguno se mostraba y
 // nadie se enteraba. La comprobacion existia para que un TypeError no tumbara
 // la accion; lo que hacia era tapar que faltaba la funcion.
-window.showToast = (mensaje, tipo = "success") => ToastView.show(mensaje, undefined, tipo);
+window.showToast = (mensaje, tipo = "success") =>
+  window.PDI?.ToastView?.show?.(mensaje, undefined, tipo);
 
-window.toggleTheme = (e) => AppController.toggleTheme(e);
+// El conmutador de la barra superior vive en el chrome, asi que el tema tiene
+// que funcionar en las diez paginas. Por eso Theme lo carga Bootstrap y no este
+// archivo: asi AjustesView (11 KB) se queda solo en ajustes.html.
+window.toggleTheme = (e) => Theme.alternar(e);
 window.selectActiveRole = (roleValue, roleTitle) =>
-  Navigation.seleccionarRol(roleValue, roleTitle);
+  window.PDI?.Navigation?.seleccionarRol?.(roleValue, roleTitle);
 window.toggleRoleInfo = (e) => {
   // En PC el tooltip se muestra por hover y no reacciona al clic.
   if (window.innerWidth > 768) return;
@@ -196,8 +234,11 @@ window.toggleRoleInfo = (e) => {
   }
 };
 
-window.exportDataCSV = () => AppController.exportCSV();
-window.exportAuditCSV = () => AppController.exportAuditCSV();
+// Las dos exportaciones de datos las carga AppController en las paginas que las
+// ofrecen: el panel y la auditoria. Antes las importaba este archivo y por eso
+// AppController con CsvExporter llegaban a las diez.
+window.exportDataCSV = () => window.PDI?.AppController?.exportCSV?.();
+window.exportAuditCSV = () => window.PDI?.AppController?.exportAuditCSV?.();
 
 // ---------------------------------------------------------------------------
 //  AUDITORIA
@@ -234,8 +275,12 @@ window.toggleAuditLegalInfo = (e) => {
 // ---------------------------------------------------------------------------
 //  DROP-DOWNS GENERICOS Y FILTROS POR PAGINA
 // ---------------------------------------------------------------------------
-window.toggleCustomDropdown = (id) => DashboardView.toggleDropdown(id);
-window.toggleInnerFilterDropdown = (id) => DashboardView.toggleInnerDropdown(id);
+//  Estas dos son las que costaban 53 KB en ocho paginas. Estaban en
+//  DashboardView, pero no son de la vista: alternan una clase "open" sobre
+//  cualquier .custom-dropdown de la pagina. Viven ahora en utils/Dropdown.js, y
+//  DashboardView se limita a delegar.
+window.toggleCustomDropdown = (id) => Dropdown.alternar(id);
+window.toggleInnerFilterDropdown = (id) => Dropdown.alternarInterno(id);
 
 // Puente a un metodo de una vista registrada en window.PDI. Se resuelve en la
 // llamada, no al definir el puente: la vista se cuelga de PDI al importarse, y
@@ -353,10 +398,12 @@ document.addEventListener("keydown", (e) => {
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
   window.PDI.legacyGlobals = true;
-  window.PDI.BeneficiarioModel = BeneficiarioModel;
-  window.PDI.AuditModel = AuditModel;
-  window.PDI.CsvExporter = CsvExporter;
-  window.PDI.ToastView = ToastView;
-  window.PDI.PageGuard = PageGuard;
-  window.PDI.Navigation = Navigation;
 }
+// Nota sobre lo que aqui no esta. Este archivo solia republicar seis modulos en
+// window.PDI (BeneficiarioModel, AuditModel, CsvExporter, ToastView, PageGuard y
+// Navigation) y los tres ultimos no los leia nadie. Se quitaron por dos razones:
+// todos los modulos se publican a si mismos al importarse, asi que la copia era
+// redundante, y mantenerla obligaba a importarlos, que es justo lo que hacia que
+// las diez paginas descargaran vistas enteras que no necesitan. Bootstrap, que
+// corre en las diez, ya publica ToastView, Navigation, RoleController y
+// AuditModel.

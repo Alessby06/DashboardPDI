@@ -3,6 +3,7 @@
 
 import { VoluntarioModel, TEMATICAS_CAPACITACION } from '../models/VoluntarioModel.js';
 import { crear as crearFiltros } from '../utils/Filters.js';
+import { Responsive } from '../utils/Responsive.js';
 
 // Etiquetas cortas para los nombres largos de servicio (chips y dropdowns de filtro)
 const SERVICIO_LABELS = {
@@ -111,7 +112,19 @@ export const VoluntariadosView = {
     this._voluntarios = VoluntarioModel.getAll();
     this._renderKPIs();
     this._renderActiveChips();
+    this._vigilarVariante();
     this.applyFilters();
+  },
+
+  /**
+   * Se suscribe una sola vez por carga al cruce del corte de 768 px. Cuando se
+   * cruza hay que repintar, porque la variante que estaba vacia es la que pasa
+   * a verse: solo se dibuja la que se ve, y no las dos.
+   */
+  _vigilarVariante() {
+    if (this._vigilaVariante) return;
+    this._vigilaVariante = true;
+    Responsive.alCambiarDeVariante(() => this.applyFilters());
   },
 
   _renderKPIs() {
@@ -249,6 +262,17 @@ export const VoluntariadosView = {
     const tbody = document.getElementById("tbodyVoluntarios");
     const mobileContainer = document.getElementById("mobileCardsVoluntarios");
 
+    // Solo se dibuja la variante que se va a ver. La lista de tarjetas
+    // ocupaba 240 de los 1397 nodos del documento y 29 KB de marcado, y se
+    // regeneraba en cada pulsacion del buscador. Al cruzar el corte,
+    // _vigilarVariante() repinta.
+    const enMovil = Responsive.esMovil();
+
+    // La que no se dibuja se vacia, y no se deja con lo que hubiera de antes:
+    // si no, girar el movil con la ventana sola dejaria las dos pintadas.
+    if (enMovil) { if (tbody) tbody.innerHTML = ""; }
+    else { if (mobileContainer) mobileContainer.innerHTML = ""; }
+
     if (voluntarios.length === 0) {
       const emptyHtml = `
         <tr>
@@ -266,9 +290,9 @@ export const VoluntariadosView = {
           </td>
         </tr>
       `;
-      if (tbody) tbody.innerHTML = emptyHtml;
+      if (tbody && !enMovil) tbody.innerHTML = emptyHtml;
 
-      if (mobileContainer) {
+      if (mobileContainer && enMovil) {
         mobileContainer.innerHTML = `
           <div style="text-align: center; padding: 36px 16px; background: var(--surface-1); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-top: 8px;">
             <div style="width: 48px; height: 48px; margin: 0 auto 12px; border-radius: 50%; background: var(--gt-green-bg, rgba(52, 211, 153, 0.12)); display: flex; align-items: center; justify-content: center; color: var(--gt-green, #34d399);">
@@ -288,7 +312,7 @@ export const VoluntariadosView = {
     }
 
     // Render Table (PC)
-    if (tbody) {
+    if (tbody && !enMovil) {
       tbody.innerHTML = voluntarios.map(v => {
         let badgeServClass = "badge-green";
         if (v.servicio === "Casita del Saber") badgeServClass = "badge-yellow";
@@ -356,7 +380,7 @@ export const VoluntariadosView = {
     }
 
     // Render Cards (Mobile)
-    if (mobileContainer) {
+    if (mobileContainer && enMovil) {
       mobileContainer.innerHTML = voluntarios.map(v => {
         let badgeServClass = "badge-green";
         if (v.servicio === "Casita del Saber") badgeServClass = "badge-yellow";

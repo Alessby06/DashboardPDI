@@ -354,6 +354,10 @@
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
+      /* El boton de menu es un <a>, y el navegador lo subrayaba. En un menu de
+         navegacion ese subrayado no significa nada y ensuciaba los nueve
+         titulos de seccion. */
+      text-decoration: none;
       text-align: left;
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;

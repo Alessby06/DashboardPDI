@@ -25,7 +25,7 @@ import { CasoSocialModel } from "../models/CasoSocialModel.js";
 import { SedeModel } from "../models/SedeModel.js";
 import { VoluntarioModel } from "../models/VoluntarioModel.js";
 import { AuditModel } from "../models/AuditModel.js";
-import { AjustesView } from "../views/AjustesView.js";
+import { Theme } from "./Theme.js";
 import { ToastView } from "../views/ToastView.js";
 
 /**
@@ -51,8 +51,9 @@ export function arrancarComun() {
     console.error("[Bootstrap] AuditModel no responde; la vista de auditoria quedara vacia.");
   }
 
-  // Chrome.
-  AjustesView.init();
+  // Chrome. El tema se restaura en todas las paginas, pero desde Theme y no
+  // desde AjustesView: asi las nueve que no son ajustes no descargan sus 11 KB.
+  Theme.cargar();
   Navigation.bindSidebar();
   Navigation.bindResize();
   Navigation.bindRoleSelector();

@@ -1,5 +1,6 @@
 // Vista: Padrón de Beneficiarios
 import { crear as crearFiltros } from "../utils/Filters.js";
+import { Responsive } from "../utils/Responsive.js";
 
 // Qué filtros del padrón viajan en la URL, con qué valores y cuáles son los
 // defectos. La lista de valores no se inventa: es la misma que admiten los
@@ -149,12 +150,26 @@ export const BeneficiariosView = {
     if (beneficiarios) {
       this._allBeneficiarios = beneficiarios;
     }
+    this._vigilarVariante();
     this.applyFilters(false);
   },
 
+  /**
+   * Se suscribe una sola vez por carga al cruce del corte de 768 px. Cuando se
+   * cruza hay que repintar, porque la variante que estaba vacia es la que pasa
+   * a verse: solo se dibuja la que se ve, y no las dos.
+   */
+  _vigilarVariante() {
+    if (this._vigilaVariante) return;
+    this._vigilaVariante = true;
+    Responsive.alCambiarDeVariante(() => {
+      this._pageSize = this._getEffectivePageSize();
+      this.applyFilters(false);
+    });
+  },
+
   _getEffectivePageSize() {
-    const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
-    if (isMobile) {
+    if (Responsive.esMovil()) {
       return Math.min(20, this._pageSize || 20);
     }
     return Math.min(50, this._pageSize || 20);
@@ -990,8 +1005,20 @@ export const BeneficiariosView = {
     const badgeTotal = document.getElementById("badgeTotalBeneficiarios");
     if (badgeTotal) badgeTotal.textContent = totalCount !== undefined ? totalCount : beneficiarios.length;
 
-    // 1. Renderizar tabla tradicional para pantallas grandes (Desktop)
-    if (tbody) {
+    // Solo se dibuja la variante que se va a ver. La otra se deja vacia a
+    // proposito: en escritorio la lista de tarjetas ocupaba 546 de los 1794
+    // nodos del documento y 50 KB de marcado, y se regeneraba en cada pulsacion
+    // del buscador. Al cruzar el corte, _vigilarVariante() repinta.
+    const enMovil = Responsive.esMovil();
+
+    // La que no se dibuja se vacia, y no se deja con lo que hubiera de antes.
+    // Sin esto, girar el movil con la ventana sola dejaria las dos variantes
+    // pintadas y se perderia justo el ahorro que motiva esto.
+    if (enMovil) { if (tbody) tbody.innerHTML = ""; }
+    else { if (mobileContainer) mobileContainer.innerHTML = ""; }
+
+    // 1. Tabla tradicional para pantallas grandes (Desktop)
+    if (tbody && !enMovil) {
       if (beneficiarios.length === 0) {
         tbody.innerHTML = `
           <tr>
@@ -1027,8 +1054,8 @@ export const BeneficiariosView = {
       }
     }
 
-    // 2. Renderizar lista de tarjetas Data Card para teléfonos móviles (Patrón Beezlebub)
-    if (mobileContainer) {
+    // 2. Lista de tarjetas Data Card para teléfonos móviles (Patrón Beezlebub)
+    if (mobileContainer && enMovil) {
       if (beneficiarios.length === 0) {
         mobileContainer.innerHTML = `
           <div style="text-align: center; padding: 28px 14px; color: var(--text-dim); background: var(--surface-1); border-radius: var(--radius-md); border: 1px dashed var(--border-subtle);">

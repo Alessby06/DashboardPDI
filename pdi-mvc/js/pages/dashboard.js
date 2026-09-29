@@ -22,6 +22,10 @@ import { arrancarComun, publicarRefresco } from "../core/Bootstrap.js";
 import { BeneficiarioModel } from '../models/BeneficiarioModel.js';
 import { AuditModel } from '../models/AuditModel.js';
 import { DashboardView } from '../views/DashboardView.js';
+// El boton de exportar del panel invoca window.exportDataCSV, y ese puente
+// resuelve por window.PDI. Antes AppController lo traia legacy-globals a las
+// diez paginas; con 2 KB aqui basta.
+import { AppController } from '../controllers/AppController.js';
 
 let enlazado = false;
 

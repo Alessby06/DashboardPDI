@@ -19,7 +19,11 @@
 //  falla por un elemento que todavia no existe.
 import "../core/legacy-globals.js";
 import { arrancarComun, publicarRefresco } from "../core/Bootstrap.js";
-// Esta pagina no consume ningun modelo: es declarativa.
+// Esta vista solo se importa en su pagina. Antes la cargaba Bootstrap en las
+// diez, y por el solo hecho de tener el boton de tema en la barra superior cada
+// pagina pagaba sus 11 KB.
+import { AjustesView } from "../views/AjustesView.js";
+// El resto de esta pagina es declarativa: no consume ningun modelo.
 
 let enlazado = false;
 
@@ -27,13 +31,15 @@ let enlazado = false;
 function enlazar() {
   if (enlazado) return;
   enlazado = true;
+  // Los tres botones de tema y la mascota de foco. El tema en si ya quedo
+  // restaurado por Theme.cargar() dentro de arrancarComun().
+  AjustesView.init();
 }
 
 /** Dibuja lo propio de esta pagina. Es idempotente. */
 function montar() {
   // La pagina es declarativa: no hay tabla que dibujar. Lo unico vivo, el
-  // modo foco y el tema, ya quedo enganchado por AjustesView.init() dentro de
-  // arrancarComun().
+  // modo foco y el tema, ya quedo enganchado por AjustesView.init().
 }
 
 function iniciar() {

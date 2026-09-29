@@ -27,7 +27,15 @@ archivo hace cuatro comprobaciones.
   B. Que la vista y el metodo que nombra el puente existan de verdad. El
      aparejo opcional se come un metodo mal escrito, asi que un nombre
      equivocado tampoco daria error. Aplica a los dos estilos de puente: los de
-     vista() y los que invocan window.PDI?.Vista?.metodo?.().
+     vista() y los que invocan window.PDI?.X?.metodo?.().
+
+     Recorre TODO js/, no solo legacy-globals. Antes los puentes vivian casi
+     todos en ese archivo y el unico destino eran las vistas, asi que mirar solo
+     ahi bastaba. Hoy hay puentes iguales repartidos (los de Theme, los de las
+     vistas, los del archivo de puentes) y apuntan a vistas, controladores,
+     nucleo y utiles por igual, que es donde los mire todos con la comprobacion
+     E. Un nombre mal escrito en cualquiera de ellos se come igual de
+     silencioso, asi que se comprueban todos.
 
   C. Que todo puente que el marcado invoca exista. En las dos direcciones: un
      puente borrado con el marcado sigue apuntandolo, y un puente que el marcado
@@ -48,17 +56,30 @@ archivo hace cuatro comprobaciones.
      quedan mudos sin decir error. Hay cuatro excepciones, declaradas abajo, y
      ninguna es por descuido.
 
-Las comprobaciones B y C comparten el problema de las vistas, asi que este
-archivo necesita saber que vista corresponde a cada nombre de window.PDI y que
-metodos declara cada una. Eso lo lee de los propios archivos de js/views, sin
-inventar ningun manifiesto: si una vista no se registra, no existe para el
-codigo que la busca, y el verificador deberia decirlo.
+Las comprobaciones B y C comparten el problema de donde esta cada nombre de
+window.PDI y que metodos declara, asi que este archivo necesita saber leer los
+registros sin inventar ningun manifiesto. No basta con mirar las vistas: casi
+todos los modulos se registran igual, colgandose de window.PDI al importarse, y
+los puentes apuntan hoy a vistas, controladores, nucleo y utiles por igual. Si
+alguien no se registra, no existe para el codigo que lo busca, y el verificador
+deberia decirlo.
 
 Se ejecuta asi:
 
     python verificar_puentes.py
 
 Devuelve 1 si algo falla, para poder encadenarlo con los demas verificadores.
+
+Lo que NO comprueba, y conviene saber:
+
+  Que el modulo al que apunta un puente este cargado en la pagina donde ese
+  puente se invoca. Con los diferidos (window.PDI?.X?.y) el nombre y el metodo
+  se pueden comprobar y aun asi el puente quedar mudo si esa pagina no carga X.
+  Ocurre a proposito, no por descuido: los botones del modal de menor viven en
+  el chrome, en las diez paginas, y BeneficiarioController solo se carga en el
+  padron. Ahi el puente no puede encontrar a quien llamar, y no deberia: ese
+  modal solo se abre desde el padron. Para eso hace falta saber que pagina
+  carga que, y eso es trabajo de una prueba en el navegador, no de leer codigo.
 """
 
 import io
@@ -72,7 +93,7 @@ LEGACY = os.path.join(BASE, "js", "core", "legacy-globals.js")
 VISTAS = os.path.join(BASE, "js", "views")
 PAGINAS = os.path.join(BASE, "src", "pages")
 
-CARPETAS_JS = ["views", "core", "utils", "models", "auth", "pages"]
+CARPETAS_JS = ["views", "controllers", "core", "utils", "models", "auth", "pages"]
 
 # Globales que no son puentes: los pone el navegador o el propio proyecto.
 #
@@ -113,10 +134,24 @@ RE_VISTA_LLAMADA = re.compile(r"\bvista\(([^()]*)\)")
 RE_PUENTE_OPCIONAL = re.compile(
     r"window\.PDI\?\.([A-Za-z_$][\w$]*)\?\.([A-Za-z_$][\w$]*)\?*\."
 )
-RE_REGISTRO = re.compile(r"window\.PDI\.([A-Za-z_$][\w$]*)\s*=")
 RE_METODO = re.compile(r"^  (?:static\s+)?(?:async\s+)?([A-Za-z_$][\w$]*)\s*[(=]", re.M)
 RE_ATRIBUTO_JS = re.compile(r'on(?:click|input|change|submit)="([^"]+)"')
 RE_GLOBAL = re.compile(r"\bwindow\.([A-Za-z_$][\w$]*)")
+
+# Las tres de abajo son para el registro en window.PDI. Antes solo se miraba
+# js/views, y todo lo demas se daba por bueno porque los puentes Resolvian a
+# vistas. Ahora los puentes apuntan tambien a controladores, al nucleo y a los
+# utiles, y todos se registran igual: cada modulo se cuelga de window.PDI al
+# importarse. Asi que hay que saber leer los dos estilos de registro.
+#
+#   RE_REGISTRO   "window.PDI.Nombre = loQueSea"  (con o sin objeto detras)
+#   RE_EXPORTADO  "export const Nombre = {"       (el objeto que se registra)
+#   RE_MIEMBRO    un miembro directo de un objeto, a cualquier indentacion
+RE_REGISTRO = re.compile(r"window\.PDI\.([A-Za-z_$][\w$]*)\s*=\s*([A-Za-z_$][\w$]*)?\s*\{?")
+RE_EXPORTADO = re.compile(r"export\s+const\s+([A-Za-z_$][\w$]*)\s*=\s*\{")
+RE_MIEMBRO = re.compile(
+    r"^\s*(?:static\s+|async\s+|get\s+|set\s+)*([A-Za-z_$][\w$]*)\s*(?:\(|=|:|,|\?|\}|$)"
+)
 
 # Cualquier identificador suelto dentro de un atributo on*. Solo se usa para la
 # lista informativa D, no para fallar: el marcado llama a los puentes con y sin
@@ -192,16 +227,80 @@ def separar_argumentos(inside):
     return partes
 
 
-def metodos_por_vista():
-    """Nombre en window.PDI -> metodos que declara la vista."""
-    tabla = {}
-    for entrada in sorted(os.listdir(VISTAS)):
-        if not entrada.endswith(".js"):
+def miembros_de_objeto(lineas, inicio):
+    """Nombres de los miembros DIRECTOS del objeto que abre en la linea 'inicio'.
+
+    'inicio' es un indice de lista, base cero, y tiene que ser la linea donde
+    aparece la llave de apertura. Se lleva la cuenta de las llaves y solo
+    recoge miembros cuando esta al primer nivel. Sin eso tambien contaria los
+    metodos de los metodos, y la comprobacion B dejaria de notar un nombre mal
+    escrito: es justo lo que vigila, porque el encadenamiento opcional se come
+    un metodo equivocado sin dar ningun error.
+    """
+    miembros = set()
+    nivel = 0
+    abierto = False
+    for indice in range(inicio, len(lineas)):
+        limpio = lineas[indice].split("//", 1)[0]
+        if abierto and nivel == 1:
+            encontrado = RE_MIEMBRO.match(limpio)
+            if encontrado:
+                miembros.add(encontrado.group(1))
+        for caracter in limpio:
+            if caracter == "{":
+                nivel += 1
+                abierto = True
+            elif caracter == "}":
+                nivel -= 1
+                if abierto and nivel <= 0:
+                    return miembros
+    return miembros
+
+
+def modulos_registrados():
+    """Nombre en window.PDI -> miembros que ese modulo expone.
+
+    Hay dos formas de registrarse y las dos cuentan:
+
+      1. Reutilizando un objeto ya declarado, que es lo que hacen casi todos:
+         los controladores, los modelos, las vistas y el nucleo hacen
+         "export const X = { ... }" y al final "window.PDI.X = X".
+
+      2. Con un objeto en linea, sin nombre: es lo que hace Bootstrap, que
+         escribe "window.PDI.Bootstrap = { arrancarComun, publicarRefresco }".
+
+    Solo con mirar la primera, el verificador VIA COMO REGISTRADOS a los
+    controladores que ahora registran los puentes, y daba por buenos 19 puentes
+    que no podia comprobar. Con las dos, se vuelven a comprobar.
+    """
+    archivos = []
+    for carpeta in CARPETAS_JS:
+        raiz = os.path.join(BASE, "js", carpeta)
+        if not os.path.isdir(raiz):
             continue
-        texto = leer(os.path.join(VISTAS, entrada))
-        registro = RE_REGISTRO.search(texto)
-        if registro:
-            tabla[registro.group(1)] = {m.group(1) for m in RE_METODO.finditer(texto)}
+        for entrada in sorted(os.listdir(raiz)):
+            if entrada.endswith(".js"):
+                archivos.append(os.path.join(raiz, entrada))
+
+    # Primero, que objetos exporta cada archivo y con que miembros.
+    exportados = {}
+    registros = []
+    for ruta in archivos:
+        lineas = leer(ruta).split("\n")
+        for numero, linea in enumerate(lineas, 1):
+            exportado = RE_EXPORTADO.search(linea)
+            if exportado:
+                exportados[exportado.group(1)] = miembros_de_objeto(lineas, numero - 1)
+            registro = RE_REGISTRO.search(linea)
+            if registro and "PDI" != registro.group(1):
+                registros.append((registro.group(1), registro.group(2), ruta, numero))
+
+    tabla = {}
+    for nombre, reexportado, ruta, numero in registros:
+        if reexportado and reexportado in exportados:
+            tabla[nombre] = exportados[reexportado]
+        elif not reexportado:
+            tabla[nombre] = miembros_de_objeto(leer(ruta).split("\n"), numero - 1)
     return tabla
 
 
@@ -291,7 +390,7 @@ def comprobar():
     fallos = []
     avisos = []
 
-    metodos = metodos_por_vista()
+    metodos = modulos_registrados()
     definidos = puentes_por_archivo()
     texto_legacy = leer(LEGACY)
     codigo_legacy = sin_comentarios(texto_legacy.split("\n"))
@@ -325,18 +424,34 @@ def comprobar():
                 % (numero, vista, metodo)
             )
 
-    for numero, linea in enumerate(codigo_legacy, 1):
-        for vista, metodo in RE_PUENTE_OPCIONAL.findall(linea):
-            if vista not in metodos:
-                fallos.append(
-                    "B  legacy-globals.js L%d: window.PDI?.%s no se registra."
-                    % (numero, vista)
-                )
-            elif metodo not in metodos[vista]:
-                fallos.append(
-                    "B  legacy-globals.js L%d: %s no declara %s. El puente queda mudo."
-                    % (numero, vista, metodo)
-                )
+    # Los puentes diferidos (window.PDI?.X?.y) se comprueban en TODO js/, no solo
+    # en legacy-globals. Antes vivian casi todos en ese archivo, asi que mirar
+    # solo ahi bastaba; hoy hay puentes iguales en core/Theme.js y en las vistas,
+    # y un nombre mal escrito en cualquiera de ellos se comeria igual de
+    # silencioso. El mensaje dice el archivo para que se sepa donde mirar.
+    for carpeta in CARPETAS_JS:
+        raiz = os.path.join(BASE, "js", carpeta)
+        if not os.path.isdir(raiz):
+            continue
+        for entrada in sorted(os.listdir(raiz)):
+            if not entrada.endswith(".js"):
+                continue
+            etiqueta = "js/%s/%s" % (carpeta, entrada)
+            lineas = sin_comentarios(leer(os.path.join(raiz, entrada)).split("\n"))
+            for numero, linea in enumerate(lineas, 1):
+                for vista, metodo in RE_PUENTE_OPCIONAL.findall(linea):
+                    if vista not in metodos:
+                        fallos.append(
+                            "B  %s L%d: window.PDI?.%s no se registra. Ningun modulo "
+                            "se cuelga de window.PDI con ese nombre, asi que el "
+                            "puente nunca encontrara a quien llamar."
+                            % (etiqueta, numero, vista)
+                        )
+                    elif metodo not in metodos[vista]:
+                        fallos.append(
+                            "B  %s L%d: %s no declara %s. El puente queda mudo."
+                            % (etiqueta, numero, vista, metodo)
+                        )
 
     # ------------------------------------------------------------------ C
     invocados = set()
@@ -387,9 +502,9 @@ def comprobar():
 def main():
     fallos, avisos, sin_usar, llamadas, metodos, definidos = comprobar()
 
-    print("  vistas registradas en window.PDI: %d" % len(metodos))
-    print("  puentes definidos en todo js/:    %d" % len(definidos))
-    print("  puentes construidos con vista():  %d" % llamadas)
+    print("  modulos registrados en window.PDI: %d" % len(metodos))
+    print("  puentes definidos en todo js/:       %d" % len(definidos))
+    print("  puentes construidos con vista():     %d" % llamadas)
     print("")
 
     if fallos:
@@ -399,7 +514,8 @@ def main():
         return 1
 
     print("  A  las %d llamadas a vista() pasan los dos argumentos que declara." % llamadas)
-    print("  B  Toda vista y todo metodo que nombra un puente existe.")
+    print("  B  Todo metodo que nombra un puente existe, en vistas, controladores,")
+    print("     nucleo y utiles, y en todo js/.")
     print("  C  Todo puente que el marcado invoca existe, incluidos los botones")
     print("     que dibuja el codigo y no estan en src/pages.")
     print("  E  Ningun puente esta definido en dos sitios a la vez.")
