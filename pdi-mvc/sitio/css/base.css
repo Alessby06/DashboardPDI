@@ -10,7 +10,12 @@
       background-image: 
         radial-gradient(circle at 15% 15%, rgba(0, 180, 148, 0.05) 0%, transparent 45%),
         radial-gradient(circle at 85% 85%, rgba(251, 218, 51, 0.03) 0%, transparent 50%);
-      background-attachment: fixed;
+      /* Aqui era fixed y ahora es scroll. El body nunca se desplaza:
+         .app-shell tiene height: 100vh con overflow: hidden, y el scroll real
+         ocurre dentro de .content-viewport. El resultado visible es identico,
+         pero fixed obliga a re-anclar el fondo en cada cambio de maquetacion,
+         que es justo lo que ocurre mientras el menu se encoge. */
+      background-attachment: scroll;
       color: var(--text-main);
       font-family: var(--ui-font);
       font-size: 15px;
@@ -491,7 +496,9 @@
       height: 68px;
       min-height: 68px;
       background: var(--surface-1);
-      backdrop-filter: blur(16px);
+      /* El difuminado se va por lo mismo que en .card: --surface-1 es opaco.
+         Aqui pesaba mas, porque la barra superior cambia de ancho en cada
+         fotograma del encogido del menu y hay que redibujarla entera. */
       border-bottom: 1px solid var(--border-subtle);
       display: flex;
       align-items: center;

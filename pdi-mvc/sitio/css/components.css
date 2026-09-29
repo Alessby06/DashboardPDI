@@ -1,7 +1,10 @@
 /* Cards & Glass Containers */
     .card {
       background: var(--surface-1);
-      backdrop-filter: blur(12px);
+      /* Sin backdrop-filter: iba sobre --surface-1, que es opaco (#ffffff en
+         claro, #181818 en oscuro), asi que difuminaba un fondo macizo. No se
+         veia nada y era caro: al encogerse el menu todas las tarjetas cambian
+         de tamano y cada una volvia a difuminar su fondo en cada fotograma. */
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
       padding: 22px;
