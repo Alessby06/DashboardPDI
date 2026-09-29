@@ -10,8 +10,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Sistema PDI: Asociación Cultural Johannes Gutenberg (MVC)</title>
-  <link rel="icon" type="image/png" href="../assets/jg-icon.png">
-  <link rel="apple-touch-icon" href="../assets/jg-icon.png">
+  <link rel="icon" type="image/png" href="./assets/jg-icon.png">
+  <link rel="apple-touch-icon" href="./assets/jg-icon.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,13 +49,13 @@
   </script>
 
   <!-- Modular CSS Architecture (Carga Directa para Máxima Velocidad sin Fails de Import) -->
-  <link rel="stylesheet" href="../css/variables.css">
-  <link rel="stylesheet" href="../css/base.css">
-  <link rel="stylesheet" href="../css/components.css">
-  <link rel="stylesheet" href="../css/views-comun.css">
-  <link rel="stylesheet" href="../css/views-dashboard.css">
+  <link rel="stylesheet" href="./css/variables.css">
+  <link rel="stylesheet" href="./css/base.css">
+  <link rel="stylesheet" href="./css/components.css">
+  <link rel="stylesheet" href="./css/views-comun.css">
+  <link rel="stylesheet" href="./css/views-voluntariados.css">
 </head>
-<body data-page="dashboard">
+<body data-page="voluntariados">
   <!-- Toast Notification Stack -->
   <div class="toast-container" id="toastContainer"></div>
 
@@ -67,7 +67,7 @@
     <aside class="sidebar" id="appSidebar">
       <div>
         <div class="sidebar-header">
-          <img src="../assets/jg-icon.png" alt="Isotipo Johannes Gutenberg" class="logo-official-icon"
+          <img src="./assets/jg-icon.png" alt="Isotipo Johannes Gutenberg" class="logo-official-icon"
             style="width:38px; height:38px; object-fit:contain; border-radius:6px; background:var(--surface-2); padding:3px; border:1px solid var(--border-subtle);">
           <div class="logo-text">
             <h1>Johannes Gutenberg</h1>
@@ -77,7 +77,7 @@
 
         <nav class="nav-sections" id="sidebarNav">
           <div class="nav-label">General</div>
-          <a href="./dashboard.html" class="nav-btn active" data-view="view-dashboard" data-page="dashboard" data-tooltip="Dashboard"
+          <a href="./dashboard.html" class="nav-btn" data-view="view-dashboard" data-page="dashboard" data-tooltip="Dashboard"
             data-roles="coord,facilitadora,promotora,social,admin">
             <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
@@ -137,7 +137,7 @@
             <span>Sedes e Iglesias</span>
           </a>
 
-          <a href="./voluntariados.html" class="nav-btn" data-view="view-voluntarios" data-page="voluntariados" data-tooltip="Voluntariados"
+          <a href="./voluntariados.html" class="nav-btn active" data-view="view-voluntarios" data-page="voluntariados" data-tooltip="Voluntariados"
             data-roles="coord,facilitadora,promotora,social,admin">
             <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
@@ -183,9 +183,9 @@
           </button>
 
           <div class="topbar-brand-wrap" style="display:flex; align-items:center; gap:12px; margin-right:8px;">
-            <img src="../assets/logo-light-acjg.png" alt="Asociacion Cultural Johannes Gutenberg" class="brand-logo-dark"
+            <img src="./assets/logo-light-acjg.png" alt="Asociacion Cultural Johannes Gutenberg" class="brand-logo-dark"
               style="height:32px; object-fit:contain;">
-            <img src="../assets/logo-asociacion.png" alt="Asociacion Cultural Johannes Gutenberg"
+            <img src="./assets/logo-asociacion.png" alt="Asociacion Cultural Johannes Gutenberg"
               class="brand-logo-light" style="height:32px; object-fit:contain; display:none;">
           </div>
 
@@ -290,118 +290,334 @@
 
       <!-- Viewport Body -->
   <main class="content-viewport" id="mainContent">
-        <section class="app-view active" id="view-dashboard">
+        <section class="app-view active" id="view-voluntarios">
           <div class="view-header">
             <div class="view-title-group">
-              <h2>Dashboard General</h2>
-              <p>Métricas consolidadas de cobertura alimentaria, acompañamiento pedagógico y salud infantil en Comas y
-                Carabayllo.</p>
+              <h2>Padrón de Voluntariados y Personal Comunitario</h2>
+              <p>Gestión de voluntarias de sede, promotoras de apoyo, capacitaciones oficiales y asignación territorial (Fichas A4, A5 y A6).</p>
             </div>
-            <button type="button" class="btn-action" onclick="exportDataCSV()">
-              <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-              </svg>
-              <span>Exportar Informe CSV</span>
-            </button>
-          </div>
-
-          <!-- Metric Strip (Dashboard General Métricas Consolidadas) -->
-          <div class="sedes-metric-strip" id="kpiDashboardContainer">
-            <div class="sedes-metric-item">
-              <div class="sedes-metric-icon green">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+            <div class="view-actions">
+              <button type="button" class="btn-action" onclick="window.exportVoluntariosCSV ? window.exportVoluntariosCSV() : null" title="Exportar Padrón de Voluntarios a CSV">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                 </svg>
-              </div>
-              <div class="sedes-metric-data">
-                <span class="sedes-metric-num" id="dashKpiBeneficiarios">15</span>
-                <span class="sedes-metric-lbl">Beneficiarios Activos</span>
-              </div>
-            </div>
-
-            <div class="sedes-metric-divider"></div>
-
-            <div class="sedes-metric-item">
-              <div class="sedes-metric-icon yellow">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                <span>Exportar Padrón</span>
+              </button>
+              <button type="button" class="btn-action primary" onclick="window.openInscripcionVoluntario ? window.openInscripcionVoluntario() : null" title="Registrar nueva voluntaria o personal de apoyo">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
-              </div>
-              <div class="sedes-metric-data">
-                <span class="sedes-metric-num" id="dashKpiTamizados">15 / 15</span>
-                <span class="sedes-metric-lbl">Tamizados CRED (Anemia)</span>
-              </div>
-            </div>
-
-            <div class="sedes-metric-divider"></div>
-
-            <div class="sedes-metric-item">
-              <div class="sedes-metric-icon blue">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div class="sedes-metric-data">
-                <span class="sedes-metric-num" id="dashKpiAsistencia">92.4%</span>
-                <span class="sedes-metric-lbl">Asistencia en Casitas</span>
-              </div>
-            </div>
-
-            <div class="sedes-metric-divider"></div>
-
-            <div class="sedes-metric-item">
-              <div class="sedes-metric-icon red">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                </svg>
-              </div>
-              <div class="sedes-metric-data">
-                <span class="sedes-metric-num" id="dashKpiCasosSociales">4</span>
-                <span class="sedes-metric-lbl">Casos Críticos Derivados</span>
-              </div>
+                <span>Nueva Inscripción</span>
+              </button>
             </div>
           </div>
 
-          <!-- Charts & Visual Indicators Grid -->
-          <div class="dash-charts-grid"
-            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px;">
-            <!-- Anemia Status Breakdown Widget -->
-            <div class="card" id="widgetAnemiaStatus">
-              <div class="card-header">
-                <div class="card-title">
-                  <svg width="19" height="19" fill="none" stroke="var(--gt-yellow)" stroke-width="2"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" />
-                  </svg>
-                  Semáforo de Anemia MINSA (Hemoglobina)
+          <!-- KPI Banner Summary -->
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-info">
+                <span>Total Voluntarias</span>
+                <h3 id="kpiVoluntariosTotal">8</h3>
+                <div class="kpi-sub">
+                  <span class="badge badge-green" id="kpiVoluntariosActivos">7 activas</span>
+                  <span style="font-size: 11.5px; color: var(--text-dim); margin-left: 4px;">Comas y Carabayllo</span>
                 </div>
               </div>
-              <div style="display: flex; flex-direction: column; gap: 14px;" id="dashAnemiaBars">
-                <!-- Injected via JS -->
+              <div class="kpi-icon-wrap" style="background: var(--gt-green-bg); color: var(--gt-green);">
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                </svg>
               </div>
             </div>
 
-            <!-- Geographic Coverage Widget (Comas vs Carabayllo) -->
-            <div class="card" id="widgetCoverageStatus">
-              <div class="card-header">
-                <div class="card-title">
-                  <svg width="19" height="19" fill="none" stroke="var(--gt-blue)" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                      d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                  </svg>
-                  Cobertura Territorial por Distrito
+            <div class="kpi-card">
+              <div class="kpi-info">
+                <span>Servicio Alimentario</span>
+                <h3 id="kpiVoluntariosDesayuno">4</h3>
+                <div class="kpi-sub">
+                  <span style="font-size: 11.5px; color: var(--text-muted);">Desayunos e Iglesias Aliadas</span>
                 </div>
               </div>
-              <div style="display: flex; flex-direction: column; gap: 14px;" id="dashDistrictCoverage">
-                <!-- Injected via JS -->
+              <div class="kpi-icon-wrap" style="background: var(--gt-green-bg); color: var(--gt-green);">
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                </svg>
               </div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-info">
+                <span>Casita del Saber</span>
+                <h3 id="kpiVoluntariosCasitas">3</h3>
+                <div class="kpi-sub">
+                  <span style="font-size: 11.5px; color: var(--text-muted);">Acompañamiento y Biblioteca</span>
+                </div>
+              </div>
+              <div class="kpi-icon-wrap" style="background: var(--gt-yellow-bg); color: var(--gt-yellow);">
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" />
+                </svg>
+              </div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-info">
+                <span>Canastas Entregadas</span>
+                <h3 id="kpiVoluntariosCanastas">18</h3>
+                <div class="kpi-sub">
+                  <span style="font-size: 11.5px; color: var(--text-muted);">Estímulo por labor comunitaria</span>
+                </div>
+              </div>
+              <div class="kpi-icon-wrap" style="background: var(--gt-blue-bg); color: var(--gt-blue);">
+                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Barra de Filtros y Búsqueda Rápida de Voluntariados -->
+          <div class="card" id="cardVoluntariosPadron" style="position: relative; z-index: 80;">
+            <div class="audit-toolbar">
+              <div class="audit-search-wrap" style="flex: 1; max-width: 440px;">
+                <svg class="audit-search-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+                <input type="text" id="inputVoluntariosSearch" class="audit-search-input" placeholder="Buscar por nombre, DNI, código, sede o rol...">
+                <button type="button" class="audit-search-clear" id="btnVoluntariosSearchClear" onclick="window.clearVoluntariosSearch ? window.clearVoluntariosSearch() : (window.PDI?.VoluntariadosView?.clearSearch ? window.PDI.VoluntariadosView.clearSearch() : null)" style="display: none;" title="Limpiar búsqueda">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Filtro Popover Dropdown -->
+              <div class="audit-filter-panel-wrap">
+                <div class="custom-dropdown audit-filters-dropdown" id="dropdownVoluntariosFilterPanel">
+                  <button type="button" class="btn-action audit-filter-btn" id="btnDropdownVoluntariosFilterPanel" onclick="window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownVoluntariosFilterPanel') : null">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+                    </svg>
+                    <span>Filtros</span>
+                    <span class="audit-filter-badge" id="voluntariosActiveFiltersCount" style="display:none;">0</span>
+                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" class="filter-caret">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                    </svg>
+                  </button>
+
+                  <div class="custom-dropdown-menu audit-filters-menu" id="menuVoluntariosFilterPanel">
+                    <div class="audit-filters-header">
+                      <div class="audit-filters-header-title">
+                        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"
+                          viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+                        </svg>
+                        <span>Filtros de Voluntariados</span>
+                      </div>
+                      <button type="button" class="btn-text-subtle"
+                        onclick="window.resetVoluntariosFilters ? window.resetVoluntariosFilters() : null">Restablecer</button>
+                    </div>
+
+                    <div class="audit-filters-body">
+                      <!-- Filtro 1: Distrito (multi-selección) -->
+                      <div class="audit-filter-field">
+                        <label class="audit-field-label">Distrito</label>
+                        <div class="padron-inner-dropdown" id="dropdownVoluntariosDistrito">
+                          <button type="button" class="padron-inner-dropdown-btn"
+                            onclick="window.toggleVoluntariosInnerDropdown ? window.toggleVoluntariosInnerDropdown('dropdownVoluntariosDistrito') : null">
+                            <span id="labelVoluntariosDistritoSelect">Todos los Distritos</span>
+                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                            </svg>
+                          </button>
+                          <div class="padron-inner-dropdown-menu" id="menuVoluntariosDistrito">
+                            <div class="padron-dropdown-item selected" data-value="all"
+                              onclick="window.toggleVoluntariosDistrito ? window.toggleVoluntariosDistrito('all') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="padron-item-label">Todos los Distritos</span>
+                              </div>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="Comas"
+                              onclick="window.toggleVoluntariosDistrito ? window.toggleVoluntariosDistrito('Comas') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="padron-item-label">Comas</span>
+                              </div>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="Carabayllo"
+                              onclick="window.toggleVoluntariosDistrito ? window.toggleVoluntariosDistrito('Carabayllo') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="padron-item-label">Carabayllo</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Filtro 2: Servicio Asignado (multi-selección) -->
+                      <div class="audit-filter-field">
+                        <label class="audit-field-label">Servicio Asignado</label>
+                        <div class="padron-inner-dropdown" id="dropdownVoluntariosServicio">
+                          <button type="button" class="padron-inner-dropdown-btn"
+                            onclick="window.toggleVoluntariosInnerDropdown ? window.toggleVoluntariosInnerDropdown('dropdownVoluntariosServicio') : null">
+                            <span id="labelVoluntariosServicioSelect">Todos los Servicios</span>
+                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                            </svg>
+                          </button>
+                          <div class="padron-inner-dropdown-menu" id="menuVoluntariosServicio">
+                            <div class="padron-dropdown-item selected" data-value="all"
+                              onclick="window.toggleVoluntariosServicio ? window.toggleVoluntariosServicio('all') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="padron-item-label">Todos los Servicios</span>
+                              </div>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="Desayuno Infantil"
+                              onclick="window.toggleVoluntariosServicio ? window.toggleVoluntariosServicio('Desayuno Infantil') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="padron-item-label">Desayuno Infantil</span>
+                              </div>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="Casita del Saber"
+                              onclick="window.toggleVoluntariosServicio ? window.toggleVoluntariosServicio('Casita del Saber') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="padron-item-label">Casita del Saber</span>
+                              </div>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="Área Social Pastoral (ASP)"
+                              onclick="window.toggleVoluntariosServicio ? window.toggleVoluntariosServicio('Área Social Pastoral (ASP)') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox">
+                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg>
+                                </span>
+                                <span class="padron-item-label">Pastoral ASP</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Filtro 3: Estado de la Voluntaria (selección única) -->
+                      <div class="audit-filter-field">
+                        <label class="audit-field-label">Estado de la Voluntaria</label>
+                        <div class="padron-inner-dropdown" id="dropdownVoluntariosEstado">
+                          <button type="button" class="padron-inner-dropdown-btn"
+                            onclick="window.toggleVoluntariosInnerDropdown ? window.toggleVoluntariosInnerDropdown('dropdownVoluntariosEstado') : null">
+                            <span id="labelVoluntariosEstadoSelect">Todos los Estados</span>
+                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                            </svg>
+                          </button>
+                          <div class="padron-inner-dropdown-menu" id="menuVoluntariosEstado">
+                            <div class="padron-dropdown-item selected" data-value="all"
+                              onclick="window.toggleVoluntariosEstado ? window.toggleVoluntariosEstado('all') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-radio"></span>
+                                <span class="padron-item-label">Todos los Estados</span>
+                              </div>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="Activo"
+                              onclick="window.toggleVoluntariosEstado ? window.toggleVoluntariosEstado('Activo') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-radio"></span>
+                                <span class="padron-item-label">Activo</span>
+                              </div>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="En Pausa"
+                              onclick="window.toggleVoluntariosEstado ? window.toggleVoluntariosEstado('En Pausa') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-radio"></span>
+                                <span class="padron-item-label">En Pausa</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+              </div>
+            </div>
+
+          </div>
+
+            <!-- Chips Activos Bar -->
+            <div class="padron-active-chips-bar" id="voluntariosActiveChipsBar" style="display: none;">
+              <span class="padron-active-chips-label">Filtros aplicados:</span>
+              <div class="padron-active-chips-list" id="voluntariosActiveChipsList"
+                style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;"></div>
+              <button type="button" class="btn-text-subtle" style="margin-left: auto; font-size: 11.5px;"
+                onclick="window.resetVoluntariosFilters ? window.resetVoluntariosFilters() : null">
+                Borrar todos
+              </button>
+            </div>
+
+            <!-- Contador de Registros -->
+            <div style="padding: 10px 16px; font-size: 12.5px; color: var(--text-muted); border-bottom: 1px solid var(--border-subtle); background: var(--surface-1);" id="voluntariosRecordsCount">
+              Cargando registros...
+            </div>
+
+            <!-- Tabla PC -->
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Voluntario(a) / DNI</th>
+                    <th>Sede y Distrito</th>
+                    <th>Servicio y Rol</th>
+                    <th>Contacto</th>
+                    <th>Capacitaciones</th>
+                    <th>Estado</th>
+                    <th style="text-align: right;">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyVoluntarios">
+                  <!-- Inyectado dinámicamente -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Tarjetas Móviles -->
+            <div class="padron-mobile-cards" id="mobileCardsVoluntarios">
+              <!-- Inyectado dinámicamente -->
             </div>
           </div>
         </section>
@@ -1588,7 +1804,7 @@
     </div>
   </div>
   <!-- Punto de entrada: modulos ES nativos. Requiere servidor HTTP -->
-  <script type="module" src="../js/pages/dashboard.js"></script>
+  <script type="module" src="./js/pages/voluntariados.js"></script>
 </body>
 
 </html>

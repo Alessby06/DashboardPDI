@@ -31,7 +31,7 @@ if %errorlevel% equ 0 (
 node --version >nul 2>&1
 if %errorlevel% equ 0 (
     echo [OK] Iniciando servidor con Node.js en puerto %PORT%...
-    npx --yes http-server -p %PORT% -c-1 -o /paginas/index.html
+    npx --yes http-server -p %PORT% -c-1 -o /index.html
     goto end
 )
 

@@ -10,8 +10,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Sistema PDI: Asociación Cultural Johannes Gutenberg (MVC)</title>
-  <link rel="icon" type="image/png" href="../assets/jg-icon.png">
-  <link rel="apple-touch-icon" href="../assets/jg-icon.png">
+  <link rel="icon" type="image/png" href="./assets/jg-icon.png">
+  <link rel="apple-touch-icon" href="./assets/jg-icon.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,13 +49,13 @@
   </script>
 
   <!-- Modular CSS Architecture (Carga Directa para Máxima Velocidad sin Fails de Import) -->
-  <link rel="stylesheet" href="../css/variables.css">
-  <link rel="stylesheet" href="../css/base.css">
-  <link rel="stylesheet" href="../css/components.css">
-  <link rel="stylesheet" href="../css/views-comun.css">
-  <link rel="stylesheet" href="../css/views-auditoria.css">
+  <link rel="stylesheet" href="./css/variables.css">
+  <link rel="stylesheet" href="./css/base.css">
+  <link rel="stylesheet" href="./css/components.css">
+  <link rel="stylesheet" href="./css/views-comun.css">
+  <link rel="stylesheet" href="./css/views-ajustes.css">
 </head>
-<body data-page="auditoria">
+<body data-page="ajustes">
   <!-- Toast Notification Stack -->
   <div class="toast-container" id="toastContainer"></div>
 
@@ -67,7 +67,7 @@
     <aside class="sidebar" id="appSidebar">
       <div>
         <div class="sidebar-header">
-          <img src="../assets/jg-icon.png" alt="Isotipo Johannes Gutenberg" class="logo-official-icon"
+          <img src="./assets/jg-icon.png" alt="Isotipo Johannes Gutenberg" class="logo-official-icon"
             style="width:38px; height:38px; object-fit:contain; border-radius:6px; background:var(--surface-2); padding:3px; border:1px solid var(--border-subtle);">
           <div class="logo-text">
             <h1>Johannes Gutenberg</h1>
@@ -148,7 +148,7 @@
           </a>
 
           <div class="nav-label">Auditoría</div>
-          <a href="./auditoria.html" class="nav-btn active" data-view="view-auditoria" data-page="auditoria" data-tooltip="Historial de Cambios"
+          <a href="./auditoria.html" class="nav-btn" data-view="view-auditoria" data-page="auditoria" data-tooltip="Historial de Cambios"
             data-roles="coord,admin">
             <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
@@ -158,7 +158,7 @@
           </a>
 
           <div class="nav-label">Configuración</div>
-          <a href="./ajustes.html" class="nav-btn" data-view="view-ajustes" data-page="ajustes" data-tooltip="Ajustes"
+          <a href="./ajustes.html" class="nav-btn active" data-view="view-ajustes" data-page="ajustes" data-tooltip="Ajustes"
             data-roles="coord,facilitadora,promotora,social,admin">
             <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
@@ -183,9 +183,9 @@
           </button>
 
           <div class="topbar-brand-wrap" style="display:flex; align-items:center; gap:12px; margin-right:8px;">
-            <img src="../assets/logo-light-acjg.png" alt="Asociacion Cultural Johannes Gutenberg" class="brand-logo-dark"
+            <img src="./assets/logo-light-acjg.png" alt="Asociacion Cultural Johannes Gutenberg" class="brand-logo-dark"
               style="height:32px; object-fit:contain;">
-            <img src="../assets/logo-asociacion.png" alt="Asociacion Cultural Johannes Gutenberg"
+            <img src="./assets/logo-asociacion.png" alt="Asociacion Cultural Johannes Gutenberg"
               class="brand-logo-light" style="height:32px; object-fit:contain; display:none;">
           </div>
 
@@ -290,571 +290,301 @@
 
       <!-- Viewport Body -->
   <main class="content-viewport" id="mainContent">
-        <section class="app-view active" id="view-auditoria">
-          <div class="view-header audit-view-header">
+        <section class="app-view active" id="view-ajustes">
+          <div class="view-header">
             <div class="view-title-group">
-              <div class="audit-header-title-row">
-                <div class="audit-header-left">
-                  <h2>Auditoría - Historial de cambios</h2>
-                  <!-- Icono de Ley N.° 29733 con Popover Informativo Interactivo -->
-                  <div class="audit-legal-popover-wrapper" id="wrapAuditLegalPopover">
-                    <button type="button" class="audit-legal-icon-btn" id="btnAuditLegalInfo"
-                      onclick="window.toggleAuditLegalInfo ? window.toggleAuditLegalInfo(event) : null"
-                      aria-label="Información legal Ley N.° 29733"
-                      title="Registro inmutable de trazabilidad conforme a la Ley N.° 29733 de Protección de Datos Personales">
-                      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5"
+              <h2>Ajustes y Configuración del Sistema</h2>
+              <p style="margin: 4px 0 0 0; color: var(--text-muted); font-size: 13.5px;">
+                Gestión del tema visual (Modo Oscuro), sincronización de base de datos, preferencias de alertas y
+                credenciales.
+              </p>
+            </div>
+          </div>
+
+          <div class="settings-grid">
+            <!-- Tarjeta 1: Modo Oscuro & Tema Visual -->
+            <div class="card settings-card">
+              <div class="settings-card-header">
+                <div class="settings-card-icon-box yellow">
+                  <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="settings-card-title">Apariencia & Tema Visual</h3>
+                  <p class="settings-card-subtitle">Personaliza la interfaz del PDI según tus preferencias o
+                    iluminación.</p>
+                </div>
+              </div>
+
+              <div class="settings-card-body">
+                <!-- Mascota Foco Interactivo Lumie (Vector SVG 100% puro) -->
+                <div class="foco-interactive-card" id="focoInteractiveCard">
+                  <div class="foco-mascot-wrap">
+                    <button type="button" class="foco-trigger-btn state-light" id="focoInteractiveTrigger"
+                      onclick="window.PDI?.AjustesView?.toggleFocoMode ? window.PDI.AjustesView.toggleFocoMode(event) : (window.toggleFocoMode ? window.toggleFocoMode(event) : null)"
+                      title="Haz clic sobre el foco para encender o apagar la luz">
+                      <!-- SVG Foco Vectorial Interactivo - Rediseño Gordito & Limpio -->
+                      <svg class="foco-svg" viewBox="0 0 160 170" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Resplandor exterior (Modo Noche) -->
+                        <circle class="foco-halo" cx="80" cy="62" r="64" />
+                        <!-- Rayos de luz radiantes -->
+                        <g class="foco-rays">
+                          <line x1="80" y1="2" x2="80" y2="10" stroke-width="3.5" stroke-linecap="round" />
+                          <line x1="130" y1="18" x2="124" y2="24" stroke-width="3.5" stroke-linecap="round" />
+                          <line x1="152" y1="62" x2="142" y2="62" stroke-width="3.5" stroke-linecap="round" />
+                          <line x1="130" y1="106" x2="124" y2="100" stroke-width="3.5" stroke-linecap="round" />
+                          <line x1="30" y1="18" x2="36" y2="24" stroke-width="3.5" stroke-linecap="round" />
+                          <line x1="8" y1="62" x2="18" y2="62" stroke-width="3.5" stroke-linecap="round" />
+                          <line x1="30" y1="106" x2="36" y2="100" stroke-width="3.5" stroke-linecap="round" />
+                        </g>
+                        <!-- Cadena interruptor / tirador -->
+                        <line class="foco-pull-cord" x1="104" y1="112" x2="104" y2="152" stroke-width="2.2"
+                          stroke-dasharray="2 3" stroke-linecap="round" />
+                        <circle class="foco-pull-knob" cx="104" cy="156" r="5.5" />
+                        <!-- Casquillo y base metálica -->
+                        <rect class="foco-base-thread" x="60" y="108" width="40" height="7" rx="3" />
+                        <rect class="foco-base-thread" x="63" y="115" width="34" height="6" rx="3" />
+                        <rect class="foco-base-thread" x="67" y="121" width="26" height="5" rx="2" />
+                        <path class="foco-base-tip" d="M72 126 H88 C88 131 85 134 80 134 C75 134 72 131 72 126 Z" />
+                        <!-- Cuerpo de cristal del foco (Gordito & Redondo) -->
+                        <path class="foco-glass-body"
+                          d="M34 62 C34 30 52 14 80 14 C108 14 126 30 126 62 C126 84 112 98 102 108 H58 C48 98 34 84 34 62 Z" />
+                        <!-- Antena Sensor (Modo Automático) -->
+                        <g class="foco-sensor-antenna">
+                          <line x1="80" y1="14" x2="80" y2="4" stroke-width="2.5" stroke-linecap="round" />
+                          <circle cx="80" cy="3" r="4" />
+                        </g>
+                        <!-- Expresión Facial SVG Limpia (Sin líneas interiores de filamento) -->
+                        <!-- Ojos Despiertos Brillantes (Noche) -->
+                        <g class="foco-eyes-awake">
+                          <circle cx="66" cy="62" r="5" />
+                          <circle cx="64.5" cy="60" r="1.8" fill="#ffffff" />
+                          <circle cx="94" cy="62" r="5" />
+                          <circle cx="92.5" cy="60" r="1.8" fill="#ffffff" />
+                        </g>
+                        <!-- Ojos Sonrientes de Día (Claro) -->
+                        <g class="foco-eyes-happy">
+                          <path d="M60 63 C63 56 70 56 73 63" stroke-width="3" stroke-linecap="round" fill="none" />
+                          <path d="M87 63 C90 56 97 56 100 63" stroke-width="3" stroke-linecap="round" fill="none" />
+                        </g>
+                        <!-- Gafas inteligentes (Modo Auto) -->
+                        <g class="foco-eyes-sensor">
+                          <rect x="54" y="55" width="18" height="14" rx="4" stroke-width="2" />
+                          <rect x="88" y="55" width="18" height="14" rx="4" stroke-width="2" />
+                          <line x1="72" y1="62" x2="88" y2="62" stroke-width="2.5" />
+                        </g>
+                        <!-- Mejillas sonrosadas -->
+                        <ellipse class="foco-cheek left" cx="54" cy="72" rx="4.5" ry="2.5" />
+                        <ellipse class="foco-cheek right" cx="106" cy="72" rx="4.5" ry="2.5" />
+                        <!-- Boca sonriente -->
+                        <path class="foco-smile" d="M72 73 Q80 83 88 73" stroke-width="2.8" stroke-linecap="round"
+                          fill="none" />
+                      </svg>
+                      <span class="foco-touch-hint">
+                        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"
+                          viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zM12 2.25V4.5m5.834 1.416l-1.591 1.591M20.25 12h-2.25m-1.416 5.834l-1.591-1.591M4.5 12H2.25m3.666-5.834L4.325 4.575M4.325 19.425l1.591-1.591" />
+                        </svg>
+                        Tócame
+                      </span>
+                    </button>
+                  </div>
+
+                  <!-- Globo de Diálogo de Cómic -->
+                  <div class="foco-speech-bubble" id="focoSpeechBubble">
+                    <div class="foco-bubble-header">
+                      <span class="foco-bubble-icon" id="focoBubbleIcon">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                          viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 3v2.25m0 13.5V21m8.966-8.966h-2.25M4.284 12h-2.25m15.303-6.343l-1.591 1.591M6.257 17.743l-1.591 1.591m0-13.5l1.591 1.591m11.485 11.485l1.591 1.591M12 7.5a4.5 4.5 0 100 9 4.5 4.5 0 000-9z" />
+                        </svg>
+                      </span>
+                      <strong id="focoBubbleTitle">Modo Diurno Activo</strong>
+                    </div>
+                    <p class="foco-bubble-msg" id="focoBubbleMsg">
+                      Ambiente diurno detectado. El foco permanece apagado para ahorrar energía. Haz clic sobre mí o usa
+                      los botones para alternar al modo noche.
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Botones de Selección Rápida de Tema -->
+                <div class="settings-theme-selector">
+                  <button type="button" class="theme-option-btn active" id="btnThemeLight"
+                    onclick="window.PDI?.AjustesView?.setTheme ? window.PDI.AjustesView.setTheme('light', true, event) : (window.setTheme ? window.setTheme('light', true, event) : null)">
+                    <div class="theme-icon-box">
+                      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
                         viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                          d="M12 3v2.25m0 13.5V21m8.966-8.966h-2.25M4.284 12h-2.25m15.303-6.343l-1.591 1.591M6.257 17.743l-1.591 1.591m0-13.5l1.591 1.591m11.485 11.485l1.591 1.591M12 7.5a4.5 4.5 0 100 9 4.5 4.5 0 000-9z" />
                       </svg>
-                    </button>
-                    <div class="audit-legal-popover" id="popoverAuditLegal">
-                      <div class="audit-legal-popover-header">
-                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"
-                          viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-                        </svg>
-                        <span>Ley N.° 29733 · Registro Inmutable</span>
-                      </div>
-                      <p class="audit-legal-popover-text">
-                        Registro inmutable de trazabilidad y auditoría forense conforme a la Ley de Protección de Datos
-                        Personales. Las acciones son de solo lectura y no pueden alterarse.
-                      </p>
                     </div>
-                  </div>
-                </div>
-
-                <div class="audit-header-badge-actions">
-                  <!-- Botón Descargar Bitácora CSV en formato icono con apertura de confirmación -->
-                  <button type="button" class="btn-action-icon btn-audit-export-icon" id="btnExportAuditCSV"
-                    onclick="window.openModalExportAudit ? window.openModalExportAudit() : null"
-                    aria-label="Descargar Bitácora CSV" title="Descargar Bitácora Oficial CSV">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"
-                      viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Barra Resumen Dinámica y Compacta de Auditoría (Solo KPIs estilizados, sin última actividad) -->
-          <div class="audit-summary-bar">
-            <div class="audit-kpi-chip">
-              <div class="audit-kpi-icon-box total">
-                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
-                </svg>
-              </div>
-              <div class="audit-kpi-info">
-                <span class="audit-kpi-label">Total Registros</span>
-                <strong class="audit-kpi-value" id="auditKpiTotal">0</strong>
-              </div>
-            </div>
-
-            <div class="audit-kpi-chip">
-              <div class="audit-kpi-icon-box sensibles">
-                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                </svg>
-              </div>
-              <div class="audit-kpi-info">
-                <span class="audit-kpi-label">Acciones Sensibles</span>
-                <strong class="audit-kpi-value text-sensibles" id="auditKpiSensibles">0</strong>
-              </div>
-            </div>
-          </div>
-
-          <div class="card">
-            <!-- Barra de Filtros y Búsqueda Rápida Interna -->
-            <div class="audit-toolbar">
-              <!-- Buscador Rápido de Auditoría (Lado Izquierdo) -->
-              <div class="audit-search-wrap">
-                <svg class="audit-search-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                </svg>
-                <input type="text" id="inputAuditSearch" class="audit-search-input"
-                  placeholder="Buscar por DNI, código, usuario o acción..."
-                  oninput="window.filterAuditSearch ? window.filterAuditSearch(this.value) : (window.PDI?.DashboardView?.filterBySearch ? window.PDI.DashboardView.filterBySearch(this.value) : null)">
-                <button type="button" class="audit-search-clear" id="btnAuditSearchClear" style="display:none;"
-                  onclick="window.clearAuditSearch ? window.clearAuditSearch() : null" title="Limpiar búsqueda">
-                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              <!-- Botón Unificado de Filtros y Panel Desplegable (Lado Derecho) -->
-              <div class="audit-filter-panel-wrap">
-                <div class="custom-dropdown audit-filters-dropdown" id="dropdownAuditFilterPanel">
-                  <button type="button" class="btn-action audit-filter-btn" id="btnDropdownAuditFilterPanel"
-                    onclick="window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownAuditFilterPanel') : (window.PDI?.DashboardView?.toggleDropdown ? window.PDI.DashboardView.toggleDropdown('dropdownAuditFilterPanel') : null)">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
-                    </svg>
-                    <span>Filtros</span>
-                    <span class="audit-filter-badge" id="auditActiveFiltersCount" style="display:none;">0</span>
-                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
-                      class="filter-caret">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                    </svg>
+                    <span>Tema Claro</span>
+                    <span class="theme-active-indicator" id="badgeThemeLight" style="display:none;" title="Tema Activo">
+                      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="3"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                      </svg>
+                    </span>
                   </button>
 
-                  <!-- Panel Desplegable de Filtros Pulido -->
-                  <div class="custom-dropdown-menu audit-filters-menu" id="menuAuditFilterPanel">
-                    <div class="audit-filters-header">
-                      <div class="audit-filters-header-title">
-                        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"
-                          viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
-                        </svg>
-                        <span>Filtros de Bitácora</span>
-                      </div>
-                      <button type="button" class="btn-text-subtle"
-                        onclick="window.resetAuditFilters ? window.resetAuditFilters() : null">Restablecer</button>
+                  <button type="button" class="theme-option-btn" id="btnThemeDark"
+                    onclick="window.PDI?.AjustesView?.setTheme ? window.PDI.AjustesView.setTheme('dark', true, event) : (window.setTheme ? window.setTheme('dark', true, event) : null)">
+                    <div class="theme-icon-box">
+                      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                      </svg>
                     </div>
+                    <span>Tema Oscuro</span>
+                    <span class="theme-active-indicator" id="badgeThemeDark" style="display:none;" title="Tema Activo">
+                      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="3"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                      </svg>
+                    </span>
+                  </button>
 
-                    <div class="audit-filters-body">
-                      <!-- Filtro 1: Tipo de Evento / Módulo (Dropdown Multi-selección con Checkbox) -->
-                      <div class="audit-filter-field">
-                        <label class="audit-field-label">Tipo de Evento</label>
-                        <div class="padron-inner-dropdown" id="dropdownAuditAction">
-                          <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.toggleAuditInnerDropdown ? window.toggleAuditInnerDropdown('dropdownAuditAction') : null">
-                            <span id="labelAuditActionSelect">Todos los Eventos</span>
-                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                          </button>
-                          <div class="padron-inner-dropdown-menu" id="menuAuditAction">
-                            <div class="padron-dropdown-item selected" data-value="all"
-                              onclick="window.toggleAuditAction ? window.toggleAuditAction('all') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Todos</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetAuditAction-all">(4)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="salud"
-                              onclick="window.toggleAuditAction ? window.toggleAuditAction('salud') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="badge badge-yellow" style="padding:1px 5px; font-size:10px;">CRED</span>
-                                <span class="padron-item-label">Salud y Nutrición</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetAuditAction-salud">(0)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="social"
-                              onclick="window.toggleAuditAction ? window.toggleAuditAction('social') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="badge badge-red" style="padding:1px 5px; font-size:10px;">ASP</span>
-                                <span class="padron-item-label">Derivación Social</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetAuditAction-social">(0)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="educativo"
-                              onclick="window.toggleAuditAction ? window.toggleAuditAction('educativo') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="badge badge-blue" style="padding:1px 5px; font-size:10px;">CS</span>
-                                <span class="padron-item-label">Casitas del Saber</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetAuditAction-educativo">(0)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="padron"
-                              onclick="window.toggleAuditAction ? window.toggleAuditAction('padron') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="badge badge-green" style="padding:1px 5px; font-size:10px;">Padrón</span>
-                                <span class="padron-item-label">Padrón / Coordinación</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetAuditAction-padron">(0)</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Filtro 2: Periodo Temporal (Dropdown Desplegable con Radios y Panel Interactivo) -->
-                      <div class="audit-filter-field">
-                        <label class="audit-field-label">Periodo Temporal</label>
-                        <div class="padron-inner-dropdown" id="dropdownAuditDate">
-                          <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.toggleAuditInnerDropdown ? window.toggleAuditInnerDropdown('dropdownAuditDate') : null">
-                            <span id="labelAuditDateSelect">Todas las Fechas</span>
-                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                          </button>
-                          <div class="padron-inner-dropdown-menu" id="menuAuditDate">
-                            <div class="padron-dropdown-item selected" data-value="all"
-                              onclick="window.selectAuditDate ? window.selectAuditDate('all', 'Todas las Fechas') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Todas las Fechas</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetAuditDate-all">(4)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="today"
-                              onclick="window.selectAuditDate ? window.selectAuditDate('today', 'Hoy (Jornada en curso)') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Hoy (Jornada en curso)</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetAuditDate-today">(0)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="week"
-                              onclick="window.selectAuditDate ? window.selectAuditDate('week', 'Últimos 7 días') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Últimos 7 días</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetAuditDate-week">(0)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="specific"
-                              onclick="window.selectAuditDate ? window.selectAuditDate('specific', 'Fecha Específica') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Fecha Específica</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="range"
-                              onclick="window.selectAuditDate ? window.selectAuditDate('range', 'Rango de Fechas') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Rango de Fechas (Desde - Hasta)</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <!-- Panel Interactivo: Fecha Específica -->
-                        <div class="audit-date-custom-panel" id="panelAuditDateSpecific"
-                          style="display:none; margin-top:8px;">
-                          <div class="audit-date-input-group">
-                            <span class="audit-sub-label">Fecha del evento:</span>
-                            <div class="audit-input-with-icon">
-                              <input type="text" id="inputAuditSpecificDate" class="audit-date-text-input"
-                                placeholder="DD/MM/AAAA (ej. 13/09/2026)" maxlength="10"
-                                oninput="window.handleAuditDateManualInput ? window.handleAuditDateManualInput('specific', this) : null">
-                              <input type="date" id="pickerAuditSpecificDate" class="audit-native-picker-hidden"
-                                onchange="window.handleAuditDatePickerChange ? window.handleAuditDatePickerChange('specific', this.value) : null">
-                              <button type="button" class="audit-calendar-icon-btn"
-                                onclick="document.getElementById('pickerAuditSpecificDate').showPicker ? document.getElementById('pickerAuditSpecificDate').showPicker() : document.getElementById('pickerAuditSpecificDate').focus()"
-                                title="Abrir calendario">
-                                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"
-                                  viewBox="0 0 24 24">
-                                  <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M6.75 3v2.25M17.25 3v2.25M3.75 7.5h16.5M4.5 20.25h15a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25h-15a2.25 2.25 0 00-2.25 2.25v11.25a2.25 2.25 0 002.25 2.25z" />
-                                </svg>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-
-                        <!-- Panel Interactivo: Rango de Fechas (Desde / Hasta) -->
-                        <div class="audit-date-custom-panel" id="panelAuditDateRange"
-                          style="display:none; margin-top:8px;">
-                          <div class="audit-range-grid">
-                            <div class="audit-date-input-group">
-                              <span class="audit-sub-label">Desde:</span>
-                              <div class="audit-input-with-icon">
-                                <input type="text" id="inputAuditRangeStart" class="audit-date-text-input"
-                                  placeholder="DD/MM/AAAA" maxlength="10"
-                                  oninput="window.handleAuditDateManualInput ? window.handleAuditDateManualInput('range-start', this) : null">
-                                <input type="date" id="pickerAuditRangeStart" class="audit-native-picker-hidden"
-                                  onchange="window.handleAuditDatePickerChange ? window.handleAuditDatePickerChange('range-start', this.value) : null">
-                                <button type="button" class="audit-calendar-icon-btn"
-                                  onclick="document.getElementById('pickerAuditRangeStart').showPicker ? document.getElementById('pickerAuditRangeStart').showPicker() : document.getElementById('pickerAuditRangeStart').focus()"
-                                  title="Abrir calendario">
-                                  <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                      d="M6.75 3v2.25M17.25 3v2.25M3.75 7.5h16.5M4.5 20.25h15a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25h-15a2.25 2.25 0 00-2.25 2.25v11.25a2.25 2.25 0 002.25 2.25z" />
-                                  </svg>
-                                </button>
-                              </div>
-                            </div>
-                            <div class="audit-date-input-group">
-                              <span class="audit-sub-label">Hasta:</span>
-                              <div class="audit-input-with-icon">
-                                <input type="text" id="inputAuditRangeEnd" class="audit-date-text-input"
-                                  placeholder="DD/MM/AAAA" maxlength="10"
-                                  oninput="window.handleAuditDateManualInput ? window.handleAuditDateManualInput('range-end', this) : null">
-                                <input type="date" id="pickerAuditRangeEnd" class="audit-native-picker-hidden"
-                                  onchange="window.handleAuditDatePickerChange ? window.handleAuditDatePickerChange('range-end', this.value) : null">
-                                <button type="button" class="audit-calendar-icon-btn"
-                                  onclick="document.getElementById('pickerAuditRangeEnd').showPicker ? document.getElementById('pickerAuditRangeEnd').showPicker() : document.getElementById('pickerAuditRangeEnd').focus()"
-                                  title="Abrir calendario">
-                                  <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                      d="M6.75 3v2.25M17.25 3v2.25M3.75 7.5h16.5M4.5 20.25h15a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25h-15a2.25 2.25 0 00-2.25 2.25v11.25a2.25 2.25 0 002.25 2.25z" />
-                                  </svg>
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Filtro 3: Rol del Usuario (Dropdown Multi-selección con Checkbox) -->
-                      <div class="audit-filter-field">
-                        <label class="audit-field-label">Rol del Usuario</label>
-                        <div class="padron-inner-dropdown" id="dropdownAuditRole">
-                          <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.toggleAuditInnerDropdown ? window.toggleAuditInnerDropdown('dropdownAuditRole') : null">
-                            <span id="labelAuditRoleSelect">Todos los Roles</span>
-                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                          </button>
-                          <div class="padron-inner-dropdown-menu" id="menuAuditRole">
-                            <div class="padron-dropdown-item selected" data-value="all"
-                              onclick="window.toggleAuditRole ? window.toggleAuditRole('all') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Todos los Roles</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetAuditRole-all">(4)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Coordinación"
-                              onclick="window.toggleAuditRole ? window.toggleAuditRole('Coordinación') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Coordinación</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetAuditRole-Coordinación">(0)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Facilitadora"
-                              onclick="window.toggleAuditRole ? window.toggleAuditRole('Facilitadora') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Facilitadora</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetAuditRole-Facilitadora">(0)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Promotora"
-                              onclick="window.toggleAuditRole ? window.toggleAuditRole('Promotora') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Promotora</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetAuditRole-Promotora">(0)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Trabajadora Social"
-                              onclick="window.toggleAuditRole ? window.toggleAuditRole('Trabajadora Social') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Trabajadora Social</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetAuditRole-Trabajadora Social">(0)</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Filtro 4: Estado de Registro / Criticidad (Dropdown Multi-selección con Checkbox) -->
-                      <div class="audit-filter-field">
-                        <label class="audit-field-label">Estado de Registro</label>
-                        <div class="padron-inner-dropdown" id="dropdownAuditStatus">
-                          <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.toggleAuditInnerDropdown ? window.toggleAuditInnerDropdown('dropdownAuditStatus') : null">
-                            <span id="labelAuditStatusSelect">Todos los Estados</span>
-                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                          </button>
-                          <div class="padron-inner-dropdown-menu" id="menuAuditStatus">
-                            <div class="padron-dropdown-item selected" data-value="all"
-                              onclick="window.toggleAuditStatus ? window.toggleAuditStatus('all') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Todos</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetAuditStatus-all">(4)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Registrado"
-                              onclick="window.toggleAuditStatus ? window.toggleAuditStatus('Registrado') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="badge badge-green" style="padding:1px 5px; font-size:10px;">Conforme</span>
-                                <span class="padron-item-label">Registrado</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetAuditStatus-Registrado">(0)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Sensible"
-                              onclick="window.toggleAuditStatus ? window.toggleAuditStatus('Sensible') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="badge badge-red" style="padding:1px 5px; font-size:10px;">Sensible</span>
-                                <span class="padron-item-label">Alerta / Crítico</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetAuditStatus-Sensible">(0)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Observado"
-                              onclick="window.toggleAuditStatus ? window.toggleAuditStatus('Observado') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="badge badge-yellow"
-                                  style="padding:1px 5px; font-size:10px;">Observado</span>
-                                <span class="padron-item-label">En Revisión</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetAuditStatus-Observado">(0)</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
+                  <button type="button" class="theme-option-btn" id="btnThemeSystem"
+                    onclick="window.PDI?.AjustesView?.setTheme ? window.PDI.AjustesView.setTheme('system', true, event) : (window.setTheme ? window.setTheme('system', true, event) : null)">
+                    <div class="theme-icon-box">
+                      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0h-18" />
+                      </svg>
                     </div>
+                    <span>Tema Auto (SO)</span>
+                    <span class="theme-active-indicator" id="badgeThemeSystem" style="display:none;"
+                      title="Tema Activo">
+                      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="3"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                      </svg>
+                    </span>
+                  </button>
+                </div>
+
+                <div class="settings-row" style="border-bottom:none; margin-top: 14px;">
+                  <div class="settings-info-text" style="flex:1;">
+                    <strong>Persistencia de Preferencias</strong>
+                    <span>La configuración se guarda automáticamente en cookies y almacenamiento local para mantener tu
+                      tema al volver a abrir la plataforma.</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Barra de Píldoras de Filtros Activos de Auditoría (Chips Descartables) -->
-            <div class="padron-active-chips-bar" id="auditActiveChipsBar" style="display: none;">
-              <span class="padron-active-chips-label">Filtros aplicados:</span>
-              <div id="auditActiveChipsList" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
-              </div>
-              <button type="button" class="btn-text-subtle" style="margin-left: auto; font-size: 11.5px;"
-                onclick="window.resetAuditFilters ? window.resetAuditFilters() : null">
-                Borrar todos
-              </button>
-            </div>
-
-            <div class="table-container desktop-table-view">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Timestamp</th>
-                    <th>Usuario / Perfil</th>
-                    <th>Acción</th>
-                    <th>Entidad Afectada</th>
-                    <th>Detalle de la Operación</th>
-                    <th>Estado de Registro</th>
-                    <th style="text-align:right;">Acción</th>
-                  </tr>
-                </thead>
-                <tbody id="tbodyAuditLogs">
-                  <!-- Injected via JS -->
-                </tbody>
-              </table>
-            </div>
-
-            <div class="mobile-accordion-list" id="mobileCardsAuditoria">
-              <!-- Injected via JS -->
-            </div>
-
-            <!-- Controles de Paginación y Densidad -->
-            <div class="audit-pagination-bar">
-              <div class="audit-pagination-left">
-                <span id="auditPaginationInfo"
-                  style="font-size:12.5px; color:var(--text-muted); font-weight:500;">Mostrando eventos</span>
-                <div style="display:flex; align-items:center; gap:6px; margin-left:14px;">
-                  <span style="font-size:12px; color:var(--text-dim);">Mostrar:</span>
-                  <select class="audit-density-select" id="selectAuditPageSize"
-                    onchange="window.changeAuditPageSize ? window.changeAuditPageSize(this.value) : (window.PDI?.DashboardView?.changePageSize ? window.PDI.DashboardView.changePageSize(this.value) : null)">
-                    <option value="10" selected>10 por página</option>
-                    <option value="25">25 por página</option>
-                    <option value="50">50 por página</option>
-                  </select>
+            <!-- Tarjeta 2: Base de Datos & Sincronización -->
+            <div class="card settings-card">
+              <div class="settings-card-header">
+                <div class="settings-card-icon-box green">
+                  <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 5.625c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="settings-card-title">Base de Datos & Sincronización</h3>
+                  <p class="settings-card-subtitle">Estado de la conexión local/remota y réplica de datos.</p>
                 </div>
               </div>
-              <div class="audit-pagination-right">
-                <button type="button" class="btn-page" id="btnAuditPagePrev"
-                  onclick="window.prevAuditPage ? window.prevAuditPage() : (window.PDI?.DashboardView?.changePage ? window.PDI.DashboardView.changePage((window.PDI.DashboardView._auditCurrentPage || 1) - 1) : null)">
-                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+
+              <div class="settings-card-body">
+                <div class="settings-row">
+                  <div class="settings-info-text">
+                    <strong>Estado del Servidor de BD</strong>
+                    <span>Conexión activa con almacenamiento local</span>
+                  </div>
+                  <span class="badge badge-green" id="syncStatusBadge"
+                    style="display:inline-flex; align-items:center; gap:5px;">
+                    <span class="status-dot green"></span>
+                    <span>En Línea</span>
+                  </span>
+                </div>
+
+                <div class="settings-row">
+                  <div class="settings-info-text">
+                    <strong>Última Sincronización</strong>
+                    <span id="labelLastSyncTime">Hoy a las 10:45 AM</span>
+                  </div>
+                  <button type="button" class="btn-action btn-secondary" id="btnTriggerSync"
+                    onclick="window.PDI?.AjustesView?.triggerSync()">
+                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                    </svg>
+                    <span>Sincronizar Ahora</span>
+                  </button>
+                </div>
+
+                <div class="settings-row">
+                  <div class="settings-info-text">
+                    <strong>Limpieza de Caché & Datos Temporales</strong>
+                    <span>Vaciar datos en almacenamiento local y refrescar la vista inicial</span>
+                  </div>
+                  <button type="button" class="btn-action btn-secondary"
+                    onclick="window.PDI?.AjustesView?.clearCache()">
+                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                    </svg>
+                    <span>Limpiar Caché</span>
+                  </button>
+                </div>
+
+                <div class="settings-row" style="border-bottom:none;">
+                  <div class="settings-info-text" style="flex:1;">
+                    <strong>Endpoint de API / BD Remota</strong>
+                    <input type="text" class="audit-search-input"
+                      value="https://api.johannesgutenberg.edu.pe/v1/pdi/sync" readonly
+                      style="margin-top:6px; font-family:monospace; font-size:12px; background:var(--surface-2); color:var(--text-muted);">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tarjeta 3: Información del Sistema & Desarrollador -->
+            <div class="card settings-card">
+              <div class="settings-card-header">
+                <div class="settings-card-icon-box purple">
+                  <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
                   </svg>
-                  <span>Anterior</span>
-                </button>
-                <span class="audit-page-indicator" id="auditCurrentPageNum">Página 1</span>
-                <button type="button" class="btn-page" id="btnAuditPageNext"
-                  onclick="window.nextAuditPage ? window.nextAuditPage() : (window.PDI?.DashboardView?.changePage ? window.PDI.DashboardView.changePage((window.PDI.DashboardView._auditCurrentPage || 1) + 1) : null)">
-                  <span>Siguiente</span>
-                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                  </svg>
-                </button>
+                </div>
+                <div>
+                  <h3 class="settings-card-title">Información del Sistema & Licencia</h3>
+                  <p class="settings-card-subtitle">Detalles de versión y créditos de la plataforma.</p>
+                </div>
+              </div>
+
+              <div class="settings-card-body">
+                <div class="settings-row">
+                  <div class="settings-info-text">
+                    <strong>Versión del Sistema</strong>
+                    <span>v2.4.0</span>
+                  </div>
+                </div>
+
+                <div class="settings-row">
+                  <div class="settings-info-text">
+                    <strong>Organización Institucional</strong>
+                    <span>Asociación Cultural Johannes Gutenberg</span>
+                  </div>
+                </div>
+
+                <div class="settings-row" style="border-bottom:none;">
+                  <div class="settings-info-text">
+                    <strong>Derechos & Licencia</strong>
+                    <span>© 2026 ACJG. Todos los derechos reservados.</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -2042,7 +1772,7 @@
     </div>
   </div>
   <!-- Punto de entrada: modulos ES nativos. Requiere servidor HTTP -->
-  <script type="module" src="../js/pages/auditoria.js"></script>
+  <script type="module" src="./js/pages/ajustes.js"></script>
 </body>
 
 </html>

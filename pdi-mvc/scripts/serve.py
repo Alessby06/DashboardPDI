@@ -6,10 +6,12 @@ import sys
 import socket
 import mimetypes
 
-# Se sirve desde pdi-mvc/, que es la raiz del sitio: los HTML, js/, css/,
-# assets/ y data/ viven aqui y es lo que publica vercel.json. Este script esta
-# en scripts/, asi que la raiz es un nivel hacia arriba.
-DIRECTORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Se sirve desde pdi-mvc/sitio/, que es la raiz web: ahi viven los once HTML,
+# js/, css/, assets/ y data/, y es lo unico que publica vercel.json. scripts/
+# queda fuera, asi que su codigo no es descargable desde el navegador.
+DIRECTORY = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "sitio"
+)
 os.chdir(DIRECTORY)
 
 # MIME types explícitos para evitar bloqueos en Windows
@@ -89,7 +91,7 @@ if __name__ == '__main__':
     port = get_free_port(requested_port)
     try:
         with ThreadedTCPServer(("", port), FastHTTPHandler) as httpd:
-            url = f"http://localhost:{port}/paginas/index.html"
+            url = f"http://localhost:{port}/index.html"
             print("=" * 65)
             print("  SISTEMA PDI: ASOCIACION CULTURAL JOHANNES GUTENBERG")
             print(f"  Servidor HTTP activo en el puerto: {port}")

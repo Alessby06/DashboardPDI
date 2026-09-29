@@ -16,7 +16,7 @@ Doble clic en **`iniciar_mvc.bat`**. Abre el navegador en el panel general.
 Si eso no funciona, con Python a mano:
 
 ```
-python scripts\serve.py          # http://localhost:8080/paginas/index.html
+python scripts\serve.py          # http://localhost:8080/index.html
 python scripts\serve.py 3000     # en otro puerto, si el 8080 está ocupado
 ```
 
@@ -29,24 +29,25 @@ por política de origen del navegador, y la página se queda en blanco.
 
 ```
 pdi-mvc/
-├── paginas/        las 11 pantallas
-├── js/             la aplicación, separada por capas
-│   ├── models/     datos y su normalización (no tocan el DOM)
-│   ├── views/      todo lo que pinta en pantalla
-│   ├── controllers/ lo que engancha los eventos
-│   ├── core/       arranque, navegación, tema y compatibilidad
-│   ├── auth/       quién entra y a qué puede entrar
-│   ├── utils/      cálculos y ayudantes
-│   └── pages/      un punto de entrada por pantalla
-├── css/            15 hojas: base, componentes y una por pantalla
-├── assets/         3 imágenes
-├── data/           5 conjuntos de datos de prueba
-└── scripts/        herramientas (solo desarrollo)
+├── sitio/          todo lo que se publica
+│   ├── js/          la aplicación, separada por capas
+│   │   ├── models/     datos y su normalización (no tocan el DOM)
+│   │   ├── views/      todo lo que pinta en pantalla
+│   │   ├── controllers/ lo que engancha los eventos
+│   │   ├── core/       arranque, navegación, tema y compatibilidad
+│   │   ├── auth/       quién entra y a qué puede entrar
+│   │   ├── utils/      cálculos y ayudantes
+│   │   └── pages/      un punto de entrada por pantalla
+│   ├── css/            15 hojas: base, componentes y una por pantalla
+│   ├── assets/         3 imágenes
+│   ├── data/           5 conjuntos de datos de prueba
+│   └── los once HTML
+└── scripts/        herramientas (solo desarrollo, no se publica)
 ```
 
 ### La regla que hay que saberse
 
-**En `paginas/` está todo.** No hay archivos generados: los once HTML se editan a
+**En `sitio/` está todo.** No hay archivos generados: los once HTML se editan a
 mano y no los regenera nadie. Lo que ves es lo que se publica.
 
 **El precio de esa simplicidad:** el menú lateral, la barra superior y los
@@ -61,7 +62,7 @@ tuyo.
 
 Cuatro sitios, en este orden:
 
-1. **`paginas/<slug>.html`** — el documento completo. Copia uno que se le parezca
+1. **`sitio/<slug>.html`** — el documento completo. Copia uno que se le parezca
    y cambia el contenido. Deja el `data-page="<slug>"` en el `<body>`.
 2. **`js/pages/<slug>.js`** — el punto de entrada. Mira `js/pages/salud.js`:
    importa la vista, el modelo, arranca lo común y exporta lo que las vistas
@@ -89,16 +90,22 @@ El sitio se publica en **Vercel** como archivos estáticos. La configuración es
 en `vercel.json`, **en la raíz del repositorio, no aquí dentro**: Vercel solo lee
 el `vercel.json` de la raíz del proyecto, que es la del repositorio.
 
-Son tres reglas y **el orden es lo único que importa**:
+Son dos reglas, y las dos están probadas:
 
 ```
-/            ->  /pdi-mvc/paginas/index.html
-/(.*).html   ->  /pdi-mvc/paginas/$1.html
-/(.*)        ->  /pdi-mvc/$1
+/       ->  /pdi-mvc/sitio/index.html
+/(.*)   ->  /pdi-mvc/sitio/$1
 ```
 
-La tercera es la genérica y tiene que ser la última. Si se sube, `/js/...`
-buscaría dentro de `paginas/` y `/padron.html` en la raíz: justo al revés.
+**`source` usa sintaxis path-to-regexp, no expresiones regulares.** Por eso nada de
+`/(.*).html` ni de `?` con lookahead suelto: Vercel rechaza el despliegue entero
+con `Invalid route source pattern` y la web se queda en 404 en todas las
+direcciones, sin avisar de nada. Por eso todo lo publicable vive bajo `sitio/` y
+basta una sola familia de reglas: lo que se pide al navegador, sea `/padron.html`
+o `/js/...`, cae dentro del mismo prefijo.
+
+Si algún día hay que añadir una regla, que sea de las dos formas de arriba. Y
+después de tocarla, comprobar en `https://mvc-pdi.vercel.app` que responde 200.
 
 Desde fuera, las direcciones siguen siendo limpias: `/padron.html`, `/salud.html`.
 
