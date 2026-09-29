@@ -24,6 +24,7 @@ import { RoleController } from "../controllers/RoleController.js";
 export const Navigation = {
   _sidebarToggle: null,
   _backdrop: null,
+  _tAnimando: null,
 
   /** Cierra el menu lateral. Expuesto en window por los onclick del HTML. */
   closeSidebar() {
@@ -42,7 +43,24 @@ export const Navigation = {
     } else {
       sidebar.classList.toggle("collapsed");
       if (this._backdrop) this._backdrop.classList.remove("active");
+      this._marcarAnimando(sidebar);
     }
+  },
+
+  /**
+   * Promociona el panel durante el encogido y lo degrada al terminar.
+   *
+   * will-change no puede ponerse siempre en el CSS: el ancho obliga a maquetar,
+   * de modo que anunciarlo sin motivo reserva memoria y crea capas que no se
+   * usan el resto del tiempo. Aqui se pone solo mientras dura la transicion y
+   * se quita al acabar, que es cuando el navegador ya sabe que sigue.
+   */
+  _marcarAnimando(sidebar) {
+    sidebar.classList.add("animando");
+    clearTimeout(this._tAnimando);
+    this._tAnimando = setTimeout(() => {
+      sidebar.classList.remove("animando");
+    }, 340);
   },
 
   /**

@@ -162,8 +162,10 @@
       width: 280px;
       min-width: 280px;
       background: var(--surface-1);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      /* El desenfoque de fondo se ha quitado: --surface-1 es opaco (#ffffff en
+         claro, #181818 en oscuro), asi que difuminaba un fondo macizo que no
+         se transparenta. No se veia nada y costaba recomponer en cada
+         fotograma, que es justo cuando el panel se esta encogiendo. */
       border-right: 1px solid var(--border-subtle);
       display: flex;
       flex-direction: column;
@@ -172,7 +174,10 @@
       transform: translate3d(0, 0, 0);
       backface-visibility: hidden;
       overflow-x: hidden; /* Evita cualquier scrollbar horizontal */
-      will-change: width, min-width;
+      /* Sin will-change: width. Anunciar esa propiedad no ayuda, porque el ancho
+         obliga a maquetar de verdad; solo reserva memoria y crea capas que no
+         se usan. El will-change se aplica solo durante la animacion, en la
+         regla .sidebar.animando de mas abajo. */
       transition: width 0.28s cubic-bezier(0.2, 0, 0, 1),
                   min-width 0.28s cubic-bezier(0.2, 0, 0, 1),
                   background-color 0.38s cubic-bezier(0.16, 1, 0.3, 1),
@@ -199,32 +204,55 @@
         margin: 0 auto !important;
       }
 
+      /* Las etiquetas se atenuan en lugar de desaparecer. Con display: none el
+         texto se volatiliza en el primer fotograma mientras el panel sigue
+         encogiendo 0,28 s, y eso es lo que se veia como un fallo: al abrir,
+         el texto reaparecia de golpe dentro de un panel estrecho y quedaba
+         recortado hasta que este terminaba de crecer.
+
+         Al colapsar se van rapido (0,14 s, antes de que el panel se mueva) y al
+         abrir entran despues (0,2 s con 0,07 s de retardo, cuando ya hay sitio).
+         visibility va con retardo para que el texto no desaparezca de golpe. */
+      .sidebar .logo-text,
+      .sidebar .nav-btn > span:not(.nav-badge),
+      .sidebar .nav-label {
+        transition: opacity 0.2s ease 0.07s, visibility 0.2s ease 0.07s;
+      }
+
       .sidebar.collapsed .logo-text,
-      .sidebar.collapsed .nav-btn > span:not(.nav-badge) {
-        display: none !important;
-      }
-
+      .sidebar.collapsed .nav-btn > span:not(.nav-badge),
       .sidebar.collapsed .nav-label {
-        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        transform: translateX(-6px);
+        transition: opacity 0.14s ease, visibility 0.14s ease;
       }
 
+      /* Aqui esta el grueso del defecto. Los botones llevaban margin: 0 auto y se
+         centraban dentro de un panel que se estaba encogiendo, de modo que
+         cada icono se desplazaba unos 104 px hacia la izquierda mientras el
+         panel se cerraba. Al abrirlos, el camino se hacia al reves.
+
+         Ahora se quedan pegados a la izquierda, con el mismo relleno que
+         tienen abiertos (12 px del menu + 14 px del boton), asi que el icono
+         cae exactamente en el mismo sitio antes y despues y no se mueve. */
       .sidebar.collapsed .nav-sections {
-        padding: 12px 8px !important;
-        gap: 6px !important;
-        align-items: center !important;
+        padding: 14px 8px 14px 12px !important;
+        gap: 4px !important;
+        align-items: stretch !important;
         overflow-x: hidden !important;
       }
 
       .sidebar.collapsed .nav-btn {
-        width: 44px !important;
+        width: auto !important;
         height: 44px !important;
-        min-width: 44px !important;
-        max-width: 44px !important;
-        padding: 0 !important;
-        margin: 0 auto !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        padding: 10px 14px !important;
+        margin: 0 !important;
         display: flex !important;
         align-items: center !important;
-        justify-content: center !important;
+        justify-content: flex-start !important;
         border-radius: var(--radius-md) !important;
         gap: 0 !important;
         overflow: visible !important;
@@ -246,12 +274,18 @@
         transform: scale(1.08) !important;
       }
 
+      /* El contador se ancla al icono, no al borde del boton. Antes se
+         colocaba con right: 2px sobre un boton de 44 px y caia encima
+         del propio icono; ahora el boton ocupa todo el riel y, si se
+         dejara a la derecha, se saldria del panel. Con left sale pegado
+         a la esquina del icono, que es como se lee en un riel. */
       .sidebar.collapsed .nav-badge {
         position: absolute !important;
-        top: 2px !important;
-        right: 2px !important;
-        padding: 1px 5px !important;
-        font-size: 9.5px !important;
+        top: 1px !important;
+        left: 30px !important;
+        right: auto !important;
+        padding: 1px 4px !important;
+        font-size: 9px !important;
         line-height: 1.2 !important;
         margin-left: 0 !important;
         display: inline-flex !important;
@@ -285,6 +319,11 @@
         opacity: 1;
         transform: translateY(-50%) translateX(0);
       }
+    }
+
+    /* Solo durante la transicion, y lo pone Navigation._marcarAnimando(). */
+    .sidebar.animando {
+      will-change: width, min-width;
     }
 
     .sidebar-header {
