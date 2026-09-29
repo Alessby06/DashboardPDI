@@ -10,8 +10,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Sistema PDI: Asociación Cultural Johannes Gutenberg (MVC)</title>
-  <link rel="icon" type="image/png" href="./assets/jg-icon.png">
-  <link rel="apple-touch-icon" href="./assets/jg-icon.png">
+  <link rel="icon" type="image/png" href="../assets/jg-icon.png">
+  <link rel="apple-touch-icon" href="../assets/jg-icon.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,13 +49,13 @@
   </script>
 
   <!-- Modular CSS Architecture (Carga Directa para Máxima Velocidad sin Fails de Import) -->
-  <link rel="stylesheet" href="./css/variables.css">
-  <link rel="stylesheet" href="./css/base.css">
-  <link rel="stylesheet" href="./css/components.css">
-  <link rel="stylesheet" href="./css/views-comun.css">
-  <link rel="stylesheet" href="./css/views-padron.css">
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/views-comun.css">
+  <link rel="stylesheet" href="../css/views-social.css">
 </head>
-<body data-page="padron">
+<body data-page="social">
   <!-- Toast Notification Stack -->
   <div class="toast-container" id="toastContainer"></div>
 
@@ -67,7 +67,7 @@
     <aside class="sidebar" id="appSidebar">
       <div>
         <div class="sidebar-header">
-          <img src="./assets/jg-icon.png" alt="Isotipo Johannes Gutenberg" class="logo-official-icon"
+          <img src="../assets/jg-icon.png" alt="Isotipo Johannes Gutenberg" class="logo-official-icon"
             style="width:38px; height:38px; object-fit:contain; border-radius:6px; background:var(--surface-2); padding:3px; border:1px solid var(--border-subtle);">
           <div class="logo-text">
             <h1>Johannes Gutenberg</h1>
@@ -87,7 +87,7 @@
           </a>
 
           <div class="nav-label">Módulos Operativos (PDI)</div>
-          <a href="./padron.html" class="nav-btn active" data-view="view-beneficiarios" data-page="padron" data-tooltip="Padrón de Beneficiarios"
+          <a href="./padron.html" class="nav-btn" data-view="view-beneficiarios" data-page="padron" data-tooltip="Padrón de Beneficiarios"
             data-roles="coord,facilitadora,promotora,social,admin">
             <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
@@ -115,7 +115,7 @@
             <span>Casita del Saber</span>
           </a>
 
-          <a href="./social.html" class="nav-btn" data-view="view-social" data-page="social" data-tooltip="Derivaciones Sociales (ASP)"
+          <a href="./social.html" class="nav-btn active" data-view="view-social" data-page="social" data-tooltip="Derivaciones Sociales (ASP)"
             data-roles="coord,social,admin">
             <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
@@ -183,9 +183,9 @@
           </button>
 
           <div class="topbar-brand-wrap" style="display:flex; align-items:center; gap:12px; margin-right:8px;">
-            <img src="./assets/logo-light-acjg.png" alt="Asociacion Cultural Johannes Gutenberg" class="brand-logo-dark"
+            <img src="../assets/logo-light-acjg.png" alt="Asociacion Cultural Johannes Gutenberg" class="brand-logo-dark"
               style="height:32px; object-fit:contain;">
-            <img src="./assets/logo-asociacion.png" alt="Asociacion Cultural Johannes Gutenberg"
+            <img src="../assets/logo-asociacion.png" alt="Asociacion Cultural Johannes Gutenberg"
               class="brand-logo-light" style="height:32px; object-fit:contain; display:none;">
           </div>
 
@@ -290,64 +290,109 @@
 
       <!-- Viewport Body -->
   <main class="content-viewport" id="mainContent">
-        <section class="app-view active" id="view-beneficiarios">
+        <section class="app-view active" id="view-social">
           <div class="view-header">
             <div class="view-title-group">
-              <h2>Padrón Único de Beneficiarios</h2>
-              <p>Identidad central del menor, seguro de salud, escolaridad, apoderados y consentimiento informado Ley
-                N.° 29733.</p>
-            </div>
-            <div style="display: flex; gap: 10px;">
-              <button type="button" class="btn-action primary" id="btnNuevoBeneficiario"
-                onclick="window.openModalNuevoBeneficiario ? window.openModalNuevoBeneficiario() : openModalNuevoMenor()">
-                <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
-                <span>Nuevo Beneficiario</span>
-              </button>
+              <h2>Área Social Pastoral (ASP): Derivaciones y Vulnerabilidad</h2>
+              <p>Bandeja de casos sociales clasificados y simulador interactivo de evaluación socioeconómica paramétrica
+                (0-100%).</p>
             </div>
           </div>
 
-          <!-- Beneficiaries Table Card -->
-          <div class="card" id="cardPadronBeneficiarios">
-            <!-- Barra de Filtros y Búsqueda Rápida de Padrón -->
-            <div class="audit-toolbar" style="margin-bottom: 16px;">
-              <!-- Buscador Rápido de Beneficiarios (Lado Izquierdo) -->
-              <div class="audit-search-wrap">
-                <svg class="audit-search-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <!-- Barra de Búsqueda y Filtros de Casos Sociales -->
+          <div class="card"
+            style="margin-bottom: 14px; padding: 12px 16px; position: relative; z-index: 80; overflow: visible;">
+            <div class="sedes-controls-row"
+              style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+
+              <!-- Buscador de Casos Sociales (Lado Izquierdo) -->
+              <div class="audit-search-wrap" style="flex: 1; min-width: 240px; position: relative;">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                  style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-dim); pointer-events: none;">
                   <path stroke-linecap="round" stroke-linejoin="round"
                     d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                 </svg>
-                <input type="text" id="inputPadronSearch" class="audit-search-input"
-                  placeholder="Buscar por Nombre, Apellidos, DNI o Código..."
-                  oninput="window.filterPadronSearch ? window.filterPadronSearch(this.value) : null">
-                <button type="button" class="audit-search-clear" id="btnPadronSearchClear" style="display:none;"
-                  onclick="window.clearPadronSearch ? window.clearPadronSearch() : null" title="Limpiar búsqueda">
-                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
+                <input type="text" class="audit-search-input" id="inputSearchCasosSociales"
+                  placeholder="Buscar caso por menor, código, situación o sede..."
+                  oninput="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.handleSearch(this.value) : null"
+                  style="width: 100%; padding-left: 36px;">
               </div>
 
-              <!-- Botón de Filtros y Panel Desplegable (Lado Derecho) -->
-              <div class="audit-filter-panel-wrap">
-                <div class="custom-dropdown audit-filters-dropdown" id="dropdownPadronFilterPanel">
-                  <button type="button" class="btn-action audit-filter-btn" id="btnDropdownPadronFilterPanel"
-                    onclick="window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownPadronFilterPanel') : null">
+              <div class="social-controls-actions-wrap" style="display: flex; align-items: center; gap: 8px;">
+                <!-- Selector Desplegable de Fase Móvil (Visible solo en móvil) -->
+                <div class="custom-dropdown social-mobile-stage-dropdown" id="dropdownSocialMobileStage">
+                  <button type="button" class="btn-action social-mobile-stage-select-btn"
+                    id="btnSocialMobileStageSelect"
+                    onclick="window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSocialMobileStage') : null">
+                    <div class="stage-select-btn-left">
+                      <span class="stage-dot" id="mobileSelectedStageDot" style="background: var(--gt-red);"></span>
+                      <span id="mobileSelectedStageLabel">Alerta</span>
+                    </div>
+                    <div class="stage-select-btn-right">
+                      <span class="badge badge-red" id="mobileSelectedStageBadge">0</span>
+                      <svg class="caret" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                      </svg>
+                    </div>
+                  </button>
+
+                  <div class="custom-dropdown-menu social-mobile-stage-menu" id="menuSocialMobileStage">
+                    <div class="social-mobile-dropdown-item selected" data-stage="pendiente"
+                      onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.setMobileActiveStage('pendiente') : null">
+                      <div class="item-left">
+                        <span class="stage-dot" style="background: var(--gt-red);"></span>
+                        <span>Pendientes / Alerta</span>
+                      </div>
+                      <span class="badge badge-red" id="mobileStageCountPendientes">0</span>
+                    </div>
+
+                    <div class="social-mobile-dropdown-item" data-stage="evaluacion"
+                      onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.setMobileActiveStage('evaluacion') : null">
+                      <div class="item-left">
+                        <span class="stage-dot" style="background: var(--gt-yellow);"></span>
+                        <span>En Evaluación Social</span>
+                      </div>
+                      <span class="badge badge-yellow" id="mobileStageCountEvaluacion">0</span>
+                    </div>
+
+                    <div class="social-mobile-dropdown-item" data-stage="canalizado"
+                      onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.setMobileActiveStage('canalizado') : null">
+                      <div class="item-left">
+                        <span class="stage-dot" style="background: var(--gt-blue);"></span>
+                        <span>Canalizados (DEMUNA / BTF)</span>
+                      </div>
+                      <span class="badge badge-blue" id="mobileStageCountCanalizados">0</span>
+                    </div>
+
+                    <div class="social-mobile-dropdown-item" data-stage="cerrado"
+                      onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.setMobileActiveStage('cerrado') : null">
+                      <div class="item-left">
+                        <span class="stage-dot" style="background: var(--gt-green);"></span>
+                        <span>Cerrados con Informe</span>
+                      </div>
+                      <span class="badge badge-green" id="mobileStageCountCerrados">0</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Dropdown Popover de Filtros de Casos -->
+                <div class="custom-dropdown audit-filters-dropdown" id="dropdownSocialFilterPanel">
+                  <button type="button" class="btn-action audit-filter-btn" id="btnDropdownSocialFilterPanel"
+                    onclick="window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSocialFilterPanel') : null">
                     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round"
                         d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
                     </svg>
                     <span>Filtros</span>
-                    <span class="audit-filter-badge" id="padronActiveFiltersCount" style="display:none;">0</span>
+                    <span class="audit-filter-badge" id="socialActiveFiltersCount" style="display:none;">0</span>
                     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
                       class="filter-caret">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                     </svg>
                   </button>
 
-                  <!-- Panel Desplegable de Filtros de Padrón -->
-                  <div class="custom-dropdown-menu audit-filters-menu" id="menuPadronFilterPanel">
+                  <div class="custom-dropdown-menu audit-filters-menu" id="menuSocialFilterPanel">
                     <div class="audit-filters-header">
                       <div class="audit-filters-header-title">
                         <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"
@@ -355,27 +400,27 @@
                           <path stroke-linecap="round" stroke-linejoin="round"
                             d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
                         </svg>
-                        <span>Filtros de Padrón</span>
+                        <span>Filtros de Casos Sociales</span>
                       </div>
                       <button type="button" class="btn-text-subtle"
-                        onclick="window.resetPadronFilters ? window.resetPadronFilters() : null">Restablecer</button>
+                        onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.clearFilters() : null">Restablecer</button>
                     </div>
 
                     <div class="audit-filters-body">
-                      <!-- Filtro 1: Servicio / Programa (Dropdown Multi-selección con Checkbox) -->
+                      <!-- Filtro 1: Urgencia -->
                       <div class="audit-filter-field">
-                        <label class="audit-field-label">Servicio / Programa</label>
-                        <div class="padron-inner-dropdown" id="dropdownPadronServicio">
+                        <label class="audit-field-label">Nivel de Urgencia</label>
+                        <div class="padron-inner-dropdown" id="dropdownSocialUrgencia">
                           <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.togglePadronInnerDropdown ? window.togglePadronInnerDropdown('dropdownPadronServicio') : null">
-                            <span id="labelPadronServicioSelect">Todos los Servicios</span>
+                            onclick="window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSocialUrgencia') : null">
+                            <span id="labelSocialUrgenciaSelect">Todas las Urgencias</span>
                             <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                               <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                             </svg>
                           </button>
-                          <div class="padron-inner-dropdown-menu" id="menuPadronServicio">
+                          <div class="padron-inner-dropdown-menu" id="menuSocialUrgencia">
                             <div class="padron-dropdown-item selected" data-value="all"
-                              onclick="window.togglePadronServicio ? window.togglePadronServicio('all') : null">
+                              onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.filterByUrgencia('all') : null">
                               <div class="padron-item-left">
                                 <span class="padron-item-checkbox">
                                   <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
@@ -383,12 +428,11 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                                   </svg>
                                 </span>
-                                <span class="padron-item-label">Todos</span>
+                                <span class="padron-item-label">Todas las Urgencias</span>
                               </div>
-                              <span class="padron-item-count" id="countFacetServicio-all">(28)</span>
                             </div>
-                            <div class="padron-dropdown-item" data-value="desayuno"
-                              onclick="window.togglePadronServicio ? window.togglePadronServicio('desayuno') : null">
+                            <div class="padron-dropdown-item" data-value="Alta"
+                              onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.filterByUrgencia('Alta') : null">
                               <div class="padron-item-left">
                                 <span class="padron-item-checkbox">
                                   <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
@@ -396,12 +440,11 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                                   </svg>
                                 </span>
-                                <span class="padron-item-label">Servicio Alimentario Nutricional</span>
+                                <span class="padron-item-label">Alta</span>
                               </div>
-                              <span class="padron-item-count" id="countFacetServicio-desayuno">(0)</span>
                             </div>
-                            <div class="padron-dropdown-item" data-value="casita"
-                              onclick="window.togglePadronServicio ? window.togglePadronServicio('casita') : null">
+                            <div class="padron-dropdown-item" data-value="Media"
+                              onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.filterByUrgencia('Media') : null">
                               <div class="padron-item-left">
                                 <span class="padron-item-checkbox">
                                   <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
@@ -409,12 +452,11 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                                   </svg>
                                 </span>
-                                <span class="padron-item-label">Servicio Acompañamiento Educativo</span>
+                                <span class="padron-item-label">Media</span>
                               </div>
-                              <span class="padron-item-count" id="countFacetServicio-casita">(0)</span>
                             </div>
-                            <div class="padron-dropdown-item" data-value="pastoral"
-                              onclick="window.togglePadronServicio ? window.togglePadronServicio('pastoral') : null">
+                            <div class="padron-dropdown-item" data-value="Baja"
+                              onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.filterByUrgencia('Baja') : null">
                               <div class="padron-item-left">
                                 <span class="padron-item-checkbox">
                                   <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
@@ -422,28 +464,27 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                                   </svg>
                                 </span>
-                                <span class="padron-item-label">Área Social Pastoral</span>
+                                <span class="padron-item-label">Baja</span>
                               </div>
-                              <span class="padron-item-count" id="countFacetServicio-pastoral">(0)</span>
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      <!-- Filtro 2: Sede Operativa (Dropdown Multi-selección con Checkbox) -->
+                      <!-- Filtro 2: Sede Territorial -->
                       <div class="audit-filter-field">
-                        <label class="audit-field-label">Sede Operativa</label>
-                        <div class="padron-inner-dropdown" id="dropdownPadronSede">
+                        <label class="audit-field-label">Sede Territorial</label>
+                        <div class="padron-inner-dropdown" id="dropdownSocialSede">
                           <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.togglePadronInnerDropdown ? window.togglePadronInnerDropdown('dropdownPadronSede') : null">
-                            <span id="labelPadronSedeSelect">Todas las Sedes</span>
+                            onclick="window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSocialSede') : null">
+                            <span id="labelSocialSedeSelect">Todas las Sedes</span>
                             <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                               <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                             </svg>
                           </button>
-                          <div class="padron-inner-dropdown-menu" id="menuPadronSede">
+                          <div class="padron-inner-dropdown-menu" id="menuSocialSede">
                             <div class="padron-dropdown-item selected" data-value="all"
-                              onclick="window.togglePadronSede ? window.togglePadronSede('all') : null">
+                              onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.filterBySede('all') : null">
                               <div class="padron-item-left">
                                 <span class="padron-item-checkbox">
                                   <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
@@ -453,275 +494,66 @@
                                 </span>
                                 <span class="padron-item-label">Todas las Sedes</span>
                               </div>
-                              <span class="padron-item-count" id="countFacetSede-all">(28)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Año Nuevo"
-                              onclick="window.togglePadronSede ? window.togglePadronSede('Año Nuevo') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Año Nuevo (Comas)</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetSede-Año Nuevo">(0)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="La Libertad"
-                              onclick="window.togglePadronSede ? window.togglePadronSede('La Libertad') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">La Libertad (Comas)</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetSede-La Libertad">(0)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="San Pedro"
-                              onclick="window.togglePadronSede ? window.togglePadronSede('San Pedro') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">San Pedro (Carabayllo)</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetSede-San Pedro">(0)</span>
                             </div>
                             <div class="padron-dropdown-item" data-value="El Progreso"
-                              onclick="window.togglePadronSede ? window.togglePadronSede('El Progreso') : null">
+                              onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.filterBySede('El Progreso') : null">
                               <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
+                                <span class="padron-item-checkbox"><svg width="10" height="10" fill="none"
+                                    stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
+                                  </svg></span>
                                 <span class="padron-item-label">El Progreso (Carabayllo)</span>
                               </div>
-                              <span class="padron-item-count" id="countFacetSede-El Progreso">(0)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="San Pedro"
+                              onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.filterBySede('San Pedro') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox"><svg width="10" height="10" fill="none"
+                                    stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg></span>
+                                <span class="padron-item-label">San Pedro (Carabayllo)</span>
+                              </div>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="Año Nuevo"
+                              onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.filterBySede('Año Nuevo') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-checkbox"><svg width="10" height="10" fill="none"
+                                    stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                  </svg></span>
+                                <span class="padron-item-label">Año Nuevo (Comas)</span>
+                              </div>
                             </div>
                             <div class="padron-dropdown-item" data-value="Santa Rosa"
-                              onclick="window.togglePadronSede ? window.togglePadronSede('Santa Rosa') : null">
+                              onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.filterBySede('Santa Rosa') : null">
                               <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
+                                <span class="padron-item-checkbox"><svg width="10" height="10" fill="none"
+                                    stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
+                                  </svg></span>
                                 <span class="padron-item-label">Santa Rosa (Carabayllo)</span>
                               </div>
-                              <span class="padron-item-count" id="countFacetSede-Santa Rosa">(0)</span>
                             </div>
                             <div class="padron-dropdown-item" data-value="Los Bendecidos"
-                              onclick="window.togglePadronSede ? window.togglePadronSede('Los Bendecidos') : null">
+                              onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.filterBySede('Los Bendecidos') : null">
                               <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
+                                <span class="padron-item-checkbox"><svg width="10" height="10" fill="none"
+                                    stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
+                                  </svg></span>
                                 <span class="padron-item-label">Los Bendecidos (Carabayllo)</span>
                               </div>
-                              <span class="padron-item-count" id="countFacetSede-Los Bendecidos">(0)</span>
                             </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Filtro 3: Condición Nutricional / Semáforo Anemia MINSA (Dropdown Multi-selección con Checkbox) -->
-                      <div class="audit-filter-field">
-                        <label class="audit-field-label">Condición Nutricional (Anemia)</label>
-                        <div class="padron-inner-dropdown" id="dropdownPadronAnemia">
-                          <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.togglePadronInnerDropdown ? window.togglePadronInnerDropdown('dropdownPadronAnemia') : null">
-                            <span id="labelPadronAnemiaSelect">Todas las Condiciones</span>
-                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                          </button>
-                          <div class="padron-inner-dropdown-menu" id="menuPadronAnemia">
-                            <div class="padron-dropdown-item selected" data-value="all"
-                              onclick="window.togglePadronAnemia ? window.togglePadronAnemia('all') : null">
+                            <div class="padron-dropdown-item" data-value="La Libertad"
+                              onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.filterBySede('La Libertad') : null">
                               <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
+                                <span class="padron-item-checkbox"><svg width="10" height="10" fill="none"
+                                    stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Todos</span>
+                                  </svg></span>
+                                <span class="padron-item-label">La Libertad (Comas)</span>
                               </div>
-                              <span class="padron-item-count" id="countFacetAnemia-all">(28)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Normal"
-                              onclick="window.togglePadronAnemia ? window.togglePadronAnemia('Normal') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="badge badge-green" style="padding:1px 5px; font-size:10.5px;">Normal</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetAnemia-Normal">(0)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Leve"
-                              onclick="window.togglePadronAnemia ? window.togglePadronAnemia('Leve') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="badge badge-yellow" style="padding:1px 5px; font-size:10.5px;">Leve</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetAnemia-Leve">(0)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Moderada"
-                              onclick="window.togglePadronAnemia ? window.togglePadronAnemia('Moderada') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="badge badge-red" style="padding:1px 5px; font-size:10.5px;">Mod /
-                                  Sev</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetAnemia-Moderada">(0)</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Filtro 4: Edad del Beneficiario (0 a 18 años con Cuadro de Edad Específica, Barra Slider de Rango 0-18 y Botón Todas) -->
-                      <div class="audit-filter-field">
-                        <div class="facet-edad-header">
-                          <label class="audit-field-label" style="margin-bottom:0;">Edad del Beneficiario</label>
-                          <button type="button" class="btn-facet-all-edad active" id="btnPadronEdadTodas"
-                            onclick="window.clearPadronEdad ? window.clearPadronEdad() : null">
-                            Todas las edades
-                          </button>
-                        </div>
-                        <div class="facet-edad-card">
-                          <div class="facet-edad-input-row">
-                            <span class="facet-edad-input-label">Edad específica:</span>
-                            <div class="facet-edad-input-box">
-                              <input type="number" min="0" max="18" placeholder="—" id="numPadronEdad"
-                                class="facet-edad-num-input"
-                                oninput="window.setPadronEdadExacta ? window.setPadronEdadExacta(this.value) : null">
-                              <span class="facet-edad-unit">años</span>
-                            </div>
-                          </div>
-                          <div class="facet-edad-slider-section">
-                            <div class="facet-edad-slider-labels">
-                              <span>0 años</span>
-                              <span id="labelPadronEdadSliderVal" style="font-weight:700; color:var(--gt-green);">0 a 18
-                                años</span>
-                              <span>18 años</span>
-                            </div>
-                            <div class="facet-range-slider-wrapper">
-                              <div class="facet-range-slider-track"></div>
-                              <div class="facet-range-slider-highlight" id="sliderPadronEdadHighlight"
-                                style="left:0%; right:0%;"></div>
-                              <input type="range" min="0" max="18" value="0" id="sliderPadronEdadMin"
-                                class="facet-range-slider-input"
-                                oninput="window.syncPadronEdadRango ? window.syncPadronEdadRango('min', this.value) : null">
-                              <input type="range" min="0" max="18" value="18" id="sliderPadronEdadMax"
-                                class="facet-range-slider-input"
-                                oninput="window.syncPadronEdadRango ? window.syncPadronEdadRango('max', this.value) : null">
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Filtro 5: Estado de Matrícula (Dropdown Desplegable) -->
-                      <div class="audit-filter-field">
-                        <label class="audit-field-label">Estado de Matrícula</label>
-                        <div class="padron-inner-dropdown" id="dropdownPadronEstado">
-                          <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.togglePadronInnerDropdown ? window.togglePadronInnerDropdown('dropdownPadronEstado') : null">
-                            <span id="labelPadronEstadoSelect">Todos los Estados</span>
-                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                          </button>
-                          <div class="padron-inner-dropdown-menu" id="menuPadronEstado">
-                            <div class="padron-dropdown-item selected" data-value="all"
-                              onclick="window.selectPadronEstado ? window.selectPadronEstado('all') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Todos</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetEstado-all">(28)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Activo"
-                              onclick="window.selectPadronEstado ? window.selectPadronEstado('Activo') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Activo</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetEstado-Activo">(0)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Inactivo"
-                              onclick="window.selectPadronEstado ? window.selectPadronEstado('Inactivo') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Inactivo / Baja</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetEstado-Inactivo">(0)</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Filtro 6: Sexo del Beneficiario (Niñas / Niños) -->
-                      <div class="audit-filter-field">
-                        <label class="audit-field-label">Sexo del Beneficiario</label>
-                        <div class="padron-inner-dropdown" id="dropdownPadronSexo">
-                          <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.togglePadronInnerDropdown ? window.togglePadronInnerDropdown('dropdownPadronSexo') : null">
-                            <span id="labelPadronSexoSelect">Todos</span>
-                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                          </button>
-                          <div class="padron-inner-dropdown-menu" id="menuPadronSexo">
-                            <div class="padron-dropdown-item selected" data-value="all"
-                              onclick="window.selectPadronSexo ? window.selectPadronSexo('all') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Todos</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetSexo-all">(28)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="F"
-                              onclick="window.selectPadronSexo ? window.selectPadronSexo('F') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Niñas (Femenino)</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetSexo-F">(0)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="M"
-                              onclick="window.selectPadronSexo ? window.selectPadronSexo('M') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Niños (Masculino)</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetSexo-M">(0)</span>
                             </div>
                           </div>
                         </div>
@@ -732,79 +564,442 @@
               </div>
             </div>
 
-            <!-- Barra de Píldoras de Filtros Activos (Chips Descartables - Visible en PC/Tablets) -->
-            <div class="padron-active-chips-bar" id="padronActiveChipsBar" style="display: none;">
-              <span class="padron-active-chips-label">Filtros aplicados:</span>
-              <div id="padronActiveChipsList" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
-              </div>
-              <button type="button" class="btn-text-subtle" style="margin-left: auto; font-size: 11.5px;"
-                onclick="window.resetPadronFilters ? window.resetPadronFilters() : null">
-                Borrar todos
-              </button>
-            </div>
-
-            <!-- Vista de Tabla para Escritorio / Desktop -->
-            <div class="table-container desktop-table-view">
-              <table class="data-table" id="tablaBeneficiarios">
-                <thead>
-                  <tr>
-                    <th>Código</th>
-                    <th>Nombres y Apellidos</th>
-                    <th>DNI / Doc</th>
-                    <th>Edad / Sexo</th>
-                    <th>Distrito / Sede</th>
-                    <th>Servicios Activos</th>
-                    <th>Estado</th>
-                    <th style="text-align: right;">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody id="tbodyBeneficiarios">
-                  <!-- Injected via JS -->
-                </tbody>
-              </table>
-            </div>
-
-            <!-- Vista de Tarjetas Acordeón para Dispositivos Móviles / Smartphones -->
-            <div class="mobile-accordion-list" id="mobileCardsBeneficiarios">
-              <!-- Injected via JS -->
-            </div>
-
-            <!-- Controles de Paginación Padrón de Beneficiarios (PC / Móvil) -->
-            <div class="padron-pagination-bar" id="padronPaginationBar">
-              <div class="padron-pagination-left">
-                <span id="padronPaginationInfo" style="font-size:12.5px; color:var(--text-muted); font-weight:500;">
-                  Mostrando 0 de 0 beneficiarios
-                </span>
-                <div class="padron-density-wrapper" id="padronDensityWrapper"
-                  style="display:flex; align-items:center; gap:6px;">
-                  <span style="font-size:12px; color:var(--text-dim);">Mostrar:</span>
-                  <select class="audit-density-select padron-density-select" id="selectPadronPageSize"
-                    onchange="window.padronSetPageSize ? window.padronSetPageSize(this.value) : (window.PDI?.BeneficiariosView?.setPageSize ? window.PDI.BeneficiariosView.setPageSize(this.value) : null)">
-                    <option value="10">10 por página</option>
-                    <option value="20" selected>20 por página</option>
-                    <option value="50">50 por página (Máx)</option>
-                  </select>
+                <!-- Barra de Píldoras de Filtros Activos de Casos Sociales (Chips Descartables) -->
+                <div class="padron-active-chips-bar" id="socialActiveChipsBar"
+                  style="display: none; margin-top: 10px; border-top: 1px solid var(--border-subtle); padding-top: 8px;">
+                  <span class="padron-active-chips-label">Filtros aplicados:</span>
+                  <div id="socialActiveChipsList"
+                    style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
+                  </div>
+                  <button type="button" class="btn-text-subtle" style="margin-left: auto; font-size: 11.5px;"
+                    onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.clearFilters() : null">
+                    Borrar todos
+                  </button>
                 </div>
               </div>
-              <div class="padron-pagination-right">
-                <button type="button" class="btn-page" id="btnPadronPagePrev"
-                  onclick="window.padronPrevPage ? window.padronPrevPage() : (window.PDI?.BeneficiariosView?.prevPage ? window.PDI.BeneficiariosView.prevPage() : null)">
-                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                  </svg>
-                  <span>Anterior</span>
-                </button>
-                <span class="audit-page-indicator" id="padronCurrentPageNum">Página 1</span>
-                <button type="button" class="btn-page" id="btnPadronPageNext"
-                  onclick="window.padronNextPage ? window.padronNextPage() : (window.PDI?.BeneficiariosView?.nextPage ? window.PDI.BeneficiariosView.nextPage() : null)">
-                  <span>Siguiente</span>
-                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                  </svg>
-                </button>
+
+              <!-- Kanban Board -->
+              <div class="kanban-board" id="kanbanCasosSociales" data-mobile-active-stage="pendiente">
+                <!-- Col 1: Pendientes -->
+                <div class="kanban-col" data-col-stage="pendiente">
+                  <div class="kanban-col-header" style="border-top: 3px solid var(--gt-red);">
+                    <span>Pendientes / Alerta</span>
+                    <span class="badge badge-red" id="kanbanCountPendientes">0</span>
+                  </div>
+                  <div class="kanban-col-body" id="kanbanColPendientes"></div>
+                </div>
+
+                <!-- Col 2: En Evaluación -->
+                <div class="kanban-col" data-col-stage="evaluacion">
+                  <div class="kanban-col-header" style="border-top: 3px solid var(--gt-yellow);">
+                    <span>En Evaluación Social</span>
+                    <span class="badge badge-yellow" id="kanbanCountEvaluacion">0</span>
+                  </div>
+                  <div class="kanban-col-body" id="kanbanColEvaluacion"></div>
+                </div>
+
+                <!-- Col 3: Canalizados -->
+                <div class="kanban-col" data-col-stage="canalizado">
+                  <div class="kanban-col-header" style="border-top: 3px solid var(--gt-blue);">
+                    <span>Canalizados (DEMUNA / BTF)</span>
+                    <span class="badge badge-blue" id="kanbanCountCanalizados">0</span>
+                  </div>
+                  <div class="kanban-col-body" id="kanbanColCanalizados"></div>
+                </div>
+
+                <!-- Col 4: Cerrados -->
+                <div class="kanban-col" data-col-stage="cerrado">
+                  <div class="kanban-col-header" style="border-top: 3px solid var(--gt-green);">
+                    <span>Cerrados con Informe</span>
+                    <span class="badge badge-green" id="kanbanCountCerrados">0</span>
+                  </div>
+                  <div class="kanban-col-body" id="kanbanColCerrados"></div>
+                </div>
               </div>
-            </div>
-          </div>
+
+              <!-- Simulador de Evaluación Socioeconómica Paramétrica (ASP) - Acordeón Desplegable -->
+              <div class="cred-calc-accordion socio-calc-accordion" id="cardSimuladorVulnerabilidad"
+                style="margin-top: 16px;">
+                <button type="button" class="cred-calc-toggle-btn socio-calc-toggle-btn" id="btnToggleSimuladorSocio"
+                  onclick="window.PDI?.SocialKanbanView?.toggleSimulador ? window.PDI.SocialKanbanView.toggleSimulador() : null">
+                  <div class="cred-calc-header-left">
+                    <div class="cred-calc-icon-box socio-icon-box"
+                      style="background: rgba(239, 68, 68, 0.12); color: var(--gt-red); border: 1px solid rgba(239, 68, 68, 0.25);">
+                      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" />
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="cred-calc-title" style="display:flex; align-items:center; gap:8px;">
+                        <span>Simulador de Evaluación Socioeconómica (ASP)</span>
+                        <span class="badge badge-gray" style="font-size:10.5px; padding:2px 7px;">6 Dimensiones</span>
+                      </div>
+                      <div class="cred-calc-subtitle">Cálculo paramétrico de vulnerabilidad (0-100 pts) y recomendación
+                        de exoneración</div>
+                    </div>
+                  </div>
+                  <div class="cred-calc-header-right">
+                    <svg class="cred-calc-chevron socio-calc-chevron" width="18" height="18" fill="none"
+                      stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                    </svg>
+                  </div>
+                </button>
+
+                <div class="cred-calc-body socio-calc-body" id="simuladorSocioBody"
+                  style="display: none; padding: 18px 20px; border-top: 1px solid var(--border-subtle);">
+                  <div
+                    style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom: 16px; background: var(--surface-2); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+                    <div style="font-size:12.5px; font-weight:700; color:var(--text-main);">
+                      Parámetros de Evaluación Familiar (MINSA / PDI)
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                      <label for="selBeneficiarioSimulador"
+                        style="font-size:11.5px; color:var(--text-dim); font-weight:600;">Cargar Menor:</label>
+                      <select id="selBeneficiarioSimulador" class="form-control"
+                        style="font-size:12px; padding:4px 8px; max-width:240px;"
+                        onchange="window.cargarCasoEnSimulador ? window.cargarCasoEnSimulador(this.value) : (window.PDI?.SocialController?.cargarCasoEnSimulador ? window.PDI.SocialController.cargarCasoEnSimulador(this.value) : null)">
+                        <option value="custom">-- Calificación Manual / Libre --</option>
+                        <option value="PDI-2026-003">Liam Mateo Sanchez (El Progreso)</option>
+                        <option value="PDI-2026-008">Dylan Josué Quispe (San Pedro)</option>
+                        <option value="PDI-2026-001">Thiago Gael Flores (Año Nuevo)</option>
+                        <option value="PDI-2026-005">Mateo Sebastian Castillo (San Pedro)</option>
+                        <option value="PDI-2026-006">Benjamín Elías Navarro (Santa Rosa)</option>
+                        <option value="PDI-2026-010">Lucas Alejandro Torres (Los Bendecidos)</option>
+                        <option value="PDI-2026-007">Camila Fernanda Rojas (Año Nuevo)</option>
+                        <option value="PDI-2026-002">Mia Valentina Mendoza (La Libertad)</option>
+                        <option value="PDI-2026-004">Luciana Sofia Alvarez (Año Nuevo)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- 6 Dimension Cards with Rubric and Score Input -->
+                  <div class="socio-calc-grid">
+
+                    <!-- 1. Balance Ingreso / Egreso -->
+                    <div class="socio-dim-card">
+                      <div class="socio-dim-header">
+                        <div>
+                          <span class="socio-dim-title">1. Balance Ingreso / Egreso Económico</span>
+                          <span class="badge badge-gray" style="font-size:10px; margin-top:2px;">Máx. 28 pts</span>
+                        </div>
+                        <div class="socio-score-badge" id="lblScoreIngreso">24 pts</div>
+                      </div>
+                      <div class="socio-input-row">
+                        <input type="range" min="0" max="28" value="24" id="sliderIngreso"
+                          oninput="window.syncScoreSimulador('Ingreso', this.value)">
+                        <input type="number" min="0" max="28" value="24" id="scoreIngreso"
+                          class="form-control socio-num-input"
+                          oninput="window.syncScoreSimulador('Ingreso', this.value)">
+                      </div>
+                      <div class="socio-guide-box">
+                        <div class="socio-guide-title">
+                          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                          </svg>
+                          <span>Datos a considerar para calificar:</span>
+                        </div>
+                        <ul class="socio-guide-list">
+                          <li><strong class="text-critico">22 - 28 pts:</strong> Ingreso per cápita &lt; S/ 250/mes;
+                            déficit
+                            severo para alimentos básicos; ingresos informales nulos o esporádicos.</li>
+                          <li><strong class="text-medio">12 - 21 pts:</strong> Ingreso per cápita S/ 250 - S/ 450/mes;
+                            balance
+                            justo al límite sin margen de ahorro ni contingencia.</li>
+                          <li><strong class="text-favorable">0 - 11 pts:</strong> Ingreso per cápita &gt; S/ 450/mes;
+                            cobertura alimentaria familiar garantizada y estabilidad.</li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <!-- 2. Condición y Tenencia de Vivienda -->
+                    <div class="socio-dim-card">
+                      <div class="socio-dim-header">
+                        <div>
+                          <span class="socio-dim-title">2. Condición y Tenencia de Vivienda</span>
+                          <span class="badge badge-gray" style="font-size:10px; margin-top:2px;">Máx. 20 pts</span>
+                        </div>
+                        <div class="socio-score-badge" id="lblScoreVivienda">18 pts</div>
+                      </div>
+                      <div class="socio-input-row">
+                        <input type="range" min="0" max="20" value="18" id="sliderVivienda"
+                          oninput="window.syncScoreSimulador('Vivienda', this.value)">
+                        <input type="number" min="0" max="20" value="18" id="scoreVivienda"
+                          class="form-control socio-num-input"
+                          oninput="window.syncScoreSimulador('Vivienda', this.value)">
+                      </div>
+                      <div class="socio-guide-box">
+                        <div class="socio-guide-title">
+                          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                          </svg>
+                          <span>Datos a considerar para calificar:</span>
+                        </div>
+                        <ul class="socio-guide-list">
+                          <li><strong class="text-critico">15 - 20 pts:</strong> Material precario (esteras/madera, piso
+                            de
+                            tierra); zona de alto riesgo; sin agua ni desagüe de red pública.</li>
+                          <li><strong class="text-medio">8 - 14 pts:</strong> Vivienda alquilada o prestada; paredes de
+                            ladrillo sin tarrajeo; servicios básicos compartidos.</li>
+                          <li><strong class="text-favorable">0 - 7 pts:</strong> Vivienda propia o adjudicada de
+                            material
+                            noble; conexiones domiciliarias completas e independientes.</li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <!-- 3. Factores de Soporte y Carga Familiar -->
+                    <div class="socio-dim-card">
+                      <div class="socio-dim-header">
+                        <div>
+                          <span class="socio-dim-title">3. Factores de Soporte y Carga Familiar</span>
+                          <span class="badge badge-gray" style="font-size:10px; margin-top:2px;">Máx. 19 pts</span>
+                        </div>
+                        <div class="socio-score-badge" id="lblScoreSoporte">16 pts</div>
+                      </div>
+                      <div class="socio-input-row">
+                        <input type="range" min="0" max="19" value="16" id="sliderSoporte"
+                          oninput="window.syncScoreSimulador('Soporte', this.value)">
+                        <input type="number" min="0" max="19" value="16" id="scoreSoporte"
+                          class="form-control socio-num-input"
+                          oninput="window.syncScoreSimulador('Soporte', this.value)">
+                      </div>
+                      <div class="socio-guide-box">
+                        <div class="socio-guide-title">
+                          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                          </svg>
+                          <span>Datos a considerar para calificar:</span>
+                        </div>
+                        <ul class="socio-guide-list">
+                          <li><strong class="text-critico">14 - 19 pts:</strong> Hogar monoparental con 3+ menores
+                            dependientes, o adulto mayor a cargo exclusivo sin red de soporte.</li>
+                          <li><strong class="text-medio">7 - 13 pts:</strong> 2 dependientes a cargo; apoyo familiar
+                            intermitente o progenitor no conviviente ausente.</li>
+                          <li><strong class="text-favorable">0 - 6 pts:</strong> Ambos padres activos en el hogar, 1
+                            menor a
+                            cargo y red familiar de apoyo extendida y solvente.</li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <!-- 4. Empleo y Ocupación del Cuidador -->
+                    <div class="socio-dim-card">
+                      <div class="socio-dim-header">
+                        <div>
+                          <span class="socio-dim-title">4. Empleo y Ocupación del Cuidador</span>
+                          <span class="badge badge-gray" style="font-size:10px; margin-top:2px;">Máx. 16 pts</span>
+                        </div>
+                        <div class="socio-score-badge" id="lblScoreEmpleo">14 pts</div>
+                      </div>
+                      <div class="socio-input-row">
+                        <input type="range" min="0" max="16" value="14" id="sliderEmpleo"
+                          oninput="window.syncScoreSimulador('Empleo', this.value)">
+                        <input type="number" min="0" max="16" value="14" id="scoreEmpleo"
+                          class="form-control socio-num-input"
+                          oninput="window.syncScoreSimulador('Empleo', this.value)">
+                      </div>
+                      <div class="socio-guide-box">
+                        <div class="socio-guide-title">
+                          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                          </svg>
+                          <span>Datos a considerar para calificar:</span>
+                        </div>
+                        <ul class="socio-guide-list">
+                          <li><strong class="text-critico">12 - 16 pts:</strong> Desempleo prolongado; trabajo
+                            ambulatorio de
+                            subsistencia diaria; incapacidad laboral no pensionada.</li>
+                          <li><strong class="text-medio">6 - 11 pts:</strong> Empleo informal temporal (mototaxista,
+                            estiba,
+                            limpieza eventual) sin contratos ni beneficios.</li>
+                          <li><strong class="text-favorable">0 - 5 pts:</strong> Empleo formal en planilla o actividad
+                            microempresarial formalizada y continua.</li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <!-- 5. Nivel de Instrucción del Hogar -->
+                    <div class="socio-dim-card">
+                      <div class="socio-dim-header">
+                        <div>
+                          <span class="socio-dim-title">5. Nivel de Instrucción del Hogar</span>
+                          <span class="badge badge-gray" style="font-size:10px; margin-top:2px;">Máx. 10 pts</span>
+                        </div>
+                        <div class="socio-score-badge" id="lblScoreInstruccion">8 pts</div>
+                      </div>
+                      <div class="socio-input-row">
+                        <input type="range" min="0" max="10" value="8" id="sliderInstruccion"
+                          oninput="window.syncScoreSimulador('Instruccion', this.value)">
+                        <input type="number" min="0" max="10" value="8" id="scoreInstruccion"
+                          class="form-control socio-num-input"
+                          oninput="window.syncScoreSimulador('Instruccion', this.value)">
+                      </div>
+                      <div class="socio-guide-box">
+                        <div class="socio-guide-title">
+                          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                          </svg>
+                          <span>Datos a considerar para calificar:</span>
+                        </div>
+                        <ul class="socio-guide-list">
+                          <li><strong class="text-critico">7 - 10 pts:</strong> Primaria incompleta o analfabetismo
+                            funcional
+                            del apoderado titular.</li>
+                          <li><strong class="text-medio">4 - 6 pts:</strong> Secundaria incompleta o primaria completa.
+                          </li>
+                          <li><strong class="text-favorable">0 - 3 pts:</strong> Secundaria completa, educación técnica
+                            superior o universitaria.</li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <!-- 6. Salud y Discapacidad en Familia -->
+                    <div class="socio-dim-card">
+                      <div class="socio-dim-header">
+                        <div>
+                          <span class="socio-dim-title">6. Salud y Discapacidad en Familia</span>
+                          <span class="badge badge-gray" style="font-size:10px; margin-top:2px;">Máx. 7 pts</span>
+                        </div>
+                        <div class="socio-score-badge" id="lblScoreSaludFam">6 pts</div>
+                      </div>
+                      <div class="socio-input-row">
+                        <input type="range" min="0" max="7" value="6" id="sliderSaludFam"
+                          oninput="window.syncScoreSimulador('SaludFam', this.value)">
+                        <input type="number" min="0" max="7" value="6" id="scoreSaludFam"
+                          class="form-control socio-num-input"
+                          oninput="window.syncScoreSimulador('SaludFam', this.value)">
+                      </div>
+                      <div class="socio-guide-box">
+                        <div class="socio-guide-title">
+                          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                          </svg>
+                          <span>Datos a considerar para calificar:</span>
+                        </div>
+                        <ul class="socio-guide-list">
+                          <li><strong class="text-critico">5 - 7 pts:</strong> Miembro del hogar con enfermedad crónica
+                            de
+                            alto costo o discapacidad severa sin cobertura.</li>
+                          <li><strong class="text-medio">2 - 4 pts:</strong> Menor con anemia recurrente o familiares
+                            con
+                            tratamientos médicos periódicos.</li>
+                          <li><strong class="text-favorable">0 - 1 pts:</strong> Sin patologías limitantes en el núcleo;
+                            aseguramiento SIS o EsSalud activo.</li>
+                        </ul>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <!-- Botón de Ejecución de Cálculo -->
+                  <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
+                    <button type="button" class="btn-action primary" id="btnCalcularSocio"
+                      onclick="window.calcularEvaluacionSocioeconomica()"
+                      style="padding: 10px 22px; font-size: 13.5px; font-weight: 700;">
+                      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M15.75 15.75V18m-7.5-6.75h.008v.008H8.25v-.008zm0 2.25h.008v.008H8.25V13.5zm0 2.25h.008v.008H8.25v-.008zm0 2.25h.008v.008H8.25V18zm2.498-6.75h.007v.008h-.007v-.008zm0 2.25h.007v.008h-.007V13.5zm0 2.25h.007v.008h-.007v-.008zm0 2.25h.007v.008h-.007V18zm2.504-6.75h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V13.5zm0 2.25h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V18zm2.498-6.75h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V13.5zM8.25 6h7.5v2.25h-7.5V6zM12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25z" />
+                      </svg>
+                      <span>Calcular Evaluación Socioeconómica</span>
+                    </button>
+                  </div>
+
+                  <!-- Calculated Output Container -->
+                  <div id="containerResultadoSocioeconomico" class="socio-result-card" style="margin-top: 16px;">
+                    <div class="socio-result-header">
+                      <div>
+                        <div
+                          style="font-size: 11.5px; text-transform: uppercase; font-weight: 700; color: var(--text-dim); letter-spacing: 0.5px;">
+                          Resultado de Evaluación Paramétrica Oficial
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-top: 4px; flex-wrap: wrap;">
+                          <span class="socio-total-score" id="socioTotalScoreVal">86 / 100</span>
+                          <span class="badge badge-red" id="socioCategoryBadge">Extrema Pobreza / Vulnerabilidad
+                            Crítica</span>
+                        </div>
+                      </div>
+                      <div style="text-align: right;">
+                        <div style="font-size: 11.5px; color: var(--text-dim); font-weight: 600;">Exoneración de Aporte
+                          Recomendada:</div>
+                        <strong style="font-size: 13.5px; color: var(--gt-red);" id="socioExoneracionText">100%
+                          Exoneración
+                          Total (Caso Social Extremo)</strong>
+                      </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div
+                      style="width: 100%; height: 8px; background: var(--border-subtle); border-radius: 4px; overflow: hidden; margin: 14px 0 16px 0;">
+                      <div id="socioTotalScoreBar"
+                        style="width: 86%; height: 100%; background: var(--gt-red); transition: width 0.3s ease, background 0.3s ease;">
+                      </div>
+                    </div>
+
+                    <!-- Recommendations List -->
+                    <div>
+                      <div
+                        style="font-size: 12.5px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                        <svg width="16" height="16" fill="none" stroke="var(--gt-green)" stroke-width="2"
+                          viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                        </svg>
+                        <span>Plan de Intervención y Recomendaciones Oficiales:</span>
+                      </div>
+                      <ul class="socio-recommendations-list" id="listaRecomendacionesSocio">
+                        <li class="socio-recommendation-item">
+                          <div class="socio-rec-icon">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"
+                              viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                            </svg>
+                          </div>
+                          <span>Aprobación inmediata de exoneración del 100% de aporte mensual por vulnerabilidad
+                            extrema.</span>
+                        </li>
+                        <li class="socio-recommendation-item">
+                          <div class="socio-rec-icon">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"
+                              viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                            </svg>
+                          </div>
+                          <span>Asignación prioritaria de Canasta Nutricional complementaria (Banco de Alimentos
+                            BTF).</span>
+                        </li>
+                        <li class="socio-recommendation-item">
+                          <div class="socio-rec-icon">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"
+                              viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                            </svg>
+                          </div>
+                          <span>Apertura de expediente en Área Social Pastoral (ASP) y visitas domiciliarias quincenales
+                            de
+                            seguimiento.</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
         </section>
   </main>
     </div>
@@ -1989,7 +2184,7 @@
     </div>
   </div>
   <!-- Punto de entrada: modulos ES nativos. Requiere servidor HTTP -->
-  <script type="module" src="js/pages/padron.js"></script>
+  <script type="module" src="../js/pages/social.js"></script>
 </body>
 
 </html>

@@ -89,7 +89,7 @@ if __name__ == '__main__':
     port = get_free_port(requested_port)
     try:
         with ThreadedTCPServer(("", port), FastHTTPHandler) as httpd:
-            url = f"http://localhost:{port}/index.html"
+            url = f"http://localhost:{port}/paginas/index.html"
             print("=" * 65)
             print("  SISTEMA PDI: ASOCIACION CULTURAL JOHANNES GUTENBERG")
             print(f"  Servidor HTTP activo en el puerto: {port}")

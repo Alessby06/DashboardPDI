@@ -10,8 +10,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Sistema PDI: Asociación Cultural Johannes Gutenberg (MVC)</title>
-  <link rel="icon" type="image/png" href="./assets/jg-icon.png">
-  <link rel="apple-touch-icon" href="./assets/jg-icon.png">
+  <link rel="icon" type="image/png" href="../assets/jg-icon.png">
+  <link rel="apple-touch-icon" href="../assets/jg-icon.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,13 +49,13 @@
   </script>
 
   <!-- Modular CSS Architecture (Carga Directa para Máxima Velocidad sin Fails de Import) -->
-  <link rel="stylesheet" href="./css/variables.css">
-  <link rel="stylesheet" href="./css/base.css">
-  <link rel="stylesheet" href="./css/components.css">
-  <link rel="stylesheet" href="./css/views-comun.css">
-  <link rel="stylesheet" href="./css/views-educativo.css">
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/views-comun.css">
+  <link rel="stylesheet" href="../css/views-dashboard.css">
 </head>
-<body data-page="educativo">
+<body data-page="dashboard">
   <!-- Toast Notification Stack -->
   <div class="toast-container" id="toastContainer"></div>
 
@@ -67,7 +67,7 @@
     <aside class="sidebar" id="appSidebar">
       <div>
         <div class="sidebar-header">
-          <img src="./assets/jg-icon.png" alt="Isotipo Johannes Gutenberg" class="logo-official-icon"
+          <img src="../assets/jg-icon.png" alt="Isotipo Johannes Gutenberg" class="logo-official-icon"
             style="width:38px; height:38px; object-fit:contain; border-radius:6px; background:var(--surface-2); padding:3px; border:1px solid var(--border-subtle);">
           <div class="logo-text">
             <h1>Johannes Gutenberg</h1>
@@ -77,7 +77,7 @@
 
         <nav class="nav-sections" id="sidebarNav">
           <div class="nav-label">General</div>
-          <a href="./dashboard.html" class="nav-btn" data-view="view-dashboard" data-page="dashboard" data-tooltip="Dashboard"
+          <a href="./dashboard.html" class="nav-btn active" data-view="view-dashboard" data-page="dashboard" data-tooltip="Dashboard"
             data-roles="coord,facilitadora,promotora,social,admin">
             <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
@@ -106,7 +106,7 @@
             <span>Salud y Nutrición (CRED)</span>
           </a>
 
-          <a href="./educativo.html" class="nav-btn active" data-view="view-educativo" data-page="educativo" data-tooltip="Casita del Saber"
+          <a href="./educativo.html" class="nav-btn" data-view="view-educativo" data-page="educativo" data-tooltip="Casita del Saber"
             data-roles="coord,promotora,admin">
             <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
@@ -183,9 +183,9 @@
           </button>
 
           <div class="topbar-brand-wrap" style="display:flex; align-items:center; gap:12px; margin-right:8px;">
-            <img src="./assets/logo-light-acjg.png" alt="Asociacion Cultural Johannes Gutenberg" class="brand-logo-dark"
+            <img src="../assets/logo-light-acjg.png" alt="Asociacion Cultural Johannes Gutenberg" class="brand-logo-dark"
               style="height:32px; object-fit:contain;">
-            <img src="./assets/logo-asociacion.png" alt="Asociacion Cultural Johannes Gutenberg"
+            <img src="../assets/logo-asociacion.png" alt="Asociacion Cultural Johannes Gutenberg"
               class="brand-logo-light" style="height:32px; object-fit:contain; display:none;">
           </div>
 
@@ -290,313 +290,118 @@
 
       <!-- Viewport Body -->
   <main class="content-viewport" id="mainContent">
-        <section class="app-view active" id="view-educativo">
+        <section class="app-view active" id="view-dashboard">
           <div class="view-header">
             <div class="view-title-group">
-              <h2>Acompañamiento Educativo: Casita del Saber</h2>
-              <p>Control de asistencia formativa rápida y padrón seguro de retiro de menores con acreditación legal .
-              </p>
+              <h2>Dashboard General</h2>
+              <p>Métricas consolidadas de cobertura alimentaria, acompañamiento pedagógico y salud infantil en Comas y
+                Carabayllo.</p>
+            </div>
+            <button type="button" class="btn-action" onclick="exportDataCSV()">
+              <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+              </svg>
+              <span>Exportar Informe CSV</span>
+            </button>
+          </div>
+
+          <!-- Metric Strip (Dashboard General Métricas Consolidadas) -->
+          <div class="sedes-metric-strip" id="kpiDashboardContainer">
+            <div class="sedes-metric-item">
+              <div class="sedes-metric-icon green">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                </svg>
+              </div>
+              <div class="sedes-metric-data">
+                <span class="sedes-metric-num" id="dashKpiBeneficiarios">15</span>
+                <span class="sedes-metric-lbl">Beneficiarios Activos</span>
+              </div>
+            </div>
+
+            <div class="sedes-metric-divider"></div>
+
+            <div class="sedes-metric-item">
+              <div class="sedes-metric-icon yellow">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                </svg>
+              </div>
+              <div class="sedes-metric-data">
+                <span class="sedes-metric-num" id="dashKpiTamizados">15 / 15</span>
+                <span class="sedes-metric-lbl">Tamizados CRED (Anemia)</span>
+              </div>
+            </div>
+
+            <div class="sedes-metric-divider"></div>
+
+            <div class="sedes-metric-item">
+              <div class="sedes-metric-icon blue">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div class="sedes-metric-data">
+                <span class="sedes-metric-num" id="dashKpiAsistencia">92.4%</span>
+                <span class="sedes-metric-lbl">Asistencia en Casitas</span>
+              </div>
+            </div>
+
+            <div class="sedes-metric-divider"></div>
+
+            <div class="sedes-metric-item">
+              <div class="sedes-metric-icon red">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+              </div>
+              <div class="sedes-metric-data">
+                <span class="sedes-metric-num" id="dashKpiCasosSociales">4</span>
+                <span class="sedes-metric-lbl">Casos Críticos Derivados</span>
+              </div>
             </div>
           </div>
 
-          <!-- Barra de Búsqueda y Filtros Casitas del Saber -->
-          <div class="card"
-            style="margin-bottom: 12px; padding: 12px 16px; position: relative; z-index: 80; overflow: visible;">
-            <div class="sedes-controls-row"
-              style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
-
-              <!-- Buscador Casitas (Lado Izquierdo) -->
-              <div class="audit-search-wrap" style="flex: 1; min-width: 240px; position: relative;">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
-                  style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-dim); pointer-events: none;">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                </svg>
-                <input type="text" class="audit-search-input" id="inputCasitasSearch"
-                  placeholder="Buscar menor por nombre, código, colegio, apoderado..."
-                  oninput="window.filterCasitasSearch ? window.filterCasitasSearch(this.value) : (window.PDI?.CasitasView ? window.PDI.CasitasView.filterBySearch(this.value) : null)"
-                  style="width: 100%; padding-left: 36px; padding-right: 32px;">
-                <button type="button" class="btn-clear-search" id="btnCasitasSearchClear"
-                  style="display:none; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-dim); cursor: pointer;"
-                  onclick="window.clearCasitasSearch ? window.clearCasitasSearch() : (window.PDI?.CasitasView ? window.PDI.CasitasView.clearSearch() : null)">
-                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          <!-- Charts & Visual Indicators Grid -->
+          <div class="dash-charts-grid"
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px;">
+            <!-- Anemia Status Breakdown Widget -->
+            <div class="card" id="widgetAnemiaStatus">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg width="19" height="19" fill="none" stroke="var(--gt-yellow)" stroke-width="2"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" />
                   </svg>
-                </button>
-              </div>
-
-              <!-- Botonera de Filtros Casitas -->
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <div class="custom-dropdown audit-filters-dropdown" id="dropdownCasitasFilterPanel">
-                  <button type="button" class="btn-action audit-filter-btn" id="btnDropdownCasitasFilterPanel"
-                    onclick="window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownCasitasFilterPanel') : null">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
-                    </svg>
-                    <span>Filtros</span>
-                    <span class="audit-filter-badge" id="casitasActiveFiltersCount" style="display:none;">0</span>
-                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
-                      class="filter-caret">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                    </svg>
-                  </button>
-
-                  <div class="custom-dropdown-menu audit-filters-menu" id="menuCasitasFilterPanel">
-                    <div class="audit-filters-header">
-                      <div class="audit-filters-header-title">
-                        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"
-                          viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
-                        </svg>
-                        <span>Filtros Casita del Saber</span>
-                      </div>
-                      <button type="button" class="btn-text-subtle"
-                        onclick="window.resetCasitasFilters ? window.resetCasitasFilters() : null">Restablecer</button>
-                    </div>
-
-                    <div class="audit-filters-body">
-                      <!-- Filtro 1: Asistencia Hoy -->
-                      <div class="audit-filter-field">
-                        <label class="audit-field-label">Estado de Asistencia Hoy</label>
-                        <div class="padron-inner-dropdown" id="dropdownCasitasAsistencia">
-                          <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownCasitasAsistencia') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownCasitasAsistencia') : null)">
-                            <span id="labelCasitasAsistenciaSelect">Todos los Estados</span>
-                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                          </button>
-                          <div class="padron-inner-dropdown-menu" id="menuCasitasAsistencia">
-                            <div class="padron-dropdown-item selected" data-value="all"
-                              onclick="window.selectCasitasAsistencia ? window.selectCasitasAsistencia('all', 'Todos los Estados') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Todos los Estados</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="P"
-                              onclick="window.selectCasitasAsistencia ? window.selectCasitasAsistencia('P', 'Presente (P)') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Presente (P)</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="T"
-                              onclick="window.selectCasitasAsistencia ? window.selectCasitasAsistencia('T', 'Tardanza (T)') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Tardanza (T)</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="FJ"
-                              onclick="window.selectCasitasAsistencia ? window.selectCasitasAsistencia('FJ', 'Falta Justificada (FJ)') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Falta Justificada (FJ)</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="FI"
-                              onclick="window.selectCasitasAsistencia ? window.selectCasitasAsistencia('FI', 'Falta Injustificada (FI)') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Falta Injustificada (FI)</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Filtro 2: Sede Casita -->
-                      <div class="audit-filter-field">
-                        <label class="audit-field-label">Sede / Casita</label>
-                        <div class="padron-inner-dropdown" id="dropdownCasitasSede">
-                          <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownCasitasSede') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownCasitasSede') : null)">
-                            <span id="labelCasitasSedeSelect">Todas las Sedes</span>
-                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                          </button>
-                          <div class="padron-inner-dropdown-menu" id="menuCasitasSede">
-                            <div class="padron-dropdown-item selected" data-value="all"
-                              onclick="window.toggleCasitasSede ? window.toggleCasitasSede('all') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Todas las Sedes</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Año Nuevo"
-                              onclick="window.toggleCasitasSede ? window.toggleCasitasSede('Año Nuevo') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Año Nuevo (Comas)</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="La Libertad"
-                              onclick="window.toggleCasitasSede ? window.toggleCasitasSede('La Libertad') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">La Libertad (Comas)</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="San Pedro"
-                              onclick="window.toggleCasitasSede ? window.toggleCasitasSede('San Pedro') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">San Pedro (Carabayllo)</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="El Progreso"
-                              onclick="window.toggleCasitasSede ? window.toggleCasitasSede('El Progreso') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">El Progreso (Carabayllo)</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Santa Rosa"
-                              onclick="window.toggleCasitasSede ? window.toggleCasitasSede('Santa Rosa') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Santa Rosa (Carabayllo)</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Los Bendecidos"
-                              onclick="window.toggleCasitasSede ? window.toggleCasitasSede('Los Bendecidos') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Los Bendecidos (Carabayllo)</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Filtro 3: Grado / Nivel -->
-                      <div class="audit-filter-field">
-                        <label class="audit-field-label">Nivel / Grado Escolar</label>
-                        <div class="padron-inner-dropdown" id="dropdownCasitasGrado">
-                          <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownCasitasGrado') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownCasitasGrado') : null)">
-                            <span id="labelCasitasGradoSelect">Todos los Grados</span>
-                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                          </button>
-                          <div class="padron-inner-dropdown-menu" id="menuCasitasGrado">
-                            <div class="padron-dropdown-item selected" data-value="all"
-                              onclick="window.selectCasitasGrado ? window.selectCasitasGrado('all', 'Todos los Grados') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Todos los Grados</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="inicial"
-                              onclick="window.selectCasitasGrado ? window.selectCasitasGrado('inicial', 'Inicial / Pre-escolar') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Inicial / Pre-escolar</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="primaria"
-                              onclick="window.selectCasitasGrado ? window.selectCasitasGrado('primaria', 'Primaria (1° a 6°)') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Primaria (1° a 6°)</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="secundaria"
-                              onclick="window.selectCasitasGrado ? window.selectCasitasGrado('secundaria', 'Secundaria (1° a 5°)') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Secundaria (1° a 5°)</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                    </div>
-                  </div>
+                  Semáforo de Anemia MINSA (Hemoglobina)
                 </div>
               </div>
+              <div style="display: flex; flex-direction: column; gap: 14px;" id="dashAnemiaBars">
+                <!-- Injected via JS -->
+              </div>
             </div>
 
-            <!-- Barra de Filtros Aplicados Casitas -->
-            <div class="padron-active-chips-bar" id="casitasActiveChipsBar"
-              style="display: none; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border-subtle);">
-              <span class="padron-active-chips-label">Filtros aplicados:</span>
-              <div id="casitasActiveChipsList" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
+            <!-- Geographic Coverage Widget (Comas vs Carabayllo) -->
+            <div class="card" id="widgetCoverageStatus">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg width="19" height="19" fill="none" stroke="var(--gt-blue)" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                  </svg>
+                  Cobertura Territorial por Distrito
+                </div>
               </div>
-              <button type="button" class="btn-text-subtle" style="margin-left: auto; font-size: 11.5px;"
-                onclick="window.resetCasitasFilters ? window.resetCasitasFilters() : null">Limpiar todo</button>
-            </div>
-          </div>
-
-          <div class="card" id="cardAsistenciaCasita">
-            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-              <div>
-                <div class="card-title">Pase de Asistencia Rápida y Verificación de Salida</div>
-                <div style="font-size: 13px; color: var(--text-muted);">Sede: Casita del Saber: Año Nuevo (Comas)</div>
+              <div style="display: flex; flex-direction: column; gap: 14px;" id="dashDistrictCoverage">
+                <!-- Injected via JS -->
               </div>
-              <div id="casitasRecordsCount" style="font-size: 12.5px; color: var(--text-muted); font-weight: 600;">
-              </div>
-            </div>
-            <div class="table-container desktop-table-view">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Menor</th>
-                    <th>Grado Escolar</th>
-                    <th>Colegio de Origen</th>
-                    <th>Personas Acreditadas de Salida</th>
-                    <th>Estado Hoy</th>
-                    <th style="text-align: right;">Marcar Asistencia</th>
-                  </tr>
-                </thead>
-                <tbody id="tbodyAsistenciaCasita">
-                  <!-- Injected via JS -->
-                </tbody>
-              </table>
-            </div>
-            <div class="mobile-accordion-list" id="mobileCardsCasita">
-              <!-- Injected via JS -->
             </div>
           </div>
         </section>
@@ -1783,7 +1588,7 @@
     </div>
   </div>
   <!-- Punto de entrada: modulos ES nativos. Requiere servidor HTTP -->
-  <script type="module" src="js/pages/educativo.js"></script>
+  <script type="module" src="../js/pages/dashboard.js"></script>
 </body>
 
 </html>
