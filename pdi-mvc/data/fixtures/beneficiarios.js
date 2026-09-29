@@ -81,6 +81,15 @@ export const defaultBeneficiarios = [
       "gestionDonaciones": true,
       "flujoTransfronterizo": true
     },
+    "declaracionJurada": {
+      "suscrita": false,
+      "fecha": null,
+      "firmante": null,
+      "firmaDigital": false
+    },
+    "derivacionASP": {
+      "requiereDerivacion": true
+    },
     "firmaDigital": true,
     "vulnerabilidad": 84
   },
@@ -135,6 +144,15 @@ export const defaultBeneficiarios = [
       "usoFotografia": true,
       "gestionDonaciones": true,
       "flujoTransfronterizo": true
+    },
+    "declaracionJurada": {
+      "suscrita": false,
+      "fecha": null,
+      "firmante": null,
+      "firmaDigital": false
+    },
+    "derivacionASP": {
+      "requiereDerivacion": false
     },
     "firmaDigital": true,
     "vulnerabilidad": 62
@@ -192,6 +210,15 @@ export const defaultBeneficiarios = [
       "gestionDonaciones": true,
       "flujoTransfronterizo": true
     },
+    "declaracionJurada": {
+      "suscrita": false,
+      "fecha": null,
+      "firmante": null,
+      "firmaDigital": false
+    },
+    "derivacionASP": {
+      "requiereDerivacion": true
+    },
     "firmaDigital": true,
     "vulnerabilidad": 92
   },
@@ -246,6 +273,15 @@ export const defaultBeneficiarios = [
       "usoFotografia": true,
       "gestionDonaciones": true,
       "flujoTransfronterizo": true
+    },
+    "declaracionJurada": {
+      "suscrita": false,
+      "fecha": null,
+      "firmante": null,
+      "firmaDigital": false
+    },
+    "derivacionASP": {
+      "requiereDerivacion": false
     },
     "firmaDigital": true,
     "vulnerabilidad": 45
@@ -302,6 +338,15 @@ export const defaultBeneficiarios = [
       "gestionDonaciones": true,
       "flujoTransfronterizo": true
     },
+    "declaracionJurada": {
+      "suscrita": false,
+      "fecha": null,
+      "firmante": null,
+      "firmaDigital": false
+    },
+    "derivacionASP": {
+      "requiereDerivacion": true
+    },
     "firmaDigital": true,
     "vulnerabilidad": 88
   },
@@ -357,6 +402,15 @@ export const defaultBeneficiarios = [
       "usoFotografia": true,
       "gestionDonaciones": true,
       "flujoTransfronterizo": true
+    },
+    "declaracionJurada": {
+      "suscrita": false,
+      "fecha": null,
+      "firmante": null,
+      "firmaDigital": false
+    },
+    "derivacionASP": {
+      "requiereDerivacion": true
     },
     "firmaDigital": true,
     "vulnerabilidad": 78
@@ -419,6 +473,15 @@ export const defaultBeneficiarios = [
       "gestionDonaciones": true,
       "flujoTransfronterizo": true
     },
+    "declaracionJurada": {
+      "suscrita": false,
+      "fecha": null,
+      "firmante": null,
+      "firmaDigital": false
+    },
+    "derivacionASP": {
+      "requiereDerivacion": false
+    },
     "firmaDigital": true,
     "vulnerabilidad": 68
   },
@@ -474,6 +537,15 @@ export const defaultBeneficiarios = [
       "gestionDonaciones": true,
       "flujoTransfronterizo": true
     },
+    "declaracionJurada": {
+      "suscrita": false,
+      "fecha": null,
+      "firmante": null,
+      "firmaDigital": false
+    },
+    "derivacionASP": {
+      "requiereDerivacion": true
+    },
     "firmaDigital": true,
     "vulnerabilidad": 90
   },
@@ -528,6 +600,15 @@ export const defaultBeneficiarios = [
       "usoFotografia": true,
       "gestionDonaciones": true,
       "flujoTransfronterizo": true
+    },
+    "declaracionJurada": {
+      "suscrita": false,
+      "fecha": null,
+      "firmante": null,
+      "firmaDigital": false
+    },
+    "derivacionASP": {
+      "requiereDerivacion": false
     },
     "firmaDigital": true,
     "vulnerabilidad": 40
@@ -585,6 +666,15 @@ export const defaultBeneficiarios = [
       "gestionDonaciones": true,
       "flujoTransfronterizo": true
     },
+    "declaracionJurada": {
+      "suscrita": false,
+      "fecha": null,
+      "firmante": null,
+      "firmaDigital": false
+    },
+    "derivacionASP": {
+      "requiereDerivacion": true
+    },
     "firmaDigital": true,
     "vulnerabilidad": 82
   },
@@ -640,6 +730,15 @@ export const defaultBeneficiarios = [
       "gestionDonaciones": true,
       "flujoTransfronterizo": true
     },
+    "declaracionJurada": {
+      "suscrita": false,
+      "fecha": null,
+      "firmante": null,
+      "firmaDigital": false
+    },
+    "derivacionASP": {
+      "requiereDerivacion": false
+    },
     "firmaDigital": true,
     "vulnerabilidad": 52
   },
@@ -694,6 +793,15 @@ export const defaultBeneficiarios = [
       "usoFotografia": true,
       "gestionDonaciones": true,
       "flujoTransfronterizo": true
+    },
+    "declaracionJurada": {
+      "suscrita": false,
+      "fecha": null,
+      "firmante": null,
+      "firmaDigital": false
+    },
+    "derivacionASP": {
+      "requiereDerivacion": true
     },
     "firmaDigital": true,
     "vulnerabilidad": 86
@@ -751,6 +859,15 @@ export const defaultBeneficiarios = [
       "gestionDonaciones": true,
       "flujoTransfronterizo": true
     },
+    "declaracionJurada": {
+      "suscrita": false,
+      "fecha": null,
+      "firmante": null,
+      "firmaDigital": false
+    },
+    "derivacionASP": {
+      "requiereDerivacion": false
+    },
     "firmaDigital": true,
     "vulnerabilidad": 58
   },
@@ -806,6 +923,15 @@ export const defaultBeneficiarios = [
       "gestionDonaciones": true,
       "flujoTransfronterizo": true
     },
+    "declaracionJurada": {
+      "suscrita": false,
+      "fecha": null,
+      "firmante": null,
+      "firmaDigital": false
+    },
+    "derivacionASP": {
+      "requiereDerivacion": true
+    },
     "firmaDigital": true,
     "vulnerabilidad": 80
   },
@@ -860,6 +986,15 @@ export const defaultBeneficiarios = [
       "usoFotografia": true,
       "gestionDonaciones": true,
       "flujoTransfronterizo": true
+    },
+    "declaracionJurada": {
+      "suscrita": false,
+      "fecha": null,
+      "firmante": null,
+      "firmaDigital": false
+    },
+    "derivacionASP": {
+      "requiereDerivacion": false
     },
     "firmaDigital": true,
     "vulnerabilidad": 42

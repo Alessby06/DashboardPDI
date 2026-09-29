@@ -347,6 +347,23 @@ export const BeneficiarioController = {
       flujoTransfronterizo: getChecked("checkTransfronterizo")
     };
 
+    // Ficha A2. El firmante cae al apoderado cuando el campo se deja vacio, para
+    // que el alta habitual no obligue a repetir un dato que ya se sabe.
+    const declaracionSuscrita = getChecked("checkDeclaracionJurada");
+    const declaracionJurada = {
+      suscrita: declaracionSuscrita,
+      fecha: getVal("regDeclaracionFecha") || null,
+      firmante: getVal("regDeclaracionFirmante") || apoderado || null,
+      firmaDigital: declaracionSuscrita && !!(this.signatureCanvasHelper && this.signatureCanvasHelper.hasSignature())
+    };
+
+    // Ficha A1, "DERIVACION ASP ( )": una sola casilla, tal cual la pide la
+    // ficha. La fecha y el profesional que canaliza no van aqui; se registran en
+    // la ficha de derivacion de caso social, que es donde ya vive esa informacion.
+    const derivacionASP = {
+      requiereDerivacion: getChecked("checkDerivacionASP")
+    };
+
     const toast = window.PDI?.ToastView || ToastView;
 
     // Validación de firma digital (Ley 29733)
@@ -444,6 +461,8 @@ export const BeneficiarioController = {
       coordenadas: this.tempCoords || null,
       fotoFachada: this.tempFotoFachada || null,
       consentimientos,
+      declaracionJurada,
+      derivacionASP,
       firmaDigital: true,
       vulnerabilidad: exoneracionAporte.includes("100%") ? 82 : 55
     };

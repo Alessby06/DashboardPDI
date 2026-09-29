@@ -263,7 +263,9 @@ export const ExpedienteView = {
     this._pintarEscolaridad(b);
     this._pintarEntornoFamiliar(b);
     this._pintarConsentimiento(b);
+    this._pintarDeclaracionJurada(b);
     this._pintarSocial(b, caso);
+    this._pintarDerivacionASP(b, caso);
     this.renderProgramasInscritos(b.servicios, false);
     this._pintarCroquisYFachada(b);
   },
@@ -519,6 +521,107 @@ export const ExpedienteView = {
           <strong>Certificacion de Consentimiento Informado Valido</strong><br>
           Otorgado y firmado digitalmente por el apoderado legal: <strong>${b.apoderado}</strong> (DNI: <strong>${b.apoderadoDni || "41982341"}</strong>). Cumplimiento normativo vigente bajo la <strong>Ley N. 29733</strong> y el <strong>D.S. N. 016-2024-JUS</strong>.
         </div>
+      </div>`;
+  },
+
+  // Ficha A2: Declaracion Jurada de Continuidad. Los registros guardados antes
+  // de que existiera este bloque no tienen el campo, y eso se muestra como
+  // "No suscrita" en lugar de fallar: leer b.declaracionJurada.suscrita a pelo
+  // daria undefined en pantalla, que es indistinguible de un dato no leido.
+  _pintarDeclaracionJurada(b) {
+    const cont = document.getElementById("expDeclaracionJuradaBox");
+    if (!cont) return;
+
+    const dj = (b && typeof b.declaracionJurada === "object" && b.declaracionJurada !== null)
+      ? b.declaracionJurada
+      : { suscrita: false, fecha: null, firmante: null, firmaDigital: false };
+
+    const fecha = dj.fecha ? dj.fecha.split("-").reverse().join("/") : null;
+
+    if (!dj.suscrita) {
+      cont.innerHTML = `
+        <div class="ley-cert-box" style="opacity:0.85;">
+          <div class="ley-cert-badge-icon" style="color:var(--text-muted);">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.008v.008H12v-.008z" />
+            </svg>
+          </div>
+          <div class="ley-cert-text">
+            <strong>Declaracion Jurada de Continuidad: No suscrita</strong><br>
+            El menor no tiene registrada la declaracion jurada de continuidad (Anexo N.° 02). Puede declararse
+            durante la atencion en campo.
+          </div>
+        </div>`;
+      return;
+    }
+
+    cont.innerHTML = `
+      <div class="ley-cert-box">
+        <div class="ley-cert-badge-icon">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+          </svg>
+        </div>
+        <div class="ley-cert-text">
+          <strong>Declaracion Jurada de Continuidad suscrita</strong><br>
+          Suscrita el <strong>${fecha || "sin fecha registrada"}</strong> por <strong>${dj.firmante || b.apoderado || "el apoderado"}</strong>${dj.firmaDigital ? ", con firma digital validada" : ", mediante firma manuscrita"}. Declara que la informacion del menor inscrita es continua y vigente.
+        </div>
+      </div>`;
+  },
+
+  // Contraste de tres fuentes, porque responder "declarada, prevista y hecha" no
+  // es lo mismo que responder una sola: la casilla del alta solo senaliza, el
+  // sistema la estima por indicadores, y la derivacion efectiva vive en el caso
+  // social. Asi una discrepancia se ve en lugar de quedar tapada por otra.
+  _pintarDerivacionASP(b, caso) {
+    const cont = document.getElementById("expDerivacionASPBox");
+    if (!cont) return;
+
+    const deducir = window.PDI?.deducirDerivacionASP || (() => false);
+    const deducida = deducir(b);
+    const da = (b && typeof b.derivacionASP === "object" && b.derivacionASP !== null)
+      ? b.derivacionASP
+      : { requiereDerivacion: false };
+    // Un registro guardado con la forma vieja trae "registrada"; la migracion la
+    // pasa a requiereDerivacion, pero un dato que llega por otra via no.
+    const senalizada = typeof da.requiereDerivacion === "boolean" ? da.requiereDerivacion : da.registrada === true;
+    const efectiva = !!caso;
+
+    const fila = (etiqueta, valor, nota) => `
+      <div style="display:flex; justify-content:space-between; gap:10px; padding:6px 0; border-bottom:1px dashed var(--border-subtle); font-size:12px;">
+        <span style="color:var(--text-muted);">${etiqueta}</span>
+        <span style="font-weight:700; text-align:right;">${valor}${nota ? `<br><span style="font-weight:400; font-size:11px; color:var(--text-muted);">${nota}</span>` : ""}</span>
+      </div>`;
+
+    const fechaCaso = caso && caso.fechaDerivacion
+      ? String(caso.fechaDerivacion).split("-").reverse().join("/")
+      : null;
+    const quienCaso = caso && caso.quienDeriva ? caso.quienDeriva.nombre : null;
+
+    // Avisos: lo que se pidio y no se hizo, y lo que se hizo sin haberlo pedido.
+    const avisos = [];
+    if (senalizada && !efectiva) {
+      avisos.push("Se pidio derivacion en el alta pero el menor no tiene ficha de derivacion de caso social.");
+    }
+    if (!senalizada && efectiva) {
+      avisos.push("El menor tiene caso social abierto sin haber marcado la derivacion en el alta.");
+    }
+    if (!senalizada && !efectiva && deducida) {
+      avisos.push("Los indicadores del menor superan el umbral de derivacion y no hay caso social abierto.");
+    }
+
+    const bloqueAvisos = avisos.length ? `
+      <div style="margin-top:8px; padding:8px 10px; border-radius:var(--radius-sm); font-size:11.5px; line-height:1.5;
+        background:var(--surface-hover); border-left:3px solid var(--gt-yellow); color:var(--text-main);">
+        <strong>Revisar.</strong> ${avisos.join(" ")}
+      </div>` : "";
+
+    cont.innerHTML = `
+      <div style="background:var(--surface-hover); border:1px solid var(--border-subtle); padding:12px; border-radius:var(--radius-sm);">
+        ${fila("Senalada en el alta", senalizada ? "Si" : "No", "Casilla DERIVACION ASP de la ficha A1")}
+        ${fila("Prevista por el sistema", deducida ? "Si" : "No", "Vulnerabilidad, exoneracion o servicio pastoral")}
+        ${fila("Derivacion efectiva", efectiva ? "Si" : "No", [fechaCaso, quienCaso].filter(Boolean).join(" - ") || null)}
+        ${bloqueAvisos}
       </div>`;
   },
 
