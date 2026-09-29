@@ -179,10 +179,11 @@
       transform: translate3d(0, 0, 0);
       backface-visibility: hidden;
       overflow-x: hidden; /* Evita cualquier scrollbar horizontal */
-      /* Sin will-change: width. Anunciar esa propiedad no ayuda, porque el ancho
-         obliga a maquetar de verdad; solo reserva memoria y crea capas que no
-         se usan. El will-change se aplica solo durante la animacion, en la
-         regla .sidebar.animando de mas abajo. */
+      /* Sin will-change, ni aqui ni durante la transicion. El ancho es una
+         propiedad de maquetacion: la GPU no lo compone, asi que anunciar
+         que va a cambiar no acelera nada. Solo obliga a recalcular estilos y
+         a crear capas, y se notaba justo en el primer clic, que era el
+         momento en que se anadia. */
       transition: width 0.28s cubic-bezier(0.2, 0, 0, 1),
                   min-width 0.28s cubic-bezier(0.2, 0, 0, 1),
                   background-color 0.38s cubic-bezier(0.16, 1, 0.3, 1),
@@ -324,11 +325,6 @@
         opacity: 1;
         transform: translateY(-50%) translateX(0);
       }
-    }
-
-    /* Solo durante la transicion, y lo pone Navigation._marcarAnimando(). */
-    .sidebar.animando {
-      will-change: width, min-width;
     }
 
     .sidebar-header {

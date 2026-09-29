@@ -24,7 +24,6 @@ import { RoleController } from "../controllers/RoleController.js";
 export const Navigation = {
   _sidebarToggle: null,
   _backdrop: null,
-  _tAnimando: null,
 
   /** Cierra el menu lateral. Expuesto en window por los onclick del HTML. */
   closeSidebar() {
@@ -43,24 +42,7 @@ export const Navigation = {
     } else {
       sidebar.classList.toggle("collapsed");
       if (this._backdrop) this._backdrop.classList.remove("active");
-      this._marcarAnimando(sidebar);
     }
-  },
-
-  /**
-   * Promociona el panel durante el encogido y lo degrada al terminar.
-   *
-   * will-change no puede ponerse siempre en el CSS: el ancho obliga a maquetar,
-   * de modo que anunciarlo sin motivo reserva memoria y crea capas que no se
-   * usan el resto del tiempo. Aqui se pone solo mientras dura la transicion y
-   * se quita al acabar, que es cuando el navegador ya sabe que sigue.
-   */
-  _marcarAnimando(sidebar) {
-    sidebar.classList.add("animando");
-    clearTimeout(this._tAnimando);
-    this._tAnimando = setTimeout(() => {
-      sidebar.classList.remove("animando");
-    }, 340);
   },
 
   /**
@@ -74,6 +56,27 @@ export const Navigation = {
   },
 
   /**
+   * Calcula una vez, al arrancar, como queda el menu plegado.
+   *
+   * El primer encogido salia con tirones y los siguientes no. La causa no era
+   * la animacion: es que la primera vez el navegador tiene que maquetar por
+   * primera vez la columna de contenido con el ancho nuevo, y ese trabajo le toca
+   * al primer fotograma de la transicion. A partir de la segunda ya esta cacheado.
+   *
+   * Aqui se adelanta ese maquetado al arrancar, antes de que el usuario pulse nada.
+   * Poner y quitar la clase y leer el ancho obliga al motor a resolver el caso
+   * plegado una vez. No se ve ningun cambio porque se hace antes del primer pintado.
+   */
+  _precalentarRiel() {
+    const sidebar = document.getElementById("appSidebar");
+    if (!sidebar || window.innerWidth <= 900) return;
+    const previo = sidebar.className;
+    sidebar.classList.add("collapsed");
+    void sidebar.offsetWidth; // fuerza el maquetado del caso plegado
+    sidebar.className = previo;
+  },
+
+  /**
    * Enlaza el boton hamburguesa, el fondo oscurecido y la tecla Escape.
    * A diferencia de la SPA, los escuchadores se desconectan en destroy(): al
    * vivir en documentos distintos nunca se acumulan, pero dejar la puerta
@@ -84,6 +87,7 @@ export const Navigation = {
     this._backdrop = document.getElementById("sidebarBackdrop");
 
     this._pintarIndiceEscalonado();
+    this._precalentarRiel();
 
     this._onToggle = (e) => {
       e.preventDefault();
