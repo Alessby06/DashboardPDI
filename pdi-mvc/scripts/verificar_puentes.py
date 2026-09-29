@@ -87,7 +87,8 @@ import os
 import re
 import sys
 
-BASE = os.path.dirname(os.path.abspath(__file__))
+# La raiz del sitio es el directorio padre: los scripts viven en scripts/.
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 LEGACY = os.path.join(BASE, "js", "core", "legacy-globals.js")
 VISTAS = os.path.join(BASE, "js", "views")

@@ -6,7 +6,9 @@ import sys
 import socket
 import mimetypes
 
-DIRECTORY = os.path.dirname(os.path.abspath(__file__))
+# El sitio se sirve desde la raiz de pdi-mvc/, que es el directorio
+# padre: este script vive en scripts/, junto a las demas herramientas.
+DIRECTORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(DIRECTORY)
 
 # MIME types explícitos para evitar bloqueos en Windows
@@ -67,7 +69,7 @@ def get_free_port(start_port=8080, max_attempts=100):
     return start_port
 
 if __name__ == '__main__':
-    # Permite especificar puerto por argumento: python serve.py 8080
+    # Permite especificar puerto por argumento: python scripts/serve.py 8080
     requested_port = 8080
     if len(sys.argv) > 1 and sys.argv[1].isdigit():
         requested_port = int(sys.argv[1])

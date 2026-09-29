@@ -27,7 +27,8 @@ import os
 import re
 import sys
 
-BASE = os.path.dirname(os.path.abspath(__file__))
+# La raiz del sitio es el directorio padre: los scripts viven en scripts/.
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PAGES_DIR = os.path.join(BASE, "js", "pages")
 
 # Directorios que nunca contienen modulos de la aplicacion.

@@ -30,7 +30,8 @@ import os
 import re
 import sys
 
-BASE = os.path.dirname(os.path.abspath(__file__))
+# La raiz del sitio es el directorio padre: los scripts viven en scripts/.
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 ROUTE_MAP = os.path.join(BASE, "js", "auth", "RouteMap.js")
 SIDEBAR = os.path.join(BASE, "src", "chrome", "sidebar.html")
@@ -255,7 +256,7 @@ def comprobar(paginas, orden, sidebar, build_paginas, sin_enlace_menu):
 
 
 def main():
-    sys.path.insert(0, BASE)
+    sys.path.insert(0, os.path.join(BASE, "scripts"))
     import build  # solo PAGINAS; importar no ejecuta nada
 
     paginas, orden = parsear_routemap()

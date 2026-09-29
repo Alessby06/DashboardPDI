@@ -32,7 +32,8 @@ for flujo in (sys.stdout, sys.stderr):
     except (AttributeError, ValueError):
         pass
 
-BASE = os.path.dirname(os.path.abspath(__file__))
+# La raiz del sitio es el directorio padre: los scripts viven en scripts/.
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RAIZES_POR_DEFECTO = [os.path.join(BASE, "js"), os.path.join(BASE, "src"), os.path.join(BASE, "data")]
 
 EXTENSIONES = {".js", ".html", ".css", ".py", ".json", ".md", ".mjs"}

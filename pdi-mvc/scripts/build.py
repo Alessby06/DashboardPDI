@@ -3,16 +3,21 @@
 """
 Sistema PDI - Ensamblador de la MPA (Multi-Page Application).
 
-Convierte las piezas de src/ en las nueve paginas publicables. La fuente de
+Convierte las piezas de src/ en las diez paginas publicables. La fuente de
 verdad son los archivos de src/, nunca el resultado: por eso la duplicacion
 del chrome entre paginas es generada y se mantiene consistente sola.
 
 Uso:
-    python build.py              reconstruye las nueve paginas
-    python build.py --check      verifica que las paginas estan al dia
+    python scripts/build.py          reconstruye las diez paginas
+    python scripts/build.py --check  verifica que las paginas estan al dia
 
 No requiere dependencias externas. El proyecto sigue sin build step en tiempo
 de ejecucion: las paginas generadas se versionan y se sirven tal cual.
+
+Este script esta en scripts/, asi que todo lo que sigue es relativo: la raiz
+del sitio es el directorio padre, que es el que se publica. Nada se copia ni se
+duplica: build.py solo escribe los HTML, y el resto (js, css, assets) ya esta
+en su sitio y lo sirve el navegador desde ahi.
 """
 
 import io
@@ -20,12 +25,13 @@ import os
 import re
 import sys
 
-BASE = os.path.dirname(os.path.abspath(__file__))
-SRC = os.path.join(BASE, "src")
+BASE = os.path.dirname(os.path.abspath(__file__))   # scripts/
+ROOT = os.path.dirname(BASE)                        # pdi-mvc/, la raiz del sitio
+SRC = os.path.join(ROOT, "src")
 CHROME = os.path.join(SRC, "chrome")
 PAGES = os.path.join(SRC, "pages")
 
-# (slug, entry point, id del <section>)
+# (slug, punto de entrada, id del <section>)
 #
 # El slug es la clave con la que RouteMap y el PageGuard llaman a la pagina: es
 # el data-page del <body> y el prefijo de los nombres de archivo. El nombre
@@ -85,7 +91,7 @@ PLANTILLA = """{head}
 
 def leer(ruta):
     if not os.path.isfile(ruta):
-        raise SystemExit("[ERROR] No se encuentra: %s" % os.path.relpath(ruta, BASE))
+        raise SystemExit("[ERROR] No se encuentra: %s" % os.path.relpath(ruta, ROOT))
     with io.open(ruta, encoding="utf-8") as f:
         return f.read()
 
@@ -209,7 +215,7 @@ def validar(slug, html, entry, view_id):
     # pagina. Antes esta comprobacion comparaba el valor contra si mismo (el
     # mismo string que la plantilla acaba de escribir), asi que no podia fallar
     # nunca. Ahora mira el disco.
-    if not os.path.isfile(os.path.join(BASE, entry.replace("/", os.sep))):
+    if not os.path.isfile(os.path.join(ROOT, entry.replace("/", os.sep))):
         problemas.append("el punto de entrada %s no existe" % entry)
 
     esperado = "js/pages/%s.js" % slug
@@ -278,7 +284,7 @@ def main():
     problemas = 0
 
     for slug, entry, view_id in PAGINAS:
-        destino = os.path.join(BASE, "%s.html" % slug)
+        destino = os.path.join(ROOT, "%s.html" % slug)
         nuevo = construir(slug, entry)
 
         fallos = validar(slug, nuevo, entry, view_id)
@@ -297,7 +303,7 @@ def main():
             print("  generado %-22s (%5d lineas)" % (slug + ".html", nuevo.count("\n") + 1))
 
     # index.html queda como puerta de entrada al dashboard
-    with io.open(os.path.join(BASE, "index.html"), "w", encoding="utf-8", newline="\n") as f:
+    with io.open(os.path.join(ROOT, "index.html"), "w", encoding="utf-8", newline="\n") as f:
         f.write(INDICE_REDIRECT)
 
     if problemas:
