@@ -184,8 +184,11 @@
          que va a cambiar no acelera nada. Solo obliga a recalcular estilos y
          a crear capas, y se notaba justo en el primer clic, que era el
          momento en que se anadia. */
+      /* Solo se anima width. min-width vale siempre lo mismo que width, en
+         abierto (280) y en plegado (72), tambien en movil, asi que animarla
+         era repetir el mismo maquetado una segunda vez en cada fotograma. Se
+         deja fijada en las reglas de estado por si hace falta sujetar el ancho. */
       transition: width 0.28s cubic-bezier(0.2, 0, 0, 1),
-                  min-width 0.28s cubic-bezier(0.2, 0, 0, 1),
                   background-color 0.38s cubic-bezier(0.16, 1, 0.3, 1),
                   border-color 0.38s cubic-bezier(0.16, 1, 0.3, 1);
     }
@@ -726,6 +729,13 @@
 
     /* Content View Container */
     .content-viewport {
+      /* contain: layout aisla el maquetado de esta columna. Al encogerse el
+         menu, su ancho cambia en cada fotograma y el navegador vuelve a
+         maquetar todo lo que hay dentro. Con esto, ese trabajo se queda
+         dentro de la columna y no sube a revisar el arbol entero.
+         A proposito no se anade contain: paint: los modales y los desplegables
+         se salen de la caja a proposito y eso lo recortaria. */
+      contain: layout;
       flex: 1;
       overflow-y: auto;
       padding: 24px;
