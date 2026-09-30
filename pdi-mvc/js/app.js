@@ -312,13 +312,7 @@ document.addEventListener("keydown", (e) => {
 });
 
 // Arrancar cuando el DOM esté listo (tolerante a readyState interactive o complete)
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", () => {
-    AppController.init();
-  });
-} else {
-  AppController.init();
-}
+window.AppController = AppController;
 
 window.toggleEditExpediente = () => {
   if (window.PDI?.ModalView) window.PDI.ModalView.toggleEdit();
