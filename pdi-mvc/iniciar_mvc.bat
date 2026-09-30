@@ -15,7 +15,7 @@ echo.
 python --version >nul 2>&1
 if %errorlevel% equ 0 (
     echo [OK] Iniciando servidor con Python en puerto %PORT%...
-    python serve.py %PORT%
+    python scripts\serve.py %PORT%
     goto end
 )
 
@@ -23,7 +23,7 @@ if %errorlevel% equ 0 (
 py --version >nul 2>&1
 if %errorlevel% equ 0 (
     echo [OK] Iniciando servidor con py Launcher en puerto %PORT%...
-    py serve.py %PORT%
+    py scripts\serve.py %PORT%
     goto end
 )
 
@@ -42,7 +42,7 @@ echo.
 echo [ERROR] No se detecto Python ni Node.js en este equipo.
 echo.
 echo El sistema necesita un servidor HTTP local. Instala cualquiera de:
-echo   - Python 3   (https://python.org)  ->  python serve.py 8080
+echo   - Python 3   (https://python.org)  ->  python scripts\serve.py 8080
 echo   - Node.js    (https://nodejs.org)  ->  npx http-server -p 8080 -c-1
 echo.
 echo No se puede abrir index.html con doble clic: los modulos ES no cargan

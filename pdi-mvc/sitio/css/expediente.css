@@ -1,0 +1,305 @@
+/* =========================================================================
+   EXPEDIENTE INTEGRAL COMO PAGINA
+   =========================================================================
+   Este archivo existe porque el expediente dejo de ser una ventana. Cuando era
+   un modal, su alto lo fijaba .modal-box-expediente con 82vh y su ancho con
+   1080px; esas reglas se retiraron de views.css al promoverlo a pagina, y con
+   ellas se fue el unico reparto de espacio que tenia. Lo que queda aqui es ese
+   reparto, reescrito para una pagina.
+
+   Reparto: cabecera fija arriba, cuerpo con su propio desplazamiento en medio,
+   barra de acciones fija abajo. Es el mismo esquema de tres piezas que tenia
+   el modal, y a proposito: la vista ya se leia bien dentro de una ventana, y
+   cambiarle ademas el marco habria sido cambiar dos cosas a la vez.
+
+   El contenedor que aporta la altura es .content-viewport, que ya es
+   flex: 1 dentro de .app-shell (height: 100vh). Por eso el marco de aqui no
+   lleva numeros magicos: basta con ocupar el alto disponible y dejar que el
+   cuerpo desplace. En moviles se devuelve el flujo natural, porque 100vh en un
+   navegador de telefono no es el alto visible y el expediente se leeria con un
+   recorte fantasma debajo de la barra de direcciones.
+
+   Todas las declaraciones que neutralizan reglas de views.css llevan
+   !important a proposito. Las reglas originales lo llevan, y una anulacion
+   sin !important no gana ni por especificidad. El prefijo #view-expediente
+   acota el alcance: un .modal-tab-btn de otro sitio, o el modalNuevoMenor, que
+   tambien los usa, no se ven afectados.
+
+   La hoja se carga en las diez paginas, como las otras, porque el chrome es
+   compartido y no merece una excepcion por archivo. Fuera del expediente solo
+   sale el bloque de impresion, y sale a proposito: ocultar la barra superior y
+   el menu lateral al imprimir es correcto en cualquier pagina, no solo en esta.
+   ========================================================================= */
+
+   /* --- Marco de la pagina ------------------------------------------------ */
+
+   #view-expediente {
+     display: flex !important;
+     flex-direction: column !important;
+     flex: 1 1 0% !important;
+     min-height: 0 !important;
+   }
+
+   #view-expediente .expediente-page-body {
+     /* La altura la fijaba el modal: 126px era su cabecera mas su barra de
+        acciones. Como pagina, el alto sale del marco de arriba. */
+     height: auto !important;
+     max-height: none !important;
+     overflow: visible !important;
+   }
+
+   #view-expediente .expediente-content-area {
+     flex: 1 1 0% !important;
+     min-height: 0 !important;
+     overflow-y: auto !important;
+   }
+
+   /* --- Cabecera ----------------------------------------------------------
+      Estas declaraciones son las que llevaba .expediente-modal-header, la clase
+      de la cabecera de la ventana. Se repiten aqui porque la clase murio con el
+      modal y la cabecera de la pagina no puede llevar su nombre sin mentir. */
+
+   .expediente-page-header {
+     display: flex !important;
+     align-items: center !important;
+     justify-content: space-between !important;
+     gap: 12px !important;
+     flex-wrap: wrap !important;
+     flex-shrink: 0 !important;
+     padding: 14px 22px !important;
+     background: var(--surface-1) !important;
+     border-bottom: 1px solid var(--border-subtle) !important;
+   }
+
+   .expediente-page-nav {
+     display: flex;
+     align-items: center;
+     gap: 8px;
+     flex-wrap: wrap;
+   }
+
+   .expediente-page-sub {
+     display: block;
+     margin-top: 2px;
+     font-size: 12px;
+     line-height: 1.35;
+     color: var(--text-dim);
+   }
+
+   /* --- Barra de acciones -------------------------------------------------- */
+
+   .expediente-page-actions {
+     flex-shrink: 0 !important;
+   }
+
+   /* --- Estado sin expediente ---------------------------------------------
+      Se muestra cuando la URL no trae id, o el id no existe. Antes esto era un
+      expediente en blanco sin explicacion; como pagina tiene su propio hueco y
+      puede decir que falta y ofrecer el enlace al padron. */
+
+   .expediente-sin-expediente {
+     flex: 1 1 auto;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     justify-content: center;
+     gap: 12px;
+     padding: 56px 24px;
+     text-align: center;
+   }
+
+   .expediente-sin-expediente h4 {
+     margin: 0;
+     font-size: 17px;
+     font-weight: 700;
+     color: var(--text-main);
+   }
+
+   .expediente-sin-expediente p {
+     max-width: 52ch;
+     margin: 0;
+     font-size: 13px;
+     line-height: 1.55;
+     color: var(--text-dim);
+   }
+
+   /* --- Movil -------------------------------------------------------------
+      Debajo de 768px se anula el marco y vuelve el flujo natural: la pagina
+      entera desplaza dentro de .content-viewport, la cabecera y la barra de
+      acciones se van con ella, y el expediente se lee como un documento. Las
+      reglas de movil de views.css ya ponen el reparto de maestro-detalle en
+      columna, de modo que aqui solo hay que soltar las alturas. */
+
+   @media (max-width: 768px) {
+     #view-expediente {
+       display: block !important;
+     }
+
+     #view-expediente .expediente-page-body,
+     #view-expediente .expediente-content-area {
+       flex: initial !important;
+       height: auto !important;
+       max-height: none !important;
+       overflow: visible !important;
+     }
+
+     .expediente-page-header {
+       padding: 12px 14px !important;
+       gap: 10px !important;
+     }
+
+     .expediente-sin-expediente {
+       padding: 36px 16px !important;
+     }
+   }
+
+   /* =========================================================================
+      IMPRESION
+      =========================================================================
+      El expediente es un documento oficial de DEMUNA: se imprime, se archiva y
+      se firma. Eso obliga a tres cosas que en pantalla no hacen falta.
+
+      Una: quitar todo lo que es interfaz. La barra lateral de secciones, los
+      botones de anterior y siguiente, editar, guardar, dar de baja y volver al
+      padron no existen en el papel, y un boton impreso es ruido.
+
+      Dos: imprimir las seis secciones, no solo la activa. El documento se llama
+      integral y su valor esta en ser completo: una hoja con una seccion es un
+      extracto. Las pestanas se apagan con style.display en linea desde el js, y
+      una regla de hoja con !important gana a un estilo en linea normal, asi que
+      basta con forzar display. Quien necesite una sola seccion la imprime con
+      la seccion de interes visible en pantalla y las demas plegadas desde el
+      propio navegador, no desde aqui.
+
+      Tres: papel blanco sobre tinta negra, pase lo que pase con el tema. Sin
+      esto, quien trabaje en modo oscuro imprime una hoja en negro con el texto
+      en gris claro: ilegible y gastador de tinta.
+
+      No se inventa aqui ningun dato que no este en la pagina. El pie de hoja lo
+      identifica la institucion y el sistema, que es lo unico que puede saberse
+      desde el css sin inventar una fecha que el navegador no expone.
+      ========================================================================= */
+
+   @media print {
+
+     @page {
+       margin: 16mm 14mm;
+     }
+
+     /* Sin interfaz */
+     .topbar,
+     .sidebar,
+     .toast-container,
+     .modal-backdrop,
+     .expediente-sidebar,
+     .expediente-page-nav,
+     .expediente-page-actions,
+     .expediente-sin-expediente,
+     #expEditingBadge {
+       display: none !important;
+     }
+
+     /* Papel blanco, tinta negra, pase lo que pase con el tema */
+     html,
+     body,
+     .app-shell,
+     .main-wrapper,
+     .content-viewport,
+     #view-expediente,
+     #view-expediente .expediente-content-area,
+     #view-expediente .card,
+     #view-expediente .form-group,
+     #view-expediente .form-control,
+     #view-expediente .child-photo-card,
+     #view-expediente .child-photo-frame,
+     #view-expediente .modal-tab-pane {
+       background: #ffffff !important;
+       background-image: none !important;
+       color: #000000 !important;
+       box-shadow: none !important;
+     }
+
+     /* El marco no cabe en una hoja: se suelta entero */
+     #view-expediente {
+       display: block !important;
+       height: auto !important;
+       overflow: visible !important;
+     }
+
+     #view-expediente .expediente-page-body,
+     #view-expediente .expediente-content-area {
+       flex: initial !important;
+       height: auto !important;
+       max-height: none !important;
+       overflow: visible !important;
+     }
+
+     /* La cabecera se conserva: es el titulo del documento */
+     .expediente-page-header {
+       display: flex !important;
+       padding: 0 0 8mm !important;
+       border-bottom: 1.5pt solid #000000 !important;
+       background: transparent !important;
+     }
+
+     .expediente-page-sub {
+       color: #333333 !important;
+     }
+
+     /* Las seis secciones, seguidas y sin cortarse a mitad */
+     #view-expediente .modal-tab-pane {
+       display: block !important;
+       break-inside: auto;
+     }
+
+     /* Ningun bloque queda partido entre dos hojas */
+     #view-expediente .card,
+     #view-expediente .form-group,
+     #view-expediente .child-photo-card,
+     #view-expediente .exp-block,
+     #view-expediente table,
+     #view-expediente tr {
+       break-inside: avoid;
+     }
+
+     /* Un titulo no es la ultima linea de su pagina */
+     #view-expediente h3,
+     #view-expediente h4,
+     #view-expediente h5,
+     #view-expediente .form-label {
+       break-after: avoid;
+     }
+
+     /* Los bordes se notan en gris, no en color */
+     #view-expediente .card,
+     #view-expediente .form-group,
+     #view-expediente .form-control,
+     #view-expediente table,
+     #view-expediente td,
+     #view-expediente th {
+       border-color: #999999 !important;
+     }
+
+     /* Un enlace que no se ve es un enlace que no sirve. Se imprime su
+        destino, que es lo unico que el papel puede hacer con el. */
+     #view-expediente a[href^="http"]::after {
+       content: " (" attr(href) ")";
+       font-size: 8pt;
+       color: #555555;
+       word-break: break-all;
+     }
+
+     /* Pie de hoja: la institucion y el sistema. La fecha de emision la pone
+        el menor al firmar, no el css.
+
+        flex-basis: 100% es lo que hace que esto baje a su propia linea: sin
+        eso el pseudo-elemento seria un tercer elemento flexible de la cabecera
+        y el pie se imprimiria en horizontal, junto al titulo. */
+     #view-expediente .expediente-page-header::after {
+       content: "Expediente integral del beneficiario - Sistema PDI, Asociación Cultural Johannes Gutenberg";
+       flex: 0 0 100%;
+       margin-top: 3mm;
+       font-size: 8pt;
+       color: #555555;
+     }
+   }

@@ -1,0 +1,146 @@
+/* ===========================================================================
+   VISTAS - PARTE COMUN A LAS DIEZ PAGINAS
+   ===========================================================================
+   Este archivo y los views-<pagina>.css salieron de views.css, que era uno
+   solo de 131 KB y se cargaba entero en cada pagina. Cada regla se quedo en
+   la pagina cuyo DOM la necesita, segun lo medido con querySelector sobre la
+   pagina de verdad; aqui esta lo que hacen falta en las diez.
+
+   Ademas hay aqui reglas que no se pudieron comprobar y que por eso no se
+   quitaron de ningun sitio: sus selectores no se dejan probar (un
+   :hover, un pseudoelemento) o no coinciden con nada de ninguna pagina.
+   Descartarlas habria sido ganar unos kilobytes a cambio de perder un
+   estilo que no se ve hasta que alguien mira la pantalla.
+
+   El orden de las reglas se respeta, que es lo que decide la cascada.
+   =========================================================================== */
+    /* Modals & Drawers - Performance y Fluididad de Apertura/Cierre */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0);
+      backdrop-filter: blur(0px);
+      -webkit-backdrop-filter: blur(0px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                  background-color 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                  backdrop-filter 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                  -webkit-backdrop-filter 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 20px;
+      will-change: opacity, backdrop-filter, background-color;
+    }
+
+    .modal-backdrop.open,
+    .modal-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .modal-box {
+      background: var(--surface-1);
+      border: 1px solid var(--border-bright);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 840px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.4);
+      opacity: 0;
+      transform: scale(0.95) translateY(14px);
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                  opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: transform, opacity;
+      transform-origin: center center;
+    }
+
+    .modal-backdrop.open .modal-box,
+    .modal-backdrop.active .modal-box {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-header {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-header h3 {
+      font-size: 17.5px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .modal-body {
+      padding: 22px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .modal-footer {
+      padding: 16px 22px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      background: var(--surface-2);
+    }
+
+    .modal-caso-footer {
+      padding: 14px 20px !important;
+      background: var(--surface-1) !important;
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      gap: 12px !important;
+      flex-wrap: nowrap !important;
+    }
+
+    .modal-caso-footer-left {
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      flex-shrink: 0 !important;
+    }
+
+    .modal-caso-footer-right {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: flex-end !important;
+      gap: 8px !important;
+      margin-left: auto !important;
+      flex-shrink: 0 !important;
+    }
+
+    .modal-caso-footer .btn-action {
+      height: 38px !important;
+      padding: 0 14px !important;
+      font-size: 13px !important;
+      font-weight: 600 !important;
+    }
+
+    .btn-close-modal {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 5px;
+      border-radius: var(--radius-sm);
+    }
+
+    .btn-close-modal:hover {
+      color: var(--text-main);
+      background: var(--surface-hover);
+    }
