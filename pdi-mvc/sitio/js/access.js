@@ -112,10 +112,7 @@ loginForm.addEventListener("submit", async (event) => {
     localStorage.setItem("pdi_proyecto", proyectoSeleccionado);
     localStorage.setItem("pdi_sesion_id", datos.sesionId);
 
-    loginScreen.style.display = "none";
-    document.getElementById("appShell").style.display = "flex";
-
-    window.AppController.init();
+    window.location.href = "./dashboard.html";
   } catch (error) {
     console.error("Error al conectar con el backend:", error);
     loginMensaje.textContent = "No se pudo conectar con el servidor";
@@ -123,47 +120,3 @@ loginForm.addEventListener("submit", async (event) => {
 
 });
 
-const btnLogout = document.getElementById("btnLogout");
-
-btnLogout.addEventListener("click", async () => {
-  const sesionId = localStorage.getItem("pdi_sesion_id");
-
-  if (sesionId) {
-    try {
-      await fetch("http://localhost:3001/api/logout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          sesionId: sesionId
-        })
-      });
-    } catch (error) {
-      console.error("Error al cerrar sesión:", error);
-    }
-  }
-
-  localStorage.removeItem("pdi_sesion");
-  localStorage.removeItem("pdi_proyecto");
-  localStorage.removeItem("pdi_sesion_id");
-
-  // Mostrar selección de proyecto
-  document.getElementById("appShell").style.display = "none";
-  document.getElementById("projectSelection").style.display = "block";
-
-  // Ocultar login
-  document.getElementById("loginScreen").style.display = "none";
-
-  // Limpiar formulario
-  document.getElementById("loginForm").reset();
-  document.getElementById("loginMensaje").textContent = "";
-});
-
-if (localStorage.getItem("pdi_sesion") === "activa") {
-  projectSelection.style.display = "none";
-  loginScreen.style.display = "none";
-  document.getElementById("appShell").style.display = "flex";
-
-  window.AppController.init();
-}

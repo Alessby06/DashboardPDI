@@ -3,31 +3,117 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <title>Sistema PDI | Johannes Gutenberg</title>
-  <link rel="canonical" href="./dashboard.html">
-  <meta http-equiv="refresh" content="0; url=./dashboard.html">
-  <script>window.location.replace("./dashboard.html" + window.location.search + window.location.hash);</script>
-  <style>
-    body {
-      background: #000;
-      color: #f0eaff;
-      font-family: "Google Sans Flex", system-ui, sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
-
-    a {
-      color: #9d78f5;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema PDI | Login</title>
 </head>
 
 <body>
-  <p>Redirigiendo al <a href="./dashboard.html">Dashboard General</a>&hellip;</p>
+
+  <!-- SELECCIÓN DE PROYECTO -->
+  <section id="projectSelection">
+
+    <h1>Sistema PDI</h1>
+    <h2>Selecciona un proyecto</h2>
+
+    <button id="btnInfanciaSaludable">
+      Proyecto Infancia Saludable
+    </button>
+
+    <button id="btnMamitas">
+      Proyecto Mamitas
+    </button>
+
+  </section>
+
+
+  <!-- LOGIN -->
+  <section id="loginScreen" style="display: none;">
+
+    <h1>Iniciar sesión</h1>
+
+    <p id="proyectoSeleccionado"></p>
+
+    <form id="loginForm">
+
+      <label for="loginUsuario">
+        Usuario o correo
+      </label>
+
+      <input type="text" id="loginUsuario" required>
+
+      <br><br>
+
+      <label for="loginPassword">
+        Contraseña
+      </label>
+
+      <input type="password" id="loginPassword" required>
+
+      <br><br>
+
+      <button type="submit">
+        Ingresar
+      </button>
+
+    </form>
+
+    <p id="loginMensaje"></p>
+
+    <button id="btnRecuperar">
+      ¿Olvidaste tu contraseña?
+    </button>
+
+  </section>
+
+
+  <!-- RECUPERACIÓN -->
+  <section id="recoveryScreen" style="display: none;">
+
+    <h1>Recuperar contraseña</h1>
+
+    <form id="recoveryForm">
+
+      <label for="recoveryCorreo">
+        Correo
+      </label>
+
+      <input type="email" id="recoveryCorreo" required>
+
+      <br><br>
+
+      <label for="recoveryCodigo">
+        Código de respaldo
+      </label>
+
+      <input type="text" id="recoveryCodigo" required>
+
+      <br><br>
+
+      <label for="recoveryPassword">
+        Nueva contraseña
+      </label>
+
+      <input type="password" id="recoveryPassword" required>
+
+      <br><br>
+
+      <button type="submit">
+        Cambiar contraseña
+      </button>
+
+    </form>
+
+    <p id="recoveryMensaje"></p>
+
+    <button id="btnVolverLogin">
+      Volver al login
+    </button>
+
+  </section>
+
+
+  <script type="module" src="./js/access.js"></script>
+
 </body>
 
 </html>

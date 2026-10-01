@@ -1,3 +1,9 @@
+const sesionActiva = localStorage.getItem("pdi_sesion");
+
+if (sesionActiva !== "activa") {
+  window.location.replace("./index.html");
+}
+
 // ===========================================================================
 //  Dashboard General - Punto de entrada de dashboard.html
 // ===========================================================================
@@ -60,4 +66,34 @@ if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", iniciar, { once: true });
 } else {
   iniciar();
+}
+
+const btnLogout = document.getElementById("btnLogout");
+
+if (btnLogout) {
+  btnLogout.addEventListener("click", async () => {
+    const sesionId = localStorage.getItem("pdi_sesion_id");
+
+    if (sesionId) {
+      try {
+        await fetch("http://localhost:3001/api/logout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            sesionId: sesionId
+          })
+        });
+      } catch (error) {
+        console.error("Error al cerrar sesión:", error);
+      }
+    }
+
+    localStorage.removeItem("pdi_sesion");
+    localStorage.removeItem("pdi_proyecto");
+    localStorage.removeItem("pdi_sesion_id");
+
+    window.location.href = "./index.html";
+  });
 }
