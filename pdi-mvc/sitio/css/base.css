@@ -453,7 +453,7 @@
 
     .nav-btn.active {
       background: var(--brand-soft);
-      color: var(--brand-primary);
+      color: var(--text-brand);
       border-color: var(--border-bright);
       font-weight: 700;
     }
@@ -542,7 +542,7 @@
     .btn-menu-toggle:hover {
       background: var(--surface-hover);
       border-color: var(--border-bright);
-      color: var(--gt-green);
+      color: var(--text-brand);
     }
 
     .role-selector-wrap {
@@ -567,7 +567,7 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      color: var(--gt-green);
+      color: var(--text-brand);
       cursor: default;
       padding: 0;
       transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth);
@@ -577,7 +577,7 @@
     .btn-role-info:hover {
       background: var(--surface-hover);
       border-color: var(--gt-green);
-      color: var(--brand-hover);
+      color: var(--text-brand);
       box-shadow: 0 0 0 3px rgba(0, 180, 148, 0.15);
     }
 
@@ -634,7 +634,7 @@
       padding: 2px 6px;
       border-radius: var(--radius-full);
       background: rgba(0, 180, 148, 0.12);
-      color: var(--gt-green);
+      color: var(--text-brand);
     }
 
     .role-tooltip-desc {
@@ -648,7 +648,7 @@
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      color: var(--gt-green);
+      color: var(--text-brand);
       white-space: nowrap;
       user-select: none;
     }
@@ -777,4 +777,140 @@
       font-size: 14px;
       color: var(--text-muted);
       margin-top: 2px;
+    }
+
+    /* ==================================================================
+       PRUEBA TEMPORAL: el menu lateral va siempre como cajon.
+
+       Lo que hay arriba, dentro de @media (min-width: 901px), es el riel
+       de iconos de PC. Aqui se le sustituye por el cajon que ya usaba
+       el movil, que es lo que se quiere pulir.
+
+       No se han tocado las hojas de vista: alli las reglas del cajon
+       viven dentro de @media (max-width: 900px), asi que en pantalla
+       grande nunca se aplican. Este bloque replica esas mismas reglas
+       para cualquier anchura y solo cuando Navigation ha puesto la
+       marca data-menu-cajon en <html>.
+
+       Cada regla lleva !important y el selector tiene mas especificidad
+       que el del riel de iconos, asi que gana sin importar el orden de
+       carga. En movil ganan las dos, que dicen lo mismo.
+
+       Ademas el cajon anima transform y no width. La columna de
+       contenido no cambia de tamano, con lo que no hay nada que
+       remaquetar ni que volver a pintar en cada fotograma: el riel de
+       iconos obligaba a repintar el contenido entero a anchuras nuevas
+       en cada fotograma, y de ahi venia el tiron del primer clic.
+
+       PARA DESHACER: borrar este bloque entero. No hay nada mas que
+       tocar. Con Navigation.MENU_COMO_CAJON a false no se aplica nada.
+       ================================================================== */
+
+    /* Fuera de pantalla, pegado a la izquierda, y por encima de todo. */
+    html[data-menu-cajon] .sidebar {
+      position: fixed !important;
+      left: 0 !important;
+      top: 0 !important;
+      bottom: 0 !important;
+      height: 100vh !important;
+      height: 100dvh !important;
+      width: min(300px, 84vw) !important;
+      min-width: min(300px, 84vw) !important;
+      z-index: 1050 !important;
+      transform: translate3d(-100%, 0, 0) !important;
+      box-shadow: 12px 0 35px rgba(0, 0, 0, 0.3) !important;
+      contain: layout style;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      will-change: transform;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      /* Solo transform. Se anula la transicion de width del riel: aqui el
+         ancho no cambia nunca, se mueve el panel entero. */
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    html[data-menu-cajon] .sidebar.open {
+      transform: translate3d(0, 0, 0) !important;
+    }
+
+    /* El fondo oscurecido. Fuera de la consulta de medios, la regla base
+       lo deja en display:none para que en PC no moleste. */
+    html[data-menu-cajon] .sidebar-backdrop {
+      display: block !important;
+      position: fixed !important;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      background: rgba(15, 23, 42, 0.65);
+      z-index: 1040;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      transition: opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+                  visibility 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: opacity, visibility;
+    }
+
+    html[data-menu-cajon] .sidebar-backdrop.active {
+      opacity: 1 !important;
+      visibility: visible !important;
+      pointer-events: auto !important;
+      cursor: pointer;
+    }
+
+    /* El riel de iconos se queda sin efecto: sin la clase .collapsed estas
+       reglas nunca casan, pero se anulan por si algo la añadiera. */
+    html[data-menu-cajon] .sidebar.collapsed {
+      width: min(300px, 84vw) !important;
+      min-width: min(300px, 84vw) !important;
+      transform: translate3d(-100%, 0, 0) !important;
+    }
+
+    html[data-menu-cajon] .sidebar.collapsed .nav-btn[data-tooltip]::after {
+      content: none !important;
+      display: none !important;
+    }
+
+    /* En el riel de iconos las etiquetas se esconden al plegar. Con el
+       cajon no hay plegado: el texto se ve siempre. */
+    html[data-menu-cajon] .sidebar .logo-text,
+    html[data-menu-cajon] .sidebar .nav-btn > span:not(.nav-badge),
+    html[data-menu-cajon] .sidebar .nav-label {
+      opacity: 1 !important;
+      visibility: visible !important;
+      transform: none !important;
+    }
+
+    /* Al cerrar, los botones no pueden seguir con la entrada escalonada. Esa
+       animacion lleva un retardo de 22 ms por boton: en el movil el ultimo
+       tardaba 176 ms en empezar, y el panel solo tarda 250 ms en irse. Al
+       quitarle la clase .open cada boton daba marcha atras con su retardo, de
+       modo que seguian moviendose por dentro de un panel que ya se estaba
+       yendo. Eso es lo que se notaba como un cierre a medio hacer.
+
+       Aqui, en cuanto el panel deja de estar abierto, los botones se quedan
+       quietos y en su sitio. La entrada escalonada solo se ve al abrir. */
+    html[data-menu-cajon] .sidebar:not(.open) .nav-btn:not(.role-restricted) {
+      animation: none !important;
+      transform: none !important;
+      opacity: 1 !important;
+    }
+
+    html[data-menu-cajon] .sidebar:not(.open) .nav-btn.role-restricted {
+      animation: none !important;
+    }
+
+    /* Mientras el panel se retira y antes de cambiar de pagina, los enlaces no
+       aceptan pulsaciones: si no, un doble clic acumula dos navegaciones. */
+    html[data-menu-cerrandose] .nav-btn {
+      pointer-events: none !important;
     }

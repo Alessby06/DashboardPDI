@@ -1,4 +1,5 @@
 
+import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
 // Vista: Modales (Registro Nuevo Menor, Informe Ejecutivo, Detalle de Auditoria)
 // El expediente integral ya no esta aqui: es una pagina propia, expediente.html,
 // con su vista en ExpedienteView. Se decidio al convertir la SPA en MPA que un
@@ -71,13 +72,13 @@ export const ModalView = {
     if (entityContainer) {
       if (log.entity && log.entity.startsWith("PDI-")) {
         entityContainer.innerHTML = `
-          <a href="javascript:void(0)" onclick="window.openExpedienteByCodigo('${log.entity}')" class="audit-entity-link" title="Abrir expediente del menor">
-            <code style="font-family:var(--mono-font); font-size:13px; font-weight:700; color:var(--gt-green); text-decoration:underline;">${log.entity}</code>
-            <span style="font-size:11px; margin-left:4px; color:var(--gt-green); font-weight:600;">(Ver Expediente &rarr;)</span>
+          <a href="javascript:void(0)" onclick="window.openExpedienteByCodigo('${escaparEnManejador(log.entity)}')" class="audit-entity-link" title="Abrir expediente del menor">
+            <code style="font-family:var(--mono-font); font-size:13px; font-weight:700; color:var(--text-brand); text-decoration:underline;">${escapar(log.entity)}</code>
+            <span style="font-size:11px; margin-left:4px; color:var(--text-brand); font-weight:600;">(Ver Expediente &rarr;)</span>
           </a>
         `;
       } else {
-        entityContainer.innerHTML = `<code style="font-family:var(--mono-font); font-size:13px; font-weight:700; color:var(--text-main);">${log.entity || 'N/A'}</code>`;
+        entityContainer.innerHTML = `<code style="font-family:var(--mono-font); font-size:13px; font-weight:700; color:var(--text-main);">${escapar(log.entity || 'N/A')}</code>`;
       }
     }
 
@@ -97,9 +98,9 @@ export const ModalView = {
             <tbody>
               ${log.diff.map(d => `
                 <tr>
-                  <td><strong>${d.campo}</strong></td>
-                  <td class="diff-prev"><span>${d.valorAnterior || '-'}</span></td>
-                  <td class="diff-curr"><span>${d.valorNuevo || '-'}</span></td>
+                  <td><strong>${escapar(d.campo)}</strong></td>
+                  <td class="diff-prev"><span>${escapar(d.valorAnterior || '-')}</span></td>
+                  <td class="diff-curr"><span>${escapar(d.valorNuevo || '-')}</span></td>
                 </tr>
               `).join("")}
             </tbody>

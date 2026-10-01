@@ -2,6 +2,7 @@
 import { crear as crearFiltros } from "../utils/Filters.js";
 import { Responsive } from "../utils/Responsive.js";
 
+import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
 // Qué filtros del padrón viajan en la URL, con qué valores y cuáles son los
 // defectos. La lista de valores no se inventa: es la misma que admiten los
 // desplegables de padron.html. Si algún día se añade un filtro
@@ -987,8 +988,8 @@ export const BeneficiariosView = {
       bar.style.display = "flex";
       list.innerHTML = chips.map(chip => `
         <span class="padron-chip">
-          <span>${chip.label}</span>
-          <button type="button" class="padron-chip-remove" onclick="window.removePadronChip ? window.removePadronChip('${chip.id}', '${chip.val || ''}') : null" title="Eliminar filtro">
+          <span>${escapar(chip.label)}</span>
+          <button type="button" class="padron-chip-remove" onclick="window.removePadronChip ? window.removePadronChip('${escaparEnManejador(chip.id)}', '${escaparEnManejador(chip.val || '')}') : null" title="Eliminar filtro">
             <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -1033,19 +1034,19 @@ export const BeneficiariosView = {
       } else {
         tbody.innerHTML = beneficiarios.map(b => `
           <tr>
-            <td><strong style="font-family:var(--mono-font); color:var(--gt-green);">${b.codigo}</strong></td>
-            <td><strong>${b.nombres} ${b.apellidos}</strong></td>
-            <td>${b.dni}</td>
-            <td>${b.edad} / ${b.sexo}</td>
-            <td>${b.distrito}: ${b.sede}</td>
+            <td><strong style="font-family:var(--mono-font); color:var(--text-brand);">${escapar(b.codigo)}</strong></td>
+            <td><strong>${escapar(b.nombres)} ${escapar(b.apellidos)}</strong></td>
+            <td>${escapar(b.dni)}</td>
+            <td>${escapar(b.edad)} / ${escapar(b.sexo)}</td>
+            <td>${escapar(b.distrito)}: ${escapar(b.sede)}</td>
             <td>
               <div class="servicios-badge-group">
                 ${this._getServiciosBadgesHtml(b.servicios)}
               </div>
             </td>
-            <td><span class="badge ${b.estado === 'Activo' ? 'badge-green' : 'badge-yellow'}">${b.estado}</span></td>
+            <td><span class="badge ${b.estado === 'Activo' ? 'badge-green' : 'badge-yellow'}">${escapar(b.estado)}</span></td>
             <td style="text-align: right;">
-              <button type="button" class="btn-action" onclick="window.openExpediente(${b.id})">
+              <button type="button" class="btn-action" onclick="window.openExpediente(${escaparEnManejador(b.id)})">
                 Ver Expediente
               </button>
             </td>
@@ -1064,14 +1065,14 @@ export const BeneficiariosView = {
         `;
       } else {
         mobileContainer.innerHTML = beneficiarios.map(b => `
-          <div class="mobile-card-item" id="mobile-card-${b.id}">
+          <div class="mobile-card-item" id="mobile-card-${escapar(b.id)}">
             <!-- Cabecera: ID + Badge Estado -->
             <div class="datacard-header">
               <div class="datacard-id">
-                <span>ID:</span> ${b.codigo}
+                <span>ID:</span> ${escapar(b.codigo)}
               </div>
               <div class="datacard-header-right">
-                <span class="badge ${b.estado === 'Activo' ? 'badge-green' : 'badge-yellow'}">${b.estado}</span>
+                <span class="badge ${b.estado === 'Activo' ? 'badge-green' : 'badge-yellow'}">${escapar(b.estado)}</span>
               </div>
             </div>
 
@@ -1079,22 +1080,22 @@ export const BeneficiariosView = {
             <div class="datacard-body">
               <div class="datacard-row">
                 <span class="datacard-label">Nombre del Menor</span>
-                <span class="datacard-value">${b.nombres} ${b.apellidos}</span>
+                <span class="datacard-value">${escapar(b.nombres)} ${escapar(b.apellidos)}</span>
               </div>
               <div class="datacard-row">
                 <span class="datacard-label">DNI / Documento</span>
-                <span class="datacard-value">${b.dni}</span>
+                <span class="datacard-value">${escapar(b.dni)}</span>
               </div>
               <div class="datacard-row">
                 <span class="datacard-label">Distrito / Sede</span>
-                <span class="datacard-value">${b.distrito}: ${b.sede}</span>
+                <span class="datacard-value">${escapar(b.distrito)}: ${escapar(b.sede)}</span>
               </div>
 
               <!-- Bloque Desplegable "Ver más" -->
-              <div class="datacard-extra" id="extra-card-${b.id}">
+              <div class="datacard-extra" id="extra-card-${escapar(b.id)}">
                 <div class="datacard-row">
                   <span class="datacard-label">Edad / Sexo</span>
-                  <span class="datacard-value">${b.edad} / ${b.sexo}</span>
+                  <span class="datacard-value">${escapar(b.edad)} / ${escapar(b.sexo)}</span>
                 </div>
                 <div class="datacard-row">
                   <span class="datacard-label">Servicios Activos</span>
@@ -1104,10 +1105,10 @@ export const BeneficiariosView = {
                 </div>
                 <div class="datacard-row">
                   <span class="datacard-label">Seguro de Salud</span>
-                  <span class="datacard-value">${b.seguro || 'SIS Gratuito'}</span>
+                  <span class="datacard-value">${escapar(b.seguro || 'SIS Gratuito')}</span>
                 </div>
                 <div class="datacard-actions-footer">
-                  <button type="button" class="btn-action primary" style="width:100%; justify-content:center;" onclick="event.stopPropagation(); window.openExpediente(${b.id})">
+                  <button type="button" class="btn-action primary" style="width:100%; justify-content:center;" onclick="event.stopPropagation(); window.openExpediente(${escaparEnManejador(b.id)})">
                     <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:6px;">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                       <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -1118,7 +1119,7 @@ export const BeneficiariosView = {
               </div>
 
               <!-- Botón Ver más / Ver menos -->
-              <button type="button" class="datacard-toggle-btn" id="btnToggleCard-${b.id}" onclick="window.PDI ? window.PDI.BeneficiariosView.toggleCard(${b.id}) : BeneficiariosView.toggleCard(${b.id})">
+              <button type="button" class="datacard-toggle-btn" id="btnToggleCard-${escapar(b.id)}" onclick="window.PDI ? window.PDI.BeneficiariosView.toggleCard(${escaparEnManejador(b.id)}) : BeneficiariosView.toggleCard(${escaparEnManejador(b.id)})">
                 <span class="btn-text">Ver más</span>
                 <svg fill="none" stroke-width="2.5" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />

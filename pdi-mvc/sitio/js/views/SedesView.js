@@ -2,6 +2,7 @@
 import { SedeModel } from '../models/SedeModel.js';
 import { crear as crearFiltros } from '../utils/Filters.js';
 
+import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
 // Filtros del directorio que viajan en la URL. Valores tomados de los
 // desplegables de sedes.html.
 const FILTROS_SEDES = {
@@ -93,7 +94,7 @@ export const SedesView = {
             </svg>
           </div>
           <div class="sedes-metric-data">
-            <span class="sedes-metric-num">${stats.sedesOperativas} / ${stats.totalSedes}</span>
+            <span class="sedes-metric-num">${escapar(stats.sedesOperativas)} / ${escapar(stats.totalSedes)}</span>
             <span class="sedes-metric-lbl">Sedes Operativas</span>
           </div>
         </div>
@@ -107,7 +108,7 @@ export const SedesView = {
             </svg>
           </div>
           <div class="sedes-metric-data">
-            <span class="sedes-metric-num">${stats.totalNinos} menores</span>
+            <span class="sedes-metric-num">${escapar(stats.totalNinos)} menores</span>
             <span class="sedes-metric-lbl">Cobertura Infantil</span>
           </div>
         </div>
@@ -121,7 +122,7 @@ export const SedesView = {
             </svg>
           </div>
           <div class="sedes-metric-data">
-            <span class="sedes-metric-num">${stats.totalAliados} aliados</span>
+            <span class="sedes-metric-num">${escapar(stats.totalAliados)} aliados</span>
             <span class="sedes-metric-lbl">Red Pastoral e Iglesias</span>
           </div>
         </div>
@@ -135,8 +136,8 @@ export const SedesView = {
             </svg>
           </div>
           <div class="sedes-metric-data">
-            <span class="sedes-metric-num">${stats.tasaOcupacionPromedio}% ocupación</span>
-            <span class="sedes-metric-lbl">Aforo Instalado (${stats.totalAforo})</span>
+            <span class="sedes-metric-num">${escapar(stats.tasaOcupacionPromedio)}% ocupación</span>
+            <span class="sedes-metric-lbl">Aforo Instalado (${escapar(stats.totalAforo)})</span>
           </div>
         </div>
       </div>
@@ -239,7 +240,7 @@ export const SedesView = {
       activeCount++;
       chipsHTML.push(`
         <span class="padron-chip">
-          <span>Distrito: ${this._filterDistrito}</span>
+          <span>Distrito: ${escapar(this._filterDistrito)}</span>
           <button type="button" class="padron-chip-remove" onclick="window.PDI?.SedesView?.removeFilterChip('distrito')" title="Eliminar filtro">
             <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -258,7 +259,7 @@ export const SedesView = {
       };
       chipsHTML.push(`
         <span class="padron-chip">
-          <span>Servicio: ${names[this._filterServicio] || this._filterServicio}</span>
+          <span>Servicio: ${escapar(names[this._filterServicio] || this._filterServicio)}</span>
           <button type="button" class="padron-chip-remove" onclick="window.PDI?.SedesView?.removeFilterChip('servicio')" title="Eliminar filtro">
             <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -362,17 +363,17 @@ export const SedesView = {
       else if (pct >= 80) badgeClass = "badge-yellow";
 
       return `
-        <div class="sedes-master-item ${isSelected ? 'active' : ''}" onclick="window.PDI?.SedesView?.selectSede('${s.id}')">
+        <div class="sedes-master-item ${isSelected ? 'active' : ''}" onclick="window.PDI?.SedesView?.selectSede('${escaparEnManejador(s.id)}')">
           <div class="sedes-master-item-top">
-            <span class="sedes-master-item-distrito">${s.distrito}</span>
+            <span class="sedes-master-item-distrito">${escapar(s.distrito)}</span>
             <span class="badge ${badgeClass}" style="font-size:10px; padding:1px 5px;">${pct}% Aforo</span>
           </div>
-          <div class="sedes-master-item-name">Sede ${s.nombre}</div>
+          <div class="sedes-master-item-name">Sede ${escapar(s.nombre)}</div>
           <div class="sedes-master-item-sub">
             <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
             </svg>
-            <span>${s.facilitadora}</span>
+            <span>${escapar(s.facilitadora)}</span>
           </div>
         </div>
       `;
@@ -431,21 +432,21 @@ export const SedesView = {
               </svg>
             </div>
             <div style="display:flex; align-items:center; flex-wrap:wrap; gap:10px;">
-              <h2 class="sedes-detail-name" style="margin:0;">Sede ${sede.nombre}</h2>
+              <h2 class="sedes-detail-name" style="margin:0;">Sede ${escapar(sede.nombre)}</h2>
               <div style="display:flex; align-items:center; gap:6px;">
-                <span class="badge badge-green">${sede.distrito}</span>
-                <span class="badge ${sede.estado === 'Operativa' ? 'badge-green' : 'badge-gray'}">${sede.estado}</span>
+                <span class="badge badge-green">${escapar(sede.distrito)}</span>
+                <span class="badge ${sede.estado === 'Operativa' ? 'badge-green' : 'badge-gray'}">${escapar(sede.estado)}</span>
               </div>
             </div>
           </div>
           <div class="sedes-detail-actions">
-            <a href="${mapsNavUrl}" target="_blank" class="btn-action btn-sede-map" title="Navegar en Google Maps">
+            <a href="${escapar(mapsNavUrl)}" target="_blank" class="btn-action btn-sede-map" title="Navegar en Google Maps">
               <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934a1.12 1.12 0 01-1.006 0L9.503 3.31a1.125 1.125 0 00-1.006 0L3.623 5.748A1.125 1.125 0 003 6.754v11.926c0 .836.88 1.38 1.628 1.006l3.869-1.934a1.12 1.12 0 011.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
               </svg>
               <span>Ubicación GPS</span>
             </a>
-            <button type="button" class="btn-action primary" onclick="window.filterPadronBySede ? window.filterPadronBySede('${sede.nombre}') : null">
+            <button type="button" class="btn-action primary" onclick="window.filterPadronBySede ? window.filterPadronBySede('${escaparEnManejador(sede.nombre)}') : null">
               <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
               </svg>
@@ -466,7 +467,7 @@ export const SedesView = {
             <div class="sede-aforo-labels">
               <span class="sede-aforo-title">Inscritos vs Capacidad Máxima:</span>
               <span class="sede-aforo-count">
-                <strong>${sede.ninosInscritos}</strong> / ${sede.aforoMax} menores
+                <strong>${escapar(sede.ninosInscritos)}</strong> / ${escapar(sede.aforoMax)} menores
                 <span class="badge ${badgeAforoClass}">${pct}% ocupado</span>
               </span>
             </div>
@@ -486,7 +487,7 @@ export const SedesView = {
           </div>
           <div class="sede-servicios-wrap" style="margin-top:8px; gap:8px;">
             ${sede.servicios.map(serv => {
-              const displayServ = servicioLabels[serv] || serv;
+              const displayServ = escapar(servicioLabels[serv] || serv);
               return `
                 <span class="sede-servicio-pill" style="font-size:12px; padding:6px 12px;">
                   <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -510,13 +511,13 @@ export const SedesView = {
             </div>
             <div>
               <div class="sedes-card-label">Responsable / Facilitadora</div>
-              <div class="sedes-card-val">${sede.facilitadora}</div>
-              <div class="sedes-card-sub">${sede.facilitadoraCargo}</div>
+              <div class="sedes-card-val">${escapar(sede.facilitadora)}</div>
+              <div class="sedes-card-sub">${escapar(sede.facilitadoraCargo)}</div>
               <a href="tel:${sede.facilitadoraTel.replace(/[^0-9]/g, '')}" class="sede-tel-link" style="margin-top:4px; display:inline-flex;">
                 <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
                 </svg>
-                <span>${sede.facilitadoraTel}</span>
+                <span>${escapar(sede.facilitadoraTel)}</span>
               </a>
             </div>
           </div>
@@ -529,9 +530,9 @@ export const SedesView = {
               </svg>
             </div>
             <div>
-              <div class="sedes-card-label">${sede.tipoAliado}</div>
-              <div class="sedes-card-val">${sede.iglesiaAliada}</div>
-              <div class="sedes-card-sub">${sede.pastorAliado}</div>
+              <div class="sedes-card-label">${escapar(sede.tipoAliado)}</div>
+              <div class="sedes-card-val">${escapar(sede.iglesiaAliada)}</div>
+              <div class="sedes-card-sub">${escapar(sede.pastorAliado)}</div>
             </div>
           </div>
         </div>
@@ -546,10 +547,10 @@ export const SedesView = {
             <span>Dirección Física y Referencias de Campo</span>
           </div>
           <div style="margin-top:6px; font-size:13.5px; color:var(--text-main); font-weight:600;">
-            ${sede.direccion}
+            ${escapar(sede.direccion)}
           </div>
           <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">
-            Referencia: ${sede.referencia}
+            Referencia: ${escapar(sede.referencia)}
           </div>
         </div>
       </div>

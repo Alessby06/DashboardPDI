@@ -3,6 +3,7 @@ import { crear as crearFiltros } from '../utils/Filters.js';
 import { Dropdown } from '../utils/Dropdown.js';
 import { Responsive } from '../utils/Responsive.js';
 
+import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
 // Filtros del historial de cambios que viajan en la URL. Los mismos sirven para
 // dashboard.html y para auditoria.html: es la misma vista en las dos paginas,
 // y el fragmento de auditoria es solo su version a pantalla completa.
@@ -152,7 +153,7 @@ export const DashboardView = {
         },
         "Carabayllo": {
           sedes: ["El Progreso", "San Pedro", "Los Bendecidos", "Santa Rosa"],
-          color: "var(--gt-blue, #0d9488)",
+          color: "var(--gt-blue, #0284c7)",
           badgeClass: "badge-blue"
         }
       };
@@ -163,7 +164,7 @@ export const DashboardView = {
           if (!distritosMap[dist]) {
             distritosMap[dist] = {
               sedes: [],
-              color: dist.toLowerCase() === "comas" ? "var(--gt-green)" : (dist.toLowerCase() === "carabayllo" ? "var(--gt-blue, #0d9488)" : "var(--gt-yellow, #f59e0b)"),
+              color: dist.toLowerCase() === "comas" ? "var(--gt-green)" : (dist.toLowerCase() === "carabayllo" ? "var(--gt-blue, #0284c7)" : "var(--gt-yellow, #f59e0b)"),
               badgeClass: dist.toLowerCase() === "comas" ? "badge-green" : (dist.toLowerCase() === "carabayllo" ? "badge-blue" : "badge-yellow")
             };
           }
@@ -184,13 +185,13 @@ export const DashboardView = {
           <div class="district-coverage-card stagger-item">
             <div class="district-coverage-header">
               <div>
-                <strong>Distrito de ${dist}</strong>
-                <div class="district-coverage-sedes">${sedesText}</div>
+                <strong>Distrito de ${escapar(dist)}</strong>
+                <div class="district-coverage-sedes">${escapar(sedesText)}</div>
               </div>
-              <span class="badge ${dInfo.badgeClass} district-coverage-badge" id="badgeDistrict_${distSlug}">0 Beneficiarios (0%)</span>
+              <span class="badge ${escapar(dInfo.badgeClass)} district-coverage-badge" id="badgeDistrict_${distSlug}">0 Beneficiarios (0%)</span>
             </div>
             <div class="district-coverage-track">
-              <div class="district-coverage-bar" style="width: 0%; background: ${dInfo.color};" id="barDistrict_${distSlug}"></div>
+              <div class="district-coverage-bar" style="width: 0%; background: ${escapar(dInfo.color)};" id="barDistrict_${distSlug}"></div>
             </div>
           </div>
         `;
@@ -1047,8 +1048,8 @@ export const DashboardView = {
       bar.style.display = "flex";
       list.innerHTML = chips.map(chip => `
         <span class="padron-chip">
-          <span>${chip.label}</span>
-          <button type="button" class="padron-chip-remove" onclick="window.removeAuditChip ? window.removeAuditChip('${chip.id}', '${chip.val || ''}') : null" title="Eliminar filtro">
+          <span>${escapar(chip.label)}</span>
+          <button type="button" class="padron-chip-remove" onclick="window.removeAuditChip ? window.removeAuditChip('${escaparEnManejador(chip.id)}', '${escaparEnManejador(chip.val || '')}') : null" title="Eliminar filtro">
             <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -1139,28 +1140,28 @@ export const DashboardView = {
         tbody.innerHTML = logs.map(l => {
           const isMenor = (l.entity && l.entity.startsWith("PDI-"));
           const entityHtml = isMenor 
-            ? `<a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${l.entity}')" class="audit-entity-link" title="Abrir expediente del menor"><code style="font-family:var(--mono-font); font-weight:700; color:var(--gt-green); text-decoration:underline;">${l.entity}</code></a>`
-            : `<code style="font-family:var(--mono-font); font-weight:700; color:var(--text-main);">${l.entity}</code>`;
+            ? `<a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(l.entity)}')" class="audit-entity-link" title="Abrir expediente del menor"><code style="font-family:var(--mono-font); font-weight:700; color:var(--text-brand); text-decoration:underline;">${escapar(l.entity)}</code></a>`
+            : `<code style="font-family:var(--mono-font); font-weight:700; color:var(--text-main);">${escapar(l.entity)}</code>`;
 
           const logIdStr = l.id || "";
           return `
-            <tr class="audit-row-interactive" onclick="window.openAuditDetail ? window.openAuditDetail('${logIdStr}') : (window.PDI?.DashboardView?.openLogDetail ? window.PDI.DashboardView.openLogDetail('${logIdStr}') : null)" title="Clic para ver detalle de auditoría y cambios">
-              <td style="font-family:var(--mono-font); font-size:12px; color:var(--text-dim); white-space:nowrap;">${l.timestamp}</td>
+            <tr class="audit-row-interactive" onclick="window.openAuditDetail ? window.openAuditDetail('${escaparEnManejador(logIdStr)}') : (window.PDI?.DashboardView?.openLogDetail ? window.PDI.DashboardView.openLogDetail('${escaparEnManejador(logIdStr)}') : null)" title="Clic para ver detalle de auditoría y cambios">
+              <td style="font-family:var(--mono-font); font-size:12px; color:var(--text-dim); white-space:nowrap;">${escapar(l.timestamp)}</td>
               <td>
                 <div class="audit-user-cell">
                   <div class="audit-user-avatar">${getInitials(l.user)}</div>
                   <div>
-                    <strong>${l.user}</strong>
-                    <div style="font-size:11px; color:var(--text-muted);">${l.role}</div>
+                    <strong>${escapar(l.user)}</strong>
+                    <div style="font-size:11px; color:var(--text-muted);">${escapar(l.role)}</div>
                   </div>
                 </div>
               </td>
-              <td><span class="badge ${getActionBadgeClass(l.action)}">${l.action}</span></td>
+              <td><span class="badge ${getActionBadgeClass(l.action)}">${escapar(l.action)}</span></td>
               <td>${entityHtml}</td>
-              <td style="font-size:12.5px; color:var(--text-muted); max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${l.detail}</td>
-              <td><span class="badge ${getStatusBadgeClass(l.status)}">${l.status}</span></td>
+              <td style="font-size:12.5px; color:var(--text-muted); max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapar(l.detail)}</td>
+              <td><span class="badge ${getStatusBadgeClass(l.status)}">${escapar(l.status)}</span></td>
               <td style="text-align:right;">
-                <button type="button" class="btn-action-sm" onclick="event.stopPropagation(); window.openAuditDetail ? window.openAuditDetail('${logIdStr}') : (window.PDI?.DashboardView?.openLogDetail ? window.PDI.DashboardView.openLogDetail('${logIdStr}') : null)" title="Ver detalle de trazabilidad">
+                <button type="button" class="btn-action-sm" onclick="event.stopPropagation(); window.openAuditDetail ? window.openAuditDetail('${escaparEnManejador(logIdStr)}') : (window.PDI?.DashboardView?.openLogDetail ? window.PDI.DashboardView.openLogDetail('${escaparEnManejador(logIdStr)}') : null)" title="Ver detalle de trazabilidad">
                   <span>Detalle</span>
                   <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
@@ -1184,25 +1185,25 @@ export const DashboardView = {
         mobileContainer.innerHTML = logs.map((l, index) => {
           const isMenor = (l.entity && l.entity.startsWith("PDI-"));
           const entityHtml = isMenor 
-            ? `<a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${l.entity}')" class="audit-entity-link" title="Abrir expediente del menor"><code style="font-family:var(--mono-font); font-weight:700; color:var(--gt-green); text-decoration:underline;">${l.entity}</code></a>`
-            : `<code style="font-family:var(--mono-font); font-weight:700; color:var(--text-main);">${l.entity}</code>`;
+            ? `<a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(l.entity)}')" class="audit-entity-link" title="Abrir expediente del menor"><code style="font-family:var(--mono-font); font-weight:700; color:var(--text-brand); text-decoration:underline;">${escapar(l.entity)}</code></a>`
+            : `<code style="font-family:var(--mono-font); font-weight:700; color:var(--text-main);">${escapar(l.entity)}</code>`;
 
           const logIdStr = l.id || "";
           return `
             <div class="mobile-card-item" id="mobile-audit-${index}">
               <div class="datacard-header">
                 <div class="datacard-id">
-                  <span>REG:</span> ${l.timestamp}
+                  <span>REG:</span> ${escapar(l.timestamp)}
                 </div>
                 <div class="datacard-header-right">
-                  <span class="badge ${getStatusBadgeClass(l.status)}">${l.status}</span>
+                  <span class="badge ${getStatusBadgeClass(l.status)}">${escapar(l.status)}</span>
                 </div>
               </div>
 
               <div class="datacard-body">
                 <div class="datacard-row">
                   <span class="datacard-label">Acción Registrada</span>
-                  <span class="datacard-value"><span class="badge ${getActionBadgeClass(l.action)}">${l.action}</span></span>
+                  <span class="datacard-value"><span class="badge ${getActionBadgeClass(l.action)}">${escapar(l.action)}</span></span>
                 </div>
                 <div class="datacard-row">
                   <span class="datacard-label">Entidad Afectada</span>
@@ -1214,25 +1215,25 @@ export const DashboardView = {
                     <span class="datacard-label">Usuario Responsable</span>
                     <span class="datacard-value" style="display:flex; align-items:center; gap:6px;">
                       <span class="audit-user-avatar" style="width:22px; height:22px; font-size:9.5px;">${getInitials(l.user)}</span>
-                      ${l.user}
+                      ${escapar(l.user)}
                     </span>
                   </div>
                   <div class="datacard-row">
                     <span class="datacard-label">Perfil / Rol</span>
-                    <span class="datacard-value">${l.role}</span>
+                    <span class="datacard-value">${escapar(l.role)}</span>
                   </div>
                   <div class="datacard-row" style="flex-direction:column; align-items:flex-start; gap:6px;">
                     <span class="datacard-label">Detalle de la Operación</span>
-                    <span class="datacard-value" style="text-align:left; font-size:12.5px; font-weight:500; color:var(--text-muted);">${l.detail}</span>
+                    <span class="datacard-value" style="text-align:left; font-size:12.5px; font-weight:500; color:var(--text-muted);">${escapar(l.detail)}</span>
                   </div>
                   <div style="margin-top:10px;">
-                    <button type="button" class="btn-action-sm primary" style="width:100%; justify-content:center;" onclick="window.openAuditDetail ? window.openAuditDetail('${logIdStr}') : (window.PDI?.DashboardView?.openLogDetail ? window.PDI.DashboardView.openLogDetail('${logIdStr}') : null)">
+                    <button type="button" class="btn-action-sm primary" style="width:100%; justify-content:center;" onclick="window.openAuditDetail ? window.openAuditDetail('${escaparEnManejador(logIdStr)}') : (window.PDI?.DashboardView?.openLogDetail ? window.PDI.DashboardView.openLogDetail('${escaparEnManejador(logIdStr)}') : null)">
                       <span>Ver Ficha Completa de Auditoría</span>
                     </button>
                   </div>
                 </div>
 
-                <button type="button" class="datacard-toggle-btn" id="btnToggleAudit-${index}" onclick="window.PDI ? window.PDI.DashboardView.toggleAuditCard(${index}) : DashboardView.toggleAuditCard(${index})">
+                <button type="button" class="datacard-toggle-btn" id="btnToggleAudit-${index}" onclick="window.PDI ? window.PDI.DashboardView.toggleAuditCard(${escaparEnManejador(index)}) : DashboardView.toggleAuditCard(${escaparEnManejador(index)})">
                   <span class="btn-text">Ver más</span>
                   <svg fill="none" stroke-width="2.5" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />

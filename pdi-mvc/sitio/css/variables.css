@@ -14,26 +14,34 @@
   
   /* Gutenberg Official 4-Color Signature */
   --gt-green: #00b494;
-  --gt-green-bg: rgba(0, 180, 148, 0.12);
-  --gt-green-border: rgba(0, 180, 148, 0.35);
+  --gt-green-bg: rgba(0, 180, 148, 0.16);
+  --gt-green-border: rgba(0, 180, 148, 0.38);
   
-  --gt-yellow: #d97706;
-  --gt-yellow-bg: rgba(217, 119, 6, 0.12);
-  --gt-yellow-border: rgba(217, 119, 6, 0.35);
+  --gt-yellow: #f59e0b;
+  --gt-yellow-bg: rgba(245, 158, 11, 0.16);
+  --gt-yellow-border: rgba(245, 158, 11, 0.38);
   
   --gt-blue: #0284c7;
-  --gt-blue-bg: rgba(2, 132, 199, 0.12);
-  --gt-blue-border: rgba(2, 132, 199, 0.35);
+  --gt-blue-bg: rgba(2, 132, 199, 0.16);
+  --gt-blue-border: rgba(2, 132, 199, 0.38);
   
-  --gt-red: #dc2626;
-  --gt-red-bg: rgba(220, 38, 38, 0.12);
-  --gt-red-border: rgba(220, 38, 38, 0.35);
+  --gt-red: #ef4444;
+  --gt-red-bg: rgba(239, 68, 68, 0.16);
+  --gt-red-border: rgba(239, 68, 68, 0.38);
 
   --brand-primary: var(--gt-green);
   --brand-hover: #00997d;
   --brand-dark: #00715d;
   --brand-dim: #046a58;
   --brand-soft: var(--gt-green-bg);
+
+  /* Verde de marca CUANDO EL COLOR ES TEXTO (optimizado para nitidez y contraste) */
+  --text-brand: #00876f;
+  
+  /* Rojo, ambar y azul CUANDO EL COLOR ES TEXTO (vivos y con contraste accesible) */
+  --text-danger: #dc2626;
+  --text-warning: #b45309;
+  --text-info: #0284c7;
   
   /* Pure Neutral Crisp Typography */
   --text-main: #0f172a;
@@ -99,25 +107,30 @@
   --border-medium: #94a3b8;
   
   --gt-green: #00b494;
-  --gt-green-bg: rgba(0, 180, 148, 0.12);
-  --gt-green-border: rgba(0, 180, 148, 0.35);
+  --gt-green-bg: rgba(0, 180, 148, 0.16);
+  --gt-green-border: rgba(0, 180, 148, 0.38);
   
   --gt-yellow: #f59e0b;
-  --gt-yellow-bg: rgba(245, 158, 11, 0.12);
-  --gt-yellow-border: rgba(245, 158, 11, 0.35);
+  --gt-yellow-bg: rgba(245, 158, 11, 0.16);
+  --gt-yellow-border: rgba(245, 158, 11, 0.38);
   
   --gt-blue: #0284c7;
-  --gt-blue-bg: rgba(2, 132, 199, 0.12);
-  --gt-blue-border: rgba(2, 132, 199, 0.35);
+  --gt-blue-bg: rgba(2, 132, 199, 0.16);
+  --gt-blue-border: rgba(2, 132, 199, 0.38);
   
   --gt-red: #ef4444;
-  --gt-red-bg: rgba(239, 68, 68, 0.12);
-  --gt-red-border: rgba(239, 68, 68, 0.35);
+  --gt-red-bg: rgba(239, 68, 68, 0.16);
+  --gt-red-border: rgba(239, 68, 68, 0.38);
 
   --brand-primary: var(--gt-green);
   --brand-dark: #008f75;
   --brand-dim: #e6f7f4;
   --brand-soft: var(--gt-green-bg);
+
+  --text-brand: #00876f;
+  --text-danger: #dc2626;
+  --text-warning: #b45309;
+  --text-info: #0284c7;
   
   --text-main: #0f172a;
   --text-muted: #334155;
@@ -186,10 +199,32 @@
   --brand-dark: #059669;
   --brand-dim: #047857;
   --brand-soft: var(--gt-green-bg);
+
+  /* En tema oscuro NO se toca nada. Aqui el verde de marca ya da 7:1 sobre los
+     fondos oscuros, asi que el token apunta al mismo --gt-green y el tema
+     oscuro se ve igual que antes. Se declara de todas formas para que las
+     mismas reglas de CSS sirvan para los dos temas. */
+  --text-brand: var(--gt-green);
+  
+  /* Rojo, ambar y azul como texto, en tema oscuro.
+     Aqui el ambar y el azul de marca ya cumplen sobre los fondos oscuros, asi
+     que --text-warning y --text-info apuntan a ellos y no cambian nada. El rojo
+     no: sobre el fondo rojo palido de las insignias daba 4,0:1, y hay que
+     aclararlo. Es el mismo rojo aclarado hacia el blanco lo justo para llegar a
+     4,5:1 en el peor fondo. */
+  --text-danger: #f47f7f;
+  --text-warning: var(--gt-yellow);
+  --text-info: var(--gt-blue);
   
   --text-main: #f3f4f6;
   --text-muted: #9ca3af;
-  --text-dim: #6b7280;
+  /* Este si cambia, y es el mas usado: 431 declaraciones. El gris azulado de
+     --text-dim daba 3,3:1 sobre el gris de las tarjetas y es el color de las
+     etiquetas secundarias (las del menu, los datos de la auditoria, los rotulos
+     de las sedes). aclarado lo justo para llegar a 4,5:1. Queda por debajo de
+     --text-muted (#9ca3af), que es lo que tiene que pasar: dim es mas apagado
+     que muted. */
+  --text-dim: #838994;
 
   --status-danger: var(--gt-red);
   --status-danger-bg: var(--gt-red-bg);

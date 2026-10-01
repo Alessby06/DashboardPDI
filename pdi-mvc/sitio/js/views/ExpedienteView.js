@@ -23,6 +23,7 @@ import { AuditModel } from "../models/AuditModel.js";
 import { ToastView } from "./ToastView.js";
 import { crear as crearFiltros } from "../utils/Filters.js";
 
+import { escapar } from "../utils/HtmlHelper.js";;
 // Avatares cuando no hay fotografia. Un expediente de DEMUNA tiene que poder
 // imprimirse, y una imagen rota o un icono de usuario generico no sirven ni
 // para eso ni para leerlo a distancia. Estos SVG no dependen de la red.
@@ -375,7 +376,7 @@ export const ExpedienteView = {
     const marco = document.getElementById("expChildPhotoFrame");
     if (marco) {
       marco.innerHTML = b.fotoUrl
-        ? `<img src="${b.fotoUrl}" alt="Foto de ${b.nombres}">`
+        ? `<img src="${escapar(b.fotoUrl)}" alt="Foto de ${escapar(b.nombres)}">`
         : getChildAvatarSvg(b.sexo);
     }
     this._set("expPhotoName", `${b.nombres} ${b.apellidos}`);
@@ -392,7 +393,7 @@ export const ExpedienteView = {
         const lector = new FileReader();
         lector.onload = (ev) => {
           b.fotoUrl = ev.target.result;
-          if (marco) marco.innerHTML = `<img src="${b.fotoUrl}" alt="Foto de ${b.nombres}">`;
+          if (marco) marco.innerHTML = `<img src="${escapar(b.fotoUrl)}" alt="Foto de ${escapar(b.nombres)}">`;
           BeneficiarioModel.update(b.id, b);
           ToastView.show("Fotografia actualizada", `Se guardo la fotografia de ${b.nombres} ${b.apellidos}.`, "success");
         };
@@ -467,19 +468,19 @@ export const ExpedienteView = {
     contenedor.innerHTML = lista.map((p, idx) => `
       <div class="retiro-person-card">
         <div class="retiro-person-photo">
-          ${p.fotoUrl ? `<img src="${p.fotoUrl}" alt="${p.nombre}">` : getAdultAvatarSvg(p.parentesco)}
+          ${p.fotoUrl ? `<img src="${escapar(p.fotoUrl)}" alt="${escapar(p.nombre)}">` : getAdultAvatarSvg(p.parentesco)}
         </div>
         <div style="flex:1; min-width:0;">
           <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:6px;">
-            <strong style="font-size:13px; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;">${idx + 1}. ${p.nombre}</strong>
+            <strong style="font-size:13px; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;">${idx + 1}. ${escapar(p.nombre)}</strong>
           </div>
           <div style="display:flex; align-items:center; gap:6px; margin:3px 0;">
-            <span class="badge badge-blue" style="font-size:10.5px; padding:2px 6px;">${p.parentesco}</span>
-            <span style="font-size:11.5px; color:var(--text-muted); font-family:var(--mono-font);">DNI ${p.dni}</span>
+            <span class="badge badge-blue" style="font-size:10.5px; padding:2px 6px;">${escapar(p.parentesco)}</span>
+            <span style="font-size:11.5px; color:var(--text-muted); font-family:var(--mono-font);">DNI ${escapar(p.dni)}</span>
           </div>
           <div style="font-size:11.5px; color:var(--text-dim); display:flex; align-items:center; gap:4px;">
             <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg>
-            <span>Tel: ${p.telefono}</span>
+            <span>Tel: ${escapar(p.telefono)}</span>
           </div>
         </div>
       </div>
@@ -517,7 +518,7 @@ export const ExpedienteView = {
         </div>
         <div class="ley-cert-text">
           <strong>Certificacion de Consentimiento Informado Valido</strong><br>
-          Otorgado y firmado digitalmente por el apoderado legal: <strong>${b.apoderado}</strong> (DNI: <strong>${b.apoderadoDni || "41982341"}</strong>). Cumplimiento normativo vigente bajo la <strong>Ley N. 29733</strong> y el <strong>D.S. N. 016-2024-JUS</strong>.
+          Otorgado y firmado digitalmente por el apoderado legal: <strong>${escapar(b.apoderado)}</strong> (DNI: <strong>${escapar(b.apoderadoDni || "41982341")}</strong>). Cumplimiento normativo vigente bajo la <strong>Ley N. 29733</strong> y el <strong>D.S. N. 016-2024-JUS</strong>.
         </div>
       </div>`;
   },
@@ -548,14 +549,14 @@ export const ExpedienteView = {
       <div style="background:var(--surface-hover); padding:14px; border-radius:var(--radius-sm); border-left:3px solid var(--gt-yellow);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
           <div>
-            <strong style="font-size:13px; color:var(--gt-yellow);">Derivacion Activa: Problemática ${tipo}</strong>
-            <div style="font-size:11.5px; color:var(--text-dim);">Derivado por: ${quien} &bull; Tel: ${telefono}</div>
+            <strong style="font-size:13px; color:var(--text-warning);">Derivacion Activa: Problemática ${escapar(tipo)}</strong>
+            <div style="font-size:11.5px; color:var(--text-dim);">Derivado por: ${escapar(quien)} &bull; Tel: ${escapar(telefono)}</div>
           </div>
-          <span class="badge badge-${caso.urgencia === "Alta" ? "red" : "yellow"}">Urgencia: ${caso.urgencia}</span>
+          <span class="badge badge-${caso.urgencia === "Alta" ? "red" : "yellow"}">Urgencia: ${escapar(caso.urgencia)}</span>
         </div>
-        <div style="font-size:12.5px; color:var(--text-main); margin-bottom:6px;"><strong>Situacion Encontrada:</strong> ${caso.situacionEncontrada || caso.detalle}</div>
-        <div style="font-size:12px; color:var(--text-dim); margin-bottom:4px;"><strong>Acciones Realizadas:</strong> ${caso.accionesPrevias || "Seguimiento domiciliario programado."}</div>
-        <div style="font-size:12px; color:var(--text-dim);"><strong>Soporte Familiar:</strong> ${soporte}</div>
+        <div style="font-size:12.5px; color:var(--text-main); margin-bottom:6px;"><strong>Situacion Encontrada:</strong> ${escapar(caso.situacionEncontrada || caso.detalle)}</div>
+        <div style="font-size:12px; color:var(--text-dim); margin-bottom:4px;"><strong>Acciones Realizadas:</strong> ${escapar(caso.accionesPrevias || "Seguimiento domiciliario programado.")}</div>
+        <div style="font-size:12px; color:var(--text-dim);"><strong>Soporte Familiar:</strong> ${escapar(soporte)}</div>
       </div>`;
   },
 
@@ -588,7 +589,7 @@ export const ExpedienteView = {
     const vista = document.getElementById("expFachadaPreview");
     if (vista) {
       vista.innerHTML = b.fotoFachada
-        ? `<img src="${b.fotoFachada}" alt="Fachada de vivienda de ${b.nombres}">`
+        ? `<img src="${escapar(b.fotoFachada)}" alt="Fachada de vivienda de ${escapar(b.nombres)}">`
         : `
           <div class="croquis-fachada-placeholder">
             <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
@@ -606,7 +607,7 @@ export const ExpedienteView = {
         const lector = new FileReader();
         lector.onload = (ev) => {
           b.fotoFachada = ev.target.result;
-          if (vista) vista.innerHTML = `<img src="${b.fotoFachada}" alt="Fachada de vivienda de ${b.nombres}">`;
+          if (vista) vista.innerHTML = `<img src="${escapar(b.fotoFachada)}" alt="Fachada de vivienda de ${escapar(b.nombres)}">`;
           BeneficiarioModel.update(b.id, b);
           ToastView.show("Fachada actualizada", `Se guardo la foto de la fachada de ${b.nombres} ${b.apellidos}.`, "success");
         };
@@ -651,8 +652,8 @@ export const ExpedienteView = {
           ${p.activo ? `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>` : ""}
         </div>
         <div class="programa-details">
-          <span class="programa-name">${p.nombre}</span>
-          <span class="programa-desc">${p.desc}</span>
+          <span class="programa-name">${escapar(p.nombre)}</span>
+          <span class="programa-desc">${escapar(p.desc)}</span>
         </div>
       </div>
     `).join("");

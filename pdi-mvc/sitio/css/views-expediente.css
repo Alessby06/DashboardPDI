@@ -37,7 +37,7 @@
     }
 
     .modal-tab-btn.active {
-      color: var(--brand-primary);
+      color: var(--text-brand);
       border-bottom-color: var(--brand-primary);
     }
 
@@ -181,7 +181,7 @@
 
       .social-mobile-stage-dropdown.open .social-mobile-stage-select-btn .caret {
         transform: rotate(180deg) !important;
-        color: var(--gt-green) !important;
+        color: var(--text-brand) !important;
       }
 
       .social-mobile-stage-menu {
@@ -240,7 +240,7 @@
 
       .social-mobile-dropdown-item.selected {
         background: var(--gt-green-bg) !important;
-        color: var(--gt-green) !important;
+        color: var(--text-brand) !important;
         font-weight: 700;
       }
 
@@ -357,7 +357,7 @@
     }
     .socio-calc-accordion.open .socio-calc-chevron {
       transform: rotate(180deg);
-      color: var(--gt-red);
+      color: var(--text-danger);
     }
 
     input[type="range"] {
@@ -406,13 +406,13 @@
 
     .audit-filter-btn.has-filters {
       background: var(--brand-soft);
-      color: var(--brand-primary);
+      color: var(--text-brand);
       border-color: var(--border-bright);
     }
 
     .audit-seg-btn.active {
       background: var(--brand-soft);
-      color: var(--brand-primary);
+      color: var(--text-brand);
       border-color: var(--gt-green-border, var(--border-bright));
       font-weight: 700;
     }
@@ -439,7 +439,7 @@
       height: 16px;
       border-radius: 50%;
       background: rgba(220, 38, 38, 0.12);
-      color: var(--gt-red);
+      color: var(--text-danger);
       border: none;
       cursor: pointer;
       padding: 0;
@@ -463,7 +463,7 @@
 
     .audit-chip.active {
       background: var(--brand-soft);
-      color: var(--brand-primary);
+      color: var(--text-brand);
       border-color: var(--border-bright);
       font-weight: 700;
     }
@@ -541,7 +541,7 @@
       display: inline-block;
       padding: 2px 6px;
       background: rgba(239, 68, 68, 0.1);
-      color: var(--gt-red);
+      color: var(--text-danger);
       border-radius: 4px;
       text-decoration: line-through;
     }
@@ -550,7 +550,7 @@
       display: inline-block;
       padding: 2px 6px;
       background: rgba(0, 180, 148, 0.12);
-      color: var(--gt-green);
+      color: var(--text-brand);
       font-weight: 700;
       border-radius: 4px;
     }
@@ -681,7 +681,7 @@
 
     .cred-calc-accordion.open .cred-calc-chevron {
       transform: rotate(180deg);
-      color: var(--gt-yellow);
+      color: var(--text-warning);
     }
 
     @media (max-width: 768px) {
@@ -714,7 +714,7 @@
         font-size: 11.5px !important;
         font-weight: 800 !important;
         letter-spacing: 0.04em !important;
-        color: var(--gt-green) !important;
+        color: var(--text-brand) !important;
         flex-shrink: 0 !important;
         white-space: nowrap !important;
       }
@@ -878,7 +878,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--gt-green);
+      color: var(--text-brand);
       flex-shrink: 0;
     }
 
@@ -960,6 +960,33 @@
       font-weight: 700 !important;
     }
 
+    /* Esta barra se quedaba con los colores del tema claro al pasar al
+       oscuro, porque las tres reglas de arriba los llevan escritos a pelo y
+       no habia ninguna regla de tema oscuro que los contradijera. Se
+       traducia en dos fallos: la etiqueta inactiva caia en #334155 sobre
+       fondo oscuro (1,8:1, casi no se leia) y al pasar el raton el fondo
+       salia #f1f5f9, un fogonazo blanco en mitad de una pantalla oscura.
+       Aqui cada estado recibe su color de tema oscuro. */
+    [data-theme="dark"] .expediente-nav-item {
+      color: #9ca3af !important;
+    }
+
+    [data-theme="dark"] .expediente-nav-item:hover {
+      background: #222222 !important;
+      color: #f3f4f6 !important;
+    }
+
+    [data-theme="dark"] .expediente-nav-item.active {
+      background: rgba(16, 185, 129, 0.15) !important;
+      /* Este #34d399 se queda como estaba, a mano y sin token, aunque no
+         corresponda a --gt-green. Es la unica regla de todo el cambio que
+         afecta al tema oscuro, y el alcance aprobado era el tema claro con la
+         condicion de que el oscuro no se tocase. En oscuro el verde de marca ya
+         da 7:1, asi que no hay nada que arreglar aqui. Medido: 7,65:1. */
+      color: #34d399 !important;
+      border-color: rgba(16, 185, 129, 0.4) !important;
+    }
+
     .expediente-nav-item svg {
       width: 17px !important;
       height: 17px !important;
@@ -1037,7 +1064,7 @@
     .btn-exoneracion-info {
       background: rgba(0, 180, 148, 0.08);
       border: 1px solid var(--gt-green-border);
-      color: var(--gt-green);
+      color: var(--text-brand);
       border-radius: 50%;
       width: 19px;
       height: 19px;
@@ -1094,7 +1121,7 @@
 
     .exoneracion-tooltip .tooltip-title {
       font-weight: 700;
-      color: var(--gt-green);
+      color: var(--text-brand);
       margin-bottom: 8px;
       font-size: 11.5px;
       text-transform: uppercase;
@@ -1225,7 +1252,11 @@
     }
 
     .ley-consent-card {
-      background: #ffffff;
+      /* Antes era #ffffff fijo. En tema oscuro las cuatro tarjetas quedaban
+         blancas con el texto claro encima: texto casi blanco sobre blanco,
+         ilegible. --surface-1 vale #ffffff en claro y #181818 en oscuro, que es
+         justo lo que hacia falta. */
+      background: var(--surface-1);
       border: 1px solid var(--border-subtle);
       border-left: 4px solid var(--gt-green);
       border-radius: 10px;
@@ -1271,7 +1302,11 @@
     .ley-card-art {
       font-size: 10.5px;
       font-family: var(--mono-font);
-      color: var(--text-dim);
+      /* Era --text-dim. Sobre --surface-2 en tema oscuro daba 3,3:1, por debajo
+         del 4,5 que se pide para texto normal, y esta es la cita legal que
+         acredita cada tarjeta. Con --text-muted sube a unas 6:1 y sigue
+         leyendose como texto secundario. */
+      color: var(--text-muted);
       background: var(--surface-2);
       padding: 2px 6px;
       border-radius: 4px;
@@ -1308,7 +1343,7 @@
     }
 
     .ley-cert-text strong {
-      color: var(--gt-green);
+      color: var(--text-brand);
     }
 
     /* Padrón de Personas Autorizadas con Foto (Anexo 2) */
@@ -1616,7 +1651,7 @@
 
     [data-theme="dark"] .nav-btn.active {
       background-color: rgba(16, 185, 129, 0.2) !important;
-      color: #10b981 !important;
+      color: var(--text-brand) !important;
       border-left-color: #10b981 !important;
     }
 
@@ -1961,7 +1996,7 @@
   gap: 6px;
   font-size: 12px;
   font-weight: 700;
-  color: var(--gt-green);
+  color: var(--text-brand);
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
@@ -1976,7 +2011,7 @@
   padding: 4px 10px !important;
   font-size: 11.5px !important;
   gap: 5px !important;
-  color: var(--gt-green) !important;
+  color: var(--text-brand) !important;
   border-color: var(--gt-green-border) !important;
   background: rgba(0, 180, 148, 0.08) !important;
 }
@@ -2140,7 +2175,7 @@
 
 .settings-card-icon-box.blue {
   background: var(--gt-blue-bg);
-  color: var(--gt-blue);
+  color: var(--text-info);
   border: 1px solid var(--gt-blue-border);
 }
 
@@ -2245,7 +2280,7 @@
 /* 3. Sensor / Monitor SO: Latido rítmico de sincronización inteligente */
 #btnThemeSystem.active .theme-icon-box svg {
   animation: monitorHeartbeat 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  color: var(--gt-green);
+  color: var(--text-brand);
   filter: drop-shadow(0 0 7px rgba(0, 180, 148, 0.55));
 }
 
@@ -2320,7 +2355,7 @@
   gap: 6px;
   font-size: 12px;
   font-weight: 700;
-  color: var(--gt-green);
+  color: var(--text-brand);
 }
 
 .btn-gps-capture {
@@ -2331,7 +2366,7 @@
   align-items: center !important;
   gap: 5px !important;
   background: var(--gt-green-bg) !important;
-  color: var(--gt-green) !important;
+  color: var(--text-brand) !important;
   border: 1px solid var(--gt-green-border) !important;
   border-radius: var(--radius-sm) !important;
   font-weight: 700 !important;
@@ -2464,7 +2499,7 @@
 #menuVoluntariosFilterPanel [data-vol-rol].selected,
 #menuVoluntariosFilterPanel [data-vol-estado].selected {
   background: var(--gt-green-bg) !important;
-  color: var(--gt-green) !important;
+  color: var(--text-brand) !important;
   border-color: var(--gt-green) !important;
   font-weight: 700 !important;
 }

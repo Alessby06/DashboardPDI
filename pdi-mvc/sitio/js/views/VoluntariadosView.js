@@ -4,8 +4,16 @@
 import { VoluntarioModel, TEMATICAS_CAPACITACION } from '../models/VoluntarioModel.js';
 import { crear as crearFiltros } from '../utils/Filters.js';
 import { Responsive } from '../utils/Responsive.js';
-
+import { ToastView } from './ToastView.js';
+import { AuditModel } from '../models/AuditModel.js';
+import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";
 // Etiquetas cortas para los nombres largos de servicio (chips y dropdowns de filtro)
+
+// Sedes agrupadas por distrito para sincronización en modales
+const SEDES_POR_DISTRITO = {
+  "Comas": ["Año Nuevo", "La Libertad", "Carmen Alto"],
+  "Carabayllo": ["El Progreso", "Torre Blanca", "San Pedro", "Los Bendecidos", "Santa Rosa"]
+};
 const SERVICIO_LABELS = {
   "Desayuno Infantil": "Desayuno Infantil",
   "Casita del Saber": "Casita del Saber",
@@ -33,6 +41,7 @@ export const VoluntariadosView = {
   _filterServicio: [],
   _filterRol: [],
   _filterEstado: "all",
+  _filteredList: [],
   // Estado de edicion en curso. No va en la URL: es un modal, no una vista, y
   // relajar a alguien a mitad de una ficha es peor que no recorderlo.
   _currentEditingId: null,
@@ -134,7 +143,7 @@ export const VoluntariadosView = {
     if (kpiTotal) kpiTotal.textContent = stats.total;
 
     const kpiActivos = document.getElementById("kpiVoluntariosActivos");
-    if (kpiActivos) kpiActivos.textContent = `${stats.activos} activos`;
+    if (kpiActivos) kpiActivos.textContent = `${stats.activos} activas`;
 
     const kpiDesayuno = document.getElementById("kpiVoluntariosDesayuno");
     if (kpiDesayuno) kpiDesayuno.textContent = stats.desayuno;
@@ -152,18 +161,23 @@ export const VoluntariadosView = {
   applyFilters() {
     let list = [...this._voluntarios];
 
-    // Search query
+    // Búsqueda inteligente: insensible a tildes y búsqueda de nombre completo
     if (this._searchQuery) {
-      const q = this._searchQuery;
-      list = list.filter(v => 
-        (v.nombres && v.nombres.toLowerCase().includes(q)) ||
-        (v.apellidos && v.apellidos.toLowerCase().includes(q)) ||
-        (v.dni && v.dni.includes(q)) ||
-        (v.codigo && v.codigo.toLowerCase().includes(q)) ||
-        (v.sedeAsignada && v.sedeAsignada.toLowerCase().includes(q)) ||
-        (v.servicio && v.servicio.toLowerCase().includes(q)) ||
-        (v.rol && v.rol.toLowerCase().includes(q))
-      );
+      const normalize = s => (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+      const q = normalize(this._searchQuery);
+      list = list.filter(v => {
+        const fullName = `${normalize(v.nombres)} ${normalize(v.apellidos)}`;
+        const reverseName = `${normalize(v.apellidos)} ${normalize(v.nombres)}`;
+        return fullName.includes(q) ||
+          reverseName.includes(q) ||
+          (v.dni && v.dni.includes(q)) ||
+          (v.codigo && normalize(v.codigo).includes(q)) ||
+          (v.sedeAsignada && normalize(v.sedeAsignada).includes(q)) ||
+          (v.distrito && normalize(v.distrito).includes(q)) ||
+          (v.servicio && normalize(v.servicio).includes(q)) ||
+          (v.rol && normalize(v.rol).includes(q)) ||
+          (v.celular && v.celular.includes(q));
+      });
     }
 
     // Filter Distrito
@@ -191,6 +205,7 @@ export const VoluntariadosView = {
       countHeaderEl.textContent = `Mostrando ${list.length} de ${this._voluntarios.length} voluntarias y personal comunitario`;
     }
 
+    this._filteredList = list;
     this._updateActiveFilterBadge();
     this._renderActiveChips();
     this._renderTableAndCards(list);
@@ -199,6 +214,7 @@ export const VoluntariadosView = {
   _updateActiveFilterBadge() {
     const count = this._filterDistrito.length
       + this._filterServicio.length
+      + this._filterRol.length
       + (this._filterEstado !== "all" ? 1 : 0);
 
     const badge = document.getElementById("voluntariosActiveFiltersCount");
@@ -244,8 +260,8 @@ export const VoluntariadosView = {
       bar.style.display = "flex";
       list.innerHTML = chips.map(chip => `
         <span class="padron-chip">
-          <span>${chip.label}</span>
-          <button type="button" class="padron-chip-remove" onclick="window.removeVoluntarioChip ? window.removeVoluntarioChip('${chip.id}', '${chip.val || ''}') : null" title="Eliminar filtro">
+          <span>${escapar(chip.label)}</span>
+          <button type="button" class="padron-chip-remove" onclick="window.removeVoluntarioChip ? window.removeVoluntarioChip('${escaparEnManejador(chip.id)}', '${escaparEnManejador(chip.val || '')}') : null" title="Eliminar filtro">
             <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -277,7 +293,7 @@ export const VoluntariadosView = {
       const emptyHtml = `
         <tr>
           <td colspan="7" style="text-align: center; padding: 40px 16px;">
-            <div style="width: 48px; height: 48px; margin: 0 auto 12px; border-radius: 50%; background: var(--gt-green-bg, rgba(52, 211, 153, 0.12)); display: flex; align-items: center; justify-content: center; color: var(--gt-green, #34d399);">
+            <div style="width: 48px; height: 48px; margin: 0 auto 12px; border-radius: 50%; background: var(--gt-green-bg); display: flex; align-items: center; justify-content: center; color: var(--gt-green);">
               <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
               </svg>
@@ -295,7 +311,7 @@ export const VoluntariadosView = {
       if (mobileContainer && enMovil) {
         mobileContainer.innerHTML = `
           <div style="text-align: center; padding: 36px 16px; background: var(--surface-1); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-top: 8px;">
-            <div style="width: 48px; height: 48px; margin: 0 auto 12px; border-radius: 50%; background: var(--gt-green-bg, rgba(52, 211, 153, 0.12)); display: flex; align-items: center; justify-content: center; color: var(--gt-green, #34d399);">
+            <div style="width: 48px; height: 48px; margin: 0 auto 12px; border-radius: 50%; background: var(--gt-green-bg); display: flex; align-items: center; justify-content: center; color: var(--gt-green);">
               <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
               </svg>
@@ -325,26 +341,28 @@ export const VoluntariadosView = {
           <tr>
             <td>
               <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="width: 32px; height: 32px; border-radius: var(--radius-full); background: var(--surface-2); border: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; color: var(--gt-green);">
-                  ${v.nombres.charAt(0)}${v.apellidos.charAt(0)}
+                <div style="width: 32px; height: 32px; border-radius: var(--radius-full); background: var(--surface-2); border: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; color: var(--text-brand);">
+                  ${escapar(v.nombres.charAt(0))}${escapar(v.apellidos.charAt(0))}
                 </div>
                 <div>
-                  <strong>${v.nombres} ${v.apellidos}</strong>
-                  <div style="font-size: 11.5px; color: var(--text-dim); font-family: var(--mono-font);">${v.codigo} &bull; DNI: ${v.dni}</div>
+                  <strong>${escapar(v.nombres)} ${escapar(v.apellidos)}</strong>
+                  <div style="font-size: 11.5px; color: var(--text-dim); font-family: var(--mono-font);">${escapar(v.codigo)} &bull; DNI: ${escapar(v.dni)}</div>
                 </div>
               </div>
             </td>
             <td>
-              <div style="font-weight: 600; color: var(--text-main);">${v.sedeAsignada}</div>
-              <div style="font-size: 11.5px; color: var(--text-muted);">${v.distrito} &bull; ${v.estrategia}</div>
+              <div style="font-weight: 600; color: var(--text-main);">${escapar(v.sedeAsignada)}</div>
+              <div style="font-size: 11.5px; color: var(--text-muted);">${escapar(v.distrito)} &bull; ${escapar(v.estrategia)}</div>
             </td>
             <td>
-              <span class="badge ${badgeServClass}">${v.servicio}</span>
-              <div style="font-size: 11px; color: var(--text-dim); margin-top: 3px;">${v.rol}</div>
+              <span class="badge ${badgeServClass}">${escapar(v.servicio)}</span>
+              <div style="font-size: 11px; color: var(--text-dim); margin-top: 3px; cursor: pointer;" onclick="window.toggleVoluntariosRol ? window.toggleVoluntariosRol('${escaparEnManejador(v.rol)}') : null" title="Filtrar por rol ${escapar(v.rol)}">
+                <span style="border-bottom: 1px dotted var(--text-dim);">${escapar(v.rol)}</span>
+              </div>
             </td>
             <td>
-              <div style="font-size: 12.5px; color: var(--text-main); font-weight: 600;">${v.celular}</div>
-              <div style="font-size: 11.5px; color: var(--text-muted);">${v.edad} años</div>
+              <div style="font-size: 12.5px; color: var(--text-main); font-weight: 600;">${escapar(v.celular)}</div>
+              <div style="font-size: 11.5px; color: var(--text-muted);">${v.edad ? `${escapar(v.edad)} años` : "Edad no reg."}</div>
             </td>
             <td>
               <div style="display: flex; align-items: center; gap: 6px;">
@@ -362,14 +380,14 @@ export const VoluntariadosView = {
               </div>
             </td>
             <td>
-              <span class="badge ${badgeEstadoClass}">${v.estado}</span>
+              <span class="badge ${badgeEstadoClass}">${escapar(v.estado)}</span>
             </td>
             <td style="text-align: right;">
               <div style="display: inline-flex; gap: 6px;">
-                <button type="button" class="btn-action" onclick="window.openFichaVoluntario ? window.openFichaVoluntario(${v.id}) : null" title="Ver Ficha y Credencial">
+                <button type="button" class="btn-action" onclick="window.openFichaVoluntario ? window.openFichaVoluntario(${escaparEnManejador(v.id)}) : null" title="Ver Ficha y Credencial">
                   Ver Ficha
                 </button>
-                <button type="button" class="btn-action primary" onclick="window.openEditVoluntario ? window.openEditVoluntario(${v.id}) : null" title="Editar Voluntario">
+                <button type="button" class="btn-action primary" onclick="window.openEditVoluntario ? window.openEditVoluntario(${escaparEnManejador(v.id)}) : null" title="Editar Voluntario">
                   Editar
                 </button>
               </div>
@@ -393,19 +411,19 @@ export const VoluntariadosView = {
           <div class="padron-mobile-card" style="background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px; margin-bottom: 10px;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
               <div>
-                <strong style="font-size: 14.5px; color: var(--text-main);">${v.nombres} ${v.apellidos}</strong>
+                <strong style="font-size: 14.5px; color: var(--text-main);">${escapar(v.nombres)} ${escapar(v.apellidos)}</strong>
                 <div style="font-size: 11.5px; color: var(--text-dim); font-family: var(--mono-font); margin-top: 1px;">
-                  ${v.codigo} &bull; DNI: ${v.dni}
+                  ${escapar(v.codigo)} &bull; DNI: ${escapar(v.dni)}
                 </div>
               </div>
-              <span class="badge ${badgeEstadoClass}">${v.estado}</span>
+              <span class="badge ${badgeEstadoClass}">${escapar(v.estado)}</span>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 12px; margin-bottom: 10px; background: var(--surface-2); padding: 8px 10px; border-radius: var(--radius-sm);">
-              <div><span style="color: var(--text-dim);">Sede:</span> <strong>${v.sedeAsignada}</strong> (${v.distrito})</div>
-              <div><span style="color: var(--text-dim);">Tel:</span> <strong>${v.celular}</strong></div>
-              <div><span style="color: var(--text-dim);">Servicio:</span> <span class="badge ${badgeServClass}" style="font-size: 10.5px;">${v.servicio}</span></div>
-              <div><span style="color: var(--text-dim);">Rol:</span> <strong>${v.rol}</strong></div>
+              <div><span style="color: var(--text-dim);">Sede:</span> <strong>${escapar(v.sedeAsignada)}</strong> (${escapar(v.distrito)})</div>
+              <div><span style="color: var(--text-dim);">Tel:</span> <strong>${escapar(v.celular)}</strong></div>
+              <div><span style="color: var(--text-dim);">Servicio:</span> <span class="badge ${badgeServClass}" style="font-size: 10.5px;">${escapar(v.servicio)}</span></div>
+              <div><span style="color: var(--text-dim);">Rol:</span> <strong style="cursor: pointer; text-decoration: underline dotted;" onclick="window.toggleVoluntariosRol ? window.toggleVoluntariosRol(\'${escaparEnManejador(v.rol)}\') : null" title="Filtrar por rol">${escapar(v.rol)}</strong></div>
             </div>
 
             <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 6px; border-top: 1px solid var(--border-subtle);">
@@ -424,10 +442,10 @@ export const VoluntariadosView = {
                 </span>` : ''}
               </div>
               <div style="display: flex; gap: 6px;">
-                <button type="button" class="btn-action" style="padding: 4px 10px; font-size: 11.5px;" onclick="window.openFichaVoluntario ? window.openFichaVoluntario(${v.id}) : null">
+                <button type="button" class="btn-action" style="padding: 4px 10px; font-size: 11.5px;" onclick="window.openFichaVoluntario ? window.openFichaVoluntario(${escaparEnManejador(v.id)}) : null">
                   Ficha
                 </button>
-                <button type="button" class="btn-action primary" style="padding: 4px 10px; font-size: 11.5px;" onclick="window.openEditVoluntario ? window.openEditVoluntario(${v.id}) : null">
+                <button type="button" class="btn-action primary" style="padding: 4px 10px; font-size: 11.5px;" onclick="window.openEditVoluntario ? window.openEditVoluntario(${escaparEnManejador(v.id)}) : null">
                   Editar
                 </button>
               </div>
@@ -435,6 +453,23 @@ export const VoluntariadosView = {
           </div>
         `;
       }).join("");
+    }
+  },
+
+
+  handleDistritoChange(distrito) {
+    this.updateSedeSelectOptions(distrito);
+  },
+
+  updateSedeSelectOptions(distrito, selectedSede = null) {
+    const sedeSelect = document.getElementById("volSelectSede");
+    if (!sedeSelect) return;
+    const sedes = SEDES_POR_DISTRITO[distrito] || SEDES_POR_DISTRITO["Comas"];
+    sedeSelect.innerHTML = sedes.map(s => `
+      <option value="${s}" ${selectedSede === s ? 'selected' : ''}>${s} (${distrito})</option>
+    `).join("");
+    if (!selectedSede && sedes.length > 0) {
+      sedeSelect.value = sedes[0];
     }
   },
 
@@ -458,8 +493,8 @@ export const VoluntariadosView = {
         this._setVal("volInputCelular", vol.celular);
         this._setVal("volInputFechaNac", vol.fechaNacimiento);
         this._setVal("volInputDomicilio", vol.domicilio);
-        this._setVal("volSelectDistrito", vol.distrito);
-        this._setVal("volSelectSede", vol.sedeAsignada);
+        this._setVal("volSelectDistrito", vol.distrito || "Comas");
+        this.updateSedeSelectOptions(vol.distrito || "Comas", vol.sedeAsignada);
         this._setVal("volSelectServicio", vol.servicio);
         this._setVal("volSelectRol", vol.rol);
         this._setVal("volSelectEstrategia", vol.estrategia);
@@ -471,7 +506,7 @@ export const VoluntariadosView = {
     } else {
       if (titleEl) titleEl.textContent = "Nueva Ficha de Inscripción de Voluntario(a) (Ficha A4/A5)";
       this._setVal("volSelectDistrito", "Comas");
-      this._setVal("volSelectSede", "Año Nuevo");
+      this.updateSedeSelectOptions("Comas", "Año Nuevo");
       this._setVal("volSelectServicio", "Desayuno Infantil");
       this._setVal("volSelectRol", "Voluntaria de Apoyo");
       this._setVal("volSelectEstrategia", "Atención Fija");
@@ -507,12 +542,19 @@ export const VoluntariadosView = {
     const observaciones = this._getVal("volInputObservaciones");
 
     if (!nombres || !apellidos || !dni) {
-      alert("Por favor complete los campos obligatorios (Nombres, Apellidos y DNI).");
+      ToastView.show("Campos Incompletos", "Por favor complete los campos obligatorios (Nombres, Apellidos y DNI).", "warning");
       return;
     }
 
-    if (dni.length < 8) {
-      alert("El DNI debe tener al menos 8 dígitos.");
+    if (!/^\d{8}$/.test(dni)) {
+      ToastView.show("DNI Inválido", "El DNI peruano debe contener exactamente 8 dígitos numéricos.", "danger");
+      return;
+    }
+
+    // Validación de DNI único para evitar duplicados accidentales
+    const existing = VoluntarioModel.getByDni(dni);
+    if (existing && String(existing.id) !== String(this._currentEditingId || "")) {
+      ToastView.show("DNI Duplicado", `Ya existe un registro a nombre de ${existing.nombres} ${existing.apellidos} con el DNI ${dni}.`, "danger");
       return;
     }
 
@@ -534,10 +576,19 @@ export const VoluntariadosView = {
       observaciones
     };
 
+    let savedRecord = null;
     if (this._currentEditingId) {
-      VoluntarioModel.update(this._currentEditingId, payload);
+      savedRecord = VoluntarioModel.update(this._currentEditingId, payload);
+      ToastView.show("Ficha Actualizada", `Los datos de ${nombres} ${apellidos} se guardaron exitosamente.`, "success");
+      if (AuditModel && AuditModel.log) {
+        AuditModel.log("Sistema", "Coordinación", "Actualización de Voluntario", payload.dni, `Ficha de ${nombres} ${apellidos} editada`);
+      }
     } else {
-      VoluntarioModel.create(payload);
+      savedRecord = VoluntarioModel.create(payload);
+      ToastView.show("Inscripción Exitosa", `Se registró a ${nombres} ${apellidos} en el padrón de voluntariados.`, "success");
+      if (AuditModel && AuditModel.log) {
+        AuditModel.log("Sistema", "Coordinación", "Alta de Voluntario", payload.dni, `Inscripción de ${nombres} ${apellidos} (${payload.sedeAsignada})`);
+      }
     }
 
     this.closeModalInscripcion();
@@ -561,6 +612,7 @@ export const VoluntariadosView = {
     this._setTxt("fichaVolEstrategia", `${vol.estrategia} &bull; ${vol.tipoVoluntariado}`);
     this._setTxt("fichaVolDisponibilidad", vol.disponibilidad || "Estándar");
     this._setTxt("fichaVolObservaciones", vol.observaciones || "Sin observaciones registradas.");
+    this._setTxt("fichaVolFechaIngreso", vol.fechaIngreso || "No registrada");
     this._setTxt("fichaVolCanastasCount", `${vol.canastasRecibidas || 0} canastas entregadas`);
 
     const estadoBadge = document.getElementById("fichaVolEstadoBadge");
@@ -579,10 +631,10 @@ export const VoluntariadosView = {
       } else {
         capListEl.innerHTML = caps.map(c => `
           <div style="display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border-subtle); font-size: 12.5px; color: var(--text-main);">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="color: var(--gt-green); flex-shrink: 0;">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="color: var(--text-brand); flex-shrink: 0;">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
             </svg>
-            <span>${c}</span>
+            <span>${escapar(c)}</span>
           </div>
         `).join("");
       }
@@ -600,9 +652,14 @@ export const VoluntariadosView = {
     const btnCanasta = document.getElementById("btnFichaVolEntregarCanasta");
     if (btnCanasta) {
       btnCanasta.onclick = () => {
-        VoluntarioModel.incrementCanasta(vol.id);
+        const updated = VoluntarioModel.incrementCanasta(vol.id);
         this.render();
         this.openModalFicha(vol.id);
+        const total = (updated && updated.canastasRecibidas) || (vol.canastasRecibidas || 0) + 1;
+        ToastView.show("Canasta Entregada", `Se acreditó una canasta de estímulo a ${vol.nombres} ${vol.apellidos} (Total: ${total}).`, "success");
+        if (AuditModel && AuditModel.log) {
+          AuditModel.log("Sistema", "Coordinación", "Entrega de Canasta", vol.codigo, `Canasta entregada a ${vol.nombres} ${vol.apellidos}`);
+        }
       };
     }
 
@@ -654,6 +711,7 @@ export const VoluntariadosView = {
     const selectEl = document.getElementById("selectCapacitacionTematica");
     if (!selectEl || !selectEl.value) return;
 
+    const vol = VoluntarioModel.getById(this._currentEditingId);
     VoluntarioModel.addCapacitacion(this._currentEditingId, selectEl.value);
     
     // Check if canasta delivery checkbox was checked
@@ -663,15 +721,20 @@ export const VoluntariadosView = {
       chkCanasta.checked = false;
     }
 
+    ToastView.show("Capacitación Registrada", `Taller "${selectEl.value}" acreditado para ${vol ? vol.nombres : 'voluntaria'}.`, "success");
+    if (AuditModel && AuditModel.log && vol) {
+      AuditModel.log("Sistema", "Coordinación", "Capacitación Voluntaria", vol.codigo, `Taller "${selectEl.value}" registrado`);
+    }
+
     this.closeModalCapacitacion();
     this.render();
   },
 
   // Exportar Padrón en CSV
   exportCSV() {
-    const list = VoluntarioModel.getAll();
+    const list = (this._filteredList && this._filteredList.length > 0) ? this._filteredList : VoluntarioModel.getAll();
     if (list.length === 0) {
-      alert("No hay registros de voluntariados para exportar.");
+      ToastView.show("Sin Registros", "No hay registros de voluntariados para exportar.", "warning");
       return;
     }
 
@@ -703,6 +766,7 @@ export const VoluntariadosView = {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    ToastView.show("Padrón Exportado", `Se descargó el reporte CSV con ${list.length} voluntaria(s).`, "info");
   },
 
   // Helpers
@@ -868,9 +932,35 @@ export const VoluntariadosView = {
     }
   },
 
+
+  _updateRolDropdownUI() {
+    const isAll = this._filterRol.length === 0;
+    const items = document.querySelectorAll("#menuVoluntariosRol .padron-dropdown-item");
+    items.forEach(item => {
+      const v = item.getAttribute("data-value");
+      if (v === "all") {
+        item.classList.toggle("selected", isAll);
+      } else {
+        item.classList.toggle("selected", !isAll && this._filterRol.includes(v));
+      }
+    });
+
+    const label = document.getElementById("labelVoluntariosRolSelect");
+    if (label) {
+      if (isAll) {
+        label.textContent = "Todos los Roles";
+      } else if (this._filterRol.length === 1) {
+        label.textContent = this._filterRol[0];
+      } else {
+        label.textContent = `${this._filterRol.length} seleccionados`;
+      }
+    }
+  },
+
   _updateFilterDropdownUI() {
     this._updateDistritoDropdownUI();
     this._updateServicioDropdownUI();
+    this._updateRolDropdownUI();
     this._updateEstadoDropdownUI();
   }
 };

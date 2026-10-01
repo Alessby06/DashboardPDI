@@ -158,7 +158,7 @@
 
       .social-mobile-stage-dropdown.open .social-mobile-stage-select-btn .caret {
         transform: rotate(180deg) !important;
-        color: var(--gt-green) !important;
+        color: var(--text-brand) !important;
       }
 
       .social-mobile-stage-menu {
@@ -217,7 +217,7 @@
 
       .social-mobile-dropdown-item.selected {
         background: var(--gt-green-bg) !important;
-        color: var(--gt-green) !important;
+        color: var(--text-brand) !important;
         font-weight: 700;
       }
 
@@ -344,7 +344,7 @@
     }
     .socio-calc-accordion.open .socio-calc-chevron {
       transform: rotate(180deg);
-      color: var(--gt-red);
+      color: var(--text-danger);
     }
 
     input[type="range"] {
@@ -454,7 +454,7 @@
 
     .audit-filter-btn.has-filters {
       background: var(--brand-soft);
-      color: var(--brand-primary);
+      color: var(--text-brand);
       border-color: var(--border-bright);
     }
 
@@ -516,7 +516,7 @@
     }
 
     .audit-filters-header-title svg {
-      color: var(--gt-green);
+      color: var(--text-brand);
     }
 
     .btn-text-subtle {
@@ -532,7 +532,7 @@
     }
 
     .btn-text-subtle:hover {
-      color: var(--gt-red);
+      color: var(--text-danger);
       background: rgba(239, 68, 68, 0.08);
     }
 
@@ -558,7 +558,7 @@
 
     .audit-seg-btn.active {
       background: var(--brand-soft);
-      color: var(--brand-primary);
+      color: var(--text-brand);
       border-color: var(--gt-green-border, var(--border-bright));
       font-weight: 700;
     }
@@ -607,7 +607,7 @@
       height: 16px;
       border-radius: 50%;
       background: rgba(220, 38, 38, 0.12);
-      color: var(--gt-red);
+      color: var(--text-danger);
       border: none;
       cursor: pointer;
       padding: 0;
@@ -637,7 +637,7 @@
 
     .audit-chip.active {
       background: var(--brand-soft);
-      color: var(--brand-primary);
+      color: var(--text-brand);
       border-color: var(--border-bright);
       font-weight: 700;
     }
@@ -879,7 +879,7 @@
       display: inline-block;
       padding: 2px 6px;
       background: rgba(239, 68, 68, 0.1);
-      color: var(--gt-red);
+      color: var(--text-danger);
       border-radius: 4px;
       text-decoration: line-through;
     }
@@ -888,7 +888,7 @@
       display: inline-block;
       padding: 2px 6px;
       background: rgba(0, 180, 148, 0.12);
-      color: var(--gt-green);
+      color: var(--text-brand);
       font-weight: 700;
       border-radius: 4px;
     }
@@ -1019,7 +1019,7 @@
 
     .cred-calc-accordion.open .cred-calc-chevron {
       transform: rotate(180deg);
-      color: var(--gt-yellow);
+      color: var(--text-warning);
     }
 
     @media (max-width: 768px) {
@@ -1052,7 +1052,7 @@
         font-size: 11.5px !important;
         font-weight: 800 !important;
         letter-spacing: 0.04em !important;
-        color: var(--gt-green) !important;
+        color: var(--text-brand) !important;
         flex-shrink: 0 !important;
         white-space: nowrap !important;
       }
@@ -1370,7 +1370,7 @@
     }
 
     .ley-cert-text strong {
-      color: var(--gt-green);
+      color: var(--text-brand);
     }
 
     .retiro-person-card {
@@ -1670,7 +1670,7 @@
 
     [data-theme="dark"] .nav-btn.active {
       background-color: rgba(16, 185, 129, 0.2) !important;
-      color: #10b981 !important;
+      color: var(--text-brand) !important;
       border-left-color: #10b981 !important;
     }
 .retiro-person-card {
@@ -2078,7 +2078,7 @@
 
 .padron-dropdown-item.selected {
   background: rgba(0, 180, 148, 0.1);
-  color: var(--gt-green);
+  color: var(--text-brand);
   font-weight: 600;
 }
 
@@ -2170,7 +2170,7 @@
   gap: 6px;
   font-size: 12px;
   font-weight: 700;
-  color: var(--gt-green);
+  color: var(--text-brand);
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
@@ -2185,7 +2185,7 @@
   padding: 4px 10px !important;
   font-size: 11.5px !important;
   gap: 5px !important;
-  color: var(--gt-green) !important;
+  color: var(--text-brand) !important;
   border-color: var(--gt-green-border) !important;
   background: rgba(0, 180, 148, 0.08) !important;
 }
@@ -2331,7 +2331,7 @@
 
 .settings-card-icon-box.blue {
   background: var(--gt-blue-bg);
-  color: var(--gt-blue);
+  color: var(--text-info);
   border: 1px solid var(--gt-blue-border);
 }
 
@@ -2436,7 +2436,7 @@
 /* 3. Sensor / Monitor SO: Latido rítmico de sincronización inteligente */
 #btnThemeSystem.active .theme-icon-box svg {
   animation: monitorHeartbeat 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  color: var(--gt-green);
+  color: var(--text-brand);
   filter: drop-shadow(0 0 7px rgba(0, 180, 148, 0.55));
 }
 
@@ -2511,7 +2511,7 @@
   gap: 6px;
   font-size: 12px;
   font-weight: 700;
-  color: var(--gt-green);
+  color: var(--text-brand);
 }
 
 .btn-gps-capture {
@@ -2522,7 +2522,7 @@
   align-items: center !important;
   gap: 5px !important;
   background: var(--gt-green-bg) !important;
-  color: var(--gt-green) !important;
+  color: var(--text-brand) !important;
   border: 1px solid var(--gt-green-border) !important;
   border-radius: var(--radius-sm) !important;
   font-weight: 700 !important;
@@ -2655,7 +2655,7 @@
 #menuVoluntariosFilterPanel [data-vol-rol].selected,
 #menuVoluntariosFilterPanel [data-vol-estado].selected {
   background: var(--gt-green-bg) !important;
-  color: var(--gt-green) !important;
+  color: var(--text-brand) !important;
   border-color: var(--gt-green) !important;
   font-weight: 700 !important;
 }

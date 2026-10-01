@@ -2,6 +2,7 @@
 import { crear as crearFiltros } from '../utils/Filters.js';
 import { Responsive } from '../utils/Responsive.js';
 
+import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
 // Filtros del módulo educativo que viajan en la URL. Valores tomados de los
 // desplegables de educativo.html.
 const FILTROS_CASITAS = {
@@ -411,8 +412,8 @@ export const CasitasView = {
       bar.style.display = "flex";
       list.innerHTML = chips.map(chip => `
         <span class="padron-chip">
-          <span>${chip.label}</span>
-          <button type="button" class="padron-chip-remove" onclick="window.removeCasitasChip ? window.removeCasitasChip('${chip.id}', '${chip.val || ''}') : null" title="Eliminar filtro">
+          <span>${escapar(chip.label)}</span>
+          <button type="button" class="padron-chip-remove" onclick="window.removeCasitasChip ? window.removeCasitasChip('${escaparEnManejador(chip.id)}', '${escaparEnManejador(chip.val || '')}') : null" title="Eliminar filtro">
             <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -444,7 +445,7 @@ export const CasitasView = {
       const emptyHtml = `
         <tr>
           <td colspan="6" style="text-align: center; padding: 36px 16px;">
-            <div style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; background: var(--gt-yellow-bg, rgba(254, 215, 102, 0.12)); display: flex; align-items: center; justify-content: center; color: var(--gt-yellow, #fed766);">
+            <div style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; background: var(--gt-yellow-bg, rgba(254, 215, 102, 0.12)); display: flex; align-items: center; justify-content: center; color: var(--text-warning, #fed766);">
               <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
               </svg>
@@ -462,7 +463,7 @@ export const CasitasView = {
       if (mobileContainer && enMovil) {
         mobileContainer.innerHTML = `
           <div style="text-align: center; padding: 36px 16px; background: var(--surface-1); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-top: 8px;">
-            <div style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; background: var(--gt-yellow-bg, rgba(254, 215, 102, 0.12)); display: flex; align-items: center; justify-content: center; color: var(--gt-yellow, #fed766);">
+            <div style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; background: var(--gt-yellow-bg, rgba(254, 215, 102, 0.12)); display: flex; align-items: center; justify-content: center; color: var(--text-warning, #fed766);">
               <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
               </svg>
@@ -481,18 +482,18 @@ export const CasitasView = {
     if (tbody && !enMovil) {
       tbody.innerHTML = casitaList.map(b => `
         <tr>
-          <td><strong>${b.nombres} ${b.apellidos}</strong><div style="font-size:11px; color:var(--text-dim);">${b.codigo}</div></td>
-          <td>${b.grado}</td>
-          <td>${b.colegio}</td>
+          <td><strong>${escapar(b.nombres)} ${escapar(b.apellidos)}</strong><div style="font-size:11px; color:var(--text-dim);">${escapar(b.codigo)}</div></td>
+          <td>${escapar(b.grado)}</td>
+          <td>${escapar(b.colegio)}</td>
           <td>
-            <div style="font-weight:600; color:var(--text-main);">${b.apoderado}</div>
-            <div style="font-size:11.5px; color:var(--text-muted);">${b.parentesco} &bull; ${b.telefono || 'Sin tel'}</div>
+            <div style="font-weight:600; color:var(--text-main);">${escapar(b.apoderado)}</div>
+            <div style="font-size:11.5px; color:var(--text-muted);">${escapar(b.parentesco)} &bull; ${escapar(b.telefono || 'Sin tel')}</div>
           </td>
           <td>
-            <span class="badge badge-green" id="badgeAsist_${b.id}">Presente</span>
+            <span class="badge badge-green" id="badgeAsist_${escapar(b.id)}">Presente</span>
           </td>
           <td style="text-align: right;">
-            <div style="display: inline-flex; gap: 4px;" id="btnGroupAsist_${b.id}">
+            <div style="display: inline-flex; gap: 4px;" id="btnGroupAsist_${escapar(b.id)}">
               ${this._botonesAsistencia(b.id)}
             </div>
           </td>
@@ -502,14 +503,14 @@ export const CasitasView = {
 
     if (mobileContainer && enMovil) {
       mobileContainer.innerHTML = casitaList.map(b => `
-        <div class="mobile-card-item" id="mobile-casita-${b.id}">
+        <div class="mobile-card-item" id="mobile-casita-${escapar(b.id)}">
           <!-- Cabecera: ID + Badge Asistencia -->
           <div class="datacard-header">
             <div class="datacard-id">
-              <span>ID:</span> ${b.codigo}
+              <span>ID:</span> ${escapar(b.codigo)}
             </div>
             <div class="datacard-header-right">
-              <span class="badge badge-green" id="badgeAsistMob_${b.id}">Presente</span>
+              <span class="badge badge-green" id="badgeAsistMob_${escapar(b.id)}">Presente</span>
             </div>
           </div>
 
@@ -517,11 +518,11 @@ export const CasitasView = {
           <div class="datacard-body">
             <div class="datacard-row">
               <span class="datacard-label">Menor Beneficiario</span>
-              <span class="datacard-value">${b.nombres} ${b.apellidos}</span>
+              <span class="datacard-value">${escapar(b.nombres)} ${escapar(b.apellidos)}</span>
             </div>
             <div class="datacard-row">
               <span class="datacard-label">Apoderado Autorizado</span>
-              <span class="datacard-value">${b.apoderado} <span style="color:var(--text-muted); font-size:11.5px;">(${b.parentesco})</span></span>
+              <span class="datacard-value">${escapar(b.apoderado)} <span style="color:var(--text-muted); font-size:11.5px;">(${escapar(b.parentesco)})</span></span>
             </div>
 
             <!-- Botonera de Asistencia Rápida -->
@@ -529,33 +530,33 @@ export const CasitasView = {
               <div style="font-size: 11px; font-weight: 800; color: var(--text-dim); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.04em;">
                 Marcar Asistencia Hoy:
               </div>
-              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;" id="btnGroupMobAsist_${b.id}">
+              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;" id="btnGroupMobAsist_${escapar(b.id)}">
                 ${this._botonesAsistencia(b.id)}
               </div>
             </div>
 
             <!-- Bloque Desplegable "Ver más" -->
-            <div class="datacard-extra" id="extra-casita-${b.id}">
+            <div class="datacard-extra" id="extra-casita-${escapar(b.id)}">
               <div class="datacard-row">
                 <span class="datacard-label">Grado Escolar</span>
-                <span class="datacard-value">${b.grado}</span>
+                <span class="datacard-value">${escapar(b.grado)}</span>
               </div>
               <div class="datacard-row">
                 <span class="datacard-label">Colegio de Origen</span>
-                <span class="datacard-value">${b.colegio}</span>
+                <span class="datacard-value">${escapar(b.colegio)}</span>
               </div>
               <div class="datacard-row">
                 <span class="datacard-label">Sede Casita</span>
-                <span class="datacard-value">${b.distrito} - ${b.sede}</span>
+                <span class="datacard-value">${escapar(b.distrito)} - ${escapar(b.sede)}</span>
               </div>
               <div class="datacard-row">
                 <span class="datacard-label">Teléfono de Salida</span>
-                <span class="datacard-value">${b.telefono || 'Sin registro'}</span>
+                <span class="datacard-value">${escapar(b.telefono || 'Sin registro')}</span>
               </div>
             </div>
 
             <!-- Botón Ver más / Ver menos -->
-            <button type="button" class="datacard-toggle-btn" id="btnToggleCasita-${b.id}" onclick="window.PDI ? window.PDI.CasitasView.toggleCard(${b.id}) : CasitasView.toggleCard(${b.id})">
+            <button type="button" class="datacard-toggle-btn" id="btnToggleCasita-${escapar(b.id)}" onclick="window.PDI ? window.PDI.CasitasView.toggleCard(${escaparEnManejador(b.id)}) : CasitasView.toggleCard(${escaparEnManejador(b.id)})">
               <span class="btn-text">Ver más</span>
               <svg fill="none" stroke-width="2.5" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />

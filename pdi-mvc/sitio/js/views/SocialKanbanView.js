@@ -2,6 +2,7 @@
 import { CasoSocialModel } from '../models/CasoSocialModel.js';
 import { crear as crearFiltros } from '../utils/Filters.js';
 
+import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
 // Filtros del tablero que viajan en la URL. Los valores son los de los
 // desplegables de social.html.
 const FILTROS_SOCIAL = {
@@ -118,7 +119,7 @@ export const SocialKanbanView = {
         actionsHtml = `
           <div class="kanban-actions-row">
             <button type="button" class="kanban-btn primary full-width"
-              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso(${c.id}, 'evaluacion') : (window.app?.socialController?.moverCaso(${c.id}, 'evaluacion'))">
+              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso(${escaparEnManejador(c.id)}, 'evaluacion') : (window.app?.socialController?.moverCaso(${escaparEnManejador(c.id)}, 'evaluacion'))">
               <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
               </svg>
@@ -131,14 +132,14 @@ export const SocialKanbanView = {
         actionsHtml = `
           <div class="kanban-actions-row">
             <button type="button" class="kanban-btn secondary flex-1"
-              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso(${c.id}, 'pendiente') : (window.app?.socialController?.moverCaso(${c.id}, 'pendiente'))">
+              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso(${escaparEnManejador(c.id)}, 'pendiente') : (window.app?.socialController?.moverCaso(${escaparEnManejador(c.id)}, 'pendiente'))">
               <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
               </svg>
               <span>Alerta</span>
             </button>
             <button type="button" class="kanban-btn primary flex-1"
-              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso(${c.id}, 'canalizado') : (window.app?.socialController?.moverCaso(${c.id}, 'canalizado'))">
+              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso(${escaparEnManejador(c.id)}, 'canalizado') : (window.app?.socialController?.moverCaso(${escaparEnManejador(c.id)}, 'canalizado'))">
               <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
               </svg>
@@ -151,14 +152,14 @@ export const SocialKanbanView = {
         actionsHtml = `
           <div class="kanban-actions-row">
             <button type="button" class="kanban-btn secondary flex-1"
-              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso(${c.id}, 'evaluacion') : (window.app?.socialController?.moverCaso(${c.id}, 'evaluacion'))">
+              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso(${escaparEnManejador(c.id)}, 'evaluacion') : (window.app?.socialController?.moverCaso(${escaparEnManejador(c.id)}, 'evaluacion'))">
               <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
               </svg>
               <span>Evaluar</span>
             </button>
             <button type="button" class="kanban-btn success flex-1"
-              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso(${c.id}, 'cerrado') : (window.app?.socialController?.moverCaso(${c.id}, 'cerrado'))">
+              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso(${escaparEnManejador(c.id)}, 'cerrado') : (window.app?.socialController?.moverCaso(${escaparEnManejador(c.id)}, 'cerrado'))">
               <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
               </svg>
@@ -171,7 +172,7 @@ export const SocialKanbanView = {
         actionsHtml = `
           <div class="kanban-actions-row">
             <button type="button" class="kanban-btn warning full-width"
-              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso(${c.id}, 'canalizado') : (window.app?.socialController?.moverCaso(${c.id}, 'canalizado'))">
+              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso(${escaparEnManejador(c.id)}, 'canalizado') : (window.app?.socialController?.moverCaso(${escaparEnManejador(c.id)}, 'canalizado'))">
               <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
               </svg>
@@ -183,21 +184,21 @@ export const SocialKanbanView = {
 
       card.innerHTML = `
         <div class="kanban-card-header-row">
-          <strong class="kanban-card-title">${c.menor}</strong>
-          <span class="badge badge-${c.urgencia === 'Alta' ? 'red' : (c.urgencia === 'Media' ? 'yellow' : 'blue')}" style="font-size:10.5px; padding:2px 7px;">${c.urgencia}</span>
+          <strong class="kanban-card-title">${escapar(c.menor)}</strong>
+          <span class="badge badge-${c.urgencia === 'Alta' ? 'red' : (c.urgencia === 'Media' ? 'yellow' : 'blue')}" style="font-size:10.5px; padding:2px 7px;">${escapar(c.urgencia)}</span>
         </div>
         <div class="kanban-card-meta">
-          <a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${c.codigo}')" style="font-size:11.5px; font-family:var(--mono-font); color:var(--gt-green); font-weight:700; text-decoration:underline;" title="Abrir expediente">
-            ${c.codigo}
+          <a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(c.codigo)}')" style="font-size:11.5px; font-family:var(--mono-font); color:var(--text-brand); font-weight:700; text-decoration:underline;" title="Abrir expediente">
+            ${escapar(c.codigo)}
           </a>
-          <span style="font-size:11.5px; color:var(--text-dim);">${c.sede}</span>
+          <span style="font-size:11.5px; color:var(--text-dim);">${escapar(c.sede)}</span>
         </div>
         <div class="kanban-card-desc">
-          <strong style="color:var(--text-main);">Situación:</strong> ${c.situacionEncontrada || c.detalle}
+          <strong style="color:var(--text-main);">Situación:</strong> ${escapar(c.situacionEncontrada || c.detalle)}
         </div>
         <div class="kanban-card-footer">
-          <span>Deriva: <strong>${c.quienDeriva ? c.quienDeriva.nombre.split(' ')[0] + ' ' + (c.quienDeriva.nombre.split(' ')[1] || '') : 'PDI'}</strong></span>
-          <span style="font-family:var(--mono-font);">${c.fechaDerivacion}</span>
+          <span>Deriva: <strong>${escapar(c.quienDeriva ? c.quienDeriva.nombre.split(' ')[0] + ' ' + (c.quienDeriva.nombre.split(' ')[1] || '') : 'PDI')}</strong></span>
+          <span style="font-family:var(--mono-font);">${escapar(c.fechaDerivacion)}</span>
         </div>
         ${actionsHtml}
       `;
@@ -330,7 +331,7 @@ export const SocialKanbanView = {
         const chipEl = document.createElement("span");
         chipEl.className = "padron-filter-chip";
         chipEl.innerHTML = `
-          <span>${chip.label}</span>
+          <span>${escapar(chip.label)}</span>
           <button type="button" class="padron-chip-remove" title="Quitar filtro">
             <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />

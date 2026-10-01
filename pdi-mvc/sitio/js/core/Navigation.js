@@ -25,6 +25,41 @@ export const Navigation = {
   _sidebarToggle: null,
   _backdrop: null,
 
+  // ---------------------------------------------------------------------
+  //  PRUEBA TEMPORAL: el menu se comporta siempre como el de movil.
+  //
+  //  No hay dos menus. Hay uno solo, con dos comportamientos segun la
+  //  anchura: en PC se pliega a un riel de iconos de 72 px (clase
+  //  .collapsed) y en movil es un cajon fuera de pantalla con fondo
+  //  oscurecido (clase .open). Esa bifurcacion esta en el unico sitio
+  //  de decision, este.
+  //
+  //  Con esto a true el riel de iconos de PC queda desactivado y en
+  //  pantalla grande se usa el cajon, que ya estaba pulido. Ademas el
+  //  cajon anima transform y no width: la columna de contenido no
+  //  cambia de tamano, con lo que no hay nada que remaquetar ni que
+  //  volver a pintar en cada fotograma. Ese era el coste del primer
+  //  cierre (ver PENDIENTES.md).
+  //
+  //  Para deshacer: poner a false. O anadir ?cajon=0 a la URL para
+  //  comparar las dos versiones en la misma sesion sin editar nada.
+  // ---------------------------------------------------------------------
+  MENU_COMO_CAJON: true,
+
+  /** Ancho por debajo del cual el menu es cajon. Solo si lo anterior es false. */
+  ANCHO_CAJON: 900,
+
+  /** Si el menu debe comportarse como cajon ahora mismo. */
+  _usaCajon() {
+    if (this.MENU_COMO_CAJON) {
+      // ?cajon=0 fuerza el riel de iconos aunque la constante este a true.
+      const p = new URLSearchParams(window.location.search).get("cajon");
+      if (p === "0" || p === "no" || p === "false") return false;
+      return true;
+    }
+    return window.innerWidth <= this.ANCHO_CAJON;
+  },
+
   /** Cierra el menu lateral. Expuesto en window por los onclick del HTML. */
   closeSidebar() {
     const sidebar = document.getElementById("appSidebar");
@@ -32,11 +67,11 @@ export const Navigation = {
     if (this._backdrop) this._backdrop.classList.remove("active");
   },
 
-  /** Alterna el menu. En movil abre y cierra; en PC colapsa a icon rail. */
+  /** Alterna el menu. Como cajon abre y cierra; como riel se pliega. */
   toggleSidebar() {
     const sidebar = document.getElementById("appSidebar");
     if (!sidebar) return;
-    if (window.innerWidth <= 900) {
+    if (this._usaCajon()) {
       const abierto = sidebar.classList.toggle("open");
       if (this._backdrop) this._backdrop.classList.toggle("active", abierto);
     } else {
@@ -66,10 +101,13 @@ export const Navigation = {
    * Aqui se adelanta ese maquetado al arrancar, antes de que el usuario pulse nada.
    * Poner y quitar la clase y leer el ancho obliga al motor a resolver el caso
    * plegado una vez. No se ve ningun cambio porque se hace antes del primer pintado.
+   *
+   * Solo tiene sentido para el riel de iconos. El cajon anima transform, y eso
+   * no necesita maquetado: se queda en la GPU y no toca la columna de contenido.
    */
   _precalentarRiel() {
     const sidebar = document.getElementById("appSidebar");
-    if (!sidebar || window.innerWidth <= 900) return;
+    if (!sidebar || this._usaCajon()) return;
     const previo = sidebar.className;
     sidebar.classList.add("collapsed");
     void sidebar.offsetWidth; // fuerza el maquetado del caso plegado
@@ -85,6 +123,13 @@ export const Navigation = {
   bindSidebar() {
     const toggle = document.getElementById("btnSidebarToggle");
     this._backdrop = document.getElementById("sidebarBackdrop");
+
+    // La marca de cajon va puesta en el propio <html> de las once paginas, para
+    // que las reglas apliquen desde el primer pintado: si se pusiera aqui, la
+    // barra se veria desplegada durante el primer segundo de cada carga y luego
+    // se deslizaria sola. Aqui solo se retira cuando se pide el riel de iconos
+    // con ?cajon=0, que es la unica forma de desactivarlo sin editar las paginas.
+    if (!this._usaCajon()) document.documentElement.removeAttribute("data-menu-cajon");
 
     this._pintarIndiceEscalonado();
     this._precalentarRiel();
@@ -121,7 +166,10 @@ export const Navigation = {
     this._onResize = () => {
       const sidebar = document.getElementById("appSidebar");
       if (!sidebar) return;
-      if (window.innerWidth > 900) {
+      // Como cajon no hay dos regímenes que sincronizar: se comporta igual
+      // en cualquier anchura, asi que no se toca nada al redimensionar.
+      if (this._usaCajon()) return;
+      if (window.innerWidth > this.ANCHO_CAJON) {
         sidebar.classList.remove("open");
         if (this._backdrop) this._backdrop.classList.remove("active");
       } else {
@@ -227,11 +275,71 @@ export const Navigation = {
     });
   },
 
-  /** Cierra el menu al navegar: el enlace ya se va a su pagina. */
+  /**
+   * Al pulsar un enlace del menu se cierra el panel y, solo cuando ha
+   * terminado de moverse, se va a la pagina.
+   *
+   * Antes solo se llamaba a closeSidebar() y se dejaba que el navegador
+   * navegara de inmediato. El menu empezaba a retraerse y la pagina se iba a
+   * medio camino de la transicion: se veia el panel a medio ocultar y encima
+   * aparecia la pantalla nueva. De ahi la sensacion de que el menu se
+   * intentaba retraer pero lo dejaba a medias.
+   *
+   * Los enlaces son de verdad, asi que se respetan las formas de abrir en
+   * pestana nueva: con Ctrl, Cmd o Mayus el enlace se comporta como siempre
+   * y este codigo no interviene.
+   */
   cerrarAlNavegar() {
     document.querySelectorAll(".nav-btn[href]").forEach((a) => {
-      a.addEventListener("click", () => this.closeSidebar());
+      a.addEventListener("click", (e) => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+        if (a.classList.contains("role-restricted") || a.classList.contains("role-hidden")) return;
+        const url = a.getAttribute("href");
+        if (!url) return;
+        e.preventDefault();
+        this._irCuandoElMenuEsteCerrado(url);
+      });
     });
+  },
+
+  /**
+   * Cierra el menu, espera a que termine la transicion y despues navega.
+   *
+   * El aviso de fin de transicion es la senal fiable de que el panel ya esta
+   * fuera de pantalla. Si no llegara, se sale igual pasados 400 ms, para no
+   * dejar al usuario pulsado sin que pase nada.
+   */
+  _irCuandoElMenuEsteCerrado(url) {
+    if (this._navegando) return;
+    this._navegando = true;
+    document.documentElement.setAttribute("data-menu-cerrandose", "si");
+
+    const sidebar = document.getElementById("appSidebar");
+    let hecho = false;
+    const salir = () => {
+      if (hecho) return;
+      hecho = true;
+      if (sidebar) sidebar.removeEventListener("transitionend", alTerminarLaTransicion);
+      window.location.href = url;
+    };
+    const alTerminarLaTransicion = (e) => {
+      if (e.target === sidebar && e.propertyName === "transform") salir();
+    };
+
+    // Se apunta si estaba abierto ANTES de cerrar: despues ya no lo esta.
+    const estabaAbierto = !!sidebar && sidebar.classList.contains("open");
+
+    this.closeSidebar();
+    // Si el panel no estaba abierto no hay nada que esperar. El riel de iconos
+    // anima el ancho y no el desplazamiento, asi que alli no llegaria nunca el
+    // aviso de fin de transicion y la pagina se tardaria los 400 ms de
+    // seguridad en una animacion que el usuario ni ha visto.
+    if (!estabaAbierto) {
+      salir();
+      return;
+    }
+    sidebar.addEventListener("transitionend", alTerminarLaTransicion);
+    setTimeout(salir, 400);
   },
 
   destroy() {

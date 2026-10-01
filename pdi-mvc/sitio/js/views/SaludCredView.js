@@ -2,6 +2,7 @@
 import { crear as crearFiltros } from '../utils/Filters.js';
 import { Responsive } from '../utils/Responsive.js';
 
+import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
 // Filtros del modulo CRED que viajan en la URL. Valores tomados de los
 // desplegables de salud.html.
 const FILTROS_SALUD = {
@@ -379,8 +380,8 @@ export const SaludCredView = {
       bar.style.display = "flex";
       list.innerHTML = chips.map(chip => `
         <span class="padron-chip">
-          <span>${chip.label}</span>
-          <button type="button" class="padron-chip-remove" onclick="window.removeSaludChip ? window.removeSaludChip('${chip.id}', '${chip.val || ''}') : null" title="Eliminar filtro">
+          <span>${escapar(chip.label)}</span>
+          <button type="button" class="padron-chip-remove" onclick="window.removeSaludChip ? window.removeSaludChip('${escaparEnManejador(chip.id)}', '${escaparEnManejador(chip.val || '')}') : null" title="Eliminar filtro">
             <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -412,7 +413,7 @@ export const SaludCredView = {
       const emptyHtml = `
         <tr>
           <td colspan="7" style="text-align: center; padding: 36px 16px;">
-            <div style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; background: var(--gt-green-bg, rgba(52, 211, 153, 0.12)); display: flex; align-items: center; justify-content: center; color: var(--gt-green, #34d399);">
+            <div style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; background: var(--gt-green-bg, rgba(52, 211, 153, 0.12)); display: flex; align-items: center; justify-content: center; color: var(--text-brand, #34d399);">
               <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
               </svg>
@@ -430,7 +431,7 @@ export const SaludCredView = {
       if (mobileContainer && enMovil) {
         mobileContainer.innerHTML = `
           <div style="text-align: center; padding: 36px 16px; background: var(--surface-1); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-top: 8px;">
-            <div style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; background: var(--gt-green-bg, rgba(52, 211, 153, 0.12)); display: flex; align-items: center; justify-content: center; color: var(--gt-green, #34d399);">
+            <div style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; background: var(--gt-green-bg, rgba(52, 211, 153, 0.12)); display: flex; align-items: center; justify-content: center; color: var(--text-brand, #34d399);">
               <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
               </svg>
@@ -454,13 +455,13 @@ export const SaludCredView = {
 
         return `
           <tr>
-            <td><strong>${b.nombres} ${b.apellidos}</strong><div style="font-size:11.5px; color:var(--text-dim); font-family:var(--mono-font);">${b.codigo}</div></td>
-            <td>${b.edad}</td>
-            <td>${b.peso} kg / ${b.talla} cm</td>
-            <td><strong style="font-family:var(--mono-font);">${b.hb} g/dL</strong></td>
-            <td><span class="badge ${badgeClass}">${b.anemia}</span></td>
+            <td><strong>${escapar(b.nombres)} ${escapar(b.apellidos)}</strong><div style="font-size:11.5px; color:var(--text-dim); font-family:var(--mono-font);">${escapar(b.codigo)}</div></td>
+            <td>${escapar(b.edad)}</td>
+            <td>${escapar(b.peso)} kg / ${escapar(b.talla)} cm</td>
+            <td><strong style="font-family:var(--mono-font);">${escapar(b.hb)} g/dL</strong></td>
+            <td><span class="badge ${badgeClass}">${escapar(b.anemia)}</span></td>
             <td>${b.anemia !== "Normal" ? "Sulfato Ferroso 1 dosis/día" : "Dieta Preventiva"}</td>
-            <td style="text-align: right;"><button type="button" class="btn-action" onclick="window.openExpediente(${b.id})">Ver Historial</button></td>
+            <td style="text-align: right;"><button type="button" class="btn-action" onclick="window.openExpediente(${escaparEnManejador(b.id)})">Ver Historial</button></td>
           </tr>
         `;
       }).join("");
@@ -473,14 +474,14 @@ export const SaludCredView = {
         if (b.anemia === "Moderada" || b.anemia === "Severa") badgeClass = "badge-red";
 
         return `
-          <div class="mobile-card-item" id="mobile-salud-${b.id}">
+          <div class="mobile-card-item" id="mobile-salud-${escapar(b.id)}">
             <!-- Cabecera: ID + Badge Diagnóstico Anemia -->
             <div class="datacard-header">
               <div class="datacard-id">
-                <span>ID:</span> ${b.codigo}
+                <span>ID:</span> ${escapar(b.codigo)}
               </div>
               <div class="datacard-header-right">
-                <span class="badge ${badgeClass}">${b.anemia}</span>
+                <span class="badge ${badgeClass}">${escapar(b.anemia)}</span>
               </div>
             </div>
 
@@ -488,33 +489,33 @@ export const SaludCredView = {
             <div class="datacard-body">
               <div class="datacard-row">
                 <span class="datacard-label">Beneficiario</span>
-                <span class="datacard-value">${b.nombres} ${b.apellidos}</span>
+                <span class="datacard-value">${escapar(b.nombres)} ${escapar(b.apellidos)}</span>
               </div>
               <div class="datacard-row">
                 <span class="datacard-label">Hemoglobina (Hb)</span>
-                <span class="datacard-value" style="color:var(--gt-yellow); font-weight:800; font-family:var(--mono-font);">${b.hb} g/dL</span>
+                <span class="datacard-value" style="color:var(--text-warning); font-weight:800; font-family:var(--mono-font);">${escapar(b.hb)} g/dL</span>
               </div>
               <div class="datacard-row">
                 <span class="datacard-label">Diagnóstico Anemia</span>
-                <span class="datacard-value">${b.anemia}</span>
+                <span class="datacard-value">${escapar(b.anemia)}</span>
               </div>
 
               <!-- Bloque Desplegable "Ver más" -->
-              <div class="datacard-extra" id="extra-salud-${b.id}">
+              <div class="datacard-extra" id="extra-salud-${escapar(b.id)}">
                 <div class="datacard-row">
                   <span class="datacard-label">Edad</span>
-                  <span class="datacard-value">${b.edad}</span>
+                  <span class="datacard-value">${escapar(b.edad)}</span>
                 </div>
                 <div class="datacard-row">
                   <span class="datacard-label">Peso / Talla</span>
-                  <span class="datacard-value">${b.peso} kg / ${b.talla} cm</span>
+                  <span class="datacard-value">${escapar(b.peso)} kg / ${escapar(b.talla)} cm</span>
                 </div>
                 <div class="datacard-row">
                   <span class="datacard-label">Suplementación</span>
                   <span class="datacard-value">${b.anemia !== "Normal" ? "Sulfato Ferroso 1 dosis/día" : "Dieta Preventiva"}</span>
                 </div>
                 <div class="datacard-actions-footer">
-                  <button type="button" class="btn-action primary" style="width:100%; justify-content:center;" onclick="event.stopPropagation(); window.openExpediente(${b.id})">
+                  <button type="button" class="btn-action primary" style="width:100%; justify-content:center;" onclick="event.stopPropagation(); window.openExpediente(${escaparEnManejador(b.id)})">
                     <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:6px;">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                       <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -525,7 +526,7 @@ export const SaludCredView = {
               </div>
 
               <!-- Botón Ver más / Ver menos -->
-              <button type="button" class="datacard-toggle-btn" id="btnToggleSalud-${b.id}" onclick="window.PDI ? window.PDI.SaludCredView.toggleCard(${b.id}) : SaludCredView.toggleCard(${b.id})">
+              <button type="button" class="datacard-toggle-btn" id="btnToggleSalud-${escapar(b.id)}" onclick="window.PDI ? window.PDI.SaludCredView.toggleCard(${escaparEnManejador(b.id)}) : SaludCredView.toggleCard(${escaparEnManejador(b.id)})">
                 <span class="btn-text">Ver más</span>
                 <svg fill="none" stroke-width="2.5" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />

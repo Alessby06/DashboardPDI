@@ -236,7 +236,7 @@
       background: var(--surface-1);
       border: none;
       border-top: 1px solid var(--border-subtle);
-      color: var(--gt-green);
+      color: var(--text-brand);
       font-size: 13px;
       font-weight: 700;
       cursor: pointer;
@@ -356,10 +356,10 @@
       justify-content: flex-end;
     }
 
-    .badge-green { background: var(--gt-green-bg); color: var(--gt-green); border: 1px solid var(--gt-green-border); }
-    .badge-yellow { background: var(--gt-yellow-bg); color: var(--gt-yellow); border: 1px solid var(--gt-yellow-border); }
-    .badge-blue { background: var(--gt-blue-bg); color: var(--gt-blue); border: 1px solid var(--gt-blue-border); }
-    .badge-red { background: var(--gt-red-bg); color: var(--gt-red); border: 1px solid var(--gt-red-border); }
+    .badge-green { background: var(--gt-green-bg); color: var(--text-brand); border: 1px solid var(--gt-green-border); }
+    .badge-yellow { background: var(--gt-yellow-bg); color: var(--text-warning); border: 1px solid var(--gt-yellow-border); }
+    .badge-blue { background: var(--gt-blue-bg); color: var(--text-info); border: 1px solid var(--gt-blue-border); }
+    .badge-red { background: var(--gt-red-bg); color: var(--text-danger); border: 1px solid var(--gt-red-border); }
     .badge-orange { background: rgba(249, 115, 22, 0.14); color: #f97316; border: 1px solid rgba(249, 115, 22, 0.35); }
 
     /* Botones de Asistencia Reactivos (PC y Móvil) */
@@ -614,12 +614,12 @@
 
     .custom-dropdown-item:hover {
       background: var(--surface-hover);
-      color: var(--gt-green);
+      color: var(--text-brand);
     }
 
     .custom-dropdown-item.selected {
       background: var(--gt-green-bg);
-      color: var(--gt-green);
+      color: var(--text-brand);
       font-weight: 700;
     }
 
