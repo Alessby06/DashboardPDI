@@ -22,3 +22,7 @@ __pycache__/
 ~$*.xlsx
 ~$*.docx
 ~$*.pptx
+
+# Temporales de herramientas
+.freebuff/
+

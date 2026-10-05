@@ -1,0 +1,101 @@
+#V2
+DEFINE FIELD puntaje_obtenido ON puntaje_indicador TYPE decimal;
+DEFINE FIELD puntaje_maximo ON puntaje_indicador TYPE decimal;
+-- ==============================================================================
+-- GRUPO 7: ENTREGAS Y BENEFICIOS
+-- ==============================================================================
+DEFINE TABLE OVERWRITE canasta_alimentaria SCHEMAFULL;
+DEFINE FIELD inscripcion_id ON canasta_alimentaria TYPE record<inscripcion>;
+DEFINE FIELD sede_id ON canasta_alimentaria TYPE record<sede>;
+DEFINE FIELD fecha ON canasta_alimentaria TYPE datetime DEFAULT time::now();
+DEFINE FIELD tipo_canasta ON canasta_alimentaria TYPE string DEFAULT "Contingencia Nutricional";
+DEFINE FIELD motivo ON canasta_alimentaria TYPE string;
+DEFINE FIELD entregado_por ON canasta_alimentaria TYPE option<record<persona>>;
+DEFINE TABLE OVERWRITE aporte SCHEMAFULL;
+DEFINE FIELD inscripcion_id ON aporte TYPE record<inscripcion>;
+DEFINE FIELD periodo ON aporte TYPE int;
+DEFINE FIELD mes ON aporte TYPE int ASSERT $value >= 1 AND $value <= 12;
+DEFINE FIELD monto_simbolico ON aporte TYPE decimal DEFAULT 0.0;
+DEFINE FIELD pct_exoneracion ON aporte TYPE int DEFAULT 0 ASSERT $value IN [0, 50, 100];
+DEFINE FIELD exonerado ON aporte TYPE bool DEFAULT false;
+DEFINE FIELD fecha_pago ON aporte TYPE option<datetime>;
+-- ==============================================================================
+-- GRUPO 8: SEGUIMIENTO & ATENCIÓN INDIVIDUAL
+-- ==============================================================================
+DEFINE TABLE OVERWRITE atencion_usuario SCHEMAFULL;
+DEFINE FIELD inscripcion_id ON atencion_usuario TYPE record<inscripcion>;
+DEFINE FIELD tipo ON atencion_usuario TYPE string ASSERT $value IN ["ORIENTACION", "ACOMPANAMIENTO"];
+DEFINE FIELD fecha ON atencion_usuario TYPE datetime DEFAULT time::now();
+DEFINE FIELD dirigida_a ON atencion_usuario TYPE string ASSERT $value IN ["Responsable", "Menor", "Ambos"];
+DEFINE FIELD tema_tratado ON atencion_usuario TYPE string;
+DEFINE FIELD facilitador_id ON atencion_usuario TYPE option<record<persona>>;
+-- ==============================================================================
+-- GRUPO 9: BITÁCORA Y EVENTOS DE SEDE (Absorbe hallazgos de monitoreo)
+-- ==============================================================================
+DEFINE TABLE OVERWRITE catalogo_item SCHEMAFULL;
+DEFINE FIELD familia ON catalogo_item TYPE string ASSERT $value IN ["HALLAZGO_MONITOREO", "TEMATICA_CAPACITACION", "PROGRAMA_COMPLEMENTARIO", "INDICACION_MEDICA", "ACCION_SOCIOEDUCATIVA", "REFERENTE_COMUNITARIO", "TIPO_PROBLEMATICA"];
+DEFINE FIELD codigo ON catalogo_item TYPE string;
+DEFINE FIELD nombre ON catalogo_item TYPE string ASSERT $value != "";
+DEFINE FIELD descripcion ON catalogo_item TYPE option<string>;
+DEFINE FIELD activo ON catalogo_item TYPE bool DEFAULT true;
+DEFINE INDEX idx_catalogo_codigo ON catalogo_item FIELDS familia, codigo UNIQUE;
+DEFINE TABLE OVERWRITE registro SCHEMAFULL;
+DEFINE FIELD sede_id ON registro TYPE record<sede>;
+DEFINE FIELD tipo ON registro TYPE string ASSERT $value IN ["Monitoreo", "Capacitacion", "Sesion educativa", "Accion socioeducativa"];
+DEFINE FIELD fecha ON registro TYPE datetime DEFAULT time::now();
+DEFINE FIELD facilitador_id ON registro TYPE option<record<persona>>;
+DEFINE FIELD num_participantes_adultos ON registro TYPE option<int>;
+DEFINE FIELD num_participantes_ninos ON registro TYPE option<int>;
+DEFINE FIELD num_familias_orientadas ON registro TYPE option<int>;
+DEFINE FIELD observaciones ON registro TYPE option<string>;
+DEFINE TABLE OVERWRITE registro_item SCHEMAFULL;
+DEFINE FIELD registro_id ON registro_item TYPE record<registro>;
+DEFINE FIELD item_id ON registro_item TYPE record<catalogo_item>;
+DEFINE FIELD valor_detalle ON registro_item TYPE option<string>;
+DEFINE TABLE OVERWRITE registro_lugar SCHEMAFULL;
+DEFINE FIELD registro_id ON registro_lugar TYPE record<registro>;
+DEFINE FIELD sede_participante ON registro_lugar TYPE record<sede>;
+DEFINE TABLE OVERWRITE tamizaje_item SCHEMAFULL;
+DEFINE FIELD tamizaje_id ON tamizaje_item TYPE record<tamizaje_hemoglobina>;
+DEFINE FIELD item_id ON tamizaje_item TYPE record<catalogo_item>;
+DEFINE FIELD cumplido ON tamizaje_item TYPE bool DEFAULT false;
+DEFINE FIELD fecha_cumplimiento ON tamizaje_item TYPE option<datetime>;
+-- ==============================================================================
+-- GRUPO 10: SISTEMA & SEGURIDAD (RBAC y Auditoría Inmutable Ley 29733)
+-- ==============================================================================
+DEFINE TABLE OVERWRITE acceso SCHEMAFULL;
+DEFINE FIELD persona_id ON acceso TYPE record<persona>;
+-- ==============================================================================
+-- PROYECTO INFANCIA SALUDABLE - DATOS SEMILLA (SEED DATA OFICIAL)
+-- Carga inicial de datos demo para validación en SurrealDB v3.x
+-- ==============================================================================
+USE NS johannes_gutenberg DB infancia_saludable;
+-- 1. INSTITUCIONES DE REFERENCIA (Colegios, Postas, etc.)
+CREATE institucion:ie_3058 SET     nombre = "I.E. N.° 3058 Virgen de las Mercedes",    tipo = "Institucion Educativa",    distrito = "Carabayllo",    direccion = "Av. Túpac Amaru Km 21, Sector El Progreso",    contacto_nombre = "Lic. Gladys Ramos",    contacto_cargo = "Directora",    contacto_telefono = "984-112-993";
+CREATE institucion:cs_san_benito SET     nombre = "Centro de Salud San Benito",    tipo = "Centro de Salud",    distrito = "Carabayllo",    direccion = "Av. San Benito S/N",    contacto_nombre = "Dr. Roberto Mendoza",    contacto_cargo = "Jefe Médico",    contacto_telefono = "01-543-2198";
+CREATE institucion:ie_valverde_caro SET     nombre = "I.E. Valverde Caro",    tipo = "Institucion Educativa",    distrito = "Carabayllo",    direccion = "Sector Ampliación Los Bendecidos";
+-- 2. LAS 7 SEDES TERRITORIALES OFICIALES
+CREATE sede:ano_nuevo SET     nombre = "Año Nuevo",    distrito = "Comas",    tipo_local = "Comedor Comunitario",    direccion = "Mz. 4W Lt. 30, Comité 12, A.H. Año Nuevo Sector B",    referencia = "Frente al Comedor Popular San Benito",    aforo_max = 50,    estado = "Operativa",    servicios = ["Desayuno Infantil", "Casita del Saber"],    facilitadora_nombre = "Carmen Mendoza Huamán",    facilitadora_tel = "987-123-456",    aliado_nombre = "Pr. Juan Carlos Ramos",    aliado_institucion = "Iglesia Bíblica Emanuel";
+CREATE sede:la_libertad SET     nombre = "La Libertad",    distrito = "Comas",    tipo_local = "Comedor Comunitario",    direccion = "Mz. F Lote 12, A.H. La Libertad",    referencia = "A dos cuadras del Módulo de Salud",    aforo_max = 40,    estado = "Operativa",    servicios = ["Desayuno Infantil"],    facilitadora_nombre = "Rosa Flores Quispe",    facilitadora_tel = "976-543-210",    aliado_nombre = "Pr. David Quispe Condori",    aliado_institucion = "Iglesia Cristiana Aposento Alto";
+CREATE sede:carmen_alto SET     nombre = "Carmen Alto",    distrito = "Comas",    tipo_local = "Biblioteca Comunal",    direccion = "Jr. Los Pinos 340, Carmen Alto",    referencia = "Alt. Paradero 5 de Av. Revolución",    aforo_max = 45,    estado = "Operativa",    servicios = ["Casita del Saber", "Lonchera Infantil"],    facilitadora_nombre = "Maritza Soto Cárdenas",    facilitadora_tel = "991-882-334",    aliado_nombre = "Pr. Roberto Silva Morales",    aliado_institucion = "Iglesia Alianza Cristiana y Misionera";
+CREATE sede:el_progreso SET     nombre = "El Progreso",    distrito = "Carabayllo",    tipo_local = "Colegio Publico (I.E.)",    direccion = "Av. Túpac Amaru Km 21, Sector El Progreso",    referencia = "Cruce con Av. Manuel Prado",    aforo_max = 55,    estado = "Operativa",    servicios = ["Casita del Saber", "Lonchera Infantil"],    facilitadora_nombre = "Elizabeth Huamán Rivas",    facilitadora_tel = "984-112-993",    aliado_nombre = "Lic. Gladys Ramos",    aliado_institucion = "I.E. N.° 3058 Virgen de las Mercedes";
+CREATE sede:san_pedro SET     nombre = "San Pedro",    distrito = "Carabayllo",    tipo_local = "Iglesia Aliada",    direccion = "Mz. K Lt. 8, Comité 14, San Pedro",    referencia = "A espaldas de la Capilla San Pedro",    aforo_max = 35,    estado = "Operativa",    servicios = ["Desayuno Infantil"],    facilitadora_nombre = "Juana Condori Mamani",    facilitadora_tel = "955-443-219",    aliado_nombre = "Pr. Andrés Medina Vega",    aliado_institucion = "Iglesia Evangélica Bautista San Pedro";
+CREATE sede:los_bendecidos SET     nombre = "Los Bendecidos",    distrito = "Carabayllo",    tipo_local = "Local Comunal",    direccion = "Sector 3 Ampliación Los Bendecidos",    referencia = "Frente al Reservorio Comunal",    aforo_max = 40,    estado = "Operativa",    servicios = ["Desayuno Infantil", "Casita del Saber"],    facilitadora_nombre = "Silvia Palacios Tello",    facilitadora_tel = "962-331-778",    aliado_nombre = "Pr. Lucas Vargas Benítez",    aliado_institucion = "Centro Cristiano Familiar";
+CREATE sede:santa_rosa SET     nombre = "Santa Rosa",    distrito = "Carabayllo",    tipo_local = "Iglesia Aliada",    direccion = "Av. Las Lomas Mz. B Lt. 5, Santa Rosa",    referencia = "A 1 cdra. de la Losa Deportiva",    aforo_max = 40,    estado = "Operativa",    servicios = ["Casita del Saber", "Lonchera Infantil"],    facilitadora_nombre = "Patricia Alarcón Vera",    facilitadora_tel = "948-223-990",    aliado_nombre = "Pr. Samuel Castro Ríos",    aliado_institucion = "Comunidad Cristiana Gracia y Paz";
+-- 3. ESCALA ANEMIA MINSA 2024 (NTS 213-MINSA-2024)
+CREATE escala_anemia:minsa_2024_primera_infancia SET     norma_referencia = "NTS N.° 213-MINSA/DGIESP-2024",    grupo_edad = "6 a 59 meses",    edad_min_meses = 6,    edad_max_meses = 59,    corte_severa = 7.0,    corte_moderada_min = 7.0,    corte_moderada_max = 9.9,    corte_leve_min = 10.0,    corte_leve_max = 10.9,    corte_normal_min = 11.0;
+CREATE escala_anemia:minsa_2024_segunda_infancia SET     norma_referencia = "NTS N.° 213-MINSA/DGIESP-2024",    grupo_edad = "5 a 11 anos",    edad_min_meses = 60,    edad_max_meses = 143,    corte_severa = 8.0,    corte_moderada_min = 8.0,    corte_moderada_max = 10.9,    corte_leve_min = 11.0,    corte_leve_max = 11.4,    corte_normal_min = 11.5;
+-- 4. PERSONAS DE EJEMPLO (Menor y Madre)
+CREATE persona:pdi_001 SET     codigo = "0001-IS",    nombres = "Thiago Gael",    apellidos = "Flores Quispe",    tipo_documento = "DNI",    numero_documento = "78491023",    fecha_nacimiento = '2022-03-14T00:00:00Z',    sexo = "M",    direccion = "Mz. 4W Lt. 30, Comité 12",    distrito = "Comas",    esquema_salud = "SIS";
+CREATE persona:apo_001 SET     codigo = "APO-001",    nombres = "Rosa",    apellidos = "Quispe Huamán",    tipo_documento = "DNI",    numero_documento = "41982341",    fecha_nacimiento = '1989-05-10T00:00:00Z',    sexo = "F",    direccion = "Mz. 4W Lt. 30, Comité 12",    distrito = "Comas",    telefono = "987-654-321",    esquema_salud = "SIS";
+-- Vínculo de Cuidado
+CREATE persona_vinculada:vinc_001 SET     menor_id = persona:pdi_001,    cuidador_id = persona:apo_001,    parentesco = "Madre",    rol_vinculo = "Responsable",    vive_con_menor = true;
+-- Consentimiento Ley 29733 (2026)
+CREATE consentimiento:cons_001 SET     persona_id = persona:pdi_001,    periodo = 2026,    eval_social = true,    uso_fotografia = true,    recaudacion_fondos = true,    flujo_transfronterizo = true,    firmado = true,    apoderado_firmante = persona:apo_001;
+-- Inscripción Anual 2026
+CREATE inscripcion:insc_001 SET     persona_id = persona:pdi_001,    sede_id = sede:ano_nuevo,    periodo = 2026,    programa = "Casita del Saber",    modalidad = "Comunitaria",    estado = "Activo";
+-- Tamizaje de Hemoglobina Clínico (Continuo a persona:pdi_001)
+CREATE tamizaje_hemoglobina:tam_001 SET     persona_id = persona:pdi_001,    inscripcion_id = inscripcion:insc_001,    sede_id = sede:ano_nuevo,    hb_valor = 10.4,    resultado = "Anemia leve",    peso_kg = 14.2,    talla_cm = 94.5,    escala_id = escala_anemia:minsa_2024_primera_infancia;
+-- Asistencia Diaria en Casita del Saber
+CREATE asistencia_diaria:asist_001 SET     inscripcion_id = inscripcion:insc_001,    sede_id = sede:ano_nuevo,    fecha = '2026-10-01T08:30:00Z',    estado = "P",    racion_entregada = true,    observacion = "Llegó puntual con cuaderno de trabajo";
+INFO FOR ROOT;

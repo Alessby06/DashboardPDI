@@ -1,0 +1,113 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import Sidebar from '../components/Sidebar.astro';
+import Topbar from '../components/Topbar.astro';
+import GlobalModals from '../components/GlobalModals.astro';
+
+import '../styles/variables.css';
+import '../styles/base.css';
+import '../styles/components.css';
+import '../styles/views-comun.css';
+
+interface Props {
+  title: string;
+  currentPage: string;
+  pageCss?: string;
+}
+
+const { title, currentPage, pageCss } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <meta name="description" content="Sistema PDI - Programa de Infancia Saludable de la Asociación Cultural Johannes Gutenberg. Gestión integral de beneficiarios, salud, educación y voluntariado." />
+  <meta name="theme-color" id="metaThemeColor" content="#ffffff" />
+  <title>{title} | Sistema PDI (Astro)</title>
+  <link rel="icon" type="image/png" href="/assets/jg-icon.png" />
+  <link rel="apple-touch-icon" href="/assets/jg-icon.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300..900&display=swap"
+    rel="stylesheet"
+  />
+
+  <script is:inline>
+    (function () {
+      function aplicarTema(doc) {
+        try {
+          var saved = localStorage.getItem("pdi_theme") || "system";
+          var usaSistema = saved === "system";
+          var oscuro = usaSistema
+            ? !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches)
+            : saved === "dark";
+          var targetDoc = doc || document;
+          targetDoc.documentElement.setAttribute("data-theme", oscuro ? "dark" : "light");
+
+          var metaTema = targetDoc.getElementById("metaThemeColor");
+          if (metaTema) metaTema.setAttribute("content", oscuro ? "#181818" : "#ffffff");
+
+          var esMovil = typeof window !== "undefined" && window.innerWidth <= 900;
+          if (esMovil) {
+            targetDoc.documentElement.setAttribute("data-menu-cajon", "si");
+          } else {
+            targetDoc.documentElement.removeAttribute("data-menu-cajon");
+          }
+        } catch (e) {}
+      }
+
+      // 1. Antiflash síncrono inmediato en carga inicial de la página
+      aplicarTema(document);
+
+      // 2. ClientRouter: transferir atributos al nuevo documento ANTES de que Astro lo reemplace
+      document.addEventListener("astro:before-swap", function (ev) {
+        if (ev.newDocument) {
+          aplicarTema(ev.newDocument);
+        }
+      });
+
+      // 3. ClientRouter: re-asegurar atributos inmediatamente tras el intercambio
+      document.addEventListener("astro:after-swap", function () {
+        aplicarTema(document);
+      });
+    })();
+  </script>
+
+  {pageCss && <link rel="stylesheet" href={pageCss} />}
+  <ClientRouter />
+</head>
+
+<body data-page={currentPage}>
+  <!-- Toast Notification Stack persistente entre páginas -->
+  <div class="toast-container" id="toastContainer" transition:persist></div>
+
+  <div class="app-shell">
+    <!-- Mobile Sidebar Backdrop Overlay -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- Sidebar Navigation persistente (evita el tirón de re-renderizado de GPU) -->
+    <Sidebar currentPage={currentPage} transition:persist />
+
+    <!-- Main Content Container -->
+    <div class="main-wrapper">
+      <!-- Topbar persistente -->
+      <Topbar transition:persist />
+
+      <!-- Viewport Body -->
+      <main class="content-viewport" id="mainContent" transition:animate="fade">
+        <slot />
+      </main>
+    </div>
+  </div>
+
+  <!-- Modales Globales Compartidos -->
+  <GlobalModals transition:persist />
+
+
+  <slot name="scripts" />
+</body>
+</html>

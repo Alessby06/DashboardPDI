@@ -1,0 +1,167 @@
+---
+// Topbar component
+---
+
+<header class="topbar">
+  <div class="topbar-left">
+    <button type="button" class="btn-menu-toggle" id="btnSidebarToggle" aria-label="Alternar menú lateral de navegación">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+      </svg>
+    </button>
+
+    <div class="topbar-brand-wrap" style="display:flex; align-items:center; gap:12px; margin-right:8px;">
+      <img
+        src="/assets/logo-light-acjg.png"
+        alt="Asociacion Cultural Johannes Gutenberg"
+        class="brand-logo-dark"
+        width="152"
+        height="32"
+        style="height:32px; width:auto; object-fit:contain;"
+      />
+      <img
+        src="/assets/logo-asociacion.png"
+        alt="Asociacion Cultural Johannes Gutenberg"
+        class="brand-logo-light"
+        width="152"
+        height="32"
+        style="height:32px; width:auto; object-fit:contain; display:none;"
+      />
+    </div>
+
+    <!-- Dynamic Role Selector -->
+    <div class="role-selector-wrap">
+      <!-- Icono de información útil del rol activo -->
+      <div class="role-info-wrap">
+        <button
+          type="button"
+          class="btn-role-info"
+          id="btnRoleInfo"
+          title="Información y permisos del rol activo"
+          aria-label="Información del rol activo"
+          onclick="window.toggleRoleInfo ? window.toggleRoleInfo(event) : null"
+        >
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+            />
+          </svg>
+        </button>
+        <div class="role-info-tooltip" id="roleInfoTooltip">
+          <div class="role-tooltip-title">
+            <span id="roleTooltipTitle">Dirección y Coordinación</span>
+            <span class="role-tooltip-tag" id="roleTooltipTag">Acceso Total</span>
+          </div>
+          <div class="role-tooltip-desc" id="roleTooltipDesc">
+            Acceso global integral para supervisión estratégica de sedes, validación de padrón e indicadores de impacto.
+          </div>
+        </div>
+      </div>
+
+      <span class="role-selector-label">
+        <span class="role-label-full">Rol Activo:</span>
+        <span class="role-label-short">Rol:</span>
+      </span>
+
+      <div class="custom-dropdown" id="dropdownRoleSelector">
+        <button
+          type="button"
+          class="custom-dropdown-btn"
+          id="btnDropdownRoleSelector"
+          onclick="window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownRoleSelector') : null"
+        >
+          <span class="dropdown-label" id="labelActiveRole">Coordinador(a) General</span>
+          <svg fill="none" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+          </svg>
+        </button>
+        <div class="custom-dropdown-menu">
+          <div
+            class="custom-dropdown-item selected"
+            data-value="coord"
+            onclick="window.selectActiveRole ? window.selectActiveRole('coord', 'Coordinador(a) General') : null"
+          >
+            <span class="item-text">Coordinador(a) General</span>
+            <svg class="item-check-icon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+          </div>
+          <div
+            class="custom-dropdown-item"
+            data-value="facilitadora"
+            onclick="window.selectActiveRole ? window.selectActiveRole('facilitadora', 'Facilitadora Comunitaria') : null"
+          >
+            <span class="item-text">Facilitadora Comunitaria</span>
+            <svg class="item-check-icon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+          </div>
+          <div
+            class="custom-dropdown-item"
+            data-value="promotora"
+            onclick="window.selectActiveRole ? window.selectActiveRole('promotora', 'Promotora Educativa') : null"
+          >
+            <span class="item-text">Promotora Educativa</span>
+            <svg class="item-check-icon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+          </div>
+          <div
+            class="custom-dropdown-item"
+            data-value="social"
+            onclick="window.selectActiveRole ? window.selectActiveRole('social', 'Trabajadora Social') : null"
+          >
+            <span class="item-text">Trabajadora Social</span>
+            <svg class="item-check-icon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+          </div>
+          <div
+            class="custom-dropdown-item"
+            data-value="admin"
+            onclick="window.selectActiveRole ? window.selectActiveRole('admin', 'Administrador TI') : null"
+          >
+            <span class="item-text">Administrador TI</span>
+            <svg class="item-check-icon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+          </div>
+        </div>
+      </div>
+      <!-- Inputs ocultos para preservar compatibilidad con scripts existentes -->
+      <input type="hidden" id="roleSelector" value="coord" />
+      <span id="roleBannerTitle" style="display:none;">Coordinador(a) General</span>
+      <span id="roleBannerDesc" style="display:none;"></span>
+      <span id="roleBannerAccessTag" style="display:none;"></span>
+    </div>
+  </div>
+
+</header>
+
+<script is:inline>
+  (function () {
+    try {
+      var rol = localStorage.getItem("pdi_active_role") || "coord";
+      var nombres = {
+        coord: "Coordinador(a) General",
+        facilitadora: "Facilitadora Comunitaria",
+        promotora: "Promotora Educativa",
+        social: "Trabajadora Social",
+        admin: "Administrador TI"
+      };
+      var label = document.getElementById("labelActiveRole");
+      if (label && nombres[rol]) {
+        label.textContent = nombres[rol];
+      }
+      var hidden = document.getElementById("roleSelector");
+      if (hidden) hidden.value = rol;
+      var items = document.querySelectorAll("#dropdownRoleSelector .custom-dropdown-item");
+      items.forEach(function (item) {
+        var coincide = item.getAttribute("data-value") === rol;
+        item.classList.toggle("selected", coincide);
+      });
+    } catch (e) {}
+  })();
+</script>

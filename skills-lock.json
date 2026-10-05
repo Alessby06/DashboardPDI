@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "skills": {
+    "surrealdb-agent-memory-docs": {
+      "source": "surrealdb/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/surrealdb-agent-memory-docs/SKILL.md",
+      "computedHash": "96774031b3e37d50d0e10d61b69fa301c65c90d99c94d1a4e3ec4169d9e537fb"
+    },
+    "surrealdb-cli": {
+      "source": "surrealdb/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/surrealdb-cli/SKILL.md",
+      "computedHash": "0f0837ff2b2c3f5f5e9ca39d867870601d405f80bc96565a8ade6f19d37c67a4"
+    },
+    "surrealdb-docs": {
+      "source": "surrealdb/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/surrealdb-docs/SKILL.md",
+      "computedHash": "3e0043031ca9fbc083876d7643d2c58b2773eeed26b2d9ad82497ebffe24edad"
+    },
+    "surrealdb-js": {
+      "source": "surrealdb/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/surrealdb-js/SKILL.md",
+      "computedHash": "1424dead4493327b2d10e8c604b314b67b07d9113add2bab192e494a85456a96"
+    },
+    "surrealdb-python": {
+      "source": "surrealdb/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/surrealdb-python/SKILL.md",
+      "computedHash": "b691f659f00c3f6fe6c8073da9de50e7d909e2e57f6aafd91db7f4e096539cb2"
+    },
+    "surrealdb-vector": {
+      "source": "surrealdb/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/surrealdb-vector/SKILL.md",
+      "computedHash": "0f4e87ceff6ac6000dd53d86847483f558bab741bdf8390f5fe5f793d39bba7d"
+    },
+    "surrealkit": {
+      "source": "surrealdb/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/surrealkit/SKILL.md",
+      "computedHash": "24096df06eef55aaa4df2d9d63b1bd77c18cfbd46fdcbd36ab8dc57d184da10b"
+    },
+    "surrealql": {
+      "source": "surrealdb/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/surrealql/SKILL.md",
+      "computedHash": "707187b21dba4b26641127e6a79f16b1af5837e745468d24f116e5349cf63e75"
+    },
+    "surrealql-functions": {
+      "source": "surrealdb/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/surrealql-functions/SKILL.md",
+      "computedHash": "6cc363c7f0f9ef4b2c40002ade913d41f7ddc1469915ce98e68391eae9a5a11d"
+    },
+    "surrealql-performance": {
+      "source": "surrealdb/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/surrealql-performance/SKILL.md",
+      "computedHash": "36d6bce285106844c55985c0bdc05e2b1fb91ca9c4d8dc4648cc9b4f9bac1ac5"
+    }
+  }
+}

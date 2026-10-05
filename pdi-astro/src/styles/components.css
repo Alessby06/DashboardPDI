@@ -1,0 +1,742 @@
+/* Cards & Glass Containers */
+    .card {
+      background: var(--surface-1);
+      /* Sin backdrop-filter: iba sobre --surface-1, que es opaco (#ffffff en
+         claro, #181818 en oscuro), asi que difuminaba un fondo macizo. No se
+         veia nada y era caro: al encogerse el menu todas las tarjetas cambian
+         de tamano y cada una volvia a difuminar su fondo en cada fotograma. */
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      box-shadow: var(--shadow-ambient);
+      position: relative;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-size: 16.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    .kpi-card {
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 22px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      transition: transform var(--dur-fast) var(--ease-spring), border-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth);
+      box-shadow: var(--shadow-ambient);
+      will-change: transform;
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 14px 28px -6px rgba(0, 0, 0, 0.1);
+    }
+
+    .kpi-info span {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 6px;
+      letter-spacing: -0.01em;
+    }
+
+    .kpi-info h3 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      font-family: var(--mono-font);
+      line-height: 1.15;
+    }
+
+    .kpi-sub {
+      font-size: 12.5px;
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .kpi-icon-wrap {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .kpi-icon-wrap svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+    }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    .data-table th {
+      background: var(--surface-2);
+      color: var(--text-dim);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 13px 15px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .data-table td {
+      padding: 13px 15px;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-main);
+    }
+
+    .data-table tbody tr {
+      transition: background 0.15s ease;
+    }
+
+    .data-table tbody tr:hover {
+      background: var(--surface-hover);
+    }
+
+    /* Mobile Cards Accordion (Modo Móvil/Celulares) */
+    .mobile-accordion-list {
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Data Card estilo Beezlebub (Enterprise Mobile UX) */
+    .mobile-card-item {
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .datacard-header {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--surface-2);
+    }
+
+    .datacard-id {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .datacard-id span {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .datacard-header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .datacard-body {
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .datacard-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 13.5px;
+      gap: 12px;
+    }
+
+    .datacard-row:last-child {
+      border-bottom: none;
+    }
+
+    .datacard-label {
+      color: var(--text-muted);
+      font-weight: 500;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .datacard-value {
+      color: var(--text-main);
+      font-weight: 600;
+      text-align: right;
+      word-break: break-word;
+    }
+
+    /* Bloque expandible para "Ver más" / "View more" */
+    .datacard-extra {
+      display: none;
+      flex-direction: column;
+      animation: fadeInDataCard 0.25s ease-out;
+    }
+
+    .mobile-card-item.expanded .datacard-extra {
+      display: flex;
+    }
+
+    @keyframes fadeInDataCard {
+      from { opacity: 0; transform: translateY(-3px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .datacard-toggle-btn {
+      width: 100%;
+      padding: 11px 16px;
+      background: var(--surface-1);
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      color: var(--text-brand);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.15s ease, color 0.15s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .datacard-toggle-btn:hover {
+      background: var(--surface-hover);
+    }
+
+    .datacard-toggle-btn svg {
+      width: 15px;
+      height: 15px;
+      stroke: currentColor;
+      transition: transform 0.2s ease;
+    }
+
+    .mobile-card-item.expanded .datacard-toggle-btn svg {
+      transform: rotate(180deg);
+    }
+
+    .datacard-actions-footer {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border-subtle);
+      background: var(--surface-2);
+    }
+
+    /* Detección Responsiva para Celulares / Pantallas Menores a 768px (Android / Tablets) */
+    @media (max-width: 768px) {
+      .desktop-table-view {
+        display: none !important;
+      }
+      .mobile-accordion-list {
+        display: flex !important;
+      }
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+      }
+      .kpi-card {
+        padding: 16px 18px !important;
+        gap: 12px !important;
+        min-height: 96px !important;
+      }
+      .kpi-info span {
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        margin-bottom: 5px !important;
+      }
+      .kpi-info h3 {
+        font-size: 26px !important;
+      }
+      .kpi-icon-wrap {
+        width: 42px !important;
+        height: 42px !important;
+      }
+      .kpi-icon-wrap svg {
+        width: 21px !important;
+        height: 21px !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .kpi-grid {
+        gap: 10px !important;
+      }
+      .kpi-card {
+        padding: 15px 16px !important;
+        min-height: 90px !important;
+      }
+      .kpi-info span {
+        font-size: 12px !important;
+        line-height: 1.35 !important;
+      }
+      .kpi-info h3 {
+        font-size: 24px !important;
+      }
+      .kpi-icon-wrap {
+        width: 38px !important;
+        height: 38px !important;
+      }
+      .kpi-icon-wrap svg {
+        width: 19px !important;
+        height: 19px !important;
+      }
+    }
+
+    /* Badges & Pills */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      line-height: 1.3;
+      white-space: nowrap;
+    }
+
+    .servicios-badge-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 8px;
+      padding: 2px 0;
+    }
+
+    .servicios-badge-group.align-end {
+      justify-content: flex-end;
+    }
+
+    .badge-green { background: var(--gt-green-bg); color: var(--text-brand); border: 1px solid var(--gt-green-border); }
+    .badge-yellow { background: var(--gt-yellow-bg); color: var(--text-warning); border: 1px solid var(--gt-yellow-border); }
+    .badge-blue { background: var(--gt-blue-bg); color: var(--text-info); border: 1px solid var(--gt-blue-border); }
+    .badge-red { background: var(--gt-red-bg); color: var(--text-danger); border: 1px solid var(--gt-red-border); }
+    .badge-orange { background: rgba(249, 115, 22, 0.14); color: #f97316; border: 1px solid rgba(249, 115, 22, 0.35); }
+
+    /* Botones de Asistencia Reactivos (PC y Móvil) */
+    .btn-asist {
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+      background: var(--surface-2);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-spring);
+      user-select: none;
+      will-change: transform;
+    }
+
+    .btn-asist:hover {
+      background: var(--surface-hover);
+      color: var(--text-main);
+    }
+
+    .btn-asist:active {
+      transform: scale(0.96);
+    }
+
+    .btn-asist.active-P {
+      background: var(--gt-green);
+      color: #ffffff !important;
+      border-color: var(--gt-green);
+      box-shadow: 0 2px 6px rgba(0, 180, 148, 0.35);
+    }
+
+    .btn-asist.active-T {
+      background: var(--gt-yellow);
+      color: #1e1b18 !important;
+      border-color: var(--gt-yellow);
+      box-shadow: 0 2px 6px rgba(245, 158, 11, 0.35);
+    }
+
+    .btn-asist.active-FJ {
+      background: #f97316;
+      color: #ffffff !important;
+      border-color: #f97316;
+      box-shadow: 0 2px 6px rgba(249, 115, 22, 0.35);
+    }
+
+    .btn-asist.active-FI {
+      background: var(--gt-red);
+      color: #ffffff !important;
+      border-color: var(--gt-red);
+      box-shadow: 0 2px 6px rgba(239, 68, 68, 0.35);
+    }
+
+
+    /* Forms & Inputs */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .form-control {
+      padding: 10px 14px;
+      background: var(--surface-2);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      color: var(--text-main);
+      font-family: var(--ui-font);
+      font-size: 14px;
+      outline: none;
+      transition: border-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), background-color var(--dur-fast) var(--ease-smooth);
+    }
+
+    .form-control:focus {
+      border-color: var(--gt-green);
+      box-shadow: 0 0 0 3px var(--gt-green-bg);
+    }
+
+    /* Pulido Enterprise de Select Dropdowns */
+    select.form-control {
+      padding-right: 36px;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2300b494' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 14px;
+      cursor: pointer;
+    }
+
+    select.form-control:hover {
+      border-color: var(--border-bright);
+      background-color: var(--surface-hover);
+    }
+
+    select.form-control option {
+      background: var(--surface-1);
+      color: var(--text-main);
+      font-size: 13.5px;
+      font-family: var(--ui-font);
+      padding: 10px 14px;
+    }
+
+    /* Custom Dropdown Buttons */
+    .custom-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    #dropdownRoleSelector {
+      min-width: 240px;
+    }
+
+    #dropdownRoleSelector .custom-dropdown-btn {
+      width: 100%;
+    }
+
+    #dropdownRoleSelector .custom-dropdown-menu {
+      width: 100%;
+      min-width: 100%;
+    }
+
+    .custom-dropdown-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      height: 36px;
+      padding: 0 14px;
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      color: var(--text-main);
+      font-family: var(--ui-font);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth);
+      white-space: nowrap;
+    }
+
+    #labelActiveRole,
+    .dropdown-label {
+      font-size: 13px;
+    }
+
+    .custom-dropdown-btn:hover {
+      background: var(--surface-hover);
+      border-color: var(--border-bright);
+    }
+
+    .custom-dropdown.open .custom-dropdown-btn {
+      border-color: var(--gt-green);
+      box-shadow: 0 0 0 3px var(--gt-green-bg);
+    }
+
+    .custom-dropdown-btn svg {
+      width: 14px;
+      height: 14px;
+      stroke: var(--gt-green);
+      transition: transform var(--dur-norm) var(--ease-spring);
+      flex-shrink: 0;
+      will-change: transform;
+    }
+
+    .custom-dropdown.open .custom-dropdown-btn svg {
+      transform: rotate(180deg);
+    }
+
+    .custom-dropdown-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      width: 100%;
+      min-width: 100%;
+      box-sizing: border-box;
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+      padding: 6px;
+      display: none;
+      flex-direction: column;
+      gap: 2px;
+      z-index: 100;
+      animation: dropdownFadeIn var(--dur-fast) var(--ease-spring);
+      will-change: transform, opacity;
+    }
+
+    .custom-dropdown.open .custom-dropdown-menu {
+      display: flex;
+    }
+
+    @keyframes dropdownFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-4px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .custom-dropdown-item {
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      transition: background-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth);
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .custom-dropdown-item .item-text {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-align: left;
+    }
+
+    .custom-dropdown-item .item-check-icon {
+      opacity: 0;
+      visibility: hidden;
+      stroke: var(--gt-green);
+      flex-shrink: 0;
+      transition: opacity var(--dur-fast) var(--ease-smooth);
+    }
+
+    .custom-dropdown-item:hover {
+      background: var(--surface-hover);
+      color: var(--text-brand);
+    }
+
+    .custom-dropdown-item.selected {
+      background: var(--gt-green-bg);
+      color: var(--text-brand);
+      font-weight: 700;
+    }
+
+    .custom-dropdown-item.selected .item-check-icon {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Tab Views & Dynamic Switch */
+    .app-view {
+      display: none;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .app-view.active {
+      display: flex;
+    }
+
+    /* Toast Notifications Container (Bottom-Right en PC, Bottom-Center en Móviles) */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .toast-msg {
+      background: var(--surface-1);
+      border: 1px solid var(--border-bright);
+      border-radius: var(--radius-md);
+      padding: 13px 18px;
+      color: var(--text-main);
+      font-size: 13.5px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      pointer-events: auto;
+      animation: toastInBottom var(--dur-fluid) var(--ease-spring);
+      min-width: 280px;
+      max-width: 400px;
+      backdrop-filter: blur(12px);
+      will-change: transform, opacity;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    @keyframes toastInBottom {
+      from { transform: translateY(24px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @media (max-width: 768px) {
+      .toast-container {
+        bottom: 16px;
+        right: 14px;
+        left: 14px;
+        align-items: center;
+      }
+      .toast-msg {
+        width: 100%;
+        max-width: 100%;
+      }
+    }
+
+    /* ===========================================================================
+       INTERACCIONES (IxD)
+       ===========================================================================
+       Una sola regla gobierna todo lo de aqui: el movimiento existe para
+       EXPLICAR UN CAMBIO, no para decorar. Cada animacion va atada a un suceso
+       real (llega una lista, cambia un dato, se mueve un caso) y ninguna es
+       imprescindible para entender la pantalla, porque quien ha pedido menos
+       movimiento no debe perder informacion: pierde el desplazamiento, no el
+       aviso.
+
+       Las entradas se aplican con animation-fill-mode: backwards y NO ocultando
+       el elemento de antemano. Si el JavaScript no llegara a anadir la clase, el
+       contenido se ve igual; el patron contrario deja la pantalla en blanco
+       cuando algo falla, que es lo que pasaba con .stagger-item.
+       =========================================================================== */
+
+    /* Entrada de una fila o tarjeta recien pintada. El desfase por elemento lo
+       lleva --ixd-i, que AnimationEngine.entradaEscalonada() acota para que una
+       lista larga no tarde una eternidad en terminar de entrar. */
+    @media (prefers-reduced-motion: no-preference) {
+      .ixd-entrada {
+        animation: ixdEntrada 0.34s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+        animation-delay: calc(var(--ixd-i, 0) * 32ms);
+      }
+    }
+
+    @keyframes ixdEntrada {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    /* Destello de "esto acaba de cambiar".
+
+       Se resuelve con transition y no con @keyframes a proposito: las
+       animaciones por fotogramas clave se apagan con el movimiento reducido,
+       pero los cambios de color se conservan. Asi el aviso no desaparece justo
+       para quien necesita mas claridad. Y es color, no desplazamiento, asi que
+       tampoco marea. */
+    .ixd-destello {
+      background-color: var(--gt-green-bg) !important;
+      transition: background-color 700ms ease-out !important;
+    }
+
+    /* El foco de teclado no estaba declarado en ninguna de las 30.000 lineas de
+       CSS: se dependia del anillo por defecto del navegador, que sobre fondo
+       blanco es casi invisible. Es la unica regla nueva de este bloque que no
+       es decorativa: sin ella el sistema no se puede recorrer con el teclado. */
+    :focus-visible {
+      outline: 2px solid var(--brand-primary);
+      outline-offset: 2px;
+    }

@@ -1,11 +1,5 @@
 {
-  "rewrites": [
-    { "source": "/",                  "destination": "/pdi-mvc/sitio/index.html" },
-    { "source": "/css/:path*",        "destination": "/pdi-mvc/sitio/css/:path*" },
-    { "source": "/js/:path*",         "destination": "/pdi-mvc/sitio/js/:path*" },
-    { "source": "/assets/:path*",     "destination": "/pdi-mvc/sitio/assets/:path*" },
-    { "source": "/data/:path*",       "destination": "/pdi-mvc/sitio/data/:path*" },
-    { "source": "/:page.html",        "destination": "/pdi-mvc/sitio/:page.html" },
-    { "source": "/(.*)",              "destination": "/pdi-mvc/sitio/$1" }
-  ]
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "cd pdi-astro && npm install && npm run build",
+  "outputDirectory": "pdi-astro/dist"
 }
