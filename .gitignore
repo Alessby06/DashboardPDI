@@ -22,3 +22,6 @@ __pycache__/
 ~$*.xlsx
 ~$*.docx
 ~$*.pptx
+
+data/
+history.txt
