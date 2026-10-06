@@ -1,3 +1,21 @@
 ---
-return Astro.redirect('/dashboard.html');
 ---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="refresh" content="0;url=/dashboard.html" />
+    <title>Cargando Dashboard...</title>
+    <script>
+      window.location.replace('/dashboard.html');
+    </script>
+    <style>
+      body {
+        margin: 0;
+        background: #0f172a;
+      }
+    </style>
+  </head>
+  <body>
+  </body>
+</html>
