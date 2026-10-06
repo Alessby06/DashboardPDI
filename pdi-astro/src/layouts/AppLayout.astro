@@ -49,7 +49,7 @@ const { title, currentPage, pageCss } = Astro.props;
           targetDoc.documentElement.setAttribute("data-theme", oscuro ? "dark" : "light");
 
           var metaTema = targetDoc.getElementById("metaThemeColor");
-          if (metaTema) metaTema.setAttribute("content", oscuro ? "#181818" : "#ffffff");
+          if (metaTema) metaTema.setAttribute("content", oscuro ? "#15171e" : "#ffffff");
 
           var esMovil = typeof window !== "undefined" && window.innerWidth <= 900;
           if (esMovil) {
@@ -109,5 +109,11 @@ const { title, currentPage, pageCss } = Astro.props;
 
 
   <slot name="scripts" />
+
+  <script>
+    import { navigate } from 'astro:transitions/client';
+    window.PDI = window.PDI || {};
+    window.PDI.navigate = navigate;
+  </script>
 </body>
 </html>

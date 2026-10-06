@@ -1,4 +1,4 @@
-﻿---
+---
 import AppLayout from '../layouts/AppLayout.astro';
 import '../styles/views-expediente.css';
 import '../styles/expediente.css';
@@ -6,6 +6,74 @@ import '../styles/expediente.css';
 
 <AppLayout title="Expediente Integral" currentPage="expediente">
 <section class="app-view active" id="view-expediente">
+
+  <!-- Script síncrono inline para pre-hidratación instantánea: elimina los 2 segundos de campos vacíos -->
+  <script is:inline>
+    (function () {
+      function prehidratarExpediente() {
+        try {
+          var params = new URLSearchParams(window.location.search);
+          var id = params.get("id");
+          var codigo = params.get("codigo");
+          if (!id && !codigo) return;
+
+          var raw = localStorage.getItem("pdi_beneficiarios");
+          if (!raw) return;
+          var lista = JSON.parse(raw);
+          if (!Array.isArray(lista) || !lista.length) return;
+
+          var b = null;
+          if (id) {
+            var numId = parseInt(id, 10);
+            b = lista.find(function (item) { return item.id === numId; });
+          } else if (codigo) {
+            var cleanCod = codigo.trim().toLowerCase();
+            b = lista.find(function (item) { return (item.codigo || "").toLowerCase() === cleanCod; });
+          }
+          if (!b) return;
+
+          function setVal(idEl, val) {
+            var el = document.getElementById(idEl);
+            if (el && val !== undefined && val !== null) el.value = val;
+          }
+          function setText(idEl, val) {
+            var el = document.getElementById(idEl);
+            if (el && val !== undefined && val !== null) el.textContent = val;
+          }
+
+          setText("expPageTitle", "Expediente Integral: " + (b.nombres || "") + " " + (b.apellidos || "") + " (" + (b.codigo || "") + ")");
+          var sede = b.sede ? ("Sede " + b.sede) : "Sin sede asignada";
+          setText("expPageSubtitle", (b.edad || "") + " - " + (b.sexo === "M" ? "Masculino" : "Femenino") + " - " + sede);
+
+          setVal("expCodigo", b.codigo);
+          setVal("expDni", b.dni);
+          setVal("expNombres", b.nombres);
+          setVal("expApellidos", b.apellidos);
+          setVal("expFechaNac", b.fechaNac);
+          setVal("expEdad", (b.edad || "") + (b.sexo ? (" (" + (b.sexo === "M" ? "Masculino" : "Femenino") + ")") : ""));
+          setVal("expDireccion", b.direccion);
+          setVal("expReferencia", b.referencia);
+          setVal("expDistritoSede", (b.distrito || "") + (b.distrito && b.sede ? " / " : "") + (b.sede ? ("Sede " + b.sede) : ""));
+          setVal("expExoneracion", b.exoneracionAporte);
+          setVal("expSeguro", b.seguro);
+          setVal("expCentroSalud", b.centroSalud);
+          setVal("expAlergias", b.alergias);
+          setVal("expPesoTalla", (b.peso || "-") + " kg / " + (b.talla || "-") + " cm");
+          setVal("expHb", (b.hb || "-") + " g/dL (" + (b.estadoHb || "Normal") + ")");
+          setVal("expGrado", b.grado);
+          setVal("expColegio", b.colegio);
+          setVal("expApoderadoNombre", b.apoderado);
+          setVal("expApoderadoParentesco", b.parentesco);
+          setVal("expApoderadoDni", b.apoderadoDni);
+          setVal("expApoderadoTel", b.apoderadoTelefono);
+          setVal("expTelefonoAlt", b.telefonoAlt);
+        } catch (e) {}
+      }
+
+      prehidratarExpediente();
+      document.addEventListener("astro:after-swap", prehidratarExpediente);
+    })();
+  </script>
 
   <header class="expediente-page-header">
     <div class="expediente-title-wrap">
@@ -23,32 +91,43 @@ import '../styles/expediente.css';
     </div>
 
     <div class="expediente-page-nav">
-      <button type="button" class="btn-action btn-secondary" id="expPrevBtn" title="Expediente anterior">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-        </svg>
-        <span>Anterior</span>
-      </button>
-      <button type="button" class="btn-action btn-secondary" id="expNextBtn" title="Expediente siguiente">
-        <span>Siguiente</span>
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-        </svg>
-      </button>
-      <button type="button" class="btn-action btn-secondary" id="expPrintBtn"
-        onclick="window.print()" title="Imprimir el expediente completo">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" />
-        </svg>
-        <span>Imprimir</span>
-      </button>
-      <a class="btn-action btn-secondary" id="expBackToPadron" href="./padron.html" title="Volver al Padrón de Beneficiarios">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-        </svg>
-        <span>Volver al Padrón</span>
-      </a>
+      <!-- Navegación secuencial entre menores (agrupada para móvil y desktop) -->
+      <div class="expediente-nav-group-paging">
+        <button type="button" class="btn-action btn-secondary btn-icon-mobile" id="expPrevBtn"
+          onclick="window.desplazarExpediente ? window.desplazarExpediente(-1) : null"
+          title="Expediente anterior" aria-label="Expediente anterior">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+          </svg>
+          <span class="btn-text-responsive">Anterior</span>
+        </button>
+        <button type="button" class="btn-action btn-secondary btn-icon-mobile" id="expNextBtn"
+          onclick="window.desplazarExpediente ? window.desplazarExpediente(1) : null"
+          title="Expediente siguiente" aria-label="Expediente siguiente">
+          <span class="btn-text-responsive">Siguiente</span>
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Acciones del expediente (imprimir y retorno al padrón) -->
+      <div class="expediente-nav-group-actions">
+        <button type="button" class="btn-action btn-secondary btn-icon-mobile" id="expPrintBtn"
+          onclick="window.print()" title="Imprimir el expediente completo" aria-label="Imprimir expediente">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" />
+          </svg>
+          <span class="btn-text-responsive">Imprimir</span>
+        </button>
+        <a class="btn-action btn-secondary" id="expBackToPadron" href="./padron.html" title="Volver al Padrón de Beneficiarios" data-astro-prefetch>
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+          <span class="btn-back-text"><span class="desktop-only">Volver al Padrón</span><span class="mobile-only">Volver</span></span>
+        </a>
+      </div>
     </div>
   </header>
 
@@ -266,7 +345,7 @@ import '../styles/expediente.css';
                   <!-- Visor Google Maps Embed -->
                   <div class="croquis-map-wrap">
                     <iframe id="expGoogleMapIframe" class="croquis-map-iframe"
-                      src="https://maps.google.com/maps?q=Comas,Lima,Peru&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                      src="about:blank"
                       loading="lazy" allowfullscreen></iframe>
                   </div>
 

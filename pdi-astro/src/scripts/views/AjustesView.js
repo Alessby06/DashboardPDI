@@ -23,17 +23,17 @@ export const AjustesView = {
 
     if (btnLight) {
       btnLight.onclick = (e) => {
-        this.setTheme('light', true, e);
+        this.setTheme('light', false, e);
       };
     }
     if (btnDark) {
       btnDark.onclick = (e) => {
-        this.setTheme('dark', true, e);
+        this.setTheme('dark', false, e);
       };
     }
     if (btnSystem) {
       btnSystem.onclick = (e) => {
-        this.setTheme('system', true, e);
+        this.setTheme('system', false, e);
       };
     }
   },
@@ -43,24 +43,16 @@ export const AjustesView = {
   },
 
   _loadTheme() {
-    // El estado del tema y su restauracion son de Theme. Este metodo se queda
-    // para que cualquier llamada antigua siga significando lo mismo.
     Theme.cargar();
   },
 
-  /** Mascota de foco. El modo de alternar propio esta en Theme.alternarFoco(). */
+  /** Mascota de foco. */
   toggleFocoMode(event = null) {
     Theme.alternarFoco(event);
   },
 
-  /**
-   * Aplica un tema. Delegacion pura: toda la logica esta en Theme, y este metodo
-   * sobrevive porque ajustes.html lo invoca por window.PDI.AjustesView.
-   *
-   * Ver en Theme.setTheme() por que animar distingue restaurar de cambiar.
-   */
-  setTheme(themeName, showToast = true, clickEvent = null, animar = true) {
-    Theme.setTheme(themeName, showToast, clickEvent, animar);
+  setTheme(themeName, showToast = false, clickEvent = null, animar = true) {
+    Theme.setTheme(themeName, false, clickEvent, animar);
   },
 
   _updateThemeUI() {
@@ -210,7 +202,7 @@ export const AjustesView = {
 if (typeof window !== 'undefined') {
   window.PDI = window.PDI || {};
   window.PDI.AjustesView = AjustesView;
-  window.setTheme = (theme, showToast = true, event = null) => AjustesView.setTheme(theme, showToast, event);
+  window.setTheme = (theme, showToast = false, event = null) => AjustesView.setTheme(theme, false, event);
   window.toggleFocoMode = (event = null) => AjustesView.toggleFocoMode(event);
   window.triggerSync = () => AjustesView.triggerSync();
   window.clearCache = () => AjustesView.clearCache();

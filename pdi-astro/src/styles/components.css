@@ -272,6 +272,16 @@
 
     /* Detección Responsiva para Celulares / Pantallas Menores a 768px (Android / Tablets) */
     @media (max-width: 768px) {
+      .card {
+        padding: 14px 14px !important;
+        border-radius: var(--radius-md) !important;
+      }
+      .card-header {
+        margin-bottom: 12px !important;
+      }
+      .card-title {
+        font-size: 15px !important;
+      }
       .desktop-table-view {
         display: none !important;
       }

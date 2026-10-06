@@ -131,18 +131,26 @@ export const ExpedienteView = {
 
   /** Escucha lo que solo ocurre una vez por carga. */
   init() {
-    if (this._enlazado) return;
-    this._enlazado = true;
-
     this._enlazarSecciones();
+    this._enlazarNavegacion();
+  },
 
+  _enlazarNavegacion() {
     const anterior = document.getElementById("expPrevBtn");
-    if (anterior) anterior.onclick = () => this._desplazar(-1);
+    if (anterior) {
+      anterior.onclick = (e) => {
+        if (e) e.preventDefault();
+        this._desplazar(-1);
+      };
+    }
     const siguiente = document.getElementById("expNextBtn");
-    if (siguiente) siguiente.onclick = () => this._desplazar(1);
+    if (siguiente) {
+      siguiente.onclick = (e) => {
+        if (e) e.preventDefault();
+        this._desplazar(1);
+      };
+    }
 
-    // El boton de volver reutiliza la URL que ya da RouteMap, para que un cambio
-    // de nombre de pagina no deje un enlace roto en el expediente.
     const volver = document.getElementById("expBackToPadron");
     if (volver) {
       const url = window.PDI?.RouteMap?.urlDe?.("padron");
@@ -321,29 +329,66 @@ export const ExpedienteView = {
    * produciria saltos que el usuario no pidio. Si algun dia hace falta, el
    * lugar es pasar los filtros aplicados en el enlace, no suponerlos aqui.
    */
+  desplazar(direccion) {
+    return this._desplazar(direccion);
+  },
+
   _desplazar(direccion) {
-    if (!this._id) return;
-    const lista = BeneficiarioModel.getAll();
-    const indice = lista.findIndex(b => b.id === this._id);
+    let idActual = this._id;
+    if (idActual === null || idActual === undefined) {
+      const params = new URLSearchParams(window.location.search);
+      const paramId = params.get("id");
+      if (paramId) {
+        idActual = Number(paramId);
+      } else {
+        const paramCod = params.get("codigo");
+        if (paramCod) {
+          const menorCod = BeneficiarioModel.getByCodigo(paramCod);
+          if (menorCod) idActual = menorCod.id;
+        }
+      }
+    }
+    if (!idActual) {
+      const elCod = document.getElementById("expCodigo");
+      if (elCod && elCod.value) {
+        const menorDom = BeneficiarioModel.getByCodigo(elCod.value);
+        if (menorDom) idActual = menorDom.id;
+      }
+    }
+    if (!idActual) return;
+
+    let lista = BeneficiarioModel.getAll();
+    if (!Array.isArray(lista) || !lista.length) {
+      lista = BeneficiarioModel.init();
+    }
+    if (!Array.isArray(lista) || !lista.length) return;
+
+    const indice = lista.findIndex(b => Number(b.id) === Number(idActual));
     if (indice === -1) return;
 
     const destino = lista[indice + direccion];
     if (!destino) return;
 
-    // Salir del modo edicion antes de cambiar de menor. Los campos editables se
-    // rellenan con los del destino, asi que lo que se hubiera escrito a mano se
-    // pierde igual, pero al menos no se llega a la ficha siguiente con la
-    // pantalla en modo edicion y sin avisar. El mismo repintado lo usa el boton
-    // atras del navegador, asi que el comportamiento es el mismo en las dos
-    // direcciones.
     this.isEditing = false;
+    this._id = destino.id;
     this._obtenerFiltros().anadir({ id: destino.id }, () => this.render());
+    this.render();
     window.scrollTo(0, 0);
   },
 
   _pintarPosicion() {
-    const lista = BeneficiarioModel.getAll();
-    const indice = lista.findIndex(b => b.id === this._id);
+    let lista = BeneficiarioModel.getAll();
+    if (!Array.isArray(lista) || !lista.length) {
+      lista = BeneficiarioModel.init();
+    }
+    let idActual = this._id;
+    if (idActual === null || idActual === undefined) {
+      const params = new URLSearchParams(window.location.search);
+      const paramId = params.get("id");
+      if (paramId) idActual = Number(paramId);
+    }
+
+    const indice = lista.findIndex(b => Number(b.id) === Number(idActual));
     const total = lista.length;
 
     const prev = document.getElementById("expPrevBtn");
@@ -352,13 +397,21 @@ export const ExpedienteView = {
       prev.disabled = indice <= 0;
       prev.title = indice > 0
         ? `Expediente ${indice} de ${total}: ${lista[indice - 1].nombres} ${lista[indice - 1].apellidos}`
-        : "Es el primero del padron";
+        : "Es el primero del padrón";
+      prev.onclick = (e) => {
+        if (e) e.preventDefault();
+        this._desplazar(-1);
+      };
     }
     if (next) {
       next.disabled = indice === -1 || indice >= total - 1;
       next.title = indice >= 0 && indice < total - 1
         ? `Expediente ${indice + 2} de ${total}: ${lista[indice + 1].nombres} ${lista[indice + 1].apellidos}`
-        : "Es el ultimo del padron";
+        : "Es el último del padrón";
+      next.onclick = (e) => {
+        if (e) e.preventDefault();
+        this._desplazar(1);
+      };
     }
   },
 
@@ -572,11 +625,30 @@ export const ExpedienteView = {
     const hayCoordenadas = b.coordenadas && b.coordenadas.lat && b.coordenadas.lng;
 
     const iframe = document.getElementById("expGoogleMapIframe");
+    const mapaUrl = hayCoordenadas
+      ? `https://maps.google.com/maps?q=${b.coordenadas.lat},${b.coordenadas.lng}&t=&z=17&ie=UTF8&iwloc=&output=embed`
+      : `https://maps.google.com/maps?q=${consulta}&t=&z=16&ie=UTF8&iwloc=&output=embed`;
+
     if (iframe) {
       iframe.loading = "lazy";
-      iframe.src = hayCoordenadas
-        ? `https://maps.google.com/maps?q=${b.coordenadas.lat},${b.coordenadas.lng}&t=&z=17&ie=UTF8&iwloc=&output=embed`
-        : `https://maps.google.com/maps?q=${consulta}&t=&z=16&ie=UTF8&iwloc=&output=embed`;
+      // Si ya tiene IntersectionObserver activo, desconectar
+      if (this._mapObserver) {
+        this._mapObserver.disconnect();
+      }
+      // Diferir carga de mapa: solo conectar cuando sea visible para no retrasar la renderización inicial
+      if ("IntersectionObserver" in window) {
+        this._mapObserver = new IntersectionObserver((entries, obs) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              if (iframe.src !== mapaUrl) iframe.src = mapaUrl;
+              obs.unobserve(entry.target);
+            }
+          });
+        }, { rootMargin: "100px" });
+        this._mapObserver.observe(iframe);
+      } else {
+        iframe.src = mapaUrl;
+      }
     }
 
     const enlace = document.getElementById("expLinkGoogleMapsNav");
@@ -867,4 +939,5 @@ export const ExpedienteView = {
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
   window.PDI.ExpedienteView = ExpedienteView;
+  window.desplazarExpediente = (dir) => ExpedienteView._desplazar(dir);
 }

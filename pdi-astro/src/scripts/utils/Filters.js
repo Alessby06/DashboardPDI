@@ -262,7 +262,9 @@ export function crear(esquema) {
       ventanaConOyente = window;
       window.addEventListener("popstate", repintarTrasRetroceso);
     }
-    alRetroceder.push(alCambiar);
+    if (!alRetroceder.includes(alCambiar)) {
+      alRetroceder.push(alCambiar);
+    }
     alCambiar(leer());
   }
 

@@ -1,10 +1,84 @@
-﻿---
+---
 import AppLayout from '../layouts/AppLayout.astro';
 import '../styles/views-ajustes.css';
 ---
 
 <AppLayout title="Ajustes" currentPage="ajustes">
         <section class="app-view active" id="view-ajustes">
+
+          <!-- Script síncrono inline: sincroniza el estado de los botones de tema y la mascota antes del primer frame -->
+          <script is:inline>
+            (function () {
+              function sincronizarAjustesTema() {
+                try {
+                  var saved = localStorage.getItem("pdi_theme") || "system";
+                  var usaSistema = saved === "system";
+                  var oscuro = usaSistema
+                    ? !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches)
+                    : saved === "dark";
+
+                  var btnLight = document.getElementById("btnThemeLight");
+                  var btnDark = document.getElementById("btnThemeDark");
+                  var btnSystem = document.getElementById("btnThemeSystem");
+                  var badgeLight = document.getElementById("badgeThemeLight");
+                  var badgeDark = document.getElementById("badgeThemeDark");
+                  var badgeSystem = document.getElementById("badgeThemeSystem");
+
+                  if (btnLight) btnLight.classList.remove("active");
+                  if (btnDark) btnDark.classList.remove("active");
+                  if (btnSystem) btnSystem.classList.remove("active");
+                  if (badgeLight) badgeLight.style.display = "none";
+                  if (badgeDark) badgeDark.style.display = "none";
+                  if (badgeSystem) badgeSystem.style.display = "none";
+
+                  if (saved === "dark") {
+                    if (btnDark) btnDark.classList.add("active");
+                    if (badgeDark) badgeDark.style.display = "inline-flex";
+                  } else if (saved === "system") {
+                    if (btnSystem) btnSystem.classList.add("active");
+                    if (badgeSystem) badgeSystem.style.display = "inline-flex";
+                  } else {
+                    if (btnLight) btnLight.classList.add("active");
+                    if (badgeLight) badgeLight.style.display = "inline-flex";
+                  }
+
+                  var focoTrigger = document.getElementById("focoInteractiveTrigger");
+                  var bubbleTitle = document.getElementById("focoBubbleTitle");
+                  var bubbleMsg = document.getElementById("focoBubbleMsg");
+                  var bubbleIcon = document.getElementById("focoBubbleIcon");
+
+                  if (focoTrigger) {
+                    focoTrigger.classList.remove("state-light", "state-dark", "state-system");
+                    focoTrigger.classList.add("state-" + saved);
+                  }
+
+                  if (saved === "dark" || (saved === "system" && oscuro)) {
+                    if (bubbleTitle) bubbleTitle.textContent = "Modo Nocturno Activo";
+                    if (bubbleMsg) bubbleMsg.textContent = "Ambiente nocturno activado. El foco está encendido para iluminar tu espacio de trabajo. Haz clic sobre mí para volver al modo diurno.";
+                    if (bubbleIcon) {
+                      bubbleIcon.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" /></svg>';
+                    }
+                  } else if (saved === "system") {
+                    if (bubbleTitle) bubbleTitle.textContent = "Modo Sensor Inteligente";
+                    if (bubbleMsg) bubbleMsg.textContent = "Sensor automático sincronizado. La iluminación se adapta en tiempo real a las preferencias del sistema operativo de tu dispositivo.";
+                    if (bubbleIcon) {
+                      bubbleIcon.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0h-18" /></svg>';
+                    }
+                  } else {
+                    if (bubbleTitle) bubbleTitle.textContent = "Modo Diurno Activo";
+                    if (bubbleMsg) bubbleMsg.textContent = "Ambiente diurno detectado. El foco permanece en reposo para ahorrar energía. Haz clic sobre mí o usa los botones para alternar al modo noche.";
+                    if (bubbleIcon) {
+                      bubbleIcon.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m0 13.5V21m8.966-8.966h-2.25M4.284 12h-2.25m15.303-6.343l-1.591 1.591M6.257 17.743l-1.591 1.591m0-13.5l1.591 1.591m11.485 11.485l1.591 1.591M12 7.5a4.5 4.5 0 100 9 4.5 4.5 0 000-9z" /></svg>';
+                    }
+                  }
+                } catch (e) {}
+              }
+
+              sincronizarAjustesTema();
+              document.addEventListener("astro:after-swap", sincronizarAjustesTema);
+            })();
+          </script>
+
           <div class="view-header">
             <div class="view-title-group">
               <h2>Ajustes y Configuración del Sistema</h2>
@@ -36,7 +110,7 @@ import '../styles/views-ajustes.css';
                 <!-- Mascota Foco Interactivo Lumie (Vector SVG 100% puro) -->
                 <div class="foco-interactive-card" id="focoInteractiveCard">
                   <div class="foco-mascot-wrap">
-                    <button type="button" class="foco-trigger-btn state-light" id="focoInteractiveTrigger"
+                    <button type="button" class="foco-trigger-btn" id="focoInteractiveTrigger"
                       onclick="window.PDI?.AjustesView?.toggleFocoMode ? window.PDI.AjustesView.toggleFocoMode(event) : (window.toggleFocoMode ? window.toggleFocoMode(event) : null)"
                       title="Haz clic sobre el foco para encender o apagar la luz">
                       <!-- SVG Foco Vectorial Interactivo - Rediseño Gordito & Limpio -->
@@ -128,8 +202,8 @@ import '../styles/views-ajustes.css';
 
                 <!-- Botones de Selección Rápida de Tema -->
                 <div class="settings-theme-selector">
-                  <button type="button" class="theme-option-btn active" id="btnThemeLight"
-                    onclick="window.PDI?.AjustesView?.setTheme ? window.PDI.AjustesView.setTheme('light', true, event) : (window.setTheme ? window.setTheme('light', true, event) : null)">
+                  <button type="button" class="theme-option-btn" id="btnThemeLight"
+                    onclick="window.PDI?.AjustesView?.setTheme ? window.PDI.AjustesView.setTheme('light', false, event) : (window.setTheme ? window.setTheme('light', false, event) : null)">
                     <div class="theme-icon-box">
                       <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
                         viewBox="0 0 24 24">
@@ -147,7 +221,7 @@ import '../styles/views-ajustes.css';
                   </button>
 
                   <button type="button" class="theme-option-btn" id="btnThemeDark"
-                    onclick="window.PDI?.AjustesView?.setTheme ? window.PDI.AjustesView.setTheme('dark', true, event) : (window.setTheme ? window.setTheme('dark', true, event) : null)">
+                    onclick="window.PDI?.AjustesView?.setTheme ? window.PDI.AjustesView.setTheme('dark', false, event) : (window.setTheme ? window.setTheme('dark', false, event) : null)">
                     <div class="theme-icon-box">
                       <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
                         viewBox="0 0 24 24">
@@ -165,7 +239,7 @@ import '../styles/views-ajustes.css';
                   </button>
 
                   <button type="button" class="theme-option-btn" id="btnThemeSystem"
-                    onclick="window.PDI?.AjustesView?.setTheme ? window.PDI.AjustesView.setTheme('system', true, event) : (window.setTheme ? window.setTheme('system', true, event) : null)">
+                    onclick="window.PDI?.AjustesView?.setTheme ? window.PDI.AjustesView.setTheme('system', false, event) : (window.setTheme ? window.setTheme('system', false, event) : null)">
                     <div class="theme-icon-box">
                       <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
                         viewBox="0 0 24 24">

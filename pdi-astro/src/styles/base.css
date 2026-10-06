@@ -34,7 +34,7 @@
     }
 
     [data-theme="dark"] body {
-      background-color: #101010;
+      background-color: var(--bg-base);
       background-image: 
         radial-gradient(circle at 15% 15%, rgba(0, 180, 148, 0.04) 0%, transparent 50%),
         radial-gradient(circle at 85% 85%, rgba(56, 189, 248, 0.03) 0%, transparent 55%);
@@ -740,16 +740,53 @@
     }
 
     .view-title-group h2 {
-      font-size: 22px;
+      font-size: clamp(18px, 4.5vw, 22px);
       font-weight: 700;
       color: var(--text-main);
       letter-spacing: -0.02em;
     }
 
     .view-title-group p {
-      font-size: 14px;
+      font-size: clamp(12.5px, 3.2vw, 14px);
       color: var(--text-muted);
       margin-top: 2px;
+    }
+
+    @media (max-width: 900px) {
+      .topbar {
+        padding: 0 14px;
+        height: 60px;
+        min-height: 60px;
+      }
+      .content-viewport {
+        padding: 16px 14px;
+        gap: 16px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .content-viewport {
+        padding: 12px 10px;
+        gap: 12px;
+      }
+      .view-header {
+        gap: 10px;
+      }
+      .topbar-brand-wrap {
+        display: none !important;
+      }
+      .role-label-full {
+        display: none !important;
+      }
+      .role-label-short {
+        display: inline !important;
+      }
+      .topbar-right .btn-action span {
+        display: none;
+      }
+      .topbar-right .btn-action {
+        padding: 8px 10px;
+      }
     }
 
 
@@ -824,3 +861,4 @@
          pantalla. Tampoco lo alcanza el selector de arriba, porque son
          pseudoelementos del documento y no elementos. */
     }
+

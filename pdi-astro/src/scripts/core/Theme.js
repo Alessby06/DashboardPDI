@@ -43,7 +43,7 @@ export const Theme = {
     const metaTema = document.getElementById('metaThemeColor');
     if (!metaTema) return;
     const oscuro = document.documentElement.getAttribute('data-theme') === 'dark';
-    metaTema.setAttribute('content', oscuro ? '#181818' : '#ffffff');
+    metaTema.setAttribute('content', oscuro ? '#15171e' : '#ffffff');
   },
 
   /**
@@ -146,13 +146,7 @@ export const Theme = {
       applyThemeChange();
     }
 
-    // Sin guarda: window.showToast lo define legacy-globals en todas las
-    // paginas. Antes habia un `if (window.showToast)` que nunca se cumplia, y por
-    // eso ninguno de los cuatro avisos de AjustesView llegaba a verse.
-    if (showToast) {
-      const names = { light: 'Tema Claro', dark: 'Tema Oscuro', system: 'Tema Automático (SO)' };
-      window.showToast(`Tema visual actualizado a ${names[themeName] || themeName}`, 'info');
-    }
+    // Notificaciones toast eliminadas al cambiar tema según preferencia del usuario.
   },
 
   /** Sigue al sistema operativo mientras el tema elegido sea "system". */

@@ -1654,14 +1654,14 @@
     [data-theme="dark"] .app-shell,
     [data-theme="dark"] .main-wrapper,
     [data-theme="dark"] .main-content {
-      background-color: #101010 !important;
+      background-color: var(--bg-base) !important;
       color: #f3f4f6 !important;
     }
 
     [data-theme="dark"] .topbar,
     [data-theme="dark"] .sidebar {
-      background-color: #181818 !important;
-      border-color: #2d2d2d !important;
+      background-color: var(--surface-1) !important;
+      border-color: var(--border-subtle) !important;
     }
 
     [data-theme="dark"] .card,
@@ -1670,8 +1670,8 @@
     [data-theme="dark"] .sedes-master-column,
     [data-theme="dark"] .sedes-detail-column,
     [data-theme="dark"] .sedes-master-header {
-      background-color: #181818 !important;
-      border-color: #2d2d2d !important;
+      background-color: var(--surface-1) !important;
+      border-color: var(--border-subtle) !important;
       color: #f3f4f6 !important;
     }
 
@@ -1679,7 +1679,7 @@
     [data-theme="dark"] .expediente-sidebar,
     [data-theme="dark"] .sedes-master-item {
       background-color: #141414 !important;
-      border-color: #2d2d2d !important;
+      border-color: var(--border-subtle) !important;
       color: #f3f4f6 !important;
     }
 
@@ -1696,7 +1696,7 @@
     [data-theme="dark"] .btn-action:not(.primary):not(.danger) {
       background-color: #222222 !important;
       color: #f3f4f6 !important;
-      border-color: #2d2d2d !important;
+      border-color: var(--border-subtle) !important;
     }
 
     [data-theme="dark"] .data-table th {

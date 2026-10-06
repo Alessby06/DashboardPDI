@@ -167,17 +167,17 @@
 [data-theme="light"] .brand-logo-light { display: block !important; }
 
 [data-theme="dark"] {
-  --obsidian: #101010;
-  --bg-base: #101010;
-  --bg-canvas: #101010;
-  --surface-1: #181818;
-  --surface-2: #222222;
-  --surface-hover: rgba(0, 180, 148, 0.15);
-  --surface-glass: rgba(24, 24, 24, 0.95);
+  --obsidian: #0d0e12;
+  --bg-base: #0d0e12;
+  --bg-canvas: #0d0e12;
+  --surface-1: #15171e;
+  --surface-2: #1e212b;
+  --surface-hover: rgba(255, 255, 255, 0.05);
+  --surface-glass: rgba(21, 23, 30, 0.95);
   
-  --border-subtle: #2d2d2d;
+  --border-subtle: #252833;
   --border-bright: rgba(0, 180, 148, 0.55);
-  --border-medium: #454545;
+  --border-medium: #333744;
   
   --gt-green: #10b981;
   --gt-green-bg: rgba(16, 185, 129, 0.15);

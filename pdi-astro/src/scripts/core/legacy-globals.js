@@ -125,14 +125,25 @@ window.confirmExportAuditCSV = () => {
 // motivo es que el expediente tiene que salir impreso como oficio formal de
 // derivacion a DEMUNA, y un modal no se imprime con contexto propio.
 window.openExpediente = (id) => {
-  window.location.href = urlDe("expediente", { id });
+  const url = urlDe("expediente", { id });
+  if (typeof window.PDI?.navigate === "function") {
+    window.PDI.navigate(url);
+  } else {
+    window.location.href = url;
+  }
 };
 window.openExpedienteByCodigo = (codigo) => {
-  window.location.href = urlDe("expediente", { codigo });
+  const url = urlDe("expediente", { codigo });
+  if (typeof window.PDI?.navigate === "function") {
+    window.PDI.navigate(url);
+  } else {
+    window.location.href = url;
+  }
 };
 window.toggleEditExpediente = () => window.PDI?.ExpedienteView?.toggleEdit?.();
 window.saveExpedienteChanges = () => window.PDI?.ExpedienteView?.saveChanges?.();
 window.deleteBeneficiarioExpediente = () => window.PDI?.ExpedienteView?.deleteBeneficiario?.();
+window.desplazarExpediente = (dir) => window.PDI?.ExpedienteView?._desplazar?.(dir);
 // No queda shim de cerrar el expediente: el boton de cerrar estaba en el marco
 // del modal, y el modal se fue. Quien quiera volver al padron usa el enlace de
 // la cabecera de la pagina, que sale de RouteMap.
