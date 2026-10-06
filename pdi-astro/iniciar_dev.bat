@@ -28,7 +28,11 @@ call npm install
 echo.
 
 :run_dev
-echo [OK] Iniciando Astro Dev Server en puerto 4321...
-call npm run dev -- --force --open
+REM Limpieza de lockfile residual para evitar que Astro tarde buscando procesos zombies
+if exist ".astro\dev.json" del /q /f ".astro\dev.json" >nul 2>&1
+
+echo [OK] Iniciando Astro Dev Server en http://localhost:4321...
+start "" http://localhost:4321
+node --enable-source-maps=false node_modules\astro\bin\astro.mjs dev
 if errorlevel 1 pause
 exit /b 0
