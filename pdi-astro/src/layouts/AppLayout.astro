@@ -57,6 +57,7 @@ const { title, currentPage, pageCss } = Astro.props;
           } else {
             targetDoc.documentElement.removeAttribute("data-menu-cajon");
           }
+          targetDoc.documentElement.removeAttribute("data-menu-cerrandose");
         } catch (e) {}
       }
 
@@ -86,8 +87,13 @@ const { title, currentPage, pageCss } = Astro.props;
   <div class="toast-container" id="toastContainer" transition:persist></div>
 
   <div class="app-shell">
-    <!-- Mobile Sidebar Backdrop Overlay -->
-    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <!-- Mobile Sidebar Backdrop Overlay persistente -->
+    <div
+      class="sidebar-backdrop"
+      id="sidebarBackdrop"
+      onclick="window.closeSidebar ? window.closeSidebar(event) : null"
+      transition:persist
+    ></div>
 
     <!-- Sidebar Navigation persistente (evita el tirón de re-renderizado de GPU) -->
     <Sidebar currentPage={currentPage} transition:persist />

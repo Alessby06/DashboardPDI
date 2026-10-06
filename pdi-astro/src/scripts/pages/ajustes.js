@@ -27,18 +27,8 @@ function iniciar() {
   console.log("[PDI] Ajustes lista (ajustes.html).");
 }
 
-function arrancarSiAplica() {
+document.addEventListener("astro:page-load", () => {
   if (document.body && document.body.getAttribute("data-page") === "ajustes") {
     iniciar();
   }
-}
-
-// 1. Ejecutar de inmediato sin esperar a recursos diferidos si el DOM ya está parseado
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", arrancarSiAplica);
-} else {
-  arrancarSiAplica();
-}
-
-// 2. Soporte para navegación instantánea entre páginas con Astro ClientRouter
-document.addEventListener("astro:page-load", arrancarSiAplica);
+});
