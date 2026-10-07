@@ -1,32 +1,38 @@
-﻿---
+---
 import AppLayout from '../layouts/AppLayout.astro';
 import '../styles/views-padron.css';
 ---
 
-<AppLayout title="Padrón de Beneficiarios" currentPage="padron">
+<AppLayout title="Padrón de Usuarios" currentPage="padron">
         <section class="app-view active" id="view-beneficiarios">
           <div class="view-header">
             <div class="view-title-group">
-              <h2>Padrón Único de Beneficiarios</h2>
+              <h2>Padrón Único de Usuarios</h2>
               <p>Identidad central del menor, seguro de salud, escolaridad, apoderados y consentimiento informado Ley
                 N.° 29733.</p>
             </div>
-            <div style="display: flex; gap: 10px;">
+            <div class="view-actions">
+              <button type="button" class="btn-action" onclick="window.exportDataCSV ? window.exportDataCSV() : null" title="Exportar Padrón de Usuarios a CSV">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                </svg>
+                <span>Exportar Padrón</span>
+              </button>
               <button type="button" class="btn-action primary" id="btnNuevoBeneficiario"
-                onclick="window.openModalNuevoBeneficiario ? window.openModalNuevoBeneficiario() : openModalNuevoMenor()">
-                <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
+                onclick="window.openModalNuevoBeneficiario ? window.openModalNuevoBeneficiario() : openModalNuevoMenor()" title="Registrar nuevo usuario">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
-                <span>Nuevo Beneficiario</span>
+                <span>Nuevo Usuario</span>
               </button>
             </div>
           </div>
 
-          <!-- Beneficiaries Table Card -->
+          <!-- Usuarios Table Card -->
           <div class="card" id="cardPadronBeneficiarios">
             <!-- Barra de Filtros y Búsqueda Rápida de Padrón -->
             <div class="audit-toolbar" style="margin-bottom: 16px;">
-              <!-- Buscador Rápido de Beneficiarios (Lado Izquierdo) -->
+              <!-- Buscador Rápido del Padrón (Lado Izquierdo) -->
               <div class="audit-search-wrap">
                 <svg class="audit-search-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round"
@@ -123,7 +129,7 @@ import '../styles/views-padron.css';
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                                   </svg>
                                 </span>
-                                <span class="padron-item-label">Servicio Acompañamiento Educativo</span>
+                                <span class="padron-item-label">Casita del Saber</span>
                               </div>
                               <span class="padron-item-count" id="countFacetServicio-casita">(0)</span>
                             </div>
@@ -320,10 +326,10 @@ import '../styles/views-padron.css';
                         </div>
                       </div>
 
-                      <!-- Filtro 4: Edad del Beneficiario (0 a 18 años con Cuadro de Edad Específica, Barra Slider de Rango 0-18 y Botón Todas) -->
+                      <!-- Filtro 4: Edad del Usuario (0 a 18 años con Cuadro de Edad Específica, Barra Slider de Rango 0-18 y Botón Todas) -->
                       <div class="audit-filter-field">
                         <div class="facet-edad-header">
-                          <label class="audit-field-label" style="margin-bottom:0;">Edad del Beneficiario</label>
+                          <label class="audit-field-label" style="margin-bottom:0;">Edad del Usuario</label>
                           <button type="button" class="btn-facet-all-edad active" id="btnPadronEdadTodas"
                             onclick="window.clearPadronEdad ? window.clearPadronEdad() : null">
                             Todas las edades
@@ -401,9 +407,9 @@ import '../styles/views-padron.css';
                         </div>
                       </div>
 
-                      <!-- Filtro 6: Sexo del Beneficiario (Niñas / Niños) -->
+                      <!-- Filtro 6: Sexo del Usuario (Niñas / Niños) -->
                       <div class="audit-filter-field">
-                        <label class="audit-field-label">Sexo del Beneficiario</label>
+                        <label class="audit-field-label">Sexo del Usuario</label>
                         <div class="padron-inner-dropdown" id="dropdownPadronSexo">
                           <button type="button" class="padron-inner-dropdown-btn"
                             onclick="window.togglePadronInnerDropdown ? window.togglePadronInnerDropdown('dropdownPadronSexo') : null">
@@ -483,11 +489,11 @@ import '../styles/views-padron.css';
               <!-- Injected via JS -->
             </div>
 
-            <!-- Controles de Paginación Padrón de Beneficiarios (PC / Móvil) -->
+            <!-- Controles de Paginación del Padrón de Usuarios (PC / Móvil) -->
             <div class="padron-pagination-bar" id="padronPaginationBar">
               <div class="padron-pagination-left">
                 <span id="padronPaginationInfo" style="font-size:12.5px; color:var(--text-muted); font-weight:500;">
-                  Mostrando 0 de 0 beneficiarios
+                  Mostrando 0 de 0 usuarios
                 </span>
                 <div class="padron-density-wrapper" id="padronDensityWrapper"
                   style="display:flex; align-items:center; gap:6px;">

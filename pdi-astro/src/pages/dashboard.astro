@@ -10,13 +10,6 @@ import '../styles/views-dashboard.css';
       <div class="view-title-group">
         <div class="dash-title-row">
           <h2>Dashboard General</h2>
-          <span class="dash-territory-badge">
-            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-            </svg>
-            Lima Norte · Comas y Carabayllo
-          </span>
         </div>
         <p class="dash-subtitle">
           Supervisión integral de cobertura nutricional, tamizaje de salud y acompañamiento en casitas.
@@ -38,39 +31,35 @@ import '../styles/views-dashboard.css';
 
     <!-- Tira de Métricas Operativas Clave (Clean Grid) -->
     <div class="dash-kpi-grid" id="kpiDashboardContainer">
-      <div class="dash-kpi-item dash-kpi-green">
+      <div class="dash-kpi-item dash-kpi-green stagger-item">
         <div class="dash-kpi-top">
           <span class="dash-kpi-label">Beneficiarios Activos</span>
-          <span class="dash-kpi-pill green">Padrón</span>
         </div>
         <div class="dash-kpi-num" id="dashKpiBeneficiarios">15</div>
         <div class="dash-kpi-foot">100% matriculados en el programa</div>
       </div>
 
-      <div class="dash-kpi-item dash-kpi-yellow">
+      <div class="dash-kpi-item dash-kpi-yellow stagger-item">
         <div class="dash-kpi-top">
           <span class="dash-kpi-label">Tamizados CRED</span>
-          <span class="dash-kpi-pill yellow">MINSA</span>
         </div>
         <div class="dash-kpi-num" id="dashKpiTamizados">15 / 15</div>
         <div class="dash-kpi-foot">Control vigente con dosaje Hb</div>
       </div>
 
-      <div class="dash-kpi-item dash-kpi-blue">
+      <div class="dash-kpi-item dash-kpi-blue stagger-item">
         <div class="dash-kpi-top">
           <span class="dash-kpi-label">Asistencia en Casitas</span>
-          <span class="dash-kpi-pill blue">Educativo</span>
         </div>
         <div class="dash-kpi-num" id="dashKpiAsistencia">92.4%</div>
         <div class="dash-kpi-foot">Promedio territorial consolidado</div>
       </div>
 
-      <div class="dash-kpi-item dash-kpi-red">
+      <div class="dash-kpi-item dash-kpi-red stagger-item">
         <div class="dash-kpi-top">
           <span class="dash-kpi-label">Casos en Alerta</span>
-          <span class="dash-kpi-pill red">Prioridad</span>
         </div>
-        <div class="dash-kpi-num alert" id="dashKpiCasosSociales">4</div>
+        <div class="dash-kpi-num alert" id="dashKpiCasosSociales">0</div>
         <div class="dash-kpi-foot">Seguimiento clínico o social activo</div>
       </div>
     </div>
@@ -78,7 +67,7 @@ import '../styles/views-dashboard.css';
     <!-- Rejilla Principal: Semáforo Clínico y Cobertura Territorial -->
     <div class="dash-charts-grid">
       <!-- Semáforo de Anemia MINSA (Distribución Clínica) -->
-      <div class="card" id="widgetAnemiaStatus">
+      <div class="card stagger-item" id="widgetAnemiaStatus">
         <div class="card-header">
           <div class="dash-card-header-flex">
             <div class="card-title">
@@ -86,10 +75,10 @@ import '../styles/views-dashboard.css';
                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z"></path>
                 <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z"></path>
               </svg>
-              <span>Estado Nutricional y Anemia (MINSA)</span>
+              <span>Estado Nutricional y Anemia</span>
             </div>
-            <a href="/salud.html" class="dash-card-action" title="Abrir módulo de salud">
-              <span>Módulo Salud</span>
+            <a href="/salud" class="dash-card-action" title="Abrir módulo de salud">
+              <span>Ver Servicio Alimentario</span>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"></path>
               </svg>
@@ -104,9 +93,9 @@ import '../styles/views-dashboard.css';
               <span class="dash-anemia-bar-caption">Distribución diagnóstica (<span id="dashAnemiaTotalEvaluados">15</span> menores tamizados)</span>
             </div>
             <div class="dash-anemia-track" role="meter" aria-label="Distribución de casos según nivel de hemoglobina" aria-valuenow="15">
-              <div class="dash-anemia-seg normal" id="segAnemiaNormal" style="width: 47%;" title="Normal: 47%"></div>
-              <div class="dash-anemia-seg leve" id="segAnemiaLeve" style="width: 40%;" title="Anemia Leve: 40%"></div>
-              <div class="dash-anemia-seg mod" id="segAnemiaMod" style="width: 13%;" title="Anemia Moderada/Severa: 13%"></div>
+              <div class="dash-anemia-seg normal" id="segAnemiaNormal" style="width: 0%;" title="Normal: 47%"></div>
+              <div class="dash-anemia-seg leve" id="segAnemiaLeve" style="width: 0%;" title="Anemia Leve: 40%"></div>
+              <div class="dash-anemia-seg mod" id="segAnemiaMod" style="width: 0%;" title="Anemia Moderada/Severa: 13%"></div>
             </div>
           </div>
 
@@ -152,7 +141,7 @@ import '../styles/views-dashboard.css';
       </div>
 
       <!-- Cobertura Territorial por Casitas y Distritos -->
-      <div class="card" id="widgetCoverageStatus">
+      <div class="card stagger-item" id="widgetCoverageStatus">
         <div class="card-header">
           <div class="dash-card-header-flex">
             <div class="card-title">
@@ -166,8 +155,8 @@ import '../styles/views-dashboard.css';
               </svg>
               <span>Cobertura Territorial por Distrito</span>
             </div>
-            <a href="/sedes.html" class="dash-card-action" title="Abrir directorio de sedes">
-              <span>Ver Sedes</span>
+            <a href="/sedes" class="dash-card-action" title="Abrir directorio de sedes">
+              <span>Ver Sedes e Iglesias</span>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"></path>
               </svg>
@@ -187,7 +176,7 @@ import '../styles/views-dashboard.css';
               </div>
             </div>
             <div class="dash-territory-track">
-              <div class="dash-territory-bar green" style="width: 53%;" id="barDistrict_comas"></div>
+              <div class="dash-territory-bar green" style="width: 0%;" id="barDistrict_comas"></div>
             </div>
           </div>
 
@@ -203,7 +192,7 @@ import '../styles/views-dashboard.css';
               </div>
             </div>
             <div class="dash-territory-track">
-              <div class="dash-territory-bar blue" style="width: 47%;" id="barDistrict_carabayllo"></div>
+              <div class="dash-territory-bar blue" style="width: 0%;" id="barDistrict_carabayllo"></div>
             </div>
           </div>
         </div>
@@ -213,7 +202,7 @@ import '../styles/views-dashboard.css';
     <!-- Foco Operativo Inferior: Casos Prioritarios y Bitácora -->
     <div class="dash-operational-grid">
       <!-- Casos Prioritarios -->
-      <div class="card" id="widgetPriorityCases">
+      <div class="card stagger-item" id="widgetPriorityCases">
         <div class="card-header">
           <div class="dash-card-header-flex">
             <div class="card-title">
@@ -230,7 +219,7 @@ import '../styles/views-dashboard.css';
       </div>
 
       <!-- Bitácora Reciente -->
-      <div class="card" id="widgetRecentActivity">
+      <div class="card stagger-item" id="widgetRecentActivity">
         <div class="card-header">
           <div class="dash-card-header-flex">
             <div class="card-title">
@@ -239,8 +228,8 @@ import '../styles/views-dashboard.css';
               </svg>
               <span>Actividad Reciente del Programa</span>
             </div>
-            <a href="/auditoria.html" class="dash-card-action" title="Abrir bitácora completa">
-              <span>Auditoría</span>
+            <a href="/auditoria" class="dash-card-action" title="Abrir bitácora completa">
+              <span>Ver Historial de Cambios</span>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"></path>
               </svg>

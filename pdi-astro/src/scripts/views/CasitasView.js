@@ -1,4 +1,4 @@
-// Vista: Acompañamiento Educativo (Casita del Saber)
+﻿// Vista: Acompañamiento Educativo (Casita del Saber)
 import { crear as crearFiltros } from '../utils/Filters.js';
 import { Responsive } from '../utils/Responsive.js';
 
@@ -298,10 +298,10 @@ export const CasitasView = {
   },
 
   applyFilters() {
-    // Filtrar base casita (servicio de acompañamiento educativo)
+    // Filtrar base casita (Casita del Saber)
     let casitaList = (this._allBeneficiarios || []).filter(b => 
       Array.isArray(b.servicios) && b.servicios.some(s => 
-        s === "Servicio Acompañamiento Educativo" || 
+        s === "Casita del Saber" || 
         s === "Casita del Saber" || 
         (s || "").toLowerCase().includes("educat") || 
         (s || "").toLowerCase().includes("casita") || 

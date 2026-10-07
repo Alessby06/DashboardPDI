@@ -28,6 +28,11 @@ const FILTROS_AUDITORIA = {
 export const DashboardView = {
   _filtros: null,
   _filtrosLeidos: false,
+  _haEntrado: false,
+
+  reiniciarEntrada() {
+    this._haEntrado = false;
+  },
 
   _obtenerFiltros() {
     if (!this._filtros) {
@@ -84,54 +89,32 @@ export const DashboardView = {
   },
 
   render(stats, auditLogs) {
-    const animateNum = (el, val, isPct = false) => {
+    const esPrimeraEntrada = !this._haEntrado;
+    this._haEntrado = true;
+
+    const rollNum = (el, val, isPct = false) => {
       if (!el) return;
-      AnimationEngine.animateCounter(el, val, { suffix: isPct ? "%" : "" });
+      AnimationEngine.odometerRoll(el, val, { suffix: isPct ? "%" : "" });
     };
 
     const statEl = document.getElementById("statTotalNinos");
-    if (statEl) animateNum(statEl, stats.total);
+    if (statEl) rollNum(statEl, stats.total);
 
     const dashBenEl = document.getElementById("dashKpiBeneficiarios");
-    if (dashBenEl) animateNum(dashBenEl, stats.total);
+    if (dashBenEl) rollNum(dashBenEl, stats.total);
 
     const dashTamEl = document.getElementById("dashKpiTamizados");
-    if (dashTamEl) animateNum(dashTamEl, `${stats.total} / ${stats.total}`);
+    if (dashTamEl) rollNum(dashTamEl, `${stats.total} / ${stats.total}`);
 
     const dashAsisEl = document.getElementById("dashKpiAsistencia");
-    if (dashAsisEl) animateNum(dashAsisEl, 92.4, true);
+    if (dashAsisEl) rollNum(dashAsisEl, 92.4, true);
 
     const dashCasosEl = document.getElementById("dashKpiCasosSociales");
-    if (dashCasosEl) animateNum(dashCasosEl, 4);
-
-    const pctNormalEl = document.getElementById("pctNormal");
-    if (pctNormalEl) animateNum(pctNormalEl, stats.pctNormal, true);
-
-    const pctLeveEl = document.getElementById("pctLeve");
-    if (pctLeveEl) animateNum(pctLeveEl, stats.pctLeve, true);
-
-    const pctModEl = document.getElementById("pctModerada");
-    if (pctModEl) animateNum(pctModEl, stats.pctMod, true);
-
-    const barNormal = document.getElementById("barNormal");
-    if (barNormal) {
-      barNormal.style.width = "0%";
-      void barNormal.offsetWidth;
-      requestAnimationFrame(() => { barNormal.style.width = stats.pctNormal + "%"; });
-    }
-
-    const barLeve = document.getElementById("barLeve");
-    if (barLeve) {
-      barLeve.style.width = "0%";
-      void barLeve.offsetWidth;
-      requestAnimationFrame(() => { barLeve.style.width = stats.pctLeve + "%"; });
-    }
-
-    const barMod = document.getElementById("barMod");
-    if (barMod) {
-      barMod.style.width = "0%";
-      void barMod.offsetWidth;
-      requestAnimationFrame(() => { barMod.style.width = stats.pctMod + "%"; });
+    if (dashCasosEl) {
+      const criticos = window.PDI?.CasoSocialModel?.contarCriticos
+        ? window.PDI.CasoSocialModel.contarCriticos()
+        : 0;
+      rollNum(dashCasosEl, criticos);
     }
 
     const coverageContainer = document.getElementById("dashDistrictCoverage");
@@ -185,6 +168,7 @@ export const DashboardView = {
         const distPct = totalBeneficiarios > 0 ? Math.round((distCount / totalBeneficiarios) * 100) : 0;
         const sedesText = dInfo.sedes.length > 0 ? `Sedes (${dInfo.sedes.length}): ${dInfo.sedes.join(", ")}` : "Sedes activas";
         const barColorClass = dist.toLowerCase() === "comas" ? "green" : (dist.toLowerCase() === "carabayllo" ? "blue" : "yellow");
+        const startWidth = esPrimeraEntrada ? "0%" : `${distPct}%`;
 
         return `
           <div class="dash-territory-row">
@@ -199,17 +183,28 @@ export const DashboardView = {
               </div>
             </div>
             <div class="dash-territory-track">
-              <div class="dash-territory-bar ${barColorClass}" style="width: ${distPct}%;" id="barDistrict_${distSlug}"></div>
+              <div class="dash-territory-bar ${barColorClass}" style="width: ${startWidth};" data-target-width="${distPct}%" id="barDistrict_${distSlug}"></div>
             </div>
           </div>
         `;
       }).join("");
+
+      if (esPrimeraEntrada) {
+        requestAnimationFrame(() => {
+          coverageContainer.querySelectorAll(".dash-territory-bar").forEach(bar => {
+            const tw = bar.getAttribute("data-target-width");
+            if (tw) bar.style.width = tw;
+          });
+        });
+      }
     }
 
-    // Da entrada a los elementos del tablero
-    AnimationEngine.triggerStagger("view-dashboard");
+    // Da entrada a los elementos del tablero solo en la primera carga
+    if (esPrimeraEntrada) {
+      AnimationEngine.triggerStagger("view-dashboard");
+    }
 
-    // Panel de Anemia MINSA - Actualización de estado clínico directa y sin layout shift
+    // Panel de Anemia MINSA - Actualización de estado clínico directa con animación fluida
     const anemiaContainer = document.getElementById("dashAnemiaBars");
     if (anemiaContainer) {
       const segNormal = document.getElementById("segAnemiaNormal");
@@ -223,25 +218,45 @@ export const DashboardView = {
       const pctMod = document.getElementById("anemiaPctMod");
       const totalEval = document.getElementById("dashAnemiaTotalEvaluados");
 
-      if (segNormal) segNormal.style.width = `${stats.pctNormal}%`;
-      if (segLeve) segLeve.style.width = `${stats.pctLeve}%`;
-      if (segMod) segMod.style.width = `${stats.pctMod}%`;
+      if (esPrimeraEntrada) {
+        // Animar barras segmentadas desde 0% hacia su porcentaje con transición orgánica solo en entrada
+        if (segNormal) {
+          segNormal.style.width = "0%";
+          void segNormal.offsetWidth;
+          requestAnimationFrame(() => { segNormal.style.width = `${stats.pctNormal}%`; });
+        }
+        if (segLeve) {
+          segLeve.style.width = "0%";
+          void segLeve.offsetWidth;
+          requestAnimationFrame(() => { segLeve.style.width = `${stats.pctLeve}%`; });
+        }
+        if (segMod) {
+          segMod.style.width = "0%";
+          void segMod.offsetWidth;
+          requestAnimationFrame(() => { segMod.style.width = `${stats.pctMod}%`; });
+        }
+      } else {
+        // En refrescos posteriores de datos, transicionar suavemente sin reiniciar a 0%
+        if (segNormal) segNormal.style.width = `${stats.pctNormal}%`;
+        if (segLeve) segLeve.style.width = `${stats.pctLeve}%`;
+        if (segMod) segMod.style.width = `${stats.pctMod}%`;
+      }
 
-      if (totalEval) totalEval.textContent = stats.total;
-      if (legNormal) legNormal.textContent = stats.normales;
+      if (totalEval) rollNum(totalEval, stats.total);
+      if (legNormal) rollNum(legNormal, stats.normales);
       if (pctNormal) pctNormal.textContent = `(${stats.pctNormal}%)`;
-      if (legLeve) legLeve.textContent = stats.leves;
+      if (legLeve) rollNum(legLeve, stats.leves);
       if (pctLeve) pctLeve.textContent = `(${stats.pctLeve}%)`;
-      if (legMod) legMod.textContent = stats.moderadas;
+      if (legMod) rollNum(legMod, stats.moderadas);
       if (pctMod) pctMod.textContent = `(${stats.pctMod}%)`;
     }
 
-    this.renderPriorityCases();
-    this.renderRecentActivity(auditLogs);
+    this.renderPriorityCases(esPrimeraEntrada);
+    this.renderRecentActivity(auditLogs, esPrimeraEntrada);
     this.renderAuditLogs(auditLogs);
   },
 
-  renderPriorityCases() {
+  renderPriorityCases(animar = false) {
     const container = document.getElementById("dashPriorityCasesList");
     if (!container) return;
 
@@ -283,7 +298,7 @@ export const DashboardView = {
             '<span class="dash-priority-code">' + escapar(m.codigo) + '</span>' +
           '</div>' +
         '</div>' +
-        '<a href="./expediente.html?id=' + encodeURIComponent(m.id) + '" class="btn-micro-action" title="Abrir expediente de ' + escapar(m.nombres) + '" data-astro-prefetch>' +
+        '<a href="/expediente?id=' + encodeURIComponent(m.id) + '" class="btn-micro-action" title="Abrir expediente de ' + escapar(m.nombres) + '" data-astro-prefetch>' +
           '<span>Expediente</span>' +
           '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">' +
             '<path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"></path>' +
@@ -291,9 +306,13 @@ export const DashboardView = {
         '</a>' +
       '</div>';
     }).join("");
+
+    if (animar) {
+      AnimationEngine.entradaEscalonada(container, ".dash-priority-item", { paso: 35 });
+    }
   },
 
-  renderRecentActivity(auditLogs) {
+  renderRecentActivity(auditLogs, animar = false) {
     const container = document.getElementById("dashRecentActivityList");
     if (!container) return;
 
@@ -322,6 +341,10 @@ export const DashboardView = {
         '</div>' +
       '</div>';
     }).join("");
+
+    if (animar) {
+      AnimationEngine.entradaEscalonada(container, ".dash-timeline-item", { paso: 35 });
+    }
   },
 
   renderAuditLogs(logs) {

@@ -1212,73 +1212,6 @@
         flex: 1 !important;
         min-width: 0 !important;
       }
-      .role-selector-wrap {
-        gap: 6px !important;
-        flex: 1 !important;
-        min-width: 0 !important;
-        align-items: center !important;
-        justify-content: flex-end !important;
-      }
-      .role-label-full {
-        display: none !important;
-      }
-      .role-label-short {
-        display: inline !important;
-      }
-      .role-selector-label {
-        font-size: 11.5px !important;
-        font-weight: 800 !important;
-        letter-spacing: 0.04em !important;
-        color: var(--text-brand) !important;
-        flex-shrink: 0 !important;
-        white-space: nowrap !important;
-      }
-      .role-selector-wrap .custom-dropdown {
-        flex: 1 !important;
-        min-width: 0 !important;
-        max-width: 100% !important;
-      }
-      .role-selector-wrap .custom-dropdown-btn {
-        height: 36px !important;
-        padding: 0 10px !important;
-        font-size: 13px !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        justify-content: space-between !important;
-      }
-      .role-selector-wrap .custom-dropdown-btn .dropdown-label,
-      #labelActiveRole {
-        font-size: 13px !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        white-space: nowrap !important;
-        flex: 1 !important;
-        text-align: left !important;
-      }
-      .role-selector-wrap .custom-dropdown-menu {
-        left: 0 !important;
-        right: 0 !important;
-        width: 100% !important;
-        min-width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-      }
-      .btn-role-info {
-        width: 28px !important;
-        height: 28px !important;
-        flex-shrink: 0 !important;
-        cursor: pointer !important;
-      }
-      .role-info-tooltip {
-        position: fixed !important;
-        top: 66px !important;
-        left: 12px !important;
-        right: 12px !important;
-        width: auto !important;
-        max-width: calc(100vw - 24px) !important;
-        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.28) !important;
-        z-index: 1500 !important;
-      }
       .cred-calc-toggle-btn {
         padding: 12px 14px !important;
       }
@@ -1358,9 +1291,6 @@
       .custom-dropdown-btn {
         font-size: 13px !important;
         padding: 0 8px !important;
-      }
-      #labelActiveRole {
-        font-size: 13px !important;
       }
       .audit-header-left h2 {
         font-size: clamp(17px, 4.5vw, 22px) !important;
@@ -3016,3 +2946,128 @@
 }
 
 
+
+
+/* --- BOTONES DEL HEADER (EXPORTAR / NUEVO USUARIO) --- */
+.view-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.view-actions .btn-action {
+  height: 38px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-smooth);
+}
+
+.view-actions .btn-action:not(.primary) {
+  background: var(--surface-1);
+  color: var(--text-main);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.view-actions .btn-action:not(.primary):hover {
+  background: var(--surface-hover);
+  border-color: var(--border-bright);
+  color: var(--text-main);
+  transform: translateY(-1px);
+}
+
+.view-actions .btn-action.primary {
+  background: linear-gradient(135deg, #00b494 0%, #008a72 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  box-shadow: 0 4px 14px rgba(0, 180, 148, 0.3) !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  padding: 0 16px !important;
+  border-radius: var(--radius-md) !important;
+  transition: all var(--dur-fast) var(--ease-smooth) !important;
+}
+
+.view-actions .btn-action.primary:hover {
+  background: linear-gradient(135deg, #00c9a5 0%, #009d82 100%) !important;
+  box-shadow: 0 6px 20px rgba(0, 180, 148, 0.42) !important;
+  transform: translateY(-1px);
+}
+
+/* --- TABLA PRINCIPAL DEL PADRÓN: ESTABILIDAD Y ZERO LAYOUT SHIFT --- */
+#cardPadronBeneficiarios .table-container {
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-1);
+}
+
+#tablaBeneficiarios {
+  width: 100%;
+  min-width: 900px;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+#tablaBeneficiarios thead th {
+  padding: 12px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--surface-2);
+  white-space: nowrap;
+}
+
+/* Anchos fijos calibrados para eliminar Layout Shift (CLS) */
+#tablaBeneficiarios thead th:nth-child(1) { width: 11%; min-width: 95px; }
+#tablaBeneficiarios thead th:nth-child(2) { width: 22%; min-width: 180px; }
+#tablaBeneficiarios thead th:nth-child(3) { width: 10%; min-width: 85px; }
+#tablaBeneficiarios thead th:nth-child(4) { width: 10%; min-width: 85px; }
+#tablaBeneficiarios thead th:nth-child(5) { width: 14%; min-width: 120px; }
+#tablaBeneficiarios thead th:nth-child(6) { width: 18%; min-width: 150px; }
+#tablaBeneficiarios thead th:nth-child(7) { width: 8%;  min-width: 75px; }
+#tablaBeneficiarios thead th:nth-child(8) { width: 7%;  min-width: 90px; text-align: right; }
+
+#tablaBeneficiarios tbody td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#tablaBeneficiarios tbody tr {
+  transition: background-color var(--dur-fast) var(--ease-smooth);
+}
+
+#tablaBeneficiarios tbody tr:hover {
+  background-color: var(--surface-hover);
+}
+
+/* Animación de entrada suave sin translateY para filas de tabla */
+#tablaBeneficiarios tbody tr.ixd-entrada {
+  animation: ixdEntradaRow var(--dur-norm) var(--ease-out) backwards;
+  transform: none !important;
+}
+
+@keyframes ixdEntradaRow {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

@@ -1,4 +1,4 @@
-// ===========================================================================
+﻿// ===========================================================================
 //  DATOS SEMILLA - CONTENIDO FICTICIO
 // ===========================================================================
 //  Padron maestro de menores del Programa de Desarrollo Infantil.
@@ -34,7 +34,7 @@ export const defaultBeneficiarios = [
     "exoneracionAporte": "100% (Exonerado Vulnerabilidad Extrema)",
     "servicios": [
       "Servicio Alimentario Nutricional",
-      "Servicio Acompañamiento Educativo",
+      "Casita del Saber",
       "Lonchera Saludable"
     ],
     "seguro": "SIS Gratuito",
@@ -157,7 +157,7 @@ export const defaultBeneficiarios = [
     "exoneracionAporte": "100% (Exonerado Vulnerabilidad Extrema)",
     "servicios": [
       "Servicio Alimentario Nutricional",
-      "Servicio Acompañamiento Educativo"
+      "Casita del Saber"
     ],
     "seguro": "SIS Gratuito",
     "centroSalud": "C.S. El Progreso",
@@ -209,10 +209,10 @@ export const defaultBeneficiarios = [
     "distrito": "Comas",
     "sede": "Año Nuevo",
     "modalidad": "Institución Educativa",
-    "estrategia": "Servicio Acompañamiento Educativo",
+    "estrategia": "Casita del Saber",
     "exoneracionAporte": "0% (Aporte Ordinario)",
     "servicios": [
-      "Servicio Acompañamiento Educativo"
+      "Casita del Saber"
     ],
     "seguro": "EsSalud",
     "centroSalud": "Policlínico Comas",
@@ -323,7 +323,7 @@ export const defaultBeneficiarios = [
     "exoneracionAporte": "100% (Exonerado Vulnerabilidad Extrema)",
     "servicios": [
       "Servicio Alimentario Nutricional",
-      "Servicio Acompañamiento Educativo"
+      "Casita del Saber"
     ],
     "seguro": "SIS Gratuito",
     "centroSalud": "C.S. San Benito",
@@ -491,10 +491,10 @@ export const defaultBeneficiarios = [
     "distrito": "Comas",
     "sede": "La Libertad",
     "modalidad": "Institución Educativa",
-    "estrategia": "Servicio Acompañamiento Educativo",
+    "estrategia": "Casita del Saber",
     "exoneracionAporte": "0% (Aporte Ordinario)",
     "servicios": [
-      "Servicio Acompañamiento Educativo"
+      "Casita del Saber"
     ],
     "seguro": "EsSalud",
     "centroSalud": "Policlínico Comas",
@@ -550,7 +550,7 @@ export const defaultBeneficiarios = [
     "exoneracionAporte": "100% (Exonerado Vulnerabilidad Extrema)",
     "servicios": [
       "Servicio Alimentario Nutricional",
-      "Servicio Acompañamiento Educativo"
+      "Casita del Saber"
     ],
     "seguro": "SIS Gratuito",
     "centroSalud": "C.S. El Progreso",
@@ -602,10 +602,10 @@ export const defaultBeneficiarios = [
     "distrito": "Comas",
     "sede": "Carmen Alto",
     "modalidad": "Institución Educativa",
-    "estrategia": "Servicio Acompañamiento Educativo",
+    "estrategia": "Casita del Saber",
     "exoneracionAporte": "50% (Semi-exonerado)",
     "servicios": [
-      "Servicio Acompañamiento Educativo"
+      "Casita del Saber"
     ],
     "seguro": "SIS Gratuito",
     "centroSalud": "C.S. Año Nuevo",
@@ -716,7 +716,7 @@ export const defaultBeneficiarios = [
     "exoneracionAporte": "50% (Semi-exonerado)",
     "servicios": [
       "Servicio Alimentario Nutricional",
-      "Servicio Acompañamiento Educativo"
+      "Casita del Saber"
     ],
     "seguro": "SIS Gratuito",
     "centroSalud": "C.S. Año Nuevo",
@@ -823,10 +823,10 @@ export const defaultBeneficiarios = [
     "distrito": "Comas",
     "sede": "La Libertad",
     "modalidad": "Institución Educativa",
-    "estrategia": "Servicio Acompañamiento Educativo",
+    "estrategia": "Casita del Saber",
     "exoneracionAporte": "0% (Aporte Ordinario)",
     "servicios": [
-      "Servicio Acompañamiento Educativo"
+      "Casita del Saber"
     ],
     "seguro": "EsSalud",
     "centroSalud": "Policlínico Comas",

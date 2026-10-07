@@ -1,4 +1,4 @@
-﻿---
+---
 import AppLayout from '../layouts/AppLayout.astro';
 import '../styles/views-social.css';
 ---
@@ -292,40 +292,80 @@ import '../styles/views-social.css';
                 </div>
               </div>
 
+              <!-- Segmented Control Móvil (1-tap switcher táctil para pantallas pequeñas) -->
+              <div class="social-mobile-stage-segmented-wrap" id="socialMobileStageSegmented" role="tablist" aria-label="Etapas del tablero kanban">
+                <button type="button" class="stage-seg-btn active" data-stage="pendiente" role="tab" aria-selected="true"
+                  onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.setMobileActiveStage('pendiente') : null">
+                  <span class="stage-dot" style="background: var(--gt-red);"></span>
+                  <span class="stage-seg-label">Alerta</span>
+                  <span class="badge badge-red" id="mobileSegCountPendientes">0</span>
+                </button>
+                <button type="button" class="stage-seg-btn" data-stage="evaluacion" role="tab" aria-selected="false"
+                  onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.setMobileActiveStage('evaluacion') : null">
+                  <span class="stage-dot" style="background: var(--gt-yellow);"></span>
+                  <span class="stage-seg-label">Evaluación</span>
+                  <span class="badge badge-yellow" id="mobileSegCountEvaluacion">0</span>
+                </button>
+                <button type="button" class="stage-seg-btn" data-stage="canalizado" role="tab" aria-selected="false"
+                  onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.setMobileActiveStage('canalizado') : null">
+                  <span class="stage-dot" style="background: var(--gt-blue);"></span>
+                  <span class="stage-seg-label">Canalizados</span>
+                  <span class="badge badge-blue" id="mobileSegCountCanalizados">0</span>
+                </button>
+                <button type="button" class="stage-seg-btn" data-stage="cerrado" role="tab" aria-selected="false"
+                  onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.setMobileActiveStage('cerrado') : null">
+                  <span class="stage-dot" style="background: var(--gt-green);"></span>
+                  <span class="stage-seg-label">Cerrados</span>
+                  <span class="badge badge-green" id="mobileSegCountCerrados">0</span>
+                </button>
+              </div>
+
               <!-- Kanban Board -->
               <div class="kanban-board" id="kanbanCasosSociales" data-mobile-active-stage="pendiente">
                 <!-- Col 1: Pendientes -->
                 <div class="kanban-col" data-col-stage="pendiente">
-                  <div class="kanban-col-header" style="border-top: 3px solid var(--gt-red);">
-                    <span>Pendientes / Alerta</span>
-                    <span class="badge badge-red" id="kanbanCountPendientes">0</span>
+                  <div class="kanban-col-header">
+                    <div class="col-header-left">
+                      <span class="stage-dot" style="background: var(--gt-red);"></span>
+                      <span class="col-header-title">Pendientes / Alerta</span>
+                    </div>
+                    <span class="kanban-count-pill" id="kanbanCountPendientes">0</span>
                   </div>
                   <div class="kanban-col-body" id="kanbanColPendientes"></div>
                 </div>
 
                 <!-- Col 2: En Evaluación -->
                 <div class="kanban-col" data-col-stage="evaluacion">
-                  <div class="kanban-col-header" style="border-top: 3px solid var(--gt-yellow);">
-                    <span>En Evaluación Social</span>
-                    <span class="badge badge-yellow" id="kanbanCountEvaluacion">0</span>
+                  <div class="kanban-col-header">
+                    <div class="col-header-left">
+                      <span class="stage-dot" style="background: var(--gt-yellow);"></span>
+                      <span class="col-header-title">En Evaluación Social</span>
+                    </div>
+                    <span class="kanban-count-pill" id="kanbanCountEvaluacion">0</span>
                   </div>
                   <div class="kanban-col-body" id="kanbanColEvaluacion"></div>
                 </div>
 
                 <!-- Col 3: Canalizados -->
                 <div class="kanban-col" data-col-stage="canalizado">
-                  <div class="kanban-col-header" style="border-top: 3px solid var(--gt-blue);">
-                    <span>Canalizados (DEMUNA / BTF)</span>
-                    <span class="badge badge-blue" id="kanbanCountCanalizados">0</span>
+                  <div class="kanban-col-header">
+                    <div class="col-header-left">
+                      <span class="stage-dot" style="background: var(--gt-blue);"></span>
+                      <span class="col-header-title">Canalizados (DEMUNA / BTF)</span>
+                    </div>
+                    <span class="kanban-count-pill" id="kanbanCountCanalizados">0</span>
                   </div>
                   <div class="kanban-col-body" id="kanbanColCanalizados"></div>
                 </div>
 
                 <!-- Col 4: Cerrados -->
                 <div class="kanban-col" data-col-stage="cerrado">
-                  <div class="kanban-col-header" style="border-top: 3px solid var(--gt-green);">
-                    <span>Cerrados con Informe</span>
-                    <span class="badge badge-green" id="kanbanCountCerrados">0</span>
+                  <div class="kanban-col-header">
+                    <div class="col-header-left">
+                      <span class="stage-dot" style="background: var(--gt-green);"></span>
+                      <span class="col-header-title">Cerrados con Informe</span>
+                    </div>
+                    <span class="kanban-count-pill" id="kanbanCountCerrados">0</span>
                   </div>
                   <div class="kanban-col-body" id="kanbanColCerrados"></div>
                 </div>

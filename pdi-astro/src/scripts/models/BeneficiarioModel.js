@@ -21,32 +21,35 @@ export function normalizeBeneficiarioServicios(b) {
       if (low.includes("desayuno") || low.includes("alimento") || low.includes("nutric") || low.includes("lonchera")) {
         normalized.add("Servicio Alimentario Nutricional");
       } else if (low.includes("casita") || low.includes("educativ") || low.includes("refuerzo") || low.includes("escolar") || low.includes("acompañ")) {
-        normalized.add("Servicio Acompañamiento Educativo");
+        normalized.add("Casita del Saber");
       } else if (low.includes("pastoral") || low.includes("social") || low.includes("asp")) {
         normalized.add("Área Social Pastoral");
+      } else if (low.includes("mixto")) {
+        normalized.add("Servicio Alimentario Nutricional");
+        normalized.add("Casita del Saber");
       } else {
         normalized.add(s);
       }
     });
-  } else {
-    // Si no tiene arreglo de servicios definido, inferir de estrategia y vulnerabilidad
-    if (lowerEstrategia.includes("desayuno") || lowerEstrategia.includes("alimento") || lowerEstrategia.includes("nutric") || lowerEstrategia.includes("lonchera")) {
-      normalized.add("Servicio Alimentario Nutricional");
-    }
-    if (lowerEstrategia.includes("casita") || lowerEstrategia.includes("educat") || lowerEstrategia.includes("acompañ")) {
-      normalized.add("Servicio Acompañamiento Educativo");
-    }
-    if (lowerEstrategia.includes("pastoral") || lowerEstrategia.includes("social") || lowerEstrategia.includes("asp") || (b.vulnerabilidad && b.vulnerabilidad >= 80) || (b.exoneracionAporte && b.exoneracionAporte.includes("100%"))) {
-      normalized.add("Área Social Pastoral");
-    }
-    if (lowerEstrategia.includes("mixto")) {
-      normalized.add("Servicio Alimentario Nutricional");
-      normalized.add("Servicio Acompañamiento Educativo");
-    }
+  }
+
+  // Inferir de estrategia y vulnerabilidad
+  if (lowerEstrategia.includes("desayuno") || lowerEstrategia.includes("alimento") || lowerEstrategia.includes("nutric") || lowerEstrategia.includes("lonchera")) {
+    normalized.add("Servicio Alimentario Nutricional");
+  }
+  if (lowerEstrategia.includes("casita") || lowerEstrategia.includes("educat") || lowerEstrategia.includes("acompañ")) {
+    normalized.add("Casita del Saber");
+  }
+  if (lowerEstrategia.includes("pastoral") || lowerEstrategia.includes("social") || lowerEstrategia.includes("asp") || (b.vulnerabilidad && b.vulnerabilidad >= 80) || (b.exoneracionAporte && b.exoneracionAporte.includes("100%"))) {
+    normalized.add("Área Social Pastoral");
+  }
+  if (lowerEstrategia.includes("mixto")) {
+    normalized.add("Servicio Alimentario Nutricional");
+    normalized.add("Casita del Saber");
   }
 
   // Si no se asignó ninguno por defecto en datos iniciales
-  if (normalized.size === 0 && rawServicios === null) {
+  if (normalized.size === 0) {
     normalized.add("Servicio Alimentario Nutricional");
   }
 
@@ -60,9 +63,23 @@ export const BeneficiarioModel = {
   init() {
     const storage = window.PDI?.StorageService || StorageService;
     let list = storage.getItem("pdi_beneficiarios", defaultBeneficiarios);
-    if (!list || !Array.isArray(list) || list.length === 0) {
-      list = defaultBeneficiarios;
+
+    // Validación de integridad:
+    // Si la lista está vacía, no es arreglo, tiene IDs no numéricos (ej. 'pdi_001')
+    // o datos vacíos de un intento parcial con SurrealDB, restaurar datos semilla completos.
+    const esValido = Array.isArray(list) && list.length > 0 && list.every(b =>
+      b &&
+      (typeof b.id === 'number' || (!isNaN(Number(b.id)) && typeof b.id !== 'boolean')) &&
+      b.nombres &&
+      b.apellidos
+    ) && list.some(b => b.apoderado && String(b.apoderado).trim().length > 0);
+
+    if (!esValido) {
+      console.warn("[BeneficiarioModel] Cache local corrupta o incompleta. Restaurando fixtures normativos.");
+      list = JSON.parse(JSON.stringify(defaultBeneficiarios));
+      storage.setItem("pdi_beneficiarios", list);
     }
+
     // Normalizar servicios de todos los beneficiarios (existentes y por defecto)
     this._data = list.map(b => normalizeBeneficiarioServicios(b));
     storage.setItem("pdi_beneficiarios", this._data);
@@ -76,7 +93,7 @@ export const BeneficiarioModel = {
 
   getById(id) {
     const list = this.getAll();
-    return list.find(b => b.id === Number(id)) || null;
+    return list.find(b => String(b.id) === String(id) || b.id === Number(id)) || null;
   },
 
   getByCodigo(codigo) {
@@ -97,7 +114,7 @@ export const BeneficiarioModel = {
 
   update(id, updatedData) {
     const list = this.getAll();
-    const idx = list.findIndex(b => b.id === Number(id));
+    const idx = list.findIndex(b => String(b.id) === String(id) || b.id === Number(id));
     if (idx !== -1) {
       list[idx] = normalizeBeneficiarioServicios({ ...list[idx], ...updatedData });
       const storage = window.PDI?.StorageService || StorageService;
@@ -109,7 +126,7 @@ export const BeneficiarioModel = {
 
   delete(id) {
     const list = this.getAll();
-    const idx = list.findIndex(b => b.id === Number(id));
+    const idx = list.findIndex(b => String(b.id) === String(id) || b.id === Number(id));
     if (idx !== -1) {
       const removed = list.splice(idx, 1)[0];
       const storage = window.PDI?.StorageService || StorageService;

@@ -10,6 +10,10 @@ export const ModalView = {
     const modal = document.getElementById("modalNuevoMenor");
     if (modal) {
       modal.classList.add("open");
+      const mapIframe = document.getElementById("regGoogleMapIframe");
+      if (mapIframe && !mapIframe.src && mapIframe.getAttribute("data-src")) {
+        mapIframe.src = mapIframe.getAttribute("data-src");
+      }
       setTimeout(() => {
         const ctrl = window.PDI?.BeneficiarioController || (window.app && window.app.beneficiarioController);
         if (ctrl && ctrl.initSignature) ctrl.initSignature();

@@ -1,0 +1,565 @@
+---
+// Login page — completamente independiente del AppLayout
+// No tiene sidebar ni topbar: es la puerta de entrada al sistema.
+---
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Sistema PDI — Acceso al panel de gestión" />
+  <title>Ingresar | Sistema PDI</title>
+  <link rel="icon" type="image/png" href="/assets/jg-icon.png" />
+  <link rel="apple-touch-icon" href="/assets/jg-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300..900&display=swap" rel="stylesheet" />
+
+  <script is:inline>
+    /* Antiflash: aplica tema antes del primer render */
+    (function () {
+      try {
+        var saved = localStorage.getItem("pdi_theme") || "system";
+        var oscuro = saved === "dark" ||
+          (saved === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.setAttribute("data-theme", oscuro ? "dark" : "light");
+      } catch (e) {}
+    })();
+  </script>
+
+  <style>
+    /* ── Reset ──────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Tokens (duplicados mínimos del sistema) ────────────── */
+    :root {
+      --gt-green: #00b494;
+      --gt-green-bg: rgba(0, 180, 148, 0.14);
+      --gt-red: #ef4444;
+      --gt-red-bg: rgba(239, 68, 68, 0.12);
+      --gt-blue: #0284c7;
+      --brand-hover: #00997d;
+      --bg-base: #f8fafc;
+      --surface-1: #ffffff;
+      --surface-2: #f1f5f9;
+      --border-subtle: #e2e8f0;
+      --border-bright: rgba(0, 180, 148, 0.45);
+      --text-main: #0f172a;
+      --text-muted: #334155;
+      --text-dim: #64748b;
+      --text-brand: #00876f;
+      --text-danger: #dc2626;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+      --ui-font: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    [data-theme="dark"] {
+      --gt-green: #10b981;
+      --gt-green-bg: rgba(16, 185, 129, 0.14);
+      --gt-red: #ef4444;
+      --gt-red-bg: rgba(239, 68, 68, 0.14);
+      --brand-hover: #059669;
+      --bg-base: #0d0e12;
+      --surface-1: #15171e;
+      --surface-2: #1e212b;
+      --border-subtle: #252833;
+      --border-bright: rgba(0, 180, 148, 0.55);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-dim: #838994;
+      --text-brand: #10b981;
+      --text-danger: #f47f7f;
+    }
+
+    /* ── Layout ─────────────────────────────────────────────── */
+    body {
+      font-family: var(--ui-font);
+      background: var(--bg-base);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      background-image:
+        radial-gradient(circle at 15% 20%, rgba(0, 180, 148, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 85% 80%, rgba(2, 132, 199, 0.05) 0%, transparent 50%);
+    }
+
+    /* ── Card de Login ───────────────────────────────────────── */
+    .login-card {
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 20px 40px -8px rgba(0,0,0,0.10), 0 4px 12px rgba(0,0,0,0.06);
+      animation: slideUp 0.4s var(--ease-spring) both;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* ── Encabezado ─────────────────────────────────────────── */
+    .login-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .login-logo {
+      height: 36px;
+      width: auto;
+      object-fit: contain;
+      margin-bottom: 20px;
+    }
+
+    .login-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+
+    .login-subtitle {
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.4;
+    }
+
+    /* ── Formulario ─────────────────────────────────────────── */
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field-label {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .field-input-wrap {
+      position: relative;
+    }
+
+    .field-icon {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .field-input {
+      width: 100%;
+      padding: 10px 12px 10px 36px;
+      background: var(--surface-2);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      font-family: var(--ui-font);
+      font-size: 14px;
+      color: var(--text-main);
+      outline: none;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+
+    .field-input:focus {
+      border-color: var(--gt-green);
+      box-shadow: 0 0 0 3px var(--gt-green-bg);
+      background: var(--surface-1);
+    }
+
+    .field-input::placeholder {
+      color: var(--text-dim);
+    }
+
+    /* Toggle password */
+    .btn-toggle-pass {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      padding: 4px;
+      border-radius: 4px;
+      transition: color 0.15s ease;
+    }
+    .btn-toggle-pass:hover { color: var(--text-brand); }
+
+    /* ── Error ──────────────────────────────────────────────── */
+    .login-error {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      background: var(--gt-red-bg);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      font-size: 13px;
+      color: var(--text-danger);
+      font-weight: 600;
+      animation: shakeX 0.35s ease;
+    }
+
+    .login-error.visible { display: flex; }
+
+    @keyframes shakeX {
+      0%, 100% { transform: translateX(0); }
+      20%       { transform: translateX(-6px); }
+      40%       { transform: translateX(6px); }
+      60%       { transform: translateX(-4px); }
+      80%       { transform: translateX(4px); }
+    }
+
+    /* ── Botón ──────────────────────────────────────────────── */
+    .btn-login {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, var(--gt-green), var(--gt-blue));
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      font-family: var(--ui-font);
+      font-size: 14.5px;
+      font-weight: 800;
+      cursor: pointer;
+      letter-spacing: 0.01em;
+      transition: opacity 0.18s ease, transform 0.15s var(--ease-spring);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .btn-login:hover  { opacity: 0.92; transform: translateY(-1px); }
+    .btn-login:active { transform: scale(0.98); opacity: 1; }
+
+    .btn-login:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-login .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2.5px solid rgba(255,255,255,0.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+
+    .btn-login.loading .spinner  { display: block; }
+    .btn-login.loading .btn-text { opacity: 0.7; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Tabla de usuarios de ayuda ─────────────────────────── */
+    .login-hint {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .hint-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-dim);
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .hint-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .hint-table th {
+      text-align: left;
+      color: var(--text-dim);
+      font-weight: 700;
+      padding: 4px 6px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .hint-table td {
+      padding: 5px 6px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-subtle);
+      font-family: monospace;
+      font-size: 12px;
+    }
+
+    .hint-table tr:last-child td { border-bottom: none; }
+
+    .hint-table td:first-child { color: var(--text-brand); font-weight: 700; }
+
+    .hint-table tr {
+      cursor: pointer;
+      transition: background 0.12s ease;
+      border-radius: 4px;
+    }
+
+    .hint-table tr:hover td { background: var(--gt-green-bg); }
+
+    /* ── Footer ─────────────────────────────────────────────── */
+    .login-footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 11.5px;
+      color: var(--text-dim);
+    }
+
+    @media (max-width: 480px) {
+      .login-card {
+        padding: 28px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <div class="login-header">
+      <img
+        src="/assets/logo-light-acjg.png"
+        alt="Asociación Cultural Johannes Gutenberg"
+        class="login-logo brand-logo-dark"
+      />
+      <img
+        src="/assets/logo-asociacion.png"
+        alt="Asociación Cultural Johannes Gutenberg"
+        class="login-logo brand-logo-light"
+        style="display:none;"
+      />
+      <div class="login-title">Sistema PDI</div>
+      <div class="login-subtitle">Programa de Infancia Saludable<br/>Ingresa con tus credenciales de acceso</div>
+    </div>
+
+    <form class="login-form" id="loginForm" autocomplete="on" novalidate>
+      <!-- Usuario -->
+      <div class="field-group">
+        <label class="field-label" for="inputUsuario">Usuario</label>
+        <div class="field-input-wrap">
+          <span class="field-icon">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+            </svg>
+          </span>
+          <input
+            type="text"
+            id="inputUsuario"
+            name="usuario"
+            class="field-input"
+            placeholder="nombre de usuario"
+            autocomplete="username"
+            required
+            spellcheck="false"
+          />
+        </div>
+      </div>
+
+      <!-- Contraseña -->
+      <div class="field-group">
+        <label class="field-label" for="inputClave">Contraseña</label>
+        <div class="field-input-wrap">
+          <span class="field-icon">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+            </svg>
+          </span>
+          <input
+            type="password"
+            id="inputClave"
+            name="clave"
+            class="field-input"
+            placeholder="contraseña"
+            autocomplete="current-password"
+            required
+          />
+          <button type="button" class="btn-toggle-pass" id="btnTogglePass" aria-label="Mostrar/ocultar contraseña">
+            <svg id="iconOjo" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div class="login-error" id="loginError" role="alert" aria-live="polite">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="flex-shrink:0;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+        </svg>
+        <span id="loginErrorMsg">Usuario o contraseña incorrectos.</span>
+      </div>
+
+      <!-- Botón -->
+      <button type="submit" class="btn-login" id="btnLogin">
+        <div class="spinner"></div>
+        <span class="btn-text">Ingresar al sistema</span>
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+        </svg>
+      </button>
+    </form>
+
+    <!-- Tabla de ayuda con credenciales de acceso rápido -->
+    <div class="login-hint">
+      <div class="hint-title">Credenciales de acceso disponibles</div>
+      <table class="hint-table" id="hintTable">
+        <thead>
+          <tr>
+            <th>Rol</th>
+            <th>Usuario</th>
+            <th>Contraseña</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-user="coordinacion" data-pass="coord2024">
+            <td>Coordinación</td><td>coordinacion</td><td>coord2024</td>
+          </tr>
+          <tr data-user="facilitadora" data-pass="facil2024">
+            <td>Facilitadora</td><td>facilitadora</td><td>facil2024</td>
+          </tr>
+          <tr data-user="promotora" data-pass="promo2024">
+            <td>Promotora</td><td>promotora</td><td>promo2024</td>
+          </tr>
+          <tr data-user="social" data-pass="social2024">
+            <td>Trabajadora Social</td><td>social</td><td>social2024</td>
+          </tr>
+          <tr data-user="admin" data-pass="admin2024">
+            <td>Admin TI</td><td>admin</td><td>admin2024</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="login-footer">
+      Sistema PDI &mdash; Asociación Cultural Johannes Gutenberg
+    </div>
+  </div>
+
+  <script>
+    import { autenticar, haySesion } from '../scripts/auth/usuarios.js';
+
+    // Si ya hay sesión, ir directo al dashboard
+    if (haySesion()) {
+      window.location.replace('/dashboard');
+    }
+
+    // Aplicar logo correcto según tema
+    const tema = document.documentElement.getAttribute('data-theme');
+    const logoDark = document.querySelector('.brand-logo-dark');
+    const logoLight = document.querySelector('.brand-logo-light');
+    if (logoDark && logoLight) {
+      if (tema === 'light') {
+        logoDark.style.display = 'none';
+        logoLight.style.display = 'block';
+      } else {
+        logoDark.style.display = 'block';
+        logoLight.style.display = 'none';
+      }
+    }
+
+    // Toggle mostrar/ocultar contraseña
+    const btnToggle = document.getElementById('btnTogglePass');
+    const inputClave = document.getElementById('inputClave');
+    btnToggle?.addEventListener('click', () => {
+      const esPassword = inputClave.type === 'password';
+      inputClave.type = esPassword ? 'text' : 'password';
+      btnToggle.setAttribute('aria-label', esPassword ? 'Ocultar contraseña' : 'Mostrar contraseña');
+    });
+
+    // Click en fila de la tabla de ayuda → rellena el form
+    document.getElementById('hintTable')?.addEventListener('click', (e) => {
+      const fila = e.target.closest('tr[data-user]');
+      if (!fila) return;
+      const inputUsuario = document.getElementById('inputUsuario');
+      const inputClave = document.getElementById('inputClave');
+      if (inputUsuario) inputUsuario.value = fila.dataset.user;
+      if (inputClave) inputClave.value = fila.dataset.pass;
+      inputClave?.focus();
+      ocultarError();
+    });
+
+    function mostrarError(msg) {
+      const el = document.getElementById('loginError');
+      const msg2 = document.getElementById('loginErrorMsg');
+      if (msg2) msg2.textContent = msg;
+      if (el) {
+        el.classList.remove('visible');
+        void el.offsetWidth; // refleja para re-animar
+        el.classList.add('visible');
+      }
+    }
+
+    function ocultarError() {
+      document.getElementById('loginError')?.classList.remove('visible');
+    }
+
+    // Submit del formulario
+    const form = document.getElementById('loginForm');
+    const btnLogin = document.getElementById('btnLogin');
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      ocultarError();
+
+      const usuario = document.getElementById('inputUsuario')?.value?.trim() ?? '';
+      const clave = document.getElementById('inputClave')?.value ?? '';
+
+      if (!usuario || !clave) {
+        mostrarError('Completa todos los campos.');
+        return;
+      }
+
+      // Estado de carga
+      btnLogin.disabled = true;
+      btnLogin.classList.add('loading');
+
+      // Pequeño delay artificial para feedback visual (evitar flash instantáneo)
+      await new Promise(r => setTimeout(r, 400));
+
+      const resultado = autenticar(usuario, clave);
+
+      if (resultado.ok) {
+        // Éxito: navegar al dashboard
+        window.location.replace('/dashboard');
+      } else {
+        btnLogin.disabled = false;
+        btnLogin.classList.remove('loading');
+        mostrarError(resultado.error || 'Usuario o contraseña incorrectos. Intenta de nuevo.');
+        document.getElementById('inputClave')?.select();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,5 +1,5 @@
-﻿// ===========================================================================
-//  Padron de Beneficiarios - Punto de entrada de padron.html
+// ===========================================================================
+//  Padron de Usuarios - Punto de entrada de padron.html
 // ===========================================================================
 //  Tabla maestra con busqueda, filtros combinables y paginacion.
 //
@@ -43,6 +43,7 @@ function iniciar() {
   // nada mas que hacer en este documento.
   if (!arrancarComun()) return;
 
+  BeneficiariosView.reiniciarEntrada();
   enlazar();
   montar();
 
@@ -51,10 +52,8 @@ function iniciar() {
   // tablas; ahora solo la que esta a la vista.
   publicarRefresco(montar);
 
-  console.log("[PDI] Padron de Beneficiarios lista (padron.html).");
+  console.log("[PDI] Padron de Usuarios lista (padron.html).");
 }
-
-
 
 document.addEventListener("astro:page-load", () => {
   if (document.body && document.body.getAttribute("data-page") === "padron") {

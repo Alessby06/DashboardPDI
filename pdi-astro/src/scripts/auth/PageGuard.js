@@ -92,7 +92,6 @@ export const PageGuard = {
     }
 
     this.aplicarBloqueoMenu(rol);
-    this.sincronizarSelector(rol);
     return slug;
   },
 
@@ -119,7 +118,7 @@ export const PageGuard = {
       console.error("[PageGuard] Destino de redireccion inexistente:", slug);
       return;
     }
-    window.location.replace(`./${destino.archivo}`);
+    window.location.replace(`/${slug}`);
   },
 
   /**
@@ -156,49 +155,6 @@ export const PageGuard = {
         };
       }
     });
-  },
-
-  /** Deja el <select> y el desplegable visual coherentes con el rol real. */
-  sincronizarSelector(rol) {
-    const oculto = document.getElementById("roleSelector");
-    if (oculto && oculto.value !== rol) {
-      oculto.value = rol;
-    }
-
-    const items = document.querySelectorAll("#dropdownRoleSelector .custom-dropdown-item");
-    let activo = null;
-
-    items.forEach((item) => {
-      const coincide = item.getAttribute("data-value") === rol;
-      item.classList.toggle("selected", coincide);
-      if (coincide) activo = item;
-    });
-
-    if (activo) {
-      const texto = activo.querySelector(".item-text")?.textContent?.trim();
-      const etiqueta = document.getElementById("labelActiveRole");
-      if (etiqueta && texto) etiqueta.textContent = texto;
-
-      const menu = document.querySelector("#dropdownRoleSelector .custom-dropdown-menu");
-      if (menu && menu.firstElementChild !== activo) menu.prepend(activo);
-    }
-  },
-
-  /**
-   * Reevalua el acceso tras un cambio de rol, en caliente, sin recargar.
-   * Lo llama el selector de rol. Si el rol nuevo pierde el acceso a la pagina
-   * en la que esta, redirige.
-   */
-  alCambiarRol(rolNuevo) {
-    if (!ROLES_CONOCIDOS.includes(rolNuevo)) return;
-    this.rolActual = rolNuevo;
-
-    if (this.slugActual && !puedeAcceder(this.slugActual, rolNuevo)) {
-      this.denegar(this.slugActual, rolNuevo);
-      return;
-    }
-
-    this.aplicarBloqueoMenu(rolNuevo);
   },
 
   /** Aviso breve. Usa el sistema de notificaciones si ya esta montado. */

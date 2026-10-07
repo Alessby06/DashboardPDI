@@ -23,7 +23,7 @@
  */
 export const PAGINAS = {
   dashboard: {
-    archivo: "dashboard.html",
+    ruta: "/dashboard",
     etiqueta: "Dashboard General",
     view: "view-dashboard",
     grupo: "General",
@@ -32,8 +32,8 @@ export const PAGINAS = {
   },
 
   padron: {
-    archivo: "padron.html",
-    etiqueta: "Padrón de Beneficiarios",
+    ruta: "/padron",
+    etiqueta: "Padrón de Usuarios",
     view: "view-beneficiarios",
     grupo: "General",
     enMenu: true,
@@ -41,7 +41,7 @@ export const PAGINAS = {
   },
 
   salud: {
-    archivo: "salud.html",
+    ruta: "/salud",
     etiqueta: "Salud y Nutrición (CRED)",
     view: "view-salud",
     grupo: "Operación",
@@ -51,7 +51,7 @@ export const PAGINAS = {
   },
 
   educativo: {
-    archivo: "educativo.html",
+    ruta: "/educativo",
     etiqueta: "Casita del Saber",
     view: "view-educativo",
     grupo: "Operación",
@@ -60,8 +60,8 @@ export const PAGINAS = {
   },
 
   social: {
-    archivo: "social.html",
-    etiqueta: "Derivaciones Sociales (ASP)",
+    ruta: "/social",
+    etiqueta: "Área Social Pastoral",
     view: "view-social",
     grupo: "Operación",
     enMenu: true,
@@ -69,7 +69,7 @@ export const PAGINAS = {
   },
 
   sedes: {
-    archivo: "sedes.html",
+    ruta: "/sedes",
     etiqueta: "Sedes e Iglesias",
     view: "view-sedes",
     grupo: "Operación",
@@ -81,7 +81,7 @@ export const PAGINAS = {
   // no "voluntarios". El identificador de vista heredado si es "view-voluntarios"
   // y no tiene por que coincidir, porque lo traduce slugDesdeView().
   voluntariados: {
-    archivo: "voluntariados.html",
+    ruta: "/voluntariados",
     etiqueta: "Voluntariados",
     view: "view-voluntarios",
     grupo: "Operación",
@@ -90,7 +90,7 @@ export const PAGINAS = {
   },
 
   auditoria: {
-    archivo: "auditoria.html",
+    ruta: "/auditoria",
     etiqueta: "Historial de Cambios",
     view: "view-auditoria",
     grupo: "Sistema",
@@ -100,7 +100,7 @@ export const PAGINAS = {
   },
 
   ajustes: {
-    archivo: "ajustes.html",
+    ruta: "/ajustes",
     etiqueta: "Ajustes",
     view: "view-ajustes",
     grupo: "Sistema",
@@ -112,7 +112,7 @@ export const PAGINAS = {
   // El expediente cruza padron y caso social, asi que exige poder ver el
   // padron; quien no lo ve, no lo abre.
   expediente: {
-    archivo: "expediente.html",
+    ruta: "/expediente",
     etiqueta: "Expediente",
     view: "view-expediente",
     grupo: null,
@@ -173,9 +173,9 @@ export function slugDesdeView(viewId) {
 /** URL relativa de una pagina, con parametros opcionales ya serializados. */
 export function urlDe(slug, params = null) {
   const p = pagina(slug);
-  if (!p) return "./dashboard.html";
+  if (!p) return "/dashboard";
 
-  let url = `./${p.archivo}`;
+  let url = p.ruta || `/${slug}`;
   if (params) {
     const limpio = {};
     for (const [k, v] of Object.entries(params)) {

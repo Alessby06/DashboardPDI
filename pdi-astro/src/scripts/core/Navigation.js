@@ -2,15 +2,11 @@
 //  NAVEGACION - Chrome comun a todas las paginas
 // ===========================================================================
 import { PageGuard } from "../auth/PageGuard.js";
-import { RoleController } from "../controllers/RoleController.js";
 
 export const Navigation = {
   _backdrop: null,
   _onKey: null,
   _onResize: null,
-  _onRoleChange: null,
-  _onMenuClick: null,
-  _onDocClick: null,
 
   /** Ancho por debajo del cual el menu es cajon (móvil / tablet). */
   ANCHO_CAJON: 900,
@@ -187,60 +183,7 @@ export const Navigation = {
     window.addEventListener("resize", this._onResize);
   },
 
-  /**
-   * Selector de rol.
-   */
-  bindRoleSelector() {
-    const oculto = document.getElementById("roleSelector");
-    if (oculto) {
-      if (this._onRoleChange) oculto.removeEventListener("change", this._onRoleChange);
-      this._onRoleChange = (e) => {
-        this.seleccionarRol(e.target.value);
-      };
-      oculto.addEventListener("change", this._onRoleChange);
-    }
 
-    const desplegable = document.getElementById("dropdownRoleSelector");
-    if (desplegable) {
-      if (this._onMenuClick) desplegable.removeEventListener("click", this._onMenuClick);
-      this._onMenuClick = (e) => {
-        const item = e.target.closest(".custom-dropdown-item");
-        if (!item) return;
-        e.preventDefault();
-        const texto = item.querySelector(".item-text")?.textContent?.trim();
-        this.seleccionarRol(item.getAttribute("data-value"), texto);
-      };
-      desplegable.addEventListener("click", this._onMenuClick);
-
-      if (this._onDocClick) document.removeEventListener("click", this._onDocClick);
-      this._onDocClick = (e) => {
-        if (!desplegable.contains(e.target)) desplegable.classList.remove("open");
-      };
-      document.addEventListener("click", this._onDocClick);
-    }
-  },
-
-  seleccionarRol(rol, titulo = null) {
-    if (!rol) return;
-    PageGuard.guardarRol(rol);
-
-    const oculto = document.getElementById("roleSelector");
-    if (oculto) oculto.value = rol;
-
-    if (titulo) {
-      const etiqueta = document.getElementById("labelActiveRole");
-      if (etiqueta) etiqueta.textContent = titulo;
-    }
-
-    PageGuard.alCambiarRol(rol);
-    RoleController.applyRolePermissions(rol, null, false);
-    this._cerrarDesplegable();
-  },
-
-  _cerrarDesplegable() {
-    const desplegable = document.getElementById("dropdownRoleSelector");
-    if (desplegable) desplegable.classList.remove("open");
-  },
 
   bindModalTabs() {
     const botones = document.querySelectorAll(".modal-tab-btn");
@@ -294,9 +237,6 @@ export const Navigation = {
     if (this._backdrop) this._backdrop.onclick = null;
     if (this._onKey) document.removeEventListener("keydown", this._onKey);
     if (this._onResize) window.removeEventListener("resize", this._onResize);
-    if (this._onRoleChange) document.getElementById("roleSelector")?.removeEventListener("change", this._onRoleChange);
-    if (this._onMenuClick) document.getElementById("dropdownRoleSelector")?.removeEventListener("click", this._onMenuClick);
-    if (this._onDocClick) document.removeEventListener("click", this._onDocClick);
   },
 };
 

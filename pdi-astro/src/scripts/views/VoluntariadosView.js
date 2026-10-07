@@ -43,6 +43,14 @@ export const VoluntariadosView = {
   _filterRol: [],
   _filterEstado: "all",
   _filteredList: [],
+  _haEntrado: false,
+  _lastRenderSerial: "",
+
+  reiniciarEntrada() {
+    this._haEntrado = false;
+    this._lastRenderSerial = "";
+  },
+
   // Estado de edicion en curso. No va en la URL: es un modal, no una vista, y
   // relajar a alguien a mitad de una ficha es peor que no recorderlo.
   _currentEditingId: null,
@@ -117,13 +125,16 @@ export const VoluntariadosView = {
     });
   },
 
-  render() {
+  render(forzarAnimacion = false) {
+    const esPrimeraEntrada = !this._haEntrado || forzarAnimacion;
+    this._haEntrado = true;
+
     this._leerFiltrosDeURL();
     this._voluntarios = VoluntarioModel.getAll();
-    this._renderKPIs();
+    this._renderKPIs(esPrimeraEntrada);
     this._renderActiveChips();
     this._vigilarVariante();
-    this.applyFilters();
+    this.applyFilters(esPrimeraEntrada);
   },
 
   /**
@@ -134,35 +145,36 @@ export const VoluntariadosView = {
   _vigilarVariante() {
     if (this._vigilaVariante) return;
     this._vigilaVariante = true;
-    Responsive.alCambiarDeVariante(() => this.applyFilters());
+    Responsive.alCambiarDeVariante(() => this.applyFilters(false));
   },
 
-  _renderKPIs() {
+  _renderKPIs(animar = false) {
     const stats = VoluntarioModel.getStats();
     
-    // Las cifras recorren hasta su valor en vez de aparecer de golpe, que es lo
-    // que ya hacian las del dashboard. El badge de activas es texto, no numero,
-    // y se escribe directo.
-    const kpiTotal = document.getElementById("kpiVoluntariosTotal");
-    if (kpiTotal) AnimationEngine.animateCounter(kpiTotal, stats.total);
+    // Las cifras ruedan en odómetro orgánico en la primera entrada sin parpadear en refrescos
+    const rollKPI = (el, val) => {
+      if (!el) return;
+      if (animar) {
+        AnimationEngine.odometerRoll(el, val);
+      } else if (!el.querySelector(".odometer-wrap")) {
+        el.textContent = val;
+      }
+    };
+
+    rollKPI(document.getElementById("kpiVoluntariosTotal"), stats.total);
 
     const kpiActivos = document.getElementById("kpiVoluntariosActivos");
     if (kpiActivos) kpiActivos.textContent = `${stats.activos} activas`;
 
-    const kpiDesayuno = document.getElementById("kpiVoluntariosDesayuno");
-    if (kpiDesayuno) AnimationEngine.animateCounter(kpiDesayuno, stats.desayuno);
-
-    const kpiCasita = document.getElementById("kpiVoluntariosCasitas");
-    if (kpiCasita) AnimationEngine.animateCounter(kpiCasita, stats.casita);
-
-    const kpiCanastas = document.getElementById("kpiVoluntariosCanastas");
-    if (kpiCanastas) AnimationEngine.animateCounter(kpiCanastas, stats.canastasTotal);
+    rollKPI(document.getElementById("kpiVoluntariosDesayuno"), stats.desayuno);
+    rollKPI(document.getElementById("kpiVoluntariosCasitas"), stats.casita);
+    rollKPI(document.getElementById("kpiVoluntariosCanastas"), stats.canastasTotal);
 
     const badgeNav = document.getElementById("badgeTotalVoluntarios");
     if (badgeNav) badgeNav.textContent = stats.total;
   },
 
-  applyFilters() {
+  applyFilters(animar = true) {
     let list = [...this._voluntarios];
 
     // Búsqueda inteligente: insensible a tildes y búsqueda de nombre completo
@@ -204,6 +216,18 @@ export const VoluntariadosView = {
       list = list.filter(v => v.estado === this._filterEstado);
     }
 
+    const serial = `${this._searchQuery}_${this._filterDistrito.join(',')}_${this._filterServicio.join(',')}_${this._filterRol.join(',')}_${this._filterEstado}_` +
+      list.map(v => `${v.id}_${v.estado}`).join('|');
+
+    const tbody = document.getElementById("tbodyVoluntarios");
+    const mobileContainer = document.getElementById("mobileCardsVoluntarios");
+    const hasContent = (tbody && tbody.children.length > 0) || (mobileContainer && mobileContainer.children.length > 0);
+
+    if (!animar && this._lastRenderSerial === serial && hasContent) {
+      return;
+    }
+    this._lastRenderSerial = serial;
+
     const countHeaderEl = document.getElementById("voluntariosRecordsCount");
     if (countHeaderEl) {
       countHeaderEl.textContent = `Mostrando ${list.length} de ${this._voluntarios.length} voluntarias y personal comunitario`;
@@ -214,11 +238,11 @@ export const VoluntariadosView = {
     this._renderActiveChips();
     this._renderTableAndCards(list);
 
-    // La entrada se dispara aqui porque applyFilters() es el embudo unico: lo
-    // llaman el buscador, los cuatro filtros y el restablecer, y es el momento
-    // en que el contenido de la lista cambia de verdad.
-    AnimationEngine.entradaEscalonada("tbodyVoluntarios", ":scope > tr", { paso: 26, maxDesfase: 14 });
-    AnimationEngine.entradaEscalonada("mobileCardsVoluntarios", ":scope > *", { paso: 26, maxDesfase: 14 });
+    // La entrada se dispara solo cuando corresponde (primera carga o filtro manual)
+    if (animar) {
+      AnimationEngine.entradaEscalonada("tbodyVoluntarios", ":scope > tr", { paso: 22, maxDesfase: 10 });
+      AnimationEngine.entradaEscalonada("mobileCardsVoluntarios", ":scope > *", { paso: 22, maxDesfase: 10 });
+    }
   },
 
   _updateActiveFilterBadge() {
@@ -341,47 +365,70 @@ export const VoluntariadosView = {
     if (tbody && !enMovil) {
       tbody.innerHTML = voluntarios.map(v => {
         let badgeServClass = "badge-green";
-        if (v.servicio === "Casita del Saber") badgeServClass = "badge-yellow";
-        if (v.servicio === "Área Social Pastoral (ASP)") badgeServClass = "badge-blue";
+        let servDotClass = "dot-green";
+        let servColorClass = "serv-desayuno";
+        if (v.servicio === "Casita del Saber") {
+          badgeServClass = "badge-yellow";
+          servDotClass = "dot-amber";
+          servColorClass = "serv-casita";
+        }
+        if (v.servicio === "Área Social Pastoral (ASP)") {
+          badgeServClass = "badge-blue";
+          servDotClass = "dot-blue";
+          servColorClass = "serv-pastoral";
+        }
 
         let badgeEstadoClass = v.estado === "Activo" ? "badge-green" : (v.estado === "En Pausa" ? "badge-yellow" : "badge-gray");
+        let estadoDotClass = v.estado === "Activo" ? "dot-green" : (v.estado === "En Pausa" ? "dot-amber" : "dot-gray");
         const capCount = (v.capacitaciones && v.capacitaciones.length) || 0;
 
         return `
-          <tr>
+          <tr class="padron-tr">
             <td>
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="width: 32px; height: 32px; border-radius: var(--radius-full); background: var(--surface-2); border: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; color: var(--text-brand);">
+              <div class="padron-user-cell">
+                <div class="padron-avatar ${servColorClass}">
                   ${escapar(v.nombres.charAt(0))}${escapar(v.apellidos.charAt(0))}
                 </div>
-                <div>
-                  <strong>${escapar(v.nombres)} ${escapar(v.apellidos)}</strong>
-                  <div style="font-size: 11.5px; color: var(--text-dim); font-family: var(--mono-font);">${escapar(v.codigo)} &bull; DNI: ${escapar(v.dni)}</div>
+                <div class="padron-user-info">
+                  <div class="padron-user-name">${escapar(v.nombres)} ${escapar(v.apellidos)}</div>
+                  <div class="padron-user-meta">
+                    <span class="padron-code">${escapar(v.codigo)}</span>
+                    <span class="padron-meta-sep">&bull;</span>
+                    <span>DNI ${escapar(v.dni)}</span>
+                  </div>
                 </div>
               </div>
             </td>
             <td>
-              <div style="font-weight: 600; color: var(--text-main);">${escapar(v.sedeAsignada)}</div>
-              <div style="font-size: 11.5px; color: var(--text-muted);">${escapar(v.distrito)} &bull; ${escapar(v.estrategia)}</div>
+              <div class="padron-location-title">${escapar(v.sedeAsignada)}</div>
+              <div class="padron-location-sub">${escapar(v.distrito)} &bull; ${escapar(v.estrategia)}</div>
             </td>
             <td>
-              <span class="badge ${badgeServClass}">${escapar(v.servicio)}</span>
-              <div style="font-size: 11px; color: var(--text-dim); margin-top: 3px; cursor: pointer;" onclick="window.toggleVoluntariosRol ? window.toggleVoluntariosRol('${escaparEnManejador(v.rol)}') : null" title="Filtrar por rol ${escapar(v.rol)}">
-                <span style="border-bottom: 1px dotted var(--text-dim);">${escapar(v.rol)}</span>
+              <div class="padron-service-stack">
+                <span class="badge ${badgeServClass} padron-service-badge">
+                  <span class="padron-dot ${servDotClass}"></span>
+                  ${escapar(v.servicio)}
+                </span>
+                <button type="button" class="padron-role-pill" onclick="window.toggleVoluntariosRol ? window.toggleVoluntariosRol('${escaparEnManejador(v.rol)}') : null" title="Filtrar por rol: ${escapar(v.rol)}">
+                  ${escapar(v.rol)}
+                </button>
               </div>
             </td>
             <td>
-              <div style="font-size: 12.5px; color: var(--text-main); font-weight: 600;">${escapar(v.celular)}</div>
-              <div style="font-size: 11.5px; color: var(--text-muted);">${v.edad ? `${escapar(v.edad)} años` : "Edad no reg."}</div>
+              <div class="padron-contact-phone">${escapar(v.celular)}</div>
+              <div class="padron-contact-sub">${v.edad ? `${escapar(v.edad)} años` : "Edad no reg."}</div>
             </td>
             <td>
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <span class="badge ${capCount >= 3 ? 'badge-green' : (capCount >= 1 ? 'badge-yellow' : 'badge-gray')}">
-                  ${capCount} taller${capCount === 1 ? '' : 'es'}
+              <div class="padron-rewards-wrap">
+                <span class="padron-metric-chip chip-talleres" title="Talleres de capacitación">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" />
+                  </svg>
+                  <span>${capCount} taller${capCount === 1 ? '' : 'es'}</span>
                 </span>
                 ${v.canastasRecibidas > 0 ? `
-                  <span class="badge badge-blue" title="Canastas de alimentos entregadas">
-                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true" style="flex-shrink: 0;">
+                  <span class="padron-metric-chip chip-canastas" title="Canastas de alimentos entregadas">
+                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
                     </svg>
                     <span>${v.canastasRecibidas} canasta${v.canastasRecibidas === 1 ? '' : 's'}</span>
@@ -390,15 +437,24 @@ export const VoluntariadosView = {
               </div>
             </td>
             <td>
-              <span class="badge ${badgeEstadoClass}">${escapar(v.estado)}</span>
+              <span class="badge ${badgeEstadoClass} padron-status-badge">
+                <span class="padron-dot ${estadoDotClass}"></span>
+                ${escapar(v.estado)}
+              </span>
             </td>
             <td style="text-align: right;">
-              <div style="display: inline-flex; gap: 6px;">
-                <button type="button" class="btn-action" onclick="window.openFichaVoluntario ? window.openFichaVoluntario(${escaparEnManejador(v.id)}) : null" title="Ver Ficha y Credencial">
-                  Ver Ficha
+              <div class="padron-table-actions">
+                <button type="button" class="padron-btn-ficha" onclick="window.openFichaVoluntario ? window.openFichaVoluntario(${escaparEnManejador(v.id)}) : null" title="Ver Ficha y Credencial">
+                  <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5zm6-10.125a1.875 1.875 0 11-3.75 0 1.875 1.875 0 013.75 0zm1.294 6.364a4.125 4.125 0 00-6.338 0" />
+                  </svg>
+                  <span>Ficha</span>
                 </button>
-                <button type="button" class="btn-action primary" onclick="window.openEditVoluntario ? window.openEditVoluntario(${escaparEnManejador(v.id)}) : null" title="Editar Voluntario">
-                  Editar
+                <button type="button" class="padron-btn-edit" onclick="window.openEditVoluntario ? window.openEditVoluntario(${escaparEnManejador(v.id)}) : null" title="Editar Voluntario">
+                  <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+                  </svg>
+                  <span>Editar</span>
                 </button>
               </div>
             </td>
@@ -411,51 +467,102 @@ export const VoluntariadosView = {
     if (mobileContainer && enMovil) {
       mobileContainer.innerHTML = voluntarios.map(v => {
         let badgeServClass = "badge-green";
-        if (v.servicio === "Casita del Saber") badgeServClass = "badge-yellow";
-        if (v.servicio === "Área Social Pastoral (ASP)") badgeServClass = "badge-blue";
+        let servDotClass = "dot-green";
+        let servColorClass = "serv-desayuno";
+        if (v.servicio === "Casita del Saber") {
+          badgeServClass = "badge-yellow";
+          servDotClass = "dot-amber";
+          servColorClass = "serv-casita";
+        }
+        if (v.servicio === "Área Social Pastoral (ASP)") {
+          badgeServClass = "badge-blue";
+          servDotClass = "dot-blue";
+          servColorClass = "serv-pastoral";
+        }
 
         let badgeEstadoClass = v.estado === "Activo" ? "badge-green" : (v.estado === "En Pausa" ? "badge-yellow" : "badge-gray");
+        let estadoDotClass = v.estado === "Activo" ? "dot-green" : (v.estado === "En Pausa" ? "dot-amber" : "dot-gray");
         const capCount = (v.capacitaciones && v.capacitaciones.length) || 0;
 
         return `
-          <div class="padron-mobile-card" style="background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px; margin-bottom: 10px;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-              <div>
-                <strong style="font-size: 14.5px; color: var(--text-main);">${escapar(v.nombres)} ${escapar(v.apellidos)}</strong>
-                <div style="font-size: 11.5px; color: var(--text-dim); font-family: var(--mono-font); margin-top: 1px;">
-                  ${escapar(v.codigo)} &bull; DNI: ${escapar(v.dni)}
+          <div class="padron-mobile-card">
+            <!-- Header: Avatar + Nombre + Estado -->
+            <div class="padron-mcard-header">
+              <div class="padron-mcard-identity">
+                <div class="padron-avatar padron-mcard-avatar ${servColorClass}">
+                  ${escapar(v.nombres.charAt(0))}${escapar(v.apellidos.charAt(0))}
+                </div>
+                <div class="padron-mcard-title-group">
+                  <div class="padron-mcard-name">${escapar(v.nombres)} ${escapar(v.apellidos)}</div>
+                  <div class="padron-user-meta">
+                    <span class="padron-code">${escapar(v.codigo)}</span>
+                    <span class="padron-meta-sep">&bull;</span>
+                    <span>DNI ${escapar(v.dni)}</span>
+                  </div>
                 </div>
               </div>
-              <span class="badge ${badgeEstadoClass}">${escapar(v.estado)}</span>
+              <span class="badge ${badgeEstadoClass} padron-status-badge">
+                <span class="padron-dot ${estadoDotClass}"></span>
+                ${escapar(v.estado)}
+              </span>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 12px; margin-bottom: 10px; background: var(--surface-2); padding: 8px 10px; border-radius: var(--radius-sm);">
-              <div><span style="color: var(--text-dim);">Sede:</span> <strong>${escapar(v.sedeAsignada)}</strong> (${escapar(v.distrito)})</div>
-              <div><span style="color: var(--text-dim);">Tel:</span> <strong>${escapar(v.celular)}</strong></div>
-              <div><span style="color: var(--text-dim);">Servicio:</span> <span class="badge ${badgeServClass}" style="font-size: 10.5px;">${escapar(v.servicio)}</span></div>
-              <div><span style="color: var(--text-dim);">Rol:</span> <strong style="cursor: pointer; text-decoration: underline dotted;" onclick="window.toggleVoluntariosRol ? window.toggleVoluntariosRol(\'${escaparEnManejador(v.rol)}\') : null" title="Filtrar por rol">${escapar(v.rol)}</strong></div>
+            <!-- Datos limpios sin caja interna (Anti-containeritis) -->
+            <div class="padron-mcard-body">
+              <div class="padron-mcard-detail-item">
+                <span class="padron-mcard-detail-label">Sede / Territorio</span>
+                <div class="padron-mcard-detail-val">
+                  <strong>${escapar(v.sedeAsignada)}</strong>
+                  <span class="padron-mcard-detail-sub">(${escapar(v.distrito)})</span>
+                </div>
+              </div>
+
+              <div class="padron-mcard-detail-item">
+                <span class="padron-mcard-detail-label">Contacto</span>
+                <div class="padron-mcard-detail-val">
+                  <a href="tel:${escapar(v.celular)}" class="padron-mcard-phone-link">${escapar(v.celular)}</a>
+                </div>
+              </div>
+
+              <div class="padron-mcard-detail-item">
+                <span class="padron-mcard-detail-label">Servicio</span>
+                <span class="badge ${badgeServClass} padron-service-badge">
+                  <span class="padron-dot ${servDotClass}"></span>
+                  ${escapar(v.servicio)}
+                </span>
+              </div>
+
+              <div class="padron-mcard-detail-item">
+                <span class="padron-mcard-detail-label">Rol</span>
+                <button type="button" class="padron-role-pill" onclick="window.toggleVoluntariosRol ? window.toggleVoluntariosRol('${escaparEnManejador(v.rol)}') : null" title="Filtrar por rol: ${escapar(v.rol)}">
+                  ${escapar(v.rol)}
+                </button>
+              </div>
             </div>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 6px; border-top: 1px solid var(--border-subtle);">
-              <div style="font-size: 11.5px; color: var(--text-muted); display: flex; gap: 10px; align-items: center;">
-                <span style="display: inline-flex; align-items: center; gap: 4px;">
-                  <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <!-- Footer: Métricas comunitarias + Acciones primarias -->
+            <div class="padron-mcard-footer">
+              <div class="padron-rewards-wrap">
+                <span class="padron-metric-chip chip-talleres">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" />
                   </svg>
-                  ${capCount} cap.
+                  <span>${capCount} cap.</span>
                 </span>
-                ${v.canastasRecibidas > 0 ? `<span style="display: inline-flex; align-items: center; gap: 4px;">
-                  <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
-                  </svg>
-                  ${v.canastasRecibidas} canastas
-                </span>` : ''}
+                ${v.canastasRecibidas > 0 ? `
+                  <span class="padron-metric-chip chip-canastas">
+                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                    </svg>
+                    <span>${v.canastasRecibidas}</span>
+                  </span>
+                ` : ''}
               </div>
-              <div style="display: flex; gap: 6px;">
-                <button type="button" class="btn-action" style="padding: 4px 10px; font-size: 11.5px;" onclick="window.openFichaVoluntario ? window.openFichaVoluntario(${escaparEnManejador(v.id)}) : null">
+              <div class="padron-mcard-actions">
+                <button type="button" class="padron-btn-ficha" onclick="window.openFichaVoluntario ? window.openFichaVoluntario(${escaparEnManejador(v.id)}) : null">
                   Ficha
                 </button>
-                <button type="button" class="btn-action primary" style="padding: 4px 10px; font-size: 11.5px;" onclick="window.openEditVoluntario ? window.openEditVoluntario(${escaparEnManejador(v.id)}) : null">
+                <button type="button" class="padron-btn-edit" onclick="window.openEditVoluntario ? window.openEditVoluntario(${escaparEnManejador(v.id)}) : null">
                   Editar
                 </button>
               </div>

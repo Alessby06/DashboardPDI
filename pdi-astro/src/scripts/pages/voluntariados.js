@@ -1,4 +1,4 @@
-﻿// ===========================================================================
+// ===========================================================================
 //  Voluntariados - Punto de entrada de voluntariados.html
 // ===========================================================================
 //  Padron de voluntariado, fichas individuales y capacitaciones.
@@ -43,6 +43,7 @@ function iniciar() {
   // nada mas que hacer en este documento.
   if (!arrancarComun()) return;
 
+  VoluntariadosView.reiniciarEntrada();
   enlazar();
   montar();
 

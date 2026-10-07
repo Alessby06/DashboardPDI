@@ -1,4 +1,4 @@
-﻿// ===========================================================================
+// ===========================================================================
 //  Dashboard General - Punto de entrada de dashboard.html
 // ===========================================================================
 //  Consolida cobertura del padron, estado nutricional, asistencia y casos sociales.
@@ -45,6 +45,7 @@ function iniciar() {
   // nada mas que hacer en este documento.
   if (!arrancarComun()) return;
 
+  DashboardView.reiniciarEntrada();
   enlazar();
   montar();
 

@@ -1,4 +1,4 @@
-// Controlador: Alta y edicion de menores beneficiarios
+﻿// Controlador: Alta y edicion de menores beneficiarios
 // Maneja el 100% de los campos normativos de inscripción PDI
 import { BeneficiarioModel } from '../models/BeneficiarioModel.js';
 import { CasoSocialModel } from '../models/CasoSocialModel.js';
@@ -414,7 +414,7 @@ export const BeneficiarioController = {
           s.add("Servicio Alimentario Nutricional");
         }
         if (estLow.includes("casita") || estLow.includes("educativ") || estLow.includes("acompañ") || estLow.includes("mixto")) {
-          s.add("Servicio Acompañamiento Educativo");
+          s.add("Casita del Saber");
         }
         if (estLow.includes("pastoral") || estLow.includes("social") || (exoneracionAporte && exoneracionAporte.includes("100%"))) {
           s.add("Área Social Pastoral");
@@ -490,7 +490,7 @@ export const BeneficiarioController = {
     if (low.includes("nutric") || low.includes("aliment") || low.includes("desayuno") || low.includes("lonchera")) {
       canonicalName = "Servicio Alimentario Nutricional";
     } else if (low.includes("educat") || low.includes("casita") || low.includes("acompañ") || low.includes("refuerzo")) {
-      canonicalName = "Servicio Acompañamiento Educativo";
+      canonicalName = "Casita del Saber";
     } else if (low.includes("pastoral") || low.includes("social") || low.includes("asp")) {
       canonicalName = "Área Social Pastoral";
     }
@@ -500,7 +500,7 @@ export const BeneficiarioController = {
       if (canonicalName === "Servicio Alimentario Nutricional") {
         return s === canonicalName || sLow.includes("nutric") || sLow.includes("aliment") || sLow.includes("desayuno") || sLow.includes("lonchera");
       }
-      if (canonicalName === "Servicio Acompañamiento Educativo") {
+      if (canonicalName === "Casita del Saber") {
         return s === canonicalName || sLow.includes("educat") || sLow.includes("casita") || sLow.includes("acompañ");
       }
       if (canonicalName === "Área Social Pastoral") {

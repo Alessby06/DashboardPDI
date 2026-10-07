@@ -18,6 +18,7 @@
 //  es justo lo que evita que padron.html cargue el kanban social o que
 //  salud.html cargue la tabla de auditoria.
 import { PageGuard } from "../auth/PageGuard.js";
+import { haySesion } from "../auth/usuarios.js";
 import { Navigation } from "./Navigation.js";
 import { RoleController } from "../controllers/RoleController.js";
 import { BeneficiarioModel } from "../models/BeneficiarioModel.js";
@@ -27,6 +28,7 @@ import { VoluntarioModel } from "../models/VoluntarioModel.js";
 import { AuditModel } from "../models/AuditModel.js";
 import { Theme } from "./Theme.js";
 import { ToastView } from "../views/ToastView.js";
+import { hidratarDesdeSurreal } from "./db.js";
 
 /**
  * Arranca el chrome. Devuelve el slug de la pagina si el acceso fue concedido,
@@ -38,6 +40,12 @@ import { ToastView } from "../views/ToastView.js";
  * se encuentra con la lista vacia" en cuanto alguien reordenara las llamadas.
  */
 export function arrancarComun() {
+  // 0. Sesión — si no hay sesión activa, ni siquiera ejecutamos PageGuard.
+  if (!haySesion()) {
+    window.location.replace("/login");
+    return null;
+  }
+
   const slug = PageGuard.init();
   if (!slug) return null;
 
@@ -56,7 +64,6 @@ export function arrancarComun() {
   Theme.cargar();
   Navigation.bindSidebar();
   Navigation.bindResize();
-  Navigation.bindRoleSelector();
   Navigation.bindModalTabs();
   Navigation.cerrarAlNavegar();
 
@@ -64,7 +71,50 @@ export function arrancarComun() {
   // PageGuard; esto es solo presentacion.
   RoleController.applyRolePermissions(PageGuard.rolActual, null, false);
 
+  // Badges del menu lateral: se calculan de los modelos, nunca de numeros
+  // escritos a mano en el HTML.
+  actualizarBadgesSidebar();
+
+  // Carga datos reales de SurrealDB en segundo plano; al terminar refresca la vista.
+  hidratarDesdeSurreal();
+
   return slug;
+}
+
+/**
+ * Escribe en los badges del sidebar los conteos reales de los modelos.
+ * Llamar tambien tras cualquier alta/baja/cambio de etapa que altere un total.
+ */
+export function actualizarBadgesSidebar() {
+  const set = (id, valor) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = String(valor);
+  };
+
+  try {
+    set("badgeTotalBeneficiarios", BeneficiarioModel.getAll().length);
+  } catch (e) { /* badge no presente en esta pagina */ }
+
+  try {
+    set("badgeCasosCriticos", CasoSocialModel.contarCriticos());
+  } catch (e) { /* idem */ }
+
+  try {
+    set("badgeTotalVoluntarios", VoluntarioModel.getAll().length);
+  } catch (e) { /* idem */ }
+}
+
+export function restaurarDatosLocales() {
+  localStorage.removeItem("pdi_beneficiarios");
+  localStorage.removeItem("pdi_casos_sociales");
+  BeneficiarioModel.init();
+  CasoSocialModel.init();
+  SedeModel.init();
+  VoluntarioModel.init();
+  if (typeof window.PDI?.refrescarVistaActual === "function") {
+    window.PDI.refrescarVistaActual();
+  }
+  console.log("[PDI] Datos locales y tablas restauradas exitosamente.");
 }
 
 /** Publica el redibujado de la pagina, para los puentes heredados. */
@@ -75,7 +125,8 @@ export function publicarRefresco(fn) {
 
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
-  window.PDI.Bootstrap = { arrancarComun, publicarRefresco };
+  window.PDI.Bootstrap = { arrancarComun, publicarRefresco, restaurarDatosLocales, actualizarBadgesSidebar };
+  window.PDI.restaurarDatosLocales = restaurarDatosLocales;
   window.PDI.ToastView = ToastView;
   window.PDI.Navigation = Navigation;
   window.PDI.RoleController = RoleController;

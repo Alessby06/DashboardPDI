@@ -19,6 +19,98 @@
 
 
 
+        /* Segmented Control Móvil (ASP Kanban) */
+    .social-mobile-stage-segmented-wrap {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .social-mobile-stage-segmented-wrap {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding: 4px 2px 10px 2px;
+        box-sizing: border-box;
+      }
+      .social-mobile-stage-segmented-wrap::-webkit-scrollbar {
+        display: none;
+      }
+
+      .stage-seg-btn {
+        flex: 1 1 auto;
+        min-width: max-content;
+        height: 36px;
+        padding: 0 11px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        border-radius: var(--radius-full);
+        background: var(--surface-1);
+        border: 1px solid var(--border-subtle);
+        font-family: var(--ui-font);
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all var(--dur-fast) var(--ease-smooth);
+        white-space: nowrap;
+        user-select: none;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        box-sizing: border-box;
+      }
+
+      .stage-seg-btn:hover {
+        background: var(--surface-hover);
+        color: var(--text-main);
+        border-color: var(--border-bright);
+      }
+
+      .stage-seg-btn.active {
+        background: var(--surface-1);
+        border-color: var(--brand-primary);
+        color: var(--text-main);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), 0 0 0 1px var(--brand-primary);
+        font-weight: 700;
+      }
+
+      .stage-seg-btn .stage-dot {
+        width: 7px !important;
+        height: 7px !important;
+        min-width: 7px !important;
+        border-radius: 50% !important;
+      }
+
+      .stage-seg-btn .badge {
+        font-size: 10px !important;
+        padding: 1px 6px !important;
+        border-radius: 10px !important;
+        line-height: 1.2 !important;
+      }
+
+      .social-mobile-stage-dropdown {
+        display: none !important;
+      }
+
+      #dropdownSocialFilterPanel {
+        display: inline-flex !important;
+        position: relative !important;
+        flex: 0 0 auto !important;
+        min-width: 0 !important;
+      }
+
+      #dropdownSocialFilterPanel .audit-filter-btn {
+        height: 38px !important;
+        padding: 0 12px !important;
+        font-size: 12.5px !important;
+      }
+    }
+
     /* Kanban Board (ASP) - Ultra Flexible & Split-Screen Resilient */
     .kanban-board {
       display: flex;
@@ -47,37 +139,76 @@
     }
 
     .kanban-col {
-      background: var(--surface-1) !important;
+      background: rgba(18, 20, 28, 0.55) !important;
       border: 1px solid var(--border-subtle) !important;
       border-radius: var(--radius-lg);
       display: flex;
       flex-direction: column;
-      flex: 1 1 280px;
-      min-width: 270px;
+      flex: 1 1 300px;
+      min-width: 290px;
       max-width: 380px;
-      height: 600px;
-      max-height: calc(100vh - 240px);
-      min-height: 420px;
-      box-shadow: var(--shadow-sm);
+      height: 660px;
+      max-height: calc(100vh - 220px);
+      min-height: 500px;
+      box-shadow: none;
       overflow: hidden;
       box-sizing: border-box;
       user-select: text;
       -webkit-user-select: text;
     }
 
+    [data-theme="light"] .kanban-col {
+      background: #f1f4f9 !important;
+      border-color: #e2e8f0 !important;
+    }
+
     .kanban-col-header {
-      padding: 14px 18px;
+      padding: 12px 14px;
       border-bottom: 1px solid var(--border-subtle);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-weight: 700;
-      font-size: 14px;
       flex-shrink: 0;
-      background: var(--surface-1);
+      background: transparent;
       user-select: text;
       -webkit-user-select: text;
       cursor: default;
+    }
+
+    .col-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stage-dot {
+      display: inline-block;
+      width: 8px !important;
+      height: 8px !important;
+      min-width: 8px !important;
+      border-radius: var(--radius-full) !important;
+      flex-shrink: 0 !important;
+    }
+
+    .col-header-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      letter-spacing: -0.01em;
+    }
+
+    .kanban-count-pill {
+      font-size: 11px;
+      font-weight: 700;
+      font-family: var(--mono-font);
+      color: var(--text-dim);
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      padding: 1px 7px;
+      border-radius: 10px;
+      min-width: 18px;
+      text-align: center;
+      line-height: 1.4;
     }
 
     .kanban-col-body {
@@ -423,12 +554,12 @@
       }
     }
 
-    /* Enhanced Kanban Card & Modern Action Buttons */
+    /* Enhanced Kanban Card & Refined Action Buttons (Responsive & Colorized) */
     .kanban-card {
-      background: var(--surface-1);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 14px;
+      background: #181b25;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 13px 14px;
       cursor: pointer;
       transition: transform var(--dur-fast) var(--ease-spring), border-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth);
       display: flex;
@@ -437,16 +568,27 @@
       position: relative;
       user-select: text;
       -webkit-user-select: text;
-      /* Sin will-change: aqui solo hay transform en :hover. El aviso permanente
-         le costaba una capa propia para siempre, y como esto vive dentro de
-         la columna de contenido, al plegar el menu habia que rasterizar
-         todas esas capas en cada fotograma. */
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+      box-sizing: border-box;
+      min-width: 0;
+      flex-shrink: 0 !important; /* CRITICO: evita que flexbox aplaste y corte los botones en columnas con 3+ tarjetas */
+    }
+
+    [data-theme="light"] .kanban-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
     }
 
     .kanban-card:hover {
-      border-color: var(--brand-primary);
+      border-color: rgba(2, 132, 199, 0.45);
       transform: translateY(-2px);
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    [data-theme="light"] .kanban-card:hover {
+      border-color: var(--gt-blue);
+      box-shadow: 0 6px 18px rgba(2, 132, 199, 0.12);
     }
 
     .kanban-card-header-row {
@@ -454,38 +596,140 @@
       justify-content: space-between;
       align-items: flex-start;
       gap: 8px;
-      user-select: text;
-      -webkit-user-select: text;
+      width: 100%;
+      min-width: 0;
     }
 
     .kanban-card-title {
       font-size: 13.5px;
-      font-weight: 700;
+      font-weight: 600;
       color: var(--text-main);
-      line-height: 1.3;
+      line-height: 1.35;
       margin: 0;
-      user-select: text;
-      -webkit-user-select: text;
+      letter-spacing: -0.01em;
+      min-width: 0;
+      flex: 1 1 auto;
+      word-break: break-word;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
+    .kanban-card .badge {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 4px !important;
+      font-size: 10.5px !important;
+      font-weight: 600 !important;
+      padding: 1.5px 7px !important;
+      border-radius: 6px !important;
+      letter-spacing: 0.02em;
+      line-height: 1.3 !important;
+      flex-shrink: 0 !important;
+      white-space: nowrap !important;
+      margin-top: 1px;
+    }
+
+    .kanban-card .badge .badge-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+
+    .kanban-card .badge-red {
+      background: rgba(239, 68, 68, 0.12) !important;
+      color: #f87171 !important;
+      border: 1px solid rgba(239, 68, 68, 0.28) !important;
+    }
+
+    .kanban-card .badge-yellow {
+      background: rgba(245, 158, 11, 0.12) !important;
+      color: #fbbf24 !important;
+      border: 1px solid rgba(245, 158, 11, 0.28) !important;
+    }
+
+    .kanban-card .badge-blue {
+      background: var(--gt-blue-bg) !important;
+      color: var(--gt-blue) !important;
+      border: 1px solid var(--gt-blue-border) !important;
+    }
+
+    /* Meta: Código PDI + Sede con distribución compacta */
     .kanban-card-meta {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      user-select: text;
-      -webkit-user-select: text;
-      gap: 6px;
-      font-size: 11.5px;
+      gap: 8px;
+      width: 100%;
+      min-width: 0;
+      white-space: nowrap;
     }
 
+    .kanban-card-code-link {
+      font-family: var(--mono-font);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--gt-blue);
+      background: var(--gt-blue-bg);
+      border: 1px solid var(--gt-blue-border);
+      padding: 1.5px 6px;
+      border-radius: 4px;
+      text-decoration: none;
+      flex-shrink: 0;
+      white-space: nowrap;
+      line-height: 1.25;
+      letter-spacing: 0.02em;
+      transition: all var(--dur-fast) var(--ease-smooth);
+    }
+    .kanban-card-code-link:hover {
+      background: rgba(2, 132, 199, 0.24);
+      border-color: var(--gt-blue);
+      text-decoration: none;
+    }
+
+    .kanban-card-sede-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: var(--text-dim);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+      flex: 1 1 auto;
+      justify-content: flex-end;
+    }
+
+    .kanban-card-sede-badge svg {
+      opacity: 0.7;
+      flex-shrink: 0;
+    }
+
+    .kanban-card-sede-badge span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: inline-block;
+    }
+
+    /* Detalle del Caso: lectura comoda a 3 lineas */
     .kanban-card-desc {
       font-size: 12px;
       color: var(--text-muted);
       line-height: 1.45;
-      background: var(--surface-2);
-      padding: 8px 10px;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--border-subtle);
+      background: transparent;
+      padding: 0;
+      border: none;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      word-break: break-word;
+      min-height: 38px;
     }
 
     .kanban-card-footer {
@@ -494,27 +738,55 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-top: 2px;
+      padding-top: 6px;
+      border-top: 1px solid var(--border-subtle);
+      width: 100%;
+      min-width: 0;
+      white-space: nowrap;
+    }
+
+    .kanban-card-footer > span:first-child {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 62%;
+    }
+
+    .kanban-card-footer strong {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .kanban-card-date {
+      font-family: var(--mono-font);
+      font-size: 10.5px;
+      color: var(--text-dim);
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .kanban-actions-row {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       margin-top: 2px;
       padding-top: 8px;
       border-top: 1px solid var(--border-subtle);
+      width: 100%;
+      box-sizing: border-box;
+      flex-shrink: 0;
     }
 
     .kanban-btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      height: 32px;
-      padding: 0 12px;
-      border-radius: var(--radius-sm);
-      font-size: 12px;
-      font-weight: 600;
+      gap: 5px;
+      height: 29px;
+      padding: 0 10px;
+      border-radius: 6px;
+      font-family: var(--ui-font);
+      font-size: 11.5px;
+      font-weight: 500;
       cursor: pointer;
       border: 1px solid transparent;
       transition: all var(--dur-fast) var(--ease-smooth);
@@ -522,33 +794,38 @@
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
       line-height: 1;
+      white-space: nowrap;
     }
 
     .kanban-btn svg {
-      width: 14px;
-      height: 14px;
+      width: 12px;
+      height: 12px;
       stroke-width: 2.2;
       flex-shrink: 0;
     }
 
+    /* Primary: Soft Tint resting, vibrant hover */
     .kanban-btn.primary {
-      background: var(--brand-primary);
-      color: #ffffff !important;
-      border-color: var(--brand-primary);
-      box-shadow: 0 2px 6px rgba(0, 180, 148, 0.25);
+      background: var(--gt-green-bg);
+      color: var(--text-brand);
+      border-color: var(--gt-green-border);
     }
     .kanban-btn.primary:hover {
-      background: #00997d !important;
-      border-color: #00997d !important;
+      background: var(--brand-primary);
+      border-color: var(--brand-primary);
       color: #ffffff !important;
       transform: translateY(-1px);
-      box-shadow: 0 4px 10px rgba(0, 180, 148, 0.35);
+      box-shadow: 0 3px 8px rgba(0, 180, 148, 0.3);
     }
 
+    /* Secondary */
     .kanban-btn.secondary {
-      background: var(--surface-2);
-      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-muted);
       border-color: var(--border-subtle);
+    }
+    [data-theme="light"] .kanban-btn.secondary {
+      background: #f8fafc;
     }
     .kanban-btn.secondary:hover {
       background: var(--surface-hover);
@@ -557,29 +834,32 @@
       transform: translateY(-1px);
     }
 
+    /* Success / Cerrar Caso: Johannes Gutenberg Azul Institucional */
     .kanban-btn.success {
-      background: var(--gt-green-bg);
-      color: var(--text-brand);
-      border-color: var(--gt-green-border);
+      background: var(--gt-blue-bg);
+      color: var(--gt-blue);
+      border-color: var(--gt-blue-border);
     }
     .kanban-btn.success:hover {
-      background: var(--gt-green) !important;
+      background: var(--gt-blue);
       color: #ffffff !important;
-      border-color: var(--gt-green) !important;
+      border-color: var(--gt-blue);
       transform: translateY(-1px);
-      box-shadow: 0 4px 10px rgba(0, 180, 148, 0.3);
+      box-shadow: 0 3px 10px rgba(2, 132, 199, 0.35);
     }
 
+    /* Warning / Reabrir: Ámbar sobrio institucional */
     .kanban-btn.warning {
       background: var(--gt-yellow-bg);
       color: var(--text-warning);
       border-color: var(--gt-yellow-border);
     }
     .kanban-btn.warning:hover {
-      background: var(--gt-yellow) !important;
+      background: #d97706;
       color: #ffffff !important;
-      border-color: var(--gt-yellow) !important;
+      border-color: #d97706;
       transform: translateY(-1px);
+      box-shadow: 0 3px 8px rgba(217, 119, 6, 0.3);
     }
 
     .kanban-btn.full-width {

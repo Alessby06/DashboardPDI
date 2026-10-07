@@ -67,36 +67,8 @@ export const RoleController = {
    * cambio de rol no debe interrumpir con un aviso.
    */
   applyRolePermissions(role, onNavigate = null, showToast = true) {
-    const bannerTitle = document.getElementById("roleBannerTitle");
-    const bannerDesc = document.getElementById("roleBannerDesc");
-    const bannerTag = document.getElementById("roleBannerAccessTag");
-
-    const conf = this.rolesConfig[role] || this.rolesConfig.coord;
-
-    if (bannerTitle) bannerTitle.textContent = conf.title;
-    if (bannerDesc) bannerDesc.textContent = conf.desc;
-    if (bannerTag) {
-      bannerTag.textContent = conf.tag;
-      bannerTag.style.borderColor = conf.tagCol;
-      bannerTag.style.color = conf.tagCol;
-    }
-
-    // Actualizar Tooltip dinámico del botón de información de rol
-    const tipTitle = document.getElementById("roleTooltipTitle");
-    const tipDesc = document.getElementById("roleTooltipDesc");
-    const tipTag = document.getElementById("roleTooltipTag");
-    const btnInfo = document.getElementById("btnRoleInfo");
-
-    if (tipTitle) tipTitle.textContent = conf.title;
-    if (tipDesc) tipDesc.textContent = conf.desc;
-    if (tipTag) {
-      tipTag.textContent = conf.tag;
-      tipTag.style.color = conf.tagCol;
-      tipTag.style.background = `${conf.tagCol}20`;
-    }
-    if (btnInfo) {
-      btnInfo.setAttribute("title", `${conf.title}: ${conf.desc}`);
-    }
+    // Los elementos visuales del selector y tooltip de rol en el Topbar han sido eliminados.
+    // Se mantiene el método como no-op para preservar compatibilidad con scripts existentes.
   }
 };
 

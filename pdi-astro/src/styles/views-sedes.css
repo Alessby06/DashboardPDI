@@ -1085,73 +1085,6 @@
         flex: 1 !important;
         min-width: 0 !important;
       }
-      .role-selector-wrap {
-        gap: 6px !important;
-        flex: 1 !important;
-        min-width: 0 !important;
-        align-items: center !important;
-        justify-content: flex-end !important;
-      }
-      .role-label-full {
-        display: none !important;
-      }
-      .role-label-short {
-        display: inline !important;
-      }
-      .role-selector-label {
-        font-size: 11.5px !important;
-        font-weight: 800 !important;
-        letter-spacing: 0.04em !important;
-        color: var(--text-brand) !important;
-        flex-shrink: 0 !important;
-        white-space: nowrap !important;
-      }
-      .role-selector-wrap .custom-dropdown {
-        flex: 1 !important;
-        min-width: 0 !important;
-        max-width: 100% !important;
-      }
-      .role-selector-wrap .custom-dropdown-btn {
-        height: 36px !important;
-        padding: 0 10px !important;
-        font-size: 13px !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        justify-content: space-between !important;
-      }
-      .role-selector-wrap .custom-dropdown-btn .dropdown-label,
-      #labelActiveRole {
-        font-size: 13px !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        white-space: nowrap !important;
-        flex: 1 !important;
-        text-align: left !important;
-      }
-      .role-selector-wrap .custom-dropdown-menu {
-        left: 0 !important;
-        right: 0 !important;
-        width: 100% !important;
-        min-width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-      }
-      .btn-role-info {
-        width: 28px !important;
-        height: 28px !important;
-        flex-shrink: 0 !important;
-        cursor: pointer !important;
-      }
-      .role-info-tooltip {
-        position: fixed !important;
-        top: 66px !important;
-        left: 12px !important;
-        right: 12px !important;
-        width: auto !important;
-        max-width: calc(100vw - 24px) !important;
-        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.28) !important;
-        z-index: 1500 !important;
-      }
       .cred-calc-toggle-btn {
         padding: 12px 14px !important;
       }
@@ -1231,9 +1164,6 @@
       .custom-dropdown-btn {
         font-size: 13px !important;
         padding: 0 8px !important;
-      }
-      #labelActiveRole {
-        font-size: 13px !important;
       }
       .audit-header-left h2 {
         font-size: clamp(17px, 4.5vw, 22px) !important;

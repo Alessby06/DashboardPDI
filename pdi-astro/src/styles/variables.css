@@ -83,13 +83,19 @@
   --shadow-glow: none;
   --modal-overlay-bg: rgba(15, 23, 42, 0.65);
 
-  /* Performance & Animation Tokens */
-  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  /* Performance & Animation Tokens (Emil Kowalski Philosophy) */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);       /* Strong ease-out for entering UI */
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);    /* Spring curves for button/feedback */
   --ease-smooth: cubic-bezier(0.2, 0.8, 0.2, 1);
-  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-  --dur-fast: 150ms;
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);   /* Strong ease-in-out for on-screen movement */
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  --dur-press: 120ms;    /* Button press feedback */
+  --dur-popover: 175ms;  /* Dropdowns, tooltips, small popovers */
+  --dur-fast: 160ms;
   --dur-norm: 220ms;
-  --dur-fluid: 280ms;
+  --dur-panel: 260ms;    /* Modales, drawers, cards */
+  --dur-fluid: 260ms;
   
   color-scheme: light;
 }

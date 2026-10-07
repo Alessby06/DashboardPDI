@@ -12,7 +12,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^7.3.5"
+    "astro": "^7.3.5",
+    "surrealdb": "^2.0.10"
   },
   "allowScripts": {
     "esbuild": true

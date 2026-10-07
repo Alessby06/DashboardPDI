@@ -33,6 +33,10 @@ export const SocialController = {
     if (view) {
       view.renderKanban(model.getAll());
     }
+
+    // Mover una tarjeta puede cerrar un caso critico: el badge rojo del menu
+    // y los KPIs del dashboard deben seguir el conteo real.
+    window.PDI?.Bootstrap?.actualizarBadgesSidebar?.();
   },
 
   syncScore(dimKey, value) {
@@ -44,6 +48,9 @@ export const SocialController = {
     if (slider && slider.value != num) slider.value = num;
     if (input && input.value != num) input.value = num;
     if (label) label.textContent = `${num} pts`;
+
+    // Reactividad en vivo: calcular y actualizar el resultado inmediatamente sin toast intrusivo
+    this.calcularEvaluacion(false);
   },
 
   cargarCasoEnSimulador(codigo) {
@@ -70,9 +77,12 @@ export const SocialController = {
     this.syncScore("Instruccion", ins);
     this.syncScore("SaludFam", sal);
 
+    // Calcular resultado en vivo para el perfil cargado
+    this.calcularEvaluacion(false);
+
     const toast = window.PDI?.ToastView || ToastView;
     if (toast) {
-      toast.show("Perfil Cargado", `Datos de ${menor.nombres} ${menor.apellidos} cargados en el simulador. Presione 'Calcular Evaluación' para procesar.`, "info");
+      toast.show("Perfil Cargado", `Datos de ${menor.nombres} ${menor.apellidos} sincronizados en el simulador (${vScore}/100 pts).`, "info");
     }
   },
 

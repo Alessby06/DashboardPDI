@@ -7,18 +7,18 @@ const { currentPage } = Astro.props;
 
 const navItems = [
   { section: 'General' },
-  { href: '/dashboard.html', page: 'dashboard', view: 'view-dashboard', label: 'Dashboard', roles: 'coord,facilitadora,promotora,social,admin', icon: 'dashboard' },
+  { href: '/dashboard', page: 'dashboard', view: 'view-dashboard', label: 'Dashboard', roles: 'coord,facilitadora,promotora,social,admin', icon: 'dashboard' },
   { section: 'Módulos Operativos (PDI)' },
-  { href: '/padron.html', page: 'padron', view: 'view-beneficiarios', label: 'Padrón de Beneficiarios', roles: 'coord,facilitadora,promotora,social,admin', icon: 'padron', badgeId: 'badgeTotalBeneficiarios', badgeVal: '28' },
-  { href: '/salud.html', page: 'salud', view: 'view-salud', label: 'Salud y Nutrición (CRED)', roles: 'coord,facilitadora,admin', icon: 'salud' },
-  { href: '/educativo.html', page: 'educativo', view: 'view-educativo', label: 'Casita del Saber', roles: 'coord,promotora,admin', icon: 'educativo' },
-  { href: '/social.html', page: 'social', view: 'view-social', label: 'Derivaciones Sociales (ASP)', roles: 'coord,social,admin', icon: 'social', badgeId: 'badgeCasosCriticos', badgeVal: '4', badgeDanger: true },
-  { href: '/sedes.html', page: 'sedes', view: 'view-sedes', label: 'Sedes e Iglesias', roles: 'coord,facilitadora,promotora,admin', icon: 'sedes' },
-  { href: '/voluntariados.html', page: 'voluntariados', view: 'view-voluntarios', label: 'Voluntariados', roles: 'coord,facilitadora,promotora,social,admin', icon: 'voluntariados', badgeId: 'badgeTotalVoluntarios', badgeVal: '8' },
+  { href: '/padron', page: 'padron', view: 'view-beneficiarios', label: 'Padrón de Usuarios', roles: 'coord,facilitadora,promotora,social,admin', icon: 'padron', badgeId: 'badgeTotalBeneficiarios', badgeVal: '28' },
+  { href: '/salud', page: 'salud', view: 'view-salud', label: 'Servicio Alimentario Nutricional', roles: 'coord,facilitadora,admin', icon: 'salud' },
+  { href: '/educativo', page: 'educativo', view: 'view-educativo', label: 'Casita del Saber', roles: 'coord,promotora,admin', icon: 'educativo' },
+  { href: '/social', page: 'social', view: 'view-social', label: 'Área Social Pastoral', roles: 'coord,social,admin', icon: 'social', badgeId: 'badgeCasosCriticos', badgeVal: '4', badgeDanger: true },
+  { href: '/sedes', page: 'sedes', view: 'view-sedes', label: 'Sedes e Iglesias', roles: 'coord,facilitadora,promotora,admin', icon: 'sedes' },
+  { href: '/voluntariados', page: 'voluntariados', view: 'view-voluntarios', label: 'Voluntariados', roles: 'coord,facilitadora,promotora,social,admin', icon: 'voluntariados', badgeId: 'badgeTotalVoluntarios', badgeVal: '8' },
   { section: 'Auditoría' },
-  { href: '/auditoria.html', page: 'auditoria', view: 'view-auditoria', label: 'Historial de Cambios', roles: 'coord,admin', icon: 'auditoria' },
+  { href: '/auditoria', page: 'auditoria', view: 'view-auditoria', label: 'Historial de Cambios', roles: 'coord,admin', icon: 'auditoria' },
   { section: 'Configuración' },
-  { href: '/ajustes.html', page: 'ajustes', view: 'view-ajustes', label: 'Ajustes', roles: 'coord,facilitadora,promotora,social,admin', icon: 'ajustes' },
+  { href: '/ajustes', page: 'ajustes', view: 'view-ajustes', label: 'Ajustes', roles: 'coord,facilitadora,promotora,social,admin', icon: 'ajustes' },
 ];
 ---
 
@@ -42,6 +42,20 @@ const navItems = [
     </div>
 
     <nav class="nav-sections" id="sidebarNav">
+      <!-- Botón de cerrar sesión — encima de todo el menú -->
+      <button
+        type="button"
+        id="btnSidebarLogout"
+        class="nav-btn nav-btn-logout"
+        data-tooltip="Cerrar sesión"
+        aria-label="Cerrar sesión"
+        onclick="try { localStorage.removeItem('pdi_sesion_activa'); localStorage.removeItem('pdi_active_role'); localStorage.removeItem('pdi_usuario_nombre'); localStorage.removeItem('pdi_session_token'); localStorage.removeItem('pdi_session_exp'); sessionStorage.clear(); } catch(e){} window.location.replace('/login');"
+      >
+        <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+        </svg>
+        <span>Cerrar sesión</span>
+      </button>
       {navItems.map((item) => {
         if (item.section) {
           return <div class="nav-label">{item.section}</div>;
@@ -70,7 +84,10 @@ const navItems = [
             )}
             {item.icon === 'salud' && (
               <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.5 11.5h19a9.5 9.5 0 0 1-19 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 10c0-1.5 1.5-1.5 1.5-3s-1.5-1.5-1.5-3" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 10c0-1.5 1.5-1.5 1.5-3s-1.5-1.5-1.5-3" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10c0-1.5 1.5-1.5 1.5-3s-1.5-1.5-1.5-3" />
               </svg>
             )}
             {item.icon === 'educativo' && (
@@ -101,8 +118,8 @@ const navItems = [
             )}
             {item.icon === 'ajustes' && (
               <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h3.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.796 3.111a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.798 3.111a1.125 1.125 0 01-1.37.49l-1.216-.456c-.356-.133-.751-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-3.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.797-3.111a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.797-3.111a1.125 1.125 0 011.37-.49l1.217.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <circle cx="12" cy="12" r="3" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
               </svg>
             )}
             <span>{item.label}</span>
@@ -121,3 +138,66 @@ const navItems = [
     </nav>
   </div>
 </aside>
+
+<style>
+  /* Botón de cerrar sesión — mismo layout que nav-btn, color rojo sutil */
+  .nav-btn-logout {
+    color: var(--text-danger, #dc2626) !important;
+    margin-bottom: 6px;
+    border-color: transparent !important;
+  }
+
+  .nav-btn-logout svg {
+    stroke: var(--text-danger, #dc2626) !important;
+  }
+
+  .nav-btn-logout:hover {
+    background: var(--gt-red-bg, rgba(239, 68, 68, 0.10)) !important;
+    border-color: var(--gt-red-border, rgba(239, 68, 68, 0.3)) !important;
+    color: var(--text-danger, #dc2626) !important;
+    transform: translateX(2px);
+  }
+
+  .nav-btn-logout:active {
+    transform: scale(0.98);
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    try {
+      var rol = localStorage.getItem("pdi_active_role") || "coord";
+      var btns = document.querySelectorAll("#sidebarNav .nav-btn[data-roles]");
+      btns.forEach(function (btn) {
+        var rolesStr = btn.getAttribute("data-roles") || "";
+        var rolesList = rolesStr.split(",").map(function (r) { return r.trim(); });
+        if (rolesList.length > 0 && rolesList.indexOf(rol) === -1) {
+          btn.classList.add("role-restricted");
+          btn.setAttribute("aria-disabled", "true");
+          btn.onclick = function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+          };
+        }
+      });
+    } catch (e) {}
+  })();
+</script>
+
+<script>
+  import { cerrarSesion } from '../scripts/auth/usuarios.js';
+
+  function bindLogout() {
+    const btn = document.getElementById('btnSidebarLogout');
+    if (btn && !btn._logoutBound) {
+      btn._logoutBound = true;
+      btn.addEventListener('click', () => {
+        cerrarSesion();
+        window.location.replace('/login');
+      });
+    }
+  }
+
+  bindLogout();
+  document.addEventListener('astro:page-load', bindLogout);
+</script>

@@ -1,4 +1,4 @@
-﻿// ===========================================================================
+// ===========================================================================
 //  Derivaciones Sociales (ASP) - Punto de entrada de social.html
 // ===========================================================================
 //  Tablero kanban del area social pastoral, de recepcion a seguimiento.
@@ -43,6 +43,7 @@ function iniciar() {
   // nada mas que hacer en este documento.
   if (!arrancarComun()) return;
 
+  SocialKanbanView.reiniciarEntrada();
   enlazar();
   montar();
 

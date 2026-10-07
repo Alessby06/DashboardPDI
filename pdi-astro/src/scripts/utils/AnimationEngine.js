@@ -22,6 +22,89 @@ export const AnimationEngine = {
   },
 
   /**
+   * Contador estilo odómetro (kilometraje / slot roll) impulsado por GPU.
+   * Rueda verticalmente cada dígito en columnas independientes con física orgánica.
+   * @param {string|HTMLElement} elementOrId - ID del elemento o el nodo HTML.
+   * @param {number|string} targetVal - Valor objetivo (soporta números, ratios '15 / 15', porcentajes).
+   * @param {object} options - Configuración opcional (duration, prefix, suffix, decimals, stagger).
+   */
+  odometerRoll(elementOrId, targetVal, options = {}) {
+    const el = typeof elementOrId === "string" ? document.getElementById(elementOrId) : elementOrId;
+    if (!el) return;
+
+    const prefix = options.prefix || "";
+    const suffix = options.suffix || "";
+
+    let formatted = "";
+    if (typeof targetVal === "number") {
+      const dec = options.decimals !== undefined ? options.decimals : (targetVal % 1 !== 0 ? 1 : 0);
+      formatted = `${prefix}${targetVal.toFixed(dec)}${suffix}`;
+    } else {
+      formatted = `${prefix}${targetVal}${suffix}`;
+    }
+
+    el.setAttribute("aria-label", formatted.trim());
+    el.setAttribute("role", "text");
+
+    // Accesibilidad: Si prefiere menos movimiento, mostrar el dato fijado inmediatamente
+    if (this.prefiereMenosMovimiento()) {
+      el.textContent = formatted;
+      el._odometerTarget = formatted;
+      return;
+    }
+
+    // Evitar reiniciar si ya tiene este valor objetivo renderizado como odómetro
+    if (el._odometerTarget === formatted && el.querySelector(".odometer-wrap")) {
+      return;
+    }
+    el._odometerTarget = formatted;
+
+    const chars = formatted.split("");
+    const duration = options.duration || 800;
+    const stagger = options.stagger !== undefined ? options.stagger : 40;
+
+    let html = '<span class="odometer-wrap" aria-hidden="true">';
+    let digitIdx = 0;
+    const digitTargets = [];
+
+    chars.forEach((ch) => {
+      if (/[0-9]/.test(ch)) {
+        const d = parseInt(ch, 10);
+        digitTargets.push({ index: digitIdx, digit: d });
+        html += `<span class="odometer-digit" data-digit-idx="${digitIdx}"><span class="odometer-ribbon" style="transform: translateY(0%);"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span></span></span>`;
+        digitIdx++;
+      } else {
+        html += `<span class="odometer-glyph">${ch === " " ? "&nbsp;" : ch}</span>`;
+      }
+    });
+    html += '</span>';
+
+    el.innerHTML = html;
+
+    // Ejecutar el rodamiento en doble frame para garantizar que el DOM y layout estén consolidados
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const ribbons = el.querySelectorAll(".odometer-ribbon");
+        ribbons.forEach((ribbon, i) => {
+          const target = digitTargets[i];
+          if (!target) return;
+          const delay = target.index * stagger;
+          ribbon.style.transition = `transform ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms`;
+          ribbon.style.transform = `translateY(-${target.digit * 10}%)`;
+        });
+
+        clearTimeout(el._odometerGlowTimer);
+        const totalTime = duration + (digitIdx * stagger);
+        el._odometerGlowTimer = setTimeout(() => {
+          el.classList.remove("vitality-glow");
+          void el.offsetWidth;
+          el.classList.add("vitality-glow");
+        }, totalTime);
+      });
+    });
+  },
+
+  /**
    * Anima un contador numérico con desaceleración orgánica de alta precisión (Out-Quart / Spring).
    * @param {string|HTMLElement} elementOrId - ID del elemento o el nodo HTML.
    * @param {number|string} targetVal - Valor numérico objetivo.
@@ -47,10 +130,20 @@ export const AnimationEngine = {
       return;
     }
 
+    // Si ya hay una animación corriendo en este elemento, cancelarla
+    if (el._counterRafId) {
+      cancelAnimationFrame(el._counterRafId);
+      el._counterRafId = null;
+    }
+
     // Soporte para formato de fracción/ratio "X / Y" (ej. "15 / 15")
     if (typeof targetVal === "string" && targetVal.includes("/")) {
       const parts = targetVal.split("/").map(s => parseFloat(s.trim()));
       if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+        // Evitar reiniciar si ya tiene este objetivo registrado en la sesión
+        if (el._lastCounterTarget === targetVal) return;
+        el._lastCounterTarget = targetVal;
+
         const duration = options.duration || 750; // ms optimizados
         const startTime = performance.now();
         const updateRatio = (currentTime) => {
@@ -62,15 +155,16 @@ export const AnimationEngine = {
           const cur2 = Math.round(parts[1] * easeProgress);
           el.textContent = `${cur1} / ${cur2}`;
           if (progress < 1) {
-            requestAnimationFrame(updateRatio);
+            el._counterRafId = requestAnimationFrame(updateRatio);
           } else {
+            el._counterRafId = null;
             el.textContent = targetVal;
             el.classList.remove("vitality-glow");
             void el.offsetWidth;
             el.classList.add("vitality-glow");
           }
         };
-        requestAnimationFrame(updateRatio);
+        el._counterRafId = requestAnimationFrame(updateRatio);
         return;
       }
     }
@@ -78,8 +172,21 @@ export const AnimationEngine = {
     const numVal = typeof targetVal === "number" ? targetVal : parseFloat(targetVal) || 0;
     const decimals = options.decimals !== undefined ? options.decimals : (numVal % 1 !== 0 ? 1 : 0);
 
+    // Evitar reiniciar si el elemento ya animó este mismo objetivo
+    const targetFormatted = `${prefix}${numVal.toFixed(decimals)}${suffix}`;
+    if (el._lastCounterTarget === targetFormatted) {
+      return;
+    }
+    el._lastCounterTarget = targetFormatted;
+
+    // Si ya tenía un número parcial o previo, partir desde ahí en vez de volver a 0
+    let startVal = 0;
+    if (el._lastNumVal !== undefined) {
+      startVal = el._lastNumVal;
+    }
+    el._lastNumVal = numVal;
+
     const duration = options.duration || 750; // Duración ideal para dashboards (700-800ms)
-    const startVal = 0;
     const startTime = performance.now();
 
     const updateCounter = (currentTime) => {
@@ -93,8 +200,9 @@ export const AnimationEngine = {
       el.textContent = `${prefix}${currentVal.toFixed(decimals)}${suffix}`;
 
       if (progress < 1) {
-        requestAnimationFrame(updateCounter);
+        el._counterRafId = requestAnimationFrame(updateCounter);
       } else {
+        el._counterRafId = null;
         el.textContent = `${prefix}${numVal.toFixed(decimals)}${suffix}`;
         el.classList.remove("vitality-glow");
         void el.offsetWidth;
@@ -102,7 +210,7 @@ export const AnimationEngine = {
       }
     };
 
-    requestAnimationFrame(updateCounter);
+    el._counterRafId = requestAnimationFrame(updateCounter);
   },
 
   /**
@@ -114,10 +222,12 @@ export const AnimationEngine = {
     const parent = typeof parentOrId === "string" ? document.getElementById(parentOrId) : parentOrId;
     if (!parent) return;
 
-    // Sin cascada no hay nada que hacer, y ademas hay que devolver el contenido:
-    // la regla que oculta los .stagger-item tambien vive dentro de la consulta
-    // de movimiento, asi que con movimiento reducido ya se ven por si solos.
+    // Sin cascada no hay nada que hacer con movimiento reducido
     if (this.prefiereMenosMovimiento()) return;
+
+    // Evitar que la entrada escalonada se repita en refrescos de datos (evita que desaparezcan los elementos)
+    if (parent._hasStaggered) return;
+    parent._hasStaggered = true;
 
     const items = parent.querySelectorAll(itemSelector);
     

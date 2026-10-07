@@ -31,6 +31,7 @@ function enlazar() {
 
 /** Dibuja lo propio de esta pagina. Es idempotente. */
 function montar() {
+  SedesView.resetFiltrosState?.();
   SedesView.render();
 }
 

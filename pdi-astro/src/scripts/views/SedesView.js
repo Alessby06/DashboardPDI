@@ -67,6 +67,11 @@ export const SedesView = {
     this.render();
   },
 
+  resetFiltrosState() {
+    this._filtrosLeidos = false;
+    this._filtros = null;
+  },
+
   render(sedes) {
     this._leerFiltrosDeURL();
     if (sedes) {
@@ -164,6 +169,7 @@ export const SedesView = {
   filterByDistrito(distrito) {
     this._filterDistrito = distrito;
     this._updateDistritoDropdownUI();
+    document.getElementById("dropdownSedesDistrito")?.classList.remove("open");
     this.applyFilters();
     this._persistirFiltros();
   },
@@ -171,6 +177,7 @@ export const SedesView = {
   filterByServicio(servicio) {
     this._filterServicio = servicio;
     this._updateServicioDropdownUI();
+    document.getElementById("dropdownSedesServicio")?.classList.remove("open");
     this.applyFilters();
     this._persistirFiltros();
   },
@@ -193,7 +200,7 @@ export const SedesView = {
     const names = {
       "all": "Todos los Servicios",
       "Desayuno": "Servicio Alimentario Nutricional",
-      "Casita": "Servicio de Acompañamiento Educativo",
+      "Casita": "Casita del Saber",
       "Lonchera": "Lonchera Saludable"
     };
     if (label) {
@@ -255,7 +262,7 @@ export const SedesView = {
       activeCount++;
       const names = {
         "Desayuno": "Servicio Alimentario Nutricional",
-        "Casita": "Acompañamiento Educativo",
+        "Casita": "Casita del Saber",
         "Lonchera": "Lonchera Saludable"
       };
       chipsHTML.push(`
@@ -289,10 +296,80 @@ export const SedesView = {
   },
 
   selectSede(id) {
-    this._selectedSedeId = id;
-    this.renderMasterList();
+    // El id llega del onclick interpolado, o sea siempre string, mientras que
+    // _allSedes puede traer numeros (SurrealDB) o slugs (fixtures). Sin
+    // resolverlo contra la lista, find(s => s.id === id) no coincidia nunca y
+    // el panel de detalle se quedaba en la sede anterior.
+    const sede = this._allSedes.find(s => this._mismoId(s.id, id));
+    if (!sede) return;
+
+    this._selectedSedeId = sede.id;
+
+    // Solo se mueve la marca activa: repintar la lista entera aqui volvia a
+    // lanzar la cascada de entrada con cada clic, haciendo que toda la
+    // columna parpadeara al cambiar de sede.
+    this._marcarActivoEnLista();
     this.renderDetailPanel();
     this._persistirFiltros();
+  },
+
+  /** Compara ids sin importar que unos vengan como string y otros como numero. */
+  _mismoId(a, b) {
+    if (a === null || a === undefined || b === null || b === undefined) return false;
+    return String(a) === String(b);
+  },
+
+  /**
+   * Normaliza texto a formato slug: "Año Nuevo" -> "ano-nuevo".
+   */
+  _slugDe(texto) {
+    return String(texto || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  },
+
+  /**
+   * Resuelve el id de sede que vino de la URL a un id canonico de los datos
+   * actuales. Acepta tres formatos historicos:
+   *  - id canonico ("sede-el-progreso"): coincide directo.
+   *  - slug de un formato distinto: se compara por nombre.
+   *  - numero legado ("5"): las sedes se guardaron en orden alfabetico, asi
+   *    que la N-esima alfabetica es la que valia ese numero.
+   * Si no hay coincidencia devuelve el id tal cual, para que applyFilters
+   * decida el fallback normal (primera sede del filtro).
+   */
+  _resolverSedeId(id) {
+    if (id === null || id === undefined || id === "") return null;
+    const todos = this._allSedes || [];
+
+    const porId = todos.find(s => this._mismoId(s.id, id));
+    if (porId) return porId.id;
+
+    const crudo = this._slugDe(String(id).replace(/^sede-/, "")) ||
+      String(id).replace(/^sede-/, "");
+    const porNombre = todos.find(s => this._slugDe(s.nombre) === crudo);
+    if (porNombre) return porNombre.id;
+
+    if (/^\d+$/.test(String(id))) {
+      const orden = [...todos].sort((a, b) =>
+        String(a.nombre).localeCompare(String(b.nombre), "es"));
+      const candidata = orden[parseInt(String(id), 10) - 1];
+      if (candidata) return candidata.id;
+    }
+
+    return id;
+  },
+
+  /** Marca la sede seleccionada sin repintar los items. */
+  _marcarActivoEnLista() {
+    const contenedor = document.getElementById("sedesMasterList");
+    if (!contenedor) return;
+    contenedor.querySelectorAll(".sedes-master-item").forEach(item => {
+      item.classList.toggle("active", this._mismoId(item.dataset.sedeId, this._selectedSedeId));
+    });
   },
 
   applyFilters() {
@@ -323,6 +400,12 @@ export const SedesView = {
 
     this._filteredSedes = filtered;
 
+    // Orden alfabetico fijo. El fetch (fixtures vs base de datos) puede devolver
+    // las sedes en otro orden, y un reordenamiento repintaba la lista completa
+    // al refrescar los datos.
+    this._filteredSedes.sort((a, b) =>
+      String(a.nombre).localeCompare(String(b.nombre), "es"));
+
     const countBadge = document.getElementById("sedesCountBadge");
     const masterCountBadge = document.getElementById("sedesMasterCountBadge");
     const textCount = `${filtered.length} ${filtered.length === 1 ? 'sede' : 'sedes'}`;
@@ -330,7 +413,8 @@ export const SedesView = {
     if (masterCountBadge) masterCountBadge.textContent = `${filtered.length}`;
 
     if (filtered.length > 0) {
-      const exists = filtered.some(s => s.id === this._selectedSedeId);
+      this._selectedSedeId = this._resolverSedeId(this._selectedSedeId);
+      const exists = filtered.some(s => this._mismoId(s.id, this._selectedSedeId));
       if (!exists) {
         this._selectedSedeId = filtered[0].id;
       }
@@ -347,7 +431,14 @@ export const SedesView = {
     const listContainer = document.getElementById("sedesMasterList");
     if (!listContainer) return;
 
+    // Firma del conjunto visible: sirve para distinguir "la lista cambio"
+    // (busqueda, filtro, primera carga) de "repintaron la misma lista"
+    // (la sincronizacion con la base al terminar de cargar, ~3-4 s despues
+    // de recargar, que solo actualiza cifras).
+    const firma = this._filteredSedes.map(s => String(s.id)).join("|");
+
     if (this._filteredSedes.length === 0) {
+      this._firmaLista = firma;
       listContainer.innerHTML = `
         <div class="sedes-empty-state">
           <div style="font-size:13px; color:var(--text-muted);">Sin resultados</div>
@@ -357,14 +448,14 @@ export const SedesView = {
     }
 
     listContainer.innerHTML = this._filteredSedes.map(s => {
-      const isSelected = s.id === this._selectedSedeId;
+      const isSelected = this._mismoId(s.id, this._selectedSedeId);
       const pct = s.porcentajeOcupacion;
       let badgeClass = "badge-green";
       if (pct >= 95) badgeClass = "badge-red";
       else if (pct >= 80) badgeClass = "badge-yellow";
 
       return `
-        <div class="sedes-master-item ${isSelected ? 'active' : ''}" onclick="window.PDI?.SedesView?.selectSede('${escaparEnManejador(s.id)}')">
+        <div class="sedes-master-item ${isSelected ? 'active' : ''}" data-sede-id="${escapar(s.id)}" onclick="window.PDI?.SedesView?.selectSede('${escaparEnManejador(s.id)}')">
           <div class="sedes-master-item-top">
             <span class="sedes-master-item-distrito">${escapar(s.distrito)}</span>
             <span class="badge ${badgeClass}" style="font-size:10px; padding:1px 5px;">${pct}% Aforo</span>
@@ -380,13 +471,21 @@ export const SedesView = {
       `;
     }).join("");
 
-    // El directorio entra en cascada cada vez que se repinta (al buscar, al
-    // filtrar o al cambiar de distrito), de modo que se ve que la lista acaba de
-    // cambiar en vez de tener que releerla entera.
-    AnimationEngine.entradaEscalonada(listContainer, ":scope > .sedes-master-item", {
-      paso: 30,
-      maxDesfase: 12,
-    });
+    // El directorio entra en cascada solo cuando cambia el conjunto de sedes
+    // (al buscar, al filtrar o en la primera carga), de modo que se vea que la
+    // lista acaba de cambiar. Si el repintado trae la misma lista —lo que
+    // pasa al sincronizar los datos al terminar de cargar— se pinta sin
+    // animar, para que toda la columna no parpadee relanzando la entrada.
+    // El contenedor se compara tambien: al volver a la pagina (navegacion
+    // interna) el nodo es nuevo y la entrada si debe correr.
+    if (firma !== this._firmaLista || listContainer !== this._contenedorLista) {
+      AnimationEngine.entradaEscalonada(listContainer, ":scope > .sedes-master-item", {
+        paso: 30,
+        maxDesfase: 12,
+      });
+    }
+    this._firmaLista = firma;
+    this._contenedorLista = listContainer;
   },
 
   renderDetailPanel() {
@@ -407,7 +506,7 @@ export const SedesView = {
       return;
     }
 
-    const sede = this._allSedes.find(s => s.id === this._selectedSedeId);
+    const sede = this._allSedes.find(s => this._mismoId(s.id, this._selectedSedeId));
     if (!sede) return;
 
     const pct = sede.porcentajeOcupacion;
@@ -426,7 +525,7 @@ export const SedesView = {
 
     const servicioLabels = {
       "Desayuno Infantil": "Servicio Alimentario Nutricional",
-      "Casita del Saber": "Servicio de Acompañamiento Educativo",
+      "Casita del Saber": "Casita del Saber",
       "Lonchera Infantil": "Lonchera Saludable"
     };
 

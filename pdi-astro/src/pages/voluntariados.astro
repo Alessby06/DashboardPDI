@@ -1,4 +1,4 @@
-﻿---
+---
 import AppLayout from '../layouts/AppLayout.astro';
 import '../styles/views-voluntariados.css';
 ---
@@ -26,66 +26,77 @@ import '../styles/views-voluntariados.css';
             </div>
           </div>
 
-          <!-- KPI Banner Summary -->
-          <div class="kpi-grid">
-            <div class="kpi-card">
-              <div class="kpi-info">
-                <span>Total Voluntarias</span>
-                <h3 id="kpiVoluntariosTotal">8</h3>
-                <div class="kpi-sub">
-                  <span class="badge badge-green" id="kpiVoluntariosActivos">7 activas</span>
-                  <span style="font-size: 11.5px; color: var(--text-dim); margin-left: 4px;">Comas y Carabayllo</span>
+          <!-- KPI Banner Summary (Johannes Gutenberg Metric Panel) -->
+          <div class="kpi-grid padron-kpi-grid">
+            <div class="padron-kpi-card kpi-accent-green">
+              <div class="padron-kpi-header">
+                <span class="padron-kpi-title">Total Voluntarias</span>
+                <div class="padron-kpi-badge-icon badge-icon-green" title="Voluntariado General">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                  </svg>
                 </div>
               </div>
-              <div class="kpi-icon-wrap" style="background: var(--gt-green-bg); color: var(--gt-green); box-shadow: 0 2px 8px rgba(0, 180, 148, 0.15);">
-                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-                </svg>
+              <div class="padron-kpi-val-wrap">
+                <h3 id="kpiVoluntariosTotal" class="padron-kpi-num">8</h3>
+              </div>
+              <div class="padron-kpi-footer">
+                <span class="padron-pill-chip chip-green" id="kpiVoluntariosActivos">
+                  <span class="padron-dot dot-green"></span>
+                  7 activas
+                </span>
+                <span class="padron-kpi-note">Comas y Carabayllo</span>
               </div>
             </div>
 
-            <div class="kpi-card">
-              <div class="kpi-info">
-                <span>Servicio Alimentario</span>
-                <h3 id="kpiVoluntariosDesayuno">4</h3>
-                <div class="kpi-sub">
-                  <span style="font-size: 11.5px; color: var(--text-muted);">Desayunos e Iglesias Aliadas</span>
+            <div class="padron-kpi-card kpi-accent-mint">
+              <div class="padron-kpi-header">
+                <span class="padron-kpi-title">Servicio Alimentario</span>
+                <div class="padron-kpi-badge-icon badge-icon-mint" title="Nutrición y Desayunos">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                  </svg>
                 </div>
               </div>
-              <div class="kpi-icon-wrap" style="background: var(--gt-green-bg); color: var(--gt-green); box-shadow: 0 2px 8px rgba(0, 180, 148, 0.15);">
-                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-                </svg>
+              <div class="padron-kpi-val-wrap">
+                <h3 id="kpiVoluntariosDesayuno" class="padron-kpi-num">4</h3>
+              </div>
+              <div class="padron-kpi-footer">
+                <span class="padron-kpi-note padron-kpi-note-highlight">Desayunos e Iglesias Aliadas</span>
               </div>
             </div>
 
-            <div class="kpi-card">
-              <div class="kpi-info">
-                <span>Casita del Saber</span>
-                <h3 id="kpiVoluntariosCasitas">3</h3>
-                <div class="kpi-sub">
-                  <span style="font-size: 11.5px; color: var(--text-muted);">Acompañamiento y Biblioteca</span>
+            <div class="padron-kpi-card kpi-accent-amber">
+              <div class="padron-kpi-header">
+                <span class="padron-kpi-title">Casita del Saber</span>
+                <div class="padron-kpi-badge-icon badge-icon-amber" title="Acompañamiento Pedagógico">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" />
+                  </svg>
                 </div>
               </div>
-              <div class="kpi-icon-wrap" style="background: var(--gt-yellow-bg); color: var(--gt-yellow); box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);">
-                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" />
-                </svg>
+              <div class="padron-kpi-val-wrap">
+                <h3 id="kpiVoluntariosCasitas" class="padron-kpi-num">3</h3>
+              </div>
+              <div class="padron-kpi-footer">
+                <span class="padron-kpi-note padron-kpi-note-highlight">Acompañamiento y Biblioteca</span>
               </div>
             </div>
 
-            <div class="kpi-card">
-              <div class="kpi-info">
-                <span>Canastas Entregadas</span>
-                <h3 id="kpiVoluntariosCanastas">18</h3>
-                <div class="kpi-sub">
-                  <span style="font-size: 11.5px; color: var(--text-muted);">Estímulo por labor comunitaria</span>
+            <div class="padron-kpi-card kpi-accent-blue">
+              <div class="padron-kpi-header">
+                <span class="padron-kpi-title">Canastas Entregadas</span>
+                <div class="padron-kpi-badge-icon badge-icon-blue" title="Canastas por Labor Comunitaria">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                  </svg>
                 </div>
               </div>
-              <div class="kpi-icon-wrap" style="background: var(--gt-blue-bg); color: var(--gt-blue); box-shadow: 0 2px 8px rgba(2, 132, 199, 0.15);">
-                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
-                </svg>
+              <div class="padron-kpi-val-wrap">
+                <h3 id="kpiVoluntariosCanastas" class="padron-kpi-num">18</h3>
+              </div>
+              <div class="padron-kpi-footer">
+                <span class="padron-kpi-note padron-kpi-note-highlight">Estímulo por labor comunitaria</span>
               </div>
             </div>
           </div>

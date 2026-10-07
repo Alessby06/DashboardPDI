@@ -49,9 +49,11 @@
       will-change: transform;
     }
 
-    .kpi-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 14px 28px -6px rgba(0, 0, 0, 0.1);
+    @media (hover: hover) and (pointer: fine) {
+      .kpi-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 28px -6px rgba(0, 0, 0, 0.1);
+      }
     }
 
     .kpi-info span {
@@ -218,7 +220,7 @@
     .datacard-extra {
       display: none;
       flex-direction: column;
-      animation: fadeInDataCard 0.25s ease-out;
+      animation: fadeInDataCard var(--dur-popover) var(--ease-out);
     }
 
     .mobile-card-item.expanded .datacard-extra {
@@ -493,19 +495,6 @@
       display: inline-block;
     }
 
-    #dropdownRoleSelector {
-      min-width: 240px;
-    }
-
-    #dropdownRoleSelector .custom-dropdown-btn {
-      width: 100%;
-    }
-
-    #dropdownRoleSelector .custom-dropdown-menu {
-      width: 100%;
-      min-width: 100%;
-    }
-
     .custom-dropdown-btn {
       display: inline-flex;
       align-items: center;
@@ -526,7 +515,6 @@
       white-space: nowrap;
     }
 
-    #labelActiveRole,
     .dropdown-label {
       font-size: 13px;
     }
@@ -571,23 +559,18 @@
       flex-direction: column;
       gap: 2px;
       z-index: 100;
-      animation: dropdownFadeIn var(--dur-fast) var(--ease-spring);
+      transform-origin: top left;
+      opacity: 0;
+      transform: translateY(-4px) scale(0.97);
+      transition: transform var(--dur-popover) var(--ease-out),
+                  opacity var(--dur-popover) var(--ease-out);
       will-change: transform, opacity;
     }
 
     .custom-dropdown.open .custom-dropdown-menu {
       display: flex;
-    }
-
-    @keyframes dropdownFadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(-4px) scale(0.98);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
+      opacity: 1;
+      transform: translateY(0) scale(1);
     }
 
     .custom-dropdown-item {
@@ -673,16 +656,18 @@
       align-items: center;
       gap: 12px;
       pointer-events: auto;
-      animation: toastInBottom var(--dur-fluid) var(--ease-spring);
       min-width: 280px;
       max-width: 400px;
-      backdrop-filter: blur(12px);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       will-change: transform, opacity;
-      transition: opacity 0.25s ease, transform 0.25s ease;
+      animation: toastInBottom var(--dur-panel) var(--ease-out);
+      transition: opacity var(--dur-popover) var(--ease-out),
+                  transform var(--dur-popover) var(--ease-out);
     }
 
     @keyframes toastInBottom {
-      from { transform: translateY(24px); opacity: 0; }
+      from { transform: translateY(16px); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
     }
 
@@ -720,13 +705,13 @@
        lista larga no tarde una eternidad en terminar de entrar. */
     @media (prefers-reduced-motion: no-preference) {
       .ixd-entrada {
-        animation: ixdEntrada 0.34s cubic-bezier(0.22, 1, 0.36, 1) backwards;
-        animation-delay: calc(var(--ixd-i, 0) * 32ms);
+        animation: ixdEntrada var(--dur-norm) var(--ease-out) backwards;
+        animation-delay: calc(var(--ixd-i, 0) * 28ms);
       }
     }
 
     @keyframes ixdEntrada {
-      from { opacity: 0; transform: translateY(8px); }
+      from { opacity: 0; transform: translateY(5px); }
       to   { opacity: 1; transform: none; }
     }
 
@@ -750,3 +735,56 @@
       outline: 2px solid var(--brand-primary);
       outline-offset: 2px;
     }
+
+    /* ===========================================================================
+       ODÓMETRO / CONTADOR DE KILOMETRAJE (SLOT ROLL METRICS)
+       =========================================================================== */
+    .odometer-wrap {
+      display: inline-flex;
+      align-items: baseline;
+      justify-content: flex-start;
+      line-height: 1.15;
+      font-variant-numeric: tabular-nums;
+      overflow: hidden;
+      height: 1.15em;
+      vertical-align: baseline;
+    }
+
+    .odometer-digit {
+      display: inline-block;
+      height: 1.15em;
+      line-height: 1.15em;
+      overflow: hidden;
+      vertical-align: baseline;
+      position: relative;
+    }
+
+    .odometer-ribbon {
+      display: flex;
+      flex-direction: column;
+      will-change: transform;
+    }
+
+    .odometer-ribbon > span {
+      display: block;
+      height: 1.15em;
+      line-height: 1.15em;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .odometer-glyph {
+      display: inline-block;
+      height: 1.15em;
+      line-height: 1.15em;
+      padding: 0 0.06em;
+      vertical-align: baseline;
+      opacity: 0.9;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .odometer-ribbon {
+        transition: none !important;
+      }
+    }
+

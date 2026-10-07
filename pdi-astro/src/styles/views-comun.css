@@ -27,10 +27,10 @@
       z-index: 1000;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-                  background-color 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-                  backdrop-filter 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-                  -webkit-backdrop-filter 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: opacity var(--dur-panel) var(--ease-out),
+                  background-color var(--dur-panel) var(--ease-out),
+                  backdrop-filter var(--dur-panel) var(--ease-out),
+                  -webkit-backdrop-filter var(--dur-panel) var(--ease-out);
       padding: 20px;
       will-change: opacity, backdrop-filter, background-color;
     }
@@ -39,9 +39,9 @@
     .modal-backdrop.active {
       opacity: 1;
       pointer-events: auto;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
     }
 
     .modal-box {
@@ -55,9 +55,9 @@
       flex-direction: column;
       box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.4);
       opacity: 0;
-      transform: scale(0.95) translateY(14px);
-      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-                  opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+      transform: scale(0.96) translateY(10px);
+      transition: transform var(--dur-panel) var(--ease-out),
+                  opacity var(--dur-panel) var(--ease-out);
       will-change: transform, opacity;
       transform-origin: center center;
     }

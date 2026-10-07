@@ -1,22 +1,22 @@
 # Sistema PDI — Edición Astro (MPA Moderna)
 
 **Asociación Cultural Johannes Gutenberg**  
-Aplicación web para la gestión del Programa de Desarrollo Integral (PDI): padrón de beneficiarios, Expediente Integral, acompañamiento Social Pastoral, Casitas del Saber, sedes, gestión de voluntariado y ajustes del sistema.
+Gestión web Programa Desarrollo Integral (PDI): padrón beneficiarios, Expediente Integral, acompañamiento Social Pastoral, Casitas del Saber, sedes, voluntariado, ajustes.
 
-Esta versión toma toda la lógica MVC existente y la envuelve en **Astro 5**, resolviendo la duplicación de plantillas y habilitando transiciones fluidas de página sin recargas completas.
+Lógica MVC envuelta en **Astro 5**: cero duplicación plantillas, transiciones fluidas sin recarga.
 
 ---
 
 ## 🚀 Cómo arrancarlo
 
-1. **Doble clic en `iniciar_dev.bat`** (abrirá el navegador automáticamente en `http://localhost:4321`).
-2. O manualmente desde la terminal:
+1. **Doble clic `iniciar_dev.bat`** (abre `http://localhost:4321`).
+2. Terminal:
    ```bash
    npm install      # solo la primera vez
    npm run dev      # servidor de desarrollo local
    ```
 
-Para compilar para producción:
+Compilar producción:
 ```bash
 npm run build    # genera el sitio estático optimizado en la carpeta /dist
 ```
@@ -27,11 +27,11 @@ npm run build    # genera el sitio estático optimizado en la carpeta /dist
 
 | Aspecto | Versión Anterior (`pdi-mvc`) | Nueva Versión (`pdi-astro`) |
 |---|---|---|
-| **Menú y Cabecera** | Copiados a mano en los 11 HTML. Modificar el menú requería 11 ediciones. | Extraídos a `Sidebar.astro` y `Topbar.astro`. Editar un archivo actualiza todo el sistema. |
-| **Modales Globales** | 1,170 líneas de modales duplicadas en cada HTML. | Centralizados en `GlobalModals.astro` y persistentes con `transition:persist`. |
-| **Navegación** | Recarga completa del navegador por cada enlace (parpadeo blanco). | Transiciones instantáneas y suaves mediante `<ClientRouter />` (Astro 5). |
-| **Tirón del Menú Lateral** | Recalculaba geometría y perdía caché de rasterizado de GPU en cada página. | `<Sidebar transition:persist />` se mantiene en el DOM entre páginas sin destruirse. |
-| **Lógica MVC en JS** | Modelos, Controladores y Vistas en módulos ES nativos. | **Se mantiene 100% intacta** en `src/scripts/`, sin dependencias externas pesadas. |
+| **Menú y Cabecera** | Copiados a mano en 11 HTML. Modificar menú requería 11 ediciones. | Extraídos a `Sidebar.astro` y `Topbar.astro`. Editar 1 archivo actualiza todo. |
+| **Modales Globales** | 1,170 líneas modales duplicadas en cada HTML. | Centralizados en `GlobalModals.astro` persistentes con `transition:persist`. |
+| **Navegación** | Recarga completa navegador por enlace (parpadeo blanco). | Transiciones instantáneas vía `<ClientRouter />` (Astro 5). |
+| **Tirón Menú Lateral** | Recalculaba geometría, perdía caché rasterizado GPU por página. | `<Sidebar transition:persist />` persiste en DOM sin destruirse. |
+| **Lógica MVC en JS** | Modelos, Controladores, Vistas en módulos ES nativos. | **100% intacta** en `src/scripts/`, sin dependencias externas pesadas. |
 
 ---
 
@@ -68,9 +68,9 @@ pdi-astro/
 
 ## 💡 Para añadir una pantalla nueva
 
-Ahora solo requieres **dos pasos** (en lugar de cuatro con once ediciones):
+Dos pasos (en lugar de cuatro con once ediciones):
 
-1. **`src/pages/<slug>.astro`**: Crea el archivo de la página. Solo defines el título y tu `<section>` de contenido:
+1. **`src/pages/<slug>.astro`**: Crea archivo página. Define título y `<section>` contenido:
    ```astro
    ---
    import AppLayout from '../layouts/AppLayout.astro';
@@ -87,4 +87,4 @@ Ahora solo requieres **dos pasos** (en lugar de cuatro con once ediciones):
      </script>
    </AppLayout>
    ```
-2. **`src/components/Sidebar.astro`**: Agrega un objeto a la lista `navItems` con la ruta y rol correspondiente. El menú lateral se actualizará en todo el sitio al instante.
+2. **`src/components/Sidebar.astro`**: Agrega objeto a lista `navItems` con ruta y rol. Menú lateral actualiza en todo el sitio al instante.

@@ -227,20 +227,6 @@ window.showToast = (mensaje, tipo = "success") =>
 // que funcionar en las diez paginas. Por eso Theme lo carga Bootstrap y no este
 // archivo: asi AjustesView (11 KB) se queda solo en ajustes.html.
 window.toggleTheme = (e) => Theme.alternar(e);
-window.selectActiveRole = (roleValue, roleTitle) =>
-  window.PDI?.Navigation?.seleccionarRol?.(roleValue, roleTitle);
-window.toggleRoleInfo = (e) => {
-  // En PC el tooltip se muestra por hover y no reacciona al clic.
-  if (window.innerWidth > 768) return;
-  if (e) e.stopPropagation();
-  const wrap = document.querySelector(".role-info-wrap");
-  const btn = document.getElementById("btnRoleInfo");
-  if (wrap) {
-    const abierto = wrap.classList.contains("open");
-    wrap.classList.toggle("open", !abierto);
-    if (abierto && btn) btn.blur();
-  }
-};
 
 // Las dos exportaciones de datos las carga AppController en las paginas que las
 // ofrecen: el panel y la auditoria. Antes las importaba este archivo y por eso
@@ -375,10 +361,6 @@ document.addEventListener("click", (e) => {
   }
   if (!e.target.closest(".padron-inner-dropdown")) {
     document.querySelectorAll(".padron-inner-dropdown.open").forEach((d) => d.classList.remove("open"));
-  }
-  if (!e.target.closest(".role-info-wrap")) {
-    document.querySelector(".role-info-wrap")?.classList.remove("open");
-    document.getElementById("btnRoleInfo")?.blur();
   }
   if (!e.target.closest(".audit-legal-popover-wrapper")) {
     document.getElementById("wrapAuditLegalPopover")?.classList.remove("open");

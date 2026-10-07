@@ -6,7 +6,7 @@
       <div class="modal-header">
         <div>
           <h3 style="margin:0; font-size:16px;">Ficha de Inscripción y Padrón Oficial de Usuarios 2026</h3>
-          <span style="font-size:12px; color:var(--text-dim);">Registro Integral de Beneficiarios (Desayuno Infantil y
+          <span style="font-size:12px; color:var(--text-dim);">Registro Integral de Usuarios (Desayuno Infantil y
             Casitas del Saber)</span>
         </div>
         <button type="button" class="btn-close-modal" onclick="closeModalNuevoMenor()" aria-label="Cerrar modal de inscripción">
@@ -115,11 +115,11 @@
                     </div>
 
                     <div class="croquis-embed-grid">
-                      <!-- Visor Google Maps Embed -->
+                      <!-- Visor Google Maps Embed (Carga bajo demanda para optimizar privacidad y cookies) -->
                       <div class="croquis-map-wrap">
                         <iframe id="regGoogleMapIframe" class="croquis-map-iframe"
-                          title="Mapa interactivo de ubicación de domicilio del beneficiario"
-                          src="https://maps.google.com/maps?q=Comas,Lima,Peru&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                          title="Mapa interactivo de ubicación de domicilio del usuario"
+                          data-src="https://maps.google.com/maps?q=Comas,Lima,Peru&t=&z=15&ie=UTF8&iwloc=&output=embed"
                           loading="lazy" allowfullscreen></iframe>
                         <div id="regMapLoadingIndicator" class="croquis-map-loading" style="display:none;">
                           <span>Actualizando croquis...</span>

@@ -1,8 +1,8 @@
-// Vista: Padrón de Beneficiarios
+// Vista: Padrón de Usuarios
 import { crear as crearFiltros } from "../utils/Filters.js";
 import { Responsive } from "../utils/Responsive.js";
-
-import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
+import { AnimationEngine } from "../utils/AnimationEngine.js";
+import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";
 // Qué filtros del padrón viajan en la URL, con qué valores y cuáles son los
 // defectos. La lista de valores no se inventa: es la misma que admiten los
 // desplegables de padron.html. Si algún día se añade un filtro
@@ -37,6 +37,13 @@ export const BeneficiariosView = {
   _filterEdadRango: { min: 0, max: 18 },
   _filterEstado: "all", // "all" | "Activo" | "Inactivo"
   _filterSexo: "all",   // "all" | "M" | "F"
+  _haEntrado: false,
+  _lastRenderSerial: "",
+
+  reiniciarEntrada() {
+    this._haEntrado = false;
+    this._lastRenderSerial = "";
+  },
 
   // Controlador de filtros en la URL. Se crea la primera vez porque el objeto
   // es un singleton de modulo: crearlo arriba del todo exigiria que window
@@ -145,14 +152,17 @@ export const BeneficiariosView = {
    * llama a renderTable() y no a init(), asi que el estado de la URL tiene que
    * leerse tambien aqui.
    */
-  renderTable(beneficiarios) {
+  renderTable(beneficiarios, forzarAnimacion = false) {
+    const esPrimeraEntrada = !this._haEntrado || forzarAnimacion;
+    this._haEntrado = true;
+
     this._leerFiltrosDeURL();
     this._pageSize = this._getEffectivePageSize();
     if (beneficiarios) {
       this._allBeneficiarios = beneficiarios;
     }
     this._vigilarVariante();
-    this.applyFilters(false);
+    this.applyFilters(false, esPrimeraEntrada);
   },
 
   /**
@@ -165,7 +175,7 @@ export const BeneficiariosView = {
     this._vigilaVariante = true;
     Responsive.alCambiarDeVariante(() => {
       this._pageSize = this._getEffectivePageSize();
-      this.applyFilters(false);
+      this.applyFilters(false, false);
     });
   },
 
@@ -200,7 +210,7 @@ export const BeneficiariosView = {
     this._pageSize = isNaN(num) ? 20 : Math.min(maxAllowed, Math.max(5, num));
     this._currentPage = 1;
     this._syncPageSizeSelectUI();
-    this.applyFilters(false);
+    this.applyFilters(false, true);
     this._persistirFiltros();
   },
 
@@ -209,7 +219,7 @@ export const BeneficiariosView = {
     const totalPages = Math.max(1, Math.ceil(this._filteredBeneficiarios.length / pageSize));
     this._currentPage = Math.min(totalPages, Math.max(1, page));
     this._renderPagination(this._filteredBeneficiarios.length);
-    this._renderCurrentPage();
+    this._renderCurrentPage(true);
     this._persistirFiltros();
   },
 
@@ -297,7 +307,7 @@ export const BeneficiariosView = {
       } else if (this._filterServicio.length === 1) {
         const s = this._filterServicio[0];
         if (s === "desayuno") labelEl.textContent = "Servicio Alimentario Nutricional";
-        else if (s === "casita") labelEl.textContent = "Servicio Acompañamiento Educativo";
+        else if (s === "casita") labelEl.textContent = "Casita del Saber";
         else if (s === "pastoral") labelEl.textContent = "Área Social Pastoral";
       } else {
         labelEl.textContent = `${this._filterServicio.length} seleccionados`;
@@ -644,7 +654,7 @@ export const BeneficiariosView = {
       if (key === "casita") {
         return servs.some(s => {
           const low = (s || "").toLowerCase();
-          return s === "Servicio Acompañamiento Educativo" || low.includes("casita") || low.includes("educativ") || low.includes("acompañ") || low.includes("refuerzo");
+          return s === "Casita del Saber" || low.includes("casita") || low.includes("educativ") || low.includes("acompañ") || low.includes("refuerzo");
         });
       }
       if (key === "pastoral") {
@@ -686,7 +696,7 @@ export const BeneficiariosView = {
     });
   },
 
-  applyFilters(resetPage = true) {
+  applyFilters(resetPage = true, animar = true) {
     if (resetPage) {
       this._currentPage = 1;
     }
@@ -777,15 +787,33 @@ export const BeneficiariosView = {
     }
 
     this._renderPagination(this._filteredBeneficiarios.length);
-    this._renderCurrentPage();
+    this._renderCurrentPage(animar);
   },
 
-  _renderCurrentPage() {
+  _renderCurrentPage(animar = false) {
     const list = this._filteredBeneficiarios || [];
     const pageSize = this._getEffectivePageSize();
     const startIndex = (this._currentPage - 1) * pageSize;
     const pageItems = list.slice(startIndex, startIndex + pageSize);
+
+    const serial = `${this._searchQuery}_${this._filterServicio.join(',')}_${this._filterSede.join(',')}_${this._filterAnemia.join(',')}_${this._filterEdadModo}_${this._filterEdadExacta}_${this._filterEdadRango.min}-${this._filterEdadRango.max}_${this._filterEstado}_${this._filterSexo}_${this._currentPage}_${this._pageSize}_` +
+      pageItems.map(b => `${b.id}_${b.estado}`).join('|');
+
+    const tbody = document.getElementById("tbodyBeneficiarios");
+    const mobileContainer = document.getElementById("mobileCardsBeneficiarios");
+    const hasContent = (tbody && tbody.children.length > 0) || (mobileContainer && mobileContainer.children.length > 0);
+
+    if (!animar && this._lastRenderSerial === serial && hasContent) {
+      return;
+    }
+    this._lastRenderSerial = serial;
+
     this._renderFilteredList(pageItems, list.length);
+
+    if (animar) {
+      AnimationEngine.entradaEscalonada("tbodyBeneficiarios", ":scope > tr", { paso: 22, maxDesfase: 10 });
+      AnimationEngine.entradaEscalonada("mobileCardsBeneficiarios", ":scope > *", { paso: 22, maxDesfase: 10 });
+    }
   },
 
   _renderPagination(totalCount) {
@@ -797,8 +825,8 @@ export const BeneficiariosView = {
     const infoEl = document.getElementById("padronPaginationInfo");
     if (infoEl) {
       infoEl.textContent = totalCount === 0
-        ? "Mostrando 0 de 0 beneficiarios"
-        : `Mostrando ${startRecord}–${endRecord} de ${totalCount} beneficiarios`;
+        ? "Mostrando 0 de 0 usuarios"
+        : `Mostrando ${startRecord}–${endRecord} de ${totalCount} usuarios`;
     }
 
     const pageNumEl = document.getElementById("padronCurrentPageNum");
@@ -820,6 +848,7 @@ export const BeneficiariosView = {
   },
 
   _updateFacetCounts() {
+    if (!document.getElementById("menuPadronServicio")) return;
     // Calculo facetado con respecto a los otros filtros activos excepto la propia categoría
     const getFilteredExcluding = (excludeKey) => {
       let l = [...this._allBeneficiarios];
@@ -900,10 +929,7 @@ export const BeneficiariosView = {
 
   _setFacetBadge(id, text, isZero) {
     const el = document.getElementById(id);
-    if (!el) {
-      console.warn(`[BeneficiariosView] Faceta sin elemento en el DOM: #${id}`);
-      return;
-    }
+    if (!el) return;
     el.textContent = text;
     const parentItem = el.closest(".padron-dropdown-item");
     if (parentItem && parentItem.getAttribute("data-value") !== "all") {
@@ -923,7 +949,7 @@ export const BeneficiariosView = {
       this._filterServicio.forEach(s => {
         let servLabel = "Servicio";
         if (s === "desayuno") servLabel = "Servicio Alimentario Nutricional";
-        if (s === "casita") servLabel = "Servicio Acompañamiento Educativo";
+        if (s === "casita") servLabel = "Casita del Saber";
         if (s === "pastoral") servLabel = "Área Social Pastoral";
         chips.push({
           id: "servicio",
@@ -1027,7 +1053,7 @@ export const BeneficiariosView = {
               <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin:0 auto 8px; display:block; opacity:0.6;">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
               </svg>
-              No se encontraron beneficiarios con los filtros seleccionados.
+              No se encontraron usuarios con los filtros seleccionados.
             </td>
           </tr>
         `;
@@ -1046,7 +1072,7 @@ export const BeneficiariosView = {
             </td>
             <td><span class="badge ${b.estado === 'Activo' ? 'badge-green' : 'badge-yellow'}">${escapar(b.estado)}</span></td>
             <td style="text-align: right;">
-              <a href="./expediente.html?id=${encodeURIComponent(b.id)}" class="btn-action" data-astro-prefetch>
+              <a href="/expediente?id=${encodeURIComponent(b.id)}" class="btn-action" data-astro-prefetch>
                 Ver Expediente
               </a>
             </td>
@@ -1060,7 +1086,7 @@ export const BeneficiariosView = {
       if (beneficiarios.length === 0) {
         mobileContainer.innerHTML = `
           <div style="text-align: center; padding: 28px 14px; color: var(--text-dim); background: var(--surface-1); border-radius: var(--radius-md); border: 1px dashed var(--border-subtle);">
-            No se encontraron beneficiarios con los criterios seleccionados.
+            No se encontraron usuarios con los criterios seleccionados.
           </div>
         `;
       } else {
@@ -1108,7 +1134,7 @@ export const BeneficiariosView = {
                   <span class="datacard-value">${escapar(b.seguro || 'SIS Gratuito')}</span>
                 </div>
                 <div class="datacard-actions-footer">
-                  <a href="./expediente.html?id=${encodeURIComponent(b.id)}" class="btn-action primary" style="width:100%; justify-content:center; text-decoration:none;" data-astro-prefetch onclick="event.stopPropagation();">
+                  <a href="/expediente?id=${encodeURIComponent(b.id)}" class="btn-action primary" style="width:100%; justify-content:center; text-decoration:none;" data-astro-prefetch onclick="event.stopPropagation();">
                     <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:6px;">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                       <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

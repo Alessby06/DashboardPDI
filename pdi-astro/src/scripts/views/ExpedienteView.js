@@ -17,6 +17,7 @@
 //  Solo se reescribio el envoltura (cabecera y barra de acciones). Por eso las
 //  clases modal-tab-btn y modal-tab-pane siguen llamandose asi: las selecciona
 //  css/views.css y renombrarlas no compensaba el riesgo.
+import { PageGuard } from "../auth/PageGuard.js";
 import { BeneficiarioModel } from "../models/BeneficiarioModel.js";
 import { CasoSocialModel } from "../models/CasoSocialModel.js";
 import { AuditModel } from "../models/AuditModel.js";
@@ -314,8 +315,7 @@ export const ExpedienteView = {
   },
 
   _rolEsDirectivo() {
-    const sel = document.getElementById("roleSelector");
-    const rol = sel ? sel.value : "coord";
+    const rol = PageGuard.leerRol();
     return rol === "coord" || rol === "admin";
   },
 
@@ -884,10 +884,10 @@ export const ExpedienteView = {
       }
     }
 
-    const banner = document.getElementById("roleBannerTitle");
+    const usuarioActivo = localStorage.getItem("pdi_usuario_nombre") || "Coordinador General";
     if (AuditModel && AuditModel.addLog) {
       AuditModel.addLog({
-        user: (banner && banner.textContent) || "Coordinador General",
+        user: usuarioActivo,
         role: "Direccion",
         action: "Edicion de Expediente",
         entity: b.codigo,
@@ -917,10 +917,9 @@ export const ExpedienteView = {
 
     BeneficiarioModel.delete(b.id);
 
-    const banner = document.getElementById("roleBannerTitle");
     if (AuditModel && AuditModel.addLog) {
       AuditModel.addLog({
-        user: (banner && banner.textContent) || "Coordinador General",
+        user: usuarioActivo,
         role: "Direccion / Admin",
         action: "Baja de Beneficiario",
         entity: b.codigo,
@@ -931,7 +930,7 @@ export const ExpedienteView = {
 
     // Tras la baja el expediente ya no existe, asi que no hay nada que volver a
     // pintar: se vuelve al padron, que es donde el usuario puede ver el efecto.
-    const destino = window.PDI?.RouteMap?.urlDe?.("padron") || "./padron.html";
+    const destino = window.PDI?.RouteMap?.urlDe?.("padron") || "/padron";
     window.location.href = destino;
   },
 };

@@ -21,6 +21,13 @@ export const SocialKanbanView = {
   _filterSede: "all",
   _activeCaso: null,
   _mobileActiveStage: "pendiente",
+  _haEntrado: false,
+  _lastRenderSerial: "",
+
+  reiniciarEntrada() {
+    this._haEntrado = false;
+    this._lastRenderSerial = "";
+  },
 
   _filtros: null,
   _filtrosLeidos: false,
@@ -69,7 +76,7 @@ export const SocialKanbanView = {
     this.renderKanban();
   },
 
-  renderKanban(casos) {
+  renderKanban(casos, forzarAnimacion = false) {
     this._leerFiltrosDeURL();
 
     const pCol = document.getElementById("kanbanColPendientes");
@@ -78,11 +85,6 @@ export const SocialKanbanView = {
     const zCol = document.getElementById("kanbanColCerrados");
 
     if (!pCol || !eCol || !cCol || !zCol) return;
-
-    pCol.innerHTML = "";
-    eCol.innerHTML = "";
-    cCol.innerHTML = "";
-    zCol.innerHTML = "";
 
     const model = window.PDI?.CasoSocialModel || CasoSocialModel;
     const allCasos = casos || (model.getAll ? model.getAll() : []);
@@ -103,6 +105,23 @@ export const SocialKanbanView = {
       return matchQuery && matchUrgencia && matchSede;
     });
 
+    const esPrimeraEntrada = !this._haEntrado || forzarAnimacion;
+    this._haEntrado = true;
+
+    // Si no es primera entrada y los datos no cambiaron, evitar parpadeo y no reconstruir el DOM
+    const serial = `${this._searchQuery}_${this._filterUrgencia}_${this._filterSede}_` + 
+      filtered.map(c => `${c.id}_${c.etapa}_${c.urgencia}`).join("|");
+
+    if (!esPrimeraEntrada && this._lastRenderSerial === serial && (pCol.children.length > 0 || eCol.children.length > 0 || cCol.children.length > 0 || zCol.children.length > 0)) {
+      return;
+    }
+    this._lastRenderSerial = serial;
+
+    pCol.innerHTML = "";
+    eCol.innerHTML = "";
+    cCol.innerHTML = "";
+    zCol.innerHTML = "";
+
     let countP = 0;
     let countE = 0;
     let countC = 0;
@@ -111,6 +130,7 @@ export const SocialKanbanView = {
     filtered.forEach(c => {
       const card = document.createElement("div");
       card.className = "kanban-card";
+      card.setAttribute("data-urgencia", c.urgencia || "Media");
       card.setAttribute("onclick", `window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.openDetalleCaso(${c.id}) : null`);
       card.title = "Haz clic para ver la ficha completa del caso";
 
@@ -121,7 +141,7 @@ export const SocialKanbanView = {
           <div class="kanban-actions-row">
             <button type="button" class="kanban-btn primary full-width"
               onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso(${escaparEnManejador(c.id)}, 'evaluacion') : (window.app?.socialController?.moverCaso(${escaparEnManejador(c.id)}, 'evaluacion'))">
-              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
               </svg>
               <span>Iniciar Evaluación</span>
@@ -185,21 +205,24 @@ export const SocialKanbanView = {
 
       card.innerHTML = `
         <div class="kanban-card-header-row">
-          <strong class="kanban-card-title">${escapar(c.menor)}</strong>
-          <span class="badge badge-${c.urgencia === 'Alta' ? 'red' : (c.urgencia === 'Media' ? 'yellow' : 'blue')}" style="font-size:10.5px; padding:2px 7px;">${escapar(c.urgencia)}</span>
+          <strong class="kanban-card-title" title="${escapar(c.menor)}">${escapar(c.menor)}</strong>
+          <span class="badge badge-${c.urgencia === 'Alta' ? 'red' : (c.urgencia === 'Media' ? 'yellow' : 'blue')}"><span class="badge-dot"></span>${escapar(c.urgencia)}</span>
         </div>
         <div class="kanban-card-meta">
-          <a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(c.codigo)}')" style="font-size:11.5px; font-family:var(--mono-font); color:var(--text-brand); font-weight:700; text-decoration:underline;" title="Abrir expediente">
+          <a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(c.codigo)}')" class="kanban-card-code-link" title="Abrir expediente">
             ${escapar(c.codigo)}
           </a>
-          <span style="font-size:11.5px; color:var(--text-dim);">${escapar(c.sede)}</span>
+          <span class="kanban-card-sede-badge" title="${escapar(c.sede)}">
+            <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/></svg>
+            <span>${escapar(c.sede)}</span>
+          </span>
         </div>
         <div class="kanban-card-desc">
-          <strong style="color:var(--text-main);">Situación:</strong> ${escapar(c.situacionEncontrada || c.detalle)}
+          ${escapar(c.situacionEncontrada || c.detalle)}
         </div>
         <div class="kanban-card-footer">
           <span>Deriva: <strong>${escapar(c.quienDeriva ? c.quienDeriva.nombre.split(' ')[0] + ' ' + (c.quienDeriva.nombre.split(' ')[1] || '') : 'PDI')}</strong></span>
-          <span style="font-family:var(--mono-font);">${escapar(c.fechaDerivacion)}</span>
+          <span class="kanban-card-date">${escapar(c.fechaDerivacion)}</span>
         </div>
         ${actionsHtml}
       `;
@@ -219,18 +242,23 @@ export const SocialKanbanView = {
     setBadge("kanbanCountCanalizados", countC);
     setBadge("kanbanCountCerrados", countZ);
 
-    // Actualizar contadores en selector móvil
+    // Actualizar contadores en selectores móviles (dropdown legacy + segmented control moderno)
     setBadge("mobileStageCountPendientes", countP);
     setBadge("mobileStageCountEvaluacion", countE);
     setBadge("mobileStageCountCanalizados", countC);
     setBadge("mobileStageCountCerrados", countZ);
+
+    setBadge("mobileSegCountPendientes", countP);
+    setBadge("mobileSegCountEvaluacion", countE);
+    setBadge("mobileSegCountCanalizados", countC);
+    setBadge("mobileSegCountCerrados", countZ);
     this._syncMobileStageSelector();
 
-    // Las tarjetas entran en cascada al repintar el tablero. Al buscar o filtrar,
-    // el tablero se rehace entero: sin esta entrada, el cambio de contenido hay
-    // que deducirlo comparando de memoria con lo que habia un segundo antes.
-    for (const col of [pCol, eCol, cCol, zCol]) {
-      AnimationEngine.entradaEscalonada(col, ":scope > .kanban-card", { paso: 24, maxDesfase: 8 });
+    // Las tarjetas entran en cascada solo al montar por primera vez o al interactuar con filtros
+    if (esPrimeraEntrada) {
+      for (const col of [pCol, eCol, cCol, zCol]) {
+        AnimationEngine.entradaEscalonada(col, ":scope > .kanban-card", { paso: 24, maxDesfase: 8 });
+      }
     }
 
     // Actualizar barra de chips y badge de filtros
@@ -244,13 +272,13 @@ export const SocialKanbanView = {
 
   handleSearch(query) {
     this._searchQuery = query || "";
-    this.renderKanban();
+    this.renderKanban(null, true);
   },
 
   filterByUrgencia(urgencia) {
     this._filterUrgencia = urgencia;
     this._updateUrgenciaUI();
-    this.renderKanban();
+    this.renderKanban(null, true);
   },
 
   _updateUrgenciaUI() {
@@ -268,7 +296,7 @@ export const SocialKanbanView = {
   filterBySede(sede) {
     this._filterSede = sede;
     this._updateSedeUI();
-    this.renderKanban();
+    this.renderKanban(null, true);
   },
 
   _updateSedeUI() {
@@ -294,7 +322,7 @@ export const SocialKanbanView = {
     this._updateUrgenciaUI();
     this._updateSedeUI();
 
-    this.renderKanban();
+    this.renderKanban(null, true);
   },
 
   _updateFilterChips() {
@@ -595,6 +623,13 @@ export const SocialKanbanView = {
       } else {
         item.classList.remove("selected");
       }
+    });
+
+    const segButtons = document.querySelectorAll("#socialMobileStageSegmented .stage-seg-btn");
+    segButtons.forEach(btn => {
+      const isCurrent = btn.getAttribute("data-stage") === stage;
+      btn.classList.toggle("active", isCurrent);
+      btn.setAttribute("aria-selected", isCurrent ? "true" : "false");
     });
   },
 
