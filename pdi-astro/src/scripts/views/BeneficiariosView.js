@@ -306,7 +306,7 @@ export const BeneficiariosView = {
         labelEl.textContent = "Todos los Servicios";
       } else if (this._filterServicio.length === 1) {
         const s = this._filterServicio[0];
-        if (s === "desayuno") labelEl.textContent = "Servicio Alimentario Nutricional";
+        if (s === "desayuno") labelEl.textContent = "Serv. Alimentario Nutricional";
         else if (s === "casita") labelEl.textContent = "Casita del Saber";
         else if (s === "pastoral") labelEl.textContent = "Área Social Pastoral";
       } else {
@@ -648,7 +648,7 @@ export const BeneficiariosView = {
       if (key === "desayuno") {
         return servs.some(s => {
           const low = (s || "").toLowerCase();
-          return s === "Servicio Alimentario Nutricional" || low.includes("desayuno") || low.includes("alimento") || low.includes("nutric") || low.includes("lonchera");
+          return s === "Servicio Alimentario Nutricional" || s === "Serv. Alimentario Nutricional" || low.includes("desayuno") || low.includes("alimento") || low.includes("nutric") || low.includes("lonchera");
         });
       }
       if (key === "casita") {
@@ -675,14 +675,16 @@ export const BeneficiariosView = {
     return list.map(s => {
       const low = (s || "").toLowerCase();
       let badgeCls = "badge-blue";
-      if (s === "Servicio Alimentario Nutricional" || low.includes("nutric") || low.includes("aliment") || low.includes("desayuno") || low.includes("lonchera")) {
+      let nombreServicio = s;
+      if (s === "Servicio Alimentario Nutricional" || s === "Serv. Alimentario Nutricional" || low.includes("nutric") || low.includes("aliment") || low.includes("desayuno") || low.includes("lonchera")) {
         badgeCls = "badge-green";
+        nombreServicio = "Serv. Alimentario Nutricional";
       } else if (s === "Área Social Pastoral" || low.includes("pastoral") || low.includes("social") || low.includes("asp")) {
         badgeCls = "badge-red";
       } else {
         badgeCls = "badge-blue";
       }
-      return `<span class="badge ${badgeCls}">${s}</span>`;
+      return `<span class="badge ${badgeCls}">${escapar(nombreServicio)}</span>`;
     }).join("");
   },
 
@@ -796,12 +798,23 @@ export const BeneficiariosView = {
     const startIndex = (this._currentPage - 1) * pageSize;
     const pageItems = list.slice(startIndex, startIndex + pageSize);
 
-    const serial = `${this._searchQuery}_${this._filterServicio.join(',')}_${this._filterSede.join(',')}_${this._filterAnemia.join(',')}_${this._filterEdadModo}_${this._filterEdadExacta}_${this._filterEdadRango.min}-${this._filterEdadRango.max}_${this._filterEstado}_${this._filterSexo}_${this._currentPage}_${this._pageSize}_` +
+    // La variante activa forma parte de la clave. Se pinta solo la que se ve, y
+    // la otra se vacia a proposito: sin el prefijo, cruzar los 768 px dejaba el
+    // serial igual, el guard de abajo veia que "algo" tenia contenido y se
+    // saltaba el repinto, de modo que la variante que acaba de quedar visible
+    // seguia vacia. La tabla salia en blanco hasta el siguiente filtro.
+    const enMovil = Responsive.esMovil();
+
+    const serial = `${enMovil ? 'M' : 'D'}|${this._searchQuery}_${this._filterServicio.join(',')}_${this._filterSede.join(',')}_${this._filterAnemia.join(',')}_${this._filterEdadModo}_${this._filterEdadExacta}_${this._filterEdadRango.min}-${this._filterEdadRango.max}_${this._filterEstado}_${this._filterSexo}_${this._currentPage}_${this._pageSize}_` +
       pageItems.map(b => `${b.id}_${b.estado}`).join('|');
 
     const tbody = document.getElementById("tbodyBeneficiarios");
     const mobileContainer = document.getElementById("mobileCardsBeneficiarios");
-    const hasContent = (tbody && tbody.children.length > 0) || (mobileContainer && mobileContainer.children.length > 0);
+    // Solo cuenta la variante que va a pintarse. El contenido de la otra no es
+    // prueba de nada: es el residuo del corte anterior.
+    const hasContent = enMovil
+      ? (mobileContainer && mobileContainer.children.length > 0)
+      : (tbody && tbody.children.length > 0);
 
     if (!animar && this._lastRenderSerial === serial && hasContent) {
       return;
@@ -948,7 +961,7 @@ export const BeneficiariosView = {
     if (this._filterServicio.length > 0) {
       this._filterServicio.forEach(s => {
         let servLabel = "Servicio";
-        if (s === "desayuno") servLabel = "Servicio Alimentario Nutricional";
+        if (s === "desayuno") servLabel = "Serv. Alimentario Nutricional";
         if (s === "casita") servLabel = "Casita del Saber";
         if (s === "pastoral") servLabel = "Área Social Pastoral";
         chips.push({
@@ -1062,16 +1075,16 @@ export const BeneficiariosView = {
           <tr>
             <td><strong style="font-family:var(--mono-font); color:var(--text-brand);">${escapar(b.codigo)}</strong></td>
             <td><strong>${escapar(b.nombres)} ${escapar(b.apellidos)}</strong></td>
-            <td>${escapar(b.dni)}</td>
-            <td>${escapar(b.edad)} / ${escapar(b.sexo)}</td>
+            <td style="text-align: center;">${escapar(b.dni)}</td>
+            <td style="text-align: center;">${escapar(b.edad)} / ${escapar(b.sexo)}</td>
             <td>${escapar(b.distrito)}: ${escapar(b.sede)}</td>
             <td>
               <div class="servicios-badge-group">
                 ${this._getServiciosBadgesHtml(b.servicios)}
               </div>
             </td>
-            <td><span class="badge ${b.estado === 'Activo' ? 'badge-green' : 'badge-yellow'}">${escapar(b.estado)}</span></td>
-            <td style="text-align: right;">
+            <td style="text-align: center;"><span class="badge ${b.estado === 'Activo' ? 'badge-green' : 'badge-yellow'}">${escapar(b.estado)}</span></td>
+            <td style="text-align: center;">
               <a href="/expediente?id=${encodeURIComponent(b.id)}" class="btn-action" data-astro-prefetch>
                 Ver Expediente
               </a>

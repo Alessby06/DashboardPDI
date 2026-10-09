@@ -19,45 +19,48 @@
 
 
 
-        /* Segmented Control Móvil (ASP Kanban) */
+    /* Segmented Control Móvil (ASP Kanban) - Pastillas */
     .social-mobile-stage-segmented-wrap {
       display: none;
     }
 
     @media (max-width: 768px) {
       .social-mobile-stage-segmented-wrap {
-        display: flex;
-        align-items: center;
-        gap: 6px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 4px;
         width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        padding: 4px 2px 10px 2px;
+        background: var(--surface-2);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-full);
+        padding: 4px;
         box-sizing: border-box;
-      }
-      .social-mobile-stage-segmented-wrap::-webkit-scrollbar {
-        display: none;
+        margin-bottom: 12px;
+        user-select: none;
       }
 
       .stage-seg-btn {
-        flex: 1 1 auto;
-        min-width: max-content;
+        width: 100%;
+        min-width: 0;
         height: 36px;
-        padding: 0 11px;
+        padding: 0 6px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 6px;
+        gap: 5px;
         border-radius: var(--radius-full);
-        background: var(--surface-1);
-        border: 1px solid var(--border-subtle);
+        background: transparent;
+        border: 1px solid transparent;
         font-family: var(--ui-font);
-        font-size: 12px;
+        font-size: 11.5px;
         font-weight: 600;
         color: var(--text-muted);
         cursor: pointer;
-        transition: all var(--dur-fast) var(--ease-smooth);
+        transition: background-color var(--dur-fast) var(--ease-smooth),
+                    color var(--dur-fast) var(--ease-smooth),
+                    border-color var(--dur-fast) var(--ease-smooth),
+                    box-shadow var(--dur-fast) var(--ease-smooth),
+                    transform var(--dur-fast) var(--ease-spring);
         white-space: nowrap;
         user-select: none;
         touch-action: manipulation;
@@ -66,31 +69,74 @@
       }
 
       .stage-seg-btn:hover {
-        background: var(--surface-hover);
         color: var(--text-main);
-        border-color: var(--border-bright);
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .stage-seg-btn:active {
+        transform: scale(0.97);
       }
 
       .stage-seg-btn.active {
         background: var(--surface-1);
-        border-color: var(--brand-primary);
+        border-color: var(--border-subtle);
         color: var(--text-main);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), 0 0 0 1px var(--brand-primary);
         font-weight: 700;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+      }
+
+      [data-theme="dark"] .stage-seg-btn.active {
+        background: var(--surface-hover);
+        border-color: var(--border-bright);
+        color: #ffffff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
       }
 
       .stage-seg-btn .stage-dot {
-        width: 7px !important;
-        height: 7px !important;
-        min-width: 7px !important;
+        width: 6px !important;
+        height: 6px !important;
+        min-width: 6px !important;
         border-radius: 50% !important;
+        flex-shrink: 0 !important;
+      }
+
+      .stage-seg-btn .stage-seg-label {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex-shrink: 1;
+        min-width: 0;
       }
 
       .stage-seg-btn .badge {
         font-size: 10px !important;
-        padding: 1px 6px !important;
+        padding: 1px 5px !important;
         border-radius: 10px !important;
         line-height: 1.2 !important;
+        flex-shrink: 0 !important;
+      }
+
+      @media (max-width: 420px) {
+        .social-mobile-stage-segmented-wrap {
+          gap: 2px;
+          padding: 3px;
+        }
+
+        .stage-seg-btn {
+          height: 34px;
+          padding: 0 2px;
+          gap: 3px;
+          font-size: 10.5px;
+        }
+
+        .stage-seg-btn .stage-dot {
+          display: none !important;
+        }
+
+        .stage-seg-btn .badge {
+          font-size: 9px !important;
+          padding: 1px 4px !important;
+        }
       }
 
       .social-mobile-stage-dropdown {
@@ -239,37 +285,40 @@
       background: var(--gt-green);
     }
 
-    /* Selector Desplegable de Fase Móvil (Social Mobile Stage Dropdown Switcher) */
-    .social-mobile-stage-dropdown {
-      display: none !important;
-    }
-
+    /* Mobile Controls Row (ASP Kanban) */
     @media (max-width: 768px) {
+      .sedes-controls-row {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+      }
+
+      .audit-search-wrap {
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+      }
+
       .social-controls-actions-wrap {
         display: flex !important;
         align-items: center !important;
         gap: 8px !important;
-        width: 100% !important;
+        width: auto !important;
+        flex-shrink: 0 !important;
       }
 
       .social-mobile-stage-dropdown {
-        display: inline-flex !important;
-        position: relative !important;
-        flex: 1 1 54% !important;
-        min-width: 0 !important;
+        display: none !important;
       }
 
       #dropdownSocialFilterPanel {
         display: inline-flex !important;
         position: relative !important;
-        flex: 1 1 46% !important;
-        min-width: 0 !important;
+        width: auto !important;
       }
 
       #dropdownSocialFilterPanel .audit-filter-btn {
-        width: 100% !important;
         height: 38px !important;
-        padding: 0 10px !important;
+        padding: 0 12px !important;
         font-size: 12.5px !important;
         justify-content: center !important;
         gap: 6px !important;
@@ -291,160 +340,6 @@
         padding: 14px 16px !important;
         z-index: 9999 !important;
         box-sizing: border-box !important;
-      }
-
-      .social-mobile-stage-select-btn {
-        width: 100% !important;
-        height: 38px !important;
-        padding: 0 12px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        background: var(--surface-1) !important;
-        border: 1px solid var(--border-subtle) !important;
-        border-radius: var(--radius-md) !important;
-        font-family: var(--ui-font) !important;
-        font-size: 12.5px !important;
-        font-weight: 600 !important;
-        color: var(--text-main) !important;
-        cursor: pointer !important;
-        box-shadow: none !important;
-        touch-action: manipulation !important;
-        -webkit-tap-highlight-color: transparent !important;
-        transition: border-color var(--dur-fast) var(--ease-smooth), background-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-spring) !important;
-        gap: 6px !important;
-        box-sizing: border-box !important;
-        will-change: transform;
-      }
-
-      .social-mobile-stage-select-btn:hover {
-        border-color: var(--border-bright) !important;
-        background: var(--surface-hover) !important;
-      }
-
-      .social-mobile-stage-select-btn:active {
-        transform: scale(0.97) !important;
-      }
-
-      .social-mobile-stage-dropdown.open .social-mobile-stage-select-btn {
-        border-color: var(--gt-green) !important;
-        box-shadow: 0 0 0 3px var(--gt-green-bg) !important;
-      }
-
-      .social-mobile-stage-select-btn .stage-select-btn-left {
-        display: flex !important;
-        align-items: center !important;
-        gap: 6px !important;
-        min-width: 0 !important;
-        flex: 1 1 auto !important;
-        overflow: hidden !important;
-      }
-
-      .social-mobile-stage-select-btn .stage-select-btn-left span#mobileSelectedStageLabel {
-        font-size: 12.5px !important;
-        font-weight: 600 !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        display: inline-block !important;
-        flex: 1 1 auto !important;
-      }
-
-      .social-mobile-stage-select-btn .stage-select-btn-right {
-        display: flex !important;
-        align-items: center !important;
-        gap: 4px !important;
-        flex-shrink: 0 !important;
-      }
-
-      .social-mobile-stage-select-btn .badge {
-        font-size: 11px !important;
-        padding: 1px 6px !important;
-        border-radius: 10px !important;
-        flex-shrink: 0 !important;
-        line-height: 1.2 !important;
-      }
-
-      .stage-dot {
-        width: 8px !important;
-        height: 8px !important;
-        min-width: 8px !important;
-        border-radius: var(--radius-full) !important;
-        flex-shrink: 0 !important;
-      }
-
-      .social-mobile-stage-select-btn .caret {
-        color: var(--text-dim) !important;
-        transition: transform var(--dur-norm) var(--ease-spring), color var(--dur-fast) var(--ease-smooth) !important;
-        flex-shrink: 0 !important;
-        width: 14px !important;
-        height: 14px !important;
-        will-change: transform;
-      }
-
-      .social-mobile-stage-dropdown.open .social-mobile-stage-select-btn .caret {
-        transform: rotate(180deg) !important;
-        color: var(--text-brand) !important;
-      }
-
-      .social-mobile-stage-menu {
-        position: absolute !important;
-        top: calc(100% + 6px) !important;
-        left: 0 !important;
-        width: 240px !important;
-        min-width: 240px !important;
-        max-width: calc(100vw - 28px) !important;
-        background: var(--surface-1) !important;
-        border: 1px solid var(--border-subtle) !important;
-        border-radius: var(--radius-md) !important;
-        box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.35), 0 8px 12px -6px rgba(0, 0, 0, 0.2) !important;
-        padding: 6px !important;
-        z-index: 9999 !important;
-        display: none !important;
-        flex-direction: column !important;
-        gap: 3px !important;
-        animation: dropdownFadeIn var(--dur-fast) var(--ease-spring) !important;
-        box-sizing: border-box !important;
-        will-change: transform, opacity;
-      }
-
-      .social-mobile-stage-dropdown.open .social-mobile-stage-menu {
-        display: flex !important;
-      }
-
-      .social-mobile-dropdown-item {
-        padding: 9px 12px;
-        border-radius: var(--radius-sm);
-        font-size: 13px;
-        font-weight: 500;
-        color: var(--text-main);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        cursor: pointer;
-        touch-action: manipulation;
-        -webkit-tap-highlight-color: transparent;
-        transition: background-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-spring) !important;
-      }
-
-      .social-mobile-dropdown-item:active {
-        transform: scale(0.98) !important;
-      }
-
-      .social-mobile-dropdown-item .item-left {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .social-mobile-dropdown-item:hover {
-        background: var(--surface-hover);
-      }
-
-      .social-mobile-dropdown-item.selected {
-        background: var(--gt-green-bg) !important;
-        color: var(--text-brand) !important;
-        font-weight: 700;
       }
 
       .kanban-board {

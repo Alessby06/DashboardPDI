@@ -33,63 +33,6 @@ import '../styles/views-social.css';
               </div>
 
               <div class="social-controls-actions-wrap" style="display: flex; align-items: center; gap: 8px;">
-                <!-- Selector Desplegable de Fase Móvil (Visible solo en móvil) -->
-                <div class="custom-dropdown social-mobile-stage-dropdown" id="dropdownSocialMobileStage">
-                  <button type="button" class="btn-action social-mobile-stage-select-btn"
-                    id="btnSocialMobileStageSelect"
-                    onclick="window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSocialMobileStage') : null">
-                    <div class="stage-select-btn-left">
-                      <span class="stage-dot" id="mobileSelectedStageDot" style="background: var(--gt-red);"></span>
-                      <span id="mobileSelectedStageLabel">Alerta</span>
-                    </div>
-                    <div class="stage-select-btn-right">
-                      <span class="badge badge-red" id="mobileSelectedStageBadge">0</span>
-                      <svg class="caret" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                      </svg>
-                    </div>
-                  </button>
-
-                  <div class="custom-dropdown-menu social-mobile-stage-menu" id="menuSocialMobileStage">
-                    <div class="social-mobile-dropdown-item selected" data-stage="pendiente"
-                      onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.setMobileActiveStage('pendiente') : null">
-                      <div class="item-left">
-                        <span class="stage-dot" style="background: var(--gt-red);"></span>
-                        <span>Pendientes / Alerta</span>
-                      </div>
-                      <span class="badge badge-red" id="mobileStageCountPendientes">0</span>
-                    </div>
-
-                    <div class="social-mobile-dropdown-item" data-stage="evaluacion"
-                      onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.setMobileActiveStage('evaluacion') : null">
-                      <div class="item-left">
-                        <span class="stage-dot" style="background: var(--gt-yellow);"></span>
-                        <span>En Evaluación Social</span>
-                      </div>
-                      <span class="badge badge-yellow" id="mobileStageCountEvaluacion">0</span>
-                    </div>
-
-                    <div class="social-mobile-dropdown-item" data-stage="canalizado"
-                      onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.setMobileActiveStage('canalizado') : null">
-                      <div class="item-left">
-                        <span class="stage-dot" style="background: var(--gt-blue);"></span>
-                        <span>Canalizados (DEMUNA / BTF)</span>
-                      </div>
-                      <span class="badge badge-blue" id="mobileStageCountCanalizados">0</span>
-                    </div>
-
-                    <div class="social-mobile-dropdown-item" data-stage="cerrado"
-                      onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.setMobileActiveStage('cerrado') : null">
-                      <div class="item-left">
-                        <span class="stage-dot" style="background: var(--gt-green);"></span>
-                        <span>Cerrados con Informe</span>
-                      </div>
-                      <span class="badge badge-green" id="mobileStageCountCerrados">0</span>
-                    </div>
-                  </div>
-                </div>
-
                 <!-- Dropdown Popover de Filtros de Casos -->
                 <div class="custom-dropdown audit-filters-dropdown" id="dropdownSocialFilterPanel">
                   <button type="button" class="btn-action audit-filter-btn" id="btnDropdownSocialFilterPanel"

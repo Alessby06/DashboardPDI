@@ -1,4 +1,4 @@
-﻿// ===========================================================================
+// ===========================================================================
 //  Sedes e Iglesias - Punto de entrada de sedes.html
 // ===========================================================================
 //  Directorio territorial con cobertura por distrito y servicio.
@@ -27,6 +27,12 @@ let enlazado = false;
 function enlazar() {
   if (enlazado) return;
   enlazado = true;
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      SedesView.cerrarDetalleMovil?.();
+    }
+  });
 }
 
 /** Dibuja lo propio de esta pagina. Es idempotente. */

@@ -1,5 +1,5 @@
 // Motor de Animaciones e Interacciones Web (AnimationEngine)
-// Proporciona animaciones fluidas, contadores reactivos (CounterUP) y utilidades IxD.
+// Proporciona animaciones fluidas (odómetro de dígitos) y utilidades IxD.
 
 export const AnimationEngine = {
   /**
@@ -92,125 +92,8 @@ export const AnimationEngine = {
           ribbon.style.transition = `transform ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms`;
           ribbon.style.transform = `translateY(-${target.digit * 10}%)`;
         });
-
-        clearTimeout(el._odometerGlowTimer);
-        const totalTime = duration + (digitIdx * stagger);
-        el._odometerGlowTimer = setTimeout(() => {
-          el.classList.remove("vitality-glow");
-          void el.offsetWidth;
-          el.classList.add("vitality-glow");
-        }, totalTime);
       });
     });
-  },
-
-  /**
-   * Anima un contador numérico con desaceleración orgánica de alta precisión (Out-Quart / Spring).
-   * @param {string|HTMLElement} elementOrId - ID del elemento o el nodo HTML.
-   * @param {number|string} targetVal - Valor numérico objetivo.
-   * @param {object} options - Opciones de configuración (duration, prefix, suffix, decimals).
-   */
-  animateCounter(elementOrId, targetVal, options = {}) {
-    const el = typeof elementOrId === "string" ? document.getElementById(elementOrId) : elementOrId;
-    if (!el) return;
-
-    const prefix = options.prefix || "";
-    const suffix = options.suffix || "";
-
-    // Con movimiento reducido se escribe el valor final de una vez: el dato es
-    // exactamente el mismo, solo se ahorra el recorrido. Se respetan el prefijo,
-    // el sufijo y los decimales para que el texto coincida con el animado.
-    if (this.prefiereMenosMovimiento()) {
-      const dec = options.decimals !== undefined
-        ? options.decimals
-        : (typeof targetVal === "number" && targetVal % 1 !== 0 ? 1 : 0);
-      el.textContent = typeof targetVal === "number"
-        ? `${prefix}${targetVal.toFixed(dec)}${suffix}`
-        : `${targetVal}`;
-      return;
-    }
-
-    // Si ya hay una animación corriendo en este elemento, cancelarla
-    if (el._counterRafId) {
-      cancelAnimationFrame(el._counterRafId);
-      el._counterRafId = null;
-    }
-
-    // Soporte para formato de fracción/ratio "X / Y" (ej. "15 / 15")
-    if (typeof targetVal === "string" && targetVal.includes("/")) {
-      const parts = targetVal.split("/").map(s => parseFloat(s.trim()));
-      if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
-        // Evitar reiniciar si ya tiene este objetivo registrado en la sesión
-        if (el._lastCounterTarget === targetVal) return;
-        el._lastCounterTarget = targetVal;
-
-        const duration = options.duration || 750; // ms optimizados
-        const startTime = performance.now();
-        const updateRatio = (currentTime) => {
-          const elapsedTime = currentTime - startTime;
-          const progress = Math.min(elapsedTime / duration, 1);
-          // Easing Out Quart: dinámico al inicio y suave al fijarse
-          const easeProgress = 1 - Math.pow(1 - progress, 4);
-          const cur1 = Math.round(parts[0] * easeProgress);
-          const cur2 = Math.round(parts[1] * easeProgress);
-          el.textContent = `${cur1} / ${cur2}`;
-          if (progress < 1) {
-            el._counterRafId = requestAnimationFrame(updateRatio);
-          } else {
-            el._counterRafId = null;
-            el.textContent = targetVal;
-            el.classList.remove("vitality-glow");
-            void el.offsetWidth;
-            el.classList.add("vitality-glow");
-          }
-        };
-        el._counterRafId = requestAnimationFrame(updateRatio);
-        return;
-      }
-    }
-
-    const numVal = typeof targetVal === "number" ? targetVal : parseFloat(targetVal) || 0;
-    const decimals = options.decimals !== undefined ? options.decimals : (numVal % 1 !== 0 ? 1 : 0);
-
-    // Evitar reiniciar si el elemento ya animó este mismo objetivo
-    const targetFormatted = `${prefix}${numVal.toFixed(decimals)}${suffix}`;
-    if (el._lastCounterTarget === targetFormatted) {
-      return;
-    }
-    el._lastCounterTarget = targetFormatted;
-
-    // Si ya tenía un número parcial o previo, partir desde ahí en vez de volver a 0
-    let startVal = 0;
-    if (el._lastNumVal !== undefined) {
-      startVal = el._lastNumVal;
-    }
-    el._lastNumVal = numVal;
-
-    const duration = options.duration || 750; // Duración ideal para dashboards (700-800ms)
-    const startTime = performance.now();
-
-    const updateCounter = (currentTime) => {
-      const elapsedTime = currentTime - startTime;
-      const progress = Math.min(elapsedTime / duration, 1);
-      
-      // Easing Out Quart: 1 - (1 - t)^4
-      const easeProgress = 1 - Math.pow(1 - progress, 4);
-      const currentVal = startVal + (numVal - startVal) * easeProgress;
-
-      el.textContent = `${prefix}${currentVal.toFixed(decimals)}${suffix}`;
-
-      if (progress < 1) {
-        el._counterRafId = requestAnimationFrame(updateCounter);
-      } else {
-        el._counterRafId = null;
-        el.textContent = `${prefix}${numVal.toFixed(decimals)}${suffix}`;
-        el.classList.remove("vitality-glow");
-        void el.offsetWidth;
-        el.classList.add("vitality-glow");
-      }
-    };
-
-    el._counterRafId = requestAnimationFrame(updateCounter);
   },
 
   /**
@@ -264,12 +147,45 @@ export const AnimationEngine = {
     const maxDesfase = opciones.maxDesfase !== undefined ? opciones.maxDesfase : 10;
 
     const items = contenedor.querySelectorAll(selector);
+
+    // Red de seguridad. La entrada se aplica con animation-fill-mode: backwards,
+    // asi que mientras la animacion no avance el elemento esta en su fotograma
+    // inicial, con opacity 0. Si no llega a avanzar (documento oculto, reloj de
+    // animacion congelado, pestaña en segundo plano) el contenido se queda invisible
+    // sin que haya ninguna otra regla que lo revele. Pasado el tiempo en que la
+    // animacion deberia haber terminado, se quita la clase: el elemento vuelve a su
+    // estado normal, que es visible. Si la animacion corrio bien, quitarla ahora no
+    // cambia nada, porque el estado final es el mismo.
+    const desfaseTope = maxDesfase * (paso / 32) * 28;
+    const espera = desfaseTope + this._duracionNormaMs() + 150;
+
     items.forEach((item, i) => {
       item.style.setProperty("--ixd-i", Math.min(i, maxDesfase) * (paso / 32));
       item.classList.remove("ixd-entrada");
       void item.offsetWidth; // reinicia la animacion si ya estaba puesta
       item.classList.add("ixd-entrada");
+
+      if (item._ixdSalida) clearTimeout(item._ixdSalida);
+      item._ixdSalida = setTimeout(() => {
+        item._ixdSalida = null;
+        item.classList.remove("ixd-entrada");
+      }, espera);
     });
+  },
+
+  /**
+   * Valor en ms de --dur-norm, que es la duracion de .ixd-entrada.
+   *
+   * Se lee del documento porque la variable puede cambiar de tema o de version;
+   * si no se pudiera leer se devuelve un valor por defecto generoso, que solo
+   * retrasa el momento en que se quita la clase, nunca lo impide.
+   */
+  _duracionNormaMs() {
+    if (typeof getComputedStyle !== "function") return 400;
+    const bruto = getComputedStyle(document.documentElement).getPropertyValue("--dur-norm");
+    const numero = parseFloat(bruto);
+    if (!isFinite(numero)) return 400;
+    return bruto.includes("s") && !bruto.includes("ms") ? numero * 1000 : numero;
   },
 
   /**

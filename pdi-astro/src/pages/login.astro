@@ -1,22 +1,22 @@
 ---
-// Login page — completamente independiente del AppLayout
-// No tiene sidebar ni topbar: es la puerta de entrada al sistema.
+// Login page — Versión Definitiva con diseño artesanal (Craft & Human-First)
+// Basado en /frontend-design y /interface-design para el Sistema PDI — ACJG
 ---
 <!doctype html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Sistema PDI — Acceso al panel de gestión" />
-  <title>Ingresar | Sistema PDI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Sistema PDI — Portal de gestión y seguimiento del Programa de Desarrollo Integral de la Asociación Cultural Johannes Gutenberg." />
+  <title>Acceso al Sistema | PDI — Johannes Gutenberg</title>
   <link rel="icon" type="image/png" href="/assets/jg-icon.png" />
   <link rel="apple-touch-icon" href="/assets/jg-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300..900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,400..800;1,6..12,400..700&display=swap" rel="stylesheet" />
 
   <script is:inline>
-    /* Antiflash: aplica tema antes del primer render */
+    /* Antiflash: aplica tema antes del primer render para evitar FOUC */
     (function () {
       try {
         var saved = localStorage.getItem("pdi_theme") || "system";
@@ -28,496 +28,1067 @@
   </script>
 
   <style>
-    /* ── Reset ──────────────────────────────────────────────── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    /* ── Reset & Tokens Fundacionales (Dominio PDI) ─────────────── */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-    /* ── Tokens (duplicados mínimos del sistema) ────────────── */
     :root {
-      --gt-green: #00b494;
-      --gt-green-bg: rgba(0, 180, 148, 0.14);
-      --gt-red: #ef4444;
-      --gt-red-bg: rgba(239, 68, 68, 0.12);
-      --gt-blue: #0284c7;
-      --brand-hover: #00997d;
-      --bg-base: #f8fafc;
-      --surface-1: #ffffff;
-      --surface-2: #f1f5f9;
-      --border-subtle: #e2e8f0;
-      --border-bright: rgba(0, 180, 148, 0.45);
-      --text-main: #0f172a;
-      --text-muted: #334155;
-      --text-dim: #64748b;
-      --text-brand: #00876f;
-      --text-danger: #dc2626;
-      --radius-sm: 6px;
-      --radius-md: 10px;
+      /* Identidad Verde Gutenberg */
+      --brand-primary: #007a64;
+      --brand-hover: #006854;
+      --brand-light: #00a887;
+      --brand-surface: rgba(0, 122, 100, 0.08);
+      --brand-border: rgba(0, 122, 100, 0.24);
+
+      /* Alertas */
+      --danger: #b91c1c;
+      --danger-bg: rgba(185, 28, 28, 0.08);
+      --danger-border: rgba(185, 28, 28, 0.22);
+
+      /* Superficies y Neutros (Lienzo institucional cálido) */
+      --bg-page: #f6f8fa;
+      --surface-card: #ffffff;
+      --surface-subtle: #f1f4f7;
+      --surface-inset: #f8fafc;
+      --border-subtle: rgba(15, 23, 42, 0.08);
+      --border-medium: rgba(15, 23, 42, 0.14);
+
+      /* Tipografía & Textos */
+      --text-title: #0f172a;
+      --text-body: #334155;
+      --text-muted: #64748b;
+      --text-faint: #94a3b8;
+
+      /* Hero Izquierdo (Atmósfera institucional sobria) */
+      --hero-bg: #0d1519;
+      --hero-card-bg: rgba(22, 33, 39, 0.7);
+      --hero-card-border: rgba(255, 255, 255, 0.08);
+      --hero-title: #f8fafc;
+      --hero-text: #94a3b8;
+      --hero-accent: #34d399;
+
+      /* Escala de Radios Concéntricos */
+      --radius-sm: 8px;
+      --radius-md: 12px;
       --radius-lg: 16px;
-      --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
-      --ui-font: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    }
-    [data-theme="dark"] {
-      --gt-green: #10b981;
-      --gt-green-bg: rgba(16, 185, 129, 0.14);
-      --gt-red: #ef4444;
-      --gt-red-bg: rgba(239, 68, 68, 0.14);
-      --brand-hover: #059669;
-      --bg-base: #0d0e12;
-      --surface-1: #15171e;
-      --surface-2: #1e212b;
-      --border-subtle: #252833;
-      --border-bright: rgba(0, 180, 148, 0.55);
-      --text-main: #f3f4f6;
-      --text-muted: #9ca3af;
-      --text-dim: #838994;
-      --text-brand: #10b981;
-      --text-danger: #f47f7f;
+      --radius-xl: 20px;
+      --radius-full: 9999px;
+
+      /* Sombras Multicapa (Estrategia de Elevación Layered) */
+      --shadow-flat: 0 1px 2px rgba(15, 23, 42, 0.04);
+      --shadow-raised: 0 0 0 1px rgba(15, 23, 42, 0.06), 0 3px 12px -2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04);
+
+      --ease-snappy: cubic-bezier(0.23, 1, 0.32, 1);
+      --ui-font: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
 
-    /* ── Layout ─────────────────────────────────────────────── */
-    body {
+    [data-theme="dark"] {
+      --brand-primary: #10b981;
+      --brand-hover: #059669;
+      --brand-light: #34d399;
+      --brand-surface: rgba(16, 185, 129, 0.12);
+      --brand-border: rgba(16, 185, 129, 0.3);
+
+      --danger: #ef4444;
+      --danger-bg: rgba(239, 68, 68, 0.14);
+      --danger-border: rgba(239, 68, 68, 0.3);
+
+      --bg-page: #0b0f14;
+      --surface-card: #121820;
+      --surface-subtle: #19212c;
+      --surface-inset: #0e131a;
+      --border-subtle: rgba(255, 255, 255, 0.07);
+      --border-medium: rgba(255, 255, 255, 0.13);
+
+      --text-title: #f1f5f9;
+      --text-body: #cbd5e1;
+      --text-muted: #8b99ad;
+      --text-faint: #64748b;
+
+      --hero-bg: #070b10;
+      --hero-card-bg: rgba(14, 20, 27, 0.85);
+      --hero-card-border: rgba(255, 255, 255, 0.07);
+      --hero-title: #f1f5f9;
+      --hero-text: #8b99ad;
+      --hero-accent: #10b981;
+
+      --shadow-flat: 0 1px 2px rgba(0, 0, 0, 0.3);
+      --shadow-raised: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 4px 18px rgba(0, 0, 0, 0.4);
+    }
+
+    /* ── Estructura de Página ───────────────────────────────────── */
+    html, body {
+      min-height: 100dvh;
       font-family: var(--ui-font);
-      background: var(--bg-base);
-      color: var(--text-main);
-      min-height: 100vh;
+      background: var(--bg-page);
+      color: var(--text-body);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .login-container {
+      min-height: 100dvh;
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 1024px) {
+      .login-container {
+        grid-template-columns: 1.1fr 1fr;
+      }
+    }
+
+    /* ── Columna Izquierda: Identidad Institucional ─────────────── */
+    .showcase-column {
+      display: none;
+      background: var(--hero-bg);
+      padding: 56px 60px;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      border-right: 1px solid var(--border-subtle);
+      overflow-y: auto;
+    }
+
+    @media (min-width: 1024px) {
+      .showcase-column {
+        display: flex;
+      }
+    }
+
+    .showcase-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .showcase-badge-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 24px 16px;
-      background-image:
-        radial-gradient(circle at 15% 20%, rgba(0, 180, 148, 0.08) 0%, transparent 50%),
-        radial-gradient(circle at 85% 80%, rgba(2, 132, 199, 0.05) 0%, transparent 50%);
     }
 
-    /* ── Card de Login ───────────────────────────────────────── */
-    .login-card {
-      background: var(--surface-1);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      padding: 40px 36px;
-      width: 100%;
-      max-width: 400px;
-      box-shadow: 0 20px 40px -8px rgba(0,0,0,0.10), 0 4px 12px rgba(0,0,0,0.06);
-      animation: slideUp 0.4s var(--ease-spring) both;
-    }
-
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(20px) scale(0.98); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    /* ── Encabezado ─────────────────────────────────────────── */
-    .login-header {
-      text-align: center;
-      margin-bottom: 32px;
-    }
-
-    .login-logo {
-      height: 36px;
-      width: auto;
+    .showcase-badge-icon img {
+      width: 26px;
+      height: 26px;
       object-fit: contain;
+    }
+
+    .showcase-brand-text h3 {
+      font-size: 14px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: 0.01em;
+    }
+
+    .showcase-brand-text p {
+      font-size: 12px;
+      color: var(--hero-text);
+      font-weight: 600;
+    }
+
+    .showcase-body {
+      margin: 40px 0;
+      max-width: 520px;
+    }
+
+    .showcase-tagline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--hero-accent);
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
       margin-bottom: 20px;
     }
 
-    .login-title {
-      font-size: 20px;
+    .showcase-title {
+      font-size: 32px;
       font-weight: 800;
-      color: var(--text-main);
+      line-height: 1.2;
+      color: var(--hero-title);
+      letter-spacing: -0.025em;
+      text-wrap: balance;
+      margin-bottom: 14px;
+    }
+
+    .showcase-desc {
+      font-size: 15px;
+      line-height: 1.55;
+      color: var(--hero-text);
+      text-wrap: pretty;
+      margin-bottom: 32px;
+    }
+
+    /* Módulos Operativos (The Signature Element del PDI) */
+    .modules-card {
+      background: var(--hero-card-bg);
+      border: 1px solid var(--hero-card-border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .modules-card-label {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--hero-text);
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--hero-card-border);
+    }
+
+    .module-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .module-icon-well {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: #34d399;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.04);
+      transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .module-item:hover .module-icon-well {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: rgba(16, 185, 129, 0.35);
+      transform: translateY(-1px);
+    }
+
+    /* ── SVG Micro-Animations (Seamless Harmonic Loops) ────────── */
+    /* 1. Nutrición: respiración y balanceo orgánico continuo */
+    .anim-svg-sprout .anim-leaf-main {
+      transform-origin: 12px 10px;
+      animation: sproutBreathe 3.8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+    .anim-svg-sprout .anim-leaf-sub {
+      transform-origin: 12px 13px;
+      animation: sproutSubBreathe 3.8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+
+    @keyframes sproutBreathe {
+      0%, 100% { transform: rotate(0deg) scale(1); }
+      50%      { transform: rotate(4deg) scale(1.05); }
+    }
+    @keyframes sproutSubBreathe {
+      0%, 100% { transform: rotate(0deg) scale(1); }
+      50%      { transform: rotate(-3.5deg) scale(1.04); }
+    }
+
+    /* 2. Educación: libro flotante con leve arqueo de páginas */
+    .anim-svg-book {
+      animation: bookFloat 4.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+    .anim-svg-book .anim-page-right {
+      transform-origin: 12px 12px;
+      animation: pageRightTurn 4.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+    .anim-svg-book .anim-page-left {
+      transform-origin: 12px 12px;
+      animation: pageLeftTurn 4.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+
+    @keyframes bookFloat {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-1.8px); }
+    }
+    @keyframes pageRightTurn {
+      0%, 100% { transform: skewY(0deg) scaleX(1); }
+      50%      { transform: skewY(-1.6deg) scaleX(0.97); }
+    }
+    @keyframes pageLeftTurn {
+      0%, 100% { transform: skewY(0deg) scaleX(1); }
+      50%      { transform: skewY(1.6deg) scaleX(0.97); }
+    }
+
+    /* 3. Atención Social: latido armónico y cálido en reposo */
+    .anim-svg-social .anim-social-heart {
+      transform-origin: 12px 12px;
+      animation: heartWarmPulse 3.4s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+    .anim-svg-social .anim-social-hands {
+      transform-origin: 12px 12px;
+      animation: handsWarmTouch 3.4s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+
+    @keyframes heartWarmPulse {
+      0%, 100% { transform: scale(1); opacity: 0.88; }
+      22%      { transform: scale(1.09); opacity: 1; }
+      38%      { transform: scale(1.02); opacity: 0.92; }
+      52%      { transform: scale(1.06); opacity: 1; }
+      72%      { transform: scale(1); opacity: 0.88; }
+    }
+
+    @keyframes handsWarmTouch {
+      0%, 100% { opacity: 0.82; transform: translateY(0); }
+      22%, 52% { opacity: 1; transform: translateY(-0.5px); }
+      72%      { opacity: 0.82; transform: translateY(0); }
+    }
+
+    /* 4. Salud Preventiva: pulso vital armónico continuo */
+    .anim-svg-pulse .anim-ecg-path {
+      transform-origin: 12px 12px;
+      animation: ecgHarmonicPulse 3.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+
+    @keyframes ecgHarmonicPulse {
+      0%, 100% { transform: scaleY(1); opacity: 0.78; filter: none; }
+      24%      { transform: scaleY(1.18); opacity: 1; filter: drop-shadow(0 0 2px rgba(52, 211, 153, 0.55)); }
+      48%      { transform: scaleY(0.92); opacity: 0.85; filter: none; }
+      68%      { transform: scaleY(1.06); opacity: 0.94; }
+      85%      { transform: scaleY(1); opacity: 0.78; filter: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .anim-svg-sprout .anim-leaf-main,
+      .anim-svg-sprout .anim-leaf-sub,
+      .anim-svg-book,
+      .anim-svg-book .anim-page-right,
+      .anim-svg-book .anim-page-left,
+      .anim-svg-social .anim-social-heart,
+      .anim-svg-social .anim-social-hands,
+      .anim-svg-pulse .anim-ecg-path {
+        animation: none !important;
+      }
+    }
+
+    .module-text-wrap h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.3;
+    }
+
+    .module-text-wrap p {
+      font-size: 12px;
+      color: var(--hero-text);
+      line-height: 1.35;
+    }
+
+    .showcase-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 20px;
+      border-top: 1px solid var(--hero-card-border);
+      font-size: 12px;
+      color: var(--hero-text);
+    }
+
+    /* ── Columna Derecha: Panel de Acceso ───────────────────────── */
+    .access-column {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 32px 24px;
+      min-height: 100dvh;
+      background: var(--bg-page);
+    }
+
+    @media (min-width: 640px) {
+      .access-column {
+        padding: 44px 48px;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .access-column {
+        padding: 44px 56px;
+      }
+    }
+
+    /* Cabecera del Panel */
+    .access-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 440px;
+      margin: 0 auto;
+    }
+
+    .brand-mobile-slot {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    @media (min-width: 1024px) {
+      .brand-mobile-slot {
+        visibility: hidden;
+      }
+    }
+
+    .brand-logo-img {
+      height: 28px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    /* Control de logos 100% CSS */
+    .brand-logo-light { display: block; }
+    .brand-logo-dark  { display: none; }
+    [data-theme="dark"] .brand-logo-light { display: none !important; }
+    [data-theme="dark"] .brand-logo-dark  { display: block !important; }
+
+    /* Botón de Tema */
+    .theme-button {
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      padding: 7px 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      box-shadow: var(--shadow-flat);
+      transition: color 0.15s ease, border-color 0.15s ease, transform 0.15s var(--ease-snappy);
+    }
+
+    .theme-button:hover {
+      color: var(--text-title);
+      border-color: var(--border-medium);
+      transform: translateY(-1px);
+    }
+
+    /* Contenido Central: Formulario */
+    .access-content {
+      width: 100%;
+      max-width: 420px;
+      margin: auto;
+      padding: 24px 0;
+    }
+
+    .form-header-group {
+      margin-bottom: 24px;
+    }
+
+    .form-main-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-title);
       letter-spacing: -0.02em;
+      line-height: 1.2;
+      text-wrap: balance;
       margin-bottom: 6px;
     }
 
-    .login-subtitle {
-      font-size: 13px;
-      color: var(--text-dim);
-      line-height: 1.4;
+    .form-sub-title {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.45;
+      text-wrap: pretty;
     }
 
-    /* ── Formulario ─────────────────────────────────────────── */
-    .login-form {
+    /* Formulario */
+    .form-stack {
       display: flex;
       flex-direction: column;
       gap: 16px;
     }
 
-    .field-group {
+    .form-row {
       display: flex;
       flex-direction: column;
       gap: 6px;
     }
 
-    .field-label {
-      font-size: 12.5px;
+    .label-caption {
+      font-size: 13px;
       font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      color: var(--text-body);
+      letter-spacing: -0.01em;
     }
 
-    .field-input-wrap {
+    .input-wrapper {
       position: relative;
-    }
-
-    .field-icon {
-      position: absolute;
-      left: 11px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-dim);
       display: flex;
       align-items: center;
-      pointer-events: none;
     }
 
-    .field-input {
+    .input-icon-glyph {
+      position: absolute;
+      left: 14px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      transition: color 0.15s ease;
+    }
+
+    .text-input {
       width: 100%;
-      padding: 10px 12px 10px 36px;
-      background: var(--surface-2);
+      height: 44px;
+      padding: 0 14px 0 42px;
+      background: var(--surface-card);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
       font-family: var(--ui-font);
       font-size: 14px;
-      color: var(--text-main);
+      color: var(--text-title);
+      box-shadow: var(--shadow-flat);
       outline: none;
-      transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
 
-    .field-input:focus {
-      border-color: var(--gt-green);
-      box-shadow: 0 0 0 3px var(--gt-green-bg);
-      background: var(--surface-1);
+    .text-input::placeholder {
+      color: var(--text-faint);
     }
 
-    .field-input::placeholder {
-      color: var(--text-dim);
+    .text-input:hover {
+      border-color: var(--border-medium);
     }
 
-    /* Toggle password */
-    .btn-toggle-pass {
+    .text-input:focus {
+      border-color: var(--brand-primary);
+      box-shadow: 0 0 0 3px var(--brand-surface);
+    }
+
+    .input-wrapper:focus-within .input-icon-glyph {
+      color: var(--brand-primary);
+    }
+
+    /* Toggle Contraseña */
+    .btn-eye-toggle {
       position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
+      right: 8px;
+      background: transparent;
       border: none;
+      color: var(--text-muted);
+      padding: 6px 8px;
+      border-radius: var(--radius-sm);
       cursor: pointer;
-      color: var(--text-dim);
       display: flex;
       align-items: center;
-      padding: 4px;
-      border-radius: 4px;
+      justify-content: center;
       transition: color 0.15s ease;
     }
-    .btn-toggle-pass:hover { color: var(--text-brand); }
 
-    /* ── Error ──────────────────────────────────────────────── */
-    .login-error {
+    .btn-eye-toggle:hover {
+      color: var(--text-title);
+    }
+
+    /* Mensaje de Error */
+    .status-error-callout {
       display: none;
-      align-items: center;
-      gap: 8px;
-      background: var(--gt-red-bg);
-      border: 1px solid rgba(239, 68, 68, 0.3);
+      align-items: flex-start;
+      gap: 10px;
+      background: var(--danger-bg);
+      border: 1px solid var(--danger-border);
       border-radius: var(--radius-md);
       padding: 10px 12px;
       font-size: 13px;
-      color: var(--text-danger);
+      line-height: 1.4;
+      color: var(--danger);
       font-weight: 600;
-      animation: shakeX 0.35s ease;
+      animation: calloutShake 0.28s ease;
     }
 
-    .login-error.visible { display: flex; }
+    .status-error-callout.visible {
+      display: flex;
+    }
 
-    @keyframes shakeX {
+    .status-error-callout svg {
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    @keyframes calloutShake {
       0%, 100% { transform: translateX(0); }
-      20%       { transform: translateX(-6px); }
-      40%       { transform: translateX(6px); }
-      60%       { transform: translateX(-4px); }
-      80%       { transform: translateX(4px); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
     }
 
-    /* ── Botón ──────────────────────────────────────────────── */
-    .btn-login {
+    /* Botón Principal (Active verb: "Ingresar al sistema") */
+    .btn-primary-action {
       width: 100%;
-      padding: 12px;
-      background: linear-gradient(135deg, var(--gt-green), var(--gt-blue));
-      color: #fff;
+      height: 46px;
+      background: var(--brand-primary);
+      color: #ffffff;
       border: none;
       border-radius: var(--radius-md);
       font-family: var(--ui-font);
       font-size: 14.5px;
-      font-weight: 800;
+      font-weight: 700;
+      letter-spacing: -0.01em;
       cursor: pointer;
-      letter-spacing: 0.01em;
-      transition: opacity 0.18s ease, transform 0.15s var(--ease-spring);
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
       margin-top: 4px;
+      box-shadow: 0 1px 3px rgba(0, 122, 100, 0.25);
+      transition: background 0.15s ease, transform 0.12s var(--ease-snappy);
     }
 
-    .btn-login:hover  { opacity: 0.92; transform: translateY(-1px); }
-    .btn-login:active { transform: scale(0.98); opacity: 1; }
+    .btn-primary-action:hover {
+      background: var(--brand-hover);
+    }
 
-    .btn-login:disabled {
-      opacity: 0.5;
+    .btn-primary-action:active {
+      transform: scale(0.975);
+    }
+
+    .btn-primary-action:disabled {
+      opacity: 0.6;
       cursor: not-allowed;
       transform: none;
     }
 
-    .btn-login .spinner {
-      width: 18px;
-      height: 18px;
-      border: 2.5px solid rgba(255,255,255,0.35);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
+    .btn-spinner {
       display: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      animation: spinRound 0.65s linear infinite;
     }
 
-    .btn-login.loading .spinner  { display: block; }
-    .btn-login.loading .btn-text { opacity: 0.7; }
+    .btn-primary-action.loading .btn-spinner {
+      display: block;
+    }
 
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .btn-primary-action.loading .btn-label {
+      opacity: 0.8;
+    }
 
-    /* ── Tabla de usuarios de ayuda ─────────────────────────── */
-    .login-hint {
+    @keyframes spinRound {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ── Selector de Perfiles Institucionales ──────────────────── */
+    .profiles-directory {
       margin-top: 24px;
       padding-top: 20px;
       border-top: 1px solid var(--border-subtle);
     }
 
-    .hint-title {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      color: var(--text-dim);
+    .profiles-label-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       margin-bottom: 10px;
-      text-align: center;
     }
 
-    .hint-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12px;
-    }
-
-    .hint-table th {
-      text-align: left;
-      color: var(--text-dim);
+    .profiles-title {
+      font-size: 11.5px;
       font-weight: 700;
-      padding: 4px 6px;
-      border-bottom: 1px solid var(--border-subtle);
-    }
-
-    .hint-table td {
-      padding: 5px 6px;
       color: var(--text-muted);
-      border-bottom: 1px solid var(--border-subtle);
-      font-family: monospace;
-      font-size: 12px;
+      letter-spacing: 0.02em;
     }
 
-    .hint-table tr:last-child td { border-bottom: none; }
+    .profiles-note {
+      font-size: 11px;
+      color: var(--text-faint);
+    }
 
-    .hint-table td:first-child { color: var(--text-brand); font-weight: 700; }
+    .profiles-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
 
-    .hint-table tr {
+    @media (min-width: 400px) {
+      .profiles-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .profile-card-btn:last-child {
+        grid-column: span 2;
+      }
+    }
+
+    .profile-card-btn {
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 9px 10px;
+      font-family: var(--ui-font);
       cursor: pointer;
-      transition: background 0.12s ease;
-      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+      text-align: left;
+      box-shadow: var(--shadow-flat);
+      transition: border-color 0.15s ease, background 0.15s ease, transform 0.12s var(--ease-snappy);
     }
 
-    .hint-table tr:hover td { background: var(--gt-green-bg); }
+    .profile-card-btn:hover {
+      border-color: var(--brand-light);
+      background: var(--surface-subtle);
+      transform: translateY(-1px);
+    }
 
-    /* ── Footer ─────────────────────────────────────────────── */
-    .login-footer {
-      margin-top: 20px;
+    .profile-card-btn:active {
+      transform: scale(0.97);
+    }
+
+    .profile-card-btn.active {
+      background: var(--brand-surface);
+      border-color: var(--brand-primary);
+    }
+
+    .profile-role-name {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text-title);
+      line-height: 1.2;
+    }
+
+    .profile-card-btn.active .profile-role-name {
+      color: var(--brand-primary);
+    }
+
+    .profile-user-id {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    /* Pie de Página */
+    .access-footer {
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
       text-align: center;
       font-size: 11.5px;
-      color: var(--text-dim);
-    }
-
-    @media (max-width: 480px) {
-      .login-card {
-        padding: 28px 20px;
-      }
+      color: var(--text-faint);
+      line-height: 1.4;
     }
   </style>
 </head>
 <body>
-  <div class="login-card">
-    <div class="login-header">
-      <img
-        src="/assets/logo-light-acjg.png"
-        alt="Asociación Cultural Johannes Gutenberg"
-        class="login-logo brand-logo-dark"
-      />
-      <img
-        src="/assets/logo-asociacion.png"
-        alt="Asociación Cultural Johannes Gutenberg"
-        class="login-logo brand-logo-light"
-        style="display:none;"
-      />
-      <div class="login-title">Sistema PDI</div>
-      <div class="login-subtitle">Programa de Infancia Saludable<br/>Ingresa con tus credenciales de acceso</div>
-    </div>
-
-    <form class="login-form" id="loginForm" autocomplete="on" novalidate>
-      <!-- Usuario -->
-      <div class="field-group">
-        <label class="field-label" for="inputUsuario">Usuario</label>
-        <div class="field-input-wrap">
-          <span class="field-icon">
-            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
-            </svg>
-          </span>
-          <input
-            type="text"
-            id="inputUsuario"
-            name="usuario"
-            class="field-input"
-            placeholder="nombre de usuario"
-            autocomplete="username"
-            required
-            spellcheck="false"
-          />
+  <div class="login-container">
+    <!-- COLUMNA IZQUIERDA: Contexto Institucional Humano (Desktop) -->
+    <aside class="showcase-column" aria-label="Identidad del Programa">
+      <div class="showcase-header">
+        <div class="showcase-badge-icon" aria-hidden="true">
+          <img src="/assets/jg-icon.png" alt="Emblema ACJG" />
+        </div>
+        <div class="showcase-brand-text">
+          <h3>Asociación Cultural Johannes Gutenberg</h3>
+          <p>Sedes de Intervención: Comas y Carabayllo</p>
         </div>
       </div>
 
-      <!-- Contraseña -->
-      <div class="field-group">
-        <label class="field-label" for="inputClave">Contraseña</label>
-        <div class="field-input-wrap">
-          <span class="field-icon">
-            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
-            </svg>
-          </span>
-          <input
-            type="password"
-            id="inputClave"
-            name="clave"
-            class="field-input"
-            placeholder="contraseña"
-            autocomplete="current-password"
-            required
+      <div class="showcase-body">
+        <div class="showcase-tagline">
+          Programa de Desarrollo Integral
+        </div>
+
+        <h1 class="showcase-title">
+          Seguimiento comunitario para la infancia y familias de Lima Norte
+        </h1>
+
+        <p class="showcase-desc">
+          Herramienta de registro para facilitadoras, trabajadoras sociales y coordinadores en el seguimiento de beneficiarios.
+        </p>
+
+        <!-- Signature: Ficha de Módulos Operativos -->
+        <div class="modules-card">
+          <div class="modules-card-label">Módulos de Atención Activos</div>
+          
+          <div class="module-item">
+            <div class="module-icon-well" aria-hidden="true">
+              <svg class="anim-svg-sprout" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21V10" />
+                <path class="anim-leaf-main" stroke-linecap="round" stroke-linejoin="round" d="M12 10c0-3.8 3.8-6.5 7.5-6.5-.9 3.8-3.8 6.5-7.5 6.5z" />
+                <path class="anim-leaf-sub" stroke-linecap="round" stroke-linejoin="round" d="M12 13c0-2.8-2.8-4.8-5.5-4.8.7 2.8 2.8 4.8 5.5 4.8z" />
+              </svg>
+            </div>
+            <div class="module-text-wrap">
+              <h4>Servicio Alimentario y Nutricional</h4>
+              <p>Monitoreo antropométrico, asistencia en comedores y control de tamizaje.</p>
+            </div>
+          </div>
+
+          <div class="module-item">
+            <div class="module-icon-well" aria-hidden="true">
+              <svg class="anim-svg-book" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path class="anim-book-spine" stroke-linecap="round" stroke-linejoin="round" d="M12 6.25v12.5" />
+                <path class="anim-page-left" stroke-linecap="round" stroke-linejoin="round" d="M12 6.25C10.5 5.4 8.7 5 6.8 5 4.9 5 3.3 5.5 2 6.3v12.4c1.3-.8 2.9-1.2 4.8-1.2 1.9 0 3.7.4 5.2 1.2" />
+                <path class="anim-page-right" stroke-linecap="round" stroke-linejoin="round" d="M12 6.25C13.5 5.4 15.3 5 17.2 5c1.9 0 3.5.5 4.8 1.3v12.4c-1.3-.8-2.9-1.2-4.8-1.2-1.9 0-3.7.4-5.2 1.2" />
+              </svg>
+            </div>
+            <div class="module-text-wrap">
+              <h4>Acompañamiento Educativo</h4>
+              <p>Refuerzo escolar comunitario, talleres y soporte pedagógico.</p>
+            </div>
+          </div>
+
+          <div class="module-item">
+            <div class="module-icon-well" aria-hidden="true">
+              <svg class="anim-svg-social" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path class="anim-social-heart" stroke-linecap="round" stroke-linejoin="round" d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+                <path class="anim-social-hands" stroke-linecap="round" stroke-linejoin="round" d="M12 5l-2.5 2.5a2 2 0 0 0 0 2.8l.5.5a2 2 0 0 0 2.8 0l2-2" />
+                <path class="anim-social-hands" stroke-linecap="round" stroke-linejoin="round" d="m14 10 1.5 1.5a2 2 0 0 0 2.8 0" />
+              </svg>
+            </div>
+            <div class="module-text-wrap">
+              <h4>Atención Social y Familiar</h4>
+              <p>Visitas domiciliarias, canalización de casos y expediente único.</p>
+            </div>
+          </div>
+
+          <div class="module-item">
+            <div class="module-icon-well" aria-hidden="true">
+              <svg class="anim-svg-pulse" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path class="anim-ecg-path" stroke-linecap="round" stroke-linejoin="round" d="M2 12h4l2-5 3 10 2.5-7 1.5 3.5 2-1.5H22" />
+              </svg>
+            </div>
+            <div class="module-text-wrap">
+              <h4>Salud Preventiva</h4>
+              <p>Controles de desarrollo infantil, vacunas y derivaciones.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="showcase-footer">
+        <span>&copy; 2026 Asociación Cultural Johannes Gutenberg</span>
+        <span>Todos los derechos reservados</span>
+      </div>
+    </aside>
+
+    <!-- COLUMNA DERECHA: Panel de Autenticación -->
+    <main class="access-column">
+      <header class="access-header">
+        <div class="brand-mobile-slot">
+          <img
+            src="/assets/logo-asociacion.png"
+            alt="Asociación Cultural Johannes Gutenberg"
+            class="brand-logo-img brand-logo-light"
           />
-          <button type="button" class="btn-toggle-pass" id="btnTogglePass" aria-label="Mostrar/ocultar contraseña">
-            <svg id="iconOjo" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          <img
+            src="/assets/logo-light-acjg.png"
+            alt="Asociación Cultural Johannes Gutenberg"
+            class="brand-logo-img brand-logo-dark"
+          />
+        </div>
+
+        <button type="button" class="theme-button" id="btnThemeToggle" aria-label="Cambiar tema de color">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+          </svg>
+          <span id="themeToggleLabel">Tema</span>
+        </button>
+      </header>
+
+      <div class="access-content">
+        <div class="form-header-group">
+          <h2 class="form-main-title">Ingreso al Sistema</h2>
+          <p class="form-sub-title">Digita tus credenciales para acceder a los módulos de trabajo.</p>
+        </div>
+
+        <form class="form-stack" id="loginForm" autocomplete="on" novalidate>
+          <!-- Usuario -->
+          <div class="form-row">
+            <label class="label-caption" for="inputUsuario">Usuario institucional</label>
+            <div class="input-wrapper">
+              <span class="input-icon-glyph" aria-hidden="true">
+                <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+                </svg>
+              </span>
+              <input
+                type="text"
+                id="inputUsuario"
+                name="usuario"
+                class="text-input"
+                placeholder="ej. coordinacion"
+                autocomplete="username"
+                required
+                spellcheck="false"
+              />
+            </div>
+          </div>
+
+          <!-- Contraseña -->
+          <div class="form-row">
+            <label class="label-caption" for="inputClave">Contraseña</label>
+            <div class="input-wrapper">
+              <span class="input-icon-glyph" aria-hidden="true">
+                <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+                </svg>
+              </span>
+              <input
+                type="password"
+                id="inputClave"
+                name="clave"
+                class="text-input"
+                placeholder="••••••••"
+                autocomplete="current-password"
+                required
+              />
+              <button type="button" class="btn-eye-toggle" id="btnTogglePass" aria-label="Mostrar contraseña">
+                <svg id="iconPassEye" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Mensaje de Error -->
+          <div class="status-error-callout" id="loginError" role="alert" aria-live="polite">
+            <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
             </svg>
+            <span id="loginErrorMsg">Credenciales no válidas. Revisa usuario y contraseña.</span>
+          </div>
+
+          <!-- Botón de Envío -->
+          <button type="submit" class="btn-primary-action" id="btnLogin">
+            <span class="btn-spinner" aria-hidden="true"></span>
+            <span class="btn-label">Ingresar al sistema</span>
           </button>
-        </div>
+        </form>
+
+        <!-- Directorio de Perfiles para Acceso Rápido -->
+        <section class="profiles-directory" aria-label="Perfiles autorizados de trabajo">
+          <div class="profiles-label-bar">
+            <span class="profiles-title">Perfiles autorizados</span>
+            <span class="profiles-note">Acceso rápido</span>
+          </div>
+
+          <div class="profiles-grid" id="profilesGrid">
+            <button type="button" class="profile-card-btn" data-user="coordinacion" data-pass="coord2024">
+              <span class="profile-role-name">Coordinación</span>
+              <span class="profile-user-id">coordinacion</span>
+            </button>
+            <button type="button" class="profile-card-btn" data-user="facilitadora" data-pass="facil2024">
+              <span class="profile-role-name">Nutrición</span>
+              <span class="profile-user-id">facilitadora</span>
+            </button>
+            <button type="button" class="profile-card-btn" data-user="promotora" data-pass="promo2024">
+              <span class="profile-role-name">Educación</span>
+              <span class="profile-user-id">promotora</span>
+            </button>
+            <button type="button" class="profile-card-btn" data-user="social" data-pass="social2024">
+              <span class="profile-role-name">Trabajo Social</span>
+              <span class="profile-user-id">social</span>
+            </button>
+            <button type="button" class="profile-card-btn" data-user="admin" data-pass="admin2024">
+              <span class="profile-role-name">Administración TI</span>
+              <span class="profile-user-id">admin</span>
+            </button>
+          </div>
+        </section>
       </div>
 
-      <!-- Error -->
-      <div class="login-error" id="loginError" role="alert" aria-live="polite">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="flex-shrink:0;">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
-        </svg>
-        <span id="loginErrorMsg">Usuario o contraseña incorrectos.</span>
-      </div>
-
-      <!-- Botón -->
-      <button type="submit" class="btn-login" id="btnLogin">
-        <div class="spinner"></div>
-        <span class="btn-text">Ingresar al sistema</span>
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
-        </svg>
-      </button>
-    </form>
-
-    <!-- Tabla de ayuda con credenciales de acceso rápido -->
-    <div class="login-hint">
-      <div class="hint-title">Credenciales de acceso disponibles</div>
-      <table class="hint-table" id="hintTable">
-        <thead>
-          <tr>
-            <th>Rol</th>
-            <th>Usuario</th>
-            <th>Contraseña</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr data-user="coordinacion" data-pass="coord2024">
-            <td>Coordinación</td><td>coordinacion</td><td>coord2024</td>
-          </tr>
-          <tr data-user="facilitadora" data-pass="facil2024">
-            <td>Facilitadora</td><td>facilitadora</td><td>facil2024</td>
-          </tr>
-          <tr data-user="promotora" data-pass="promo2024">
-            <td>Promotora</td><td>promotora</td><td>promo2024</td>
-          </tr>
-          <tr data-user="social" data-pass="social2024">
-            <td>Trabajadora Social</td><td>social</td><td>social2024</td>
-          </tr>
-          <tr data-user="admin" data-pass="admin2024">
-            <td>Admin TI</td><td>admin</td><td>admin2024</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="login-footer">
-      Sistema PDI &mdash; Asociación Cultural Johannes Gutenberg
-    </div>
+      <footer class="access-footer">
+        <p>Sistema PDI &bull; Asociación Cultural Johannes Gutenberg</p>
+      </footer>
+    </main>
   </div>
 
   <script>
     import { autenticar, haySesion } from '../scripts/auth/usuarios.js';
 
-    // Si ya hay sesión, ir directo al dashboard
+    // 1. Redirigir si ya existe sesión
     if (haySesion()) {
       window.location.replace('/dashboard');
     }
 
-    // Aplicar logo correcto según tema
-    const tema = document.documentElement.getAttribute('data-theme');
-    const logoDark = document.querySelector('.brand-logo-dark');
-    const logoLight = document.querySelector('.brand-logo-light');
-    if (logoDark && logoLight) {
-      if (tema === 'light') {
-        logoDark.style.display = 'none';
-        logoLight.style.display = 'block';
-      } else {
-        logoDark.style.display = 'block';
-        logoLight.style.display = 'none';
+    // 2. Control de Tema con persistencia en localStorage
+    const btnThemeToggle = document.getElementById('btnThemeToggle');
+    const themeToggleLabel = document.getElementById('themeToggleLabel');
+
+    function syncThemeText(theme) {
+      if (themeToggleLabel) {
+        themeToggleLabel.textContent = theme === 'dark' ? 'Oscuro' : 'Claro';
       }
     }
 
-    // Toggle mostrar/ocultar contraseña
-    const btnToggle = document.getElementById('btnTogglePass');
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    syncThemeText(currentTheme);
+
+    btnThemeToggle?.addEventListener('click', () => {
+      const active = document.documentElement.getAttribute('data-theme') || 'light';
+      const target = active === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', target);
+      try {
+        localStorage.setItem('pdi_theme', target);
+      } catch (e) {}
+      syncThemeText(target);
+    });
+
+    // 3. Toggle de Visibilidad de Contraseña
+    const btnTogglePass = document.getElementById('btnTogglePass');
     const inputClave = document.getElementById('inputClave');
-    btnToggle?.addEventListener('click', () => {
-      const esPassword = inputClave.type === 'password';
-      inputClave.type = esPassword ? 'text' : 'password';
-      btnToggle.setAttribute('aria-label', esPassword ? 'Ocultar contraseña' : 'Mostrar contraseña');
+    const iconPassEye = document.getElementById('iconPassEye');
+
+    const EYE_OPEN = `<path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>`;
+    const EYE_SLASH = `<path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"/>`;
+
+    btnTogglePass?.addEventListener('click', () => {
+      if (!inputClave) return;
+      const isPass = inputClave.type === 'password';
+      inputClave.type = isPass ? 'text' : 'password';
+      btnTogglePass.setAttribute('aria-label', isPass ? 'Ocultar contraseña' : 'Mostrar contraseña');
+      if (iconPassEye) {
+        iconPassEye.innerHTML = isPass ? EYE_SLASH : EYE_OPEN;
+      }
     });
 
-    // Click en fila de la tabla de ayuda → rellena el form
-    document.getElementById('hintTable')?.addEventListener('click', (e) => {
-      const fila = e.target.closest('tr[data-user]');
-      if (!fila) return;
-      const inputUsuario = document.getElementById('inputUsuario');
-      const inputClave = document.getElementById('inputClave');
-      if (inputUsuario) inputUsuario.value = fila.dataset.user;
-      if (inputClave) inputClave.value = fila.dataset.pass;
-      inputClave?.focus();
+    // 4. Selector de Perfiles (Directorio Rápido)
+    const profilesGrid = document.getElementById('profilesGrid');
+    const inputUsuario = document.getElementById('inputUsuario');
+
+    profilesGrid?.addEventListener('click', (e) => {
+      const card = e.target.closest('.profile-card-btn');
+      if (!card) return;
+
+      document.querySelectorAll('.profile-card-btn').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+
+      if (inputUsuario) inputUsuario.value = card.dataset.user || '';
+      if (inputClave) inputClave.value = card.dataset.pass || '';
+
       ocultarError();
+      document.getElementById('btnLogin')?.focus();
     });
 
+    // 5. Errores y Alertas
     function mostrarError(msg) {
-      const el = document.getElementById('loginError');
-      const msg2 = document.getElementById('loginErrorMsg');
-      if (msg2) msg2.textContent = msg;
-      if (el) {
-        el.classList.remove('visible');
-        void el.offsetWidth; // refleja para re-animar
-        el.classList.add('visible');
+      const box = document.getElementById('loginError');
+      const text = document.getElementById('loginErrorMsg');
+      if (text) text.textContent = msg;
+      if (box) {
+        box.classList.remove('visible');
+        void box.offsetWidth;
+        box.classList.add('visible');
       }
     }
 
@@ -525,39 +1096,42 @@
       document.getElementById('loginError')?.classList.remove('visible');
     }
 
-    // Submit del formulario
-    const form = document.getElementById('loginForm');
+    // 6. Envío del Formulario
+    const loginForm = document.getElementById('loginForm');
     const btnLogin = document.getElementById('btnLogin');
 
-    form?.addEventListener('submit', async (e) => {
+    loginForm?.addEventListener('submit', async (e) => {
       e.preventDefault();
       ocultarError();
 
-      const usuario = document.getElementById('inputUsuario')?.value?.trim() ?? '';
-      const clave = document.getElementById('inputClave')?.value ?? '';
+      const usuario = inputUsuario?.value?.trim() ?? '';
+      const clave = inputClave?.value ?? '';
 
       if (!usuario || !clave) {
-        mostrarError('Completa todos los campos.');
+        mostrarError('Por favor completa tanto tu usuario como tu contraseña.');
+        if (!usuario) inputUsuario?.focus();
+        else inputClave?.focus();
         return;
       }
 
-      // Estado de carga
-      btnLogin.disabled = true;
-      btnLogin.classList.add('loading');
+      if (btnLogin) {
+        btnLogin.disabled = true;
+        btnLogin.classList.add('loading');
+      }
 
-      // Pequeño delay artificial para feedback visual (evitar flash instantáneo)
-      await new Promise(r => setTimeout(r, 400));
+      await new Promise(r => setTimeout(r, 350));
 
-      const resultado = autenticar(usuario, clave);
+      const res = autenticar(usuario, clave);
 
-      if (resultado.ok) {
-        // Éxito: navegar al dashboard
+      if (res.ok) {
         window.location.replace('/dashboard');
       } else {
-        btnLogin.disabled = false;
-        btnLogin.classList.remove('loading');
-        mostrarError(resultado.error || 'Usuario o contraseña incorrectos. Intenta de nuevo.');
-        document.getElementById('inputClave')?.select();
+        if (btnLogin) {
+          btnLogin.disabled = false;
+          btnLogin.classList.remove('loading');
+        }
+        mostrarError(res.error || 'Credenciales incorrectas. Verifica tu usuario y clave.');
+        inputClave?.select();
       }
     });
   </script>

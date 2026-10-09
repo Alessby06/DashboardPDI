@@ -242,12 +242,7 @@ export const SocialKanbanView = {
     setBadge("kanbanCountCanalizados", countC);
     setBadge("kanbanCountCerrados", countZ);
 
-    // Actualizar contadores en selectores móviles (dropdown legacy + segmented control moderno)
-    setBadge("mobileStageCountPendientes", countP);
-    setBadge("mobileStageCountEvaluacion", countE);
-    setBadge("mobileStageCountCanalizados", countC);
-    setBadge("mobileStageCountCerrados", countZ);
-
+    // Actualizar contadores en selector de pastillas móvil
     setBadge("mobileSegCountPendientes", countP);
     setBadge("mobileSegCountEvaluacion", countE);
     setBadge("mobileSegCountCanalizados", countC);
@@ -576,55 +571,6 @@ export const SocialKanbanView = {
 
   _syncMobileStageSelector() {
     const stage = this._mobileActiveStage || "pendiente";
-    const stageData = {
-      "pendiente": {
-        label: "Alerta",
-        color: "var(--gt-red)",
-        badgeClass: "badge badge-red",
-        countId: "kanbanCountPendientes"
-      },
-      "evaluacion": {
-        label: "Evaluación",
-        color: "var(--gt-yellow)",
-        badgeClass: "badge badge-yellow",
-        countId: "kanbanCountEvaluacion"
-      },
-      "canalizado": {
-        label: "Canalizados",
-        color: "var(--gt-blue)",
-        badgeClass: "badge badge-blue",
-        countId: "kanbanCountCanalizados"
-      },
-      "cerrado": {
-        label: "Cerrados",
-        color: "var(--gt-green)",
-        badgeClass: "badge badge-green",
-        countId: "kanbanCountCerrados"
-      }
-    };
-
-    const current = stageData[stage] || stageData["pendiente"];
-    const dot = document.getElementById("mobileSelectedStageDot");
-    const label = document.getElementById("mobileSelectedStageLabel");
-    const badge = document.getElementById("mobileSelectedStageBadge");
-
-    if (dot) dot.style.background = current.color;
-    if (label) label.textContent = current.label;
-    if (badge) {
-      const sourceCount = document.getElementById(current.countId);
-      badge.textContent = sourceCount ? sourceCount.textContent : "0";
-      badge.className = current.badgeClass;
-    }
-
-    const items = document.querySelectorAll("#menuSocialMobileStage .social-mobile-dropdown-item");
-    items.forEach(item => {
-      if (item.getAttribute("data-stage") === stage) {
-        item.classList.add("selected");
-      } else {
-        item.classList.remove("selected");
-      }
-    });
-
     const segButtons = document.querySelectorAll("#socialMobileStageSegmented .stage-seg-btn");
     segButtons.forEach(btn => {
       const isCurrent = btn.getAttribute("data-stage") === stage;
@@ -641,11 +587,6 @@ export const SocialKanbanView = {
     }
 
     this._syncMobileStageSelector();
-
-    const dropdown = document.getElementById("dropdownSocialMobileStage");
-    if (dropdown) {
-      dropdown.classList.remove("open");
-    }
 
     // Este metodo no repinta el tablero: cambiar de columna en movil no altera
     // los datos. Aun asi la etapa es parte de lo que se esta viendo, asi que

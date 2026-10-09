@@ -3012,7 +3012,7 @@
 
 #tablaBeneficiarios {
   width: 100%;
-  min-width: 900px;
+  min-width: 930px;
   table-layout: fixed;
   border-collapse: separate;
   border-spacing: 0;
@@ -3030,15 +3030,15 @@
   white-space: nowrap;
 }
 
-/* Anchos fijos calibrados para eliminar Layout Shift (CLS) */
-#tablaBeneficiarios thead th:nth-child(1) { width: 11%; min-width: 95px; }
-#tablaBeneficiarios thead th:nth-child(2) { width: 22%; min-width: 180px; }
-#tablaBeneficiarios thead th:nth-child(3) { width: 10%; min-width: 85px; }
-#tablaBeneficiarios thead th:nth-child(4) { width: 10%; min-width: 85px; }
-#tablaBeneficiarios thead th:nth-child(5) { width: 14%; min-width: 120px; }
-#tablaBeneficiarios thead th:nth-child(6) { width: 18%; min-width: 150px; }
-#tablaBeneficiarios thead th:nth-child(7) { width: 8%;  min-width: 75px; }
-#tablaBeneficiarios thead th:nth-child(8) { width: 7%;  min-width: 90px; text-align: right; }
+/* Anchos fijos calibrados para eliminar Layout Shift (CLS) y dar espacio y alineación óptima a todas las columnas */
+#tablaBeneficiarios thead th:nth-child(1) { width: 9%;  min-width: 85px;  text-align: left; }
+#tablaBeneficiarios thead th:nth-child(2) { width: 22%; min-width: 180px; text-align: left; }
+#tablaBeneficiarios thead th:nth-child(3) { width: 9%;  min-width: 85px;  text-align: center; }
+#tablaBeneficiarios thead th:nth-child(4) { width: 8%;  min-width: 80px;  text-align: center; }
+#tablaBeneficiarios thead th:nth-child(5) { width: 13%; min-width: 120px; text-align: left; }
+#tablaBeneficiarios thead th:nth-child(6) { width: 19%; min-width: 175px; text-align: left; }
+#tablaBeneficiarios thead th:nth-child(7) { width: 8%;  min-width: 75px;  text-align: center; }
+#tablaBeneficiarios thead th:nth-child(8) { width: 12%; min-width: 130px; text-align: center; }
 
 #tablaBeneficiarios tbody td {
   padding: 12px 14px;
@@ -3047,6 +3047,62 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+#tablaBeneficiarios tbody td:nth-child(3),
+#tablaBeneficiarios tbody td:nth-child(4),
+#tablaBeneficiarios tbody td:nth-child(7) {
+  text-align: center;
+}
+
+#tablaBeneficiarios tbody td:nth-child(6) {
+  overflow: visible;
+  white-space: normal;
+}
+
+#tablaBeneficiarios tbody td:last-child {
+  overflow: visible;
+  text-align: center;
+  white-space: nowrap;
+}
+
+#tablaBeneficiarios tbody td:last-child .btn-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  gap: 6px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-decoration: none;
+  box-sizing: border-box;
+  transition: all var(--dur-fast) var(--ease-smooth);
+}
+
+#tablaBeneficiarios tbody td:last-child .btn-action:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-bright);
+  color: var(--text-brand);
+}
+
+[data-theme="dark"] #tablaBeneficiarios tbody td:last-child .btn-action {
+  background: var(--surface-2);
+  border-color: var(--border-subtle);
+  color: var(--text-main);
+}
+
+[data-theme="dark"] #tablaBeneficiarios tbody td:last-child .btn-action:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-bright);
+  color: var(--text-brand);
 }
 
 #tablaBeneficiarios tbody tr {

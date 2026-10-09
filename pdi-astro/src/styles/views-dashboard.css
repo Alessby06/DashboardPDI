@@ -367,11 +367,6 @@
       gap: 18px;
     }
 
-    @keyframes slideUp {
-      from { transform: translateY(30px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
     /* Barra de Herramientas y Filtros para Auditoría (Buscador izquierda, Filtros derecha) */
     .audit-toolbar {
       display: flex;
@@ -531,12 +526,6 @@
       font-weight: 700;
       border-radius: 4px;
     }
-
-    @keyframes pulseHighlight {
-      0% { outline-color: var(--gt-green); }
-      100% { outline-color: var(--gt-blue); }
-    }
-
 
     /* Responsive */
     .sidebar-backdrop {
@@ -1995,32 +1984,9 @@
   stroke: var(--text-main);
 }
 
-@keyframes pulseFocoHalo {
-  0%, 100% { transform: scale(1); opacity: 0.7; }
-  50% { transform: scale(1.1); opacity: 1; }
-}
-
-@keyframes pulseFocoRays {
-  0% { opacity: 0.6; stroke-width: 2.2; }
-  100% { opacity: 1; stroke-width: 3.2; }
-}
-
 @keyframes antennaPulse {
   0%, 100% { opacity: 0.6; }
   50% { opacity: 1; }
-}
-
-@keyframes sunRotatePulse {
-  0% { transform: rotate(0deg) scale(1); }
-  50% { transform: rotate(45deg) scale(1.25); }
-  100% { transform: rotate(45deg) scale(1.15); }
-}
-
-@keyframes moonSwayGlow {
-  0% { transform: rotate(0deg) scale(1); }
-  35% { transform: rotate(-18deg) scale(1.25); }
-  70% { transform: rotate(12deg) scale(1.18); }
-  100% { transform: rotate(0deg) scale(1.15); }
 }
 
 /* 3. Sensor / Monitor SO: Latido rítmico de sincronización inteligente */
@@ -2036,12 +2002,6 @@
   50% { transform: scale(0.95); }
   70% { transform: scale(1.18); }
   100% { transform: scale(1.15); }
-}
-
-@keyframes springCheckPop {
-  0% { transform: scale(0) rotate(-45deg); opacity: 0; }
-  70% { transform: scale(1.28) rotate(8deg); opacity: 1; }
-  100% { transform: scale(1) rotate(0deg); opacity: 1; }
 }
 
 /* Adaptabilidad para Cajas de Carga de Foto y Secciones de Retiro en Modo Oscuro */

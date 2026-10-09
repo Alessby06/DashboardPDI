@@ -216,12 +216,20 @@ export const VoluntariadosView = {
       list = list.filter(v => v.estado === this._filterEstado);
     }
 
-    const serial = `${this._searchQuery}_${this._filterDistrito.join(',')}_${this._filterServicio.join(',')}_${this._filterRol.join(',')}_${this._filterEstado}_` +
+    // Clave con la variante activa incluida: mismo motivo que en
+    // BeneficiariosView, para que cruzar el corte de 768 px no deje la tabla
+    // vacia al saltarse el repinto de abajo.
+    const enMovil = Responsive.esMovil();
+
+    const serial = `${enMovil ? 'M' : 'D'}|${this._searchQuery}_${this._filterDistrito.join(',')}_${this._filterServicio.join(',')}_${this._filterRol.join(',')}_${this._filterEstado}_` +
       list.map(v => `${v.id}_${v.estado}`).join('|');
 
     const tbody = document.getElementById("tbodyVoluntarios");
     const mobileContainer = document.getElementById("mobileCardsVoluntarios");
-    const hasContent = (tbody && tbody.children.length > 0) || (mobileContainer && mobileContainer.children.length > 0);
+    // Solo cuenta la variante que va a pintarse; la otra es residuo del corte anterior.
+    const hasContent = enMovil
+      ? (mobileContainer && mobileContainer.children.length > 0)
+      : (tbody && tbody.children.length > 0);
 
     if (!animar && this._lastRenderSerial === serial && hasContent) {
       return;

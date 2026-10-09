@@ -2703,24 +2703,31 @@
    - Tipografía tabular y avatares sutiles
    =========================================================================== */
 
-/* --- KPI CARDS REFINADAS (JOHANNES GUTENBERG STAT PANEL) --- */
+/* --- KPI CARDS REFINADAS (PATRÓN VISUAL UNIFICADO DASHBOARD - JOHANNES GUTENBERG) --- */
 .padron-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 14px;
   margin-bottom: 20px;
 }
 
+@container (max-width: 960px) {
+  .padron-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 .padron-kpi-card {
-  padding: 16px 18px;
   background: var(--surface-1);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  transition: transform var(--dur-fast) var(--ease-spring), border-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  gap: 8px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-spring), box-shadow var(--dur-fast) var(--ease-smooth);
   position: relative;
   overflow: hidden;
 }
@@ -2731,17 +2738,26 @@
   box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.12);
 }
 
-/* Indicadores de acento superior sutil */
-.padron-kpi-card.kpi-accent-green { border-top: 2px solid var(--gt-green); }
-.padron-kpi-card.kpi-accent-mint  { border-top: 2px solid #10b981; }
-.padron-kpi-card.kpi-accent-amber { border-top: 2px solid var(--gt-yellow); }
-.padron-kpi-card.kpi-accent-blue  { border-top: 2px solid var(--gt-blue); }
+/* Indicador de acento lateral uniforme al estilo /dashboard */
+.padron-kpi-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 3.5px;
+}
+
+.padron-kpi-card.kpi-accent-green::before { background: var(--gt-green); }
+.padron-kpi-card.kpi-accent-mint::before  { background: #10b981; }
+.padron-kpi-card.kpi-accent-amber::before { background: var(--gt-yellow); }
+.padron-kpi-card.kpi-accent-blue::before  { background: var(--gt-blue, #0284c7); }
 
 .padron-kpi-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  gap: 8px;
 }
 
 .padron-kpi-title {
@@ -2861,6 +2877,196 @@
 .dot-gray {
   background-color: var(--text-dim);
   opacity: 0.6;
+}
+
+/* --- ADAPTACIONES RESPONSIVAS PARA KPIS Y CABECERA (INSPIRADO EN /DASHBOARD) --- */
+@media (max-width: 900px) {
+  .padron-kpi-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  /* En móviles: Grid 2x2 compacto idéntico a /dashboard para no desplazar contenido */
+  .padron-kpi-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .padron-kpi-card {
+    padding: 11px 12px !important;
+    gap: 5px !important;
+    border-radius: var(--radius-md) !important;
+  }
+
+  .padron-kpi-header {
+    margin-bottom: 2px !important;
+  }
+
+  .padron-kpi-title {
+    font-size: 10px !important;
+    letter-spacing: 0.02em !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: calc(100% - 24px) !important;
+  }
+
+  .padron-kpi-badge-icon {
+    width: 22px !important;
+    height: 22px !important;
+  }
+
+  .padron-kpi-badge-icon svg {
+    width: 13px !important;
+    height: 13px !important;
+  }
+
+  .padron-kpi-val-wrap {
+    margin-bottom: 2px !important;
+  }
+
+  .padron-kpi-num {
+    font-size: clamp(20px, 5.5vw, 24px) !important;
+    line-height: 1.1 !important;
+  }
+
+  .padron-kpi-footer {
+    gap: 5px !important;
+  }
+
+  .padron-pill-chip {
+    font-size: 9.5px !important;
+    padding: 1px 6px !important;
+  }
+
+  .padron-kpi-note {
+    font-size: 10px !important;
+    line-height: 1.25 !important;
+  }
+
+  /* Acciones de cabecera en móvil con touch target amigable (min 42-44px) */
+  #view-voluntarios .view-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+
+  #view-voluntarios .view-title-group h2 {
+    font-size: clamp(17px, 4.8vw, 20px) !important;
+    line-height: 1.25 !important;
+  }
+
+  #view-voluntarios .view-title-group p {
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+  }
+
+  .view-actions {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  .view-actions .btn-action {
+    width: 100% !important;
+    justify-content: center !important;
+    min-height: 42px !important;
+    height: 42px !important;
+    padding: 0 10px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
+  #view-voluntarios .audit-toolbar {
+    padding: 10px 12px !important;
+    gap: 8px !important;
+    flex-wrap: nowrap !important;
+  }
+
+  #view-voluntarios .audit-search-wrap {
+    flex: 1 1 auto !important;
+    max-width: none !important;
+    min-width: 0 !important;
+  }
+
+  #view-voluntarios .audit-search-input {
+    height: 40px !important;
+    font-size: 12.5px !important;
+    padding-left: 32px !important;
+    padding-right: 32px !important;
+  }
+
+  #view-voluntarios .audit-filter-btn {
+    height: 40px !important;
+    padding: 0 12px !important;
+    font-size: 12.5px !important;
+    flex-shrink: 0 !important;
+    touch-action: manipulation !important;
+  }
+
+  /* Popover de filtros en móvil adaptativo a la pantalla */
+  #dropdownVoluntariosFilterPanel .audit-filters-menu {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    max-height: 82vh !important;
+    max-height: 82dvh !important;
+    border-radius: 16px 16px 0 0 !important;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.45) !important;
+    border: 1px solid var(--border-bright) !important;
+    border-bottom: none !important;
+    padding: 16px 18px 24px 18px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    z-index: 9999 !important;
+    box-sizing: border-box !important;
+  }
+
+  #view-voluntarios .padron-mobile-cards {
+    padding: 10px !important;
+    gap: 10px !important;
+  }
+
+  #view-voluntarios #voluntariosRecordsCount {
+    padding: 8px 12px !important;
+    font-size: 11.5px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  /* En smartphones compactos: botones de acción apilados ergonómicamente */
+  .view-actions {
+    grid-template-columns: 1fr !important;
+    gap: 7px !important;
+  }
+
+  .view-actions .btn-action {
+    height: 44px !important;
+    min-height: 44px !important;
+    font-size: 12.5px !important;
+  }
+
+  .padron-kpi-grid {
+    gap: 8px !important;
+  }
+
+  .padron-kpi-card {
+    padding: 9px 10px !important;
+  }
+
+  .padron-kpi-num {
+    font-size: 20px !important;
+  }
 }
 
 /* --- BOTONES DEL HEADER (EXPORTAR / NUEVA INSCRIPCIÓN) --- */
@@ -3283,6 +3489,13 @@
   padding: 4px 0;
 }
 
+@media (max-width: 380px) {
+  .padron-mcard-body {
+    grid-template-columns: 1fr;
+    row-gap: 10px;
+  }
+}
+
 .padron-mcard-detail-item {
   display: flex;
   flex-direction: column;
@@ -3290,11 +3503,11 @@
 }
 
 .padron-mcard-detail-label {
-  font-size: 11px;
-  font-weight: 500;
+  font-size: 10.5px;
+  font-weight: 600;
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
 }
 
 .padron-mcard-detail-val {
@@ -3314,6 +3527,9 @@
   text-decoration: none;
   font-weight: 600;
   font-family: var(--mono-font);
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
 }
 
 .padron-mcard-phone-link:hover {
@@ -3327,13 +3543,21 @@
   padding-top: 10px;
   border-top: 1px solid var(--border-subtle);
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .padron-mcard-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   margin-left: auto;
+}
+
+.padron-mcard-actions .padron-btn-ficha,
+.padron-mcard-actions .padron-btn-edit {
+  min-height: 36px;
+  padding: 6px 14px;
+  font-size: 12px;
 }
 
 /* ===========================================================================

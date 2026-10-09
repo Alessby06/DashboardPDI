@@ -22,6 +22,7 @@ export const SedesView = {
   _searchQuery: "",
   _filterDistrito: "all",
   _filterServicio: "all",
+  _sedeEnURL: false,
 
   _filtros: null,
   _filtrosLeidos: false,
@@ -52,6 +53,10 @@ export const SedesView = {
     this._filterDistrito = f.distrito;
     this._filterServicio = f.servicio;
     this._selectedSedeId = f.sede || null;
+
+    // ¿La URL llegó con enlace profundo a una sede? Es la única ocasión en
+    // que la hoja inferior (móvil) se autoabre en la carga inicial.
+    this._sedeEnURL = !!f.sede;
 
     const input = document.getElementById("inputSedesSearch");
     if (input) input.value = f.q;
@@ -310,7 +315,31 @@ export const SedesView = {
     // columna parpadeara al cambiar de sede.
     this._marcarActivoEnLista();
     this.renderDetailPanel();
+    this._abrirHoja();
     this._persistirFiltros();
+  },
+
+  /**
+   * Abre la ficha como hoja inferior (móvil). En escritorio el mismo .open
+   * no tiene efecto visual: alli la ficha es la columna inline del split.
+   */
+  _abrirHoja() {
+    const panel = document.getElementById("sedesDetailPanel");
+    const backdrop = document.getElementById("sedesSheetBackdrop");
+    panel?.classList.add("open");
+    backdrop?.classList.add("open");
+    if (typeof window !== "undefined" && window.innerWidth <= 840) {
+      document.body.classList.add("sedes-sheet-open");
+    }
+  },
+
+  /** Cierra la hoja inferior (móvil). La selección persiste en la lista. */
+  cerrarDetalleMovil() {
+    const panel = document.getElementById("sedesDetailPanel");
+    const backdrop = document.getElementById("sedesSheetBackdrop");
+    panel?.classList.remove("open");
+    backdrop?.classList.remove("open");
+    document.body.classList.remove("sedes-sheet-open");
   },
 
   /** Compara ids sin importar que unos vengan como string y otros como numero. */
@@ -425,6 +454,17 @@ export const SedesView = {
     this._updateActiveChips();
     this.renderMasterList();
     this.renderDetailPanel();
+
+    // La hoja inferior (móvil) no se autoabre con cada repintado: la abre la
+    // acción de tocar una sede, o la URL cuando llega con sede= (enlace
+    // profundo). Al vaciarse la lista se cierra sola. En escritorio estos
+    // .open no tienen efecto visual.
+    if (!this._selectedSedeId) {
+      this.cerrarDetalleMovil();
+    } else if (this._sedeEnURL) {
+      this._abrirHoja();
+      this._sedeEnURL = false;
+    }
   },
 
   renderMasterList() {
@@ -530,6 +570,16 @@ export const SedesView = {
     };
 
     panel.innerHTML = `
+      <div class="sedes-sheet-topbar">
+        <span class="sedes-sheet-grip"></span>
+        <button type="button" class="sedes-sheet-close"
+          onclick="window.PDI?.SedesView?.cerrarDetalleMovil()"
+          title="Cerrar ficha" aria-label="Cerrar ficha">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+          </svg>
+        </button>
+      </div>
       <div class="sedes-detail-card">
         <!-- Header de la Ficha Técnica -->
         <div class="sedes-detail-header">

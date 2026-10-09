@@ -7,9 +7,8 @@ import '../styles/views-sedes.css';
         <section class="app-view active" id="view-sedes">
           <div class="view-header">
             <div class="view-title-group">
-              <h2>Directorio Territorial: Sedes, Iglesias y Voluntariado</h2>
-              <p style="margin: 4px 0 0 0; color: var(--text-muted); font-size: 13.5px;">Mapeo operativo de locales de
-                atención, pastores de iglesias aliadas, directores de colegios públicos y aforos en campo.</p>
+              <h2>Directorio Territorial: Sedes e Iglesias</h2>
+              <p style="margin: 4px 0 0 0; color: var(--text-muted); font-size: 13.5px;">Mapeo operativo de locales de atención, pastores aliados y aforos en campo.</p>
             </div>
           </div>
 
@@ -23,7 +22,7 @@ import '../styles/views-sedes.css';
                     d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                 </svg>
                 <input type="text" id="inputSedesSearch" class="audit-search-input"
-                  placeholder="Buscar sede, facilitadora, pastor o iglesia aliada..."
+                  placeholder="Buscar sede, facilitadora o pastor..."
                   oninput="window.filterSedesSearch ? window.filterSedesSearch(this.value) : null">
                 <button type="button" class="audit-search-clear" id="btnSedesSearchClear" style="display:none;"
                   onclick="window.clearSedesSearch ? window.clearSedesSearch() : null" title="Limpiar búsqueda">
@@ -219,6 +218,10 @@ import '../styles/views-sedes.css';
               <!-- Inyectado por JS -->
             </div>
           </div>
+
+          <!-- Overlay de la hoja inferior de la ficha (solo visible en móvil) -->
+          <div class="sedes-sheet-backdrop" id="sedesSheetBackdrop"
+            onclick="window.PDI?.SedesView?.cerrarDetalleMovil()"></div>
         </section>
 
   <script>
