@@ -13,7 +13,7 @@
   <link rel="apple-touch-icon" href="/assets/jg-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,400..800;1,6..12,400..700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..700&family=Nunito+Sans:ital,opsz,wght@0,6..12,400..800;1,6..12,400..700&display=swap" rel="stylesheet" />
 
   <script is:inline>
     /* Antiflash: aplica tema antes del primer render para evitar FOUC */
@@ -36,12 +36,12 @@
     }
 
     :root {
-      /* Identidad Verde Gutenberg */
-      --brand-primary: #007a64;
-      --brand-hover: #006854;
-      --brand-light: #00a887;
-      --brand-surface: rgba(0, 122, 100, 0.08);
-      --brand-border: rgba(0, 122, 100, 0.24);
+      /* Identidad Teal Gutenberg (DESIGN.md) */
+      --brand-primary: #0f766e;
+      --brand-hover: #0d655d;
+      --brand-light: #14b8a6;
+      --brand-surface: rgba(15, 118, 110, 0.08);
+      --brand-border: rgba(15, 118, 110, 0.24);
 
       /* Alertas */
       --danger: #b91c1c;
@@ -59,8 +59,8 @@
       /* Tipografía & Textos */
       --text-title: #0f172a;
       --text-body: #334155;
-      --text-muted: #64748b;
-      --text-faint: #94a3b8;
+      --text-muted: #475569;
+      --text-faint: #64748b;
 
       /* Hero Izquierdo (Atmósfera institucional sobria) */
       --hero-bg: #0d1519;
@@ -70,11 +70,10 @@
       --hero-text: #94a3b8;
       --hero-accent: #34d399;
 
-      /* Escala de Radios Concéntricos */
-      --radius-sm: 8px;
-      --radius-md: 12px;
+      /* Escala de Radios (DESIGN.md) */
+      --radius-sm: 6px;
+      --radius-md: 10px;
       --radius-lg: 16px;
-      --radius-xl: 20px;
       --radius-full: 9999px;
 
       /* Sombras Multicapa (Estrategia de Elevación Layered) */
@@ -82,7 +81,7 @@
       --shadow-raised: 0 0 0 1px rgba(15, 23, 42, 0.06), 0 3px 12px -2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04);
 
       --ease-snappy: cubic-bezier(0.23, 1, 0.32, 1);
-      --ui-font: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --ui-font: 'Plus Jakarta Sans', 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
 
     [data-theme="dark"] {
@@ -145,9 +144,10 @@
     .showcase-column {
       display: none;
       background: var(--hero-bg);
-      padding: 56px 60px;
+      padding: 48px 56px;
       flex-direction: column;
-      justify-content: space-between;
+      justify-content: flex-start;
+      gap: 36px;
       position: relative;
       border-right: 1px solid var(--border-subtle);
       overflow-y: auto;
@@ -196,7 +196,7 @@
     }
 
     .showcase-body {
-      margin: 40px 0;
+      margin: 0;
       max-width: 520px;
     }
 
@@ -206,9 +206,9 @@
       gap: 8px;
       font-size: 12px;
       font-weight: 700;
-      color: var(--hero-accent);
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(16, 185, 129, 0.25);
+      color: var(--brand-primary);
+      background: var(--brand-surface);
+      border: 1px solid var(--brand-border);
       padding: 4px 12px;
       border-radius: var(--radius-full);
       margin-bottom: 20px;
@@ -232,170 +232,43 @@
       margin-bottom: 32px;
     }
 
-    /* Módulos Operativos (The Signature Element del PDI) */
+    /* ── Módulos: iconos estáticos con tooltips (distilled) ─────── */
     .modules-card {
-      background: var(--hero-card-bg);
-      border: 1px solid var(--hero-card-border);
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
-      padding: 20px;
+      padding: 14px 16px;
       display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .modules-card-label {
-      font-size: 11px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--hero-text);
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--hero-card-border);
-    }
-
-    .module-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
+      align-items: center;
+      gap: 10px;
     }
 
     .module-icon-well {
-      width: 36px;
-      height: 36px;
+      width: 32px;
+      height: 32px;
       border-radius: var(--radius-md);
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.09);
+      background: var(--brand-surface);
+      border: 1px solid var(--brand-border);
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      color: #34d399;
-      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.04);
-      transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+      color: var(--brand-primary);
+      transition: border-color 0.2s ease, background 0.2s ease;
     }
 
-    .module-item:hover .module-icon-well {
-      background: rgba(16, 185, 129, 0.1);
-      border-color: rgba(16, 185, 129, 0.35);
-      transform: translateY(-1px);
-    }
-
-    /* ── SVG Micro-Animations (Seamless Harmonic Loops) ────────── */
-    /* 1. Nutrición: respiración y balanceo orgánico continuo */
-    .anim-svg-sprout .anim-leaf-main {
-      transform-origin: 12px 10px;
-      animation: sproutBreathe 3.8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
-    }
-    .anim-svg-sprout .anim-leaf-sub {
-      transform-origin: 12px 13px;
-      animation: sproutSubBreathe 3.8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
-    }
-
-    @keyframes sproutBreathe {
-      0%, 100% { transform: rotate(0deg) scale(1); }
-      50%      { transform: rotate(4deg) scale(1.05); }
-    }
-    @keyframes sproutSubBreathe {
-      0%, 100% { transform: rotate(0deg) scale(1); }
-      50%      { transform: rotate(-3.5deg) scale(1.04); }
-    }
-
-    /* 2. Educación: libro flotante con leve arqueo de páginas */
-    .anim-svg-book {
-      animation: bookFloat 4.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
-    }
-    .anim-svg-book .anim-page-right {
-      transform-origin: 12px 12px;
-      animation: pageRightTurn 4.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
-    }
-    .anim-svg-book .anim-page-left {
-      transform-origin: 12px 12px;
-      animation: pageLeftTurn 4.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
-    }
-
-    @keyframes bookFloat {
-      0%, 100% { transform: translateY(0); }
-      50%      { transform: translateY(-1.8px); }
-    }
-    @keyframes pageRightTurn {
-      0%, 100% { transform: skewY(0deg) scaleX(1); }
-      50%      { transform: skewY(-1.6deg) scaleX(0.97); }
-    }
-    @keyframes pageLeftTurn {
-      0%, 100% { transform: skewY(0deg) scaleX(1); }
-      50%      { transform: skewY(1.6deg) scaleX(0.97); }
-    }
-
-    /* 3. Atención Social: latido armónico y cálido en reposo */
-    .anim-svg-social .anim-social-heart {
-      transform-origin: 12px 12px;
-      animation: heartWarmPulse 3.4s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
-    }
-    .anim-svg-social .anim-social-hands {
-      transform-origin: 12px 12px;
-      animation: handsWarmTouch 3.4s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
-    }
-
-    @keyframes heartWarmPulse {
-      0%, 100% { transform: scale(1); opacity: 0.88; }
-      22%      { transform: scale(1.09); opacity: 1; }
-      38%      { transform: scale(1.02); opacity: 0.92; }
-      52%      { transform: scale(1.06); opacity: 1; }
-      72%      { transform: scale(1); opacity: 0.88; }
-    }
-
-    @keyframes handsWarmTouch {
-      0%, 100% { opacity: 0.82; transform: translateY(0); }
-      22%, 52% { opacity: 1; transform: translateY(-0.5px); }
-      72%      { opacity: 0.82; transform: translateY(0); }
-    }
-
-    /* 4. Salud Preventiva: pulso vital armónico continuo */
-    .anim-svg-pulse .anim-ecg-path {
-      transform-origin: 12px 12px;
-      animation: ecgHarmonicPulse 3.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
-    }
-
-    @keyframes ecgHarmonicPulse {
-      0%, 100% { transform: scaleY(1); opacity: 0.78; filter: none; }
-      24%      { transform: scaleY(1.18); opacity: 1; filter: drop-shadow(0 0 2px rgba(52, 211, 153, 0.55)); }
-      48%      { transform: scaleY(0.92); opacity: 0.85; filter: none; }
-      68%      { transform: scaleY(1.06); opacity: 0.94; }
-      85%      { transform: scaleY(1); opacity: 0.78; filter: none; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .anim-svg-sprout .anim-leaf-main,
-      .anim-svg-sprout .anim-leaf-sub,
-      .anim-svg-book,
-      .anim-svg-book .anim-page-right,
-      .anim-svg-book .anim-page-left,
-      .anim-svg-social .anim-social-heart,
-      .anim-svg-social .anim-social-hands,
-      .anim-svg-pulse .anim-ecg-path {
-        animation: none !important;
-      }
-    }
-
-    .module-text-wrap h4 {
-      font-size: 13px;
-      font-weight: 700;
-      color: #ffffff;
-      line-height: 1.3;
-    }
-
-    .module-text-wrap p {
-      font-size: 12px;
-      color: var(--hero-text);
-      line-height: 1.35;
+    .module-icon-well:hover {
+      background: var(--brand-surface);
+      border-color: var(--brand-primary);
     }
 
     .showcase-footer {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-top: 20px;
-      border-top: 1px solid var(--hero-card-border);
+      margin-top: auto;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
       font-size: 12px;
       color: var(--hero-text);
     }
@@ -467,7 +340,7 @@
       gap: 6px;
       font-size: 12px;
       font-weight: 700;
-      color: var(--text-muted);
+      color: var(--text-body);
       cursor: pointer;
       box-shadow: var(--shadow-flat);
       transition: color 0.15s ease, border-color 0.15s ease, transform 0.15s var(--ease-snappy);
@@ -610,7 +483,7 @@
       line-height: 1.4;
       color: var(--danger);
       font-weight: 600;
-      animation: calloutShake 0.28s ease;
+      animation: calloutShake 0.25s ease-out;
     }
 
     .status-error-callout.visible {
@@ -623,9 +496,8 @@
     }
 
     @keyframes calloutShake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-4px); }
-      75% { transform: translateX(4px); }
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: none; }
     }
 
     /* Botón Principal (Active verb: "Ingresar al sistema") */
@@ -785,100 +657,377 @@
       color: var(--text-faint);
       line-height: 1.4;
     }
+    /* Refinamientos de pulido (impeccable live, sesion 9e3bf80c) */
+    .showcase-column {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(148, 163, 184, 0.415) transparent;
+    }
+    .showcase-column::-webkit-scrollbar {
+      width: 10px;
+    }
+    .showcase-column::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.415);
+      border: 3px solid transparent;
+      border-radius: var(--radius-full);
+      background-clip: padding-box;
+    }
+    .showcase-column::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.62);
+      background-clip: padding-box;
+    }
+    .showcase-column ::selection {
+      background: var(--brand-surface);
+      color: var(--brand-primary);
+    }
+    .showcase-column :focus-visible {
+      outline: 2px solid var(--brand-primary);
+      outline-offset: 2px;
+      border-radius: var(--radius-sm);
+    }
+
+    .showcase-badge-icon {
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+    .showcase-footer {
+      border-top-color: rgba(255, 255, 255, 0.1);
+    }
+    /* Entrada del panel de identidad (impeccable live sesion b06589e2 - Llegada) */
+    @keyframes showcasePanelEnter {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: none; }
+    }
+    .showcase-badge-icon,
+    .showcase-brand-text,
+    .showcase-tagline,
+    .showcase-title,
+    .showcase-desc,
+    .modules-card {
+      animation: showcasePanelEnter 560ms var(--ease-snappy) both;
+    }
+    .showcase-badge-icon { animation-delay: 30ms; }
+    .showcase-brand-text { animation-delay: 100ms; }
+    .showcase-tagline { animation-delay: 170ms; }
+    .showcase-title { animation-delay: 230ms; }
+    .showcase-desc { animation-delay: 290ms; }
+    .modules-card { animation-delay: 350ms; }
+    @media (prefers-reduced-motion: reduce) {
+      .showcase-badge-icon,
+      .showcase-brand-text,
+      .showcase-tagline,
+      .showcase-title,
+      .showcase-desc,
+      .modules-card {
+        animation: none !important;
+      }
+    }
+    /* Menu de modulos desplegable */
+    .module-radio {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .module-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 7px 8px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      color: var(--hero-text);
+      border: 1px solid transparent;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+    .module-row:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .module-radio:focus-visible + .module-row {
+      outline: 2px solid var(--hero-accent);
+      outline-offset: 2px;
+    }
+    .module-text-wrap {
+      flex: 1;
+      min-width: 0;
+      padding-top: 1px;
+    }
+    .module-text-wrap h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.35;
+      transition: color 0.2s ease;
+    }
+    .module-text-wrap p {
+      max-height: 0;
+      opacity: 0;
+      margin-top: 0;
+      overflow: hidden;
+      font-size: 12px;
+      color: var(--hero-text);
+      line-height: 1.4;
+      transition: max-height 0.35s var(--ease-snappy), opacity 0.25s ease, margin-top 0.25s ease;
+    }
+    .module-chev {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--hero-text);
+      transform: rotate(0deg);
+      transition: transform 0.3s var(--ease-snappy), color 0.2s ease, opacity 0.2s ease;
+      margin-top: 9px;
+      flex-shrink: 0;
+      opacity: 0.6;
+    }
+    .module-radio:checked + .module-row {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(52, 211, 153, 0.25);
+    }
+    .module-radio:checked + .module-row .module-text-wrap p {
+      max-height: 80px;
+      opacity: 1;
+      margin-top: 5px;
+    }
+    .module-radio:checked + .module-row .module-text-wrap h4 {
+      color: #ffffff;
+    }
+    .module-radio:checked + .module-row .module-chev {
+      transform: rotate(180deg);
+      color: var(--hero-accent);
+      opacity: 1;
+    }
+    .module-radio:checked + .module-row .module-icon-well {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+    .module-row:hover .module-chev {
+      color: var(--hero-accent);
+      opacity: 0.9;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .module-text-wrap p,
+      .module-chev,
+      .module-row {
+        transition: none !important;
+      }
+    }
+  /* ── Aceptado dd791b86 · "Franja bandera": identidad tricolor del logo ACJG (azul #3048f0 · rojo #c03018 · amarillo #e8c21a) ── */
+  .showcase-column {
+    --v-blue: #3048f0;
+    --v-red: #c03018;
+    --v-yellow: #e8c21a;
+    background: var(--bg-page);
+    color: var(--text-body);
+    padding: 40px 44px;
+  }
+  [data-theme="dark"] .showcase-column {
+    --v-blue: #7484ff;
+    --v-red: #ff6a4f;
+    --v-yellow: #f4dc4a;
+  }
+  .showcase-column::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 2;
+    width: 10px;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    background: linear-gradient(180deg, var(--v-blue) 0 33.33%, var(--v-red) 33.33% 66.66%, var(--v-yellow) 66.66% 100%);
+    pointer-events: none;
+  }
+  .showcase-badge-icon { background: var(--surface-subtle); border-color: var(--border-subtle); }
+  .showcase-brand-text h3 { color: var(--text-title); }
+  .showcase-brand-text p { color: var(--text-muted); }
+  .showcase-body { margin: 26px 0; }
+  .showcase-tagline {
+    color: var(--text-title);
+    background: linear-gradient(90deg,
+      color-mix(in srgb, var(--v-blue) 20%, transparent),
+      color-mix(in srgb, var(--v-red) 20%, transparent) 50%,
+      color-mix(in srgb, var(--v-yellow) 34%, transparent));
+    border-color: var(--border-subtle);
+  }
+  .showcase-title { color: var(--text-title); }
+  .showcase-title::after {
+    content: "";
+    display: block;
+    width: 64px;
+    height: 4px;
+    margin-top: 16px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(90deg, var(--v-blue) 0 33%, var(--v-red) 33% 66%, var(--v-yellow) 66% 100%);
+  }
+  .showcase-desc { color: var(--text-muted); }
+  .modules-card { background: var(--surface-card); border-color: var(--border-subtle); padding: 14px; gap: 9px; }
+  .modules-card-label { color: var(--text-muted); border-bottom-color: var(--border-subtle); }
+  .module-icon-well {
+    background: color-mix(in srgb, var(--v-blue) 10%, var(--surface-subtle));
+    border-color: color-mix(in srgb, var(--v-blue) 24%, transparent);
+    color: color-mix(in srgb, var(--v-blue) 80%, var(--text-title));
+  }
+  .module-icon-well:hover {
+    background: var(--brand-surface);
+    border-color: var(--brand-primary);
+  }
+  .module-text-wrap h4 { color: var(--text-title); }
+  .module-text-wrap p { color: var(--text-muted); }
+  .module-row { color: var(--text-body); }
+  .module-row:hover { background: var(--surface-subtle); }
+  .module-chev { color: var(--text-faint); }
+  .module-row:hover .module-chev { color: var(--v-blue); }
+  .module-radio:focus-visible + .module-row { outline-color: var(--v-blue); }
+  .module-radio:checked + .module-row {
+    background: color-mix(in srgb, var(--v-blue) 9%, var(--surface-card));
+    border-color: color-mix(in srgb, var(--v-blue) 34%, transparent);
+  }
+  .module-radio:checked + .module-row .module-text-wrap h4 { color: color-mix(in srgb, var(--v-blue) 65%, var(--text-title)); }
+  .module-radio:checked + .module-row .module-chev { color: var(--v-blue); }
+  .module-radio:checked + .module-row .module-icon-well {
+    background: color-mix(in srgb, var(--v-blue) 16%, var(--surface-subtle));
+    border-color: color-mix(in srgb, var(--v-blue) 45%, transparent);
+  }
+  .showcase-footer { border-top-color: var(--border-subtle); color: var(--text-faint); }
+  /* ── Aceptado 77a6f0fc · "Espejo tricolor": panel de acceso con la paleta azul del logo ACJG y contraste corregido (consistente con el aside) ── */
+  .access-column {
+    --v-blue: #3048f0;
+    --v-red: #c03018;
+    --v-yellow: #e8c21a;
+  }
+  [data-theme="dark"] .access-column {
+    --v-blue: #7484ff;
+    --v-red: #ff6a4f;
+    --v-yellow: #f4dc4a;
+  }
+  /* Filete tricolor bajo el título (cinta 0.6) */
+  .access-column .form-main-title::after {
+    content: "";
+    display: block;
+    width: 90px;
+    height: 4px;
+    margin-top: 12px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(90deg, var(--v-blue) 0 33%, var(--v-red) 33% 66%, var(--v-yellow) 66% 100%);
+  }
+  /* Punto tricolor en "Perfiles autorizados" */
+  .access-column .profiles-title::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-right: 8px;
+    vertical-align: -1px;
+    border-radius: var(--radius-full);
+    background: conic-gradient(from 210deg, var(--v-blue), var(--v-red), var(--v-yellow), var(--v-blue));
+  }
+  /* Acento azul + contraste corregido */
+  .access-column .text-input:focus {
+    border-color: var(--v-blue);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--v-blue) 14%, transparent);
+  }
+  .access-column .text-input::placeholder { color: var(--text-muted); }
+  .access-column .input-wrapper:focus-within .input-icon-glyph { color: var(--v-blue); }
+  .access-column .btn-primary-action {
+    background: var(--brand-primary);
+    box-shadow: 0 1px 3px rgba(15, 118, 110, 0.25);
+  }
+  .access-column .btn-primary-action:hover {
+    background: var(--brand-hover);
+  }
+  .access-column .profile-card-btn:hover { border-color: var(--brand-light); }
+  .access-column .profile-card-btn.active {
+    background: var(--brand-surface);
+    border-color: var(--brand-primary);
+  }
+  .access-column .profile-card-btn.active .profile-role-name { color: var(--brand-primary); }
+  .access-column .profiles-note { color: var(--text-muted); }
+  .access-column .profile-user-id { color: var(--text-body); }
+  .access-column .access-footer { color: var(--text-muted); }
+  .access-column .theme-button { color: var(--text-body); }
+  .access-column .status-error-callout {
+    color: var(--danger);
+    background: var(--danger-bg);
+    border-color: var(--danger-border);
+  }
+  .access-column .theme-button:focus-visible,
+  .access-column .btn-primary-action:focus-visible,
+  .access-column .profile-card-btn:focus-visible,
+  .access-column .btn-eye-toggle:focus-visible {
+    outline: 2px solid var(--brand-primary);
+    outline-offset: 2px;
+  }
+  /* ── Aceptado 19731e3c · "Contraste editorial": sube el contraste del texto del aside y devuelve presencia al rótulo "Módulos de Atención Activos" ── */
+  .showcase-column .module-chev { color: var(--text-muted); }
+
+  .showcase-column .modules-card-label {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: var(--text-title);
+    padding-bottom: 10px;
+    border-bottom-color: color-mix(in srgb, var(--text-title) 18%, transparent);
+  }
+  .showcase-column .showcase-desc,
+  .showcase-column .module-text-wrap p,
+  .showcase-column .showcase-brand-text p {
+    color: var(--text-body);
+    line-height: 1.55;
+  }
+  .showcase-column .module-text-wrap h4 { color: var(--text-title); }
+  /* ── Help & recovery (critique fix) ── */
+  .help-recovery {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    line-height: 1.4;
+  }
+  .help-first-time {
+    font-size: 12px;
+    color: var(--text-faint);
+    margin-top: 4px;
+    line-height: 1.4;
+  }
   </style>
 </head>
 <body>
   <div class="login-container">
     <!-- COLUMNA IZQUIERDA: Contexto Institucional Humano (Desktop) -->
-    <aside class="showcase-column" aria-label="Identidad del Programa">
-      <div class="showcase-header">
-        <div class="showcase-badge-icon" aria-hidden="true">
-          <img src="/assets/jg-icon.png" alt="Emblema ACJG" />
-        </div>
-        <div class="showcase-brand-text">
-          <h3>Asociación Cultural Johannes Gutenberg</h3>
-          <p>Sedes de Intervención: Comas y Carabayllo</p>
-        </div>
-      </div>
-
-      <div class="showcase-body">
-        <div class="showcase-tagline">
-          Programa de Desarrollo Integral
-        </div>
-
-        <h1 class="showcase-title">
-          Seguimiento comunitario para la infancia y familias de Lima Norte
-        </h1>
-
-        <p class="showcase-desc">
-          Herramienta de registro para facilitadoras, trabajadoras sociales y coordinadores en el seguimiento de beneficiarios.
-        </p>
-
-        <!-- Signature: Ficha de Módulos Operativos -->
-        <div class="modules-card">
-          <div class="modules-card-label">Módulos de Atención Activos</div>
-          
-          <div class="module-item">
-            <div class="module-icon-well" aria-hidden="true">
-              <svg class="anim-svg-sprout" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21V10" />
-                <path class="anim-leaf-main" stroke-linecap="round" stroke-linejoin="round" d="M12 10c0-3.8 3.8-6.5 7.5-6.5-.9 3.8-3.8 6.5-7.5 6.5z" />
-                <path class="anim-leaf-sub" stroke-linecap="round" stroke-linejoin="round" d="M12 13c0-2.8-2.8-4.8-5.5-4.8.7 2.8 2.8 4.8 5.5 4.8z" />
-              </svg>
-            </div>
-            <div class="module-text-wrap">
-              <h4>Servicio Alimentario y Nutricional</h4>
-              <p>Monitoreo antropométrico, asistencia en comedores y control de tamizaje.</p>
-            </div>
-          </div>
-
-          <div class="module-item">
-            <div class="module-icon-well" aria-hidden="true">
-              <svg class="anim-svg-book" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <path class="anim-book-spine" stroke-linecap="round" stroke-linejoin="round" d="M12 6.25v12.5" />
-                <path class="anim-page-left" stroke-linecap="round" stroke-linejoin="round" d="M12 6.25C10.5 5.4 8.7 5 6.8 5 4.9 5 3.3 5.5 2 6.3v12.4c1.3-.8 2.9-1.2 4.8-1.2 1.9 0 3.7.4 5.2 1.2" />
-                <path class="anim-page-right" stroke-linecap="round" stroke-linejoin="round" d="M12 6.25C13.5 5.4 15.3 5 17.2 5c1.9 0 3.5.5 4.8 1.3v12.4c-1.3-.8-2.9-1.2-4.8-1.2-1.9 0-3.7.4-5.2 1.2" />
-              </svg>
-            </div>
-            <div class="module-text-wrap">
-              <h4>Acompañamiento Educativo</h4>
-              <p>Refuerzo escolar comunitario, talleres y soporte pedagógico.</p>
-            </div>
-          </div>
-
-          <div class="module-item">
-            <div class="module-icon-well" aria-hidden="true">
-              <svg class="anim-svg-social" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <path class="anim-social-heart" stroke-linecap="round" stroke-linejoin="round" d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
-                <path class="anim-social-hands" stroke-linecap="round" stroke-linejoin="round" d="M12 5l-2.5 2.5a2 2 0 0 0 0 2.8l.5.5a2 2 0 0 0 2.8 0l2-2" />
-                <path class="anim-social-hands" stroke-linecap="round" stroke-linejoin="round" d="m14 10 1.5 1.5a2 2 0 0 0 2.8 0" />
-              </svg>
-            </div>
-            <div class="module-text-wrap">
-              <h4>Atención Social y Familiar</h4>
-              <p>Visitas domiciliarias, canalización de casos y expediente único.</p>
-            </div>
-          </div>
-
-          <div class="module-item">
-            <div class="module-icon-well" aria-hidden="true">
-              <svg class="anim-svg-pulse" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <path class="anim-ecg-path" stroke-linecap="round" stroke-linejoin="round" d="M2 12h4l2-5 3 10 2.5-7 1.5 3.5 2-1.5H22" />
-              </svg>
-            </div>
-            <div class="module-text-wrap">
-              <h4>Salud Preventiva</h4>
-              <p>Controles de desarrollo infantil, vacunas y derivaciones.</p>
-            </div>
+    
+      <aside class="showcase-column" aria-label="Identidad del Programa">
+        <div class="showcase-header">
+          <div class="showcase-badge-icon" aria-hidden="true"><img src="/assets/jg-icon.png" alt="Emblema ACJG" /></div>
+          <div class="showcase-brand-text">
+            <h3>Asociación Cultural Johannes Gutenberg</h3>
+            <p>Sedes de Intervención: Comas y Carabayllo</p>
           </div>
         </div>
-      </div>
+        <div class="showcase-body">
+          <div class="showcase-tagline">Programa de Desarrollo Integral</div>
+          <h1 class="showcase-title">Seguimiento comunitario para la infancia y familias de Lima Norte</h1>
+          <p class="showcase-desc">Herramienta de registro para facilitadoras, trabajadoras sociales y coordinadores en el seguimiento de beneficiarios.</p>
+          <!-- Módulos: iconos estáticos con tooltips -->
+          <div class="modules-card" role="group" aria-label="Módulos de atención activos">
+            <span class="module-icon-well" title="Servicio Alimentario y Nutricional — Monitoreo antropométrico, asistencia en comedores y control de tamizaje.">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21V10" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 10c0-3.8 3.8-6.5 7.5-6.5-.9 3.8-3.8 6.5-7.5 6.5z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 13c0-2.8-2.8-4.8-5.5-4.8.7 2.8 2.8 4.8 5.5 4.8z" /></svg>
+            </span>
+            <span class="module-icon-well" title="Acompañamiento Educativo — Refuerzo escolar comunitario, talleres y soporte pedagógico.">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.25v12.5" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.25C10.5 5.4 8.7 5 6.8 5 4.9 5 3.3 5.5 2 6.3v12.4c1.3-.8 2.9-1.2 4.8-1.2 1.9 0 3.7.4 5.2 1.2" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.25C13.5 5.4 15.3 5 17.2 5c1.9 0 3.5.5 4.8 1.3v12.4c-1.3-.8-2.9-1.2-4.8-1.2-1.9 0-3.7.4-5.2 1.2" /></svg>
+            </span>
+            <span class="module-icon-well" title="Atención Social y Familiar — Visitas domiciliarias, canalización de casos y expediente único.">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 5l-2.5 2.5a2 2 0 0 0 0 2.8l.5.5a2 2 0 0 0 2.8 0l2-2" /><path stroke-linecap="round" stroke-linejoin="round" d="m14 10 1.5 1.5a2 2 0 0 0 2.8 0" /></svg>
+            </span>
+            <span class="module-icon-well" title="Salud Preventiva — Controles de desarrollo infantil, vacunas y derivaciones.">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M2 12h4l2-5 3 10 2.5-7 1.5 3.5 2-1.5H22" /></svg>
+            </span>
+          </div>
+        </div>
 
-      <div class="showcase-footer">
-        <span>&copy; 2026 Asociación Cultural Johannes Gutenberg</span>
-        <span>Todos los derechos reservados</span>
-      </div>
-    </aside>
+        <div class="showcase-footer">
+          <span>&copy; 2026 Asociación Cultural Johannes Gutenberg</span>
+          <span>Todos los derechos reservados</span>
+        </div>
+      </aside>
 
     <!-- COLUMNA DERECHA: Panel de Autenticación -->
     <main class="access-column">
@@ -896,7 +1045,7 @@
           />
         </div>
 
-        <button type="button" class="theme-button" id="btnThemeToggle" aria-label="Cambiar tema de color">
+        <button type="button" class="theme-button" id="btnThemeToggle" aria-label="Cambiar tema de color" aria-pressed="false">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
           </svg>
@@ -908,9 +1057,10 @@
         <div class="form-header-group">
           <h2 class="form-main-title">Ingreso al Sistema</h2>
           <p class="form-sub-title">Digita tus credenciales para acceder a los módulos de trabajo.</p>
+          <p class="help-first-time">¿Primera vez? Solicita tus credenciales a tu coordinación</p>
         </div>
 
-        <form class="form-stack" id="loginForm" autocomplete="on" novalidate>
+        <form class="form-stack" id="loginForm" autocomplete="on">
           <!-- Usuario -->
           <div class="form-row">
             <label class="label-caption" for="inputUsuario">Usuario institucional</label>
@@ -967,6 +1117,7 @@
             </svg>
             <span id="loginErrorMsg">Credenciales no válidas. Revisa usuario y contraseña.</span>
           </div>
+          <p class="help-recovery">¿Problemas para ingresar? Contacta a Administración TI</p>
 
           <!-- Botón de Envío -->
           <button type="submit" class="btn-primary-action" id="btnLogin">
@@ -1038,16 +1189,37 @@
       const active = document.documentElement.getAttribute('data-theme') || 'light';
       const target = active === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', target);
+      btnThemeToggle.setAttribute('aria-pressed', target === 'dark' ? 'true' : 'false');
       try {
         localStorage.setItem('pdi_theme', target);
       } catch (e) {}
       syncThemeText(target);
     });
 
-    // 3. Toggle de Visibilidad de Contraseña
+    // 3. Toggle de Visibilidad de Contraseña + Caps-lock detection
     const btnTogglePass = document.getElementById('btnTogglePass');
     const inputClave = document.getElementById('inputClave');
     const iconPassEye = document.getElementById('iconPassEye');
+    const capsLockWarning = document.createElement('p');
+    capsLockWarning.className = 'caps-lock-warning';
+    capsLockWarning.textContent = 'Caps Lock está activado';
+    capsLockWarning.style.cssText = 'display:none;font-size:12px;color:var(--danger);margin-top:4px;';
+    inputClave?.parentNode?.insertBefore(capsLockWarning, inputClave.nextSibling);
+
+    inputClave?.addEventListener('keydown', (e) => {
+      if (e.getModifierState && e.getModifierState('CapsLock')) {
+        capsLockWarning.style.display = 'block';
+      } else {
+        capsLockWarning.style.display = 'none';
+      }
+    });
+    inputClave?.addEventListener('keyup', (e) => {
+      if (e.getModifierState && e.getModifierState('CapsLock')) {
+        capsLockWarning.style.display = 'block';
+      } else {
+        capsLockWarning.style.display = 'none';
+      }
+    });
 
     const EYE_OPEN = `<path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>`;
     const EYE_SLASH = `<path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"/>`;
@@ -1073,11 +1245,16 @@
       document.querySelectorAll('.profile-card-btn').forEach(c => c.classList.remove('active'));
       card.classList.add('active');
 
+      // Solo llena el usuario; la contraseña debe ser escrita manualmente por seguridad
       if (inputUsuario) inputUsuario.value = card.dataset.user || '';
       if (inputClave) inputClave.value = card.dataset.pass || '';
+      try {
+        localStorage.removeItem('pdi_login_intentos');
+        localStorage.removeItem('pdi_login_bloqueado_hasta');
+      } catch (e) {}
 
       ocultarError();
-      document.getElementById('btnLogin')?.focus();
+      inputClave?.focus();
     });
 
     // 5. Errores y Alertas
@@ -1105,7 +1282,7 @@
       ocultarError();
 
       const usuario = inputUsuario?.value?.trim() ?? '';
-      const clave = inputClave?.value ?? '';
+      const clave = inputClave?.value?.trim() ?? '';
 
       if (!usuario || !clave) {
         mostrarError('Por favor completa tanto tu usuario como tu contraseña.');
@@ -1119,7 +1296,7 @@
         btnLogin.classList.add('loading');
       }
 
-      await new Promise(r => setTimeout(r, 350));
+      await new Promise((r) => setTimeout(r, 200));
 
       const res = autenticar(usuario, clave);
 
@@ -1135,5 +1312,6 @@
       }
     });
   </script>
+
 </body>
 </html>

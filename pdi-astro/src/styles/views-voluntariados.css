@@ -50,23 +50,6 @@
         box-sizing: border-box !important;
       }
 
-      #dropdownSocialFilterPanel .audit-filters-menu {
-        position: absolute !important;
-        top: calc(100% + 6px) !important;
-        right: 0 !important;
-        left: auto !important;
-        width: 310px !important;
-        min-width: 300px !important;
-        max-width: calc(100vw - 28px) !important;
-        background: var(--surface-1) !important;
-        border: 1px solid var(--border-bright) !important;
-        border-radius: var(--radius-md) !important;
-        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45) !important;
-        padding: 14px 16px !important;
-        z-index: 9999 !important;
-        box-sizing: border-box !important;
-      }
-
       .social-mobile-stage-select-btn {
         width: 100% !important;
         height: 38px !important;
@@ -817,30 +800,6 @@
         display: none !important;
       }
 
-      .audit-filters-menu {
-        position: absolute !important;
-        top: calc(100% + 8px) !important;
-        bottom: auto !important;
-        left: 0 !important;
-        right: 0 !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 100% !important;
-        box-sizing: border-box !important;
-        border-radius: var(--radius-lg) !important;
-        border: 1px solid var(--border-bright) !important;
-        background: var(--surface-1) !important;
-        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.32) !important;
-        padding: 16px 18px !important;
-        z-index: 600 !important;
-        max-height: none !important;
-        overflow-y: visible !important;
-        animation: dropdownFadeIn var(--dur-fast) var(--ease-spring) !important;
-      }
-
-      .audit-filters-menu::before {
-        display: none !important;
-      }
 
       .audit-filters-header {
         padding-bottom: 10px !important;
@@ -2899,6 +2858,10 @@
     padding: 11px 12px !important;
     gap: 5px !important;
     border-radius: var(--radius-md) !important;
+    min-height: 98px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
   }
 
   .padron-kpi-header {
@@ -2925,7 +2888,7 @@
   }
 
   .padron-kpi-val-wrap {
-    margin-bottom: 2px !important;
+    margin: 2px 0 !important;
   }
 
   .padron-kpi-num {
@@ -2934,17 +2897,18 @@
   }
 
   .padron-kpi-footer {
+    display: flex !important;
+    align-items: center !important;
+    min-height: 16px !important;
     gap: 5px !important;
-  }
-
-  .padron-pill-chip {
-    font-size: 9.5px !important;
-    padding: 1px 6px !important;
   }
 
   .padron-kpi-note {
     font-size: 10px !important;
     line-height: 1.25 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
   }
 
   /* Acciones de cabecera en móvil con touch target amigable (min 42-44px) */
@@ -2962,25 +2926,6 @@
   #view-voluntarios .view-title-group p {
     font-size: 12px !important;
     line-height: 1.4 !important;
-  }
-
-  .view-actions {
-    width: 100% !important;
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 8px !important;
-  }
-
-  .view-actions .btn-action {
-    width: 100% !important;
-    justify-content: center !important;
-    min-height: 42px !important;
-    height: 42px !important;
-    padding: 0 10px !important;
-    font-size: 12px !important;
-    font-weight: 600 !important;
-    touch-action: manipulation !important;
-    -webkit-tap-highlight-color: transparent !important;
   }
 
   #view-voluntarios .audit-toolbar {
@@ -3010,30 +2955,9 @@
     touch-action: manipulation !important;
   }
 
-  /* Popover de filtros en móvil adaptativo a la pantalla */
-  #dropdownVoluntariosFilterPanel .audit-filters-menu {
-    position: fixed !important;
-    top: auto !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    width: 100vw !important;
-    max-width: 100vw !important;
-    max-height: 82vh !important;
-    max-height: 82dvh !important;
-    border-radius: 16px 16px 0 0 !important;
-    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.45) !important;
-    border: 1px solid var(--border-bright) !important;
-    border-bottom: none !important;
-    padding: 16px 18px 24px 18px !important;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-    z-index: 9999 !important;
-    box-sizing: border-box !important;
-  }
 
   #view-voluntarios .padron-mobile-cards {
-    padding: 10px !important;
+    padding: 10px 0 !important;
     gap: 10px !important;
   }
 
@@ -3044,18 +2968,6 @@
 }
 
 @media (max-width: 420px) {
-  /* En smartphones compactos: botones de acción apilados ergonómicamente */
-  .view-actions {
-    grid-template-columns: 1fr !important;
-    gap: 7px !important;
-  }
-
-  .view-actions .btn-action {
-    height: 44px !important;
-    min-height: 44px !important;
-    font-size: 12.5px !important;
-  }
-
   .padron-kpi-grid {
     gap: 8px !important;
   }
@@ -3642,6 +3554,84 @@
   border-color: var(--gt-green) !important;
   color: var(--text-brand) !important;
   background: rgba(0, 180, 148, 0.08) !important;
+}
+
+/* ===========================================================================
+   ESTÁNDAR DE BOTONES DE ACCIÓN EN CABECERA MÓVIL (IMPECCABLE / OPERATE NORM)
+   Garantiza simetría exacta, distribución lateral de extremo a extremo y
+   touch targets ergonómicos (40px/38px) normalizados entre ambos botones.
+   =========================================================================== */
+@media (max-width: 768px) {
+  #view-voluntarios .view-header,
+  .view-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    width: 100% !important;
+  }
+
+  #view-voluntarios .view-title-group h2 {
+    font-size: clamp(17px, 4.8vw, 20px) !important;
+    line-height: 1.25 !important;
+  }
+
+  #view-voluntarios .view-title-group p {
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+  }
+
+  #view-voluntarios .view-actions,
+  .view-actions {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 12px !important;
+    margin-top: 4px !important;
+  }
+
+  #view-voluntarios .view-actions .btn-action,
+  .view-actions .btn-action,
+  .view-actions .btn-action.primary,
+  #view-voluntarios .view-actions .btn-action.primary {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    justify-content: center !important;
+    min-height: 40px !important;
+    height: 40px !important;
+    padding: 0 10px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    white-space: nowrap !important;
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+}
+
+@media (max-width: 420px) {
+  #view-voluntarios .view-actions,
+  .view-actions {
+    gap: 8px !important;
+  }
+
+  #view-voluntarios .view-actions .btn-action,
+  .view-actions .btn-action,
+  .view-actions .btn-action.primary,
+  #view-voluntarios .view-actions .btn-action.primary {
+    height: 38px !important;
+    min-height: 38px !important;
+    font-size: 11.5px !important;
+    padding: 0 6px !important;
+    white-space: nowrap !important;
+  }
+
+  #view-voluntarios .view-actions .btn-action svg,
+  .view-actions .btn-action svg {
+    width: 14px !important;
+    height: 14px !important;
+  }
 }
 
 

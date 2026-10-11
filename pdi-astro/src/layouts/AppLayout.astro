@@ -16,10 +16,15 @@ interface Props {
 }
 
 const { title, currentPage, pageCss } = Astro.props;
+
+// Edicion visual en vivo de impeccable (opcional). Por defecto queda habilitada.
+// Para desactivarla por completo: PUBLIC_IMPECCABLE_LIVE=false en el archivo .env
+const impeccableLive =
+  String(import.meta.env.PUBLIC_IMPECCABLE_LIVE ?? 'true').toLowerCase() !== 'false';
 ---
 
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-impeccable-live={impeccableLive ? 'on' : 'off'}>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />

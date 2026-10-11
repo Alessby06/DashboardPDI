@@ -1,7 +1,10 @@
 @echo off
-setlocal
+setlocal enableextensions
 title Sistema PDI - Entorno de Desarrollo Astro
 cd /d "%~dp0"
+
+set "PDI_PORT=4321"
+set "PDI_URL=http://localhost:%PDI_PORT%"
 
 echo ========================================================
 echo   Asociacion Cultural Johannes Gutenberg
@@ -28,11 +31,32 @@ call npm install
 echo.
 
 :run_dev
-REM Limpieza de lockfile residual para evitar que Astro tarde buscando procesos zombies
+REM Guardia de puerto: si ya hay un servidor respondiendo, NO se lanza una
+REM segunda instancia (eso causaba el conflicto de puerto y las cargas
+REM incompletas, porque el navegador abria el servidor viejo).
+call :server_is_up
+if not errorlevel 1 goto already_running
+
+REM Puerto libre: cualquier lockfile restante es basura de un proceso cerrado.
 if exist ".astro\dev.json" del /q /f ".astro\dev.json" >nul 2>&1
 
-echo [OK] Iniciando Astro Dev Server en http://localhost:4321...
-start "" http://localhost:4321
-node --enable-source-maps=false node_modules\astro\bin\astro.mjs dev
+echo [OK] Iniciando Astro Dev Server en %PDI_URL% ...
+echo [INFO] El navegador se abrira automaticamente cuando el servidor este listo.
+echo.
+
+REM --open abre el navegador JUSTO cuando el servidor esta listo (no antes).
+node --enable-source-maps=false node_modules\astro\bin\astro.mjs dev --open
 if errorlevel 1 pause
 exit /b 0
+
+:already_running
+echo [INFO] Ya hay un servidor de desarrollo activo en %PDI_URL%.
+echo [INFO] No se inicia otra instancia. Abriendo el navegador...
+start "" "%PDI_URL%"
+exit /b 0
+
+:server_is_up
+REM Devuelve errorlevel 0 si el puerto esta ocupado (servidor arriba); 1 si esta libre.
+REM Get-NetTCPConnection cubre IPv4 e IPv6 (Astro escucha en localhost/::1).
+powershell -NoProfile -ExecutionPolicy Bypass -Command "if (Get-NetTCPConnection -State Listen -LocalPort %PDI_PORT% -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }" >nul 2>&1
+exit /b %errorlevel%

@@ -30,7 +30,25 @@ export const Dropdown = {
       }
     });
     if (target) {
+      const willOpen = !target.classList.contains('open');
       target.classList.toggle('open');
+      if (target.classList.contains('audit-filters-dropdown')) {
+        if (willOpen && typeof window !== 'undefined' && window.innerWidth <= 768) {
+          document.body.classList.add('filter-sheet-open');
+        } else {
+          document.body.classList.remove('filter-sheet-open');
+        }
+      }
+    }
+  },
+
+  /** Cierra todas las hojas y dropdowns de filtros abiertos, restaurando el scroll del body */
+  cerrarHojasFiltro() {
+    document.querySelectorAll('.custom-dropdown.open, .audit-filters-dropdown.open').forEach(d => {
+      d.classList.remove('open');
+    });
+    if (typeof document !== 'undefined') {
+      document.body.classList.remove('filter-sheet-open');
     }
   },
 

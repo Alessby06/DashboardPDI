@@ -7,26 +7,68 @@ import { SocialKanbanView } from '../views/SocialKanbanView.js';
 import { ToastView } from '../views/ToastView.js';
 
 export const SocialController = {
+  /**
+   * Dispara el flujo de cambio de estado.
+   * Si el rol es Coordinación General o Administrador TI, el cambio se ejecuta DE MANERA INMEDIATA
+   * sin requerir solicitud de autorización. Si es otro rol (Trabajadora Social, etc.), se abre
+   * el modal de solicitud de cambio de fase con justificación.
+   */
   moverCaso(id, nuevaEtapa) {
+    const activeRole = localStorage.getItem("pdi_active_role") || "coord";
+    const esCoordinacionOAdmin = activeRole === "coord" || activeRole === "admin";
+
+    if (esCoordinacionOAdmin) {
+      this.moverCasoInmediato(id, nuevaEtapa);
+      return;
+    }
+
+    const view = window.PDI?.SocialKanbanView || SocialKanbanView;
+    if (view && typeof view.abrirModalSolicitarCambio === 'function') {
+      view.abrirModalSolicitarCambio(id, nuevaEtapa);
+    } else {
+      this.solicitarCambio(id, nuevaEtapa, "Cambio de etapa solicitado desde el tablero Kanban");
+    }
+  },
+
+  /**
+   * Ejecuta el cambio de fase inmediato por parte de Coordinación General / Dirección.
+   */
+  moverCasoInmediato(id, nuevaEtapa) {
     const model = window.PDI?.CasoSocialModel || CasoSocialModel;
+    const activeRole = localStorage.getItem("pdi_active_role") || "coord";
+    const userName = localStorage.getItem("pdi_usuario_nombre") || "Coordinación General";
+    const cargo = (activeRole === "admin") ? "Administrador de Sistemas TI" : "Dirección y Coordinación General";
+
     const caso = model.updateStage(id, nuevaEtapa);
     if (!caso) return;
+
+    // Si había una solicitud pendiente para este caso, se cierra/resuelve como aprobada directamente
+    if (caso.solicitudCambio && caso.solicitudCambio.estado === "pendiente") {
+      model.resolverSolicitudCambio(id, "aprobada", "Aprobado directamente por Coordinación General", {
+        nombre: userName,
+        cargo: cargo
+      });
+    }
 
     const audit = window.PDI?.AuditModel || AuditModel;
     if (audit) {
       audit.log(
-        "Lic. Ruth Soto",
-        "Trabajadora Social ASP",
-        "Transición Kanban",
+        userName,
+        cargo,
+        "Transición Directa Kanban",
         caso.codigo,
-        `Caso de ${caso.menor} trasladado a etapa: ${nuevaEtapa.toUpperCase()}`,
+        `Coordinación trasladó inmediatamente a ${caso.menor} a la etapa: ${nuevaEtapa.toUpperCase()}`,
         "Válido"
       );
     }
 
     const toast = window.PDI?.ToastView || ToastView;
     if (toast) {
-      toast.show("Tablero Kanban Actualizado", `Caso ${caso.codigo} ahora en etapa: ${nuevaEtapa.toUpperCase()}`, "success");
+      toast.show(
+        "Fase Actualizada",
+        `Caso ${caso.codigo} ahora en etapa: ${nuevaEtapa.toUpperCase()} (Autorización Directa)`,
+        "success"
+      );
     }
 
     const view = window.PDI?.SocialKanbanView || SocialKanbanView;
@@ -34,8 +76,114 @@ export const SocialController = {
       view.renderKanban(model.getAll());
     }
 
-    // Mover una tarjeta puede cerrar un caso critico: el badge rojo del menu
-    // y los KPIs del dashboard deben seguir el conteo real.
+    window.PDI?.Bootstrap?.actualizarBadgesSidebar?.();
+  },
+
+  /**
+   * Registra la solicitud de cambio de estado enviada a Coordinación y notifica al usuario.
+   */
+  solicitarCambio(id, nuevaEtapa, motivo = "") {
+    const model = window.PDI?.CasoSocialModel || CasoSocialModel;
+    const activeRole = localStorage.getItem("pdi_active_role") || "social";
+    const userName = localStorage.getItem("pdi_usuario_nombre") || "Lic. Ruth Soto";
+    const cargo = (activeRole === "coord" || activeRole === "admin") ? "Coordinación General PDI" : "Trabajadora Social ASP";
+
+    const caso = model.solicitarCambioEtapa(id, nuevaEtapa, motivo, {
+      nombre: userName,
+      cargo: cargo
+    });
+    if (!caso) return;
+
+    const audit = window.PDI?.AuditModel || AuditModel;
+    if (audit) {
+      audit.log(
+        userName,
+        cargo,
+        "Solicitud de Transición Kanban",
+        caso.codigo,
+        `Solicitud de pase de etapa (${caso.etapa.toUpperCase()} → ${nuevaEtapa.toUpperCase()}) enviada a Coordinación para ${caso.menor}. Motivo: ${motivo || 'Sin justificación adicional'}`,
+        "Pendiente"
+      );
+    }
+
+    const toast = window.PDI?.ToastView || ToastView;
+    if (toast) {
+      toast.show(
+        "Solicitud Enviada a Coordinación",
+        `Caso ${caso.codigo}: cambio a etapa "${nuevaEtapa.toUpperCase()}" en proceso de autorización.`,
+        "info"
+      );
+    }
+
+    const view = window.PDI?.SocialKanbanView || SocialKanbanView;
+    if (view) {
+      view.renderKanban(model.getAll());
+      view.renderVistaAutorizaciones?.();
+      view.renderVistaMisSolicitudes?.();
+      view.actualizarBadgesPestañas?.();
+    }
+    window.PDI?.Bootstrap?.actualizarBadgesSidebar?.();
+  },
+
+  /**
+   * Resuelve una solicitud de cambio: Aprobada o Rechazada por Coordinación.
+   */
+  resolverSolicitud(id, decision, comentario = "") {
+    const model = window.PDI?.CasoSocialModel || CasoSocialModel;
+    const activeRole = localStorage.getItem("pdi_active_role") || "coord";
+    const userName = localStorage.getItem("pdi_usuario_nombre") || "Coordinación General";
+    const cargo = (activeRole === "admin") ? "Administrador de Sistemas TI" : "Dirección y Coordinación General";
+
+    const resultado = model.resolverSolicitudCambio(id, decision, comentario, {
+      nombre: userName,
+      cargo: cargo
+    });
+    if (!resultado) return;
+
+    const { caso, solicitud, aprobada } = resultado;
+    const audit = window.PDI?.AuditModel || AuditModel;
+    const auditStatus = aprobada ? "Válido" : "Observado";
+    const accionTitulo = aprobada ? "Autorización de Transición Kanban" : "Rechazo de Transición Kanban";
+
+    if (audit) {
+      audit.log(
+        userName,
+        cargo,
+        accionTitulo,
+        caso.codigo,
+        aprobada
+          ? `Coordinación APROBÓ cambio a ${solicitud.etapaDestino.toUpperCase()} para ${caso.menor}. Observación: ${comentario || 'Aprobado sin observaciones'}`
+          : `Coordinación RECHAZÓ cambio a ${solicitud.etapaDestino.toUpperCase()} para ${caso.menor}. Se mantiene en ${caso.etapa.toUpperCase()}. Motivo: ${comentario || 'Falta documentación de sustento'}`,
+        auditStatus
+      );
+    }
+
+    const toast = window.PDI?.ToastView || ToastView;
+    if (toast) {
+      if (aprobada) {
+        toast.show(
+          "Solicitud Aprobada",
+          `Caso ${caso.codigo} ahora en etapa: ${caso.etapa.toUpperCase()}`,
+          "success"
+        );
+      } else {
+        toast.show(
+          "Solicitud Rechazada",
+          `Caso ${caso.codigo} se mantiene en: ${caso.etapa.toUpperCase()}`,
+          "warning"
+        );
+      }
+    }
+
+    const view = window.PDI?.SocialKanbanView || SocialKanbanView;
+    if (view) {
+      view.renderKanban(model.getAll());
+      view.renderVistaAutorizaciones?.();
+      view.renderVistaMisSolicitudes?.();
+      view.actualizarBadgesPestañas?.();
+    }
+
+    // Actualizar badges si cambió estado crítico
     window.PDI?.Bootstrap?.actualizarBadgesSidebar?.();
   },
 

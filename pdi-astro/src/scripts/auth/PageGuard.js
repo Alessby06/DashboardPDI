@@ -136,6 +136,20 @@ export const PageGuard = {
       const slug = enlace.getAttribute("data-page");
       const permitido = puedeAcceder(slug, rol);
 
+      const hideUnauthorized = enlace.hasAttribute("data-hide-unauthorized");
+
+      if (hideUnauthorized) {
+        // Ítems de workflow exclusivos (1er nivel): si el rol no tiene permiso, desaparecen completamente
+        enlace.style.display = permitido ? "flex" : "none";
+        if (permitido) {
+          enlace.classList.remove("role-restricted");
+          enlace.removeAttribute("aria-disabled");
+          enlace.removeAttribute("data-restricted-reason");
+          enlace.onclick = null;
+        }
+        return;
+      }
+
       if (permitido) {
         enlace.classList.remove("role-restricted");
         enlace.removeAttribute("aria-disabled");
@@ -155,6 +169,32 @@ export const PageGuard = {
         };
       }
     });
+
+    // Subitems del sidebar (por ejemplo, submódulos de /social)
+    const subitems = document.querySelectorAll(".nav-subitem[data-roles]");
+    let hasVisibleSub = false;
+    subitems.forEach((item) => {
+      const rolesStr = item.getAttribute("data-roles") || "";
+      const rolesList = rolesStr.split(",").map((r) => r.trim());
+      const permitido = rolesList.length === 0 || rolesList.includes(rol);
+
+      if (permitido) {
+        item.style.display = "flex";
+        item.classList.remove("role-restricted");
+        item.removeAttribute("aria-disabled");
+        item.removeAttribute("data-restricted-reason");
+        item.onclick = null;
+        hasVisibleSub = true;
+      } else {
+        // Desaparece por completo para los roles que no tienen acceso
+        item.style.display = "none";
+      }
+    });
+
+    const subGroup = document.getElementById("socialSubmenuGroup");
+    if (subGroup) {
+      subGroup.style.display = hasVisibleSub ? "flex" : "none";
+    }
   },
 
   /** Aviso breve. Usa el sistema de notificaciones si ya esta montado. */

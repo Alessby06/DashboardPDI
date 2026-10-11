@@ -325,22 +325,6 @@
         box-sizing: border-box !important;
       }
 
-      #dropdownSocialFilterPanel .audit-filters-menu {
-        position: absolute !important;
-        top: calc(100% + 6px) !important;
-        right: 0 !important;
-        left: auto !important;
-        width: 310px !important;
-        min-width: 300px !important;
-        max-width: calc(100vw - 28px) !important;
-        background: var(--surface-1) !important;
-        border: 1px solid var(--border-bright) !important;
-        border-radius: var(--radius-md) !important;
-        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45) !important;
-        padding: 14px 16px !important;
-        z-index: 9999 !important;
-        box-sizing: border-box !important;
-      }
 
       .kanban-board {
         flex-direction: column;
@@ -550,6 +534,371 @@
       background: var(--gt-blue-bg) !important;
       color: var(--gt-blue) !important;
       border: 1px solid var(--gt-blue-border) !important;
+    }
+
+    .kanban-card .badge-purple {
+      background: rgba(168, 85, 247, 0.14) !important;
+      color: #c084fc !important;
+      border: 1px solid rgba(168, 85, 247, 0.3) !important;
+    }
+
+    /* Solicitud de cambio en proceso */
+    .kanban-card.en-proceso-autorizacion {
+      border-color: rgba(245, 158, 11, 0.45) !important;
+      background: linear-gradient(180deg, rgba(245, 158, 11, 0.04) 0%, rgba(24, 27, 37, 1) 100%) !important;
+    }
+
+    [data-theme="light"] .kanban-card.en-proceso-autorizacion {
+      border-color: rgba(217, 119, 6, 0.4) !important;
+      background: linear-gradient(180deg, rgba(254, 243, 199, 0.5) 0%, #ffffff 100%) !important;
+    }
+
+    .kanban-card-pending-notice {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 9px;
+      border-radius: 6px;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px dashed rgba(245, 158, 11, 0.38);
+      color: #fbbf24;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.3;
+      margin-top: 2px;
+    }
+
+    [data-theme="light"] .kanban-card-pending-notice {
+      background: #fef3c7;
+      border-color: #f59e0b;
+      color: #b45309;
+    }
+
+    .kanban-card-pending-notice svg {
+      flex-shrink: 0;
+      animation: spinSlow 4s linear infinite;
+    }
+
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Selector de pestañas / Subsecciones Sociales */
+    .social-view-tabs {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .social-tab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 14px;
+      font-size: 12.5px;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+      background: var(--surface-1);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all var(--dur-fast) var(--ease-smooth);
+    }
+
+    .social-tab-btn:hover {
+      background: var(--surface-hover);
+      color: var(--text-main);
+      border-color: var(--border-hover);
+    }
+
+    .social-tab-btn.active {
+      background: var(--brand-primary);
+      color: #fff;
+      border-color: var(--brand-primary);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    [data-theme="light"] .social-tab-btn.active {
+      background: var(--brand-primary);
+      color: #fff;
+    }
+
+    /* Subvistas de /social */
+    .social-subview-panel {
+      display: none;
+    }
+
+    .social-subview-panel.active {
+      display: block;
+      animation: fadeIn var(--dur-normal) var(--ease-smooth);
+    }
+
+    /* Tarjetas y Contenedores de Autorizaciones y Solicitudes */
+    .social-subview-card {
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .social-subview-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .social-subview-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .social-subview-icon-box {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .social-subview-icon-box.amber {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: #fbbf24;
+    }
+
+    .social-subview-icon-box.blue {
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: #60a5fa;
+    }
+
+    .social-stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .social-stat-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .social-stat-label {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .social-stat-val {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .social-requests-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .social-request-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: border-color var(--dur-fast) var(--ease-smooth);
+    }
+
+    .social-request-card:hover {
+      border-color: var(--border-hover);
+    }
+
+    .social-request-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .auth-transition-flow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .auth-phase-tag {
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+
+    .auth-phase-tag.from {
+      background: rgba(148, 163, 184, 0.15);
+      color: var(--text-dim);
+    }
+
+    .auth-phase-tag.to {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    [data-theme="light"] .auth-phase-tag.to {
+      color: #d97706;
+    }
+
+    .auth-justification-box {
+      background: var(--surface-1);
+      border-left: 3px solid #f59e0b;
+      padding: 9px 12px;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: 12px;
+      color: var(--text-main);
+    }
+
+    .coordination-feedback-box {
+      background: var(--surface-1);
+      border-left: 3px solid var(--brand-primary);
+      padding: 9px 12px;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: 12px;
+      color: var(--text-main);
+    }
+
+    .coordination-feedback-box.aprobada {
+      border-left-color: #22c55e;
+      background: rgba(34, 197, 94, 0.05);
+    }
+
+    .coordination-feedback-box.rechazada {
+      border-left-color: #ef4444;
+      background: rgba(239, 68, 68, 0.05);
+    }
+
+    /* Banner de Solicitudes Pendientes para Coordinación */
+    .social-pending-approvals-card {
+      background: var(--surface-1);
+      border: 1px solid rgba(245, 158, 11, 0.32);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      margin-bottom: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    .social-pending-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .social-pending-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .social-pending-icon-box {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fbbf24;
+      flex-shrink: 0;
+    }
+
+    [data-theme="light"] .social-pending-icon-box {
+      color: #d97706;
+    }
+
+    .social-pending-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .social-pending-subtitle {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .social-pending-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .social-pending-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--surface-2);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 9px 12px;
+      flex-wrap: wrap;
+    }
+
+    .social-pending-item-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .social-pending-item-details {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .social-pending-item-meta {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .social-pending-item-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: auto;
     }
 
     /* Meta: Código PDI + Sede con distribución compacta */

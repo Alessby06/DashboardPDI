@@ -68,6 +68,24 @@ export const PAGINAS = {
     allowedRoles: ["coord", "social", "admin"],
   },
 
+  "social-autorizaciones": {
+    ruta: "/social?tab=autorizaciones",
+    etiqueta: "Autorizaciones ASP",
+    view: "view-social-autorizaciones",
+    grupo: "Operación",
+    enMenu: true,
+    allowedRoles: ["coord", "admin"],
+  },
+
+  "social-solicitudes": {
+    ruta: "/social?tab=mis-solicitudes",
+    etiqueta: "Mis Solicitudes ASP",
+    view: "view-social-solicitudes",
+    grupo: "Operación",
+    enMenu: true,
+    allowedRoles: ["social"],
+  },
+
   sedes: {
     ruta: "/sedes",
     etiqueta: "Sedes e Iglesias",

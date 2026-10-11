@@ -1073,7 +1073,7 @@ export const BeneficiariosView = {
       } else {
         tbody.innerHTML = beneficiarios.map(b => `
           <tr>
-            <td><strong style="font-family:var(--mono-font); color:var(--text-brand);">${escapar(b.codigo)}</strong></td>
+            <td title="${escapar(b.codigo)}"><strong style="font-family:var(--mono-font); color:var(--text-brand);">${escapar(b.codigo)}</strong></td>
             <td><strong>${escapar(b.nombres)} ${escapar(b.apellidos)}</strong></td>
             <td style="text-align: center;">${escapar(b.dni)}</td>
             <td style="text-align: center;">${escapar(b.edad)} / ${escapar(b.sexo)}</td>

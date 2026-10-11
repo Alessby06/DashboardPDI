@@ -8,13 +8,14 @@ import '../styles/views-social.css';
           <div class="view-header">
             <div class="view-title-group">
               <h2>Área Social Pastoral (ASP): Derivaciones y Vulnerabilidad</h2>
-              <p>Bandeja de casos sociales clasificados y simulador interactivo de evaluación socioeconómica paramétrica
-                (0-100%).</p>
+              <p>Bandeja de casos sociales clasificados, solicitudes de cambio de estado y simulador socioeconómico paramétrico (0-100%).</p>
             </div>
           </div>
 
-          <!-- Barra de Búsqueda y Filtros de Casos Sociales -->
-          <div class="card"
+          <!-- SUBVISTA 1: Tablero Kanban y Simulador -->
+          <div class="social-subview-panel active" id="viewSocialKanban">
+            <!-- Barra de Búsqueda y Filtros de Casos Sociales -->
+            <div class="card"
             style="margin-bottom: 14px; padding: 12px 16px; position: relative; z-index: 80; overflow: visible;">
             <div class="sedes-controls-row"
               style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
@@ -59,8 +60,14 @@ import '../styles/views-social.css';
                         </svg>
                         <span>Filtros de Casos Sociales</span>
                       </div>
-                      <button type="button" class="btn-text-subtle"
-                        onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.clearFilters() : null">Restablecer</button>
+                      <div class="audit-filters-header-actions">
+                        <button type="button" class="btn-text-subtle"
+                          onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.clearFilters() : null">Restablecer</button>
+                        <button type="button" class="btn-close-sheet" aria-label="Cerrar filtros"
+                          onclick="window.closeAllFilterSheets ? window.closeAllFilterSheets() : null">
+                          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                      </div>
                     </div>
 
                     <div class="audit-filters-body">
@@ -215,6 +222,15 @@ import '../styles/views-social.css';
                           </div>
                         </div>
                       </div>
+                    </div>
+
+                    <!-- Footer fijo móvil con botón para aplicar y cerrar el Bottom Sheet -->
+                    <div class="audit-filters-footer">
+                      <button type="button" class="btn-action primary btn-apply-filters"
+                        onclick="window.closeAllFilterSheets ? window.closeAllFilterSheets() : null">
+                        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                        <span>Aplicar Filtros</span>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -693,10 +709,115 @@ import '../styles/views-social.css';
                             seguimiento.</span>
                         </li>
                       </ul>
-                    </div>
+                    </div> <!-- Fin recomendaciones -->
+                  </div> <!-- Fin #containerResultadoSocioeconomico -->
+                </div> <!-- Fin #simuladorSocioBody -->
+              </div> <!-- Fin #cardSimuladorVulnerabilidad -->
+            </div> <!-- Fin #viewSocialKanban -->
+
+          <!-- ======================================================== -->
+          <!-- SUBVISTA 2: Bandeja de Autorizaciones Pendientes (Coord) -->
+          <!-- ======================================================== -->
+          <div class="social-subview-panel" id="viewSocialAutorizaciones">
+            <div class="social-subview-card">
+              <div class="social-subview-header">
+                <div class="social-subview-title-group">
+                  <div class="social-subview-icon-box amber">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 style="font-size: 15px; font-weight: 700; color: var(--text-main); margin: 0;">
+                      Bandeja de Autorizaciones de Transición de Fase
+                    </h3>
+                    <p style="font-size: 12px; color: var(--text-muted); margin: 2px 0 0 0;">
+                      Solicitudes presentadas por el equipo de campo y trabajadoras sociales que requieren aprobación formal de Coordinación General.
+                    </p>
                   </div>
                 </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <button type="button" class="btn-action" onclick="window.PDI?.SocialKanbanView?.switchSocialTab('kanban')">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                    </svg>
+                    <span>Volver al Tablero</span>
+                  </button>
+                  <button type="button" class="btn-action" onclick="window.PDI?.SocialKanbanView?.renderVistaAutorizaciones()">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                    </svg>
+                    <span>Actualizar</span>
+                  </button>
+                </div>
               </div>
+
+              <!-- Lista dinámica de autorizaciones pendientes -->
+              <div id="containerListaAutorizacionesPendientes"></div>
+            </div>
+          </div>
+
+          <!-- ======================================================== -->
+          <!-- SUBVISTA 3: Estado de Solicitudes (Operativo)             -->
+          <!-- ======================================================== -->
+          <div class="social-subview-panel" id="viewSocialMisSolicitudes">
+            <div class="social-subview-card">
+              <div class="social-subview-header">
+                <div class="social-subview-title-group">
+                  <div class="social-subview-icon-box blue">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 style="font-size: 15px; font-weight: 700; color: var(--text-main); margin: 0;">
+                      Historial y Estado de Solicitudes de Fase
+                    </h3>
+                    <p style="font-size: 12px; color: var(--text-muted); margin: 2px 0 0 0;">
+                      Seguimiento de solicitudes enviadas, veredictos de Coordinación y motivos o comentarios de retroalimentación.
+                    </p>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <button type="button" class="btn-action" onclick="window.PDI?.SocialKanbanView?.switchSocialTab('kanban')">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                    </svg>
+                    <span>Volver al Tablero</span>
+                  </button>
+                  <button type="button" class="btn-action" onclick="window.PDI?.SocialKanbanView?.renderVistaMisSolicitudes()">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                    </svg>
+                    <span>Actualizar</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Estadísticas rápidas -->
+              <div class="social-stats-row">
+                <div class="social-stat-card">
+                  <span class="social-stat-label">Total Solicitudes</span>
+                  <span class="social-stat-val" id="statMisSolicitudesTotal">0</span>
+                </div>
+                <div class="social-stat-card">
+                  <span class="social-stat-label">Pendientes de Revisión</span>
+                  <span class="social-stat-val text-medio" id="statMisSolicitudesPendientes">0</span>
+                </div>
+                <div class="social-stat-card">
+                  <span class="social-stat-label">Aprobadas</span>
+                  <span class="social-stat-val text-favorable" id="statMisSolicitudesAprobadas">0</span>
+                </div>
+                <div class="social-stat-card">
+                  <span class="social-stat-label">Rechazadas / Observadas</span>
+                  <span class="social-stat-val text-critico" id="statMisSolicitudesRechazadas">0</span>
+                </div>
+              </div>
+
+              <!-- Lista dinámica del historial de solicitudes -->
+              <div id="containerListaMisSolicitudes"></div>
+            </div>
+          </div>
         </section>
 
   <script>

@@ -454,6 +454,15 @@
       display: none !important;
     }
 
+    /* Ocultamiento absoluto para ítems de workflow exclusivos (sin grisáceo, no existen para roles no autorizados) */
+    html[data-user-role="social"] .nav-btn[data-hide-unauthorized]:not([data-roles*="social"]),
+    html[data-user-role="coord"] .nav-btn[data-hide-unauthorized]:not([data-roles*="coord"]),
+    html[data-user-role="admin"] .nav-btn[data-hide-unauthorized]:not([data-roles*="admin"]),
+    html[data-user-role="facilitadora"] .nav-btn[data-hide-unauthorized],
+    html[data-user-role="promotora"] .nav-btn[data-hide-unauthorized] {
+      display: none !important;
+    }
+
     .nav-badge {
       margin-left: auto;
       flex-shrink: 0;

@@ -283,20 +283,39 @@ export async function hidratarDesdeSurreal() {
       return;
     }
 
+    // #region DEBUG
+    const _prevConSol = (window.PDI?.CasoSocialModel?._data || []).filter(c => c.solicitudCambio).length;
+    // #endregion DEBUG
+
     // Actualizar almacenamiento local
     localStorage.setItem('pdi_beneficiarios', JSON.stringify(beneficiarios));
-    localStorage.setItem('pdi_casos_sociales', JSON.stringify(casos));
 
-    // Actualizar modelos en memoria
+    // Actualizar modelos en memoria respetando integridad y persistencia de solicitudes
     if (window.PDI?.BeneficiarioModel) {
       window.PDI.BeneficiarioModel._data = beneficiarios;
     }
-    if (window.PDI?.CasoSocialModel) {
+    if (window.PDI?.CasoSocialModel?.actualizarDesdeRemoto) {
+      window.PDI.CasoSocialModel.actualizarDesdeRemoto(casos);
+    } else if (window.PDI?.CasoSocialModel) {
       window.PDI.CasoSocialModel._data = casos;
+      localStorage.setItem('pdi_casos_sociales', JSON.stringify(casos));
+    } else {
+      localStorage.setItem('pdi_casos_sociales', JSON.stringify(casos));
     }
     if (window.PDI?.SedeModel) {
       window.PDI.SedeModel._sedes = sedes;
     }
+
+    // #region DEBUG
+    const _newConSol = (window.PDI?.CasoSocialModel?._data || []).filter(c => c.solicitudCambio).length;
+    try {
+      fetch('http://127.0.0.1:4322/debug', {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: `[DEBUG H1] hidratarDesdeSurreal finalizado CON PRESERVACIÓN. Casos remotos recibidos=${casos.length}, previa cantidad con solicitud=${_prevConSol}, cantidad preservada post-sync=${_newConSol}`
+      }).catch(() => {});
+    } catch(e) {}
+    // #endregion DEBUG
 
     console.log('[PDI] Sincronización exitosa con SurrealDB Cloud:',
       beneficiarios.length, 'beneficiarios,',

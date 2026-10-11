@@ -270,6 +270,7 @@ window.toggleAuditLegalInfo = (e) => {
 //  DashboardView se limita a delegar.
 window.toggleCustomDropdown = (id) => Dropdown.alternar(id);
 window.toggleInnerFilterDropdown = (id) => Dropdown.alternarInterno(id);
+window.closeAllFilterSheets = () => Dropdown.cerrarHojasFiltro();
 
 // Puente a un metodo de una vista registrada en window.PDI. Se resuelve en la
 // llamada, no al definir el puente: la vista se cuelga de PDI al importarse, y
@@ -356,8 +357,13 @@ window.filterPadronBySede = (sedeName) => {
  * acumulan como en la SPA.
  */
 document.addEventListener("click", (e) => {
+  // Cierre al pulsar sobre el backdrop oscurecido en móvil (el pseudo-elemento ::before pertenece al contenedor .audit-filters-dropdown)
+  if (e.target.classList.contains("audit-filters-dropdown") && e.target.classList.contains("open") && !e.target.closest(".audit-filters-menu") && !e.target.closest(".audit-filter-btn")) {
+    Dropdown.cerrarHojasFiltro();
+    return;
+  }
   if (!e.target.closest(".custom-dropdown")) {
-    document.querySelectorAll(".custom-dropdown.open").forEach((d) => d.classList.remove("open"));
+    Dropdown.cerrarHojasFiltro();
   }
   if (!e.target.closest(".padron-inner-dropdown")) {
     document.querySelectorAll(".padron-inner-dropdown.open").forEach((d) => d.classList.remove("open"));
@@ -369,10 +375,14 @@ document.addEventListener("click", (e) => {
 
 document.addEventListener("keydown", (e) => {
   if (e.key !== "Escape") return;
-  document.querySelectorAll(".custom-dropdown.open").forEach((d) => d.classList.remove("open"));
+  Dropdown.cerrarHojasFiltro();
   document.querySelectorAll(".padron-inner-dropdown.open").forEach((d) => d.classList.remove("open"));
   document.getElementById("wrapAuditLegalPopover")?.classList.remove("open");
   document.getElementById("modalConfirmExportAudit")?.classList.remove("active");
+});
+
+document.addEventListener("astro:after-swap", () => {
+  document.body.classList.remove("filter-sheet-open");
 });
 
 if (typeof window !== "undefined") {

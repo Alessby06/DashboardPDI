@@ -817,6 +817,20 @@
           <div style="font-size: 12.5px; color: var(--text-muted);" id="modalCasoAccionesPrevias">Prescripción de
             sulfato ferroso y primera visita domiciliaria preliminar en El Progreso.</div>
         </div>
+
+        <!-- Estado de Autorización de Coordinación y Trazabilidad de Solicitudes -->
+        <div id="modalCasoSeccionAutorizacion" style="display: none; background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px 14px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+            <div style="font-size: 11.5px; text-transform: uppercase; font-weight: 700; color: var(--text-dim); letter-spacing: 0.5px;">
+              Autorización de Coordinación / Historial de Solicitudes
+            </div>
+            <span id="modalCasoBadgeAutorizacion" class="badge badge-yellow">En Proceso</span>
+          </div>
+          <div id="modalCasoDetalleSolicitudActiva" style="font-size: 12.5px; color: var(--text-main); line-height: 1.45; background: var(--surface-2); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-bottom: 8px;">
+          </div>
+          <div id="modalCasoHistorialSolicitudesLista" style="font-size: 11.5px; color: var(--text-muted); display: flex; flex-direction: column; gap: 6px;">
+          </div>
+        </div>
       </div>
 
       <div class="modal-footer modal-caso-footer">
@@ -841,6 +855,203 @@
 
         <div id="modalCasoDynamicActions" class="modal-caso-footer-right">
           <!-- Botones dinámicos inyectados por JS según etapa -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL: SOLICITUD DE CAMBIO DE ESTADO DE DERIVACIÓN (ÁREA SOCIAL)
+       ========================================== -->
+  <div class="modal-backdrop" id="modalSolicitarCambioEtapa">
+    <div class="modal-box" style="max-width: 540px; width: 92%;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div
+            style="width: 38px; height: 38px; border-radius: var(--radius-md); background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); display: flex; align-items: center; justify-content: center; color: #fbbf24; flex-shrink: 0;">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            </svg>
+          </div>
+          <div>
+            <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-main);">
+              Solicitar Autorización de Cambio de Fase
+            </h3>
+            <p style="margin: 2px 0 0; font-size: 12px; color: var(--text-muted);">
+              Esta acción será enviada al rol Coordinación para su aprobación o rechazo
+            </p>
+          </div>
+        </div>
+        <button type="button" class="btn-close-modal"
+          onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.cerrarModalSolicitarCambio() : null"
+          aria-label="Cerrar modal">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body" style="padding: 18px 20px; display: flex; flex-direction: column; gap: 14px;">
+        <input type="hidden" id="solicitudCasoId" value="" />
+        <input type="hidden" id="solicitudNuevaEtapa" value="" />
+
+        <div style="background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 12px 14px;">
+          <div style="font-size: 13px; font-weight: 700; color: var(--text-main);" id="solicitudMenorNombre">
+            Liam Mateo Sanchez Diaz
+          </div>
+          <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">
+            Código: <strong id="solicitudCodigo" style="font-family: var(--mono-font); color: var(--text-brand);">PDI-2026-003</strong>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 10px 14px;">
+          <div>
+            <span style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-dim); display: block;">Fase Actual</span>
+            <span id="solicitudEtapaOrigenBadge" class="badge badge-gray">Pendiente</span>
+          </div>
+          <div style="color: var(--text-dim);">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </div>
+          <div style="text-align: right;">
+            <span style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-dim); display: block;">Fase Solicitada</span>
+            <span id="solicitudEtapaDestinoBadge" class="badge badge-yellow">Evaluación</span>
+          </div>
+        </div>
+
+        <div>
+          <label for="solicitudMotivoInput" style="display: block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 6px;">
+            Justificación o Motivo del Cambio de Fase <span style="color: var(--text-dim); font-weight: 400;">(Requerido para Coordinación)</span>:
+          </label>
+          <textarea id="solicitudMotivoInput" class="form-control" rows="3"
+            placeholder="Detalla las razones del cambio (ej: Se completó visita domiciliaria, requiere canalización a DEMUNA por riesgo, etc.)..."
+            style="width: 100%; box-sizing: border-box; resize: vertical; font-size: 12.5px;"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 10px; padding: 12px 20px;">
+        <button type="button" class="btn-action btn-secondary"
+          onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.cerrarModalSolicitarCambio() : null">
+          Cancelar
+        </button>
+        <button type="button" class="btn-action primary"
+          onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.confirmarSolicitudCambio() : null">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+          </svg>
+          <span>Enviar Solicitud a Coordinación</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL: RESOLVER AUTORIZACIÓN (APROBAR / RECHAZAR POR COORDINACIÓN)
+       ========================================== -->
+  <div class="modal-backdrop" id="modalResolverSolicitudCambio">
+    <div class="modal-box" style="max-width: 580px; width: 92%;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div
+            style="width: 38px; height: 38px; border-radius: var(--radius-md); background: rgba(0, 180, 148, 0.15); border: 1px solid var(--gt-green-border); display: flex; align-items: center; justify-content: center; color: var(--text-brand); flex-shrink: 0;">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9 12.75L11.25 15 15 9.75M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" />
+            </svg>
+          </div>
+          <div>
+            <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-main);">
+              Autorización de Transición de Derivación
+            </h3>
+            <p style="margin: 2px 0 0; font-size: 12px; color: var(--text-muted);">
+              Rol: Dirección y Coordinación General
+            </p>
+          </div>
+        </div>
+        <button type="button" class="btn-close-modal"
+          onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.cerrarModalResolverSolicitud() : null"
+          aria-label="Cerrar modal">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body" style="padding: 18px 20px; display: flex; flex-direction: column; gap: 14px;">
+        <input type="hidden" id="resolverCasoId" value="" />
+
+        <div style="background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 12px 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+            <strong style="font-size: 13.5px; color: var(--text-main);" id="resolverMenorNombre">
+              Liam Mateo Sanchez Diaz
+            </strong>
+            <span class="badge badge-blue" id="resolverCodigoBadge">PDI-2026-003</span>
+          </div>
+          <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">
+            Solicitado por: <span id="resolverSolicitante" style="color: var(--text-main); font-weight: 600;">Lic. Ruth Soto</span>
+            &bull; <span id="resolverFechaSolicitud">2026-10-09</span>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 10px 14px;">
+          <div>
+            <span style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-dim); display: block;">Fase Actual</span>
+            <span id="resolverEtapaOrigenBadge" class="badge badge-gray">Pendiente</span>
+          </div>
+          <div style="color: var(--text-dim);">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </div>
+          <div style="text-align: right;">
+            <span style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-dim); display: block;">Fase a Autorizar</span>
+            <span id="resolverEtapaDestinoBadge" class="badge badge-yellow">Evaluación</span>
+          </div>
+        </div>
+
+        <!-- Motivo expuesto por la trabajadora social -->
+        <div style="background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 10px 12px;">
+          <span style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-dim); display: block; margin-bottom: 4px;">
+            Justificación enviada por el solicitante:
+          </span>
+          <div id="resolverMotivoTexto" style="font-size: 12.5px; color: var(--text-main); line-height: 1.45;">
+            -
+          </div>
+        </div>
+
+        <!-- Comentario de respuesta de Coordinación -->
+        <div>
+          <label for="resolverComentarioInput" style="display: block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 6px;">
+            Respuesta / Comentario de Coordinación <span style="color: var(--text-dim); font-weight: 400;">(Opcional para aprobación, recomendado para rechazo)</span>:
+          </label>
+          <textarea id="resolverComentarioInput" class="form-control" rows="3"
+            placeholder="Escribe si aún no se puede proceder, falta documentación de visita, o visto bueno de dirección..."
+            style="width: 100%; box-sizing: border-box; resize: vertical; font-size: 12.5px;"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 20px;">
+        <button type="button" class="btn-action btn-secondary"
+          onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.cerrarModalResolverSolicitud() : null">
+          Cancelar
+        </button>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn-action btn-danger"
+            onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.ejecutarResolucion('rechazada') : null">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            <span>Rechazar Solicitud</span>
+          </button>
+          <button type="button" class="btn-action success"
+            onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.ejecutarResolucion('aprobada') : null">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+            <span>Aprobar y Cambiar Fase</span>
+          </button>
         </div>
       </div>
     </div>

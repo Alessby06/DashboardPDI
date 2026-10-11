@@ -13,6 +13,8 @@ const navItems = [
   { href: '/salud', page: 'salud', view: 'view-salud', label: 'Servicio Alimentario Nutricional', roles: 'coord,facilitadora,admin', icon: 'salud' },
   { href: '/educativo', page: 'educativo', view: 'view-educativo', label: 'Casita del Saber', roles: 'coord,promotora,admin', icon: 'educativo' },
   { href: '/social', page: 'social', view: 'view-social', label: 'Área Social Pastoral', roles: 'coord,social,admin', icon: 'social', badgeId: 'badgeCasosCriticos', badgeVal: '4', badgeDanger: true },
+  { href: '/social?tab=autorizaciones', page: 'social-autorizaciones', view: 'view-social-autorizaciones', label: 'Autorizaciones ASP', roles: 'coord,admin', icon: 'autorizaciones', badgeId: 'badgeSolicitudesPendientes', badgeVal: '0', badgeAmber: true, hideUnauthorized: true, subview: 'autorizaciones' },
+  { href: '/social?tab=mis-solicitudes', page: 'social-solicitudes', view: 'view-social-solicitudes', label: 'Mis Solicitudes ASP', roles: 'social', icon: 'solicitudes', badgeId: 'badgeMisSolicitudesTotal', badgeVal: '0', hideUnauthorized: true, subview: 'mis-solicitudes' },
   { href: '/sedes', page: 'sedes', view: 'view-sedes', label: 'Sedes e Iglesias', roles: 'coord,facilitadora,promotora,admin', icon: 'sedes' },
   { href: '/voluntariados', page: 'voluntariados', view: 'view-voluntarios', label: 'Voluntariados', roles: 'coord,facilitadora,promotora,social,admin', icon: 'voluntariados', badgeId: 'badgeTotalVoluntarios', badgeVal: '8' },
   { section: 'Auditoría' },
@@ -68,6 +70,8 @@ const navItems = [
             class={`nav-btn ${isActive ? 'active' : ''}`}
             data-view={item.view}
             data-page={item.page}
+            data-subview={item.subview}
+            data-hide-unauthorized={item.hideUnauthorized ? 'true' : undefined}
             data-tooltip={item.label}
             data-roles={item.roles}
             data-astro-prefetch
@@ -100,6 +104,16 @@ const navItems = [
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
               </svg>
             )}
+            {item.icon === 'autorizaciones' && (
+              <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            )}
+            {item.icon === 'solicitudes' && (
+              <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            )}
             {item.icon === 'sedes' && (
               <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -125,9 +139,9 @@ const navItems = [
             <span>{item.label}</span>
             {item.badgeId && (
               <span
-                class="nav-badge"
+                class={`nav-badge ${item.badgeAmber ? 'badge-amber' : ''}`}
                 id={item.badgeId}
-                style={item.badgeDanger ? 'background: var(--gt-red-bg); color: var(--text-danger); border-color: var(--gt-red-border);' : undefined}
+                style={item.badgeDanger ? 'background: var(--gt-red-bg); color: var(--text-danger); border-color: var(--gt-red-border);' : (item.badgeAmber ? 'display: none; background: var(--gt-amber-bg, rgba(245, 158, 11, 0.12)); color: var(--text-warning, #f59e0b); border-color: var(--gt-amber-border, rgba(245, 158, 11, 0.3));' : (item.page === 'social-solicitudes' ? 'display: none;' : undefined))}
               >
                 {item.badgeVal}
               </span>
@@ -161,25 +175,67 @@ const navItems = [
   .nav-btn-logout:active {
     transform: scale(0.98);
   }
+
+  /* Badge ámbar para solicitudes pendientes */
+  .nav-badge.badge-amber {
+    background: var(--gt-amber-bg, rgba(245, 158, 11, 0.12)) !important;
+    color: var(--text-warning, #f59e0b) !important;
+    border-color: var(--gt-amber-border, rgba(245, 158, 11, 0.3)) !important;
+  }
 </style>
 
 <script is:inline>
   (function () {
     try {
       var rol = localStorage.getItem("pdi_active_role") || "coord";
-      var btns = document.querySelectorAll("#sidebarNav .nav-btn[data-roles]");
+      var btns = document.querySelectorAll("#sidebarNav [data-roles]");
+
       btns.forEach(function (btn) {
         var rolesStr = btn.getAttribute("data-roles") || "";
         var rolesList = rolesStr.split(",").map(function (r) { return r.trim(); });
-        if (rolesList.length > 0 && rolesList.indexOf(rol) === -1) {
-          btn.classList.add("role-restricted");
-          btn.setAttribute("aria-disabled", "true");
-          btn.onclick = function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-          };
+        var permitido = rolesList.length === 0 || rolesList.indexOf(rol) !== -1;
+
+        if (btn.hasAttribute("data-hide-unauthorized")) {
+          btn.style.display = permitido ? "flex" : "none";
+        } else {
+          if (!permitido) {
+            btn.classList.add("role-restricted");
+            btn.setAttribute("aria-disabled", "true");
+            btn.onclick = function (e) {
+              e.preventDefault();
+              e.stopPropagation();
+            };
+          }
         }
       });
+
+      // Sincronización instantánea de active state para subrutas por parámetro (?tab=)
+      if (window.location.pathname.indexOf("/social") !== -1) {
+        var params = new URLSearchParams(window.location.search);
+        var tab = params.get("tab");
+        var btnSocial = document.querySelector('#sidebarNav .nav-btn[data-page="social"]');
+        var btnAut = document.querySelector('#sidebarNav .nav-btn[data-subview="autorizaciones"]');
+        var btnMisSol = document.querySelector('#sidebarNav .nav-btn[data-subview="mis-solicitudes"]');
+
+        if (tab === "autorizaciones" && btnAut) {
+          if (btnSocial) btnSocial.classList.remove("active");
+          btnAut.classList.add("active");
+        } else if (tab === "mis-solicitudes" && btnMisSol) {
+          if (btnSocial) btnSocial.classList.remove("active");
+          btnMisSol.classList.add("active");
+        }
+      }
+
+      // #region DEBUG
+      var activeEl = document.querySelector("#sidebarNav .nav-btn.active");
+      try {
+        fetch('http://127.0.0.1:4322/debug', {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: `[DEBUG H2] Sidebar is:inline ejecutado. URL=${window.location.pathname + window.location.search}, rol=${rol}, activeElement=${activeEl ? activeEl.getAttribute('data-page') : 'NINGUNO'}`
+        }).catch(function () {});
+      } catch (e) {}
+      // #endregion DEBUG
     } catch (e) {}
   })();
 </script>
@@ -198,6 +254,28 @@ const navItems = [
     }
   }
 
+  function bindSocialNavInteractions() {
+    const navBtns = document.querySelectorAll('#sidebarNav .nav-btn[data-subview], #sidebarNav .nav-btn[data-page="social"]');
+    navBtns.forEach((btn) => {
+      if (btn._socialNavBound) return;
+      btn._socialNavBound = true;
+      btn.addEventListener('click', (e) => {
+        if (btn.classList.contains('role-restricted')) return;
+        if (window.location.pathname.includes('/social')) {
+          e.preventDefault();
+          const subview = btn.getAttribute('data-subview') || 'kanban';
+          if (window.PDI?.SocialKanbanView) {
+            window.PDI.SocialKanbanView.switchSocialTab(subview);
+          }
+        }
+      });
+    });
+  }
+
   bindLogout();
-  document.addEventListener('astro:page-load', bindLogout);
+  bindSocialNavInteractions();
+  document.addEventListener('astro:page-load', () => {
+    bindLogout();
+    bindSocialNavInteractions();
+  });
 </script>
