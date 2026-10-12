@@ -2960,11 +2960,6 @@
     padding: 10px 0 !important;
     gap: 10px !important;
   }
-
-  #view-voluntarios #voluntariosRecordsCount {
-    padding: 8px 12px !important;
-    font-size: 11.5px !important;
-  }
 }
 
 @media (max-width: 420px) {
@@ -3044,15 +3039,6 @@
 
 #cardVoluntariosPadron .audit-toolbar {
   padding: 14px 18px;
-}
-
-#cardVoluntariosPadron #voluntariosRecordsCount {
-  padding: 9px 18px;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-dim);
-  border-bottom: 1px solid var(--border-subtle);
-  background: var(--surface-1);
 }
 
 /* --- TABLA PC: CELDAS Y ELEMENTOS --- */
@@ -3493,11 +3479,6 @@
 }
 
 [data-theme="dark"] #cardVoluntariosPadron .audit-toolbar {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-}
-
-[data-theme="dark"] #cardVoluntariosPadron #voluntariosRecordsCount {
-  background: rgba(255, 255, 255, 0.015) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
 }
 

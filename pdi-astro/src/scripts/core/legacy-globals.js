@@ -95,27 +95,131 @@ window.openModalNuevoMenor = () => ModalView.openNuevoMenor();
 window.openModalNuevoBeneficiario = () => ModalView.openNuevoMenor();
 window.closeModalNuevoMenor = () => ModalView.closeNuevoMenor();
 window.closeModalAuditDetail = () => ModalView.closeAuditDetail();
-window.openModalExportAudit = () => {
+let _currentExportHandler = null;
+
+window.openModalExportGeneric = (config) => {
   const modal = document.getElementById("modalConfirmExportAudit");
-  const countBadge = document.getElementById("exportAuditCountBadge");
-  const dv = window.PDI?.DashboardView;
-  const logs = dv?._filteredAuditLogs || dv?._currentAuditLogs || [];
-  if (countBadge) countBadge.textContent = `${logs.length} eventos`;
+  const titleEl = document.getElementById("exportAuditModalTitle");
+  const subEl = document.getElementById("exportAuditModalSubtitle");
+  const descEl = document.getElementById("exportAuditModalDesc");
+  const badgeEl = document.getElementById("exportAuditCountBadge");
+  const legalEl = document.getElementById("exportAuditModalLegal");
+  const btnConfirm = document.getElementById("btnConfirmExportAudit");
+
+  if (titleEl && config.title) titleEl.textContent = config.title;
+  if (subEl && config.subtitle) subEl.textContent = config.subtitle;
+  if (descEl && config.description) descEl.innerHTML = config.description;
+  if (legalEl && config.legal) legalEl.textContent = config.legal;
+
+  const count = typeof config.count === "number" ? config.count : 0;
+  if (badgeEl) badgeEl.textContent = `${count} ${config.unit || "registros"}`;
+
+  if (btnConfirm) {
+    if (count === 0) {
+      btnConfirm.disabled = true;
+      btnConfirm.style.opacity = "0.5";
+      btnConfirm.style.cursor = "not-allowed";
+      btnConfirm.title = "No hay registros disponibles para exportar";
+    } else {
+      btnConfirm.disabled = false;
+      btnConfirm.style.opacity = "";
+      btnConfirm.style.cursor = "";
+      btnConfirm.title = "";
+    }
+  }
+
+  _currentExportHandler = config.onConfirm;
+
   if (modal) {
     modal.classList.add("active");
     modal.classList.add("open");
   }
 };
+
+window.openModalExportAudit = () => {
+  const dv = window.PDI?.DashboardView;
+  const logs = dv?._filteredAuditLogs || dv?._currentAuditLogs || (window.PDI?.AuditModel?.getAll ? window.PDI.AuditModel.getAll() : []);
+  window.openModalExportGeneric({
+    title: "Descarga de Bitácora de Auditoría",
+    subtitle: "Confirmación de generación de reporte forense",
+    description: `Se generará un archivo consolidado en formato <strong style="font-family: var(--mono-font); color: var(--text-brand);">.CSV</strong> con la trazabilidad completa de eventos registrados.`,
+    count: logs.length,
+    unit: "eventos",
+    legal: "Ley N.° 29733 (Datos Personales)",
+    onConfirm: () => {
+      window.PDI?.AppController?.exportAuditCSV?.(logs);
+    }
+  });
+};
+
+window.openModalExportPadron = () => {
+  const bv = window.PDI?.BeneficiariosView;
+  const list = bv?._filteredBeneficiarios || (window.PDI?.BeneficiarioModel?.getAll ? window.PDI.BeneficiarioModel.getAll() : []);
+  window.openModalExportGeneric({
+    title: "Descarga del Padrón de Usuarios",
+    subtitle: "Consolidado institucional del Padrón Único de Menores",
+    description: `Se generará un archivo consolidado en formato <strong style="font-family: var(--mono-font); color: var(--text-brand);">.CSV</strong> con la identidad central, escolaridad, tamizajes y servicios activos de los usuarios.`,
+    count: list.length,
+    unit: "usuarios",
+    legal: "Ley N.° 29733 (Datos Personales)",
+    onConfirm: () => {
+      window.PDI?.AppController?.exportCSV?.(list);
+    }
+  });
+};
+
+window.openModalExportVoluntarios = () => {
+  const vv = window.PDI?.VoluntariadosView;
+  const list = vv?._filteredList || (window.PDI?.VoluntarioModel?.getAll ? window.PDI.VoluntarioModel.getAll() : []);
+  window.openModalExportGeneric({
+    title: "Descarga del Padrón de Voluntariados",
+    subtitle: "Consolidado oficial de personal comunitario y promotoras",
+    description: `Se generará un archivo consolidado en formato <strong style="font-family: var(--mono-font); color: var(--text-brand);">.CSV</strong> con la asignación territorial, capacitaciones oficiales y rol de voluntarias.`,
+    count: list.length,
+    unit: "voluntarias",
+    legal: "Ley N.° 28238 / Ley N.° 29733",
+    onConfirm: () => {
+      if (typeof vv?.exportCSV === "function") {
+        vv.exportCSV(list);
+      } else if (typeof window.exportVoluntariosCSV === "function") {
+        window.exportVoluntariosCSV();
+      }
+    }
+  });
+};
+
+window.openModalExportDashboard = () => {
+  const list = window.PDI?.BeneficiarioModel?.getAll ? window.PDI.BeneficiarioModel.getAll() : [];
+  window.openModalExportGeneric({
+    title: "Descarga de Informe Consolidado",
+    subtitle: "Reporte general operativo del Programa de Desarrollo Integral",
+    description: `Se generará un consolidado oficial en formato <strong style="font-family: var(--mono-font); color: var(--text-brand);">.CSV</strong> con el padrón general de beneficiarios y métricas clave.`,
+    count: list.length,
+    unit: "registros consolidados",
+    legal: "Ley N.° 29733 (Datos Personales)",
+    onConfirm: () => {
+      window.PDI?.AppController?.exportCSV?.(list);
+    }
+  });
+};
+
 window.closeModalExportAudit = () => {
   const modal = document.getElementById("modalConfirmExportAudit");
   if (modal) {
     modal.classList.remove("active");
     modal.classList.remove("open");
   }
+  _currentExportHandler = null;
 };
+
 window.confirmExportAuditCSV = () => {
+  const handler = _currentExportHandler;
   window.closeModalExportAudit();
-  window.PDI?.AppController?.exportAuditCSV?.();
+  if (typeof handler === "function") {
+    handler();
+  } else {
+    window.PDI?.AppController?.exportAuditCSV?.();
+  }
 };
 
 // ---------------------------------------------------------------------------
@@ -371,6 +475,9 @@ document.addEventListener("click", (e) => {
   if (!e.target.closest(".audit-legal-popover-wrapper")) {
     document.getElementById("wrapAuditLegalPopover")?.classList.remove("open");
   }
+  if (e.target && e.target.id === "modalConfirmExportAudit") {
+    window.closeModalExportAudit();
+  }
 });
 
 document.addEventListener("keydown", (e) => {
@@ -378,7 +485,7 @@ document.addEventListener("keydown", (e) => {
   Dropdown.cerrarHojasFiltro();
   document.querySelectorAll(".padron-inner-dropdown.open").forEach((d) => d.classList.remove("open"));
   document.getElementById("wrapAuditLegalPopover")?.classList.remove("open");
-  document.getElementById("modalConfirmExportAudit")?.classList.remove("active");
+  window.closeModalExportAudit();
 });
 
 document.addEventListener("astro:after-swap", () => {

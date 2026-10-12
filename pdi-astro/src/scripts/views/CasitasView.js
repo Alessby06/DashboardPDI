@@ -443,11 +443,6 @@ export const CasitasView = {
       btnFilterEl.classList.toggle("has-filters", count > 0);
     }
 
-    const countHeaderEl = document.getElementById("casitasRecordsCount");
-    if (countHeaderEl) {
-      countHeaderEl.textContent = `Mostrando ${casitaList.length} de ${(this._allBeneficiarios || []).length} menores`;
-    }
-
     this._renderActiveChips();
     this._renderTableAndCards(casitaList);
   },

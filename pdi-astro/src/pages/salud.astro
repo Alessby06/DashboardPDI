@@ -119,34 +119,19 @@ import "../styles/views-salud.css";
       </div>
     </div>
 
-    <!-- Barra de Búsqueda y Filtros de Salud CRED -->
-    <div
-      class="card"
-      style="margin-top: 18px; margin-bottom: 12px; padding: 12px 16px; position: relative; z-index: 80; overflow: visible;"
-    >
-      <div
-        class="sedes-controls-row"
-        style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;"
-      >
+    <!-- Tabla y Evaluaciones CRED en Tarjeta Unificada (Estandarizada con padron.astro) -->
+    <div class="card" id="cardSaludEvaluaciones" style="margin-top: 18px;">
+      <div class="card-header">
+        <div class="card-title">Historial de Evaluaciones CRED por Menor</div>
+      </div>
+
+      <!-- Barra de Filtros y Búsqueda Rápida de Salud CRED -->
+      <div class="audit-toolbar" style="margin-bottom: 16px;">
         <!-- Buscador de Salud (Lado Izquierdo) -->
-        <div
-          class="audit-search-wrap"
-          style="flex: 1; min-width: 240px; position: relative;"
-        >
-          <svg
-            width="16"
-            height="16"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            viewBox="0 0 24 24"
-            style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-dim); pointer-events: none;"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-            ></path>
+        <div class="audit-search-wrap">
+          <svg class="audit-search-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
           </svg>
           <input
             type="text"
@@ -154,33 +139,23 @@ import "../styles/views-salud.css";
             id="inputSaludSearch"
             placeholder="Buscar menor por nombre, código, DNI, apoderado o sede..."
             oninput="window.filterSaludSearch ? window.filterSaludSearch(this.value) : (window.PDI?.SaludCredView ? window.PDI.SaludCredView.filterBySearch(this.value) : null)"
-            style="width: 100%; padding-left: 36px; padding-right: 32px;"
           />
           <button
             type="button"
-            class="btn-clear-search"
+            class="audit-search-clear"
             id="btnSaludSearchClear"
-            style="display:none; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-dim); cursor: pointer;"
+            style="display:none;"
             onclick="window.clearSaludSearch ? window.clearSaludSearch() : (window.PDI?.SaludCredView ? window.PDI.SaludCredView.clearSearch() : null)"
+            title="Limpiar búsqueda"
           >
-            <svg
-              width="14"
-              height="14"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M6 18L18 6M6 6l12 12"></path>
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        <!-- Botonera de Filtros Salud -->
-        <div style="display: flex; align-items: center; gap: 8px;">
+        <!-- Botonera de Filtros Salud (Lado Derecho) -->
+        <div class="audit-filter-panel-wrap">
           <div
             class="custom-dropdown audit-filters-dropdown"
             id="dropdownSaludFilterPanel"
@@ -700,40 +675,19 @@ import "../styles/views-salud.css";
       </div>
 
       <!-- Barra de Filtros Aplicados Salud -->
-      <div
-        class="padron-active-chips-bar"
-        id="saludActiveChipsBar"
-        style="display: none; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border-subtle);"
-      >
+      <div class="padron-active-chips-bar" id="saludActiveChipsBar" style="display: none;">
         <span class="padron-active-chips-label">Filtros aplicados:</span>
-        <div
-          id="saludActiveChipsList"
-          style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;"
-        >
+        <div id="saludActiveChipsList" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
         </div>
         <button
           type="button"
           class="btn-text-subtle"
           style="margin-left: auto; font-size: 11.5px;"
           onclick="window.resetSaludFilters ? window.resetSaludFilters() : null"
-          >Limpiar todo</button
+          >Borrar todos</button
         >
       </div>
-    </div>
 
-    <!-- CRED Registrations Table & Mobile Cards -->
-    <div class="card" style="margin-top: 0px;">
-      <div
-        class="card-header"
-        style="display: flex; justify-content: space-between; align-items: center;"
-      >
-        <div class="card-title">Historial de Evaluaciones CRED por Menor</div>
-        <div
-          id="saludRecordsCount"
-          style="font-size: 12.5px; color: var(--text-muted); font-weight: 600;"
-        >
-        </div>
-      </div>
       <div class="table-container desktop-table-view">
         <table class="data-table">
           <thead>

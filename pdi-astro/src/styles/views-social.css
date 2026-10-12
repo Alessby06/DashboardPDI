@@ -625,14 +625,62 @@
       color: #fff;
     }
 
-    /* Subvistas de /social */
+    /* Subvistas de /social con View Transitions */
     .social-subview-panel {
       display: none;
     }
 
     .social-subview-panel.active {
       display: block;
-      animation: fadeIn var(--dur-normal) var(--ease-smooth);
+      view-transition-name: social-subview-panel;
+      animation: subpanelFadeIn 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes subpanelFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes subpanelFadeOut {
+      from {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+    }
+
+    /* CSS View Transition pseudo-elementos para subvistas internas */
+    ::view-transition-group(social-subview-panel) {
+      animation-duration: 260ms;
+      animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    ::view-transition-old(social-subview-panel) {
+      animation: 200ms cubic-bezier(0.4, 0, 1, 1) both subpanelFadeOut;
+    }
+
+    ::view-transition-new(social-subview-panel) {
+      animation: 260ms cubic-bezier(0.16, 1, 0.3, 1) both subpanelFadeIn;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .social-subview-panel.active {
+        animation: none !important;
+      }
+      ::view-transition-group(social-subview-panel),
+      ::view-transition-old(social-subview-panel),
+      ::view-transition-new(social-subview-panel) {
+        animation-duration: 0.01ms !important;
+      }
     }
 
     /* Tarjetas y Contenedores de Autorizaciones y Solicitudes */
@@ -728,6 +776,25 @@
       flex-direction: column;
       gap: 10px;
       transition: border-color var(--dur-fast) var(--ease-smooth);
+      animation: cardStaggerIn 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: calc(var(--item-index, 0) * 45ms);
+    }
+
+    @keyframes cardStaggerIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .social-request-card {
+        animation: none !important;
+      }
     }
 
     .social-request-card:hover {

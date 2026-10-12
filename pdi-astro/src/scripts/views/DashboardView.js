@@ -352,6 +352,7 @@ export const DashboardView = {
     // se muestra es el de la pagina entera y no el de lo que se esta viendo.
     this._leerFiltrosDeURL();
     this._currentAuditLogs = logs || [];
+    this._filteredAuditLogs = logs || [];
     this.updateAuditKpis(this._currentAuditLogs);
     this.applyAuditFilters();
   },
@@ -815,6 +816,8 @@ export const DashboardView = {
 
       return matchAction && matchRole && matchStatus && matchDate && matchQuery;
     });
+
+    this._filteredAuditLogs = filtered;
 
     // Actualizar badge de filtros activos
     let count = 0;

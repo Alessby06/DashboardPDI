@@ -323,11 +323,6 @@ export const VoluntariadosView = {
     }
     this._lastRenderSerial = serial;
 
-    const countHeaderEl = document.getElementById("voluntariosRecordsCount");
-    if (countHeaderEl) {
-      countHeaderEl.textContent = `Mostrando ${list.length} de ${this._voluntarios.length} voluntarias y personal comunitario`;
-    }
-
     this._filteredList = list;
     this._updateActiveFilterBadge();
     this._renderActiveChips();

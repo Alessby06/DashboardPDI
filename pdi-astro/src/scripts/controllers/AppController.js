@@ -21,24 +21,24 @@ import { CsvExporter } from "../utils/CsvExporter.js";
 import { ToastView } from "../views/ToastView.js";
 
 export const AppController = {
-  /** Descarga el padron completo en CSV. */
-  exportCSV() {
-    const datos = BeneficiarioModel.getAll();
+  /** Descarga el padron en CSV (filtrado o completo). */
+  exportCSV(customList) {
+    const datos = customList || BeneficiarioModel.getAll();
     CsvExporter.exportBeneficiarios(datos);
     ToastView.show(
       "Reporte Exportado",
-      'Consolidado oficial "PDI" descargado en formato CSV',
+      `Consolidado oficial PDI descargado (${datos.length} registros en formato CSV)`,
       "success"
     );
   },
 
-  /** Descarga la bitacora de auditoria en CSV. */
-  exportAuditCSV() {
-    const logs = AuditModel.getAll();
+  /** Descarga la bitacora de auditoria en CSV (filtrada o completa). */
+  exportAuditCSV(customLogs) {
+    const logs = customLogs || AuditModel.getAll();
     CsvExporter.exportAuditLogs(logs);
     ToastView.show(
       "Bitácora Descargada",
-      "Registro oficial de auditoría descargado en formato CSV (Ley 29733)",
+      `Registro oficial de auditoría descargado (${logs.length} eventos en CSV - Ley 29733)`,
       "success"
     );
   },

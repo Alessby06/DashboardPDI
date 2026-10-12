@@ -205,6 +205,140 @@
     }
 
 /* ===========================================================================
+   BARRA DE HERRAMIENTAS Y BÚSQUEDA CANÓNICA (ESTÁNDAR PADRÓN: PC Y MÓVIL)
+   =========================================================================== */
+.audit-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.audit-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  max-width: 440px;
+}
+
+.audit-search-wrap > svg.audit-search-icon,
+.audit-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 15px !important;
+  height: 15px !important;
+  max-width: 15px !important;
+  max-height: 15px !important;
+  color: var(--text-dim) !important;
+  opacity: 0.7;
+  pointer-events: none;
+  z-index: 2;
+  flex-shrink: 0;
+}
+
+.audit-search-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 36px 0 36px;
+  font-size: 13px;
+  background: var(--surface-1);
+  color: var(--text-main);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: border-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth);
+  font-family: inherit;
+}
+
+.audit-search-input:focus {
+  border-color: var(--gt-green);
+  box-shadow: 0 0 0 2px var(--gt-green-bg);
+}
+
+.audit-search-clear {
+  position: absolute;
+  right: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-dim);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: var(--radius-full);
+  transition: background-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth);
+  z-index: 3;
+}
+
+.audit-search-clear svg {
+  position: static !important;
+  width: 12px !important;
+  height: 12px !important;
+  color: inherit;
+  pointer-events: none;
+  margin: 0;
+  display: block;
+}
+
+.audit-search-clear:hover {
+  background: var(--surface-hover);
+  color: var(--text-main);
+  border-color: var(--border-bright);
+}
+
+@media (max-width: 768px) {
+  .audit-toolbar {
+    position: relative !important;
+    overflow: visible !important;
+    gap: 8px !important;
+  }
+
+  .audit-search-wrap {
+    flex: 1 !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  .audit-search-input {
+    height: 36px !important;
+    font-size: 12px !important;
+    padding-left: 32px !important;
+    padding-right: 32px !important;
+  }
+
+  .audit-search-wrap > svg.audit-search-icon,
+  .audit-search-icon {
+    left: 10px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 14px !important;
+    height: 14px !important;
+    max-width: 14px !important;
+    max-height: 14px !important;
+  }
+
+  .audit-filter-panel-wrap,
+  .audit-filters-dropdown {
+    position: static !important;
+  }
+
+  .audit-filter-btn {
+    padding: 0 10px !important;
+    height: 36px !important;
+    font-size: 12px !important;
+  }
+}
+
+/* ===========================================================================
    ESTÁNDAR MÓVIL: HOJAS INFERIORES DE FILTROS (BOTTOM SHEETS)
    ===========================================================================
    Convierte los menús de filtros de escritorio en Bottom Sheets nativos y
@@ -585,5 +719,142 @@
     padding: 0 8px;
   }
 }
+
+/* ===========================================================================
+   BOTONES DE ACCIÓN DE TABLA ESTANDARIZADOS (SOLO PC / ESCRITORIO)
+   Basados en el botón canónico "Ver Expediente" de padron.astro
+   =========================================================================== */
+@media (min-width: 769px) {
+  .data-table tbody td:last-child .btn-action,
+  .data-table tbody td:last-child .btn-action-sm,
+  .data-table tbody td:last-child .padron-btn-ficha,
+  .data-table tbody td:last-child .padron-btn-edit,
+  .table-responsive .data-table tbody td:last-child .btn-action,
+  .table-responsive .data-table tbody td:last-child .padron-btn-ficha,
+  .table-responsive .data-table tbody td:last-child .padron-btn-edit,
+  #tablaBeneficiarios tbody td:last-child .btn-action {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    gap: 4px !important;
+    padding: 5px 10px !important;
+    font-family: var(--ui-font) !important;
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    border-radius: var(--radius-sm) !important;
+    box-sizing: border-box !important;
+    height: auto !important;
+    min-height: unset !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    transition: background-color var(--dur-fast) var(--ease-smooth),
+                border-color var(--dur-fast) var(--ease-smooth),
+                color var(--dur-fast) var(--ease-smooth),
+                transform var(--dur-fast) var(--ease-spring) !important;
+  }
+
+  .data-table tbody td:last-child .btn-action svg,
+  .data-table tbody td:last-child .btn-action-sm svg,
+  .data-table tbody td:last-child .padron-btn-ficha svg,
+  .data-table tbody td:last-child .padron-btn-edit svg,
+  .table-responsive .data-table tbody td:last-child .padron-btn-ficha svg,
+  .table-responsive .data-table tbody td:last-child .padron-btn-edit svg {
+    width: 13px !important;
+    height: 13px !important;
+  }
+}
+
+/* ===========================================================================
+   BOTÓN ICONO DE EXPORTACIÓN ESTANDARIZADO (.btn-action-icon.btn-audit-export-icon)
+   =========================================================================== */
+.btn-action-icon.btn-audit-export-icon {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  transition: all var(--dur-fast) var(--ease-smooth);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.view-actions .btn-action-icon.btn-audit-export-icon,
+.dash-header-actions .btn-action-icon.btn-audit-export-icon {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  min-height: 38px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.btn-action-icon.btn-audit-export-icon svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+  stroke-width: 2.2;
+}
+
+.btn-action-icon.btn-audit-export-icon:hover {
+  background: var(--surface-hover);
+  border-color: var(--gt-green, #00b494);
+  color: var(--text-brand, #0f766e);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 180, 148, 0.15);
+}
+
+.btn-action-icon.btn-audit-export-icon:active {
+  transform: scale(0.95);
+}
+
+[data-theme="dark"] .btn-action-icon.btn-audit-export-icon {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: var(--text-main);
+}
+
+[data-theme="dark"] .btn-action-icon.btn-audit-export-icon:hover {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: var(--gt-green, #10b981);
+  color: var(--text-brand, #34d399);
+}
+
+/* En móvil (<= 768px): integración simétrica y orgánica con .view-actions y .dash-header-actions */
+@media (max-width: 768px) {
+  .view-actions .btn-action-icon.btn-audit-export-icon,
+  .dash-header-actions .btn-action-icon.btn-audit-export-icon {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+    flex: 0 0 40px !important;
+    border-radius: var(--radius-md) !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .view-actions .btn-action-icon.btn-audit-export-icon,
+  .dash-header-actions .btn-action-icon.btn-audit-export-icon {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
+    flex: 0 0 38px !important;
+    border-radius: var(--radius-md) !important;
+  }
+}
+
 
 

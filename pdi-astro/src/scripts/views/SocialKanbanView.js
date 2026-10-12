@@ -858,23 +858,36 @@ export const SocialKanbanView = {
       tabKey = "kanban";
     }
 
-    // Paneles de subvistas principales
-    const panelKanban = document.getElementById("viewSocialKanban");
-    const panelAutorizaciones = document.getElementById("viewSocialAutorizaciones");
-    const panelMisSolicitudes = document.getElementById("viewSocialMisSolicitudes");
+    const aplicarCambioDeVista = () => {
+      // Paneles de subvistas principales
+      const panelKanban = document.getElementById("viewSocialKanban");
+      const panelAutorizaciones = document.getElementById("viewSocialAutorizaciones");
+      const panelMisSolicitudes = document.getElementById("viewSocialMisSolicitudes");
 
-    if (panelKanban) panelKanban.classList.toggle("active", tabKey === "kanban");
-    if (panelAutorizaciones) panelAutorizaciones.classList.toggle("active", tabKey === "autorizaciones");
-    if (panelMisSolicitudes) panelMisSolicitudes.classList.toggle("active", tabKey === "mis-solicitudes");
+      if (panelKanban) panelKanban.classList.toggle("active", tabKey === "kanban");
+      if (panelAutorizaciones) panelAutorizaciones.classList.toggle("active", tabKey === "autorizaciones");
+      if (panelMisSolicitudes) panelMisSolicitudes.classList.toggle("active", tabKey === "mis-solicitudes");
 
-    // Sincronizar botones nativos de primer nivel del sidebar
-    const btnSocial = document.querySelector('#sidebarNav .nav-btn[data-page="social"]');
-    const btnAutorizaciones = document.querySelector('#sidebarNav .nav-btn[data-subview="autorizaciones"]');
-    const btnMisSolicitudes = document.querySelector('#sidebarNav .nav-btn[data-subview="mis-solicitudes"]');
+      // Sincronizar botones nativos de primer nivel del sidebar
+      const btnSocial = document.querySelector('#sidebarNav .nav-btn[data-page="social"]');
+      const btnAutorizaciones = document.querySelector('#sidebarNav .nav-btn[data-subview="autorizaciones"]');
+      const btnMisSolicitudes = document.querySelector('#sidebarNav .nav-btn[data-subview="mis-solicitudes"]');
 
-    if (btnSocial) btnSocial.classList.toggle("active", tabKey === "kanban");
-    if (btnAutorizaciones) btnAutorizaciones.classList.toggle("active", tabKey === "autorizaciones");
-    if (btnMisSolicitudes) btnMisSolicitudes.classList.toggle("active", tabKey === "mis-solicitudes");
+      if (btnSocial) btnSocial.classList.toggle("active", tabKey === "kanban");
+      if (btnAutorizaciones) btnAutorizaciones.classList.toggle("active", tabKey === "autorizaciones");
+      if (btnMisSolicitudes) btnMisSolicitudes.classList.toggle("active", tabKey === "mis-solicitudes");
+
+      // Renderizar la vista correspondiente
+      if (tabKey === "autorizaciones") {
+        this.renderVistaAutorizaciones();
+      } else if (tabKey === "mis-solicitudes") {
+        this.renderVistaMisSolicitudes();
+      } else {
+        this.renderKanban();
+      }
+
+      this.actualizarBadgesPestañas();
+    };
 
     // Actualizar parámetro en la URL
     if (actualizarUrl) {
@@ -887,16 +900,15 @@ export const SocialKanbanView = {
       window.history.replaceState({}, "", url.toString());
     }
 
-    // Renderizar la vista correspondiente
-    if (tabKey === "autorizaciones") {
-      this.renderVistaAutorizaciones();
-    } else if (tabKey === "mis-solicitudes") {
-      this.renderVistaMisSolicitudes();
+    // View Transitions API nativa: animación fluida si el navegador lo soporta y el usuario no pide reduced-motion
+    const prefiereMenosMovimiento = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!prefiereMenosMovimiento && typeof document !== "undefined" && typeof document.startViewTransition === "function") {
+      document.startViewTransition(() => {
+        aplicarCambioDeVista();
+      });
     } else {
-      this.renderKanban();
+      aplicarCambioDeVista();
     }
-
-    this.actualizarBadgesPestañas();
   },
 
   /**
@@ -949,10 +961,10 @@ export const SocialKanbanView = {
 
     container.innerHTML = `
       <div class="social-requests-grid">
-        ${pendientes.map(caso => {
+        ${pendientes.map((caso, idx) => {
           const sol = caso.solicitudCambio || {};
           return `
-            <div class="social-request-card" id="authCard-${caso.id}">
+            <div class="social-request-card" id="authCard-${caso.id}" style="--item-index: ${idx};">
               <div class="social-request-card-header">
                 <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                   <strong style="font-size: 14.5px; color: var(--text-main); cursor: pointer;"
@@ -1080,7 +1092,7 @@ export const SocialKanbanView = {
 
     container.innerHTML = `
       <div class="social-requests-grid">
-        ${solicitudes.map(sol => {
+        ${solicitudes.map((sol, idx) => {
           let badgeEstado = '<span class="badge badge-yellow">En revisión</span>';
           if (sol.estado === "aprobada") {
             badgeEstado = '<span class="badge badge-green">Aprobada</span>';
@@ -1089,7 +1101,7 @@ export const SocialKanbanView = {
           }
 
           return `
-            <div class="social-request-card">
+            <div class="social-request-card" style="--item-index: ${idx};">
               <div class="social-request-card-header">
                 <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                   <strong style="font-size: 14.5px; color: var(--text-main); cursor: pointer;"

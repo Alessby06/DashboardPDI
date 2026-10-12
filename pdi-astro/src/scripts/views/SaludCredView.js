@@ -415,11 +415,6 @@ export const SaludCredView = {
       btnFilterEl.classList.toggle("has-filters", count > 0);
     }
 
-    const countHeaderEl = document.getElementById("saludRecordsCount");
-    if (countHeaderEl) {
-      countHeaderEl.textContent = `Mostrando ${list.length} de ${this._allBeneficiarios.length} menores`;
-    }
-
     this._renderActiveChips();
     this._renderTableAndCards(list);
   },
