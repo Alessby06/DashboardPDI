@@ -2244,56 +2244,82 @@
     transform: translateY(0%) !important;
   }
 
-  .sedes-sheet-topbar {
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 10 !important;
+  /* Cabecera móvil moderna: Asa de arrastre centrada + Botón X a la derecha */
+  .sedes-sheet-header-mobile {
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
-    padding: 12px 16px 8px !important;
+    padding: 10px 14px 6px !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 30 !important;
     background: var(--surface-1) !important;
+    border-top-left-radius: 20px !important;
+    border-top-right-radius: 20px !important;
     border-bottom: 1px solid var(--border-subtle) !important;
   }
 
-  .sedes-sheet-grip {
+  .sedes-sheet-header-spacer {
+    width: 32px !important;
+    height: 32px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .sedes-sheet-pill-wrap {
     flex: 1 !important;
     display: flex !important;
+    align-items: center !important;
     justify-content: center !important;
+    padding: 6px 0 !important;
+    cursor: grab !important;
+    touch-action: none !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
   }
 
-  .sedes-sheet-grip::before {
-    content: "" !important;
-    display: block !important;
-    width: 42px !important;
-    height: 5px !important;
-    border-radius: 3px !important;
-    background: var(--border-strong) !important;
+  .sedes-sheet-pill {
+    width: 40px !important;
+    height: 4.5px !important;
+    border-radius: 999px !important;
+    background: var(--border-strong, #94a3b8) !important;
+    opacity: 0.8 !important;
+    transition: transform var(--dur-fast), background var(--dur-fast) !important;
   }
 
-  .sedes-sheet-close {
-    width: 38px !important;
-    height: 38px !important;
-    min-width: 38px !important;
+  .sedes-sheet-pill-wrap:active .sedes-sheet-pill {
+    transform: scaleX(1.15) !important;
+    background: var(--text-brand, #00b494) !important;
+  }
+
+  .sedes-sheet-close-x {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    border-radius: 50% !important;
+    background: var(--surface-2, #f1f5f9) !important;
+    border: 1px solid var(--border-subtle, #e2e8f0) !important;
+    color: var(--text-main, #334155) !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    border-radius: var(--radius-full) !important;
-    border: 1px solid var(--border-subtle) !important;
-    background: var(--surface-2) !important;
-    color: var(--text-main) !important;
     cursor: pointer !important;
     touch-action: manipulation !important;
-    transition: background var(--dur-fast), transform var(--dur-fast) !important;
+    transition: background var(--dur-fast), transform var(--dur-fast), color var(--dur-fast) !important;
+    flex-shrink: 0 !important;
   }
 
-  .sedes-sheet-close:active {
-    transform: scale(0.95) !important;
+  .sedes-sheet-close-x:active {
+    transform: scale(0.92) !important;
     background: var(--border-subtle) !important;
+    color: var(--gt-red, #ef4444) !important;
+  }
+
+  .sedes-sheet-topbar {
+    display: none !important;
   }
 
   .sedes-detail-card {
-    padding: 16px 18px 24px !important;
+    padding: 10px 18px 24px !important;
     border: none !important;
     background: transparent !important;
     box-shadow: none !important;
@@ -2345,30 +2371,46 @@
   .sedes-grid-card {
     padding: 12px 14px !important;
   }
+
+  /* Telón de fondo del Drawer (Backdrop) - SOLO VISIBLE EN MÓVIL */
+  .sedes-sheet-backdrop {
+    display: block !important;
+    position: fixed !important;
+    inset: 0 !important;
+    background: rgba(15, 23, 42, 0.65) !important;
+    backdrop-filter: blur(5px) !important;
+    -webkit-backdrop-filter: blur(5px) !important;
+    z-index: 1100 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  .sedes-sheet-backdrop.open {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  /* Bloqueo de scroll cuando el bottom sheet está abierto en móvil */
+  body.sedes-sheet-open {
+    overflow: hidden !important;
+    touch-action: none;
+  }
 }
 
-/* Telón de fondo del Drawer (Backdrop) */
-.sedes-sheet-backdrop {
-  position: fixed !important;
-  inset: 0 !important;
-  background: rgba(15, 23, 42, 0.55) !important;
-  backdrop-filter: blur(3px) !important;
-  -webkit-backdrop-filter: blur(3px) !important;
-  z-index: 1100 !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-  transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
+/* En escritorio (> 840px): se oculta el backdrop y la barra móvil */
+@media (min-width: 841px) {
+  .sedes-sheet-backdrop {
+    display: none !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+  }
 
-.sedes-sheet-backdrop.open {
-  opacity: 1 !important;
-  pointer-events: auto !important;
-}
-
-/* Bloqueo de scroll cuando el bottom sheet está abierto */
-body.sedes-sheet-open {
-  overflow: hidden !important;
-  touch-action: none;
+  .sedes-sheet-header-mobile,
+  .sedes-sheet-handle-zone,
+  .sedes-sheet-topbar {
+    display: none !important;
+  }
 }
 
 .sedes-detail-empty {
@@ -2380,9 +2422,10 @@ body.sedes-sheet-open {
   padding: 44px 22px;
 }
 
-/* En escritorio la topbar de la hoja no se dibuja */
+/* En escritorio la topbar y el asa de arrastre de la hoja móvil nunca se dibujan */
+.sedes-sheet-handle-zone,
 .sedes-sheet-topbar {
-  display: none;
+  display: none !important;
 }
 
 /* Enlace táctil de teléfono */

@@ -52,7 +52,9 @@ export const SedesView = {
     this._searchQuery = (f.q || "").toLowerCase();
     this._filterDistrito = f.distrito;
     this._filterServicio = f.servicio;
-    this._selectedSedeId = f.sede || null;
+    if (f.sede) {
+      this._selectedSedeId = f.sede;
+    }
 
     // ¿La URL llegó con enlace profundo a una sede? Es la única ocasión en
     // que la hoja inferior (móvil) se autoabre en la carga inicial.
@@ -301,10 +303,10 @@ export const SedesView = {
   },
 
   selectSede(id) {
-    // El id llega del onclick interpolado, o sea siempre string, mientras que
-    // _allSedes puede traer numeros (SurrealDB) o slugs (fixtures). Sin
-    // resolverlo contra la lista, find(s => s.id === id) no coincidia nunca y
-    // el panel de detalle se quedaba en la sede anterior.
+    // Asegurar que la lista de sedes este disponible
+    if (!this._allSedes || this._allSedes.length === 0) {
+      this._allSedes = window.PDI?.SedeModel?.getAll ? window.PDI.SedeModel.getAll() : SedeModel.getAll();
+    }
     const sede = this._allSedes.find(s => this._mismoId(s.id, id));
     if (!sede) return;
 
@@ -320,16 +322,25 @@ export const SedesView = {
   },
 
   /**
-   * Abre la ficha como hoja inferior (móvil). En escritorio el mismo .open
-   * no tiene efecto visual: alli la ficha es la columna inline del split.
+   * Abre la ficha como hoja inferior (solo en móvil <= 840px). En escritorio la ficha
+   * es la columna inline del split layout y no debe abrir ningún backdrop ni oscurecer la pantalla.
    */
   _abrirHoja() {
-    const panel = document.getElementById("sedesDetailPanel");
-    const backdrop = document.getElementById("sedesSheetBackdrop");
-    panel?.classList.add("open");
-    backdrop?.classList.add("open");
     if (typeof window !== "undefined" && window.innerWidth <= 840) {
+      const panel = document.getElementById("sedesDetailPanel");
+      const backdrop = document.getElementById("sedesSheetBackdrop");
+      if (panel) {
+        panel.style.transform = "";
+        panel.style.transition = "";
+      }
+      if (backdrop) {
+        backdrop.style.opacity = "";
+        backdrop.style.transition = "";
+      }
+      panel?.classList.add("open");
+      backdrop?.classList.add("open");
       document.body.classList.add("sedes-sheet-open");
+      this._enlazarGestosHoja();
     }
   },
 
@@ -337,15 +348,152 @@ export const SedesView = {
   cerrarDetalleMovil() {
     const panel = document.getElementById("sedesDetailPanel");
     const backdrop = document.getElementById("sedesSheetBackdrop");
+    if (panel) {
+      panel.style.transform = "";
+      panel.style.transition = "";
+    }
+    if (backdrop) {
+      backdrop.style.opacity = "";
+      backdrop.style.transition = "";
+    }
     panel?.classList.remove("open");
     backdrop?.classList.remove("open");
-    document.body.classList.remove("sedes-sheet-open");
+    if (typeof window !== "undefined") {
+      document.body.classList.remove("sedes-sheet-open");
+    }
   },
 
-  /** Compara ids sin importar que unos vengan como string y otros como numero. */
+  /**
+   * Engancha los gestos táctiles de arrastre para cerrar la hoja deslizando hacia abajo.
+   * Aplica seguimiento 1:1, desvanecimiento dinámico del telón y retorno elástico.
+   */
+  _enlazarGestosHoja() {
+    const panel = document.getElementById("sedesDetailPanel");
+    if (!panel || panel._gestosHojaEnlazados) return;
+    panel._gestosHojaEnlazados = true;
+
+    const backdrop = document.getElementById("sedesSheetBackdrop");
+    if (backdrop && !backdrop._pointerEnlazado) {
+      backdrop._pointerEnlazado = true;
+      backdrop.addEventListener("pointerdown", (e) => {
+        if (e.target === backdrop) {
+          e.preventDefault();
+          this.cerrarDetalleMovil();
+        }
+      });
+    }
+
+    let startY = 0;
+    let currentY = 0;
+    let isDragging = false;
+    let touchHistory = [];
+
+    panel.addEventListener("touchstart", (e) => {
+      if (typeof window === "undefined" || window.innerWidth > 840) return;
+      const touch = e.touches[0];
+      const target = e.target;
+      if (target && target.closest && target.closest(".sedes-sheet-close-x")) return;
+      const handleZone = panel.querySelector(".sedes-sheet-header-mobile, .sedes-sheet-pill-wrap");
+      const isHandle = handleZone && (handleZone === target || handleZone.contains(target));
+
+      // Solo arrastra si el toque fue en el asa superior o si el scroll interno del panel está en el tope
+      if (!isHandle && panel.scrollTop > 4) return;
+
+      startY = touch.clientY;
+      currentY = touch.clientY;
+      touchHistory = [{ y: startY, t: performance.now() }];
+      isDragging = true;
+    }, { passive: true });
+
+    panel.addEventListener("touchmove", (e) => {
+      if (!isDragging || typeof window === "undefined" || window.innerWidth > 840) return;
+      const touch = e.touches[0];
+      currentY = touch.clientY;
+      const deltaY = currentY - startY;
+
+      // Si desliza hacia arriba dentro del contenido, dejamos que el scroll nativo fluya
+      if (deltaY < 0 && panel.scrollTop > 0) {
+        isDragging = false;
+        return;
+      }
+
+      if (deltaY > 0) {
+        // Arrastre hacia abajo: seguimiento físico 1:1
+        if (e.cancelable) e.preventDefault();
+        panel.style.transition = "none";
+        panel.style.transform = `translateY(${deltaY}px)`;
+
+        const bd = document.getElementById("sedesSheetBackdrop");
+        if (bd) {
+          const ratio = Math.max(0, 1 - (deltaY / 280));
+          bd.style.opacity = String(ratio);
+        }
+      }
+
+      touchHistory.push({ y: currentY, t: performance.now() });
+      if (touchHistory.length > 5) touchHistory.shift();
+    }, { passive: false });
+
+    const finalizarArrastre = () => {
+      if (!isDragging) return;
+      isDragging = false;
+
+      const deltaY = currentY - startY;
+      let velocity = 0;
+      if (touchHistory.length >= 2) {
+        const last = touchHistory[touchHistory.length - 1];
+        const prev = touchHistory[0];
+        const dt = last.t - prev.t;
+        if (dt > 0) {
+          velocity = (last.y - prev.y) / dt;
+        }
+      }
+
+      const bd = document.getElementById("sedesSheetBackdrop");
+
+      // Criterio de cierre: arrastre mayor a 75px o flick con velocidad hacia abajo
+      if (deltaY > 75 || velocity > 0.35) {
+        panel.style.transition = "transform 0.24s cubic-bezier(0.23, 1, 0.32, 1)";
+        panel.style.transform = "translateY(105%)";
+        if (bd) {
+          bd.style.transition = "opacity 0.22s ease-out";
+          bd.style.opacity = "0";
+        }
+        setTimeout(() => {
+          this.cerrarDetalleMovil();
+        }, 230);
+      } else {
+        // Regreso elástico suave a la posición abierta
+        panel.style.transition = "transform 0.28s cubic-bezier(0.16, 1, 0.3, 1)";
+        panel.style.transform = "translateY(0%)";
+        if (bd) {
+          bd.style.transition = "opacity 0.24s ease-out";
+          bd.style.opacity = "1";
+        }
+        setTimeout(() => {
+          panel.style.transform = "";
+          panel.style.transition = "";
+          if (bd) {
+            bd.style.opacity = "";
+            bd.style.transition = "";
+          }
+        }, 300);
+      }
+    };
+
+    panel.addEventListener("touchend", finalizarArrastre, { passive: true });
+    panel.addEventListener("touchcancel", finalizarArrastre, { passive: true });
+  },
+
+  /** Compara ids sin importar si vienen como string, numero, slug o id de SurrealDB. */
   _mismoId(a, b) {
     if (a === null || a === undefined || b === null || b === undefined) return false;
-    return String(a) === String(b);
+    const sa = String(a).trim();
+    const sb = String(b).trim();
+    if (sa === sb) return true;
+    const normA = this._slugDe(sa.replace(/^sede[-:]/, ""));
+    const normB = this._slugDe(sb.replace(/^sede[-:]/, ""));
+    return !!(normA && normB && normA === normB);
   },
 
   /**
@@ -377,8 +525,8 @@ export const SedesView = {
     const porId = todos.find(s => this._mismoId(s.id, id));
     if (porId) return porId.id;
 
-    const crudo = this._slugDe(String(id).replace(/^sede-/, "")) ||
-      String(id).replace(/^sede-/, "");
+    const crudo = this._slugDe(String(id).replace(/^sede[-:]/, "")) ||
+      String(id).replace(/^sede[-:]/, "");
     const porNombre = todos.find(s => this._slugDe(s.nombre) === crudo);
     if (porNombre) return porNombre.id;
 
@@ -560,7 +708,34 @@ export const SedesView = {
       badgeAforoClass = "badge-yellow";
     }
 
-    const mapQuery = encodeURIComponent(`${sede.direccion}, ${sede.distrito}, Lima, Peru`);
+    const facilitadora = sede.facilitadora || 'Carmen Mendoza Huamán';
+    const facilitadoraCargo = sede.facilitadoraCargo || 'Facilitadora Comunitaria PDI';
+    const facilitadoraTel = sede.facilitadoraTel || '';
+    const telDigits = String(facilitadoraTel).replace(/[^0-9]/g, '');
+
+    const tipoAliado = sede.tipoAliado || 'Iglesia Aliada';
+    const iglesiaAliada = sede.iglesiaAliada || 'Sede Comunitaria';
+    const pastorAliado = sede.pastorAliado || 'Pastor Encargado';
+    const direccion = sede.direccion || 'Dirección de sede en campo';
+    const referencia = sede.referencia || 'Sin referencia registrada';
+
+    const telMarkup = telDigits ? `
+      <a href="tel:${telDigits}" class="sede-tel-link" style="margin-top:4px; display:inline-flex;">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+        </svg>
+        <span>${escapar(facilitadoraTel)}</span>
+      </a>
+    ` : `
+      <span class="sede-tel-link" style="margin-top:4px; display:inline-flex; opacity:0.65; cursor:default;">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+        </svg>
+        <span>Sin teléfono registrado</span>
+      </span>
+    `;
+
+    const mapQuery = encodeURIComponent(`${direccion}, ${sede.distrito || 'Comas'}, Lima, Peru`);
     const mapsNavUrl = `https://www.google.com/maps/dir/?api=1&destination=${mapQuery}`;
 
     const servicioLabels = {
@@ -569,14 +744,21 @@ export const SedesView = {
       "Lonchera Infantil": "Lonchera Saludable"
     };
 
+    const serviciosList = Array.isArray(sede.servicios) && sede.servicios.length > 0
+      ? sede.servicios
+      : ["Desayuno Infantil", "Casita del Saber"];
+
     panel.innerHTML = `
-      <div class="sedes-sheet-topbar">
-        <span class="sedes-sheet-grip"></span>
-        <button type="button" class="sedes-sheet-close"
+      <div class="sedes-sheet-header-mobile">
+        <div class="sedes-sheet-header-spacer"></div>
+        <div class="sedes-sheet-pill-wrap" aria-label="Deslizar hacia abajo para cerrar">
+          <span class="sedes-sheet-pill"></span>
+        </div>
+        <button type="button" class="sedes-sheet-close-x"
           onclick="window.PDI?.SedesView?.cerrarDetalleMovil()"
-          title="Cerrar ficha" aria-label="Cerrar ficha">
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+          title="Cerrar ventana" aria-label="Cerrar ventana">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
@@ -644,7 +826,7 @@ export const SedesView = {
             <span>Programas Institucionales en Operación</span>
           </div>
           <div class="sede-servicios-wrap" style="margin-top:8px; gap:8px;">
-            ${sede.servicios.map(serv => {
+            ${serviciosList.map(serv => {
               const displayServ = escapar(servicioLabels[serv] || serv);
               return `
                 <span class="sede-servicio-pill" style="font-size:12px; padding:6px 12px;">
@@ -669,14 +851,9 @@ export const SedesView = {
             </div>
             <div>
               <div class="sedes-card-label">Responsable / Facilitadora</div>
-              <div class="sedes-card-val">${escapar(sede.facilitadora)}</div>
-              <div class="sedes-card-sub">${escapar(sede.facilitadoraCargo)}</div>
-              <a href="tel:${sede.facilitadoraTel.replace(/[^0-9]/g, '')}" class="sede-tel-link" style="margin-top:4px; display:inline-flex;">
-                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-                </svg>
-                <span>${escapar(sede.facilitadoraTel)}</span>
-              </a>
+              <div class="sedes-card-val">${escapar(facilitadora)}</div>
+              <div class="sedes-card-sub">${escapar(facilitadoraCargo)}</div>
+              ${telMarkup}
             </div>
           </div>
 
@@ -688,9 +865,9 @@ export const SedesView = {
               </svg>
             </div>
             <div>
-              <div class="sedes-card-label">${escapar(sede.tipoAliado)}</div>
-              <div class="sedes-card-val">${escapar(sede.iglesiaAliada)}</div>
-              <div class="sedes-card-sub">${escapar(sede.pastorAliado)}</div>
+              <div class="sedes-card-label">${escapar(tipoAliado)}</div>
+              <div class="sedes-card-val">${escapar(iglesiaAliada)}</div>
+              <div class="sedes-card-sub">${escapar(pastorAliado)}</div>
             </div>
           </div>
         </div>
@@ -705,14 +882,15 @@ export const SedesView = {
             <span>Dirección Física y Referencias de Campo</span>
           </div>
           <div style="margin-top:6px; font-size:13.5px; color:var(--text-main); font-weight:600;">
-            ${escapar(sede.direccion)}
+            ${escapar(direccion)}
           </div>
           <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">
-            Referencia: ${escapar(sede.referencia)}
+            Referencia: ${escapar(referencia)}
           </div>
         </div>
       </div>
     `;
+    this._enlazarGestosHoja();
   }
 };
 

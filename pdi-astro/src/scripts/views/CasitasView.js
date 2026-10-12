@@ -1,4 +1,4 @@
-﻿// Vista: Acompañamiento Educativo (Casita del Saber)
+// Vista: Acompañamiento Educativo (Casita del Saber)
 import { crear as crearFiltros } from '../utils/Filters.js';
 import { Responsive } from '../utils/Responsive.js';
 
@@ -20,6 +20,8 @@ export const CasitasView = {
   _filterSede: [],
   _filterGrado: "all",
   _asistenciaDelegada: false,
+  _currentPage: 1,
+  _pageSize: 20,
 
   _filtros: null,
   _filtrosLeidos: false,
@@ -29,6 +31,91 @@ export const CasitasView = {
       this._filtros = crearFiltros(FILTROS_CASITAS);
     }
     return this._filtros;
+  },
+
+  _getEffectivePageSize() {
+    if (Responsive.esMovil()) {
+      return Math.min(20, this._pageSize || 20);
+    }
+    return Math.min(50, this._pageSize || 20);
+  },
+
+  _syncPageSizeSelectUI() {
+    const select = document.getElementById("selectCasitasPageSize");
+    if (select) {
+      const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+      const opt50 = select.querySelector('option[value="50"]');
+      if (opt50) {
+        opt50.disabled = isMobile;
+        if (isMobile && select.value === "50") {
+          select.value = "20";
+          this._pageSize = 20;
+        }
+      }
+      select.value = String(this._pageSize);
+    }
+  },
+
+  setPageSize(size) {
+    const num = parseInt(size, 10);
+    const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+    const maxAllowed = isMobile ? 20 : 50;
+    this._pageSize = isNaN(num) ? 20 : Math.min(maxAllowed, Math.max(5, num));
+    this._currentPage = 1;
+    this._syncPageSizeSelectUI();
+    this.applyFilters(false);
+  },
+
+  goToPage(page) {
+    const pageSize = this._getEffectivePageSize();
+    const totalPages = Math.max(1, Math.ceil(this._filteredBeneficiarios.length / pageSize));
+    this._currentPage = Math.min(totalPages, Math.max(1, page));
+    this._renderTableAndCards(this._filteredBeneficiarios);
+  },
+
+  prevPage() {
+    if (this._currentPage > 1) {
+      this.goToPage(this._currentPage - 1);
+    }
+  },
+
+  nextPage() {
+    const pageSize = this._getEffectivePageSize();
+    const totalPages = Math.max(1, Math.ceil(this._filteredBeneficiarios.length / pageSize));
+    if (this._currentPage < totalPages) {
+      this.goToPage(this._currentPage + 1);
+    }
+  },
+
+  _renderPagination(totalCount) {
+    const pageSize = this._getEffectivePageSize();
+    const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+    const startRecord = totalCount === 0 ? 0 : (this._currentPage - 1) * pageSize + 1;
+    const endRecord = Math.min(totalCount, this._currentPage * pageSize);
+
+    const infoEl = document.getElementById("casitasPaginationInfo");
+    if (infoEl) {
+      infoEl.textContent = totalCount === 0
+        ? "Mostrando 0 de 0 menores"
+        : `Mostrando ${startRecord}–${endRecord} de ${totalCount} menores`;
+    }
+
+    const pageNumEl = document.getElementById("casitasCurrentPageNum");
+    if (pageNumEl) {
+      pageNumEl.textContent = `Página ${this._currentPage} de ${totalPages}`;
+    }
+
+    const btnPrev = document.getElementById("btnCasitasPagePrev");
+    if (btnPrev) {
+      btnPrev.disabled = this._currentPage <= 1 || totalCount === 0;
+    }
+
+    const btnNext = document.getElementById("btnCasitasPageNext");
+    if (btnNext) {
+      btnNext.disabled = this._currentPage >= totalPages || totalCount === 0;
+    }
+
+    this._syncPageSizeSelectUI();
   },
 
   _persistirFiltros(extra) {
@@ -429,11 +516,22 @@ export const CasitasView = {
   _renderTableAndCards(casitaList) {
     const tbody = document.getElementById("tbodyAsistenciaCasita");
     const mobileContainer = document.getElementById("mobileCardsCasita");
+    const paginationBar = document.getElementById("casitasPaginationBar");
 
-    // Solo se dibuja la variante que se va a ver. La lista de tarjetas
-    // ocupaba 342 de los 1401 nodos del documento y 30 KB de marcado, y se
-    // regeneraba en cada pulsacion del buscador. Al cruzar el corte,
-    // _vigilarVariante() repinta.
+    const totalCount = casitaList.length;
+    const pageSize = this._getEffectivePageSize();
+    const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+    if (this._currentPage > totalPages) this._currentPage = totalPages;
+    if (this._currentPage < 1) this._currentPage = 1;
+
+    const startIndex = (this._currentPage - 1) * pageSize;
+    const pageItems = casitaList.slice(startIndex, startIndex + pageSize);
+
+    this._renderPagination(totalCount);
+    if (paginationBar) {
+      paginationBar.style.display = totalCount === 0 ? "none" : "flex";
+    }
+
     const enMovil = Responsive.esMovil();
 
     // La que no se dibuja se vacia, y no se deja con lo que hubiera de antes:
@@ -480,7 +578,7 @@ export const CasitasView = {
     }
 
     if (tbody && !enMovil) {
-      tbody.innerHTML = casitaList.map(b => `
+      tbody.innerHTML = pageItems.map(b => `
         <tr>
           <td><strong>${escapar(b.nombres)} ${escapar(b.apellidos)}</strong><div style="font-size:11px; color:var(--text-dim);">${escapar(b.codigo)}</div></td>
           <td>${escapar(b.grado)}</td>
@@ -502,7 +600,7 @@ export const CasitasView = {
     }
 
     if (mobileContainer && enMovil) {
-      mobileContainer.innerHTML = casitaList.map(b => `
+      mobileContainer.innerHTML = pageItems.map(b => `
         <div class="mobile-card-item" id="mobile-casita-${escapar(b.id)}">
           <!-- Cabecera: ID + Badge Asistencia -->
           <div class="datacard-header">
@@ -591,4 +689,7 @@ if (typeof window !== "undefined") {
   window.selectCasitasGrado = (val, label) => CasitasView.selectGrado(val, label);
   window.removeCasitasChip = (key, val) => CasitasView.removeFilter(key, val);
   window.resetCasitasFilters = () => CasitasView.resetFilters();
+  window.casitasSetPageSize = (size) => CasitasView.setPageSize(size);
+  window.casitasPrevPage = () => CasitasView.prevPage();
+  window.casitasNextPage = () => CasitasView.nextPage();
 }

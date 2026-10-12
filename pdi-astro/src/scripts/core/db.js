@@ -9,6 +9,7 @@
 //  o están incompletos, NUNCA sobreescribe el almacenamiento local con vacíos.
 // ===========================================================================
 import { Surreal } from 'surrealdb';
+import { defaultSedes } from '../../data/fixtures/sedes.js';
 
 const URL = import.meta.env.PUBLIC_SURREAL_URL;
 const NS = import.meta.env.PUBLIC_SURREAL_NS;
@@ -88,25 +89,35 @@ export async function fetchSedes() {
 
   return sedesRaw.map((s, idx) => {
     const sid = String(s.id);
+    const slug = slugDeSede(s.nombre);
+    const fixture = defaultSedes.find(f =>
+      (slug && f.id === slug) ||
+      (f.nombre && s.nombre && f.nombre.toLowerCase().trim() === s.nombre.toLowerCase().trim())
+    ) || {};
+
     return {
       // _rawId conserva el id real del registro (para cruzar relaciones);
       // "id" es el id estable con el que se compara y se guarda en la URL.
-      id: slugDeSede(s.nombre) || extraerNumeroId(null, sid, idx + 1),
+      id: slug || extraerNumeroId(null, sid, idx + 1),
       _rawId: sid,
-      nombre: s.nombre || '',
-      distrito: s.distrito || 'Comas',
-      direccion: s.direccion || '',
-      referencia: s.referencia || '',
-      facilitadora: s.facilitadora_nombre || '',
-      facilitadoraTel: s.facilitadora_tel || '',
-      iglesiaAliada: s.aliado_nombre || '',
-      pastorAliado: s.aliado_nombre || '',
-      aliadoTel: s.facilitadora_tel || '',
-      tipoAliado: s.tipo_local || 'Local Comunal',
-      servicios: Array.isArray(s.servicios) ? s.servicios : ['Servicio Alimentario Nutricional', 'Casita del Saber'],
-      aforoMax: s.aforo_max || 30,
-      horario: s.horario || 'Lunes a Viernes 08:00 - 14:00',
-      estado: s.estado || 'Operativa',
+      nombre: s.nombre || fixture.nombre || '',
+      distrito: s.distrito || fixture.distrito || 'Comas',
+      direccion: s.direccion || fixture.direccion || '',
+      referencia: s.referencia || fixture.referencia || '',
+      facilitadora: s.facilitadora_nombre || fixture.facilitadora || '',
+      facilitadoraCargo: s.facilitadora_cargo || fixture.facilitadoraCargo || 'Facilitadora Comunitaria PDI',
+      facilitadoraTel: s.facilitadora_tel || fixture.facilitadoraTel || '',
+      iglesiaAliada: s.aliado_nombre || fixture.iglesiaAliada || 'Sede Comunitaria',
+      pastorAliado: s.pastor_aliado || fixture.pastorAliado || 'Pastor Encargado',
+      aliadoTel: s.facilitadora_tel || fixture.facilitadoraTel || '',
+      tipoAliado: s.aliado_institucion || s.tipo_local || fixture.tipoAliado || 'Iglesia Aliada',
+      servicios: Array.isArray(s.servicios) && s.servicios.length > 0
+        ? s.servicios
+        : (fixture.servicios || ['Servicio Alimentario Nutricional', 'Casita del Saber']),
+      aforoMax: s.aforo_max || fixture.aforoMax || 30,
+      horario: s.horario || fixture.horario || 'Lunes a Viernes 08:00 - 14:00',
+      estado: s.estado || fixture.estado || 'Operativa',
+      coordenadas: s.coordenadas || fixture.coordenadas || null,
     };
   });
 }

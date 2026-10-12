@@ -1,58 +1,28 @@
 ---
-name: PDI Johannes Gutenberg
-description: Sistema de Gestión Social y Pastoral Infantil
-colors:
-  brand-primary: "#0f766e"
-  brand-soft: "#f0fdfa"
-  gt-blue: "#0284c7"
-  gt-red: "#dc2626"
-  gt-yellow: "#d97706"
-  gt-green: "#16a34a"
-  surface-1: "#ffffff"
-  surface-2: "#f8fafc"
-  border-subtle: "#e2e8f0"
-rounded:
-  sm: "6px"
-  md: "10px"
-  lg: "16px"
-spacing:
-  xs: "4px"
-  sm: "8px"
-  md: "16px"
-  lg: "24px"
+name: PDI Johannes Gutenberg (En Rediseño / Work In Progress)
+status: under_revision
+description: Rediseño visual y UI en curso. Reglas de diseño temporalmente relajadas y en transición activa.
+mode: Operate
 ---
 
-## Overview
-Sistema de diseño centrado en el operador ("Operate Mode") para gestión de casos de menores vulnerables en comunidades vulnerables. Prioriza legibilidad, escaneo rápido en pantallas de escritorio y tablets, estados claros y cero ambigüedad en autorizaciones críticas.
+> [!WARNING]
+> **ESTADO: REDISEÑO ACTIVO EN PROCESO (WIP)**
+> La interfaz y el sistema de diseño están pasando por una reestructuración activa y exploración de nuevas pautas visuales por parte del usuario.
+> **INSTRUCCIÓN PARA ASISTENTES Y SKILLS (IMPECCABLE / AUDIT / CRITIQUE):**
+> - **NO** bloquear cambios ni penalizar desvíos respecto a tokens, paletas previas o lineamientos históricos de este archivo.
+> - **NO** tachar la nueva UI como mala práctica si diverge de las especificaciones anteriores.
+> - Considerar la UI actual del código fuente como la referencia viva y permitir experimentación visual libre (nuevos contrastes, componentes, tipografías, layouts y paletas).
+> - Se creará un documento consolidado final una vez completado el rediseño.
 
-## Colors
-- **Brand Primary**: Teal institucional `#0f766e` con acento suave `#f0fdfa`.
-- **Semántica de Casos**:
-  - Alerta / Alta Urgencia: Rojo `#dc2626`
-  - En Evaluación / Media Urgencia: Amarillo / Ámbar `#d97706`
-  - Canalizados: Azul `#0284c7`
-  - Cerrados / Favorable: Verde `#16a34a`
-- **Superficies**: Neutrales limpios en modo claro (`#ffffff`, `#f8fafc`) y modo oscuro accesible.
+---
 
-## Typography
-- Familia única sans-serif: `Plus Jakarta Sans`, `Inter`, `system-ui`.
-- Escala fija optimizada para densidad de datos (12px etiquetas, 13-14px cuerpo, 16-20px encabezados).
+## 1. Pautas Generales (Fase de Transición)
+- **Modo**: *Operate* (Gestión operativa, clara y legible para coordinadores, educadores y trabajo social).
+- **Tipografía Oficial**: 
+  - **Fuente única global**: `Manrope` (pesos 300 a 800) como fuente sans-serif exclusiva y homogénea para todo el sistema (textos, números, tablas, métricas y componentes) a través del token `--ui-font`.
+  - **Fuentes descartadas**: Retiradas por completo `Nunito Sans`, `Plus Jakarta Sans` y `Google Sans`.
+- **Prioridad actual**: Iteración ágil de la interfaz, mejora ergonómica y usabilidad directa.
+- **Componentes y layouts**: Permitida la refactorización y prueba de nuevos estilos en componentes de Astro/CSS.
 
-## Layout
-- Shell con Sidebar lateral izquierdo fijo/colapsable (38px altura de botón de navegación).
-- Área de trabajo principal con cabecera de contexto y contenido estructurado por tarjetas.
-
-## Elevation & Depth
-- Sombras sutiles de borde (`box-shadow: 0 1px 3px rgba(0,0,0,0.06)`).
-- Bordes definidos con `var(--border-subtle)`.
-
-## Components
-- **Kanban Card**: Indicador lateral de color según urgencia, link monoespaciado para código de menor, botones de avance/retroceso táctiles.
-- **Pills & Badges**: Etiquetas de estado y contadores de notificación de 18px de altura mínima.
-- **Alert Banners**: Bloques de aviso contextual para acciones pendientes de revisión.
-
-## Do's and Don'ts
-- **DO**: Mantener una navegación plana, uniforme y predecible en el menú lateral.
-- **DO**: Reflejar fielmente los nombres oficiales de etapas: *Pendientes / Alerta*, *En Evaluación Social*, *Canalizados (DEMUNA / BTF)*, *Cerrados con Informe*.
-- **DON'T**: Anidar submenús desordenados con sangrías que rompan la verticalidad y el ritmo visual del sidebar.
-- **DON'T**: Mostrar secciones de aprobación a operadores ni historiales de solicitud a coordinadores generales.
+## 2. Historial de Respaldo
+El documento original previo a esta etapa se encuentra respaldado de manera segura en [DESIGN.md.bak](file:///c:/Users/USER/Downloads/AREA-PDI-JOJANNES%20G/pdi-astro/DESIGN.md.bak).

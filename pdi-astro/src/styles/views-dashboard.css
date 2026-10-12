@@ -2318,127 +2318,69 @@
   }
 }
 
-/* Tira de Métricas Operativas Clave (Clean Grid) */
-.dash-kpi-grid {
+/* Tira de Métricas Operativas Clave — Placas (fichas con valor ancla y pie hairline) */
+.plq-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
   margin-bottom: 20px;
 }
 
-.dash-kpi-item {
+.plq-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 18px 18px;
   background: var(--surface-1);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 16px 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
   box-shadow: var(--shadow-sm);
-  transition: border-color var(--dur-fast) var(--ease-smooth);
-  position: relative;
-  overflow: hidden;
+  transition: border-color var(--dur-fast) var(--ease-smooth),
+              box-shadow var(--dur-fast) var(--ease-smooth);
 }
 
-.dash-kpi-item::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 3.5px;
-}
-
-.dash-kpi-item.dash-kpi-green::before,
-.dash-kpi-item.green::before {
-  background: var(--gt-green);
-}
-
-.dash-kpi-item.dash-kpi-yellow::before,
-.dash-kpi-item.yellow::before {
-  background: var(--gt-yellow);
-}
-
-.dash-kpi-item.dash-kpi-blue::before,
-.dash-kpi-item.blue::before {
-  background: var(--gt-blue, #0284c7);
-}
-
-.dash-kpi-item.dash-kpi-red::before,
-.dash-kpi-item.red::before,
-.dash-kpi-item-alert::before {
-  background: var(--gt-red);
-}
-
-.dash-kpi-item:hover {
+.plq-card:hover {
   border-color: var(--border-bright);
+  box-shadow: var(--shadow-ambient);
 }
 
-.dash-kpi-top {
+.plq-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
 }
 
-.dash-kpi-label {
-  font-size: 12px;
+.plq-label {
+  font-size: 11px;
   font-weight: 700;
-  color: var(--text-dim);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  color: var(--text-muted);
+  line-height: 1.3;
 }
 
-.dash-kpi-pill {
-  font-size: 10.5px;
-  font-weight: 700;
-  padding: 2px 7px;
-  border-radius: var(--radius-full);
-  line-height: 1.2;
-}
-
-.dash-kpi-pill.green {
-  background: var(--gt-green-bg);
-  color: var(--text-brand);
-  border: 1px solid var(--gt-green-border);
-}
-
-.dash-kpi-pill.yellow {
-  background: var(--gt-yellow-bg);
-  color: var(--text-warning);
-  border: 1px solid var(--gt-yellow-border);
-}
-
-.dash-kpi-pill.blue {
-  background: var(--gt-blue-bg);
-  color: var(--text-info);
-  border: 1px solid var(--gt-blue-border);
-}
-
-.dash-kpi-pill.red {
-  background: var(--gt-red-bg);
-  color: var(--text-danger);
-  border: 1px solid var(--gt-red-border);
-}
-
-.dash-kpi-num {
-  font-size: 26px;
-  font-weight: 800;
+.plq-val {
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
   color: var(--text-main);
-  line-height: 1.1;
-  font-family: var(--ui-font);
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
 }
 
-.dash-kpi-num.alert {
+.plq-val.alert {
   color: var(--text-danger);
 }
 
-.dash-kpi-foot {
+.plq-meta {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-subtle);
   font-size: 11.5px;
-  color: var(--text-dim);
   font-weight: 500;
+  line-height: 1.4;
+  color: var(--text-dim);
 }
 
 /* Rejilla Principal de Gráficos / Clínico y Territorial */
@@ -2815,36 +2757,25 @@
 
 /* Responsive Breakpoints */
 @media (max-width: 1024px) {
-  .dash-kpi-grid {
+  .plq-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 640px) {
   /* En móviles: Grid de 2x2 compacto para no desplazar el contenido hacia abajo */
-  .dash-kpi-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 10px !important;
-    margin-bottom: 14px !important;
+  .plq-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
   }
-  .dash-kpi-item {
-    padding: 10px 12px !important;
-    gap: 4px !important;
+  .plq-card {
+    padding: 12px 13px 14px;
+    gap: 9px;
   }
-  .dash-kpi-label {
-    font-size: 10.5px !important;
-    letter-spacing: 0.02em !important;
-  }
-  .dash-kpi-pill {
-    font-size: 9.5px !important;
-    padding: 1px 5px !important;
-  }
-  .dash-kpi-num {
-    font-size: 20px !important;
-  }
-  .dash-kpi-foot {
-    font-size: 10px !important;
-    line-height: 1.25 !important;
+  .plq-meta {
+    font-size: 10.5px;
+    padding-top: 8px;
   }
 
   /* Mantener semáforo clínico en 3 columnas compactas tipo indicador médico */
@@ -2976,52 +2907,40 @@
   margin-top: 20px;
 }
 
-/* Lista de Casos Prioritarios.
-   La tarjeta de la bitacora tiene mas items, y el grid estira ambas a la misma
-   altura. Convertir el cuerpo en columna flexible deja que las filas repartan el
-   sobrante entre si, sin hueco muerto al pie. */
+/* Lista de Casos Prioritarios (registro llano).
+   La tarjeta de la bitacora tiene mas items y el grid estira ambas a la misma
+   altura. Un registro de una sola columna, sin cajas por caso: solo ritmo vertical
+   y alineacion; el expediente lleva la accion. */
 #widgetPriorityCases {
   display: flex;
   flex-direction: column;
 }
 
 #widgetPriorityCases .dash-priority-list {
-  flex: 1;
+  display: flex;
+  flex-direction: column;
   gap: 0;
+  flex: 1;
 }
 
-#widgetPriorityCases .dash-priority-item {
-  flex: 1 1 0;
-  min-height: 46px;
-}
-
-/* Fila destilada: sin cromo de tarjeta, un menor por línea, el expediente lleva la acción.
-   El nombre accesible del enlace lo da el title que ya emite el renderer. */
 .dash-priority-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 9px 2px;
+  padding: 10px 2px;
   background: transparent;
   border: none;
-  border-bottom: 1px solid var(--border-subtle);
   border-radius: 0;
-  transition: background-color var(--dur-fast) var(--ease-smooth),
-    border-color var(--dur-fast) var(--ease-smooth);
-}
-
-.dash-priority-item:last-child {
-  border-bottom: none;
+  transition: background-color var(--dur-fast) var(--ease-smooth);
 }
 
 .dash-priority-item:hover {
   background: var(--surface-2);
-  border-bottom-color: var(--border-bright);
 }
 
 .dash-priority-avatar {
-  width: 30px;
-  height: 30px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   background: var(--surface-hover);
   color: var(--text-brand);
@@ -3030,7 +2949,7 @@
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  font-size: 11.5px;
+  font-size: 10.5px;
   flex-shrink: 0;
   letter-spacing: -0.02em;
 }
@@ -3043,16 +2962,18 @@
 
 .dash-priority-info {
   display: flex;
-  align-items: baseline;
-  gap: 10px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
   flex: 1;
   min-width: 0;
 }
 
 .dash-priority-name {
   display: flex;
-  align-items: baseline;
-  gap: 8px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
   min-width: 0;
   flex: 1;
 }
@@ -3064,6 +2985,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .dash-priority-meta {
@@ -3079,6 +3001,12 @@
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.dash-priority-tags .badge {
+  font-size: 10px;
+  padding: 2px 7px;
 }
 
 /* El código ya vive en el enlace al expediente: retirarlo quita ruido sin quitar datos
@@ -3091,6 +3019,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  align-self: center;
   padding: 7px;
   border-radius: var(--radius-sm);
   background: transparent;
@@ -3120,6 +3049,7 @@
   outline: 2px solid var(--border-focus);
   outline-offset: 2px;
 }
+
 
 /* Lista de Bitácora / Timeline */
 .dash-timeline-list {

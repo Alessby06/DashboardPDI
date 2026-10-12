@@ -33,6 +33,16 @@ function enlazar() {
       SedesView.cerrarDetalleMovil?.();
     }
   });
+
+  const backdrop = document.getElementById("sedesSheetBackdrop");
+  if (backdrop) {
+    backdrop.addEventListener("pointerdown", (e) => {
+      if (e.target === backdrop) {
+        e.preventDefault();
+        SedesView.cerrarDetalleMovil?.();
+      }
+    });
+  }
 }
 
 /** Dibuja lo propio de esta pagina. Es idempotente. */

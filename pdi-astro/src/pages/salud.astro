@@ -755,6 +755,42 @@ import "../styles/views-salud.css";
       <div class="mobile-accordion-list" id="mobileCardsSalud">
         <!-- Injected via JS -->
       </div>
+
+      <!-- Controles de Paginación de Salud CRED (PC / Móvil) -->
+      <div class="padron-pagination-bar" id="saludPaginationBar">
+        <div class="padron-pagination-left">
+          <span id="saludPaginationInfo" style="font-size:12.5px; color:var(--text-muted); font-weight:500;">
+            Mostrando 0 de 0 evaluaciones
+          </span>
+          <div class="padron-density-wrapper" id="saludDensityWrapper"
+            style="display:flex; align-items:center; gap:6px;">
+            <span style="font-size:12px; color:var(--text-dim);">Mostrar:</span>
+            <select class="audit-density-select padron-density-select" id="selectSaludPageSize"
+              onchange="window.saludSetPageSize ? window.saludSetPageSize(this.value) : (window.PDI?.SaludCredView?.setPageSize ? window.PDI.SaludCredView.setPageSize(this.value) : null)">
+              <option value="10">10 por página</option>
+              <option value="20" selected>20 por página</option>
+              <option value="50">50 por página (Máx)</option>
+            </select>
+          </div>
+        </div>
+        <div class="padron-pagination-right">
+          <button type="button" class="btn-page" id="btnSaludPagePrev"
+            onclick="window.saludPrevPage ? window.saludPrevPage() : (window.PDI?.SaludCredView?.prevPage ? window.PDI.SaludCredView.prevPage() : null)">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+            </svg>
+            <span>Anterior</span>
+          </button>
+          <span class="audit-page-indicator" id="saludCurrentPageNum">Página 1</span>
+          <button type="button" class="btn-page" id="btnSaludPageNext"
+            onclick="window.saludNextPage ? window.saludNextPage() : (window.PDI?.SaludCredView?.nextPage ? window.PDI.SaludCredView.nextPage() : null)">
+            <span>Siguiente</span>
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+          </button>
+        </div>
+      </div>
     </div>
   </section>
 

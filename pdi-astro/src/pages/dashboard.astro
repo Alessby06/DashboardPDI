@@ -29,38 +29,35 @@ import '../styles/views-dashboard.css';
       </div>
     </div>
 
-    <!-- Tira de Métricas Operativas Clave (Clean Grid) -->
-    <div class="dash-kpi-grid" id="kpiDashboardContainer">
-      <div class="dash-kpi-item dash-kpi-green stagger-item">
-        <div class="dash-kpi-top">
-          <span class="dash-kpi-label">Beneficiarios Activos</span>
+    <!-- Tira de Métricas Operativas Clave (Placas) -->
+    <div class="plq-grid" id="kpiDashboardContainer">
+      <div class="plq-card">
+        <div class="plq-top">
+          <span class="plq-label">Beneficiarios Activos</span>
         </div>
-        <div class="dash-kpi-num" id="dashKpiBeneficiarios">15</div>
-        <div class="dash-kpi-foot">100% matriculados en el programa</div>
+        <div class="plq-val" id="dashKpiBeneficiarios">15</div>
+        <div class="plq-meta">100% matriculados en el programa</div>
       </div>
-
-      <div class="dash-kpi-item dash-kpi-yellow stagger-item">
-        <div class="dash-kpi-top">
-          <span class="dash-kpi-label">Tamizados CRED</span>
+      <div class="plq-card">
+        <div class="plq-top">
+          <span class="plq-label">Tamizados CRED</span>
         </div>
-        <div class="dash-kpi-num" id="dashKpiTamizados">15 / 15</div>
-        <div class="dash-kpi-foot">Control vigente con dosaje Hb</div>
+        <div class="plq-val" id="dashKpiTamizados">15 / 15</div>
+        <div class="plq-meta">Control vigente con dosaje Hb</div>
       </div>
-
-      <div class="dash-kpi-item dash-kpi-blue stagger-item">
-        <div class="dash-kpi-top">
-          <span class="dash-kpi-label">Asistencia en Casitas</span>
+      <div class="plq-card">
+        <div class="plq-top">
+          <span class="plq-label">Asistencia en Casitas</span>
         </div>
-        <div class="dash-kpi-num" id="dashKpiAsistencia">92.4%</div>
-        <div class="dash-kpi-foot">Promedio territorial consolidado</div>
+        <div class="plq-val" id="dashKpiAsistencia">92.4%</div>
+        <div class="plq-meta">Promedio territorial consolidado</div>
       </div>
-
-      <div class="dash-kpi-item dash-kpi-red stagger-item">
-        <div class="dash-kpi-top">
-          <span class="dash-kpi-label">Casos en Alerta</span>
+      <div class="plq-card">
+        <div class="plq-top">
+          <span class="plq-label">Casos en Alerta</span>
         </div>
-        <div class="dash-kpi-num alert" id="dashKpiCasosSociales">0</div>
-        <div class="dash-kpi-foot">Seguimiento clínico o social activo</div>
+        <div class="plq-val alert" id="dashKpiCasosSociales">0</div>
+        <div class="plq-meta">Seguimiento clínico o social activo</div>
       </div>
     </div>
 
@@ -98,36 +95,18 @@ import '../styles/views-dashboard.css';
             </div>
             <div class="dash-anemia-metrics-grid">
               <div class="dash-anemia-col normal">
-                <div class="dash-anemia-col-header">
-                  <span class="dash-status-dot green"></span>
-                  <span class="dash-anemia-col-name">Normal</span>
-                </div>
-                <div class="dash-anemia-col-stat">
-                  <strong class="dash-anemia-count" id="anemiaLegendNormal">7</strong>
-                  <span class="dash-anemia-pct" id="anemiaPctNormal">(47%)</span>
-                </div>
+                <div class="dash-anemia-col-header"><span class="dash-status-dot green"></span><span class="dash-anemia-col-name">Normal</span></div>
+                <div class="dash-anemia-col-stat"><strong class="dash-anemia-count" id="anemiaLegendNormal">7</strong><span class="dash-anemia-pct" id="anemiaPctNormal">(47%)</span></div>
                 <div class="dash-anemia-col-ref">&ge; 11.0 g/dL</div>
               </div>
               <div class="dash-anemia-col leve">
-                <div class="dash-anemia-col-header">
-                  <span class="dash-status-dot yellow"></span>
-                  <span class="dash-anemia-col-name">Anemia Leve</span>
-                </div>
-                <div class="dash-anemia-col-stat">
-                  <strong class="dash-anemia-count" id="anemiaLegendLeve">6</strong>
-                  <span class="dash-anemia-pct" id="anemiaPctLeve">(40%)</span>
-                </div>
+                <div class="dash-anemia-col-header"><span class="dash-status-dot yellow"></span><span class="dash-anemia-col-name">Anemia Leve</span></div>
+                <div class="dash-anemia-col-stat"><strong class="dash-anemia-count" id="anemiaLegendLeve">6</strong><span class="dash-anemia-pct" id="anemiaPctLeve">(40%)</span></div>
                 <div class="dash-anemia-col-ref">10.0 &ndash; 10.9 g/dL</div>
               </div>
               <div class="dash-anemia-col mod">
-                <div class="dash-anemia-col-header">
-                  <span class="dash-status-dot red"></span>
-                  <span class="dash-anemia-col-name">Anemia Mod/Sev</span>
-                </div>
-                <div class="dash-anemia-col-stat">
-                  <strong class="dash-anemia-count" id="anemiaLegendMod">2</strong>
-                  <span class="dash-anemia-pct" id="anemiaPctMod">(13%)</span>
-                </div>
+                <div class="dash-anemia-col-header"><span class="dash-status-dot red"></span><span class="dash-anemia-col-name">Anemia Mod/Sev</span></div>
+                <div class="dash-anemia-col-stat"><strong class="dash-anemia-count" id="anemiaLegendMod">2</strong><span class="dash-anemia-pct" id="anemiaPctMod">(13%)</span></div>
                 <div class="dash-anemia-col-ref">&lt; 10.0 g/dL</div>
               </div>
             </div>
@@ -154,33 +133,17 @@ import '../styles/views-dashboard.css';
           <div class="dash-territory-list" id="dashDistrictCoverage">
             <div class="dash-territory-row">
               <div class="dash-territory-head">
-                <div class="dash-territory-info">
-                  <strong>Distrito de Comas</strong>
-                  <span class="dash-territory-sub">Sedes (3): Año Nuevo, La Libertad, Carmen Alto</span>
-                </div>
-                <div class="dash-territory-metric">
-                  <strong id="badgeDistrict_comas">8 menores</strong>
-                  <span class="dash-territory-pct" id="pctDistrict_comas">(53%)</span>
-                </div>
+                <div class="dash-territory-info"><strong>Distrito de Comas</strong><span class="dash-territory-sub">Sedes (3): Año Nuevo, La Libertad, Carmen Alto</span></div>
+                <div class="dash-territory-metric"><strong id="badgeDistrict_comas">8 menores</strong><span class="dash-territory-pct" id="pctDistrict_comas">(53%)</span></div>
               </div>
-              <div class="dash-territory-track">
-                <div class="dash-territory-bar green" style="width: 0%;" id="barDistrict_comas"></div>
-              </div>
+              <div class="dash-territory-track"><div class="dash-territory-bar green" style="width: 53%;" id="barDistrict_comas"></div></div>
             </div>
             <div class="dash-territory-row">
               <div class="dash-territory-head">
-                <div class="dash-territory-info">
-                  <strong>Distrito de Carabayllo</strong>
-                  <span class="dash-territory-sub">Sedes (4): El Progreso, San Pedro, Los Bendecidos, Santa Rosa</span>
-                </div>
-                <div class="dash-territory-metric">
-                  <strong id="badgeDistrict_carabayllo">7 menores</strong>
-                  <span class="dash-territory-pct" id="pctDistrict_carabayllo">(47%)</span>
-                </div>
+                <div class="dash-territory-info"><strong>Distrito de Carabayllo</strong><span class="dash-territory-sub">Sedes (4): El Progreso, San Pedro, Los Bendecidos, Santa Rosa</span></div>
+                <div class="dash-territory-metric"><strong id="badgeDistrict_carabayllo">7 menores</strong><span class="dash-territory-pct" id="pctDistrict_carabayllo">(47%)</span></div>
               </div>
-              <div class="dash-territory-track">
-                <div class="dash-territory-bar blue" style="width: 0%;" id="barDistrict_carabayllo"></div>
-              </div>
+              <div class="dash-territory-track"><div class="dash-territory-bar blue" style="width: 47%;" id="barDistrict_carabayllo"></div></div>
             </div>
           </div>
         </div>
@@ -188,22 +151,20 @@ import '../styles/views-dashboard.css';
 
     <!-- Foco Operativo Inferior: Casos Prioritarios y Bitácora -->
     <div class="dash-operational-grid">
-      <!-- Casos Prioritarios -->
-      <div class="card stagger-item" id="widgetPriorityCases">
-        <div class="card-header">
-          <div class="dash-card-header-flex">
-            <div class="card-title">
-              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--gt-red);">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"></path>
-              </svg>
-              <span>Menores con Atención Prioritaria</span>
+        <!-- Casos Prioritarios -->
+        <div class="card" id="widgetPriorityCases">
+          <div class="card-header">
+            <div class="dash-card-header-flex">
+              <div class="card-title">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--gt-red);"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"></path></svg>
+                <span>Menores con Atención Prioritaria</span>
+              </div>
             </div>
           </div>
+          <div class="dash-priority-list" id="dashPriorityCasesList">
+            <!-- Inyectado dinámicamente vía DashboardView.renderPriorityCases -->
+          </div>
         </div>
-        <div class="dash-priority-list" id="dashPriorityCasesList">
-          <div class="dash-empty-state">Cargando alertas prioritarias...</div>
-        </div>
-      </div>
 
       <!-- Bitácora Reciente -->
       <div class="card stagger-item" id="widgetRecentActivity">

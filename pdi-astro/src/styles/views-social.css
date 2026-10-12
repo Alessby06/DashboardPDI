@@ -1865,14 +1865,12 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      font-family: 'Nunito Sans', sans-serif !important;
     }
 
     .cred-calc-subtitle {
       font-size: 12.5px;
       color: var(--text-muted);
       margin-top: 2px;
-      font-family: 'Nunito Sans', sans-serif !important;
     }
 
     .cred-calc-header-right {
@@ -1898,7 +1896,6 @@
       border-top: 1px solid var(--border-subtle);
       background: var(--surface-2);
       animation: fadeInDataCard 0.25s ease-out;
-      font-family: 'Nunito Sans', sans-serif !important;
     }
 
     @media (max-width: 768px) {
