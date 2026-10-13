@@ -1304,24 +1304,28 @@
     align-items: center;
     justify-content: center;
     line-height: 1;
+    /* Ancla del punto azul: al posicionarlo respecto de la etiqueta (y no de la
+       pastilla) el punto queda pegado al texto en cualquier ancho de pastilla,
+       sin sacar la etiqueta del centro ni desplazar el layout al seleccionar. */
+    position: relative;
   }
   .access-column .profile-card-btn.active .profile-role-name {
     color: var(--text-title);
     font-weight: 600; /* No cambia de peso para evitar que la página o el layout se mueva */
   }
   .access-column .profile-card-btn:focus-visible { outline: 2px solid var(--v-blue-focus); outline-offset: 2px; }
-  /* Punto indicador: se posiciona fuera del flujo y sobre el padding izquierdo
-     simétrico de la pastilla, así el texto queda perfectamente centrado
-     (antes el pseudo-elemento inline empujaba la etiqueta a la derecha). */
+  /* Punto indicador anclado a la etiqueta: left negativo lo Moulle contra el
+     inicio del texto, así queda a ~7px de la primera letra en vez de pegado al
+     borde izquierdo de la pastilla. El padding sigue siendo simétrico, por eso
+     la etiqueta permanece perfectamente centrada. */
   .access-column .profile-card-btn {
-    position: relative;
-    padding-left: 17px;
-    padding-right: 17px;
+    padding-left: 14px;
+    padding-right: 14px;
   }
   .access-column .profile-card-btn .profile-role-name::before {
     content: "";
     position: absolute;
-    left: 8px;
+    left: -13px;
     top: 50%;
     width: 6px;
     height: 6px;
@@ -1794,23 +1798,23 @@
         </div>
 
         <div class="profiles-grid" id="profilesGrid">
-          <button type="button" class="profile-card-btn" data-user="coordinacion">
+          <button type="button" class="profile-card-btn" data-user="coordinacion" data-clave="coord2024">
             <span class="profile-role-name">Coordinación</span>
             <span class="profile-user-id">coordinacion</span>
           </button>
-          <button type="button" class="profile-card-btn" data-user="facilitadora">
+          <button type="button" class="profile-card-btn" data-user="facilitadora" data-clave="facil2024">
             <span class="profile-role-name">Nutrición</span>
             <span class="profile-user-id">facilitadora</span>
           </button>
-          <button type="button" class="profile-card-btn" data-user="promotora">
+          <button type="button" class="profile-card-btn" data-user="promotora" data-clave="promo2024">
             <span class="profile-role-name">Educación</span>
             <span class="profile-user-id">promotora</span>
           </button>
-          <button type="button" class="profile-card-btn" data-user="social">
+          <button type="button" class="profile-card-btn" data-user="social" data-clave="social2024">
             <span class="profile-role-name">Trabajo Social</span>
             <span class="profile-user-id">social</span>
           </button>
-          <button type="button" class="profile-card-btn" data-user="admin">
+          <button type="button" class="profile-card-btn" data-user="admin" data-clave="admin2024">
             <span class="profile-role-name">Administración TI</span>
             <span class="profile-user-id">admin</span>
           </button>
@@ -1874,6 +1878,10 @@
     });
 
     // 4. Selector de Perfiles (Directorio Rápido)
+    // RELLENO_CONTRASEÑAS: en producción se pone en false y las pastillas solo
+    // rellenan el usuario (la contraseña se escribe a mano).
+    const RELLENO_CONTRASEÑAS = true;
+
     const profilesGrid = document.getElementById('profilesGrid');
     const inputUsuario = document.getElementById('inputUsuario');
 
@@ -1884,11 +1892,18 @@
       document.querySelectorAll('.profile-card-btn').forEach(c => c.classList.remove('active'));
       card.classList.add('active');
 
-      // Solo llena el usuario; la contraseña debe ser escrita manualmente por seguridad
       if (inputUsuario) inputUsuario.value = card.dataset.user || '';
 
+      if (RELLENO_CONTRASEÑAS && inputClave) {
+        inputClave.value = card.dataset.clave || '';
+      }
+
       ocultarError();
-      inputClave?.focus();
+      if (RELLENO_CONTRASEÑAS) {
+        btnLogin?.focus();
+      } else {
+        inputClave?.focus();
+      }
     });
 
     // 4b. Acordeón de Módulos Operativos (Permite desplegar y plegar al hacer clic)
@@ -1990,9 +2005,6 @@
     });
   </script>
 
-<!-- impeccable-live-start -->
-<script is:inline src="http://localhost:8400/live.js?token=dea15c38-50de-41b4-a3ef-184760fbc2f4"></script>
-<!-- impeccable-live-end -->
 </body>
 </html>
 

@@ -2430,7 +2430,7 @@
 .dash-anemia-tcount {
   width: 52px;
   font-size: 22px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--text-main);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.03em;
@@ -2493,8 +2493,65 @@
 }
 
 @media (max-width: 640px) {
+  .dash-anemia-table-card {
+    padding: 16px 14px;
+    gap: 12px;
+  }
+  .dash-anemia-table {
+    table-layout: auto;
+    width: 100%;
+  }
+  .dash-anemia-trow td {
+    padding: 9px 0;
+  }
+  .dash-anemia-tcount {
+    width: 24px;
+    font-size: 20px;
+    padding-right: 6px;
+  }
   .dash-anemia-band {
+    width: 1%;
+    white-space: nowrap;
+    padding-right: 5%;
+  }
+  .dash-anemia-bname {
+    font-size: 12.5px;
+  }
+  .dash-anemia-brange {
+    font-size: 10px;
+  }
+  /* Celda de la barra: con holgura prudente a la izquierda */
+  .dash-anemia-trow td:nth-child(3) {
     width: auto;
+    padding: 0 8px 0 10px;
+    position: relative;
+  }
+  /* Pista de fondo horizontal con separación armónica */
+  .dash-anemia-trow td:nth-child(3)::before {
+    content: "";
+    display: block;
+    position: absolute;
+    left: 10px;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 6px;
+    background: var(--surface-2, rgba(255, 255, 255, 0.08));
+    border-radius: var(--radius-full);
+  }
+  .dash-anemia-fill {
+    position: relative;
+    z-index: 1;
+    min-width: 6px;
+  }
+  .dash-anemia-tpct {
+    width: 36px;
+    font-size: 12px;
+    text-align: right;
+  }
+  .dash-anemia-foot {
+    font-size: 11px;
+    line-height: 1.4;
   }
 }
 
@@ -2607,7 +2664,7 @@
 
 .dash-summary-val {
   font-size: 12.5px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--text-main);
   font-variant-numeric: tabular-nums;
 }
@@ -2671,7 +2728,7 @@
 
 .dash-territory-metric strong {
   font-size: 13.5px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--text-main);
   font-variant-numeric: tabular-nums;
 }
@@ -2684,11 +2741,14 @@
 }
 
 .dash-territory-track {
-  height: 7px;
+  height: 6px;
   width: 100%;
   background: var(--surface-2);
   border-radius: var(--radius-full);
   overflow: hidden;
+  /* border-box: los 6px incluyen el borde, así la barra interior
+     (height:100%) mide 6px igual que las de anemia. */
+  box-sizing: border-box;
   border: 1px solid var(--border-subtle);
 }
 
@@ -2783,10 +2843,16 @@
   display: none;
 }
 
+/* En móvil el texto de sedes puede ser largo y empujar el porcentaje hacia
+   abajo; flex-shrink:0 lo mantiene siempre alineado a la derecha. */
+.dash-territory-metric {
+  flex-shrink: 0;
+}
+
 .dash-territory-pct {
   order: 1;
   font-size: 20px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--text-main);
   letter-spacing: -0.02em;
 }
