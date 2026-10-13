@@ -2398,102 +2398,128 @@
   gap: 18px;
 }
 
-.dash-anemia-bar-section {
+/* ===========================================================================
+   ESTADO NUTRICIONAL Y ANEMIA — Tabla de rangos
+   Distribución de menores por nivel de hemoglobina. Cada fila lleva su conteo
+   tabular, el rango MINSA y una regla fina que codifica el porcentaje; el dato
+   lo actualiza DashboardView por id (dashAnemiaTable, anemiaLegend*, segAnemia*,
+   anemiaPct*), así que los anchos de .dash-anemia-fill siguen siendo inline.
+   =========================================================================== */
+.dash-anemia-table-card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  background: rgba(15, 23, 42, 0.02);
-  border-radius: var(--radius-md);
-  padding: 10px 12px;
+  gap: 16px;
+  padding: 20px 22px;
 }
 
-.dash-anemia-bar-labels {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 12px;
-}
-
-.dash-anemia-bar-caption {
-  color: var(--text-muted);
-  font-weight: 600;
-}
-
-.dash-anemia-norm-ref {
-  font-size: 11px;
-  color: var(--text-dim);
-  font-family: var(--mono-font);
-  background: var(--surface-2);
-  padding: 2px 6px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-subtle);
-}
-
-.dash-anemia-track {
-  height: 14px;
+.dash-anemia-table {
   width: 100%;
-  background: rgba(15, 23, 42, 0.08);
+  border-collapse: collapse;
+}
+
+.dash-anemia-trow td {
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle;
+}
+
+.dash-anemia-trow:last-child td {
+  border-bottom: 0;
+}
+
+.dash-anemia-tcount {
+  width: 52px;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-main);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+
+.dash-anemia-band {
+  width: 34%;
+  padding-right: 14px;
+}
+
+.dash-anemia-bname {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.dash-anemia-brange {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.dash-anemia-fill {
+  display: block;
+  height: 6px;
   border-radius: var(--radius-full);
-  display: flex;
-  overflow: hidden;
+  transition: width 620ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.dash-anemia-seg {
-  height: 100%;
-  transition: width 0.85s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: width;
+.dash-anemia-fill.normal {
+  background: var(--gt-green);
 }
 
-.dash-anemia-seg.normal {
-  background: #00b494;
+.dash-anemia-fill.leve {
+  background: var(--gt-yellow);
 }
 
-.dash-anemia-seg.leve {
-  background: #d97706;
+.dash-anemia-fill.mod {
+  background: var(--gt-red);
 }
 
-.dash-anemia-seg.mod {
-  background: #b91c1c;
+.dash-anemia-tpct {
+  width: 52px;
+  text-align: right;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
 }
 
-.dash-anemia-metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+.dash-anemia-foot {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-dim);
 }
 
-.dash-anemia-col {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 10px 12px;
-  border-radius: var(--radius-md);
-  background: var(--surface-2);
+@media (max-width: 640px) {
+  .dash-anemia-band {
+    width: auto;
+  }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-anemia-fill {
+    transition: none;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
 
 /* Tintes semánticos por nivel de hemoglobina */
-.dash-anemia-col {
-  border: none;
-  border-radius: var(--radius-md);
-}
 
-.dash-anemia-col.normal {
-  background: rgba(0, 180, 148, 0.24);
-}
 
-.dash-anemia-col.leve {
-  background: rgba(217, 119, 6, 0.24);
-}
 
-.dash-anemia-col.mod {
-  background: rgba(185, 28, 28, 0.24);
-}
 
-.dash-anemia-col-header {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
 
 .dash-status-dot {
   width: 8px;
@@ -2514,39 +2540,10 @@
   background: var(--gt-red);
 }
 
-.dash-anemia-col-name {
-  font-size: 11.5px;
-  font-weight: 700;
-  color: var(--text-main);
-}
 
-.dash-anemia-col-stat {
-  display: flex;
-  align-items: baseline;
-  gap: 5px;
-}
 
-.dash-anemia-count {
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--text-main);
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-}
 
-.dash-anemia-pct {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-dim);
-  font-variant-numeric: tabular-nums;
-}
 
-.dash-anemia-col-ref {
-  font-size: 11px;
-  color: var(--text-dim);
-  font-family: var(--mono-font);
-  margin-top: 2px;
-}
 
 .dash-clinical-callout {
   display: flex;
@@ -2750,6 +2747,59 @@
   background: rgba(15, 23, 42, 0.06);
 }
 
+/* ===========================================================================
+   COBERTURA TERRITORIAL — Porcentaje protagonista
+   El reparto entre distritos se lee por peso relativo: el porcentaje manda y el
+   conteo de menores queda fuera de la vista (variante aceptada "solo
+   porcentaje"). El marcado lo emite DashboardView (dash-territory-*), así que
+   aquí solo se reestiliza lo que el JS ya genera: al re-renderizar la tarjeta
+   sigue viéndose igual.
+   =========================================================================== */
+.dash-territory-row {
+  background: none;
+  padding: 0 0 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  border-radius: 0;
+  gap: 8px;
+}
+
+.dash-territory-row:first-child,
+.dash-territory-row:last-child {
+  background: none;
+}
+
+.dash-territory-row:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.dash-territory-metric {
+  align-items: baseline;
+  gap: 9px;
+}
+
+/* Para volver a mostrar el conteo por distrito, quitar esta línea. */
+.dash-territory-metric strong {
+  display: none;
+}
+
+.dash-territory-pct {
+  order: 1;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+}
+
+.dash-territory-track {
+  height: 4px;
+  border: 0;
+}
+
+.dash-territory-sub {
+  font-size: 11.5px;
+}
+
 /* El enlace de acción comparte el acento territorial */
 #widgetCoverageStatus .dash-card-action {
   color: var(--brand-primary);
@@ -2779,26 +2829,6 @@
   }
 
   /* Mantener semáforo clínico en 3 columnas compactas tipo indicador médico */
-  .dash-anemia-metrics-grid {
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 6px !important;
-  }
-  .dash-anemia-col {
-    padding: 8px 6px !important;
-    gap: 2px !important;
-  }
-  .dash-anemia-col-name {
-    font-size: 10px !important;
-  }
-  .dash-anemia-count {
-    font-size: 16px !important;
-  }
-  .dash-anemia-pct {
-    font-size: 10px !important;
-  }
-  .dash-anemia-col-ref {
-    font-size: 9.5px !important;
-  }
 
   /* Tarjetas operativas y lista de Menores Prioritarios (Compact Mobile Layout) */
   .dash-priority-list {
@@ -3132,6 +3162,65 @@
   margin-top: 2px;
   font-size: 10.5px;
   color: var(--text-dim);
+}
+
+/* ---------------------------------------------------------------------------
+   ACTIVIDAD RECIENTE — Registro sin caja anidada
+   Cada entrada era una tarjeta dentro de la tarjeta (fondo, borde y radio
+   propios). Aqui la entrada vuelve a ser texto sobre el registro: sin caja,
+   con hilos de 1px entre entradas y la altura de la tarjeta repartida entre
+   las cuatro. Escala del autor y separador quedan horneados en sus valores
+   aceptados (13px y hilo de 1px).
+   --------------------------------------------------------------------------- */
+#widgetRecentActivity {
+  display: flex;
+  flex-direction: column;
+}
+
+#widgetRecentActivity .dash-timeline-list {
+  flex: 1;
+  justify-content: space-between;
+  gap: 0;
+}
+
+#widgetRecentActivity .dash-timeline-dot,
+#widgetRecentActivity .dash-timeline-item::after {
+  display: none;
+}
+
+#widgetRecentActivity .dash-timeline-item {
+  flex: 1;
+  min-height: 0;
+  align-items: center;
+  padding: 14px 0;
+}
+
+#widgetRecentActivity .dash-timeline-item:not(:last-child) {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+#widgetRecentActivity .dash-timeline-body {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  gap: 5px;
+}
+
+#widgetRecentActivity .dash-timeline-header {
+  align-items: baseline;
+}
+
+#widgetRecentActivity .dash-timeline-user {
+  font-size: 13px;
+}
+
+#widgetRecentActivity .dash-timeline-action {
+  font-size: 12.5px;
+}
+
+#widgetRecentActivity .dash-timeline-meta {
+  font-size: 11px;
 }
 
 .dash-empty-state {

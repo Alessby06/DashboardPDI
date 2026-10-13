@@ -29,13 +29,28 @@ export const Navigation = {
     document.documentElement.removeAttribute("data-menu-cerrandose");
   },
 
-  /** Sincroniza la clase .active del enlace según la página actual. */
+  /** Sincroniza la clase .active del enlace según la página actual y subvistas. */
   actualizarEnlaceActivo() {
     const paginaActual = document.body?.getAttribute("data-page");
     if (!paginaActual) return;
+
+    const urlParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+    const tabParam = urlParams ? urlParams.get("tab") : null;
+
     document.querySelectorAll(".nav-sections .nav-btn").forEach((btn) => {
       const page = btn.getAttribute("data-page");
-      if (page) {
+      const subview = btn.getAttribute("data-subview");
+      if (!page) return;
+
+      if (paginaActual === "social") {
+        if (tabParam === "autorizaciones") {
+          btn.classList.toggle("active", subview === "autorizaciones");
+        } else if (tabParam === "mis-solicitudes") {
+          btn.classList.toggle("active", subview === "mis-solicitudes");
+        } else {
+          btn.classList.toggle("active", page === "social" && !subview);
+        }
+      } else {
         btn.classList.toggle("active", page === paginaActual);
       }
     });

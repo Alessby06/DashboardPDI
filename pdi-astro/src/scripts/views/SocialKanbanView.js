@@ -34,6 +34,8 @@ export const SocialKanbanView = {
   reiniciarEntrada() {
     this._haEntrado = false;
     this._lastRenderSerial = "";
+    this._filtrosLeidos = false;
+    this._filtros = null;
   },
 
   _filtros: null,
@@ -78,14 +80,7 @@ export const SocialKanbanView = {
     const board = document.getElementById("kanbanCasosSociales");
     if (board) board.setAttribute("data-mobile-active-stage", f.etapa);
 
-    // Leer parámetro ?tab= para activar la vista correspondiente
-    const urlParams = new URLSearchParams(window.location.search);
-    const tabParam = urlParams.get("tab");
-    if (tabParam === "autorizaciones" || tabParam === "mis-solicitudes") {
-      this.switchSocialTab(tabParam, false);
-    } else {
-      this.actualizarBadgesPestañas();
-    }
+    this.actualizarBadgesPestañas();
   },
 
   init() {
@@ -104,17 +99,6 @@ export const SocialKanbanView = {
 
     const model = window.PDI?.CasoSocialModel || CasoSocialModel;
     const allCasos = casos || (model.getAll ? model.getAll() : []);
-
-    // #region DEBUG
-    const _conSol = allCasos.filter(c => c.solicitudCambio && c.solicitudCambio.estado === "pendiente");
-    try {
-      fetch('http://127.0.0.1:4322/debug', {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },
-        body: `[DEBUG H1] renderKanban ejecutado. Total casos=${allCasos.length}, casos con solicitud activa=${_conSol.length} (${_conSol.map(c => c.menor + ' [' + c.codigo + ']').join(', ') || 'NINGUNO'})`
-      }).catch(() => {});
-    } catch(e) {}
-    // #endregion DEBUG
 
     // Aplicar filtros de búsqueda, urgencia y sede
     const filtered = allCasos.filter(c => {
@@ -842,6 +826,35 @@ export const SocialKanbanView = {
   },
 
   /**
+   * Sincroniza la visibilidad de los paneles y el estado activo en el sidebar directamente.
+   */
+  activarPanelDirecto(tabKey) {
+    const rol = localStorage.getItem("pdi_active_role") || "coord";
+    if (tabKey === "autorizaciones" && rol !== "coord" && rol !== "admin") tabKey = "kanban";
+    if (tabKey === "mis-solicitudes" && rol !== "social") tabKey = "kanban";
+
+    // Paneles de subvistas principales
+    const panelKanban = document.getElementById("viewSocialKanban");
+    const panelAutorizaciones = document.getElementById("viewSocialAutorizaciones");
+    const panelMisSolicitudes = document.getElementById("viewSocialMisSolicitudes");
+
+    if (panelKanban) panelKanban.classList.toggle("active", tabKey === "kanban");
+    if (panelAutorizaciones) panelAutorizaciones.classList.toggle("active", tabKey === "autorizaciones");
+    if (panelMisSolicitudes) panelMisSolicitudes.classList.toggle("active", tabKey === "mis-solicitudes");
+
+    // Sincronizar botones del sidebar
+    const btnSocial = document.querySelector('#sidebarNav .nav-btn[data-page="social"]');
+    const btnAutorizaciones = document.querySelector('#sidebarNav .nav-btn[data-subview="autorizaciones"]');
+    const btnMisSolicitudes = document.querySelector('#sidebarNav .nav-btn[data-subview="mis-solicitudes"]');
+
+    if (btnSocial) btnSocial.classList.toggle("active", tabKey === "kanban");
+    if (btnAutorizaciones) btnAutorizaciones.classList.toggle("active", tabKey === "autorizaciones");
+    if (btnMisSolicitudes) btnMisSolicitudes.classList.toggle("active", tabKey === "mis-solicitudes");
+
+    this.actualizarBadgesPestañas();
+  },
+
+  /**
    * Cambia la pestaña activa de /social (Tablero, Bandeja de Autorizaciones, Estado de Solicitudes).
    */
   switchSocialTab(tabKey, actualizarUrl = true) {
@@ -859,23 +872,7 @@ export const SocialKanbanView = {
     }
 
     const aplicarCambioDeVista = () => {
-      // Paneles de subvistas principales
-      const panelKanban = document.getElementById("viewSocialKanban");
-      const panelAutorizaciones = document.getElementById("viewSocialAutorizaciones");
-      const panelMisSolicitudes = document.getElementById("viewSocialMisSolicitudes");
-
-      if (panelKanban) panelKanban.classList.toggle("active", tabKey === "kanban");
-      if (panelAutorizaciones) panelAutorizaciones.classList.toggle("active", tabKey === "autorizaciones");
-      if (panelMisSolicitudes) panelMisSolicitudes.classList.toggle("active", tabKey === "mis-solicitudes");
-
-      // Sincronizar botones nativos de primer nivel del sidebar
-      const btnSocial = document.querySelector('#sidebarNav .nav-btn[data-page="social"]');
-      const btnAutorizaciones = document.querySelector('#sidebarNav .nav-btn[data-subview="autorizaciones"]');
-      const btnMisSolicitudes = document.querySelector('#sidebarNav .nav-btn[data-subview="mis-solicitudes"]');
-
-      if (btnSocial) btnSocial.classList.toggle("active", tabKey === "kanban");
-      if (btnAutorizaciones) btnAutorizaciones.classList.toggle("active", tabKey === "autorizaciones");
-      if (btnMisSolicitudes) btnMisSolicitudes.classList.toggle("active", tabKey === "mis-solicitudes");
+      this.activarPanelDirecto(tabKey);
 
       // Renderizar la vista correspondiente
       if (tabKey === "autorizaciones") {
@@ -885,8 +882,6 @@ export const SocialKanbanView = {
       } else {
         this.renderKanban();
       }
-
-      this.actualizarBadgesPestañas();
     };
 
     // Actualizar parámetro en la URL

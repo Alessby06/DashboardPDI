@@ -92,10 +92,42 @@ const impeccableLive =
       // 1. Antiflash síncrono inmediato en carga inicial de la página
       aplicarTema(document);
 
-      // 2. ClientRouter: transferir atributos al nuevo documento ANTES de que Astro lo reemplace
+      // 2. ClientRouter: transferir atributos y preparar subvistas ANTES de que Astro reemplace el documento
       document.addEventListener("astro:before-swap", function (ev) {
         if (ev.newDocument) {
           aplicarTema(ev.newDocument);
+
+          try {
+            var url = ev.to ? new URL(ev.to) : null;
+            if (url && url.pathname.includes("/social")) {
+              var tab = url.searchParams.get("tab");
+              var rol = localStorage.getItem("pdi_active_role") || "coord";
+              var activeTab = "kanban";
+              if (tab === "autorizaciones" && (rol === "coord" || rol === "admin")) {
+                activeTab = "autorizaciones";
+              } else if (tab === "mis-solicitudes" && rol === "social") {
+                activeTab = "mis-solicitudes";
+              }
+
+              var k = ev.newDocument.getElementById("viewSocialKanban");
+              var a = ev.newDocument.getElementById("viewSocialAutorizaciones");
+              var m = ev.newDocument.getElementById("viewSocialMisSolicitudes");
+              if (k) k.classList.toggle("active", activeTab === "kanban");
+              if (a) a.classList.toggle("active", activeTab === "autorizaciones");
+              if (m) m.classList.toggle("active", activeTab === "mis-solicitudes");
+
+              // Sincronizar botones en el sidebar persistente
+              var btnSocial = document.querySelector('#sidebarNav .nav-btn[data-page="social"]');
+              var btnAut = document.querySelector('#sidebarNav .nav-btn[data-subview="autorizaciones"]');
+              var btnMisSol = document.querySelector('#sidebarNav .nav-btn[data-subview="mis-solicitudes"]');
+              var otrosBtns = document.querySelectorAll('#sidebarNav .nav-btn:not([data-page="social"]):not([data-subview])');
+              otrosBtns.forEach(function(b) { b.classList.remove("active"); });
+
+              if (btnSocial) btnSocial.classList.toggle("active", activeTab === "kanban");
+              if (btnAut) btnAut.classList.toggle("active", activeTab === "autorizaciones");
+              if (btnMisSol) btnMisSol.classList.toggle("active", activeTab === "mis-solicitudes");
+            }
+          } catch (e) {}
         }
       });
 

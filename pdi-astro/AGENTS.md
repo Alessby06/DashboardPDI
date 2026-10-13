@@ -30,3 +30,10 @@ Guides:
 - [Adding or managing content](https://docs.astro.build/en/guides/content-collections/)
 - [Adding styles or using Tailwind](https://docs.astro.build/en/guides/styling/)
 - [Supporting multiple languages](https://docs.astro.build/en/guides/internationalization/)
+
+## UI & Fast Iteration Protocol
+
+- **Time Ceiling (5 Minutes Max)**: Under no circumstances should a styling, CSS, or layout task exceed 5 minutes. The natural goal is 1–2 minutes, taking enough time to deliver clean, robust UI without overthinking or rushing poor quality.
+- **No Automatic Background Servers**: Do NOT start `astro dev` or background processes unless the user explicitly requests live verification. The developer already has HMR running in their own browser.
+- **Surgical Edits & Quality**: Target only the requested elements and CSS rules with precision. Maintain visual polish and clean responsive behavior, but avoid refactoring unrelated JavaScript logic or theme mechanics.
+- **No Scope Creep**: Keep diffs minimal, focused, and directly addressing the user prompt.

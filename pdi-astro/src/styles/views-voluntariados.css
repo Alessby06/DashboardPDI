@@ -2662,80 +2662,222 @@
    - Tipografía tabular y avatares sutiles
    =========================================================================== */
 
-/* --- KPI CARDS REFINADAS (PATRÓN VISUAL UNIFICADO DASHBOARD - JOHANNES GUTENBERG) --- */
-.padron-kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  margin-bottom: 20px;
-}
-
-@container (max-width: 960px) {
-  .padron-kpi-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-.padron-kpi-card {
+/* --- REPARTO EN CAMPO: BANDA OPERATIVA (NO KPIs - LAS METRICAS VIVEN EN /dashboard) --- */
+.vol-reparto {
   background: var(--surface-1);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 16px 18px;
+  box-shadow: var(--shadow-sm);
+  padding: 18px 20px 16px;
+  margin-bottom: 20px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 8px;
-  box-shadow: var(--shadow-sm);
-  transition: border-color var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-spring), box-shadow var(--dur-fast) var(--ease-smooth);
-  position: relative;
-  overflow: hidden;
+  gap: 14px;
 }
 
-.padron-kpi-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--border-bright);
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.12);
-}
-
-/* Indicador de acento lateral uniforme al estilo /dashboard */
-.padron-kpi-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 3.5px;
-}
-
-.padron-kpi-card.kpi-accent-green::before { background: var(--gt-green); }
-.padron-kpi-card.kpi-accent-mint::before  { background: #10b981; }
-.padron-kpi-card.kpi-accent-amber::before { background: var(--gt-yellow); }
-.padron-kpi-card.kpi-accent-blue::before  { background: var(--gt-blue, #0284c7); }
-
-.padron-kpi-header {
+.vol-reparto-head {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
-  gap: 8px;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
-.padron-kpi-title {
-  font-size: 11.5px;
+.vol-reparto-title {
+  margin: 0;
+  font-family: var(--ui-font);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text-main);
+}
+
+.vol-reparto-sub {
+  margin: 3px 0 0;
+  font-size: 12.5px;
+  color: var(--text-dim);
+}
+
+.vol-reparto-total {
+  margin: 0;
+  font-size: 12.5px;
   font-weight: 600;
   color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums;
 }
 
-.padron-kpi-badge-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-sm);
+.vol-reparto-total span {
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.vol-reparto-bar {
+  display: flex;
+  gap: 2px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  background: var(--bg-canvas);
+}
+
+.vol-reparto-seg {
+  display: block;
+  height: 100%;
+  width: 0;
+  transition: width 720ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.vol-reparto-seg--food   { background: var(--gt-green); }
+.vol-reparto-seg--casita { background: var(--gt-yellow); }
+.vol-reparto-seg--asp    { background: var(--gt-blue, #0284c7); }
+
+.vol-reparto-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0 22px;
+}
+
+.vol-reparto-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "dot name count"
+    "dot detail count";
+  align-items: center;
+  column-gap: 10px;
+  padding: 10px 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.vol-reparto-dot {
+  grid-area: dot;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.vol-reparto-dot--food   { background: var(--gt-green); }
+.vol-reparto-dot--casita { background: var(--gt-yellow); }
+.vol-reparto-dot--asp    { background: var(--gt-blue, #0284c7); }
+
+.vol-reparto-name {
+  grid-area: name;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.vol-reparto-detail {
+  grid-area: detail;
+  font-size: 11.5px;
+  color: var(--text-dim);
+}
+
+.vol-reparto-count {
+  grid-area: count;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.vol-reparto-count strong {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--text-main);
+  font-variant-numeric: tabular-nums;
+}
+
+.vol-reparto-foot {
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-subtle);
 }
+
+.vol-reparto-terr {
+  display: flex;
+  gap: 24px;
+  margin: 0;
+}
+
+.vol-reparto-terr dt {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.vol-reparto-terr dd {
+  margin: 2px 0 0;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-main);
+  font-variant-numeric: tabular-nums;
+}
+
+.vol-reparto-note {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.vol-reparto-note span {
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+@container (max-width: 960px) {
+  .vol-reparto-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .vol-reparto {
+    padding: 16px 16px 14px;
+  }
+}
+
+@media (max-width: 640px) {
+  .vol-reparto-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .vol-reparto-bar {
+    height: 6px;
+  }
+
+  .vol-reparto-list {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .vol-reparto-row {
+    padding: 9px 0;
+  }
+
+  .vol-reparto-foot {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vol-reparto-seg {
+    transition: none;
+  }
+}
+
 
 .badge-icon-green {
   background: rgba(0, 180, 148, 0.12);
@@ -2761,28 +2903,6 @@
   border: 1px solid rgba(2, 132, 199, 0.25);
 }
 
-.padron-kpi-val-wrap {
-  margin-bottom: 8px;
-}
-
-.padron-kpi-num {
-  font-size: 30px !important;
-  font-weight: 800 !important;
-  font-family: var(--mono-font) !important;
-  font-feature-settings: "tnum" 1;
-  color: var(--text-main);
-  line-height: 1;
-  margin: 0;
-  letter-spacing: -0.02em;
-}
-
-.padron-kpi-footer {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
 .padron-pill-chip {
   display: inline-flex;
   align-items: center;
@@ -2797,16 +2917,6 @@
   background: rgba(0, 180, 148, 0.12);
   color: var(--gt-green);
   border: 1px solid rgba(0, 180, 148, 0.22);
-}
-
-.padron-kpi-note {
-  font-size: 11.5px;
-  color: var(--text-dim);
-}
-
-.padron-kpi-note-highlight {
-  color: var(--text-muted);
-  font-weight: 500;
 }
 
 /* --- DOTS DE COLOR SEMÁNTICO (ESTILO JOHANNES GUTENBERG) --- */
@@ -2838,78 +2948,7 @@
   opacity: 0.6;
 }
 
-/* --- ADAPTACIONES RESPONSIVAS PARA KPIS Y CABECERA (INSPIRADO EN /DASHBOARD) --- */
-@media (max-width: 900px) {
-  .padron-kpi-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 12px !important;
-  }
-}
-
 @media (max-width: 640px) {
-  /* En móviles: Grid 2x2 compacto idéntico a /dashboard para no desplazar contenido */
-  .padron-kpi-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 10px !important;
-    margin-bottom: 14px !important;
-  }
-
-  .padron-kpi-card {
-    padding: 11px 12px !important;
-    gap: 5px !important;
-    border-radius: var(--radius-md) !important;
-    min-height: 98px !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important;
-  }
-
-  .padron-kpi-header {
-    margin-bottom: 2px !important;
-  }
-
-  .padron-kpi-title {
-    font-size: 10px !important;
-    letter-spacing: 0.02em !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    max-width: calc(100% - 24px) !important;
-  }
-
-  .padron-kpi-badge-icon {
-    width: 22px !important;
-    height: 22px !important;
-  }
-
-  .padron-kpi-badge-icon svg {
-    width: 13px !important;
-    height: 13px !important;
-  }
-
-  .padron-kpi-val-wrap {
-    margin: 2px 0 !important;
-  }
-
-  .padron-kpi-num {
-    font-size: clamp(20px, 5.5vw, 24px) !important;
-    line-height: 1.1 !important;
-  }
-
-  .padron-kpi-footer {
-    display: flex !important;
-    align-items: center !important;
-    min-height: 16px !important;
-    gap: 5px !important;
-  }
-
-  .padron-kpi-note {
-    font-size: 10px !important;
-    line-height: 1.25 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-  }
 
   /* Acciones de cabecera en móvil con touch target amigable (min 42-44px) */
   #view-voluntarios .view-header {
@@ -2959,20 +2998,6 @@
   #view-voluntarios .padron-mobile-cards {
     padding: 10px 0 !important;
     gap: 10px !important;
-  }
-}
-
-@media (max-width: 420px) {
-  .padron-kpi-grid {
-    gap: 8px !important;
-  }
-
-  .padron-kpi-card {
-    padding: 9px 10px !important;
-  }
-
-  .padron-kpi-num {
-    font-size: 20px !important;
   }
 }
 
@@ -3458,20 +3483,6 @@
   font-size: 12px;
 }
 
-/* ===========================================================================
-   ESPECÍFICOS PARA TEMA OSCURO (HIGH CONTRAST & ELEGANCE)
-   =========================================================================== */
-[data-theme="dark"] .padron-kpi-card {
-  background: #131722 !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.35) !important;
-}
-
-[data-theme="dark"] .padron-kpi-card:hover {
-  border-color: rgba(255, 255, 255, 0.16) !important;
-  box-shadow: 0 8px 28px -4px rgba(0, 0, 0, 0.5) !important;
-}
-
 [data-theme="dark"] #cardVoluntariosPadron {
   background: #11141d !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -3536,6 +3547,213 @@
   color: var(--text-brand) !important;
   background: rgba(0, 180, 148, 0.08) !important;
 }
+/* ===========================================================================
+CONTRASTE Y CUERPO DE TEXTO · #cardVoluntariosPadron (Voluntariados)
+
+El matiz de marca se usaba como color del texto encima de su propio tinte
+claro, que es donde fallaba: avatar Casita 1.96 · chip talleres 2.40 ·
+botón Editar 2.44 (y su hover, blanco sobre tinte al 20%, 1.2) · badge azul
+3.34 · avatar Pastoral 3.51 · chip canastas 3.62 · badge verde 3.82 ·
+badge ámbar 4.43 · y el botón primario, blanco sobre el degradado de marca,
+2.64. El cuerpo, además, bajaba a 11/11.5px.
+
+Aquí cada matiz recibe tinta de texto propia —verificada sobre el tinte más
+fuerte de su rango— y el cuerpo sube con números tabulares para que la fila
+no crezca: nombre 14px, sede/contacto/teléfono 13px, metadatos y etiquetas
+12.5px, insignias 12.5px, cabecera de tabla 11.5px con tracking.
+
+Escalera clara: teal #04614f 6.33 · ámbar #92400e 6.25 · azul #075985 6.16
+Blanco sobre tinta profunda: #04614f 7.43 · #0b3f5c 11.17
+Oscuro (ya cumplía 5.77–8.28): #2dd4bf 9.88 · #fcd34d 12.76 · #7dd3fc 11.03
+=========================================================================== */
+
+#cardVoluntariosPadron {
+  --v-tint: 0.08;
+  --v-teal: #04614f;
+  --v-amber: #92400e;
+  --v-blue: #075985;
+  --v-tinte-teal: rgba(0, 180, 148, var(--v-tint));
+  --v-tinte-amber: rgba(245, 158, 11, var(--v-tint));
+  --v-tinte-blue: rgba(2, 132, 199, var(--v-tint));
+}
+
+[data-theme="dark"] #cardVoluntariosPadron {
+  --v-teal: #2dd4bf;
+  --v-amber: #fcd34d;
+  --v-blue: #7dd3fc;
+}
+
+#cardVoluntariosPadron .data-table thead th {
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+#cardVoluntariosPadron .padron-user-name {
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+#cardVoluntariosPadron .padron-user-meta {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  gap: 7px;
+  font-variant-numeric: tabular-nums;
+}
+
+#cardVoluntariosPadron .padron-code {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+#cardVoluntariosPadron .padron-meta-sep {
+  opacity: 1;
+  color: var(--text-dim);
+}
+
+#cardVoluntariosPadron .padron-location-title,
+#cardVoluntariosPadron .padron-contact-phone {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+#cardVoluntariosPadron .padron-location-sub,
+#cardVoluntariosPadron .padron-contact-sub {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+#cardVoluntariosPadron .padron-service-badge,
+#cardVoluntariosPadron .padron-status-badge,
+#cardVoluntariosPadron .padron-metric-chip {
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+#cardVoluntariosPadron .padron-role-pill {
+  background: transparent;
+  border-color: transparent;
+  padding-left: 0;
+  padding-right: 0;
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+#cardVoluntariosPadron .padron-role-pill:hover {
+  background: transparent;
+  border-color: transparent;
+  color: var(--v-teal);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+#cardVoluntariosPadron .badge-green,
+#cardVoluntariosPadron .padron-avatar.serv-desayuno,
+#cardVoluntariosPadron .padron-metric-chip.chip-talleres {
+  background: var(--v-tinte-teal);
+  color: var(--v-teal);
+}
+
+#cardVoluntariosPadron .badge-yellow,
+#cardVoluntariosPadron .padron-avatar.serv-casita {
+  background: var(--v-tinte-amber);
+  color: var(--v-amber);
+}
+
+#cardVoluntariosPadron .badge-blue,
+#cardVoluntariosPadron .padron-avatar.serv-pastoral,
+#cardVoluntariosPadron .padron-metric-chip.chip-canastas {
+  background: var(--v-tinte-blue);
+  color: var(--v-blue);
+}
+
+#cardVoluntariosPadron .padron-btn-edit {
+  background: var(--v-tinte-teal);
+  border-color: rgba(0, 180, 148, 0.35);
+  color: var(--v-teal);
+  font-size: 12.5px;
+}
+
+#cardVoluntariosPadron .padron-btn-edit:hover {
+  background: var(--v-teal);
+  border-color: var(--v-teal);
+  color: #ffffff;
+}
+
+#cardVoluntariosPadron .padron-btn-ficha {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+#cardVoluntariosPadron .audit-field-label,
+#cardVoluntariosPadron .padron-active-chips-label,
+#cardVoluntariosPadron .audit-page-indicator {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+#cardVoluntariosPadron .btn-apply-filters {
+  background: #04614f;
+  background-image: none;
+  font-size: 13px;
+}
+
+#cardVoluntariosPadron .audit-filter-badge {
+  background: var(--v-teal);
+  color: #ffffff;
+  font-size: 11.5px;
+}
+
+#cardVoluntariosPadron .audit-search-input {
+  font-size: 13.5px;
+  caret-color: var(--v-teal);
+}
+
+#cardVoluntariosPadron .padron-mcard-detail-label {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+#cardVoluntariosPadron .padron-mcard-detail-sub {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+#cardVoluntariosPadron .padron-mcard-phone-link {
+  font-size: 13px;
+  color: var(--text-main);
+}
+
+[data-theme="dark"] #cardVoluntariosPadron .audit-filter-badge {
+  background: rgba(45, 212, 191, 0.15);
+  color: var(--v-teal);
+}
+
+/* Pines que la revisión posterior al carbonize encontró midiendo la página:
+   los tres impedían que la decisión aceptada llegara a la pantalla. */
+#cardVoluntariosPadron .padron-dropdown-item.selected .padron-item-label {
+  /* la app pinta el elegido con --text-brand sobre su tinte: 4.07 medido */
+  color: var(--v-teal);
+}
+
+@media (min-width: 769px) {
+  /* views-comun.css fija 11.5px !important en las acciones de la última celda */
+  #cardVoluntariosPadron .data-table tbody td:last-child .padron-btn-ficha,
+  #cardVoluntariosPadron .data-table tbody td:last-child .padron-btn-edit {
+    font-size: 12.5px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  /* el bloque móvil pinta la etiqueta de filtro con --text-secondary (#94a3b8)
+     a 11.5px: 2.56 sobre blanco, el peor texto de la tarjeta en móvil */
+  #cardVoluntariosPadron .audit-field-label {
+    font-size: 12px !important;
+    color: var(--text-muted) !important;
+  }
+}
+
 
 /* ===========================================================================
    ESTÁNDAR DE BOTONES DE ACCIÓN EN CABECERA MÓVIL (IMPECCABLE / OPERATE NORM)

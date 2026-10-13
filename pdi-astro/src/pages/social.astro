@@ -5,37 +5,58 @@ import '../styles/views-social.css';
 
 <AppLayout title="Derivaciones Sociales (ASP)" currentPage="social">
         <section class="app-view active" id="view-social">
-          <div class="view-header">
-            <div class="view-title-group">
-              <h2>Área Social Pastoral (ASP): Derivaciones y Vulnerabilidad</h2>
-              <p>Bandeja de casos sociales clasificados, solicitudes de cambio de estado y simulador socioeconómico paramétrico (0-100%).</p>
-            </div>
-          </div>
+          <script is:inline>
+            (function() {
+              try {
+                var tab = new URLSearchParams(window.location.search).get('tab');
+                var rol = localStorage.getItem('pdi_active_role') || 'coord';
+                var activeTab = 'kanban';
+                if (tab === 'autorizaciones' && (rol === 'coord' || rol === 'admin')) activeTab = 'autorizaciones';
+                if (tab === 'mis-solicitudes' && rol === 'social') activeTab = 'mis-solicitudes';
+
+                var k = document.getElementById('viewSocialKanban');
+                var a = document.getElementById('viewSocialAutorizaciones');
+                var m = document.getElementById('viewSocialMisSolicitudes');
+                if (k) k.classList.toggle('active', activeTab === 'kanban');
+                if (a) a.classList.toggle('active', activeTab === 'autorizaciones');
+                if (m) m.classList.toggle('active', activeTab === 'mis-solicitudes');
+
+                var btnSocial = document.querySelector('#sidebarNav .nav-btn[data-page="social"]');
+                var btnAut = document.querySelector('#sidebarNav .nav-btn[data-subview="autorizaciones"]');
+                var btnMisSol = document.querySelector('#sidebarNav .nav-btn[data-subview="mis-solicitudes"]');
+                if (btnSocial) btnSocial.classList.toggle('active', activeTab === 'kanban');
+                if (btnAut) btnAut.classList.toggle('active', activeTab === 'autorizaciones');
+                if (btnMisSol) btnMisSol.classList.toggle('active', activeTab === 'mis-solicitudes');
+              } catch(e) {}
+            })();
+          </script>
 
           <!-- SUBVISTA 1: Tablero Kanban y Simulador -->
           <div class="social-subview-panel active" id="viewSocialKanban">
-            <!-- Barra de Búsqueda y Filtros de Casos Sociales -->
-            <div class="card"
-            style="margin-bottom: 14px; padding: 12px 16px; position: relative; z-index: 80; overflow: visible;">
-            <div class="sedes-controls-row"
-              style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
-
-              <!-- Buscador de Casos Sociales (Lado Izquierdo) -->
-              <div class="audit-search-wrap" style="flex: 1; min-width: 240px; position: relative;">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
-                  style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-dim); pointer-events: none;">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                </svg>
-                <input type="text" class="audit-search-input" id="inputSearchCasosSociales"
-                  placeholder="Buscar caso por menor, código, situación o sede..."
-                  oninput="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.handleSearch(this.value) : null"
-                  style="width: 100%; padding-left: 36px;">
+            <div class="view-header">
+              <div class="view-title-group">
+                <h2>Área Social Pastoral (ASP): Derivaciones y Vulnerabilidad</h2>
+                <p>Bandeja de casos sociales clasificados, solicitudes de cambio de estado y simulador socioeconómico paramétrico (0-100%).</p>
               </div>
+            </div>
+            <!-- Barra de Búsqueda y Filtros de Casos Sociales (Estándar Padrón) -->
+            <div class="card"
+              style="margin-bottom: 14px; padding: 12px 16px; position: relative; z-index: 80; overflow: visible;">
+              <div class="audit-toolbar" style="margin-bottom: 0;">
+                <!-- Buscador de Casos Sociales (Lado Izquierdo) -->
+                <div class="audit-search-wrap">
+                  <svg class="audit-search-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                  </svg>
+                  <input type="text" class="audit-search-input" id="inputSearchCasosSociales"
+                    placeholder="Buscar caso por menor, código, situación o sede..."
+                    oninput="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.handleSearch(this.value) : null">
+                </div>
 
-              <div class="social-controls-actions-wrap" style="display: flex; align-items: center; gap: 8px;">
-                <!-- Dropdown Popover de Filtros de Casos -->
-                <div class="custom-dropdown audit-filters-dropdown" id="dropdownSocialFilterPanel">
+                <!-- Botón de Filtros y Panel Desplegable (Lado Derecho) -->
+                <div class="audit-filter-panel-wrap">
+                  <div class="custom-dropdown audit-filters-dropdown" id="dropdownSocialFilterPanel">
                   <button type="button" class="btn-action audit-filter-btn" id="btnDropdownSocialFilterPanel"
                     onclick="window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSocialFilterPanel') : null">
                     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -76,7 +97,7 @@ import '../styles/views-social.css';
                         <label class="audit-field-label">Nivel de Urgencia</label>
                         <div class="padron-inner-dropdown" id="dropdownSocialUrgencia">
                           <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSocialUrgencia') : null">
+                            onclick="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownSocialUrgencia') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSocialUrgencia') : null)">
                             <span id="labelSocialUrgenciaSelect">Todas las Urgencias</span>
                             <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                               <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
@@ -140,7 +161,7 @@ import '../styles/views-social.css';
                         <label class="audit-field-label">Sede Territorial</label>
                         <div class="padron-inner-dropdown" id="dropdownSocialSede">
                           <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSocialSede') : null">
+                            onclick="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownSocialSede') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSocialSede') : null)">
                             <span id="labelSocialSedeSelect">Todas las Sedes</span>
                             <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                               <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />

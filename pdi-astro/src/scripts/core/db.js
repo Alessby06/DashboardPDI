@@ -317,17 +317,6 @@ export async function hidratarDesdeSurreal() {
       window.PDI.SedeModel._sedes = sedes;
     }
 
-    // #region DEBUG
-    const _newConSol = (window.PDI?.CasoSocialModel?._data || []).filter(c => c.solicitudCambio).length;
-    try {
-      fetch('http://127.0.0.1:4322/debug', {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },
-        body: `[DEBUG H1] hidratarDesdeSurreal finalizado CON PRESERVACIÓN. Casos remotos recibidos=${casos.length}, previa cantidad con solicitud=${_prevConSol}, cantidad preservada post-sync=${_newConSol}`
-      }).catch(() => {});
-    } catch(e) {}
-    // #endregion DEBUG
-
     console.log('[PDI] Sincronización exitosa con SurrealDB Cloud:',
       beneficiarios.length, 'beneficiarios,',
       sedes.length, 'sedes,',

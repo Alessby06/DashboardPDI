@@ -939,18 +939,25 @@
   /* ── Aceptado dd791b86 · "Franja bandera": identidad tricolor del logo ACJG (azul #3048f0 · rojo #c03018 · amarillo #e8c21a) ── */
   .showcase-column {
     --v-blue: #3048f0;
+    --v-blue-focus: #3048f0;
     --v-red: #c03018;
     --v-yellow: #e8c21a;
-    background:
-      linear-gradient(90deg, var(--v-blue) 0 33%, var(--v-red) 33% 66%, var(--v-yellow) 66% 100%) top / 100% 4px no-repeat,
-      var(--bg-page);
+    background: var(--bg-page);
     color: var(--text-body);
     padding: 40px 44px;
   }
+  /* Modo oscuro: los tres se calculan en OKLCh conservando el matiz exacto del
+     color claro. El azul recupera el 100% de su croma (0.248) —imposible a esta
+     luminosidad en el tono pastel anterior, que ya estaba en el límite de gamut sRGB.
+     Rojo y amarillo superan la croma de su versión clara.
+     --v-blue-focus existe porque el gamut no permite croma pleno Y contraste alto
+     a la vez: el filete (gráfico) usa --v-blue, los indicadores de foco usan el
+     derivado más claro. Mismo matiz 268.4°, se leen como una sola familia. */
   [data-theme="dark"] .showcase-column {
-    --v-blue: #7484ff;
-    --v-red: #ff6a4f;
-    --v-yellow: #f4dc4a;
+    --v-blue: #3a57ff;
+    --v-blue-focus: #5c80ff;
+    --v-red: #ff4324;
+    --v-yellow: #f7cd03;
   }
   .showcase-badge-icon { background: var(--surface-subtle); border-color: var(--border-subtle); }
   .showcase-brand-text h3 { color: var(--text-title); }
@@ -992,7 +999,7 @@
   .module-row:hover { background: var(--surface-subtle); }
   .module-chev { color: var(--text-faint); }
   .module-row:hover .module-chev { color: var(--v-blue); }
-  .module-radio:focus-visible + .module-row { outline-color: var(--v-blue); }
+  .module-radio:focus-visible + .module-row { outline-color: var(--v-blue-focus); }
   .module-radio:checked + .module-row {
     background: color-mix(in srgb, var(--v-blue) 9%, var(--surface-card));
     border-color: color-mix(in srgb, var(--v-blue) 34%, transparent);
@@ -1007,13 +1014,15 @@
   /* ── Aceptado 77a6f0fc · "Espejo tricolor": panel de acceso con la paleta azul del logo ACJG y contraste corregido (consistente con el aside) ── */
   .access-column {
     --v-blue: #3048f0;
+    --v-blue-focus: #3048f0;
     --v-red: #c03018;
     --v-yellow: #e8c21a;
   }
   [data-theme="dark"] .access-column {
-    --v-blue: #7484ff;
-    --v-red: #ff6a4f;
-    --v-yellow: #f4dc4a;
+    --v-blue: #3a57ff;
+    --v-blue-focus: #5c80ff;
+    --v-red: #ff4324;
+    --v-yellow: #f7cd03;
   }
   /* Filete tricolor bajo el título (cinta 0.6) */
   .access-column .form-main-title::after {
@@ -1036,13 +1045,15 @@
     border-radius: var(--radius-full);
     background: conic-gradient(from 210deg, var(--v-blue), var(--v-red), var(--v-yellow), var(--v-blue));
   }
-  /* Acento azul + contraste corregido */
+  /* Acento azul + contraste corregido.
+     Los indicadores de foco usan --v-blue-focus (mismo matiz, un punto más claro)
+     para conservar margen de contraste sobre el fondo oscuro. */
   .access-column .text-input:focus {
-    border-color: var(--v-blue);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--v-blue) 14%, transparent);
+    border-color: var(--v-blue-focus);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--v-blue-focus) 14%, transparent);
   }
   .access-column .text-input::placeholder { color: var(--text-muted); }
-  .access-column .input-wrapper:focus-within .input-icon-glyph { color: var(--v-blue); }
+  .access-column .input-wrapper:focus-within .input-icon-glyph { color: var(--v-blue-focus); }
   .access-column .btn-primary-action {
     background: var(--brand-primary);
     box-shadow: 0 1px 3px rgba(15, 118, 110, 0.25);
@@ -1123,7 +1134,7 @@
   }
   .showcase-column .modules-card .module-chev { margin-top: 5px; opacity: 0.7; }
   .showcase-column .modules-card .module-radio:focus-visible + .module-row {
-    outline: 2px solid var(--v-blue);
+    outline: 2px solid var(--v-blue-focus);
     outline-offset: 2px;
   }
   .showcase-column .modules-card .module-radio:checked + .module-row {
@@ -1144,11 +1155,11 @@
   .access-column .form-sub-title { font-size: 13.5px; max-width: 40ch; }
   .access-column .form-stack { gap: 20px; }
   .access-column .label-caption {
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    font-size: 10.5px;
-    font-weight: 800;
-    color: var(--text-muted);
+    text-transform: none;
+    letter-spacing: normal;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-title);
   }
   .access-column .input-icon-glyph { left: 2px; }
   .access-column .text-input {
@@ -1163,8 +1174,8 @@
   }
   .access-column .text-input:hover { border-bottom-color: var(--text-faint); }
   .access-column .text-input:focus {
-    border-bottom-color: var(--v-blue);
-    box-shadow: 0 1px 0 0 var(--v-blue);
+    border-bottom-color: var(--v-blue-focus);
+    box-shadow: 0 1px 0 0 var(--v-blue-focus);
   }
   .access-column .btn-primary-action {
     height: 50px;
@@ -1227,16 +1238,138 @@
     background: none;
     border-color: transparent;
   }
-  .access-column .profile-card-btn.active .profile-role-name { color: var(--text-title); font-weight: 800; }
-  .access-column .profile-card-btn.active .profile-role-name::before {
-    content: "";
-    display: inline-block;
-    width: 7px;
-    height: 7px;
-    margin-right: 7px;
+  .access-column .profile-card-btn.active .profile-role-name { color: var(--text-title); font-weight: 600; }
+  /* El punto azul v-azul del activo se define mas abajo, en el bloque de las pastillas
+     (posicion absoluto para no descentrar la etiqueta). */
+  /* ── Aceptado 31cf7d7f · "Polish — Rótulo-cabecera": el encabezado entra al sistema de kickers del kit
+     (12px / 800 / mayusculas / 0.08em) con hairline bajo el rotulo; el rol gana un tracking ligeramente
+     apretado. Se mantiene el punto v-azul del activo y los cortes del distill (nota e id ocultos). ── */
+  .access-column .profiles-title {
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-title);
+  }
+  .access-column .profiles-label-bar {
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid color-mix(in srgb, var(--text-title) 18%, transparent);
+  }
+  .access-column .profile-role-name { letter-spacing: -0.008em; }
+  /* ── Aceptado 5a292619 · "Pills en rejilla ordenada" (libre): los perfiles pasan a pastillas con relleno
+     suave, en rejilla equilibrada de 3 columnas y orden alfabetico por CSS order (el DOM y el grafo
+     data-user quedan intactos). El activo conserva el punto v-azul; foco visible en v-azul. ── */
+  .access-column .profiles-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    align-items: stretch;
+    width: 100%;
+  }
+  .access-column .profile-card-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: var(--surface-card);
+    border: 1px solid var(--border-medium);
+    padding: 8px 12px;
     border-radius: var(--radius-full);
-    background: var(--v-blue);
-    vertical-align: 1px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: background .18s ease, border-color .18s ease, color .18s ease, box-shadow .18s ease;
+    box-sizing: border-box;
+    cursor: pointer;
+    min-height: 38px;
+  }
+  [data-theme="dark"] .access-column .profile-card-btn {
+    border-color: rgba(255, 255, 255, 0.16);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+  .access-column .profile-card-btn:hover {
+    background: var(--surface-subtle);
+    border-color: var(--text-title);
+  }
+  .access-column .profile-card-btn.active {
+    background: var(--surface-subtle);
+    border-color: var(--text-title);
+    box-shadow: 0 0 0 1px var(--text-title);
+  }
+  .access-column .profile-role-name {
+    color: var(--text-body);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+  .access-column .profile-card-btn.active .profile-role-name {
+    color: var(--text-title);
+    font-weight: 600; /* No cambia de peso para evitar que la página o el layout se mueva */
+  }
+  .access-column .profile-card-btn:focus-visible { outline: 2px solid var(--v-blue-focus); outline-offset: 2px; }
+  /* Punto indicador: se posiciona fuera del flujo y sobre el padding izquierdo
+     simétrico de la pastilla, así el texto queda perfectamente centrado
+     (antes el pseudo-elemento inline empujaba la etiqueta a la derecha). */
+  .access-column .profile-card-btn {
+    position: relative;
+    padding-left: 17px;
+    padding-right: 17px;
+  }
+  .access-column .profile-card-btn .profile-role-name::before {
+    content: "";
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    width: 6px;
+    height: 6px;
+    margin: -3px 0 0 0;
+    border-radius: var(--radius-full);
+    background: transparent;
+    transition: background-color 0.2s ease;
+  }
+  /* El punto azul es un indicador de estado, no un gráfico decorativo: usa
+       --v-blue-focus para conservar contraste sobre la pastilla activa. */
+  .access-column .profile-card-btn.active .profile-role-name::before {
+    background: var(--v-blue-focus);
+    animation: profileDotIn 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  /* Aparición limpia: pequeño rebote + halo que se disipa */
+  @keyframes profileDotIn {
+    0%   { transform: scale(0.2); opacity: 0; box-shadow: 0 0 0 0 color-mix(in srgb, var(--v-blue-focus) 45%, transparent); }
+    55%  { transform: scale(1.22); opacity: 1; box-shadow: 0 0 0 5px color-mix(in srgb, var(--v-blue-focus) 0%, transparent); }
+    100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 4px color-mix(in srgb, var(--v-blue-focus) 0%, transparent); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .access-column .profile-card-btn.active .profile-role-name::before {
+      animation: none !important;
+    }
+  }
+  /* Distribución armónica: Fila 1 (2 pills: Administración TI y Coordinación, 3 columnas cada una), Fila 2 (3 pills: Educación, Nutrición, Trabajo Social, 2 columnas cada una) */
+  .access-column .profiles-grid .profile-card-btn:nth-child(5) {
+    grid-column: span 3; /* Administración TI */
+    order: 1;
+  }
+  .access-column .profiles-grid .profile-card-btn:nth-child(1) {
+    grid-column: span 3; /* Coordinación */
+    order: 2;
+  }
+  .access-column .profiles-grid .profile-card-btn:nth-child(3) {
+    grid-column: span 2; /* Educación */
+    order: 3;
+  }
+  .access-column .profiles-grid .profile-card-btn:nth-child(2) {
+    grid-column: span 2; /* Nutrición */
+    order: 4;
+  }
+  .access-column .profiles-grid .profile-card-btn:nth-child(4) {
+    grid-column: span 2; /* Trabajo Social */
+    order: 5;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .access-column .profile-card-btn { transition: none !important; }
   }
   /* ── Aceptado 9271afa6 · "Bandas y manifiesto sobrio": banda tricolor superior, cabecera fileteada, kicker en versalitas, titular 32px y módulos como registro abierto con acordeón ── */
   .showcase-column { padding: 44px 46px; }
@@ -1278,13 +1411,200 @@
     opacity: 1;
     margin-top: 4px;
   }
+  /* ── Acompañamiento sobrio: transiciones suaves y limpias para despliegue/pliegue, fondo negro/neutro en reposo ── */
+  .showcase-column .modules-card .module-row {
+    transition: background 0.24s cubic-bezier(0.2, 0, 0, 1), border-color 0.24s cubic-bezier(0.2, 0, 0, 1), transform 0.2s ease;
+  }
+  .showcase-column .modules-card .module-row:hover {
+    background: #000000;
+    border-color: rgba(255, 255, 255, 0.14);
+  }
+  .showcase-column .modules-card .module-icon-well {
+    border-radius: 10px;
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+  .showcase-column .modules-card .module-row:hover .module-icon-well {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+  .showcase-column .modules-card .module-radio:checked + .module-row {
+    background: #000000;
+    border-color: rgba(255, 255, 255, 0.22);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  }
+  .showcase-column .modules-card .module-radio:checked + .module-row .module-icon-well {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.25);
+  }
+  .showcase-column .modules-card .module-radio:checked + .module-row h4 {
+    color: #ffffff;
+    font-weight: 700;
+  }
+  .showcase-column .modules-card .module-radio:focus-visible + .module-row {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+    border-radius: 12px;
+  }
+  /* Rejilla 2×2 de módulos en negro con bordes definidos y consistentes.
+     align-items: start evita que la tarjeta abierta estire a su vecina: cada
+     celda toma su altura natural y solo crece la que se despliega. */
+  .showcase-column .modules-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+    gap: 10px;
+    border-top: 0;
+    border-bottom: 0;
+  }
+  .showcase-column .modules-card .modules-card-label {
+    grid-column: 1 / -1;
+    border-bottom: 0;
+    padding-bottom: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--text-title);
+    opacity: 0.95;
+  }
+  [data-theme="dark"] .showcase-column .modules-card .modules-card-label {
+    color: #ffffff;
+  }
+  .showcase-column .modules-card .module-item {
+    border-top: 0;
+    margin: 0;
+    display: flex;
+    align-self: start;
+    width: 100%;
+  }
+  .showcase-column .modules-card .module-row {
+    flex: 1 1 auto;
+    gap: 10px;
+    padding: 13px 12px;
+    border-radius: 12px;
+    background: #000000;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-sizing: border-box;
+  }
+  .showcase-column .modules-card .module-text-wrap h4 {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+    color: #ffffff;
+  }
+  .showcase-column .modules-card .module-text-wrap p {
+    font-size: 11.5px;
+    font-weight: 450;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.72);
+    margin-top: 0;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    /* 0.4s → 0.582s: 45% más lenta en total, misma curva para no perder fluidez */
+    transition: max-height 0.582s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.437s cubic-bezier(0.16, 1, 0.3, 1), margin-top 0.437s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .showcase-column .modules-card .module-radio:checked + .module-row .module-text-wrap p {
+    max-height: 140px;
+    opacity: 1;
+    margin-top: 6px;
+  }
+  .showcase-column .modules-card .module-chev {
+    color: #ffffff !important;
+    opacity: 1;
+    margin-top: 2px;
+    transition: transform 0.509s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .showcase-column .modules-card .module-chev svg {
+    width: 17px;
+    height: 17px;
+    stroke: #ffffff;
+    stroke-width: 2.5;
+  }
+  .showcase-column .modules-card .module-radio:checked + .module-row .module-chev {
+    transform: rotate(180deg);
+    color: #ffffff !important;
+    opacity: 1;
+  }
   /* ── Aceptado 4b350464 · "Tinta azulada": botón primario en azul-negro #1c2233, sombra neutra y hover con un toque del azul del logo ACJG ── */
+  /* Ajuste: negro puro (#000000) igual que las tarjetas de módulos, con hover casi negro
+     y sombra neutra para que en tema claro conserve la separación del fondo. */
   .access-column .btn-primary-action {
-    background: #1c2233;
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.18);
+    background: #000000;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.2);
   }
   .access-column .btn-primary-action:hover {
-    background: #1f2750;
+    background: #14161a;
+  }
+  [data-theme="dark"] .access-column .btn-primary-action {
+    background: #ffffff;
+    color: #0b0f14;
+    border: none;
+    box-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
+  }
+  [data-theme="dark"] .access-column .btn-primary-action:hover {
+    background: #e6e8ec;
+  }
+  /* El spinner del botón es blanco sobre negro: en modo oscuro el fondo es blanco,
+     así que sus bordes pasan a oscuro para que siga siendo visible. */
+  [data-theme="dark"] .access-column .btn-primary-action .btn-spinner {
+    border-color: rgba(15, 23, 42, 0.25);
+    border-top-color: #0b0f14;
+  }
+  /* ── Modo oscuro · "Inversión": tarjetas de módulos y botón pasan de negro a superficie clara.
+     Jerarquía: el botón es blanco puro (#ffffff) porque es la acción principal y el elemento
+     más pequeño — el punto más brillante de la pantalla. Las tarjetas usan un blancobatido
+     (#f4f6f8) para no competir con él y evitar el deslumbramiento de una superficie grande
+     en blanco absoluto sobre un fondo casi negro. Texto y bordes se invieren a oscuro. ── */
+  [data-theme="dark"] .showcase-column .modules-card .module-row {
+    background: #f4f6f8;
+    border-color: rgba(15, 23, 42, 0.1);
+  }
+  [data-theme="dark"] .showcase-column .modules-card .module-row:hover {
+    background: #ffffff;
+    border-color: rgba(15, 23, 42, 0.18);
+  }
+  [data-theme="dark"] .showcase-column .modules-card .module-radio:checked + .module-row {
+    background: #ffffff;
+    border-color: rgba(15, 23, 42, 0.26);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.55);
+  }
+  [data-theme="dark"] .showcase-column .modules-card .module-icon-well {
+    color: #0f172a;
+    background: rgba(15, 23, 42, 0.05);
+    border-color: rgba(15, 23, 42, 0.12);
+  }
+  [data-theme="dark"] .showcase-column .modules-card .module-row:hover .module-icon-well {
+    color: #0f172a;
+    background: rgba(15, 23, 42, 0.08);
+    border-color: rgba(15, 23, 42, 0.18);
+  }
+  [data-theme="dark"] .showcase-column .modules-card .module-radio:checked + .module-row .module-icon-well {
+    color: #0f172a;
+    background: rgba(15, 23, 42, 0.1);
+    border-color: rgba(15, 23, 42, 0.22);
+  }
+  [data-theme="dark"] .showcase-column .modules-card .module-text-wrap h4,
+  [data-theme="dark"] .showcase-column .modules-card .module-radio:checked + .module-row h4 {
+    color: #0f172a;
+  }
+  [data-theme="dark"] .showcase-column .modules-card .module-text-wrap p {
+    color: rgba(15, 23, 42, 0.66);
+  }
+  [data-theme="dark"] .showcase-column .modules-card .module-chev,
+  [data-theme="dark"] .showcase-column .modules-card .module-radio:checked + .module-row .module-chev {
+    color: #0f172a !important;
+  }
+  [data-theme="dark"] .showcase-column .modules-card .module-chev svg {
+    stroke: #0f172a;
+  }
+  [data-theme="dark"] .showcase-column .modules-card .module-radio:focus-visible + .module-row {
+    outline-color: #0f172a;
   }
   /* ── Aceptado 5e7e4623 · "Wipe": la columna de acceso se revela como lámina por máscara desde la izquierda; el titular asienta en una segunda ola ── */
   @keyframes accWipeLeft {
@@ -1326,7 +1646,6 @@
           </div>
         </div>
         <div class="showcase-body">
-          <div class="showcase-tagline">Programa de Desarrollo Integral</div>
           <h1 class="showcase-title">Seguimiento comunitario para la infancia y familias de Lima Norte</h1>
           <p class="showcase-desc">Herramienta de registro para facilitadoras, trabajadoras sociales y coordinadores en el seguimiento de beneficiarios.</p>
           <!-- Signature: Ficha de Módulos Operativos -->
@@ -1572,6 +1891,28 @@
       inputClave?.focus();
     });
 
+    // 4b. Acordeón de Módulos Operativos (Permite desplegar y plegar al hacer clic)
+    const moduleRows = document.querySelectorAll('.modules-card .module-row');
+    moduleRows.forEach((row) => {
+      row.addEventListener('click', (e) => {
+        e.preventDefault();
+        const forId = row.getAttribute('for');
+        const radio = forId ? document.getElementById(forId) : null;
+        if (!radio) return;
+
+        const isCurrentlyChecked = radio.checked;
+        // Cerrar todos los radios primero
+        document.querySelectorAll('.modules-card .module-radio').forEach((r) => {
+          r.checked = false;
+        });
+
+        // Si no estaba marcado, marcarlo (abrir). Si estaba marcado, queda cerrado.
+        if (!isCurrentlyChecked) {
+          radio.checked = true;
+        }
+      });
+    });
+
     // 5. Errores y Alertas
     function mostrarError(msg) {
       const box = document.getElementById('loginError');
@@ -1654,18 +1995,4 @@
 <!-- impeccable-live-end -->
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

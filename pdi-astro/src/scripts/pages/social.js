@@ -33,9 +33,22 @@ function enlazar() {
 
 /** Dibuja lo propio de esta pagina. Es idempotente. */
 function montar() {
-  SocialKanbanView.renderKanban(CasoSocialModel.getAll());
-  // El simulador socioecnico se calcula con los valores iniciales del formulario.
-  SocialController.handleVulnerabilidadChange();
+  const urlParams = new URLSearchParams(window.location.search);
+  const tab = urlParams.get("tab");
+  const rol = localStorage.getItem("pdi_active_role") || "coord";
+
+  if (tab === "autorizaciones" && (rol === "coord" || rol === "admin")) {
+    SocialKanbanView.activarPanelDirecto("autorizaciones");
+    SocialKanbanView.renderVistaAutorizaciones();
+  } else if (tab === "mis-solicitudes" && rol === "social") {
+    SocialKanbanView.activarPanelDirecto("mis-solicitudes");
+    SocialKanbanView.renderVistaMisSolicitudes();
+  } else {
+    SocialKanbanView.activarPanelDirecto("kanban");
+    SocialKanbanView.renderKanban(CasoSocialModel.getAll());
+    // El simulador socioeconomico se calcula con los valores iniciales del formulario.
+    SocialController.handleVulnerabilidadChange();
+  }
 }
 
 function iniciar() {
@@ -54,8 +67,6 @@ function iniciar() {
 
   console.log("[PDI] Derivaciones Sociales (ASP) lista (social.html).");
 }
-
-
 
 document.addEventListener("astro:page-load", () => {
   if (document.body && document.body.getAttribute("data-page") === "social") {

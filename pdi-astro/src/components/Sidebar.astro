@@ -219,23 +219,18 @@ const navItems = [
 
         if (tab === "autorizaciones" && btnAut) {
           if (btnSocial) btnSocial.classList.remove("active");
+          if (btnMisSol) btnMisSol.classList.remove("active");
           btnAut.classList.add("active");
         } else if (tab === "mis-solicitudes" && btnMisSol) {
           if (btnSocial) btnSocial.classList.remove("active");
+          if (btnAut) btnAut.classList.remove("active");
           btnMisSol.classList.add("active");
+        } else if (btnSocial) {
+          if (btnAut) btnAut.classList.remove("active");
+          if (btnMisSol) btnMisSol.classList.remove("active");
+          btnSocial.classList.add("active");
         }
       }
-
-      // #region DEBUG
-      var activeEl = document.querySelector("#sidebarNav .nav-btn.active");
-      try {
-        fetch('http://127.0.0.1:4322/debug', {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: `[DEBUG H2] Sidebar is:inline ejecutado. URL=${window.location.pathname + window.location.search}, rol=${rol}, activeElement=${activeEl ? activeEl.getAttribute('data-page') : 'NINGUNO'}`
-        }).catch(function () {});
-      } catch (e) {}
-      // #endregion DEBUG
     } catch (e) {}
   })();
 </script>
@@ -266,6 +261,9 @@ const navItems = [
           const subview = btn.getAttribute('data-subview') || 'kanban';
           if (window.PDI?.SocialKanbanView) {
             window.PDI.SocialKanbanView.switchSocialTab(subview);
+          }
+          if (window.innerWidth <= 900 && window.closeSidebar) {
+            window.closeSidebar();
           }
         }
       });

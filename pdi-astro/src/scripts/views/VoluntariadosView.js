@@ -218,7 +218,7 @@ export const VoluntariadosView = {
 
     this._leerFiltrosDeURL();
     this._voluntarios = VoluntarioModel.getAll();
-    this._renderKPIs(esPrimeraEntrada);
+    this._renderReparto(esPrimeraEntrada);
     this._renderActiveChips();
     this._vigilarVariante();
     this.applyFilters(esPrimeraEntrada);
@@ -235,27 +235,42 @@ export const VoluntariadosView = {
     Responsive.alCambiarDeVariante(() => this.applyFilters(false));
   },
 
-  _renderKPIs(animar = false) {
+  _renderReparto(animar = false) {
     const stats = VoluntarioModel.getStats();
-    
-    // Las cifras ruedan en odómetro orgánico en la primera entrada sin parpadear en refrescos
-    const rollKPI = (el, val) => {
-      if (!el) return;
-      if (animar) {
-        AnimationEngine.odometerRoll(el, val);
-      } else if (!el.querySelector(".odometer-wrap")) {
-        el.textContent = val;
-      }
+
+    // Reparto en campo: el dato se lee como asignacion operativa, no como metrica de gestion.
+    const setTexto = (id, valor) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = valor;
     };
 
-    rollKPI(document.getElementById("kpiVoluntariosTotal"), stats.total);
+    setTexto("volRepartoTotal", stats.total);
+    setTexto("volRepartoPausa", stats.enPausa);
+    setTexto("volRepartoDesayuno", stats.desayuno);
+    setTexto("volRepartoCasita", stats.casita);
+    setTexto("volRepartoAsp", stats.pastoral);
+    setTexto("volRepartoComas", stats.comas);
+    setTexto("volRepartoCarabayllo", stats.carabayllo);
+    setTexto("volRepartoCanastas", stats.canastasTotal);
 
-    const kpiActivos = document.getElementById("kpiVoluntariosActivos");
-    if (kpiActivos) kpiActivos.textContent = `${stats.activos} activas`;
-
-    rollKPI(document.getElementById("kpiVoluntariosDesayuno"), stats.desayuno);
-    rollKPI(document.getElementById("kpiVoluntariosCasitas"), stats.casita);
-    rollKPI(document.getElementById("kpiVoluntariosCanastas"), stats.canastasTotal);
+    // La barra de composicion es el unico momento animado: crece al entrar, se asienta en los refrescos.
+    const asignados = stats.desayuno + stats.casita + stats.pastoral;
+    const segmentos = [
+      ["volRepartoBarFood", stats.desayuno],
+      ["volRepartoBarCasita", stats.casita],
+      ["volRepartoBarAsp", stats.pastoral]
+    ];
+    segmentos.forEach(([id, personas]) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const ancho = asignados > 0 ? (personas / asignados) * 100 : 0;
+      if (animar) {
+        el.style.width = "0%";
+        requestAnimationFrame(() => { el.style.width = `${ancho}%`; });
+      } else {
+        el.style.width = `${ancho}%`;
+      }
+    });
 
     const badgeNav = document.getElementById("badgeTotalVoluntarios");
     if (badgeNav) badgeNav.textContent = stats.total;

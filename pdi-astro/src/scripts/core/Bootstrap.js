@@ -118,14 +118,6 @@ export function actualizarBadgesSidebar() {
     if (misSolBadgeEl) {
       misSolBadgeEl.style.display = totalSol > 0 ? "inline-flex" : "none";
     }
-    try {
-      fetch('http://127.0.0.1:4322/debug', {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },
-        body: `[DEBUG H3] actualizarBadgesSidebar ejecutado. badgeSolicitudesPendientes=${pendCount}, badgeMisSolicitudesTotal=${totalSol}, casosTotales=${CasoSocialModel.getAll().length}`
-      }).catch(() => {});
-    } catch(e) {}
-    // #endregion DEBUG
   } catch (e) {}
 }
 

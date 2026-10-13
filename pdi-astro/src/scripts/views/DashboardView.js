@@ -205,7 +205,7 @@ export const DashboardView = {
     }
 
     // Panel de Anemia MINSA - Actualización de estado clínico directa con animación fluida
-    const anemiaContainer = document.getElementById("dashAnemiaBars");
+    const anemiaContainer = document.getElementById("dashAnemiaTable");
     if (anemiaContainer) {
       const segNormal = document.getElementById("segAnemiaNormal");
       const segLeve = document.getElementById("segAnemiaLeve");
@@ -244,11 +244,11 @@ export const DashboardView = {
 
       if (totalEval) rollNum(totalEval, stats.total);
       if (legNormal) rollNum(legNormal, stats.normales);
-      if (pctNormal) pctNormal.textContent = `(${stats.pctNormal}%)`;
+      if (pctNormal) pctNormal.textContent = `${stats.pctNormal}%`;
       if (legLeve) rollNum(legLeve, stats.leves);
-      if (pctLeve) pctLeve.textContent = `(${stats.pctLeve}%)`;
+      if (pctLeve) pctLeve.textContent = `${stats.pctLeve}%`;
       if (legMod) rollNum(legMod, stats.moderadas);
-      if (pctMod) pctMod.textContent = `(${stats.pctMod}%)`;
+      if (pctMod) pctMod.textContent = `${stats.pctMod}%`;
     }
 
     this.renderPriorityCases(esPrimeraEntrada);
@@ -1185,9 +1185,13 @@ export const DashboardView = {
                     <span class="datacard-label">Detalle de la Operación</span>
                     <span class="datacard-value" style="text-align:left; font-size:12.5px; font-weight:500; color:var(--text-muted);">${escapar(l.detail)}</span>
                   </div>
-                  <div style="margin-top:10px;">
-                    <button type="button" class="btn-action-sm primary" style="width:100%; justify-content:center;" onclick="window.openAuditDetail ? window.openAuditDetail('${escaparEnManejador(logIdStr)}') : (window.PDI?.DashboardView?.openLogDetail ? window.PDI.DashboardView.openLogDetail('${escaparEnManejador(logIdStr)}') : null)">
-                      <span>Ver Ficha Completa de Auditoría</span>
+                  <div class="datacard-actions-footer">
+                    <button type="button" class="btn-action primary" style="width:100%; justify-content:center;" onclick="event.stopPropagation(); window.openAuditDetail ? window.openAuditDetail('${escaparEnManejador(logIdStr)}') : (window.PDI?.DashboardView?.openLogDetail ? window.PDI.DashboardView.openLogDetail('${escaparEnManejador(logIdStr)}') : null)">
+                      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:6px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      Ver Ficha Completa de Auditoría
                     </button>
                   </div>
                 </div>
