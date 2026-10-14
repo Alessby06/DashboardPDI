@@ -498,11 +498,14 @@ export const VoluntariadosView = {
         let estadoDotClass = v.estado === "Activo" ? "dot-green" : (v.estado === "En Pausa" ? "dot-amber" : "dot-gray");
         const capCount = (v.capacitaciones && v.capacitaciones.length) || 0;
 
+        // Formato limpio de teléfono: 987 342 119
+        const celularFormateado = v.celular ? v.celular.replace(/-/g, " ") : "Sin teléfono";
+
         return `
           <tr class="padron-tr">
             <td>
               <div class="padron-user-cell">
-                <div class="padron-avatar ${servColorClass}">
+                <div class="padron-avatar ${servColorClass}" aria-hidden="true">
                   ${escapar(v.nombres.charAt(0))}${escapar(v.apellidos.charAt(0))}
                 </div>
                 <div class="padron-user-info">
@@ -521,44 +524,44 @@ export const VoluntariadosView = {
             </td>
             <td>
               <div class="padron-service-stack">
-                <span class="badge ${badgeServClass} padron-service-badge">
+                <span class="padron-service-indicator ${servColorClass}">
                   <span class="padron-dot ${servDotClass}"></span>
-                  ${escapar(v.servicio)}
+                  <strong>${escapar(v.servicio)}</strong>
                 </span>
-                <button type="button" class="padron-role-pill" onclick="window.toggleVoluntariosRol ? window.toggleVoluntariosRol('${escaparEnManejador(v.rol)}') : null" title="Filtrar por rol: ${escapar(v.rol)}">
+                <span class="padron-role-text" title="Rol asignado">
                   ${escapar(v.rol)}
-                </button>
+                </span>
               </div>
             </td>
             <td>
-              <div class="padron-contact-phone">${escapar(v.celular)}</div>
+              <div class="padron-contact-phone">${escapar(celularFormateado)}</div>
               <div class="padron-contact-sub">${v.edad ? `${escapar(v.edad)} años` : "Edad no reg."}</div>
             </td>
             <td>
               <div class="padron-rewards-wrap">
-                <span class="padron-metric-chip chip-talleres" title="Talleres de capacitación">
-                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <div class="padron-metric-item" title="Talleres de capacitación cursados">
+                  <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" />
                   </svg>
                   <span>${capCount} taller${capCount === 1 ? '' : 'es'}</span>
-                </span>
+                </div>
                 ${v.canastasRecibidas > 0 ? `
-                  <span class="padron-metric-chip chip-canastas" title="Canastas de alimentos entregadas">
-                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                  <div class="padron-metric-item padron-metric-sub" title="Canastas de alimentos entregadas">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
                     </svg>
                     <span>${v.canastasRecibidas} canasta${v.canastasRecibidas === 1 ? '' : 's'}</span>
-                  </span>
+                  </div>
                 ` : ''}
               </div>
             </td>
             <td>
-              <span class="badge ${badgeEstadoClass} padron-status-badge">
+              <div class="padron-status-tag ${v.estado === 'Activo' ? 'is-active' : 'is-paused'}">
                 <span class="padron-dot ${estadoDotClass}"></span>
-                ${escapar(v.estado)}
-              </span>
+                <span>${escapar(v.estado)}</span>
+              </div>
             </td>
-            <td style="text-align: right;">
+            <td style="text-align: center;">
               <div class="padron-table-actions">
                 <button type="button" class="padron-btn-ficha" onclick="window.openFichaVoluntario ? window.openFichaVoluntario(${escaparEnManejador(v.id)}) : null" title="Ver Ficha y Credencial">
                   <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">

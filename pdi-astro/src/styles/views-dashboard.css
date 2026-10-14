@@ -1207,80 +1207,6 @@
       background-color: #ffffff !important;
     }
 
-    /* === MODO OSCURO PURO (#101010) OVERRIDES === */
-    [data-theme="dark"] body,
-    [data-theme="dark"] .app-shell,
-    [data-theme="dark"] .main-wrapper,
-    [data-theme="dark"] .main-content {
-      background-color: var(--bg-base) !important;
-      color: #f3f4f6 !important;
-    }
-
-    [data-theme="dark"] .topbar,
-    [data-theme="dark"] .sidebar {
-      background-color: var(--surface-1) !important;
-      border-color: var(--border-subtle) !important;
-    }
-
-    [data-theme="dark"] .card,
-    [data-theme="dark"] .modal-box,
-    [data-theme="dark"] .expediente-content-area,
-    [data-theme="dark"] .sedes-master-column,
-    [data-theme="dark"] .sedes-detail-column,
-    [data-theme="dark"] .sedes-master-header {
-      background-color: var(--surface-1) !important;
-      border-color: var(--border-subtle) !important;
-      color: #f3f4f6 !important;
-    }
-
-    [data-theme="dark"] .card-header,
-    [data-theme="dark"] .expediente-sidebar,
-    [data-theme="dark"] .sedes-master-item {
-      background-color: #141414 !important;
-      border-color: var(--border-subtle) !important;
-      color: #f3f4f6 !important;
-    }
-
-    [data-theme="dark"] .form-control,
-    [data-theme="dark"] input[type="text"],
-    [data-theme="dark"] input[type="number"],
-    [data-theme="dark"] input[type="date"],
-    [data-theme="dark"] select,
-    [data-theme="dark"] textarea,
-    [data-theme="dark"] .audit-search-input,
-    [data-theme="dark"] .audit-search-wrap,
-    [data-theme="dark"] .custom-dropdown-btn,
-    [data-theme="dark"] .custom-dropdown-menu,
-    [data-theme="dark"] .btn-action:not(.primary):not(.danger) {
-      background-color: #222222 !important;
-      color: #f3f4f6 !important;
-      border-color: var(--border-subtle) !important;
-    }
-
-    [data-theme="dark"] .data-table th {
-      background-color: #222222 !important;
-      color: #9ca3af !important;
-      border-bottom: 1px solid #2d2d2d !important;
-    }
-
-    [data-theme="dark"] .data-table td {
-      border-bottom: 1px solid #2d2d2d !important;
-      color: #f3f4f6 !important;
-    }
-
-    [data-theme="dark"] .data-table tbody tr:hover,
-    [data-theme="dark"] .sedes-master-item:hover,
-    [data-theme="dark"] .custom-dropdown-item:hover,
-    [data-theme="dark"] .nav-btn:hover {
-      background-color: #2a2a2a !important;
-      color: #f3f4f6 !important;
-    }
-
-    [data-theme="dark"] .nav-btn.active {
-      background-color: rgba(16, 185, 129, 0.2) !important;
-      color: var(--text-brand) !important;
-      border-left-color: #10b981 !important;
-    }
 .retiro-person-card {
   background: var(--surface-1) !important;
   border: 1px solid var(--border-subtle) !important;
@@ -1391,7 +1317,7 @@
     padding: 8px 10px !important;
     gap: 6px !important;
     flex-shrink: 0 !important;
-    background: #f8fafc !important;
+    background: var(--surface-2) !important;
   }
 
   .expediente-sidebar-label {
@@ -3336,16 +3262,23 @@
 }
 
 /* ---------------------------------------------------------------------------
-   ACTIVIDAD RECIENTE — Registro sin caja anidada
-   Cada entrada era una tarjeta dentro de la tarjeta (fondo, borde y radio
-   propios). Aqui la entrada vuelve a ser texto sobre el registro: sin caja,
-   con hilos de 1px entre entradas y la altura de la tarjeta repartida entre
-   las cuatro. Escala del autor y separador quedan horneados en sus valores
-   aceptados (13px y hilo de 1px).
+   ACTIVIDAD RECIENTE — Hilo de cuidado
+   La entrada sigue sin caja anidada (texto sobre el registro), pero la union
+   vuelve a ser un hilo: el espinazo de 1px que liga una entrada con la
+   siguiente pasa por el punto de estado. No hay rejas entre entradas: el hilo
+   las une en vez de separarlas, y se tine de rojo cuando la entrada es una
+   derivacion urgente, que es el unico momento que necesita decirlo. Valores
+   horneados del aceptado (densidad 1, hilo visible): paso de 13px, punto de
+   10px con anillo de 2px, texto 13/12.5/11px.
    --------------------------------------------------------------------------- */
 #widgetRecentActivity {
   display: flex;
   flex-direction: column;
+}
+
+#widgetRecentActivity .card-header {
+  padding-bottom: 12px;
+  margin-bottom: 0;
 }
 
 #widgetRecentActivity .dash-timeline-list {
@@ -3354,20 +3287,43 @@
   gap: 0;
 }
 
-#widgetRecentActivity .dash-timeline-dot,
-#widgetRecentActivity .dash-timeline-item::after {
-  display: none;
-}
-
+/* Cada entrada es la celda del hilo: columna de punto + cuerpo. */
 #widgetRecentActivity .dash-timeline-item {
+  position: relative;
   flex: 1;
   min-height: 0;
-  align-items: center;
-  padding: 14px 0;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  padding: 13px 0;
 }
 
-#widgetRecentActivity .dash-timeline-item:not(:last-child) {
-  border-bottom: 1px solid var(--border-subtle);
+/* El hilo: baja del punto y cruza el paso hasta el punto siguiente. */
+#widgetRecentActivity .dash-timeline-item:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 16px;
+  left: 8px;
+  bottom: -17px;
+  width: 1px;
+  background: var(--border-subtle);
+}
+
+#widgetRecentActivity .dash-timeline-dot {
+  justify-self: center;
+  width: 10px;
+  height: 10px;
+  margin-top: 4px;
+  border-width: 2px;
+}
+
+#widgetRecentActivity .dash-timeline-dot.alert {
+  background: var(--gt-red);
+}
+
+#widgetRecentActivity .dash-timeline-item:has(.dash-timeline-dot.alert)::after {
+  background: var(--gt-red-border);
 }
 
 #widgetRecentActivity .dash-timeline-body {
@@ -3375,23 +3331,46 @@
   border: 0;
   border-radius: 0;
   padding: 0;
-  gap: 5px;
+  gap: 4px;
 }
 
 #widgetRecentActivity .dash-timeline-header {
   align-items: baseline;
+  gap: 10px;
 }
 
 #widgetRecentActivity .dash-timeline-user {
   font-size: 13px;
 }
 
+#widgetRecentActivity .dash-timeline-role {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+#widgetRecentActivity .dash-timeline-time {
+  flex-shrink: 0;
+}
+
 #widgetRecentActivity .dash-timeline-action {
   font-size: 12.5px;
+  color: var(--text-muted);
 }
 
 #widgetRecentActivity .dash-timeline-meta {
-  font-size: 11px;
+  justify-content: flex-start;
+  gap: 8px;
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+#widgetRecentActivity .dash-timeline-flag {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: none;
+  color: var(--text-danger);
 }
 
 .dash-empty-state {

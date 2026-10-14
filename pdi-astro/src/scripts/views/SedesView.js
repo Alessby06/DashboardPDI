@@ -889,7 +889,8 @@ export const SedesView = {
           </div>
         </div>
       </div>
-    `;
+      
+      `;
     this._enlazarGestosHoja();
   }
 };

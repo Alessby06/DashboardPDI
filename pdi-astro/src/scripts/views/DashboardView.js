@@ -104,7 +104,7 @@ export const DashboardView = {
     if (dashBenEl) rollNum(dashBenEl, stats.total);
 
     const dashTamEl = document.getElementById("dashKpiTamizados");
-    if (dashTamEl) rollNum(dashTamEl, `${stats.total} / ${stats.total}`);
+    if (dashTamEl) rollNum(dashTamEl, `${stats.total}/${stats.total}`);
 
     const dashAsisEl = document.getElementById("dashKpiAsistencia");
     if (dashAsisEl) rollNum(dashAsisEl, 92.4, true);
@@ -325,18 +325,21 @@ export const DashboardView = {
     container.innerHTML = logs.map(l => {
       const isSensitive = (l.status && l.status.toLowerCase().includes("sensible")) ||
                           (l.action && l.action.toLowerCase().includes("derivaci"));
+      // Solo se anuncia urgencia cuando el propio texto del evento la declara.
+      const esUrgente = /urgencia/i.test((l.action || "") + " " + (l.detail || ""));
       const timeClean = l.timestamp ? l.timestamp.replace(/^\d{4}-\d{2}-\d{2}\s*/, "") : "--:--";
 
       return '<div class="dash-timeline-item">' +
         '<div class="dash-timeline-dot ' + (isSensitive ? 'alert' : '') + '"></div>' +
         '<div class="dash-timeline-body">' +
           '<div class="dash-timeline-header">' +
-            '<span class="dash-timeline-user"><strong>' + escapar(l.user || "Operador") + '</strong> (' + escapar(l.role || "PDI") + ')</span>' +
+            '<span class="dash-timeline-user"><strong>' + escapar(l.user || "Operador") + '</strong> <span class="dash-timeline-role">(' + escapar(l.role || "PDI") + ')</span></span>' +
             '<span class="dash-timeline-time">' + escapar(timeClean) + '</span>' +
           '</div>' +
           '<p class="dash-timeline-action"><strong>' + escapar(l.action) + '</strong>: ' + escapar(l.detail || "") + '</p>' +
           '<div class="dash-timeline-meta">' +
             '<span>Sede: ' + escapar(l.sede || "Central") + '</span>' +
+            (esUrgente ? '<span class="dash-timeline-flag">Urgencia alta</span>' : '') +
           '</div>' +
         '</div>' +
       '</div>';

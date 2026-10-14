@@ -169,13 +169,13 @@
 [data-theme="light"] .brand-logo-light { display: block !important; }
 
 [data-theme="dark"] {
-  --obsidian: #0d0e12;
-  --bg-base: #0d0e12;
-  --bg-canvas: #0d0e12;
-  --surface-1: #15171e;
-  --surface-2: #1e212b;
+  --obsidian: #0f1115;
+  --bg-base: #0f1115;
+  --bg-canvas: #0f1115;
+  --surface-1: #161a22;
+  --surface-2: #1d232e;
   --surface-hover: rgba(255, 255, 255, 0.05);
-  --surface-glass: rgba(21, 23, 30, 0.95);
+  --surface-glass: rgba(22, 26, 34, 0.95);
   
   --border-subtle: #252833;
   --border-bright: rgba(0, 180, 148, 0.55);

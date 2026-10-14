@@ -300,6 +300,7 @@ export const SocialKanbanView = {
   filterByUrgencia(urgencia) {
     this._filterUrgencia = urgencia;
     this._updateUrgenciaUI();
+    document.getElementById("dropdownSocialUrgencia")?.classList.remove("open");
     this.renderKanban(null, true);
   },
 
@@ -318,6 +319,7 @@ export const SocialKanbanView = {
   filterBySede(sede) {
     this._filterSede = sede;
     this._updateSedeUI();
+    document.getElementById("dropdownSocialSede")?.classList.remove("open");
     this.renderKanban(null, true);
   },
 
@@ -340,6 +342,8 @@ export const SocialKanbanView = {
 
     const searchInput = document.getElementById("inputSearchCasosSociales");
     if (searchInput) searchInput.value = "";
+
+    document.querySelectorAll("#menuSocialFilterPanel .padron-inner-dropdown.open").forEach(d => d.classList.remove("open"));
 
     this._updateUrgenciaUI();
     this._updateSedeUI();

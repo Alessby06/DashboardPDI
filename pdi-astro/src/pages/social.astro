@@ -301,55 +301,55 @@ import '../styles/views-social.css';
               </div>
 
               <!-- Kanban Board -->
-              <div class="kanban-board" id="kanbanCasosSociales" data-mobile-active-stage="pendiente">
-                <!-- Col 1: Pendientes -->
-                <div class="kanban-col" data-col-stage="pendiente">
-                  <div class="kanban-col-header">
-                    <div class="col-header-left">
-                      <span class="stage-dot" style="background: var(--gt-red);"></span>
-                      <span class="col-header-title">Pendientes / Alerta</span>
+                <div class="kanban-board" id="kanbanCasosSociales" data-mobile-active-stage="pendiente">
+                  <!-- Col 1: Pendientes -->
+                  <div class="kanban-col" data-col-stage="pendiente">
+                    <div class="kanban-col-header">
+                      <div class="col-header-left">
+                        <span class="stage-dot" style="background: var(--gt-red);"></span>
+                        <span class="col-header-title">Pendientes / Alerta</span>
+                      </div>
+                      <span class="kanban-count-pill" id="kanbanCountPendientes">0</span>
                     </div>
-                    <span class="kanban-count-pill" id="kanbanCountPendientes">0</span>
+                    <div class="kanban-col-body" id="kanbanColPendientes"></div>
                   </div>
-                  <div class="kanban-col-body" id="kanbanColPendientes"></div>
-                </div>
 
-                <!-- Col 2: En Evaluación -->
-                <div class="kanban-col" data-col-stage="evaluacion">
-                  <div class="kanban-col-header">
-                    <div class="col-header-left">
-                      <span class="stage-dot" style="background: var(--gt-yellow);"></span>
-                      <span class="col-header-title">En Evaluación Social</span>
+                  <!-- Col 2: En Evaluación -->
+                  <div class="kanban-col" data-col-stage="evaluacion">
+                    <div class="kanban-col-header">
+                      <div class="col-header-left">
+                        <span class="stage-dot" style="background: var(--gt-yellow);"></span>
+                        <span class="col-header-title">En Evaluación Social</span>
+                      </div>
+                      <span class="kanban-count-pill" id="kanbanCountEvaluacion">0</span>
                     </div>
-                    <span class="kanban-count-pill" id="kanbanCountEvaluacion">0</span>
+                    <div class="kanban-col-body" id="kanbanColEvaluacion"></div>
                   </div>
-                  <div class="kanban-col-body" id="kanbanColEvaluacion"></div>
-                </div>
 
-                <!-- Col 3: Canalizados -->
-                <div class="kanban-col" data-col-stage="canalizado">
-                  <div class="kanban-col-header">
-                    <div class="col-header-left">
-                      <span class="stage-dot" style="background: var(--gt-blue);"></span>
-                      <span class="col-header-title">Canalizados (DEMUNA / BTF)</span>
+                  <!-- Col 3: Canalizados -->
+                  <div class="kanban-col" data-col-stage="canalizado">
+                    <div class="kanban-col-header">
+                      <div class="col-header-left">
+                        <span class="stage-dot" style="background: var(--gt-blue);"></span>
+                        <span class="col-header-title">Canalizados (DEMUNA / BTF)</span>
+                      </div>
+                      <span class="kanban-count-pill" id="kanbanCountCanalizados">0</span>
                     </div>
-                    <span class="kanban-count-pill" id="kanbanCountCanalizados">0</span>
+                    <div class="kanban-col-body" id="kanbanColCanalizados"></div>
                   </div>
-                  <div class="kanban-col-body" id="kanbanColCanalizados"></div>
-                </div>
 
-                <!-- Col 4: Cerrados -->
-                <div class="kanban-col" data-col-stage="cerrado">
-                  <div class="kanban-col-header">
-                    <div class="col-header-left">
-                      <span class="stage-dot" style="background: var(--gt-green);"></span>
-                      <span class="col-header-title">Cerrados con Informe</span>
+                  <!-- Col 4: Cerrados -->
+                  <div class="kanban-col" data-col-stage="cerrado">
+                    <div class="kanban-col-header">
+                      <div class="col-header-left">
+                        <span class="stage-dot" style="background: var(--gt-green);"></span>
+                        <span class="col-header-title">Cerrados con Informe</span>
+                      </div>
+                      <span class="kanban-count-pill" id="kanbanCountCerrados">0</span>
                     </div>
-                    <span class="kanban-count-pill" id="kanbanCountCerrados">0</span>
+                    <div class="kanban-col-body" id="kanbanColCerrados"></div>
                   </div>
-                  <div class="kanban-col-body" id="kanbanColCerrados"></div>
                 </div>
-              </div>
 
               <!-- Simulador de Evaluación Socioeconómica Paramétrica (ASP) - Acordeón Desplegable -->
               <div class="cred-calc-accordion socio-calc-accordion" id="cardSimuladorVulnerabilidad"

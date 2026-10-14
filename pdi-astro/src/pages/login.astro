@@ -607,7 +607,7 @@
       line-height: 1.4;
       color: var(--danger);
       font-weight: 600;
-      animation: calloutShake 0.28s ease;
+      animation: calloutShake 0.22s ease;
     }
 
     .status-error-callout.visible {
@@ -845,7 +845,27 @@
         clip-path: none !important;
       }
     }
-    /* Menu de modulos desplegable */
+    /* Optimizacion movil: evita la salto del wipe y suaviza el ritmo sin cambiar desktop */
+  @media (max-width: 900px) and (prefers-reduced-motion: no-preference) {
+    .access-column {
+      animation-duration: 0.54s !important;
+      animation-delay: 0.12s;
+      contain: layout paint;
+    }
+    .access-column .form-main-title {
+      animation-delay: 0.26s;
+    }
+    .showcase-header,
+    .showcase-body,
+    .showcase-footer {
+      animation-duration: 0.38s !important;
+    }
+    .showcase-tagline,
+    .showcase-title {
+      animation-duration: 0.33s !important;
+    }
+  }
+  /* Menu de modulos desplegable */
     .module-radio {
       position: absolute;
       opacity: 0;
@@ -1172,10 +1192,17 @@
     box-shadow: none;
     font-size: 15px;
   }
-  .access-column .text-input:hover { border-bottom-color: var(--text-faint); }
+  .access-column .text-input::placeholder {
+    /* nada extra */
+  }
   .access-column .text-input:focus {
-    border-bottom-color: var(--v-blue-focus);
-    box-shadow: 0 1px 0 0 var(--v-blue-focus);
+    outline: none;
+    border-bottom-color: var(--brand-primary);
+    box-shadow: 0 1px 0 var(--brand-primary);
+    background: transparent;
+  }
+  .access-column .text-input:focus::placeholder {
+    color: rgba(15, 23, 42, 0.55);
   }
   .access-column .btn-primary-action {
     height: 50px;
@@ -1620,11 +1647,21 @@
     to   { opacity: 1; transform: translateY(0); }
   }
   .access-column {
-    animation: accWipeLeft 0.468s cubic-bezier(0.33, 1, 0.68, 1) both;
+    animation: accWipeLeft 0.468s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
   .access-column .form-main-title {
-    animation: accCascade 0.468s cubic-bezier(0.16, 1, 0.3, 1) both;
-    animation-delay: 0.252s;
+    animation: accCascade 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 0.14s;
+  }
+  /* Tip Word/editor: entrada natural con cursor nativo */
+  @media (max-width: 900px) and (prefers-reduced-motion: no-preference) {
+    .access-column {
+      animation-delay: 0.12s;
+      contain: layout paint;
+    }
+    .access-column .form-main-title {
+      animation-delay: 0.372s;
+    }
   }
   @media (prefers-reduced-motion: reduce) {
     .access-column,
@@ -2008,6 +2045,7 @@
       }
     });
   </script>
+
 
 </body>
 </html>

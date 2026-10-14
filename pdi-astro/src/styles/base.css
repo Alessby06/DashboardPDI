@@ -199,7 +199,8 @@
         box-shadow: none !important;
         z-index: 50 !important;
         flex-shrink: 0 !important;
-        transition: margin-left 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+        will-change: margin-left !important;
+        transition: margin-left 0.35s cubic-bezier(0.2, 0, 0, 1),
                     background-color 0.38s cubic-bezier(0.16, 1, 0.3, 1),
                     border-color 0.38s cubic-bezier(0.16, 1, 0.3, 1) !important;
       }
@@ -209,8 +210,9 @@
         margin-left: -280px !important;
         pointer-events: none !important;
         visibility: hidden !important;
-        transition: margin-left 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-                    visibility 0s linear 0.28s,
+        will-change: margin-left !important;
+        transition: margin-left 0.35s cubic-bezier(0.2, 0, 0, 1),
+                    visibility 0s linear 0.35s,
                     background-color 0.38s cubic-bezier(0.16, 1, 0.3, 1),
                     border-color 0.38s cubic-bezier(0.16, 1, 0.3, 1) !important;
       }
@@ -246,7 +248,7 @@
         will-change: transform;
         touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
-        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+        transition: transform 0.33s cubic-bezier(0.16, 1, 0.3, 1),
                     background-color 0.38s cubic-bezier(0.16, 1, 0.3, 1),
                     border-color 0.38s cubic-bezier(0.16, 1, 0.3, 1) !important;
       }
@@ -835,4 +837,9 @@
 @keyframes pdiMobileSectionFadeOut {
   from { opacity: 1; }
   to { opacity: 0; }
+}
+@media (max-width: 900px) and (prefers-reduced-motion: no-preference) {
+  .sidebar.open .nav-btn {
+    animation-duration: 0.3s !important;
+  }
 }

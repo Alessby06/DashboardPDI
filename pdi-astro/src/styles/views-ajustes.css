@@ -1350,80 +1350,6 @@
       background-color: #ffffff !important;
     }
 
-    /* === MODO OSCURO PURO (#101010) OVERRIDES === */
-    [data-theme="dark"] body,
-    [data-theme="dark"] .app-shell,
-    [data-theme="dark"] .main-wrapper,
-    [data-theme="dark"] .main-content {
-      background-color: var(--bg-base) !important;
-      color: #f3f4f6 !important;
-    }
-
-    [data-theme="dark"] .topbar,
-    [data-theme="dark"] .sidebar {
-      background-color: var(--surface-1) !important;
-      border-color: var(--border-subtle) !important;
-    }
-
-    [data-theme="dark"] .card,
-    [data-theme="dark"] .modal-box,
-    [data-theme="dark"] .expediente-content-area,
-    [data-theme="dark"] .sedes-master-column,
-    [data-theme="dark"] .sedes-detail-column,
-    [data-theme="dark"] .sedes-master-header {
-      background-color: var(--surface-1) !important;
-      border-color: var(--border-subtle) !important;
-      color: #f3f4f6 !important;
-    }
-
-    [data-theme="dark"] .card-header,
-    [data-theme="dark"] .expediente-sidebar,
-    [data-theme="dark"] .sedes-master-item {
-      background-color: #141414 !important;
-      border-color: var(--border-subtle) !important;
-      color: #f3f4f6 !important;
-    }
-
-    [data-theme="dark"] .form-control,
-    [data-theme="dark"] input[type="text"],
-    [data-theme="dark"] input[type="number"],
-    [data-theme="dark"] input[type="date"],
-    [data-theme="dark"] select,
-    [data-theme="dark"] textarea,
-    [data-theme="dark"] .audit-search-input,
-    [data-theme="dark"] .audit-search-wrap,
-    [data-theme="dark"] .custom-dropdown-btn,
-    [data-theme="dark"] .custom-dropdown-menu,
-    [data-theme="dark"] .btn-action:not(.primary):not(.danger) {
-      background-color: #222222 !important;
-      color: #f3f4f6 !important;
-      border-color: var(--border-subtle) !important;
-    }
-
-    [data-theme="dark"] .data-table th {
-      background-color: #222222 !important;
-      color: #9ca3af !important;
-      border-bottom: 1px solid #2d2d2d !important;
-    }
-
-    [data-theme="dark"] .data-table td {
-      border-bottom: 1px solid #2d2d2d !important;
-      color: #f3f4f6 !important;
-    }
-
-    [data-theme="dark"] .data-table tbody tr:hover,
-    [data-theme="dark"] .sedes-master-item:hover,
-    [data-theme="dark"] .custom-dropdown-item:hover,
-    [data-theme="dark"] .nav-btn:hover {
-      background-color: #2a2a2a !important;
-      color: #f3f4f6 !important;
-    }
-
-    [data-theme="dark"] .nav-btn.active {
-      background-color: rgba(16, 185, 129, 0.2) !important;
-      color: var(--text-brand) !important;
-      border-left-color: #10b981 !important;
-    }
 .retiro-person-card {
   background: var(--surface-1) !important;
   border: 1px solid var(--border-subtle) !important;
@@ -1534,7 +1460,7 @@
     padding: 8px 10px !important;
     gap: 6px !important;
     flex-shrink: 0 !important;
-    background: #f8fafc !important;
+    background: var(--surface-2) !important;
   }
 
   .expediente-sidebar-label {
