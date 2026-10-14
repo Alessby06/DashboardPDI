@@ -666,7 +666,6 @@
         min-width: min(300px, 84vw) !important;
         z-index: 1050 !important;
         transform: translate3d(-100%, 0, 0) !important;
-        box-shadow: 12px 0 35px rgba(0, 0, 0, 0.3) !important;
         contain: layout style;
         backface-visibility: hidden;
         -webkit-backface-visibility: hidden;

@@ -47,6 +47,9 @@ echo.
 REM --open abre el navegador JUSTO cuando el servidor esta listo (no antes).
 node --enable-source-maps=false node_modules\astro\bin\astro.mjs dev --open
 if errorlevel 1 pause
+echo.
+echo [INFO] El servidor termino o se detecto un error.
+pause
 exit /b 0
 
 :already_running
@@ -58,5 +61,5 @@ exit /b 0
 :server_is_up
 REM Devuelve errorlevel 0 si el puerto esta ocupado (servidor arriba); 1 si esta libre.
 REM Get-NetTCPConnection cubre IPv4 e IPv6 (Astro escucha en localhost/::1).
-powershell -NoProfile -ExecutionPolicy Bypass -Command "if (Get-NetTCPConnection -State Listen -LocalPort %PDI_PORT% -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }" >nul 2>&1
+powershell -NoProfile -ExecutionPolicy Bypass -Command "if (Get-NetTCPConnection -State Listen -LocalPort %PDI_PORT% -ErrorAction SilentlyContinue) { try { $r=Invoke-WebRequest -Uri 'http://localhost:%PDI_PORT%/' -TimeoutSec 2 -UseBasicParsing; if ($r.StatusCode -eq 200) { exit 0 } exit 1 } catch { exit 1 } } else { exit 1 }" >nul 2>&1
 exit /b %errorlevel%

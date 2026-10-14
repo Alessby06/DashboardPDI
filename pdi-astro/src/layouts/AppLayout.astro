@@ -17,6 +17,36 @@ interface Props {
 
 const { title, currentPage, pageCss } = Astro.props;
 
+const pdiAppSectionTransition = {
+  forwards: {
+    old: {
+      name: "pdiAppSectionOut",
+      duration: "0.2s",
+      easing: "cubic-bezier(0.4, 0, 1, 1)",
+      fillMode: "both",
+    },
+    new: {
+      name: "pdiAppSectionIn",
+      duration: "0.24s",
+      easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+      fillMode: "both",
+    },
+  },
+  backwards: {
+    old: {
+      name: "pdiAppSectionOut",
+      duration: "0.2s",
+      easing: "cubic-bezier(0.4, 0, 1, 1)",
+      fillMode: "both",
+    },
+    new: {
+      name: "pdiAppSectionIn",
+      duration: "0.24s",
+      easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+      fillMode: "both",
+    },
+  },
+};
 // Edicion visual en vivo de impeccable (opcional). Por defecto queda habilitada.
 // Para desactivarla por completo: PUBLIC_IMPECCABLE_LIVE=false en el archivo .env
 const impeccableLive =
@@ -164,8 +194,9 @@ const impeccableLive =
       <Topbar transition:persist />
 
       <!-- Viewport Body -->
-      <main class="content-viewport" id="mainContent" transition:animate="fade">
-        <slot />
+      <main class="content-viewport" id="mainContent" transition:animate={pdiAppSectionTransition}>        <div id="smoothContent" class="smooth-content">
+          <slot />
+        </div>
       </main>
     </div>
   </div>
@@ -180,6 +211,9 @@ const impeccableLive =
     import { navigate } from 'astro:transitions/client';
     window.PDI = window.PDI || {};
     window.PDI.navigate = navigate;
+  </script>
+  <script>
+    import '../scripts/core/SmoothScroll.js';
   </script>
 </body>
 </html>

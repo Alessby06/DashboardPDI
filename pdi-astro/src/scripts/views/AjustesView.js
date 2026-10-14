@@ -133,7 +133,7 @@ export const AjustesView = {
         bubbleIcon.innerHTML = `
           <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round"
-              d="M12 3v2.25m0 13.5V21m8.966-8.966h-2.25M4.284 12h-2.25m15.303-6.343l-1.591 1.591M6.257 17.743l-1.591 1.591m0-13.5l1.591 1.591m11.485 11.485l1.591 1.591M12 7.5a4.5 4.5 0 100 9 4.5 4.5 0 000-9z" />
+              d="M12 3v2.25M12 18.75V21M18.75 12H21M3 12h2.25M18.364 5.636l-1.591 1.591M18.364 18.364l-1.591-1.591M5.636 18.364l1.591-1.591M5.636 5.636l1.591 1.591M12 7.5a4.5 4.5 0 100 9 4.5 4.5 0 000-9z" />
           </svg>
         `;
       }

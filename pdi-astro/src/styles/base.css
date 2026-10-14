@@ -5,6 +5,12 @@
       padding: 0;
     }
 
+    /* Los controles nativos no heredan la fuente por defecto del navegador
+       (en Chrome/Windows caían a Arial). Forzamos que hereden Manrope. */
+    input, select, textarea, button {
+      font-family: inherit;
+    }
+
     body {
       background-color: var(--bg-base);
       background-image: 
@@ -233,7 +239,6 @@
         z-index: 1050 !important;
         transform: translate3d(-100%, 0, 0) !important;
         margin-left: 0 !important;
-        box-shadow: 12px 0 35px rgba(0, 0, 0, 0.3) !important;
         backface-visibility: hidden;
         -webkit-backface-visibility: hidden;
         backdrop-filter: none !important;
@@ -607,6 +612,14 @@
       stroke: currentColor;
     }
 
+    /* Pintado mas barato en vistas largas: el navegador puede recortar lo que
+       esta fuera del viewport inicial. Las vistas inactivas siguen usando
+       display:none por encima, asi que esta regla solo afecta a la activa. */
+    .content-viewport > .app-view.active {
+      content-visibility: auto;
+      contain-intrinsic-size: auto 100vh;
+    }
+
     /* Content View Container */
     .content-viewport {
       /* contain: layout aisla el maquetado de esta columna. Al encogerse el
@@ -618,6 +631,7 @@
       contain: layout;
       flex: 1;
       overflow-y: auto;
+      scroll-behavior: auto;
       padding: 24px;
       display: flex;
       flex-direction: column;
@@ -759,3 +773,66 @@
          pseudoelementos del documento y no elementos. */
     }
 
+@media (min-width: 901px) and (prefers-reduced-motion: no-preference) {
+  .content-viewport > .app-view.active {
+    animation: pdiViewportEnter 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+@keyframes pdiViewportEnter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes pdiAppSectionIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pdiAppSectionOut {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@media (max-width: 900px) and (prefers-reduced-motion: no-preference) {
+  ::view-transition-new(root),
+  ::view-transition-new(social-subview-panel) {
+    animation-name: pdiMobileSectionFadeIn !important;
+    animation-duration: 0.33s !important;
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-old(social-subview-panel) {
+    animation-name: pdiMobileSectionFadeOut !important;
+    animation-duration: 0.33s !important;
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-new(*),
+  ::view-transition-old(*) {
+    animation-duration: 0.01ms !important;
+  }
+}
+@keyframes pdiMobileSectionFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pdiMobileSectionFadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}

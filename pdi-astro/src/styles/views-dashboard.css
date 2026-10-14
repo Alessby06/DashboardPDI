@@ -578,7 +578,6 @@
         min-width: min(300px, 84vw) !important;
         z-index: 1050 !important;
         transform: translate3d(-100%, 0, 0) !important;
-        box-shadow: 12px 0 35px rgba(0, 0, 0, 0.3) !important;
         contain: layout style;
         backface-visibility: hidden;
         -webkit-backface-visibility: hidden;
@@ -2389,6 +2388,7 @@
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
   gap: 20px;
   margin-bottom: 20px;
+  align-items: start;
 }
 
 /* Panel Clínico de Estado Nutricional / Anemia MINSA */
@@ -2428,12 +2428,14 @@
 }
 
 .dash-anemia-tcount {
-  width: 52px;
-  font-size: 22px;
+  width: 56px;
+  font-size: 24px;
   font-weight: 600;
   color: var(--text-main);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.03em;
+  text-align: center;
+  transform: translate(-4px, -2px);
 }
 
 .dash-anemia-band {
@@ -2505,14 +2507,20 @@
     padding: 9px 0;
   }
   .dash-anemia-tcount {
-    width: 24px;
-    font-size: 20px;
+    width: 26px;
+    font-size: 22px;
     padding-right: 6px;
+    /* line-height:1 elimina el espacio bajo la baseline para que el
+       número quede visualmente centrado en la celda */
+    line-height: 1;
+    text-align: center;
+    transform: translate(-4px, -2px);
   }
   .dash-anemia-band {
     width: 1%;
     white-space: nowrap;
-    padding-right: 5%;
+    /* 10% de separación respecto a la barra (antes 5%) */
+    padding-right: 10%;
   }
   .dash-anemia-bname {
     font-size: 12.5px;
@@ -2741,14 +2749,11 @@
 }
 
 .dash-territory-track {
-  height: 6px;
+  height: 7px;
   width: 100%;
   background: var(--surface-2);
   border-radius: var(--radius-full);
   overflow: hidden;
-  /* border-box: los 6px incluyen el borde, así la barra interior
-     (height:100%) mide 6px igual que las de anemia. */
-  box-sizing: border-box;
   border: 1px solid var(--border-subtle);
 }
 
@@ -2858,7 +2863,8 @@
 }
 
 .dash-territory-track {
-  height: 4px;
+  /* Mismo grosor que las barras de estado nutricional (.dash-anemia-fill: 6px) */
+  height: 6px;
   border: 0;
 }
 
@@ -2870,6 +2876,23 @@
 #widgetCoverageStatus .dash-card-action {
   color: var(--brand-primary);
 }
+
+/* Cobertura Territorial — variante Hierarchy (aceptada en live 583b22f2) */
+.dash-territory-list--hierarchy {
+  gap: 14px; /* density 1.4 horneado: calc(10px * 1.4) */
+}
+.dash-territory-list--hierarchy .dash-territory-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 12px;
+  align-items: end;
+}
+.dash-territory-list--hierarchy .dash-territory-head { display: contents; }
+.dash-territory-list--hierarchy .dash-territory-info { grid-column: 1; }
+.dash-territory-list--hierarchy .dash-territory-metric { grid-column: 2; align-items: baseline; }
+.dash-territory-list--hierarchy .dash-territory-pct { font-size: 28px; font-weight: 800; color: var(--gt-green); }
+.dash-territory-list--hierarchy .dash-territory-row:nth-child(2) .dash-territory-pct { color: var(--gt-blue); }
+.dash-territory-list--hierarchy .dash-territory-track { grid-column: 1 / -1; height: 6px; }
 
 /* Responsive Breakpoints */
 @media (max-width: 1024px) {
@@ -3146,6 +3169,88 @@
   outline-offset: 2px;
 }
 
+
+/* Casos Prioritarios — bandas por severidad (aceptada en live dcea1c5b, densidad 1.4).
+   Cada caso es una banda propia: los críticos crecen y toman el rojo de alerta, los
+   de seguimiento se apagan en ámbar. Sin `:has()` las bandas quedan neutras. */
+#widgetPriorityCases .dash-priority-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9.8px;
+  flex: 1;
+}
+
+#widgetPriorityCases .dash-priority-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 11px;
+  row-gap: 2px;
+  padding: 15.4px 13px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+}
+
+#widgetPriorityCases .dash-priority-item:hover {
+  background: var(--surface-hover);
+}
+
+#widgetPriorityCases .dash-priority-avatar {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  width: 30px;
+  height: 30px;
+  font-size: 11px;
+}
+
+#widgetPriorityCases .dash-priority-info {
+  display: contents;
+}
+
+#widgetPriorityCases .dash-priority-name {
+  grid-column: 2;
+  grid-row: 1;
+  flex-direction: row;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+#widgetPriorityCases .dash-priority-tags {
+  grid-column: 2;
+  grid-row: 2;
+  margin-top: 0;
+}
+
+#widgetPriorityCases .btn-micro-action {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+}
+
+#widgetPriorityCases .dash-priority-item:has(.dash-priority-avatar.critical) .dash-priority-avatar {
+  width: 34px;
+  height: 34px;
+  font-size: 11.5px;
+}
+
+#widgetPriorityCases .dash-priority-item:has(.dash-priority-avatar.critical) .dash-priority-name strong {
+  font-size: 14.5px;
+  letter-spacing: -0.015em;
+}
+
+#widgetPriorityCases .dash-priority-item:has(.badge-yellow) .dash-priority-name strong {
+  font-size: 12.5px;
+}
+
+#widgetPriorityCases .dash-priority-item:has(.dash-priority-avatar.critical) {
+  background: var(--gt-red-bg);
+}
+
+#widgetPriorityCases .dash-priority-item:has(.badge-yellow) {
+  background: var(--gt-yellow-bg);
+}
 
 /* Lista de Bitácora / Timeline */
 .dash-timeline-list {
