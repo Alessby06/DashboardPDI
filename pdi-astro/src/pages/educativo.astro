@@ -11,6 +11,16 @@ import '../styles/views-educativo.css';
               <p>Control de asistencia formativa rápida y padrón seguro de retiro de menores con acreditación legal .
               </p>
             </div>
+            <div class="view-actions">
+              <button type="button" class="btn-action-icon btn-audit-export-icon" id="btnExportEducativoCSV"
+                onclick="window.openModalExportEducativo ? window.openModalExportEducativo() : null"
+                aria-label="Descargar Pase de Asistencia CSV" title="Descargar Pase de Asistencia CSV">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <div class="card" id="cardAsistenciaCasita">
@@ -306,7 +316,7 @@ import '../styles/views-educativo.css';
                     <th>Colegio de Origen</th>
                     <th>Personas Acreditadas de Salida</th>
                     <th>Estado Hoy</th>
-                    <th style="text-align: right;">Marcar Asistencia</th>
+                    <th>Marcar Asistencia</th>
                   </tr>
                 </thead>
                 <tbody id="tbodyAsistenciaCasita">

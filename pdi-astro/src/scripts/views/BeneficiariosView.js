@@ -661,7 +661,7 @@ export const BeneficiariosView = {
         return servs.some(s => {
           const low = (s || "").toLowerCase();
           return s === "Área Social Pastoral" || low.includes("pastoral") || low.includes("social") || low.includes("asp");
-        }) || (beneficiario.vulnerabilidad && beneficiario.vulnerabilidad >= 80);
+        });
       }
       return false;
     });
@@ -1084,10 +1084,21 @@ export const BeneficiariosView = {
               </div>
             </td>
             <td style="text-align: center;"><span class="badge ${b.estado === 'Activo' ? 'badge-green' : 'badge-yellow'}">${escapar(b.estado)}</span></td>
-            <td style="text-align: center;">
-              <a href="/expediente?id=${encodeURIComponent(b.id)}" class="btn-action" data-astro-prefetch>
-                Ver Expediente
-              </a>
+            <td>
+              <div class="row-actions">
+                <a href="/expediente?id=${encodeURIComponent(b.id)}" class="row-action" data-astro-prefetch title="Ver expediente" aria-label="Ver expediente">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M2.25 12S5.75 5.25 12 5.25 21.75 12 21.75 12 18.25 18.75 12 18.75 2.25 12 2.25 12Z" />
+                    <circle cx="12" cy="12" r="3.25" />
+                    <circle cx="12" cy="12" r="1.05" fill="currentColor" stroke="none" />
+                  </svg>
+                </a>
+                <button type="button" class="row-action row-action--edit" onclick="window.openExpedienteEditar ? window.openExpedienteEditar(${escaparEnManejador(b.id)}) : null" title="Editar" aria-label="Editar">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+                  </svg>
+                </button>
+              </div>
             </td>
           </tr>
         `).join("");

@@ -38,6 +38,16 @@ import '../styles/views-social.css';
                 <h2>Área Social Pastoral (ASP): Derivaciones y Vulnerabilidad</h2>
                 <p>Bandeja de casos sociales clasificados, solicitudes de cambio de estado y simulador socioeconómico paramétrico (0-100%).</p>
               </div>
+              <div class="view-actions">
+                <button type="button" class="btn-action-icon btn-audit-export-icon" id="btnExportSocialCSV"
+                  onclick="window.openModalExportSocial ? window.openModalExportSocial() : null"
+                  aria-label="Descargar Bandeja ASP CSV" title="Descargar Bandeja ASP CSV">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                  </svg>
+                </button>
+              </div>
             </div>
             <!-- Barra de Búsqueda y Filtros de Casos Sociales (Estándar Padrón) -->
             <div class="card"
@@ -259,8 +269,7 @@ import '../styles/views-social.css';
             </div>
 
                 <!-- Barra de Píldoras de Filtros Activos de Casos Sociales (Chips Descartables) -->
-                <div class="padron-active-chips-bar" id="socialActiveChipsBar"
-                  style="display: none; margin-top: 10px; border-top: 1px solid var(--border-subtle); padding-top: 8px;">
+                <div class="padron-active-chips-bar" id="socialActiveChipsBar" style="display: none;">
                   <span class="padron-active-chips-label">Filtros aplicados:</span>
                   <div id="socialActiveChipsList"
                     style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">

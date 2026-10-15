@@ -2889,10 +2889,7 @@
 
 /* --- TABLA PRINCIPAL DEL PADRÓN: ESTABILIDAD Y ZERO LAYOUT SHIFT --- */
 #cardPadronBeneficiarios .table-container {
-  border-radius: var(--radius-md);
   overflow-x: auto;
-  border: 1px solid var(--border-subtle);
-  background: var(--surface-1);
 }
 
 #tablaBeneficiarios {
@@ -2904,7 +2901,7 @@
 }
 
 #tablaBeneficiarios thead th {
-  padding: 12px 14px;
+  padding: 11px 14px;
   font-size: 11.5px;
   font-weight: 700;
   text-transform: uppercase;
@@ -2926,7 +2923,7 @@
 #tablaBeneficiarios thead th:nth-child(8) { width: 10%; min-width: 115px; text-align: center; }
 
 #tablaBeneficiarios tbody td {
-  padding: 11px 12px;
+  padding: 11px 14px;
   border-bottom: 1px solid var(--border-subtle);
   vertical-align: middle;
 }
@@ -2966,50 +2963,9 @@
 }
 
 #tablaBeneficiarios tbody td:last-child {
-  overflow: hidden;
+  overflow: visible;
   text-align: center;
   white-space: nowrap;
-  padding: 8px 10px;
-}
-
-#tablaBeneficiarios tbody td:last-child .btn-action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto;
-  gap: 4px;
-  padding: 5px 10px;
-  font-size: 11.5px;
-  font-weight: 600;
-  line-height: 1.2;
-  white-space: nowrap;
-  background: var(--surface-2);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-main);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  text-decoration: none;
-  box-sizing: border-box;
-  max-width: 100%;
-  transition: all var(--dur-fast) var(--ease-smooth);
-}
-
-#tablaBeneficiarios tbody td:last-child .btn-action:hover {
-  background: var(--surface-hover);
-  border-color: var(--border-bright);
-  color: var(--text-brand);
-}
-
-[data-theme="dark"] #tablaBeneficiarios tbody td:last-child .btn-action {
-  background: var(--surface-2);
-  border-color: var(--border-subtle);
-  color: var(--text-main);
-}
-
-[data-theme="dark"] #tablaBeneficiarios tbody td:last-child .btn-action:hover {
-  background: var(--surface-hover);
-  border-color: var(--border-bright);
-  color: var(--text-brand);
 }
 
 #tablaBeneficiarios tbody tr {

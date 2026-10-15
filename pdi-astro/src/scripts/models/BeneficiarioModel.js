@@ -40,7 +40,7 @@ export function normalizeBeneficiarioServicios(b) {
   if (lowerEstrategia.includes("casita") || lowerEstrategia.includes("educat") || lowerEstrategia.includes("acompañ")) {
     normalized.add("Casita del Saber");
   }
-  if (lowerEstrategia.includes("pastoral") || lowerEstrategia.includes("social") || lowerEstrategia.includes("asp") || (b.vulnerabilidad && b.vulnerabilidad >= 80) || (b.exoneracionAporte && b.exoneracionAporte.includes("100%"))) {
+  if (lowerEstrategia.includes("pastoral") || lowerEstrategia.includes("social") || lowerEstrategia.includes("asp") || (b.exoneracionAporte && b.exoneracionAporte.includes("100%"))) {
     normalized.add("Área Social Pastoral");
   }
   if (lowerEstrategia.includes("mixto")) {

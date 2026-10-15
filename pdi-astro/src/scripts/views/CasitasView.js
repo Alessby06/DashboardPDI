@@ -180,10 +180,23 @@ export const CasitasView = {
    * datos, y un unico listener delegado los resuelve.
    */
   _botonesAsistencia(id) {
-    const estados = [["P", "active-P"], ["T", ""], ["FJ", ""], ["FI", ""]];
-    return estados.map(([clave, activa]) => `
-      <button type="button" class="btn-asist${clave === "P" ? " active-P" : ""}" data-asist-btn="${clave}" data-asist-id="${id}">${clave}</button>
+    const actual = this._estadoAsistenciaInfo(id).clave;
+    return ["P", "T", "FJ", "FI"].map(clave => `
+      <button type="button" class="btn-asist${clave === actual ? " active-" + clave : ""}" data-asist-btn="${clave}" data-asist-id="${id}">${clave}</button>
     `).join("");
+  },
+
+  /** Etiqueta y clase del badge de asistencia segun el estado guardado. */
+  _estadoAsistenciaInfo(id) {
+    const ctrl = window.PDI?.CasitasController;
+    if (ctrl && typeof ctrl.getEstadoInfo === "function") return ctrl.getEstadoInfo(id);
+    return { clave: "P", label: "Presente", badgeClass: "badge badge-green" };
+  },
+
+  /** Badge de asistencia ya resuelto con el estado guardado del menor. */
+  _badgeAsistencia(id, prefijo) {
+    const info = this._estadoAsistenciaInfo(id);
+    return `<span class="${info.badgeClass}" id="${prefijo}${escapar(id)}">${info.label}</span>`;
   },
 
   /**
@@ -420,7 +433,7 @@ export const CasitasView = {
       // Estado Asistencia actual simulado (por defecto 'P')
       const targetAsist = this._filterAsistencia;
       casitaList = casitaList.filter(b => {
-        const currentAsist = (window.PDI?.CasitasController && window.PDI.CasitasController._asistenciaMap && window.PDI.CasitasController._asistenciaMap[b.id]) || "P";
+        const currentAsist = this._estadoAsistenciaInfo(b.id).clave;
         return currentAsist === targetAsist;
       });
     }
@@ -583,9 +596,9 @@ export const CasitasView = {
             <div style="font-size:11.5px; color:var(--text-muted);">${escapar(b.parentesco)} &bull; ${escapar(b.telefono || 'Sin tel')}</div>
           </td>
           <td>
-            <span class="badge badge-green" id="badgeAsist_${escapar(b.id)}">Presente</span>
+            ${this._badgeAsistencia(b.id, "badgeAsist_")}
           </td>
-          <td style="text-align: right;">
+          <td>
             <div style="display: inline-flex; gap: 4px;" id="btnGroupAsist_${escapar(b.id)}">
               ${this._botonesAsistencia(b.id)}
             </div>
@@ -603,7 +616,7 @@ export const CasitasView = {
               <span>ID:</span> ${escapar(b.codigo)}
             </div>
             <div class="datacard-header-right">
-              <span class="badge badge-green" id="badgeAsistMob_${escapar(b.id)}">Presente</span>
+              ${this._badgeAsistencia(b.id, "badgeAsistMob_")}
             </div>
           </div>
 

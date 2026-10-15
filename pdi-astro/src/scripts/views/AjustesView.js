@@ -196,7 +196,8 @@ export const AjustesView = {
     setTimeout(() => {
       window.location.reload();
     }, 1000);
-  }
+  },
+
 };
 
 if (typeof window !== 'undefined') {

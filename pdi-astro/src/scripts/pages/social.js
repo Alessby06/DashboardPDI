@@ -22,6 +22,9 @@ import { arrancarComun, publicarRefresco } from "../core/Bootstrap.js";
 import { CasoSocialModel } from '../models/CasoSocialModel.js';
 import { SocialKanbanView } from '../views/SocialKanbanView.js';
 import { SocialController } from '../controllers/SocialController.js';
+// El boton de exportar la bandeja ASP abre el modal de confirmacion, y su
+// handler resuelve la descarga por window.PDI.AppController.
+import { AppController } from '../controllers/AppController.js';
 
 let enlazado = false;
 

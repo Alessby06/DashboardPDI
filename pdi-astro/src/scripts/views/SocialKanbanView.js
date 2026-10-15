@@ -27,6 +27,7 @@ export const SocialKanbanView = {
   _filterUrgencia: "all",
   _filterSede: "all",
   _activeCaso: null,
+  _filteredCasos: [],
   _mobileActiveStage: "pendiente",
   _haEntrado: false,
   _lastRenderSerial: "",
@@ -115,6 +116,10 @@ export const SocialKanbanView = {
 
       return matchQuery && matchUrgencia && matchSede;
     });
+
+    // Se guarda el conjunto ya filtrado para que la exportacion a CSV baje
+    // exactamente lo que se esta viendo y no la bandeja entera.
+    this._filteredCasos = filtered;
 
     const esPrimeraEntrada = !this._haEntrado || forzarAnimacion;
     this._haEntrado = true;
@@ -391,7 +396,7 @@ export const SocialKanbanView = {
       chipsList.innerHTML = "";
       chips.forEach(chip => {
         const chipEl = document.createElement("span");
-        chipEl.className = "padron-filter-chip";
+        chipEl.className = "padron-chip";
         chipEl.innerHTML = `
           <span>${escapar(chip.label)}</span>
           <button type="button" class="padron-chip-remove" title="Quitar filtro">
@@ -899,9 +904,8 @@ export const SocialKanbanView = {
       window.history.replaceState({}, "", url.toString());
     }
 
-    // View Transitions API nativa: animación fluida si el navegador lo soporta y el usuario no pide reduced-motion
-    const prefiereMenosMovimiento = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!prefiereMenosMovimiento && typeof document !== "undefined" && typeof document.startViewTransition === "function") {
+    // View Transitions API nativa: animación fluida si el navegador lo soporta
+    if (typeof document !== "undefined" && typeof document.startViewTransition === "function") {
       document.startViewTransition(() => {
         aplicarCambioDeVista();
       });

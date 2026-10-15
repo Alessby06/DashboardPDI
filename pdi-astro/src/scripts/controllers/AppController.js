@@ -42,6 +42,50 @@ export const AppController = {
       "success"
     );
   },
+
+  /** Descarga las evaluaciones CRED en CSV (filtradas o completas). */
+  exportSaludCSV(customList) {
+    const list = customList || BeneficiarioModel.getAll();
+    CsvExporter.exportSalud(list);
+    ToastView.show(
+      "Reporte CRED Exportado",
+      `Control antropométrico y tamizaje de anemia descargado (${list.length} evaluaciones en CSV)`,
+      "success"
+    );
+  },
+
+  /** Descarga el pase de asistencia de la Casita del Saber en CSV. */
+  exportCasitasCSV(customList, asistenciaMap) {
+    const list = customList || BeneficiarioModel.getAll();
+    CsvExporter.exportCasitas(list, asistenciaMap);
+    ToastView.show(
+      "Asistencia Exportada",
+      `Pase de asistencia de la Casita del Saber descargado (${list.length} menores en CSV)`,
+      "success"
+    );
+  },
+
+  /** Descarga las derivaciones del Area Social Pastoral en CSV. */
+  exportCasosSocialesCSV(customList) {
+    const list = customList || [];
+    CsvExporter.exportCasosSociales(list);
+    ToastView.show(
+      "Casos Sociales Exportados",
+      `Bandeja de derivaciones ASP descargada (${list.length} casos en CSV)`,
+      "success"
+    );
+  },
+
+  /** Descarga el directorio territorial de sedes en CSV. */
+  exportSedesCSV(customList) {
+    const list = customList || [];
+    CsvExporter.exportSedes(list);
+    ToastView.show(
+      "Directorio Exportado",
+      `Directorio territorial de sedes descargado (${list.length} sedes en CSV)`,
+      "success"
+    );
+  },
 };
 
 if (typeof window !== "undefined") {

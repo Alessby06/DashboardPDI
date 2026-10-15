@@ -81,6 +81,12 @@
       --shadow-raised: 0 0 0 1px rgba(15, 23, 42, 0.06), 0 3px 12px -2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04);
 
       --ease-snappy: cubic-bezier(0.23, 1, 0.32, 1);
+      /* Desaceleracion mas tendida que la quint: el revelado de los modulos
+         aterriza sin el golpe seco al final del recorrido. */
+      --ease-fluid: cubic-bezier(0.33, 1, 0.68, 1);
+      /* Deja animar height: 0 -> auto en los despliegues de los modulos.
+         Es una propiedad heredada, asi que basta declararla en la raiz. */
+      interpolate-size: allow-keywords;
       --ui-font: 'Manrope', sans-serif;
     }
 
@@ -168,7 +174,7 @@
       width: 42px;
       height: 42px;
       border-radius: var(--radius-md);
-      background: rgba(255, 255, 255, 0.06);
+      background: #000000;
       border: 1px solid rgba(255, 255, 255, 0.12);
       display: flex;
       align-items: center;
@@ -268,13 +274,13 @@
       flex-shrink: 0;
       color: #34d399;
       box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.04);
-      transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+      transition: border-color 0.28s var(--ease-fluid), background 0.28s var(--ease-fluid), transform 0.36s var(--ease-fluid);
     }
 
     .module-item:hover .module-icon-well {
       background: rgba(16, 185, 129, 0.1);
       border-color: rgba(16, 185, 129, 0.35);
-      transform: translateY(-1px);
+      transform: translateY(-2px) scale(1.05);
     }
 
     /* ── SVG Micro-Animations (Seamless Harmonic Loops) ────────── */
@@ -361,18 +367,7 @@
       85%      { transform: scaleY(1); opacity: 0.78; filter: none; }
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      .anim-svg-sprout .anim-leaf-main,
-      .anim-svg-sprout .anim-leaf-sub,
-      .anim-svg-book,
-      .anim-svg-book .anim-page-right,
-      .anim-svg-book .anim-page-left,
-      .anim-svg-social .anim-social-heart,
-      .anim-svg-social .anim-social-hands,
-      .anim-svg-pulse .anim-ecg-path {
-        animation: none !important;
-      }
-    }
+    
 
     .module-text-wrap h4 {
       font-size: 13px;
@@ -833,20 +828,9 @@
       animation: layerSettle 0.396s cubic-bezier(0.16, 1, 0.3, 1) both;
       animation-delay: 81ms;
     }
-    @media (prefers-reduced-motion: reduce) {
-      .showcase-header,
-      .showcase-body,
-      .showcase-footer,
-      .showcase-tagline,
-      .showcase-title {
-        animation: none !important;
-        opacity: 1 !important;
-        transform: none !important;
-        clip-path: none !important;
-      }
-    }
+    
     /* Optimizacion movil: evita la salto del wipe y suaviza el ritmo sin cambiar desktop */
-  @media (max-width: 900px) and (prefers-reduced-motion: no-preference) {
+  @media (max-width: 900px) {
     .access-column {
       animation-duration: 0.54s !important;
       animation-delay: 0.12s;
@@ -882,7 +866,7 @@
       cursor: pointer;
       color: var(--hero-text);
       border: 1px solid transparent;
-      transition: background-color 0.2s ease, border-color 0.2s ease;
+      transition: background-color 0.28s var(--ease-fluid), border-color 0.28s var(--ease-fluid);
     }
     .module-row:hover {
       background: rgba(255, 255, 255, 0.04);
@@ -904,14 +888,23 @@
       transition: color 0.2s ease;
     }
     .module-text-wrap p {
-      max-height: 0;
-      opacity: 0;
-      margin-top: 0;
+      /* El alto real del texto es el que manda: se anima de 0 a auto gracias a
+         interpolate-size, sin un max-height de relleno que abre la descripcion
+         de golpe en los primeros milisegundos y deja el resto del recorrido
+         sin nada que ver. El hueco de arriba es relleno animado, para que el
+         estado plegado mida 0 exacto. */
+      margin: 0;
+      height: 0;
+      padding-top: 0;
+      box-sizing: border-box;
       overflow: hidden;
+      opacity: 0;
+      transform: translateY(-3px);
       font-size: 12px;
       color: var(--hero-text);
       line-height: 1.4;
-      transition: max-height 0.35s var(--ease-snappy), opacity 0.25s ease, margin-top 0.25s ease;
+      /* Despliegue y pliegue simetricos: misma duracion y curva en ambos sentidos */
+      transition: height 0.46s var(--ease-fluid), padding-top 0.46s var(--ease-fluid), opacity 0.34s var(--ease-fluid), transform 0.44s var(--ease-fluid);
     }
     .module-chev {
       display: inline-flex;
@@ -919,7 +912,7 @@
       justify-content: center;
       color: var(--hero-text);
       transform: rotate(0deg);
-      transition: transform 0.3s var(--ease-snappy), color 0.2s ease, opacity 0.2s ease;
+      transition: transform 0.46s var(--ease-fluid), color 0.2s ease, opacity 0.2s ease;
       margin-top: 9px;
       flex-shrink: 0;
       opacity: 0.6;
@@ -929,9 +922,10 @@
       border-color: rgba(52, 211, 153, 0.25);
     }
     .module-radio:checked + .module-row .module-text-wrap p {
-      max-height: 80px;
+      height: auto;
+      padding-top: 5px;
       opacity: 1;
-      margin-top: 5px;
+      transform: none;
     }
     .module-radio:checked + .module-row .module-text-wrap h4 {
       color: #ffffff;
@@ -949,13 +943,7 @@
       color: var(--hero-accent);
       opacity: 0.9;
     }
-    @media (prefers-reduced-motion: reduce) {
-      .module-text-wrap p,
-      .module-chev,
-      .module-row {
-        transition: none !important;
-      }
-    }
+    
   /* ── Aceptado dd791b86 · "Franja bandera": identidad tricolor del logo ACJG (azul #3048f0 · rojo #c03018 · amarillo #e8c21a) ── */
   .showcase-column {
     --v-blue: #3048f0;
@@ -979,7 +967,7 @@
     --v-red: #ff4324;
     --v-yellow: #f7cd03;
   }
-  .showcase-badge-icon { background: var(--surface-subtle); border-color: var(--border-subtle); }
+  .showcase-badge-icon { background: #000000; border-color: var(--border-subtle); }
   .showcase-brand-text h3 { color: var(--text-title); }
   .showcase-brand-text p { color: var(--text-muted); }
   .showcase-body { margin: 26px 0; }
@@ -1162,8 +1150,10 @@
     border-color: color-mix(in srgb, var(--v-blue) 30%, transparent);
   }
   .showcase-column .modules-card .module-radio:checked + .module-row .module-text-wrap p {
-    max-height: 120px;
-    margin-top: 6px;
+    height: auto;
+    padding-top: 6px;
+    opacity: 1;
+    transform: none;
   }
   /* ── Aceptado 52a7ec60 · "Jerarquía tipográfica": título sobrio, rótulos en versalitas y campos de línea; perfiles como chips ── */
   .access-column .form-header-group { margin-bottom: 34px; }
@@ -1373,11 +1363,7 @@
     55%  { transform: scale(1.22); opacity: 1; box-shadow: 0 0 0 5px color-mix(in srgb, var(--v-blue-focus) 0%, transparent); }
     100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 4px color-mix(in srgb, var(--v-blue-focus) 0%, transparent); }
   }
-  @media (prefers-reduced-motion: reduce) {
-    .access-column .profile-card-btn.active .profile-role-name::before {
-      animation: none !important;
-    }
-  }
+  
   /* Distribución armónica: Fila 1 (2 pills: Administración TI y Coordinación, 3 columnas cada una), Fila 2 (3 pills: Educación, Nutrición, Trabajo Social, 2 columnas cada una) */
   .access-column .profiles-grid .profile-card-btn:nth-child(5) {
     grid-column: span 3; /* Administración TI */
@@ -1399,9 +1385,7 @@
     grid-column: span 2; /* Trabajo Social */
     order: 5;
   }
-  @media (prefers-reduced-motion: reduce) {
-    .access-column .profile-card-btn { transition: none !important; }
-  }
+  
   /* ── Aceptado 9271afa6 · "Bandas y manifiesto sobrio": banda tricolor superior, cabecera fileteada, kicker en versalitas, titular 32px y módulos como registro abierto con acordeón ── */
   .showcase-column { padding: 44px 46px; }
   .showcase-header { padding-bottom: 22px; border-bottom: 1px solid var(--border-subtle); }
@@ -1438,9 +1422,10 @@
   .module-item { margin: 0; border-top: 1px solid var(--border-subtle); }
   .module-row { align-items: flex-start; gap: 14px; padding: 14px 0; border-radius: 0; }
   .showcase-column .modules-card .module-radio:checked + .module-row .module-text-wrap p {
-    max-height: 120px;
+    height: auto;
+    padding-top: 6px;
     opacity: 1;
-    margin-top: 4px;
+    transform: none;
   }
   /* ── Acompañamiento sobrio: transiciones suaves y limpias para despliegue/pliegue, fondo negro/neutro en reposo ── */
   .showcase-column .modules-card .module-row {
@@ -1533,23 +1518,20 @@
     font-weight: 450;
     line-height: 1.5;
     color: rgba(255, 255, 255, 0.72);
-    margin-top: 0;
-    max-height: 0;
-    opacity: 0;
+    height: 0;
+    padding-top: 0;
+    box-sizing: border-box;
     overflow: hidden;
-    /* 0.4s → 0.582s: 45% más lenta en total, misma curva para no perder fluidez */
-    transition: max-height 0.582s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.437s cubic-bezier(0.16, 1, 0.3, 1), margin-top 0.437s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .showcase-column .modules-card .module-radio:checked + .module-row .module-text-wrap p {
-    max-height: 140px;
-    opacity: 1;
-    margin-top: 6px;
+    opacity: 0;
+    transform: translateY(-3px);
+    /* Despliegue y pliegue simetricos: misma duracion y curva en ambos sentidos */
+    transition: height 0.46s var(--ease-fluid), padding-top 0.46s var(--ease-fluid), opacity 0.34s var(--ease-fluid), transform 0.44s var(--ease-fluid);
   }
   .showcase-column .modules-card .module-chev {
     color: #ffffff !important;
     opacity: 1;
     margin-top: 2px;
-    transition: transform 0.509s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.46s var(--ease-fluid), color 0.2s ease, opacity 0.2s ease;
   }
   .showcase-column .modules-card .module-chev svg {
     width: 17px;
@@ -1654,7 +1636,7 @@
     animation-delay: 0.14s;
   }
   /* Tip Word/editor: entrada natural con cursor nativo */
-  @media (max-width: 900px) and (prefers-reduced-motion: no-preference) {
+  @media (max-width: 900px) {
     .access-column {
       animation-delay: 0.12s;
       contain: layout paint;
@@ -1663,15 +1645,7 @@
       animation-delay: 0.372s;
     }
   }
-  @media (prefers-reduced-motion: reduce) {
-    .access-column,
-    .access-column .form-main-title {
-      animation: none !important;
-      opacity: 1 !important;
-      clip-path: none !important;
-      transform: none !important;
-    }
-  }
+  
   </style>
 </head>
 <body>
@@ -2047,6 +2021,9 @@
   </script>
 
 
+<!-- impeccable-live-start -->
+<script is:inline src="http://localhost:8400/live.js?token=55981e43-f29a-40c7-b625-bf8466303e22"></script>
+<!-- impeccable-live-end -->
 </body>
 </html>
 

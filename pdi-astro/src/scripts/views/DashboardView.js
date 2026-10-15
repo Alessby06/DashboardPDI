@@ -171,16 +171,14 @@ export const DashboardView = {
         const startWidth = esPrimeraEntrada ? "0%" : `${distPct}%`;
 
         return `
-          <div class="dash-territory-row">
-            <div class="dash-territory-head">
-              <div class="dash-territory-info">
-                <strong>Distrito de ${escapar(dist)}</strong>
-                <span class="dash-territory-sub">${escapar(sedesText)}</span>
-              </div>
-              <div class="dash-territory-metric">
-                <strong id="badgeDistrict_${distSlug}">${distCount} menores</strong>
-                <span class="dash-territory-pct" id="pctDistrict_${distSlug}">(${distPct}%)</span>
-              </div>
+          <div class="dash-territory-row dash-territory-row--share" data-dist="${dist.toLowerCase()}">
+            <div class="dash-territory-share">
+              <span class="dash-territory-share-pct" id="pctDistrict_${distSlug}">${distPct}%</span>
+              <span class="dash-territory-share-badge" id="badgeDistrict_${distSlug}">${distCount} menores</span>
+            </div>
+            <div class="dash-territory-share-info">
+              <strong>Distrito de ${escapar(dist)}</strong>
+              <span class="dash-territory-share-sub">${escapar(sedesText)}</span>
             </div>
             <div class="dash-territory-track">
               <div class="dash-territory-bar ${barColorClass}" style="width: ${startWidth};" data-target-width="${distPct}%" id="barDistrict_${distSlug}"></div>
@@ -197,6 +195,11 @@ export const DashboardView = {
           });
         });
       }
+
+      const footMenores = document.getElementById("dashTerritoryTotalMenores");
+      if (footMenores) rollNum(footMenores, totalBeneficiarios);
+      const footSedes = document.getElementById("dashTerritoryTotalSedes");
+      if (footSedes) rollNum(footSedes, allSedes.length || 7);
     }
 
     // Da entrada a los elementos del tablero solo en la primera carga
@@ -1122,7 +1125,7 @@ export const DashboardView = {
               <td>${entityHtml}</td>
               <td style="font-size:12.5px; color:var(--text-muted); max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapar(l.detail)}</td>
               <td><span class="badge ${getStatusBadgeClass(l.status)}">${escapar(l.status)}</span></td>
-              <td style="text-align:right;">
+              <td>
                 <button type="button" class="btn-action-sm" onclick="event.stopPropagation(); window.openAuditDetail ? window.openAuditDetail('${escaparEnManejador(logIdStr)}') : (window.PDI?.DashboardView?.openLogDetail ? window.PDI.DashboardView.openLogDetail('${escaparEnManejador(logIdStr)}') : null)" title="Ver detalle de trazabilidad">
                   <span>Detalle</span>
                   <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">

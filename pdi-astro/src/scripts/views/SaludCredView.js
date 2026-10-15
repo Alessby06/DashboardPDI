@@ -552,7 +552,22 @@ export const SaludCredView = {
             <td><strong style="font-family:var(--mono-font);">${escapar(b.hb)} g/dL</strong></td>
             <td><span class="badge ${badgeClass}">${escapar(b.anemia)}</span></td>
             <td>${b.anemia !== "Normal" ? "Sulfato Ferroso 1 dosis/día" : "Dieta Preventiva"}</td>
-            <td style="text-align: right;"><button type="button" class="btn-action" onclick="window.openExpediente(${escaparEnManejador(b.id)})">Ver Historial</button></td>
+            <td>
+              <div class="row-actions">
+                <button type="button" class="row-action" onclick="window.openExpediente(${escaparEnManejador(b.id)})" title="Ver historial CRED" aria-label="Ver historial CRED">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M2.25 12S5.75 5.25 12 5.25 21.75 12 21.75 12 18.25 18.75 12 18.75 2.25 12 2.25 12Z" />
+                    <circle cx="12" cy="12" r="3.25" />
+                    <circle cx="12" cy="12" r="1.05" fill="currentColor" stroke="none" />
+                  </svg>
+                </button>
+                <button type="button" class="row-action row-action--edit" onclick="window.openExpedienteEditar ? window.openExpedienteEditar(${escaparEnManejador(b.id)}) : null" title="Editar" aria-label="Editar">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+                  </svg>
+                </button>
+              </div>
+            </td>
           </tr>
         `;
       }).join("");

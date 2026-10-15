@@ -203,6 +203,71 @@ window.openModalExportDashboard = () => {
   });
 };
 
+window.openModalExportSalud = () => {
+  const sv = window.PDI?.SaludCredView;
+  const list = sv?._filteredBeneficiarios || (window.PDI?.BeneficiarioModel?.getAll ? window.PDI.BeneficiarioModel.getAll() : []);
+  window.openModalExportGeneric({
+    title: "Descarga del Reporte CRED",
+    subtitle: "Control antropométrico y tamizaje de anemia",
+    description: `Se generará un archivo consolidado en formato <strong style="font-family: var(--mono-font); color: var(--text-brand);">.CSV</strong> con el dosaje de hemoglobina, el semáforo de anemia y la suplementación ferrosa de los menores.`,
+    count: list.length,
+    unit: "evaluaciones",
+    legal: "Ley N.° 29733 (Datos Personales)",
+    onConfirm: () => {
+      window.PDI?.AppController?.exportSaludCSV?.(list);
+    }
+  });
+};
+
+window.openModalExportEducativo = () => {
+  const cv = window.PDI?.CasitasView;
+  const list = cv?._filteredBeneficiarios || (window.PDI?.BeneficiarioModel?.getAll ? window.PDI.BeneficiarioModel.getAll() : []);
+  const asistenciaMap = window.PDI?.CasitasController?._cargar ? window.PDI.CasitasController._cargar() : {};
+  window.openModalExportGeneric({
+    title: "Descarga del Pase de Asistencia",
+    subtitle: "Consolidado de la Casita del Saber",
+    description: `Se generará un archivo consolidado en formato <strong style="font-family: var(--mono-font); color: var(--text-brand);">.CSV</strong> con el grado escolar, el colegio de origen, el apoderado acreditado y la asistencia registrada de cada menor.`,
+    count: list.length,
+    unit: "menores",
+    legal: "Ley N.° 29733 (Datos Personales)",
+    onConfirm: () => {
+      window.PDI?.AppController?.exportCasitasCSV?.(list, asistenciaMap);
+    }
+  });
+};
+
+window.openModalExportSocial = () => {
+  const sv = window.PDI?.SocialKanbanView;
+  const list = sv?._filteredCasos || (window.PDI?.CasoSocialModel?.getAll ? window.PDI.CasoSocialModel.getAll() : []);
+  window.openModalExportGeneric({
+    title: "Descarga de la Bandeja ASP",
+    subtitle: "Derivaciones del Área Social Pastoral",
+    description: `Se generará un archivo consolidado en formato <strong style="font-family: var(--mono-font); color: var(--text-brand);">.CSV</strong> con la etapa, la urgencia, el puntaje de vulnerabilidad y la situación encontrada de cada caso social.`,
+    count: list.length,
+    unit: "casos",
+    legal: "Ley N.° 29733 (Datos Personales)",
+    onConfirm: () => {
+      window.PDI?.AppController?.exportCasosSocialesCSV?.(list);
+    }
+  });
+};
+
+window.openModalExportSedes = () => {
+  const sv = window.PDI?.SedesView;
+  const list = sv?._filteredSedes || (window.PDI?.SedeModel?.getAll ? window.PDI.SedeModel.getAll() : []);
+  window.openModalExportGeneric({
+    title: "Descarga del Directorio Territorial",
+    subtitle: "Sedes, iglesias aliadas y personal en campo",
+    description: `Se generará un archivo consolidado en formato <strong style="font-family: var(--mono-font); color: var(--text-brand);">.CSV</strong> con la dirección, el aforo, la ocupación y los datos de contacto de cada sede.`,
+    count: list.length,
+    unit: "sedes",
+    legal: "Ley N.° 29733 (Datos Personales)",
+    onConfirm: () => {
+      window.PDI?.AppController?.exportSedesCSV?.(list);
+    }
+  });
+};
+
 window.closeModalExportAudit = () => {
   const modal = document.getElementById("modalConfirmExportAudit");
   if (modal) {
@@ -243,6 +308,13 @@ window.openExpedienteByCodigo = (codigo) => {
   } else {
     window.location.href = url;
   }
+};
+// El lápiz de las tablas entra al expediente ya en modo edición. El pedido
+// viaja en sessionStorage y no en la URL para no ensuciar la dirección que se
+// comparte; ExpedienteView lo consume una sola vez al pintar.
+window.openExpedienteEditar = (id) => {
+  try { sessionStorage.setItem("pdi_expediente_editar", "1"); } catch (e) {}
+  window.openExpediente(id);
 };
 window.toggleEditExpediente = () => window.PDI?.ExpedienteView?.toggleEdit?.();
 window.saveExpedienteChanges = () => window.PDI?.ExpedienteView?.saveChanges?.();

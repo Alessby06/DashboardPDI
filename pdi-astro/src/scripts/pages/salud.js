@@ -22,6 +22,9 @@ import { arrancarComun, publicarRefresco } from "../core/Bootstrap.js";
 import { BeneficiarioModel } from '../models/BeneficiarioModel.js';
 import { SaludCredView } from '../views/SaludCredView.js';
 import { SaludController } from '../controllers/SaludController.js';
+// El boton de exportar CRED abre el modal de confirmacion, y su handler
+// resuelve la descarga por window.PDI.AppController.
+import { AppController } from '../controllers/AppController.js';
 
 let enlazado = false;
 

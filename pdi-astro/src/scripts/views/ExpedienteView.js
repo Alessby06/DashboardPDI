@@ -190,6 +190,15 @@ export const ExpedienteView = {
    * porque el boton de atras y el de siguiente cambian el id sin recargar.
    */
   render() {
+    // El lápiz de las tablas pide entrar editando. Se consume al entrar, una
+    // sola vez: si no, volver a este expediente (o pasar al siguiente)
+    // reabriría el modo edición sin que nadie lo haya pedido.
+    let editandoAlEntrar = false;
+    try {
+      editandoAlEntrar = sessionStorage.getItem("pdi_expediente_editar") === "1";
+      if (editandoAlEntrar) sessionStorage.removeItem("pdi_expediente_editar");
+    } catch (e) {}
+
     const estadoSinExpediente = document.getElementById("expSinExpediente");
 
     // Un enlace puede venir por codigo (openExpedienteByCodigo) en vez de por
@@ -259,6 +268,8 @@ export const ExpedienteView = {
 
     this._pintar(menor, caso);
     this._pintarPosicion();
+
+    if (editandoAlEntrar && !this.isEditing) this.toggleEdit();
   },
 
   _pintar(b, caso) {

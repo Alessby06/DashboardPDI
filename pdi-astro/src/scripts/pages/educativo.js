@@ -22,6 +22,9 @@ import { arrancarComun, publicarRefresco } from "../core/Bootstrap.js";
 import { BeneficiarioModel } from '../models/BeneficiarioModel.js';
 import { CasitasView } from '../views/CasitasView.js';
 import { CasitasController } from '../controllers/CasitasController.js';
+// El boton de exportar la asistencia abre el modal de confirmacion, y su
+// handler resuelve la descarga por window.PDI.AppController.
+import { AppController } from '../controllers/AppController.js';
 
 let enlazado = false;
 

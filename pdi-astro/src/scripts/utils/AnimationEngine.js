@@ -3,25 +3,6 @@
 
 export const AnimationEngine = {
   /**
-   * Si la persona ha pedido al sistema operativo que no se mueva nada.
-   *
-   * Ninguna de las animaciones de este motor es imprescindible: todas son
-   * refuerzos de algo que ya cambia en pantalla por si solo. Asi que, cuando la
-   * respuesta es que si, se escribe el estado final y no se anima.
-   *
-   * Antes este motor animaba siempre, sin mirar la consulta, de modo que el CSS
-   * podia pedir quietud y el JavaScript seguia moviendo cosas por su cuenta. Eso
-   * hacia que el ajuste de accesibilidad del sistema se cumpliera a medias.
-   */
-  prefiereMenosMovimiento() {
-    try {
-      return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-    } catch (e) {
-      return false;
-    }
-  },
-
-  /**
    * Contador estilo odómetro (kilometraje / slot roll) impulsado por GPU.
    * Rueda verticalmente cada dígito en columnas independientes con física orgánica.
    * @param {string|HTMLElement} elementOrId - ID del elemento o el nodo HTML.
@@ -45,13 +26,6 @@ export const AnimationEngine = {
 
     el.setAttribute("aria-label", formatted.trim());
     el.setAttribute("role", "text");
-
-    // Accesibilidad: Si prefiere menos movimiento, mostrar el dato fijado inmediatamente
-    if (this.prefiereMenosMovimiento()) {
-      el.textContent = formatted;
-      el._odometerTarget = formatted;
-      return;
-    }
 
     // Evitar reiniciar si ya tiene este valor objetivo renderizado como odómetro
     if (el._odometerTarget === formatted && el.querySelector(".odometer-wrap")) {
@@ -105,9 +79,6 @@ export const AnimationEngine = {
     const parent = typeof parentOrId === "string" ? document.getElementById(parentOrId) : parentOrId;
     if (!parent) return;
 
-    // Sin cascada no hay nada que hacer con movimiento reducido
-    if (this.prefiereMenosMovimiento()) return;
-
     // Evitar que la entrada escalonada se repita en refrescos de datos (evita que desaparezcan los elementos)
     if (parent._hasStaggered) return;
     parent._hasStaggered = true;
@@ -137,7 +108,7 @@ export const AnimationEngine = {
     const contenedor = typeof contenedorOrId === "string"
       ? document.getElementById(contenedorOrId)
       : contenedorOrId;
-    if (!contenedor || this.prefiereMenosMovimiento()) return;
+    if (!contenedor) return;
 
     // El desfase se corta a partir de maxDesfase. Sin ese tope, filtrar una
     // lista de doscientas filas haria que la ultima entrase casi ocho segundos
@@ -193,9 +164,8 @@ export const AnimationEngine = {
    * tener que comparar de memoria con lo que habia antes.
    *
    * La clase pinta el fondo y lo devuelve con una transicion, no con una
-   * animacion por fotogramas clave. La diferencia importa: con movimiento
-   * reducido las animaciones se apagan, pero un cambio de color se conserva, de
-   * modo que el aviso no desaparece justo para quien necesita mas claridad.
+   * animacion por fotogramas clave: es un cambio de color, no un desplazamiento,
+   * asi que se percibe sin marear y encaja con el resto de transiciones.
    */
   destacar(elementoOrId) {
     const el = typeof elementoOrId === "string"

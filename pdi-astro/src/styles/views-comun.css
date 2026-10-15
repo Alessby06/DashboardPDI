@@ -721,49 +721,62 @@
 }
 
 /* ===========================================================================
-   BOTONES DE ACCIÓN DE TABLA ESTANDARIZADOS (SOLO PC / ESCRITORIO)
-   Basados en el botón canónico "Ver Expediente" de padron.astro
+   ACCIONES DE FILA ESTANDARIZADAS (SOLO PC / ESCRITORIO)
+   Botones cuadrados y solo icono, idénticos en padrón, salud y voluntariados:
+   el ojo abre el expediente/ficha y el lápiz entra directo a editar. Nada de
+   icono + texto y sin botón de eliminar.
    =========================================================================== */
 @media (min-width: 769px) {
-  .data-table tbody td:last-child .btn-action,
-  .data-table tbody td:last-child .btn-action-sm,
-  .data-table tbody td:last-child .padron-btn-ficha,
-  .data-table tbody td:last-child .padron-btn-edit,
-  .table-responsive .data-table tbody td:last-child .btn-action,
-  .table-responsive .data-table tbody td:last-child .padron-btn-ficha,
-  .table-responsive .data-table tbody td:last-child .padron-btn-edit,
-  #tablaBeneficiarios tbody td:last-child .btn-action {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin: 0 !important;
-    gap: 4px !important;
-    padding: 5px 10px !important;
-    font-family: var(--ui-font) !important;
-    font-size: 11.5px !important;
-    font-weight: 600 !important;
-    line-height: 1.2 !important;
-    white-space: nowrap !important;
-    border-radius: var(--radius-sm) !important;
-    box-sizing: border-box !important;
-    height: auto !important;
-    min-height: unset !important;
-    cursor: pointer !important;
-    text-decoration: none !important;
+  .row-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .row-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    padding: 0;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-subtle);
+    background: var(--surface-2);
+    color: var(--text-main);
+    cursor: pointer;
+    text-decoration: none;
+    box-sizing: border-box;
     transition: background-color var(--dur-fast) var(--ease-smooth),
                 border-color var(--dur-fast) var(--ease-smooth),
                 color var(--dur-fast) var(--ease-smooth),
-                transform var(--dur-fast) var(--ease-spring) !important;
+                transform var(--dur-fast) var(--ease-spring);
   }
 
-  .data-table tbody td:last-child .btn-action svg,
-  .data-table tbody td:last-child .btn-action-sm svg,
-  .data-table tbody td:last-child .padron-btn-ficha svg,
-  .data-table tbody td:last-child .padron-btn-edit svg,
-  .table-responsive .data-table tbody td:last-child .padron-btn-ficha svg,
-  .table-responsive .data-table tbody td:last-child .padron-btn-edit svg {
-    width: 13px !important;
-    height: 13px !important;
+  .row-action svg {
+    width: 15px;
+    height: 15px;
+    stroke: currentColor;
+    display: block;
+  }
+
+  .row-action:hover {
+    background: var(--surface-hover);
+    border-color: var(--border-bright);
+    color: var(--text-brand);
+    transform: translateY(-1px);
+  }
+
+  .row-action:active {
+    transform: scale(0.94);
+  }
+
+  /* El lápiz (editar) se insinúa en verde de marca */
+  .row-action--edit:hover {
+    border-color: var(--gt-green, #00b494);
+    color: var(--gt-green, #00b494);
   }
 }
 
@@ -853,6 +866,87 @@
     min-height: 38px !important;
     flex: 0 0 38px !important;
     border-radius: var(--radius-md) !important;
+  }
+}
+
+/* ===========================================================================
+   TABLA AL BORDE DE LA CARD (consistencia con Voluntariados · solo escritorio).
+   La card conserva su padding, pero las bandas de la sección (barra de
+   búsqueda/filtros, filtros aplicados, tabla y paginación) se expanden a sus
+   extremos con un margen negativo igual a ese padding (22px). Así el "techo"
+   y el "piso" llegan de borde a borde, igual que en Voluntariados.
+   En móvil no se toca nada: la tabla de PC está oculta y el padding de la card
+   cambia por media.
+   =========================================================================== */
+@media (min-width: 769px) {
+  /* Barra de búsqueda/filtros: banda full-bleed con "techo" */
+  #cardSaludEvaluaciones .audit-toolbar,
+  #cardAsistenciaCasita .audit-toolbar,
+  #cardPadronBeneficiarios .audit-toolbar,
+  #view-auditoria .card .audit-toolbar {
+    margin-inline: -22px;
+    padding-inline: 22px;
+    padding-bottom: 16px;
+    margin-bottom: 0 !important;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  /* Tabla: de borde a borde (el "techo" lo pone la banda de arriba) */
+  #cardSaludEvaluaciones .table-container,
+  #cardAsistenciaCasita .table-container,
+  #cardPadronBeneficiarios .table-container,
+  #view-auditoria .card .table-container {
+    margin-inline: -22px;
+  }
+
+  /* Filtros aplicados: banda full-bleed */
+  #cardSaludEvaluaciones .padron-active-chips-bar,
+  #cardAsistenciaCasita .padron-active-chips-bar,
+  #cardPadronBeneficiarios .padron-active-chips-bar,
+  #view-auditoria .card .padron-active-chips-bar {
+    margin: 0;
+    margin-inline: -22px;
+    padding: 10px 22px;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  /* Paginación: pie full-bleed que cierra la card */
+  #cardSaludEvaluaciones .padron-pagination-bar,
+  #cardAsistenciaCasita .padron-pagination-bar,
+  #cardPadronBeneficiarios .padron-pagination-bar,
+  #view-auditoria .card .padron-pagination-bar {
+    margin-inline: -22px;
+    margin-bottom: -22px;
+    padding-inline: 22px;
+  }
+
+  /* Suelo común de ancho: las tablas scrollean con el mismo criterio */
+  #cardSaludEvaluaciones .data-table { min-width: 980px; }
+  #cardAsistenciaCasita .data-table { min-width: 900px; }
+  #view-auditoria .card .data-table { min-width: 1160px; }
+
+  /* Última columna (acciones / asistencia / detalle): centrada en las cinco */
+  #cardSaludEvaluaciones .data-table th:last-child,
+  #cardSaludEvaluaciones .data-table td:last-child,
+  #cardAsistenciaCasita .data-table th:last-child,
+  #cardAsistenciaCasita .data-table td:last-child,
+  #view-auditoria .card .data-table th:last-child,
+  #view-auditoria .card .data-table td:last-child,
+  #cardPadronBeneficiarios .data-table th:last-child,
+  #cardPadronBeneficiarios .data-table td:last-child,
+  #cardVoluntariosPadron .data-table th:last-child,
+  #cardVoluntariosPadron .data-table td:last-child {
+    text-align: center;
+  }
+
+  /* Ancho cómodo para el par ojo + lápiz */
+  #cardSaludEvaluaciones .data-table th:last-child,
+  #cardSaludEvaluaciones .data-table td:last-child {
+    width: 118px;
   }
 }
 

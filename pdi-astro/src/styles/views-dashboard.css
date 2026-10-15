@@ -2313,8 +2313,12 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
   gap: 20px;
-  margin-bottom: 20px;
-  align-items: start;
+  margin-bottom: 12px;
+  align-items: stretch;
+}
+
+.dash-charts-grid .card-header {
+  margin-bottom: 0 !important;
 }
 
 /* Panel Clínico de Estado Nutricional / Anemia MINSA */
@@ -2334,8 +2338,9 @@
 .dash-anemia-table-card {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 20px 22px;
+  gap: 10px;
+  padding: 18px 20px;
+  height: 100%;
 }
 
 .dash-anemia-table {
@@ -2344,7 +2349,7 @@
 }
 
 .dash-anemia-trow td {
-  padding: 11px 0;
+  padding: 9px 0;
   border-bottom: 1px solid var(--border-subtle);
   vertical-align: middle;
 }
@@ -2414,10 +2419,14 @@
   font-variant-numeric: tabular-nums;
 }
 
-.dash-anemia-foot {
+.dash-anemia-foot,
+.dash-territory-foot {
   margin: 0;
+  margin-top: auto;
   font-size: 12px;
   color: var(--text-dim);
+  line-height: 1.4;
+  padding-top: 4px;
 }
 
 @media (max-width: 640px) {
@@ -2489,11 +2498,145 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .dash-anemia-fill {
-    transition: none;
-  }
+/* ===========================================================================
+   ESTADO NUTRICIONAL Y ANEMIA — Métricas grandes (variante aceptada, density 0.6)
+   Carbonize del accept en /dashboard #widgetAnemiaStatus (variante 3).
+   Reglas bakeadas con density = 0.6; selectores retargetados a clases semánticas.
+   =========================================================================== */
+.dash-anemia-table-card {
+  padding: 11px 12px;
 }
+.dash-anemia-table-card .card-title span {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+.dash-anemia-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin: 8px 0;
+}
+.dash-anemia-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 7px 8px;
+  border-radius: 10px;
+  background: var(--bg-canvas);
+}
+.dash-anemia-metric .dash-anemia-bname {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.dash-anemia-metric .dash-anemia-pct {
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  font-size: 24px;
+  color: var(--text-main);
+}
+.dash-anemia-metric.normal .dash-anemia-pct {
+  color: var(--gt-green);
+}
+.dash-anemia-metric.leve .dash-anemia-pct {
+  color: var(--gt-yellow);
+}
+.dash-anemia-metric.mod .dash-anemia-pct {
+  color: var(--gt-red);
+}
+.dash-anemia-metric .dash-anemia-fill {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(15, 23, 42, 0.1);
+  margin-top: 4px;
+  overflow: hidden;
+}
+.dash-anemia-metric .dash-anemia-fill::after {
+  content: "";
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+}
+.dash-anemia-metric.normal .dash-anemia-fill::after {
+  background: var(--gt-green);
+  width: 47%;
+}
+.dash-anemia-metric.leve .dash-anemia-fill::after {
+  background: var(--gt-yellow);
+  width: 40%;
+}
+.dash-anemia-metric.mod .dash-anemia-fill::after {
+  background: var(--gt-red);
+  width: 13%;
+}
+.dash-anemia-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin-top: 8px;
+}
+.dash-anemia-trow {
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+}
+.dash-anemia-trow:last-child {
+  border-bottom: none;
+}
+.dash-anemia-tcount {
+  width: 48px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--text-dim);
+  font-size: 13px;
+}
+.dash-anemia-band {
+  width: 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.dash-anemia-bname {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+.dash-anemia-brange {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+.dash-anemia-fill {
+  border-radius: 5px;
+  height: 8px;
+}
+.dash-anemia-fill.normal {
+  background: var(--gt-green);
+}
+.dash-anemia-fill.leve {
+  background: var(--gt-yellow);
+}
+.dash-anemia-fill.mod {
+  background: var(--gt-red);
+}
+.dash-anemia-tpct {
+  width: 52px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--text-main);
+  text-align: right;
+  font-size: 13px;
+}
+.dash-anemia-foot {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+
+
 
 
 
@@ -2798,25 +2941,66 @@
   font-size: 11.5px;
 }
 
+#widgetCoverageStatus {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 20px;
+  height: 100%;
+}
+
 /* El enlace de acción comparte el acento territorial */
 #widgetCoverageStatus .dash-card-action {
   color: var(--brand-primary);
 }
 
-/* Cobertura Territorial — variante Hierarchy (aceptada en live 583b22f2) */
+#widgetCoverageStatus .dash-territory-list {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+}
+
+/* Cobertura Territorial — variante Hierarchy con ritmo espacial impecable */
 .dash-territory-list--hierarchy {
-  gap: 14px; /* density 1.4 horneado: calc(10px * 1.4) */
+  gap: 12px;
+  padding: 0;
 }
 .dash-territory-list--hierarchy .dash-territory-row {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 4px 12px;
+  gap: 4px 14px;
   align-items: end;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.dash-territory-list--hierarchy .dash-territory-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
 }
 .dash-territory-list--hierarchy .dash-territory-head { display: contents; }
 .dash-territory-list--hierarchy .dash-territory-info { grid-column: 1; }
+.dash-territory-list--hierarchy .dash-territory-info strong {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-main);
+  display: block;
+}
+.dash-territory-list--hierarchy .dash-territory-sub {
+  font-size: 11.5px;
+  color: var(--text-dim);
+  line-height: 1.35;
+  margin-top: 3px;
+  display: block;
+}
 .dash-territory-list--hierarchy .dash-territory-metric { grid-column: 2; align-items: baseline; }
-.dash-territory-list--hierarchy .dash-territory-pct { font-size: 28px; font-weight: 800; color: var(--gt-green); }
+.dash-territory-list--hierarchy .dash-territory-pct {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--gt-green);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
 .dash-territory-list--hierarchy .dash-territory-row:nth-child(2) .dash-territory-pct { color: var(--gt-blue); }
 .dash-territory-list--hierarchy .dash-territory-track { grid-column: 1 / -1; height: 6px; }
 
@@ -2949,7 +3133,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 20px;
-  margin-top: 20px;
+  margin-top: 0;
 }
 
 /* Lista de Casos Prioritarios (registro llano).
@@ -3399,4 +3583,197 @@
   .sedes-metric-alert {
     width: 100%;
   }
+}
+
+
+/* ===========================================================================
+   ESTADO NUTRICIONAL Y ANEMIA — Filas vivas (variante aceptada en /dashboard)
+   Limpieza del accept live (sesión d86349be): cada banda es una fila con nota
+   clínica y acción que aparece en hover. Parámetros bakeados:
+   density = compact (padding 8px 10px), actions = false (solo hover/focus).
+   =========================================================================== */
+.dash-anemia-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dash-anemia-row {
+  display: grid;
+  grid-template-columns: 52px 1fr auto;
+  gap: 14px;
+  align-items: center;
+  padding: 8px 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  background: var(--surface-1);
+  transition: transform 220ms var(--ease-out), box-shadow 220ms var(--ease-out), background-color 220ms var(--ease-out);
+}
+
+.dash-anemia-row:hover,
+.dash-anemia-row:focus-within {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-ambient);
+  background: var(--surface-2);
+}
+
+.dash-anemia-row-count {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-align: center;
+  color: var(--text-main);
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-anemia-row-main {
+  min-width: 0;
+}
+
+.dash-anemia-row-topline {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.dash-anemia-row-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.dash-anemia-row-range {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-anemia-row-pct {
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-anemia-row[data-band="normal"] .dash-anemia-row-pct {
+  color: var(--gt-green);
+}
+
+.dash-anemia-row[data-band="leve"] .dash-anemia-row-pct {
+  color: var(--gt-yellow);
+}
+
+.dash-anemia-row[data-band="mod"] .dash-anemia-row-pct {
+  color: var(--gt-red);
+}
+
+.dash-anemia-row-track {
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: rgba(15, 23, 42, 0.07);
+  overflow: hidden;
+}
+
+.dash-anemia-row-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+}
+
+.dash-anemia-row-note {
+  margin: 6px 0 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.dash-anemia-row-action {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-brand);
+  text-decoration: none;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 180ms var(--ease-out), transform 180ms var(--ease-out);
+}
+
+.dash-anemia-row:hover .dash-anemia-row-action,
+.dash-anemia-row:focus-within .dash-anemia-row-action {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+
+/* ===========================================================================
+   COBERTURA TERRITORIAL — Share primero (variante aceptada en /dashboard)
+   Limpieza del accept live (sesión d66afce6): el porcentaje y el conteo
+   lideran; nombre y sedes van debajo. Parámetros bakeados: size = 1 (30px),
+   tint = false (sin fondos por distrito).
+   =========================================================================== */
+.dash-territory-list--hierarchy .dash-territory-row--share {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 14px;
+  align-items: baseline;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.dash-territory-list--hierarchy .dash-territory-row--share:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.dash-territory-list--hierarchy .dash-territory-share-pct {
+  display: block;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-territory-list--hierarchy .dash-territory-row--share[data-dist="comas"] .dash-territory-share-pct {
+  color: var(--gt-green);
+}
+
+.dash-territory-list--hierarchy .dash-territory-row--share[data-dist="carabayllo"] .dash-territory-share-pct {
+  color: var(--gt-blue);
+}
+
+.dash-territory-list--hierarchy .dash-territory-share-badge {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.dash-territory-list--hierarchy .dash-territory-share-info strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.dash-territory-list--hierarchy .dash-territory-share-sub {
+  display: block;
+  font-size: 11.5px;
+  color: var(--text-dim);
+  line-height: 1.35;
+  margin-top: 3px;
+}
+
+.dash-territory-list--hierarchy .dash-territory-row--share .dash-territory-track {
+  grid-column: 1 / -1;
+  margin-top: 8px;
 }

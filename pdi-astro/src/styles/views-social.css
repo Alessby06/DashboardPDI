@@ -709,16 +709,7 @@
       animation: 260ms cubic-bezier(0.16, 1, 0.3, 1) both subpanelFadeIn;
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      .social-subview-panel.active {
-        animation: none !important;
-      }
-      ::view-transition-group(social-subview-panel),
-      ::view-transition-old(social-subview-panel),
-      ::view-transition-new(social-subview-panel) {
-        animation-duration: 0.01ms !important;
-      }
-    }
+
 
     /* Tarjetas y Contenedores de Autorizaciones y Solicitudes */
     .social-subview-card {
@@ -828,11 +819,7 @@
       }
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      .social-request-card {
-        animation: none !important;
-      }
-    }
+
 
     .social-request-card:hover {
       border-color: var(--border-hover);
@@ -3707,6 +3694,66 @@
   color: var(--text-brand) !important;
   border-color: var(--gt-green) !important;
   font-weight: 700 !important;
+}
+
+/* ===========================================================================
+   TABLERO SOCIAL: encerrado por los extremos y unido al buscador/filtros
+   (mismo trato que las tablas del resto de secciones · solo escritorio).
+   La card de búsqueda/filtros pasa a ser la cabecera del tablero: cede su borde
+   inferior y cada banda recupera su inset, de modo que el tablero queda pegado a
+   los filtros y con líneas en los extremos izquierdo y derecho. No se convierte
+   en tabla: solo se delimita su caja. En móvil no se toca nada.
+   =========================================================================== */
+@media (min-width: 769px) {
+  /* La card deja de ser una caja suelta y se une al tablero */
+  #viewSocialKanban > .card {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+    border-bottom: none;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    box-shadow: none;
+  }
+
+  /* Barra de búsqueda/filtros: banda full-bleed con "techo" */
+  #viewSocialKanban > .card > .audit-toolbar {
+    margin-inline: -16px;
+    padding-inline: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  /* Filtros aplicados: banda full-bleed, igual que el resto de secciones */
+  #viewSocialKanban > .card > #socialActiveChipsBar {
+    margin: 0;
+    margin-inline: -16px;
+    padding: 10px 16px;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  /* Tablero: encerrado por izquierda, derecha y abajo; arriba lo delimita la banda */
+  #viewSocialKanban > .kanban-board {
+    background: var(--surface-1);
+    border-left: 1px solid var(--border-subtle);
+    border-right: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-subtle);
+    border-bottom-left-radius: var(--radius-lg);
+    border-bottom-right-radius: var(--radius-lg);
+    box-shadow: var(--shadow-ambient);
+    padding-top: 16px;
+  }
+
+  /* La cabecera (h2 + párrafo) no va pegada al buscador/tablero */
+  #viewSocialKanban > .view-header {
+    margin-bottom: 16px;
+  }
+  #viewSocialKanban .view-title-group p {
+    margin-top: 6px;
+  }
 }
 
 

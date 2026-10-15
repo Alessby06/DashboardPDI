@@ -1,8 +1,6 @@
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 
-const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false;
-
 let active = null;
 let rafId = null;
 
@@ -23,7 +21,6 @@ function teardown() {
 }
 
 function setup() {
-  if (reducedMotion) return;
   const container = document.querySelector('.content-viewport');
   const content = document.querySelector('.smooth-content');
   if (!container || !content || active) return;

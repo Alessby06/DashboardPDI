@@ -97,35 +97,40 @@
       stroke: currentColor;
     }
 
-    /* Tables */
+    /* Tables — estándar único para TODAS las tablas de escritorio (padrón,
+       salud, educativo, auditoría y voluntariados). Misma cabecera, misma
+       densidad de fila y mismo ritmo, para que se lean como hermanas.
+       Las acciones de fila viven en .row-action (views-comun.css). */
     .table-container {
       overflow-x: auto;
-      border-radius: var(--radius-md);
-      border: 1px solid var(--border-subtle);
     }
 
     .data-table {
       width: 100%;
-      border-collapse: collapse;
+      border-collapse: separate;
+      border-spacing: 0;
       text-align: left;
-      font-size: 14px;
+      font-size: 13px;
     }
 
     .data-table th {
       background: var(--surface-2);
-      color: var(--text-dim);
-      font-size: 12px;
+      color: var(--text-muted);
+      font-size: 11.5px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
-      padding: 13px 15px;
+      letter-spacing: 0.05em;
+      padding: 11px 14px;
       border-bottom: 1px solid var(--border-subtle);
+      white-space: nowrap;
+      text-align: left;
     }
 
     .data-table td {
-      padding: 13px 15px;
+      padding: 11px 14px;
       border-bottom: 1px solid var(--border-subtle);
       color: var(--text-main);
+      vertical-align: middle;
     }
 
     .data-table tbody tr {
@@ -690,9 +695,7 @@
        Una sola regla gobierna todo lo de aqui: el movimiento existe para
        EXPLICAR UN CAMBIO, no para decorar. Cada animacion va atada a un suceso
        real (llega una lista, cambia un dato, se mueve un caso) y ninguna es
-       imprescindible para entender la pantalla, porque quien ha pedido menos
-       movimiento no debe perder informacion: pierde el desplazamiento, no el
-       aviso.
+       imprescindible para entender la pantalla.
 
        Las entradas se aplican con animation-fill-mode: backwards y NO ocultando
        el elemento de antemano. Si el JavaScript no llegara a anadir la clase, el
@@ -703,11 +706,9 @@
     /* Entrada de una fila o tarjeta recien pintada. El desfase por elemento lo
        lleva --ixd-i, que AnimationEngine.entradaEscalonada() acota para que una
        lista larga no tarde una eternidad en terminar de entrar. */
-    @media (prefers-reduced-motion: no-preference) {
-      .ixd-entrada {
-        animation: ixdEntrada var(--dur-norm) var(--ease-out) backwards;
-        animation-delay: calc(var(--ixd-i, 0) * 28ms);
-      }
+    .ixd-entrada {
+      animation: ixdEntrada var(--dur-norm) var(--ease-out) backwards;
+      animation-delay: calc(var(--ixd-i, 0) * 28ms);
     }
 
     @keyframes ixdEntrada {
@@ -717,11 +718,9 @@
 
     /* Destello de "esto acaba de cambiar".
 
-       Se resuelve con transition y no con @keyframes a proposito: las
-       animaciones por fotogramas clave se apagan con el movimiento reducido,
-       pero los cambios de color se conservan. Asi el aviso no desaparece justo
-       para quien necesita mas claridad. Y es color, no desplazamiento, asi que
-       tampoco marea. */
+       Se resuelve con transition y no con @keyframes a proposito: es un cambio
+       de color, no un desplazamiento, asi que se percibe sin marear y encaja con
+       el resto de transiciones de la interfaz. */
     .ixd-destello {
       background-color: var(--gt-green-bg) !important;
       transition: background-color 700ms ease-out !important;
@@ -782,9 +781,5 @@
       opacity: 0.9;
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      .odometer-ribbon {
-        transition: none !important;
-      }
-    }
+
 

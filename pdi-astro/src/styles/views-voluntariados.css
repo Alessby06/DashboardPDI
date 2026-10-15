@@ -2797,11 +2797,7 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .vol-reparto-seg {
-    transition: none;
-  }
-}
+
 
 
 .badge-icon-green {
@@ -3001,7 +2997,7 @@
 }
 
 #cardVoluntariosPadron .data-table thead th {
-  padding: 11px 8px;
+  padding: 11px 14px;
   font-size: 11.5px;
   font-weight: 700;
   text-transform: uppercase;
@@ -3035,7 +3031,7 @@
 #cardVoluntariosPadron .data-table tbody td:nth-child(7) { width: 16%; min-width: 150px; text-align: center; padding-right: 14px; }
 
 #cardVoluntariosPadron .data-table tbody td {
-  padding: 10px 8px;
+  padding: 11px 14px;
   border-bottom: 1px solid var(--border-subtle);
   vertical-align: middle;
 }
@@ -3077,14 +3073,6 @@
   align-items: flex-start;
   gap: 3px;
   text-align: left;
-  white-space: nowrap;
-}
-
-#cardVoluntariosPadron .padron-table-actions {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
   white-space: nowrap;
 }
 
@@ -3286,15 +3274,8 @@
   color: var(--v-amber);
 }
 
-.padron-table-actions {
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 6px;
-  white-space: nowrap;
-}
-
-/* Botones de Acción de Fila (Sin Cyan Estridente) */
+/* Botones de Ficha / Editar de las tarjetas móviles de voluntariados
+   (en la tabla de escritorio las acciones son .row-action, solo icono) */
 .padron-btn-ficha {
   display: inline-flex;
   align-items: center;
@@ -3795,17 +3776,6 @@ Oscuro (ya cumplía 5.77–8.28): #2dd4bf 9.88 · #fcd34d 12.76 · #7dd3fc 11.03
 #cardVoluntariosPadron .padron-dropdown-item.selected .padron-item-label {
   /* la app pinta el elegido con --text-brand sobre su tinte: 4.07 medido */
   color: var(--v-teal);
-}
-
-@media (min-width: 769px) {
-  /* views-comun.css fija 11.5px !important en las acciones de la última celda */
-  #cardVoluntariosPadron .data-table tbody td:last-child .padron-btn-ficha,
-  #cardVoluntariosPadron .data-table tbody td:last-child .padron-btn-edit {
-    font-size: 11.5px !important;
-    padding: 4px 8px !important;
-    white-space: nowrap !important;
-    gap: 4px !important;
-  }
 }
 
 @media (max-width: 768px) {

@@ -22,6 +22,11 @@ import { arrancarComun, publicarRefresco } from "../core/Bootstrap.js";
 import { BeneficiarioModel } from '../models/BeneficiarioModel.js';
 import { BeneficiariosView } from '../views/BeneficiariosView.js';
 import { BeneficiarioController } from '../controllers/BeneficiarioController.js';
+// El boton de exportar del padron abre el modal de confirmacion, y el handler
+// de ese modal resuelve la descarga por window.PDI.AppController. Nadie mas lo
+// carga en esta pagina, asi que sin este import el boton abria el modal y, al
+// confirmar, no descargaba nada (la llamada opcional se quedaba muda).
+import { AppController } from '../controllers/AppController.js';
 
 let enlazado = false;
 
