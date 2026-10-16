@@ -1,6 +1,12 @@
 ---
 // Login page — Versión Definitiva con diseño artesanal (Craft & Human-First)
 // Basado en /frontend-design y /interface-design para el Sistema PDI — ACJG
+
+// Edicion visual en vivo de impeccable: mismo toggle que AppLayout. La
+// inyeccion de live.js solo entra en dev y con la llave activa; el build de
+// produccion nunca lleva la URL de localhost.
+const impeccableLive =
+  String(import.meta.env.PUBLIC_IMPECCABLE_LIVE ?? 'true').toLowerCase() !== 'false';
 ---
 <!doctype html>
 <html lang="es">
@@ -23,6 +29,24 @@
         var oscuro = saved === "dark" ||
           (saved === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
         document.documentElement.setAttribute("data-theme", oscuro ? "dark" : "light");
+      } catch (e) {}
+    })();
+
+    /* Antiflash de sesion: el chequeo "ya estas logueado" debe correr ANTES del
+       primer paint. Antes vivia en el script de modulo del final del body, que
+       es diferido: el login se pintaba entero y unos segundos despues saltaba
+       al dashboard (el destello al recargar o reabrir la ventana). Mismas claves
+       que valida haySesion() / AppLayout. Fallo conservador: sin sesion clara
+       el login se queda quieto. */
+    (function () {
+      try {
+        var sesionActiva = localStorage.getItem("pdi_sesion_activa");
+        var token = localStorage.getItem("pdi_session_token");
+        var exp = parseInt(localStorage.getItem("pdi_session_exp"), 10);
+        if (sesionActiva === "1" && token && exp && Date.now() < exp) {
+          window.location.replace("/dashboard");
+          return;
+        }
       } catch (e) {}
     })();
   </script>
@@ -2022,8 +2046,10 @@
 
 
 <!-- impeccable-live-start -->
-<script is:inline src="http://localhost:8400/live.js?token=55981e43-f29a-40c7-b625-bf8466303e22"></script>
-<!-- impeccable-live-end -->
+  {impeccableLive && import.meta.env.DEV && (
+    <script is:inline src="http://localhost:8400/live.js?token=f5a630d0-a82a-4c3f-9914-35f633890b8a"></script>
+  )}
+  <!-- impeccable-live-end -->
 </body>
 </html>
 

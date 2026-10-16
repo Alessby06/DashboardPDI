@@ -2042,59 +2042,60 @@
   gap: 6px;
 }
 
-.sedes-detail-grid {
+/* Tabla de atributos de la sede: responsable, cargo, aliado y representante */
+.sedes-people-strip {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
-  margin-top: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 2px;
 }
 
-.sedes-grid-card {
-  background: var(--surface-2);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  padding: 14px;
+.sedes-people-cell {
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  padding: 0 18px;
 }
 
-.sedes-card-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+.sedes-people-cell:first-child {
+  padding-left: 0;
 }
 
-.sedes-card-icon.green {
-  background: var(--gt-green-bg);
-  color: var(--text-brand);
+.sedes-people-cell:not(:first-child) {
+  border-left: 1px solid var(--border-subtle);
 }
 
-.sedes-card-icon.yellow {
-  background: var(--gt-yellow-bg);
-  color: var(--text-warning);
-}
-
-.sedes-card-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-dim);
+.sedes-people-key {
+  font-size: 10.5px;
+  font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
 }
 
-.sedes-card-val {
+.sedes-people-val {
   font-size: 13.5px;
   font-weight: 700;
+  letter-spacing: -0.01em;
   color: var(--text-main);
+  text-wrap: pretty;
 }
 
-.sedes-card-sub {
+.sedes-people-tel {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 1px;
   font-size: 12px;
-  color: var(--text-muted);
+  font-weight: 700;
+  color: var(--text-brand);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.sedes-people-tel:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 /* === ADAPTACIÓN RESPONSIVA MÓVIL (MASTER-DETAIL Y BOTTOM SHEET) === */
@@ -2288,13 +2289,23 @@
     border-radius: var(--radius-md) !important;
   }
 
-  .sedes-detail-grid {
-    grid-template-columns: 1fr !important;
-    gap: 10px !important;
+  .sedes-people-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .sedes-grid-card {
-    padding: 12px 14px !important;
+  .sedes-people-cell,
+  .sedes-people-cell:not(:first-child) {
+    padding: 13px 0;
+    border-left: 0;
+  }
+
+  .sedes-people-cell:nth-child(even) {
+    padding-left: 18px;
+    border-left: 1px solid var(--border-subtle);
+  }
+
+  .sedes-people-cell:nth-child(n + 3) {
+    border-top: 1px solid var(--border-subtle);
   }
 
   /* Telón de fondo del Drawer (Backdrop) - SOLO VISIBLE EN MÓVIL */
@@ -2805,6 +2816,27 @@
   color: var(--text-brand) !important;
   border-color: var(--gt-green) !important;
   font-weight: 700 !important;
+}
+
+/* Tabla de atributos de la sede en pantallas de teléfono: una sola columna */
+@media (max-width: 560px) {
+
+  .sedes-people-strip {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sedes-people-cell,
+  .sedes-people-cell:not(:first-child),
+  .sedes-people-cell:nth-child(even) {
+    padding: 12px 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .sedes-people-cell:first-child {
+    padding-top: 0;
+    border-top: 0;
+  }
 }
 
 

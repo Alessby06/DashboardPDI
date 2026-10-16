@@ -38,10 +38,10 @@ import '../styles/views-voluntariados.css';
               </div>
               <p class="vol-reparto-total"><span id="volRepartoTotal">8</span> en el padrón · <span id="volRepartoPausa">0</span> en pausa</p>
             </header>
-            <div class="vol-reparto-bar" role="img" aria-label="Composición del voluntariado por servicio">
-              <span class="vol-reparto-seg vol-reparto-seg--food" id="volRepartoBarFood"></span>
-              <span class="vol-reparto-seg vol-reparto-seg--casita" id="volRepartoBarCasita"></span>
-              <span class="vol-reparto-seg vol-reparto-seg--asp" id="volRepartoBarAsp"></span>
+            <div class="vol-reparto-bar vol-reparto-bar--labels" role="img" aria-label="Composición del voluntariado por servicio">
+              <span class="vol-reparto-seg vol-reparto-seg--food" id="volRepartoBarFood" style="width: 50%;"><span class="vol-reparto-bar-tag">Servicio Alimentario · 50%</span></span>
+              <span class="vol-reparto-seg vol-reparto-seg--casita" id="volRepartoBarCasita" style="width: 37.5%;"><span class="vol-reparto-bar-tag">Casita del Saber · 38%</span></span>
+              <span class="vol-reparto-seg vol-reparto-seg--asp" id="volRepartoBarAsp" style="width: 12.5%;"><span class="vol-reparto-bar-tag">ASP · 13%</span></span>
             </div>
             <ul class="vol-reparto-list">
               <li class="vol-reparto-row">
@@ -71,7 +71,6 @@ import '../styles/views-voluntariados.css';
               <p class="vol-reparto-note"><span id="volRepartoCanastas">18</span> canastas de estímulo por labor comunitaria</p>
             </footer>
           </section>
-
           <!-- Barra de Filtros y Búsqueda Rápida de Voluntariados -->
           <div class="card" id="cardVoluntariosPadron" style="position: relative; z-index: 80;">
             <div class="audit-toolbar">
@@ -104,11 +103,6 @@ import '../styles/views-voluntariados.css';
                   <div class="custom-dropdown-menu audit-filters-menu" id="menuVoluntariosFilterPanel">
                     <div class="audit-filters-header">
                       <div class="audit-filters-header-title">
-                        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"
-                          viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
-                        </svg>
                         <span>Filtros de Voluntariados</span>
                       </div>
                       <div class="audit-filters-header-actions">

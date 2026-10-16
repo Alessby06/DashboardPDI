@@ -187,6 +187,56 @@ export const DashboardView = {
         `;
       }).join("");
 
+      // Pills de sedes con total de menores al pasar el cursor.
+      const pillContainer = document.getElementById("dashDistrictSedePills");
+      if (pillContainer) {
+        const sedeCounts = {};
+        allBeneficiarios.forEach(b => {
+          const s = String(b.sede || "").trim();
+          if (s) sedeCounts[s] = (sedeCounts[s] || 0) + 1;
+        });
+        const colorClass = (dist) => {
+          const d = String(dist || "").toLowerCase();
+          if (d === "comas") return "dash-sede-pill--comas";
+          if (d === "carabayllo") return "dash-sede-pill--carabayllo";
+          return "dash-sede-pill--other";
+        };
+        const sedeDistrito = {};
+        allSedes.forEach(s => { if (s?.nombre) sedeDistrito[s.nombre] = s.distrito || "Comas"; });
+        const pills = [];
+        (distritosKeys || []).forEach(dist => {
+          const dInfo = distritosMap[dist];
+          (dInfo?.sedes || []).forEach(sede => {
+            const count = sedeCounts[sede] || 0;
+            const html = '<span class="dash-sede-pill ' + colorClass(sedeDistrito[sede] || dist) + '" data-count="' + count + '" title="' + escapar(sede) + ': ' + count + ' menores">' + escapar(sede) + '</span>';
+            pills.push({ html, cls: colorClass(sedeDistrito[sede] || dist) });
+          });
+        });
+        Object.keys(sedeCounts).forEach(sede => {
+          const already = pills.some(p => p.html.indexOf('>' + escapar(sede) + '<') >= 0);
+          if (!already) {
+            const dist = sedeDistrito[sede] || "Comas";
+            const html = '<span class="dash-sede-pill ' + colorClass(dist) + '" data-count="' + (sedeCounts[sede] || 0) + '" title="' + escapar(sede) + ': ' + (sedeCounts[sede] || 0) + ' menores">' + escapar(sede) + '</span>';
+            pills.push({ html, cls: colorClass(dist) });
+          }
+        });
+        const districtOrder = {
+          "dash-sede-pill--comas": 0,
+          "dash-sede-pill--carabayllo": 1,
+          "dash-sede-pill--other": 2
+        };
+        const groups = {};
+        pills.forEach(p => {
+          if (!groups[p.cls]) groups[p.cls] = [];
+          groups[p.cls].push(p.html);
+        });
+        pillContainer.innerHTML = Object.keys(groups)
+          .sort((a, b) => (districtOrder[a] ?? 99) - (districtOrder[b] ?? 99))
+          .filter(k => groups[k].length)
+          .map(k => '<div class="dash-territory-sede-pill-row">' + groups[k].join("") + '</div>')
+          .join("");
+      }
+
       if (esPrimeraEntrada) {
         requestAnimationFrame(() => {
           coverageContainer.querySelectorAll(".dash-territory-bar").forEach(bar => {

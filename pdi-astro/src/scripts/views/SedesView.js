@@ -719,22 +719,15 @@ export const SedesView = {
     const direccion = sede.direccion || 'Dirección de sede en campo';
     const referencia = sede.referencia || 'Sin referencia registrada';
 
-    const telMarkup = telDigits ? `
-      <a href="tel:${telDigits}" class="sede-tel-link" style="margin-top:4px; display:inline-flex;">
+
+    const telLink = telDigits ? `
+      <a class="sedes-people-tel" href="tel:${telDigits}">
         <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
         </svg>
         <span>${escapar(facilitadoraTel)}</span>
       </a>
-    ` : `
-      <span class="sede-tel-link" style="margin-top:4px; display:inline-flex; opacity:0.65; cursor:default;">
-        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-        </svg>
-        <span>Sin teléfono registrado</span>
-      </span>
-    `;
-
+    ` : '';
     const mapQuery = encodeURIComponent(`${direccion}, ${sede.distrito || 'Comas'}, Lima, Peru`);
     const mapsNavUrl = `https://www.google.com/maps/dir/?api=1&destination=${mapQuery}`;
 
@@ -840,38 +833,26 @@ export const SedesView = {
           </div>
         </div>
 
-        <!-- Grilla de Responsables y Red Pastoral -->
-        <div class="sedes-detail-grid">
-          <!-- Responsable de Sede -->
-          <div class="sedes-grid-card">
-            <div class="sedes-card-icon green">
-              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-              </svg>
-            </div>
-            <div>
-              <div class="sedes-card-label">Responsable / Facilitadora</div>
-              <div class="sedes-card-val">${escapar(facilitadora)}</div>
-              <div class="sedes-card-sub">${escapar(facilitadoraCargo)}</div>
-              ${telMarkup}
-            </div>
+        <!-- Tabla de atributos: responsable, cargo, iglesia aliada y pastor -->
+        <div class="sedes-people-strip">
+          <div class="sedes-people-cell">
+            <span class="sedes-people-key">Responsable</span>
+            <span class="sedes-people-val">${escapar(facilitadora)}</span>
+            ${telLink}
           </div>
-
-          <!-- Red Pastoral e Iglesia Aliada -->
-          <div class="sedes-grid-card">
-            <div class="sedes-card-icon yellow">
-              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.333A1.125 1.125 0 0018.375 9.21H5.625A1.125 1.125 0 004.5 10.333V21h15z" />
-              </svg>
-            </div>
-            <div>
-              <div class="sedes-card-label">${escapar(tipoAliado)}</div>
-              <div class="sedes-card-val">${escapar(iglesiaAliada)}</div>
-              <div class="sedes-card-sub">${escapar(pastorAliado)}</div>
-            </div>
+          <div class="sedes-people-cell">
+            <span class="sedes-people-key">Cargo</span>
+            <span class="sedes-people-val">${escapar(facilitadoraCargo)}</span>
+          </div>
+          <div class="sedes-people-cell">
+            <span class="sedes-people-key">${escapar(tipoAliado)}</span>
+            <span class="sedes-people-val">${escapar(iglesiaAliada)}</span>
+          </div>
+          <div class="sedes-people-cell">
+            <span class="sedes-people-key">Representante</span>
+            <span class="sedes-people-val">${escapar(pastorAliado)}</span>
           </div>
         </div>
-
         <!-- Dirección Territorial y Referencia -->
         <div class="sedes-detail-section" style="margin-top:16px;">
           <div class="sedes-section-title">

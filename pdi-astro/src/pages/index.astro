@@ -1,14 +1,37 @@
 ---
+// Edicion visual en vivo de impeccable: mismo toggle que AppLayout. La
+// inyeccion de live.js solo entra en dev y con la llave activa; el build de
+// produccion nunca lleva la URL de localhost.
+const impeccableLive =
+  String(import.meta.env.PUBLIC_IMPECCABLE_LIVE ?? 'true').toLowerCase() !== 'false';
 ---
 <!doctype html>
 <html lang="es">
   <head>
     <meta charset="utf-8" />
-    <meta http-equiv="refresh" content="0;url=/login" />
     <title>Sistema PDI</title>
-    <script>
-      window.location.replace('/login');
+    <script is:inline>
+      /* Puerta de entrada: decide el destino ANTES del primer paint.
+         Con sesion activa entra directo a la app; sin sesion (o si localStorage
+         esta bloqueado) va al login. Mismas claves que AppLayout/usuarios.js,
+         y fallo conservador hacia el login para no colar a nadie sin sesion. */
+      (function () {
+        try {
+          var sesionActiva = localStorage.getItem("pdi_sesion_activa");
+          var token = localStorage.getItem("pdi_session_token");
+          var exp = parseInt(localStorage.getItem("pdi_session_exp"), 10);
+          if (sesionActiva === "1" && token && exp && Date.now() < exp) {
+            window.location.replace("/dashboard");
+            return;
+          }
+        } catch (e) {}
+        window.location.replace("/login");
+      })();
     </script>
+    <noscript>
+      <!-- Sin JS no se puede leer localStorage: siempre al login. -->
+      <meta http-equiv="refresh" content="0;url=/login" />
+    </noscript>
     <style>
       body {
         margin: 0;
@@ -18,7 +41,9 @@
   </head>
   <body>
   <!-- impeccable-live-start -->
-<script is:inline src="http://localhost:8400/live.js?token=55981e43-f29a-40c7-b625-bf8466303e22"></script>
-<!-- impeccable-live-end -->
+  {impeccableLive && import.meta.env.DEV && (
+    <script is:inline src="http://localhost:8400/live.js?token=f5a630d0-a82a-4c3f-9914-35f633890b8a"></script>
+  )}
+  <!-- impeccable-live-end -->
 </body>
 </html>

@@ -320,9 +320,6 @@ export const ExpedienteView = {
     }
     if (saveBtn) saveBtn.style.display = "none";
     if (delBtn) delBtn.style.display = this._rolEsDirectivo() ? "inline-flex" : "none";
-
-    const badge = document.getElementById("expEditingBadge");
-    if (badge) badge.style.display = "none";
   },
 
   _rolEsDirectivo() {
@@ -727,17 +724,14 @@ export const ExpedienteView = {
     ];
 
     cont.innerHTML = programas.map(p => `
-      <div class="programa-item ${p.activo ? "active" : ""} ${isEditing ? "editable" : ""}"
+      <div class="programa-item programa-item--chip ${p.activo ? "active" : ""} ${isEditing ? "editable" : ""}"
            ${isEditing ? `title="Haga clic para ${p.activo ? "deseleccionar" : "seleccionar"} este servicio"`
                        : `title="${p.activo ? "Inscrito" : "No inscrito"}"`}
            ${isEditing ? `data-prog-btn="${p.nombre}"` : ""}>
         <div class="programa-check-box">
           ${p.activo ? `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>` : ""}
         </div>
-        <div class="programa-details">
-          <span class="programa-name">${escapar(p.nombre)}</span>
-          <span class="programa-desc">${escapar(p.desc)}</span>
-        </div>
+        <span class="programa-name">${escapar(p.nombre)}</span>
       </div>
     `).join("");
 
@@ -797,11 +791,16 @@ export const ExpedienteView = {
       if (this.isEditing) {
         el.style.borderColor = "var(--gt-green)";
         el.style.background = "#ffffff";
+        // El fondo pasa a blanco pase lo que pase con el tema, así que la tinta
+        // también debe ser oscura: si no, en tema oscuro el texto queda blanco
+        // sobre blanco y el campo se ve vacío.
+        el.style.color = "#0f172a";
         el.style.boxShadow = "0 0 0 3px rgba(0, 180, 148, 0.15)";
         el.style.cursor = "text";
       } else {
         el.style.borderColor = "var(--border-subtle)";
         el.style.background = "var(--surface-2)";
+        el.style.color = "";
         el.style.boxShadow = "none";
         el.style.cursor = "default";
       }
@@ -812,7 +811,6 @@ export const ExpedienteView = {
 
     const editBtn = document.getElementById("btnToggleEditExp");
     const saveBtn = document.getElementById("btnSaveExpChanges");
-    const badge = document.getElementById("expEditingBadge");
 
     if (this.isEditing) {
       if (editBtn) {
@@ -822,7 +820,6 @@ export const ExpedienteView = {
           <span>Cancelar Edicion</span>`;
       }
       if (saveBtn) saveBtn.style.display = "inline-flex";
-      if (badge) badge.style.display = "inline-flex";
       ToastView.show("Modo Edicion Activado", "Los campos y los servicios son editables. Modifique los datos y presione Guardar Cambios.", "info");
     } else {
       if (editBtn) {
@@ -832,7 +829,6 @@ export const ExpedienteView = {
           <span>Editar Datos</span>`;
       }
       if (saveBtn) saveBtn.style.display = "none";
-      if (badge) badge.style.display = "none";
     }
   },
 

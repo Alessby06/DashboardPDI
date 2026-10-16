@@ -259,8 +259,7 @@
      .expediente-sidebar,
      .expediente-page-nav,
      .expediente-page-actions,
-     .expediente-sin-expediente,
-     #expEditingBadge {
+     .expediente-sin-expediente {
        display: none !important;
      }
 

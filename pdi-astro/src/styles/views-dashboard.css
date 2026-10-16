@@ -2338,9 +2338,10 @@
 .dash-anemia-table-card {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
   padding: 18px 20px;
-  height: 100%;
+  height: auto;
+  align-self: start;
 }
 
 .dash-anemia-table {
@@ -2503,11 +2504,8 @@
    Carbonize del accept en /dashboard #widgetAnemiaStatus (variante 3).
    Reglas bakeadas con density = 0.6; selectores retargetados a clases semánticas.
    =========================================================================== */
-.dash-anemia-table-card {
-  padding: 11px 12px;
-}
 .dash-anemia-table-card .card-title span {
-  font-size: 16px;
+  font-size: 16.5px;
   font-weight: 700;
   color: var(--text-main);
 }
@@ -2944,9 +2942,9 @@
 #widgetCoverageStatus {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
   padding: 18px 20px;
-  height: 100%;
+  align-self: start;
 }
 
 /* El enlace de acción comparte el acento territorial */
@@ -2957,8 +2955,13 @@
 #widgetCoverageStatus .dash-territory-list {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  flex: 1;
+  justify-content: flex-start;
+  flex: 0 0 auto;
+  gap: 0;
+  /* Alineación óptica con la card hermana: el anemia row añade 10px de padding
+     superior antes de su primera línea de texto. Margen reducido a 8px para
+     acercar las filas territoriales a las pills en desktop. */
+  margin-top: 8px;
 }
 
 /* Cobertura Territorial — variante Hierarchy con ritmo espacial impecable */
@@ -3461,26 +3464,26 @@
 }
 
 #widgetRecentActivity .card-header {
-  padding-bottom: 12px;
+  padding-bottom: 6px;
   margin-bottom: 0;
 }
 
 #widgetRecentActivity .dash-timeline-list {
-  flex: 1;
-  justify-content: space-between;
+  flex: 0 0 auto;
+  justify-content: flex-start;
   gap: 0;
 }
 
 /* Cada entrada es la celda del hilo: columna de punto + cuerpo. */
 #widgetRecentActivity .dash-timeline-item {
   position: relative;
-  flex: 1;
+  flex: 0 0 auto;
   min-height: 0;
   display: grid;
   grid-template-columns: 18px minmax(0, 1fr);
   gap: 12px;
   align-items: start;
-  padding: 13px 0;
+  padding: 8px 0;
 }
 
 /* El hilo: baja del punto y cruza el paso hasta el punto siguiente. */
@@ -3489,25 +3492,24 @@
   position: absolute;
   top: 16px;
   left: 8px;
-  bottom: -17px;
+  bottom: -12px;
   width: 1px;
   background: var(--border-subtle);
+  z-index: 0;
 }
 
 #widgetRecentActivity .dash-timeline-dot {
   justify-self: center;
   width: 10px;
   height: 10px;
-  margin-top: 4px;
+  margin-top: 2px;
   border-width: 2px;
+  z-index: 1;
+  position: relative;
 }
 
 #widgetRecentActivity .dash-timeline-dot.alert {
   background: var(--gt-red);
-}
-
-#widgetRecentActivity .dash-timeline-item:has(.dash-timeline-dot.alert)::after {
-  background: var(--gt-red-border);
 }
 
 #widgetRecentActivity .dash-timeline-body {
@@ -3515,12 +3517,12 @@
   border: 0;
   border-radius: 0;
   padding: 0;
-  gap: 4px;
+  gap: 3px;
 }
 
 #widgetRecentActivity .dash-timeline-header {
   align-items: baseline;
-  gap: 10px;
+  gap: 6px;
 }
 
 #widgetRecentActivity .dash-timeline-user {
@@ -3589,31 +3591,39 @@
 /* ===========================================================================
    ESTADO NUTRICIONAL Y ANEMIA — Filas vivas (variante aceptada en /dashboard)
    Limpieza del accept live (sesión d86349be): cada banda es una fila con nota
-   clínica y acción que aparece en hover. Parámetros bakeados:
-   density = compact (padding 8px 10px), actions = false (solo hover/focus).
+   clínica, sin acciones (link "Ver plan" eliminado). Parámetros bakeados:
+   density = compact, actions = false. Filas planas con divisor inferior.
    =========================================================================== */
 .dash-anemia-rows {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  flex: 0 0 auto;
+  gap: 0;
+  margin-top: 8px;
+  /* Coincide con la card hermana (list margin-top) para simetría vertical. */
 }
 
+/* Filas planas: sin borde/fondo propio (evita nested cards dentro del .card
+   contenedor). Separación por divisor inferior, mismo patrón que la lista
+   de territorio hermana. */
 .dash-anemia-row {
-  display: grid;
-  grid-template-columns: 52px 1fr auto;
-  gap: 14px;
-  align-items: center;
-  padding: 8px 10px;
-  border: 1px solid var(--border-subtle);
-  border-radius: 14px;
-  background: var(--surface-1);
-  transition: transform 220ms var(--ease-out), box-shadow 220ms var(--ease-out), background-color 220ms var(--ease-out);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  align-items: stretch;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background: transparent;
+  transition: background-color 200ms var(--ease-out);
+}
+
+.dash-anemia-row:last-child {
+  border-bottom: 0;
 }
 
 .dash-anemia-row:hover,
 .dash-anemia-row:focus-within {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-ambient);
   background: var(--surface-2);
 }
 
@@ -3635,7 +3645,7 @@
   display: flex;
   align-items: baseline;
   gap: 8px;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .dash-anemia-row-name {
@@ -3674,12 +3684,11 @@
 }
 
 .dash-anemia-row-track {
-  height: 8px;
+  height: 6px;
   border-radius: var(--radius-full);
   background: rgba(15, 23, 42, 0.07);
   overflow: hidden;
 }
-
 .dash-anemia-row-fill {
   display: block;
   height: 100%;
@@ -3687,29 +3696,10 @@
 }
 
 .dash-anemia-row-note {
-  margin: 6px 0 0;
+  margin: 4px 0 0;
   font-size: 11px;
   font-weight: 600;
   color: var(--text-dim);
-}
-
-.dash-anemia-row-action {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-brand);
-  text-decoration: none;
-  white-space: nowrap;
-  opacity: 0;
-  transform: translateX(-4px);
-  transition: opacity 180ms var(--ease-out), transform 180ms var(--ease-out);
-}
-
-.dash-anemia-row:hover .dash-anemia-row-action,
-.dash-anemia-row:focus-within .dash-anemia-row-action {
-  opacity: 1;
-  transform: translateX(0);
 }
 
 
@@ -3777,3 +3767,67 @@
   grid-column: 1 / -1;
   margin-top: 8px;
 }
+
+/* ===========================================================================
+   PILLS DE SEDES EN CARD DE COBERTURA
+   =========================================================================== */
+
+.dash-territory-sede-pills {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+  padding-top: 0;
+}
+
+.dash-territory-sede-pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.dash-sede-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: default;
+  transform: translateY(0);
+  transition: transform var(--dur-fast) var(--ease-spring);
+}
+
+.dash-sede-pill:hover { transform: translateY(-2px); }
+
+.dash-sede-pill--comas { background: var(--gt-green); }
+.dash-sede-pill--carabayllo { background: var(--gt-blue, #0284c7); }
+.dash-sede-pill--other { background: var(--gt-yellow); }
+
+.dash-sede-pill::after {
+  content: attr(data-count) " menores";
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 6px);
+  transform: translateX(-50%) translateY(4px);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-1);
+  color: var(--text-main);
+  border: 1px solid var(--border-subtle);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: var(--shadow-sm);
+  transition: opacity var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+}
+
+.dash-sede-pill:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+

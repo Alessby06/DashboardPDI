@@ -8,6 +8,7 @@ import '../styles/variables.css';
 import '../styles/base.css';
 import '../styles/components.css';
 import '../styles/views-comun.css';
+import '../styles/views-filters-pc.css';
 
 interface Props {
   title: string;
@@ -216,7 +217,9 @@ const impeccableLive =
     import '../scripts/core/SmoothScroll.js';
   </script>
 <!-- impeccable-live-start -->
-<script is:inline src="http://localhost:8400/live.js?token=55981e43-f29a-40c7-b625-bf8466303e22"></script>
+{impeccableLive && import.meta.env.DEV && (
+  <script is:inline src="http://localhost:8400/live.js?token=f5a630d0-a82a-4c3f-9914-35f633890b8a"></script>
+)}
 <!-- impeccable-live-end -->
 </body>
 </html>

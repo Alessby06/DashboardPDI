@@ -76,46 +76,36 @@ import '../styles/views-dashboard.css';
         </div>
         <div class="dash-anemia-rows" id="dashAnemiaTable">
           <div class="dash-anemia-row" data-band="normal">
+          <div class="dash-anemia-row-topline">
             <span class="dash-anemia-row-count" id="anemiaLegendNormal">7</span>
-            <div class="dash-anemia-row-main">
-              <div class="dash-anemia-row-topline">
-                <span class="dash-anemia-row-name">Normal</span>
-                <span class="dash-anemia-row-range">≥ 11.0 g/dL</span>
-                <span class="dash-anemia-row-pct" id="anemiaPctNormal">47%</span>
-              </div>
-              <div class="dash-anemia-row-track"><span class="dash-anemia-fill normal dash-anemia-row-fill" id="segAnemiaNormal" style="width: 47%;"></span></div>
-              <p class="dash-anemia-row-note">Control vigente · dosaje anual</p>
-            </div>
-            <a href="/salud" class="dash-anemia-row-action">Ver plan</a>
+            <span class="dash-anemia-row-name">Normal</span>
+            <span class="dash-anemia-row-range">≥ 11.0 g/dL</span>
+            <span class="dash-anemia-row-pct" id="anemiaPctNormal">47%</span>
           </div>
-          <div class="dash-anemia-row" data-band="leve">
-            <span class="dash-anemia-row-count" id="anemiaLegendLeve">6</span>
-            <div class="dash-anemia-row-main">
-              <div class="dash-anemia-row-topline">
-                <span class="dash-anemia-row-name">Anemia Leve</span>
-                <span class="dash-anemia-row-range">10.0 – 10.9 g/dL</span>
-                <span class="dash-anemia-row-pct" id="anemiaPctLeve">40%</span>
-              </div>
-              <div class="dash-anemia-row-track"><span class="dash-anemia-fill leve dash-anemia-row-fill" id="segAnemiaLeve" style="width: 40%;"></span></div>
-              <p class="dash-anemia-row-note">Seguimiento trimestral en casita</p>
-            </div>
-            <a href="/salud" class="dash-anemia-row-action">Ver plan</a>
-          </div>
-          <div class="dash-anemia-row" data-band="mod">
-            <span class="dash-anemia-row-count" id="anemiaLegendMod">2</span>
-            <div class="dash-anemia-row-main">
-              <div class="dash-anemia-row-topline">
-                <span class="dash-anemia-row-name">Anemia Mod/Sev</span>
-                <span class="dash-anemia-row-range">&lt; 10.0 g/dL</span>
-                <span class="dash-anemia-row-pct" id="anemiaPctMod">13%</span>
-              </div>
-              <div class="dash-anemia-row-track"><span class="dash-anemia-fill mod dash-anemia-row-fill" id="segAnemiaMod" style="width: 13%;"></span></div>
-              <p class="dash-anemia-row-note">Derivación prioritaria a salud</p>
-            </div>
-            <a href="/salud" class="dash-anemia-row-action">Ver plan</a>
-          </div>
+          <div class="dash-anemia-row-track"><span class="dash-anemia-fill normal dash-anemia-row-fill" id="segAnemiaNormal" style="width: 0%;"></span></div>
+          <p class="dash-anemia-row-note">Control vigente · dosaje anual</p>
         </div>
-        <p class="dash-anemia-foot"><span id="dashAnemiaTotalEvaluados">15</span> menores tamizados · control vigente con dosaje de hemoglobina</p>
+          <div class="dash-anemia-row" data-band="leve">
+          <div class="dash-anemia-row-topline">
+            <span class="dash-anemia-row-count" id="anemiaLegendLeve">6</span>
+            <span class="dash-anemia-row-name">Anemia Leve</span>
+            <span class="dash-anemia-row-range">10.0 – 10.9 g/dL</span>
+            <span class="dash-anemia-row-pct" id="anemiaPctLeve">40%</span>
+          </div>
+          <div class="dash-anemia-row-track"><span class="dash-anemia-fill leve dash-anemia-row-fill" id="segAnemiaLeve" style="width: 0%;"></span></div>
+          <p class="dash-anemia-row-note">Seguimiento trimestral en casita</p>
+        </div>
+          <div class="dash-anemia-row" data-band="mod">
+          <div class="dash-anemia-row-topline">
+            <span class="dash-anemia-row-count" id="anemiaLegendMod">2</span>
+            <span class="dash-anemia-row-name">Anemia Mod/Sev</span>
+            <span class="dash-anemia-row-range">&lt; 10.0 g/dL</span>
+            <span class="dash-anemia-row-pct" id="anemiaPctMod">13%</span>
+          </div>
+          <div class="dash-anemia-row-track"><span class="dash-anemia-fill mod dash-anemia-row-fill" id="segAnemiaMod" style="width: 0%;"></span></div>
+          <p class="dash-anemia-row-note">Derivación prioritaria a salud</p>
+        </div>
+        </div>
       </div>
 
       <div class="card stagger-item" id="widgetCoverageStatus">
@@ -141,7 +131,7 @@ import '../styles/views-dashboard.css';
               <strong>Distrito de Comas</strong>
               <span class="dash-territory-share-sub">Sedes (3): Año Nuevo, La Libertad, Carmen Alto</span>
             </div>
-            <div class="dash-territory-track"><div class="dash-territory-bar green" style="width: 53%;" data-target-width="53%" id="barDistrict_comas"></div></div>
+            <div class="dash-territory-track"><div class="dash-territory-bar green" style="width: 0%;" data-target-width="53%" id="barDistrict_comas"></div></div>
           </div>
           <div class="dash-territory-row dash-territory-row--share" data-dist="carabayllo">
             <div class="dash-territory-share">
@@ -152,9 +142,10 @@ import '../styles/views-dashboard.css';
               <strong>Distrito de Carabayllo</strong>
               <span class="dash-territory-share-sub">Sedes (4): El Progreso, San Pedro, Los Bendecidos, Santa Rosa</span>
             </div>
-            <div class="dash-territory-track"><div class="dash-territory-bar blue" style="width: 47%;" data-target-width="47%" id="barDistrict_carabayllo"></div></div>
+            <div class="dash-territory-track"><div class="dash-territory-bar blue" style="width: 0%;" data-target-width="47%" id="barDistrict_carabayllo"></div></div>
           </div>
         </div>
+        <div class="dash-territory-sede-pills" id="dashDistrictSedePills"></div>
       </div>
     </div>
 

@@ -2758,6 +2758,108 @@
   color: var(--text-muted);
 }
 
+/* ===========================================================================
+   REPARTO EN CAMPO — Rampa tipográfica (variante aceptada en /voluntariados).
+   Limpieza del accept live (sesión 9c38ce1f): lectura en --text-muted (>= 9:1),
+   nada por debajo de 11px, jerarquía por peso sobre el color. Escala = 1.
+   =========================================================================== */
+.vol-reparto-title {
+  font-size: 16px;
+}
+
+.vol-reparto-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.vol-reparto-total {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.vol-reparto-total span {
+  color: var(--text-main);
+}
+
+.vol-reparto-name {
+  font-size: 13.5px;
+  font-weight: 800;
+}
+
+.vol-reparto-detail {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+.vol-reparto-count {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.vol-reparto-count strong {
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.vol-reparto-terr dt {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 800;
+}
+
+.vol-reparto-terr dd {
+  font-size: 15px;
+}
+
+.vol-reparto-note {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.vol-reparto-bar-tag {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* Reparto en campo — barra etiquetada (variante aceptada en /voluntariados).
+   Limpieza del accept live (sesión 66051cae): altura 26px con etiquetas dentro. */
+.vol-reparto-bar--labels {
+  height: 26px;
+  gap: 2px;
+}
+
+.vol-reparto-bar--labels .vol-reparto-seg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.vol-reparto-bar-tag {
+  font-size: 11px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  padding: 0 6px;
+}
+
+@media (max-width: 640px) {
+  .vol-reparto-bar--labels {
+    height: 18px;
+  }
+
+  .vol-reparto-bar-tag {
+    font-size: 9px;
+    letter-spacing: 0;
+    padding: 0 3px;
+  }
+}
+
 @container (max-width: 960px) {
   .vol-reparto-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));

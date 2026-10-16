@@ -1,0 +1,223 @@
+/* ===========================================================================
+   FILTROS DE ESCRITORIO (PC) - MEJORAS DE INTERFAZ Y ANIMACION
+   ===========================================================================
+   Estas reglas solo afectan viewports de escritorio (>= 769px). El
+   comportamiento mobil (bottom sheets) queda intacto: sus media queries usan
+   !important y una anchura maxima distinta.
+
+   Aporta:
+   - Apertura/cierre suave de los popovers de filtros y de los desplegables
+     internos (opacity + transform + visibility), en vez del cambio instantaneo
+     display:none / display:flex que habia antes.
+   - Caret, badge y chips con microinteracciones consistentes.
+   - Keyframe faltante `dropdownFadeIn`, usado por varios desplegables.
+   =========================================================================== */
+
+@keyframes dropdownFadeIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes badgePop {
+  0%   { transform: scale(0.75); opacity: 0.6; }
+  60%  { transform: scale(1.12); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes chipIn {
+  from { opacity: 0; transform: translateY(4px) scale(0.94); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (min-width: 769px) {
+  /* Botón principal de filtros: feedback de pulsación y elevación suave. */
+  .audit-filter-btn {
+    transform: translateY(0);
+    transition:
+      background-color var(--dur-fast) var(--ease-smooth),
+      border-color var(--dur-fast) var(--ease-smooth),
+      color var(--dur-fast) var(--ease-smooth),
+      box-shadow var(--dur-fast) var(--ease-smooth),
+      transform var(--dur-fast) var(--ease-spring);
+  }
+
+  .audit-filter-btn:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+  }
+
+  .audit-filter-btn:active {
+    transform: scale(0.97);
+    box-shadow: none;
+  }
+
+  .audit-filter-btn svg.filter-caret {
+    transition: transform var(--dur-fast) var(--ease-smooth);
+  }
+
+  /* Icono (funnel) + texto: alineación óptica y espaciado estable. */
+  .audit-filter-btn {
+    gap: 8px !important;
+  }
+
+  .audit-filter-btn > svg {
+    display: block;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    transform: translateY(0.5px);
+    transition: transform var(--dur-fast) var(--ease-smooth);
+  }
+
+  .audit-filter-btn:hover > svg:first-child {
+    transform: translateY(0.5px) scale(1.06);
+  }
+
+  /* Badge de filtros activos: entra con un pequeño rebote. */
+  .audit-filter-badge {
+    animation: badgePop var(--dur-popover) var(--ease-spring);
+    transform-origin: center;
+  }
+
+  /* Popover principal de filtros: animación de entrada/salida suave. */
+  .audit-filters-menu,
+  .audit-filters-dropdown .audit-filters-menu {
+    display: flex !important;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-10px) scale(0.97);
+    transform-origin: top right;
+    /* Quitamos la animación CSS por fotogramas: la transición manda. */
+    animation: none !important;
+    transition:
+      opacity var(--dur-popover) var(--ease-out),
+      transform var(--dur-popover) var(--ease-out),
+      visibility var(--dur-popover) var(--ease-out);
+    will-change: transform, opacity;
+  }
+
+  .audit-filters-dropdown.open .audit-filters-menu {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+  }
+
+  .audit-filters-dropdown.open {
+    z-index: 1000;
+  }
+
+  /* Encabezado del popover: línea accent sutil al abrirse. */
+  .audit-filters-dropdown.open .audit-filters-header {
+    border-bottom-color: var(--border-bright);
+  }
+
+  /* Desplegables internos (padrón): mismo patrón, origen izquierdo. */
+  .padron-inner-dropdown-menu {
+    display: flex !important;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-6px) scale(0.97);
+    transform-origin: top left;
+    animation: none !important;
+    transition:
+      opacity var(--dur-popover) var(--ease-out),
+      transform var(--dur-popover) var(--ease-out),
+      visibility var(--dur-popover) var(--ease-out);
+  }
+
+  .padron-inner-dropdown.open .padron-inner-dropdown-menu {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+  }
+
+  .padron-inner-dropdown-btn {
+    transition:
+      border-color var(--dur-fast) var(--ease-smooth),
+      background-color var(--dur-fast) var(--ease-smooth),
+      box-shadow var(--dur-fast) var(--ease-smooth),
+      transform var(--dur-fast) var(--ease-spring);
+  }
+
+  .padron-inner-dropdown-btn:active {
+    transform: scale(0.98);
+  }
+
+  /* Chips de filtros aplicados: entrada escalonada. */
+  .padron-active-chips-bar {
+    animation: fadeInDataCard var(--dur-norm) var(--ease-out);
+  }
+
+  .padron-chip {
+    animation: chipIn var(--dur-fast) var(--ease-spring);
+    transform-origin: center;
+  }
+
+  .padron-chip-remove {
+    transition:
+      background-color var(--dur-fast) var(--ease-smooth),
+      color var(--dur-fast) var(--ease-smooth),
+      transform var(--dur-fast) var(--ease-spring);
+  }
+
+  .padron-chip-remove:active {
+    transform: scale(0.88);
+  }
+
+  /* Sombra un poco más profunda en los desplegables de escritorio. */
+  .audit-filters-menu,
+  .padron-inner-dropdown-menu {
+    box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.24),
+                0 8px 16px -6px rgba(0, 0, 0, 0.14);
+  }
+
+  /* Campo con focus: realce sutil del borde inferior del grupo. */
+  .audit-filter-field:focus-within .audit-field-label {
+    color: var(--text-brand);
+  }
+
+  /* Botón Restablecer/Borrar todos: hacerlo más legible y claro en escritorio. */
+  .btn-text-subtle {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    padding: 6px 12px !important;
+    min-height: 30px !important;
+    border: 1px solid var(--text-dim) !important;
+    border-radius: var(--radius-full) !important;
+    background: var(--surface-2) !important;
+    color: var(--text-muted) !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.01em !important;
+    transition:
+      background-color var(--dur-fast) var(--ease-smooth),
+      border-color var(--dur-fast) var(--ease-smooth),
+      color var(--dur-fast) var(--ease-smooth),
+      transform var(--dur-fast) var(--ease-spring),
+      box-shadow var(--dur-fast) var(--ease-smooth) !important;
+  }
+
+  .btn-text-subtle:hover {
+    color: var(--text-danger) !important;
+    background: var(--gt-red-bg) !important;
+    border-color: var(--gt-red-border) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.12) !important;
+  }
+
+  .btn-text-subtle:active {
+    transform: scale(0.95);
+    box-shadow: none;
+  }
+
+  .btn-text-subtle:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--gt-red-bg);
+  }
+}

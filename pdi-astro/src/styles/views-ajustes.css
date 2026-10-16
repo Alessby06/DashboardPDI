@@ -1904,6 +1904,12 @@
   border: 1px solid rgba(147, 51, 234, 0.35);
 }
 
+.settings-card-icon-box.amber {
+  background: rgba(180, 83, 9, 0.16);
+  color: #b45309;
+  border: 1px solid rgba(180, 83, 9, 0.38);
+}
+
 .settings-card-title {
   margin: 0;
   font-size: 16px;

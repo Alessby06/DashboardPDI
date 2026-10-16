@@ -1131,6 +1131,50 @@
       transform: translateY(-1px);
     }
 
+
+/* Programas inscritos — variante chips (accept live en /expediente).
+   Limpieza de la sesión 6f51e787: el dato manda, descripciones fuera del DOM.
+   Tamaño bakedado: compacto (padding 6px 10px, nombre 11.5px). */
+.programas-checklist--chips {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+  background: none;
+  border: 0;
+}
+
+.programa-item--chip {
+  padding: 6px 10px;
+  border-radius: var(--radius-full);
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-1, #ffffff);
+}
+
+.programa-item--chip.active {
+  border-color: var(--gt-green-border);
+  background: var(--gt-green-bg);
+}
+
+.programa-item--chip .programa-name {
+  font-size: 11.5px;
+}
+
+@media (max-width: 640px) {
+  .programas-checklist--chips {
+    gap: 6px;
+  }
+
+  .programa-item--chip {
+    padding: 5px 9px;
+  }
+
+  .programa-item--chip .programa-name {
+    font-size: 11px;
+  }
+}
     .programa-item.active {
       border-color: var(--gt-green-border);
       background: rgba(0, 180, 148, 0.07);
@@ -2355,6 +2399,31 @@
   color: var(--text-brand) !important;
   border-color: var(--gt-green) !important;
   font-weight: 700 !important;
+}
+
+/* === ACCIONES DEL EXPEDIENTE EN MÓVIL ===
+   En modo edición la barra inferior muestra tres botones (Dar de Baja,
+   Cancelar Edición y Guardar Cambios). En una sola fila no caben dentro del
+   ancho del teléfono y "Guardar Cambios" quedaba cortado fuera de pantalla.
+   Se apilan en dos filas. El :has() limita el cambio al estado de edición
+   (con solo dos botones la fila original ya cabe y no se toca). */
+@media (max-width: 640px) {
+  .expediente-page-actions .modal-footer-pinned:has(#btnSaveExpChanges[style*="display: inline-flex"]) {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    padding: 12px 14px !important;
+  }
+
+  .expediente-page-actions .modal-footer-pinned:has(#btnSaveExpChanges[style*="display: inline-flex"]) > div {
+    width: 100% !important;
+    flex-wrap: wrap !important;
+  }
+
+  .expediente-page-actions .modal-footer-pinned:has(#btnSaveExpChanges[style*="display: inline-flex"]) > div:last-child .btn-action {
+    flex: 1 1 0% !important;
+    justify-content: center !important;
+  }
 }
 
 
