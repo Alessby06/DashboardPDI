@@ -73,7 +73,16 @@ export const BeneficiarioController = {
     }
 
     const searchQuery = encodeURIComponent(`${direccion}, Lima, Peru`);
-    iframe.src = `https://maps.google.com/maps?q=${searchQuery}&t=&z=16&ie=UTF8&iwloc=&output=embed`;
+    const url = `https://maps.google.com/maps?q=${searchQuery}&t=&z=16&ie=UTF8&iwloc=&output=embed`;
+
+    if (context === 'reg') {
+      // En la ficha el croquis espera a que alguien pulse "Ver croquis": el
+      // domicilio del usuario no se manda a Google solo por escribir.
+      iframe.dataset.src = url;
+      if (iframe.dataset.mapaAutorizado === '1') iframe.src = url;
+    } else {
+      iframe.src = url;
+    }
 
     // Actualizar enlace de navegación si está en expediente
     const navLink = document.getElementById("expLinkGoogleMapsNav");
@@ -102,7 +111,15 @@ export const BeneficiarioController = {
 
         const iframe = document.getElementById(context === 'reg' ? 'regGoogleMapIframe' : 'expGoogleMapIframe');
         if (iframe) {
-          iframe.src = `https://maps.google.com/maps?q=${lat},${lng}&t=&z=17&ie=UTF8&iwloc=&output=embed`;
+          const url = `https://maps.google.com/maps?q=${lat},${lng}&t=&z=17&ie=UTF8&iwloc=&output=embed`;
+          if (context === 'reg') {
+            // Pedir el GPS es una decision explicita: ya se puede mostrar.
+            iframe.dataset.src = url;
+            iframe.dataset.mapaAutorizado = '1';
+            const capa = document.getElementById('regMapaActivar');
+            if (capa) capa.hidden = true;
+          }
+          iframe.src = url;
         }
 
         const navLink = document.getElementById("expLinkGoogleMapsNav");
@@ -207,6 +224,9 @@ export const BeneficiarioController = {
   loadSignatureFile(file) {
     if (this.signatureCanvasHelper && file) {
       this.signatureCanvasHelper.loadFromImage(file, () => {
+        // La firma subida tambien cuenta: el boton de guardar tiene que
+        // enterarse sin esperar a que se toque otro campo.
+        window.PDI?.Ficha?.refrescarEstadoFicha?.();
         const toast = window.PDI?.ToastView || ToastView;
         if (toast) toast.show("Firma Cargada", "La imagen de la firma fue procesada e incorporada al formulario.", "success");
       });

@@ -49,6 +49,14 @@ function valorDe(id) {
 
 /** La firma puede ser dibujada o subida como imagen: en los dos casos queda pintada en el canvas. */
 function hayFirma() {
+  // El helper sabe si se dibujo sin leer un solo pixel: recorrer el canvas
+  // entero en cada tecla costaba milisegundos y no cambiaba el resultado.
+  const helper = window.PDI?.BeneficiarioController?.signatureCanvasHelper;
+  if (helper && typeof helper.hasSignature === "function") {
+    return helper.hasSignature();
+  }
+
+  // Sin helper (antes de abrir la ficha) se mira el canvas una vez.
   const canvas = document.getElementById("canvasSignature");
   if (!canvas || !canvas.width || !canvas.height) return false;
   try {
@@ -56,7 +64,7 @@ function hayFirma() {
     if (!ctx) return false;
     const pixeles = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
     // Se mira un punto de cada 16: alcanza para saber si hay tinta y no
-    // custa leer el canvas entero en cada tecla.
+    // cuesta leer el canvas entero en cada tecla.
     for (let i = 3; i < pixeles.length; i += 64) {
       if (pixeles[i] !== 0) return true;
     }
@@ -85,6 +93,22 @@ export function evaluarFicha() {
 
   OBLIGATORIOS.forEach(comprobar);
 
+  // Una fecha futura dejaba la edad vacia y, sin este control, la ficha se
+  // daba por completa igual.
+  const fechaNacimiento = valorDe("regFechaNacimiento");
+  if (fechaNacimiento) {
+    const fecha = new Date(`${fechaNacimiento}T00:00:00`);
+    const hoy = new Date();
+    hoy.setHours(23, 59, 59, 999);
+    if (Number.isNaN(fecha.getTime())) {
+      faltantes.push("Fecha de nacimiento (fecha invalida)");
+    } else if (fecha > hoy) {
+      faltantes.push("Fecha de nacimiento (no puede ser futura)");
+    } else if (fecha.getFullYear() < 1900) {
+      faltantes.push("Fecha de nacimiento (revisa el año)");
+    }
+  }
+
   // Persona Autorizada 2: si se usa, se completa entera.
   if (PERSONA_2.some((campo) => valorDe(campo.id))) {
     PERSONA_2.forEach(comprobar);
@@ -101,8 +125,27 @@ export function evaluarFicha() {
   return { listo: faltantes.length === 0, faltantes };
 }
 
+/**
+ * Lo que se anuncia no es lo que se ve: el texto visible cambia con cada
+ * tecla y un lector de pantalla no puede leer esa rafaga. La region viva
+ * recibe solo avisos concretos (campo que quedo mal, ficha que ya se puede
+ * guardar).
+ */
+function anunciar(texto) {
+  const region = document.getElementById("fichaEstadoAnuncio");
+  if (!region || !texto) return;
+  // Se vacia antes para que el lector repita el aviso aunque sea el mismo.
+  region.textContent = "";
+  window.setTimeout(() => {
+    region.textContent = texto;
+  }, 20);
+}
+
+// Sirve para avisar una sola vez cuando la ficha pasa a estar completa.
+let estabaListo = null;
+
 /** Pinta el estado: el boton se habilita solo cuando no falta nada. */
-export function refrescarEstadoFicha() {
+export function refrescarEstadoFicha(pedidoDeAnuncio = false) {
   const boton = document.getElementById("btnGuardarFicha");
   const estado = document.getElementById("fichaEstadoDatos");
   if (!boton) return;
@@ -110,6 +153,7 @@ export function refrescarEstadoFicha() {
   const { listo, faltantes } = evaluarFicha();
   boton.disabled = !listo;
 
+  let resumen = "";
   if (estado) {
     if (listo) {
       estado.textContent = "Todo listo. Ya se puede guardar.";
@@ -123,6 +167,17 @@ export function refrescarEstadoFicha() {
       estado.classList.add("ficha-estado--faltan");
       estado.classList.remove("ficha-estado--listo");
     }
+    resumen = estado.textContent;
+  }
+
+  const cambio = estabaListo !== null && estabaListo !== listo;
+  estabaListo = listo;
+
+  if (!pedidoDeAnuncio && !cambio) return;
+  if (listo) {
+    anunciar("Todo listo. Ya se puede guardar la ficha.");
+  } else {
+    anunciar(`Todavía no se puede guardar. ${resumen}`);
   }
 }
 
@@ -136,6 +191,50 @@ export function alternarPersona2(forzar) {
   boton.setAttribute("aria-expanded", abierto ? "true" : "false");
 }
 
+/** Marca o desmarca un campo como invalido para lectores y para el borde rojo. */
+function marcarCampo(el, invalido) {
+  if (!el || el.nodeType !== 1 || !el.id) return;
+  if (invalido) el.setAttribute("aria-invalid", "true");
+  else el.removeAttribute("aria-invalid");
+}
+
+/** Al escribir, la marca roja desaparece en cuanto el dato queda bien. */
+function limpiarMarcaDeCampo(el) {
+  if (!el || !el.id || el.getAttribute("aria-invalid") !== "true") return;
+  const campo = [...OBLIGATORIOS, ...PERSONA_2].find((item) => item.id === el.id);
+  if (!campo) return;
+  const valor = valorDe(campo.id);
+  const sigueMal = !valor || (campo.tipo && !validarTipo(campo.tipo, valor));
+  if (!sigueMal) marcarCampo(el, false);
+}
+
+function prefiereMenosMovimiento() {
+  return typeof window.matchMedia === "function"
+    && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+/**
+ * El croquis se carga solo cuando alguien lo pide. Al abrir la ficha el
+ * iframe de Google no recibe el domicilio del usuario: ese dato es suyo y
+ * no tiene por que salir a un tercero sin una decision explicita.
+ */
+export function iniciarCroquis() {
+  const boton = document.getElementById("btnCargarCroquis");
+  const iframe = document.getElementById("regGoogleMapIframe");
+  const capa = document.getElementById("regMapaActivar");
+  if (!boton || !iframe) return;
+  if (boton.dataset.croquisListo === "1") return;
+  boton.dataset.croquisListo = "1";
+
+  boton.addEventListener("click", () => {
+    const url = iframe.dataset.src;
+    if (!url) return;
+    iframe.dataset.mapaAutorizado = "1";
+    iframe.src = url;
+    if (capa) capa.hidden = true;
+  });
+}
+
 /** Conecta los eventos que cambian el estado de la ficha. */
 export function iniciarFicha() {
   const form = document.getElementById("formNuevoMenor");
@@ -145,8 +244,13 @@ export function iniciarFicha() {
   if (form.dataset.fichaIniciada === "1") return;
   form.dataset.fichaIniciada = "1";
 
-  form.addEventListener("input", refrescarEstadoFicha);
-  form.addEventListener("change", refrescarEstadoFicha);
+  // Las funciones reciben el evento como argumento: si se pasan tal cual,
+  // el evento cuenta como "pedido de anuncio" y se anunciaria en cada tecla.
+  form.addEventListener("input", () => {
+    refrescarEstadoFicha();
+    limpiarMarcaDeCampo(document.activeElement);
+  });
+  form.addEventListener("change", () => refrescarEstadoFicha());
 
   // El desplegable nativo abre hacia arriba cuando el campo queda al final
   // de la ventana: la lista tapaba el formulario y habia que cerrarla a
@@ -155,12 +259,37 @@ export function iniciarFicha() {
   form.addEventListener("focusin", (evento) => {
     const el = evento.target;
     if (el && el.tagName === "SELECT") {
-      el.scrollIntoView({ block: "center", behavior: "smooth" });
+      el.scrollIntoView({
+        block: "center",
+        behavior: prefiereMenosMovimiento() ? "auto" : "smooth",
+      });
     }
   });
 
+  // Al salir de un campo se dice que quedo mal, una sola vez. Mientras se
+  // escribe no se interrumpe: el aviso espera a que la persona termine.
+  form.addEventListener("focusout", (evento) => {
+    const el = evento.target;
+    if (!el || !el.id) return;
+    const campo = [...OBLIGATORIOS, ...PERSONA_2].find((item) => item.id === el.id);
+    if (!campo) return;
+
+    const valor = valorDe(campo.id);
+    if (!valor) {
+      marcarCampo(el, true);
+      anunciar(`Falta ${campo.etiqueta}`);
+      return;
+    }
+    if (campo.tipo && !validarTipo(campo.tipo, valor)) {
+      marcarCampo(el, true);
+      anunciar(`${campo.etiqueta}: ${etiquetaTipo(campo.tipo)}`);
+      return;
+    }
+    marcarCampo(el, false);
+  });
+
   // La estrategia se marca con casillas: no dispara input del formulario.
-  form.addEventListener("pdi:estrategia-change", refrescarEstadoFicha);
+  form.addEventListener("pdi:estrategia-change", () => refrescarEstadoFicha());
 
   // La firma se dibuja en un canvas: tampoco dispara input.
   const canvas = document.getElementById("canvasSignature");
@@ -168,6 +297,9 @@ export function iniciarFicha() {
     canvas?.addEventListener(evento, () => refrescarEstadoFicha());
   });
   document.getElementById("inputUploadFirma")?.addEventListener("change", () => refrescarEstadoFicha());
+
+  // Limpiar la firma la quita: el estado tiene que volver a decir que falta.
+  document.getElementById("btnLimpiarFirma")?.addEventListener("click", () => refrescarEstadoFicha());
 
   const botonRetiro2 = document.getElementById("btnToggleRetiro2");
   botonRetiro2?.addEventListener("click", () => alternarPersona2());
@@ -177,5 +309,5 @@ export function iniciarFicha() {
 
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
-  window.PDI.Ficha = { evaluarFicha, refrescarEstadoFicha, alternarPersona2, iniciarFicha };
+  window.PDI.Ficha = { evaluarFicha, refrescarEstadoFicha, alternarPersona2, iniciarFicha, iniciarCroquis };
 }

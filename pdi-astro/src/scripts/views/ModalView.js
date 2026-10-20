@@ -5,27 +5,116 @@ import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
 // con su vista en ExpedienteView. Se decidio al convertir la SPA en MPA que un
 // documento que se imprime, se comparte y se navega por URL no puede vivir
 // dentro de una ventana encima de otra pagina.
+
+// Foco que habia antes de abrir la ficha: se devuelve al cerrar, para que
+// quien cierra no aparezca al principio de la pagina.
+let focoAntesDeFicha = null;
+let dialogoFichaListo = false;
+
+const SELECTOR_ENFOCABLES = [
+  "a[href]",
+  "button:not([disabled])",
+  "input:not([disabled]):not([type='hidden'])",
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  "[tabindex]:not([tabindex='-1'])",
+].join(",");
+
+function enfocablesDe(contenedor) {
+  return Array.from(contenedor.querySelectorAll(SELECTOR_ENFOCABLES)).filter(
+    (el) => !el.closest("[hidden]") && el.getClientRects().length > 0,
+  );
+}
+
+/**
+ * La ficha es un dialogo modal de verdad: Escape lo cierra, Tab no se
+ * escapa hacia la pagina de atras y el foco vuelve a donde estaba.
+ */
+function conectarDialogoFicha() {
+  if (dialogoFichaListo) return;
+  dialogoFichaListo = true;
+
+  document.addEventListener("keydown", (evento) => {
+    const modal = document.getElementById("modalNuevoMenor");
+    if (!modal || !modal.classList.contains("open")) return;
+
+    if (evento.key === "Escape") {
+      evento.preventDefault();
+      ModalView.closeNuevoMenor();
+      return;
+    }
+
+    if (evento.key !== "Tab") return;
+    const caja = modal.querySelector(".modal-box");
+    if (!caja) return;
+
+    const lista = enfocablesDe(caja);
+    if (!lista.length) return;
+    const primero = lista[0];
+    const ultimo = lista[lista.length - 1];
+
+    if (evento.shiftKey) {
+      if (document.activeElement === primero || document.activeElement === caja) {
+        evento.preventDefault();
+        ultimo.focus();
+      }
+    } else if (document.activeElement === ultimo) {
+      evento.preventDefault();
+      primero.focus();
+    }
+  });
+}
+
 export const ModalView = {
   openNuevoMenor() {
     const modal = document.getElementById("modalNuevoMenor");
-    if (modal) {
-      modal.classList.add("open");
-      const mapIframe = document.getElementById("regGoogleMapIframe");
-      if (mapIframe && !mapIframe.src && mapIframe.getAttribute("data-src")) {
-        mapIframe.src = mapIframe.getAttribute("data-src");
-      }
-      setTimeout(() => {
-        const ctrl = window.PDI?.BeneficiarioController || (window.app && window.app.beneficiarioController);
-        if (ctrl && ctrl.initSignature) ctrl.initSignature();
-        // El boton de guardar se habilita solo si no falta ningun dato.
-        window.PDI?.Ficha?.refrescarEstadoFicha?.();
-      }, 100);
-    }
+    if (!modal) return;
+
+    conectarDialogoFicha();
+    focoAntesDeFicha = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
+
+    // Cerrada llevaba inert: hay que quitarlo antes de mostrarla.
+    modal.removeAttribute("inert");
+    modal.removeAttribute("aria-hidden");
+    modal.classList.add("open");
+
+    // El foco entra en el dialogo. Si se queda en el fondo, el lector sigue
+    // leyendo la pagina de atras y el teclado tabula por ahi. Se hace en el
+    // acto y no en un frame: una pestana en segundo plano no lo pintaria.
+    const caja = modal.querySelector(".modal-box");
+    if (caja) caja.focus();
+
+    setTimeout(() => {
+      const ctrl = window.PDI?.BeneficiarioController || (window.app && window.app.beneficiarioController);
+      if (ctrl && ctrl.initSignature) ctrl.initSignature();
+      // El boton de guardar se habilita solo si no falta ningun dato.
+      window.PDI?.Ficha?.refrescarEstadoFicha?.();
+    }, 100);
   },
 
   closeNuevoMenor() {
     const modal = document.getElementById("modalNuevoMenor");
-    if (modal) modal.classList.remove("open");
+    if (!modal) return;
+
+    modal.classList.remove("open");
+
+    // El foco sale antes de ocultar el dialogo: si se marca aria-hidden con
+    // el foco dentro, Chrome lo bloquea y avisa por consola.
+    const dentroDelModal = focoAntesDeFicha && modal.contains(focoAntesDeFicha);
+    const destino = focoAntesDeFicha
+      && !dentroDelModal
+      && focoAntesDeFicha !== document.body
+      && document.contains(focoAntesDeFicha)
+      ? focoAntesDeFicha
+      : document.getElementById("btnNuevoBeneficiario");
+    focoAntesDeFicha = null;
+    if (destino) destino.focus();
+
+    // El modal cerrado no puede quedar en el orden de tabulacion.
+    modal.setAttribute("inert", "");
+    modal.setAttribute("aria-hidden", "true");
   },
 
   openInforme(stats, activeRole) {
