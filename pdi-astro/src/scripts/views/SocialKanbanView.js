@@ -22,6 +22,14 @@ export const ETAPA_NOMBRES_OFICIALES = {
   cerrado: "Cerrados con Informe"
 };
 
+// Titulo del tab del navegador por pestana de /social, con el mismo nombre que
+// la sidebar (ver activarPanelDirecto(), el punto unico de cambio de tab).
+const TITULOS_TAB = {
+  kanban: "Área Social Pastoral",
+  autorizaciones: "Autorizaciones ASP",
+  "mis-solicitudes": "Mis Solicitudes ASP",
+};
+
 export const SocialKanbanView = {
   _searchQuery: "",
   _filterUrgencia: "all",
@@ -861,6 +869,14 @@ export const SocialKanbanView = {
     if (btnMisSolicitudes) btnMisSolicitudes.classList.toggle("active", tabKey === "mis-solicitudes");
 
     this.actualizarBadgesPestañas();
+
+    // El tab del navegador refleja la pestana activa con el mismo nombre que la
+    // sidebar y el sufijo estandar de la app ("X | Sistema PDI (Astro)"). Este
+    // metodo es el punto comun de todo cambio de tab (carga inicial por
+    // montar() y clic interno por switchSocialTab), asi que una linea aca
+    // cubre todas las rutas, incluidas las entradas directas por URL.
+    document.title =
+      `${TITULOS_TAB[tabKey] || TITULOS_TAB.kanban} | Sistema PDI (Astro)`;
   },
 
   /**

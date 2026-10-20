@@ -1,15 +1,28 @@
 // ===========================================================================
-//  DB - Capa de datos con SurrealDB Cloud
+//  DB - Capa de datos con SurrealDB Cloud (fuente �aNICA de verdad)
 // ===========================================================================
-//  Conecta el frontend con la instancia de SurrealDB Cloud y adapta
-//  fielmente las entidades relacionales al contrato esperado por los
-//  modelos y vistas (Padrón, Salud, Casitas del Saber, Casos Sociales y Sedes).
+//  El proyecto depende por completo de la instancia de SurrealDB Cloud:
 //
-//  Incluye un Quality Gate (filtro de calidad): si los datos remotos fallan
-//  o están incompletos, NUNCA sobreescribe el almacenamiento local con vacíos.
+//    - SIN CONEXI�N: no se muestra ning�n dato (los modelos inician vac�os);
+//      no hay fixtures ni espejo en localStorage. db.js reintenta sola con
+//      backoff y rehidrata apenas vuelve la conexi�n.
+//    - CRUD: toda mutación va SIEMPRE a la nube. Los modelos actualizan la
+//      memoria en forma optimista y esta capa confirma escribiendo en las
+//      tablas reales: persona, inscripcion, tamizaje_hemoglobina,
+//      usuario_vinculado, sede, caso_social, solicitud_caso, voluntario,
+//      asistencia_diaria y bitacora_auditoria.
+//    - SINCRONIZACI�N: suscripciones LIVE SELECT a las diez tablas; cualquier
+//      cambio de otro usuario dispara una re-hidrataci�n con debounce y
+//      refresco de la vista activa. Si la conexi�n cae, hay reintentos con
+//      backoff hasta recuperarse.
+//
+//  Ya no hay valores fabricados: los campos que la nube no tiene se presentan
+//  vacíos o como "Sin registro". La apariencia de datos corruptos del pasado
+//  viene de mezclar datos ficticios con reales; esa mezcla está eliminada.
 // ===========================================================================
 import { Surreal } from 'surrealdb';
-import { defaultSedes } from '../../data/fixtures/sedes.js';
+import { ToastView } from '../views/ToastView.js';
+import { estrategiasDesdePrograma } from '../../data/opcionesBeneficiario.js';
 
 const URL = import.meta.env.PUBLIC_SURREAL_URL;
 const NS = import.meta.env.PUBLIC_SURREAL_NS;
@@ -17,14 +30,82 @@ const DB = import.meta.env.PUBLIC_SURREAL_DB;
 const USER = import.meta.env.PUBLIC_SURREAL_USER;
 const PASS = import.meta.env.PUBLIC_SURREAL_PASS;
 
+// Puente de migración: mientras producción conserve el esquema anterior y
+// staging use el nuevo, la misma aplicación puede apuntar a uno u otro.
+// PUBLIC_ESQUEMA_USUARIO=0 usa persona_id / persona_vinculada / menor_id;
+// PUBLIC_ESQUEMA_USUARIO=1 usa usuario_id / usuario_vinculado / firmante_id.
+// Cuando producción termine la migración, la bandera se retira.
+const ESQUEMA_USUARIO = import.meta.env.PUBLIC_ESQUEMA_USUARIO === '1';
+const F_USUARIO = ESQUEMA_USUARIO ? 'usuario_id' : 'persona_id';
+const T_VINCULO = ESQUEMA_USUARIO ? 'usuario_vinculado' : 'persona_vinculada';
+const F_MENOR = ESQUEMA_USUARIO ? 'usuario_id' : 'menor_id';
+const F_FIRMANTE = ESQUEMA_USUARIO ? 'firmante_id' : 'apoderado_firmante';
+
+// ---------------------------------------------------------------------------
+//  Estado de conexión y eventos
+// ---------------------------------------------------------------------------
+//  'conectando' | 'cargando' | 'ok' | 'sin_conexion' (solo internos; la
+//  conexi�n es silenciosa: ninguna pantalla de espera ni de bloqueo).
+let _estado = 'conectando';
+const _oyentes = new Set();
 let _db = null;
 let _conectando = null;
+let _iniciada = false;
+let _hidratado = false;
+let _jsonDeReintento = 5000;
+const MAXIMO_REINTENTO_MS = 30000;
+let _temporizadorReintento = null;
+let _temporizadorVigilancia = null;
+let _liveHandle = [];
+let _liveGeneracion = 0;
+let _tempDebounceLive = null;
 
+export function estadoActual() {
+  return _estado;
+}
+
+/** Suscribe a cambios de estado de la capa. Devuelve función de des-suscripción. */
+export function suscribirEstado(cb) {
+  _oyentes.add(cb);
+  cb(_estado);
+  return () => _oyentes.delete(cb);
+}
+
+function notificarEstado() {
+  _oyentes.forEach(cb => { try { cb(_estado); } catch (e) { /* oyente muerto no tumba la capa */ } });
+}
+
+function cambiarEstado(nuevo) {
+  if (_estado === nuevo) return;
+  _estado = nuevo;
+  notificarEstado();
+}
+
+// ---------------------------------------------------------------------------
+//  Conexión
+// ---------------------------------------------------------------------------
 async function conectar() {
   if (_db) return _db;
   if (_conectando) return _conectando;
   _conectando = (async () => {
     const db = new Surreal();
+    try {
+      // Autenticación embebida: connect + signin + use en UNA ida y vuelta
+      // (medido contra São Paulo: ahorra ~2 RTT ≈ 240 ms).
+      await db.connect(URL, {
+        namespace: NS,
+        database: DB,
+        authentication: { namespace: NS, database: DB, username: USER, password: PASS },
+        // El probe de versión del SDK cuesta un RPC por conexión y la versión
+        // ya es estable en producción (SurrealDB 3.3.2): se desactiva.
+        versionCheck: false,
+      });
+      _db = db;
+      return db;
+    } catch (errAuth) {
+      // Si la nube no acepta este nivel de auth, caemos a la secuencia clásica.
+      try { await db.disconnect(); } catch (e) { /* ya estaba cerrada */ }
+    }
     await db.connect(URL);
     await db.signin({ username: USER, password: PASS, namespace: NS, database: DB });
     await db.use({ namespace: NS, database: DB });
@@ -32,14 +113,299 @@ async function conectar() {
     return db;
   })().catch(err => {
     _conectando = null;
+    _db = null;
     throw err;
   });
   return _conectando;
 }
 
+/** Desconecta a propósito y avisa el estado: la vigilancia se encarga de rearmar. */
+function colapsarConexion(origen) {
+  _db = null;
+  _conectando = null;
+  cambiarEstado('sin_conexion');
+  console.warn('[PDI] Conexión caída (' + origen + '); reintentos automáticos activos.');
+}
+
+/**
+ * Ejecuta SurrealQL. Es la única puerta de entrada a la nube: si la consulta
+ * falla por transporte, colapsa la sesión para que la vigilancia reconecte.
+ */
+async function ejecutar(ql, params) {
+  try {
+    const db = await conectar();
+    return await db.query(ql, params);
+  } catch (err) {
+    if (esErrorTransporte(err)) {
+      colapsarConexion(err?.message || 'transporte');
+    }
+    throw err;
+  }
+}
+
+function esErrorTransporte(err) {
+  const msg = String(err?.message || err || '').toLowerCase();
+  return (
+    msg.includes('websocket') || msg.includes('connection') ||
+    msg.includes('network') || msg.includes('fetch') ||
+    msg.includes('econn') || msg.includes('timeout') ||
+    (err?.name === 'VersionMismatch')
+  );
+}
+
+/** Extrae el resultado de la primera sentencia respetando el formato del SDK. */
+function comoLista(res) {
+  if (Array.isArray(res)) {
+    const primero = res[0];
+    if (Array.isArray(primero)) return primero;
+    if (primero && Array.isArray(primero.result)) return primero.result;
+    if (primero && Array.isArray(primero.value)) return primero.value;
+    return [];
+  }
+  return [];
+}
+
+/**
+ * Ejecuta varias sentencias en UNA sola ida y vuelta. Devuelve un array con el
+ * resultado de cada sentencia, en el orden en que se escribieron. Es la base
+ * de la hidratación: 7 consultas cuestan lo mismo que 1.
+ */
+async function ejecutarLote(ql) {
+  try {
+    const db = await conectar();
+    const res = await db.query(ql);
+    return (Array.isArray(res) ? res : []).map(bloque => {
+      if (Array.isArray(bloque)) return bloque;
+      if (bloque && Array.isArray(bloque.result)) return bloque.result;
+      if (bloque && Array.isArray(bloque.value)) return bloque.value;
+      return [];
+    });
+  } catch (err) {
+    if (esErrorTransporte(err)) {
+      colapsarConexion(err?.message || 'transporte');
+    }
+    throw err;
+  }
+}
+
+// ---------------------------------------------------------------------------
+//  Encendido, hidratación y vigilancia
+// ---------------------------------------------------------------------------
+const TABLAS_LIVE = [
+  'persona', 'inscripcion', 'tamizaje_hemoglobina', T_VINCULO,
+  'sede', 'caso_social', 'solicitud_caso', 'voluntario',
+  'asistencia_diaria', 'bitacora_auditoria'
+];
+
+/** Punto de arranque de la capa: lo invoca Bootstrap en todas las páginas. */
+export async function iniciarCapaDatos() {
+  if (_iniciada) return;
+  _iniciada = true;
+  intentarLevantar();
+  _temporizadorVigilancia = setInterval(async () => {
+    if (_estado === 'ok') return;
+    reintentar();
+  }, 8000);
+}
+
+async function intentarLevantar() {
+  try {
+    cambiarEstado(_hidratado ? 'sin_conexion' : 'conectando');
+    await conectar();
+    // El registro LIVE y la primera hidratación viajan en paralelo: el render
+    // inicial no debe esperar a las suscripciones (medido: ~0.3–1 s menos).
+    await Promise.allSettled([suscribirLive(), hidratar()]);
+  } catch (err) {
+    console.warn('[PDI] No se conectó a SurrealDB:', err?.message || err);
+    cambiarEstado('sin_conexion');
+    agendarReintento();
+  }
+}
+
+async function reintentar() {
+  if (_estado === 'ok') return;
+  clearTimeout(_temporizadorReintento);
+  try {
+    await conectar();
+    await Promise.allSettled([suscribirLive(), hidratar()]);
+  } catch (err) {
+    cambiarEstado('sin_conexion');
+    agendarReintento();
+  }
+}
+
+function agendarReintento() {
+  clearTimeout(_temporizadorReintento);
+  _temporizadorReintento = setTimeout(reintentar, _jsonDeReintento);
+  _jsonDeReintento = Math.min(_jsonDeReintento * 2, MAXIMO_REINTENTO_MS);
+}
+
+/** Reintento inmediato de conexi�n (queda expuesto en window.PDI.DB). */
+export async function reintentarAhora() {
+  clearTimeout(_temporizadorReintento);
+  _jsonDeReintento = 5000;
+  await reintentar();
+}
+
+/**
+ * Suscripciones LIVE manuales, los 10 registros en UNA ida y vuelta. La ruta
+ * "managed" de SDK 2.0.10 compila la tabla como valor ligado (FROM $what) y
+ * SurrealDB 3.3.2 la rechaza con "Cannot execute LIVE statement using value:
+ * ..." — así que emitimos los LIVE SELECT con el nombre de la tabla en línea,
+ * en un solo viaje (cada sentencia devuelve su UUID en orden; medido: ahorra
+ * ~9 RTT ≈ 1.1 s), y colgamos cada suscripción con db.liveOf(id), que es
+ * local (sin red: ~3 ms las diez). Los unmanaged no se re-registran solos,
+ * pero este suscribirLive() se ejecuta en cada reconexión, que es
+ * exactamente cuando los id viejos quedan muertos.
+ */
+async function suscribirLive() {
+  if (!_db) return;
+  const generacionActual = ++_liveGeneracion;
+  try {
+    while (_liveHandle.length) {
+      const h = _liveHandle.pop();
+      try { await h.kill(); } catch (e) { /* lo viejo ya murió */ }
+    }
+    // 10 LIVE SELECT en un lote: 1 RTT en lugar de 10.
+    const ql = TABLAS_LIVE.map(tabla => `LIVE SELECT * FROM ${tabla};`).join('\n');
+    const res = await _db.query(ql);
+    const ids = (Array.isArray(res) ? res : []).map(b =>
+      Array.isArray(b) ? b[0] : (b?.result ?? b?.value ?? b)
+    );
+    // liveOf es local: las diez suscripciones cuelgan en paralelo sin red.
+    const subs = await Promise.all(ids.filter(Boolean).map(async id => {
+      const sub = await _db.liveOf(id);
+      sub.subscribe(() => {
+        if (generacionActual !== _liveGeneracion) return;
+        if (_estado !== 'ok') return;
+        clearTimeout(_tempDebounceLive);
+        _tempDebounceLive = setTimeout(() => {
+          if (_estado === 'ok') hidratar(true);
+        }, 400);
+      });
+      return sub;
+    }));
+    _liveHandle.push(...subs);
+  } catch (e) {
+    console.warn('[PDI] Live sync no disponible:', e?.message || e);
+  }
+}
+
+/** Re-hidratación por evento LIVE: una sola pasada, artistas equivalents. */
+let _hidratando = null;
+/** Consulta del padrón completa (también usada en el lote de hidratación). */
+const SQL_PADRON = `SELECT *,
+  (SELECT * FROM inscripcion WHERE ${F_USUARIO} = $parent.id AND activo = true LIMIT 1)[0] AS ins,
+  (SELECT * FROM tamizaje_hemoglobina WHERE ${F_USUARIO} = $parent.id AND activo = true ORDER BY fecha_tamizaje DESC LIMIT 1)[0] AS tam,
+  (SELECT cuidador_id.nombres AS c_nom, cuidador_id.apellidos AS c_ape, cuidador_id.numero_documento AS c_dni, parentesco FROM ${T_VINCULO} WHERE ${F_MENOR} = $parent.id LIMIT 1)[0] AS apo,
+  (SELECT VALUE pct_exoneracion FROM aporte WHERE inscripcion_id.${F_USUARIO} = $parent.id ORDER BY periodo DESC, mes DESC LIMIT 1)[0] AS pct
+FROM persona
+WHERE activo = true;`;
+
+/**
+ * Lote de consultas del padrón completo. Van pegadas para que la hidratación
+ * sea UNA sola ida y vuelta (ejecutarLote devuelve una lista por sentencia,
+ * en este orden).
+ */
+const SQL_LOTE_HIDRATACION = [
+  // 0 · sedes activas
+  'SELECT * FROM sede WHERE activo = true ORDER BY creado_el;',
+  // 1 · padrón con inscripción, tamizaje, apoderado y aporte por menor
+  SQL_PADRON,
+  // 2 · casos sociales activos
+  `SELECT *,
+    ${F_USUARIO}.nombres AS p_nom,
+    ${F_USUARIO}.apellidos AS p_ape,
+    ${F_USUARIO}.codigo AS p_cod,
+    sede_id.nombre AS s_nom
+  FROM caso_social WHERE activo = true ORDER BY creado_el DESC;`,
+  // 3 · solicitudes de cambio de etapa
+  'SELECT * FROM solicitud_caso WHERE activo = true ORDER BY fecha_solicitud DESC;',
+  // 4 · voluntariados activos
+  'SELECT * FROM voluntario WHERE activo = true ORDER BY fecha_ingreso DESC;',
+  // 5 · bitácora (últimos 500)
+  'SELECT * FROM bitacora_auditoria ORDER BY timestamp DESC LIMIT 500;',
+  // 6 · asistencia de hoy
+  `SELECT inscripcion_id AS iid, estado FROM asistencia_diaria
+  WHERE fecha >= time::floor(time::now(), 1d) AND fecha < time::floor(time::now(), 1d) + 1d;`,
+].join('\n');
+
+export async function hidratar(promedioSilencioso = false) {
+  if (_hidratando) return _hidratando;
+  _hidratando = (async () => {
+    cambiarEstado('cargando');
+    try {
+      // Un solo viaje: el lote completo cuesta 1 RTT en lugar de 6-8.
+      const [sedesRaw, personasRaw, casosRaw, solicitudesRaw, voluntariosRaw, logsRaw, asistenciaRaw] =
+        await ejecutarLote(SQL_LOTE_HIDRATACION);
+
+      const sedes = mapearSedes(sedesRaw);
+      const beneficiarios = mapearBeneficiarios(personasRaw, sedes);
+      const casos = mapearCasos(casosRaw, solicitudesRaw);
+      const voluntarios = mapearVoluntarios(voluntariosRaw);
+      const logs = mapearBitacora(logsRaw);
+      const asistencia = mapearAsistencia(asistenciaRaw, beneficiarios);
+
+      aplicarDatasets(beneficiarios, sedes, casos, voluntarios, logs, asistencia);
+      _hidratado = true;
+      _jsonDeReintento = 5000;
+      cambiarEstado('ok');
+      document.dispatchEvent(new CustomEvent('pdi:datos-actualizados'));
+      refrescarVistaActual();
+      if (!promedioSilencioso) {
+        console.log('[PDI] Sincronización completa con SurrealDB Cloud.',
+          beneficiarios.length, 'usuarios ·', sedes.length, 'sedes ·',
+          casos.length, 'casos ·', voluntarios.length, 'voluntarios ·', logs.length, 'eventos.');
+      }
+    } catch (err) {
+      console.warn('[PDI] Hidratación fallida:', err?.message || err);
+      cambiarEstado('sin_conexion');
+      agendarReintento();
+    } finally {
+      _hidratando = null;
+    }
+  })();
+  return _hidratando;
+}
+
+/** Alias de compatibilidad con Bootstrap. */
+export async function hidratarDesdeSurreal() {
+  if (_estado !== 'ok') return;
+  await hidratar();
+}
+
+function aplicarDatasets(beneficiarios, sedes, casos, voluntarios, logs, asistencia) {
+  const pdi = (typeof window !== 'undefined' && window.PDI) || {};
+  pdi.BeneficiarioModel?.aplicarDatos?.(beneficiarios);
+  pdi.SedeModel?.aplicarDatos?.(sedes);
+  pdi.CasoSocialModel?.aplicarDatos?.(casos);
+  pdi.VoluntarioModel?.aplicarDatos?.(voluntarios);
+  pdi.AuditModel?.aplicarDatos?.(logs);
+  pdi.CasitasController?.aplicarDatosAsistencia?.(asistencia);
+  // AjustesView y las páginas leen Restaurar desde aqui.
+  pdi.recopilacionNube = { beneficiarios, sedes, casos, voluntarios, logs, asistencia };
+}
+
+function refrescarVistaActual() {
+  if (_estado !== 'ok') return;
+  const fn = (typeof window !== 'undefined' && window.PDI?.refrescarVistaActual);
+  if (typeof fn === 'function') fn();
+  // Los badges del menu lateral salen de los modelos.
+  (typeof window !== 'undefined' && window.PDI?.Bootstrap?.actualizarBadgesSidebar?.());
+}
+
+/** fuerza re-hidratación desde la nube (Botón "Restablecer datos" de Ajustes). */
+export async function refrescarDesdeNube() {
+  if (_estado !== 'ok') return;
+  await hidratar();
+}
+
+// ---------------------------------------------------------------------------
+//  Funciones utilitarias y mapeos de dominio
+// ---------------------------------------------------------------------------
 function extraerNumeroId(codigo, idStr, fallbackIdx) {
   if (codigo) {
-    const parts = codigo.split('-');
+    const parts = String(codigo).split('-');
     const last = parseInt(parts[parts.length - 1], 10);
     if (!isNaN(last)) return last;
   }
@@ -50,13 +416,143 @@ function extraerNumeroId(codigo, idStr, fallbackIdx) {
   return fallbackIdx;
 }
 
-/**
- * Id estable de una sede a partir de su nombre: "Año Nuevo" -> "sede-ano-nuevo".
- * El mismo formato que usan las fixtures, para que la URL conservada al
- * recargar siga valiendo igual antes y despues de hidratar desde SurrealDB
- * (antes los ids remotos eran 1..7 y la seleccion saltaba a la primera sede
- * hasta que la sincronizacion terminaba).
- */
+export function edadDesdeFecha(fecha) {
+  if (!fecha) return '';
+  const nacimiento = new Date(fecha);
+  if (isNaN(nacimiento.getTime())) return '';
+  const hoy = new Date();
+  let anios = hoy.getFullYear() - nacimiento.getFullYear();
+  const faltaCumple = hoy.getMonth() > nacimiento.getMonth() ||
+    (hoy.getMonth() === nacimiento.getMonth() && hoy.getDate() >= nacimiento.getDate());
+  if (!faltaCumple) anios--;
+  return anios <= 1 ? '1 año' : `${anios} años`;
+}
+
+function isoFecha(fecha) {
+  if (!fecha) return '';
+  try {
+    return new Date(fecha).toISOString().slice(0, 10);
+  } catch (e) {
+    return '';
+  }
+}
+
+function textoTiempo(fecha) {
+  if (!fecha) return '';
+  try {
+    const d = new Date(fecha);
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  } catch (e) {
+    return '';
+  }
+}
+
+/** Etapas de caso: la nube es en_evaluacion/resuelto; la UI es evaluacion/cerrado. */
+const ETAPA_NUBE_A_UI = { pendiente: 'pendiente', en_evaluacion: 'evaluacion', canalizado: 'canalizado', resuelto: 'cerrado' };
+const ETAPA_UI_A_NUBE = { pendiente: 'pendiente', evaluacion: 'en_evaluacion', canalizado: 'canalizado', cerrado: 'resuelto' };
+
+function etapaUi(etapaNube) {
+  return ETAPA_NUBE_A_UI[etapaNube] || etapaNube || 'pendiente';
+}
+
+function etapaNubeDe(etapaUiValor) {
+  return ETAPA_UI_A_NUBE[etapaUiValor] || 'pendiente';
+}
+
+function programaDesdeServicios(servicios, estrategia) {
+  const junta = [...(servicios || []), estrategia || ''].join(' ').toLowerCase();
+  const casita = junta.includes('casita') || junta.includes('educat') || junta.includes('acompañ');
+  const nutricion = junta.includes('desayuno') || junta.includes('nutric') || junta.includes('alimento');
+  const lonchera = junta.includes('lonchera');
+  if (lonchera && !casita) return 'Lonchera Infantil';
+  if (casita && nutricion) return 'Mixto';
+  if (casita) return 'Casita del Saber';
+  return 'Desayuno Infantil';
+}
+
+function modalidadDesdeUi(modalidad) {
+  return /institut|ie\.|escolar/i.test(modalidad || '') ? 'Institucion Educativa' : 'Comunitaria';
+}
+
+function seguroDesdeUi(seguro) {
+  const s = (seguro || '').toLowerCase();
+  if (s.includes('sis')) return 'SIS';
+  if (s.includes('essalud')) return 'EsSalud';
+  if (s.includes('pnp') || s.includes('ffaa') || s.includes('militar')) return 'PNP/FFAA';
+  if (s.includes('priv')) return 'Privado';
+  if (s.includes('no') || s.includes('sin')) return 'No tiene';
+  return 'Desconocido';
+}
+
+function resultadoDesdeAnemia(anemia) {
+  const a = (anemia || '').toLowerCase();
+  if (a.includes('moder')) return 'Anemia moderada';
+  if (a.includes('leve')) return 'Anemia leve';
+  if (a.includes('grave') || a.includes('sever')) return 'Anemia grave';
+  if (a.includes('riesgo')) return 'En riesgo';
+  return 'Regular';
+}
+
+function anemiaDesdeResultado(resultado) {
+  const r = (resultado || '').toLowerCase();
+  if (r.includes('moder')) return 'Moderada';
+  if (r.includes('leve')) return 'Leve';
+  if (r.includes('grave') || r.includes('sever')) return 'Severa';
+  if (r.includes('riesgo')) return 'En riesgo';
+  if (r.includes('regular') || r.includes('normal')) return 'Normal';
+  return 'Sin tamizaje';
+}
+
+/** Aviso reutilizable cuando la nube rechaza una escritura. */
+function avisarFallo(operacion, err) {
+  const detalle = err?.message || String(err || 'Error desconocido');
+  console.error('[PDI] Fallo al escribir en SurrealDB (' + operacion + '):', detalle);
+  try {
+    ToastView.show('No se pudo guardar en la base de datos', `${operacion}: ${detalle}`.slice(0, 140), 'danger');
+  } catch (e) {
+    // Si ToastView no está listo, el error queda en consola.
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
+//  LECTURAS (fetch + mapeo fiel)
+// ---------------------------------------------------------------------------
+/** Obtiene el directorio de Sedes desde SurrealDB. */
+export async function fetchSedes() {
+  return mapearSedes(comoLista(await ejecutar('SELECT * FROM sede WHERE activo = true ORDER BY creado_el;')));
+}
+
+/** Convierte los registros crudos de sedan en objetos del modelo. */
+function mapearSedes(raw) {
+  return raw.map((s, idx) => {
+    const sid = String(s.id);
+    const slug = slugDeSede(s.nombre);
+    return {
+      _rawId: sid,
+      id: slug || extraerNumeroId(null, sid, idx + 1),
+      nombre: s.nombre || '',
+      distrito: s.distrito || 'Comas',
+      direccion: s.direccion || '',
+      referencia: s.referencia || '',
+      facilitadora: s.facilitadora_nombre || '',
+      facilitadoraCargo: 'Facilitadora Comunitaria PDI',
+      facilitadoraTel: s.facilitadora_tel || '',
+      iglesiaAliada: s.aliado_nombre || '',
+      pastorAliado: '',
+      aliadoTel: s.facilitadora_tel || '',
+      tipoAliado: s.aliado_institucion || s.tipo_local || '',
+      servicios: Array.isArray(s.servicios) ? s.servicios : [],
+      aforoMax: s.aforo_max || 0,
+      horario: s.horario || '',
+      estado: s.estado || 'Operativa',
+      coordenadas: s.coordenadas || null,
+    };
+  });
+}
+
+/** Id estable de una sede a partir de su nombre (compatibilidad URL). */
 function slugDeSede(nombre) {
   if (!nombre) return null;
   const slug = String(nombre)
@@ -68,269 +564,978 @@ function slugDeSede(nombre) {
   return slug ? `sede-${slug}` : null;
 }
 
-function edadDesdeFecha(fecha) {
-  if (!fecha) return '4 años';
-  const nacimiento = new Date(fecha);
-  const hoy = new Date();
-  let anios = hoy.getFullYear() - nacimiento.getFullYear();
-  const faltaCumple = hoy.getMonth() > nacimiento.getMonth() ||
-    (hoy.getMonth() === nacimiento.getMonth() && hoy.getDate() >= nacimiento.getDate());
-  if (!faltaCumple) anios--;
-  return anios <= 1 ? '1 año' : `${anios} años`;
-}
-
-/**
- * Obtiene el directorio de Sedes desde SurrealDB.
- */
-export async function fetchSedes() {
-  const db = await conectar();
-  const res = await db.query('SELECT * FROM sede;');
-  const sedesRaw = Array.isArray(res) ? (Array.isArray(res[0]) ? res[0] : (res[0]?.result ?? [])) : [];
-
-  return sedesRaw.map((s, idx) => {
-    const sid = String(s.id);
-    const slug = slugDeSede(s.nombre);
-    const fixture = defaultSedes.find(f =>
-      (slug && f.id === slug) ||
-      (f.nombre && s.nombre && f.nombre.toLowerCase().trim() === s.nombre.toLowerCase().trim())
-    ) || {};
-
-    return {
-      // _rawId conserva el id real del registro (para cruzar relaciones);
-      // "id" es el id estable con el que se compara y se guarda en la URL.
-      id: slug || extraerNumeroId(null, sid, idx + 1),
-      _rawId: sid,
-      nombre: s.nombre || fixture.nombre || '',
-      distrito: s.distrito || fixture.distrito || 'Comas',
-      direccion: s.direccion || fixture.direccion || '',
-      referencia: s.referencia || fixture.referencia || '',
-      facilitadora: s.facilitadora_nombre || fixture.facilitadora || '',
-      facilitadoraCargo: s.facilitadora_cargo || fixture.facilitadoraCargo || 'Facilitadora Comunitaria PDI',
-      facilitadoraTel: s.facilitadora_tel || fixture.facilitadoraTel || '',
-      iglesiaAliada: s.aliado_nombre || fixture.iglesiaAliada || 'Sede Comunitaria',
-      pastorAliado: s.pastor_aliado || fixture.pastorAliado || 'Pastor Encargado',
-      aliadoTel: s.facilitadora_tel || fixture.facilitadoraTel || '',
-      tipoAliado: s.aliado_institucion || s.tipo_local || fixture.tipoAliado || 'Iglesia Aliada',
-      servicios: Array.isArray(s.servicios) && s.servicios.length > 0
-        ? s.servicios
-        : (fixture.servicios || ['Servicio Alimentario Nutricional', 'Casita del Saber']),
-      aforoMax: s.aforo_max || fixture.aforoMax || 30,
-      horario: s.horario || fixture.horario || 'Lunes a Viernes 08:00 - 14:00',
-      estado: s.estado || fixture.estado || 'Operativa',
-      coordenadas: s.coordenadas || fixture.coordenadas || null,
-    };
-  });
-}
-
-/**
- * Obtiene el Padrón de Menores Beneficiarios desde SurrealDB Cloud,
- * enriqueciendo con tamizajes de salud (Hb), inscripciones y apoderados.
- */
+/** Obtiene el Padrón de Menores Beneficiarios con inscripción, tamizaje y apoderado. */
 export async function fetchBeneficiarios() {
-  const db = await conectar();
   const sedes = await fetchSedes();
+  return mapearBeneficiarios(comoLista(await ejecutar(SQL_PADRON)), sedes);
+}
+
+/** Convierte los registros crudos de persona en objetos del modelo (requiere sedes ya mapeadas). */
+function mapearBeneficiarios(personasRes, sedes) {
   const sedesMap = new Map(sedes.map(s => [s._rawId, s]));
 
-  const res = await db.query(`
-    SELECT *,
-      (SELECT * FROM inscripcion WHERE persona_id = $parent.id AND activo = true LIMIT 1)[0] AS ins,
-      (SELECT * FROM tamizaje_hemoglobina WHERE persona_id = $parent.id AND activo = true ORDER BY fecha_tamizaje DESC LIMIT 1)[0] AS tam,
-      (SELECT cuidador_id.nombres AS c_nom, cuidador_id.apellidos AS c_ape, cuidador_id.numero_documento AS c_dni, parentesco FROM persona_vinculada WHERE menor_id = $parent.id LIMIT 1)[0] AS apo
-    FROM persona
-    WHERE string::starts_with(string::slice(codigo, 0, 3), 'PDI') OR id = persona:pdi_001;
-  `);
-
-  const personasRaw = Array.isArray(res) ? (Array.isArray(res[0]) ? res[0] : (res[0]?.result ?? [])) : [];
+  const personasRaw = personasRes.filter(m => m.ins);
 
   return personasRaw.map((m, idx) => {
     const idNum = extraerNumeroId(m.codigo, String(m.id), idx + 1);
-    const sedeObj = sedesMap.get(String(m.ins?.sede_id)) || sedes[0] || {};
-    const prog = m.ins?.programa || 'Mixto';
+    const sedeObj = sedesMap.get(String(m.ins?.sede_id)) || null;
+    const prog = m.ins?.programa || 'Desayuno Infantil';
+
+    // La estrategia son varias. La nube las guarda como arreglo; si el dato
+    // es anterior a ese cambio, se reconstruyen desde el programa guardado.
+    const estrategias = Array.isArray(m.ins?.estrategias) && m.ins.estrategias.length
+      ? m.ins.estrategias
+      : estrategiasDesdePrograma(prog);
+    const estrategia = estrategias.join(' + ');
 
     let servicios = ['Servicio Alimentario Nutricional'];
-    let estrategia = 'Servicio Alimentario Nutricional';
     if (prog === 'Mixto') {
       servicios = ['Servicio Alimentario Nutricional', 'Casita del Saber'];
-      estrategia = 'Mixto (Desayuno + Casita)';
     } else if (prog === 'Casita del Saber') {
       servicios = ['Casita del Saber'];
-      estrategia = 'Casita del Saber';
-    } else if (prog.includes('Lonchera')) {
+    } else if (prog === 'Lonchera Infantil') {
       servicios = ['Servicio Alimentario Nutricional', 'Lonchera Saludable'];
-      estrategia = 'Lonchera Infantil';
     }
 
-    const apoderadoNom = m.apo ? `${m.apo.c_nom} ${m.apo.c_ape}` : 'Rosa Quispe Huamán';
-    const apoderadoPar = m.apo?.parentesco || 'Madre';
-    const apoderadoDni = m.apo?.c_dni || '41982341';
-
-    let anemia = 'Normal';
-    const resTam = (m.tam?.resultado || '').toLowerCase();
-    if (resTam.includes('moderada')) anemia = 'Moderada';
-    else if (resTam.includes('leve')) anemia = 'Leve';
-    else if (resTam.includes('grave') || resTam.includes('severa')) anemia = 'Severa';
-
-    const fechaNac = m.fecha_nacimiento ? new Date(m.fecha_nacimiento).toISOString().slice(0, 10) : '2022-03-14';
+    const apoderadoNom = m.apo ? `${m.apo.c_nom || ''} ${m.apo.c_ape || ''}`.trim() : '';
 
     return {
+      _personaId: String(m.id),
+      _inscripcionId: m.ins ? String(m.ins.id) : '',
+      _tamizajeId: m.tam ? String(m.tam.id) : '',
+      _sedeRawId: sedeObj ? sedeObj._rawId : '',
       id: idNum,
-      codigo: m.codigo || `PDI-2026-${String(idNum).padStart(3, '0')}`,
+      codigo: m.codigo || '',
       nombres: m.nombres || '',
       apellidos: m.apellidos || '',
       dni: m.numero_documento || '',
-      fechaNacimiento: fechaNac,
+      fechaNacimiento: isoFecha(m.fecha_nacimiento),
       edad: edadDesdeFecha(m.fecha_nacimiento),
-      sexo: m.sexo || 'M',
+      sexo: m.sexo || '',
+      fotoUrl: m.foto_url || '',
       direccion: m.direccion || '',
       referencia: m.referencia || '',
-      distrito: m.distrito || sedeObj.distrito || 'Comas',
-      sede: sedeObj.nombre || 'Año Nuevo',
-      modalidad: m.ins?.modalidad || 'Comunitaria',
+      distrito: m.distrito || sedeObj?.distrito || '',
+      sede: sedeObj?.nombre || '',
+      modalidad: m.ins?.modalidad || '',
       estrategia,
-      exoneracionAporte: idNum % 3 === 0 ? '100% (Exonerado Vulnerabilidad Extrema)' : '0% (Aporte Ordinario)',
+      estrategias,
+      exoneracionAporte:
+        m.pct === 100 ? '100% (Exonerado Vulnerabilidad Extrema)'
+          : m.pct === 50 ? '50% (Aporte Reducido)'
+            : m.pct === 0 ? '0% (Aporte Ordinario)'
+              : 'No registrado',
       servicios,
-      seguro: m.esquema_salud || 'SIS Gratuito',
-      centroSalud: m.distrito === 'Carabayllo' ? 'C.S. El Progreso' : 'C.S. Año Nuevo',
-      alergias: 'Ninguna',
-      nivelEducativo: m.nivel_educativo || 'Inicial',
-      grado: m.grado || 'Inicial 4 años',
-      colegio: (m.grado || '').includes('Prim') ? 'I.E. 3054' : 'I.E. 2026',
+      seguro: m.esquema_salud || '',
+      centroSalud: '',
+      alergias: '',
+      nivelEducativo: m.nivel_educativo || '',
+      grado: m.grado || '',
+      colegio: '',
       apoderado: apoderadoNom,
-      parentesco: apoderadoPar,
-      apoderadoDni,
-      telefono: m.telefono || '987-654-321',
-      telefonoAlt: m.telefono_alt || '912-883-112',
+      parentesco: m.apo?.parentesco || '',
+      apoderadoDni: m.apo?.c_dni || '',
+      telefono: m.telefono || '',
+      telefonoAlt: m.telefono_alt || '',
       estado: m.ins?.estado || 'Activo',
-      hb: m.tam?.hb_valor != null ? Number(m.tam.hb_valor) : 11.2,
-      peso: m.tam?.peso_kg != null ? Number(m.tam.peso_kg) : 14.5,
-      talla: m.tam?.talla_cm != null ? Number(m.tam.talla_cm) : 96.0,
-      anemia,
-      canastaEntregada: true,
-      orientacionFamiliar: true,
-      retiroAutorizado: `${apoderadoNom} (${apoderadoPar})`,
-      retiroPadron: [
-        {
-          acreditado: apoderadoNom,
-          parentesco: apoderadoPar,
-          dni: apoderadoDni,
-          telefono: m.telefono || '987-654-321',
-          autorizadoPor: 'Dirección PDI',
-          estado: 'Acreditado',
-        }
-      ],
+      hb: m.tam?.hb_valor != null ? Number(m.tam.hb_valor) : null,
+      peso: m.tam?.peso_kg != null ? Number(m.tam.peso_kg) : null,
+      talla: m.tam?.talla_cm != null ? Number(m.tam.talla_cm) : null,
+      anemia: anemiaDesdeResultado(m.tam?.resultado),
+      canastaEntregada: null,
+      orientacionFamiliar: null,
+      retiroAutorizado: apoderadoNom ? `${apoderadoNom}${m.apo?.parentesco ? ' (' + m.apo.parentesco + ')' : ''}` : '',
+      retiroPadron: apoderadoNom ? [{
+        acreditado: apoderadoNom,
+        parentesco: m.apo?.parentesco || '',
+        dni: m.apo?.c_dni || '',
+        telefono: m.telefono || '',
+        autorizadoPor: 'Dirección PDI',
+        estado: 'Acreditado',
+      }] : [],
     };
   });
 }
 
-/**
- * Obtiene los Casos Sociales (ASP) desde SurrealDB Cloud.
- */
+/** Obtiene los Casos Sociales (ASP) y sus solicitudes de cambio de etapa. */
 export async function fetchCasosSociales() {
-  const db = await conectar();
-  const res = await db.query(`
-    SELECT *,
-      persona_id.nombres AS p_nom,
-      persona_id.apellidos AS p_ape,
-      persona_id.codigo AS p_cod,
-      sede_id.nombre AS s_nom
-    FROM caso_social;
-  `);
+  return mapearCasos(
+    comoLista(await ejecutar(`SELECT *, ${F_USUARIO}.nombres AS p_nom, ${F_USUARIO}.apellidos AS p_ape, ${F_USUARIO}.codigo AS p_cod, sede_id.nombre AS s_nom FROM caso_social WHERE activo = true ORDER BY creado_el DESC;`)),
+    comoLista(await ejecutar('SELECT * FROM solicitud_caso WHERE activo = true ORDER BY fecha_solicitud DESC;')),
+  );
+}
 
-  const casosRaw = Array.isArray(res) ? (Array.isArray(res[0]) ? res[0] : (res[0]?.result ?? [])) : [];
+/** Convierte los registros crudos de caso social en objetos del modelo. */
+function mapearCasos(casosRaw, solicitudesRaw) {
+  const porCaso = new Map();
+  solicitudesRaw.forEach(s => {
+    const clave = String(s.caso_id);
+    if (!porCaso.has(clave)) porCaso.set(clave, []);
+    porCaso.get(clave).push(s);
+  });
 
   return casosRaw.map((c, idx) => {
     const idNum = c.id_numerico || extraerNumeroId(c.codigo_caso, String(c.id), 101 + idx);
-    const menorNom = c.p_nom && c.p_ape ? `${c.p_nom} ${c.p_ape}` : 'Menor PDI';
-    const fechaDeriv = c.fecha_derivacion ? new Date(c.fecha_derivacion).toISOString().slice(0, 10) : '2026-04-12';
+    const menorNom = c.p_nom && c.p_ape ? `${c.p_nom} ${c.p_ape}` : '';
+    const listaSol = porCaso.get(String(c.id)) || [];
 
-    return {
+    const historial = listaSol.map(s => ({
+      id: s.codigo_solicitud || String(s.id),
+      evento: s.estado === 'pendiente' ? 'solicitud' : s.estado,
+      etapaOrigen: etapaUi(s.etapa_origen),
+      etapaDestino: etapaUi(s.etapa_destino),
+      solicitadoPor: s.solicitado_por,
+      cargoSolicitante: s.cargo_solicitante,
+      fecha: textoTiempo(s.fecha_solicitud),
+      motivo: s.motivo || 'Solicitud de transición de etapa',
+      resueltoPor: s.resuelto_por || null,
+      cargoResuelve: s.cargo_resuelve || null,
+      comentario: s.comentario_resolucion || '',
+    })).reverse();
+
+    const pendiente = listaSol.find(s => s.estado === 'pendiente');
+    const resuelta = listaSol.filter(s => s.estado !== 'pendiente')
+      .sort((a, b) => (b.fecha_resolucion || '').localeCompare(a.fecha_resolucion || ''))[0];
+
+    const retorna = {
+      _casoId: String(c.id),
+      _personaId: c[F_USUARIO] ? String(c[F_USUARIO]) : '',
+      _sedeRawId: c.sede_id ? String(c.sede_id) : '',
       id: idNum,
+      beneficiarioId: idNum,
       menor: menorNom,
-      codigo: c.p_cod || c.codigo_caso || `PDI-2026-${String(idNum).padStart(3, '0')}`,
-      etapa: c.etapa || 'pendiente',
+      codigo: c.p_cod || c.codigo_caso || '',
+      etapa: etapaUi(c.etapa),
       urgencia: c.urgencia || 'Media',
-      tipoProblematica: c.tipo_problematica || 'Nutricional / Abandono',
-      fechaDerivacion: fechaDeriv,
+      tipoProblematica: c.tipo_problematica || '',
+      fechaDerivacion: isoFecha(c.fecha_derivacion),
       quienDeriva: {
-        nombre: c.quien_deriva_nombre || 'Lic. Miriam Soto Paredes',
-        cargo: c.quien_deriva_cargo || 'Facilitadora Nutricional',
-        telefono: c.quien_deriva_tel || '987-223-114',
+        nombre: c.quien_deriva_nombre || '',
+        cargo: c.quien_deriva_cargo || '',
+        telefono: c.quien_deriva_tel || '',
       },
       situacionEncontrada: c.situacion_encontrada || '',
-      accionesPrevias: c.acciones_previas || 'Visita preliminar realizada',
+      accionesPrevias: c.acciones_previas || '',
       soporteFamiliar: {
         tiene: c.tiene_soporte_familiar ?? false,
-        detalle: c.detalle_soporte_familiar || 'Sin soporte adicional',
+        detalle: c.detalle_soporte_familiar || '',
       },
       detalle: c.situacion_encontrada || '',
-      sede: c.s_nom || 'Año Nuevo (Comas)',
+      sede: c.s_nom || '',
       vulnerabilidadPuntaje: c.urgencia === 'Alta' ? 90 : (c.urgencia === 'Media' ? 70 : 45),
     };
+    if (pendiente) {
+      retorna.solicitudCambio = {
+        id: pendiente.codigo_solicitud || String(pendiente.id),
+        etapaOrigen: etapaUi(pendiente.etapa_origen),
+        etapaDestino: etapaUi(pendiente.etapa_destino),
+        solicitadoPor: pendiente.solicitado_por,
+        cargoSolicitante: pendiente.cargo_solicitante,
+        fechaSolicitud: textoTiempo(pendiente.fecha_solicitud),
+        motivo: pendiente.motivo || 'Solicitud de transición de etapa',
+        estado: 'pendiente',
+      };
+    }
+    if (resuelta) {
+      retorna.ultimaResolucion = {
+        id: resuelta.codigo_solicitud || String(resuelta.id),
+        etapaOrigen: etapaUi(resuelta.etapa_origen),
+        etapaDestino: etapaUi(resuelta.etapa_destino),
+        solicitadoPor: resuelta.solicitado_por,
+        cargoSolicitante: resuelta.cargo_solicitante,
+        fechaSolicitud: textoTiempo(resuelta.fecha_solicitud),
+        motivo: resuelta.motivo || 'Solicitud de transición de etapa',
+        estado: resuelta.estado,
+        fechaResolucion: textoTiempo(resuelta.fecha_resolucion),
+        resueltoPor: resuelta.resuelto_por,
+        cargoResuelve: resuelta.cargo_resuelve,
+        comentarioResolucion: resuelta.comentario_resolucion || '',
+      };
+    }
+    if (historial.length) retorna.historialSolicitudes = historial;
+    return retorna;
   });
 }
 
-/**
- * Hidrata los modelos del frontend con los datos reales de SurrealDB Cloud.
- * Aplica un Quality Gate estricto: si la red falla o la calidad no cumple,
- * preserva los datos locales sin alterar la interfaz.
- */
-export async function hidratarDesdeSurreal() {
-  try {
-    const [beneficiarios, sedes, casos] = await Promise.all([
-      fetchBeneficiarios(),
-      fetchSedes(),
-      fetchCasosSociales(),
-    ]);
+/** Padrón de voluntariados. */
+export async function fetchVoluntarios() {
+  return mapearVoluntarios(comoLista(await ejecutar('SELECT * FROM voluntario WHERE activo = true ORDER BY fecha_ingreso DESC;')));
+}
 
-    // Quality Gate de Integridad
-    const esValido = Array.isArray(beneficiarios) &&
-      beneficiarios.length >= 10 &&
-      beneficiarios.every(b => b.nombres && b.apellidos && b.apoderado) &&
-      Array.isArray(casos) && casos.length > 0 &&
-      Array.isArray(sedes) && sedes.length > 0;
+/** Convierte los registros crudos de voluntario en objetos del modelo. */
+function mapearVoluntarios(volRaw) {
+  return volRaw.map((v, idx) => ({
+    _qid: String(v.id),
+    id: extraerNumeroId(v.codigo, String(v.id), idx + 1),
+    codigo: v.codigo || '',
+    nombres: v.nombres || '',
+    apellidos: v.apellidos || '',
+    dni: v.numero_documento || '',
+    celular: v.telefono || '',
+    fechaNacimiento: isoFecha(v.fecha_nacimiento),
+    edad: v.edad ?? '',
+    domicilio: v.direccion || '',
+    distrito: v.distrito || 'Comas',
+    sedeAsignada: v.sede_nombre || '',
+    servicio: v.servicio || '',
+    rol: v.rol || '',
+    estrategia: v.estrategia || 'Atención Fija',
+    tipoVoluntariado: v.tipo_voluntariado || '',
+    capacitaciones: Array.isArray(v.capacitaciones) ? v.capacitaciones : [],
+    canastasRecibidas: v.canastas_recibidas ?? 0,
+    fechaIngreso: isoFecha(v.fecha_ingreso),
+    estado: v.estado || 'Activo',
+    disponibilidad: v.disponibilidad || 'Disponibilidad estándar',
+    observaciones: v.observaciones || '',
+  }));
+}
 
-    if (!esValido) {
-      console.warn('[PDI] Calidad de datos remotos insuficiente; se mantienen fixtures locales.');
-      return;
+/** Bitácora de auditoría. */
+export async function fetchBitacora() {
+  return mapearBitacora(comoLista(await ejecutar('SELECT * FROM bitacora_auditoria ORDER BY timestamp DESC LIMIT 500;')));
+}
+
+/** Convierte los registros crudos de bitácora en objetos del modelo. */
+function mapearBitacora(raw) {
+  return raw.map((b, i) => ({
+    id: 'LOG-' + String(i + 1).padStart(4, '0'),
+    timestamp: textoTiempo(b.timestamp),
+    user: b.usuario_nombre || 'Sistema',
+    role: b.rol || 'Sistema',
+    action: b.accion || '',
+    entity: b.registro_id || '',
+    detail: b.detalle || '',
+    status: 'Registrado',
+    ip: b.ip_origen || '',
+    sede: b.sede_nombre || 'Central',
+    diff: Array.isArray(b.diff) && b.diff.length ? b.diff[0] : null,
+  }));
+}
+
+/** Asistencia de hoy para la Casita del Saber: { [beneficiarioId]: 'P'|'T'|'FJ'|'FI' } */
+export async function fetchAsistencia() {
+  return mapearAsistencia(
+    comoLista(await ejecutar(`SELECT inscripcion_id AS iid, estado FROM asistencia_diaria
+      WHERE fecha >= time::floor(time::now(), 1d) AND fecha < time::floor(time::now(), 1d) + 1d;`)),
+    (window.PDI?.BeneficiarioModel?.getAll?.() || []),
+  );
+}
+
+/** Convierte los registros crudos de asistencia en { [beneficiarioId]: estado }. */
+function mapearAsistencia(raw, beneficiarios) {
+  const mapa = {};
+  raw.forEach(r => {
+    if (!r.iid) return;
+    const s = String(r.iid);
+    for (const b of (beneficiarios || [])) {
+      if (b._inscripcionId === s && r.estado) mapa[b.id] = r.estado;
     }
+  });
+  return mapa;
+}
 
-    // #region DEBUG
-    const _prevConSol = (window.PDI?.CasoSocialModel?._data || []).filter(c => c.solicitudCambio).length;
-    // #endregion DEBUG
-
-    // Actualizar almacenamiento local
-    localStorage.setItem('pdi_beneficiarios', JSON.stringify(beneficiarios));
-
-    // Actualizar modelos en memoria respetando integridad y persistencia de solicitudes
-    if (window.PDI?.BeneficiarioModel) {
-      window.PDI.BeneficiarioModel._data = beneficiarios;
+// ---------------------------------------------------------------------------
+//  CRUD · Padrón de beneficiarios
+// ---------------------------------------------------------------------------
+/** Verifica documento duplicado y crea menor + inscripción + apoderado + aporte. */
+export async function crearBeneficiario(m) {
+  const documento = (m.dni || '').trim();
+  if (documento) {
+    try {
+      const dup = comoLista(await ejecutar(
+        'SELECT id FROM persona WHERE numero_documento = $doc LIMIT 1;', { doc: documento }));
+      if (dup.length) {
+        avisarFallo('DNI duplicado', `El documento ${documento} ya está registrado en el Padrón.`);
+        return null;
+      }
+    } catch (err) {
+      return avisarFallo('Registro de usuario', err);
     }
-    if (window.PDI?.CasoSocialModel?.actualizarDesdeRemoto) {
-      window.PDI.CasoSocialModel.actualizarDesdeRemoto(casos);
-    } else if (window.PDI?.CasoSocialModel) {
-      window.PDI.CasoSocialModel._data = casos;
-      localStorage.setItem('pdi_casos_sociales', JSON.stringify(casos));
-    } else {
-      localStorage.setItem('pdi_casos_sociales', JSON.stringify(casos));
-    }
-    if (window.PDI?.SedeModel) {
-      window.PDI.SedeModel._sedes = sedes;
-    }
-
-    console.log('[PDI] Sincronización exitosa con SurrealDB Cloud:',
-      beneficiarios.length, 'beneficiarios,',
-      sedes.length, 'sedes,',
-      casos.length, 'casos sociales.'
-    );
-
-    // Refrescar la vista actual en pantalla
-    if (typeof window.PDI?.refrescarVistaActual === 'function') {
-      window.PDI.refrescarVistaActual();
-    }
-
-    // Los totales del menu lateral salen de los modelos: hay que repintarlos
-    window.PDI?.Bootstrap?.actualizarBadgesSidebar?.();
-  } catch (err) {
-    console.warn('[PDI] Conexión a SurrealDB no disponible en este ciclo; interfaz operando con datos locales seguros:', err?.message || err);
   }
+
+  const cod = m.codigo || `PDI-2026-${String(m.id).padStart(3, '0')}`;
+  // La estrategia son varias: se guardan todas y `programa` sigue siendo el
+  // resumen que usan los reportes y el indice unico.
+  const progInscripcion = programaDesdeServicios(m.servicios, m.estrategia);
+  const estrategiasInscripcion = (Array.isArray(m.estrategias) && m.estrategias.length)
+    ? m.estrategias
+    : estrategiasDesdePrograma(progInscripcion);
+  const params = {
+    cod,
+    nom: (m.nombres || '').trim(),
+    ape: (m.apellidos || '').trim(),
+    doc: documento || 'Sin DNI-' + Date.now(),
+    tipoDoc: documento ? 'DNI' : 'Sin Documento',
+    fnac: m.fechaNacimiento || new Date().toISOString().slice(0, 10),
+    sexo: (m.sexo || 'M').toUpperCase().includes('F') ? 'F' : 'M',
+    dir: m.direccion || '',
+    ref: m.referencia || null,
+    dist: ['Comas', 'Carabayllo'].includes(m.distrito) ? m.distrito : 'Comas',
+    tel: m.telefono || null,
+    tel2: (m.telefonoAlt && m.telefonoAlt !== '-') ? m.telefonoAlt : null,
+    niv: m.nivelEducativo || 'Inicial',
+    // El grado se elige de la lista del nivel: si no hay, se guarda vacio en
+    // vez de inventar "Inicial 4 años", que ensuciaba los reportes.
+    grado: m.grado || '',
+    seg: seguroDesdeUi(m.seguro),
+    prog: progInscripcion,
+    estrategias: estrategiasInscripcion,
+    mod: modalidadDesdeUi(m.modalidad),
+    periodo: new Date().getFullYear(),
+    estado: ['Activo', 'Inactivo', 'Graduado', 'Trasladado', 'Retirado'].includes(m.estado) ? m.estado : 'Activo',
+  };
+
+  try {
+    // 0) La inscripción exige una sede real: sin sede en la nube no se inscribe.
+    const sedeFound = comoLista(await ejecutar(
+      'SELECT id FROM sede WHERE nombre = $sedeNom LIMIT 1;', {
+      sedeNom: m.sede || '',
+    }));
+    if (!sedeFound.length) {
+      return avisarFallo('Registro de usuario', `La sede "${m.sede || '(vacío)'}" no existe en la nube. Créala en el Directorio Territorial primero.`) === null ? null : null;
+    }
+    params.sid = String(sedeFound[0].id).split(':').pop();
+
+    // 1) Apoderado: se crea (o reutiliza) ANTES de la transacción, porque los
+    //    consentimientos lo requieren como firmante.
+    const nomAp = (m.apoderado || '').trim();
+    let cuiId = null;
+    if (nomAp) {
+      cuiId = await asegurarPersonaCuidador({
+        nombres: nomAp,
+        documento: m.apoderadoDni || '',
+        parentesco: m.parentesco || 'Madre',
+      });
+      if (!cuiId) return avisarFallo('Registro de usuario', 'No se pudo registrar al apoderado (revisa su DNI).') === null ? null : null;
+    }
+
+    // 2) Transacción: menor + inscripción + vínculo + consentimiento + aporte.
+    const pct = String(m.exoneracionAporte || '').includes('100%') ? 100
+      : (String(m.exoneracionAporte || '').includes('50%') ? 50 : 0);
+    const hb = m.hb != null && m.hb !== '' && !isNaN(Number(m.hb)) ? Number(m.hb) : null;
+
+    const res = await ejecutar(`
+      LET $sede = type::record('sede', $sid);
+      LET $menor = array::first((CREATE persona CONTENT {
+        tipo_documento: $tipoDoc, codigo: $cod,
+        nombres: $nom, apellidos: $ape, numero_documento: $doc,
+        fecha_nacimiento: type::datetime($fnac), sexo: $sexo,
+        direccion: $dir, referencia: $ref ?? NONE, distrito: $dist,
+        telefono: $tel ?? NONE, telefono_alt: $tel2 ?? NONE,
+        nivel_educativo: $niv, grado: $grado,
+        esquema_salud: $seg,
+        foto_url: $foto ?? NONE,
+        activo: true
+      } RETURN VALUE id));
+      LET $ins = array::first((CREATE inscripcion CONTENT {
+        ${F_USUARIO}: $menor, sede_id: $sede,
+        periodo: $periodo, programa: $prog, estrategias: $estrategias,
+        modalidad: $mod,
+        tipo_atencion: 'Atencion fija', estado: $estado,
+        activo: true
+      } RETURN VALUE id));
+      IF string::len($cuiId) > 0 {
+        CREATE ${T_VINCULO} CONTENT {
+          ${F_MENOR}: $menor, cuidador_id: type::record('persona', $cuiId),
+          parentesco: $par, rol_vinculo: 'Responsable', vive_con_menor: true
+        };
+        CREATE consentimiento CONTENT {
+          ${F_USUARIO}: $menor, ${F_FIRMANTE}: type::record('persona', $cuiId),
+          periodo: $periodo,
+          eval_social: $cEval, uso_fotografia: $cFoto,
+          recaudacion_fondos: $cFondos, flujo_transfronterizo: $cFlujo,
+          firmado: true
+        };
+      };
+      CREATE aporte CONTENT {
+        inscripcion_id: $ins,
+        periodo: $periodo,
+        mes: $mes,
+        pct_exoneracion: $pct,
+        exonerado: IF $pct = 100 { true } ELSE { false },
+        monto_simbolico: 0f,
+        fecha_pago: NONE
+      };
+      IF string::len($hbStr) > 0 {
+        CREATE tamizaje_hemoglobina CONTENT {
+          ${F_USUARIO}: $menor, sede_id: $sede,
+          inscripcion_id: $ins,
+          resultado: $res,
+          hb_valor: type::decimal($hbStr), hb_ajustada: type::decimal($hbStr),
+          msnm: 150, activo: true
+        };
+      };
+      RETURN { menor: $menor, ins: $ins };
+    `, {
+      ...params,
+      foto: m.fotoUrl || null,
+      cuiId: cuiId ? String(cuiId).split(':').pop() : '',
+      par: PARENTESCO.includes(m.parentesco) ? m.parentesco : 'Otro',
+      cEval: m.consentimientos?.evaluacionSocial ?? true,
+      cFoto: m.consentimientos?.usoFotografia ?? true,
+      cFondos: m.consentimientos?.gestionDonaciones ?? true,
+      cFlujo: m.consentimientos?.flujoTransfronterizo ?? true,
+      mes: new Date().getMonth() + 1,
+      pct,
+      res: resultadoDesdeAnemia(m.anemia),
+      hbStr: hb != null ? String(hb) : '',
+    });
+
+    const lista = comoLista(res);
+    const paquete = lista.find(x => x && typeof x === 'object' && (x.menor || x.ins)) || null;
+    return { ok: true, personaId: paquete?.menor ?? null };
+  } catch (err) {
+    return avisarFallo('Registro de usuario', err);
+  }
+}
+
+/** Crea al apoderado si no existe (DNI único) y devuelve su record id completo. */
+async function asegurarPersonaCuidador(apoderado) {
+  try {
+    if (apoderado.documento) {
+      const found = comoLista(await ejecutar(
+        'SELECT id FROM persona WHERE numero_documento = $doc LIMIT 1;', { doc: apoderado.documento }));
+      if (found.length) return String(found[0].id);
+    }
+    const esVaron = /padre|abuelo|tio|tío|padrasto/i.test(apoderado.parentesco || '');
+    // La ficha guarda al apoderado como un solo nombre completo: se reparte en
+    // nombres/apellidos (el esquema de la nube exige ambos no vacíos).
+    const partes = String(apoderado.nombres || 'Apoderado').trim().split(/\s+/);
+    const nom = partes[0] || 'Apoderado';
+    const ape = partes.slice(1).join(' ') || 'No registrado';
+    const doc = apoderado.documento || 'Sin DNI-' + Date.now();
+    const res = await ejecutar(`CREATE persona CONTENT {
+      tipo_documento: $tipoDoc,
+      codigo: $cod,
+      nombres: $nom,
+      apellidos: $ape,
+      numero_documento: $doc,
+      fecha_nacimiento: type::datetime('1991-01-01'),
+      sexo: $sexo,
+      direccion: '', distrito: 'Comas',
+      activo: true
+    } RETURN VALUE id;`, {
+      tipoDoc: doc.startsWith('Sin DNI') ? 'Sin Documento' : 'DNI',
+      cod: 'APO-' + Date.now(),
+      nom,
+      ape,
+      doc,
+      sexo: esVaron ? 'M' : 'F',
+    });
+    const lista = comoLista(res);
+    return lista.length ? 'persona:' + String(lista[0].id ?? lista[0]).split(':').pop() : null;
+  } catch (err) {
+    return avisarFallo('Registro del apoderado', err) === null ? null : null;
+  }
+}
+
+const PARENTESCO = ['Madre', 'Padre', 'Abuela', 'Abuelo', 'Tia', 'Tio', 'Hermano/a', 'Padrastro', 'Madrastra', 'Tutor Legal', 'Otro'];
+
+/** Actualiza los datos del menor que la UI edita (expediente / servicios). */
+export async function actualizarBeneficiario(b) {
+  const pid = String(b._personaId || '').split(':').pop();
+  if (!pid) return false;
+  try {
+    // Un solo viaje de ida al cuidador (si la ficha trae apoderado).
+    let cuiId = '';
+    const nomAp = (b.apoderado || '').trim();
+    if (nomAp) {
+      const creado = await asegurarPersonaCuidador({
+        nombres: nomAp,
+        apellidos: '',
+        documento: b.apoderadoDni || '',
+        parentesco: b.parentesco || 'Madre',
+      });
+      cuiId = String(creado || '').split(':').pop();
+    }
+
+    // Todo lo demás en UNA sola ida y vuelta: persona + vínculo + inscripción.
+    await ejecutar(`
+      LET $menor = type::record('persona', $pid);
+      UPDATE $menor SET
+        nombres = $nom, apellidos = $ape, sexo = $sexo,
+        direccion = $dir, referencia = $ref ?? NONE,
+        telefono = $tel ?? NONE, telefono_alt = $tel2 ?? NONE,
+        nivel_educativo = $niv, grado = $grado ?? NONE,
+        esquema_salud = $seg, distrito = $dist, foto_url = $foto ?? NONE;
+      IF string::len($cuiId) = 0 {
+        DELETE ${T_VINCULO} WHERE ${F_MENOR} = $menor;
+      };
+      IF string::len($cuiId) > 0 {
+        DELETE ${T_VINCULO} WHERE ${F_MENOR} = $menor;
+        CREATE ${T_VINCULO} CONTENT {
+          ${F_MENOR}: $menor, cuidador_id: type::record('persona', $cuiId),
+          parentesco: $par, rol_vinculo: 'Responsable', vive_con_menor: true
+        };
+      };
+      UPDATE inscripcion SET
+        programa = $prog, estrategias = $estrategias, estado = $estado, modalidad = $mod
+      WHERE ${F_USUARIO} = $menor AND activo = true;
+      IF string::len($fnac) > 0 {
+        UPDATE $menor SET fecha_nacimiento = type::datetime($fnac);
+      };
+      // La sede elegida en el desplegable reemplaza la inscripcion actual; si
+      // el nombre no existe en el Directorio Territorial se queda como estaba.
+      IF string::len($sedeNom) > 0 {
+        LET $nuevaSede = (SELECT VALUE id FROM sede WHERE nombre = $sedeNom LIMIT 1)[0];
+        IF $nuevaSede != NONE {
+          UPDATE inscripcion SET sede_id = $nuevaSede WHERE ${F_USUARIO} = $menor AND activo = true;
+        };
+      };
+      // La escala de exoneracion vive en el ultimo aporte del menor, igual que
+      // la lee el padron: se replica ahi para que la vista y la nube coincidan.
+      IF string::len($exon) > 0 {
+        LET $aporteUltimo = (SELECT VALUE id FROM aporte WHERE inscripcion_id.${F_USUARIO} = $menor ORDER BY periodo DESC, mes DESC LIMIT 1)[0];
+        IF $aporteUltimo != NONE {
+          UPDATE $aporteUltimo SET pct_exoneracion = $pctAporte;
+        };
+      };`, {
+      pid, cuiId,
+      nom: b.nombres, ape: b.apellidos,
+      sexo: (b.sexo || 'M').toUpperCase().includes('F') ? 'F' : 'M',
+      fnac: b.fechaNacimiento || '',
+      dist: ['Comas', 'Carabayllo'].includes(b.distrito) ? b.distrito : 'Comas',
+      sedeNom: (b.sede || '').trim(),
+      exon: b.exoneracionAporte || '',
+      pctAporte: String(b.exoneracionAporte || '').includes('100%') ? 100
+        : (String(b.exoneracionAporte || '').includes('50%') ? 50 : 0),
+      mod: modalidadDesdeUi(b.modalidad),
+      foto: b.fotoUrl || null,
+      dir: b.direccion || '', ref: b.referencia || '',
+      tel: b.telefono || null, tel2: b.telefonoAlt || null,
+      niv: b.nivelEducativo || 'Inicial', grado: b.grado || '',
+      seg: seguroDesdeUi(b.seguro),
+      par: PARENTESCO.includes(b.parentesco) ? b.parentesco : 'Otro',
+      prog: programaDesdeServicios(b.servicios, b.estrategia),
+      estrategias: (Array.isArray(b.estrategias) && b.estrategias.length)
+        ? b.estrategias
+        : estrategiasDesdePrograma(programaDesdeServicios(b.servicios, b.estrategia)),
+      estado: b.estado || 'Activo',
+    });
+    return true;
+  } catch (err) {
+    return avisarFallo('Actualización de expediente', err) !== null ? false : false;
+  }
+}
+
+/** Baja del padrón: la Ley 29733 prohibe borrado físico; se retira con baja lógica. */
+export async function darBajaBeneficiario(b, motivo = 'Baja administrativa') {
+  const pid = String(b._personaId || '').split(':').pop();
+  if (!pid) return false;
+  try {
+    await ejecutar(`
+      UPDATE inscripcion SET
+        activo = false, estado = 'Retirado',
+        motivo_baja = $motivo
+      WHERE ${F_USUARIO} = type::record('persona', $pid) AND activo = true;
+      UPDATE persona SET activo = false WHERE id = type::record('persona', $pid);`, {
+      pid, motivo,
+    });
+    return true;
+  } catch (err) {
+    return avisarFallo('Baja del usuario', err) !== null ? false : false;
+  }
+}
+
+// ---------------------------------------------------------------------------
+//  CRUD · Sedes
+// ---------------------------------------------------------------------------
+export async function crearSede(s) {
+  try {
+    await ejecutar(`CREATE sede CONTENT {
+      nombre: $nombre, distrito: $distrito, direccion: $dir, referencia: $ref ?? NONE,
+      tipo_local: $tipo, aliado_nombre: $aliado, aliado_institucion: $aliadoInst,
+      facilitadora_nombre: $fac, facilitadora_tel: $facTel ?? NONE,
+      servicios: $serv, aforo_max: $aforo, horario: $horario ?? NONE,
+      estado: $estado, activo: true
+    };`, {
+      nombre: s.nombre, distrito: s.distrito === 'Carabayllo' ? 'Carabayllo' : 'Comas',
+      dir: s.direccion, ref: s.referencia || null,
+      tipo: TIPO_LOCAL.includes(s.tipoAliado) ? s.tipoAliado : 'Local Comunal',
+      aliado: s.iglesiaAliada || s.pastorAliado || s.nombre,
+      aliadoInst: s.tipoAliado || 'Local Comunal',
+      fac: s.facilitadora || '', facTel: s.facilitadoraTel || '',
+      serv: Array.isArray(s.servicios) && s.servicios.length ? s.servicios : ['Servicio Alimentario Nutricional'],
+      aforo: Number(s.aforoMax) > 0 ? Number(s.aforoMax) : 30,
+      horario: s.horario || null, estado: s.estado || 'Operativa',
+    });
+    return true;
+  } catch (err) {
+    return avisarFallo('Registro de sede', err) !== null;
+  }
+}
+
+const TIPO_LOCAL = ['Comedor Comunitario', 'Iglesia Aliada', 'Colegio Publico (I.E.)', 'Biblioteca Comunal', 'Local Comunal'];
+
+export async function actualizarSede(s) {
+  const sid = String(s._rawId || '').split(':').pop();
+  if (!sid) return false;
+  try {
+    await ejecutar(`UPDATE sede SET
+      nombre = $nombre, distrito = $distrito, direccion = $dir, referencia = $ref ?? NONE,
+      tipo_local = $tipo, aliado_nombre = $aliado, aliado_institucion = $aliadoInst,
+      facilitadora_nombre = $fac, facilitadora_tel = $facTel ?? NONE,
+      servicios = $serv, aforo_max = $aforo, horario = $horario ?? NONE,
+      estado = $estado
+    WHERE id = type::record('sede', $sid);`, {
+      sid, nombre: s.nombre, distrito: s.distrito === 'Carabayllo' ? 'Carabayllo' : 'Comas',
+      dir: s.direccion, ref: s.referencia || null,
+      tipo: TIPO_LOCAL.includes(s.tipoAliado) ? s.tipoAliado : 'Local Comunal',
+      aliado: s.iglesiaAliada || s.nombre,
+      aliadoInst: s.tipoAliado || 'Local Comunal',
+      fac: s.facilitadora || '', facTel: s.facilitadoraTel || '',
+      serv: Array.isArray(s.servicios) && s.servicios.length ? s.servicios : ['Servicio Alimentario Nutricional'],
+      aforo: Number(s.aforoMax) > 0 ? Number(s.aforoMax) : 30,
+      horario: s.horario || null, estado: s.estado || 'Operativa',
+    });
+    return true;
+  } catch (err) {
+    return avisarFallo('Actualización de sede', err) !== null;
+  }
+}
+
+// ---------------------------------------------------------------------------
+//  CRUD · Casos sociales (ASP)
+// ---------------------------------------------------------------------------
+/** Alta de caso social: localiza a la persona del menor por código. */
+export async function crearCasoSocial(ui) {
+  try {
+    const hayBeneficiario = window.PDI?.BeneficiarioModel?.getAll?.() || [];
+    const menor = hayBeneficiario.find(b => String(b.id) === String(ui.beneficiarioId) ||
+      (ui.codigo && b.codigo && b.codigo.toLowerCase() === ui.codigo.toLowerCase()));
+    if (!menor || !menor._personaId) {
+      avisarElMenorNoEsta();
+      return null;
+    }
+    if (!menor._sedeRawId) {
+      avisarFallo('Registro de caso social', 'El usuario no tiene sede asignada en la nube.');
+      return null;
+    }
+    await ejecutar(`CREATE caso_social CONTENT {
+      ${F_USUARIO}: type::record('persona', $pid),
+      sede_id: type::record('sede', $sid),
+      codigo_caso: $cod,
+      etapa: 'pendiente',
+      urgencia: $urg,
+      tipo_problematica: $tipo,
+      fecha_derivacion: type::datetime($fecha),
+      quien_deriva_nombre: $derNom,
+      quien_deriva_cargo: $derCargo,
+      quien_deriva_tel: $derTel ?? NONE,
+      situacion_encontrada: $situacion,
+      acciones_previas: $previas,
+      tiene_soporte_familiar: $soporte,
+      detalle_soporte_familiar: $soporteDet ?? NONE,
+      activo: true
+    };`, {
+      pid: menor._personaId.split(':').pop(),
+      sid: menor._sedeRawId ? menor._sedeRawId.split(':').pop() : null,
+      cod: 'CAS-' + new Date().getFullYear() + '-' + String(Date.now()).slice(-5),
+      urg: ['Alta', 'Media', 'Baja'].includes(ui.prioridad || ui.urgencia) ? (ui.prioridad || ui.urgencia) : 'Media',
+      tipo: TIPO_PROBLEMATICA.includes(ui.tipoProblematica) ? ui.tipoProblematica : 'Nutricional / Abandono',
+      fecha: (ui.fecha || new Date().toISOString().slice(0, 10)),
+      derNom: ui.quienDeriva?.nombre || window.PDI?.Navigation?.usuarioActivo?.() || 'Trabajadora Social ASP',
+      derCargo: ui.quienDeriva?.cargo || 'Trabajadora Social ASP',
+      derTel: ui.quienDeriva?.telefono || null,
+      situacion: ui.situacionEncontrada || ui.motivo || 'Derivación registrada',
+      previas: ui.accionesPrevias || 'Visita preliminar realizada',
+      soporte: ui.soporteFamiliar?.tiene ?? false,
+      soporteDet: ui.soporteFamiliar?.detalle || null,
+    });
+    return true;
+  } catch (err) {
+    return avisarFallo('Registro de caso social', err);
+  }
+}
+
+const TIPO_PROBLEMATICA = ['Familiar', 'Educativo', 'Salud', 'Nutricional / Abandono', 'Violencia'];
+
+function avisarElMenorNoEsta() {
+  avisarFallo('Registro de caso social', 'El usuario no tiene expediente en la nube todavía.');
+}
+
+/** Movimiento directo de etapa desde el kanban (sin flujo de autorización). */
+export async function cambiarEtapaCaso(caso, etapaUiValor) {
+  const cid = String(caso._casoId || '').split(':').pop();
+  if (!cid) return false;
+  try {
+    await ejecutar(`UPDATE caso_social SET etapa = $etapa WHERE id = type::record('caso_social', $cid);`, {
+      cid, etapa: etapaNubeDe(etapaUiValor),
+    });
+    return true;
+  } catch (err) {
+    return avisarFallo('Cambio de etapa', err) !== null;
+  }
+}
+
+/** Registra una solicitud de cambio de estado (requiere autorización). */
+export async function crearSolicitudCaso(caso, sol) {
+  const cid = String(caso._casoId || '').split(':').pop();
+  if (!cid) return false;
+  try {
+    const res = await ejecutar(`CREATE solicitud_caso CONTENT {
+      caso_id: type::record('caso_social', $cid),
+      codigo_solicitud: $codigo,
+      etapa_origen: $origen, etapa_destino: $destino,
+      solicitado_por: $por, cargo_solicitante: $cargo,
+      motivo: $motivo,
+      estado: 'pendiente',
+      activo: true
+    };`, {
+      cid,
+      codigo: sol.id,
+      origen: etapaNubeDe(sol.etapaOrigen),
+      destino: etapaNubeDe(sol.etapaDestino),
+      por: sol.solicitadoPor || 'Trabajadora Social ASP',
+      cargo: sol.cargoSolicitante || 'Trabajadora Social ASP',
+      motivo: sol.motivo || 'Solicitud de transición de etapa',
+    });
+    const arr = comoLista(res);
+    const qid = arr.length ? String(arr[0]?.id ?? arr[0]) : null;
+    if (qid) caso._solRid = qid;
+    return true;
+  } catch (err) {
+    return avisarFallo('Solicitud de etapa', err) !== null;
+  }
+}
+
+/** Resuelve una solicitud (aprobada/rechazada); si se aprueba, cambia la etapa. */
+export async function resolverSolicitudCaso(solId, caso, decision, comentario, autorizador) {
+  const sid = String(solId);
+  const aprobada = decision === 'aprobada';
+  try {
+    if (aprobada && caso?._casoId) {
+      await ejecutar(`
+        LET $sol = (SELECT * FROM solicitud_caso WHERE codigo_solicitud = $codigo LIMIT 1)[0];
+        IF $sol {
+          UPDATE $sol SET
+            estado = 'aprobada',
+            resuelto_por = $por,
+            cargo_resuelve = $cargo,
+            comentario_resolucion = $coment,
+            fecha_resolucion = time::now();
+          UPDATE caso_social SET etapa = $sol.etapa_destino WHERE id = $sol.caso_id;
+        };`, {
+        codigo: sid,
+        por: autorizador?.nombre || 'Dirección y Coordinación General',
+        cargo: autorizador?.cargo || 'Coordinación General PDI',
+        coment: comentario || '',
+      });
+    } else {
+      await ejecutar(`
+        LET $sol = (SELECT * FROM solicitud_caso WHERE codigo_solicitud = $codigo LIMIT 1)[0];
+        IF $sol {
+          UPDATE $sol SET
+            estado = 'rechazada',
+            resuelto_por = $por,
+            cargo_resuelve = $cargo,
+            comentario_resolucion = $coment,
+            fecha_resolucion = time::now();
+        };`, {
+        codigo: sid,
+        por: autorizador?.nombre || 'Dirección y Coordinación General',
+        cargo: autorizador?.cargo || 'Coordinación General PDI',
+        coment: comentario || '',
+      });
+    }
+    return true;
+  } catch (err) {
+    return avisarFallo('Resolución de solicitud', err) !== null;
+  }
+}
+
+// ---------------------------------------------------------------------------
+//  CRUD · Voluntariados (tabla nueva en la nube)
+// ---------------------------------------------------------------------------
+export async function crearVoluntario(v) {
+  try {
+    const dup = comoLista(await ejecutar(
+      'SELECT id FROM voluntario WHERE numero_documento = $doc LIMIT 1;', { doc: (v.dni || '').trim() }));
+    if (dup.length) {
+      return avisarFallo('Documento duplicado', `La voluntaria con DNI ${v.dni} ya está registrada.`) === null ? null : null;
+    }
+    const res = await ejecutar(`CREATE voluntario CONTENT {
+      codigo: $codigo,
+      nombres: $nom, apellidos: $ape,
+      numero_documento: $doc, telefono: $tel ?? NONE,
+      fecha_nacimiento: IF string::len($fnac) = 0 { NONE } ELSE { type::datetime($fnac) }, edad: $edad ?? NONE,
+
+      direccion: $dir ?? NONE, distrito: $distrito,
+      sede_nombre: $sede, servicio: $servicio,
+      rol: $rol, estrategia: $estrategia,
+      tipo_voluntariado: $tipo ?? NONE,
+      capacitaciones: $caps,
+      canastas_recibidas: $canastas,
+      fecha_ingreso: type::datetime($ingreso),
+      estado: $estado,
+      disponibilidad: $disponibilidad,
+      observaciones: $obs ?? NONE,
+      activo: true
+    };`, {
+      codigo: v.codigo,
+      nom: v.nombres, ape: v.apellidos,
+      doc: v.dni, tel: v.celular || null,
+      fnac: v.fechaNacimiento || null,
+      edad: v.edad ? Number(v.edad) : null,
+      dir: v.domicilio || null,
+      distrito: v.distrito === 'Carabayllo' ? 'Carabayllo' : 'Comas',
+      sede: v.sedeAsignada || '', servicio: SERVICIOS.includes(v.servicio) ? v.servicio : 'Desayuno Infantil',
+      rol: v.rol || 'Voluntaria de Apoyo',
+      estrategia: v.estrategia || 'Atención Fija',
+      tipo: v.tipoVoluntariado || null,
+      caps: Array.isArray(v.capacitaciones) ? v.capacitaciones : [],
+      canastas: Number(v.canastasRecibidas) || 0,
+      ingreso: v.fechaIngreso || new Date().toISOString().slice(0, 10),
+      estado: ['Activo', 'En Pausa', 'Inactivo'].includes(v.estado) ? v.estado : 'Activo',
+      disponibilidad: v.disponibilidad || 'Disponibilidad estándar',
+      obs: v.observaciones || null,
+    });
+    const arr = comoLista(res);
+    const qid = arr.length ? String(arr[0]?.id ?? arr[0]) : null;
+    return { ok: true, qid };
+  } catch (err) {
+    return avisarFallo('Registro de voluntaria', err);
+  }
+}
+
+const SERVICIOS = ['Desayuno Infantil', 'Lonchera Infantil', 'Casita del Saber', 'Área Social Pastoral (ASP)'];
+
+export async function actualizarVoluntario(v) {
+  const qid = String(v._qid || '').split(':').pop();
+  if (!qid) return false;
+  try {
+    await ejecutar(`UPDATE voluntario SET
+      nombres = $nom, apellidos = $ape, telefono = $tel ?? NONE,
+      fecha_nacimiento = IF string::len($fnac) = 0 { NONE } ELSE { type::datetime($fnac) },
+      edad = $edad ?? NONE,
+      direccion = $dir ?? NONE, distrito = $distrito,
+      sede_nombre = $sede, servicio = $servicio,
+      rol = $rol, estrategia = $estrategia,
+      tipo_voluntariado = $tipo ?? NONE,
+      estado = $estado, disponibilidad = $disponibilidad,
+      observaciones = $obs ?? NONE
+    WHERE id = type::record('voluntario', $qid);`, {
+      qid, nom: v.nombres, ape: v.apellidos, tel: v.celular || null,
+      fnac: v.fechaNacimiento || null, edad: v.edad ? Number(v.edad) : null,
+      dir: v.domicilio || null, distrito: v.distrito === 'Carabayllo' ? 'Carabayllo' : 'Comas',
+      sede: v.sedeAsignada || '', servicio: SERVICIOS.includes(v.servicio) ? v.servicio : 'Desayuno Infantil',
+      rol: v.rol || 'Voluntaria de Apoyo', estrategia: v.estrategia || 'Atención Fija',
+      tipo: v.tipoVoluntariado || null,
+      estado: ['Activo', 'En Pausa', 'Inactivo'].includes(v.estado) ? v.estado : 'Activo',
+      disponibilidad: v.disponibilidad || 'Disponibilidad estándar',
+      obs: v.observaciones || null,
+    });
+    return true;
+  } catch (err) {
+    return avisarFallo('Actualización de voluntaria', err) !== null;
+  }
+}
+
+/** Baja en la nube: estado Inactivo + activo=false (Ley 29733: sin borrado físico). */
+export async function darBajaVoluntario(vol) {
+  const qid = String(vol._qid || '').split(':').pop();
+  if (!qid) return false;
+  try {
+    await ejecutar(`UPDATE voluntario SET estado = 'Inactivo', activo = false WHERE id = type::record('voluntario', $qid);`, { qid });
+    return true;
+  } catch (err) {
+    return avisarFallo('Baja de voluntaria', err) !== null;
+  }
+}
+
+export async function addCapacitacionVoluntario(vol, tematica) {
+  const qid = String(vol._qid || '').split(':').pop();
+  if (!qid) return false;
+  try {
+    await ejecutar(`UPDATE voluntario SET capacitaciones += $tematica WHERE id = type::record('voluntario', $qid);`, { qid, tematica });
+    return true;
+  } catch (err) {
+    return avisarFallo('Registro de capacitación', err) !== null;
+  }
+}
+
+export async function incrementarCanastaVoluntario(vol) {
+  const qid = String(vol._qid || '').split(':').pop();
+  if (!qid) return false;
+  try {
+    await ejecutar(`UPDATE voluntario SET canastas_recibidas += 1 WHERE id = type::record('voluntario', $qid);`, { qid });
+    return true;
+  } catch (err) {
+    return avisarFallo('Entrega de canasta', err) !== null;
+  }
+}
+
+// ---------------------------------------------------------------------------
+//  CRUD · Asistencia diaria (Casita del Saber)
+// ---------------------------------------------------------------------------
+export async function registrarAsistencia(beneficiario, estadoClave) {
+  const inscripcionId = String(beneficiario._inscripcionId || '').split(':').pop();
+  if (!inscripcionId) {
+    avisarFallo('Asistencia', 'El usuario no tiene inscripción activa en la nube.');
+    return false;
+  }
+  try {
+    await ejecutar(`INSERT INTO asistencia_diaria {
+      inscripcion_id: type::record('inscripcion', $iid),
+      sede_id: type::record('sede', $sid),
+      fecha: type::datetime($fecha),
+      estado: $estado,
+      racion_entregada: $racion,
+      observacion: $obs ?? NONE
+    } ON DUPLICATE KEY UPDATE
+      estado = $data.estado, racion_entregada = $data.racion_entregada;`, {
+      iid: inscripcionId,
+      sid: (beneficiario._sedeRawId || 'sede:sin_sede').split(':').pop(),
+      fecha: new Date().toISOString().slice(0, 10),
+      estado: ['P', 'T', 'FJ', 'FI'].includes(estadoClave) ? estadoClave : 'P',
+      racion: estadoClave === 'P' || estadoClave === 'T',
+      obs: null,
+      data: {
+        estado: ['P', 'T', 'FJ', 'FI'].includes(estadoClave) ? estadoClave : 'P',
+        racion_entregada: estadoClave === 'P' || estadoClave === 'T',
+      },
+    });
+    return true;
+  } catch (err) {
+    return avisarFallo('Registro de asistencia', err) !== null;
+  }
+}
+
+// ---------------------------------------------------------------------------
+//  CRUD · Bitácora de auditoría
+// ---------------------------------------------------------------------------
+export async function crearBitacora(entry) {
+  try {
+    // El campo diff de la nube es none|array<object>: strings (como el status
+    // que la firma antigua enviaba en esa posición) no son diff y se omiten.
+    const diffValido = entry.diff && typeof entry.diff === 'object' && !Array.isArray(entry.diff)
+      ? [entry.diff] : null;
+    await ejecutar(`CREATE bitacora_auditoria CONTENT {
+      usuario_nombre: $user, rol: $role,
+      accion: $accion, entidad: $entidad, registro_id: $registro,
+      detalle: $detalle, ip_origen: $ip, sede_nombre: $sede,
+      diff: $diff ?? NONE
+    };`, {
+      user: entry.user || 'Sistema',
+      role: entry.role || 'Sistema',
+      accion: entry.action || '',
+      entidad: 'PDI · Sistema',
+      registro: entry.entity || '',
+      detalle: entry.detail || '',
+      ip: entry.ip || '192.168.1.x',
+      sede: entry.sede || 'Central',
+      diff: diffValido,
+    });
+    return true;
+  } catch (err) {
+    return avisarFallo('Bitácora de auditoría', err) !== null;
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.PDI = window.PDI || {};
+  window.PDI.DB = {
+    iniciarCapaDatos, suscribirEstado, estadoActual,
+    hidratarDesdeSurreal, refrescarDesdeNube, reintentarAhora,
+  };
 }

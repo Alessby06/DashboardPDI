@@ -161,7 +161,11 @@ export const AjustesView = {
       badge.innerHTML = `<span class="status-dot yellow"></span> Sincronizando BD...`;
     }
 
-    setTimeout(() => {
+    // Sincronización REAL: re-descarga los datasets desde SurrealDB.
+    // Antes era un setTimeout decorativo que no tocaba la base de datos.
+    const restaurador = window.PDI?.Bootstrap?.restaurarDatosLocales
+      ?? (() => Promise.resolve());
+    Promise.resolve(restaurador()).then(() => {
       if (btn) {
         btn.disabled = false;
         btn.style.opacity = '1';
@@ -173,17 +177,28 @@ export const AjustesView = {
         `;
       }
 
+      const enLinea = window.PDI?.DB?.estadoActual?.() === 'ok';
       if (badge) {
-        badge.className = 'badge badge-green';
-        badge.innerHTML = `<span class="status-dot green"></span> En Línea`;
+        if (enLinea) {
+          badge.className = 'badge badge-green';
+          badge.innerHTML = `<span class="status-dot green"></span> En Línea`;
+        } else {
+          badge.className = 'badge badge-red';
+          badge.innerHTML = `<span class="status-dot red"></span> Sin Conexión`;
+        }
       }
 
       const now = new Date();
       const timeStr = `Hoy a las ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
       if (timeLabel) timeLabel.textContent = timeStr;
 
-      window.showToast('Base de datos sincronizada exitosamente con el servidor remoto', 'success');
-    }, 1200);
+      window.showToast(
+        enLinea
+          ? 'Base de datos sincronizada exitosamente con el servidor remoto'
+          : 'No hay conexión con el servidor remoto; los datos se mantienen ocultos',
+        enLinea ? 'success' : 'warning'
+      );
+    });
   },
 
   toggleAlertSetting(key, enabled) {

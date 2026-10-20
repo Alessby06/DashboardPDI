@@ -1,3 +1,16 @@
+---
+import {
+  SEDES,
+  MODALIDADES,
+  EXONERACIONES,
+  SEGUROS,
+  NIVELES_EDUCATIVOS,
+  PARENTESCOS,
+  gradosDeNivel,
+} from '../data/opcionesBeneficiario.js';
+import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
+---
+
 <!-- ==========================================
      MODALES GLOBALES COMPARTIDOS
      ========================================== -->
@@ -5,9 +18,8 @@
     <div class="modal-box" style="max-width: 840px; max-height: 90vh; overflow-y: auto;">
       <div class="modal-header">
         <div>
-          <h3 style="margin:0; font-size:16px;">Ficha de Inscripción y Padrón Oficial de Usuarios 2026</h3>
-          <span style="font-size:12px; color:var(--text-dim);">Registro Integral de Usuarios (Desayuno Infantil y
-            Casitas del Saber)</span>
+          <h3 style="margin:0; font-size:16px;">Ficha de Inscripción 2026</h3>
+          <span style="font-size:12px; color:var(--text-dim);">Registro Integral de Usuarios</span>
         </div>
         <button type="button" class="btn-close-modal" onclick="closeModalNuevoMenor()" aria-label="Cerrar modal de inscripción">
           <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -23,13 +35,13 @@
           <div style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 14px; margin-bottom: 16px;">
             <h4
               style="font-size:12.5px; text-transform:uppercase; color:var(--text-brand); letter-spacing:0.5px; margin:0 0 10px 0; font-weight:700;">
-              1. Datos de Filiación del Menor
+              1. Datos del Usuario
             </h4>
             <div class="photo-upload-section" style="display:flex; gap:16px; align-items:flex-start;">
               <div class="photo-uploader-box"
                 style="width:88px; height:88px; min-width:88px; border-radius:8px; border:1.5px dashed var(--border-medium); display:flex; flex-direction:column; align-items:center; justify-content:center; background:var(--surface-2); position:relative; overflow:hidden; cursor:pointer; transition:border-color 0.2s, background 0.2s;"
                 onclick="document.getElementById('regFotoMenorInput').click()"
-                title="Haga clic para subir foto del menor">
+                title="Haga clic para subir foto del usuario">
                 <div id="regFotoMenorPreview"
                   style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:4px;">
                   <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"
@@ -39,7 +51,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round"
                       d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
                   </svg>
-                  <span style="font-size:10px; font-weight:600; color:var(--text-muted);">Foto Menor</span>
+                  <span style="font-size:10px; font-weight:600; color:var(--text-muted);">Foto Usuario</span>
                 </div>
                 <input type="file" id="regFotoMenorInput" accept="image/*" style="display:none;"
                   onchange="handleFotoUpload(this, 'regFotoMenorPreview', 'menor')">
@@ -47,43 +59,44 @@
               <div style="flex:1; min-width:0;">
                 <div class="form-grid" style="grid-template-columns: repeat(3, 1fr); gap:12px;">
                   <div class="form-group">
-                    <label for="regNombres">Nombres del Menor *</label>
-                    <input type="text" id="regNombres" class="form-control" placeholder="Ej. Josué David" required>
+                    <label for="regNombres">Nombres</label>
+                    <input type="text" id="regNombres" data-tipo="nombre" class="form-control" maxlength="60" placeholder="Ej. Josué David" required>
                   </div>
                   <div class="form-group">
-                    <label for="regApellidos">Apellidos *</label>
-                    <input type="text" id="regApellidos" class="form-control" placeholder="Ej. Quispe Torres" required>
+                    <label for="regApellidos">Apellidos</label>
+                    <input type="text" id="regApellidos" data-tipo="nombre" class="form-control" maxlength="60" placeholder="Ej. Quispe Torres" required>
                   </div>
                   <div class="form-group">
-                    <label for="regDni">DNI del Menor (8 dígitos) *</label>
-                    <input type="text" id="regDni" class="form-control" maxlength="8" pattern="[0-9]{8}"
+                    <label for="regDni">DNI (8 dígitos)</label>
+                    <input type="text" id="regDni" data-tipo="dni" class="form-control" maxlength="8" pattern="[0-9]{8}"
                       placeholder="78491044" required>
                   </div>
                   <div class="form-group">
-                    <label for="regFechaNacimiento">Fecha de Nacimiento *</label>
+                    <label for="regFechaNacimiento">Fecha de Nacimiento</label>
                     <input type="date" id="regFechaNacimiento" class="form-control" required
                       onchange="calcularEdadAutomatica()">
                   </div>
                   <div class="form-group">
-                    <label for="regEdad">Edad Calculada *</label>
-                    <input type="text" id="regEdad" class="form-control" placeholder="Ej. 4 años" required>
+                    <label for="regEdad">Edad (calculada)</label>
+                    <input type="text" id="regEdad" class="form-control" placeholder="Se calcula sola al poner la fecha" readonly
+                      title="La edad la calcula el sistema a partir de la fecha de nacimiento">
                   </div>
                   <div class="form-group">
-                    <label for="regSexo">Sexo *</label>
+                    <label for="regSexo">Sexo</label>
                     <select id="regSexo" class="form-control">
                       <option value="M">Masculino (M)</option>
                       <option value="F">Femenino (F)</option>
                     </select>
                   </div>
                   <div class="form-group" style="grid-column: 1 / -1;">
-                    <label for="regDireccion">Dirección Actual Domiciliaria *</label>
-                    <input type="text" id="regDireccion" class="form-control"
+                    <label for="regDireccion">Dirección Actual Domiciliaria</label>
+                    <input type="text" id="regDireccion" class="form-control" maxlength="180"
                       placeholder="Ej. Mz. 4W Lt. 30, Comité 12, San Benito" required
                       oninput="window.handleAddressInputDebounce ? window.handleAddressInputDebounce('reg') : null">
                   </div>
                   <div class="form-group" style="grid-column: 1 / -1;">
                     <label for="regReferencia">Referencia de Ubicación</label>
-                    <input type="text" id="regReferencia" class="form-control"
+                    <input type="text" id="regReferencia" class="form-control" maxlength="120"
                       placeholder="Ej. Frente al Comedor San Benito">
                   </div>
 
@@ -164,41 +177,30 @@
             </h4>
             <div class="form-grid" style="grid-template-columns: repeat(3, 1fr); gap:12px;">
               <div class="form-group">
-                <label for="regDistritoSede">Distrito y Sede / Lugar *</label>
-                <select id="regDistritoSede" class="form-control"
-                  onchange="window.handleAddressInputDebounce ? window.handleAddressInputDebounce('reg') : null">
-                  <option value="Comas - Año Nuevo">Comas: Año Nuevo</option>
-                  <option value="Comas - La Libertad">Comas: La Libertad</option>
-                  <option value="Comas - Carmen Alto">Comas: Carmen Alto</option>
-                  <option value="Carabayllo - El Progreso">Carabayllo: El Progreso</option>
-                  <option value="Carabayllo - San Pedro">Carabayllo: San Pedro</option>
-                  <option value="Carabayllo - Los Bendecidos">Carabayllo: Los Bendecidos</option>
-                  <option value="Carabayllo - Santa Rosa">Carabayllo: Santa Rosa</option>
+                <label for="regDistritoSede">Distrito y Sede / Lugar</label>
+                <select id="regDistritoSede" class="form-control">
+                  {SEDES.map((opcion) => (
+                    <option value={opcion.valor}>{opcion.etiqueta}</option>
+                  ))}
                 </select>
               </div>
               <div class="form-group">
-                <label for="regModalidad">Modalidad de Intervención *</label>
+                <label for="regModalidad">Modalidad de Intervención</label>
                 <select id="regModalidad" class="form-control">
-                  <option value="Comunitaria">Comunitaria</option>
-                  <option value="Institución Educativa">Institución Educativa (I.E.)</option>
+                  {MODALIDADES.map((opcion) => (
+                    <option value={opcion.valor}>{opcion.etiqueta}</option>
+                  ))}
                 </select>
               </div>
-              <div class="form-group">
-                <label for="regEstrategia">Estrategia Asignada *</label>
-                <select id="regEstrategia" class="form-control">
-                  <option value="Desayuno Infantil">Desayuno Infantil</option>
-                  <option value="Lonchera Infantil">Lonchera Infantil</option>
-                  <option value="Casita del Saber">Casita del Saber</option>
-                  <option value="Mixto (Desayuno + Casita)">Mixto (Desayuno + Casita)</option>
-                </select>
+              <div class="form-group" style="grid-column: 1 / -1; min-width: 0;">
+                <EstrategiaMultiSelect id="regEstrategia" label="Estrategia Asignada" />
               </div>
               <div class="form-group" style="grid-column: span 3;">
-                <label for="regExoneracion">Exoneración de Aporte Simbólico *</label>
+                <label for="regExoneracion">Exoneración de Aporte Simbólico</label>
                 <select id="regExoneracion" class="form-control">
-                  <option value="100% (Exonerado Vulnerabilidad Extrema)">100% (Exonerado Total - Extrema Pobreza / Caso
-                    Social)</option>
-                  <option value="50% (Semi-exonerado)">50% (Semi-exonerado - Vulnerabilidad Intermedia)</option>
-                  <option value="0% (Aporte Ordinario)">0% (Aporte Ordinario)</option>
+                  {EXONERACIONES.map((opcion) => (
+                    <option value={opcion.valor}>{opcion.etiqueta}</option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -212,40 +214,43 @@
             </h4>
             <div class="form-grid" style="grid-template-columns: repeat(3, 1fr); gap:12px;">
               <div class="form-group">
-                <label for="regSeguro">Tipo de Seguro *</label>
+                <label for="regSeguro">Tipo de Seguro</label>
                 <select id="regSeguro" class="form-control">
-                  <option value="SIS Gratuito">SIS Gratuito</option>
-                  <option value="EsSalud">EsSalud</option>
-                  <option value="PNP / FFAA">PNP / FFAA</option>
-                  <option value="Ninguno">Ninguno</option>
+                  {SEGUROS.map((opcion) => (
+                    <option value={opcion.valor}>{opcion.etiqueta}</option>
+                  ))}
                 </select>
               </div>
               <div class="form-group">
-                <label for="regCentroSalud">Centro de Salud de Referencia *</label>
-                <input type="text" id="regCentroSalud" class="form-control"
+                <label for="regCentroSalud">Centro de Salud de Referencia</label>
+                <input type="text" id="regCentroSalud" class="form-control" maxlength="80"
                   placeholder="Ej. C.S. Año Nuevo / C.S. El Progreso" required>
               </div>
               <div class="form-group">
-                <label for="regAlergias">Alérgico a Medicamentos *</label>
-                <input type="text" id="regAlergias" class="form-control" placeholder="Ej. Ninguna o Penicilina"
+                <label for="regAlergias">Alérgico a Medicamentos</label>
+                <input type="text" id="regAlergias" class="form-control" maxlength="120" placeholder="Ej. Ninguna o Penicilina"
                   required>
               </div>
               <div class="form-group">
-                <label for="regNivelEducativo">Nivel Educativo *</label>
+                <label for="regNivelEducativo">Nivel Educativo</label>
                 <select id="regNivelEducativo" class="form-control">
-                  <option value="Inicial">Inicial</option>
-                  <option value="Primaria">Primaria</option>
-                  <option value="Secundaria">Secundaria</option>
-                  <option value="N.A.">N.A. (Menor de 3 años)</option>
+                  {NIVELES_EDUCATIVOS.map((opcion) => (
+                    <option value={opcion.valor}>{opcion.etiqueta}</option>
+                  ))}
                 </select>
               </div>
               <div class="form-group">
-                <label for="regGrado">Grado Escolar *</label>
-                <input type="text" id="regGrado" class="form-control" placeholder="Ej. 4 años / 1ro Primaria" required>
+                <label for="regGrado">Grado Escolar</label>
+                <select id="regGrado" class="form-control" required>
+                  <option value="">Seleccione…</option>
+                  {gradosDeNivel(NIVELES_EDUCATIVOS[0].valor).map((grado) => (
+                    <option value={grado.valor}>{grado.etiqueta}</option>
+                  ))}
+                </select>
               </div>
               <div class="form-group">
-                <label for="regColegio">Nombre de la I.E. de Origen *</label>
-                <input type="text" id="regColegio" class="form-control" placeholder="Ej. I.E. 3054 / I.E. San Martín"
+                <label for="regColegio">Nombre de la I.E. de Origen</label>
+                <input type="text" id="regColegio" class="form-control" maxlength="80" placeholder="Ej. I.E. 3054 / I.E. San Martín"
                   required>
               </div>
             </div>
@@ -279,40 +284,30 @@
               <div style="flex:1; min-width:0;">
                 <div class="form-grid" style="grid-template-columns: repeat(3, 1fr); gap:12px;">
                   <div class="form-group">
-                    <label for="regApoderado">Apellidos y Nombres *</label>
-                    <input type="text" id="regApoderado" class="form-control" placeholder="Ej. Rosa Quispe Huamán"
+                    <label for="regApoderado">Apellidos y Nombres</label>
+                    <input type="text" id="regApoderado" data-tipo="nombre" class="form-control" maxlength="80" placeholder="Ej. Rosa Quispe Huamán"
                       required>
                   </div>
                   <div class="form-group">
-                    <label for="regApoderadoDni">DNI del Apoderado (8 dígitos) *</label>
-                    <input type="text" id="regApoderadoDni" class="form-control" maxlength="8" pattern="[0-9]{8}"
+                    <label for="regApoderadoDni">DNI del Apoderado (8 dígitos)</label>
+                    <input type="text" id="regApoderadoDni" data-tipo="dni" class="form-control" maxlength="8" pattern="[0-9]{8}"
                       placeholder="41982341" required>
                   </div>
                   <div class="form-group">
-                    <label for="regParentesco">Parentesco con el Menor *</label>
+                    <label for="regParentesco">Parentesco</label>
                     <select id="regParentesco" class="form-control">
-                      <option value="Madre">Madre</option>
-                      <option value="Padre">Padre</option>
-                      <option value="Abuela">Abuela</option>
-                      <option value="Abuelo">Abuelo</option>
-                      <option value="Tía">Tía</option>
-                      <option value="Tío">Tío</option>
-                      <option value="Prima">Prima</option>
-                      <option value="Primo">Primo</option>
-                      <option value="Hermana">Hermana</option>
-                      <option value="Hermano">Hermano</option>
-                      <option value="Padrino">Padrino</option>
-                      <option value="Madrina">Madrina</option>
-                      <option value="Cuidador Legal">Cuidador Legal</option>
+                      {PARENTESCOS.map((parentesco) => (
+                        <option value={parentesco}>{parentesco}</option>
+                      ))}
                     </select>
                   </div>
                   <div class="form-group">
-                    <label for="regTelefono">Teléfono / Celular Principal *</label>
-                    <input type="text" id="regTelefono" class="form-control" placeholder="987-654-321" required>
+                    <label for="regTelefono">Teléfono / Celular Principal</label>
+                    <input type="text" id="regTelefono" data-tipo="telefono" class="form-control" maxlength="15" inputmode="tel" placeholder="987-654-321" required>
                   </div>
                   <div class="form-group" style="grid-column: span 2;">
                     <label for="regTelefonoAlt">Teléfono de Emergencia / Respaldo</label>
-                    <input type="text" id="regTelefonoAlt" class="form-control"
+                    <input type="text" id="regTelefonoAlt" data-tipo="telefono" class="form-control" maxlength="15" inputmode="tel"
                       placeholder="Ej. 912-345-678 (Tía / Vecina)">
                   </div>
                 </div>
@@ -332,7 +327,7 @@
               <div
                 style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
                 <span style="font-size:12px; font-weight:700; color:var(--text-brand);">Persona Autorizada 1 (Titular /
-                  Principal) *</span>
+                  Principal) </span>
                 <label class="check-apoderado-label">
                   <input type="checkbox" id="checkMismoApoderado1" onchange="toggleMismoApoderado(this.checked)"
                     style="cursor:pointer; accent-color:var(--gt-green);">
@@ -360,48 +355,43 @@
                 <div style="flex:1; min-width:0;">
                   <div class="form-grid" style="grid-template-columns: repeat(4, 1fr); gap:10px;">
                     <div class="form-group" style="grid-column: span 2;">
-                      <label for="regRetiroNombre1">Nombres y Apellidos *</label>
-                      <input type="text" id="regRetiroNombre1" class="form-control" placeholder="Ej. Rosa Quispe Huamán"
+                      <label for="regRetiroNombre1">Nombres y Apellidos</label>
+                      <input type="text" id="regRetiroNombre1" data-tipo="nombre" class="form-control" maxlength="80" placeholder="Ej. Rosa Quispe Huamán"
                         required>
                     </div>
                     <div class="form-group">
-                      <label for="regRetiroDni1">DNI (8 dígitos) *</label>
-                      <input type="text" id="regRetiroDni1" class="form-control" maxlength="8" pattern="[0-9]{8}"
+                      <label for="regRetiroDni1">DNI (8 dígitos)</label>
+                      <input type="text" id="regRetiroDni1" data-tipo="dni" class="form-control" maxlength="8" pattern="[0-9]{8}"
                         placeholder="41982341" required>
                     </div>
                     <div class="form-group">
-                      <label for="regRetiroParentesco1">Parentesco *</label>
+                      <label for="regRetiroParentesco1">Parentesco</label>
                       <select id="regRetiroParentesco1" class="form-control">
-                        <option value="Madre">Madre</option>
-                        <option value="Padre">Padre</option>
-                        <option value="Abuela">Abuela</option>
-                        <option value="Abuelo">Abuelo</option>
-                        <option value="Tía">Tía</option>
-                        <option value="Tío">Tío</option>
-                        <option value="Prima">Prima</option>
-                        <option value="Primo">Primo</option>
-                        <option value="Hermana">Hermana</option>
-                        <option value="Hermano">Hermano</option>
-                        <option value="Padrino">Padrino</option>
-                        <option value="Madrina">Madrina</option>
-                        <option value="Cuidador Legal">Cuidador Legal</option>
+                        {PARENTESCOS.map((parentesco) => (
+                          <option value={parentesco}>{parentesco}</option>
+                        ))}
                       </select>
                     </div>
                     <div class="form-group" style="grid-column: span 2;">
-                      <label for="regRetiroTel1">Teléfono / Celular de Contacto *</label>
-                      <input type="text" id="regRetiroTel1" class="form-control" placeholder="987-654-321" required>
+                      <label for="regRetiroTel1">Teléfono / Celular de Contacto</label>
+                      <input type="text" id="regRetiroTel1" data-tipo="telefono" class="form-control" maxlength="15" inputmode="tel" placeholder="987-654-321" required>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Persona Autorizada 2 (Opcional) -->
+            <!-- Persona Autorizada 2 (Opcional): va plegada, ocupa el mismo espacio que la titular -->
             <div class="section-retirador-card">
-              <div
-                style="font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+              <button type="button" class="btn-panel-plegable" id="btnToggleRetiro2"
+                aria-expanded="false" aria-controls="cuerpoRetiro2">
+                <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                </svg>
                 <span>Persona Autorizada 2 (Opcional / Respaldo)</span>
-              </div>
+                <span class="btn-panel-plegable-nota">Agregar una segunda persona autorizada al retiro</span>
+              </button>
+              <div id="cuerpoRetiro2" hidden>
               <div class="photo-upload-section" style="display:flex; gap:14px; align-items:flex-start;">
                 <div class="photo-uploader-box"
                   style="width:78px; height:78px; min-width:78px; border-radius:8px; border:1.5px dashed var(--border-medium); display:flex; flex-direction:column; align-items:center; justify-content:center; background:var(--surface-1); position:relative; overflow:hidden; cursor:pointer; transition:border-color 0.2s, background 0.2s;"
@@ -424,38 +414,30 @@
                   <div class="form-grid" style="grid-template-columns: repeat(4, 1fr); gap:10px;">
                     <div class="form-group" style="grid-column: span 2;">
                       <label for="regRetiroNombre2">Nombres y Apellidos</label>
-                      <input type="text" id="regRetiroNombre2" class="form-control"
+                      <input type="text" id="regRetiroNombre2" data-tipo="nombre" class="form-control" maxlength="80"
                         placeholder="Ej. Carlos Flores Torres">
                     </div>
                     <div class="form-group">
                       <label for="regRetiroDni2">DNI (8 dígitos)</label>
-                      <input type="text" id="regRetiroDni2" class="form-control" maxlength="8" pattern="[0-9]{8}"
+                      <input type="text" id="regRetiroDni2" data-tipo="dni" class="form-control" maxlength="8" pattern="[0-9]{8}"
                         placeholder="09823412">
                     </div>
                     <div class="form-group">
                       <label for="regRetiroParentesco2">Parentesco</label>
                       <select id="regRetiroParentesco2" class="form-control">
-                        <option value="Padre">Padre</option>
-                        <option value="Madre">Madre</option>
-                        <option value="Abuela">Abuela</option>
-                        <option value="Abuelo">Abuelo</option>
-                        <option value="Tía">Tía</option>
-                        <option value="Tío">Tío</option>
-                        <option value="Prima">Prima</option>
-                        <option value="Primo">Primo</option>
-                        <option value="Hermana">Hermana</option>
-                        <option value="Hermano">Hermano</option>
-                        <option value="Padrino">Padrino</option>
-                        <option value="Madrina">Madrina</option>
-                        <option value="Familiar">Familiar</option>
+                        <option value="">Seleccione…</option>
+                        {PARENTESCOS.map((parentesco) => (
+                          <option value={parentesco}>{parentesco}</option>
+                        ))}
                       </select>
                     </div>
                     <div class="form-group" style="grid-column: span 2;">
                       <label for="regRetiroTel2">Teléfono / Celular</label>
-                      <input type="text" id="regRetiroTel2" class="form-control" placeholder="976-112-445">
+                      <input type="text" id="regRetiroTel2" data-tipo="telefono" class="form-control" maxlength="15" inputmode="tel" placeholder="976-112-445">
                     </div>
                   </div>
                 </div>
+              </div>
               </div>
             </div>
           </div>
@@ -500,7 +482,7 @@
             <div>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                 <label style="font-size:12.5px; font-weight:700; color:var(--text-main); margin-bottom:0;">
-                  Firma del Apoderado *
+                  Firma del Apoderado
                 </label>
                 <div>
                   <label for="inputUploadFirma" class="btn-action"
@@ -533,7 +515,10 @@
 
       <div class="modal-footer">
         <button type="button" class="btn-action" onclick="closeModalNuevoMenor()">Cancelar</button>
-        <button type="submit" class="btn-action primary">Guardar Ficha de Inscripción</button>
+        <div class="ficha-acciones">
+          <span class="ficha-estado" id="fichaEstadoDatos" role="status" aria-live="polite">Faltan los datos para guardar.</span>
+          <button type="submit" class="btn-action primary" id="btnGuardarFicha" disabled>Guardar Ficha de Inscripción</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1387,3 +1372,93 @@
       </div>
     </div>
   </div>
+
+<style>
+  /* Ficha de inscripcion: el boton de guardar y el estado de lo que falta. */
+  .ficha-acciones {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .ficha-estado {
+    font-size: 12px;
+    line-height: 1.35;
+    color: var(--text-muted);
+    max-width: 380px;
+    text-align: right;
+  }
+
+  .ficha-estado--faltan {
+    color: var(--text-warning, #b45309);
+  }
+
+  .ficha-estado--listo {
+    color: var(--text-success, #15803d);
+    font-weight: 600;
+  }
+
+  /* Panel plegable de la Persona Autorizada 2. El padding replica el ritmo de
+     la tarjeta de la titular: el titulo queda a la misma altura y los campos
+     arrancan a la misma distancia. */
+  .btn-panel-plegable {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 4px 0;
+    margin-bottom: 8px;
+    background: transparent;
+    border: 0;
+    color: var(--text-muted);
+    font-family: var(--ui-font);
+    font-size: 12px;
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .btn-panel-plegable .caret {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    transition: transform var(--dur-fast) var(--ease-smooth);
+  }
+
+  .btn-panel-plegable[aria-expanded='true'] .caret {
+    transform: rotate(180deg);
+  }
+
+  .btn-panel-plegable:hover {
+    color: var(--text-main);
+  }
+
+  .btn-panel-plegable-nota {
+    font-weight: 500;
+    color: var(--text-dim);
+    font-size: 11.5px;
+  }
+</style>
+
+<script>
+  import { iniciarFicha } from '../scripts/ui/fichaInscripcion.js';
+  import { iniciarTiposCampo } from '../scripts/ui/tiposCampo.js';
+  import { conectarGrado } from '../scripts/ui/gradoEscolar.js';
+
+  function prepararFicha() {
+    iniciarTiposCampo();
+    iniciarFicha();
+    // El grado se elige de la lista del nivel educativo; no se escribe.
+    conectarGrado(
+      document.getElementById('regNivelEducativo'),
+      document.getElementById('regGrado'),
+    );
+  }
+
+  prepararFicha();
+  // Con las transiciones de Astro el documento se vuelve a pintar y los
+  // escuchas se pierden: hay que reconectar sobre el marcado nuevo.
+  document.addEventListener('astro:page-load', prepararFicha);
+</script>

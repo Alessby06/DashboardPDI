@@ -31,30 +31,30 @@ import '../styles/views-dashboard.css';
     <div class="plq-grid" id="kpiDashboardContainer">
       <div class="plq-card">
         <div class="plq-top">
-          <span class="plq-label">Beneficiarios Activos</span>
+          <span class="plq-label">Usuarios Activos</span>
         </div>
-        <div class="plq-val" id="dashKpiBeneficiarios">15</div>
-        <div class="plq-meta">100% matriculados en el programa</div>
+        <div class="plq-val" id="dashKpiBeneficiarios">—</div>
+        <div class="plq-meta">100% inscritos en el programa</div>
       </div>
       <div class="plq-card">
         <div class="plq-top">
-          <span class="plq-label">Tamizados CRED</span>
+          <span class="plq-label">Atención CRED</span>
         </div>
-        <div class="plq-val" id="dashKpiTamizados">15/15</div>
+        <div class="plq-val" id="dashKpiTamizados">—</div>
         <div class="plq-meta">Control vigente con dosaje Hb</div>
       </div>
       <div class="plq-card">
         <div class="plq-top">
           <span class="plq-label">Asistencia en Casitas</span>
         </div>
-        <div class="plq-val" id="dashKpiAsistencia">92.4%</div>
+        <div class="plq-val" id="dashKpiAsistencia">—</div>
         <div class="plq-meta">Promedio territorial consolidado</div>
       </div>
       <div class="plq-card">
         <div class="plq-top">
           <span class="plq-label">Casos en Alerta</span>
         </div>
-        <div class="plq-val alert" id="dashKpiCasosSociales">0</div>
+        <div class="plq-val alert" id="dashKpiCasosSociales">—</div>
         <div class="plq-meta">Seguimiento clínico o social activo</div>
       </div>
     </div>
@@ -77,30 +77,30 @@ import '../styles/views-dashboard.css';
         <div class="dash-anemia-rows" id="dashAnemiaTable">
           <div class="dash-anemia-row" data-band="normal">
           <div class="dash-anemia-row-topline">
-            <span class="dash-anemia-row-count" id="anemiaLegendNormal">7</span>
+            <span class="dash-anemia-row-count" id="anemiaLegendNormal">—</span>
             <span class="dash-anemia-row-name">Normal</span>
             <span class="dash-anemia-row-range">≥ 11.0 g/dL</span>
-            <span class="dash-anemia-row-pct" id="anemiaPctNormal">47%</span>
+            <span class="dash-anemia-row-pct" id="anemiaPctNormal">—</span>
           </div>
           <div class="dash-anemia-row-track"><span class="dash-anemia-fill normal dash-anemia-row-fill" id="segAnemiaNormal" style="width: 0%;"></span></div>
           <p class="dash-anemia-row-note">Control vigente · dosaje anual</p>
         </div>
           <div class="dash-anemia-row" data-band="leve">
           <div class="dash-anemia-row-topline">
-            <span class="dash-anemia-row-count" id="anemiaLegendLeve">6</span>
+            <span class="dash-anemia-row-count" id="anemiaLegendLeve">—</span>
             <span class="dash-anemia-row-name">Anemia Leve</span>
             <span class="dash-anemia-row-range">10.0 – 10.9 g/dL</span>
-            <span class="dash-anemia-row-pct" id="anemiaPctLeve">40%</span>
+            <span class="dash-anemia-row-pct" id="anemiaPctLeve">—</span>
           </div>
           <div class="dash-anemia-row-track"><span class="dash-anemia-fill leve dash-anemia-row-fill" id="segAnemiaLeve" style="width: 0%;"></span></div>
           <p class="dash-anemia-row-note">Seguimiento trimestral en casita</p>
         </div>
           <div class="dash-anemia-row" data-band="mod">
           <div class="dash-anemia-row-topline">
-            <span class="dash-anemia-row-count" id="anemiaLegendMod">2</span>
+            <span class="dash-anemia-row-count" id="anemiaLegendMod">—</span>
             <span class="dash-anemia-row-name">Anemia Mod/Sev</span>
             <span class="dash-anemia-row-range">&lt; 10.0 g/dL</span>
-            <span class="dash-anemia-row-pct" id="anemiaPctMod">13%</span>
+            <span class="dash-anemia-row-pct" id="anemiaPctMod">—</span>
           </div>
           <div class="dash-anemia-row-track"><span class="dash-anemia-fill mod dash-anemia-row-fill" id="segAnemiaMod" style="width: 0%;"></span></div>
           <p class="dash-anemia-row-note">Derivación prioritaria a salud</p>
@@ -124,8 +124,8 @@ import '../styles/views-dashboard.css';
         <div class="dash-territory-list dash-territory-list--hierarchy" id="dashDistrictCoverage">
           <div class="dash-territory-row dash-territory-row--share" data-dist="comas">
             <div class="dash-territory-share">
-              <span class="dash-territory-share-pct" id="pctDistrict_comas">53%</span>
-              <span class="dash-territory-share-badge" id="badgeDistrict_comas">8 menores</span>
+              <span class="dash-territory-share-pct" id="pctDistrict_comas">—</span>
+              <span class="dash-territory-share-badge" id="badgeDistrict_comas">—</span>
             </div>
             <div class="dash-territory-share-info">
               <strong>Distrito de Comas</strong>
@@ -135,8 +135,8 @@ import '../styles/views-dashboard.css';
           </div>
           <div class="dash-territory-row dash-territory-row--share" data-dist="carabayllo">
             <div class="dash-territory-share">
-              <span class="dash-territory-share-pct" id="pctDistrict_carabayllo">47%</span>
-              <span class="dash-territory-share-badge" id="badgeDistrict_carabayllo">7 menores</span>
+              <span class="dash-territory-share-pct" id="pctDistrict_carabayllo">—</span>
+              <span class="dash-territory-share-badge" id="badgeDistrict_carabayllo">—</span>
             </div>
             <div class="dash-territory-share-info">
               <strong>Distrito de Carabayllo</strong>
@@ -145,7 +145,22 @@ import '../styles/views-dashboard.css';
             <div class="dash-territory-track"><div class="dash-territory-bar blue" style="width: 0%;" data-target-width="47%" id="barDistrict_carabayllo"></div></div>
           </div>
         </div>
-        <div class="dash-territory-sede-pills" id="dashDistrictSedePills"></div>
+        <div class="dash-territory-sede-pills" id="dashDistrictSedePills">
+          <!-- Esqueleto estatico con la misma estructura que reconstruye
+               DashboardView.render: sin el, la card crecia +59px al inyectar
+               los pills del render. Los conteos y el title los pisa el render. -->
+          <div class="dash-territory-sede-pill-row">
+            <span class="dash-sede-pill dash-sede-pill--comas" data-count="—" title="Año Nuevo: — usuarios">Año Nuevo</span>
+            <span class="dash-sede-pill dash-sede-pill--comas" data-count="—" title="La Libertad: — usuarios">La Libertad</span>
+            <span class="dash-sede-pill dash-sede-pill--comas" data-count="—" title="Carmen Alto: — usuarios">Carmen Alto</span>
+          </div>
+          <div class="dash-territory-sede-pill-row">
+            <span class="dash-sede-pill dash-sede-pill--carabayllo" data-count="—" title="El Progreso: — usuarios">El Progreso</span>
+            <span class="dash-sede-pill dash-sede-pill--carabayllo" data-count="—" title="San Pedro: — usuarios">San Pedro</span>
+            <span class="dash-sede-pill dash-sede-pill--carabayllo" data-count="—" title="Los Bendecidos: — usuarios">Los Bendecidos</span>
+            <span class="dash-sede-pill dash-sede-pill--carabayllo" data-count="—" title="Santa Rosa: — usuarios">Santa Rosa</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -157,7 +172,7 @@ import '../styles/views-dashboard.css';
           <div class="dash-card-header-flex">
             <div class="card-title">
               <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--gt-red);"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"></path></svg>
-              <span>Menores con Atención Prioritaria</span>
+              <span>Usuarios con Atención Prioritaria</span>
             </div>
           </div>
         </div>

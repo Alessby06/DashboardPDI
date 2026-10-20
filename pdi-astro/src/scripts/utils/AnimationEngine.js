@@ -7,7 +7,7 @@ export const AnimationEngine = {
    * Rueda verticalmente cada dígito en columnas independientes con física orgánica.
    * @param {string|HTMLElement} elementOrId - ID del elemento o el nodo HTML.
    * @param {number|string} targetVal - Valor objetivo (soporta números, ratios '15 / 15', porcentajes).
-   * @param {object} options - Configuración opcional (duration, prefix, suffix, decimals, stagger).
+   * @param {object} options - Configuración opcional (duration, prefix, suffix, decimals, stagger, mergeGlyphs).
    */
   odometerRoll(elementOrId, targetVal, options = {}) {
     const el = typeof elementOrId === "string" ? document.getElementById(elementOrId) : elementOrId;
@@ -48,7 +48,13 @@ export const AnimationEngine = {
         html += `<span class="odometer-digit" data-digit-idx="${digitIdx}"><span class="odometer-ribbon" style="transform: translateY(0%);"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span></span></span>`;
         digitIdx++;
       } else {
-        html += `<span class="odometer-glyph">${ch === " " ? "&nbsp;" : ch}</span>`;
+        const glyph = ch === " " ? "&nbsp;" : ch;
+        // mergeGlyphs: emitir los caracteres no numericos como texto, no como
+        // spans. Un span por letra rompe el kerning (cada uno es un text run
+        // aparte) y desalinea las palabras hasta ~0.6px respecto al texto plano;
+        // al volver de odometro a texto la palabra se reacomoda y se percibe un
+        // micro-movimiento. Como texto, el kerning se conserva.
+        html += options.mergeGlyphs ? glyph : `<span class="odometer-glyph">${glyph}</span>`;
       }
     });
     html += '</span>';

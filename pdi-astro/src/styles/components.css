@@ -439,6 +439,36 @@
       gap: 16px;
     }
 
+    /* El markup de la ficha y del expediente fija las columnas en un estilo en
+       linea, asi que la regla de arriba no reacha. Con esas columnas fijas el
+       formulario no baja de 780px: en el telefono habia que arrastrar la barra
+       horizontal para llegar al boton de guardar. A dos columnas y luego a una,
+       el formulario se acomoda solo. */
+    @media (max-width: 900px) {
+      .form-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+
+      /* Los campos que ocupaban varias columnas pasan a ocupar una sola. */
+      .form-grid > * {
+        grid-column: auto !important;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .form-grid {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* Los campos tienen un ancho propio y no bajan de 230px: en el celu
+         eso obligaba a arrastrar la barra horizontal para llegar al boton de
+         guardar. */
+      .form-control {
+        width: 100%;
+        min-width: 0;
+      }
+    }
+
     .form-group {
       display: flex;
       flex-direction: column;
@@ -466,6 +496,21 @@
     .form-control:focus {
       border-color: var(--gt-green);
       box-shadow: 0 0 0 3px var(--gt-green-bg);
+    }
+
+    /* En modo edicion los campos ya van enmarcados en verde: el anillo de foco
+       duplicaba el recuadro. El foco se deja en un solo marco; para teclado
+       sigue visible el contorno :focus-visible global. */
+    .pdi-editando .form-control:focus {
+      box-shadow: none;
+    }
+
+    /* Y el contorno de teclado, que es verde como el borde, se cambia por un
+       engrosamiento interior del propio marco: al enfocar el campo se ve UN
+       solo recuadro verde, mas grueso, sin aro exterior ni desplazamiento. */
+    .pdi-editando .form-control:focus-visible {
+      outline: none;
+      box-shadow: inset 0 0 0 1px var(--gt-green);
     }
 
     /* Pulido Enterprise de Select Dropdowns */
@@ -640,52 +685,168 @@
     /* Toast Notifications Container (Bottom-Right en PC, Bottom-Center en Móviles) */
     .toast-container {
       position: fixed;
-      bottom: 24px;
-      right: 24px;
+      bottom: max(20px, env(safe-area-inset-bottom));
+      right: 20px;
       z-index: 2000;
       display: flex;
-      flex-direction: column-reverse;
-      gap: 10px;
+      flex-direction: column;
+      gap: 8px;
+      width: min(380px, calc(100vw - 40px));
       pointer-events: none;
     }
 
+    /* Un carton mas del sistema: misma superficie, mismo hairline y mismo
+       radio que las tarjetas. Lo que lo distingue es que flota (sombra en dos
+       capas, no un halo) y que entra y sale con movimiento propio. */
     .toast-msg {
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      width: 100%;
+      padding: 13px 12px 13px 14px;
       background: var(--surface-1);
-      border: 1px solid var(--border-bright);
-      border-radius: var(--radius-md);
-      padding: 13px 18px;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      box-shadow:
+        0 1px 2px rgba(15, 23, 42, 0.04),
+        0 14px 34px -14px rgba(15, 23, 42, 0.24);
+      color: var(--text-main);
+      font-size: 13px;
+      pointer-events: auto;
+      will-change: transform, opacity;
+      animation: toastInBottom var(--dur-norm) var(--ease-out) backwards;
+      transition:
+        opacity 180ms var(--ease-smooth),
+        transform 180ms var(--ease-smooth),
+        border-color var(--dur-fast) var(--ease-smooth);
+    }
+
+    /* Sobre fondo oscuro el hairline neutro desaparece: se sube al tono medio
+       y la sombra se abre para que el carton no se funda con la pagina. */
+    [data-theme="dark"] .toast-msg {
+      border-color: var(--border-medium);
+      box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.4),
+        0 16px 38px -14px rgba(0, 0, 0, 0.72);
+    }
+
+    /* Marca de tipo: chip con icono sobre fondo teñido y anillo interior del
+       mismo tono. El titulo queda neutro para que el color no compita con la
+       lectura; el tipo lo dice el chip. */
+    .toast-icono {
+      width: 30px;
+      height: 30px;
+      flex: none;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      color: var(--toast-tono, var(--text-brand));
+      background: color-mix(in srgb, var(--toast-tono, var(--text-brand)) 10%, transparent);
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--toast-tono, var(--text-brand)) 18%, transparent);
+    }
+
+    .toast-icono svg {
+      display: block;
+    }
+
+    .toast-cuerpo {
+      flex: 1;
+      min-width: 0;
+      padding-top: 1px;
+    }
+
+    .toast-titulo {
+      display: block;
       color: var(--text-main);
       font-size: 13.5px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-      display: flex;
+      font-weight: 700;
+      line-height: 1.35;
+      letter-spacing: -0.01em;
+    }
+
+    .toast-texto {
+      display: block;
+      margin-top: 2px;
+      color: var(--text-muted);
+      font-size: 12.75px;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+
+    /* Cerrar: control real, no un adorno. En tactil no hay hover, asi que el
+       boton se ve siempre; en puntero fino se mantiene discreto. */
+    .toast-cerrar {
+      flex: none;
+      display: grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      margin: -1px -2px 0 0;
+      padding: 0;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition:
+        background-color var(--dur-fast) var(--ease-smooth),
+        color var(--dur-fast) var(--ease-smooth);
+    }
+
+    .toast-cerrar:hover {
+      background: var(--surface-2);
+      color: var(--text-main);
+    }
+
+    /* Salida: la misma transition de la entrada, activada por clase. */
+    .toast-msg.toast-saliendo {
+      opacity: 0;
+      transform: translateY(6px) scale(0.99);
+    }
+
+    /* Aviso de PageGuard antes de que el ToastView monte: mismo carton, texto
+       directo y un punto de tono. No lleva icono porque no hay markup fijo. */
+    .toast-msg--texto {
       align-items: center;
-      gap: 12px;
-      pointer-events: auto;
-      min-width: 280px;
-      max-width: 400px;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      will-change: transform, opacity;
-      animation: toastInBottom var(--dur-panel) var(--ease-out);
-      transition: opacity var(--dur-popover) var(--ease-out),
-                  transform var(--dur-popover) var(--ease-out);
+      padding-right: 16px;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    .toast-msg--texto::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      flex: none;
+      border-radius: 50%;
+      background: var(--toast-tono, var(--text-warning));
     }
 
     @keyframes toastInBottom {
-      from { transform: translateY(16px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
+      from { transform: translateY(12px) scale(0.98); opacity: 0; }
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .toast-msg {
+        animation: none;
+        transition: opacity 120ms linear;
+      }
+      .toast-msg.toast-saliendo {
+        transform: none;
+      }
     }
 
     @media (max-width: 768px) {
       .toast-container {
-        bottom: 16px;
-        right: 14px;
-        left: 14px;
-        align-items: center;
+        bottom: max(12px, env(safe-area-inset-bottom));
+        right: 12px;
+        left: 12px;
+        width: auto;
       }
       .toast-msg {
         width: 100%;
-        max-width: 100%;
       }
     }
 

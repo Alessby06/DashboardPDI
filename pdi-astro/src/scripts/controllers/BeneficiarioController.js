@@ -42,30 +42,37 @@ export const BeneficiarioController = {
     }, 2000);
   },
 
+  /**
+   * Vista previa del croquis a partir de la direccion escrita.
+   *
+   * El croquis es donde vive el usuario; la sede es la asignacion operativa
+   * (que local del PDI lo atiende). Son dos cosas distintas. Antes esta
+   * funcion sacaba el distrito del desplegable de sede, asi que cambiar de
+   * sede movia el mapa a otro distrito. Ahora el mapa sale solo de la
+   * direccion.
+   */
   updateMapPreview(context = 'reg') {
     const dirInput = document.getElementById(context === 'reg' ? 'regDireccion' : 'expDireccion');
-    const distInput = document.getElementById(context === 'reg' ? 'regDistritoSede' : 'expDistritoSede');
     const iframe = document.getElementById(context === 'reg' ? 'regGoogleMapIframe' : 'expGoogleMapIframe');
     const indicator = document.getElementById(context === 'reg' ? 'regMapLoadingIndicator' : 'expMapLoadingIndicator');
 
     if (!iframe) return;
 
-    const direccion = dirInput ? dirInput.value.trim() : "";
-    let distrito = "Comas";
-
-    if (distInput) {
-      const val = distInput.value || "";
-      if (val.toLowerCase().includes("carabayllo")) distrito = "Carabayllo";
-      else if (val.toLowerCase().includes("comas")) distrito = "Comas";
+    // Con GPS ya hay una ubicacion exacta: una busqueda aproximada de la
+    // direccion solo la empeoraria.
+    if (this.tempCoords) {
+      if (indicator) indicator.style.display = 'none';
+      return;
     }
 
-    let queryParts = [];
-    if (direccion) queryParts.push(direccion);
-    queryParts.push(distrito);
-    queryParts.push("Lima");
-    queryParts.push("Peru");
+    const direccion = dirInput ? dirInput.value.trim() : "";
+    if (!direccion) {
+      // Sin direccion no hay nada que buscar: se deja el mapa como esta.
+      if (indicator) indicator.style.display = 'none';
+      return;
+    }
 
-    const searchQuery = encodeURIComponent(queryParts.join(", "));
+    const searchQuery = encodeURIComponent(`${direccion}, Lima, Peru`);
     iframe.src = `https://maps.google.com/maps?q=${searchQuery}&t=&z=16&ie=UTF8&iwloc=&output=embed`;
 
     // Actualizar enlace de navegación si está en expediente
@@ -167,7 +174,7 @@ export const BeneficiarioController = {
       }
     };
 
-    resetBox("regFotoMenorPreview", "Foto Menor");
+    resetBox("regFotoMenorPreview", "Foto Usuario");
     resetBox("regFotoApoderadoPreview", "Foto Apoderado");
     resetBox("regFotoRetiro1Preview", "Foto P1");
     resetBox("regFotoRetiro2Preview", "Foto P2");
@@ -288,6 +295,20 @@ export const BeneficiarioController = {
   saveNuevoMenor(event, onComplete) {
     event.preventDefault();
 
+    // El boton de guardar solo se habilita cuando no falta ningun dato. Si se
+    // entra por el Enter en un campo el formulario se manda igual, asi que
+    // aqui se corta el paso y se dice que falta.
+    const ficha = window.PDI?.Ficha?.evaluarFicha?.();
+    if (ficha && !ficha.listo) {
+      ToastView.show(
+        "Faltan datos",
+        `Todavia falta: ${ficha.faltantes.slice(0, 3).join(", ")}.`,
+        "warning"
+      );
+      window.PDI?.Ficha?.refrescarEstadoFicha?.();
+      return;
+    }
+
     const getVal = (id, fallback = "") => {
       const el = document.getElementById(id);
       return el ? el.value.trim() : fallback;
@@ -313,14 +334,18 @@ export const BeneficiarioController = {
     const sede = distSedeParts[1] || "Año Nuevo";
 
     const modalidad = getVal("regModalidad", "Comunitaria");
-    const estrategia = getVal("regEstrategia", "Desayuno Infantil");
+    // La estrategia se marca de a varias: se leen las casillas marcadas, no
+    // un desplegable. La primera marcada es la principal.
+    const estrategias = window.PDI?.EstrategiaMultiSelect?.getValues("regEstrategia") || [];
+    const estrategia = estrategias.join(" + ");
     const exoneracionAporte = getVal("regExoneracion", "100% (Exonerado Vulnerabilidad Extrema)");
 
     const seguro = getVal("regSeguro", "SIS Gratuito");
     const centroSalud = getVal("regCentroSalud", `C.S. ${sede}`);
     const alergias = getVal("regAlergias", "Ninguna");
     const nivelEducativo = getVal("regNivelEducativo", "Inicial");
-    const grado = getVal("regGrado", "Inicial 4 años");
+    // Sin valor por defecto: el grado se elige de la lista y no se inventa.
+    const grado = getVal("regGrado");
     const colegio = getVal("regColegio", "I.E. Local");
 
     const apoderado = getVal("regApoderado");
@@ -350,9 +375,28 @@ export const BeneficiarioController = {
 
     const toast = window.PDI?.ToastView || ToastView;
 
+    // Guarda del informe de Beta Testing: el sistema calcula la edad, asi que
+    // no se acepta una fecha de nacimiento futura ni invalida en el alta.
+    if (fechaNacimiento) {
+      const [anioReg, mesReg, diaReg] = fechaNacimiento.split("-").map(Number);
+      const nacimientoReg = new Date(anioReg, mesReg - 1, diaReg);
+      const hoyReg = new Date();
+      hoyReg.setHours(0, 0, 0, 0);
+      if (isNaN(nacimientoReg.getTime()) || nacimientoReg > hoyReg) {
+        toast.show("Fecha Futura", "La fecha de nacimiento no puede ser posterior a hoy. Revise el dato e intente otra vez.", "warning");
+        return;
+      }
+    }
+
     // Validación de firma digital (Ley 29733)
     if (this.signatureCanvasHelper && !this.signatureCanvasHelper.hasSignature()) {
       toast.show("Firma Obligatoria", "El apoderado debe estampar o subir su firma para validar el Consentimiento Ley N.° 29733.", "warning");
+      return;
+    }
+
+    // La estrategia es obligatoria: sin al menos una marcada no hay inscripcion.
+    if (!estrategias.length) {
+      toast.show("Estrategia Requerida", "Marque al menos una estrategia de intervencion para el usuario.", "warning");
       return;
     }
 
@@ -406,6 +450,7 @@ export const BeneficiarioController = {
       sede,
       modalidad,
       estrategia,
+      estrategias,
       exoneracionAporte,
       servicios: (() => {
         const s = new Set();
@@ -434,10 +479,10 @@ export const BeneficiarioController = {
       telefono,
       telefonoAlt: telefonoAlt || "-",
       estado: "Activo",
-      hb: 11.2,
-      peso: 15.0,
-      talla: 98.0,
-      anemia: "Normal",
+      hb: null,
+      peso: null,
+      talla: null,
+      anemia: "Sin tamizaje",
       canastaEntregada: exoneracionAporte.includes("100%"),
       orientacionFamiliar: true,
       retiroAutorizado: `${retiroNombre1} (${retiroParentesco1})`,
@@ -457,14 +502,14 @@ export const BeneficiarioController = {
       audit.log(
         "Usuario Activo",
         "Coordinación",
-        "Inscripción Menor",
+        "Inscripción de Usuario",
         nuevoObj.codigo,
         `Alta integral con Ficha A1/A3 Ley 29733: ${nombres} ${apellidos} (DNI ${dni})`,
         "Válido"
       );
     }
 
-    toast.show("Beneficiario Incorporado", `${nombres} ${apellidos} registrado exitosamente con código ${nuevoObj.codigo}`, "success");
+    toast.show("Usuario Incorporado", `${nombres} ${apellidos} registrado exitosamente con código ${nuevoObj.codigo}`, "success");
 
     const mView = window.PDI?.ModalView || ModalView;
     mView.closeNuevoMenor();
@@ -556,7 +601,7 @@ export const BeneficiarioController = {
         "Coordinación",
         isAdded ? "Activación de Servicio" : "Desactivación de Servicio",
         menor.codigo,
-        `${isAdded ? 'Habilitado' : 'Deshabilitado'} servicio "${canonicalName}" para el menor ${menor.nombres} ${menor.apellidos}`,
+        `${isAdded ? 'Habilitado' : 'Deshabilitado'} servicio "${canonicalName}" para el usuario ${menor.nombres} ${menor.apellidos}`,
         "Válido"
       );
     }

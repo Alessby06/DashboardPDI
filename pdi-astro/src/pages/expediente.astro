@@ -1,5 +1,15 @@
 ---
 import AppLayout from '../layouts/AppLayout.astro';
+import {
+  SEDES,
+  MODALIDADES,
+  EXONERACIONES,
+  SEGUROS,
+  NIVELES_EDUCATIVOS,
+  PARENTESCOS,
+  gradosDeNivel,
+} from '../data/opcionesBeneficiario.js';
+import EstrategiaMultiSelect from '../components/EstrategiaMultiSelect.astro';
 import '../styles/views-expediente.css';
 import '../styles/expediente.css';
 ---
@@ -40,6 +50,19 @@ import '../styles/expediente.css';
             var el = document.getElementById(idEl);
             if (el && val !== undefined && val !== null) el.textContent = val;
           }
+          // Los desplegables necesitan la opcion para poder mostrar el valor.
+          // Un dato anterior al catalogo (una estrategia vieja, por ejemplo) se
+          // agrega como opcion propia en vez de dejar el campo en blanco.
+          function setSelectVal(idEl, val) {
+            var el = document.getElementById(idEl);
+            if (!el || val === undefined || val === null || val === "") return;
+            var existe = false;
+            for (var i = 0; i < el.options.length; i++) {
+              if (el.options[i].value === val) { existe = true; break; }
+            }
+            if (!existe) el.add(new Option(val, val));
+            el.value = val;
+          }
 
           setText("expPageTitle", "Expediente Integral: " + (b.nombres || "") + " " + (b.apellidos || "") + " (" + (b.codigo || "") + ")");
           var sede = b.sede ? ("Sede " + b.sede) : "Sin sede asignada";
@@ -49,24 +72,48 @@ import '../styles/expediente.css';
           setVal("expDni", b.dni);
           setVal("expNombres", b.nombres);
           setVal("expApellidos", b.apellidos);
-          setVal("expFechaNac", b.fechaNac);
-          setVal("expEdad", (b.edad || "") + (b.sexo ? (" (" + (b.sexo === "M" ? "Masculino" : "Femenino") + ")") : ""));
+          setVal("expFechaNac", b.fechaNacimiento);
+          setVal("expEdad", b.edad);
+          var selSexoFlash = document.getElementById("expSexo");
+          if (selSexoFlash) selSexoFlash.value = b.sexo === "F" ? "F" : "M";
           setVal("expDireccion", b.direccion);
           setVal("expReferencia", b.referencia);
-          setVal("expDistritoSede", (b.distrito || "") + (b.distrito && b.sede ? " / " : "") + (b.sede ? ("Sede " + b.sede) : ""));
-          setVal("expExoneracion", b.exoneracionAporte);
-          setVal("expSeguro", b.seguro);
+          var selDSFlash = document.getElementById("expDistritoSede");
+          if (selDSFlash) selDSFlash.value = (b.distrito || "") + " - " + (b.sede || "");
+          var selExonFlash = document.getElementById("expExoneracion");
+          if (selExonFlash) {
+            var txtExonFlash = String(b.exoneracionAporte || "");
+            if (txtExonFlash.indexOf("100%") > -1) selExonFlash.value = "100% (Exonerado Vulnerabilidad Extrema)";
+            else if (txtExonFlash.indexOf("50%") > -1) selExonFlash.value = "50% (Semi-exonerado)";
+            else if (txtExonFlash.indexOf("0%") > -1) selExonFlash.value = "0% (Aporte Ordinario)";
+          }
+          setSelectVal("expSeguro", b.seguro);
           setVal("expCentroSalud", b.centroSalud);
           setVal("expAlergias", b.alergias);
-          setVal("expPesoTalla", (b.peso || "-") + " kg / " + (b.talla || "-") + " cm");
-          setVal("expHb", (b.hb || "-") + " g/dL (" + (b.estadoHb || "Normal") + ")");
-          setVal("expGrado", b.grado);
+          setVal("expPeso", b.peso);
+          setVal("expTalla", b.talla);
+          setVal("expHb", b.hb);
+          setVal("expEstadoHb", b.anemia || "Sin tamizaje");
+          setSelectVal("expNivelEducativo", b.nivelEducativo);
+          setSelectVal("expGrado", b.grado);
           setVal("expColegio", b.colegio);
           setVal("expApoderadoNombre", b.apoderado);
-          setVal("expApoderadoParentesco", b.parentesco);
+          setSelectVal("expApoderadoParentesco", b.parentesco);
           setVal("expApoderadoDni", b.apoderadoDni);
-          setVal("expApoderadoTel", b.apoderadoTelefono);
+          setVal("expApoderadoTel", b.telefono);
           setVal("expTelefonoAlt", b.telefonoAlt);
+          setSelectVal("expModalidad", b.modalidad);
+          // La estrategia es una seleccion multiple y su control vive en otro
+          // archivo: aqui solo se dejan las estrategias listas para que las
+          // pinte el control cuando cargue.
+          var estr = b.estrategias;
+          if (!Array.isArray(estr) || !estr.length) {
+            estr = String(b.estrategia || "").indexOf("Mixto") >= 0
+              ? ["Desayuno Infantil", "Casita del Saber"]
+              : (b.estrategia ? [b.estrategia] : []);
+          }
+          window.__pdiEstrategias = window.__pdiEstrategias || {};
+          window.__pdiEstrategias["expEstrategia"] = estr;
         } catch (e) {}
       }
 
@@ -84,7 +131,7 @@ import '../styles/expediente.css';
         </svg>
       </div>
       <div class="expediente-title-text-group">
-        <h3 id="expPageTitle">Expediente Integral del Beneficiario</h3>
+        <h3 id="expPageTitle">Expediente Integral del Usuario</h3>
         <span class="expediente-page-sub" id="expPageSubtitle"></span>
       </div>
     </div>
@@ -120,7 +167,7 @@ import '../styles/expediente.css';
           </svg>
           <span class="btn-text-responsive">Imprimir</span>
         </button>
-        <a class="btn-action btn-secondary" id="expBackToPadron" href="/padron" title="Volver al Padrón de Beneficiarios" data-astro-prefetch>
+        <a class="btn-action btn-secondary" id="expBackToPadron" href="/padron" title="Volver al Padrón de Usuarios" data-astro-prefetch>
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
           </svg>
@@ -135,10 +182,10 @@ import '../styles/expediente.css';
   <div class="expediente-sin-expediente" id="expSinExpediente" style="display:none;">
     <h4 id="expSinExpedienteTitulo">No se indicó qué expediente abrir</h4>
     <p id="expSinExpedienteDetalle">
-      Esta página necesita saber a qué menor corresponde. Se llega a ella desde el
-      Padrón de Beneficiarios, con el enlace "Expediente" de cada fila.
+      Esta página necesita saber a qué usuario corresponde. Se llega a ella desde el
+      Padrón de Usuarios, con el enlace "Expediente" de cada fila.
     </p>
-    <a class="btn-action primary" href="/padron">Ir al Padrón de Beneficiarios</a>
+    <a class="btn-action primary" href="/padron">Ir al Padrón de Usuarios</a>
   </div>
 
 <div class="modal-body-split expediente-page-body">
@@ -209,7 +256,7 @@ import '../styles/expediente.css';
             </div>
             <div style="width:100%;">
               <span class="badge badge-green"
-                style="font-size:11px; display:inline-block; margin-bottom:4px;">Beneficiario Activo</span>
+                style="font-size:11px; display:inline-block; margin-bottom:4px;">Usuario Activo</span>
               <div id="expPhotoName"
                 style="font-size:13.5px; font-weight:700; color:var(--text-main); line-height:1.3;"></div>
               <div id="expPhotoCode"
@@ -218,16 +265,40 @@ import '../styles/expediente.css';
               <div id="expPhotoMeta" style="font-size:11.5px; color:var(--text-dim); margin-top:3px;"></div>
             </div>
             <div style="border-top:1px dashed var(--border-subtle); width:100%; padding-top:8px; margin-top:4px;">
-              <label for="childPhotoInput" class="btn-action"
-                style="font-size:11px; padding:5px 8px; width:100%; justify-content:center; cursor:pointer;">
-                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
-                  <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
-                </svg>
-                <span>Actualizar Foto</span>
-              </label>
+              <div class="exp-foto-acciones">
+                <button type="button" class="btn-action"
+                  onclick="window.verFotoExpediente ? window.verFotoExpediente() : null"
+                  style="font-size:11px; padding:5px 8px; width:100%; justify-content:center; cursor:pointer;"
+                  title="Ver la fotografia del usuario en una ventana grande">
+                  <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M2.25 12S5.75 5.25 12 5.25 21.75 12 21.75 12 18.25 18.75 12 18.75 2.25 12 2.25 12Z" />
+                    <circle cx="12" cy="12" r="3.25" />
+                  </svg>
+                  <span>Ver Foto</span>
+                </button>
+                <label for="childPhotoInput" class="btn-action"
+                  style="font-size:11px; padding:5px 8px; width:100%; justify-content:center; cursor:pointer;"
+                  title="Cambiar la fotografia actual del usuario">
+                  <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                    <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                      d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+                  </svg>
+                  <span>Actualizar Foto</span>
+                </label>
+                <button type="button" class="btn-action"
+                  onclick="window.eliminarFotoExpediente ? window.eliminarFotoExpediente() : null"
+                  style="font-size:11px; padding:5px 8px; width:100%; justify-content:center; cursor:pointer; color:var(--text-danger);"
+                  title="Eliminar la fotografia registrada de este usuario">
+                  <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" />
+                  </svg>
+                  <span>Eliminar Foto</span>
+                </button>
+              </div>
               <input type="file" id="childPhotoInput" accept="image/*" style="display:none;">
             </div>
           </div>
@@ -241,37 +312,53 @@ import '../styles/expediente.css';
                   style="font-family: var(--mono-font); font-weight: bold; color: var(--text-brand);">
               </div>
               <div class="form-group">
-                <label>DNI del Menor:</label>
-                <input type="text" class="form-control" id="expDni" readonly>
+                <label>DNI:</label>
+                <input type="text" class="form-control" id="expDni" data-tipo="dni" readonly maxlength="8" inputmode="numeric" pattern="[0-9]{8}">
               </div>
               <div class="form-group">
                 <label>Nombres Completos:</label>
-                <input type="text" class="form-control" id="expNombres" readonly>
+                <input type="text" class="form-control" id="expNombres" data-tipo="nombre" readonly maxlength="60">
               </div>
               <div class="form-group">
                 <label>Apellidos:</label>
-                <input type="text" class="form-control" id="expApellidos" readonly>
+                <input type="text" class="form-control" id="expApellidos" data-tipo="nombre" readonly maxlength="60">
               </div>
               <div class="form-group">
                 <label>Fecha de Nacimiento:</label>
-                <input type="text" class="form-control" id="expFechaNac" readonly>
+                <input type="date" class="form-control" id="expFechaNac" readonly>
               </div>
               <div class="form-group">
-                <label>Edad y Sexo:</label>
-                <input type="text" class="form-control" id="expEdad" readonly>
+                <label>Edad (calculada):</label>
+                <input type="text" class="form-control" id="expEdad" readonly
+                  title="La edad la calcula el sistema a partir de la fecha de nacimiento">
+              </div>
+              <div class="form-group">
+                <label>Sexo:</label>
+                <select class="form-control" id="expSexo" disabled
+                  style="color:var(--text-main); opacity:1; cursor:default;"
+                  title="El sexo se define en la ficha de inscripcion y no se edita aqui">
+                  <option value="M">Masculino (M)</option>
+                  <option value="F">Femenino (F)</option>
+                </select>
               </div>
               <div class="form-group" style="grid-column: span 2;">
                 <label>Dirección Actual Domiciliaria:</label>
-                <input type="text" class="form-control" id="expDireccion" readonly
+                <input type="text" class="form-control" id="expDireccion" readonly maxlength="180"
                   oninput="window.handleAddressInputDebounce ? window.handleAddressInputDebounce('exp') : null">
               </div>
-              <div class="form-group" style="grid-column: span 2;">
+              <div class="form-group">
                 <label>Referencia de Ubicación:</label>
-                <input type="text" class="form-control" id="expReferencia" readonly>
+                <input type="text" class="form-control" id="expReferencia" readonly maxlength="120"
+                  placeholder="Sin referencia adicional">
               </div>
               <div class="form-group">
                 <label>Distrito y Sede:</label>
-                <input type="text" class="form-control" id="expDistritoSede" readonly>
+                <select class="form-control" id="expDistritoSede" disabled style="opacity:1;"
+                  title="Las sedes son las mismas de la ficha de inscripcion">
+                  {SEDES.map((opcion) => (
+                    <option value={opcion.valor}>{opcion.etiqueta}</option>
+                  ))}
+                </select>
               </div>
               <div class="form-group">
                 <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
@@ -305,8 +392,24 @@ import '../styles/expediente.css';
                     </div>
                   </div>
                 </div>
-                <input type="text" class="form-control" id="expExoneracion" readonly
-                  style="color:var(--text-warning); font-weight:700;">
+                <select class="form-control" id="expExoneracion" disabled style="opacity:1;"
+                  title="Escalas identicas a la ficha de inscripcion">
+                  {EXONERACIONES.map((opcion) => (
+                    <option value={opcion.valor}>{opcion.etiqueta}</option>
+                  ))}
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Modalidad de Intervención:</label>
+                <select class="form-control" id="expModalidad" disabled style="opacity:1;"
+                  title="Las mismas modalidades de la ficha de inscripcion">
+                  {MODALIDADES.map((opcion) => (
+                    <option value={opcion.valor}>{opcion.etiqueta}</option>
+                  ))}
+                </select>
+              </div>
+              <div class="form-group" style="grid-column: 1 / -1; min-width: 0;">
+                <EstrategiaMultiSelect id="expEstrategia" label="Estrategia Asignada" disabled />
               </div>
               <div class="form-group" style="grid-column: span 2;">
                 <label style="margin-bottom:6px;">Programas y Servicios Institucionales Inscritos:</label>
@@ -354,7 +457,7 @@ import '../styles/expediente.css';
                       <span>Fachada y Entorno Real</span>
                     </div>
                     <div class="croquis-fachada-preview-box" id="expFachadaPreview"
-                      title="Fotografía de la vivienda del menor">
+                      title="Fotografía de la vivienda del usuario">
                       <div class="croquis-fachada-placeholder">
                         <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8"
                           viewBox="0 0 24 24">
@@ -392,25 +495,40 @@ import '../styles/expediente.css';
         <div class="form-grid" style="grid-template-columns: repeat(3, 1fr); gap:12px;">
           <div class="form-group">
             <label>Tipo de Seguro:</label>
-            <input type="text" class="form-control" id="expSeguro" readonly>
+            <select class="form-control" id="expSeguro" disabled style="opacity:1;"
+              title="Los mismos seguros de la ficha de inscripcion">
+              {SEGUROS.map((opcion) => (
+                <option value={opcion.valor}>{opcion.etiqueta}</option>
+              ))}
+            </select>
           </div>
           <div class="form-group">
             <label>Centro de Salud de Referencia:</label>
-            <input type="text" class="form-control" id="expCentroSalud" readonly>
+            <input type="text" class="form-control" id="expCentroSalud" readonly maxlength="80">
           </div>
           <div class="form-group">
             <label>Alergias a Medicamentos:</label>
-            <input type="text" class="form-control" id="expAlergias" readonly
+            <input type="text" class="form-control" id="expAlergias" readonly maxlength="120"
               style="color:var(--text-danger); font-weight:700;">
           </div>
           <div class="form-group">
-            <label>Antropometría (Peso / Talla):</label>
-            <input type="text" class="form-control" id="expPesoTalla" readonly>
+            <label>Peso (kg):</label>
+            <input type="number" class="form-control" id="expPeso" readonly min="1" max="150" step="0.1"
+              inputmode="decimal">
           </div>
           <div class="form-group">
-            <label>Dosaje de Hemoglobina y Estado:</label>
-            <input type="text" class="form-control" id="expHb" readonly
-              style="color:var(--text-brand); font-weight:700;">
+            <label>Talla (cm):</label>
+            <input type="number" class="form-control" id="expTalla" readonly min="30" max="220" step="0.1"
+              inputmode="decimal">
+          </div>
+          <div class="form-group">
+            <label>Hemoglobina (g/dL):</label>
+            <input type="number" class="form-control" id="expHb" readonly min="1" max="25" step="0.1"
+              inputmode="decimal" style="color:var(--text-brand); font-weight:700;">
+          </div>
+          <div class="form-group">
+            <label>Estado de Hemoglobina:</label>
+            <input type="text" class="form-control" id="expEstadoHb" readonly>
           </div>
           <div class="form-group">
             <label>Canasta Alimentaria:</label>
@@ -427,12 +545,27 @@ import '../styles/expediente.css';
       <div class="modal-tab-pane" id="tab-escolar" style="display: none;">
         <div class="form-grid" style="grid-template-columns: repeat(2, 1fr); gap:12px;">
           <div class="form-group">
-            <label>Nivel y Grado Escolar:</label>
-            <input type="text" class="form-control" id="expGrado" readonly>
+            <label>Nivel Educativo:</label>
+            <select class="form-control" id="expNivelEducativo" disabled style="opacity:1;"
+              title="Los mismos niveles de la ficha de inscripcion">
+              {NIVELES_EDUCATIVOS.map((opcion) => (
+                <option value={opcion.valor}>{opcion.etiqueta}</option>
+              ))}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Grado Escolar:</label>
+            <select class="form-control" id="expGrado" disabled style="opacity:1;"
+              title="Se elige de la lista del nivel educativo">
+              <option value="">Seleccione…</option>
+              {gradosDeNivel(NIVELES_EDUCATIVOS[0].valor).map((grado) => (
+                <option value={grado.valor}>{grado.etiqueta}</option>
+              ))}
+            </select>
           </div>
           <div class="form-group">
             <label>Institución Educativa (I.E.):</label>
-            <input type="text" class="form-control" id="expColegio" readonly>
+            <input type="text" class="form-control" id="expColegio" readonly maxlength="80">
           </div>
           <div class="form-group">
             <label>Monitoreo de Asistencia (Casitas):</label>
@@ -462,23 +595,28 @@ import '../styles/expediente.css';
           <div class="form-grid" style="grid-template-columns: repeat(3, 1fr); gap:12px;">
             <div class="form-group">
               <label>Nombres y Apellidos:</label>
-              <input type="text" class="form-control" id="expApoderadoNombre" readonly>
+              <input type="text" class="form-control" id="expApoderadoNombre" data-tipo="nombre" readonly maxlength="80">
             </div>
             <div class="form-group">
               <label>Parentesco:</label>
-              <input type="text" class="form-control" id="expApoderadoParentesco" readonly>
+              <select class="form-control" id="expApoderadoParentesco" disabled style="opacity:1;"
+                title="Los mismos parentescos de la ficha de inscripcion">
+                {PARENTESCOS.map((parentesco) => (
+                  <option value={parentesco}>{parentesco}</option>
+                ))}
+              </select>
             </div>
             <div class="form-group">
               <label>DNI del Apoderado:</label>
-              <input type="text" class="form-control" id="expApoderadoDni" readonly>
+              <input type="text" class="form-control" id="expApoderadoDni" data-tipo="dni" readonly maxlength="8" inputmode="numeric">
             </div>
             <div class="form-group">
               <label>Teléfono Principal:</label>
-              <input type="text" class="form-control" id="expApoderadoTel" readonly>
+              <input type="text" class="form-control" id="expApoderadoTel" data-tipo="telefono" readonly maxlength="15" inputmode="tel">
             </div>
             <div class="form-group" style="grid-column: span 2;">
               <label>Teléfono Alternativo / Emergencia:</label>
-              <input type="text" class="form-control" id="expTelefonoAlt" readonly>
+              <input type="text" class="form-control" id="expTelefonoAlt" data-tipo="telefono" readonly maxlength="15" inputmode="tel">
             </div>
           </div>
         </div>
@@ -492,10 +630,10 @@ import '../styles/expediente.css';
                 <path stroke-linecap="round" stroke-linejoin="round"
                   d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
               </svg>
-              <span>Padrón de Personas Autorizadas para el Retiro del Menor</span>
+              <span>Padrón de Personas Autorizadas para el Retiro del Usuario</span>
             </label>
             <span style="font-size:11.5px; color:var(--text-dim); display:block; margin-top:2px;">
-              Control biométrico visual y cotejo de DNI obligatorio para la entrega segura del menor al término de
+              Control biométrico visual y cotejo de DNI obligatorio para la entrega segura del usuario al término de
               actividades.
             </span>
           </div>
@@ -544,7 +682,7 @@ import '../styles/expediente.css';
     <div>
       <!-- Botón Eliminar: solo visible y permitido para Coordinador General o Admin TI -->
       <button type="button" class="btn-action danger" id="btnDeleteBeneficiario"
-        onclick="deleteBeneficiarioExpediente()" title="Dar de baja definitiva al menor (Solo Dirección / Admin)">
+        onclick="deleteBeneficiarioExpediente()" title="Dar de baja definitiva al usuario (Solo Dirección / Admin)">
         <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round"
             d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />

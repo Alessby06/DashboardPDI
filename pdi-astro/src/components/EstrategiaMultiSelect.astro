@@ -1,0 +1,124 @@
+---
+// ===========================================================================
+//  Seleccion multiple de la estrategia asignada
+// ===========================================================================
+//  Las estrategias se marcan con pisoras, igual que los programas del
+//  expediente: cada opcion es una etiqueta con su casilla, y se ve de un
+//  vistazo cuales estan marcadas. Un desplegable con la lista pegada
+//  obligaba a leer "Desayuno +2" y a adivinar cuales eran las otras.
+//
+//  Es el mismo control en la ficha de inscripcion y en el expediente, asi que
+//  el marcado y los estilos viven aqui una sola vez.
+// ===========================================================================
+import { ESTRATEGIAS } from '../data/opcionesBeneficiario.js';
+
+const { id, label = 'Estrategia Asignada', disabled = false } = Astro.props;
+---
+
+<div class="estr-chips" id={id} data-estrategia-multiselect data-disabled={disabled ? 'true' : undefined}>
+  <span class="estr-chips-label" id={`${id}-label`}>{label}</span>
+  <div class="estr-chips-list" role="group" aria-labelledby={`${id}-label`}>
+    {ESTRATEGIAS.map((opcion) => (
+      <button type="button" class="estr-chip" role="checkbox" aria-checked="false" data-value={opcion.valor}>
+        <span class="estr-chip-check" aria-hidden="true">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+          </svg>
+        </span>
+        <span class="estr-chip-name">{opcion.etiqueta}</span>
+      </button>
+    ))}
+  </div>
+</div>
+
+<style>
+  .estr-chips {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .estr-chips-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .estr-chips-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .estr-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border-subtle);
+    background: var(--surface-1, #ffffff);
+    color: var(--text-main);
+    font-family: var(--ui-font);
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.2;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color var(--dur-fast) var(--ease-smooth),
+      border-color var(--dur-fast) var(--ease-smooth),
+      color var(--dur-fast) var(--ease-smooth);
+  }
+
+  .estr-chip:hover {
+    border-color: var(--border-medium);
+  }
+
+  .estr-chip-check {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 1.5px solid #cbd5e1;
+    background: #ffffff;
+    color: transparent;
+    transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+  }
+
+  .estr-chip[aria-checked='true'] {
+    border-color: var(--gt-green-border);
+    background: var(--gt-green-bg);
+    color: var(--text-brand);
+  }
+
+  .estr-chip[aria-checked='true'] .estr-chip-check {
+    background: var(--gt-green);
+    border-color: var(--gt-green);
+    color: #ffffff;
+  }
+
+  .estr-chips.is-disabled .estr-chip {
+    cursor: default;
+    opacity: 0.6;
+  }
+
+  .estr-chips.is-disabled .estr-chip:hover {
+    border-color: var(--border-subtle);
+  }
+
+  /* Mientras se aplica el estado, la pisora cambia de color de golpe: si la
+     transicion queda a medio camino, se congela y la pisora se ve sin marcar. */
+  .estr-chips.estr-chips-sin-transicion .estr-chip,
+  .estr-chips.estr-chips-sin-transicion .estr-chip-check {
+    transition: none;
+  }
+</style>
+
+<script>
+  import { initEstrategiaMultiSelect } from '../scripts/ui/estrategiaMultiSelect.js';
+  initEstrategiaMultiSelect();
+</script>

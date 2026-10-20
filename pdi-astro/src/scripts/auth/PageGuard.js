@@ -216,12 +216,14 @@ export const PageGuard = {
     // La clase es toast-msg, la que tiene estilo; antes se usaba "toast
     // toast-warning", que no aparece en ninguna hoja, y el aviso salia como un
     // texto pelado dentro de la pila. Se rellena con textContent y no con
-    // innerHTML: el mensaje es texto, no marcado.
+    // innerHTML: el mensaje es texto, no marcado. La variante --texto usa el
+    // mismo carton con un punto de tono en vez del chip de icono.
     const aviso = document.createElement("div");
-    aviso.className = "toast-msg";
-    aviso.style.borderColor = "var(--gt-yellow)";
-    aviso.style.color = "var(--gt-yellow)";
-    aviso.style.fontWeight = "700";
+    aviso.className = "toast-msg toast-msg--texto";
+    aviso.setAttribute("role", "status");
+    aviso.style.setProperty("--toast-tono", "var(--text-warning)");
+    aviso.style.color = "var(--text-main)";
+    aviso.style.fontWeight = "600";
     aviso.textContent = mensaje;
     pila.appendChild(aviso);
     setTimeout(() => aviso.remove(), 4000);

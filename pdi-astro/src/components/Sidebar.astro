@@ -7,16 +7,19 @@ const { currentPage } = Astro.props;
 
 const navItems = [
   { section: 'General' },
-  { href: '/dashboard', page: 'dashboard', view: 'view-dashboard', label: 'Dashboard', roles: 'coord,facilitadora,promotora,social,admin', icon: 'dashboard' },
+  { href: '/dashboard', page: 'dashboard', view: 'view-dashboard', label: 'Dashboard General', roles: 'coord,facilitadora,promotora,social,admin', icon: 'dashboard' },
   { section: 'Módulos Operativos (PDI)' },
   { href: '/padron', page: 'padron', view: 'view-beneficiarios', label: 'Padrón de Usuarios', roles: 'coord,facilitadora,promotora,social,admin', icon: 'padron', badgeId: 'badgeTotalBeneficiarios', badgeVal: '28' },
+  // Modulo pedido en el menu, pero sin implementacion todavia: se deja en su
+  // lugar para fijar el orden. No navega a ninguna parte.
+  { placeholder: true, label: 'Padrón de Colaboradores', icon: 'colaboradores', roles: 'coord,facilitadora,promotora,social,admin' },
+  { href: '/voluntariados', page: 'voluntariados', view: 'view-voluntarios', label: 'Padrón de Voluntarios', roles: 'coord,facilitadora,promotora,social,admin', icon: 'voluntariados', badgeId: 'badgeTotalVoluntarios', badgeVal: '8' },
   { href: '/salud', page: 'salud', view: 'view-salud', label: 'Servicio Alimentario Nutricional', roles: 'coord,facilitadora,admin', icon: 'salud' },
-  { href: '/educativo', page: 'educativo', view: 'view-educativo', label: 'Casita del Saber', roles: 'coord,promotora,admin', icon: 'educativo' },
-  { href: '/social', page: 'social', view: 'view-social', label: 'Área Social Pastoral', roles: 'coord,social,admin', icon: 'social', badgeId: 'badgeCasosCriticos', badgeVal: '4', badgeDanger: true },
+  { href: '/educativo', page: 'educativo', view: 'view-educativo', label: 'Servicio de Acompañamiento Educativo', roles: 'coord,promotora,admin', icon: 'educativo' },
+  { href: '/social', page: 'social', view: 'view-social', label: 'Servicio Social Pastoral (ASP)', roles: 'coord,social,admin', icon: 'social', badgeId: 'badgeCasosCriticos', badgeVal: '4', badgeDanger: true },
   { href: '/social?tab=autorizaciones', page: 'social-autorizaciones', view: 'view-social-autorizaciones', label: 'Autorizaciones ASP', roles: 'coord,admin', icon: 'autorizaciones', badgeId: 'badgeSolicitudesPendientes', badgeVal: '0', badgeAmber: true, hideUnauthorized: true, subview: 'autorizaciones' },
   { href: '/social?tab=mis-solicitudes', page: 'social-solicitudes', view: 'view-social-solicitudes', label: 'Mis Solicitudes ASP', roles: 'social', icon: 'solicitudes', badgeId: 'badgeMisSolicitudesTotal', badgeVal: '0', hideUnauthorized: true, subview: 'mis-solicitudes' },
-  { href: '/sedes', page: 'sedes', view: 'view-sedes', label: 'Sedes e Iglesias', roles: 'coord,facilitadora,promotora,admin', icon: 'sedes' },
-  { href: '/voluntariados', page: 'voluntariados', view: 'view-voluntarios', label: 'Voluntariados', roles: 'coord,facilitadora,promotora,social,admin', icon: 'voluntariados', badgeId: 'badgeTotalVoluntarios', badgeVal: '8' },
+  { href: '/sedes', page: 'sedes', view: 'view-sedes', label: 'Sedes e Iglesias Aliadas', roles: 'coord,facilitadora,promotora,admin', icon: 'sedes' },
   { section: 'Auditoría' },
   { href: '/auditoria', page: 'auditoria', view: 'view-auditoria', label: 'Historial de Cambios', roles: 'coord,admin', icon: 'auditoria' },
   { section: 'Configuración' },
@@ -45,6 +48,17 @@ const navItems = [
       </div>
     </div>
 
+    <div class="project-switcher" role="group" aria-label="Proyecto activo">
+      <div class="project-option active" aria-current="true">
+        <span class="project-name">Infancia Saludable</span>
+        <span class="project-state">Activo</span>
+      </div>
+      <button type="button" class="project-option" disabled title="Proyecto Mamitas: en desarrollo">
+        <span class="project-name">Mamitas</span>
+        <span class="project-state">En desarrollo</span>
+      </button>
+    </div>
+
     <nav class="nav-sections" id="sidebarNav">
       <!-- Botón de cerrar sesión — encima de todo el menú -->
       <button
@@ -63,6 +77,26 @@ const navItems = [
       {navItems.map((item) => {
         if (item.section) {
           return <div class="nav-label">{item.section}</div>;
+        }
+
+        // Modulo todavia sin ruta nipantalla: se pinta como una entrada mas del
+        // menu para fijar el orden, pero no lleva a ninguna parte.
+        if (item.placeholder) {
+          return (
+            <span
+              class="nav-btn nav-btn-placeholder"
+              role="link"
+              aria-disabled="true"
+              title="Padrón de Colaboradores: en desarrollo"
+            >
+              {item.icon === 'colaboradores' && (
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 9l3.75 2.25L15 13.5m-6 4.5h9m-9 0H6.375c-.621 0-1.125-.504-1.125-1.125V11.25c0-1.332 1.08-2.412 2.412-2.412M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                </svg>
+              )}
+              <span>{item.label}</span>
+            </span>
+          );
         }
 
         const isActive = currentPage === item.page;
@@ -183,6 +217,20 @@ const navItems = [
     background: var(--gt-amber-bg, rgba(245, 158, 11, 0.12)) !important;
     color: var(--text-warning, #f59e0b) !important;
     border-color: var(--gt-amber-border, rgba(245, 158, 11, 0.3)) !important;
+  }
+
+  /* Entrada sin modulo todavia (Padrón de Colaboradores): se ve en el menu,
+     pero atenuada y sin destino. */
+  .nav-btn-placeholder {
+    cursor: default;
+    opacity: 0.55;
+  }
+
+  .nav-btn-placeholder:hover {
+    background: transparent;
+    color: var(--text-muted);
+    border-color: transparent;
+    transform: none;
   }
 </style>
 

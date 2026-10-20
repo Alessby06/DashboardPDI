@@ -42,7 +42,7 @@ export const PAGINAS = {
 
   salud: {
     ruta: "/salud",
-    etiqueta: "Salud y Nutrición (CRED)",
+    etiqueta: "Servicio Alimentario Nutricional",
     view: "view-salud",
     grupo: "Operación",
     enMenu: true,
@@ -131,7 +131,7 @@ export const PAGINAS = {
   // padron; quien no lo ve, no lo abre.
   expediente: {
     ruta: "/expediente",
-    etiqueta: "Expediente",
+    etiqueta: "Expediente Integral",
     view: "view-expediente",
     grupo: null,
     enMenu: false,

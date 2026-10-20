@@ -161,7 +161,7 @@
         display: none !important;
         flex-direction: column !important;
         gap: 3px !important;
-        animation: dropdownFadeIn var(--dur-fast) var(--ease-spring) !important;
+        animation: dropdownFadeIn var(--dur-fast) var(--ease-out) !important;
         box-sizing: border-box !important;
         will-change: transform, opacity;
       }
@@ -523,7 +523,7 @@
       display: none;
       flex-direction: column;
       gap: 14px;
-      animation: dropdownFadeIn var(--dur-fast) var(--ease-spring);
+      animation: dropdownFadeIn var(--dur-fast) var(--ease-out);
     }
 
     .audit-filters-dropdown.open .audit-filters-menu {
@@ -1355,7 +1355,7 @@
     .ley-consent-card {
       background: #ffffff;
       border: 1px solid var(--border-subtle);
-      border-left: 4px solid var(--gt-green);
+      border-left: 1px solid var(--gt-green);
       border-radius: 10px;
       padding: 12px 14px;
       display: flex;
@@ -1442,7 +1442,7 @@
     .retiro-person-card {
       background: var(--surface-1) !important;
       border: 1px solid var(--border-subtle) !important;
-      border-left: 4px solid var(--gt-green);
+      border-left: 1px solid var(--gt-green);
       border-radius: 10px;
       padding: 14px;
       display: flex;
@@ -1668,7 +1668,7 @@
 .retiro-person-card {
   background: var(--surface-1) !important;
   border: 1px solid var(--border-subtle) !important;
-  border-left: 4px solid var(--gt-green) !important;
+  border-left: 1px solid var(--gt-green) !important;
 }
 .retiro-person-photo {
   background: var(--surface-2) !important;
@@ -2208,7 +2208,7 @@
   gap: 2px;
   max-height: 220px;
   overflow-y: auto;
-  animation: dropdownFadeIn var(--dur-fast) var(--ease-spring);
+  animation: dropdownFadeIn var(--dur-fast) var(--ease-out);
 }
 
 .padron-inner-dropdown.open .padron-inner-dropdown-menu {
@@ -2605,7 +2605,7 @@
 
 /* 3. Sensor / Monitor SO: Latido rítmico de sincronización inteligente */
 #btnThemeSystem.active .theme-icon-box svg {
-  animation: monitorHeartbeat 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation: monitorHeartbeat 0.8s var(--ease-out) forwards;
   color: var(--text-brand);
   filter: drop-shadow(0 0 7px rgba(0, 180, 148, 0.55));
 }
@@ -2618,9 +2618,8 @@
   100% { transform: scale(1.15); }
 }
 
-@keyframes springCheckPop {
+@keyframes checkSettlePop {
   0% { transform: scale(0) rotate(-45deg); opacity: 0; }
-  70% { transform: scale(1.28) rotate(8deg); opacity: 1; }
   100% { transform: scale(1) rotate(0deg); opacity: 1; }
 }
 

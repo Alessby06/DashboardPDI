@@ -3,12 +3,12 @@ import AppLayout from '../layouts/AppLayout.astro';
 import '../styles/views-educativo.css';
 ---
 
-<AppLayout title="Casita del Saber" currentPage="educativo">
+<AppLayout title="Servicio de Acompañamiento Educativo" currentPage="educativo">
         <section class="app-view active" id="view-educativo">
           <div class="view-header">
             <div class="view-title-group">
               <h2>Acompañamiento Educativo: Casita del Saber</h2>
-              <p>Control de asistencia formativa rápida y padrón seguro de retiro de menores con acreditación legal .
+              <p>Control de asistencia formativa rápida y padrón seguro de retiro de usuarios con acreditación legal.
               </p>
             </div>
             <div class="view-actions">
@@ -40,7 +40,7 @@ import '../styles/views-educativo.css';
                     d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                 </svg>
                 <input type="text" class="audit-search-input" id="inputCasitasSearch"
-                  placeholder="Buscar menor por nombre, código, colegio, apoderado..."
+                  placeholder="Buscar usuario por nombre, código, colegio, apoderado..."
                   oninput="window.filterCasitasSearch ? window.filterCasitasSearch(this.value) : (window.PDI?.CasitasView ? window.PDI.CasitasView.filterBySearch(this.value) : null)">
                 <button type="button" class="audit-search-clear" id="btnCasitasSearchClear" style="display:none;"
                   onclick="window.clearCasitasSearch ? window.clearCasitasSearch() : (window.PDI?.CasitasView ? window.PDI.CasitasView.clearSearch() : null)" title="Limpiar búsqueda">
@@ -306,7 +306,7 @@ import '../styles/views-educativo.css';
               <table class="data-table">
                 <thead>
                   <tr>
-                    <th>Menor</th>
+                    <th>Usuario</th>
                     <th>Grado Escolar</th>
                     <th>Colegio de Origen</th>
                     <th>Personas Acreditadas de Salida</th>
@@ -327,7 +327,7 @@ import '../styles/views-educativo.css';
             <div class="padron-pagination-bar" id="casitasPaginationBar">
               <div class="padron-pagination-left">
                 <span id="casitasPaginationInfo" style="font-size:12.5px; color:var(--text-muted); font-weight:500;">
-                  Mostrando 0 de 0 menores
+                  Mostrando 0 de 0 usuarios
                 </span>
                 <div class="padron-density-wrapper" id="casitasDensityWrapper"
                   style="display:flex; align-items:center; gap:6px;">

@@ -10,8 +10,8 @@ import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";
 // alguien no reproducirá lo que veía.
 const FILTROS_PADRON = {
   q:         { valor: "" },
-  servicio:  { valor: [], valores: ["desayuno", "casita", "pastoral"], multiple: true },
-  sede:      { valor: [], valores: ["Año Nuevo", "La Libertad", "San Pedro", "El Progreso", "Santa Rosa", "Los Bendecidos"], multiple: true },
+  estrategia: { valor: [], valores: ["desayuno", "lonchera", "casita"], multiple: true },
+  sede:      { valor: [], valores: ["Año Nuevo", "La Libertad", "Carmen Alto", "San Pedro", "El Progreso", "Santa Rosa", "Los Bendecidos"], multiple: true },
   anemia:    { valor: [], valores: ["Normal", "Leve", "Moderada"], multiple: true },
   edadModo:  { valor: "all", valores: ["all", "exacta", "rango"] },
   edadValor: { valor: null, numeros: { min: 0, max: 18 } },
@@ -29,7 +29,7 @@ export const BeneficiariosView = {
   _currentPage: 1,
   _pageSize: 20,
   _searchQuery: "",
-  _filterServicio: [], // array de servicios seleccionados (vacío = todos)
+  _filterEstrategia: [], // array de estrategias seleccionadas (vacío = todas)
   _filterSede: [],     // array de sedes seleccionadas (vacío = todas)
   _filterAnemia: [],   // array de anemias seleccionadas (vacío = todos)
   _filterEdadModo: "all", // "all" | "exacta" | "rango"
@@ -77,7 +77,7 @@ export const BeneficiariosView = {
   _persistirFiltros(extra) {
     this._obtenerFiltros().escribir({
       q: this._searchQuery,
-      servicio: this._filterServicio,
+      estrategia: this._filterEstrategia,
       sede: this._filterSede,
       anemia: this._filterAnemia,
       edadModo: this._filterEdadModo,
@@ -109,7 +109,7 @@ export const BeneficiariosView = {
     const f = this._obtenerFiltros().leer();
 
     this._searchQuery = (f.q || "").toLowerCase();
-    this._filterServicio = f.servicio;
+    this._filterEstrategia = f.estrategia || f.servicio || [];
     this._filterSede = f.sede;
     this._filterAnemia = f.anemia;
     this._filterEstado = f.estado;
@@ -131,7 +131,7 @@ export const BeneficiariosView = {
     const clearBtn = document.getElementById("btnPadronSearchClear");
     if (clearBtn) clearBtn.style.display = f.q ? "flex" : "none";
 
-    this._updateServicioDropdownUI();
+    this._updateEstrategiaDropdownUI();
     this._updateSedeDropdownUI();
     this._updateAnemiaDropdownUI();
     this._updateEdadUI();
@@ -267,56 +267,69 @@ export const BeneficiariosView = {
     dropdown.classList.toggle("open", !isCurrentlyOpen);
   },
 
-  toggleServicio(val) {
-    const allServicios = ["desayuno", "casita", "pastoral"];
+  toggleEstrategia(val) {
+    // Las opciones salen del propio menu: si el catalogo suma una estrategia,
+    // el filtro la muestra sin tocar esta logica.
+    const todas = Array.from(
+      document.querySelectorAll("#menuPadronEstrategia .padron-dropdown-item")
+    )
+      .map((item) => item.getAttribute("data-value"))
+      .filter((v) => v && v !== "all");
     if (val === "all") {
-      this._filterServicio = [];
+      this._filterEstrategia = [];
     } else {
-      const idx = this._filterServicio.indexOf(val);
+      const idx = this._filterEstrategia.indexOf(val);
       if (idx > -1) {
-        this._filterServicio.splice(idx, 1);
+        this._filterEstrategia.splice(idx, 1);
       } else {
-        this._filterServicio.push(val);
+        this._filterEstrategia.push(val);
       }
       // Si se seleccionaron individualmente todas las opciones, se restablece a Todos automáticamente
-      if (allServicios.every(s => this._filterServicio.includes(s))) {
-        this._filterServicio = [];
+      if (todas.length > 0 && todas.every(s => this._filterEstrategia.includes(s))) {
+        this._filterEstrategia = [];
       }
     }
-    this._updateServicioDropdownUI();
+    this._updateEstrategiaDropdownUI();
     this.applyFilters();
     this._persistirFiltros();
   },
 
-  _updateServicioDropdownUI() {
-    const isAll = this._filterServicio.length === 0;
-    const items = document.querySelectorAll("#menuPadronServicio .padron-dropdown-item");
+  _updateEstrategiaDropdownUI() {
+    const isAll = this._filterEstrategia.length === 0;
+    const items = document.querySelectorAll("#menuPadronEstrategia .padron-dropdown-item");
     items.forEach(item => {
       const v = item.getAttribute("data-value");
       if (v === "all") {
         item.classList.toggle("selected", isAll);
       } else {
-        item.classList.toggle("selected", !isAll && this._filterServicio.includes(v));
+        item.classList.toggle("selected", !isAll && this._filterEstrategia.includes(v));
       }
     });
 
-    const labelEl = document.getElementById("labelPadronServicioSelect");
+    const labelEl = document.getElementById("labelPadronEstrategiaSelect");
     if (labelEl) {
       if (isAll) {
-        labelEl.textContent = "Todos los Servicios";
-      } else if (this._filterServicio.length === 1) {
-        const s = this._filterServicio[0];
-        if (s === "desayuno") labelEl.textContent = "Serv. Alimentario Nutricional";
-        else if (s === "casita") labelEl.textContent = "Casita del Saber";
-        else if (s === "pastoral") labelEl.textContent = "Área Social Pastoral";
+        labelEl.textContent = "Todas las Estrategias";
+      } else if (this._filterEstrategia.length === 1) {
+        // La etiqueta se lee del propio menu, para que no haya dos listas.
+        const item = document.querySelector(
+          `#menuPadronEstrategia .padron-dropdown-item[data-value="${this._filterEstrategia[0]}"] .padron-item-label`
+        );
+        labelEl.textContent = item ? item.textContent.trim() : this._filterEstrategia[0];
       } else {
-        labelEl.textContent = `${this._filterServicio.length} seleccionados`;
+        labelEl.textContent = `${this._filterEstrategia.length} seleccionadas`;
       }
     }
   },
 
   toggleSede(val) {
-    const allSedes = ["Año Nuevo", "La Libertad", "San Pedro", "El Progreso", "Santa Rosa", "Los Bendecidos"];
+    // Las sedes salen del propio menu, que se arma con el catalogo: asi una
+    // sede nueva no puede quedar fuera del filtro.
+    const allSedes = Array.from(
+      document.querySelectorAll("#menuPadronSede .padron-dropdown-item")
+    )
+      .map((item) => item.getAttribute("data-value"))
+      .filter((v) => v && v !== "all");
     if (val === "all") {
       this._filterSede = [];
     } else {
@@ -353,9 +366,11 @@ export const BeneficiariosView = {
       if (isAll) {
         labelEl.textContent = "Todas las Sedes";
       } else if (this._filterSede.length === 1) {
-        const s = this._filterSede[0];
-        const dist = (s === "Año Nuevo" || s === "La Libertad") ? "Comas" : "Carabayllo";
-        labelEl.textContent = `${s} (${dist})`;
+        // La etiqueta con el distrito se lee del propio menu.
+        const item = document.querySelector(
+          `#menuPadronSede .padron-dropdown-item[data-value="${this._filterSede[0]}"] .padron-item-label`
+        );
+        labelEl.textContent = item ? item.textContent.trim() : this._filterSede[0];
       } else {
         labelEl.textContent = `${this._filterSede.length} seleccionadas`;
       }
@@ -585,11 +600,11 @@ export const BeneficiariosView = {
 
   removeFilter(filterKey, specificVal) {
     if (filterKey === "search") this.clearSearch();
-    if (filterKey === "servicio") {
+    if (filterKey === "estrategia") {
       if (specificVal) {
-        this.toggleServicio(specificVal);
+        this.toggleEstrategia(specificVal);
       } else {
-        this.toggleServicio("all");
+        this.toggleEstrategia("all");
       }
     }
     if (filterKey === "sede") {
@@ -613,7 +628,7 @@ export const BeneficiariosView = {
 
   resetFilters() {
     this._searchQuery = "";
-    this._filterServicio = [];
+    this._filterEstrategia = [];
     this._filterSede = [];
     this._filterAnemia = [];
     this._filterEdadModo = "all";
@@ -627,7 +642,7 @@ export const BeneficiariosView = {
     const clearBtn = document.getElementById("btnPadronSearchClear");
     if (clearBtn) clearBtn.style.display = "none";
 
-    this._updateServicioDropdownUI();
+    this._updateEstrategiaDropdownUI();
     this._updateSedeDropdownUI();
     this._updateAnemiaDropdownUI();
     this._updateEdadUI();
@@ -641,50 +656,35 @@ export const BeneficiariosView = {
     this._persistirFiltros();
   },
 
-  _matchesServicio(beneficiario, servicioKeys) {
-    if (!servicioKeys || servicioKeys.length === 0) return true;
-    const servs = Array.isArray(beneficiario.servicios) ? beneficiario.servicios : [];
-    return servicioKeys.some(key => {
-      if (key === "desayuno") {
-        return servs.some(s => {
-          const low = (s || "").toLowerCase();
-          return s === "Servicio Alimentario Nutricional" || s === "Serv. Alimentario Nutricional" || low.includes("desayuno") || low.includes("alimento") || low.includes("nutric") || low.includes("lonchera");
-        });
-      }
-      if (key === "casita") {
-        return servs.some(s => {
-          const low = (s || "").toLowerCase();
-          return s === "Casita del Saber" || low.includes("casita") || low.includes("educativ") || low.includes("acompañ") || low.includes("refuerzo");
-        });
-      }
-      if (key === "pastoral") {
-        return servs.some(s => {
-          const low = (s || "").toLowerCase();
-          return s === "Área Social Pastoral" || low.includes("pastoral") || low.includes("social") || low.includes("asp");
-        });
-      }
-      return false;
+  _matchesEstrategia(beneficiario, estrategiaKeys) {
+    if (!estrategiaKeys || estrategiaKeys.length === 0) return true;
+    // La estrategia es una lista: el usuario entra si tiene alguna de las
+    // marcadas, que es como se leen las multiples.
+    const lista = Array.isArray(beneficiario.estrategias) && beneficiario.estrategias.length
+      ? beneficiario.estrategias
+      : [beneficiario.estrategia || ""];
+    return estrategiaKeys.some(key => {
+      return lista.some(e => {
+        const low = (e || "").toLowerCase();
+        if (key === "desayuno") return low.includes("desayuno");
+        if (key === "lonchera") return low.includes("lonchera");
+        if (key === "casita") return low.includes("casita");
+        return false;
+      });
     });
   },
 
-  _getServiciosBadgesHtml(servicios) {
-    const list = Array.isArray(servicios) ? servicios : [];
-    if (list.length === 0) {
-      return `<span class="badge" style="background:var(--surface-2); color:var(--text-dim); border:1px dashed var(--border-subtle); font-size:10.5px;">Sin servicios activos</span>`;
+  _getEstrategiasBadgesHtml(estrategias) {
+    const lista = Array.isArray(estrategias) ? estrategias : [];
+    if (lista.length === 0) {
+      return `<span class="badge" style="background:var(--surface-2); color:var(--text-dim); border:1px dashed var(--border-subtle); font-size:10.5px;">Sin estrategia asignada</span>`;
     }
-    return list.map(s => {
-      const low = (s || "").toLowerCase();
+    return lista.map(e => {
+      const low = (e || "").toLowerCase();
       let badgeCls = "badge-blue";
-      let nombreServicio = s;
-      if (s === "Servicio Alimentario Nutricional" || s === "Serv. Alimentario Nutricional" || low.includes("nutric") || low.includes("aliment") || low.includes("desayuno") || low.includes("lonchera")) {
-        badgeCls = "badge-green";
-        nombreServicio = "Serv. Alimentario Nutricional";
-      } else if (s === "Área Social Pastoral" || low.includes("pastoral") || low.includes("social") || low.includes("asp")) {
-        badgeCls = "badge-red";
-      } else {
-        badgeCls = "badge-blue";
-      }
-      return `<span class="badge ${badgeCls}">${escapar(nombreServicio)}</span>`;
+      if (low.includes("desayuno") || low.includes("lonchera")) badgeCls = "badge-green";
+      else if (low.includes("casita")) badgeCls = "badge-blue";
+      return `<span class="badge ${badgeCls}">${escapar(e)}</span>`;
     }).join("");
   },
 
@@ -713,9 +713,9 @@ export const BeneficiariosView = {
       });
     }
 
-    // 2. Servicio / Programa (Multi-selección)
-    if (this._filterServicio.length > 0) {
-      list = list.filter(b => this._matchesServicio(b, this._filterServicio));
+    // 2. Estrategia Asignada (Multi-selección)
+    if (this._filterEstrategia.length > 0) {
+      list = list.filter(b => this._matchesEstrategia(b, this._filterEstrategia));
     }
 
     // 3. Sede Operativa (Multi-selección)
@@ -757,7 +757,7 @@ export const BeneficiariosView = {
 
     // Actualizar badge de filtros activos
     let activeFiltersCount = 0;
-    if (this._filterServicio.length > 0) activeFiltersCount += this._filterServicio.length;
+    if (this._filterEstrategia.length > 0) activeFiltersCount += this._filterEstrategia.length;
     if (this._filterSede.length > 0) activeFiltersCount += this._filterSede.length;
     if (this._filterAnemia.length > 0) activeFiltersCount += this._filterAnemia.length;
     if (this._filterEdadModo !== "all") activeFiltersCount++;
@@ -805,7 +805,7 @@ export const BeneficiariosView = {
     // seguia vacia. La tabla salia en blanco hasta el siguiente filtro.
     const enMovil = Responsive.esMovil();
 
-    const serial = `${enMovil ? 'M' : 'D'}|${this._searchQuery}_${this._filterServicio.join(',')}_${this._filterSede.join(',')}_${this._filterAnemia.join(',')}_${this._filterEdadModo}_${this._filterEdadExacta}_${this._filterEdadRango.min}-${this._filterEdadRango.max}_${this._filterEstado}_${this._filterSexo}_${this._currentPage}_${this._pageSize}_` +
+    const serial = `${enMovil ? 'M' : 'D'}|${this._searchQuery}_${this._filterEstrategia.join(',')}_${this._filterSede.join(',')}_${this._filterAnemia.join(',')}_${this._filterEdadModo}_${this._filterEdadExacta}_${this._filterEdadRango.min}-${this._filterEdadRango.max}_${this._filterEstado}_${this._filterSexo}_${this._currentPage}_${this._pageSize}_` +
       pageItems.map(b => `${b.id}_${b.estado}`).join('|');
 
     const tbody = document.getElementById("tbodyBeneficiarios");
@@ -861,7 +861,7 @@ export const BeneficiariosView = {
   },
 
   _updateFacetCounts() {
-    if (!document.getElementById("menuPadronServicio")) return;
+    if (!document.getElementById("menuPadronEstrategia")) return;
     // Calculo facetado con respecto a los otros filtros activos excepto la propia categoría
     const getFilteredExcluding = (excludeKey) => {
       let l = [...this._allBeneficiarios];
@@ -869,8 +869,8 @@ export const BeneficiariosView = {
         const q = this._searchQuery;
         l = l.filter(b => `${b.nombres} ${b.apellidos} ${b.codigo} ${b.dni} ${b.sede} ${b.distrito} ${b.apoderado}`.toLowerCase().includes(q));
       }
-      if (excludeKey !== "servicio" && this._filterServicio.length > 0) {
-        l = l.filter(b => this._matchesServicio(b, this._filterServicio));
+      if (excludeKey !== "estrategia" && this._filterEstrategia.length > 0) {
+        l = l.filter(b => this._matchesEstrategia(b, this._filterEstrategia));
       }
       if (excludeKey !== "sede" && this._filterSede.length > 0) {
         l = l.filter(b => b.sede && this._filterSede.some(s => b.sede.toLowerCase().includes(s.toLowerCase())));
@@ -899,26 +899,27 @@ export const BeneficiariosView = {
       return l;
     };
 
-    // 1. Facetas de Servicio
-    const forServ = getFilteredExcluding("servicio");
-    const countServDesayuno = forServ.filter(b => this._matchesServicio(b, ["desayuno"])).length;
-    const countServCasita = forServ.filter(b => this._matchesServicio(b, ["casita"])).length;
-    const countServPastoral = forServ.filter(b => this._matchesServicio(b, ["pastoral"])).length;
-
-    this._setFacetBadge("countFacetServicio-all", `(${forServ.length})`, forServ.length === 0);
-    this._setFacetBadge("countFacetServicio-desayuno", `(${countServDesayuno})`, countServDesayuno === 0);
-    this._setFacetBadge("countFacetServicio-casita", `(${countServCasita})`, countServCasita === 0);
-    this._setFacetBadge("countFacetServicio-pastoral", `(${countServPastoral})`, countServPastoral === 0);
+    // 1. Facetas de Estrategia
+    const forEstrategia = getFilteredExcluding("estrategia");
+    this._setFacetBadge("countFacetEstrategia-all", `(${forEstrategia.length})`, forEstrategia.length === 0);
+    const clavesEstrategia = Array.from(
+      document.querySelectorAll("#menuPadronEstrategia .padron-dropdown-item")
+    ).map((item) => item.getAttribute("data-value")).filter((v) => v && v !== "all");
+    clavesEstrategia.forEach((clave) => {
+      const n = forEstrategia.filter(b => this._matchesEstrategia(b, [clave])).length;
+      this._setFacetBadge(`countFacetEstrategia-${clave}`, `(${n})`, n === 0);
+    });
 
     // 2. Facetas de Sede
     const forSede = getFilteredExcluding("sede");
     this._setFacetBadge("countFacetSede-all", `(${forSede.length})`, forSede.length === 0);
-    this._setFacetBadge("countFacetSede-Año Nuevo", `(${forSede.filter(b => (b.sede || '').includes("Año Nuevo")).length})`, forSede.filter(b => (b.sede || '').includes("Año Nuevo")).length === 0);
-    this._setFacetBadge("countFacetSede-La Libertad", `(${forSede.filter(b => (b.sede || '').includes("La Libertad")).length})`, forSede.filter(b => (b.sede || '').includes("La Libertad")).length === 0);
-    this._setFacetBadge("countFacetSede-San Pedro", `(${forSede.filter(b => (b.sede || '').includes("San Pedro")).length})`, forSede.filter(b => (b.sede || '').includes("San Pedro")).length === 0);
-    this._setFacetBadge("countFacetSede-El Progreso", `(${forSede.filter(b => (b.sede || '').includes("El Progreso")).length})`, forSede.filter(b => (b.sede || '').includes("El Progreso")).length === 0);
-    this._setFacetBadge("countFacetSede-Santa Rosa", `(${forSede.filter(b => (b.sede || '').includes("Santa Rosa")).length})`, forSede.filter(b => (b.sede || '').includes("Santa Rosa")).length === 0);
-    this._setFacetBadge("countFacetSede-Los Bendecidos", `(${forSede.filter(b => (b.sede || '').includes("Los Bendecidos")).length})`, forSede.filter(b => (b.sede || '').includes("Los Bendecidos")).length === 0);
+    const sedes = Array.from(
+      document.querySelectorAll("#menuPadronSede .padron-dropdown-item")
+    ).map((item) => item.getAttribute("data-value")).filter((v) => v && v !== "all");
+    sedes.forEach((sede) => {
+      const n = forSede.filter(b => (b.sede || "").toLowerCase().includes(sede.toLowerCase())).length;
+      this._setFacetBadge(`countFacetSede-${sede}`, `(${n})`, n === 0);
+    });
 
     // 3. Facetas de Anemia
     const forAnemia = getFilteredExcluding("anemia");
@@ -958,27 +959,31 @@ export const BeneficiariosView = {
     const chips = [];
 
 
-    if (this._filterServicio.length > 0) {
-      this._filterServicio.forEach(s => {
-        let servLabel = "Servicio";
-        if (s === "desayuno") servLabel = "Serv. Alimentario Nutricional";
-        if (s === "casita") servLabel = "Casita del Saber";
-        if (s === "pastoral") servLabel = "Área Social Pastoral";
+    if (this._filterEstrategia.length > 0) {
+      this._filterEstrategia.forEach(s => {
+        // La etiqueta se lee del menu, para que no haya dos listas.
+        const item = document.querySelector(
+          `#menuPadronEstrategia .padron-dropdown-item[data-value="${s}"] .padron-item-label`
+        );
+        const etiqueta = item ? item.textContent.trim() : s;
         chips.push({
-          id: "servicio",
+          id: "estrategia",
           val: s,
-          label: `Programa: ${servLabel}`,
+          label: `Estrategia: ${etiqueta}`,
         });
       });
     }
 
     if (this._filterSede.length > 0) {
       this._filterSede.forEach(s => {
-        const dist = (s === "Año Nuevo" || s === "La Libertad") ? "Comas" : "Carabayllo";
+        const item = document.querySelector(
+          `#menuPadronSede .padron-dropdown-item[data-value="${s}"] .padron-item-label`
+        );
+        const etiqueta = item ? item.textContent.trim() : s;
         chips.push({
           id: "sede",
           val: s,
-          label: `Sede: ${s} (${dist})`,
+          label: `Sede: ${etiqueta}`,
         });
       });
     }
@@ -1080,7 +1085,7 @@ export const BeneficiariosView = {
             <td>${escapar(b.distrito)}: ${escapar(b.sede)}</td>
             <td>
               <div class="servicios-badge-group">
-                ${this._getServiciosBadgesHtml(b.servicios)}
+                ${this._getEstrategiasBadgesHtml(b.estrategias)}
               </div>
             </td>
             <td style="text-align: center;"><span class="badge ${b.estado === 'Activo' ? 'badge-green' : 'badge-yellow'}">${escapar(b.estado)}</span></td>
@@ -1093,11 +1098,6 @@ export const BeneficiariosView = {
                     <circle cx="12" cy="12" r="1.05" fill="currentColor" stroke="none" />
                   </svg>
                 </a>
-                <button type="button" class="row-action row-action--edit" onclick="window.openExpedienteEditar ? window.openExpedienteEditar(${escaparEnManejador(b.id)}) : null" title="Editar" aria-label="Editar">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
-                  </svg>
-                </button>
               </div>
             </td>
           </tr>
@@ -1129,7 +1129,7 @@ export const BeneficiariosView = {
             <!-- Cuerpo: Datos principales siempre visibles -->
             <div class="datacard-body">
               <div class="datacard-row">
-                <span class="datacard-label">Nombre del Menor</span>
+                <span class="datacard-label">Nombre del Usuario</span>
                 <span class="datacard-value">${escapar(b.nombres)} ${escapar(b.apellidos)}</span>
               </div>
               <div class="datacard-row">
@@ -1148,9 +1148,9 @@ export const BeneficiariosView = {
                   <span class="datacard-value">${escapar(b.edad)} / ${escapar(b.sexo)}</span>
                 </div>
                 <div class="datacard-row">
-                  <span class="datacard-label">Servicios Activos</span>
+                  <span class="datacard-label">Estrategias</span>
                   <div class="servicios-badge-group align-end">
-                    ${this._getServiciosBadgesHtml(b.servicios)}
+                    ${this._getEstrategiasBadgesHtml(b.estrategias)}
                   </div>
                 </div>
                 <div class="datacard-row">

@@ -1,27 +1,26 @@
 // Modelo: Directorio Territorial de Sedes, Iglesias y Redes Aliadas
-import { BeneficiarioModel } from './BeneficiarioModel.js';
-
-// Los datos semilla viven fuera del codigo: son registros ficticios y estan
-// marcados como tales. Ver data/fixtures/sedes.js
-import { defaultSedes } from '../../data/fixtures/sedes.js';
-export { defaultSedes };
-
-
+// La fuente única de verdad es la instancia de SurrealDB Cloud (tabla sede).
+// Sin fixtures: el modelo inicia vacío y se llena cuando la capa de datos
+// hidrata. El conteo de niños inscritos se calcula del padrón en tiempo real.
 export const SedeModel = {
-  _sedes: [],
+  _sedes: null,
 
   init() {
-    this._sedes = [...defaultSedes];
+    if (!this._sedes) this._sedes = [];
+  },
+
+  /** La capa de datos entrega el directorio hidratado de la nube. */
+  aplicarDatos(lista) {
+    if (!Array.isArray(lista)) return;
+    this._sedes = lista;
   },
 
   getAll() {
-    if (!this._sedes || this._sedes.length === 0) {
-      this.init();
-    }
+    if (!this._sedes) this.init();
 
     // Calcular en tiempo real los niños inscritos según el padrón
-    const bModel = window.PDI?.BeneficiarioModel || BeneficiarioModel;
-    const allBeneficiarios = bModel && bModel.getAll ? bModel.getAll() : [];
+    const bModel = window.PDI?.BeneficiarioModel;
+    const allBeneficiarios = (bModel && bModel.getAll ? bModel.getAll() : []) || [];
 
     return this._sedes.map(sede => {
       const matchChildren = allBeneficiarios.filter(b => {

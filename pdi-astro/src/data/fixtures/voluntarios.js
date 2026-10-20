@@ -68,7 +68,7 @@ export const defaultVoluntarios = [
     fechaIngreso: "2025-06-15",
     estado: "Activo",
     disponibilidad: "Lunes, Miércoles y Viernes (8:00 AM - 12:30 PM)",
-    observaciones: "Estudiante de educación primaria. Apoya en refuerzo de lectoescritura con menores de 6 a 8 años."
+    observaciones: "Estudiante de educación primaria. Apoya en refuerzo de lectoescritura con niños de 6 a 8 años."
   },
   {
     id: 3,

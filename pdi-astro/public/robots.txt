@@ -1,0 +1,4 @@
+# Aplicación interna de gestión (PDI · Johannes Gutenberg)
+# No es un sitio público: mantenemos a los rastreadores fuera.
+User-agent: *
+Disallow: /

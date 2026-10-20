@@ -121,7 +121,7 @@ export const SedesView = {
             </svg>
           </div>
           <div class="sedes-metric-data">
-            <span class="sedes-metric-num">${escapar(stats.totalNinos)} menores</span>
+            <span class="sedes-metric-num">${escapar(stats.totalNinos)} usuarios</span>
             <span class="sedes-metric-lbl">Cobertura Infantil</span>
           </div>
         </div>
@@ -587,7 +587,7 @@ export const SedesView = {
     const masterCountBadge = document.getElementById("sedesMasterCountBadge");
     const textCount = `${filtered.length} ${filtered.length === 1 ? 'sede' : 'sedes'}`;
     if (countBadge) countBadge.textContent = textCount;
-    if (masterCountBadge) masterCountBadge.textContent = `${filtered.length}`;
+    if (masterCountBadge) masterCountBadge.textContent = textCount;
 
     if (filtered.length > 0) {
       this._selectedSedeId = this._resolverSedeId(this._selectedSedeId);
@@ -638,15 +638,16 @@ export const SedesView = {
     listContainer.innerHTML = this._filteredSedes.map(s => {
       const isSelected = this._mismoId(s.id, this._selectedSedeId);
       const pct = s.porcentajeOcupacion;
-      let badgeClass = "badge-green";
-      if (pct >= 95) badgeClass = "badge-red";
-      else if (pct >= 80) badgeClass = "badge-yellow";
+      // El color ES el semáforo: mismo umbral que la ficha, sin pastilla.
+      let aforoColor = "var(--gt-green)";
+      if (pct >= 95) aforoColor = "var(--gt-red)";
+      else if (pct >= 80) aforoColor = "var(--gt-yellow)";
 
       return `
-        <div class="sedes-master-item ${isSelected ? 'active' : ''}" data-sede-id="${escapar(s.id)}" onclick="window.PDI?.SedesView?.selectSede('${escaparEnManejador(s.id)}')">
+        <div class="sedes-master-item ${isSelected ? 'active' : ''}" data-sede-id="${escapar(s.id)}" role="button" tabindex="0" aria-current="${isSelected ? 'true' : 'false'}" onclick="window.PDI?.SedesView?.selectSede('${escaparEnManejador(s.id)}')" onkeydown="var k=(event.key||'');if(k==='Enter'||k===' '){event.preventDefault();window.PDI?.SedesView?.selectSede('${escaparEnManejador(s.id)}')}">
           <div class="sedes-master-item-top">
             <span class="sedes-master-item-distrito">${escapar(s.distrito)}</span>
-            <span class="badge ${badgeClass}" style="font-size:10px; padding:1px 5px;">${pct}% Aforo</span>
+            <span class="sedes-master-item-aforo"><i style="background:${aforoColor};"></i>${pct}%</span>
           </div>
           <div class="sedes-master-item-name">Sede ${escapar(s.nombre)}</div>
           <div class="sedes-master-item-sub">
@@ -698,18 +699,13 @@ export const SedesView = {
     if (!sede) return;
 
     const pct = sede.porcentajeOcupacion;
+    // Un solo semáforo de aforo: la barra (y su color por umbral).
     let barColor = "var(--gt-green)";
-    let badgeAforoClass = "badge-green";
-    if (pct >= 95) {
-      barColor = "var(--gt-red)";
-      badgeAforoClass = "badge-red";
-    } else if (pct >= 80) {
-      barColor = "var(--gt-yellow)";
-      badgeAforoClass = "badge-yellow";
-    }
+    if (pct >= 95) barColor = "var(--gt-red)";
+    else if (pct >= 80) barColor = "var(--gt-yellow)";
 
-    const facilitadora = sede.facilitadora || 'Carmen Mendoza Huamán';
-    const facilitadoraCargo = sede.facilitadoraCargo || 'Facilitadora Comunitaria PDI';
+    const facilitadora = sede.facilitadora || 'Sin asignar';
+    const facilitadoraCargo = sede.facilitadoraCargo || 'Sin cargo registrado';
     const facilitadoraTel = sede.facilitadoraTel || '';
     const telDigits = String(facilitadoraTel).replace(/[^0-9]/g, '');
 
@@ -764,12 +760,9 @@ export const SedesView = {
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.333A1.125 1.125 0 0018.375 9.21H5.625A1.125 1.125 0 004.5 10.333V21h15z" />
               </svg>
             </div>
-            <div style="display:flex; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; align-items:baseline; flex-wrap:wrap; gap:10px;">
               <h2 class="sedes-detail-name" style="margin:0;">Sede ${escapar(sede.nombre)}</h2>
-              <div style="display:flex; align-items:center; gap:6px;">
-                <span class="badge badge-green">${escapar(sede.distrito)}</span>
-                <span class="badge ${sede.estado === 'Operativa' ? 'badge-green' : 'badge-gray'}">${escapar(sede.estado)}</span>
-              </div>
+              ${sede.distrito ? `<span class="sedes-detail-meta">· ${escapar(sede.distrito)}</span>` : ""}
             </div>
           </div>
           <div class="sedes-detail-actions">
@@ -783,7 +776,7 @@ export const SedesView = {
               <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
               </svg>
-              <span>Ver Beneficiarios</span>
+              <span>Ver Usuarios</span>
             </button>
           </div>
         </div>
@@ -800,8 +793,7 @@ export const SedesView = {
             <div class="sede-aforo-labels">
               <span class="sede-aforo-title">Inscritos vs Capacidad Máxima:</span>
               <span class="sede-aforo-count">
-                <strong>${escapar(sede.ninosInscritos)}</strong> / ${escapar(sede.aforoMax)} menores
-                <span class="badge ${badgeAforoClass}">${pct}% ocupado</span>
+                <strong>${escapar(sede.ninosInscritos)}</strong> / ${escapar(sede.aforoMax)} usuarios
               </span>
             </div>
             <div class="sede-aforo-bar" style="height:10px;">

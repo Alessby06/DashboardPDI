@@ -62,7 +62,7 @@ export const defaultAuditLogs = [
     ip: "192.168.1.22",
     sede: "Año Nuevo",
     diff: [
-      { campo: "Menores Presentes", valorAnterior: "0 / 20", valorNuevo: "18 / 20 presentes" },
+      { campo: "Usuarios Presentes", valorAnterior: "0 / 20", valorNuevo: "18 / 20 presentes" },
       { campo: "Ración Lonchera", valorAnterior: "Pendiente", valorNuevo: "18 raciones distribuidas" }
     ]
   },

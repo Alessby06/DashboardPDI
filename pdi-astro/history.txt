@@ -1,0 +1,101 @@
+#V2
+UPDATE tamizaje_hemoglobina SET usuario_id = persona_id;
+REMOVE FIELD persona_id ON tamizaje_hemoglobina;
+DEFINE INDEX idx_tamizaje_persona ON tamizaje_hemoglobina FIELDS usuario_id;
+-- ---------------------------------------------------------------------------
+-- 6. caso_social: persona_id -> usuario_id
+-- ---------------------------------------------------------------------------
+DEFINE FIELD OVERWRITE usuario_id ON caso_social TYPE record<persona> PERMISSIONS FULL;
+UPDATE caso_social SET usuario_id = persona_id;
+REMOVE FIELD persona_id ON caso_social;
+-- ---------------------------------------------------------------------------
+-- 7. Retirar tablas antiguas una vez copiadas
+-- ---------------------------------------------------------------------------
+REMOVE TABLE persona_vinculada;
+REMOVE TABLE persona_rol;
+-- ---------------------------------------------------------------------------
+-- 8. Bit??cora: conservar original y normalizar el t??rmino
+-- ---------------------------------------------------------------------------
+DEFINE FIELD OVERWRITE detalle_original ON bitacora_auditoria TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD OVERWRITE accion_original ON bitacora_auditoria TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD OVERWRITE normalizado_el ON bitacora_auditoria TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD OVERWRITE normalizado_por ON bitacora_auditoria TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD OVERWRITE motivo_normalizacion ON bitacora_auditoria TYPE none | string PERMISSIONS FULL;
+UPDATE bitacora_auditoria
+SET
+SELECT count() FROM persona GROUP ALL; SELECT count() FROM persona_vinculada GROUP ALL;
+SELECT count() FROM usuario_vinculado GROUP ALL;
+SELECT count() FROM usuario_rol GROUP ALL;
+SELECT count() FROM persona GROUP ALL;
+SELECT count() FROM inscripcion GROUP ALL;
+SELECT count() FROM consentimiento GROUP ALL;
+SELECT count() FROM tamizaje_hemoglobina GROUP ALL;
+SELECT count() FROM caso_social GROUP ALL;
+SELECT count() FROM bitacora_auditoria GROUP ALL;
+SELECT count() FROM inscripcion WHERE usuario_id = NONE GROUP ALL;
+SELECT count() FROM consentimiento WHERE usuario_id = NONE OR firmante_id = NONE GROUP ALL;
+SELECT count() FROM tamizaje_hemoglobina WHERE usuario_id = NONE GROUP ALL;
+SELECT count() FROM caso_social WHERE usuario_id = NONE GROUP ALL;
+SELECT count() FROM usuario_vinculado WHERE usuario_id NOT IN (SELECT VALUE id FROM persona) OR cuidador_id NOT IN (SELECT VALUE id FROM persona) GROUP ALL;
+SELECT count() FROM usuario_rol WHERE usuario_id NOT IN (SELECT VALUE id FROM persona) GROUP ALL;
+SELECT count() FROM inscripcion WHERE usuario_id NOT IN (SELECT VALUE id FROM persona) GROUP ALL;
+SELECT count() FROM consentimiento WHERE usuario_id NOT IN (SELECT VALUE id FROM persona) OR firmante_id NOT IN (SELECT VALUE id FROM persona) GROUP ALL;
+SELECT count() FROM tamizaje_hemoglobina WHERE usuario_id NOT IN (SELECT VALUE id FROM persona) GROUP ALL;
+SELECT count() FROM caso_social WHERE usuario_id NOT IN (SELECT VALUE id FROM persona) GROUP ALL;
+SELECT count() FROM bitacora_auditoria WHERE normalizado_el != NONE GROUP ALL;
+SELECT count() FROM bitacora_auditoria WHERE normalizado_el != NONE AND (detalle CONTAINS 'menor' OR accion CONTAINS 'menor') GROUP ALL;
+INFO FOR DB;
+INFO FOR TABLE inscripcion; INFO FOR TABLE consentimiento; INFO FOR TABLE tamizaje_hemoglobina; INFO FOR TABLE caso_social;
+SELECT count() FROM persona WHERE activo = true AND (SELECT VALUE id FROM inscripcion WHERE usuario_id = $parent.id AND activo = true LIMIT 1) != NONE GROUP ALL;
+SELECT count() FROM persona WHERE activo = true AND (SELECT VALUE id FROM tamizaje_hemoglobina WHERE usuario_id = $parent.id AND activo = true LIMIT 1) != NONE GROUP ALL;
+SELECT count() FROM persona WHERE activo = true AND (SELECT VALUE id FROM usuario_vinculado WHERE usuario_id = $parent.id LIMIT 1) != NONE GROUP ALL;
+SELECT count() FROM inscripcion WHERE activo = true AND (SELECT VALUE id FROM aporte WHERE inscripcion_id.usuario_id = $parent.id LIMIT 1) != NONE GROUP ALL;
+SELECT count() FROM caso_social WHERE activo = true AND usuario_id != NONE GROUP ALL;
+SELECT count() FROM tamizaje_hemoglobina WHERE activo = true AND usuario_id != NONE GROUP ALL;
+SELECT count() FROM persona WHERE activo = true GROUP ALL;
+LET $pid = (SELECT VALUE id FROM persona WHERE codigo = 'PDI-TEST-MIGRACION' LIMIT 1)[0]; DELETE aporte WHERE inscripcion_id.usuario_id = $pid; DELETE consentimiento WHERE usuario_id = $pid; DELETE usuario_vinculado WHERE usuario_id = $pid; DELETE inscripcion WHERE usuario_id = $pid; DELETE $pid; SELECT count() FROM persona WHERE codigo = 'PDI-TEST-MIGRACION' GROUP ALL;
+INFO FOR TABLE persona;
+REMOVE EVENT previene_delete_persona ON persona; DELETE persona WHERE codigo = 'PDI-TEST-MIGRACION'; DEFINE EVENT previene_delete_persona ON persona WHEN $event = 'DELETE' THEN { THROW 'Operacion rechazada: Ley 29733 prohibe el borrado fisico.' }; SELECT count() FROM persona WHERE codigo = 'PDI-TEST-MIGRACION' GROUP ALL;
+SELECT count() FROM persona GROUP ALL; SELECT count() FROM inscripcion GROUP ALL; SELECT count() FROM usuario_vinculado GROUP ALL; SELECT count() FROM usuario_rol GROUP ALL; SELECT count() FROM consentimiento GROUP ALL; SELECT count() FROM aporte GROUP ALL; SELECT count() FROM tamizaje_hemoglobina GROUP ALL; SELECT count() FROM caso_social GROUP ALL; SELECT count() FROM bitacora_auditoria GROUP ALL; SELECT count() FROM persona WHERE codigo = 'PDI-TEST-MIGRACION' GROUP ALL;
+DEFINE USER pdi_app ON DATABASE PASSWORD 'staging123' ROLES OWNER; INFO FOR DB;
+SELECT count() FROM usuario_vinculado GROUP ALL;
+SELECT count() FROM usuario_rol GROUP ALL;
+SELECT count() FROM persona GROUP ALL;
+SELECT count() FROM inscripcion GROUP ALL;
+SELECT count() FROM consentimiento GROUP ALL;
+SELECT count() FROM tamizaje_hemoglobina GROUP ALL;
+SELECT count() FROM caso_social GROUP ALL;
+SELECT count() FROM bitacora_auditoria GROUP ALL;
+SELECT count() FROM inscripcion WHERE usuario_id = NONE GROUP ALL;
+SELECT count() FROM consentimiento WHERE usuario_id = NONE OR firmante_id = NONE GROUP ALL;
+SELECT count() FROM tamizaje_hemoglobina WHERE usuario_id = NONE GROUP ALL;
+SELECT count() FROM caso_social WHERE usuario_id = NONE GROUP ALL;
+SELECT count() FROM usuario_vinculado WHERE usuario_id NOT IN (SELECT VALUE id FROM persona) OR cuidador_id NOT IN (SELECT VALUE id FROM persona) GROUP ALL;
+SELECT count() FROM usuario_rol WHERE usuario_id NOT IN (SELECT VALUE id FROM persona) GROUP ALL;
+SELECT count() FROM inscripcion WHERE usuario_id NOT IN (SELECT VALUE id FROM persona) GROUP ALL;
+SELECT count() FROM consentimiento WHERE usuario_id NOT IN (SELECT VALUE id FROM persona) OR firmante_id NOT IN (SELECT VALUE id FROM persona) GROUP ALL;
+SELECT count() FROM tamizaje_hemoglobina WHERE usuario_id NOT IN (SELECT VALUE id FROM persona) GROUP ALL;
+SELECT count() FROM caso_social WHERE usuario_id NOT IN (SELECT VALUE id FROM persona) GROUP ALL;
+SELECT count() FROM bitacora_auditoria WHERE normalizado_el != NONE GROUP ALL;
+SELECT count() FROM bitacora_auditoria WHERE normalizado_el != NONE AND (detalle CONTAINS 'menor' OR accion CONTAINS 'menor') GROUP ALL;
+SELECT count() FROM inscripcion WHERE usuario_id = NONE GROUP ALL; SELECT count() FROM tamizaje_hemoglobina WHERE usuario_id = NONE GROUP ALL; SELECT count() FROM usuario_vinculado GROUP ALL; SELECT count() FROM usuario_rol GROUP ALL;
+SELECT count() FROM usuario_vinculado GROUP ALL;
+SELECT count() FROM usuario_rol GROUP ALL;
+SELECT count() FROM persona GROUP ALL;
+SELECT count() FROM inscripcion GROUP ALL;
+SELECT count() FROM consentimiento GROUP ALL;
+SELECT count() FROM tamizaje_hemoglobina GROUP ALL;
+SELECT count() FROM caso_social GROUP ALL;
+SELECT count() FROM bitacora_auditoria GROUP ALL;
+SELECT count() FROM inscripcion WHERE usuario_id = NONE GROUP ALL;
+SELECT count() FROM consentimiento WHERE usuario_id = NONE OR firmante_id = NONE GROUP ALL;
+SELECT count() FROM tamizaje_hemoglobina WHERE usuario_id = NONE GROUP ALL;
+SELECT count() FROM caso_social WHERE usuario_id = NONE GROUP ALL;
+SELECT count() FROM usuario_vinculado WHERE usuario_id NOT IN (SELECT VALUE id FROM persona) OR cuidador_id NOT IN (SELECT VALUE id FROM persona) GROUP ALL;
+SELECT count() FROM usuario_rol WHERE usuario_id NOT IN (SELECT VALUE id FROM persona) GROUP ALL;
+SELECT count() FROM inscripcion WHERE usuario_id NOT IN (SELECT VALUE id FROM persona) GROUP ALL;
+SELECT count() FROM consentimiento WHERE usuario_id NOT IN (SELECT VALUE id FROM persona) OR firmante_id NOT IN (SELECT VALUE id FROM persona) GROUP ALL;
+SELECT count() FROM tamizaje_hemoglobina WHERE usuario_id NOT IN (SELECT VALUE id FROM persona) GROUP ALL;
+SELECT count() FROM caso_social WHERE usuario_id NOT IN (SELECT VALUE id FROM persona) GROUP ALL;
+SELECT count() FROM bitacora_auditoria WHERE normalizado_el != NONE GROUP ALL;
+SELECT count() FROM bitacora_auditoria WHERE normalizado_el != NONE AND (detalle CONTAINS 'menor' OR accion CONTAINS 'menor') GROUP ALL;

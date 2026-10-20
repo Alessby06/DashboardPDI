@@ -157,8 +157,8 @@ window.openModalExportPadron = () => {
   const list = bv?._filteredBeneficiarios || (window.PDI?.BeneficiarioModel?.getAll ? window.PDI.BeneficiarioModel.getAll() : []);
   window.openModalExportGeneric({
     title: "Descarga del Padrón de Usuarios",
-    subtitle: "Consolidado institucional del Padrón Único de Menores",
-    description: `Se generará un archivo consolidado en formato <strong style="font-family: var(--mono-font); color: var(--text-brand);">.CSV</strong> con la identidad central, escolaridad, tamizajes y servicios activos de los usuarios.`,
+    subtitle: "Consolidado institucional del Padrón Único de Usuarios",
+    description: `Se generará un archivo consolidado en formato <strong style="font-family: var(--mono-font); color: var(--text-brand);">.CSV</strong> con la identidad central, escolaridad, tamizajes y servicios activos de los usuarios. El archivo se descargará como <strong style="font-family: var(--mono-font);">padron_pdi_usuarios_2026.csv</strong>.`,
     count: list.length,
     unit: "usuarios",
     legal: "Ley N.° 29733 (Datos Personales)",
@@ -193,7 +193,7 @@ window.openModalExportDashboard = () => {
   window.openModalExportGeneric({
     title: "Descarga de Informe Consolidado",
     subtitle: "Reporte general operativo del Programa de Desarrollo Integral",
-    description: `Se generará un consolidado oficial en formato <strong style="font-family: var(--mono-font); color: var(--text-brand);">.CSV</strong> con el padrón general de beneficiarios y métricas clave.`,
+    description: `Se generará un consolidado oficial en formato <strong style="font-family: var(--mono-font); color: var(--text-brand);">.CSV</strong> con el padrón general de usuarios y métricas clave.`,
     count: list.length,
     unit: "registros consolidados",
     legal: "Ley N.° 29733 (Datos Personales)",
@@ -209,7 +209,7 @@ window.openModalExportSalud = () => {
   window.openModalExportGeneric({
     title: "Descarga del Reporte CRED",
     subtitle: "Control antropométrico y tamizaje de anemia",
-    description: `Se generará un archivo consolidado en formato <strong style="font-family: var(--mono-font); color: var(--text-brand);">.CSV</strong> con el dosaje de hemoglobina, el semáforo de anemia y la suplementación ferrosa de los menores.`,
+    description: `Se generará un archivo consolidado en formato <strong style="font-family: var(--mono-font); color: var(--text-brand);">.CSV</strong> con el dosaje de hemoglobina, el semáforo de anemia y la suplementación ferrosa de los usuarios.`,
     count: list.length,
     unit: "evaluaciones",
     legal: "Ley N.° 29733 (Datos Personales)",
@@ -226,9 +226,9 @@ window.openModalExportEducativo = () => {
   window.openModalExportGeneric({
     title: "Descarga del Pase de Asistencia",
     subtitle: "Consolidado de la Casita del Saber",
-    description: `Se generará un archivo consolidado en formato <strong style="font-family: var(--mono-font); color: var(--text-brand);">.CSV</strong> con el grado escolar, el colegio de origen, el apoderado acreditado y la asistencia registrada de cada menor.`,
+    description: `Se generará un archivo consolidado en formato <strong style="font-family: var(--mono-font); color: var(--text-brand);">.CSV</strong> con el grado escolar, el colegio de origen, el apoderado acreditado y la asistencia registrada de cada usuario.`,
     count: list.length,
-    unit: "menores",
+    unit: "usuarios",
     legal: "Ley N.° 29733 (Datos Personales)",
     onConfirm: () => {
       window.PDI?.AppController?.exportCasitasCSV?.(list, asistenciaMap);
@@ -309,15 +309,10 @@ window.openExpedienteByCodigo = (codigo) => {
     window.location.href = url;
   }
 };
-// El lápiz de las tablas entra al expediente ya en modo edición. El pedido
-// viaja en sessionStorage y no en la URL para no ensuciar la dirección que se
-// comparte; ExpedienteView lo consume una sola vez al pintar.
-window.openExpedienteEditar = (id) => {
-  try { sessionStorage.setItem("pdi_expediente_editar", "1"); } catch (e) {}
-  window.openExpediente(id);
-};
 window.toggleEditExpediente = () => window.PDI?.ExpedienteView?.toggleEdit?.();
 window.saveExpedienteChanges = () => window.PDI?.ExpedienteView?.saveChanges?.();
+window.verFotoExpediente = () => window.PDI?.ExpedienteView?.verFoto?.();
+window.eliminarFotoExpediente = () => window.PDI?.ExpedienteView?.eliminarFoto?.();
 window.deleteBeneficiarioExpediente = () => window.PDI?.ExpedienteView?.deleteBeneficiario?.();
 window.desplazarExpediente = (dir) => window.PDI?.ExpedienteView?._desplazar?.(dir);
 // No queda shim de cerrar el expediente: el boton de cerrar estaba en el marco
@@ -474,7 +469,7 @@ const vista = (nombre, fn) => (...args) => window.PDI?.[nombre]?.[fn]?.(...args)
 window.filterPadronSearch = vista("BeneficiariosView", "filterBySearch");
 window.clearPadronSearch = vista("BeneficiariosView", "clearSearch");
 window.togglePadronInnerDropdown = vista("BeneficiariosView", "toggleInnerDropdown");
-window.togglePadronServicio = vista("BeneficiariosView", "toggleServicio");
+window.togglePadronEstrategia = vista("BeneficiariosView", "toggleEstrategia");
 window.togglePadronSede = vista("BeneficiariosView", "toggleSede");
 window.togglePadronAnemia = vista("BeneficiariosView", "toggleAnemia");
 window.setPadronEdadExacta = vista("BeneficiariosView", "setEdadExacta");

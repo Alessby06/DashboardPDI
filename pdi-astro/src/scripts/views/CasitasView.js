@@ -96,8 +96,8 @@ export const CasitasView = {
     const infoEl = document.getElementById("casitasPaginationInfo");
     if (infoEl) {
       infoEl.textContent = totalCount === 0
-        ? "Mostrando 0 de 0 menores"
-        : `Mostrando ${startRecord}–${endRecord} de ${totalCount} menores`;
+        ? "Mostrando 0 de 0 usuarios"
+        : `Mostrando ${startRecord}-${endRecord} de ${totalCount} usuarios`;
     }
 
     const pageNumEl = document.getElementById("casitasCurrentPageNum");
@@ -574,8 +574,8 @@ export const CasitasView = {
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
               </svg>
             </div>
-            <div style="font-weight: 700; color: var(--text-main); font-size: 14px;">No se encontraron menores</div>
-            <div style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">No hay menores que coincidan con la búsqueda o filtros.</div>
+            <div style="font-weight: 700; color: var(--text-main); font-size: 14px;">No se encontraron usuarios</div>
+            <div style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">No hay usuarios que coincidan con la búsqueda o filtros.</div>
             <button type="button" class="btn-action btn-secondary" style="margin-top: 12px; display: inline-flex;" onclick="window.resetCasitasFilters ? window.resetCasitasFilters() : null">
               Restablecer Filtros
             </button>
@@ -623,7 +623,7 @@ export const CasitasView = {
           <!-- Cuerpo: Datos principales y Botonera Rápida -->
           <div class="datacard-body">
             <div class="datacard-row">
-              <span class="datacard-label">Menor Beneficiario</span>
+              <span class="datacard-label">Usuario</span>
               <span class="datacard-value">${escapar(b.nombres)} ${escapar(b.apellidos)}</span>
             </div>
             <div class="datacard-row">

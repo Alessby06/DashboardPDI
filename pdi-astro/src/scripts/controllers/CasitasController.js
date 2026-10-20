@@ -1,5 +1,6 @@
 // Controlador: Acompañamiento Educativo (Casita del Saber)
 import { ToastView } from '../views/ToastView.js';
+import { registrarAsistencia } from '../core/db.js';
 
 // Los cuatro estados del pase de asistencia, en un solo sitio. Antes estaban
 // repetidos en el controlador y en la vista, con etiquetas ligeramente
@@ -11,32 +12,19 @@ export const ESTADOS_ASISTENCIA = {
   "FI": { label: "Falta Injustificada", badgeClass: "badge badge-red"    }
 };
 
-const CLAVE_ASISTENCIA = "pdi_asistencia_casita";
-
 export const CasitasController = {
-  // Estado de asistencia por menor. Antes vivia solo en el DOM: el badge se
-  // pintaba siempre "Presente" y el filtro por asistencia no filtraba nada.
-  // Persistirlo es lo que hace que el filtro y la exportacion digan la verdad.
-  _asistenciaMap: null,
+  // Estado de asistencia POR DIA en la nube (tabla asistencia_diaria). La capa
+  // de datos lo hidrata al conectar y con cada cambio LIVE. Aqui solo queda el
+  // estado en memoria para el filtro, los badges y el CSV de la pagina.
+  _asistenciaMap: {},
 
-  _cargar() {
-    if (this._asistenciaMap) return this._asistenciaMap;
-    try {
-      const raw = localStorage.getItem(CLAVE_ASISTENCIA);
-      this._asistenciaMap = raw ? JSON.parse(raw) : {};
-    } catch (e) {
-      this._asistenciaMap = {};
-    }
-    if (!this._asistenciaMap || typeof this._asistenciaMap !== "object") {
-      this._asistenciaMap = {};
-    }
-    return this._asistenciaMap;
+  /** El dataset llega de la nube: { [beneficiarioId]: 'P'|'T'|'FJ'|'FI' } */
+  aplicarDatosAsistencia(mapa) {
+    this._asistenciaMap = (mapa && typeof mapa === "object") ? mapa : {};
   },
 
-  _guardar() {
-    try {
-      localStorage.setItem(CLAVE_ASISTENCIA, JSON.stringify(this._cargar()));
-    } catch (e) {}
+  _cargar() {
+    return this._asistenciaMap || {};
   },
 
   /** Clave del estado guardado para un menor ('P' por defecto). */
@@ -56,52 +44,71 @@ export const CasitasController = {
     const clave = ESTADOS_ASISTENCIA[estado] ? estado : "P";
     const target = ESTADOS_ASISTENCIA[clave];
 
-    // 0. Persistir el estado, que es la fuente de verdad del filtro y del CSV.
-    const map = this._cargar();
-    map[id] = clave;
-    this._guardar();
+    const anterior = this._asistenciaMap[id] !== undefined
+      ? this._asistenciaMap[id]
+      : this._asistenciaMap[String(id)];
+    const huboValor = this._asistenciaMap[id] !== undefined || this._asistenciaMap[String(id)] !== undefined;
 
-    const activeClass = `active-${clave}`;
+    // 0. Estado en memoria: fuente del filtro y del CSV.
+    this._asistenciaMap[id] = clave;
+    this._refrescarDom(id, clave, target);
 
-    // 1. Sincronizar badge de Escritorio (PC)
+    // 1. La nube es la verdad: el registro se escribe en asistencia_diaria.
+    const beneficiario = window.PDI?.BeneficiarioModel?.getById?.(id);
+    registrarAsistencia(beneficiario, clave).then(ok => {
+      if (!ok) {
+        // Rollback inmediato: el estado que la nube no acepto no vive aqui.
+        if (huboValor) this._asistenciaMap[id] = anterior;
+        else delete this._asistenciaMap[id];
+        this._refrescarDom(id, anterior, ESTADOS_ASISTENCIA[anterior] ? ESTADOS_ASISTENCIA[anterior] : ESTADOS_ASISTENCIA["P"]);
+        const toast = window.PDI?.ToastView || ToastView;
+        toast?.show?.("Asistencia no guardada", "La base de datos rechazó el registro. Revisa tu conexión.", "danger");
+      }
+    });
+
+    const toast = window.PDI?.ToastView || ToastView;
+    if (toast && toast.show) {
+      toast.show("Asistencia Actualizada", `${target.label} registrado para el usuario ID ${id}`, "info");
+    }
+  },
+
+  /** Pinta badges y botones del pase (escritorio y móvil) para un menor. */
+  _refrescarDom(id, clave, info) {
+    // Enrollback puede llegar con clave undefined ('P' implícito).
+    const finalInfo = info || ESTADOS_ASISTENCIA["P"];
+    const finalClave = ESTADOS_ASISTENCIA[clave] ? clave : "P";
+    const activeClass = `active-${finalClave}`;
+
     const badgeDesk = document.getElementById(`badgeAsist_${id}`);
     if (badgeDesk) {
-      badgeDesk.textContent = target.label;
-      badgeDesk.className = target.badgeClass;
+      badgeDesk.textContent = finalInfo.label;
+      badgeDesk.className = finalInfo.badgeClass;
     }
 
-    // 2. Sincronizar badge de Móvil
     const badgeMob = document.getElementById(`badgeAsistMob_${id}`);
     if (badgeMob) {
-      badgeMob.textContent = target.label;
-      badgeMob.className = target.badgeClass;
+      badgeMob.textContent = finalInfo.label;
+      badgeMob.className = finalInfo.badgeClass;
     }
 
-    // 3. Sincronizar botones activos en Escritorio
     const btnGroupDesk = document.getElementById(`btnGroupAsist_${id}`);
     if (btnGroupDesk) {
       btnGroupDesk.querySelectorAll("button").forEach(btn => {
         btn.className = "btn-asist";
-        if (btn.getAttribute("data-asist-btn") === clave) {
+        if (btn.getAttribute("data-asist-btn") === finalClave) {
           btn.classList.add(activeClass);
         }
       });
     }
 
-    // 4. Sincronizar botones activos en Móvil
     const btnGroupMob = document.getElementById(`btnGroupMobAsist_${id}`);
     if (btnGroupMob) {
       btnGroupMob.querySelectorAll("button").forEach(btn => {
         btn.className = "btn-asist";
-        if (btn.getAttribute("data-asist-btn") === clave) {
+        if (btn.getAttribute("data-asist-btn") === finalClave) {
           btn.classList.add(activeClass);
         }
       });
-    }
-
-    const toast = window.PDI?.ToastView || ToastView;
-    if (toast && toast.show) {
-      toast.show("Asistencia Actualizada", `${target.label} registrado para el menor ID ${id}`, "info");
     }
   }
 };

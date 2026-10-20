@@ -3,7 +3,7 @@ import AppLayout from '../layouts/AppLayout.astro';
 import '../styles/views-social.css';
 ---
 
-<AppLayout title="Derivaciones Sociales (ASP)" currentPage="social">
+<AppLayout title="Servicio Social Pastoral (ASP)" currentPage="social">
         <section class="app-view active" id="view-social">
           <script is:inline>
             (function() {
@@ -35,7 +35,7 @@ import '../styles/views-social.css';
           <div class="social-subview-panel active" id="viewSocialKanban">
             <div class="view-header">
               <div class="view-title-group">
-                <h2>Área Social Pastoral (ASP): Derivaciones y Vulnerabilidad</h2>
+                <h2>Servicio Social Pastoral (ASP): Derivaciones y Vulnerabilidad</h2>
                 <p>Bandeja de casos sociales clasificados, solicitudes de cambio de estado y simulador socioeconómico paramétrico (0-100%).</p>
               </div>
               <div class="view-actions">
@@ -60,7 +60,7 @@ import '../styles/views-social.css';
                       d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                   </svg>
                   <input type="text" class="audit-search-input" id="inputSearchCasosSociales"
-                    placeholder="Buscar caso por menor, código, situación o sede..."
+                    placeholder="Buscar caso por usuario, código, situación o sede..."
                     oninput="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.handleSearch(this.value) : null">
                 </div>
 
@@ -396,7 +396,7 @@ import '../styles/views-social.css';
                     </div>
                     <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                       <label for="selBeneficiarioSimulador"
-                        style="font-size:11.5px; color:var(--text-dim); font-weight:600;">Cargar Menor:</label>
+                        style="font-size:11.5px; color:var(--text-dim); font-weight:600;">Cargar Usuario:</label>
                       <select id="selBeneficiarioSimulador" class="form-control"
                         style="font-size:12px; padding:4px 8px; max-width:240px;"
                         onchange="window.cargarCasoEnSimulador ? window.cargarCasoEnSimulador(this.value) : (window.PDI?.SocialController?.cargarCasoEnSimulador ? window.PDI.SocialController.cargarCasoEnSimulador(this.value) : null)">
@@ -519,12 +519,12 @@ import '../styles/views-social.css';
                           <span>Datos a considerar para calificar:</span>
                         </div>
                         <ul class="socio-guide-list">
-                          <li><strong class="text-critico">14 - 19 pts:</strong> Hogar monoparental con 3+ menores
+                          <li><strong class="text-critico">14 - 19 pts:</strong> Hogar monoparental con 3+ usuarios
                             dependientes, o adulto mayor a cargo exclusivo sin red de soporte.</li>
                           <li><strong class="text-medio">7 - 13 pts:</strong> 2 dependientes a cargo; apoyo familiar
                             intermitente o progenitor no conviviente ausente.</li>
                           <li><strong class="text-favorable">0 - 6 pts:</strong> Ambos padres activos en el hogar, 1
-                            menor a
+                            usuario a
                             cargo y red familiar de apoyo extendida y solvente.</li>
                         </ul>
                       </div>
@@ -634,7 +634,7 @@ import '../styles/views-social.css';
                           <li><strong class="text-critico">5 - 7 pts:</strong> Miembro del hogar con enfermedad crónica
                             de
                             alto costo o discapacidad severa sin cobertura.</li>
-                          <li><strong class="text-medio">2 - 4 pts:</strong> Menor con anemia recurrente o familiares
+                          <li><strong class="text-medio">2 - 4 pts:</strong> Usuario con anemia recurrente o familiares
                             con
                             tratamientos médicos periódicos.</li>
                           <li><strong class="text-favorable">0 - 1 pts:</strong> Sin patologías limitantes en el núcleo;

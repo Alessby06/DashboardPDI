@@ -7,11 +7,13 @@
 //
 //  Este modulo hace esa parte comun y nada mas. El orden importa:
 //
-//    1. PageGuard  - decide si esta pagina puede siquiera mostrarse. Si deniega,
-//                    redirige y el resto no debe ejecutarse.
-//    2. Modelos    - datos en memoria, sin tocar el DOM.
-//    3. Chrome     - tema, menu lateral, selector de rol, pestanas de modales.
-//    4. Vista      - lo registra cada js/pages/<slug>.js, fuera de aqui.
+//    1. PageGuard    - decide si esta pagina puede siquiera mostrarse. Si deniega,
+//                      redirige y el resto no debe ejecutarse.
+//    2. VistaConexion- la app depende por completo de SurrealDB Cloud: el velo
+//                      tapa la pantall mientras conecta y BLOQUEA si falla.
+//    3. Modelos      - datos en memoria (vacias hasta que la nube hidrata).
+//    4. Chrome       - tema, menu lateral, selector de rol, pestanas de modales.
+//    5. Vista        - lo registra cada js/pages/<slug>.js, fuera de aqui.
 //
 //  Que NO se hace aqui, a diferencia de la SPA: no se redibuja ninguna tabla y
 //  no se inicializa ninguna calculadora. Eso es responsabilidad de la pagina, y
@@ -28,7 +30,9 @@ import { VoluntarioModel } from "../models/VoluntarioModel.js";
 import { AuditModel } from "../models/AuditModel.js";
 import { Theme } from "./Theme.js";
 import { ToastView } from "../views/ToastView.js";
-import { hidratarDesdeSurreal } from "./db.js";
+import {
+  iniciarCapaDatos, refrescarDesdeNube, hidratarDesdeSurreal,
+} from "./db.js";
 
 /**
  * Arranca el chrome. Devuelve el slug de la pagina si el acceso fue concedido,
@@ -49,7 +53,10 @@ export function arrancarComun() {
   const slug = PageGuard.init();
   if (!slug) return null;
 
-  // Modelos. AuditModel no tiene init(): su lista semilla vive en el modulo.
+  // 1. La conexión con la nube es silenciosa: la capa de datos (db.js) carga
+  //    y rehidrata por su cuenta; en caso de fallo solo avisos (toasts).
+
+  // Modelos. AuditModel no tiene init(): su lista vive en la nube.
   BeneficiarioModel.init();
   CasoSocialModel.init();
   SedeModel.init();
@@ -75,8 +82,9 @@ export function arrancarComun() {
   // escritos a mano en el HTML.
   actualizarBadgesSidebar();
 
-  // Carga datos reales de SurrealDB en segundo plano; al terminar refresca la vista.
-  hidratarDesdeSurreal();
+  // Encender la capa de datos (conexion, hidratacion, LIVE y reintentos).
+  // No es await: el velo se encarga de la espera visual.
+  iniciarCapaDatos();
 
   return slug;
 }
@@ -121,17 +129,12 @@ export function actualizarBadgesSidebar() {
   } catch (e) {}
 }
 
+/**
+ * Ya no se "restauran datos locales": la unica fuente es la nube. El boton de
+ * Ajustes re-descarga todos los datasets desde SurrealDB (cache fresca).
+ */
 export function restaurarDatosLocales() {
-  localStorage.removeItem("pdi_beneficiarios");
-  localStorage.removeItem("pdi_casos_sociales");
-  BeneficiarioModel.init();
-  CasoSocialModel.init();
-  SedeModel.init();
-  VoluntarioModel.init();
-  if (typeof window.PDI?.refrescarVistaActual === "function") {
-    window.PDI.refrescarVistaActual();
-  }
-  console.log("[PDI] Datos locales y tablas restauradas exitosamente.");
+  refrescarDesdeNube();
 }
 
 /** Publica el redibujado de la pagina, para los puentes heredados. */
@@ -142,7 +145,7 @@ export function publicarRefresco(fn) {
 
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
-  window.PDI.Bootstrap = { arrancarComun, publicarRefresco, restaurarDatosLocales, actualizarBadgesSidebar };
+  window.PDI.Bootstrap = { arrancarComun, publicarRefresco, restaurarDatosLocales, actualizarBadgesSidebar, hidratarDesdeSurreal };
   window.PDI.restaurarDatosLocales = restaurarDatosLocales;
   window.PDI.ToastView = ToastView;
   window.PDI.Navigation = Navigation;

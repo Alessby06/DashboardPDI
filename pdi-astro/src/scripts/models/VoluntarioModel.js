@@ -1,15 +1,12 @@
 // Modelo: Padrón y Gestión Operativa de Voluntariados y Personal Comunitario (PDI)
 // Asociación Cultural Johannes Gutenberg - Lima Norte
+// La fuente única de verdad es la instancia de SurrealDB Cloud (tabla voluntario,
+// creada para este módulo). No hay fixtures ni localStorage.
 
-import { StorageService } from './StorageService.js';
-
-const STORAGE_KEY = "pdi_voluntarios_data_v1";
-
-// Los datos semilla viven fuera del codigo: son registros ficticios y estan
-// marcados como tales. Ver data/fixtures/voluntarios.js
-import { defaultVoluntarios } from '../../data/fixtures/voluntarios.js';
-export { defaultVoluntarios };
-
+import {
+  crearVoluntario, actualizarVoluntario, darBajaVoluntario,
+  addCapacitacionVoluntario, incrementarCanastaVoluntario,
+} from '../core/db.js';
 
 export const TEMATICAS_CAPACITACION = [
   "Higiene y manipulación de alimentos",
@@ -30,13 +27,13 @@ export const VoluntarioModel = {
   _data: null,
 
   init() {
-    const stored = StorageService.getItem(STORAGE_KEY);
-    if (stored && Array.isArray(stored) && stored.length > 0) {
-      this._data = stored;
-    } else {
-      this._data = JSON.parse(JSON.stringify(defaultVoluntarios));
-      this.saveToStorage();
-    }
+    if (!this._data) this._data = [];
+  },
+
+  /** La capa de datos entrega el padrón hidratado de la nube. */
+  aplicarDatos(lista) {
+    if (!Array.isArray(lista)) return;
+    this._data = lista;
   },
 
   getAll() {
@@ -52,10 +49,6 @@ export const VoluntarioModel = {
   getByDni(dni) {
     if (!this._data) this.init();
     return this._data.find(v => String(v.dni) === String(dni)) || null;
-  },
-
-  saveToStorage() {
-    StorageService.setItem(STORAGE_KEY, this._data);
   },
 
   create(voluntarioData) {
@@ -76,7 +69,7 @@ export const VoluntarioModel = {
       edad: voluntarioData.edad ? Number(voluntarioData.edad) : this._calculateAge(voluntarioData.fechaNacimiento),
       domicilio: (voluntarioData.domicilio || "").trim(),
       distrito: voluntarioData.distrito || "Comas",
-      sedeAsignada: voluntarioData.sedeAsignada || "Año Nuevo",
+      sedeAsignada: voluntarioData.sedeAsignada || "",
       servicio: voluntarioData.servicio || "Desayuno Infantil",
       rol: voluntarioData.rol || "Voluntaria de Apoyo",
       estrategia: voluntarioData.estrategia || "Atención Fija",
@@ -90,12 +83,21 @@ export const VoluntarioModel = {
     };
 
     this._data.unshift(newVoluntario);
-    this.saveToStorage();
+    // La nube confirma; si el DNI está duplicado la voluntaria se retira.
+    crearVoluntario(newVoluntario).then(ok => {
+      if (!ok) {
+        const idx = this._data.indexOf(newVoluntario);
+        if (idx !== -1) this._data.splice(idx, 1);
+      } else if (ok?.qid) {
+        newVoluntario._qid = ok.qid;
+      }
+    });
     return newVoluntario;
   },
 
   update(id, updatedData) {
     if (!this._data) this.init();
+    const original = this._data.find(v => String(v.id) === String(id));
     const index = this._data.findIndex(v => String(v.id) === String(id));
     if (index === -1) return null;
 
@@ -103,20 +105,26 @@ export const VoluntarioModel = {
       updatedData.edad = this._calculateAge(updatedData.fechaNacimiento);
     }
 
-    this._data[index] = {
+    const actualizado = {
       ...this._data[index],
       ...updatedData
     };
-    this.saveToStorage();
-    return this._data[index];
+    this._data[index] = actualizado;
+    actualizarVoluntario(actualizado);
+    return actualizado;
   },
 
+  /**
+   * Baja del padrón de voluntariados. La Ley 29733 prohibe el borrado físico:
+   * en memoria se retira de la vista y en la nube pasa a Inactivo.
+   */
   delete(id) {
     if (!this._data) this.init();
     const index = this._data.findIndex(v => String(v.id) === String(id));
     if (index === -1) return false;
+    const vol = this._data[index];
     this._data.splice(index, 1);
-    this.saveToStorage();
+    darBajaVoluntario(vol);
     return true;
   },
 
@@ -126,7 +134,8 @@ export const VoluntarioModel = {
     if (!vol.capacitaciones) vol.capacitaciones = [];
     if (!vol.capacitaciones.includes(tematica)) {
       vol.capacitaciones.push(tematica);
-      this.saveToStorage();
+      // La nube agrega el taller sin duplicarlo en la lista del registro.
+      addCapacitacionVoluntario(vol, tematica);
     }
     return vol;
   },
@@ -135,7 +144,7 @@ export const VoluntarioModel = {
     const vol = this.getById(id);
     if (!vol) return null;
     vol.canastasRecibidas = (Number(vol.canastasRecibidas) || 0) + 1;
-    this.saveToStorage();
+    incrementarCanastaVoluntario(vol);
     return vol;
   },
 

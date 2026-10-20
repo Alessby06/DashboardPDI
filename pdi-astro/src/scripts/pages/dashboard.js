@@ -20,6 +20,8 @@
 import "../core/legacy-globals.js";
 import { arrancarComun, publicarRefresco } from "../core/Bootstrap.js";
 import { BeneficiarioModel } from '../models/BeneficiarioModel.js';
+import { CasoSocialModel } from '../models/CasoSocialModel.js';
+import { SedeModel } from '../models/SedeModel.js';
 import { AuditModel } from '../models/AuditModel.js';
 import { DashboardView } from '../views/DashboardView.js';
 // El boton de exportar del panel invoca window.exportDataCSV, y ese puente
@@ -33,6 +35,19 @@ let enlazado = false;
 function enlazar() {
   if (enlazado) return;
   enlazado = true;
+
+  // Reactividad: los datos llegan (o cambian) desde la nube. La capa de datos
+  // publica `pdi:datos-actualizados` en cada hidratacion (primera carga o
+  // evento LIVE); aqui solo repintamos. En otra pestana, el storage event ya
+  // no significa nada: el espejo local sobra cuando la nube es la unica fuente.
+  let reprogramado;
+  document.addEventListener("pdi:datos-actualizados", () => {
+    clearTimeout(reprogramado);
+    reprogramado = setTimeout(() => {
+      montar();
+      window.PDI?.Bootstrap?.actualizarBadgesSidebar?.();
+    }, 120);
+  });
 }
 
 /** Dibuja lo propio de esta pagina. Es idempotente. */

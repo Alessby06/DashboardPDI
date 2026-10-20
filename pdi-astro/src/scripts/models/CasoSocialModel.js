@@ -1,95 +1,24 @@
 // Modelo de Casos Sociales (Derivaciones ASP - Área Social Pastoral)
-// Sincronizado integralmente con los menores del Padrón Oficial de Beneficiarios
-import { StorageService } from './StorageService.js';
-
-// Los datos semilla viven fuera del codigo: son registros ficticios y estan
-// marcados como tales. Ver data/fixtures/casos-sociales.js
-import { defaultCasosSociales } from '../../data/fixtures/casos-sociales.js';
-export { defaultCasosSociales };
-
+// La fuente única de verdad es la instancia de SurrealDB Cloud: caso_social más
+// solicitud_caso (autorizaciones de cambio de etapa de Coordinación). No hay
+// fixtures ni mapa espejo en localStorage. Toda mutación se escribe en la nube
+// de forma optimista y la capa de datos realinea con las suscripciones LIVE.
+import {
+  crearCasoSocial, cambiarEtapaCaso, crearSolicitudCaso, resolverSolicitudCaso,
+} from '../core/db.js';
 
 export const CasoSocialModel = {
   _data: null,
 
-  _obtenerMapaPersistente() {
-    try {
-      const raw = localStorage.getItem("pdi_solicitudes_sociales");
-      return raw ? JSON.parse(raw) : {};
-    } catch (e) {
-      return {};
-    }
-  },
-
-  _guardarMapaPersistente(mapa) {
-    try {
-      localStorage.setItem("pdi_solicitudes_sociales", JSON.stringify(mapa));
-    } catch (e) {}
-  },
-
   init() {
-    const storage = window.PDI?.StorageService || StorageService;
-    let list = storage.getItem("pdi_casos_sociales", defaultCasosSociales);
-
-    // Validación de integridad:
-    // Comprobar que los casos tengan menor o código y urgencia, y no registros
-    // planos o vacíos de SurrealDB con nombres de campos distintos (persona, etc.)
-    const esValido = Array.isArray(list) && list.length > 0 && list.every(c =>
-      c && (c.menor || c.codigo) && c.urgencia && (typeof c.id === 'number' || (!isNaN(Number(c.id)) && typeof c.id !== 'boolean'))
-    );
-
-    if (!esValido) {
-      console.warn("[CasoSocialModel] Cache local corrupta o incompatible. Restaurando fixtures normativos.");
-      list = JSON.parse(JSON.stringify(defaultCasosSociales));
-      storage.setItem("pdi_casos_sociales", list);
-    }
-
-    // Fusión con mapa persistente de solicitudes (garantiza que NUNCA desaparezcan al cambiar de rol o hidratar)
-    const mapa = this._obtenerMapaPersistente();
-    list.forEach(c => {
-      const datosPersistidos = mapa[String(c.id)] || mapa[Number(c.id)];
-      if (datosPersistidos) {
-        if (datosPersistidos.solicitudCambio) {
-          c.solicitudCambio = datosPersistidos.solicitudCambio;
-        }
-        if (Array.isArray(datosPersistidos.historialSolicitudes)) {
-          c.historialSolicitudes = datosPersistidos.historialSolicitudes;
-        }
-        if (datosPersistidos.ultimaResolucion) {
-          c.ultimaResolucion = datosPersistidos.ultimaResolucion;
-        }
-      }
-    });
-
-    this._data = list;
+    if (!this._data) this._data = [];
     return this._data;
   },
 
-  /**
-   * Actualiza los datos desde SurrealDB Cloud preservando fielmente las solicitudes
-   * de cambio de estado activas y el historial de auditoría de cada caso.
-   */
-  actualizarDesdeRemoto(listaRemota) {
-    if (!Array.isArray(listaRemota) || listaRemota.length === 0) return this.getAll();
-    const mapa = this._obtenerMapaPersistente();
-    listaRemota.forEach(c => {
-      const datosPersistidos = mapa[String(c.id)] || mapa[Number(c.id)];
-      if (datosPersistidos) {
-        if (datosPersistidos.solicitudCambio) {
-          c.solicitudCambio = datosPersistidos.solicitudCambio;
-        }
-        if (Array.isArray(datosPersistidos.historialSolicitudes)) {
-          c.historialSolicitudes = datosPersistidos.historialSolicitudes;
-        }
-        if (datosPersistidos.ultimaResolucion) {
-          c.ultimaResolucion = datosPersistidos.ultimaResolucion;
-        }
-      }
-    });
-
-    this._data = listaRemota;
-    const storage = window.PDI?.StorageService || StorageService;
-    storage.setItem("pdi_casos_sociales", this._data);
-    return this._data;
+  /** La capa de datos entrega los casos con sus solicitudes ya adjuntas. */
+  aplicarDatos(lista) {
+    if (!Array.isArray(lista)) return;
+    this._data = lista;
   },
 
   getAll() {
@@ -184,8 +113,7 @@ export const CasoSocialModel = {
 
   /**
    * Casos con urgencia Alta que siguen abiertos. Alimenta el badge rojo del
-   * menu lateral y el KPI "Casos en Alerta" del dashboard, para que no sean
-   * numeros de adorno: reflejan siempre el estado real del tablero.
+   * menu lateral y el KPI "Casos en Alerta" del dashboard.
    */
   contarCriticos() {
     return this.getAll().filter(c => c && c.urgencia === "Alta" && c.etapa !== "cerrado").length;
@@ -210,7 +138,7 @@ export const CasoSocialModel = {
       cargoSolicitante: solicitante?.cargo || "Trabajadora Social ASP",
       fechaSolicitud: fechaAhora,
       motivo: motivo.trim() || "Solicitud de transición de etapa operativa",
-      estado: "pendiente" // 'pendiente' | 'aprobada' | 'rechazada'
+      estado: "pendiente"
     };
 
     if (!Array.isArray(caso.historialSolicitudes)) {
@@ -219,7 +147,7 @@ export const CasoSocialModel = {
     caso.historialSolicitudes.unshift({
       id: idSolicitud,
       evento: "solicitud",
-      etapaOrigen: caso.etapa,
+      etapaOrigen: caso.solicitudCambio.etapaOrigen,
       etapaDestino: nuevaEtapa,
       solicitadoPor: caso.solicitudCambio.solicitadoPor,
       cargoSolicitante: caso.solicitudCambio.cargoSolicitante,
@@ -227,18 +155,8 @@ export const CasoSocialModel = {
       motivo: caso.solicitudCambio.motivo
     });
 
-    const storage = window.PDI?.StorageService || StorageService;
-    storage.setItem("pdi_casos_sociales", list);
-
-    // Guardar en mapa persistente dedicado
-    const mapa = this._obtenerMapaPersistente();
-    mapa[String(caso.id)] = {
-      solicitudCambio: caso.solicitudCambio,
-      historialSolicitudes: caso.historialSolicitudes,
-      ultimaResolucion: caso.ultimaResolucion || null
-    };
-    this._guardarMapaPersistente(mapa);
-
+    // La nube es la fuente de verdad: la solicitud vive en solicitud_caso.
+    crearSolicitudCaso(caso, caso.solicitudCambio);
     return caso;
   },
 
@@ -277,24 +195,12 @@ export const CasoSocialModel = {
     if (esAprobado) {
       caso.etapa = sol.etapaDestino;
     }
-    // Si se rechaza, caso.etapa se mantiene intacto
 
-    // Se archiva de activa a null (o se conserva como última resolución)
     caso.ultimaResolucion = { ...sol };
     delete caso.solicitudCambio;
 
-    const storage = window.PDI?.StorageService || StorageService;
-    storage.setItem("pdi_casos_sociales", list);
-
-    // Actualizar mapa persistente dedicado
-    const mapa = this._obtenerMapaPersistente();
-    mapa[String(caso.id)] = {
-      solicitudCambio: null,
-      historialSolicitudes: caso.historialSolicitudes,
-      ultimaResolucion: caso.ultimaResolucion
-    };
-    this._guardarMapaPersistente(mapa);
-
+    // En la nube: la solicitud se resuelve y, si se aprobó, la etapa cambia.
+    resolverSolicitudCaso(sol.id, caso, esAprobado ? 'aprobada' : 'rechazada', comentario, autorizador);
     return { caso, solicitud: sol, aprobada: esAprobado };
   },
 
@@ -305,29 +211,38 @@ export const CasoSocialModel = {
     return this.getAll().filter(c => c && c.solicitudCambio && c.solicitudCambio.estado === "pendiente");
   },
 
+  /** Movimiento directo de etapa desde el kanban. */
   updateStage(id, nuevaEtapa) {
     const list = this.getAll();
     const caso = list.find(c => String(c.id) === String(id) || c.id === Number(id));
     if (caso) {
       caso.etapa = nuevaEtapa;
-      const storage = window.PDI?.StorageService || StorageService;
-      storage.setItem("pdi_casos_sociales", list);
+      cambiarEtapaCaso(caso, nuevaEtapa);
       return caso;
     }
     return null;
   },
 
+  /**
+   * Alta de caso social. La nube localiza a la persona del menor por su código;
+   * sin expediente del menor en la nube el alta es rechazada (avisado por db.js).
+   */
   add(nuevoCaso) {
     const list = this.getAll();
     list.unshift(nuevoCaso);
-    const storage = window.PDI?.StorageService || StorageService;
-    storage.setItem("pdi_casos_sociales", list);
+    crearCasoSocial(nuevoCaso).then(ok => {
+      if (!ok) list.splice(list.indexOf(nuevoCaso), 1);
+    });
     return nuevoCaso;
+  },
+
+  /** Alias usado por ExpedienteView y el controlador del padrón. */
+  addCaso(nuevoCaso) {
+    return this.add(nuevoCaso);
   }
 };
 
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
-  window.PDI.defaultCasosSociales = defaultCasosSociales;
   window.PDI.CasoSocialModel = CasoSocialModel;
 }

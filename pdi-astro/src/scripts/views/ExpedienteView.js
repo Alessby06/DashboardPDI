@@ -23,8 +23,54 @@ import { CasoSocialModel } from "../models/CasoSocialModel.js";
 import { AuditModel } from "../models/AuditModel.js";
 import { ToastView } from "./ToastView.js";
 import { crear as crearFiltros } from "../utils/Filters.js";
+import { edadDesdeFecha, estadoActual } from "../core/db.js";
+import { PARENTESCOS, valoresDeGrado } from "../../data/opcionesBeneficiario.js";
+import { pintarGrados, conectarGrado } from "../ui/gradoEscolar.js";
 
-import { escapar } from "../utils/HtmlHelper.js";;
+import { escapar } from "../utils/HtmlHelper.js";
+
+/** Estado de anemia con las mismas etiquetas que usan los filtros y tableros. */
+function estadoAnemia(hb) {
+  const valor = Number.parseFloat(hb);
+  if (!Number.isFinite(valor)) return "Sin tamizaje";
+  if (valor < 7) return "Severa";
+  if (valor < 10) return "Moderada";
+  if (valor < 11) return "Leve";
+  return "Normal";
+}
+
+/** Escribe un numero en un campo, dejandolo vacio si no hay dato. */
+function escribirNumero(id, valor) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.value = (valor === null || valor === undefined || valor === "") ? "" : valor;
+}
+
+/**
+ * Selecciona un valor en un <select>. Si el dato guardado es anterior al
+ * catalogo actual (por ejemplo, una sede que ya no esta en la lista), se
+ * agrega como opcion propia para no pintar el campo en blanco ni mentir.
+ */
+function seleccionarValor(id, valor) {
+  const sel = document.getElementById(id);
+  if (!sel || valor === undefined || valor === null || valor === "") return;
+  if (![...sel.options].some((opcion) => opcion.value === valor)) {
+    sel.add(new Option(valor, valor));
+  }
+  sel.value = valor;
+}
+
+/** Opciones del desplegable de parentesco, con la opcion guardada marcada. */
+function opcionesParentescoHtml(seleccionado) {
+  const valor = seleccionado || "Madre";
+  const opciones = PARENTESCOS.map((parentesco) =>
+    `<option value="${escapar(parentesco)}"${parentesco === valor ? " selected" : ""}>${escapar(parentesco)}</option>`
+  );
+  if (!PARENTESCOS.includes(valor)) {
+    opciones.unshift(`<option value="${escapar(valor)}" selected>${escapar(valor)}</option>`);
+  }
+  return opciones.join("");
+}
 // Avatares cuando no hay fotografia. Un expediente de DEMUNA tiene que poder
 // imprimirse, y una imagen rota o un icono de usuario generico no sirven ni
 // para eso ni para leerlo a distancia. Estos SVG no dependen de la red.
@@ -109,14 +155,19 @@ const FILTROS_EXPEDIENTE = {
   id: { valor: null, numeros: { min: 1 } },
 };
 
+// Leyenda por omision de la referencia de ubicacion: se muestra en el campo
+// cuando el menor no tiene referencia registrada, pero nunca viaja a la nube.
+const LEYENDA_SIN_REFERENCIA = "Sin referencia adicional";
+
 // Campos que pasa a editar el modo edicion. estan en la vista y no en el DOM:
 // repetirlos en el marcado y aqui es la forma de que se separen.
 const CAMPOS_EDITABLES = [
-  "expNombres", "expApellidos", "expDni", "expFechaNac", "expEdad",
-  "expDireccion", "expReferencia", "expDistritoSede", "expModalidadEstrategia",
-  "expExoneracion", "expSeguro", "expCentroSalud", "expAlergias", "expGrado",
-  "expColegio", "expApoderadoNombre", "expApoderadoParentesco", "expApoderadoDni",
-  "expApoderadoTel", "expTelefonoAlt", "expPesoTalla", "expHb",
+  "expNombres", "expApellidos", "expDni", "expFechaNac",
+  "expDireccion", "expReferencia", "expDistritoSede", "expModalidad", "expEstrategia",
+  "expExoneracion", "expSeguro", "expCentroSalud", "expAlergias",
+  "expNivelEducativo", "expGrado", "expColegio",
+  "expApoderadoNombre", "expApoderadoParentesco", "expApoderadoDni",
+  "expApoderadoTel", "expTelefonoAlt", "expPeso", "expTalla", "expHb",
 ];
 
 export const ExpedienteView = {
@@ -132,8 +183,16 @@ export const ExpedienteView = {
 
   /** Escucha lo que solo ocurre una vez por carga. */
   init() {
+    if (typeof document !== "undefined") {
+      document.body.classList.remove("pdi-editando");
+    }
     this._enlazarSecciones();
     this._enlazarNavegacion();
+    // El grado se elige de la lista que corresponde al nivel educativo.
+    conectarGrado(
+      document.getElementById("expNivelEducativo"),
+      document.getElementById("expGrado"),
+    );
   },
 
   _enlazarNavegacion() {
@@ -190,15 +249,6 @@ export const ExpedienteView = {
    * porque el boton de atras y el de siguiente cambian el id sin recargar.
    */
   render() {
-    // El lápiz de las tablas pide entrar editando. Se consume al entrar, una
-    // sola vez: si no, volver a este expediente (o pasar al siguiente)
-    // reabriría el modo edición sin que nadie lo haya pedido.
-    let editandoAlEntrar = false;
-    try {
-      editandoAlEntrar = sessionStorage.getItem("pdi_expediente_editar") === "1";
-      if (editandoAlEntrar) sessionStorage.removeItem("pdi_expediente_editar");
-    } catch (e) {}
-
     const estadoSinExpediente = document.getElementById("expSinExpediente");
 
     // Un enlace puede venir por codigo (openExpedienteByCodigo) en vez de por
@@ -236,8 +286,26 @@ export const ExpedienteView = {
     if (!menor) {
       this._id = null;
       this.isEditing = false;
+
+      // Mientras la capa de datos sigue conectando o hidratando, un id sin
+      // menor no significa que no exista: significa que todavia no llego. Se
+      // deja la pagina vacia (el pre-hidratado ya marco lo que pudo) sin
+      // cartel de error, y el repintado que lanza la hidratacion resolvera el
+      // expediente. El aviso solo tiene sentido con los datos ya descargados.
+      const estadoCapa = estadoActual();
+      if (estadoCapa === "conectando" || estadoCapa === "cargando") {
+        if (estadoSinExpediente) estadoSinExpediente.style.display = "none";
+        document.getElementById("expPageTitle").textContent = "Expediente Integral del Usuario";
+        const subCarga = document.getElementById("expPageSubtitle");
+        if (subCarga) subCarga.textContent = "";
+        document.querySelector(".expediente-page-body").style.display = "";
+        document.querySelector(".expediente-page-actions").style.display = "";
+        document.querySelector(".expediente-page-nav").style.display = "";
+        return;
+      }
+
       if (estadoSinExpediente) estadoSinExpediente.style.display = "block";
-      document.getElementById("expPageTitle").textContent = "Expediente Integral del Beneficiario";
+      document.getElementById("expPageTitle").textContent = "Expediente Integral del Usuario";
       const sub = document.getElementById("expPageSubtitle");
       if (sub) sub.textContent = "";
       document.querySelector(".expediente-page-body").style.display = "none";
@@ -250,11 +318,11 @@ export const ExpedienteView = {
         ? `el id ${f.id}`
         : (codigoNoEncontrado ? `el código ${codigoNoEncontrado}` : null);
       document.getElementById("expSinExpedienteTitulo").textContent = buscado
-        ? `No hay ningún menor con ${buscado}`
+        ? `No hay ningún usuario con ${buscado}`
         : "No se indicó qué expediente abrir";
       document.getElementById("expSinExpedienteDetalle").textContent = buscado
         ? "Puede que se haya dado de baja, o que el enlace sea de otra instalación."
-        : "Esta página necesita saber a qué menor corresponde. Se llega desde el Padrón de Beneficiarios.";
+        : "Esta página necesita saber a qué usuario corresponde. Se llega desde el Padrón de Usuarios.";
       return;
     }
 
@@ -268,13 +336,16 @@ export const ExpedienteView = {
 
     this._pintar(menor, caso);
     this._pintarPosicion();
-
-    if (editandoAlEntrar && !this.isEditing) this.toggleEdit();
   },
 
   _pintar(b, caso) {
     this._id = b.id;
-    if (this.isEditing) this.isEditing = false;
+    if (this.isEditing) {
+      this.isEditing = false;
+      if (typeof document !== "undefined") {
+        document.body.classList.remove("pdi-editando");
+      }
+    }
     this._editServicios = Array.isArray(b.servicios) ? [...b.servicios] : [];
 
     this._pintarBotones();
@@ -466,41 +537,93 @@ export const ExpedienteView = {
     this._set("expNombres", b.nombres);
     this._set("expApellidos", b.apellidos);
     this._set("expDni", b.dni);
-    this._set("expFechaNac", b.fechaNacimiento || "No registrada");
-    this._set("expEdad", `${b.edad} (${b.sexo === "M" ? "Masculino" : "Femenino"})`);
+    this._set("expFechaNac", b.fechaNacimiento || "");
+    // La edad nunca se escribe a mano: sale del calculo. El sexo vive en el
+    // desplegable, con el mismo control que usa el formulario de alta.
+    this._set("expEdad", b.edad || "");
     this._set("expEdadSexo", `${b.edad} / ${b.sexo}`);
-    this._set("expSexo", b.sexo === "M" ? "Masculino" : "Femenino");
+    const selSexo = document.getElementById("expSexo");
+    if (selSexo) selSexo.value = b.sexo === "F" ? "F" : "M";
+    // El sexo es un dato del alta: display-only en el expediente (desplegable
+    // bloqueado de siempre), asi que aqui no se toca al guardar.
+
     this._set("expDireccion", b.direccion || "Mz. 4W Lt. 30, Comite 12");
-    this._set("expReferencia", b.referencia || "Sin referencia adicional");
-    this._set("expDistritoSede", `${b.distrito} - Sede ${b.sede}`);
+    // La referencia no se imprime como texto en el campo: se deja vacia con su
+    // placeholder ("Sin referencia adicional"), para que el dato guardado no
+    // arrastre leyendas escritas como si fueran datos. Va a mano y no con _set,
+    // porque ese helper reemplaza el vacio por "-" y taparia el placeholder.
+    // En vista la leyenda se muestra como valor por omision (con tinta de
+    // dato normal); al entrar a edicion el ciclo la cambia por vacio y
+    // placeholder, y al salir vuelve sin haberse guardado nunca.
+    const inputReferencia = document.getElementById("expReferencia");
+    if (inputReferencia) inputReferencia.value = b.referencia || LEYENDA_SIN_REFERENCIA;
+
+    // Distrito y Sede bajan a un desplegable con las mismas sedes de la ficha
+    // de inscripcion. Si la sede del menor no esta en la lista (alta con sede
+    // vieja o borrada) se agrega como opcion propia, para no mostrar mentiras.
+    const selDistritoSede = document.getElementById("expDistritoSede");
+    if (selDistritoSede) {
+      const valorDS = `${b.distrito || ""} - ${b.sede || ""}`;
+      if (b.sede && ![...selDistritoSede.options].some(o => o.value === valorDS)) {
+        selDistritoSede.add(new Option(`${b.distrito || "Sin distrito"}: ${b.sede}`, valorDS));
+      }
+      selDistritoSede.value = valorDS;
+    }
     this._set("expSede", `${b.distrito} - Sede ${b.sede}`);
 
-    // Exoneracion: solo nomenclatura limpia (100%, 50%, 0%). El dato guardado
-    // puede traer el texto largo del formulario y el expediente la nomenclatura
-    // que se cita en el documento oficial.
-    let exoneracion = "100%";
-    if (b.exoneracionAporte) {
-      if (b.exoneracionAporte.includes("50%")) exoneracion = "50%";
-      else if (b.exoneracionAporte.includes("0%")) exoneracion = "0%";
-      else if (b.exoneracionAporte.includes("100%")) exoneracion = "100%";
-      else exoneracion = b.exoneracionAporte;
+    // Exoneracion: desplegable con las 3 escalas de la ficha de inscripcion.
+    // El dato guardado puede traer nomenclatura vieja ("50% (Aporte Reducido)",
+    // cortos tipo "100%"), asi que se normaliza a la escala completa antes de
+    // pintar; un valor desconocido se conserva tal cual con su propia opcion.
+    const txtExon = String(b.exoneracionAporte || "");
+    let valorExon = "";
+    if (txtExon.includes("100%")) valorExon = "100% (Exonerado Vulnerabilidad Extrema)";
+    else if (txtExon.includes("50%")) valorExon = "50% (Semi-exonerado)";
+    else if (txtExon.includes("0%")) valorExon = "0% (Aporte Ordinario)";
+    else if (txtExon) valorExon = txtExon;
+    const selExon = document.getElementById("expExoneracion");
+    if (selExon && valorExon) {
+      if (![...selExon.options].some(o => o.value === valorExon)) {
+        selExon.add(new Option(valorExon, valorExon));
+      }
+      selExon.value = valorExon;
     }
-    this._set("expExoneracion", exoneracion);
+
+    // Modalidad y estrategia: los dos desplegables del alta que antes no
+    // llegaban al expediente. Se pintan con el mismo catalogo compartido.
+    seleccionarValor("expModalidad", b.modalidad || "Comunitaria");
+    // La estrategia son varias: se marcan las casillas de las que trae el
+    // usuario, y si el dato viene de una version anterior se reconstruye.
+    window.PDI?.EstrategiaMultiSelect?.setValues(
+      "expEstrategia",
+      Array.isArray(b.estrategias) && b.estrategias.length
+        ? b.estrategias
+        : [b.estrategia || "Desayuno Infantil"]
+    );
   },
 
   _pintarSalud(b) {
-    this._set("expSeguro", b.seguro || "SIS Gratuito");
+    seleccionarValor("expSeguro", b.seguro || "SIS Gratuito");
     this._set("expCentroSalud", b.centroSalud || `C.S. ${b.sede}`);
     this._set("expAlergias", b.alergias || "Ninguna");
-    this._set("expPesoTalla", `${b.peso || 14.5} kg / ${b.talla || 96.0} cm`);
-    this._set("expHb", `${b.hb || 11.0} g/dL (${b.anemia || "Normal"})`);
+    // Peso, talla y hemoglobina son numeros, no una cadena compuesta: se
+    // editan con su unidad en la etiqueta y se guardan como numero.
+    escribirNumero("expPeso", b.peso);
+    escribirNumero("expTalla", b.talla);
+    escribirNumero("expHb", b.hb);
+    this._set("expEstadoHb", b.anemia || "Sin tamizaje");
     this._set("expCanasta", b.canastaEntregada ? "Entregada (Canasta Nutricional)" : "No requerida");
     this._set("expOrientacion", b.orientacionFamiliar ? "Completada con Cuidador" : "En programacion");
   },
 
   _pintarEscolaridad(b) {
-    this._set("expNivelEducativo", b.nivelEducativo || (b.grado && b.grado.includes("Prim") ? "Primaria" : "Inicial"));
-    this._set("expGrado", b.grado || "Inicial");
+    const grado = String(b.grado || "");
+    const nivel = b.nivelEducativo
+      || (grado.includes("Prim") ? "Primaria" : grado.includes("Secund") ? "Secundaria" : "Inicial");
+    seleccionarValor("expNivelEducativo", nivel);
+    // El grado es un desplegable: se repinta con la lista del nivel antes de
+    // seleccionar, o el navegador no encontraria la opcion guardada.
+    pintarGrados(document.getElementById("expGrado"), nivel, grado);
     this._set("expColegio", b.colegio || "I.E. Local de la Zona");
     this._set("expAsistencia", "94.2% de Asistencia (Sede Regular)");
     this._set("expKits", "Kit Escolar Faber-Castell Entregado");
@@ -509,22 +632,71 @@ export const ExpedienteView = {
   _pintarEntornoFamiliar(b) {
     this._set("expApoderado", `${b.apoderado} (${b.parentesco || "Madre"}) - DNI ${b.apoderadoDni || "-"}`);
     this._set("expApoderadoNombre", b.apoderado);
-    this._set("expApoderadoParentesco", b.parentesco || "Madre");
+    seleccionarValor("expApoderadoParentesco", b.parentesco || "Madre");
     this._set("expApoderadoDni", b.apoderadoDni || "En validacion");
     this._set("expTelefono", b.telefono || "-");
     this._set("expApoderadoTel", b.telefono || "-");
     this._set("expTelefonoAlt", b.telefonoAlt || "No registrado");
     this._set("expRetiro", b.retiroAutorizado || `${b.apoderado} (Apoderado Principal)`);
 
+    this._pintarRetiro(b);
+  },
+
+  /**
+   * Padron de retiro autorizado.
+   *
+   * En vista son tarjetas de lectura. En edicion se convierten en los mismos
+   * campos del alta (nombre, DNI, parentesco y telefono): antes una persona
+   * autorizada no se podia corregir sin volver a inscribir al menor.
+   */
+  _pintarRetiro(b) {
     const contenedor = document.getElementById("expRetiroPadronContainer");
     if (!contenedor) return;
 
-    // El padron de retiro autorizado. Si no hay ninguno, se muestra el apoderado
-    // principal: un expediente sin ninguna persona autorizada deja un hueco en
-    // el control de retiro seguro, y conviene que se vea en la pantalla.
+    // Si no hay ninguno, se muestra el apoderado principal: un expediente sin
+    // ninguna persona autorizada deja un hueco en el control de retiro seguro.
     const lista = (b.retiroPadron && b.retiroPadron.length > 0)
       ? b.retiroPadron
       : [{ nombre: b.apoderado, dni: b.apoderadoDni || "41982341", parentesco: b.parentesco || "Madre", telefono: b.telefono }];
+
+    if (this.isEditing) {
+      contenedor.innerHTML = lista.map((p, idx) => `
+        <div class="retiro-person-card retiro-person-card--editing" data-retiro-card="${idx}">
+          <div class="retiro-person-photo">
+            ${p.fotoUrl ? `<img src="${escapar(p.fotoUrl)}" alt="${escapar(p.nombre)}">` : getAdultAvatarSvg(p.parentesco)}
+          </div>
+          <div style="flex:1; min-width:0;">
+            <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap:8px;">
+              <div class="form-group" style="grid-column: span 2; margin:0;">
+                <label>Nombres y Apellidos</label>
+                <input type="text" class="form-control" data-retiro-campo="nombre" data-tipo="nombre" maxlength="80"
+                  value="${escapar(p.nombre || "")}">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label>DNI (8 dígitos)</label>
+                <input type="text" class="form-control" data-retiro-campo="dni" data-tipo="dni" maxlength="8" inputmode="numeric"
+                  value="${escapar(p.dni || "")}">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label>Parentesco</label>
+                <select class="form-control" data-retiro-campo="parentesco">
+                  ${opcionesParentescoHtml(p.parentesco)}
+                </select>
+              </div>
+              <div class="form-group" style="grid-column: span 2; margin:0;">
+                <label>Teléfono</label>
+                <input type="text" class="form-control" data-retiro-campo="telefono" data-tipo="telefono" maxlength="15" inputmode="tel"
+                  value="${escapar(p.telefono || "")}">
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join("");
+      // Los campos de retiro se dibujan ahora: hay que volver a conectarlos
+      // para que el filtro de tipo entre en ellos.
+      window.PDI?.TiposCampo?.iniciarTiposCampo?.();
+      return;
+    }
 
     contenedor.innerHTML = lista.map((p, idx) => `
       <div class="retiro-person-card">
@@ -541,7 +713,7 @@ export const ExpedienteView = {
           </div>
           <div style="font-size:11.5px; color:var(--text-dim); display:flex; align-items:center; gap:4px;">
             <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg>
-            <span>Tel: ${escapar(p.telefono)}</span>
+            <span>Tel: ${escapar(p.telefono || "-")}</span>
           </div>
         </div>
       </div>
@@ -592,7 +764,7 @@ export const ExpedienteView = {
     if (!caso) {
       cont.innerHTML = `
         <div style="background:var(--surface-hover); padding:12px; border-radius:var(--radius-sm); font-size:12px; color:var(--text-muted);">
-          El menor no registra derivaciones activas a DEMUNA ni alertas de vulnerabilidad extrema. Monitoreo regular activo.
+          El usuario no registra derivaciones activas a DEMUNA ni alertas de vulnerabilidad extrema. Monitoreo regular activo.
         </div>`;
       return;
     }
@@ -780,23 +952,47 @@ export const ExpedienteView = {
     if (!this._id) return;
     this.isEditing = !this.isEditing;
 
+    // Marca de cuerpo para que el foco no vuelva a enmarcar en verde los
+    // campos que el modo edicion ya marco: un solo recuadro, no dos.
+    if (typeof document !== "undefined") {
+      document.body.classList.toggle("pdi-editando", this.isEditing);
+    }
+
     const b = BeneficiarioModel.getById(this._id);
     this._editServicios = b && Array.isArray(b.servicios) ? [...b.servicios] : [];
     this.renderProgramasInscritos(this.isEditing ? this._editServicios : (b ? b.servicios : []), this.isEditing);
 
+    // El padron de retiro tambien cambia de piel: tarjetas en vista, campos
+    // editables mientras dura la edicion.
+    if (b) this._pintarRetiro(b);
+
     CAMPOS_EDITABLES.forEach(id => {
       const el = document.getElementById(id);
       if (!el) return;
-      el.readOnly = !this.isEditing;
+      // La estrategia es un control propio (pisoras con casilla): no es un
+      // input, asi que su candado y su estado visual los lleva el control,
+      // no el readOnly del formulario.
+      if (el.dataset && el.dataset.estrategiaMultiselect !== undefined) {
+        window.PDI?.EstrategiaMultiSelect?.setDisabled(id, !this.isEditing);
+        el.style.borderColor = this.isEditing ? "var(--gt-green)" : "var(--border-subtle)";
+        return;
+      }
+      // El desplegable de sexo no entiende readOnly: su unico candado honesto
+      // es disabled, asi que cada tipo de control lleva el suyo.
+      if (el.tagName === "SELECT") el.disabled = !this.isEditing;
+      else el.readOnly = !this.isEditing;
       if (this.isEditing) {
         el.style.borderColor = "var(--gt-green)";
         el.style.background = "#ffffff";
         // El fondo pasa a blanco pase lo que pase con el tema, así que la tinta
         // también debe ser oscura: si no, en tema oscuro el texto queda blanco
-        // sobre blanco y el campo se ve vacío.
+        // sobre blanco y el campo se ve vacío. Sin halo ni difuminado alrededor:
+        // el estado editable se dice con el borde verde, nada mas.
         el.style.color = "#0f172a";
-        el.style.boxShadow = "0 0 0 3px rgba(0, 180, 148, 0.15)";
-        el.style.cursor = "text";
+        el.style.boxShadow = "none";
+        // Un desplegable no se escribe: el cursor de texto sobre un select
+        // promete una interaccion que el control no tiene.
+        el.style.cursor = el.tagName === "SELECT" ? "pointer" : "text";
       } else {
         el.style.borderColor = "var(--border-subtle)";
         el.style.background = "var(--surface-2)";
@@ -806,8 +1002,33 @@ export const ExpedienteView = {
       }
     });
 
+    // Mientras se escribe la hemoglobina, el estado se recalcula a la vista.
+    const hb = document.getElementById("expHb");
+    if (hb) {
+      hb.oninput = this.isEditing
+        ? () => {
+            const estado = document.getElementById("expEstadoHb");
+            if (estado) estado.value = estadoAnemia(hb.value);
+          }
+        : null;
+    }
+
     const subidaFachada = document.getElementById("expFachadaUploadControls");
     if (subidaFachada) subidaFachada.style.display = this.isEditing ? "block" : "none";
+
+    // La referencia cambia de piel al editar: la leyenda por omision deja
+    // paso a un campo vacio con placeholder, y al salir vuelve sin que la
+    // leyenda jamas se guarde como si fuera un dato.
+    const referencia = document.getElementById("expReferencia");
+    if (referencia) {
+      if (this.isEditing) {
+        if (referencia.value === LEYENDA_SIN_REFERENCIA) referencia.value = "";
+        referencia.placeholder = "Agregar referencia...";
+      } else {
+        referencia.placeholder = LEYENDA_SIN_REFERENCIA;
+        if (!referencia.value) referencia.value = LEYENDA_SIN_REFERENCIA;
+      }
+    }
 
     const editBtn = document.getElementById("btnToggleEditExp");
     const saveBtn = document.getElementById("btnSaveExpChanges");
@@ -845,11 +1066,29 @@ export const ExpedienteView = {
     // Cada campo cae al valor anterior si el usuario lo dejo vacio. Un
     // expediente es un documento oficial: vaciar un campo por descuido no debe
     // borrar un dato, la pulsacion se ignora y el valor anterior se conserva.
+    // Los DNI, si se escriben, deben venir completos (8 digitos): el informe de
+    // Beta Testing pide no guardar documentos a medias.
+    let dniNuevo = valor("expDni");
+    if (dniNuevo && !/^\d{8}$/.test(dniNuevo)) {
+      ToastView.show("DNI Incompleto", "El DNI del usuario debe tener exactamente 8 digitos numericos. Se conservo el valor anterior.", "warning");
+      dniNuevo = "";
+    }
+    let dniApoderadoNuevo = valor("expApoderadoDni");
+    if (dniApoderadoNuevo && !/^\d{8}$/.test(dniApoderadoNuevo)) {
+      ToastView.show("DNI Incompleto", "El DNI del apoderado debe tener exactamente 8 digitos numericos. Se conservo el valor anterior.", "warning");
+      dniApoderadoNuevo = "";
+    }
+
     b.nombres = valor("expNombres") || b.nombres;
     b.apellidos = valor("expApellidos") || b.apellidos;
-    b.dni = valor("expDni") || b.dni;
+    b.dni = dniNuevo || b.dni;
     b.direccion = valor("expDireccion") || b.direccion;
-    b.referencia = valor("expReferencia") || b.referencia;
+    // La leyenda por omision no es un dato: referencias vacia o igual a ella
+    // conservan lo que ya estaba guardado.
+    const referenciaNueva = valor("expReferencia");
+    if (referenciaNueva && referenciaNueva !== LEYENDA_SIN_REFERENCIA) {
+      b.referencia = referenciaNueva;
+    }
     b.seguro = valor("expSeguro") || b.seguro;
     b.centroSalud = valor("expCentroSalud") || b.centroSalud;
     b.alergias = valor("expAlergias") || b.alergias;
@@ -857,9 +1096,114 @@ export const ExpedienteView = {
     b.colegio = valor("expColegio") || b.colegio;
     b.apoderado = valor("expApoderadoNombre") || b.apoderado;
     b.parentesco = valor("expApoderadoParentesco") || b.parentesco;
-    b.apoderadoDni = valor("expApoderadoDni") || b.apoderadoDni;
+    b.apoderadoDni = dniApoderadoNuevo || b.apoderadoDni;
     b.telefono = valor("expApoderadoTel") || b.telefono;
     b.telefonoAlt = valor("expTelefonoAlt") || b.telefonoAlt;
+
+    // El sexo baja del desplegable, que siempre esta bloqueado (dato definido
+    // solo en el alta), y la edad no se escribe nunca a mano: se
+    // recalcula desde la fecha de nacimiento, que es el dato que viaja a la
+    // nube. Una fecha futura o invalida se ignora y se conserva la anterior.
+    const fechaNueva = valor("expFechaNac");
+    if (fechaNueva && fechaNueva !== (b.fechaNacimiento || "")) {
+      const [anioNac, mesNac, diaNac] = fechaNueva.split("-").map(Number);
+      const nacimiento = new Date(anioNac, mesNac - 1, diaNac);
+      const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+      if (!isNaN(nacimiento.getTime()) && nacimiento <= hoy) {
+        b.fechaNacimiento = fechaNueva;
+        b.edad = edadDesdeFecha(fechaNueva);
+      } else {
+        ToastView.show("Fecha Invalida", "La fecha de nacimiento no puede ser futura. Se conservo la fecha anterior.", "warning");
+      }
+    }
+
+    // Distrito y Sede y Exoneracion ya no se teclean: llegan de sus propios
+    // desplegables, con las opciones exactas de la ficha de inscripcion.
+    const distritoSedeNueva = valor("expDistritoSede");
+    if (distritoSedeNueva) {
+      const [distritoNuevo, sedeNueva] = distritoSedeNueva.split(" - ");
+      b.distrito = distritoNuevo || b.distrito;
+      b.sede = sedeNueva || b.sede;
+    }
+    b.exoneracionAporte = valor("expExoneracion") || b.exoneracionAporte;
+    b.modalidad = valor("expModalidad") || b.modalidad;
+    // La estrategia se marca de a varias. Si el control no llego a leerse (no
+    // se estaba editando) se conserva lo que ya traia el usuario.
+    const estrategias = window.PDI?.EstrategiaMultiSelect?.getValues("expEstrategia") || [];
+    if (estrategias.length) {
+      b.estrategias = estrategias;
+      b.estrategia = estrategias.join(" + ");
+    }
+    // El grado depende del nivel: no se guarda una pareja imposible (un
+    // usuario de Primaria con grado de Inicial). Si se cambio el nivel hay que
+    // elegir el grado nuevo antes de guardar.
+    const nivelNuevo = valor("expNivelEducativo");
+    if (nivelNuevo && nivelNuevo !== b.nivelEducativo
+      && !valoresDeGrado(nivelNuevo).includes(valor("expGrado"))) {
+      ToastView.show(
+        "Falta el Grado",
+        `Elija el grado escolar de ${nivelNuevo} antes de guardar.`,
+        "warning"
+      );
+      return;
+    }
+    b.nivelEducativo = nivelNuevo || b.nivelEducativo;
+
+    // Antropometria y hemoglobina: numeros reales. Antes eran dos cadenas
+    // compuestas que se dejaban editar pero no se guardaban; ahora cada valor
+    // se persiste por separado y el estado de anemia se recalcula.
+    const numero = (id) => {
+      const el = document.getElementById(id);
+      if (!el) return null;
+      const crudo = String(el.value || "").trim().replace(",", ".");
+      if (!crudo) return null;
+      const n = Number.parseFloat(crudo);
+      return Number.isFinite(n) ? n : null;
+    };
+    const pesoNuevo = numero("expPeso");
+    const tallaNueva = numero("expTalla");
+    const hbNueva = numero("expHb");
+    if (pesoNuevo !== null && pesoNuevo > 0) b.peso = pesoNuevo;
+    if (tallaNueva !== null && tallaNueva > 0) b.talla = tallaNueva;
+    if (hbNueva !== null && hbNueva > 0) {
+      b.hb = hbNueva;
+      b.anemia = estadoAnemia(hbNueva);
+    }
+
+    // Padron de retiro: se leen las tarjetas editables y se conserva la foto
+    // que ya tuviera cada persona por su posicion.
+    const tarjetasRetiro = document.querySelectorAll("#expRetiroPadronContainer [data-retiro-card]");
+    if (tarjetasRetiro.length > 0) {
+      const padronAnterior = Array.isArray(b.retiroPadron) ? b.retiroPadron : [];
+      let dniRetiroIncompleto = false;
+      const padronNuevo = Array.from(tarjetasRetiro).map((tarjeta, indice) => {
+        const campo = (nombre) => {
+          const el = tarjeta.querySelector(`[data-retiro-campo="${nombre}"]`);
+          return el ? String(el.value || "").trim() : "";
+        };
+        let dni = campo("dni");
+        if (dni && !/^\d{8}$/.test(dni)) {
+          dniRetiroIncompleto = true;
+          dni = padronAnterior[indice]?.dni || "";
+        }
+        return {
+          nombre: campo("nombre"),
+          dni: dni || "Por validar",
+          parentesco: campo("parentesco") || b.parentesco || "Madre",
+          telefono: campo("telefono") || "-",
+          fotoUrl: padronAnterior[indice]?.fotoUrl || null,
+        };
+      }).filter((persona) => persona.nombre);
+
+      if (padronNuevo.length > 0) {
+        b.retiroPadron = padronNuevo;
+        b.retiroAutorizado = `${padronNuevo[0].nombre} (${padronNuevo[0].parentesco})`;
+      }
+      if (dniRetiroIncompleto) {
+        ToastView.show("DNI Incompleto", "El DNI de una persona autorizada debe tener 8 digitos numericos. Se conservo el valor anterior.", "warning");
+      }
+    }
 
     if (Array.isArray(this._editServicios)) {
       b.servicios = Array.from(new Set(this._editServicios));
@@ -898,19 +1242,78 @@ export const ExpedienteView = {
         role: "Direccion",
         action: "Edicion de Expediente",
         entity: b.codigo,
-        detail: `Actualizacion de datos y servicios del menor ${b.nombres} ${b.apellidos} en el padron`,
+        detail: `Actualizacion de datos y servicios del usuario ${b.nombres} ${b.apellidos} en el padron`,
         status: "Auditado",
       });
     }
 
     this.isEditing = false;
+    if (typeof document !== "undefined") {
+      document.body.classList.remove("pdi-editando");
+    }
     this.render();
     ToastView.show("Expediente Actualizado", `Los cambios en ${b.nombres} ${b.apellidos} se guardaron y auditaron correctamente.`, "success");
   },
 
+  /**
+   * Acciones de la foto del carnet. Como la actualizacion, viven fuera del
+   * "Guardar Cambios": la foto es un archivo, no un campo del formulario.
+   */
+  verFoto() {
+    const b = BeneficiarioModel.getById(this._id);
+    if (!b) return;
+    if (!b.fotoUrl) {
+      ToastView.show("Sin Fotografia", "El usuario no tiene foto registrada. Use Actualizar Foto para agregarla.", "info");
+      return;
+    }
+    let caja = document.getElementById("pdiFotoLightbox");
+    if (!caja) {
+      caja = document.createElement("div");
+      caja.id = "pdiFotoLightbox";
+      caja.style.cssText = "position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; background:rgba(3,10,8,0.88); padding:24px; cursor:zoom-out;";
+      caja.addEventListener("click", () => { caja.style.display = "none"; });
+      document.body.appendChild(caja);
+    }
+    caja.innerHTML = `<img src="${escapar(b.fotoUrl)}" alt="Foto de ${escapar(b.nombres)} ${escapar(b.apellidos)}"
+      style="max-width:92vw; max-height:92vh; border-radius:10px; box-shadow:0 12px 44px rgba(0,0,0,0.65);">`;
+    caja.style.display = "flex";
+  },
+
+  eliminarFoto() {
+    const b = BeneficiarioModel.getById(this._id);
+    if (!b) return;
+    if (!b.fotoUrl) {
+      ToastView.show("Sin Fotografia", "No hay ninguna foto que eliminar para este usuario.", "info");
+      return;
+    }
+    if (!confirm(`¿Eliminar la fotografia de ${b.nombres} ${b.apellidos} (${b.codigo})?\n\nLa foto se quitara del expediente y no volvera a aparecer al recargar. La accion queda en la bitacora del sistema.`)) {
+      return;
+    }
+    b.fotoUrl = "";
+    BeneficiarioModel.update(b.id, b);
+    // Mismo trato que la actualizacion: se repinta solo el carnet, sin meter
+    // la foto en el formulario de Guardar Cambios.
+    const marco = document.getElementById("expChildPhotoFrame");
+    if (marco) marco.innerHTML = getChildAvatarSvg(b.sexo);
+
+    const usuarioActivo = localStorage.getItem("pdi_usuario_nombre") || "Coordinador General";
+    if (AuditModel && AuditModel.addLog) {
+      AuditModel.addLog({
+        user: usuarioActivo,
+        role: "Direccion",
+        action: "Eliminacion de Fotografia",
+        entity: b.codigo,
+        detail: `Se quito la fotografia del usuario ${b.nombres} ${b.apellidos} en el expediente`,
+        status: "Auditado",
+      });
+    }
+
+    ToastView.show("Fotografia Eliminada", `Se quito la fotografia de ${b.nombres} ${b.apellidos}.`, "success");
+  },
+
   deleteBeneficiario() {
     if (!this._rolEsDirectivo()) {
-      ToastView.show("Accion Restringida", "Unicamente el Coordinador General o el Administrador TI pueden dar de baja a un menor.", "danger");
+      ToastView.show("Accion Restringida", "Unicamente el Coordinador General o el Administrador TI pueden dar de baja a un usuario.", "danger");
       return;
     }
     if (!this._id) return;
@@ -918,7 +1321,7 @@ export const ExpedienteView = {
     const b = BeneficiarioModel.getById(this._id);
     if (!b) return;
 
-    if (!confirm(`¿Está seguro de eliminar definitivamente al menor ${b.nombres} ${b.apellidos} (${b.codigo})?\n\nEsta acción retirará al menor del Padrón Único y de todos los servicios. Se registrará en la auditoría del sistema.`)) {
+    if (!confirm(`¿Está seguro de eliminar definitivamente al usuario ${b.nombres} ${b.apellidos} (${b.codigo})?\n\nEsta acción retirará al usuario del Padrón Único y de todos los servicios. Se registrará en la auditoría del sistema.`)) {
       return;
     }
 
@@ -928,9 +1331,9 @@ export const ExpedienteView = {
       AuditModel.addLog({
         user: usuarioActivo,
         role: "Direccion / Admin",
-        action: "Baja de Beneficiario",
+        action: "Baja de Usuario",
         entity: b.codigo,
-        detail: `Baja definitiva del menor ${b.nombres} ${b.apellidos} autorizada por rol directivo`,
+        detail: `Baja definitiva del usuario ${b.nombres} ${b.apellidos} autorizada por rol directivo`,
         status: "Ejecutado",
       });
     }

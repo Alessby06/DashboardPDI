@@ -125,7 +125,7 @@ export const defaultCasosSociales = [
     accionesPrevias: "Coordinación con posta médica Santa Rosa para verificación de recetas y atenciones.",
     soporteFamiliar: {
       tiene: true,
-      detalle: "Abuelo apoya en traslados del menor hacia la sede de atención."
+      detalle: "Abuelo apoya en traslados del usuario hacia la sede de atención."
     },
     detalle: "Salud crónica de la madre y evaluación de subsidio alimentario en Santa Rosa.",
     sede: "Santa Rosa (Carabayllo)",
@@ -167,7 +167,7 @@ export const defaultCasosSociales = [
       cargo: "Trabajadora Social ASP",
       telefono: "945-667-889"
     },
-    situacionEncontrada: "Presunto abandono económico paterno y riesgo de vulneración de derechos de alimentos del menor.",
+    situacionEncontrada: "Presunto abandono económico paterno y riesgo de vulneración de derechos de alimentos del usuario.",
     accionesPrevias: "Derivación mediante Oficio Oficial a DEMUNA Carabayllo y asignación de Canasta Familiar Banco BTF.",
     soporteFamiliar: {
       tiene: false,
@@ -190,7 +190,7 @@ export const defaultCasosSociales = [
       cargo: "Facilitadora Nutricional",
       telefono: "987-223-114"
     },
-    situacionEncontrada: "Ingresó con anemia leve y vulnerabilidad económica. Madre Carmen Ramos completó sesiones demostrativas y el menor recuperó niveles normales de hemoglobina (Hb 11.6 g/dL).",
+    situacionEncontrada: "Ingresó con anemia leve y vulnerabilidad económica. Madre Carmen Ramos completó sesiones demostrativas y el usuario recuperó niveles normales de hemoglobina (Hb 11.6 g/dL).",
     accionesPrevias: "Cumplió esquema de suplementación y asistencia perfecta al comedor.",
     soporteFamiliar: {
       tiene: true,

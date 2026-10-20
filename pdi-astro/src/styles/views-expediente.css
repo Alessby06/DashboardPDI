@@ -200,7 +200,7 @@
         display: none !important;
         flex-direction: column !important;
         gap: 3px !important;
-        animation: dropdownFadeIn var(--dur-fast) var(--ease-spring) !important;
+        animation: dropdownFadeIn var(--dur-fast) var(--ease-out) !important;
         box-sizing: border-box !important;
         will-change: transform, opacity;
       }
@@ -983,6 +983,25 @@
       display: block !important;
     }
 
+    /* Acciones de la foto del carnet (Ver / Actualizar / Eliminar). En PC la
+       tarjeta es angosta y los tres botones apilan a lo ancho, tal como se
+       veia el unico boton antes. */
+    .exp-foto-acciones {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 100%;
+    }
+
+    /* El color resaltado de la exoneracion vive aqui y no en el atributo
+       style: el ciclo de modo edicion limpia estilos inline al salir, y el
+       valor apagado dejaba la escala gris. Al editar, el propio ciclo pone la
+       tinta oscura encima y el resaltado regresa solo al cancelar. */
+    #expExoneracion {
+      color: var(--text-warning);
+      font-weight: 700;
+    }
+
     /* Tooltip de Exoneración de Aporte - Plataforma Gutenberg */
     .exoneracion-info-wrap {
       position: relative;
@@ -1231,7 +1250,7 @@
          justo lo que hacia falta. */
       background: var(--surface-1);
       border: 1px solid var(--border-subtle);
-      border-left: 4px solid var(--gt-green);
+      border-left: 1px solid var(--gt-green);
       border-radius: 10px;
       padding: 12px 14px;
       display: flex;
@@ -1330,7 +1349,7 @@
     .retiro-person-card {
       background: var(--surface-1) !important;
       border: 1px solid var(--border-subtle) !important;
-      border-left: 4px solid var(--gt-green);
+      border-left: 1px solid var(--gt-green);
       border-radius: 10px;
       padding: 14px;
       display: flex;
@@ -1347,6 +1366,17 @@
       transform: translateY(-2px);
       border-color: var(--gt-green-border);
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+    }
+
+    /* En edicion la tarjeta deja de ser una ficha compacta: los cuatro campos
+       necesitan el ancho completo de la fila, no los 320px de la rejilla. */
+    .retiro-person-card--editing {
+      grid-column: 1 / -1;
+      align-items: flex-start;
+    }
+
+    .retiro-person-card--editing:hover {
+      transform: none;
     }
 
     .retiro-person-photo {
@@ -1452,6 +1482,21 @@
         border-top: 1px dashed var(--border-subtle) !important;
         padding-top: 8px !important;
         margin-top: 2px !important;
+      }
+
+      /* La linea completa que antes ocupaba un solo boton se reparte entre los
+         tres: misma altura, mismo ritmo, sin que ninguno jale mas que otro. */
+      .exp-foto-acciones {
+        flex-direction: row !important;
+        gap: 8px !important;
+      }
+
+      .exp-foto-acciones > .btn-action {
+        flex: 1 1 0 !important;
+        width: auto !important;
+        padding: 6px 2px !important;
+        font-size: 10px !important;
+        white-space: nowrap !important;
       }
 
       /* Formularios en 1 Sola Columna para Móviles (Expediente y Nuevo Menor) */
@@ -1572,7 +1617,7 @@
 .retiro-person-card {
   background: var(--surface-1) !important;
   border: 1px solid var(--border-subtle) !important;
-  border-left: 4px solid var(--gt-green) !important;
+  border-left: 1px solid var(--gt-green) !important;
 }
 .retiro-person-photo {
   background: var(--surface-2) !important;
@@ -2176,7 +2221,7 @@
 
 /* 3. Sensor / Monitor SO: Latido rítmico de sincronización inteligente */
 #btnThemeSystem.active .theme-icon-box svg {
-  animation: monitorHeartbeat 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation: monitorHeartbeat 0.8s var(--ease-out) forwards;
   color: var(--text-brand);
   filter: drop-shadow(0 0 7px rgba(0, 180, 148, 0.55));
 }
@@ -2189,9 +2234,8 @@
   100% { transform: scale(1.15); }
 }
 
-@keyframes springCheckPop {
+@keyframes checkSettlePop {
   0% { transform: scale(0) rotate(-45deg); opacity: 0; }
-  70% { transform: scale(1.28) rotate(8deg); opacity: 1; }
   100% { transform: scale(1) rotate(0deg); opacity: 1; }
 }
 

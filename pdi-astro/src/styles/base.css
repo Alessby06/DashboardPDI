@@ -312,6 +312,68 @@
       transition: padding 0.28s ease;
     }
 
+    /* Selector de proyecto: Infancia Saludable activo; Mamitas visible como
+       proximo proyecto, sin navegacion hasta que exista. */
+    .project-switcher {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin: 12px 12px 4px;
+      padding: 8px;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      background: var(--surface-2);
+    }
+
+    .project-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      width: 100%;
+      padding: 7px 9px;
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--text-muted);
+      font: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .project-option.active {
+      background: var(--surface-1);
+      border-color: var(--border-bright);
+      color: var(--text-brand);
+      cursor: default;
+    }
+
+    .project-option:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .project-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .project-state {
+      flex-shrink: 0;
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .project-option.active .project-state {
+      color: var(--text-brand);
+    }
+
     .logo-text {
       transition: opacity 0.2s ease, visibility 0.2s ease;
       white-space: nowrap;
@@ -392,9 +454,12 @@
     .nav-btn > span:not(.nav-badge) {
       flex: 1;
       min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      /* Los nombres de servicio son largos: se permite una segunda linea para
+         no recortarlos con puntos suspensivos. */
+      white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
+      line-height: 1.3;
       transition: opacity 0.18s ease, width 0.18s ease;
     }
 

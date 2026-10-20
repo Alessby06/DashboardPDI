@@ -3,11 +3,11 @@ import AppLayout from '../layouts/AppLayout.astro';
 import '../styles/views-sedes.css';
 ---
 
-<AppLayout title="Sedes e Iglesias" currentPage="sedes">
+<AppLayout title="Sedes e Iglesias Aliadas" currentPage="sedes">
         <section class="app-view active" id="view-sedes">
           <div class="view-header">
             <div class="view-title-group">
-              <h2>Directorio Territorial: Sedes e Iglesias</h2>
+              <h2>Directorio Territorial: Sedes e Iglesias Aliadas</h2>
               <p style="margin: 4px 0 0 0; color: var(--text-muted); font-size: 13.5px;">Mapeo operativo de locales de atención, pastores aliados y aforos en campo.</p>
             </div>
             <div class="view-actions">
@@ -226,7 +226,7 @@ import '../styles/views-sedes.css';
             <div class="sedes-master-column">
               <div class="sedes-master-header">
                 <span class="sedes-master-title">Directorio de Sedes</span>
-                <span class="badge badge-green" id="sedesMasterCountBadge">0</span>
+                <span class="sedes-master-count" id="sedesMasterCountBadge">—</span>
               </div>
               <div class="sedes-master-list" id="sedesMasterList">
                 <!-- Inyectado por JS -->

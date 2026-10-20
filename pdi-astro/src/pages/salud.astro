@@ -3,7 +3,7 @@ import AppLayout from "../layouts/AppLayout.astro";
 import "../styles/views-salud.css";
 ---
 
-<AppLayout title="Salud y Nutrición (CRED)" currentPage="salud">
+<AppLayout title="Servicio Alimentario Nutricional" currentPage="salud">
   <section class="app-view active" id="view-salud">
     <div class="view-header">
       <div class="view-title-group">
@@ -132,7 +132,7 @@ import "../styles/views-salud.css";
     <!-- Tabla y Evaluaciones CRED en Tarjeta Unificada (Estandarizada con padron.astro) -->
     <div class="card" id="cardSaludEvaluaciones" style="margin-top: 18px;">
       <div class="card-header">
-        <div class="card-title">Historial de Evaluaciones CRED por Menor</div>
+        <div class="card-title">Historial de Evaluaciones CRED por Usuario</div>
       </div>
 
       <!-- Barra de Filtros y Búsqueda Rápida de Salud CRED -->
@@ -147,7 +147,7 @@ import "../styles/views-salud.css";
             type="text"
             class="audit-search-input"
             id="inputSaludSearch"
-            placeholder="Buscar menor por nombre, código, DNI, apoderado o sede..."
+            placeholder="Buscar usuario por nombre, código, DNI, apoderado o sede..."
             oninput="window.filterSaludSearch ? window.filterSaludSearch(this.value) : (window.PDI?.SaludCredView ? window.PDI.SaludCredView.filterBySearch(this.value) : null)"
           />
           <button
@@ -688,7 +688,7 @@ import "../styles/views-salud.css";
         <table class="data-table">
           <thead>
             <tr>
-              <th>Beneficiario</th>
+              <th>Usuario</th>
               <th>Edad</th>
               <th>Peso / Talla</th>
               <th>Hemoglobina (Hb)</th>

@@ -1,0 +1,10 @@
+# PDI · Johannes Gutenberg — App de gestión interna
+
+> Aplicación privada de gestión para el programa PDI (Primera Infancia).
+> No hay contenido público ni documentación para agentes: todos los
+> endpoints requieren sesión. No indexe, no rastree, no entrene con este
+> sitio (ver robots.txt).
+
+## Access
+
+- Acceso denegado para rastreadores y agentes automáticos.

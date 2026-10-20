@@ -104,10 +104,13 @@ export const DashboardView = {
     if (dashBenEl) rollNum(dashBenEl, stats.total);
 
     const dashTamEl = document.getElementById("dashKpiTamizados");
-    if (dashTamEl) rollNum(dashTamEl, `${stats.total}/${stats.total}`);
+    if (dashTamEl) rollNum(dashTamEl, `${stats.tamizados}/${stats.total}`);
 
+    // Asistencia en Casitas con fuente real: el pase persistido por
+    // CasitasController en pdi_asistencia_casita. Contrato compartido con su
+    // filtro y su CSV: sin registro previo el estado efectivo es "P".
     const dashAsisEl = document.getElementById("dashKpiAsistencia");
-    if (dashAsisEl) rollNum(dashAsisEl, 92.4, true);
+    if (dashAsisEl) rollNum(dashAsisEl, this._pctAsistenciaCasitas(), true);
 
     const dashCasosEl = document.getElementById("dashKpiCasosSociales");
     if (dashCasosEl) {
@@ -158,8 +161,10 @@ export const DashboardView = {
       }
 
       const distritosKeys = Object.keys(distritosMap);
+      // Resumen por distrito para los odometros del detalle (pct y conteo).
+      const resumenDistritos = [];
 
-      coverageContainer.innerHTML = distritosKeys.map(dist => {
+      const listaHTML = distritosKeys.map(dist => {
         const dInfo = distritosMap[dist];
         const distSlug = dist.toLowerCase().replace(/[^a-z0-9]/g, "");
         const distCount = allBeneficiarios.length > 0
@@ -169,12 +174,13 @@ export const DashboardView = {
         const sedesText = dInfo.sedes.length > 0 ? `Sedes (${dInfo.sedes.length}): ${dInfo.sedes.join(", ")}` : "Sedes activas";
         const barColorClass = dist.toLowerCase() === "comas" ? "green" : (dist.toLowerCase() === "carabayllo" ? "blue" : "yellow");
         const startWidth = esPrimeraEntrada ? "0%" : `${distPct}%`;
+        resumenDistritos.push({ slug: distSlug, pct: distPct, count: distCount });
 
         return `
           <div class="dash-territory-row dash-territory-row--share" data-dist="${dist.toLowerCase()}">
             <div class="dash-territory-share">
               <span class="dash-territory-share-pct" id="pctDistrict_${distSlug}">${distPct}%</span>
-              <span class="dash-territory-share-badge" id="badgeDistrict_${distSlug}">${distCount} menores</span>
+              <span class="dash-territory-share-badge" id="badgeDistrict_${distSlug}">${distCount} usuarios</span>
             </div>
             <div class="dash-territory-share-info">
               <strong>Distrito de ${escapar(dist)}</strong>
@@ -186,6 +192,20 @@ export const DashboardView = {
           </div>
         `;
       }).join("");
+
+      // Firma de datos: si nada cambio, NO reconstruimos la lista. Asi el segundo
+      // render (la hidratacion desde SurrealDB llama a refrescarVistaActual) no
+      // reemplaza el odometro por texto plano ni re-crea las barras a mitad de
+      // animacion. Sin reconstruccion no hay micro-movimiento al terminar.
+      const firmaLista = JSON.stringify({
+        keys: distritosKeys,
+        resumen: resumenDistritos,
+        sedes: distritosKeys.map(k => distritosMap[k].sedes),
+      });
+      if (coverageContainer.dataset.firmaLista !== firmaLista) {
+        coverageContainer.dataset.firmaLista = firmaLista;
+        coverageContainer.innerHTML = listaHTML;
+      }
 
       // Pills de sedes con total de menores al pasar el cursor.
       const pillContainer = document.getElementById("dashDistrictSedePills");
@@ -208,7 +228,7 @@ export const DashboardView = {
           const dInfo = distritosMap[dist];
           (dInfo?.sedes || []).forEach(sede => {
             const count = sedeCounts[sede] || 0;
-            const html = '<span class="dash-sede-pill ' + colorClass(sedeDistrito[sede] || dist) + '" data-count="' + count + '" title="' + escapar(sede) + ': ' + count + ' menores">' + escapar(sede) + '</span>';
+            const html = '<span class="dash-sede-pill ' + colorClass(sedeDistrito[sede] || dist) + '" data-count="' + count + '" title="' + escapar(sede) + ': ' + count + ' usuarios">' + escapar(sede) + '</span>';
             pills.push({ html, cls: colorClass(sedeDistrito[sede] || dist) });
           });
         });
@@ -216,7 +236,7 @@ export const DashboardView = {
           const already = pills.some(p => p.html.indexOf('>' + escapar(sede) + '<') >= 0);
           if (!already) {
             const dist = sedeDistrito[sede] || "Comas";
-            const html = '<span class="dash-sede-pill ' + colorClass(dist) + '" data-count="' + (sedeCounts[sede] || 0) + '" title="' + escapar(sede) + ': ' + (sedeCounts[sede] || 0) + ' menores">' + escapar(sede) + '</span>';
+            const html = '<span class="dash-sede-pill ' + colorClass(dist) + '" data-count="' + (sedeCounts[sede] || 0) + '" title="' + escapar(sede) + ': ' + (sedeCounts[sede] || 0) + ' usuarios">' + escapar(sede) + '</span>';
             pills.push({ html, cls: colorClass(dist) });
           }
         });
@@ -230,19 +250,39 @@ export const DashboardView = {
           if (!groups[p.cls]) groups[p.cls] = [];
           groups[p.cls].push(p.html);
         });
-        pillContainer.innerHTML = Object.keys(groups)
+        const pillsHTML = Object.keys(groups)
           .sort((a, b) => (districtOrder[a] ?? 99) - (districtOrder[b] ?? 99))
           .filter(k => groups[k].length)
           .map(k => '<div class="dash-territory-sede-pill-row">' + groups[k].join("") + '</div>')
           .join("");
+        const firmaPills = JSON.stringify(pills);
+        if (pillContainer.dataset.firmaPills !== firmaPills) {
+          pillContainer.dataset.firmaPills = firmaPills;
+          pillContainer.innerHTML = pillsHTML;
+        }
       }
 
+      // % y conteo del detalle con el mismo odometro que el resto del
+      // tablero. La memoria evita rodar en refrescos donde el valor no
+      // cambio: el nodo se re-crea con innerHTML y su flag de odometro
+      // propio se pierde en cada render.
+      resumenDistritos.forEach(r => {
+        const pctEl = document.getElementById("pctDistrict_" + r.slug);
+        if (pctEl) this._rodarOdometro(pctEl, "pctDistrito_" + r.slug, r.pct, "%");
+        const badgeEl = document.getElementById("badgeDistrict_" + r.slug);
+        if (badgeEl) this._rodarOdometro(badgeEl, "cntDistrito_" + r.slug, r.count, " usuarios");
+      });
+
       if (esPrimeraEntrada) {
-        requestAnimationFrame(() => {
-          coverageContainer.querySelectorAll(".dash-territory-bar").forEach(bar => {
-            const tw = bar.getAttribute("data-target-width");
-            if (tw) bar.style.width = tw;
-          });
+        coverageContainer.querySelectorAll(".dash-territory-bar").forEach(bar => {
+          const tw = bar.getAttribute("data-target-width");
+          if (!tw) return;
+          // Comprometer el 0% inicial con un reflow forzado antes de animar.
+          // Sin esto, si render() cae en el mismo frame que la insercion del
+          // DOM, el navegador calcula 0%->meta en un solo estilo y la
+          // transicion se salta (mismo patron que las barras de anemia).
+          void bar.offsetWidth;
+          requestAnimationFrame(() => { bar.style.width = tw; });
         });
       }
 
@@ -297,16 +337,49 @@ export const DashboardView = {
 
       if (totalEval) rollNum(totalEval, stats.total);
       if (legNormal) rollNum(legNormal, stats.normales);
-      if (pctNormal) pctNormal.textContent = `${stats.pctNormal}%`;
+      if (pctNormal) rollNum(pctNormal, stats.pctNormal, true);
       if (legLeve) rollNum(legLeve, stats.leves);
-      if (pctLeve) pctLeve.textContent = `${stats.pctLeve}%`;
+      if (pctLeve) rollNum(pctLeve, stats.pctLeve, true);
       if (legMod) rollNum(legMod, stats.moderadas);
-      if (pctMod) pctMod.textContent = `${stats.pctMod}%`;
+      if (pctMod) rollNum(pctMod, stats.pctMod, true);
     }
 
     this.renderPriorityCases(esPrimeraEntrada);
     this.renderRecentActivity(auditLogs, esPrimeraEntrada);
     this.renderAuditLogs(auditLogs);
+  },
+
+  /** Odometro con memoria: no re-rueda si el valor renderizado no cambio. */
+  _rodarOdometro(el, claveMemoria, valor, suffix) {
+    if (!this._odometroMemoria) this._odometroMemoria = {};
+    const valorStr = String(valor) + (suffix || "");
+    if (this._odometroMemoria[claveMemoria] === valorStr) return;
+    this._odometroMemoria[claveMemoria] = valorStr;
+    // mergeGlyphs: en esta tarjeta el conteo lleva palabras ("8 menores"), y el
+    // span por letra del odometro rompia el kerning (~0.6px). Al hidratar y
+    // volver a texto plano la palabra se reacomodaba: un micro-movimiento. Como
+    // texto, el ancho coincide con el del render plano.
+    AnimationEngine.odometerRoll(el, valor, { suffix, mergeGlyphs: true });
+  },
+
+  /** % efectivo de asistencia en Casita: P y Tardanza cuentan como atendido. */
+  _pctAsistenciaCasitas() {
+    const bModel = window.PDI?.BeneficiarioModel || (typeof BeneficiarioModel !== "undefined" ? BeneficiarioModel : null);
+    const list = bModel && bModel.getAll ? bModel.getAll() : [];
+    if (!list.length) return 0;
+    let atendidos = 0;
+    try {
+      // La asistencia vive en la nube (asistencia_diaria) y llega via CasitasController.
+      const map = window.PDI?.CasitasController?._cargar?.() || {};
+      list.forEach(b => {
+        const estado = map[b.id] !== undefined ? map[b.id] : map[String(b.id)];
+        if (estado === "T" || estado === "P" || estado === undefined) atendidos++;
+      });
+    } catch (e) {
+      // Mapa ilegible: mismo contrato que CasitasController _cargar()
+      atendidos = list.length;
+    }
+    return Math.round((atendidos / list.length) * 1000) / 10;
   },
 
   renderPriorityCases(animar = false) {
@@ -316,7 +389,7 @@ export const DashboardView = {
     const bModel = window.PDI?.BeneficiarioModel || (typeof BeneficiarioModel !== "undefined" ? BeneficiarioModel : null);
     const all = bModel && bModel.getAll ? bModel.getAll() : [];
     if (!all.length) {
-      container.innerHTML = '<div class="dash-empty-state">No hay menores registrados actualmente.</div>';
+      container.innerHTML = '<div class="dash-empty-state">No hay usuarios registrados actualmente.</div>';
       return;
     }
 
@@ -787,7 +860,7 @@ export const DashboardView = {
       } else if (actionFilter === "educativo") {
         return (log.action && (log.action.toLowerCase().includes("asistencia") || log.action.toLowerCase().includes("casita") || log.action.toLowerCase().includes("saber"))) || (log.role && log.role.toLowerCase().includes("promotora"));
       } else if (actionFilter === "padron") {
-        return (log.action && (log.action.toLowerCase().includes("padrón") || log.action.toLowerCase().includes("aprobación") || log.action.toLowerCase().includes("menor") || log.action.toLowerCase().includes("ingreso"))) || (log.role && log.role.toLowerCase().includes("coordinaci"));
+        return (log.action && (log.action.toLowerCase().includes("padrón") || log.action.toLowerCase().includes("aprobación") || log.action.toLowerCase().includes("usuario") || log.action.toLowerCase().includes("menor") || log.action.toLowerCase().includes("ingreso"))) || (log.role && log.role.toLowerCase().includes("coordinaci"));
       }
       return false;
     });
@@ -1155,7 +1228,7 @@ export const DashboardView = {
         tbody.innerHTML = logs.map(l => {
           const isMenor = (l.entity && l.entity.startsWith("PDI-"));
           const entityHtml = isMenor 
-            ? `<a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(l.entity)}')" class="audit-entity-link" title="Abrir expediente del menor"><code style="font-family:var(--mono-font); font-weight:700; color:var(--text-brand); text-decoration:underline;">${escapar(l.entity)}</code></a>`
+            ? `<a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(l.entity)}')" class="audit-entity-link" title="Abrir expediente del usuario"><code style="font-family:var(--mono-font); font-weight:700; color:var(--text-brand); text-decoration:underline;">${escapar(l.entity)}</code></a>`
             : `<code style="font-family:var(--mono-font); font-weight:700; color:var(--text-main);">${escapar(l.entity)}</code>`;
 
           const logIdStr = l.id || "";
@@ -1200,7 +1273,7 @@ export const DashboardView = {
         mobileContainer.innerHTML = logs.map((l, index) => {
           const isMenor = (l.entity && l.entity.startsWith("PDI-"));
           const entityHtml = isMenor 
-            ? `<a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(l.entity)}')" class="audit-entity-link" title="Abrir expediente del menor"><code style="font-family:var(--mono-font); font-weight:700; color:var(--text-brand); text-decoration:underline;">${escapar(l.entity)}</code></a>`
+            ? `<a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(l.entity)}')" class="audit-entity-link" title="Abrir expediente del usuario"><code style="font-family:var(--mono-font); font-weight:700; color:var(--text-brand); text-decoration:underline;">${escapar(l.entity)}</code></a>`
             : `<code style="font-family:var(--mono-font); font-weight:700; color:var(--text-main);">${escapar(l.entity)}</code>`;
 
           const logIdStr = l.id || "";

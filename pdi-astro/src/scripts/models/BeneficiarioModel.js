@@ -1,18 +1,35 @@
 // Modelo de Beneficiarios (Padrón de Menores PDI)
-// Incorpora el 100% de los campos oficiales de las Fichas A0, A1, A2, A3, A6 CRED y ASP
-import { StorageService } from './StorageService.js';
-
-// Los datos semilla viven fuera del codigo: son registros ficticios y estan
-// marcados como tales. Ver data/fixtures/beneficiarios.js
-import { defaultBeneficiarios } from '../../data/fixtures/beneficiarios.js';
-export { defaultBeneficiarios };
-
+// La fuente única de verdad es la instancia de SurrealDB Cloud. No hay fixtures
+// ni espejo en localStorage: el modelo inicia vacío y se llena cuando la capa de
+// datos (core/db.js) hidrata desde la nube. Toda mutación se escribe en la nube
+// de forma optimista: la memoria se actualiza aquí y db.js confirma el cambio.
+import {
+  crearBeneficiario, actualizarBeneficiario, darBajaBeneficiario,
+} from '../core/db.js';
 
 export function normalizeBeneficiarioServicios(b) {
   if (!b) return b;
   const rawServicios = Array.isArray(b.servicios) ? b.servicios : null;
   const normalized = new Set();
   const lowerEstrategia = (b.estrategia || "").toLowerCase();
+
+  // La estrategia es una lista y de ella salen los servicios. Es la fuente mas
+  // fiel: el valor "Mixto (Desayuno + Casita)" ya no existe.
+  if (Array.isArray(b.estrategias) && b.estrategias.length) {
+    b.estrategias.forEach((e) => {
+      if (!e) return;
+      const low = String(e).toLowerCase();
+      if (low.includes("desayuno") || low.includes("lonchera") || low.includes("alimento") || low.includes("nutric")) {
+        normalized.add("Servicio Alimentario Nutricional");
+      } else if (low.includes("casita") || low.includes("educativ") || low.includes("refuerzo") || low.includes("escolar") || low.includes("acompañ")) {
+        normalized.add("Casita del Saber");
+      } else if (low.includes("pastoral") || low.includes("social") || low.includes("asp")) {
+        normalized.add("Área Social Pastoral");
+      } else {
+        normalized.add(e);
+      }
+    });
+  }
 
   if (rawServicios !== null) {
     rawServicios.forEach(s => {
@@ -40,7 +57,7 @@ export function normalizeBeneficiarioServicios(b) {
   if (lowerEstrategia.includes("casita") || lowerEstrategia.includes("educat") || lowerEstrategia.includes("acompañ")) {
     normalized.add("Casita del Saber");
   }
-  if (lowerEstrategia.includes("pastoral") || lowerEstrategia.includes("social") || lowerEstrategia.includes("asp") || (b.exoneracionAporte && b.exoneracionAporte.includes("100%"))) {
+  if (lowerEstrategia.includes("pastoral") || lowerEstrategia.includes("social") || lowerEstrategia.includes("asp")) {
     normalized.add("Área Social Pastoral");
   }
   if (lowerEstrategia.includes("mixto")) {
@@ -61,29 +78,15 @@ export const BeneficiarioModel = {
   _data: null,
 
   init() {
-    const storage = window.PDI?.StorageService || StorageService;
-    let list = storage.getItem("pdi_beneficiarios", defaultBeneficiarios);
-
-    // Validación de integridad:
-    // Si la lista está vacía, no es arreglo, tiene IDs no numéricos (ej. 'pdi_001')
-    // o datos vacíos de un intento parcial con SurrealDB, restaurar datos semilla completos.
-    const esValido = Array.isArray(list) && list.length > 0 && list.every(b =>
-      b &&
-      (typeof b.id === 'number' || (!isNaN(Number(b.id)) && typeof b.id !== 'boolean')) &&
-      b.nombres &&
-      b.apellidos
-    ) && list.some(b => b.apoderado && String(b.apoderado).trim().length > 0);
-
-    if (!esValido) {
-      console.warn("[BeneficiarioModel] Cache local corrupta o incompleta. Restaurando fixtures normativos.");
-      list = JSON.parse(JSON.stringify(defaultBeneficiarios));
-      storage.setItem("pdi_beneficiarios", list);
-    }
-
-    // Normalizar servicios de todos los beneficiarios (existentes y por defecto)
-    this._data = list.map(b => normalizeBeneficiarioServicios(b));
-    storage.setItem("pdi_beneficiarios", this._data);
+    // Sin conexión aún no hay lista: db.js rehidrata sola al reconectar.
+    if (!this._data) this._data = [];
     return this._data;
+  },
+
+  /** La capa de datos entrega la lista hidratada de la nube. */
+  aplicarDatos(lista) {
+    if (!Array.isArray(lista)) return;
+    this._data = lista.map(b => normalizeBeneficiarioServicios(b));
   },
 
   getAll() {
@@ -103,12 +106,19 @@ export const BeneficiarioModel = {
     return list.find(b => (b.codigo || "").toLowerCase() === clean) || null;
   },
 
+  /**
+   * Alta de menor: se crea en memoria para la vista y se escribe en la nube
+   * (persona + inscripción + apoderado + tamizaje inicial). Si la nube
+   * rechaza, db.js notifica el error y la próxima hidratación realinea los
+   * estados; no se toca ningun almacen local.
+   */
   add(nuevoMenor) {
     const list = this.getAll();
     normalizeBeneficiarioServicios(nuevoMenor);
     list.unshift(nuevoMenor);
-    const storage = window.PDI?.StorageService || StorageService;
-    storage.setItem("pdi_beneficiarios", list);
+    crearBeneficiario(nuevoMenor).then(ok => {
+      if (!ok) list.splice(list.indexOf(nuevoMenor), 1);
+    });
     return nuevoMenor;
   },
 
@@ -116,21 +126,25 @@ export const BeneficiarioModel = {
     const list = this.getAll();
     const idx = list.findIndex(b => String(b.id) === String(id) || b.id === Number(id));
     if (idx !== -1) {
-      list[idx] = normalizeBeneficiarioServicios({ ...list[idx], ...updatedData });
-      const storage = window.PDI?.StorageService || StorageService;
-      storage.setItem("pdi_beneficiarios", list);
-      return list[idx];
+      const previo = list[idx];
+      const actualizado = normalizeBeneficiarioServicios({ ...previo, ...updatedData });
+      list[idx] = actualizado;
+      actualizarBeneficiario(actualizado);
+      return actualizado;
     }
     return null;
   },
 
+  /**
+   * Baja del padrón. La Ley 29733 prohibe el borrado físico: en memoria se
+   * retira de la vista y en la nube la inscripción pasa a Retirado.
+   */
   delete(id) {
     const list = this.getAll();
     const idx = list.findIndex(b => String(b.id) === String(id) || b.id === Number(id));
     if (idx !== -1) {
       const removed = list.splice(idx, 1)[0];
-      const storage = window.PDI?.StorageService || StorageService;
-      storage.setItem("pdi_beneficiarios", list);
+      darBajaBeneficiario(removed);
       return removed;
     }
     return null;
@@ -140,7 +154,7 @@ export const BeneficiarioModel = {
     const list = this.getAll();
     if (!query || query.trim() === "") return list;
     const q = query.toLowerCase().trim();
-    return list.filter(b => 
+    return list.filter(b =>
       b.nombres.toLowerCase().includes(q) ||
       b.apellidos.toLowerCase().includes(q) ||
       b.codigo.toLowerCase().includes(q) ||
@@ -154,7 +168,7 @@ export const BeneficiarioModel = {
     const list = this.getAll();
     const total = list.length;
     const normales = list.filter(b => b.anemia === "Normal").length;
-    const leves = list.filter(b => b.anemia === "Leve").length;
+    const leves = list.filter(b => b.anemia === "Leve" || b.anemia === "En riesgo").length;
     const moderadas = list.filter(b => b.anemia === "Moderada" || b.anemia === "Severa").length;
 
     const pctNormal = total > 0 ? Math.round((normales / total) * 100) : 0;
@@ -164,8 +178,12 @@ export const BeneficiarioModel = {
     const comasCount = list.filter(b => b.distrito === "Comas").length;
     const carabaylloCount = list.filter(b => b.distrito === "Carabayllo").length;
 
+    // Tamizado CREAL real: menor con dosaje de Hb registrado (valor, no vacio).
+    const tamizados = list.filter(b => b.hb !== null && b.hb !== undefined && b.hb !== "").length;
+
     return {
       total,
+      tamizados,
       normales,
       leves,
       moderadas,
@@ -180,6 +198,5 @@ export const BeneficiarioModel = {
 
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
-  window.PDI.defaultBeneficiarios = defaultBeneficiarios;
   window.PDI.BeneficiarioModel = BeneficiarioModel;
 }

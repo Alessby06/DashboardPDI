@@ -17,6 +17,8 @@ export const ModalView = {
       setTimeout(() => {
         const ctrl = window.PDI?.BeneficiarioController || (window.app && window.app.beneficiarioController);
         if (ctrl && ctrl.initSignature) ctrl.initSignature();
+        // El boton de guardar se habilita solo si no falta ningun dato.
+        window.PDI?.Ficha?.refrescarEstadoFicha?.();
       }, 100);
     }
   },
@@ -76,7 +78,7 @@ export const ModalView = {
     if (entityContainer) {
       if (log.entity && log.entity.startsWith("PDI-")) {
         entityContainer.innerHTML = `
-          <a href="javascript:void(0)" onclick="window.openExpedienteByCodigo('${escaparEnManejador(log.entity)}')" class="audit-entity-link" title="Abrir expediente del menor">
+          <a href="javascript:void(0)" onclick="window.openExpedienteByCodigo('${escaparEnManejador(log.entity)}')" class="audit-entity-link" title="Abrir expediente del usuario">
             <code style="font-family:var(--mono-font); font-size:13px; font-weight:700; color:var(--text-brand); text-decoration:underline;">${escapar(log.entity)}</code>
             <span style="font-size:11px; margin-left:4px; color:var(--text-brand); font-weight:600;">(Ver Expediente &rarr;)</span>
           </a>

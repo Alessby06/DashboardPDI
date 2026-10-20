@@ -1,5 +1,5 @@
 // ===========================================================================
-//  Derivaciones Sociales (ASP) - Punto de entrada de social.html
+//  Area Social Pastoral (ASP) - Punto de entrada de social.astro
 // ===========================================================================
 //  Tablero kanban del area social pastoral, de recepcion a seguimiento.
 //
@@ -68,7 +68,7 @@ function iniciar() {
   // tablas; ahora solo la que esta a la vista.
   publicarRefresco(montar);
 
-  console.log("[PDI] Derivaciones Sociales (ASP) lista (social.html).");
+  console.log("[PDI] Área Social Pastoral lista (social.astro).");
 }
 
 document.addEventListener("astro:page-load", () => {

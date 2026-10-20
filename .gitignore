@@ -26,3 +26,11 @@ __pycache__/
 # Temporales de herramientas
 .freebuff/
 
+# Dumps de base de datos SurrealDB: contienen datos personales de menores
+# (nombres, DNI, telefono, direccion) y hashes de credenciales. Este repositorio
+# es publico: los backups NUNCA deben subirse. Guardarlos fuera del arbol del repo.
+*.surql
+pdi-astro/backup-*.surql
+pdi-astro/backups/
+backups/
+

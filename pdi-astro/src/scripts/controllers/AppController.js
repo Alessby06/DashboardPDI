@@ -60,7 +60,7 @@ export const AppController = {
     CsvExporter.exportCasitas(list, asistenciaMap);
     ToastView.show(
       "Asistencia Exportada",
-      `Pase de asistencia de la Casita del Saber descargado (${list.length} menores en CSV)`,
+      `Pase de asistencia de la Casita del Saber descargado (${list.length} usuarios en CSV)`,
       "success"
     );
   },

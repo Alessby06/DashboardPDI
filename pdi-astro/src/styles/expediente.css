@@ -360,7 +360,7 @@
         eso el pseudo-elemento seria un tercer elemento flexible de la cabecera
         y el pie se imprimiria en horizontal, junto al titulo. */
      #view-expediente .expediente-page-header::after {
-       content: "Expediente integral del beneficiario - Sistema PDI, Asociación Cultural Johannes Gutenberg";
+       content: "Expediente integral del usuario - Sistema PDI, Asociación Cultural Johannes Gutenberg";
        flex: 0 0 100%;
        margin-top: 3mm;
        font-size: 8pt;

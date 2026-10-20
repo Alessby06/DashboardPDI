@@ -32,13 +32,14 @@ export const CsvExporter = {
 
   /** Padron de Beneficiarios (Padron). */
   exportBeneficiarios(beneficiarios) {
-    const encabezados = ["Codigo", "Nombres", "Apellidos", "DNI", "Edad", "Sexo", "Distrito", "Sede", "Servicios", "Seguro", "Hb", "Anemia", "Vulnerabilidad"];
+    const encabezados = ["Codigo", "Nombres", "Apellidos", "DNI", "Edad", "Sexo", "Distrito", "Sede", "Estrategias", "Servicios", "Seguro", "Hb", "Anemia", "Vulnerabilidad"];
     const filas = (beneficiarios || []).map(b => [
       b.codigo, b.nombres, b.apellidos, b.dni, b.edad, b.sexo, b.distrito, b.sede,
+      Array.isArray(b.estrategias) ? b.estrategias.join("; ") : (b.estrategia || ""),
       Array.isArray(b.servicios) ? b.servicios.join("; ") : "",
       b.seguro, b.hb, b.anemia, b.vulnerabilidad
     ]);
-    this._descargar("padron_pdi_beneficiarios_2026.csv", encabezados, filas);
+    this._descargar("padron_pdi_usuarios_2026.csv", encabezados, filas);
   },
 
   /** Bitacora de Auditoria. */
@@ -88,7 +89,7 @@ export const CsvExporter = {
       canalizado: "Canalizados (DEMUNA / BTF)",
       cerrado: "Cerrados con Informe"
     };
-    const encabezados = ["Codigo", "Menor", "Sede", "Etapa", "Urgencia", "Tipo de Problematica", "Fecha de Derivacion", "Vulnerabilidad (0-100)", "Derivado por", "Cargo", "Telefono", "Soporte Familiar", "Situacion Encontrada", "Acciones Previas"];
+    const encabezados = ["Codigo", "Usuario", "Sede", "Etapa", "Urgencia", "Tipo de Problematica", "Fecha de Derivacion", "Vulnerabilidad (0-100)", "Derivado por", "Cargo", "Telefono", "Soporte Familiar", "Situacion Encontrada", "Acciones Previas"];
     const filas = (casos || []).map(c => {
       const deriva = c.quienDeriva || {};
       const soporte = c.soporteFamiliar
@@ -106,7 +107,7 @@ export const CsvExporter = {
 
   /** Directorio territorial de Sedes e Iglesias. */
   exportSedes(sedes) {
-    const encabezados = ["Sede", "Distrito", "Direccion", "Referencia", "Tipo de Aliado", "Iglesia Aliada", "Pastor Aliado", "Facilitadora", "Cargo de Facilitadora", "Telefono", "Aforo Maximo", "Menores Inscritos", "Ocupacion (%)", "Servicios"];
+    const encabezados = ["Sede", "Distrito", "Direccion", "Referencia", "Tipo de Aliado", "Iglesia Aliada", "Pastor Aliado", "Facilitadora", "Cargo de Facilitadora", "Telefono", "Aforo Maximo", "Usuarios Inscritos", "Ocupacion (%)", "Servicios"];
     const filas = (sedes || []).map(s => [
       s.nombre, s.distrito, s.direccion, s.referencia, s.tipoAliado, s.iglesiaAliada, s.pastorAliado,
       s.facilitadora, s.facilitadoraCargo, s.facilitadoraTel, s.aforoMax, s.ninosInscritos, s.porcentajeOcupacion,
