@@ -16,7 +16,7 @@
 //  Formato de archivo .mjs porque la raíz del proyecto no tiene package.json
 //  con "type": "module" y Vercel compila los .js como CommonJS.
 // ===========================================================================
-import { emitirToken, DURACION_TOKEN_SEGUNDOS } from './pdi-astro/src/scripts/server/tokenBase.mjs';
+import { emitirToken, DURACION_TOKEN_SEGUNDOS } from './_tokenBase.mjs';
 
 // El token se reutiliza un minuto: así un正常使用 de la app no golpea el
 // signin en cada petición, y el token de todos modos caduca a los 30 min.
@@ -47,7 +47,10 @@ export default {
   async fetch(request) {
     const url = new URL(request.url);
 
-    if (url.pathname !== '/api/pdi/token') {
+    // Con Vercel, el archivo api/pdi.mjs se sirve en /api/pdi. Se acepta
+    // tambien /api/pdi/token por si alguien usa esa ruta.
+    const rutaOk = url.pathname === '/api/pdi' || url.pathname === '/api/pdi/token';
+    if (!rutaOk) {
       return Response.json({ error: 'Ruta no encontrada' }, { status: 404 });
     }
     if (request.method !== 'POST') {

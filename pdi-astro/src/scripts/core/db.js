@@ -51,7 +51,7 @@ const DB = import.meta.env.PUBLIC_SURREAL_DB;
 // para emitir tokens de sesión de corta duración y el navegador se
 // autentica con ese token. En el bundle publicado no queda ninguna
 // credencial de la base: solo un token que caduca en 30 minutos.
-const RUTA_TOKEN = '/api/pdi/token';
+const RUTA_TOKEN = '/api/pdi';
 
 /**
  * Pide al servidor un token de sesión para la base de datos.

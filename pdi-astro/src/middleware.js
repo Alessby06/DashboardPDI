@@ -10,13 +10,16 @@
 //  bundle que se publica. El sitio es estatico, asi que en produccion este
 //  middleware no se ejecuta en absoluto.
 // ===========================================================================
-import { emitirToken } from './scripts/server/tokenBase.mjs';
+import { emitirToken } from '../../api/_tokenBase.mjs';
 
 export const onRequest = async (context, next) => {
   if (!import.meta.env.DEV) return next();
 
   const url = new URL(context.request.url);
-  if (url.pathname !== '/api/pdi/token') return next();
+  // La Function de Vercel (api/pdi.mjs) se sirve en /api/pdi. Se acepta
+  // tambien /api/pdi/token por si alguien usa esa ruta.
+  const rutaOk = url.pathname === '/api/pdi' || url.pathname === '/api/pdi/token';
+  if (!rutaOk) return next();
   if (context.request.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Se espera POST' }), {
       status: 405, headers: { 'Content-Type': 'application/json' },

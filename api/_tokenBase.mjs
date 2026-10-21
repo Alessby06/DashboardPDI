@@ -7,8 +7,13 @@
 //  contraseña.
 //
 //  Se usa desde dos sitios, con el mismo archivo:
-//    - api/pdi.mjs      -> Function de Vercel (producción)
+//    - api/pdi.mjs       -> Function de Vercel (produccion)
 //    - src/middleware.js -> servidor de Astro (desarrollo local)
+//
+//  Vive dentro de api/ a proposito: Vercel empaqueta las funciones de ese
+//  directorio tomando la propia carpeta como origen, y un import hacia
+//  fuera de ella (por ejemplo ../../pdi-astro/src/...) hace fallar la
+//  invocacion de la funcion.
 //
 //  Por eso no usa import.meta.env (que solo existe dentro del build de
 //  Astro) sino que recibe las credenciales como argumentos: las lee quien lo

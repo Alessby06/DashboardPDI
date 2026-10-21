@@ -107,7 +107,7 @@ navegador  ──POST /api/pdi/token──▶  Function de Vercel  ──▶  Su
      └──── WebSocket a SurrealDB, autenticado con ese token
 ```
 
-1. El navegador pide un token a `POST /api/pdi/token`.
+1. El navegador pide un token a `POST /api/pdi`.
 2. La Function de Vercel (`api/pdi.mjs`, en la raíz del repositorio) usa las
    credenciales del **servidor** para pedir ese token a SurrealDB y se lo
    entrega. Las credenciales viven en variables de entorno **sin** el prefijo
