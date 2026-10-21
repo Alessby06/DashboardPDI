@@ -10,6 +10,21 @@ import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
 // quien cierra no aparezca al principio de la pagina.
 let focoAntesDeFicha = null;
 let dialogoFichaListo = false;
+// Firma del borrador: el canvas se redibuja al abrir y sin esto se perdia el
+// unico dato que no se puede reconstruir de memoria.
+let firmaBorrador = null;
+
+/** Hay trabajo sin guardar cuando alguien escribio algo o firmo. */
+function hayBorrador(modal) {
+  const form = modal.querySelector("#formNuevoMenor");
+  if (!form) return false;
+  const escrito = Array.from(
+    form.querySelectorAll("input[type='text'], input[type='date'], input[type='tel'], textarea"),
+  ).some((el) => el.value.trim());
+  if (escrito) return true;
+  const helper = window.PDI?.BeneficiarioController?.signatureCanvasHelper;
+  return Boolean(helper && helper.hasSignature && helper.hasSignature());
+}
 
 const SELECTOR_ENFOCABLES = [
   "a[href]",
@@ -40,7 +55,7 @@ function conectarDialogoFicha() {
 
     if (evento.key === "Escape") {
       evento.preventDefault();
-      ModalView.closeNuevoMenor();
+      ModalView.closeNuevoMenor({ conservarBorrador: true });
       return;
     }
 
@@ -86,17 +101,45 @@ export const ModalView = {
     const caja = modal.querySelector(".modal-box");
     if (caja) caja.focus();
 
+    // El borrador conserva los datos, pero la lectura empieza arriba.
+    const cuerpo = modal.querySelector(".modal-body");
+    if (cuerpo) cuerpo.scrollTop = 0;
+
     setTimeout(() => {
       const ctrl = window.PDI?.BeneficiarioController || (window.app && window.app.beneficiarioController);
       if (ctrl && ctrl.initSignature) ctrl.initSignature();
+      const helper = ctrl && ctrl.signatureCanvasHelper;
+      if (firmaBorrador && helper && helper.loadFromDataURL) {
+        helper.loadFromDataURL(firmaBorrador, () => {
+          window.PDI?.Ficha?.refrescarEstadoFicha?.();
+        });
+      }
       // El boton de guardar se habilita solo si no falta ningun dato.
       window.PDI?.Ficha?.refrescarEstadoFicha?.();
     }, 100);
   },
 
-  closeNuevoMenor() {
+  closeNuevoMenor({ conservarBorrador = false } = {}) {
     const modal = document.getElementById("modalNuevoMenor");
     if (!modal) return;
+
+    /* Cerrar no guarda, pero tampoco borra: el usuario decide. Si el cierre
+       viene de Guardar, no hay borrador que conservar. */
+    const helper = window.PDI?.BeneficiarioController?.signatureCanvasHelper;
+    const habiaTrabajo = hayBorrador(modal);
+    if (conservarBorrador && habiaTrabajo) {
+      firmaBorrador = helper && helper.hasSignature && helper.hasSignature()
+        ? helper.toDataURL()
+        : null;
+      window.showToast?.(
+        "Borrador guardado",
+        "Al reabrir la ficha seguirá como lo dejaste.",
+        "info",
+      );
+    } else {
+      // Guardar o cerrar sin trabajo pendiente no deja borrador que restaurar.
+      firmaBorrador = null;
+    }
 
     modal.classList.remove("open");
 

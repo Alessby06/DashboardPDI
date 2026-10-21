@@ -7,6 +7,8 @@ import { BeneficiariosView } from '../views/BeneficiariosView.js';
 import { ModalView } from '../views/ModalView.js';
 import { ToastView } from '../views/ToastView.js';
 import { CanvasHelper } from '../utils/CanvasHelper.js';
+import { SEDES_OPERATIVAS } from '../../data/opcionesBeneficiario.js';
+import { distritoDeSede, resumenAlergias } from '../core/catalogos.js';
 
 import { escapar } from "../utils/HtmlHelper.js";;
 export const BeneficiarioController = {
@@ -342,6 +344,7 @@ export const BeneficiarioController = {
     const nombres = getVal("regNombres");
     const apellidos = getVal("regApellidos");
     const dni = getVal("regDni");
+    const tipoDocumento = getVal("regTipoDocumento", "DNI");
     const fechaNacimiento = getVal("regFechaNacimiento");
     const edad = getVal("regEdad");
     const sexo = getVal("regSexo", "M");
@@ -350,8 +353,8 @@ export const BeneficiarioController = {
 
     const distritoSedeVal = getVal("regDistritoSede") || getVal("regDistrito");
     const distSedeParts = distritoSedeVal.includes(" - ") ? distritoSedeVal.split(" - ") : distritoSedeVal.split(": ");
-    const distrito = distSedeParts[0] || "Comas";
-    const sede = distSedeParts[1] || "Año Nuevo";
+    const sede = distSedeParts[1] || SEDES_OPERATIVAS[0].nombre;
+    const distrito = distSedeParts[0] || distritoDeSede(sede) || "Comas";
 
     const modalidad = getVal("regModalidad", "Comunitaria");
     // La estrategia se marca de a varias: se leen las casillas marcadas, no
@@ -361,18 +364,31 @@ export const BeneficiarioController = {
     const exoneracionAporte = getVal("regExoneracion", "100% (Exonerado Vulnerabilidad Extrema)");
 
     const seguro = getVal("regSeguro", "SIS Gratuito");
-    const centroSalud = getVal("regCentroSalud", `C.S. ${sede}`);
-    const alergias = getVal("regAlergias", "Ninguna");
+    // El centro de salud y la I.E. no se inventan: si no se escriben, no se
+    // guardan, y la institucion no se crea con un nombre de relleno.
+    const centroSalud = getVal("regCentroSalud", "");
+    // La alergia se captura como ficha: descripcion, tipo y gravedad. "Ninguna"
+    // significa que no tiene y no genera ningun registro en la base.
+    const alergiaDescripcion = getVal("regAlergiaDescripcion", "Ninguna");
+    const alergiaTipo = getVal("regAlergiaTipo", "Ninguna");
+    const alergiaSeveridad = getVal("regAlergiaSeveridad", "");
     const nivelEducativo = getVal("regNivelEducativo", "Inicial");
     // Sin valor por defecto: el grado se elige de la lista y no se inventa.
     const grado = getVal("regGrado");
-    const colegio = getVal("regColegio", "I.E. Local");
+    const colegio = getVal("regColegio", "");
 
     const apoderado = getVal("regApoderado");
     const apoderadoDni = getVal("regApoderadoDni");
     const parentesco = getVal("regParentesco", "Madre");
+    const sexoApoderado = getVal("regSexoApoderado");
     const telefono = getVal("regTelefono");
     const telefonoAlt = getVal("regTelefonoAlt");
+
+    if (apoderado && !sexoApoderado) {
+      const toastSexo = window.PDI?.ToastView || ToastView;
+      toastSexo.show("Sexo del Apoderado", "Seleccione el sexo del apoderado para completar la ficha.", "warning");
+      return;
+    }
 
     // Datos de Persona Autorizada 1
     const retiroNombre1 = getVal("regRetiroNombre1") || apoderado;
@@ -460,6 +476,7 @@ export const BeneficiarioController = {
       nombres,
       apellidos,
       dni,
+      tipoDocumento,
       fotoUrl: this.tempFotoMenor || null,
       fechaNacimiento: fechaNacimiento || "2022-01-01",
       edad: edad || "4 años",
@@ -489,12 +506,23 @@ export const BeneficiarioController = {
       })(),
       seguro,
       centroSalud,
-      alergias,
+      alergias: resumenAlergias([{
+        descripcion: alergiaDescripcion,
+        tipo: alergiaTipo,
+        severidad: alergiaSeveridad,
+        activo: true,
+      }]),
+      alergia: {
+        descripcion: alergiaDescripcion,
+        tipo: alergiaTipo,
+        severidad: alergiaSeveridad,
+      },
       nivelEducativo,
       grado,
       colegio,
       apoderado,
       parentesco,
+      sexoApoderado,
       apoderadoDni,
       telefono,
       telefonoAlt: telefonoAlt || "-",

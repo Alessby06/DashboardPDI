@@ -17,11 +17,11 @@ import { validarTipo, etiquetaTipo } from "./tiposCampo.js";
 const OBLIGATORIOS = [
   { id: "regNombres", etiqueta: "Nombres", tipo: "nombre" },
   { id: "regApellidos", etiqueta: "Apellidos", tipo: "nombre" },
-  { id: "regDni", etiqueta: "DNI del usuario", tipo: "dni" },
+  { id: "regDni", etiqueta: "Documento del usuario" },
   { id: "regFechaNacimiento", etiqueta: "Fecha de nacimiento" },
   { id: "regDireccion", etiqueta: "Direccion" },
   { id: "regCentroSalud", etiqueta: "Centro de Salud de Referencia" },
-  { id: "regAlergias", etiqueta: "Alergia a medicamentos" },
+  { id: "regAlergiaDescripcion", etiqueta: "Alergia" },
   { id: "regGrado", etiqueta: "Grado Escolar" },
   { id: "regColegio", etiqueta: "I.E. de Origen" },
   { id: "regApoderado", etiqueta: "Apellidos y nombres del apoderado", tipo: "nombre" },
@@ -45,6 +45,53 @@ const PERSONA_2 = [
 function valorDe(id) {
   const el = document.getElementById(id);
   return el ? String(el.value || "").trim() : "";
+}
+
+function tipoDocumentoActual() {
+  return valorDe("regTipoDocumento") || "DNI";
+}
+
+// La alergia se registra como ficha completa (descripcion, tipo y gravedad)
+// solo cuando la persona tiene alguna. "Ninguna" o vacio significa que no
+// tiene: en ese caso la gravedad no se pregunta y no se guarda nada.
+function tieneAlergia() {
+  const descripcion = valorDe("regAlergiaDescripcion");
+  if (!descripcion) return false;
+  return descripcion.toLowerCase() !== "ninguna";
+}
+
+/** Lo que falta de la alergia, o '' si esta completa. */
+function avisoAlergia() {
+  if (!tieneAlergia()) return "";
+  if (valorDe("regAlergiaTipo") === "Ninguna") return "Falta el tipo de alergia";
+  if (!valorDe("regAlergiaSeveridad")) return "Falta la gravedad de la alergia";
+  return "";
+}
+
+/** La gravedad solo se pide cuando hay algo que gravedar. */
+function refrescarGravedadAlergia() {
+  const select = document.getElementById("regAlergiaSeveridad");
+  if (!select) return;
+  select.disabled = !tieneAlergia();
+}
+
+/** Sin Documento no exige número; DNI exige ocho dígitos; el resto, que haya número. */
+function documentoInvalido() {
+  const tipo = tipoDocumentoActual();
+  if (tipo === "Sin Documento") return false;
+  const valor = valorDe("regDni");
+  if (!valor) return true;
+  if (tipo === "DNI") return !validarTipo("dni", valor);
+  return false;
+}
+
+function avisoDocumento() {
+  if (tipoDocumentoActual() === "Sin Documento") return "";
+  if (!valorDe("regDni")) return "Falta Documento del usuario";
+  if (tipoDocumentoActual() === "DNI") {
+    return "Documento del usuario (DNI de 8 dígitos)";
+  }
+  return "";
 }
 
 /** La firma puede ser dibujada o subida como imagen: en los dos casos queda pintada en el canvas. */
@@ -81,6 +128,15 @@ export function evaluarFicha() {
   // Un campo puede estar vacio (falta) o lleno pero con el tipo equivocado
   // (por ejemplo un DNI de siete digitos): las dos cosas impiden guardar.
   const comprobar = (campo) => {
+    if (campo.id === "regDni") {
+      if (documentoInvalido()) faltantes.push(avisoDocumento());
+      return;
+    }
+    if (campo.id === "regAlergiaDescripcion") {
+      const falta = avisoAlergia();
+      if (falta) faltantes.push(falta);
+      return;
+    }
     const valor = valorDe(campo.id);
     if (!valor) {
       faltantes.push(campo.etiqueta);
@@ -152,6 +208,8 @@ export function refrescarEstadoFicha(pedidoDeAnuncio = false) {
 
   const { listo, faltantes } = evaluarFicha();
   boton.disabled = !listo;
+  // La gravedad de la alergia se abre y se cierra con la descripcion.
+  refrescarGravedadAlergia();
 
   let resumen = "";
   if (estado) {
@@ -204,7 +262,9 @@ function limpiarMarcaDeCampo(el) {
   const campo = [...OBLIGATORIOS, ...PERSONA_2].find((item) => item.id === el.id);
   if (!campo) return;
   const valor = valorDe(campo.id);
-  const sigueMal = !valor || (campo.tipo && !validarTipo(campo.tipo, valor));
+  const sigueMal = campo.id === "regDni"
+    ? documentoInvalido()
+    : (!valor || (campo.tipo && !validarTipo(campo.tipo, valor)));
   if (!sigueMal) marcarCampo(el, false);
 }
 
@@ -274,6 +334,15 @@ export function iniciarFicha() {
     const campo = [...OBLIGATORIOS, ...PERSONA_2].find((item) => item.id === el.id);
     if (!campo) return;
 
+    if (campo.id === "regDni") {
+      if (documentoInvalido()) {
+        marcarCampo(el, true);
+        anunciar(avisoDocumento());
+      } else {
+        marcarCampo(el, false);
+      }
+      return;
+    }
     const valor = valorDe(campo.id);
     if (!valor) {
       marcarCampo(el, true);

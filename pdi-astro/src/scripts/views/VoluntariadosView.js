@@ -8,24 +8,19 @@ import { AnimationEngine } from '../utils/AnimationEngine.js';
 import { ToastView } from './ToastView.js';
 import { AuditModel } from '../models/AuditModel.js';
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";
-// Etiquetas cortas para los nombres largos de servicio (chips y dropdowns de filtro)
-
-// Sedes agrupadas por distrito para sincronización en modales
-const SEDES_POR_DISTRITO = {
-  "Comas": ["Año Nuevo", "La Libertad", "Carmen Alto"],
-  "Carabayllo": ["El Progreso", "Torre Blanca", "San Pedro", "Los Bendecidos", "Santa Rosa"]
-};
-const SERVICIO_LABELS = {
-  "Desayuno Infantil": "Desayuno Infantil",
-  "Casita del Saber": "Casita del Saber",
-  "Área Social Pastoral (ASP)": "Pastoral ASP"
-};
+import { OPCIONES_VOLUNTARIADO, SERVICIOS_VOLUNTARIADO } from '../../data/opcionesBeneficiario.js';
+import { SEDES_POR_DISTRITO, etiquetaSede } from '../core/catalogos.js';
+// Etiquetas de servicio desde el catálogo único de programas: un programa
+// nuevo aparece en chips y desplegables sin tocar nada aquí.
+const SERVICIO_LABELS = Object.fromEntries(
+  OPCIONES_VOLUNTARIADO.map((opcion) => [opcion.valor, opcion.etiqueta]),
+);
 
 // Filtros del padrón de voluntarios que viajan en la URL.
 const FILTROS_VOLUNTARIOS = {
   q:        { valor: "" },
-  distrito: { valor: [], valores: ["Comas", "Carabayllo"], multiple: true },
-  servicio: { valor: [], valores: ["Desayuno Infantil", "Casita del Saber", "Área Social Pastoral (ASP)"], multiple: true },
+  distrito: { valor: [], valores: Object.keys(SEDES_POR_DISTRITO), multiple: true },
+  servicio: { valor: [], valores: SERVICIOS_VOLUNTARIADO, multiple: true },
   // El rol no tiene desplegable: se marca desde las pildoras de cada fila, asi
   // que el dominio son los roles que existan en los datos, no una lista cerrada.
   // Por eso se declara sin `valores` y Filters.js lo acota por longitud y
@@ -700,9 +695,12 @@ export const VoluntariadosView = {
   updateSedeSelectOptions(distrito, selectedSede = null) {
     const sedeSelect = document.getElementById("volSelectSede");
     if (!sedeSelect) return;
-    const sedes = SEDES_POR_DISTRITO[distrito] || SEDES_POR_DISTRITO["Comas"];
+    const sedes = [...(SEDES_POR_DISTRITO[distrito] || SEDES_POR_DISTRITO["Comas"])];
+    // Una sede antigua o fuera de catálogo se conserva como opción propia:
+    // nunca se cambia en silencio al abrir la ficha.
+    if (selectedSede && !sedes.includes(selectedSede)) sedes.push(selectedSede);
     sedeSelect.innerHTML = sedes.map(s => `
-      <option value="${s}" ${selectedSede === s ? 'selected' : ''}>${s} (${distrito})</option>
+      <option value="${s}" ${selectedSede === s ? 'selected' : ''}>${etiquetaSede(s)}</option>
     `).join("");
     if (!selectedSede && sedes.length > 0) {
       sedeSelect.value = sedes[0];
@@ -742,7 +740,7 @@ export const VoluntariadosView = {
     } else {
       if (titleEl) titleEl.textContent = "Nueva Ficha de Inscripción de Voluntario(a) (Ficha A4/A5)";
       this._setVal("volSelectDistrito", "Comas");
-      this.updateSedeSelectOptions("Comas", "Año Nuevo");
+      this.updateSedeSelectOptions("Comas", SEDES_POR_DISTRITO["Comas"][0]);
       this._setVal("volSelectServicio", "Desayuno Infantil");
       this._setVal("volSelectRol", "Voluntaria de Apoyo");
       this._setVal("volSelectEstrategia", "Atención Fija");
@@ -842,7 +840,7 @@ export const VoluntariadosView = {
     this._setTxt("fichaVolCelular", vol.celular || "Sin teléfono");
     this._setTxt("fichaVolEdad", `${vol.edad} años (${vol.fechaNacimiento || 'Fecha N/A'})`);
     this._setTxt("fichaVolDomicilio", vol.domicilio || "No registrado");
-    this._setTxt("fichaVolSede", `${vol.sedeAsignada} (${vol.distrito})`);
+    this._setTxt("fichaVolSede", vol.sedeEtiqueta || `${vol.sedeAsignada} (${vol.distrito})`);
     this._setTxt("fichaVolServicio", vol.servicio);
     this._setTxt("fichaVolRol", vol.rol);
     this._setTxt("fichaVolEstrategia", `${vol.estrategia} &bull; ${vol.tipoVoluntariado}`);

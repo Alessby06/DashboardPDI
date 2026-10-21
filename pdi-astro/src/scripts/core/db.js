@@ -22,7 +22,26 @@
 // ===========================================================================
 import { Surreal } from 'surrealdb';
 import { ToastView } from '../views/ToastView.js';
-import { estrategiasDesdePrograma } from '../../data/opcionesBeneficiario.js';
+import { estrategiasDesdePrograma, SERVICIOS_VOLUNTARIADO } from '../../data/opcionesBeneficiario.js';
+import {
+  normalizarParentesco,
+  seguroDbAUi,
+  seguroUiADb,
+  modalidadDbAUi,
+  modalidadUiADb,
+  exoneracionDesdePct,
+  pctDesdeExoneracion,
+  distritoDeSede,
+  sedeConocida,
+  etiquetaSede,
+  tipoDocumentoCanonico,
+  tipoLocalCanonico,
+  tipoAlergiaCanonico,
+  severidadAlergiaCanonico,
+  descripcionAlergia,
+  resumenAlergias,
+  alergiaPrincipal,
+} from './catalogos.js';
 
 const URL = import.meta.env.PUBLIC_SURREAL_URL;
 const NS = import.meta.env.PUBLIC_SURREAL_NS;
@@ -295,9 +314,12 @@ async function suscribirLive() {
 let _hidratando = null;
 /** Consulta del padrón completa (también usada en el lote de hidratación). */
 const SQL_PADRON = `SELECT *,
+  centro_salud.nombre AS centro_salud_nombre,
+  institucion_origen.nombre AS institucion_origen_nombre,
+  (SELECT * FROM alergia WHERE persona_id = $parent.id) AS alergias,
   (SELECT * FROM inscripcion WHERE ${F_USUARIO} = $parent.id AND activo = true LIMIT 1)[0] AS ins,
   (SELECT * FROM tamizaje_hemoglobina WHERE ${F_USUARIO} = $parent.id AND activo = true ORDER BY fecha_tamizaje DESC LIMIT 1)[0] AS tam,
-  (SELECT cuidador_id.nombres AS c_nom, cuidador_id.apellidos AS c_ape, cuidador_id.numero_documento AS c_dni, parentesco FROM ${T_VINCULO} WHERE ${F_MENOR} = $parent.id LIMIT 1)[0] AS apo,
+  (SELECT cuidador_id.nombres AS c_nom, cuidador_id.apellidos AS c_ape, cuidador_id.numero_documento AS c_dni, cuidador_id.sexo AS c_sexo, parentesco FROM ${T_VINCULO} WHERE ${F_MENOR} = $parent.id LIMIT 1)[0] AS apo,
   (SELECT VALUE pct_exoneracion FROM aporte WHERE inscripcion_id.${F_USUARIO} = $parent.id ORDER BY periodo DESC, mes DESC LIMIT 1)[0] AS pct
 FROM persona
 WHERE activo = true;`;
@@ -471,20 +493,6 @@ function programaDesdeServicios(servicios, estrategia) {
   return 'Desayuno Infantil';
 }
 
-function modalidadDesdeUi(modalidad) {
-  return /institut|ie\.|escolar/i.test(modalidad || '') ? 'Institucion Educativa' : 'Comunitaria';
-}
-
-function seguroDesdeUi(seguro) {
-  const s = (seguro || '').toLowerCase();
-  if (s.includes('sis')) return 'SIS';
-  if (s.includes('essalud')) return 'EsSalud';
-  if (s.includes('pnp') || s.includes('ffaa') || s.includes('militar')) return 'PNP/FFAA';
-  if (s.includes('priv')) return 'Privado';
-  if (s.includes('no') || s.includes('sin')) return 'No tiene';
-  return 'Desconocido';
-}
-
 function resultadoDesdeAnemia(anemia) {
   const a = (anemia || '').toLowerCase();
   if (a.includes('moder')) return 'Anemia moderada';
@@ -598,6 +606,9 @@ function mapearBeneficiarios(personasRes, sedes) {
     }
 
     const apoderadoNom = m.apo ? `${m.apo.c_nom || ''} ${m.apo.c_ape || ''}`.trim() : '';
+    const parentescoApo = m.apo?.parentesco ? normalizarParentesco(m.apo.parentesco) : '';
+    // La alergia vigente es la de mayor gravedad entre las que la persona tiene.
+    const alergiaVigente = alergiaPrincipal(m.alergias);
 
     return {
       _personaId: String(m.id),
@@ -615,26 +626,27 @@ function mapearBeneficiarios(personasRes, sedes) {
       fotoUrl: m.foto_url || '',
       direccion: m.direccion || '',
       referencia: m.referencia || '',
-      distrito: m.distrito || sedeObj?.distrito || '',
+      distrito: sedeObj?.distrito || m.distrito || '',
       sede: sedeObj?.nombre || '',
-      modalidad: m.ins?.modalidad || '',
+      modalidad: modalidadDbAUi(m.ins?.modalidad),
       estrategia,
       estrategias,
-      exoneracionAporte:
-        m.pct === 100 ? '100% (Exonerado Vulnerabilidad Extrema)'
-          : m.pct === 50 ? '50% (Aporte Reducido)'
-            : m.pct === 0 ? '0% (Aporte Ordinario)'
-              : 'No registrado',
+      exoneracionAporte: exoneracionDesdePct(m.pct),
       servicios,
-      seguro: m.esquema_salud || '',
-      centroSalud: '',
-      alergias: '',
+      seguro: seguroDbAUi(m.esquema_salud),
+      centroSalud: m.centro_salud_nombre || '',
+      alergias: resumenAlergias(m.alergias),
+      alergiaDescripcion: descripcionAlergia(alergiaVigente?.descripcion),
+      alergiaTipo: tipoAlergiaCanonico(alergiaVigente?.tipo),
+      alergiaSeveridad: severidadAlergiaCanonico(alergiaVigente?.severidad),
       nivelEducativo: m.nivel_educativo || '',
       grado: m.grado || '',
-      colegio: '',
+      colegio: m.institucion_origen_nombre || '',
+      tipoDocumento: m.tipo_documento || 'DNI',
       apoderado: apoderadoNom,
-      parentesco: m.apo?.parentesco || '',
+      parentesco: parentescoApo,
       apoderadoDni: m.apo?.c_dni || '',
+      sexoApoderado: m.apo?.c_sexo || '',
       telefono: m.telefono || '',
       telefonoAlt: m.telefono_alt || '',
       estado: m.ins?.estado || 'Activo',
@@ -644,10 +656,10 @@ function mapearBeneficiarios(personasRes, sedes) {
       anemia: anemiaDesdeResultado(m.tam?.resultado),
       canastaEntregada: null,
       orientacionFamiliar: null,
-      retiroAutorizado: apoderadoNom ? `${apoderadoNom}${m.apo?.parentesco ? ' (' + m.apo.parentesco + ')' : ''}` : '',
+      retiroAutorizado: apoderadoNom ? `${apoderadoNom}${parentescoApo ? ' (' + parentescoApo + ')' : ''}` : '',
       retiroPadron: apoderadoNom ? [{
         acreditado: apoderadoNom,
-        parentesco: m.apo?.parentesco || '',
+        parentesco: parentescoApo,
         dni: m.apo?.c_dni || '',
         telefono: m.telefono || '',
         autorizadoPor: 'Dirección PDI',
@@ -764,30 +776,35 @@ export async function fetchVoluntarios() {
 
 /** Convierte los registros crudos de voluntario en objetos del modelo. */
 function mapearVoluntarios(volRaw) {
-  return volRaw.map((v, idx) => ({
-    _qid: String(v.id),
-    id: extraerNumeroId(v.codigo, String(v.id), idx + 1),
-    codigo: v.codigo || '',
-    nombres: v.nombres || '',
-    apellidos: v.apellidos || '',
-    dni: v.numero_documento || '',
-    celular: v.telefono || '',
-    fechaNacimiento: isoFecha(v.fecha_nacimiento),
-    edad: v.edad ?? '',
-    domicilio: v.direccion || '',
-    distrito: v.distrito || 'Comas',
-    sedeAsignada: v.sede_nombre || '',
-    servicio: v.servicio || '',
-    rol: v.rol || '',
-    estrategia: v.estrategia || 'Atención Fija',
-    tipoVoluntariado: v.tipo_voluntariado || '',
-    capacitaciones: Array.isArray(v.capacitaciones) ? v.capacitaciones : [],
-    canastasRecibidas: v.canastas_recibidas ?? 0,
-    fechaIngreso: isoFecha(v.fecha_ingreso),
-    estado: v.estado || 'Activo',
-    disponibilidad: v.disponibilidad || 'Disponibilidad estándar',
-    observaciones: v.observaciones || '',
-  }));
+  return volRaw.map((v, idx) => {
+    const sede = v.sede_nombre || '';
+    return {
+      _qid: String(v.id),
+      id: extraerNumeroId(v.codigo, String(v.id), idx + 1),
+      codigo: v.codigo || '',
+      nombres: v.nombres || '',
+      apellidos: v.apellidos || '',
+      dni: v.numero_documento || '',
+      celular: v.telefono || '',
+      fechaNacimiento: isoFecha(v.fecha_nacimiento),
+      edad: v.edad ?? '',
+      domicilio: v.direccion || '',
+      distrito: distritoDeSede(sede) || v.distrito || 'Comas',
+      sedeAsignada: sede,
+      sedeRegistrada: !sede || sedeConocida(sede),
+      sedeEtiqueta: sede ? etiquetaSede(sede) : 'Sin sede',
+      servicio: v.servicio || '',
+      rol: v.rol || '',
+      estrategia: v.estrategia || 'Atención Fija',
+      tipoVoluntariado: v.tipo_voluntariado || '',
+      capacitaciones: Array.isArray(v.capacitaciones) ? v.capacitaciones : [],
+      canastasRecibidas: v.canastas_recibidas ?? 0,
+      fechaIngreso: isoFecha(v.fecha_ingreso),
+      estado: v.estado || 'Activo',
+      disponibilidad: v.disponibilidad || 'Disponibilidad estándar',
+      observaciones: v.observaciones || '',
+    };
+  });
 }
 
 /** Bitácora de auditoría. */
@@ -860,12 +877,15 @@ export async function crearBeneficiario(m) {
   const estrategiasInscripcion = (Array.isArray(m.estrategias) && m.estrategias.length)
     ? m.estrategias
     : estrategiasDesdePrograma(progInscripcion);
+  const tipoDoc = !documento
+    ? 'Sin Documento'
+    : tipoDocumentoCanonico(m.tipoDocumento, true);
   const params = {
     cod,
     nom: (m.nombres || '').trim(),
     ape: (m.apellidos || '').trim(),
     doc: documento || 'Sin DNI-' + Date.now(),
-    tipoDoc: documento ? 'DNI' : 'Sin Documento',
+    tipoDoc,
     fnac: m.fechaNacimiento || new Date().toISOString().slice(0, 10),
     sexo: (m.sexo || 'M').toUpperCase().includes('F') ? 'F' : 'M',
     dir: m.direccion || '',
@@ -877,10 +897,10 @@ export async function crearBeneficiario(m) {
     // El grado se elige de la lista del nivel: si no hay, se guarda vacio en
     // vez de inventar "Inicial 4 años", que ensuciaba los reportes.
     grado: m.grado || '',
-    seg: seguroDesdeUi(m.seguro),
+    seg: seguroUiADb(m.seguro),
     prog: progInscripcion,
     estrategias: estrategiasInscripcion,
-    mod: modalidadDesdeUi(m.modalidad),
+    mod: modalidadUiADb(m.modalidad),
     periodo: new Date().getFullYear(),
     estado: ['Activo', 'Inactivo', 'Graduado', 'Trasladado', 'Retirado'].includes(m.estado) ? m.estado : 'Activo',
   };
@@ -888,13 +908,37 @@ export async function crearBeneficiario(m) {
   try {
     // 0) La inscripción exige una sede real: sin sede en la nube no se inscribe.
     const sedeFound = comoLista(await ejecutar(
-      'SELECT id FROM sede WHERE nombre = $sedeNom LIMIT 1;', {
+      'SELECT id, distrito FROM sede WHERE nombre = $sedeNom LIMIT 1;', {
       sedeNom: m.sede || '',
     }));
     if (!sedeFound.length) {
       return avisarFallo('Registro de usuario', `La sede "${m.sede || '(vacío)'}" no existe en la nube. Créala en el Directorio Territorial primero.`) === null ? null : null;
     }
     params.sid = String(sedeFound[0].id).split(':').pop();
+    // El distrito operativo sale de la sede, no de lo que haya quedado escrito
+    // a mano en la ficha. Si la sede no lo trae, se conserva el valor previo.
+    params.dist = sedeFound[0].distrito || params.dist;
+
+    // 0.1) Salud y educación: el centro de salud y la I.E. son registros de
+    //      institucion. Se crean o reutilizan antes de la transacción para no
+    //      dejar el alta a medias si el nombre no se puede guardar.
+    const centroNombre = String(m.centroSalud || '').trim();
+    if (centroNombre) {
+      params.centroId = await asegurarInstitucion(centroNombre, 'Centro de Salud', params.dist) || '';
+      if (!params.centroId) return null;
+    }
+    const colegioNombre = String(m.colegio || '').trim();
+    if (colegioNombre) {
+      params.colegioId = await asegurarInstitucion(colegioNombre, 'Institucion Educativa', params.dist) || '';
+      if (!params.colegioId) return null;
+    }
+    params.centroId = params.centroId || '';
+    params.colegioId = params.colegioId || '';
+    // La alergia no es un campo de la persona: es un registro propio con tipo
+    // y gravedad. "Ninguna" no genera ninguno.
+    params.algDesc = descripcionAlergia(m.alergia?.descripcion ?? m.alergias);
+    params.algTipo = tipoAlergiaCanonico(m.alergia?.tipo);
+    params.algSev = severidadAlergiaCanonico(m.alergia?.severidad);
 
     // 1) Apoderado: se crea (o reutiliza) ANTES de la transacción, porque los
     //    consentimientos lo requieren como firmante.
@@ -905,13 +949,13 @@ export async function crearBeneficiario(m) {
         nombres: nomAp,
         documento: m.apoderadoDni || '',
         parentesco: m.parentesco || 'Madre',
+        sexo: m.sexoApoderado || '',
       });
       if (!cuiId) return avisarFallo('Registro de usuario', 'No se pudo registrar al apoderado (revisa su DNI).') === null ? null : null;
     }
 
     // 2) Transacción: menor + inscripción + vínculo + consentimiento + aporte.
-    const pct = String(m.exoneracionAporte || '').includes('100%') ? 100
-      : (String(m.exoneracionAporte || '').includes('50%') ? 50 : 0);
+    const pct = pctDesdeExoneracion(m.exoneracionAporte);
     const hb = m.hb != null && m.hb !== '' && !isNaN(Number(m.hb)) ? Number(m.hb) : null;
 
     const res = await ejecutar(`
@@ -924,14 +968,22 @@ export async function crearBeneficiario(m) {
         telefono: $tel ?? NONE, telefono_alt: $tel2 ?? NONE,
         nivel_educativo: $niv, grado: $grado,
         esquema_salud: $seg,
+        centro_salud: IF string::len($centroId) > 0 { type::record('institucion', $centroId) } ELSE { NONE },
+        institucion_origen: IF string::len($colegioId) > 0 { type::record('institucion', $colegioId) } ELSE { NONE },
         foto_url: $foto ?? NONE,
         activo: true
       } RETURN VALUE id));
+      IF string::len($algDesc) > 0 {
+        CREATE alergia CONTENT {
+          persona_id: $menor, tipo: $algTipo, severidad: $algSev,
+          descripcion: $algDesc, activo: true
+        };
+      };
       LET $ins = array::first((CREATE inscripcion CONTENT {
         ${F_USUARIO}: $menor, sede_id: $sede,
         periodo: $periodo, programa: $prog, estrategias: $estrategias,
         modalidad: $mod,
-        tipo_atencion: 'Atencion fija', estado: $estado,
+        tipo_atencion: 'Atención fija', estado: $estado,
         activo: true
       } RETURN VALUE id));
       IF string::len($cuiId) > 0 {
@@ -970,7 +1022,7 @@ export async function crearBeneficiario(m) {
       ...params,
       foto: m.fotoUrl || null,
       cuiId: cuiId ? String(cuiId).split(':').pop() : '',
-      par: PARENTESCO.includes(m.parentesco) ? m.parentesco : 'Otro',
+      par: normalizarParentesco(m.parentesco || 'Otro'),
       cEval: m.consentimientos?.evaluacionSocial ?? true,
       cFoto: m.consentimientos?.usoFotografia ?? true,
       cFondos: m.consentimientos?.gestionDonaciones ?? true,
@@ -989,15 +1041,34 @@ export async function crearBeneficiario(m) {
   }
 }
 
+/** Normaliza el sexo explícito de la ficha; devuelve '' si no viene. */
+function normalizarSexoPersona(sexo) {
+  const s = String(sexo || '').trim().toLowerCase();
+  if (s === 'f' || s === 'femenino' || s === 'mujer') return 'F';
+  if (s === 'm' || s === 'masculino' || s === 'hombre' || s === 'varon' || s === 'varón') return 'M';
+  return '';
+}
+
 /** Crea al apoderado si no existe (DNI único) y devuelve su record id completo. */
 async function asegurarPersonaCuidador(apoderado) {
   try {
+    const sexoExplicito = normalizarSexoPersona(apoderado.sexo);
+    const esVaron = /padre|abuelo|tio|tío|padrastro|padrasto/i.test(apoderado.parentesco || '');
+    // Si la llamada no trae sexo (flujos antiguos), se conserva la inferencia
+    // por parentesco. La ficha nueva lo exige y manda el valor explícito.
+    const sexo = sexoExplicito || (esVaron ? 'M' : 'F');
     if (apoderado.documento) {
       const found = comoLista(await ejecutar(
         'SELECT id FROM persona WHERE numero_documento = $doc LIMIT 1;', { doc: apoderado.documento }));
-      if (found.length) return String(found[0].id);
+      if (found.length) {
+        const id = String(found[0].id);
+        // Si la ficha trae sexo explícito, se corrige el registro existente.
+        if (sexoExplicito) {
+          await ejecutar('UPDATE type::record($rid) SET sexo = $sexo;', { rid: id, sexo });
+        }
+        return id;
+      }
     }
-    const esVaron = /padre|abuelo|tio|tío|padrasto/i.test(apoderado.parentesco || '');
     // La ficha guarda al apoderado como un solo nombre completo: se reparte en
     // nombres/apellidos (el esquema de la nube exige ambos no vacíos).
     const partes = String(apoderado.nombres || 'Apoderado').trim().split(/\s+/);
@@ -1020,7 +1091,7 @@ async function asegurarPersonaCuidador(apoderado) {
       nom,
       ape,
       doc,
-      sexo: esVaron ? 'M' : 'F',
+      sexo,
     });
     const lista = comoLista(res);
     return lista.length ? 'persona:' + String(lista[0].id ?? lista[0]).split(':').pop() : null;
@@ -1029,7 +1100,86 @@ async function asegurarPersonaCuidador(apoderado) {
   }
 }
 
-const PARENTESCO = ['Madre', 'Padre', 'Abuela', 'Abuelo', 'Tia', 'Tio', 'Hermano/a', 'Padrastro', 'Madrastra', 'Tutor Legal', 'Otro'];
+/** Crea o reutiliza una institución por nombre y tipo; devuelve su id corto. */
+async function asegurarInstitucion(nombre, tipo, distrito) {
+  const limpio = String(nombre || '').trim();
+  if (!limpio) return null;
+  try {
+    const found = comoLista(await ejecutar(
+      'SELECT id FROM institucion WHERE nombre = $nombre AND tipo = $tipo LIMIT 1;',
+      { nombre: limpio, tipo },
+    ));
+    if (found.length) return String(found[0].id).split(':').pop();
+
+    const res = await ejecutar(`CREATE institucion CONTENT {
+      nombre: $nombre, tipo: $tipo, distrito: $distrito, activo: true
+    } RETURN VALUE id;`, {
+      nombre: limpio,
+      tipo,
+      distrito: ['Comas', 'Carabayllo', 'Otro'].includes(distrito) ? distrito : 'Comas',
+    });
+    const lista = comoLista(res);
+    return lista.length ? String(lista[0].id ?? lista[0]).split(':').pop() : null;
+  } catch (err) {
+    avisarFallo('Registro de institución', err);
+    return null;
+  }
+}
+
+/**
+ * Guarda la alergia de una persona. El modelo es una sola alergia vigente:
+ * si el registro venía con más de una (importación o edición a mano), se
+ * conserva la de mayor gravedad y las demás quedan dadas de baja. Sin
+ * alergia (descripción vacía o "Ninguna") se da de baja, nunca se borra: la
+ * Ley 29733 prohibe borrar datos de salud de los menores.
+ */
+async function guardarAlergia(personaId, entrada, motivo) {
+  const descripcion = descripcionAlergia(entrada?.descripcion);
+  const tipo = tipoAlergiaCanonico(entrada?.tipo);
+  const severidad = severidadAlergiaCanonico(entrada?.severidad);
+  try {
+    const registros = comoLista(await ejecutar(
+      "SELECT * FROM alergia WHERE persona_id = type::record('persona', $pid);",
+      { pid: personaId },
+    ));
+    const vigentes = (registros || []).filter((r) => r && r.activo !== false);
+    if (!descripcion) {
+      for (const registro of vigentes) {
+        await ejecutar(
+          'UPDATE type::record($rid) SET activo = false, fecha_baja = time::now(), motivo_baja = $motivo;',
+          { rid: String(registro.id), motivo: motivo || 'Sin alergia registrada' },
+        );
+      }
+      return true;
+    }
+    // Una alergia a medias (sin tipo o sin gravedad) no se registra: no sirve
+    // para decidir en una urgencia y ensucia el padrón.
+    if (!tipo || !severidad) return false;
+    const principal = alergiaPrincipal(vigentes);
+    if (principal) {
+      await ejecutar(
+        'UPDATE type::record($rid) SET tipo = $tipo, severidad = $sev, descripcion = $desc, activo = true, fecha_baja = NONE, motivo_baja = NONE;',
+        { rid: String(principal.id), tipo, sev: severidad, desc: descripcion },
+      );
+      for (const registro of vigentes) {
+        if (String(registro.id) === String(principal.id)) continue;
+        await ejecutar(
+          'UPDATE type::record($rid) SET activo = false, fecha_baja = time::now(), motivo_baja = $motivo;',
+          { rid: String(registro.id), motivo: 'Consolidado: se conserva la alergia mas grave' },
+        );
+      }
+    } else {
+      await ejecutar(
+        "CREATE alergia CONTENT { persona_id: type::record('persona', $pid), tipo: $tipo, severidad: $sev, descripcion: $desc, activo: true };",
+        { pid: personaId, tipo, sev: severidad, desc: descripcion },
+      );
+    }
+    return true;
+  } catch (err) {
+    avisarFallo('Registro de alergia', err);
+    return false;
+  }
+}
 
 /** Actualiza los datos del menor que la UI edita (expediente / servicios). */
 export async function actualizarBeneficiario(b) {
@@ -1045,8 +1195,34 @@ export async function actualizarBeneficiario(b) {
         apellidos: '',
         documento: b.apoderadoDni || '',
         parentesco: b.parentesco || 'Madre',
+        sexo: b.sexoApoderado || '',
       });
       cuiId = String(creado || '').split(':').pop();
+    }
+
+    // El distrito operativo se deriva de la sede elegida. Si la sede no existe
+    // en el Directorio Territorial, se conserva el distrito de la ficha.
+    const sedeNom = (b.sede || '').trim();
+    let distrito = ['Comas', 'Carabayllo'].includes(b.distrito) ? b.distrito : 'Comas';
+    if (sedeNom) {
+      const sedeFound = comoLista(await ejecutar(
+        'SELECT distrito FROM sede WHERE nombre = $sedeNom LIMIT 1;', { sedeNom }));
+      if (sedeFound.length) distrito = sedeFound[0].distrito || distrito;
+    }
+
+    // Salud y educación: se crean o reutilizan las instituciones antes de
+    // actualizar la persona, para que el expediente no pierda estos datos.
+    let centroId = '';
+    const centroNombre = String(b.centroSalud || '').trim();
+    if (centroNombre) {
+      centroId = await asegurarInstitucion(centroNombre, 'Centro de Salud', distrito) || '';
+      if (!centroId) return false;
+    }
+    let colegioId = '';
+    const colegioNombre = String(b.colegio || '').trim();
+    if (colegioNombre) {
+      colegioId = await asegurarInstitucion(colegioNombre, 'Institucion Educativa', distrito) || '';
+      if (!colegioId) return false;
     }
 
     // Todo lo demás en UNA sola ida y vuelta: persona + vínculo + inscripción.
@@ -1057,7 +1233,10 @@ export async function actualizarBeneficiario(b) {
         direccion = $dir, referencia = $ref ?? NONE,
         telefono = $tel ?? NONE, telefono_alt = $tel2 ?? NONE,
         nivel_educativo = $niv, grado = $grado ?? NONE,
-        esquema_salud = $seg, distrito = $dist, foto_url = $foto ?? NONE;
+        esquema_salud = $seg, distrito = $dist, foto_url = $foto ?? NONE,
+        tipo_documento = $tipoDoc,
+        centro_salud = IF string::len($centroId) > 0 { type::record('institucion', $centroId) } ELSE { NONE },
+        institucion_origen = IF string::len($colegioId) > 0 { type::record('institucion', $colegioId) } ELSE { NONE };
       IF string::len($cuiId) = 0 {
         DELETE ${T_VINCULO} WHERE ${F_MENOR} = $menor;
       };
@@ -1093,25 +1272,34 @@ export async function actualizarBeneficiario(b) {
       pid, cuiId,
       nom: b.nombres, ape: b.apellidos,
       sexo: (b.sexo || 'M').toUpperCase().includes('F') ? 'F' : 'M',
+      tipoDoc: tipoDocumentoCanonico(b.tipoDocumento, Boolean(b.dni)),
+      centroId: centroId || '',
+      colegioId: colegioId || '',
       fnac: b.fechaNacimiento || '',
-      dist: ['Comas', 'Carabayllo'].includes(b.distrito) ? b.distrito : 'Comas',
-      sedeNom: (b.sede || '').trim(),
+      dist: distrito,
+      sedeNom,
       exon: b.exoneracionAporte || '',
-      pctAporte: String(b.exoneracionAporte || '').includes('100%') ? 100
-        : (String(b.exoneracionAporte || '').includes('50%') ? 50 : 0),
-      mod: modalidadDesdeUi(b.modalidad),
+      pctAporte: pctDesdeExoneracion(b.exoneracionAporte),
+      mod: modalidadUiADb(b.modalidad),
       foto: b.fotoUrl || null,
       dir: b.direccion || '', ref: b.referencia || '',
       tel: b.telefono || null, tel2: b.telefonoAlt || null,
       niv: b.nivelEducativo || 'Inicial', grado: b.grado || '',
-      seg: seguroDesdeUi(b.seguro),
-      par: PARENTESCO.includes(b.parentesco) ? b.parentesco : 'Otro',
+      seg: seguroUiADb(b.seguro),
+      par: normalizarParentesco(b.parentesco || 'Otro'),
       prog: programaDesdeServicios(b.servicios, b.estrategia),
       estrategias: (Array.isArray(b.estrategias) && b.estrategias.length)
         ? b.estrategias
         : estrategiasDesdePrograma(programaDesdeServicios(b.servicios, b.estrategia)),
       estado: b.estado || 'Activo',
     });
+
+    // La alergia se guarda aparte, en su propia tabla. Si la vista no trae
+    // el dato (flujos que no tocan salud) no se toca lo que ya está escrito.
+    if (b.alergia && typeof b.alergia === 'object') {
+      const alergiaOk = await guardarAlergia(pid, b.alergia, b.alergiaMotivo);
+      if (!alergiaOk) return false;
+    }
     return true;
   } catch (err) {
     return avisarFallo('Actualización de expediente', err) !== null ? false : false;
@@ -1151,7 +1339,7 @@ export async function crearSede(s) {
     };`, {
       nombre: s.nombre, distrito: s.distrito === 'Carabayllo' ? 'Carabayllo' : 'Comas',
       dir: s.direccion, ref: s.referencia || null,
-      tipo: TIPO_LOCAL.includes(s.tipoAliado) ? s.tipoAliado : 'Local Comunal',
+      tipo: tipoLocalCanonico(s.tipoAliado),
       aliado: s.iglesiaAliada || s.pastorAliado || s.nombre,
       aliadoInst: s.tipoAliado || 'Local Comunal',
       fac: s.facilitadora || '', facTel: s.facilitadoraTel || '',
@@ -1164,8 +1352,6 @@ export async function crearSede(s) {
     return avisarFallo('Registro de sede', err) !== null;
   }
 }
-
-const TIPO_LOCAL = ['Comedor Comunitario', 'Iglesia Aliada', 'Colegio Publico (I.E.)', 'Biblioteca Comunal', 'Local Comunal'];
 
 export async function actualizarSede(s) {
   const sid = String(s._rawId || '').split(':').pop();
@@ -1180,7 +1366,7 @@ export async function actualizarSede(s) {
     WHERE id = type::record('sede', $sid);`, {
       sid, nombre: s.nombre, distrito: s.distrito === 'Carabayllo' ? 'Carabayllo' : 'Comas',
       dir: s.direccion, ref: s.referencia || null,
-      tipo: TIPO_LOCAL.includes(s.tipoAliado) ? s.tipoAliado : 'Local Comunal',
+      tipo: tipoLocalCanonico(s.tipoAliado),
       aliado: s.iglesiaAliada || s.nombre,
       aliadoInst: s.tipoAliado || 'Local Comunal',
       fac: s.facilitadora || '', facTel: s.facilitadoraTel || '',
@@ -1354,6 +1540,9 @@ export async function crearVoluntario(v) {
     if (dup.length) {
       return avisarFallo('Documento duplicado', `La voluntaria con DNI ${v.dni} ya está registrada.`) === null ? null : null;
     }
+    if (v.sedeAsignada && !sedeConocida(v.sedeAsignada)) {
+      console.warn(`[PDI] Sede no registrada en el catálogo de voluntariado: "${v.sedeAsignada}". Se conserva el valor.`);
+    }
     const res = await ejecutar(`CREATE voluntario CONTENT {
       codigo: $codigo,
       nombres: $nom, apellidos: $ape,
@@ -1378,8 +1567,8 @@ export async function crearVoluntario(v) {
       fnac: v.fechaNacimiento || null,
       edad: v.edad ? Number(v.edad) : null,
       dir: v.domicilio || null,
-      distrito: v.distrito === 'Carabayllo' ? 'Carabayllo' : 'Comas',
-      sede: v.sedeAsignada || '', servicio: SERVICIOS.includes(v.servicio) ? v.servicio : 'Desayuno Infantil',
+      distrito: distritoDeSede(v.sedeAsignada) || (v.distrito === 'Carabayllo' ? 'Carabayllo' : 'Comas'),
+      sede: v.sedeAsignada || '', servicio: SERVICIOS_VOLUNTARIADO.includes(v.servicio) ? v.servicio : 'Desayuno Infantil',
       rol: v.rol || 'Voluntaria de Apoyo',
       estrategia: v.estrategia || 'Atención Fija',
       tipo: v.tipoVoluntariado || null,
@@ -1398,12 +1587,15 @@ export async function crearVoluntario(v) {
   }
 }
 
-const SERVICIOS = ['Desayuno Infantil', 'Lonchera Infantil', 'Casita del Saber', 'Área Social Pastoral (ASP)'];
+/** Los servicios válidos salen del catálogo único de programas. */
 
 export async function actualizarVoluntario(v) {
   const qid = String(v._qid || '').split(':').pop();
   if (!qid) return false;
   try {
+    if (v.sedeAsignada && !sedeConocida(v.sedeAsignada)) {
+      console.warn(`[PDI] Sede no registrada en el catálogo de voluntariado: "${v.sedeAsignada}". Se conserva el valor.`);
+    }
     await ejecutar(`UPDATE voluntario SET
       nombres = $nom, apellidos = $ape, telefono = $tel ?? NONE,
       fecha_nacimiento = IF string::len($fnac) = 0 { NONE } ELSE { type::datetime($fnac) },
@@ -1417,8 +1609,8 @@ export async function actualizarVoluntario(v) {
     WHERE id = type::record('voluntario', $qid);`, {
       qid, nom: v.nombres, ape: v.apellidos, tel: v.celular || null,
       fnac: v.fechaNacimiento || null, edad: v.edad ? Number(v.edad) : null,
-      dir: v.domicilio || null, distrito: v.distrito === 'Carabayllo' ? 'Carabayllo' : 'Comas',
-      sede: v.sedeAsignada || '', servicio: SERVICIOS.includes(v.servicio) ? v.servicio : 'Desayuno Infantil',
+      dir: v.domicilio || null, distrito: distritoDeSede(v.sedeAsignada) || (v.distrito === 'Carabayllo' ? 'Carabayllo' : 'Comas'),
+      sede: v.sedeAsignada || '', servicio: SERVICIOS_VOLUNTARIADO.includes(v.servicio) ? v.servicio : 'Desayuno Infantil',
       rol: v.rol || 'Voluntaria de Apoyo', estrategia: v.estrategia || 'Atención Fija',
       tipo: v.tipoVoluntariado || null,
       estado: ['Activo', 'En Pausa', 'Inactivo'].includes(v.estado) ? v.estado : 'Activo',

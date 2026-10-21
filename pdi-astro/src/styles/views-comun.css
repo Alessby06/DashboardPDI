@@ -19,8 +19,6 @@
       position: fixed;
       inset: 0;
       background: rgba(0, 0, 0, 0);
-      backdrop-filter: blur(0px);
-      -webkit-backdrop-filter: blur(0px);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -32,7 +30,7 @@
                   backdrop-filter var(--dur-panel) var(--ease-out),
                   -webkit-backdrop-filter var(--dur-panel) var(--ease-out);
       padding: 20px;
-      will-change: opacity, backdrop-filter, background-color;
+      will-change: opacity, background-color;
     }
 
     .modal-backdrop.open,

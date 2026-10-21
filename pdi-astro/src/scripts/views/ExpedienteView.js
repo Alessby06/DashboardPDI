@@ -25,6 +25,12 @@ import { ToastView } from "./ToastView.js";
 import { crear as crearFiltros } from "../utils/Filters.js";
 import { edadDesdeFecha, estadoActual } from "../core/db.js";
 import { PARENTESCOS, valoresDeGrado } from "../../data/opcionesBeneficiario.js";
+import {
+  severidadAlergiaCanonico,
+  pesoSeveridadAlergia,
+  descripcionAlergia,
+  resumenAlergias,
+} from "../core/catalogos.js";
 import { pintarGrados, conectarGrado } from "../ui/gradoEscolar.js";
 
 import { escapar } from "../utils/HtmlHelper.js";
@@ -164,9 +170,10 @@ const LEYENDA_SIN_REFERENCIA = "Sin referencia adicional";
 const CAMPOS_EDITABLES = [
   "expNombres", "expApellidos", "expDni", "expFechaNac",
   "expDireccion", "expReferencia", "expDistritoSede", "expModalidad", "expEstrategia",
-  "expExoneracion", "expSeguro", "expCentroSalud", "expAlergias",
+  "expExoneracion", "expSeguro", "expCentroSalud",
+  "expAlergiaDescripcion", "expAlergiaTipo", "expAlergiaSeveridad",
   "expNivelEducativo", "expGrado", "expColegio",
-  "expApoderadoNombre", "expApoderadoParentesco", "expApoderadoDni",
+  "expApoderadoNombre", "expApoderadoParentesco", "expApoderadoSexo", "expApoderadoDni",
   "expApoderadoTel", "expTelefonoAlt", "expPeso", "expTalla", "expHb",
 ];
 
@@ -604,8 +611,13 @@ export const ExpedienteView = {
 
   _pintarSalud(b) {
     seleccionarValor("expSeguro", b.seguro || "SIS Gratuito");
-    this._set("expCentroSalud", b.centroSalud || `C.S. ${b.sede}`);
-    this._set("expAlergias", b.alergias || "Ninguna");
+    // El centro de salud y la I.E. no se inventan: si no estan registrados,
+    // el campo queda vacio para que se escriba el dato real.
+    this._set("expCentroSalud", b.centroSalud || "");
+    this._set("expAlergiaDescripcion", b.alergiaDescripcion || "Ninguna");
+    seleccionarValor("expAlergiaTipo", b.alergiaTipo || "Ninguna");
+    seleccionarValor("expAlergiaSeveridad", b.alergiaSeveridad || "Leve");
+    this._refrescarGravedadAlergia();
     // Peso, talla y hemoglobina son numeros, no una cadena compuesta: se
     // editan con su unidad en la etiqueta y se guardan como numero.
     escribirNumero("expPeso", b.peso);
@@ -616,6 +628,15 @@ export const ExpedienteView = {
     this._set("expOrientacion", b.orientacionFamiliar ? "Completada con Cuidador" : "En programacion");
   },
 
+  /** La gravedad solo se pide cuando hay una alergia que gravedar. */
+  _refrescarGravedadAlergia() {
+    const select = document.getElementById("expAlergiaSeveridad");
+    if (!select) return;
+    const entrada = document.getElementById("expAlergiaDescripcion");
+    const descripcion = descripcionAlergia(entrada ? entrada.value : "");
+    select.disabled = !(this.isEditing && descripcion);
+  },
+
   _pintarEscolaridad(b) {
     const grado = String(b.grado || "");
     const nivel = b.nivelEducativo
@@ -624,7 +645,7 @@ export const ExpedienteView = {
     // El grado es un desplegable: se repinta con la lista del nivel antes de
     // seleccionar, o el navegador no encontraria la opcion guardada.
     pintarGrados(document.getElementById("expGrado"), nivel, grado);
-    this._set("expColegio", b.colegio || "I.E. Local de la Zona");
+    this._set("expColegio", b.colegio || "");
     this._set("expAsistencia", "94.2% de Asistencia (Sede Regular)");
     this._set("expKits", "Kit Escolar Faber-Castell Entregado");
   },
@@ -633,6 +654,7 @@ export const ExpedienteView = {
     this._set("expApoderado", `${b.apoderado} (${b.parentesco || "Madre"}) - DNI ${b.apoderadoDni || "-"}`);
     this._set("expApoderadoNombre", b.apoderado);
     seleccionarValor("expApoderadoParentesco", b.parentesco || "Madre");
+    seleccionarValor("expApoderadoSexo", b.sexoApoderado || "");
     this._set("expApoderadoDni", b.apoderadoDni || "En validacion");
     this._set("expTelefono", b.telefono || "-");
     this._set("expApoderadoTel", b.telefono || "-");
@@ -1002,6 +1024,16 @@ export const ExpedienteView = {
       }
     });
 
+    // La gravedad de la alergia depende de si hay algo que gravedar: si la
+    // descripcion queda en "Ninguna", el desplegable se cierra.
+    this._refrescarGravedadAlergia();
+    const descripcionAlergiaEl = document.getElementById("expAlergiaDescripcion");
+    if (descripcionAlergiaEl) {
+      descripcionAlergiaEl.oninput = this.isEditing
+        ? () => this._refrescarGravedadAlergia()
+        : null;
+    }
+
     // Mientras se escribe la hemoglobina, el estado se recalcula a la vista.
     const hb = document.getElementById("expHb");
     if (hb) {
@@ -1091,11 +1123,55 @@ export const ExpedienteView = {
     }
     b.seguro = valor("expSeguro") || b.seguro;
     b.centroSalud = valor("expCentroSalud") || b.centroSalud;
-    b.alergias = valor("expAlergias") || b.alergias;
+    // La alergia se guarda como ficha: descripcion, tipo y gravedad. Si el
+    // operador baja la gravedad de la que estaba registrada, se le pregunta:
+    // el dato mas severo es el que decide en una urgencia.
+    const alergiaAntes = {
+      descripcion: b.alergiaDescripcion || "",
+      severidad: b.alergiaSeveridad || "",
+    };
+    const alergiaDescripcion = valor("expAlergiaDescripcion");
+    const alergiaTipo = valor("expAlergiaTipo");
+    const gravedadAntes = b.alergiaSeveridad || "";
+    const gravedadNueva = severidadAlergiaCanonico(valor("expAlergiaSeveridad"));
+    const bajaGravedad = Boolean(
+      gravedadAntes && gravedadNueva
+      && pesoSeveridadAlergia(gravedadNueva) < pesoSeveridadAlergia(gravedadAntes),
+    );
+    if (bajaGravedad) {
+      const acepta = confirm(
+        `La alergia registrada era "${gravedadAntes}" y se está guardando como "${gravedadNueva}".\n`
+        + `Bajar la gravedad hace que la clínica ya no la trate como urgente. ¿Continuar?`,
+      );
+      if (!acepta) {
+        seleccionarValor("expAlergiaSeveridad", gravedadAntes);
+        ToastView.show(
+          "Alergia sin cambios",
+          "Se conservó la gravedad registrada. Vuelve a guardar si de verdad quieres bajarla.",
+          "warning",
+        );
+        return;
+      }
+    }
+    b.alergia = {
+      descripcion: alergiaDescripcion,
+      tipo: alergiaTipo,
+      severidad: gravedadNueva,
+    };
+    b.alergiaDescripcion = descripcionAlergia(alergiaDescripcion);
+    b.alergiaTipo = alergiaTipo;
+    b.alergiaSeveridad = gravedadNueva;
+    b.alergias = resumenAlergias([{
+      descripcion: alergiaDescripcion,
+      tipo: alergiaTipo,
+      severidad: gravedadNueva,
+      activo: true,
+    }]);
     b.grado = valor("expGrado") || b.grado;
     b.colegio = valor("expColegio") || b.colegio;
     b.apoderado = valor("expApoderadoNombre") || b.apoderado;
     b.parentesco = valor("expApoderadoParentesco") || b.parentesco;
+    b.sexoApoderado = valor("expApoderadoSexo") || b.sexoApoderado;
     b.apoderadoDni = dniApoderadoNuevo || b.apoderadoDni;
     b.telefono = valor("expApoderadoTel") || b.telefono;
     b.telefonoAlt = valor("expTelefonoAlt") || b.telefonoAlt;
@@ -1236,13 +1312,20 @@ export const ExpedienteView = {
     }
 
     const usuarioActivo = localStorage.getItem("pdi_usuario_nombre") || "Coordinador General";
+    // La auditoria deja escrito como estaba la alergia antes del cambio: es
+    // el dato que la clinica necesita para saber que se rebajo una gravedad.
+    const cambioAlergia = alergiaAntes.descripcion !== (b.alergiaDescripcion || "")
+      || alergiaAntes.severidad !== (b.alergiaSeveridad || "");
     if (AuditModel && AuditModel.addLog) {
       AuditModel.addLog({
         user: usuarioActivo,
         role: "Direccion",
         action: "Edicion de Expediente",
         entity: b.codigo,
-        detail: `Actualizacion de datos y servicios del usuario ${b.nombres} ${b.apellidos} en el padron`,
+        detail: `Actualizacion de datos y servicios del usuario ${b.nombres} ${b.apellidos} en el padron`
+          + (cambioAlergia
+            ? ` | Alergia: ${alergiaAntes.descripcion || "Ninguna"} (${alergiaAntes.severidad || "sin gravedad"}) -> ${b.alergiaDescripcion || "Ninguna"} (${b.alergiaSeveridad || "sin gravedad"})`
+            : ""),
         status: "Auditado",
       });
     }

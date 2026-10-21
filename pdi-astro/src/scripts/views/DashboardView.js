@@ -4,6 +4,7 @@ import { Dropdown } from '../utils/Dropdown.js';
 import { Responsive } from '../utils/Responsive.js';
 
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
+import { SEDES_POR_DISTRITO } from "../core/catalogos.js";
 // Filtros del historial de cambios que viajan en la URL. Los mismos sirven para
 // dashboard.html y para auditoria.html: es la misma vista en las dos paginas,
 // y el fragmento de auditoria es solo su version a pantalla completa.
@@ -130,19 +131,18 @@ export const DashboardView = {
       const allBeneficiarios = bModel && bModel.getAll ? bModel.getAll() : [];
       const totalBeneficiarios = stats.total || allBeneficiarios.length || 1;
 
-      // Agrupación de sedes por distrito
-      const distritosMap = {
-        "Comas": {
-          sedes: ["Año Nuevo", "La Libertad", "Carmen Alto"],
-          color: "var(--gt-green)",
-          badgeClass: "badge-green"
-        },
-        "Carabayllo": {
-          sedes: ["El Progreso", "San Pedro", "Los Bendecidos", "Santa Rosa"],
-          color: "var(--gt-blue, #0284c7)",
-          badgeClass: "badge-blue"
-        }
-      };
+      // Agrupación de sedes por distrito, derivada del catálogo único.
+      const distritosMap = Object.fromEntries(
+        Object.entries(SEDES_POR_DISTRITO).map(([distrito, sedes]) => {
+          const esComas = distrito.toLowerCase() === "comas";
+          const esCarabayllo = distrito.toLowerCase() === "carabayllo";
+          return [distrito, {
+            sedes: [...sedes],
+            color: esComas ? "var(--gt-green)" : (esCarabayllo ? "var(--gt-blue, #0284c7)" : "var(--gt-yellow, #f59e0b)"),
+            badgeClass: esComas ? "badge-green" : (esCarabayllo ? "badge-blue" : "badge-yellow"),
+          }];
+        }),
+      );
 
       if (allSedes.length > 0) {
         allSedes.forEach(s => {

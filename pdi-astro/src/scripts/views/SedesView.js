@@ -2,14 +2,16 @@
 import { SedeModel } from '../models/SedeModel.js';
 import { AnimationEngine } from '../utils/AnimationEngine.js';
 import { crear as crearFiltros } from '../utils/Filters.js';
+import { PROGRAMAS, PROGRAMA_POR_CLAVE } from '../../data/opcionesBeneficiario.js';
 
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
 // Filtros del directorio que viajan en la URL. Valores tomados de los
-// desplegables de sedes.html.
+// desplegables de sedes.html. El servicio valida contra el catálogo único
+// de programas: un programa nuevo no exige tocar esta lista.
 const FILTROS_SEDES = {
   q:        { valor: "" },
   distrito: { valor: "all", valores: ["all", "Comas", "Carabayllo"] },
-  servicio: { valor: "all", valores: ["all", "Desayuno", "Casita", "Lonchera"] },
+  servicio: { valor: "all", valores: ["all", ...PROGRAMAS.map((programa) => programa.clave)] },
   // La sede abierta en el panel de detalle tambien es parte de lo que se esta
   // viendo: un enlace a una sede concreta tiene que abrirla.
   sede:     { valor: "" },
@@ -204,14 +206,9 @@ export const SedesView = {
 
   _updateServicioDropdownUI() {
     const label = document.getElementById("labelSedesServicioSelect");
-    const names = {
-      "all": "Todos los Servicios",
-      "Desayuno": "Servicio Alimentario Nutricional",
-      "Casita": "Casita del Saber",
-      "Lonchera": "Lonchera Saludable"
-    };
     if (label) {
-      label.textContent = names[this._filterServicio] || "Todos los Servicios";
+      const programa = PROGRAMA_POR_CLAVE[this._filterServicio];
+      label.textContent = programa ? programa.etiqueta : "Todos los Servicios";
     }
     const items = document.querySelectorAll("#menuSedesServicio .padron-dropdown-item");
     items.forEach(el => {
@@ -267,14 +264,10 @@ export const SedesView = {
 
     if (this._filterServicio !== "all") {
       activeCount++;
-      const names = {
-        "Desayuno": "Servicio Alimentario Nutricional",
-        "Casita": "Casita del Saber",
-        "Lonchera": "Lonchera Saludable"
-      };
+      const programa = PROGRAMA_POR_CLAVE[this._filterServicio];
       chipsHTML.push(`
         <span class="padron-chip">
-          <span>Servicio: ${escapar(names[this._filterServicio] || this._filterServicio)}</span>
+          <span>Servicio: ${escapar(programa ? programa.etiqueta : this._filterServicio)}</span>
           <button type="button" class="padron-chip-remove" onclick="window.PDI?.SedesView?.removeFilterChip('servicio')" title="Eliminar filtro">
             <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -727,12 +720,6 @@ export const SedesView = {
     const mapQuery = encodeURIComponent(`${direccion}, ${sede.distrito || 'Comas'}, Lima, Peru`);
     const mapsNavUrl = `https://www.google.com/maps/dir/?api=1&destination=${mapQuery}`;
 
-    const servicioLabels = {
-      "Desayuno Infantil": "Servicio Alimentario Nutricional",
-      "Casita del Saber": "Casita del Saber",
-      "Lonchera Infantil": "Lonchera Saludable"
-    };
-
     const serviciosList = Array.isArray(sede.servicios) && sede.servicios.length > 0
       ? sede.servicios
       : ["Desayuno Infantil", "Casita del Saber"];
@@ -812,7 +799,7 @@ export const SedesView = {
           </div>
           <div class="sede-servicios-wrap" style="margin-top:8px; gap:8px;">
             ${serviciosList.map(serv => {
-              const displayServ = escapar(servicioLabels[serv] || serv);
+              const displayServ = escapar(serv);
               return `
                 <span class="sede-servicio-pill" style="font-size:12px; padding:6px 12px;">
                   <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">

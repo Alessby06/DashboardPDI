@@ -42,6 +42,9 @@
   --text-danger: #dc2626;
   --text-warning: #b45309;
   --text-info: #0284c7;
+  /* Verde de confirmacion como texto: --gt-green sobre blanco no llega a 3:1.
+     Este tono da 5,0:1 sobre blanco y 4,7:1 sobre --surface-2. */
+  --text-success: #15803d;
   
   /* Pure Neutral Crisp Typography */
   --text-main: #0f172a;
@@ -217,6 +220,8 @@
   --text-danger: #f47f7f;
   --text-warning: var(--gt-yellow);
   --text-info: var(--gt-blue);
+  /* El verde de marca ya da 6,0:1 sobre el pie oscuro de la ficha. */
+  --text-success: var(--gt-green);
   
   --text-main: #f3f4f6;
   --text-muted: #9ca3af;

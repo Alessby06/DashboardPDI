@@ -7,6 +7,8 @@ import {
   SEGUROS,
   NIVELES_EDUCATIVOS,
   PARENTESCOS,
+  TIPOS_ALERGIA,
+  SEVERIDADES_ALERGIA,
   gradosDeNivel,
 } from '../data/opcionesBeneficiario.js';
 import EstrategiaMultiSelect from '../components/EstrategiaMultiSelect.astro';
@@ -89,7 +91,9 @@ import '../styles/expediente.css';
           }
           setSelectVal("expSeguro", b.seguro);
           setVal("expCentroSalud", b.centroSalud);
-          setVal("expAlergias", b.alergias);
+          setVal("expAlergiaDescripcion", b.alergiaDescripcion || "Ninguna");
+          setSelectVal("expAlergiaTipo", b.alergiaTipo || "Ninguna");
+          setSelectVal("expAlergiaSeveridad", b.alergiaSeveridad || "Leve");
           setVal("expPeso", b.peso);
           setVal("expTalla", b.talla);
           setVal("expHb", b.hb);
@@ -99,6 +103,8 @@ import '../styles/expediente.css';
           setVal("expColegio", b.colegio);
           setVal("expApoderadoNombre", b.apoderado);
           setSelectVal("expApoderadoParentesco", b.parentesco);
+          var selSexoApoFlash = document.getElementById("expApoderadoSexo");
+          if (selSexoApoFlash) selSexoApoFlash.value = b.sexoApoderado === "F" ? "F" : (b.sexoApoderado === "M" ? "M" : "");
           setVal("expApoderadoDni", b.apoderadoDni);
           setVal("expApoderadoTel", b.telefono);
           setVal("expTelefonoAlt", b.telefonoAlt);
@@ -507,9 +513,25 @@ import '../styles/expediente.css';
             <input type="text" class="form-control" id="expCentroSalud" readonly maxlength="80">
           </div>
           <div class="form-group">
-            <label>Alergias a Medicamentos:</label>
-            <input type="text" class="form-control" id="expAlergias" readonly maxlength="120"
+            <label>Alergia:</label>
+            <input type="text" class="form-control" id="expAlergiaDescripcion" readonly maxlength="120"
               style="color:var(--text-danger); font-weight:700;">
+          </div>
+          <div class="form-group">
+            <label>Tipo de alergia:</label>
+            <select class="form-control" id="expAlergiaTipo" disabled style="opacity:1;">
+              {TIPOS_ALERGIA.map((opcion) => (
+                <option value={opcion.valor}>{opcion.etiqueta}</option>
+              ))}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Gravedad:</label>
+            <select class="form-control" id="expAlergiaSeveridad" disabled style="opacity:1;">
+              {SEVERIDADES_ALERGIA.map((opcion) => (
+                <option value={opcion.valor}>{opcion.etiqueta}</option>
+              ))}
+            </select>
           </div>
           <div class="form-group">
             <label>Peso (kg):</label>
@@ -604,6 +626,14 @@ import '../styles/expediente.css';
                 {PARENTESCOS.map((parentesco) => (
                   <option value={parentesco}>{parentesco}</option>
                 ))}
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Sexo del Apoderado:</label>
+              <select class="form-control" id="expApoderadoSexo" disabled style="opacity:1;">
+                <option value="">Sin dato</option>
+                <option value="F">Femenino (F)</option>
+                <option value="M">Masculino (M)</option>
               </select>
             </div>
             <div class="form-group">

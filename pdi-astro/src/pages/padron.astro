@@ -324,7 +324,7 @@ import '../styles/views-padron.css';
                         </div>
                       </div>
 
-                      <!-- Filtro 6: Sexo del Usuario (Niñas / Niños) -->
+                      <!-- Filtro 6: Sexo del Usuario (Masculino / Femenino) -->
                       <div class="audit-filter-field">
                         <label class="audit-field-label">Sexo del Usuario</label>
                         <div class="padron-inner-dropdown" id="dropdownPadronSexo">
@@ -344,21 +344,21 @@ import '../styles/views-padron.css';
                               </div>
                               <span class="padron-item-count" id="countFacetSexo-all">(0)</span>
                             </div>
-                            <div class="padron-dropdown-item" data-value="F"
-                              onclick="window.selectPadronSexo ? window.selectPadronSexo('F') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Niñas (Femenino)</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetSexo-F">(0)</span>
-                            </div>
                             <div class="padron-dropdown-item" data-value="M"
                               onclick="window.selectPadronSexo ? window.selectPadronSexo('M') : null">
                               <div class="padron-item-left">
                                 <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Niños (Masculino)</span>
+                                <span class="padron-item-label">Masculino (M)</span>
                               </div>
                               <span class="padron-item-count" id="countFacetSexo-M">(0)</span>
+                            </div>
+                            <div class="padron-dropdown-item" data-value="F"
+                              onclick="window.selectPadronSexo ? window.selectPadronSexo('F') : null">
+                              <div class="padron-item-left">
+                                <span class="padron-item-radio"></span>
+                                <span class="padron-item-label">Femenino (F)</span>
+                              </div>
+                              <span class="padron-item-count" id="countFacetSexo-F">(0)</span>
                             </div>
                           </div>
                         </div>

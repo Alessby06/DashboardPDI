@@ -93,7 +93,7 @@ window.guardarNuevoMenor = (e) =>
 // ---------------------------------------------------------------------------
 window.openModalNuevoMenor = () => ModalView.openNuevoMenor();
 window.openModalNuevoBeneficiario = () => ModalView.openNuevoMenor();
-window.closeModalNuevoMenor = () => ModalView.closeNuevoMenor();
+window.closeModalNuevoMenor = () => ModalView.closeNuevoMenor({ conservarBorrador: true });
 window.closeModalAuditDetail = () => ModalView.closeAuditDetail();
 let _currentExportHandler = null;
 

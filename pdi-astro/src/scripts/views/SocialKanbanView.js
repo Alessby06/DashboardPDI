@@ -4,12 +4,13 @@ import { AnimationEngine } from '../utils/AnimationEngine.js';
 import { crear as crearFiltros } from '../utils/Filters.js';
 
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
+import { SEDES_NOMBRES } from "../core/catalogos.js";
 // Filtros del tablero que viajan en la URL. Los valores son los de los
 // desplegables de social.html.
 const FILTROS_SOCIAL = {
   q:        { valor: "" },
   urgencia: { valor: "all", valores: ["all", "Alta", "Media", "Baja"] },
-  sede:     { valor: "all", valores: ["all", "El Progreso", "San Pedro", "Año Nuevo", "Santa Rosa", "Los Bendecidos", "La Libertad"] },
+  sede:     { valor: "all", valores: ["all", ...SEDES_NOMBRES] },
   // En movil el tablero muestra una etapa por vez. Tambien es estado de vista,
   // asi que va en la URL: compartir un enlace debe mostrar la misma columna.
   etapa:    { valor: "pendiente", valores: ["pendiente", "evaluacion", "canalizado", "cerrado"] },

@@ -32,11 +32,59 @@ export const SEDES_OPERATIVAS = SEDES.map((sede) => {
   return { nombre, distrito, etiqueta: `${nombre} (${distrito})` };
 });
 
-export const ESTRATEGIAS = [
-  { valor: "Desayuno Infantil", etiqueta: "Desayuno Infantil", clave: "desayuno" },
-  { valor: "Lonchera Infantil", etiqueta: "Lonchera Infantil", clave: "lonchera" },
-  { valor: "Casita del Saber", etiqueta: "Casita del Saber", clave: "casita" },
+// ===========================================================================
+//  PROGRAMAS INSTITUCIONALES (catálogo único)
+// ===========================================================================
+//  Los siete programas de cobertura del documento del programa (mockup
+//  15.10.26). Antes cada módulo llevaba su propia lista escrita a mano
+//  (ESTRATEGIAS aquí, SERVICIOS en db.js y tres opciones fijas en el filtro
+//  de sedes y de voluntariados): por eso Biblioteca Comunitaria, JAC, BTF y
+//  Repostería no aparecían en ningún filtro y una sede nueva no podía
+//  ofrecerlos. Con un solo catálogo, agregar un programa aquí basta para
+//  que aparezca en todos los sitios.
+//
+//  `valor` es lo que se guarda en el modelo; `clave` es la palabra con la
+//  que se filtra por subcadena sobre el texto guardado (igual que hacía el
+//  filtro de sedes con "Desayuno", "Casita" y "Lonchera").
+//
+//  `enInscripcion` marca los programas que se ofrecen en la ficha de
+//  inscripción como estrategia asignada. `enVoluntariado` marca los que
+//  llevan voluntariado propio: JAC y BTF son cobertura sin personal
+//  voluntario asignado en el padrón.
+export const PROGRAMAS = [
+  { valor: "Desayuno Infantil", etiqueta: "Desayuno Infantil", clave: "desayuno", enInscripcion: true, enVoluntariado: true },
+  { valor: "Lonchera Infantil", etiqueta: "Lonchera Infantil", clave: "lonchera", enInscripcion: true, enVoluntariado: true },
+  { valor: "Casita del Saber", etiqueta: "Casita del Saber", clave: "casita", enInscripcion: true, enVoluntariado: true },
+  { valor: "Biblioteca Comunitaria", etiqueta: "Biblioteca Comunitaria", clave: "biblioteca", enInscripcion: false, enVoluntariado: true },
+  { valor: "JAC", etiqueta: "JAC", clave: "jac", enInscripcion: false, enVoluntariado: false },
+  { valor: "BTF (Buen Trato en Familia)", etiqueta: "BTF (Buen Trato en Familia)", clave: "btf", enInscripcion: false, enVoluntariado: false },
+  { valor: "Talleres de Repostería", etiqueta: "Talleres de Repostería", clave: "repostería", enInscripcion: false, enVoluntariado: true },
 ];
+
+/** Programa por clave de filtro: lo usan las vistas que filtran por subcadena. */
+export const PROGRAMA_POR_CLAVE = Object.fromEntries(
+  PROGRAMAS.map((programa) => [programa.clave, programa]),
+);
+
+// La ficha de inscripción sigue ofreciendo solo los tres programas de
+// atención directa: la estrategia asignada del usuario no cambia con este
+// catálogo, solo deja de ser la fuente de los demás módulos.
+export const ESTRATEGIAS = PROGRAMAS
+  .filter((programa) => programa.enInscripcion)
+  .map(({ valor, etiqueta, clave }) => ({ valor, etiqueta, clave }));
+
+// El voluntariado cubre cinco programas más el área social, que es módulo
+// y no programa de cobertura. Son los seis servicios del padrón de
+// voluntarios del documento.
+export const OPCIONES_VOLUNTARIADO = [
+  ...PROGRAMAS
+    .filter((programa) => programa.enVoluntariado)
+    .map(({ valor, etiqueta }) => ({ valor, etiqueta })),
+  { valor: "Área Social Pastoral (ASP)", etiqueta: "Pastoral ASP" },
+];
+
+/** Valores guardados válidos de servicio de un voluntario. */
+export const SERVICIOS_VOLUNTARIADO = OPCIONES_VOLUNTARIADO.map((opcion) => opcion.valor);
 
 // Antes la estrategia cabia en un solo texto de la inscripcion y por eso
 // existia el valor "Mixto (Desayuno + Casita)": un multi-select de mentira, un
@@ -69,11 +117,53 @@ export const EXONERACIONES = [
   },
 ];
 
+// El seguro distingue la cobertura que el niño tiene y la que se desconoce:
+// "Privado" y "Desconocido" son estados reales (plata privada o familia que no
+// sabe) y antes vivian solo en el esquema, sin forma de registrarlos.
 export const SEGUROS = [
   { valor: "SIS Gratuito", etiqueta: "SIS Gratuito" },
   { valor: "EsSalud", etiqueta: "EsSalud" },
   { valor: "PNP / FFAA", etiqueta: "PNP / FFAA" },
+  { valor: "Privado", etiqueta: "Plan privado" },
   { valor: "Ninguno", etiqueta: "Ninguno" },
+  { valor: "Desconocido", etiqueta: "Desconocido" },
+];
+
+// La alergia se guarda en la tabla `alergia` (tipo, severidad, descripcion).
+// "Ninguna" es solo un valor de la interfaz: no se persiste ningun registro.
+export const TIPOS_ALERGIA = [
+  { valor: "Ninguna", etiqueta: "Sin alergia" },
+  { valor: "Medicamento", etiqueta: "Medicamento" },
+  { valor: "Alimento", etiqueta: "Alimento" },
+  { valor: "Ambiental", etiqueta: "Ambiental" },
+  { valor: "Otro", etiqueta: "Otro" },
+];
+
+// El orden de la lista es el orden de gravedad: la anafilaxia va al final.
+export const SEVERIDADES_ALERGIA = [
+  { valor: "Leve", etiqueta: "Leve" },
+  { valor: "Moderada", etiqueta: "Moderada" },
+  { valor: "Grave / Anafilaxia", etiqueta: "Grave / Anafilaxia" },
+];
+
+// El tipo de documento es el valor que exige la base. La etiqueta puede llevar
+// tilde ("Carnet de Extranjería") sin cambiar lo que se guarda.
+export const TIPOS_DOCUMENTO = [
+  { valor: "DNI", etiqueta: "DNI" },
+  { valor: "Carnet Extranjeria", etiqueta: "Carnet de Extranjería" },
+  { valor: "Partida Nacimiento", etiqueta: "Partida de Nacimiento" },
+  { valor: "Sin Documento", etiqueta: "Sin Documento" },
+];
+
+// Tipos de local del Directorio Territorial. "Colegio Publico (I.E.)" sin
+// tilde se conserva como valor legado; la interfaz y los fixtures hablan de
+// "Colegio Público Aliado", que se normaliza al valor canónico.
+export const TIPOS_LOCAL = [
+  { valor: "Comedor Comunitario", etiqueta: "Comedor Comunitario" },
+  { valor: "Iglesia Aliada", etiqueta: "Iglesia Aliada" },
+  { valor: "Colegio Público (I.E.)", etiqueta: "Colegio Público (I.E.)" },
+  { valor: "Biblioteca Comunal", etiqueta: "Biblioteca Comunal" },
+  { valor: "Local Comunal", etiqueta: "Local Comunal" },
 ];
 
 export const NIVELES_EDUCATIVOS = [
@@ -148,4 +238,10 @@ export const PARENTESCOS = [
   "Madrina",
   "Cuidador Legal",
   "Familiar",
+  // Opciones que ya existian en la base o en fichas antiguas. Se conservan
+  // para no convertir esos datos en "Otro" al editar.
+  "Padrastro",
+  "Madrastra",
+  "Hermano/a",
+  "Otro",
 ];

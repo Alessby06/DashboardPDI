@@ -3,6 +3,7 @@ import { crear as crearFiltros } from "../utils/Filters.js";
 import { Responsive } from "../utils/Responsive.js";
 import { AnimationEngine } from "../utils/AnimationEngine.js";
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";
+import { SEDES_NOMBRES } from "../core/catalogos.js";
 // Qué filtros del padrón viajan en la URL, con qué valores y cuáles son los
 // defectos. La lista de valores no se inventa: es la misma que admiten los
 // desplegables de padron.html. Si algún día se añade un filtro
@@ -11,14 +12,14 @@ import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";
 const FILTROS_PADRON = {
   q:         { valor: "" },
   estrategia: { valor: [], valores: ["desayuno", "lonchera", "casita"], multiple: true },
-  sede:      { valor: [], valores: ["Año Nuevo", "La Libertad", "Carmen Alto", "San Pedro", "El Progreso", "Santa Rosa", "Los Bendecidos"], multiple: true },
+  sede:      { valor: [], valores: [...SEDES_NOMBRES], multiple: true },
   anemia:    { valor: [], valores: ["Normal", "Leve", "Moderada"], multiple: true },
   edadModo:  { valor: "all", valores: ["all", "exacta", "rango"] },
   edadValor: { valor: null, numeros: { min: 0, max: 18 } },
   edadMin:   { valor: 0, numeros: { min: 0, max: 18 } },
   edadMax:   { valor: 18, numeros: { min: 0, max: 18 } },
   estado:    { valor: "all", valores: ["all", "Activo", "Inactivo"] },
-  sexo:      { valor: "all", valores: ["all", "F", "M"] },
+  sexo:      { valor: "all", valores: ["all", "M", "F"] },
   pagina:    { valor: 1, numeros: { min: 1, max: 1000 } },
   tam:       { valor: 20, numeros: { min: 5, max: 50 } },
 };
@@ -593,8 +594,8 @@ export const BeneficiariosView = {
     const labelEl = document.getElementById("labelPadronSexoSelect");
     if (labelEl) {
       if (this._filterSexo === "all") labelEl.textContent = "Todos";
-      else if (this._filterSexo === "M") labelEl.textContent = "Niños (M)";
-      else if (this._filterSexo === "F") labelEl.textContent = "Niñas (F)";
+      else if (this._filterSexo === "M") labelEl.textContent = "Masculino (M)";
+      else if (this._filterSexo === "F") labelEl.textContent = "Femenino (F)";
     }
   },
 
@@ -748,7 +749,7 @@ export const BeneficiariosView = {
       list = list.filter(b => b.estado === this._filterEstado);
     }
 
-    // 7. Sexo (Niñas F / Niños M)
+    // 7. Sexo (Masculino M / Femenino F)
     if (this._filterSexo !== "all") {
       list = list.filter(b => (b.sexo || "").toUpperCase() === this._filterSexo.toUpperCase());
     }
@@ -1021,7 +1022,7 @@ export const BeneficiariosView = {
     if (this._filterSexo !== "all") {
       chips.push({
         id: "sexo",
-        label: `Sexo: ${this._filterSexo === "F" ? "Niñas (F)" : "Niños (M)"}`,
+        label: `Sexo: ${this._filterSexo === "F" ? "Femenino (F)" : "Masculino (M)"}`,
       });
     }
 

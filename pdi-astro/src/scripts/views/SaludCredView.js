@@ -3,12 +3,13 @@ import { crear as crearFiltros } from '../utils/Filters.js';
 import { Responsive } from '../utils/Responsive.js';
 
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
+import { SEDES_NOMBRES, etiquetaSede } from "../core/catalogos.js";
 // Filtros del modulo CRED que viajan en la URL. Valores tomados de los
 // desplegables de salud.html.
 const FILTROS_SALUD = {
   q:       { valor: "" },
   anemia:  { valor: [], valores: ["Normal", "Leve", "Moderada"], multiple: true },
-  sede:    { valor: [], valores: ["Año Nuevo", "La Libertad", "San Pedro", "El Progreso", "Santa Rosa", "Los Bendecidos"], multiple: true },
+  sede:    { valor: [], valores: [...SEDES_NOMBRES], multiple: true },
   hb:      { valor: "all", valores: ["all", "anemia", "normal", "critico"] },
 };
 
@@ -231,7 +232,7 @@ export const SaludCredView = {
   },
 
   toggleSede(val) {
-    const allSedes = ["Año Nuevo", "La Libertad", "San Pedro", "El Progreso", "Santa Rosa", "Los Bendecidos"];
+    const allSedes = SEDES_NOMBRES;
     if (val === "all") {
       this._filterSede = [];
     } else {
@@ -268,8 +269,7 @@ export const SaludCredView = {
         labelEl.textContent = "Todas las Sedes";
       } else if (this._filterSede.length === 1) {
         const s = this._filterSede[0];
-        const dist = (s === "Año Nuevo" || s === "La Libertad") ? "Comas" : "Carabayllo";
-        labelEl.textContent = `${s} (${dist})`;
+        labelEl.textContent = etiquetaSede(s);
       } else {
         labelEl.textContent = `${this._filterSede.length} seleccionadas`;
       }
@@ -438,11 +438,10 @@ export const SaludCredView = {
 
     if (this._filterSede.length > 0) {
       this._filterSede.forEach(s => {
-        const dist = (s === "Año Nuevo" || s === "La Libertad") ? "Comas" : "Carabayllo";
         chips.push({
           id: "sede",
           val: s,
-          label: `Sede: ${s} (${dist})`
+          label: `Sede: ${etiquetaSede(s)}`
         });
       });
     }

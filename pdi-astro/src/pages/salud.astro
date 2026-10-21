@@ -1,5 +1,6 @@
 ---
 import AppLayout from "../layouts/AppLayout.astro";
+import { SEDES_OPERATIVAS } from "../data/opcionesBeneficiario.js";
 import "../styles/views-salud.css";
 ---
 
@@ -420,162 +421,32 @@ import "../styles/views-salud.css";
                           <span class="padron-item-label">Todas las Sedes</span>
                         </div>
                       </div>
-                      <div
-                        class="padron-dropdown-item"
-                        data-value="Año Nuevo"
-                        onclick="window.toggleSaludSede ? window.toggleSaludSede('Año Nuevo') : null"
-                      >
-                        <div class="padron-item-left">
-                          <span class="padron-item-checkbox">
-                            <svg
-                              width="10"
-                              height="10"
-                              fill="none"
-                              stroke="currentColor"
-                              stroke-width="3"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M4.5 12.75l6 6 9-13.5"></path>
-                            </svg>
-                          </span>
-                          <span class="padron-item-label"
-                            >Año Nuevo (Comas)</span
-                          >
+                      {SEDES_OPERATIVAS.map((sede) => (
+                        <div
+                          class="padron-dropdown-item"
+                          data-value={sede.nombre}
+                          onclick={`window.toggleSaludSede ? window.toggleSaludSede('${sede.nombre}') : null`}
+                        >
+                          <div class="padron-item-left">
+                            <span class="padron-item-checkbox">
+                              <svg
+                                width="10"
+                                height="10"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="3"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  d="M4.5 12.75l6 6 9-13.5"></path>
+                              </svg>
+                            </span>
+                            <span class="padron-item-label">{sede.etiqueta}</span>
+                          </div>
                         </div>
-                      </div>
-                      <div
-                        class="padron-dropdown-item"
-                        data-value="La Libertad"
-                        onclick="window.toggleSaludSede ? window.toggleSaludSede('La Libertad') : null"
-                      >
-                        <div class="padron-item-left">
-                          <span class="padron-item-checkbox">
-                            <svg
-                              width="10"
-                              height="10"
-                              fill="none"
-                              stroke="currentColor"
-                              stroke-width="3"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M4.5 12.75l6 6 9-13.5"></path>
-                            </svg>
-                          </span>
-                          <span class="padron-item-label"
-                            >La Libertad (Comas)</span
-                          >
-                        </div>
-                      </div>
-                      <div
-                        class="padron-dropdown-item"
-                        data-value="San Pedro"
-                        onclick="window.toggleSaludSede ? window.toggleSaludSede('San Pedro') : null"
-                      >
-                        <div class="padron-item-left">
-                          <span class="padron-item-checkbox">
-                            <svg
-                              width="10"
-                              height="10"
-                              fill="none"
-                              stroke="currentColor"
-                              stroke-width="3"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M4.5 12.75l6 6 9-13.5"></path>
-                            </svg>
-                          </span>
-                          <span class="padron-item-label"
-                            >San Pedro (Carabayllo)</span
-                          >
-                        </div>
-                      </div>
-                      <div
-                        class="padron-dropdown-item"
-                        data-value="El Progreso"
-                        onclick="window.toggleSaludSede ? window.toggleSaludSede('El Progreso') : null"
-                      >
-                        <div class="padron-item-left">
-                          <span class="padron-item-checkbox">
-                            <svg
-                              width="10"
-                              height="10"
-                              fill="none"
-                              stroke="currentColor"
-                              stroke-width="3"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M4.5 12.75l6 6 9-13.5"></path>
-                            </svg>
-                          </span>
-                          <span class="padron-item-label"
-                            >El Progreso (Carabayllo)</span
-                          >
-                        </div>
-                      </div>
-                      <div
-                        class="padron-dropdown-item"
-                        data-value="Santa Rosa"
-                        onclick="window.toggleSaludSede ? window.toggleSaludSede('Santa Rosa') : null"
-                      >
-                        <div class="padron-item-left">
-                          <span class="padron-item-checkbox">
-                            <svg
-                              width="10"
-                              height="10"
-                              fill="none"
-                              stroke="currentColor"
-                              stroke-width="3"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M4.5 12.75l6 6 9-13.5"></path>
-                            </svg>
-                          </span>
-                          <span class="padron-item-label"
-                            >Santa Rosa (Carabayllo)</span
-                          >
-                        </div>
-                      </div>
-                      <div
-                        class="padron-dropdown-item"
-                        data-value="Los Bendecidos"
-                        onclick="window.toggleSaludSede ? window.toggleSaludSede('Los Bendecidos') : null"
-                      >
-                        <div class="padron-item-left">
-                          <span class="padron-item-checkbox">
-                            <svg
-                              width="10"
-                              height="10"
-                              fill="none"
-                              stroke="currentColor"
-                              stroke-width="3"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M4.5 12.75l6 6 9-13.5"></path>
-                            </svg>
-                          </span>
-                          <span class="padron-item-label"
-                            >Los Bendecidos (Carabayllo)</span
-                          >
-                        </div>
-                      </div>
+                      ))}
                     </div>
                   </div>
                 </div>
