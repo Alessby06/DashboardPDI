@@ -361,6 +361,11 @@ export const BeneficiarioController = {
     // un desplegable. La primera marcada es la principal.
     const estrategias = window.PDI?.EstrategiaMultiSelect?.getValues("regEstrategia") || [];
     const estrategia = estrategias.join(" + ");
+    // La modalidad de atencion (fija o itinerante) solo la pide el servicio
+    // educativo: la ficha A1 de Casita del Saber. En los demas servicios no
+    // existe el dato, asi que no se escribe.
+    const esCasita = estrategias.some((e) => String(e).includes("Casita del Saber"));
+    const tipoAtencion = esCasita ? getVal("regTipoAtencion", "Atención fija") : "";
     const exoneracionAporte = getVal("regExoneracion", "100% (Exonerado Vulnerabilidad Extrema)");
 
     const seguro = getVal("regSeguro", "SIS Gratuito");
@@ -439,7 +444,9 @@ export const BeneficiarioController = {
     const bModel = window.PDI?.BeneficiarioModel || BeneficiarioModel;
     const list = bModel.getAll();
     const newId = list.length + 1;
-    const correlativo = `PDI-2026-${String(newId).padStart(3, "0")}`;
+    // Provisional: el correlativo oficial lo asigna la base y se corrige solo
+    // cuando la escritura termina (formato 0001-IS2026 de la ficha A1).
+    const correlativo = `${String(newId).padStart(4, "0")}-IS${new Date().getFullYear()}`;
 
     const padronRetiro = [];
     if (retiroNombre1) {
@@ -504,6 +511,7 @@ export const BeneficiarioController = {
         if (s.size === 0) s.add("Servicio Alimentario Nutricional");
         return Array.from(s);
       })(),
+      tipoAtencion,
       seguro,
       centroSalud,
       alergias: resumenAlergias([{

@@ -702,6 +702,7 @@ function mapearBeneficiarios(personasRes, sedes) {
       grado: m.grado || '',
       colegio: m.institucion_origen_nombre || '',
       tipoDocumento: m.tipo_documento || 'DNI',
+      tipoAtencion: m.ins?.tipo_atencion || '',
       apoderado: apoderadoNom,
       parentesco: parentescoApo,
       apoderadoDni: m.apo?.c_dni || '',
@@ -934,6 +935,49 @@ async function correlativoUsuario() {
   return `${String(mayor + 1).padStart(4, '0')}${sufijo}`;
 }
 
+/**
+ * Qué admite ahora mismo el esquema de `inscripcion`.
+ *
+ * El Lote 3 cambia dos cosas que el esquema todavía no tiene aplicadas: la
+ * modalidad del programa ("I.E." en vez de "Institucion Educativa") y la
+ * modalidad de atención, que solo existe en Casita del Saber y por tanto puede
+ * quedar vacía. Para que un alta no se caiga por un detalle de esquema, se
+ * escribe el valor canónico cuando el esquema lo admite y el valor anterior
+ * cuando todavía no: en cuanto se aplique la migración, la app empieza a
+ * guardar la forma nueva sin tocar nada más.
+ */
+let _esquemaInscripcion = null;
+
+async function esquemaInscripcion() {
+  if (_esquemaInscripcion) return _esquemaInscripcion;
+  const [info] = await ejecutar('INFO FOR TABLE inscripcion;');
+  const definiciones = info?.fields || {};
+  const admitidos = (campo) => {
+    const m = String(definiciones[campo] || '').match(/INSIDE\s+\[(.*?)\]/s);
+    if (!m) return null;
+    return m[1].split(',').map((v) => v.trim().replace(/^['"]|['"]$/g, '')).filter(Boolean);
+  };
+  _esquemaInscripcion = {
+    modalidad: admitidos('modalidad'),
+    tipo_atencion: admitidos('tipo_atencion'),
+  };
+  return _esquemaInscripcion;
+}
+
+/** La modalidad que el esquema admite hoy: la del programa si ya puede. */
+async function modalidadGuardable(valor) {
+  const esquema = await esquemaInscripcion();
+  if (!esquema.modalidad) return valor;
+  return esquema.modalidad.includes(valor) ? valor : 'Institución Educativa';
+}
+
+/** La modalidad de atención: vacía solo si el esquema ya lo permite. */
+async function tipoAtencionGuardable(valor) {
+  const esquema = await esquemaInscripcion();
+  if (!esquema.tipo_atencion) return valor; // el campo admite vacio
+  return valor || 'Atención fija';
+}
+
 export async function crearBeneficiario(m) {
   const documento = (m.dni || '').trim();
   if (documento) {
@@ -1022,6 +1066,11 @@ export async function crearBeneficiario(m) {
     params.algDesc = descripcionAlergia(m.alergia?.descripcion ?? m.alergias);
     params.algTipo = tipoAlergiaCanonico(m.alergia?.tipo);
     params.algSev = severidadAlergiaCanonico(m.alergia?.severidad);
+    // La modalidad de atencion solo existe en Casita del Saber; en los demas
+    // servicios se guarda vacia, como en la ficha del programa.
+    params.tipoAtencion = String(m.tipoAtencion || '').trim() || null;
+    params.tipoAtencionGuardable = await tipoAtencionGuardable(params.tipoAtencion);
+    params.modalidadGuardable = await modalidadGuardable(modalidadUiADb(m.modalidad));
 
     // 1) Apoderado: se crea (o reutiliza) ANTES de la transacción, porque los
     //    consentimientos lo requieren como firmante.
@@ -1065,8 +1114,8 @@ export async function crearBeneficiario(m) {
       LET $ins = array::first((CREATE inscripcion CONTENT {
         ${F_USUARIO}: $menor, sede_id: $sede,
         periodo: $periodo, programa: $prog, estrategias: $estrategias,
-        modalidad: $mod,
-        tipo_atencion: 'Atención fija', estado: $estado,
+        modalidad: $modalidadGuardable,
+        tipo_atencion: $tipoAtencionGuardable ?? NONE, estado: $estado,
         activo: true
       } RETURN VALUE id));
       IF string::len($cuiId) > 0 {
@@ -1331,7 +1380,9 @@ export async function actualizarBeneficiario(b) {
         };
       };
       UPDATE inscripcion SET
-        programa = $prog, estrategias = $estrategias, estado = $estado, modalidad = $mod
+        programa = $prog, estrategias = $estrategias, estado = $estado,
+        modalidad = $modalidadGuardable,
+        tipo_atencion = $tipoAtencionGuardable ?? NONE
       WHERE ${F_USUARIO} = $menor AND activo = true;
       IF string::len($fnac) > 0 {
         UPDATE $menor SET fecha_nacimiento = type::datetime($fnac);
@@ -1364,6 +1415,14 @@ export async function actualizarBeneficiario(b) {
       exon: b.exoneracionAporte || '',
       pctAporte: pctDesdeExoneracion(b.exoneracionAporte),
       mod: modalidadUiADb(b.modalidad),
+      modalidadGuardable: await modalidadGuardable(modalidadUiADb(b.modalidad)),
+      // La modalidad de atencion solo existe en Casita del Saber: si la
+      // inscripcion deja de ser de Casita, el dato se vacia.
+      tipoAtencionGuardable: await tipoAtencionGuardable(
+        (b.estrategias || []).includes('Casita del Saber') || b.estrategia === 'Casita del Saber'
+          ? (b.tipoAtencion || 'Atención fija')
+          : null,
+      ),
       foto: b.fotoUrl || null,
       dir: b.direccion || '', ref: b.referencia || '',
       tel: b.telefono || null, tel2: b.telefonoAlt || null,

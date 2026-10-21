@@ -14,6 +14,7 @@ import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync } from 
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Surreal } from 'surrealdb';
+import { conectarMigracion } from './conexion-migracion.mjs';
 import {
   SEDES_OPERATIVAS,
 } from '../src/data/opcionesBeneficiario.js';
@@ -106,19 +107,7 @@ function ultimoRespaldo() {
 //  Conexión
 // ---------------------------------------------------------------------------
 async function conectar() {
-  const db = new Surreal();
-  await db.connect(env.PUBLIC_SURREAL_URL);
-  await db.signin({
-    username: env.PUBLIC_SURREAL_USER,
-    password: env.PUBLIC_SURREAL_PASS,
-    namespace: env.PUBLIC_SURREAL_NS,
-    database: env.PUBLIC_SURREAL_DB,
-  });
-  await db.use({
-    namespace: env.PUBLIC_SURREAL_NS,
-    database: env.PUBLIC_SURREAL_DB,
-  });
-  return db;
+  return await conectarMigracion({ esquema: false });
 }
 
 // ---------------------------------------------------------------------------

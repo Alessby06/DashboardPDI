@@ -116,8 +116,14 @@ export const BeneficiarioModel = {
     const list = this.getAll();
     normalizeBeneficiarioServicios(nuevoMenor);
     list.unshift(nuevoMenor);
-    crearBeneficiario(nuevoMenor).then(ok => {
-      if (!ok) list.splice(list.indexOf(nuevoMenor), 1);
+    crearBeneficiario(nuevoMenor).then(res => {
+      if (!res) {
+        list.splice(list.indexOf(nuevoMenor), 1);
+        return;
+      }
+      // El codigo con el formato del programa lo asigna la base; el de memoria
+      // era provisional.
+      if (res.codigo) nuevoMenor.codigo = res.codigo;
     });
     return nuevoMenor;
   },

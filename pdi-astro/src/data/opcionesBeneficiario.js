@@ -18,9 +18,12 @@ export const SEDES = [
   { valor: "Carabayllo - Santa Rosa", etiqueta: "Carabayllo: Santa Rosa" },
 ];
 
+// La modalidad de intervencion se escribe como la escribe el programa:
+// "Comunitaria" e "I.E." (fichas A1 de Desayuno y de Casita). La etiqueta
+// larga es solo lo que se lee; el dato que cruza con el programa es "I.E.".
 export const MODALIDADES = [
   { valor: "Comunitaria", etiqueta: "Comunitaria" },
-  { valor: "Institución Educativa", etiqueta: "Institución Educativa (I.E.)" },
+  { valor: "I.E.", etiqueta: "Institución Educativa (I.E.)" },
 ];
 
 // El padron filtra por sede operativa con el nombre suelto ("Año Nuevo"), no
@@ -35,10 +38,15 @@ export const SEDES_OPERATIVAS = SEDES.map((sede) => {
 // ===========================================================================
 //  PROGRAMAS INSTITUCIONALES (catálogo único)
 // ===========================================================================
-//  Los siete programas de cobertura del documento del programa (mockup
-//  15.10.26). Antes cada módulo llevaba su propia lista escrita a mano
-//  (ESTRATEGIAS aquí, SERVICIOS en db.js y tres opciones fijas en el filtro
-//  de sedes y de voluntariados): por eso Biblioteca Comunitaria, JAC, BTF y
+//  Las fuentes son los documentos del programa: la ficha A1 de Desayuno
+//  Infantil (estrategia: Desayuno o Lonchera), la ficha A1 de Casita del Saber
+//  (estrategia: atención fija o itinerante) y las hojas de seguimiento A5/A6,
+//  donde Biblioteca Comunitaria aparece como acción y JAC, BTF y Repostería
+//  como encuentros participativos y apoyos de la iglesia aliada.
+//
+//  Antes cada módulo llevaba su propia lista escrita a mano (ESTRATEGIAS aquí,
+//  SERVICIOS en db.js y tres opciones fijas en el filtro de sedes y de
+//  voluntariados): por eso Biblioteca Comunitaria, JAC, BTF y
 //  Repostería no aparecían en ningún filtro y una sede nueva no podía
 //  ofrecerlos. Con un solo catálogo, agregar un programa aquí basta para
 //  que aparezca en todos los sitios.
@@ -117,15 +125,27 @@ export const EXONERACIONES = [
   },
 ];
 
-// El seguro distingue la cobertura que el niño tiene y la que se desconoce:
-// "Privado" y "Desconocido" son estados reales (plata privada o familia que no
-// sabe) y antes vivian solo en el esquema, sin forma de registrarlos.
+// La modalidad de atencion solo existe en el servicio educativo: la ficha A1
+// de Casita del Saber la pide (ATENCION FIJA / ATENCION ITINERANTE) y las de
+// Desayuno y Lonchera no la tienen. Por eso se guarda solo cuando la
+// inscripcion es de Casita.
+export const TIPOS_ATENCION = [
+  { valor: "Atención fija", etiqueta: "Atención fija" },
+  { valor: "Atención itinerante", etiqueta: "Atención itinerante" },
+];
+
+// El seguro distingue la cobertura que el niño tiene y la que se desconoce.
+// Las etiquetas usan las palabras del programa: la ficha de inscripcion (A1)
+// ofrece SIS, EsSalud, PNP y N.A.; la evaluacion socioeconómica ofrece
+// Essalud, SIS, Posta/Hospital, Otro y No tiene. "Privado" es el "Otro" de
+// esa ficha y "Ninguno" su "No tiene"; "Desconocido" es lo unico que la app
+// anade, porque en el padron real hay familias que no dicen nada.
 export const SEGUROS = [
-  { valor: "SIS Gratuito", etiqueta: "SIS Gratuito" },
+  { valor: "SIS Gratuito", etiqueta: "SIS" },
   { valor: "EsSalud", etiqueta: "EsSalud" },
   { valor: "PNP / FFAA", etiqueta: "PNP / FFAA" },
-  { valor: "Privado", etiqueta: "Plan privado" },
-  { valor: "Ninguno", etiqueta: "Ninguno" },
+  { valor: "Privado", etiqueta: "Plan privado (Otro)" },
+  { valor: "Ninguno", etiqueta: "Ninguno (No tiene)" },
   { valor: "Desconocido", etiqueta: "Desconocido" },
 ];
 

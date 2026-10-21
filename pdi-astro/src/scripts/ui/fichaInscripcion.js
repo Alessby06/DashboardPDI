@@ -22,6 +22,7 @@ const OBLIGATORIOS = [
   { id: "regDireccion", etiqueta: "Direccion" },
   { id: "regCentroSalud", etiqueta: "Centro de Salud de Referencia" },
   { id: "regAlergiaDescripcion", etiqueta: "Alergia" },
+  { id: "regTipoAtencion", etiqueta: "Modalidad de atención (Casita)" },
   { id: "regGrado", etiqueta: "Grado Escolar" },
   { id: "regColegio", etiqueta: "I.E. de Origen" },
   { id: "regApoderado", etiqueta: "Apellidos y nombres del apoderado", tipo: "nombre" },
@@ -73,6 +74,32 @@ function refrescarGravedadAlergia() {
   const select = document.getElementById("regAlergiaSeveridad");
   if (!select) return;
   select.disabled = !tieneAlergia();
+}
+
+// La modalidad de atencion (fija o itinerante) solo existe en el servicio
+// educativo: la pide la ficha de Casita del Saber y no la de Desayuno ni la
+// de Lonchera. Si no hay Casita marcada, el control se cierra.
+function estrategiasMarcadas() {
+  const control = window.PDI?.EstrategiaMultiSelect;
+  if (!control?.getValues) return [];
+  const valores = control.getValues("regEstrategia");
+  return Array.isArray(valores) ? valores : [];
+}
+
+function esCasita() {
+  return estrategiasMarcadas().some((e) => String(e).includes("Casita del Saber"));
+}
+
+function avisoAtencion() {
+  if (!esCasita()) return "";
+  if (!valorDe("regTipoAtencion")) return "Falta la modalidad de atención de Casita";
+  return "";
+}
+
+function refrescarAtencion() {
+  const select = document.getElementById("regTipoAtencion");
+  if (!select) return;
+  select.disabled = !esCasita();
 }
 
 /** Sin Documento no exige número; DNI exige ocho dígitos; el resto, que haya número. */
@@ -134,6 +161,11 @@ export function evaluarFicha() {
     }
     if (campo.id === "regAlergiaDescripcion") {
       const falta = avisoAlergia();
+      if (falta) faltantes.push(falta);
+      return;
+    }
+    if (campo.id === "regTipoAtencion") {
+      const falta = avisoAtencion();
       if (falta) faltantes.push(falta);
       return;
     }
@@ -210,6 +242,8 @@ export function refrescarEstadoFicha(pedidoDeAnuncio = false) {
   boton.disabled = !listo;
   // La gravedad de la alergia se abre y se cierra con la descripcion.
   refrescarGravedadAlergia();
+  // La modalidad de atencion solo se abre cuando la inscripcion es de Casita.
+  refrescarAtencion();
 
   let resumen = "";
   if (estado) {
@@ -311,6 +345,11 @@ export function iniciarFicha() {
     limpiarMarcaDeCampo(document.activeElement);
   });
   form.addEventListener("change", () => refrescarEstadoFicha());
+
+  // El selector de estrategias avisa con un evento propio (no es un input):
+  // cuando se marca Casita del Saber, la modalidad de atencion se abre; cuando
+  // se quita, se cierra y el dato deja de contar.
+  form.addEventListener("pdi:estrategia-change", () => refrescarEstadoFicha());
 
   // El desplegable nativo abre hacia arriba cuando el campo queda al final
   // de la ventana: la lista tapaba el formulario y habia que cerrarla a

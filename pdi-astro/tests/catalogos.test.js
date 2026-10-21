@@ -151,13 +151,14 @@ test('seguro: etiquetas exactas y valores históricos', () => {
   }
 });
 
-test('modalidad: etiqueta exacta y corrección de la variante sin tilde', () => {
-  assert.equal(modalidadDbAUi('Institucion Educativa'), 'Institución Educativa');
-  assert.equal(modalidadDbAUi('Institución Educativa'), 'Institución Educativa');
+test('modalidad: el valor del programa es "I.E." y se acepta cualquier forma', () => {
+  assert.equal(modalidadDbAUi('I.E.'), 'I.E.');
+  assert.equal(modalidadDbAUi('Institucion Educativa'), 'I.E.');
+  assert.equal(modalidadDbAUi('Institución Educativa'), 'I.E.');
   assert.equal(modalidadDbAUi('Comunitaria'), 'Comunitaria');
-  assert.equal(modalidadDbAUi('I.E.'), 'Institución Educativa');
+  assert.equal(modalidadDbAUi('I.E'), 'I.E.');
   assert.equal(modalidadDbAUi(''), 'Comunitaria');
-  assert.equal(modalidadUiADb('Institucion Educativa'), 'Institución Educativa');
+  assert.equal(modalidadUiADb('Institucion Educativa'), 'I.E.');
   for (const opcion of MODALIDADES) {
     assert.equal(modalidadDbAUi(opcion.valor), opcion.valor);
     assert.equal(modalidadValida(opcion.valor), true);

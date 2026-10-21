@@ -132,6 +132,12 @@ export function seguroValido(valor) {
 // persona tiene una sola alergia vigente (la de mayor gravedad cuando el
 // registro se importó con más de una); "Ninguna" es solo un valor de la
 // interfaz y no llega a la base.
+//
+// Esto va un paso más allá de la ficha del programa, que pide una sola línea
+// de texto ("ALÉRGICO A MEDICAMENTOS"): el tipo y la gravedad no están en esa
+// ficha, pero sí en el modelo oficial de la base, y la gravedad es la que
+// decide en una urgencia. Se deja anotado para que el programa sepa que la
+// app se adelantó al documento.
 const TIPO_ALERGIA_POR_CLAVE = new Map(
   TIPOS_ALERGIA.map((tipo) => [claveCatalogo(tipo.valor), tipo.valor]),
 );
@@ -202,7 +208,9 @@ export function modalidadDbAUi(valor) {
   if (!original) return 'Comunitaria';
   const k = claveCatalogo(original);
   if (MODALIDAD_POR_CLAVE.has(k)) return MODALIDAD_POR_CLAVE.get(k);
-  if (/institut|escolar|^ie$|^i\.e\.?$/.test(k)) return 'Institución Educativa';
+  // Cualquier otra forma de la misma idea se lleva al valor que usa el
+  // programa: "I.E.".
+  if (/institu|escolar|^ie$|^i\.e\.?$/.test(k)) return 'I.E.';
   if (/comunitar/.test(k)) return 'Comunitaria';
   return original;
 }

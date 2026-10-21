@@ -11,6 +11,7 @@ import {
   TIPOS_DOCUMENTO,
   TIPOS_ALERGIA,
   SEVERIDADES_ALERGIA,
+  TIPOS_ATENCION,
   gradosDeNivel,
 } from '../data/opcionesBeneficiario.js';
 import { SEDES_POR_DISTRITO } from '../scripts/core/catalogos.js';
@@ -269,6 +270,14 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
                 <label for="regAlergiaSeveridad">Gravedad</label>
                 <select id="regAlergiaSeveridad" class="form-control" disabled>
                   {SEVERIDADES_ALERGIA.map((opcion) => (
+                    <option value={opcion.valor}>{opcion.etiqueta}</option>
+                  ))}
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="regTipoAtencion">Atención en Casita</label>
+                <select id="regTipoAtencion" class="form-control" disabled>
+                  {TIPOS_ATENCION.map((opcion) => (
                     <option value={opcion.valor}>{opcion.etiqueta}</option>
                   ))}
                 </select>
