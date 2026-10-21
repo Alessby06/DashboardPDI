@@ -379,7 +379,8 @@ const SQL_PADRON = `SELECT *,
   (SELECT cuidador_id.nombres AS c_nom, cuidador_id.apellidos AS c_ape, cuidador_id.numero_documento AS c_dni, cuidador_id.sexo AS c_sexo, parentesco FROM ${T_VINCULO} WHERE ${F_MENOR} = $parent.id LIMIT 1)[0] AS apo,
   (SELECT VALUE pct_exoneracion FROM aporte WHERE inscripcion_id.${F_USUARIO} = $parent.id ORDER BY periodo DESC, mes DESC LIMIT 1)[0] AS pct
 FROM persona
-WHERE activo = true;`;
+WHERE activo = true
+  AND id IN (SELECT VALUE ${F_USUARIO} FROM inscripcion WHERE activo = true);`;
 
 /**
  * Lote de consultas del padrón completo. Van pegadas para que la hidratación

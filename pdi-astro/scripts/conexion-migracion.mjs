@@ -25,10 +25,32 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Surreal } from 'surrealdb';
-import { emitirToken } from '../src/scripts/server/tokenBase.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const RAIZ = resolve(__dirname, '..');
+
+// El modulo que emite los tokens vive con la Function que lo sirve, y se ha
+// movido mas de una vez. Se busca en las rutas conocidas: si vuelve a cambiar
+// de sitio, los scripts de migracion siguen funcionando.
+const RUTAS_TOKEN = [
+  '../../api/_tokenBase.mjs',
+  '../src/scripts/server/tokenBase.mjs',
+];
+
+async function cargarEmisorDeToken() {
+  for (const ruta of RUTAS_TOKEN) {
+    try {
+      const modulo = await import(ruta);
+      if (modulo?.emitirToken) return modulo.emitirToken;
+    } catch (err) {
+      // siguiente ruta
+    }
+  }
+  throw new Error(
+    'No se encuentra el modulo que emite los tokens de la base '
+    + `(se busco en: ${RUTAS_TOKEN.join(', ')})`,
+  );
+}
 
 /** Lee el .env del proyecto: acepta PUBLIC_ y las variables del servidor. */
 export function leerEnv() {
@@ -73,6 +95,7 @@ export async function conectarMigracion({ esquema = false } = {}) {
     throw new Error('Faltan SURREAL_USER / SURREAL_PASS en el .env');
   }
 
+  const emitirToken = await cargarEmisorDeToken();
   const { token } = await emitirToken({ url, ns, db: dbNombre, user, pass });
   const db = new Surreal();
   await db.connect(url);
