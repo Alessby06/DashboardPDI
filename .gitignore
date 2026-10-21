@@ -34,3 +34,5 @@ pdi-astro/backup-*.surql
 pdi-astro/backups/
 backups/
 
+.vercel
+.env*

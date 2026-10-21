@@ -949,15 +949,16 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
 
         <div>
           <label for="solicitudMotivoInput" style="display: block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 6px;">
-            Justificación o Motivo del Cambio de Fase <span style="color: var(--text-dim); font-weight: 400;">(Requerido para Coordinación)</span>:
+            Justificación o Motivo del Cambio de Fase <span style="color: var(--text-dim); font-weight: 400;">(Requerido para Coordinación)</span>
+            <span class="modal-counter" id="solicitudMotivoContador">0 / 500</span>
           </label>
-          <textarea id="solicitudMotivoInput" class="form-control" rows="3"
+          <textarea id="solicitudMotivoInput" class="form-control" rows="3" maxlength="500"
             placeholder="Detalla las razones del cambio (ej: Se completó visita domiciliaria, requiere canalización a DEMUNA por riesgo, etc.)..."
-            style="width: 100%; box-sizing: border-box; resize: vertical; font-size: 12.5px;"></textarea>
+            style="width: 100%; box-sizing: border-box; resize: none; min-height: 76px; max-height: 150px; overflow-y: auto; font-size: 12.5px;"></textarea>
         </div>
       </div>
 
-      <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 10px; padding: 12px 20px;">
+      <div class="modal-footer modal-footer-end modal-footer-responsive">
         <button type="button" class="btn-action btn-secondary"
           onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.cerrarModalSolicitarCambio() : null">
           Cancelar
@@ -1050,20 +1051,21 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
         <!-- Comentario de respuesta de Coordinación -->
         <div>
           <label for="resolverComentarioInput" style="display: block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 6px;">
-            Respuesta / Comentario de Coordinación <span style="color: var(--text-dim); font-weight: 400;">(Opcional para aprobación, recomendado para rechazo)</span>:
+            Respuesta / Comentario de Coordinación <span style="color: var(--text-dim); font-weight: 400;">(Opcional para aprobación, recomendado para rechazo)</span>
+            <span class="modal-counter" id="resolverComentarioContador">0 / 500</span>
           </label>
-          <textarea id="resolverComentarioInput" class="form-control" rows="3"
+          <textarea id="resolverComentarioInput" class="form-control" rows="3" maxlength="500"
             placeholder="Escribe si aún no se puede proceder, falta documentación de visita, o visto bueno de dirección..."
-            style="width: 100%; box-sizing: border-box; resize: vertical; font-size: 12.5px;"></textarea>
+            style="width: 100%; box-sizing: border-box; resize: none; min-height: 76px; max-height: 150px; overflow-y: auto; font-size: 12.5px;"></textarea>
         </div>
       </div>
 
-      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 20px;">
+      <div class="modal-footer modal-footer-split modal-footer-responsive">
         <button type="button" class="btn-action btn-secondary"
           onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.cerrarModalResolverSolicitud() : null">
           Cancelar
         </button>
-        <div style="display: flex; gap: 8px;">
+        <div class="modal-footer-acciones">
           <button type="button" class="btn-action btn-danger"
             onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.ejecutarResolucion('rechazada') : null">
             <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -1071,7 +1073,7 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
             </svg>
             <span>Rechazar Solicitud</span>
           </button>
-          <button type="button" class="btn-action success"
+          <button type="button" class="btn-action success modal-footer-principal"
             onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.ejecutarResolucion('aprobada') : null">
             <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -1216,7 +1218,7 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
               </div>
               <div style="grid-column: 1 / -1;">
                 <label for="volInputObservaciones" style="display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Observaciones y Notas Operativas</label>
-                <textarea id="volInputObservaciones" rows="2" placeholder="Experiencia previa, habilidades pedagógicas, notas de campo..." style="width: 100%; padding: 8px 10px; background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); color: var(--text-main); font-size: 13px; resize: vertical;"></textarea>
+                <textarea id="volInputObservaciones" rows="2" maxlength="300" placeholder="Experiencia previa, habilidades pedagógicas, notas de campo..." style="width: 100%; padding: 8px 10px; background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); color: var(--text-main); font-size: 13px; resize: none; min-height: 54px; max-height: 120px; overflow-y: auto;"></textarea>
               </div>
             </div>
           </div>

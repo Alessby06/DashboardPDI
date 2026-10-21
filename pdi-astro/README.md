@@ -88,3 +88,37 @@ Dos pasos (en lugar de cuatro con once ediciones):
    </AppLayout>
    ```
 2. **`src/components/Sidebar.astro`**: Agrega objeto a lista `navItems` con ruta y rol. Menú lateral actualiza en todo el sitio al instante.
+
+---
+
+## ☁️ Conexión con SurrealDB Cloud (variable crítica)
+
+La aplicación **no tiene servidor propio**: toda la información vive en una
+instancia de SurrealDB Cloud y se accede por WebSocket. Si la variable
+`PUBLIC_SURREAL_URL` no apunta a la instancia correcta, la aplicación abre
+pero **se queda vacía y no se puede guardar nada**.
+
+Valor vigente (única instancia de la organización `pdi-infancia-sa`):
+
+```env
+PUBLIC_SURREAL_URL=wss://pdi-infancia-sa-06gkpubrg5rg31f1nhhb4dbr34.azure-brs.surreal.cloud
+PUBLIC_SURREAL_NS=johannes_gutenberg
+PUBLIC_SURREAL_DB=infancia_saludable
+```
+
+> **Ojo con el despliegue en Vercel.** Las variables de entorno de Vercel son
+> las que usa el sitio publicado, no el `.env` del repositorio. Si
+> `PUBLIC_SURREAL_URL` allí apunta a otra instancia, el sitio arranca sin
+> errores visibles y sin datos. Para comprobarlo, sin depender de la
+> consola del navegador:
+>
+> ```bash
+> curl -s -o /dev/null -w "%{http_code}\n" https://<host-de-la-instancia>/health
+> ```
+>
+> `200` = la instancia existe. `404` = la URL apunta a una instancia que no
+> existe, y el WebSocket no podrá conectarse.
+
+La capa de datos (`src/scripts/core/db.js`) avisa con un aviso en pantalla
+cuando no consigue conectar, y reintenta sola con backoff (5 s → 30 s).
+

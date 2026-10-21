@@ -74,7 +74,6 @@ let _hidratado = false;
 let _jsonDeReintento = 5000;
 const MAXIMO_REINTENTO_MS = 30000;
 let _temporizadorReintento = null;
-let _temporizadorVigilancia = null;
 let _liveHandle = [];
 let _liveGeneracion = 0;
 let _tempDebounceLive = null;
@@ -118,17 +117,29 @@ async function conectar() {
         // El probe de versión del SDK cuesta un RPC por conexión y la versión
         // ya es estable en producción (SurrealDB 3.3.2): se desactiva.
         versionCheck: false,
+        // El SDK 2.x reintenta el WebSocket por su cuenta (5 veces con backoff
+        // propio) y, al rendirse, deja SEIS errores "WebSocket connection
+        // failed" en la consola. El reintento de la app es uno solo y con su
+        // propio backoff, así que el del SDK se apaga: si la URL está mal,
+        // un intento basta para saberlo.
+        reconnect: { enabled: false },
       });
       _db = db;
+      vigilarCaida(db);
       return db;
     } catch (errAuth) {
       // Si la nube no acepta este nivel de auth, caemos a la secuencia clásica.
+      // El error se deja escrito: si la URL apunta a una instancia que no
+      // existe, el motivo real (el 404 del handshake) solo aparece aquí.
+      console.warn('[PDI] Falló la conexión con autenticación embebida; se intenta la secuencia clásica:',
+        errAuth?.message || errAuth);
       try { await db.disconnect(); } catch (e) { /* ya estaba cerrada */ }
     }
-    await db.connect(URL);
+    await db.connect(URL, { reconnect: { enabled: false } });
     await db.signin({ username: USER, password: PASS, namespace: NS, database: DB });
     await db.use({ namespace: NS, database: DB });
     _db = db;
+    vigilarCaida(db);
     return db;
   })().catch(err => {
     _conectando = null;
@@ -138,17 +149,25 @@ async function conectar() {
   return _conectando;
 }
 
-/** Desconecta a propósito y avisa el estado: la vigilancia se encarga de rearmar. */
+/** Avisa cuando el socket se cae: el backoff de la app se encarga de rearmar. */
+function vigilarCaida(db) {
+  try {
+    db.subscribe('disconnected', () => colapsarConexion('socket caído'));
+  } catch (e) { /* el SDK no expone el evento: el backoff sigue cubriendo */ }
+}
+
+/** Desconecta a propósito y avisa el estado: el backoff se encarga de rearmar. */
 function colapsarConexion(origen) {
   _db = null;
   _conectando = null;
   cambiarEstado('sin_conexion');
   console.warn('[PDI] Conexión caída (' + origen + '); reintentos automáticos activos.');
+  agendarReintento();
 }
 
 /**
  * Ejecuta SurrealQL. Es la única puerta de entrada a la nube: si la consulta
- * falla por transporte, colapsa la sesión para que la vigilancia reconecte.
+ * falla por transporte, colapsa la sesión para que el backoff reconecte.
  */
 async function ejecutar(ql, params) {
   try {
@@ -221,10 +240,9 @@ export async function iniciarCapaDatos() {
   if (_iniciada) return;
   _iniciada = true;
   intentarLevantar();
-  _temporizadorVigilancia = setInterval(async () => {
-    if (_estado === 'ok') return;
-    reintentar();
-  }, 8000);
+  // El reintento lo encaja el backoff de esta misma capa (5 s -> 30 s). Antes
+  // había además un intervalo de vigilancia de 8 s: dos temporizadores
+  // compitiendo, que multiplicaban los intentos y los errores en consola.
 }
 
 async function intentarLevantar() {
@@ -237,8 +255,27 @@ async function intentarLevantar() {
   } catch (err) {
     console.warn('[PDI] No se conectó a SurrealDB:', err?.message || err);
     cambiarEstado('sin_conexion');
+    avisarSinConexion(err);
     agendarReintento();
   }
+}
+
+/**
+ * Sin nube no hay datos: la aplicación queda vacía y no se puede escribir.
+ * El aviso sale una vez por conexión fallida, no en cada reintento.
+ */
+let _avisoConexionMostrado = false;
+function avisarSinConexion(err) {
+  if (_avisoConexionMostrado) return;
+  _avisoConexionMostrado = true;
+  const detalle = String(err?.message || err || '').slice(0, 120);
+  try {
+    ToastView.show(
+      'Sin conexión con la base de datos',
+      detalle || 'Los datos no se pueden leer ni guardar. Revisa la conexión.',
+      'danger',
+    );
+  } catch (e) { /* ToastView puede no estar listo */ }
 }
 
 async function reintentar() {
@@ -371,6 +408,8 @@ export async function hidratar(promedioSilencioso = false) {
       aplicarDatasets(beneficiarios, sedes, casos, voluntarios, logs, asistencia);
       _hidratado = true;
       _jsonDeReintento = 5000;
+      // La nube volvió: el próximo corte puede avisar de nuevo.
+      _avisoConexionMostrado = false;
       cambiarEstado('ok');
       document.dispatchEvent(new CustomEvent('pdi:datos-actualizados'));
       refrescarVistaActual();

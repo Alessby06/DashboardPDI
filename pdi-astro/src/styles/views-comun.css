@@ -96,6 +96,84 @@
       background: var(--surface-2);
     }
 
+    /* ------------------------------------------------------------------
+       Footers de modal: el layout vive en la hoja, no en atributos
+       style del HTML. Cuando vive en el HTML, ninguna regla de la hoja
+       lo puede cambiar: los estilos inline ganan a cualquier selector.
+       ------------------------------------------------------------------ */
+
+    /* Acciones pegadas a la derecha (Cancelar + acción principal). */
+    .modal-footer-end {
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 12px 20px;
+    }
+
+    /* Acciones repartidas: la secundaria a la izquierda, el grupo a la derecha. */
+    .modal-footer-split {
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+    }
+
+    /* Grupo de botones que se mantiene pegado en escritorio. */
+    .modal-footer-acciones {
+      display: flex;
+      gap: 8px;
+    }
+
+    /* Contador de caracteres de los cuadros de texto con tope. */
+    .modal-counter {
+      float: right;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-dim);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ------------------------------------------------------------------
+       Móvil: un footer con varios botones no cabe en una línea y, sin
+       envolver, el último queda fuera de la pantalla (Informe Beta 3).
+       Con flex-wrap los botones bajan de línea en vez de desbordarse, y
+       la acción principal ocupa su propia fila, a ancho completo.
+       ------------------------------------------------------------------ */
+    @media (max-width: 768px) {
+      .modal-footer-responsive {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: flex-end !important;
+        gap: 8px !important;
+        padding: 12px 14px !important;
+        box-sizing: border-box !important;
+        max-width: 100% !important;
+      }
+
+      .modal-footer-responsive > .btn-action,
+      .modal-footer-responsive .modal-footer-acciones > .btn-action {
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        min-height: 40px !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+      }
+
+      /* El grupo se deshace: sus botones pasan al flex del footer. */
+      .modal-footer-responsive .modal-footer-acciones {
+        display: contents !important;
+      }
+
+      /* La acción principal ocupa la fila completa. */
+      .modal-footer-responsive .modal-footer-acciones > .modal-footer-principal,
+      .modal-footer-responsive > .modal-footer-principal {
+        flex: 1 1 100% !important;
+      }
+    }
+
     .modal-caso-footer {
       padding: 14px 20px !important;
       background: var(--surface-1) !important;

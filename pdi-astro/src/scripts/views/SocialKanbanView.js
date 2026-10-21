@@ -23,6 +23,23 @@ export const ETAPA_NOMBRES_OFICIALES = {
   cerrado: "Cerrados con Informe"
 };
 
+/**
+ * Contador de caracteres de los cuadros de texto con tope. El cuadro tiene
+ * `maxlength`, asi que el navegador recorta solo: el contador dice cuanto
+ * queda, para que nadie descubra el recorte al escribir.
+ */
+function conectarContador(inputId, contadorId) {
+  const input = document.getElementById(inputId);
+  const salida = document.getElementById(contadorId);
+  if (!input || !salida) return;
+  const max = input.getAttribute("maxlength") || "500";
+  const refrescar = () => {
+    salida.textContent = `${input.value.length} / ${max}`;
+  };
+  input.oninput = refrescar;
+  refrescar();
+}
+
 // Titulo del tab del navegador por pestana de /social, con el mismo nombre que
 // la sidebar (ver activarPanelDirecto(), el punto unico de cambio de tab).
 const TITULOS_TAB = {
@@ -688,6 +705,7 @@ export const SocialKanbanView = {
     if (bDest) bDest.textContent = etapaNombres[nuevaEtapa] || nuevaEtapa;
 
     modal.classList.add("open");
+    conectarContador("solicitudMotivoInput", "solicitudMotivoContador");
     if (mot) mot.focus();
   },
 
@@ -755,6 +773,7 @@ export const SocialKanbanView = {
     if (bDest) bDest.textContent = etapaNombres[caso.solicitudCambio.etapaDestino] || caso.solicitudCambio.etapaDestino;
 
     modal.classList.add("open");
+    conectarContador("resolverComentarioInput", "resolverComentarioContador");
     if (com) com.focus();
   },
 
