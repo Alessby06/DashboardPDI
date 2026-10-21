@@ -91,14 +91,54 @@ Dos pasos (en lugar de cuatro con once ediciones):
 
 ---
 
-## ☁️ Conexión con SurrealDB Cloud (variable crítica)
+## ☁️ Conexión con SurrealDB Cloud
 
 La aplicación **no tiene servidor propio**: toda la información vive en una
-instancia de SurrealDB Cloud y se accede por WebSocket. Si la variable
-`PUBLIC_SURREAL_URL` no apunta a la instancia correcta, la aplicación abre
-pero **se queda vacía y no se puede guardar nada**.
+instancia de SurrealDB Cloud. Pero **la contraseña de la base no está en el
+navegador**.
 
-Valor vigente (única instancia de la organización `pdi-infancia-sa`):
+### Cómo funciona
+
+```
+navegador  ──POST /api/pdi/token──▶  Function de Vercel  ──▶  SurrealDB
+     │                                    (api/pdi.mjs)            │
+     │◀────── token de sesión (30 min) ──────────────────────────────┘
+     │
+     └──── WebSocket a SurrealDB, autenticado con ese token
+```
+
+1. El navegador pide un token a `POST /api/pdi/token`.
+2. La Function de Vercel (`api/pdi.mjs`, en la raíz del repositorio) usa las
+   credenciales del **servidor** para pedir ese token a SurrealDB y se lo
+   entrega. Las credenciales viven en variables de entorno **sin** el prefijo
+   `PUBLIC_`, que Vercel no expone al cliente.
+3. El navegador se autentica contra SurrealDB con ese token. Cuando caduca
+   (30 minutos), el SDK vuelve a pedirlo solo.
+
+**En el bundle publicado no hay ninguna credencial de la base.** Solo la URL de
+la instancia, el namespace y el database, que no son secretos.
+
+### El usuario de la web
+
+La base define dos cuentas:
+
+| Usuario | Rol | Para qué |
+|---|---|---|
+| `pdi_app` | OWNER | Administración. Solo desde el servidor, nunca en el navegador. |
+| `pdi_web` | VIEWER | El que usa el sitio. No puede tocar el esquema ni crear usuarios. |
+
+`pdi_web` solo puede escribir en las tablas que el sistema usa; en las demás no
+puede ni crear, ni modificar, ni borrar. El script que lo deja así está en
+`scripts/permisos-web.sql` y se revierte con `scripts/permisos-web-revertir.sql`.
+
+> **Lo que este modelo no cierra:** con este diseño el navegador habla
+> directamente con la base, así que un token robado permite **leer** el padrón
+> completo (datos de menores). Cerrar eso exige poner un proxy de consultas en
+> el servidor, que decida qué se devuelve. Es un cambio mayor, no está hecho.
+
+### Variables de entorno
+
+Públicas (van en el bundle, no son credenciales):
 
 ```env
 PUBLIC_SURREAL_URL=wss://pdi-infancia-sa-06gkpubrg5rg31f1nhhb4dbr34.azure-brs.surreal.cloud
@@ -106,19 +146,24 @@ PUBLIC_SURREAL_NS=johannes_gutenberg
 PUBLIC_SURREAL_DB=infancia_saludable
 ```
 
-> **Ojo con el despliegue en Vercel.** Las variables de entorno de Vercel son
-> las que usa el sitio publicado, no el `.env` del repositorio. Si
-> `PUBLIC_SURREAL_URL` allí apunta a otra instancia, el sitio arranca sin
-> errores visibles y sin datos. Para comprobarlo, sin depender de la
-> consola del navegador:
->
-> ```bash
-> curl -s -o /dev/null -w "%{http_code}\n" https://<host-de-la-instancia>/health
-> ```
->
-> `200` = la instancia existe. `404` = la URL apunta a una instancia que no
-> existe, y el WebSocket no podrá conectarse.
+Privadas (solo el servidor; en Vercel, variables **sin** `PUBLIC_`):
+
+```env
+SURREAL_USER=pdi_web
+SURREAL_PASS=<la contraseña de pdi_web>
+```
+
+Para comprobar que una instancia existe sin depender de la consola del
+navegador:
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" https://<host-de-la-instancia>/health
+```
+
+`200` = la instancia existe. `404` = la URL apunta a una instancia que no
+existe, y el WebSocket no podrá conectarse.
 
 La capa de datos (`src/scripts/core/db.js`) avisa con un aviso en pantalla
 cuando no consigue conectar, y reintenta sola con backoff (5 s → 30 s).
+
 

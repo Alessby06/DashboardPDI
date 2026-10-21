@@ -46,8 +46,33 @@ import {
 const URL = import.meta.env.PUBLIC_SURREAL_URL;
 const NS = import.meta.env.PUBLIC_SURREAL_NS;
 const DB = import.meta.env.PUBLIC_SURREAL_DB;
-const USER = import.meta.env.PUBLIC_SURREAL_USER;
-const PASS = import.meta.env.PUBLIC_SURREAL_PASS;
+
+// La contraseña de la base NO está aquí. El servidor (api/pdi.mjs) la usa
+// para emitir tokens de sesión de corta duración y el navegador se
+// autentica con ese token. En el bundle publicado no queda ninguna
+// credencial de la base: solo un token que caduca en 30 minutos.
+const RUTA_TOKEN = '/api/pdi/token';
+
+/**
+ * Pide al servidor un token de sesión para la base de datos.
+ * Si el servidor no lo entrega, la app se queda sin datos: por eso el error
+ * se propaga con un mensaje claro en vez de tragarse.
+ */
+async function pedirToken() {
+  const res = await fetch(RUTA_TOKEN, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: '{}',
+  });
+  if (!res.ok) {
+    throw new Error('El servidor no concedio acceso a la base de datos (' + res.status + ')');
+  }
+  const datos = await res.json();
+  if (!datos || !datos.token) {
+    throw new Error('El servidor no concedio acceso a la base de datos');
+  }
+  return datos.token;
+}
 
 // Puente de migración: mientras producción conserve el esquema anterior y
 // staging use el nuevo, la misma aplicación puede apuntar a uno u otro.
@@ -108,12 +133,14 @@ async function conectar() {
   _conectando = (async () => {
     const db = new Surreal();
     try {
-      // Autenticación embebida: connect + signin + use en UNA ida y vuelta
-      // (medido contra São Paulo: ahorra ~2 RTT ≈ 240 ms).
+      // Autenticación por token de sesión: el SDK llama a este callback al
+      // conectar y cada vez que la sesión caduca, así que la renovación es
+      // automática y nadie tiene que pedirla. connect + use en una ida y
+      // vuelta (medido contra São Paulo: ahorra ~2 RTT ≈ 240 ms).
       await db.connect(URL, {
         namespace: NS,
         database: DB,
-        authentication: { namespace: NS, database: DB, username: USER, password: PASS },
+        authentication: async () => await pedirToken(),
         // El probe de versión del SDK cuesta un RPC por conexión y la versión
         // ya es estable en producción (SurrealDB 3.3.2): se desactiva.
         versionCheck: false,
@@ -128,19 +155,12 @@ async function conectar() {
       vigilarCaida(db);
       return db;
     } catch (errAuth) {
-      // Si la nube no acepta este nivel de auth, caemos a la secuencia clásica.
-      // El error se deja escrito: si la URL apunta a una instancia que no
-      // existe, el motivo real (el 404 del handshake) solo aparece aquí.
-      console.warn('[PDI] Falló la conexión con autenticación embebida; se intenta la secuencia clásica:',
-        errAuth?.message || errAuth);
+      // El fallo mas probable es que el servidor no entregue el token. Se
+      // deja escrito con su mensaje: es la causa real, no un sintoma.
+      console.warn('[PDI] No se pudo autenticar contra la base de datos:', errAuth?.message || errAuth);
       try { await db.disconnect(); } catch (e) { /* ya estaba cerrada */ }
+      throw errAuth;
     }
-    await db.connect(URL, { reconnect: { enabled: false } });
-    await db.signin({ username: USER, password: PASS, namespace: NS, database: DB });
-    await db.use({ namespace: NS, database: DB });
-    _db = db;
-    vigilarCaida(db);
-    return db;
   })().catch(err => {
     _conectando = null;
     _db = null;
@@ -894,6 +914,26 @@ function mapearAsistencia(raw, beneficiarios) {
 //  CRUD · Padrón de beneficiarios
 // ---------------------------------------------------------------------------
 /** Verifica documento duplicado y crea menor + inscripción + apoderado + aporte. */
+/**
+ * Correlativo oficial del usuario: cuatro dígitos, "-IS" y el año, tal como lo
+ * pide la ficha de inscripción A1 del programa (0001-IS2026). El correlativo
+ * sale de la base y no del índice en memoria: la base es la que ordena, y así
+ * dos altas seguidas no se pisan el número.
+ */
+async function correlativoUsuario() {
+  const anio = new Date().getFullYear();
+  const sufijo = `-IS${anio}`;
+  const existentes = comoLista(await ejecutar(
+    'SELECT VALUE codigo FROM persona WHERE codigo != NONE AND string::ends_with(codigo, $sufijo);',
+    { sufijo },
+  ));
+  const mayor = existentes.reduce((max, codigo) => {
+    const numero = parseInt(String(codigo).slice(0, 4), 10);
+    return Number.isFinite(numero) && numero > max ? numero : max;
+  }, 0);
+  return `${String(mayor + 1).padStart(4, '0')}${sufijo}`;
+}
+
 export async function crearBeneficiario(m) {
   const documento = (m.dni || '').trim();
   if (documento) {
@@ -909,7 +949,11 @@ export async function crearBeneficiario(m) {
     }
   }
 
-  const cod = m.codigo || `PDI-2026-${String(m.id).padStart(3, '0')}`;
+  // El codigo lo pone la base con el formato del programa. Solo se respeta el
+  // que trae la ficha si ya viene en ese formato (importaciones y semillas).
+  const cod = /^\d{4}-IS\d{4}$/.test(String(m.codigo || ''))
+    ? String(m.codigo)
+    : await correlativoUsuario();
   // La estrategia son varias: se guardan todas y `programa` sigue siendo el
   // resumen que usan los reportes y el indice unico.
   const progInscripcion = programaDesdeServicios(m.servicios, m.estrategia);
@@ -1074,7 +1118,7 @@ export async function crearBeneficiario(m) {
 
     const lista = comoLista(res);
     const paquete = lista.find(x => x && typeof x === 'object' && (x.menor || x.ins)) || null;
-    return { ok: true, personaId: paquete?.menor ?? null };
+    return { ok: true, personaId: paquete?.menor ?? null, codigo: cod };
   } catch (err) {
     return avisarFallo('Registro de usuario', err);
   }
