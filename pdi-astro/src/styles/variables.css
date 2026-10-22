@@ -14,6 +14,10 @@
   
   /* Gutenberg Official 4-Color Signature */
   --gt-green: #00b494;
+  /* Canal RGB del verde de marca. Existe para poder teñir con transparencias
+     (rgba(var(--brand-rgb), 0.12)) sin fijar el color a mano en cada vista:
+     cuando el tema oscuro aclara el verde, todos los tintes lo siguen solos. */
+  --brand-rgb: 0, 180, 148;
   --gt-green-bg: rgba(0, 180, 148, 0.16);
   --gt-green-border: rgba(0, 180, 148, 0.38);
   
@@ -34,6 +38,9 @@
   --brand-dark: #00715d;
   --brand-dim: #046a58;
   --brand-soft: var(--gt-green-bg);
+  /* Tinta que se pinta ENCIMA del verde de marca. En claro el verde es oscuro
+     y admite blanco; en oscuro se aclara y pide tinta casi negra. */
+  --on-brand: #ffffff;
 
   /* Verde de marca CUANDO EL COLOR ES TEXTO (optimizado para nitidez y contraste) */
   --text-brand: #00876f;
@@ -112,6 +119,7 @@
   --border-medium: #94a3b8;
   
   --gt-green: #00b494;
+  --brand-rgb: 0, 180, 148;
   --gt-green-bg: rgba(0, 180, 148, 0.16);
   --gt-green-border: rgba(0, 180, 148, 0.38);
   
@@ -131,6 +139,7 @@
   --brand-dark: #008f75;
   --brand-dim: #e6f7f4;
   --brand-soft: var(--gt-green-bg);
+  --on-brand: #ffffff;
 
   --text-brand: #00876f;
   --text-danger: #dc2626;
@@ -171,67 +180,73 @@
 [data-theme="light"] .brand-logo-dark { display: none !important; }
 [data-theme="light"] .brand-logo-light { display: block !important; }
 
+/* Tema oscuro de alto contraste.
+   Base negra real para maxima separacion del texto, bordes mas marcados que en
+   el resto de la interfaz y el verde de marca aclarado hasta casi neon. El
+   objetivo es que se lea igual de bien con luz ambiente alta, en una pantalla
+   mate o con baja vision, sin depender del zoom. */
 [data-theme="dark"] {
-  --obsidian: #0f1115;
-  --bg-base: #0f1115;
-  --bg-canvas: #0f1115;
-  --surface-1: #161a22;
-  --surface-2: #1d232e;
-  --surface-hover: rgba(255, 255, 255, 0.05);
-  --surface-glass: rgba(22, 26, 34, 0.95);
+  --obsidian: #000000;
+  --bg-base: #000000;
+  --bg-canvas: #000000;
+  --surface-1: #0d0d0f;
+  --surface-2: #151518;
+  --surface-hover: rgba(255, 255, 255, 0.09);
+  --surface-glass: rgba(13, 13, 15, 0.96);
   
-  --border-subtle: #252833;
-  --border-bright: #475569;
-  --border-medium: #333744;
+  --border-subtle: #34343c;
+  --border-bright: #9494a3;
+  --border-medium: #4a4a55;
   
-  --gt-green: #10b981;
-  --gt-green-bg: rgba(16, 185, 129, 0.15);
-  --gt-green-border: rgba(16, 185, 129, 0.35);
+  --gt-green: #2ee6a0;
+  --brand-rgb: 46, 230, 160;
+  --gt-green-bg: rgba(46, 230, 160, 0.16);
+  --gt-green-border: rgba(46, 230, 160, 0.45);
   
-  --gt-yellow: #f59e0b;
-  --gt-yellow-bg: rgba(245, 158, 11, 0.15);
-  --gt-yellow-border: rgba(245, 158, 11, 0.35);
+  --gt-yellow: #ffc247;
+  --gt-yellow-bg: rgba(255, 194, 71, 0.16);
+  --gt-yellow-border: rgba(255, 194, 71, 0.45);
   
-  --gt-blue: #38bdf8;
-  --gt-blue-bg: rgba(56, 189, 248, 0.15);
-  --gt-blue-border: rgba(56, 189, 248, 0.35);
+  --gt-blue: #7cc4ff;
+  --gt-blue-bg: rgba(124, 196, 255, 0.16);
+  --gt-blue-border: rgba(124, 196, 255, 0.45);
   
-  --gt-red: #ef4444;
-  --gt-red-bg: rgba(239, 68, 68, 0.15);
-  --gt-red-border: rgba(239, 68, 68, 0.35);
+  --gt-red: #ff8b8b;
+  --gt-red-bg: rgba(255, 139, 139, 0.16);
+  --gt-red-border: rgba(255, 139, 139, 0.45);
 
-  --brand-primary: #10b981;
-  --brand-dark: #059669;
-  --brand-dim: #047857;
+  --brand-primary: #2ee6a0;
+  --brand-hover: #6bffc4;
+  --brand-dark: #0fae76;
+  --brand-dim: #0b7a54;
   --brand-soft: var(--gt-green-bg);
+  /* El verde de este tema es muy claro: el blanco encima daria 1,6:1. La tinta
+     casi negra da 11,8:1 y conserva el aspecto de boton solido. */
+  --on-brand: #00130c;
 
-  /* En tema oscuro NO se toca nada. Aqui el verde de marca ya da 7:1 sobre los
-     fondos oscuros, asi que el token apunta al mismo --gt-green y el tema
-     oscuro se ve igual que antes. Se declara de todas formas para que las
-     mismas reglas de CSS sirvan para los dos temas. */
+  /* El verde de marca da 12,0:1 sobre --surface-1, asi que sirve tal cual como
+     color de texto y no hace falta un tono aparte. Se declara de todas formas
+     para que las mismas reglas de CSS sirvan para los dos temas. */
   --text-brand: var(--gt-green);
   
-  /* Rojo, ambar y azul como texto, en tema oscuro.
-     Aqui el ambar y el azul de marca ya cumplen sobre los fondos oscuros, asi
-     que --text-warning y --text-info apuntan a ellos y no cambian nada. El rojo
-     no: sobre el fondo rojo palido de las insignias daba 4,0:1, y hay que
-     aclararlo. Es el mismo rojo aclarado hacia el blanco lo justo para llegar a
-     4,5:1 en el peor fondo. */
-  --text-danger: #f47f7f;
+  /* Rojo, ambar y azul como texto, en tema oscuro. Los tres se aclaran en la
+     misma proporcion para que se lean sobre las insignias tintadas, que ahora
+     llevan un 16 % del color en vez del 15 % anterior. */
+  --text-danger: #ff9d9d;
   --text-warning: var(--gt-yellow);
   --text-info: var(--gt-blue);
-  /* El verde de marca ya da 6,0:1 sobre el pie oscuro de la ficha. */
+  /* El verde de marca da mas de 9:1 sobre el pie oscuro de la ficha. */
   --text-success: var(--gt-green);
   
-  --text-main: #f3f4f6;
-  --text-muted: #9ca3af;
-  /* Este si cambia, y es el mas usado: 431 declaraciones. El gris azulado de
-     --text-dim daba 3,3:1 sobre el gris de las tarjetas y es el color de las
-     etiquetas secundarias (las del menu, los datos de la auditoria, los rotulos
-     de las sedes). aclarado lo justo para llegar a 4,5:1. Queda por debajo de
-     --text-muted (#9ca3af), que es lo que tiene que pasar: dim es mas apagado
+  --text-main: #ffffff;
+  --text-muted: #dcdce4;
+  /* El token mas usado de la interfaz: 431 declaraciones, y el color de las
+     etiquetas secundarias, el menu y los datos de la auditoria. En el tema
+     anterior daba 3,3:1 sobre las tarjetas y no llegaba al minimo AA. Este da
+     9,6:1 sobre --surface-1 y 9,0:1 sobre --surface-2. Sigue por debajo de
+     --text-muted (#dcdce4), que es lo que tiene que pasar: dim es mas apagado
      que muted. */
-  --text-dim: #838994;
+  --text-dim: #b4b4c0;
 
   --status-danger: var(--gt-red);
   --status-danger-bg: var(--gt-red-bg);
@@ -249,9 +264,12 @@
   --status-info-bg: var(--gt-blue-bg);
   --status-info-border: var(--gt-blue-border);
 
-  --shadow-ambient: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
+  /* Sobre negro puro la sombra difusa no se ve: lo que separa la tarjeta del
+     fondo es el borde. Se conserva una sombra muy tenue para el apilado de
+     modales y menus, y el borde queda como unico indicador de elevacion. */
+  --shadow-ambient: 0 0 0 1px rgba(255, 255, 255, 0.05), 0 20px 40px -16px rgba(0, 0, 0, 0.90);
   --shadow-glow: none;
-  --modal-overlay-bg: rgba(0, 0, 0, 0.8);
+  --modal-overlay-bg: rgba(0, 0, 0, 0.86);
   
   color-scheme: dark;
 }

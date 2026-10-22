@@ -1,10 +1,11 @@
-// Modelo de Beneficiarios (Padrón de Menores PDI)
+// Modelo de Beneficiarios (Padrón de Usuarios PDI)
 // La fuente única de verdad es la instancia de SurrealDB Cloud. No hay fixtures
 // ni espejo en localStorage: el modelo inicia vacío y se llena cuando la capa de
 // datos (core/db.js) hidrata desde la nube. Toda mutación se escribe en la nube
 // de forma optimista: la memoria se actualiza aquí y db.js confirma el cambio.
 import {
   crearBeneficiario, actualizarBeneficiario, darBajaBeneficiario,
+  crearTamizaje, desactivarTamizaje,
 } from '../core/db.js';
 
 export function normalizeBeneficiarioServicios(b) {
@@ -107,25 +108,25 @@ export const BeneficiarioModel = {
   },
 
   /**
-   * Alta de menor: se crea en memoria para la vista y se escribe en la nube
+   * Alta de usuario: se crea en memoria para la vista y se escribe en la nube
    * (persona + inscripción + apoderado + tamizaje inicial). Si la nube
    * rechaza, db.js notifica el error y la próxima hidratación realinea los
    * estados; no se toca ningun almacen local.
    */
-  add(nuevoMenor) {
+  add(nuevoUsuario) {
     const list = this.getAll();
-    normalizeBeneficiarioServicios(nuevoMenor);
-    list.unshift(nuevoMenor);
-    crearBeneficiario(nuevoMenor).then(res => {
+    normalizeBeneficiarioServicios(nuevoUsuario);
+    list.unshift(nuevoUsuario);
+    crearBeneficiario(nuevoUsuario).then(res => {
       if (!res) {
-        list.splice(list.indexOf(nuevoMenor), 1);
+        list.splice(list.indexOf(nuevoUsuario), 1);
         return;
       }
       // El codigo con el formato del programa lo asigna la base; el de memoria
       // era provisional.
-      if (res.codigo) nuevoMenor.codigo = res.codigo;
+      if (res.codigo) nuevoUsuario.codigo = res.codigo;
     });
-    return nuevoMenor;
+    return nuevoUsuario;
   },
 
   update(id, updatedData) {
@@ -139,6 +140,70 @@ export const BeneficiarioModel = {
       return actualizado;
     }
     return null;
+  },
+
+  /**
+   * Nueva prueba de hemoglobina para el historial del usuario (append-only).
+   * Optimista: la fila entra en memoria al instante y los valores vigentes
+   * (hb/peso/talla/anemia) pasan a ser los de esta prueba; db.js escribe en la
+   * nube y, si rechaza, avisa con toast y la proxima hidratacion realinea el
+   * estado. No se edita ni anula ningun tamizaje previo.
+   */
+  registrarTamizaje(id, prueba) {
+    const b = this.getById(id);
+    if (!b || prueba.hb == null) return null;
+    const fila = {
+      _tamizajeId: '', // el id canonico lo asigna la nube y lo trae la hidratacion
+      fecha: prueba.fecha ? `${prueba.fecha}T12:00:00Z` : new Date().toISOString(),
+      hb: prueba.hb,
+      hbAjustada: null,
+      peso: prueba.peso ?? null,
+      talla: prueba.talla ?? null,
+      resultado: prueba.resultado || '',
+      anemia: prueba.anemia || '',
+    };
+    if (!Array.isArray(b.tamizajes)) b.tamizajes = [];
+    b.tamizajes.unshift(fila);
+    b.hb = prueba.hb;
+    if (prueba.peso != null) b.peso = prueba.peso;
+    if (prueba.talla != null) b.talla = prueba.talla;
+    b.anemia = prueba.anemia;
+    // El id canonico de la hidratacion reemplazara a _tamizajeId '' despues.
+    crearTamizaje({
+      _personaId: b._personaId,
+      _inscripcionId: b._inscripcionId,
+      _sedeRawId: b._sedeRawId,
+      fecha: prueba.fecha,
+      hb: prueba.hb,
+      peso: prueba.peso,
+      talla: prueba.talla,
+      resultado: prueba.resultado,
+      anemia: prueba.anemia,
+    });
+    return fila;
+  },
+
+  /**
+   * Desactiva una prueba del historial (soft delete por id canonico). La fila
+   * sale de memoria al instante y los valores vigentes (hb/peso/talla/anemia)
+   * pasan a los de la prueba activa mas reciente restante; si no queda ninguna
+   * quedan en null (se pintan vacios). El motivo lo registra la vista en la
+   * bitacora: aqui solo se saca la fila del historial.
+   */
+  desactivarTamizaje(id, tamId) {
+    const b = this.getById(id);
+    if (!b || !tamId || !Array.isArray(b.tamizajes)) return null;
+    const idx = b.tamizajes.findIndex(t => String(t._tamizajeId || '') === String(tamId));
+    if (idx === -1) return null;
+    const fuera = b.tamizajes[idx];
+    b.tamizajes.splice(idx, 1);
+    const vigente = b.tamizajes[0] || null;
+    b.hb = vigente ? vigente.hb : null;
+    b.peso = vigente && vigente.peso != null ? vigente.peso : null;
+    b.talla = vigente && vigente.talla != null ? vigente.talla : null;
+    b.anemia = vigente ? vigente.anemia : null;
+    desactivarTamizaje(tamId);
+    return fuera;
   },
 
   /**
@@ -184,7 +249,7 @@ export const BeneficiarioModel = {
     const comasCount = list.filter(b => b.distrito === "Comas").length;
     const carabaylloCount = list.filter(b => b.distrito === "Carabayllo").length;
 
-    // Tamizado CREAL real: menor con dosaje de Hb registrado (valor, no vacio).
+    // Tamizado CREAL real: usuario con dosaje de Hb registrado (valor, no vacio).
     const tamizados = list.filter(b => b.hb !== null && b.hb !== undefined && b.hb !== "").length;
 
     return {

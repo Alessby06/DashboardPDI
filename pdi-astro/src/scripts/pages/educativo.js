@@ -1,4 +1,4 @@
-﻿// ===========================================================================
+// ===========================================================================
 //  Casita del Saber - Punto de entrada de educativo.html
 // ===========================================================================
 //  Pase de asistencia escolar, grado y nivelacion pedagogica.
@@ -48,7 +48,7 @@ function iniciar() {
   montar();
 
   // Que redibujar cuando algo guarde en esta pagina, por ejemplo al dar de
-  // alta a un menor: antes era refreshAllViews(), que refrescaba las ocho
+  // alta a un usuario: antes era refreshAllViews(), que refrescaba las ocho
   // tablas; ahora solo la que esta a la vista.
   publicarRefresco(montar);
 

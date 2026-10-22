@@ -131,7 +131,7 @@ export const SocialKanbanView = {
     const filtered = allCasos.filter(c => {
       const q = this._searchQuery.toLowerCase().trim();
       const matchQuery = !q || 
-        (c.menor && c.menor.toLowerCase().includes(q)) ||
+        (c.usuario && c.usuario.toLowerCase().includes(q)) ||
         (c.codigo && c.codigo.toLowerCase().includes(q)) ||
         (c.sede && c.sede.toLowerCase().includes(q)) ||
         (c.situacionEncontrada && c.situacionEncontrada.toLowerCase().includes(q)) ||
@@ -263,7 +263,7 @@ export const SocialKanbanView = {
 
       card.innerHTML = `
         <div class="kanban-card-header-row">
-          <strong class="kanban-card-title" title="${escapar(c.menor)}">${escapar(c.menor)}</strong>
+          <strong class="kanban-card-title" title="${escapar(c.usuario)}">${escapar(c.usuario)}</strong>
           <span class="badge badge-${c.urgencia === 'Alta' ? 'red' : (c.urgencia === 'Media' ? 'yellow' : 'blue')}"><span class="badge-dot"></span>${escapar(c.urgencia)}</span>
         </div>
         <div class="kanban-card-meta">
@@ -468,7 +468,7 @@ export const SocialKanbanView = {
       if (el) el.textContent = val || "-";
     };
 
-    setTxt("modalCasoMenorNombre", caso.menor);
+    setTxt("modalCasoUsuarioNombre", caso.usuario);
     setTxt("modalCasoCodigo", caso.codigo);
     setTxt("modalCasoSede", caso.sede);
     setTxt("modalCasoProblematica", caso.tipoProblematica || "Evaluación Social General");
@@ -688,7 +688,7 @@ export const SocialKanbanView = {
     if (nEt) nEt.value = nuevaEtapa;
     if (mot) mot.value = "";
 
-    setTxt("solicitudMenorNombre", caso.menor);
+    setTxt("solicitudUsuarioNombre", caso.usuario);
     setTxt("solicitudCodigo", caso.codigo);
 
     const etapaNombres = {
@@ -753,7 +753,7 @@ export const SocialKanbanView = {
     if (rId) rId.value = caso.id;
     if (com) com.value = "";
 
-    setTxt("resolverMenorNombre", caso.menor);
+    setTxt("resolverUsuarioNombre", caso.usuario);
     setTxt("resolverCodigoBadge", caso.codigo);
     setTxt("resolverSolicitante", caso.solicitudCambio.solicitadoPor);
     setTxt("resolverFechaSolicitud", caso.solicitudCambio.fechaSolicitud);
@@ -825,7 +825,7 @@ export const SocialKanbanView = {
       card.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    // Seleccionar menor y cargar caso
+    // Seleccionar usuario y cargar caso
     const select = document.getElementById("selBeneficiarioSimulador");
     if (select) {
       select.value = codigo;
@@ -978,7 +978,7 @@ export const SocialKanbanView = {
     if (pendientes.length === 0) {
       container.innerHTML = `
         <div style="text-align: center; padding: 48px 20px; color: var(--text-dim);">
-          <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(34, 197, 94, 0.12); color: #22c55e; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px auto;">
+          <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--status-success-bg); color: var(--status-success); display: flex; align-items: center; justify-content: center; margin: 0 auto 14px auto;">
             <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
             </svg>
@@ -1009,7 +1009,7 @@ export const SocialKanbanView = {
                   <strong style="font-size: 14.5px; color: var(--text-main); cursor: pointer;"
                     onclick="window.PDI?.SocialKanbanView?.openDetalleCaso(${escaparEnManejador(caso.id)})"
                     title="Clic para ver expediente completo">
-                    ${escapar(caso.menor)}
+                    ${escapar(caso.usuario)}
                   </strong>
                   <span class="kanban-card-code-link" style="cursor: pointer;"
                     onclick="window.PDI?.SocialKanbanView?.openDetalleCaso(${escaparEnManejador(caso.id)})">
@@ -1145,7 +1145,7 @@ export const SocialKanbanView = {
                 <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                   <strong style="font-size: 14.5px; color: var(--text-main); cursor: pointer;"
                     onclick="window.PDI?.SocialKanbanView?.openDetalleCaso(${escaparEnManejador(sol.casoId)})">
-                    ${escapar(sol.menor)}
+                    ${escapar(sol.usuario)}
                   </strong>
                   <span class="kanban-card-code-link" style="cursor: pointer;"
                     onclick="window.PDI?.SocialKanbanView?.openDetalleCaso(${escaparEnManejador(sol.casoId)})">
@@ -1192,7 +1192,7 @@ export const SocialKanbanView = {
               ${(sol.estado === "aprobada" || sol.estado === "rechazada") ? `
                 <div class="coordination-feedback-box ${sol.estado}">
                   <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; flex-wrap: wrap;">
-                    <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; color: ${sol.estado === 'aprobada' ? '#16a34a' : '#dc2626'};">
+                    <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; color: ${sol.estado === 'aprobada' ? 'var(--text-success)' : 'var(--text-danger)'};">
                       <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                         ${sol.estado === 'aprobada' 
                           ? '<path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />' 

@@ -1,4 +1,4 @@
-﻿// Controlador: Alta y edicion de menores beneficiarios
+// Controlador: Alta y edicion de usuarios beneficiarios
 // Maneja el 100% de los campos normativos de inscripción PDI
 import { BeneficiarioModel } from '../models/BeneficiarioModel.js';
 import { CasoSocialModel } from '../models/CasoSocialModel.js';
@@ -13,7 +13,7 @@ import { distritoDeSede, resumenAlergias } from '../core/catalogos.js';
 import { escapar } from "../utils/HtmlHelper.js";;
 export const BeneficiarioController = {
   signatureCanvasHelper: null,
-  tempFotoMenor: null,
+  tempFotoUsuario: null,
   tempFotoApoderado: null,
   tempFotoRetiro1: null,
   tempFotoRetiro2: null,
@@ -150,7 +150,7 @@ export const BeneficiarioController = {
       if (previewEl) {
         previewEl.innerHTML = `<img src="${escapar(base64)}" style="width:100%; height:100%; object-fit:cover; border-radius:6px;" alt="Foto">`;
       }
-      if (roleKey === 'menor') this.tempFotoMenor = base64;
+      if (roleKey === 'usuario') this.tempFotoUsuario = base64;
       if (roleKey === 'apoderado') {
         this.tempFotoApoderado = base64;
         const checkMismo = document.getElementById("checkMismoApoderado1");
@@ -173,7 +173,7 @@ export const BeneficiarioController = {
   },
 
   resetPhotos() {
-    this.tempFotoMenor = null;
+    this.tempFotoUsuario = null;
     this.tempFotoApoderado = null;
     this.tempFotoRetiro1 = null;
     this.tempFotoRetiro2 = null;
@@ -193,7 +193,7 @@ export const BeneficiarioController = {
       }
     };
 
-    resetBox("regFotoMenorPreview", "Foto Usuario");
+    resetBox("regFotoUsuarioPreview", "Foto Usuario");
     resetBox("regFotoApoderadoPreview", "Foto Apoderado");
     resetBox("regFotoRetiro1Preview", "Foto P1");
     resetBox("regFotoRetiro2Preview", "Foto P2");
@@ -210,7 +210,7 @@ export const BeneficiarioController = {
       `;
     }
 
-    const ids = ["regFotoMenorInput", "regFotoApoderadoInput", "regFotoRetiro1Input", "regFotoRetiro2Input", "regFotoFachadaInput"];
+    const ids = ["regFotoUsuarioInput", "regFotoApoderadoInput", "regFotoRetiro1Input", "regFotoRetiro2Input", "regFotoFachadaInput"];
     ids.forEach(i => {
       const input = document.getElementById(i);
       if (input) input.value = "";
@@ -282,22 +282,22 @@ export const BeneficiarioController = {
     } else {
       if (nombre1) {
         nombre1.readOnly = false;
-        nombre1.style.background = "#ffffff";
+        nombre1.style.background = "var(--surface-1)";
         nombre1.style.color = "var(--text-main)";
       }
       if (dni1) {
         dni1.readOnly = false;
-        dni1.style.background = "#ffffff";
+        dni1.style.background = "var(--surface-1)";
         dni1.style.color = "var(--text-main)";
       }
       if (parentesco1) {
         parentesco1.disabled = false;
-        parentesco1.style.background = "#ffffff";
+        parentesco1.style.background = "var(--surface-1)";
         parentesco1.style.color = "var(--text-main)";
       }
       if (tel1) {
         tel1.readOnly = false;
-        tel1.style.background = "#ffffff";
+        tel1.style.background = "var(--surface-1)";
         tel1.style.color = "var(--text-main)";
       }
       if (box1) {
@@ -314,7 +314,7 @@ export const BeneficiarioController = {
     view.renderTable(filtered);
   },
 
-  saveNuevoMenor(event, onComplete) {
+  saveNuevoUsuario(event, onComplete) {
     event.preventDefault();
 
     // El boton de guardar solo se habilita cuando no falta ningun dato. Si se
@@ -484,7 +484,7 @@ export const BeneficiarioController = {
       apellidos,
       dni,
       tipoDocumento,
-      fotoUrl: this.tempFotoMenor || null,
+      fotoUrl: this.tempFotoUsuario || null,
       fechaNacimiento: fechaNacimiento || "2022-01-01",
       edad: edad || "4 años",
       sexo,
@@ -568,8 +568,8 @@ export const BeneficiarioController = {
     toast.show("Usuario Incorporado", `${nombres} ${apellidos} registrado exitosamente con código ${nuevoObj.codigo}`, "success");
 
     const mView = window.PDI?.ModalView || ModalView;
-    mView.closeNuevoMenor();
-    const form = document.getElementById("formNuevoMenor");
+    mView.closeNuevoUsuario();
+    const form = document.getElementById("formNuevoUsuario");
     if (form) form.reset();
     this.clearSignature();
     this.resetPhotos();
@@ -580,10 +580,10 @@ export const BeneficiarioController = {
   toggleServicio(id, servicioNombre) {
     const bModel = window.PDI?.BeneficiarioModel || BeneficiarioModel;
     const toast = window.PDI?.ToastView || ToastView;
-    const menor = bModel.getById(id);
-    if (!menor) return;
+    const usuario = bModel.getById(id);
+    if (!usuario) return;
 
-    if (!Array.isArray(menor.servicios)) menor.servicios = [];
+    if (!Array.isArray(usuario.servicios)) usuario.servicios = [];
 
     // Resolver nombre canónico oficial
     let canonicalName = servicioNombre;
@@ -596,7 +596,7 @@ export const BeneficiarioController = {
       canonicalName = "Área Social Pastoral";
     }
 
-    const idx = menor.servicios.findIndex(s => {
+    const idx = usuario.servicios.findIndex(s => {
       const sLow = (s || "").toLowerCase();
       if (canonicalName === "Servicio Alimentario Nutricional") {
         return s === canonicalName || sLow.includes("nutric") || sLow.includes("aliment") || sLow.includes("desayuno") || sLow.includes("lonchera");
@@ -612,15 +612,15 @@ export const BeneficiarioController = {
 
     let isAdded = false;
     if (idx !== -1) {
-      menor.servicios.splice(idx, 1);
+      usuario.servicios.splice(idx, 1);
       isAdded = false;
     } else {
-      menor.servicios.push(canonicalName);
+      usuario.servicios.push(canonicalName);
       isAdded = true;
     }
 
     // Actualizar en el modelo y persistir
-    bModel.update(id, { servicios: menor.servicios });
+    bModel.update(id, { servicios: usuario.servicios });
 
     // Sincronizar con CasoSocialModel si es Área Social Pastoral
     if (canonicalName === "Área Social Pastoral") {
@@ -628,21 +628,21 @@ export const BeneficiarioController = {
       if (socialModel) {
         if (isAdded) {
           const listCasos = socialModel.getAll ? socialModel.getAll() : [];
-          const existing = listCasos.find(c => c.beneficiarioId === Number(id) || (c.codigo && c.codigo.toLowerCase() === (menor.codigo || "").toLowerCase()));
+          const existing = listCasos.find(c => c.beneficiarioId === Number(id) || (c.codigo && c.codigo.toLowerCase() === (usuario.codigo || "").toLowerCase()));
           if (!existing) {
             socialModel.addCaso?.({
               beneficiarioId: Number(id),
-              codigo: menor.codigo,
-              menor: `${menor.nombres} ${menor.apellidos}`,
-              sede: menor.sede,
-              distrito: menor.distrito,
+              codigo: usuario.codigo,
+              usuario: `${usuario.nombres} ${usuario.apellidos}`,
+              sede: usuario.sede,
+              distrito: usuario.distrito,
               estado: "Evaluación",
               prioridad: "Alta",
               motivo: "Activación de Área Social Pastoral desde Expediente",
               fecha: new Date().toISOString().split("T")[0],
-              scoreVulnerabilidad: menor.vulnerabilidad || 82,
-              apoderado: menor.apoderado,
-              telefono: menor.telefono
+              scoreVulnerabilidad: usuario.vulnerabilidad || 82,
+              apoderado: usuario.apoderado,
+              telefono: usuario.telefono
             });
           }
         }
@@ -656,8 +656,8 @@ export const BeneficiarioController = {
         "Usuario Activo",
         "Coordinación",
         isAdded ? "Activación de Servicio" : "Desactivación de Servicio",
-        menor.codigo,
-        `${isAdded ? 'Habilitado' : 'Deshabilitado'} servicio "${canonicalName}" para el usuario ${menor.nombres} ${menor.apellidos}`,
+        usuario.codigo,
+        `${isAdded ? 'Habilitado' : 'Deshabilitado'} servicio "${canonicalName}" para el usuario ${usuario.nombres} ${usuario.apellidos}`,
         "Válido"
       );
     }
@@ -666,7 +666,7 @@ export const BeneficiarioController = {
     if (toast) {
       toast.show(
         isAdded ? "Servicio Activado" : "Servicio Desactivado",
-        `${canonicalName} ${isAdded ? 'habilitado para' : 'retirado de'} ${menor.nombres} ${menor.apellidos}`,
+        `${canonicalName} ${isAdded ? 'habilitado para' : 'retirado de'} ${usuario.nombres} ${usuario.apellidos}`,
         isAdded ? "success" : "info"
       );
     }

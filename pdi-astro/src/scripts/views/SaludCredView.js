@@ -3,6 +3,9 @@ import { crear as crearFiltros } from '../utils/Filters.js';
 import { Responsive } from '../utils/Responsive.js';
 
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
+import { AnemiaCalculator } from "../utils/AnemiaCalculator.js";
+import { ToastView } from "./ToastView.js";
+import { AuditModel } from "../models/AuditModel.js";
 import { SEDES_NOMBRES, etiquetaSede } from "../core/catalogos.js";
 // Filtros del modulo CRED que viajan en la URL. Valores tomados de los
 // desplegables de salud.html.
@@ -417,6 +420,7 @@ export const SaludCredView = {
 
     this._renderActiveChips();
     this._renderTableAndCards(list);
+    this._pintarDashboard();
   },
 
   _renderActiveChips() {
@@ -503,7 +507,7 @@ export const SaludCredView = {
       const emptyHtml = `
         <tr>
           <td colspan="7" style="text-align: center; padding: 36px 16px;">
-            <div style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; background: var(--gt-green-bg, rgba(52, 211, 153, 0.12)); display: flex; align-items: center; justify-content: center; color: var(--text-brand, #34d399);">
+            <div style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; background: var(--gt-green-bg); display: flex; align-items: center; justify-content: center; color: var(--text-brand);">
               <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
               </svg>
@@ -521,7 +525,7 @@ export const SaludCredView = {
       if (mobileContainer && enMovil) {
         mobileContainer.innerHTML = `
           <div style="text-align: center; padding: 36px 16px; background: var(--surface-1); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-top: 8px;">
-            <div style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; background: var(--gt-green-bg, rgba(52, 211, 153, 0.12)); display: flex; align-items: center; justify-content: center; color: var(--text-brand, #34d399);">
+            <div style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; background: var(--gt-green-bg); display: flex; align-items: center; justify-content: center; color: var(--text-brand);">
               <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
               </svg>
@@ -539,6 +543,7 @@ export const SaludCredView = {
 
     if (tbody && !enMovil) {
       tbody.innerHTML = pageItems.map(b => {
+        const nTamizajes = Array.isArray(b.tamizajes) ? b.tamizajes.length : 0;
         let badgeClass = "badge-green";
         if (b.anemia === "Leve") badgeClass = "badge-yellow";
         if (b.anemia === "Moderada" || b.anemia === "Severa") badgeClass = "badge-red";
@@ -548,16 +553,23 @@ export const SaludCredView = {
             <td><strong>${escapar(b.nombres)} ${escapar(b.apellidos)}</strong><div style="font-size:11.5px; color:var(--text-dim); font-family:var(--mono-font);">${escapar(b.codigo)}</div></td>
             <td>${escapar(b.edad)}</td>
             <td>${escapar(b.peso)} kg / ${escapar(b.talla)} cm</td>
-            <td><strong style="font-family:var(--mono-font);">${escapar(b.hb)} g/dL</strong></td>
+            <td><strong style="font-family:var(--mono-font);">${escapar(b.hb)} g/dL</strong>${this._chipTendenciaHb(b)}${nTamizajes > 1 ? `<div style="font-size:11px; color:var(--text-dim); margin-top:2px;">${nTamizajes} pruebas registradas</div>` : ''}</td>
             <td><span class="badge ${badgeClass}">${escapar(b.anemia)}</span></td>
             <td>${b.anemia !== "Normal" ? "Sulfato Ferroso 1 dosis/día" : "Dieta Preventiva"}</td>
             <td>
               <div class="row-actions">
-                <button type="button" class="row-action" onclick="window.openExpediente(${escaparEnManejador(b.id)})" title="Ver historial CRED" aria-label="Ver historial CRED">
+                <button type="button" class="row-action" onclick="window.openHistorialTamizaje ? window.openHistorialTamizaje(${escaparEnManejador(b.id)}) : window.openExpediente(${escaparEnManejador(b.id)})" title="Historial de tamizajes de hemoglobina" aria-label="Ver historial de tamizajes de hemoglobina">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M2.25 12S5.75 5.25 12 5.25 21.75 12 21.75 12 18.25 18.75 12 18.75 2.25 12 2.25 12Z" />
                     <circle cx="12" cy="12" r="3.25" />
                     <circle cx="12" cy="12" r="1.05" fill="currentColor" stroke="none" />
+                  </svg>
+                </button>
+                <button type="button" class="row-action" onclick="window.openExpediente(${escaparEnManejador(b.id)})" title="Abrir expediente integral" aria-label="Abrir expediente integral">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                    <path d="M14 2v6h6" />
+                    <path d="M9 15h6" />
                   </svg>
                 </button>
               </div>
@@ -569,6 +581,7 @@ export const SaludCredView = {
 
     if (mobileContainer && enMovil) {
       mobileContainer.innerHTML = pageItems.map(b => {
+        const nTamizajes = Array.isArray(b.tamizajes) ? b.tamizajes.length : 0;
         let badgeClass = "badge-green";
         if (b.anemia === "Leve") badgeClass = "badge-yellow";
         if (b.anemia === "Moderada" || b.anemia === "Severa") badgeClass = "badge-red";
@@ -615,12 +628,12 @@ export const SaludCredView = {
                   <span class="datacard-value">${b.anemia !== "Normal" ? "Sulfato Ferroso 1 dosis/día" : "Dieta Preventiva"}</span>
                 </div>
                 <div class="datacard-actions-footer">
-                  <button type="button" class="btn-action primary" style="width:100%; justify-content:center;" onclick="event.stopPropagation(); window.openExpediente(${escaparEnManejador(b.id)})">
+                  <button type="button" class="btn-action primary" style="width:100%; justify-content:center;" onclick="event.stopPropagation(); window.openHistorialTamizaje ? window.openHistorialTamizaje(${escaparEnManejador(b.id)}) : window.openExpediente(${escaparEnManejador(b.id)})">
                     <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:6px;">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12S5.75 5.25 12 5.25 21.75 12 21.75 12 18.25 18.75 12 18.75 2.25 12 2.25 12Z" />
+                      <circle cx="12" cy="12" r="3.25" />
                     </svg>
-                    Ver Historial CRED Completo
+                    Historial de Tamizajes (Hb)
                   </button>
                 </div>
               </div>
@@ -651,19 +664,664 @@ export const SaludCredView = {
     }
   },
 
-  toggleCalculadora() {
-    const card = document.getElementById("cardCalculadoraCred");
-    const body = document.getElementById("credCalcBody");
-    const badgeState = document.getElementById("credCalcBadgeState");
-    if (!body) return;
+  // ---------------------------------------------------------------------------
+  //  Historial de tamizajes de hemoglobina (modal)
+  // ---------------------------------------------------------------------------
+  /**
+   * Abre el modal con la linea de tiempo de tamizajes del usuario. Los datos
+   * ya viajan con el padron (b.tamizajes), no hay segunda consulta: el modal
+   * pinta lo que la vista ya tenia.
+   */
+  openHistorialTamizaje(id) {
+    const num = Number(id);
+    const b = this._allBeneficiarios.find(x => x.id === num)
+      || (window.PDI?.BeneficiarioModel?.getById ? window.PDI.BeneficiarioModel.getById(num) : null);
+    if (!b) return;
 
-    const isHidden = body.style.display === "none";
-    body.style.display = isHidden ? "block" : "none";
-    if (card) {
-      card.classList.toggle("open", isHidden);
+    // Cada apertura arranca con el formulario recogido y el usuario fijado.
+    this._pruebaUsuarioId = num;
+    this._ocultarFormularioNuevaPrueba();
+
+    const setTxt = (elId, val) => {
+      const el = document.getElementById(elId);
+      if (el) el.textContent = val || "-";
+    };
+    setTxt("histTamUsuarioNombre", `${b.nombres} ${b.apellidos}`);
+    setTxt("histTamUsuarioCodigo", b.codigo);
+    setTxt("histTamUsuarioSede", b.sede);
+
+    const listado = document.getElementById("histTamListado");
+    if (listado) listado.innerHTML = this._renderTamizajes(b);
+
+    const modal = document.getElementById("modalHistorialTamizaje");
+    if (!modal) return;
+    modal.removeAttribute("inert");
+    modal.removeAttribute("aria-hidden");
+    modal.classList.add("open");
+  },
+
+  /**
+   * Chip de avance junto al valor de Hb de la tabla: compara las dos pruebas
+   * activas mas recientes. La flecha sigue la direccion del valor de Hb (sube
+   * = mejora en verde, baja = empeora en rojo). Sin dos pruebas no hay
+   * tendencia y no se pinta nada.
+   */
+  _chipTendenciaHb(b) {
+    const tams = Array.isArray(b.tamizajes) ? b.tamizajes.filter(t => t.hb != null) : [];
+    if (tams.length < 2) return "";
+    const ult = Number(tams[0].hb);
+    const prev = Number(tams[1].hb);
+    if (isNaN(ult) || isNaN(prev)) return "";
+    const delta = Number((ult - prev).toFixed(1));
+    const prevTxt = escapar(prev);
+    if (delta === 0) {
+      return ` <span title="Sin cambio frente a la prueba anterior (${prevTxt} g/dL)" style="font-size:11px; font-weight:700; color:var(--text-muted);">(igual)</span>`;
     }
-    if (badgeState) {
-      badgeState.textContent = isHidden ? "Ocultar" : "Desplegar";
+    const mejora = delta > 0; // subir Hb es mejorar
+    const color = mejora ? "var(--text-success)" : "var(--text-danger)";
+    const signo = mejora ? "▲" : "▼";
+    return ` <span title="Prueba anterior: ${prevTxt} g/dL" style="font-size:11px; font-weight:800; color:${color}; white-space:nowrap;">${signo} ${Math.abs(delta)}</span>`;
+  },
+
+  /**
+   * Mini-grafica SVG de la evolucion de la Hb en el modal de historial.
+   * La lista llega de la nube con la mas reciente primero, aqui se invierte a
+   * orden cronologico. Con menos de dos puntos no hay evolucion y no se pinta.
+   * La linea punteada marca 11.0 g/dL (umbral MINSA); cada punto lleva el
+   * color de su semaforo y el ultimo se resalta con su valor.
+   */
+  _sparklineHb(registros) {
+    const puntos = registros
+      .filter(t => t.hb != null && !isNaN(Number(t.hb)))
+      .slice()                       // copia: no revolvemos la lista del modal
+      .reverse();                    // cronologico: mas antiguo → mas reciente
+    if (puntos.length < 2) return "";
+
+    const cont = document.getElementById("histTamListado");
+    const w = Math.max(220, Math.min(520, (cont && cont.clientWidth ? cont.clientWidth : 360) - 48));
+    const h = 76;
+    const izq = 10, der = 46, arriba = 10, abajo = 20; // margen der para la etiqueta final
+    const ancho = w - izq - der, alto = h - arriba - abajo;
+
+    const vals = puntos.map(t => Number(t.hb));
+    let lo = Math.min(...vals, 11);
+    let hi = Math.max(...vals, 11);
+    const holgura = Math.max((hi - lo) * 0.18, 0.6);
+    lo = Math.max(0, lo - holgura);
+    hi = hi + holgura;
+
+    const px = i => izq + (i * ancho) / (puntos.length - 1);
+    const py = v => arriba + ((hi - v) / (hi - lo)) * alto;
+
+    const linea = vals.map((v, i) => `${px(i).toFixed(1)},${py(v).toFixed(1)}`).join(' ');
+    const y11 = py(11).toFixed(1);
+    const y11Visible = 11 >= lo && 11 <= hi;
+
+    const puntosSvg = puntos.map((t, i) => {
+      const calc = AnemiaCalculator.calculate(vals[i]);
+      const fecha = t.fecha ? new Date(t.fecha) : null;
+      const fechaTxt = fecha && !isNaN(fecha.getTime())
+        ? fecha.toLocaleDateString("es-PE", { day: "2-digit", month: "short" })
+        : "sin fecha";
+      const esUltimo = i === puntos.length - 1;
+      return `
+        <circle cx="${px(i).toFixed(1)}" cy="${py(vals[i]).toFixed(1)}" r="${esUltimo ? 4.5 : 2.8}"
+          fill="${calc.color}" ${esUltimo ? 'stroke="var(--surface-1)" stroke-width="1.5"' : ''}>
+          <title>${escapar(fechaTxt)}: ${escapar(vals[i])} g/dL — ${escapar(calc.label)}</title>
+        </circle>`;
+    }).join('');
+
+    const ultimo = vals[vals.length - 1];
+    const etiquetaFinal = `
+      <text x="${(w - der + 6).toFixed(1)}" y="${(py(ultimo) + 3.5).toFixed(1)}"
+        font-size="10.5" font-weight="800" font-family="var(--mono-font)"
+        fill="${AnemiaCalculator.calculate(ultimo).color}">${escapar(ultimo)}</text>`;
+
+    return `
+      <div style="background:var(--surface-2); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); padding:12px 14px 8px; margin-bottom:6px;">
+        <div style="font-size:11px; text-transform:uppercase; font-weight:700; color:var(--text-dim); letter-spacing:0.5px; margin-bottom:4px;">
+          Evolución de Hb (g/dL) · ${puntos.length} pruebas${y11Visible ? " · línea punteada = 11.0" : ""}
+        </div>
+        <svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="Evolución del valor de hemoglobina">
+          ${y11Visible ? `<line x1="${izq}" y1="${y11}" x2="${(w - der).toFixed(1)}" y2="${y11}" stroke="var(--text-success)" stroke-width="1" stroke-dasharray="3 3" opacity="0.7" />` : ""}
+          <polyline points="${linea}" fill="none" stroke="var(--text-brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          ${puntosSvg}
+          ${etiquetaFinal}
+        </svg>
+      </div>`;
+  },
+
+  /**
+   * Filas del historial, la mas reciente primero (orden con el que la nube
+   * entrega la lista). Si el usuario no trae lista padronizada (datos viejos
+   * de seed), el valor unico del padron se presenta como unico punto.
+   */
+  _renderTamizajes(b) {
+    const registros = Array.isArray(b.tamizajes) && b.tamizajes.length
+      ? b.tamizajes
+      : (b.hb != null ? [{ fecha: "", hb: b.hb, anemia: b.anemia, peso: b.peso, talla: b.talla }] : []);
+
+    if (registros.length === 0) {
+      return `
+        <div style="text-align:center; padding:30px 16px; color:var(--text-muted); font-size:12.5px;">
+          Sin tamizajes de hemoglobina registrados para este usuario.
+        </div>`;
+    }
+
+    return this._sparklineHb(registros) + registros.map((t, idx) => {
+      const calc = AnemiaCalculator.calculate(t.hb);
+      const fecha = t.fecha ? new Date(t.fecha) : null;
+      const fechaTxt = fecha && !isNaN(fecha.getTime())
+        ? fecha.toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" })
+        : "Fecha no registrada";
+      const ptTxt = (t.peso != null || t.talla != null)
+        ? `${t.peso != null ? `${escapar(t.peso)} kg` : '—'} / ${t.talla != null ? `${escapar(t.talla)} cm` : '—'}`
+        : "No registrados en la prueba";
+      const borde = idx < registros.length - 1 ? " border-bottom:1px solid var(--border-subtle);" : "";
+
+      return `
+        <div style="display:flex; align-items:flex-start; gap:12px; padding:12px 4px;${borde}">
+          <div style="width:10px; height:10px; border-radius:50%; margin-top:5px; flex-shrink:0; background:${calc.color};"></div>
+          <div style="flex:1; min-width:0;">
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span style="font-size:12.5px; font-weight:700; color:var(--text-main); font-family:var(--mono-font);">${escapar(t.hb)} g/dL</span>
+              <span class="badge ${calc.badgeClass}">${escapar(calc.label)}</span>
+              ${idx === 0 ? `<span class="badge badge-blue">Última prueba</span>` : ""}
+            </div>
+            <div style="font-size:11.5px; color:var(--text-muted); margin-top:3px;">${escapar(fechaTxt)}</div>
+            <div style="font-size:11.5px; color:var(--text-dim); margin-top:3px;">
+              <span style="font-weight:600; color:var(--text-dim);">Acción sugerida:</span> ${escapar(calc.accion)}
+            </div>
+            ${t._tamizajeId ? `
+              <div style="margin-top:6px;">
+                <button type="button"
+                  onclick="window.abrirMotivoDesactivar ? window.abrirMotivoDesactivar(${idx}) : null"
+                  style="background:none; border:none; padding:0; color:var(--text-danger); font-size:11px; cursor:pointer; text-decoration:underline dotted;">
+                  Desactivar esta prueba
+                </button>
+              </div>
+              <div id="tamDesact_${idx}" style="display:none; margin-top:8px; gap:8px; flex-wrap:wrap; align-items:center; background:var(--surface-2); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); padding:10px 12px;">
+                <input id="tamDesactMotivo_${idx}" type="text" class="form-control" maxlength="140"
+                  style="flex:1 1 180px; min-width:150px; margin:0; font-size:12px;"
+                  placeholder="Motivo (obligatorio), p. ej. captura errónea"
+                  onkeydown="if (event.key === 'Enter' &amp;&amp; window.confirmarDesactivarPrueba) window.confirmarDesactivarPrueba(${idx});" />
+                <button type="button" class="btn-action primary" style="font-size:11.5px;"
+                  onclick="window.confirmarDesactivarPrueba ? window.confirmarDesactivarPrueba(${idx}) : null">Confirmar</button>
+                <button type="button" class="btn-action btn-secondary" style="font-size:11.5px;"
+                  onclick="window.ocultarMotivoDesactivar ? window.ocultarMotivoDesactivar(${idx}) : null">Cancelar</button>
+              </div>` : ""}
+          </div>
+          <div style="flex-shrink:0; text-align:right; font-size:11.5px; color:var(--text-muted); font-family:var(--mono-font); line-height:1.5;">
+            <div>${ptTxt}</div>
+          </div>
+        </div>
+      `;
+    }).join("");
+  },
+
+  closeModalHistorialTamizaje() {
+    const modal = document.getElementById("modalHistorialTamizaje");
+    if (!modal) return;
+    this._ocultarFormularioNuevaPrueba();
+    this._pruebaUsuarioId = null;
+    modal.classList.remove("open");
+    modal.setAttribute("inert", "");
+    modal.setAttribute("aria-hidden", "true");
+  },
+
+  // ---------------------------------------------------------------------------
+  //  Añadir prueba de hemoglobina (append-only)
+  // ---------------------------------------------------------------------------
+  /** Despliega el formulario de nueva prueba del usuario del modal abierto. */
+  mostrarFormularioNuevaPrueba() {
+    if (!this._pruebaUsuarioId) return;
+    const form = document.getElementById("formNuevaPrueba");
+    if (!form) return;
+    form.style.display = "flex";
+
+    const fechaInput = document.getElementById("nuevaPruebaFecha");
+    if (fechaInput) {
+      const hoy = new Date();
+      const hoyStr = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}-${String(hoy.getDate()).padStart(2, "0")}`;
+      fechaInput.max = hoyStr;
+      fechaInput.value = hoyStr;
+    }
+    ["nuevaPruebaHb", "nuevaPruebaPeso", "nuevaPruebaTalla"].forEach(idEl => {
+      const campo = document.getElementById(idEl);
+      if (campo) campo.value = "";
+    });
+    this._actualizarPreviewNuevaPrueba();
+    form.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  },
+
+  /** Recoge el formulario sin perder el listado ni el usuario activo. */
+  _ocultarFormularioNuevaPrueba() {
+    const form = document.getElementById("formNuevaPrueba");
+    if (form) form.style.display = "none";
+  },
+
+  /** Semáforo MINSA en vivo mientras se digita el valor de Hb. */
+  _actualizarPreviewNuevaPrueba() {
+    const campo = document.getElementById("nuevaPruebaHb");
+    const diagEl = document.getElementById("nuevaPruebaPreviewDiagnostico");
+    const accionEl = document.getElementById("nuevaPruebaPreviewAccion");
+    if (!campo || !diagEl || !accionEl) return;
+
+    const calc = AnemiaCalculator.calculate(campo.value);
+    const vacio = String(campo.value).trim() === "";
+    diagEl.textContent = vacio ? "—" : calc.label;
+    diagEl.style.color = vacio ? "var(--text-muted)" : calc.color;
+    accionEl.textContent = vacio
+      ? "Ingrese el valor de Hb para calcular la clasificación y la acción sugerida."
+      : `Acción: ${calc.accion}`;
+  },
+
+  /**
+   * Valida y registra el dosaje. Reglas: fecha obligatoria no futura y sin
+   * duplicar un día ya registrado para el usuario; Hb obligatoria dentro del
+   * rango clinicamente plausible (3-20 g/dL); peso y talla opcionales.
+   */
+  async guardarNuevaPrueba() {
+    const b = this._allBeneficiarios.find(x => x.id === this._pruebaUsuarioId)
+      || (window.PDI?.BeneficiarioModel?.getById ? window.PDI.BeneficiarioModel.getById(this._pruebaUsuarioId) : null);
+    if (!b) return;
+
+    const valorDe = id => document.getElementById(id);
+    const fechaStr = (valorDe("nuevaPruebaFecha") || {}).value || "";
+    const pesoRaw = (valorDe("nuevaPruebaPeso") || {}).value || "";
+    const tallaRaw = (valorDe("nuevaPruebaTalla") || {}).value || "";
+    const hbVal = parseFloat((valorDe("nuevaPruebaHb") || {}).value);
+
+    const aviso = (titulo, msg) => {
+      (window.PDI?.ToastView || ToastView).show(titulo, msg, "danger");
+    };
+
+    if (!fechaStr) return aviso("Falta la fecha", "Indica la fecha en que se tomó el dosaje.");
+    if (new Date(`${fechaStr}T23:59:59`) > new Date()) return aviso("Fecha futura", "El dosaje se registra con fecha igual o anterior a hoy.");
+    if (Array.isArray(b.tamizajes) && b.tamizajes.some(t => String(t.fecha || "").slice(0, 10) === fechaStr)) {
+      return aviso("Fecha duplicada", "Ya existe una prueba registrada para ese día; completa el formulario con otra fecha.");
+    }
+    if (isNaN(hbVal) || hbVal < 3 || hbVal > 20) {
+      return aviso("Hemoglobina fuera de rango", "El valor debe estar entre 3.0 y 20.0 g/dL (rango clínicamente plausible).");
+    }
+    const pesoVal = parseFloat(pesoRaw);
+    if (pesoRaw !== "" && (isNaN(pesoVal) || pesoVal <= 0 || pesoVal > 60)) {
+      return aviso("Peso inválido", "Si se registra el peso, debe estar entre 0.1 y 60 kg.");
+    }
+    const tallaVal = parseFloat(tallaRaw);
+    if (tallaRaw !== "" && (isNaN(tallaVal) || tallaVal <= 0 || tallaVal > 180)) {
+      return aviso("Talla inválida", "Si se registra la talla, debe estar entre 0.1 y 180 cm.");
+    }
+
+    const calc = AnemiaCalculator.calculate(hbVal);
+    const esNormal = calc.label.includes("Normal");
+    const prueba = {
+      fecha: fechaStr,
+      hb: hbVal,
+      resultado: esNormal ? "Normal" : calc.label.toLowerCase(), // "Anemia leve" | "Anemia moderada" | "Anemia severa"
+      anemia: esNormal ? "Normal" : calc.label,
+      peso: pesoRaw !== "" ? pesoVal : null,
+      talla: tallaRaw !== "" ? tallaVal : null,
+    };
+
+    window.PDI?.BeneficiarioModel?.registrarTamizaje(b.id, prueba);
+    this._ocultarFormularioNuevaPrueba();
+    this.applyFilters(); // la fila del padron pasa al nuevo valor vigente
+
+    const listado = document.getElementById("histTamListado");
+    if (listado) listado.innerHTML = this._renderTamizajes(b);
+
+    // Bitácora: los filtros de auditoria ya reconocen la accion "Tamizaje".
+    const rol = localStorage.getItem("pdi_active_role") || "facilitadora";
+    const cargo = rol === "admin"
+      ? "Administrador de Sistemas TI"
+      : (rol === "coord" ? "Dirección y Coordinación General" : "Facilitadora Nutricional");
+    const audit = window.PDI?.AuditModel || AuditModel;
+    if (audit) {
+      audit.log(
+        localStorage.getItem("pdi_usuario_nombre") || "Especialista Salud PDI",
+        cargo,
+        "Tamizaje CRED Registrado",
+        b.codigo,
+        `Nuevo dosaje de hemoglobina: ${b.nombres} ${b.apellidos} → ${prueba.hb} g/dL (${calc.label}).`,
+        "Válido"
+      );
+    }
+    (window.PDI?.ToastView || ToastView).show(
+      "Prueba Registrada",
+      `Dosaje de ${b.nombres} ${b.apellidos}: ${prueba.hb} g/dL (${calc.label}).`,
+      "success"
+    );
+
+    // La nube confirma la escritura y realinea ids y fechas canonicas.
+    try {
+      if (window.PDI?.DB?.refrescarDesdeNube) await window.PDI.DB.refrescarDesdeNube();
+      const vigente = window.PDI?.BeneficiarioModel?.getById(b.id) || b;
+      if (document.getElementById("modalHistorialTamizaje")?.classList.contains("open")) {
+        const listaViva = document.getElementById("histTamListado");
+        if (listaViva) listaViva.innerHTML = this._renderTamizajes(vigente);
+      }
+    } catch (e) {
+      // La interfaz ya refleja el cambio optimista; la siguiente hidratacion corrige.
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  //  Desactivar prueba (soft delete) y exportación del historial
+  // ---------------------------------------------------------------------------
+  /** Abre el panel de motivo de desactivación de la fila idx del listado. */
+  abrirMotivoDesactivar(idx) {
+    const panel = document.getElementById(`tamDesact_${idx}`);
+    if (!panel) return;
+    panel.style.display = "flex";
+    const campo = document.getElementById(`tamDesactMotivo_${idx}`);
+    if (campo) { campo.value = ""; campo.focus(); }
+  },
+
+  /** Recoge el panel de motivo sin tocar la fila. */
+  ocultarMotivoDesactivar(idx) {
+    const panel = document.getElementById(`tamDesact_${idx}`);
+    if (panel) panel.style.display = "none";
+  },
+
+  /**
+   * Confirma la desactivación: motivo obligatorio (queda en la bitácora, que
+   * es el registro inalterable), la fila sale del historial (optimista) y la
+   * nube la marca activo = false. Solo procede si la fila trae id canónico.
+   */
+  async confirmarDesactivarPrueba(idx) {
+    const b = this._allBeneficiarios.find(x => x.id === this._pruebaUsuarioId)
+      || (window.PDI?.BeneficiarioModel?.getById ? window.PDI.BeneficiarioModel.getById(this._pruebaUsuarioId) : null);
+    if (!b || !Array.isArray(b.tamizajes)) return;
+
+    const fila = b.tamizajes[idx];
+    if (!fila || !fila._tamizajeId) return; // fila sin id canonico (datos seed)
+
+    const motivo = ((document.getElementById(`tamDesactMotivo_${idx}`) || {}).value || "").trim();
+    if (motivo.length < 4) {
+      (window.PDI?.ToastView || ToastView).show(
+        "Falta el motivo", "Describe por qué se desactiva la prueba (mínimo 4 caracteres).", "danger");
+      return;
+    }
+
+    const fecha = fila.fecha ? new Date(fila.fecha) : null;
+    const fechaTxt = fecha && !isNaN(fecha.getTime())
+      ? fecha.toLocaleDateString("es-PE", { day: "2-digit", month: "long", year: "numeric" })
+      : "fecha no registrada";
+
+    window.PDI?.BeneficiarioModel?.desactivarTamizaje(b.id, fila._tamizajeId);
+
+    // Bitácora: el motivo vive aqui, en el registro inalterable de auditoría.
+    const rol = localStorage.getItem("pdi_active_role") || "facilitadora";
+    const cargo = rol === "admin"
+      ? "Administrador de Sistemas TI"
+      : (rol === "coord" ? "Dirección y Coordinación General" : "Facilitadora Nutricional");
+    const audit = window.PDI?.AuditModel || AuditModel;
+    if (audit) {
+      audit.log(
+        localStorage.getItem("pdi_usuario_nombre") || "Especialista Salud PDI",
+        cargo,
+        "Tamizaje CRED Desactivado",
+        b.codigo,
+        `Prueba del ${fechaTxt} (${fila.hb} g/dL) desactivada. Motivo: ${motivo}`,
+        "Válido"
+      );
+    }
+    (window.PDI?.ToastView || ToastView).show(
+      "Prueba Desactivada",
+      `La prueba del ${fechaTxt} ya no cuenta para el historial de ${b.nombres} ${b.apellidos}.`,
+      "success"
+    );
+
+    const listado = document.getElementById("histTamListado");
+    if (listado) listado.innerHTML = this._renderTamizajes(b);
+    this.applyFilters(); // la fila del padron pasa a su valor vigente real
+
+    try {
+      if (window.PDI?.DB?.refrescarDesdeNube) await window.PDI.DB.refrescarDesdeNube();
+      const vigente = window.PDI?.BeneficiarioModel?.getById(b.id) || b;
+      if (document.getElementById("modalHistorialTamizaje")?.classList.contains("open")) {
+        const listaViva = document.getElementById("histTamListado");
+        if (listaViva) listaViva.innerHTML = this._renderTamizajes(vigente);
+      }
+    } catch (e) {
+      // La interfaz ya reflejó el cambio optimista; la siguiente hidratacion corrige.
+    }
+  },
+
+  /** Escapa una celda CSV (separador ';' compatible con Excel en español). */
+  _csvCelda(valor) {
+    const s = valor == null ? "" : String(valor);
+    return /[";\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  },
+
+  /**
+   * Exporta el historial visible del usuario como .csv (UTF-8 con BOM, punto y
+   * coma: lo abre Excel directo en es-PE). Una fila por prueba activa.
+   */
+  exportarHistorialCsv() {
+    const b = this._allBeneficiarios.find(x => x.id === this._pruebaUsuarioId)
+      || (window.PDI?.BeneficiarioModel?.getById ? window.PDI.BeneficiarioModel.getById(this._pruebaUsuarioId) : null);
+    if (!b) return;
+    const regs = Array.isArray(b.tamizajes) && b.tamizajes.length
+      ? b.tamizajes
+      : (b.hb != null ? [{ fecha: "", hb: b.hb, hbAjustada: null, peso: b.peso, talla: b.talla }] : []);
+    if (regs.length === 0) {
+      (window.PDI?.ToastView || ToastView).show(
+        "Sin datos", "Este usuario no tiene pruebas activas que exportar.", "info");
+      return;
+    }
+
+    const filas = [[
+      "Fecha", "Hemoglobina (g/dL)", "Hb ajustada (g/dL)", "Peso (kg)", "Talla (cm)",
+      "Diagnóstico MINSA", "Acción sugerida",
+    ]];
+    regs.forEach(t => {
+      const calc = AnemiaCalculator.calculate(t.hb);
+      const fecha = t.fecha ? new Date(t.fecha) : null;
+      filas.push([
+        fecha && !isNaN(fecha.getTime()) ? fecha.toISOString().slice(0, 10) : "",
+        t.hb ?? "", t.hbAjustada ?? "", t.peso ?? "", t.talla ?? "",
+        calc.label, calc.accion,
+      ]);
+    });
+
+    const csv = "\uFEFF" + filas.map(f => f.map(v => this._csvCelda(v)).join(";")).join("\r\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `tamizajes_${String(b.codigo || "usuario").replace(/[^\w-]+/g, "_")}_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 400);
+
+    (window.PDI?.ToastView || ToastView).show(
+      "Historial Exportado",
+      `${filas.length - 1} prueba(s) de ${b.nombres} ${b.apellidos} en archivo CSV.`,
+      "success"
+    );
+  },
+
+  // ---------------------------------------------------------------------------
+  //  Panel rápido CRED · semáforo MINSA + KPIs
+  // ---------------------------------------------------------------------------
+  /**
+   * Pinta el panel rápido: anillo de distribución, leyenda y 4 KPIs. Las
+   * cifras salen del padrón completo (no de la tabla filtrada) y el estado de
+   * los filtros se refleja en leyenda y KPI.
+   *
+   * Se construye una sola vez (arcs y leyenda conservan su animación de
+   * entrada); después solo actualiza cifras, largos de arco y estados. Corre
+   * al final de applyFilters, así que todos los caminos de filtrado quedan
+   * sincronizados sin código extra en cada acción.
+   */
+  _pintarDashboard() {
+    const root = document.getElementById("dashRapido");
+    if (!root) return;
+    const lista = Array.isArray(this._allBeneficiarios) ? this._allBeneficiarios : [];
+
+    const CLASES = [
+      { key: "Normal",   color: "var(--gt-green)",  rango: "≥ 11.0",   opacidad: 1 },
+      { key: "Leve",     color: "var(--gt-yellow)", rango: "10.0–10.9", opacidad: 1 },
+      { key: "Moderada", color: "var(--gt-red)",    rango: "7.0–9.9",  opacidad: 0.6 },
+      { key: "Severa",   color: "var(--gt-red)",    rango: "< 7.0",    opacidad: 1 },
+    ];
+    const cuenta = { Normal: 0, Leve: 0, Moderada: 0, Severa: 0 };
+    let conDato = 0;
+    let sumaHb = 0;
+    let nHb = 0;
+    const hoy = new Date();
+    let pruebasMes = 0;
+
+    lista.forEach(b => {
+      if (Object.prototype.hasOwnProperty.call(cuenta, b.anemia)) {
+        cuenta[b.anemia]++;
+        conDato++;
+      }
+      const hb = parseFloat(b.hb);
+      if (!isNaN(hb)) {
+        sumaHb += hb;
+        nHb++;
+      }
+      if (Array.isArray(b.tamizajes)) {
+        b.tamizajes.forEach(t => {
+          const f = t.fecha ? new Date(t.fecha) : null;
+          if (f && !isNaN(f.getTime())
+            && f.getMonth() === hoy.getMonth() && f.getFullYear() === hoy.getFullYear()) {
+            pruebasMes++;
+          }
+        });
+      }
+    });
+
+    const pctSinAnemia = conDato > 0 ? Math.round((cuenta.Normal / conDato) * 100) : null;
+    const conAnemia = conDato - cuenta.Normal;
+    const pctConAnemia = conDato > 0 ? Math.round((conAnemia / conDato) * 100) : null;
+    const promedio = nHb > 0 ? Math.round((sumaHb / nHb) * 10) / 10 : null;
+    const mesNombre = hoy.toLocaleDateString("es-PE", { month: "long" });
+
+    // --- Anillo: arcos proporcionales con separación fija entre segmentos ---
+    const R = 66;
+    const C = 2 * Math.PI * R;
+    const GAP = 3;
+    const grupo = document.getElementById("dashDonutArcs");
+    if (grupo && grupo.childElementCount === 0) {
+      grupo.innerHTML = CLASES.map((c, i) => `
+        <circle class="dash-arc" id="dashArc${c.key}" cx="84" cy="84" r="${R}"
+          stroke="${c.color}" stroke-opacity="${c.opacidad}"
+          style="--dash-arc-delay:${240 + i * 90}ms;">
+          <title>${c.key}</title>
+        </circle>`).join("");
+    }
+
+    let avance = 0;
+    CLASES.forEach(c => {
+      const arco = document.getElementById(`dashArc${c.key}`);
+      if (!arco) return;
+      const frac = conDato > 0 ? cuenta[c.key] / conDato : 0;
+      const largo = frac > 0 ? Math.max(frac * C - GAP, 1) : 0;
+      arco.setAttribute("stroke-dasharray", `${largo.toFixed(2)} ${(C - largo).toFixed(2)}`);
+      arco.setAttribute("stroke-dashoffset", (-avance).toFixed(2));
+      const titulo = arco.querySelector("title");
+      if (titulo) {
+        titulo.textContent = `${c.key} (${c.rango} g/dL): ${cuenta[c.key]} · ${conDato ? Math.round(frac * 100) : 0}%`;
+      }
+      avance += frac * C;
+    });
+
+    const pctEl = document.getElementById("dashDonutPct");
+    if (pctEl) pctEl.textContent = pctSinAnemia != null ? `${pctSinAnemia}%` : "—";
+    const svg = document.getElementById("dashDonut");
+    if (svg) {
+      svg.setAttribute("aria-label", conDato > 0
+        ? `Distribución por semáforo MINSA: ${cuenta.Normal} Normal, ${cuenta.Leve} Leve, ${cuenta.Moderada} Moderada y ${cuenta.Severa} Severa; ${pctSinAnemia}% sin anemia.`
+        : "Distribución por semáforo MINSA: sin diagnósticos registrados.");
+    }
+
+    // --- Leyenda: se construye una sola vez; luego solo cifras y estados ---
+    const leyenda = document.getElementById("dashLeyenda");
+    if (leyenda && leyenda.childElementCount === 0) {
+      leyenda.innerHTML = CLASES.map((c, i) => `
+        <button type="button" class="dash-leyenda-item" data-clase="${c.key}"
+          style="--dash-seg:${c.color}; --dash-legend-delay:${340 + i * 80}ms;"
+          aria-pressed="false"
+          title="Filtrar la tabla por ${c.key.toLowerCase()}"
+          onclick="window.dashboardFiltrar ? window.dashboardFiltrar('clase', '${c.key}') : null">
+          <span class="dash-leyenda-dot" aria-hidden="true"></span>
+          <span class="dash-leyenda-name">${c.key} <span class="dash-leyenda-rango">${c.rango}</span></span>
+          <span class="dash-leyenda-count" id="dashCuenta${c.key}">0</span>
+          <span class="dash-leyenda-pct" id="dashPct${c.key}">0%</span>
+        </button>`).join("");
+    }
+    CLASES.forEach(c => {
+      const cuentaEl = document.getElementById(`dashCuenta${c.key}`);
+      const pctItem = document.getElementById(`dashPct${c.key}`);
+      const item = leyenda ? leyenda.querySelector(`[data-clase="${c.key}"]`) : null;
+      if (cuentaEl) cuentaEl.textContent = String(cuenta[c.key]);
+      if (pctItem) pctItem.textContent = conDato > 0 ? `${Math.round((cuenta[c.key] / conDato) * 100)}%` : "0%";
+      if (item) {
+        // Un filtro «Moderada» también muestra filas severas, por eso las dos
+        // se encienden juntas; «Severa» aislada solo enciende la severa.
+        const activo = this._filterAnemia.includes(c.key)
+          || (c.key === "Severa" && this._filterAnemia.includes("Moderada"));
+        item.setAttribute("aria-pressed", activo ? "true" : "false");
+      }
+    });
+
+    // --- KPIs ---
+    const setTxt = (id, txt) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = txt;
+    };
+    setTxt("dashKpiCarteraVal", String(lista.length));
+    setTxt("dashKpiCarteraNote", conDato > 0
+      ? `${conDato} con diagnóstico activo`
+      : "Sin diagnósticos registrados");
+    setTxt("dashKpiAnemiaVal", String(conAnemia));
+    setTxt("dashKpiAnemiaNote", pctConAnemia != null
+      ? `${pctConAnemia}% de los diagnosticados`
+      : "Hb menor a 11.0 g/dL");
+    setTxt("dashKpiHbVal", promedio != null ? promedio.toFixed(1) : "—");
+    const hbEl = document.getElementById("dashKpiHbVal");
+    if (hbEl) {
+      hbEl.style.color = promedio != null ? AnemiaCalculator.calculate(promedio).color : "#f5f4f6";
+    }
+    setTxt("dashKpiHbNote", promedio != null
+      ? `g/dL · promedio de ${nHb} con dato`
+      : "Sin valores de Hb");
+    setTxt("dashKpiMesVal", String(pruebasMes));
+    setTxt("dashKpiMesNote", `dosajes en ${mesNombre}`);
+
+    const anemiaBtn = document.getElementById("dashKpiAnemia");
+    if (anemiaBtn) {
+      anemiaBtn.setAttribute("aria-pressed", this._filterHbNivel === "anemia" ? "true" : "false");
+    }
+  },
+
+  /**
+   * Acción desde el panel rápido: fija un filtro de forma determinista (no lo
+   * alterna como el desplegable), repinta tabla, chips y panel, y baja hasta
+   * la tabla de evaluaciones. Pulsar de nuevo la misma clase lo despeja.
+   */
+  aplicarFiltroDashboard(tipo, valor) {
+    if (tipo === "clase") {
+      const yaActivo = this._filterAnemia.length === 1 && this._filterAnemia[0] === valor;
+      this._filterAnemia = yaActivo ? [] : [valor];
+      this._updateAnemiaDropdownUI();
+      this.applyFilters();
+      this._persistirFiltros();
+    } else if (tipo === "hb") {
+      this.selectHbNivel(valor, null);
+    } else if (tipo === "todo") {
+      this.resetFilters();
+    }
+    const tabla = document.getElementById("cardSaludEvaluaciones");
+    const reducido = typeof window.matchMedia === "function"
+      && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (tabla) {
+      tabla.scrollIntoView({ behavior: reducido ? "auto" : "smooth", block: "start" });
     }
   }
 };
@@ -671,7 +1329,7 @@ export const SaludCredView = {
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
   window.PDI.SaludCredView = SaludCredView;
-  window.toggleCalculadoraCred = () => SaludCredView.toggleCalculadora();
+  window.dashboardFiltrar = (tipo, valor) => SaludCredView.aplicarFiltroDashboard(tipo, valor);
   window.filterSaludSearch = (val) => SaludCredView.filterBySearch(val);
   window.clearSaludSearch = () => SaludCredView.clearSearch();
   window.toggleSaludAnemia = (val) => SaludCredView.toggleAnemia(val);
@@ -682,4 +1340,14 @@ if (typeof window !== "undefined") {
   window.saludSetPageSize = (size) => SaludCredView.setPageSize(size);
   window.saludPrevPage = () => SaludCredView.prevPage();
   window.saludNextPage = () => SaludCredView.nextPage();
+  window.openHistorialTamizaje = (id) => SaludCredView.openHistorialTamizaje(id);
+  window.closeHistorialTamizaje = () => SaludCredView.closeModalHistorialTamizaje();
+  window.mostrarFormularioNuevaPrueba = () => SaludCredView.mostrarFormularioNuevaPrueba();
+  window.ocultarFormularioNuevaPrueba = () => SaludCredView._ocultarFormularioNuevaPrueba();
+  window.actualizarPreviewNuevaPrueba = () => SaludCredView._actualizarPreviewNuevaPrueba();
+  window.guardarNuevaPrueba = () => SaludCredView.guardarNuevaPrueba();
+  window.abrirMotivoDesactivar = (idx) => SaludCredView.abrirMotivoDesactivar(idx);
+  window.ocultarMotivoDesactivar = (idx) => SaludCredView.ocultarMotivoDesactivar(idx);
+  window.confirmarDesactivarPrueba = (idx) => SaludCredView.confirmarDesactivarPrueba(idx);
+  window.exportarHistorialCsv = () => SaludCredView.exportarHistorialCsv();
 }

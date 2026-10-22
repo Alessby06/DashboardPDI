@@ -1,4 +1,4 @@
-﻿// ===========================================================================
+// ===========================================================================
 //  Salud y Nutricion (CRED) - Punto de entrada de salud.html
 // ===========================================================================
 //  Tamizaje de anemia, curvas de crecimiento y estado nutricional.
@@ -21,7 +21,6 @@ import "../core/legacy-globals.js";
 import { arrancarComun, publicarRefresco } from "../core/Bootstrap.js";
 import { BeneficiarioModel } from '../models/BeneficiarioModel.js';
 import { SaludCredView } from '../views/SaludCredView.js';
-import { SaludController } from '../controllers/SaludController.js';
 // El boton de exportar CRED abre el modal de confirmacion, y su handler
 // resuelve la descarga por window.PDI.AppController.
 import { AppController } from '../controllers/AppController.js';
@@ -37,8 +36,6 @@ function enlazar() {
 /** Dibuja lo propio de esta pagina. Es idempotente. */
 function montar() {
   SaludCredView.renderTable(BeneficiarioModel.getAll());
-  // La calculadora de Hb arranca con el valor por defecto que declaraba la SPA.
-  SaludController.handleHbChange(10.4);
 }
 
 function iniciar() {
@@ -50,7 +47,7 @@ function iniciar() {
   montar();
 
   // Que redibujar cuando algo guarde en esta pagina, por ejemplo al dar de
-  // alta a un menor: antes era refreshAllViews(), que refrescaba las ocho
+  // alta a un usuario: antes era refreshAllViews(), que refrescaba las ocho
   // tablas; ahora solo la que esta a la vista.
   publicarRefresco(montar);
 

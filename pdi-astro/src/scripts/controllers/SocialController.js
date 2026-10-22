@@ -57,7 +57,7 @@ export const SocialController = {
         cargo,
         "Transición Directa Kanban",
         caso.codigo,
-        `Coordinación trasladó inmediatamente a ${caso.menor} a la etapa: ${nuevaEtapa.toUpperCase()}`,
+        `Coordinación trasladó inmediatamente a ${caso.usuario} a la etapa: ${nuevaEtapa.toUpperCase()}`,
         "Válido"
       );
     }
@@ -101,7 +101,7 @@ export const SocialController = {
         cargo,
         "Solicitud de Transición Kanban",
         caso.codigo,
-        `Solicitud de pase de etapa (${caso.etapa.toUpperCase()} → ${nuevaEtapa.toUpperCase()}) enviada a Coordinación para ${caso.menor}. Motivo: ${motivo || 'Sin justificación adicional'}`,
+        `Solicitud de pase de etapa (${caso.etapa.toUpperCase()} → ${nuevaEtapa.toUpperCase()}) enviada a Coordinación para ${caso.usuario}. Motivo: ${motivo || 'Sin justificación adicional'}`,
         "Pendiente"
       );
     }
@@ -152,8 +152,8 @@ export const SocialController = {
         accionTitulo,
         caso.codigo,
         aprobada
-          ? `Coordinación APROBÓ cambio a ${solicitud.etapaDestino.toUpperCase()} para ${caso.menor}. Observación: ${comentario || 'Aprobado sin observaciones'}`
-          : `Coordinación RECHAZÓ cambio a ${solicitud.etapaDestino.toUpperCase()} para ${caso.menor}. Se mantiene en ${caso.etapa.toUpperCase()}. Motivo: ${comentario || 'Falta documentación de sustento'}`,
+          ? `Coordinación APROBÓ cambio a ${solicitud.etapaDestino.toUpperCase()} para ${caso.usuario}. Observación: ${comentario || 'Aprobado sin observaciones'}`
+          : `Coordinación RECHAZÓ cambio a ${solicitud.etapaDestino.toUpperCase()} para ${caso.usuario}. Se mantiene en ${caso.etapa.toUpperCase()}. Motivo: ${comentario || 'Falta documentación de sustento'}`,
         auditStatus
       );
     }
@@ -204,10 +204,10 @@ export const SocialController = {
   cargarCasoEnSimulador(codigo) {
     if (!codigo || codigo === "custom") return;
     const bModel = window.PDI?.BeneficiarioModel || BeneficiarioModel;
-    const menor = bModel.getByCodigo(codigo);
-    if (!menor) return;
+    const usuario = bModel.getByCodigo(codigo);
+    if (!usuario) return;
 
-    const vScore = menor.vulnerabilidad || 75;
+    const vScore = usuario.vulnerabilidad || 75;
     
     // Distribuir proporcionalmente el puntaje oficial de vulnerabilidad entre las 6 dimensiones
     const factor = vScore / 100;
@@ -230,7 +230,7 @@ export const SocialController = {
 
     const toast = window.PDI?.ToastView || ToastView;
     if (toast) {
-      toast.show("Perfil Cargado", `Datos de ${menor.nombres} ${menor.apellidos} sincronizados en el simulador (${vScore}/100 pts).`, "info");
+      toast.show("Perfil Cargado", `Datos de ${usuario.nombres} ${usuario.apellidos} sincronizados en el simulador (${vScore}/100 pts).`, "info");
     }
   },
 

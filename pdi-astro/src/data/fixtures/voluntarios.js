@@ -4,7 +4,7 @@
 //  Padron de voluntariado y personal comunitario.
 //
 //  IMPORTANTE: los registros de este archivo son INVENTADOS. No corresponden
-//  a menores, familias ni personas reales. Los documentos de identidad,
+//  a usuarios, familias ni personas reales. Los documentos de identidad,
 //  telefonos, coordenadas y domicilios son ficticios.
 //
 //  Sirven unicamente para poblar la interfaz mientras no exista la base de

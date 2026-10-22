@@ -7,10 +7,10 @@
 //
 //    1. Ya no hay una ventana que abrir. Esta vista se pinta sobre el DOM que
 //       declara expediente.html, y no hay ningun 'modal.classList'.
-//    2. El menor lo decide la URL (expediente?id=3), no un argumento. Por eso
+//    2. El usuario lo decide la URL (expediente?id=3), no un argumento. Por eso
 //       render() lo lee, y por eso se puede compartir y recargar.
 //    3. Una URL sin id, o con un id que no existe, es un caso real: un enlace
-//       viejo, un menor dado de baja mientras el enlace circulaba. Se dice en
+//       viejo, un usuario dado de baja mientras el enlace circulaba. Se dice en
 //       pantalla en vez de pintar un expediente vacio sin explicacion.
 //
 //  El marcado de las seis secciones no se toco: se movio del modal a la pagina.
@@ -154,7 +154,7 @@ function getAdultAvatarSvg(parentesco) {
         </svg>`;
 }
 
-// El unico estado que vive en la URL es el id del menor. Se declara con
+// El unico estado que vive en la URL es el id del usuario. Se declara con
 // Filters.js y no a mano para que la escritura de la barra de direcciones siga
 // having un solo responsable, y para que una URL editada a mano no rompa nada.
 const FILTROS_EXPEDIENTE = {
@@ -162,7 +162,7 @@ const FILTROS_EXPEDIENTE = {
 };
 
 // Leyenda por omision de la referencia de ubicacion: se muestra en el campo
-// cuando el menor no tiene referencia registrada, pero nunca viaja a la nube.
+// cuando el usuario no tiene referencia registrada, pero nunca viaja a la nube.
 const LEYENDA_SIN_REFERENCIA = "Sin referencia adicional";
 
 // Campos que pasa a editar el modo edicion. estan en la vista y no en el DOM:
@@ -203,21 +203,7 @@ export const ExpedienteView = {
   },
 
   _enlazarNavegacion() {
-    const anterior = document.getElementById("expPrevBtn");
-    if (anterior) {
-      anterior.onclick = (e) => {
-        if (e) e.preventDefault();
-        this._desplazar(-1);
-      };
-    }
-    const siguiente = document.getElementById("expNextBtn");
-    if (siguiente) {
-      siguiente.onclick = (e) => {
-        if (e) e.preventDefault();
-        this._desplazar(1);
-      };
-    }
-
+    this._pintarPosicion();
     const volver = document.getElementById("expBackToPadron");
     if (volver) {
       const url = window.PDI?.RouteMap?.urlDe?.("padron");
@@ -230,7 +216,7 @@ export const ExpedienteView = {
    *
    * Antes eran pestanas de un modal y el ambito era el propio modal; aqui es la
    * pagina entera, asi que el ambito es #view-expediente. Se acota a proposito:
-   * sin el, un .modal-tab-btn de otro sitio (el modal deNuevoMenor tambien
+   * sin el, un .modal-tab-btn de otro sitio (el modal deNuevoUsuario tambien
    * tiene) cambiaria de estilo al hacer clic.
    */
   _enlazarSecciones() {
@@ -249,7 +235,7 @@ export const ExpedienteView = {
   },
 
   /**
-   * Punto de dibujado. Lee la URL, resuelve el menor y pinta.
+   * Punto de dibujado. Lee la URL, resuelve el usuario y pinta.
    *
    * No lleva guardia de una sola ejecucion, al contrario que en las paginas de
    * listados: aqui releer la URL en cada repintado es justo lo que hace falta,
@@ -288,14 +274,14 @@ export const ExpedienteView = {
     }
 
     const f = this._obtenerFiltros().leer();
-    const menor = f.id ? BeneficiarioModel.getById(f.id) : null;
+    const usuario = f.id ? BeneficiarioModel.getById(f.id) : null;
 
-    if (!menor) {
+    if (!usuario) {
       this._id = null;
       this.isEditing = false;
 
       // Mientras la capa de datos sigue conectando o hidratando, un id sin
-      // menor no significa que no exista: significa que todavia no llego. Se
+      // usuario no significa que no exista: significa que todavia no llego. Se
       // deja la pagina vacia (el pre-hidratado ya marco lo que pudo) sin
       // cartel de error, y el repintado que lanza la hidratacion resolvera el
       // expediente. El aviso solo tiene sentido con los datos ya descargados.
@@ -339,9 +325,9 @@ export const ExpedienteView = {
     document.querySelector(".expediente-page-nav").style.display = "";
 
     const casos = CasoSocialModel.getAll();
-    const caso = casos.find(c => c.codigo === menor.codigo);
+    const caso = casos.find(c => c.codigo === usuario.codigo);
 
-    this._pintar(menor, caso);
+    this._pintar(usuario, caso);
     this._pintarPosicion();
   },
 
@@ -367,7 +353,7 @@ export const ExpedienteView = {
     this._pintarCroquisYFachada(b);
   },
 
-  // --- cabecera, estado de los botones y navegacion entre menores ------------
+  // --- cabecera, estado de los botones y navegacion entre usuarios ------------
 
   _pintarCabecera(b) {
     const titulo = document.getElementById("expPageTitle");
@@ -407,7 +393,7 @@ export const ExpedienteView = {
 
   /**
    * Recorre el padron en su orden natural. Va con pushState y no con replaceState
-   * porque pasar de menor a menor si es un paso por el que se quiere volver con
+   * porque pasar de usuario a usuario si es un paso por el que se quiere volver con
    * el boton atras, a diferencia de cambiar un filtro.
    *
    * Recorre el padron entero, no el subconjunto que se estaba viendo en el
@@ -429,16 +415,16 @@ export const ExpedienteView = {
       } else {
         const paramCod = params.get("codigo");
         if (paramCod) {
-          const menorCod = BeneficiarioModel.getByCodigo(paramCod);
-          if (menorCod) idActual = menorCod.id;
+          const usuarioCod = BeneficiarioModel.getByCodigo(paramCod);
+          if (usuarioCod) idActual = usuarioCod.id;
         }
       }
     }
     if (!idActual) {
       const elCod = document.getElementById("expCodigo");
       if (elCod && elCod.value) {
-        const menorDom = BeneficiarioModel.getByCodigo(elCod.value);
-        if (menorDom) idActual = menorDom.id;
+        const usuarioDom = BeneficiarioModel.getByCodigo(elCod.value);
+        if (usuarioDom) idActual = usuarioDom.id;
       }
     }
     if (!idActual) return;
@@ -451,6 +437,9 @@ export const ExpedienteView = {
 
     const indice = lista.findIndex(b => Number(b.id) === Number(idActual));
     if (indice === -1) return;
+
+    if (direccion === -1 && indice <= 0) return;
+    if (direccion === 1 && indice >= lista.length - 1) return;
 
     const destino = lista[indice + direccion];
     if (!destino) return;
@@ -480,22 +469,30 @@ export const ExpedienteView = {
     const prev = document.getElementById("expPrevBtn");
     const next = document.getElementById("expNextBtn");
     if (prev) {
-      prev.disabled = indice <= 0;
-      prev.title = indice > 0
+      const deshabilitado = indice <= 0;
+      prev.disabled = deshabilitado;
+      prev.classList.toggle("is-disabled", deshabilitado);
+      prev.setAttribute("aria-disabled", deshabilitado ? "true" : "false");
+      prev.title = !deshabilitado
         ? `Expediente ${indice} de ${total}: ${lista[indice - 1].nombres} ${lista[indice - 1].apellidos}`
-        : "Es el primero del padrón";
+        : "Primer expediente del padrón (sin anteriores)";
       prev.onclick = (e) => {
         if (e) e.preventDefault();
+        if (deshabilitado) return;
         this._desplazar(-1);
       };
     }
     if (next) {
-      next.disabled = indice === -1 || indice >= total - 1;
-      next.title = indice >= 0 && indice < total - 1
+      const deshabilitado = indice === -1 || indice >= total - 1;
+      next.disabled = deshabilitado;
+      next.classList.toggle("is-disabled", deshabilitado);
+      next.setAttribute("aria-disabled", deshabilitado ? "true" : "false");
+      next.title = !deshabilitado
         ? `Expediente ${indice + 2} de ${total}: ${lista[indice + 1].nombres} ${lista[indice + 1].apellidos}`
-        : "Es el último del padrón";
+        : "Último expediente del padrón (sin siguientes)";
       next.onclick = (e) => {
         if (e) e.preventDefault();
+        if (deshabilitado) return;
         this._desplazar(1);
       };
     }
@@ -550,7 +547,7 @@ export const ExpedienteView = {
     this._set("expEdad", b.edad || "");
     this._set("expEdadSexo", `${b.edad} / ${b.sexo}`);
     const selSexo = document.getElementById("expSexo");
-    if (selSexo) selSexo.value = b.sexo === "F" ? "F" : "M";
+    if (selSexo) selSexo.value = b.sexo === "F" ? "Femenino (F)" : "Masculino (M)";
     // El sexo es un dato del alta: display-only en el expediente (desplegable
     // bloqueado de siempre), asi que aqui no se toca al guardar.
 
@@ -566,7 +563,7 @@ export const ExpedienteView = {
     if (inputReferencia) inputReferencia.value = b.referencia || LEYENDA_SIN_REFERENCIA;
 
     // Distrito y Sede bajan a un desplegable con las mismas sedes de la ficha
-    // de inscripcion. Si la sede del menor no esta en la lista (alta con sede
+    // de inscripcion. Si la sede del usuario no esta en la lista (alta con sede
     // vieja o borrada) se agrega como opcion propia, para no mostrar mentiras.
     const selDistritoSede = document.getElementById("expDistritoSede");
     if (selDistritoSede) {
@@ -615,6 +612,12 @@ export const ExpedienteView = {
     // el campo queda vacio para que se escriba el dato real.
     this._set("expCentroSalud", b.centroSalud || "");
     this._set("expAlergiaDescripcion", b.alergiaDescripcion || "Ninguna");
+    const entradaAlergia = document.getElementById("expAlergiaDescripcion");
+    if (entradaAlergia) {
+      const tieneAlergia = b.alergiaDescripcion && b.alergiaDescripcion.toLowerCase() !== "ninguna";
+      entradaAlergia.style.color = tieneAlergia ? "var(--status-danger, #ef4444)" : "var(--text-main)";
+      entradaAlergia.style.fontWeight = tieneAlergia ? "700" : "500";
+    }
     seleccionarValor("expAlergiaTipo", b.alergiaTipo || "Ninguna");
     seleccionarValor("expAlergiaSeveridad", b.alergiaSeveridad || "Leve");
     this._refrescarGravedadAlergia();
@@ -669,7 +672,7 @@ export const ExpedienteView = {
    *
    * En vista son tarjetas de lectura. En edicion se convierten en los mismos
    * campos del alta (nombre, DNI, parentesco y telefono): antes una persona
-   * autorizada no se podia corregir sin volver a inscribir al menor.
+   * autorizada no se podia corregir sin volver a inscribir al usuario.
    */
   _pintarRetiro(b) {
     const contenedor = document.getElementById("expRetiroPadronContainer");
@@ -760,10 +763,10 @@ export const ExpedienteView = {
 
     cont.innerHTML = `
       <div class="ley-consent-grid">
-        ${tarjeta("Evaluacion y Seguimiento Social", "Elaboracion de historias de vida, encuestas de vulnerabilidad y metricas de impacto socioeconico.", "Art. 13, num. 5 y 6 Ley 29733")}
-        ${tarjeta("Registro Audiovisual Institucional", "Toma de fotografias y videos para memorias anuales, rendicion de cuentas e informes a benefactores.", "Art. 13, num. 5 Ley 29733")}
-        ${tarjeta("Gestion de Fondos y Sostenibilidad", "Recaudacion de aportes, auditorias de donantes y reportes financieros de permanencia del programa.", "Art. 13, num. 5 y 6 Ley 29733")}
-        ${tarjeta("Flujo Transfronterizo de Datos", "Transferencia a la entidad cooperante Kinderwerk Lima e.V. (Alemania) con cifrado y medidas de seguridad.", "D.S. N. 016-2024-JUS")}
+        ${tarjeta("Evaluación y Seguimiento Social", "Elaboración de historias de vida, encuestas de vulnerabilidad y métricas de impacto socioeconómico.", "Art. 13, num. 5 y 6 Ley N.° 29733")}
+        ${tarjeta("Registro Audiovisual Institucional", "Toma de fotografías y videos para memorias anuales, rendición de cuentas e informes a benefactores.", "Art. 13, num. 5 Ley N.° 29733")}
+        ${tarjeta("Gestión de Fondos y Sostenibilidad", "Recaudación de aportes, auditorías de donantes y reportes financieros de permanencia del programa.", "Art. 13, num. 5 y 6 Ley N.° 29733")}
+        ${tarjeta("Flujo Transfronterizo de Datos", "Transferencia a la entidad cooperante Kinderwerk Lima e.V. (Alemania) con cifrado y medidas de seguridad.", "D.S. N.° 016-2024-JUS")}
       </div>
       <div class="ley-cert-box">
         <div class="ley-cert-badge-icon">
@@ -772,8 +775,8 @@ export const ExpedienteView = {
           </svg>
         </div>
         <div class="ley-cert-text">
-          <strong>Certificacion de Consentimiento Informado Valido</strong><br>
-          Otorgado y firmado digitalmente por el apoderado legal: <strong>${escapar(b.apoderado)}</strong> (DNI: <strong>${escapar(b.apoderadoDni || "41982341")}</strong>). Cumplimiento normativo vigente bajo la <strong>Ley N. 29733</strong> y el <strong>D.S. N. 016-2024-JUS</strong>.
+          <strong>Certificación de Consentimiento Informado Válido</strong><br>
+          Otorgado y firmado digitalmente por el apoderado legal: <strong>${escapar(b.apoderado)}</strong> (DNI: <strong>${escapar(b.apoderadoDni || "41982341")}</strong>). Cumplimiento normativo vigente bajo la <strong>Ley N.° 29733</strong> y el <strong>D.S. N.° 016-2024-JUS</strong>.
         </div>
       </div>`;
   },
@@ -1005,12 +1008,12 @@ export const ExpedienteView = {
       else el.readOnly = !this.isEditing;
       if (this.isEditing) {
         el.style.borderColor = "var(--gt-green)";
-        el.style.background = "#ffffff";
-        // El fondo pasa a blanco pase lo que pase con el tema, así que la tinta
-        // también debe ser oscura: si no, en tema oscuro el texto queda blanco
-        // sobre blanco y el campo se ve vacío. Sin halo ni difuminado alrededor:
-        // el estado editable se dice con el borde verde, nada mas.
-        el.style.color = "#0f172a";
+        el.style.background = "var(--surface-1)";
+        // El fondo y la tinta salen del tema, no de un blanco fijo: en oscuro un
+        // campo blanco con tinta clara dejaba el texto invisible, y ademas rompia
+        // la continuidad del modo oscuro. El estado editable se dice con el borde
+        // verde, nada mas.
+        el.style.color = "var(--text-main)";
         el.style.boxShadow = "none";
         // Un desplegable no se escribe: el cursor de texto sobre un select
         // promete una interaccion que el control no tiene.
@@ -1287,7 +1290,7 @@ export const ExpedienteView = {
 
     BeneficiarioModel.update(b.id, b);
 
-    // Activar el Area Social Pastoral implica que el menor tiene caso social. Si
+    // Activar el Area Social Pastoral implica que el usuario tiene caso social. Si
     // no lo tenia, se crea: de lo contrario el expediente prometeria un
     // acompanhamento que en el kanban no existe.
     if (b.servicios && b.servicios.some(s => s && /pastoral|social|asp/i.test(s))) {
@@ -1297,7 +1300,7 @@ export const ExpedienteView = {
         CasoSocialModel.addCaso({
           beneficiarioId: Number(b.id),
           codigo: b.codigo,
-          menor: `${b.nombres} ${b.apellidos}`,
+          usuario: `${b.nombres} ${b.apellidos}`,
           sede: b.sede,
           distrito: b.distrito,
           estado: "Evaluacion",

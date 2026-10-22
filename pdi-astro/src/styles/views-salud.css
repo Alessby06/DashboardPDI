@@ -450,7 +450,7 @@
       padding: 0 5px;
       border-radius: var(--radius-full);
       background: var(--gt-green);
-      color: #fff;
+      color: var(--on-brand);
       font-size: 11px;
       font-weight: 700;
       line-height: 1;
@@ -846,7 +846,7 @@
     .diff-curr span {
       display: inline-block;
       padding: 2px 6px;
-      background: rgba(0, 180, 148, 0.12);
+      background: rgba(var(--brand-rgb), 0.12);
       color: var(--text-brand);
       font-weight: 700;
       border-radius: 4px;
@@ -970,142 +970,305 @@
       }
     }
 
-    /* === CALCULADORA CRED DESPLEGABLE / ACCORDION === */
-    .cred-calc-accordion {
-      background: var(--surface-1);
-      border: 1px solid var(--border-subtle);
+    /* === PANEL RAPIDO CRED · INSTRUMENT CLUSTER === */
+    .dash-rapido {
+      background: #17191d;
+      border: 1px solid rgba(255, 255, 255, 0.07);
       border-radius: var(--radius-lg);
-      overflow: hidden;
       box-shadow: var(--shadow-ambient);
-      transition: border-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth);
+      color: #f5f4f6;
+      padding: 20px 22px;
+      position: relative;
+      overflow: hidden;
     }
 
-    .cred-calc-accordion:hover {
-      border-color: var(--border-bright);
-    }
-
-    .cred-calc-accordion.open {
-      border-color: var(--gt-yellow-border, rgba(245, 158, 11, 0.35));
-      box-shadow: 0 4px 20px rgba(245, 158, 11, 0.08);
-    }
-
-    .cred-calc-toggle-btn {
-      width: 100%;
-      background: var(--surface-1);
-      border: none;
-      padding: 16px 20px;
+    .dash-rapido-head {
       display: flex;
-      align-items: center;
+      align-items: baseline;
       justify-content: space-between;
-      gap: 12px;
-      cursor: pointer;
-      text-align: left;
-      transition: background-color var(--dur-fast) var(--ease-smooth);
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
+      gap: 8px 18px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
     }
 
-    .cred-calc-toggle-btn:hover {
-      background: var(--surface-hover);
+    .dash-rapido-title {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      color: #f5f4f6;
     }
 
-    .cred-calc-header-left {
-      display: flex;
+    .dash-rapido-hint {
+      margin: 0;
+      font-size: 11.5px;
+      color: rgba(245, 244, 246, 0.55);
+    }
+
+    .dash-rapido-body {
+      display: grid;
+      grid-template-columns: 168px minmax(150px, 190px) minmax(0, 1fr);
+      gap: 22px;
       align-items: center;
-      gap: 14px;
-      flex: 1;
+    }
+
+    .dash-donut-wrap {
+      position: relative;
+      width: 168px;
+      height: 168px;
+      flex-shrink: 0;
+    }
+
+    .dash-donut {
+      display: block;
+      transform: rotate(-90deg); /* los arcos arrancan a las 12 en punto */
+    }
+
+    .dash-donut-track {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.08);
+      stroke-width: 16;
+    }
+
+    .dash-arc {
+      fill: none;
+      stroke-width: 16;
+      cursor: pointer;
+      animation: dashArcIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+      animation-delay: var(--dash-arc-delay, 0ms);
+      transition: stroke-width var(--dur-fast) var(--ease-smooth);
+    }
+
+    .dash-arc:hover {
+      stroke-width: 21;
+    }
+
+    @keyframes dashArcIn {
+      from {
+        opacity: 0;
+        stroke-width: 7;
+      }
+      to {
+        opacity: 1;
+        stroke-width: 16;
+      }
+    }
+
+    .dash-donut-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .dash-donut-center strong {
+      font-size: 34px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+      color: #f5f4f6;
+    }
+
+    .dash-donut-center span {
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(245, 244, 246, 0.55);
+    }
+
+    .dash-leyenda {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
       min-width: 0;
     }
 
-    .cred-calc-icon-box {
-      width: 40px;
-      height: 40px;
-      border-radius: var(--radius-md);
-      background: var(--gt-yellow-bg, rgba(245, 158, 11, 0.12));
-      color: var(--text-warning, #f59e0b);
+    .dash-leyenda-item {
       display: flex;
       align-items: center;
-      justify-content: center;
+      gap: 9px;
+      width: 100%;
+      padding: 7px 9px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      color: #f5f4f6;
+      font-family: inherit;
+      font-size: 12px;
+      text-align: left;
+      cursor: pointer;
+      transition: background-color var(--dur-fast) var(--ease-smooth),
+        border-color var(--dur-fast) var(--ease-smooth);
+      animation: dashLegendIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+      animation-delay: var(--dash-legend-delay, 0ms);
+    }
+
+    .dash-leyenda-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .dash-leyenda-item[aria-pressed="true"] {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: var(--dash-seg, rgba(245, 244, 246, 0.35));
+    }
+
+    @keyframes dashLegendIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    .dash-leyenda-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
       flex-shrink: 0;
-      border: 1px solid var(--gt-yellow-border, rgba(245, 158, 11, 0.25));
+      background: var(--dash-seg, rgba(245, 244, 246, 0.5));
     }
 
-    .cred-calc-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .dash-leyenda-name {
+      flex: 1;
+      min-width: 0;
+      color: rgba(245, 244, 246, 0.8);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .cred-calc-subtitle {
-      font-size: 12.5px;
-      color: var(--text-muted);
-      margin-top: 2px;
+    .dash-leyenda-rango {
+      font-size: 10.5px;
+      color: rgba(245, 244, 246, 0.55);
     }
 
-    .cred-calc-header-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-shrink: 0;
+    .dash-leyenda-count {
+      font-size: 13px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: #f5f4f6;
     }
 
-    .cred-calc-chevron {
-      color: var(--text-muted);
-      transition: transform var(--dur-fast) var(--ease-spring), color var(--dur-fast) var(--ease-smooth);
-      flex-shrink: 0;
+    .dash-leyenda-pct {
+      width: 36px;
+      text-align: right;
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+      color: rgba(245, 244, 246, 0.55);
     }
 
-    .cred-calc-accordion.open .cred-calc-chevron {
-      transform: rotate(180deg);
-      color: var(--text-warning);
-    }
-
-    .cred-calc-body {
-      padding: 18px 20px 22px;
-      border-top: 1px solid var(--border-subtle);
-      background: var(--surface-2);
-      animation: fadeInDataCard 0.25s ease-out;
-    }
-
-    .cred-calc-grid {
+    .dash-kpis {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      align-self: stretch;
+      min-width: 0;
     }
 
-    .cred-calc-result-box {
-      margin-top: 16px;
-      padding: 16px 18px;
-      border-radius: var(--radius-md);
-      background: var(--surface-1);
-      border: 1px solid var(--border-subtle);
+    .dash-kpi {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      justify-content: center;
+      gap: 5px;
+      min-width: 0;
+      padding: 8px 16px;
+      background: none;
+      border: none;
+      border-left: 1px solid rgba(255, 255, 255, 0.08);
+      color: #f5f4f6;
+      font-family: inherit;
+      text-align: left;
     }
 
-    .cred-calc-result-tag {
-      font-size: 11.5px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-dim);
+    button.dash-kpi {
+      cursor: pointer;
+      transition: background-color var(--dur-fast) var(--ease-smooth),
+        box-shadow var(--dur-fast) var(--ease-smooth);
     }
 
-    .cred-calc-result-title {
-      font-size: 17px;
+    button.dash-kpi:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    button.dash-kpi[aria-pressed="true"] {
+      background: rgba(255, 255, 255, 0.06);
+      box-shadow: inset 0 -2px 0 var(--dash-kpi-ring, rgba(245, 244, 246, 0.4));
+    }
+
+    .dash-kpi--static {
+      cursor: default;
+    }
+
+    .dash-kpi-label {
+      font-size: 11px;
+      color: rgba(245, 244, 246, 0.55);
+    }
+
+    .dash-kpi-value {
+      font-size: 30px;
       font-weight: 800;
-      color: var(--text-warning);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+      color: #f5f4f6;
     }
 
-    .cred-calc-result-action {
-      font-size: 13px;
-      color: var(--text-muted);
-      line-height: 1.45;
+    .dash-kpi-note {
+      font-size: 10.5px;
+      line-height: 1.35;
+      color: rgba(245, 244, 246, 0.55);
     }
+
+    .dash-rapido :focus-visible {
+      outline: 2px solid var(--gt-blue);
+      outline-offset: 2px;
+    }
+
+    .dash-rapido ::selection {
+      background: rgba(0, 180, 148, 0.35);
+      color: #f5f4f6;
+    }
+
+    @media (max-width: 1100px) {
+      .dash-rapido-body {
+        grid-template-columns: 168px minmax(150px, 1fr);
+        grid-template-areas:
+          "donut leyenda"
+          "kpis kpis";
+        gap: 16px 22px;
+      }
+      .dash-donut-wrap {
+        grid-area: donut;
+      }
+      .dash-leyenda {
+        grid-area: leyenda;
+      }
+      .dash-kpis {
+        grid-area: kpis;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding-top: 12px;
+      }
+      .dash-kpi:first-child {
+        border-left: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .dash-arc,
+      .dash-leyenda-item {
+        animation: none;
+      }
+    }
+
 
     @media (max-width: 768px) {
       .topbar {
@@ -1120,35 +1283,38 @@
         flex: 1 !important;
         min-width: 0 !important;
       }
-      .cred-calc-toggle-btn {
-        padding: 12px 14px !important;
+      .dash-rapido {
+        padding: 16px 14px;
       }
-      .cred-calc-header-left {
-        gap: 10px !important;
+      .dash-rapido-body {
+        grid-template-columns: 1fr;
+        grid-template-areas: "donut" "leyenda" "kpis";
+        justify-items: center;
+        gap: 16px;
       }
-      .cred-calc-icon-box {
-        width: 34px !important;
-        height: 34px !important;
+      .dash-leyenda {
+        width: 100%;
       }
-      .cred-calc-icon-box svg {
-        width: 17px !important;
-        height: 17px !important;
+      .dash-kpis {
+        width: 100%;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-self: auto;
+        border-top: none;
+        padding-top: 0;
       }
-      .cred-calc-title {
-        font-size: 13.5px !important;
+      .dash-kpi {
+        border-left: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 10px 12px;
       }
-      .cred-calc-subtitle {
-        display: none !important;
+      .dash-kpi:nth-child(even) {
+        border-left: 1px solid rgba(255, 255, 255, 0.08);
       }
-      .cred-calc-header-right .badge {
-        display: none !important;
+      .dash-kpi-value {
+        font-size: 26px;
       }
-      .cred-calc-body {
-        padding: 14px 12px 16px !important;
-      }
-      .cred-calc-grid {
-        grid-template-columns: 1fr !important;
-        gap: 10px !important;
+      .dash-donut-center strong {
+        font-size: 30px;
       }
       .content-viewport {
         padding: 14px 12px !important;
@@ -1247,14 +1413,14 @@
     }
 
     .programa-item.editable:hover {
-      border-color: var(--gt-green, #00b494);
-      background: rgba(0, 180, 148, 0.04);
+      border-color: var(--gt-green);
+      background: rgba(var(--brand-rgb), 0.04);
       transform: translateY(-1px);
     }
 
     .programa-item.active {
       border-color: var(--gt-green-border);
-      background: rgba(0, 180, 148, 0.07);
+      background: rgba(var(--brand-rgb), 0.07);
     }
 
     .programa-check-box {
@@ -1273,7 +1439,7 @@
     .programa-item.active .programa-check-box {
       background: var(--gt-green);
       border-color: var(--gt-green);
-      color: #ffffff;
+      color: var(--on-brand);
     }
 
     .programa-details {
@@ -1359,7 +1525,7 @@
       border: 1.5px dashed var(--gt-green);
       border-radius: 10px;
       padding: 14px 16px;
-      background: rgba(0, 180, 148, 0.05);
+      background: rgba(var(--brand-rgb), 0.05);
       display: flex;
       align-items: center;
       gap: 14px;
@@ -1370,7 +1536,7 @@
       height: 42px;
       border-radius: 8px;
       background: var(--gt-green);
-      color: #ffffff;
+      color: var(--on-brand);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1515,29 +1681,29 @@
         margin-top: 2px !important;
       }
 
-      /* Formularios en 1 Sola Columna para Móviles (Expediente y Nuevo Menor) */
+      /* Formularios en 1 Sola Columna para Móviles (Expediente y Nuevo Usuario) */
       .modal-tab-pane .form-grid,
-      #formNuevoMenor .form-grid {
+      #formNuevoUsuario .form-grid {
         grid-template-columns: 1fr !important;
         gap: 10px !important;
       }
 
       .modal-tab-pane .form-group,
-      #formNuevoMenor .form-group {
+      #formNuevoUsuario .form-group {
         grid-column: span 1 !important;
       }
 
       .modal-tab-pane .form-control,
-      #formNuevoMenor .form-control {
+      #formNuevoUsuario .form-control {
         font-size: 14px !important;
         padding: 9px 12px !important;
       }
 
-      #modalNuevoMenor {
+      #modalNuevoUsuario {
         padding: 0 !important;
       }
 
-      #modalNuevoMenor .modal-box {
+      #modalNuevoUsuario .modal-box {
         width: 100% !important;
         max-width: 100% !important;
         height: 100% !important;
@@ -1546,17 +1712,17 @@
         border: none !important;
       }
 
-      #modalNuevoMenor .modal-header {
+      #modalNuevoUsuario .modal-header {
         padding: 12px 16px !important;
       }
 
-      #modalNuevoMenor .modal-body {
+      #modalNuevoUsuario .modal-body {
         padding: 14px 14px 20px !important;
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch;
       }
 
-      #modalNuevoMenor .modal-footer {
+      #modalNuevoUsuario .modal-footer {
         padding: 10px 14px !important;
       }
 
@@ -1595,7 +1761,7 @@
       --text-muted: #334155;
       --text-dim: #64748b;
       --border-subtle: #e2e8f0;
-      --border-focus: #00b494;
+      --border-focus: var(--gt-green);
       --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
     }
 
@@ -2018,7 +2184,7 @@
 }
 
 .padron-dropdown-item.selected {
-  background: rgba(0, 180, 148, 0.1);
+  background: rgba(var(--brand-rgb), 0.1);
   color: var(--text-brand);
   font-weight: 600;
 }
@@ -2047,7 +2213,7 @@
 .padron-dropdown-item.selected .padron-item-checkbox {
   background: var(--gt-green);
   border-color: var(--gt-green);
-  color: #ffffff;
+  color: var(--on-brand);
 }
 
 .padron-item-radio {
@@ -2128,11 +2294,11 @@
   gap: 5px !important;
   color: var(--text-brand) !important;
   border-color: var(--gt-green-border) !important;
-  background: rgba(0, 180, 148, 0.08) !important;
+  background: rgba(var(--brand-rgb), 0.08) !important;
 }
 
 .btn-gps-capture:hover {
-  background: rgba(0, 180, 148, 0.16) !important;
+  background: rgba(var(--brand-rgb), 0.16) !important;
 }
 
 .croquis-embed-grid {
@@ -2266,7 +2432,7 @@
 .sedes-chip-btn.active {
   background: var(--gt-green);
   border-color: var(--gt-green);
-  color: #ffffff;
+  color: var(--on-brand);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
@@ -2378,7 +2544,7 @@
 #btnThemeSystem.active .theme-icon-box svg {
   animation: monitorHeartbeat 0.8s var(--ease-out) forwards;
   color: var(--text-brand);
-  filter: drop-shadow(0 0 7px rgba(0, 180, 148, 0.55));
+  filter: drop-shadow(0 0 7px rgba(var(--brand-rgb), 0.55));
 }
 
 @keyframes monitorHeartbeat {
@@ -2470,7 +2636,7 @@
 
 .btn-gps-capture:hover {
   background: var(--gt-green) !important;
-  color: #ffffff !important;
+  color: var(--on-brand) !important;
 }
 
 .croquis-embed-grid {

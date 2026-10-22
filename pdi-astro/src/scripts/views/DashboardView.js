@@ -207,7 +207,7 @@ export const DashboardView = {
         coverageContainer.innerHTML = listaHTML;
       }
 
-      // Pills de sedes con total de menores al pasar el cursor.
+      // Pills de sedes con total de usuarios al pasar el cursor.
       const pillContainer = document.getElementById("dashDistrictSedePills");
       if (pillContainer) {
         const sedeCounts = {};
@@ -286,8 +286,8 @@ export const DashboardView = {
         });
       }
 
-      const footMenores = document.getElementById("dashTerritoryTotalMenores");
-      if (footMenores) rollNum(footMenores, totalBeneficiarios);
+      const footUsuarios = document.getElementById("dashTerritoryTotalUsuarios");
+      if (footUsuarios) rollNum(footUsuarios, totalBeneficiarios);
       const footSedes = document.getElementById("dashTerritoryTotalSedes");
       if (footSedes) rollNum(footSedes, allSedes.length || 7);
     }
@@ -355,7 +355,7 @@ export const DashboardView = {
     const valorStr = String(valor) + (suffix || "");
     if (this._odometroMemoria[claveMemoria] === valorStr) return;
     this._odometroMemoria[claveMemoria] = valorStr;
-    // mergeGlyphs: en esta tarjeta el conteo lleva palabras ("8 menores"), y el
+    // mergeGlyphs: en esta tarjeta el conteo lleva palabras ("8 usuarios"), y el
     // span por letra del odometro rompia el kerning (~0.6px). Al hidratar y
     // volver a texto plano la palabra se reacomodaba: un micro-movimiento. Como
     // texto, el ancho coincide con el del render plano.
@@ -1226,8 +1226,8 @@ export const DashboardView = {
         `;
       } else {
         tbody.innerHTML = logs.map(l => {
-          const isMenor = (l.entity && l.entity.startsWith("PDI-"));
-          const entityHtml = isMenor 
+          const isUsuario = (l.entity && l.entity.startsWith("PDI-"));
+          const entityHtml = isUsuario 
             ? `<a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(l.entity)}')" class="audit-entity-link" title="Abrir expediente del usuario"><code style="font-family:var(--mono-font); font-weight:700; color:var(--text-brand); text-decoration:underline;">${escapar(l.entity)}</code></a>`
             : `<code style="font-family:var(--mono-font); font-weight:700; color:var(--text-main);">${escapar(l.entity)}</code>`;
 
@@ -1271,8 +1271,8 @@ export const DashboardView = {
         `;
       } else {
         mobileContainer.innerHTML = logs.map((l, index) => {
-          const isMenor = (l.entity && l.entity.startsWith("PDI-"));
-          const entityHtml = isMenor 
+          const isUsuario = (l.entity && l.entity.startsWith("PDI-"));
+          const entityHtml = isUsuario 
             ? `<a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(l.entity)}')" class="audit-entity-link" title="Abrir expediente del usuario"><code style="font-family:var(--mono-font); font-weight:700; color:var(--text-brand); text-decoration:underline;">${escapar(l.entity)}</code></a>`
             : `<code style="font-family:var(--mono-font); font-weight:700; color:var(--text-main);">${escapar(l.entity)}</code>`;
 

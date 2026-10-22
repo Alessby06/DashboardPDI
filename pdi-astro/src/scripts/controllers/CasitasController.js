@@ -27,14 +27,14 @@ export const CasitasController = {
     return this._asistenciaMap || {};
   },
 
-  /** Clave del estado guardado para un menor ('P' por defecto). */
+  /** Clave del estado guardado para un usuario ('P' por defecto). */
   getEstado(id) {
     const map = this._cargar();
     const valor = map[id] !== undefined ? map[id] : map[String(id)];
     return ESTADOS_ASISTENCIA[valor] ? valor : "P";
   },
 
-  /** Clave, etiqueta y clase del badge que le corresponden a un menor. */
+  /** Clave, etiqueta y clase del badge que le corresponden a un usuario. */
   getEstadoInfo(id) {
     const clave = this.getEstado(id);
     return { clave, ...ESTADOS_ASISTENCIA[clave] };
@@ -72,7 +72,7 @@ export const CasitasController = {
     }
   },
 
-  /** Pinta badges y botones del pase (escritorio y móvil) para un menor. */
+  /** Pinta badges y botones del pase (escritorio y móvil) para un usuario. */
   _refrescarDom(id, clave, info) {
     // Enrollback puede llegar con clave undefined ('P' implícito).
     const finalInfo = info || ESTADOS_ASISTENCIA["P"];

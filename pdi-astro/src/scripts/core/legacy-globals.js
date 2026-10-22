@@ -64,7 +64,7 @@ function refrescarVistaActual() {
 //  BeneficiariosView) a las diez paginas para once botones de un modal.
 //
 //  Quedan mudos en las nueve paginas que no son el padron, y eso es lo
-//  correcto: viven dentro de modalNuevoMenor, que solo se abre desde alli. El
+//  correcto: viven dentro de modalNuevoUsuario, que solo se abre desde alli. El
 //  patron ya estaba probado dos lineas mas abajo, en capturarGpsCampo y
 //  handleAddressInputDebounce, que ya resolvian asi.
 window.clearSignatureCanvas = () => window.PDI?.BeneficiarioController?.clearSignature?.();
@@ -85,15 +85,15 @@ window.capturarGpsCampo = (ctx = "reg") => window.PDI?.BeneficiarioController?.c
 // ultimo que se evaluaba, que dependia del orden de las importaciones. Ahora
 // manda el controlador y solo uno de los dos puede equivocarce.
 
-window.guardarNuevoMenor = (e) =>
-  window.PDI?.BeneficiarioController?.saveNuevoMenor?.(e, refrescarVistaActual);
+window.guardarNuevoUsuario = (e) =>
+  window.PDI?.BeneficiarioController?.saveNuevoUsuario?.(e, refrescarVistaActual);
 
 // ---------------------------------------------------------------------------
 //  MODALES
 // ---------------------------------------------------------------------------
-window.openModalNuevoMenor = () => ModalView.openNuevoMenor();
-window.openModalNuevoBeneficiario = () => ModalView.openNuevoMenor();
-window.closeModalNuevoMenor = () => ModalView.closeNuevoMenor({ conservarBorrador: true });
+window.openModalNuevoUsuario = () => ModalView.openNuevoUsuario();
+window.openModalNuevoBeneficiario = () => ModalView.openNuevoUsuario();
+window.closeModalNuevoUsuario = () => ModalView.closeNuevoUsuario({ conservarBorrador: true });
 window.closeModalAuditDetail = () => ModalView.closeAuditDetail();
 let _currentExportHandler = null;
 
@@ -322,18 +322,11 @@ window.desplazarExpediente = (dir) => window.PDI?.ExpedienteView?._desplazar?.(d
 // ---------------------------------------------------------------------------
 //  CALCULADORAS
 // ---------------------------------------------------------------------------
-//  CALCULADORAS
-// ---------------------------------------------------------------------------
 //  Resuelven por window.PDI. Sus controladores los cargan las paginas que los
-//  necesitan y solo esas: salud.js y social.js. Antes los importaba este
-//  archivo, y eso metia en las otras ocho paginas SaludController, que arrastra
-//  SaludCredView, y SocialController, que arrastra SocialKanbanView.
-window.calculateAnemiaPreview = () => {
-  const inputEl = document.getElementById("calcHbInput");
-  const sliderEl = document.getElementById("quickHbSlider");
-  const val = inputEl ? inputEl.value : sliderEl ? sliderEl.value : 10.4;
-  window.PDI?.SaludController?.handleHbChange?.(val);
-};
+//  necesitan y solo esas: social.js. Antes los importaba este archivo, y eso
+//  metia en las otras ocho paginas SocialController, que arrastra
+//  SocialKanbanView. La calculadora de Hb de Salud ya no existe: ese papel lo
+//  cumple el historial de tamizajes con su formulario de nuevas pruebas.
 window.calcularEvaluacionSocioeconomica = () => window.PDI?.SocialController?.calcularEvaluacion?.();
 window.syncScoreSimulador = (dimKey, val) => window.PDI?.SocialController?.syncScore?.(dimKey, val);
 window.cargarCasoEnSimulador = (codigo) => window.PDI?.SocialController?.cargarCasoEnSimulador?.(codigo);

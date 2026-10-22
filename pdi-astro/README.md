@@ -133,7 +133,7 @@ puede ni crear, ni modificar, ni borrar. El script que lo deja así está en
 
 > **Lo que este modelo no cierra:** con este diseño el navegador habla
 > directamente con la base, así que un token robado permite **leer** el padrón
-> completo (datos de menores). Cerrar eso exige poner un proxy de consultas en
+> completo (datos de usuarios). Cerrar eso exige poner un proxy de consultas en
 > el servidor, que decida qué se devuelve. Es un cambio mayor, no está hecho.
 
 ### Variables de entorno

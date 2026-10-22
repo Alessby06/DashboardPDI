@@ -22,18 +22,17 @@ const REGLAS = {
     permite: /^[0-9]$/,
     valido: (valor) => /^\d{8}$/.test(valor),
   },
+  celular: {
+    inputmode: "numeric",
+    max: 9,
+    permite: /^[0-9]$/,
+    valido: (valor) => /^9\d{8}$/.test(String(valor || "").replace(/\D/g, "")),
+  },
   telefono: {
-    inputmode: "tel",
-    max: 15,
-    permite: /^[0-9-]$/,
-    // Formato de Peru: celular de nueve digitos o fijo de siete.
-    valido: (valor) => /^\d{9}$/.test(valor.replace(/\D/g, "")) || /^\d{7}$/.test(valor.replace(/\D/g, "")),
-    alSalir: (valor) => {
-      const digitos = valor.replace(/\D/g, "");
-      if (digitos.length === 9) return digitos.replace(/(\d{3})(\d{3})(\d{3})/, "$1-$2-$3");
-      if (digitos.length === 7) return digitos.replace(/(\d{3})(\d{4})/, "$1-$2");
-      return digitos;
-    },
+    inputmode: "numeric",
+    max: 9,
+    permite: /^[0-9]$/,
+    valido: (valor) => /^9\d{8}$/.test(String(valor || "").replace(/\D/g, "")),
   },
   nombre: {
     inputmode: "text",
@@ -57,7 +56,7 @@ export function validarTipo(tipo, valor) {
 /** Nombre legible del tipo, para los mensajes de la ficha. */
 export function etiquetaTipo(tipo) {
   if (tipo === "dni") return "DNI de 8 dígitos";
-  if (tipo === "telefono") return "Teléfono de 9 dígitos";
+  if (tipo === "celular" || tipo === "telefono") return "Celular de 9 dígitos (inicia con 9)";
   if (tipo === "nombre") return "Nombre";
   return "";
 }

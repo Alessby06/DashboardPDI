@@ -70,6 +70,20 @@ import '../styles/expediente.css';
           var sede = b.sede ? ("Sede " + b.sede) : "Sin sede asignada";
           setText("expPageSubtitle", (b.edad || "") + " - " + (b.sexo === "M" ? "Masculino" : "Femenino") + " - " + sede);
 
+          var indice = lista.findIndex(function (item) { return item.id === b.id; });
+          var btnPrev = document.getElementById("expPrevBtn");
+          var btnNext = document.getElementById("expNextBtn");
+          if (btnPrev && indice > -1) {
+            btnPrev.disabled = (indice <= 0);
+            if (indice <= 0) btnPrev.classList.add("is-disabled");
+            else btnPrev.classList.remove("is-disabled");
+          }
+          if (btnNext && indice > -1) {
+            btnNext.disabled = (indice >= lista.length - 1);
+            if (indice >= lista.length - 1) btnNext.classList.add("is-disabled");
+            else btnNext.classList.remove("is-disabled");
+          }
+
           setVal("expCodigo", b.codigo);
           setVal("expDni", b.dni);
           setVal("expNombres", b.nombres);
@@ -77,7 +91,7 @@ import '../styles/expediente.css';
           setVal("expFechaNac", b.fechaNacimiento);
           setVal("expEdad", b.edad);
           var selSexoFlash = document.getElementById("expSexo");
-          if (selSexoFlash) selSexoFlash.value = b.sexo === "F" ? "F" : "M";
+          if (selSexoFlash) selSexoFlash.value = b.sexo === "F" ? "Femenino (F)" : "Masculino (M)";
           setVal("expDireccion", b.direccion);
           setVal("expReferencia", b.referencia);
           var selDSFlash = document.getElementById("expDistritoSede");
@@ -143,7 +157,7 @@ import '../styles/expediente.css';
     </div>
 
     <div class="expediente-page-nav">
-      <!-- Navegación secuencial entre menores (agrupada para móvil y desktop) -->
+      <!-- Navegación secuencial entre usuarios (agrupada para móvil y desktop) -->
       <div class="expediente-nav-group-paging">
         <button type="button" class="btn-action btn-secondary btn-icon-mobile" id="expPrevBtn"
           onclick="window.desplazarExpediente ? window.desplazarExpediente(-1) : null"
@@ -251,11 +265,11 @@ import '../styles/expediente.css';
     <!-- Contenedor de Contenido de la Sección Activa -->
     <div class="expediente-content-area">
 
-      <!-- SECCIÓN 1: IDENTIDAD CON FOTO DEL MENOR / ADOLESCENTE -->
+      <!-- SECCIÓN 1: IDENTIDAD CON FOTO DEL USUARIO / ADOLESCENTE -->
       <div class="modal-tab-pane" id="tab-identidad">
         <div class="child-identity-layout">
 
-          <!-- Carnet Fotográfico del Menor -->
+          <!-- Carnet Fotográfico del Usuario -->
           <div class="child-photo-card">
             <div class="child-photo-frame" id="expChildPhotoFrame">
               <!-- SVG Avatar o Foto Dinámica -->
@@ -340,12 +354,9 @@ import '../styles/expediente.css';
               </div>
               <div class="form-group">
                 <label>Sexo:</label>
-                <select class="form-control" id="expSexo" disabled
+                <input type="text" class="form-control" id="expSexo" readonly
                   style="color:var(--text-main); opacity:1; cursor:default;"
-                  title="El sexo se define en la ficha de inscripcion y no se edita aqui">
-                  <option value="M">Masculino (M)</option>
-                  <option value="F">Femenino (F)</option>
-                </select>
+                  title="Sexo registrado en la ficha de inscripción">
               </div>
               <div class="form-group" style="grid-column: span 2;">
                 <label>Dirección Actual Domiciliaria:</label>
@@ -416,12 +427,6 @@ import '../styles/expediente.css';
               </div>
               <div class="form-group" style="grid-column: 1 / -1; min-width: 0;">
                 <EstrategiaMultiSelect id="expEstrategia" label="Estrategia Asignada" disabled />
-              </div>
-              <div class="form-group" style="grid-column: span 2;">
-                <label style="margin-bottom:6px;">Programas y Servicios Institucionales Inscritos:</label>
-                <div id="expProgramasInscritosContainer" class="programas-checklist programas-checklist--chips">
-                  <!-- Renderizado dinámico de los programas con checkboxes -->
-                </div>
               </div>
 
               <!-- Bloque de Croquis Georreferenciado y Fachada en el Expediente -->
@@ -514,8 +519,7 @@ import '../styles/expediente.css';
           </div>
           <div class="form-group">
             <label>Alergia:</label>
-            <input type="text" class="form-control" id="expAlergiaDescripcion" readonly maxlength="120"
-              style="color:var(--text-danger); font-weight:700;">
+            <input type="text" class="form-control" id="expAlergiaDescripcion" readonly maxlength="120">
           </div>
           <div class="form-group">
             <label>Tipo de alergia:</label>
@@ -641,12 +645,12 @@ import '../styles/expediente.css';
               <input type="text" class="form-control" id="expApoderadoDni" data-tipo="dni" readonly maxlength="8" inputmode="numeric">
             </div>
             <div class="form-group">
-              <label>Teléfono Principal:</label>
-              <input type="text" class="form-control" id="expApoderadoTel" data-tipo="telefono" readonly maxlength="15" inputmode="tel">
+              <label>Celular Principal del Apoderado:</label>
+              <input type="text" class="form-control" id="expApoderadoTel" data-tipo="celular" readonly maxlength="9" pattern="9[0-9]{8}" inputmode="numeric" placeholder="987654321">
             </div>
             <div class="form-group" style="grid-column: span 2;">
               <label>Teléfono Alternativo / Emergencia:</label>
-              <input type="text" class="form-control" id="expTelefonoAlt" data-tipo="telefono" readonly maxlength="15" inputmode="tel">
+              <input type="text" class="form-control" id="expTelefonoAlt" data-tipo="celular" readonly maxlength="9" pattern="9[0-9]{8}" inputmode="numeric" placeholder="912345678">
             </div>
           </div>
         </div>

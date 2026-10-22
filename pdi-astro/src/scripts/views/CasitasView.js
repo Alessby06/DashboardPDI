@@ -194,7 +194,7 @@ export const CasitasView = {
     return { clave: "P", label: "Presente", badgeClass: "badge badge-green" };
   },
 
-  /** Badge de asistencia ya resuelto con el estado guardado del menor. */
+  /** Badge de asistencia ya resuelto con el estado guardado del usuario. */
   _badgeAsistencia(id, prefijo) {
     const info = this._estadoAsistenciaInfo(id);
     return `<span class="${info.badgeClass}" id="${prefijo}${escapar(id)}">${info.label}</span>`;

@@ -4,7 +4,7 @@
 //  Derivaciones del Area Social Pastoral (ASP).
 //
 //  IMPORTANTE: los registros de este archivo son INVENTADOS. No corresponden
-//  a menores, familias ni personas reales. Los documentos de identidad,
+//  a usuarios, familias ni personas reales. Los documentos de identidad,
 //  telefonos, coordenadas y domicilios son ficticios.
 //
 //  Sirven unicamente para poblar la interfaz mientras no exista la base de
@@ -18,7 +18,7 @@
 export const defaultCasosSociales = [
   {
     id: 101,
-    menor: "Liam Mateo Sanchez Diaz",
+    usuario: "Liam Mateo Sanchez Diaz",
     codigo: "PDI-2026-003",
     etapa: "pendiente",
     urgencia: "Alta",
@@ -41,7 +41,7 @@ export const defaultCasosSociales = [
   },
   {
     id: 102,
-    menor: "Dylan Josué Quispe Córdova",
+    usuario: "Dylan Josué Quispe Córdova",
     codigo: "PDI-2026-008",
     etapa: "pendiente",
     urgencia: "Alta",
@@ -64,7 +64,7 @@ export const defaultCasosSociales = [
   },
   {
     id: 103,
-    menor: "Lucas Alejandro Torres Vilchez",
+    usuario: "Lucas Alejandro Torres Vilchez",
     codigo: "PDI-2026-010",
     etapa: "pendiente",
     urgencia: "Media",
@@ -87,7 +87,7 @@ export const defaultCasosSociales = [
   },
   {
     id: 104,
-    menor: "Thiago Gael Flores Quispe",
+    usuario: "Thiago Gael Flores Quispe",
     codigo: "PDI-2026-001",
     etapa: "evaluacion",
     urgencia: "Media",
@@ -110,7 +110,7 @@ export const defaultCasosSociales = [
   },
   {
     id: 105,
-    menor: "Benjamín Elías Navarro Huamán",
+    usuario: "Benjamín Elías Navarro Huamán",
     codigo: "PDI-2026-006",
     etapa: "evaluacion",
     urgencia: "Media",
@@ -133,7 +133,7 @@ export const defaultCasosSociales = [
   },
   {
     id: 106,
-    menor: "Camila Fernanda Rojas Morales",
+    usuario: "Camila Fernanda Rojas Morales",
     codigo: "PDI-2026-007",
     etapa: "evaluacion",
     urgencia: "Media",
@@ -156,7 +156,7 @@ export const defaultCasosSociales = [
   },
   {
     id: 107,
-    menor: "Mateo Sebastian Castillo Ruiz",
+    usuario: "Mateo Sebastian Castillo Ruiz",
     codigo: "PDI-2026-005",
     etapa: "canalizado",
     urgencia: "Alta",
@@ -179,7 +179,7 @@ export const defaultCasosSociales = [
   },
   {
     id: 108,
-    menor: "Mia Valentina Mendoza Ramos",
+    usuario: "Mia Valentina Mendoza Ramos",
     codigo: "PDI-2026-002",
     etapa: "cerrado",
     urgencia: "Baja",
@@ -202,7 +202,7 @@ export const defaultCasosSociales = [
   },
   {
     id: 109,
-    menor: "Luciana Sofia Alvarez Vega",
+    usuario: "Luciana Sofia Alvarez Vega",
     codigo: "PDI-2026-004",
     etapa: "cerrado",
     urgencia: "Baja",

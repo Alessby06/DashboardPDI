@@ -22,7 +22,7 @@
    Todas las declaraciones que neutralizan reglas de views.css llevan
    !important a proposito. Las reglas originales lo llevan, y una anulacion
    sin !important no gana ni por especificidad. El prefijo #view-expediente
-   acota el alcance: un .modal-tab-btn de otro sitio, o el modalNuevoMenor, que
+   acota el alcance: un .modal-tab-btn de otro sitio, o el modalNuevoUsuario, que
    tambien los usa, no se ven afectados.
 
    La hoja se carga en las diez paginas, como las otras, porque el chrome es
@@ -138,7 +138,50 @@
      color: var(--text-dim);
    }
 
-   /* --- Movil -------------------------------------------------------------
+   /* =========================================================================
+   REGLAS GLOBALES DE EXPEDIENTE: INTERACCIÓN Y NAVEGACIÓN
+   ========================================================================= */
+
+/* Retorno al padrón: sin subrayado */
+#expBackToPadron,
+#expBackToPadron:hover,
+#expBackToPadron:focus,
+#expBackToPadron:active,
+.expediente-nav-group-actions a.btn-action {
+  text-decoration: none !important;
+}
+
+/* Navegación secuencial: estado deshabilitado en los extremos */
+#expPrevBtn:disabled,
+#expPrevBtn.is-disabled,
+#expNextBtn:disabled,
+#expNextBtn.is-disabled {
+  opacity: 0.38 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  box-shadow: none !important;
+  background: var(--surface-2) !important;
+  color: var(--text-dim) !important;
+  border-color: var(--border-subtle) !important;
+}
+
+/* En modo lectura del expediente, los campos select deshabilitados no llevan flecha */
+#view-expediente select.form-control:disabled,
+#view-expediente select:disabled {
+  background-image: none !important;
+  cursor: default !important;
+  padding-right: 12px !important;
+}
+
+/* Cuando se activa la edición, los selects habilitados muestran chevron sobrio */
+body.pdi-editando #view-expediente select.form-control:not(:disabled),
+body.pdi-editando #view-expediente select:not(:disabled) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E") !important;
+  cursor: pointer !important;
+  padding-right: 36px !important;
+}
+
+/* --- Movil -------------------------------------------------------------
       Debajo de 768px se anula el marco y vuelve el flujo natural: la pagina
       entera desplaza dentro de .content-viewport, la cabecera y la barra de
       acciones se van con ella, y el expediente se lee como un documento. Las
@@ -177,7 +220,15 @@
      }
 
      .expediente-nav-group-paging,
-     .expediente-nav-group-actions {
+    .expediente-nav-group-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+
+
+         .expediente-nav-group-actions {
        display: flex !important;
        align-items: center !important;
        gap: 6px !important;
@@ -354,7 +405,7 @@
      }
 
      /* Pie de hoja: la institucion y el sistema. La fecha de emision la pone
-        el menor al firmar, no el css.
+        el usuario al firmar, no el css.
 
         flex-basis: 100% es lo que hace que esto baje a su propia linea: sin
         eso el pseudo-elemento seria un tercer elemento flexible de la cabecera

@@ -66,6 +66,9 @@ const impeccableLive =
       --brand-light: #14b8a6;
       --brand-surface: rgba(15, 118, 110, 0.08);
       --brand-border: rgba(15, 118, 110, 0.24);
+      --brand-rgb: 15, 118, 110;
+      --on-brand: #ffffff;
+      --hero-accent-rgb: 52, 211, 153;
 
       /* Alertas */
       --danger: #b91c1c;
@@ -114,38 +117,46 @@ const impeccableLive =
       --ui-font: 'Manrope', sans-serif;
     }
 
+    /* Modo oscuro de alto contraste, alineado con el resto del sistema.
+       El login conserva su decision de diseño (boton principal blanco y
+       tarjetas de modulos claras sobre fondo oscuro); lo que cambia es la
+       base, que pasa a negro real, y el texto secundario, que sube hasta
+       pasar AA con holgura. */
     [data-theme="dark"] {
-      --brand-primary: #10b981;
-      --brand-hover: #059669;
-      --brand-light: #34d399;
-      --brand-surface: rgba(16, 185, 129, 0.12);
-      --brand-border: rgba(16, 185, 129, 0.3);
+      --brand-primary: #2ee6a0;
+      --brand-hover: #6bffc4;
+      --brand-light: #6bffc4;
+      --brand-surface: rgba(46, 230, 160, 0.14);
+      --brand-border: rgba(46, 230, 160, 0.42);
+      --brand-rgb: 46, 230, 160;
+      --on-brand: #00130c;
 
-      --danger: #ef4444;
-      --danger-bg: rgba(239, 68, 68, 0.14);
-      --danger-border: rgba(239, 68, 68, 0.3);
+      --danger: #ff8b8b;
+      --danger-bg: rgba(255, 139, 139, 0.14);
+      --danger-border: rgba(255, 139, 139, 0.42);
 
-      --bg-page: #0b0f14;
-      --surface-card: #121820;
-      --surface-subtle: #19212c;
-      --surface-inset: #0e131a;
-      --border-subtle: rgba(255, 255, 255, 0.07);
-      --border-medium: rgba(255, 255, 255, 0.13);
+      --bg-page: #000000;
+      --surface-card: #0d0d0f;
+      --surface-subtle: #151518;
+      --surface-inset: #08080a;
+      --border-subtle: #34343c;
+      --border-medium: #4a4a55;
 
-      --text-title: #f1f5f9;
-      --text-body: #cbd5e1;
-      --text-muted: #8b99ad;
-      --text-faint: #64748b;
+      --text-title: #ffffff;
+      --text-body: #dcdce4;
+      --text-muted: #b4b4c0;
+      --text-faint: #b4b4c0;
 
-      --hero-bg: #070b10;
-      --hero-card-bg: rgba(14, 20, 27, 0.85);
-      --hero-card-border: rgba(255, 255, 255, 0.07);
-      --hero-title: #f1f5f9;
-      --hero-text: #8b99ad;
-      --hero-accent: #10b981;
+      --hero-bg: #000000;
+      --hero-card-bg: rgba(13, 13, 15, 0.92);
+      --hero-card-border: #34343c;
+      --hero-title: #ffffff;
+      --hero-text: #b4b4c0;
+      --hero-accent: #2ee6a0;
+      --hero-accent-rgb: 46, 230, 160;
 
-      --shadow-flat: 0 1px 2px rgba(0, 0, 0, 0.3);
-      --shadow-raised: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 4px 18px rgba(0, 0, 0, 0.4);
+      --shadow-flat: 0 1px 2px rgba(0, 0, 0, 0.55);
+      --shadow-raised: 0 0 0 1px rgba(255, 255, 255, 0.10), 0 4px 18px rgba(0, 0, 0, 0.70);
     }
 
     /* ── Estructura de Página ───────────────────────────────────── */
@@ -296,14 +307,14 @@ const impeccableLive =
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      color: #34d399;
+      color: var(--hero-accent);
       box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.04);
       transition: border-color 0.28s var(--ease-fluid), background 0.28s var(--ease-fluid), transform 0.36s var(--ease-fluid);
     }
 
     .module-item:hover .module-icon-well {
-      background: rgba(16, 185, 129, 0.1);
-      border-color: rgba(16, 185, 129, 0.35);
+      background: rgba(var(--hero-accent-rgb), 0.1);
+      border-color: rgba(var(--hero-accent-rgb), 0.35);
       transform: translateY(-2px) scale(1.05);
     }
 
@@ -385,7 +396,7 @@ const impeccableLive =
 
     @keyframes ecgHarmonicPulse {
       0%, 100% { transform: scaleY(1); opacity: 0.78; filter: none; }
-      24%      { transform: scaleY(1.18); opacity: 1; filter: drop-shadow(0 0 2px rgba(52, 211, 153, 0.55)); }
+      24%      { transform: scaleY(1.18); opacity: 1; filter: drop-shadow(0 0 2px rgba(var(--hero-accent-rgb), 0.55)); }
       48%      { transform: scaleY(0.92); opacity: 0.85; filter: none; }
       68%      { transform: scaleY(1.06); opacity: 0.94; }
       85%      { transform: scaleY(1); opacity: 0.78; filter: none; }
@@ -649,7 +660,7 @@ const impeccableLive =
       width: 100%;
       height: 46px;
       background: var(--brand-primary);
-      color: #ffffff;
+      color: var(--on-brand);
       border: none;
       border-radius: var(--radius-md);
       font-family: var(--ui-font);
@@ -662,7 +673,7 @@ const impeccableLive =
       justify-content: center;
       gap: 8px;
       margin-top: 4px;
-      box-shadow: 0 1px 3px rgba(0, 122, 100, 0.25);
+      box-shadow: 0 1px 3px rgba(var(--brand-rgb), 0.25);
       transition: background 0.15s ease, transform 0.12s var(--ease-snappy);
     }
 
@@ -820,7 +831,7 @@ const impeccableLive =
       background-clip: padding-box;
     }
     .showcase-column ::selection {
-      background: rgba(52, 211, 153, 0.469);
+      background: rgba(var(--hero-accent-rgb), 0.469);
       color: var(--hero-title);
     }
     .showcase-column :focus-visible {
@@ -943,7 +954,7 @@ const impeccableLive =
     }
     .module-radio:checked + .module-row {
       background: rgba(255, 255, 255, 0.05);
-      border-color: rgba(52, 211, 153, 0.25);
+      border-color: rgba(var(--hero-accent-rgb), 0.25);
     }
     .module-radio:checked + .module-row .module-text-wrap p {
       height: auto;
@@ -960,8 +971,8 @@ const impeccableLive =
       opacity: 1;
     }
     .module-radio:checked + .module-row .module-icon-well {
-      background: rgba(16, 185, 129, 0.12);
-      border-color: rgba(16, 185, 129, 0.4);
+      background: rgba(var(--brand-rgb), 0.12);
+      border-color: rgba(var(--brand-rgb), 0.4);
     }
     .module-row:hover .module-chev {
       color: var(--hero-accent);
@@ -1088,7 +1099,7 @@ const impeccableLive =
   .access-column .input-wrapper:focus-within .input-icon-glyph { color: var(--v-blue-focus); }
   .access-column .btn-primary-action {
     background: var(--brand-primary);
-    box-shadow: 0 1px 3px rgba(15, 118, 110, 0.25);
+    box-shadow: 0 1px 3px rgba(var(--brand-rgb), 0.25);
   }
   .access-column .btn-primary-action:hover {
     background: var(--brand-hover);

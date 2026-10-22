@@ -14,7 +14,7 @@
     body {
       background-color: var(--bg-base);
       background-image: 
-        radial-gradient(circle at 15% 15%, rgba(0, 180, 148, 0.05) 0%, transparent 45%),
+        radial-gradient(circle at 15% 15%, rgba(var(--brand-rgb), 0.05) 0%, transparent 45%),
         radial-gradient(circle at 85% 85%, rgba(251, 218, 51, 0.03) 0%, transparent 50%);
       /* Aqui era fixed y ahora es scroll. El body nunca se desplaza:
          .app-shell tiene height: 100vh con overflow: hidden, y el scroll real
@@ -35,14 +35,14 @@
     [data-theme="light"] body {
       background-color: #f8fafc;
       background-image: 
-        radial-gradient(circle at 15% 15%, rgba(0, 122, 101, 0.04) 0%, transparent 50%),
+        radial-gradient(circle at 15% 15%, rgba(var(--brand-rgb), 0.04) 0%, transparent 50%),
         radial-gradient(circle at 85% 85%, rgba(3, 105, 161, 0.03) 0%, transparent 55%);
     }
 
     [data-theme="dark"] body {
       background-color: var(--bg-base);
       background-image: 
-        radial-gradient(circle at 15% 15%, rgba(0, 180, 148, 0.04) 0%, transparent 50%),
+        radial-gradient(circle at 15% 15%, rgba(var(--brand-rgb), 0.04) 0%, transparent 50%),
         radial-gradient(circle at 85% 85%, rgba(56, 189, 248, 0.03) 0%, transparent 55%);
     }
 
@@ -634,7 +634,9 @@
 
     .btn-action.primary {
       background: linear-gradient(135deg, var(--gt-green), var(--gt-blue));
-      color: #ffffff;
+      /* La tinta sale del tema: sobre el verde claro del modo oscuro el blanco
+         daba 1,6:1. En claro sigue siendo blanco. */
+      color: var(--on-brand);
       border: 1px solid rgba(255, 255, 255, 0.18);
       font-weight: 700;
     }

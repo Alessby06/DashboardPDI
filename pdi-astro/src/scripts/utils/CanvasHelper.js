@@ -17,7 +17,7 @@ export const CanvasHelper = {
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     const isLight = document.documentElement.getAttribute("data-theme") === "light";
-    ctx.strokeStyle = isLight ? "#007a65" : "#00b494";
+    ctx.strokeStyle = "#000000";
 
     function getCoords(e) {
       const r = canvas.getBoundingClientRect();

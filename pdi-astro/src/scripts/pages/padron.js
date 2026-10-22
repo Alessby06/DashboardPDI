@@ -34,7 +34,7 @@ let enlazado = false;
 function enlazar() {
   if (enlazado) return;
   enlazado = true;
-  // El lienzo de firma del alta de menores se prepara una vez por carga.
+  // El lienzo de firma del alta de usuarios se prepara una vez por carga.
   BeneficiarioController.initSignature();
 }
 
@@ -53,7 +53,7 @@ function iniciar() {
   montar();
 
   // Que redibujar cuando algo guarde en esta pagina, por ejemplo al dar de
-  // alta a un menor: antes era refreshAllViews(), que refrescaba las ocho
+  // alta a un usuario: antes era refreshAllViews(), que refrescaba las ocho
   // tablas; ahora solo la que esta a la vista.
   publicarRefresco(montar);
 

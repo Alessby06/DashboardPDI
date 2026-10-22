@@ -375,7 +375,7 @@ const SQL_PADRON = `SELECT *,
   institucion_origen.nombre AS institucion_origen_nombre,
   (SELECT * FROM alergia WHERE persona_id = $parent.id) AS alergias,
   (SELECT * FROM inscripcion WHERE ${F_USUARIO} = $parent.id AND activo = true LIMIT 1)[0] AS ins,
-  (SELECT * FROM tamizaje_hemoglobina WHERE ${F_USUARIO} = $parent.id AND activo = true ORDER BY fecha_tamizaje DESC LIMIT 1)[0] AS tam,
+  (SELECT * FROM tamizaje_hemoglobina WHERE ${F_USUARIO} = $parent.id AND activo = true ORDER BY fecha_tamizaje DESC) AS tams,
   (SELECT cuidador_id.nombres AS c_nom, cuidador_id.apellidos AS c_ape, cuidador_id.numero_documento AS c_dni, cuidador_id.sexo AS c_sexo, parentesco FROM ${T_VINCULO} WHERE ${F_MENOR} = $parent.id LIMIT 1)[0] AS apo,
   (SELECT VALUE pct_exoneracion FROM aporte WHERE inscripcion_id.${F_USUARIO} = $parent.id ORDER BY periodo DESC, mes DESC LIMIT 1)[0] AS pct
 FROM persona
@@ -390,7 +390,7 @@ WHERE activo = true
 const SQL_LOTE_HIDRATACION = [
   // 0 · sedes activas
   'SELECT * FROM sede WHERE activo = true ORDER BY creado_el;',
-  // 1 · padrón con inscripción, tamizaje, apoderado y aporte por menor
+  // 1 · padrón con inscripción, tamizaje, apoderado y aporte por usuario
   SQL_PADRON,
   // 2 · casos sociales activos
   `SELECT *,
@@ -572,6 +572,24 @@ function anemiaDesdeResultado(resultado) {
   return 'Sin tamizaje';
 }
 
+/** Convierte los tamizajes crudos de una persona en filas de historial.
+ *  La nube devuelve la lista ordenada de mas reciente a mas antiguo y ese
+ *  orden se conserva: el primero es el valor vigente. */
+function mapearTamizajes(tamsCrudos) {
+  if (!Array.isArray(tamsCrudos)) return [];
+  return tamsCrudos.map(t => ({
+    _tamizajeId: String(t.id),
+    fecha: t.fecha_tamizaje || '',
+    hb: t.hb_valor != null ? Number(t.hb_valor) : null,
+    hbAjustada: t.hb_ajustada != null ? Number(t.hb_ajustada) : null,
+    peso: t.peso_kg != null ? Number(t.peso_kg) : null,
+    talla: t.talla_cm != null ? Number(t.talla_cm) : null,
+    resultado: t.resultado || '',
+    anemia: anemiaDesdeResultado(t.resultado),
+    sedeId: t.sede_id ? String(t.sede_id) : '',
+  }));
+}
+
 /** Aviso reutilizable cuando la nube rechaza una escritura. */
 function avisarFallo(operacion, err) {
   const detalle = err?.message || String(err || 'Error desconocido');
@@ -632,7 +650,7 @@ function slugDeSede(nombre) {
   return slug ? `sede-${slug}` : null;
 }
 
-/** Obtiene el Padrón de Menores Beneficiarios con inscripción, tamizaje y apoderado. */
+/** Obtiene el Padrón de Usuarios Beneficiarios con inscripción, tamizaje y apoderado. */
 export async function fetchBeneficiarios() {
   const sedes = await fetchSedes();
   return mapearBeneficiarios(comoLista(await ejecutar(SQL_PADRON)), sedes);
@@ -670,10 +688,14 @@ function mapearBeneficiarios(personasRes, sedes) {
     // La alergia vigente es la de mayor gravedad entre las que la persona tiene.
     const alergiaVigente = alergiaPrincipal(m.alergias);
 
+    // El tamizaje vigente es el mas reciente de la lista completa; la lista
+    // entera viaja en b.tamizajes para el historial de salud.
+    const tam = Array.isArray(m.tams) && m.tams.length ? m.tams[0] : null;
+
     return {
       _personaId: String(m.id),
       _inscripcionId: m.ins ? String(m.ins.id) : '',
-      _tamizajeId: m.tam ? String(m.tam.id) : '',
+      _tamizajeId: tam ? String(tam.id) : '',
       _sedeRawId: sedeObj ? sedeObj._rawId : '',
       id: idNum,
       codigo: m.codigo || '',
@@ -711,10 +733,11 @@ function mapearBeneficiarios(personasRes, sedes) {
       telefono: m.telefono || '',
       telefonoAlt: m.telefono_alt || '',
       estado: m.ins?.estado || 'Activo',
-      hb: m.tam?.hb_valor != null ? Number(m.tam.hb_valor) : null,
-      peso: m.tam?.peso_kg != null ? Number(m.tam.peso_kg) : null,
-      talla: m.tam?.talla_cm != null ? Number(m.tam.talla_cm) : null,
-      anemia: anemiaDesdeResultado(m.tam?.resultado),
+      hb: tam?.hb_valor != null ? Number(tam.hb_valor) : null,
+      peso: tam?.peso_kg != null ? Number(tam.peso_kg) : null,
+      talla: tam?.talla_cm != null ? Number(tam.talla_cm) : null,
+      anemia: anemiaDesdeResultado(tam?.resultado),
+      tamizajes: mapearTamizajes(m.tams),
       canastaEntregada: null,
       orientacionFamiliar: null,
       retiroAutorizado: apoderadoNom ? `${apoderadoNom}${parentescoApo ? ' (' + parentescoApo + ')' : ''}` : '',
@@ -749,7 +772,7 @@ function mapearCasos(casosRaw, solicitudesRaw) {
 
   return casosRaw.map((c, idx) => {
     const idNum = c.id_numerico || extraerNumeroId(c.codigo_caso, String(c.id), 101 + idx);
-    const menorNom = c.p_nom && c.p_ape ? `${c.p_nom} ${c.p_ape}` : '';
+    const usuarioNom = c.p_nom && c.p_ape ? `${c.p_nom} ${c.p_ape}` : '';
     const listaSol = porCaso.get(String(c.id)) || [];
 
     const historial = listaSol.map(s => ({
@@ -776,7 +799,7 @@ function mapearCasos(casosRaw, solicitudesRaw) {
       _sedeRawId: c.sede_id ? String(c.sede_id) : '',
       id: idNum,
       beneficiarioId: idNum,
-      menor: menorNom,
+      usuario: usuarioNom,
       codigo: c.p_cod || c.codigo_caso || '',
       etapa: etapaUi(c.etapa),
       urgencia: c.urgencia || 'Media',
@@ -915,7 +938,7 @@ function mapearAsistencia(raw, beneficiarios) {
 // ---------------------------------------------------------------------------
 //  CRUD · Padrón de beneficiarios
 // ---------------------------------------------------------------------------
-/** Verifica documento duplicado y crea menor + inscripción + apoderado + aporte. */
+/** Verifica documento duplicado y crea usuario + inscripción + apoderado + aporte. */
 /**
  * Correlativo oficial del usuario: cuatro dígitos, "-IS" y el año, tal como lo
  * pide la ficha de inscripción A1 del programa (0001-IS2026). El correlativo
@@ -1087,13 +1110,13 @@ export async function crearBeneficiario(m) {
       if (!cuiId) return avisarFallo('Registro de usuario', 'No se pudo registrar al apoderado (revisa su DNI).') === null ? null : null;
     }
 
-    // 2) Transacción: menor + inscripción + vínculo + consentimiento + aporte.
+    // 2) Transacción: usuario + inscripción + vínculo + consentimiento + aporte.
     const pct = pctDesdeExoneracion(m.exoneracionAporte);
     const hb = m.hb != null && m.hb !== '' && !isNaN(Number(m.hb)) ? Number(m.hb) : null;
 
     const res = await ejecutar(`
       LET $sede = type::record('sede', $sid);
-      LET $menor = array::first((CREATE persona CONTENT {
+      LET $usuario = array::first((CREATE persona CONTENT {
         tipo_documento: $tipoDoc, codigo: $cod,
         nombres: $nom, apellidos: $ape, numero_documento: $doc,
         fecha_nacimiento: type::datetime($fnac), sexo: $sexo,
@@ -1108,12 +1131,12 @@ export async function crearBeneficiario(m) {
       } RETURN VALUE id));
       IF string::len($algDesc) > 0 {
         CREATE alergia CONTENT {
-          persona_id: $menor, tipo: $algTipo, severidad: $algSev,
+          persona_id: $usuario, tipo: $algTipo, severidad: $algSev,
           descripcion: $algDesc, activo: true
         };
       };
       LET $ins = array::first((CREATE inscripcion CONTENT {
-        ${F_USUARIO}: $menor, sede_id: $sede,
+        ${F_USUARIO}: $usuario, sede_id: $sede,
         periodo: $periodo, programa: $prog, estrategias: $estrategias,
         modalidad: $modalidadGuardable,
         tipo_atencion: $tipoAtencionGuardable ?? NONE, estado: $estado,
@@ -1121,11 +1144,11 @@ export async function crearBeneficiario(m) {
       } RETURN VALUE id));
       IF string::len($cuiId) > 0 {
         CREATE ${T_VINCULO} CONTENT {
-          ${F_MENOR}: $menor, cuidador_id: type::record('persona', $cuiId),
-          parentesco: $par, rol_vinculo: 'Responsable', vive_con_menor: true
+          ${F_MENOR}: $usuario, cuidador_id: type::record('persona', $cuiId),
+          parentesco: $par, rol_vinculo: 'Responsable', vive_con_usuario: true
         };
         CREATE consentimiento CONTENT {
-          ${F_USUARIO}: $menor, ${F_FIRMANTE}: type::record('persona', $cuiId),
+          ${F_USUARIO}: $usuario, ${F_FIRMANTE}: type::record('persona', $cuiId),
           periodo: $periodo,
           eval_social: $cEval, uso_fotografia: $cFoto,
           recaudacion_fondos: $cFondos, flujo_transfronterizo: $cFlujo,
@@ -1143,14 +1166,14 @@ export async function crearBeneficiario(m) {
       };
       IF string::len($hbStr) > 0 {
         CREATE tamizaje_hemoglobina CONTENT {
-          ${F_USUARIO}: $menor, sede_id: $sede,
+          ${F_USUARIO}: $usuario, sede_id: $sede,
           inscripcion_id: $ins,
           resultado: $res,
           hb_valor: type::decimal($hbStr), hb_ajustada: type::decimal($hbStr),
           msnm: 150, activo: true
         };
       };
-      RETURN { menor: $menor, ins: $ins };
+      RETURN { usuario: $usuario, ins: $ins };
     `, {
       ...params,
       foto: m.fotoUrl || null,
@@ -1167,10 +1190,71 @@ export async function crearBeneficiario(m) {
     });
 
     const lista = comoLista(res);
-    const paquete = lista.find(x => x && typeof x === 'object' && (x.menor || x.ins)) || null;
-    return { ok: true, personaId: paquete?.menor ?? null, codigo: cod };
+    const paquete = lista.find(x => x && typeof x === 'object' && (x.usuario || x.ins)) || null;
+    return { ok: true, personaId: paquete?.usuario ?? null, codigo: cod };
   } catch (err) {
     return avisarFallo('Registro de usuario', err);
+  }
+}
+
+/**
+ * Registra una nueva prueba de hemoglobina en el historial del usuario.
+ * Append-only: no toca ni anula tamizajes previos; el vigente siempre es el de
+ * fecha mas reciente con activo = true. El resultado (semáforo MINSA) lo
+ * calcula la vista con AnemiaCalculator antes de llamar aqui; si no viene, se
+ * deduce del diagnostico con el mismo mapeo que usa el alta inicial.
+ */
+export async function crearTamizaje(m) {
+  try {
+    const hoy = new Date();
+    const fechaHoy = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
+    // Los ids crudos llegan como 'tabla:id' o ':id'; la base quiere el sufijo.
+    const pid = String(m._personaId || '').split(':').pop();
+    const insId = m._inscripcionId ? String(m._inscripcionId).split(':').pop() : '';
+    const sedId = m._sedeRawId ? String(m._sedeRawId).split(':').pop() : '';
+    await ejecutar(`
+      CREATE tamizaje_hemoglobina CONTENT {
+        ${F_USUARIO}: type::record('persona', $pid),
+        inscripcion_id: IF string::len($insId) > 0 { type::record('inscripcion', $insId) } ELSE { NONE },
+        sede_id: IF string::len($sedId) > 0 { type::record('sede', $sedId) } ELSE { NONE },
+        fecha_tamizaje: type::datetime($fecha),
+        resultado: $res,
+        hb_valor: type::decimal($hbStr), hb_ajustada: type::decimal($hbStr),
+        peso_kg: IF string::len($pesoStr) > 0 { type::decimal($pesoStr) } ELSE { NONE },
+        talla_cm: IF string::len($tallaStr) > 0 { type::decimal($tallaStr) } ELSE { NONE },
+        msnm: 150, activo: true
+      };`, {
+      pid,
+      insId,
+      sedId,
+      fecha: (m.fecha || fechaHoy) + 'T12:00:00Z',
+      res: m.resultado || resultadoDesdeAnemia(m.anemia),
+      hbStr: String(m.hb),
+      pesoStr: m.peso != null && m.peso !== '' ? String(m.peso) : '',
+      tallaStr: m.talla != null && m.talla !== '' ? String(m.talla) : '',
+    });
+    return true;
+  } catch (err) {
+    return avisarFallo('Registro de tamizaje', err) !== null;
+  }
+}
+
+/**
+ * Desactiva un tamizaje (soft delete: activo = false). Solo toca el campo que
+ * el esquema en la nube ya conoce; el motivo de la desactivacion es un dato de
+ * auditoria y como tal queda registrado en bitacora_auditoria, no aqui.
+ * La lista de tamizajes de SQL_PADRON filtra activo = true, asi que la prueba
+ * desaparece del historial en la proxima hidratacion.
+ */
+export async function desactivarTamizaje(tamId) {
+  try {
+    const tid = String(tamId).split(':').pop();
+    if (!tid) return false;
+    await ejecutar(`UPDATE tamizaje_hemoglobina SET activo = false
+      WHERE id = type::record('tamizaje_hemoglobina', $tid);`, { tid });
+    return true;
+  } catch (err) {
+    return avisarFallo('Desactivación de tamizaje', err) !== null;
   }
 }
 
@@ -1264,7 +1348,7 @@ async function asegurarInstitucion(nombre, tipo, distrito) {
  * si el registro venía con más de una (importación o edición a mano), se
  * conserva la de mayor gravedad y las demás quedan dadas de baja. Sin
  * alergia (descripción vacía o "Ninguna") se da de baja, nunca se borra: la
- * Ley 29733 prohibe borrar datos de salud de los menores.
+ * Ley 29733 prohibe borrar datos de salud de los usuarios.
  */
 async function guardarAlergia(personaId, entrada, motivo) {
   const descripcion = descripcionAlergia(entrada?.descripcion);
@@ -1314,7 +1398,7 @@ async function guardarAlergia(personaId, entrada, motivo) {
   }
 }
 
-/** Actualiza los datos del menor que la UI edita (expediente / servicios). */
+/** Actualiza los datos del usuario que la UI edita (expediente / servicios). */
 export async function actualizarBeneficiario(b) {
   const pid = String(b._personaId || '').split(':').pop();
   if (!pid) return false;
@@ -1360,8 +1444,8 @@ export async function actualizarBeneficiario(b) {
 
     // Todo lo demás en UNA sola ida y vuelta: persona + vínculo + inscripción.
     await ejecutar(`
-      LET $menor = type::record('persona', $pid);
-      UPDATE $menor SET
+      LET $usuario = type::record('persona', $pid);
+      UPDATE $usuario SET
         nombres = $nom, apellidos = $ape, sexo = $sexo,
         direccion = $dir, referencia = $ref ?? NONE,
         telefono = $tel ?? NONE, telefono_alt = $tel2 ?? NONE,
@@ -1371,35 +1455,35 @@ export async function actualizarBeneficiario(b) {
         centro_salud = IF string::len($centroId) > 0 { type::record('institucion', $centroId) } ELSE { NONE },
         institucion_origen = IF string::len($colegioId) > 0 { type::record('institucion', $colegioId) } ELSE { NONE };
       IF string::len($cuiId) = 0 {
-        DELETE ${T_VINCULO} WHERE ${F_MENOR} = $menor;
+        DELETE ${T_VINCULO} WHERE ${F_MENOR} = $usuario;
       };
       IF string::len($cuiId) > 0 {
-        DELETE ${T_VINCULO} WHERE ${F_MENOR} = $menor;
+        DELETE ${T_VINCULO} WHERE ${F_MENOR} = $usuario;
         CREATE ${T_VINCULO} CONTENT {
-          ${F_MENOR}: $menor, cuidador_id: type::record('persona', $cuiId),
-          parentesco: $par, rol_vinculo: 'Responsable', vive_con_menor: true
+          ${F_MENOR}: $usuario, cuidador_id: type::record('persona', $cuiId),
+          parentesco: $par, rol_vinculo: 'Responsable', vive_con_usuario: true
         };
       };
       UPDATE inscripcion SET
         programa = $prog, estrategias = $estrategias, estado = $estado,
         modalidad = $modalidadGuardable,
         tipo_atencion = $tipoAtencionGuardable ?? NONE
-      WHERE ${F_USUARIO} = $menor AND activo = true;
+      WHERE ${F_USUARIO} = $usuario AND activo = true;
       IF string::len($fnac) > 0 {
-        UPDATE $menor SET fecha_nacimiento = type::datetime($fnac);
+        UPDATE $usuario SET fecha_nacimiento = type::datetime($fnac);
       };
       // La sede elegida en el desplegable reemplaza la inscripcion actual; si
       // el nombre no existe en el Directorio Territorial se queda como estaba.
       IF string::len($sedeNom) > 0 {
         LET $nuevaSede = (SELECT VALUE id FROM sede WHERE nombre = $sedeNom LIMIT 1)[0];
         IF $nuevaSede != NONE {
-          UPDATE inscripcion SET sede_id = $nuevaSede WHERE ${F_USUARIO} = $menor AND activo = true;
+          UPDATE inscripcion SET sede_id = $nuevaSede WHERE ${F_USUARIO} = $usuario AND activo = true;
         };
       };
-      // La escala de exoneracion vive en el ultimo aporte del menor, igual que
+      // La escala de exoneracion vive en el ultimo aporte del usuario, igual que
       // la lee el padron: se replica ahi para que la vista y la nube coincidan.
       IF string::len($exon) > 0 {
-        LET $aporteUltimo = (SELECT VALUE id FROM aporte WHERE inscripcion_id.${F_USUARIO} = $menor ORDER BY periodo DESC, mes DESC LIMIT 1)[0];
+        LET $aporteUltimo = (SELECT VALUE id FROM aporte WHERE inscripcion_id.${F_USUARIO} = $usuario ORDER BY periodo DESC, mes DESC LIMIT 1)[0];
         IF $aporteUltimo != NONE {
           UPDATE $aporteUltimo SET pct_exoneracion = $pctAporte;
         };
@@ -1526,17 +1610,17 @@ export async function actualizarSede(s) {
 // ---------------------------------------------------------------------------
 //  CRUD · Casos sociales (ASP)
 // ---------------------------------------------------------------------------
-/** Alta de caso social: localiza a la persona del menor por código. */
+/** Alta de caso social: localiza a la persona del usuario por código. */
 export async function crearCasoSocial(ui) {
   try {
     const hayBeneficiario = window.PDI?.BeneficiarioModel?.getAll?.() || [];
-    const menor = hayBeneficiario.find(b => String(b.id) === String(ui.beneficiarioId) ||
+    const usuario = hayBeneficiario.find(b => String(b.id) === String(ui.beneficiarioId) ||
       (ui.codigo && b.codigo && b.codigo.toLowerCase() === ui.codigo.toLowerCase()));
-    if (!menor || !menor._personaId) {
-      avisarElMenorNoEsta();
+    if (!usuario || !usuario._personaId) {
+      avisarElUsuarioNoEsta();
       return null;
     }
-    if (!menor._sedeRawId) {
+    if (!usuario._sedeRawId) {
       avisarFallo('Registro de caso social', 'El usuario no tiene sede asignada en la nube.');
       return null;
     }
@@ -1557,8 +1641,8 @@ export async function crearCasoSocial(ui) {
       detalle_soporte_familiar: $soporteDet ?? NONE,
       activo: true
     };`, {
-      pid: menor._personaId.split(':').pop(),
-      sid: menor._sedeRawId ? menor._sedeRawId.split(':').pop() : null,
+      pid: usuario._personaId.split(':').pop(),
+      sid: usuario._sedeRawId ? usuario._sedeRawId.split(':').pop() : null,
       cod: 'CAS-' + new Date().getFullYear() + '-' + String(Date.now()).slice(-5),
       urg: ['Alta', 'Media', 'Baja'].includes(ui.prioridad || ui.urgencia) ? (ui.prioridad || ui.urgencia) : 'Media',
       tipo: TIPO_PROBLEMATICA.includes(ui.tipoProblematica) ? ui.tipoProblematica : 'Nutricional / Abandono',
@@ -1579,7 +1663,7 @@ export async function crearCasoSocial(ui) {
 
 const TIPO_PROBLEMATICA = ['Familiar', 'Educativo', 'Salud', 'Nutricional / Abandono', 'Violencia'];
 
-function avisarElMenorNoEsta() {
+function avisarElUsuarioNoEsta() {
   avisarFallo('Registro de caso social', 'El usuario no tiene expediente en la nube todavía.');
 }
 

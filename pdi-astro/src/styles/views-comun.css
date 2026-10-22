@@ -851,8 +851,8 @@
 
   /* El lápiz (editar) se insinúa en verde de marca */
   .row-action--edit:hover {
-    border-color: var(--gt-green, #00b494);
-    color: var(--gt-green, #00b494);
+    border-color: var(--gt-green);
+    color: var(--gt-green);
   }
 }
 
@@ -898,10 +898,10 @@
 
 .btn-action-icon.btn-audit-export-icon:hover {
   background: var(--surface-hover);
-  border-color: var(--gt-green, #00b494);
-  color: var(--text-brand, #0f766e);
+  border-color: var(--gt-green);
+  color: var(--text-brand);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 180, 148, 0.15);
+  box-shadow: 0 4px 12px rgba(var(--brand-rgb), 0.15);
 }
 
 .btn-action-icon.btn-audit-export-icon:active {
@@ -915,9 +915,9 @@
 }
 
 [data-theme="dark"] .btn-action-icon.btn-audit-export-icon:hover {
-  background: rgba(16, 185, 129, 0.12);
-  border-color: var(--gt-green, #10b981);
-  color: var(--text-brand, #34d399);
+  background: rgba(var(--brand-rgb), 0.12);
+  border-color: var(--gt-green);
+  color: var(--text-brand);
 }
 
 /* En móvil (<= 768px): integración simétrica y orgánica con .view-actions y .dash-header-actions */

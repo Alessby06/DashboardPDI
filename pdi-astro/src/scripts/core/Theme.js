@@ -43,7 +43,7 @@ export const Theme = {
     const metaTema = document.getElementById('metaThemeColor');
     if (!metaTema) return;
     const oscuro = document.documentElement.getAttribute('data-theme') === 'dark';
-    metaTema.setAttribute('content', oscuro ? '#15171e' : '#ffffff');
+    metaTema.setAttribute('content', oscuro ? '#0d0d0f' : '#ffffff');
   },
 
   /**

@@ -709,7 +709,7 @@
     .diff-curr span {
       display: inline-block;
       padding: 2px 6px;
-      background: rgba(0, 180, 148, 0.12);
+      background: rgba(var(--brand-rgb), 0.12);
       color: var(--text-brand);
       font-weight: 700;
       border-radius: 4px;
@@ -983,14 +983,14 @@
     }
 
     .programa-item.editable:hover {
-      border-color: var(--gt-green, #00b494);
-      background: rgba(0, 180, 148, 0.04);
+      border-color: var(--gt-green);
+      background: rgba(var(--brand-rgb), 0.04);
       transform: translateY(-1px);
     }
 
     .programa-item.active {
       border-color: var(--gt-green-border);
-      background: rgba(0, 180, 148, 0.07);
+      background: rgba(var(--brand-rgb), 0.07);
     }
 
     .programa-check-box {
@@ -1009,7 +1009,7 @@
     .programa-item.active .programa-check-box {
       background: var(--gt-green);
       border-color: var(--gt-green);
-      color: #ffffff;
+      color: var(--on-brand);
     }
 
     .programa-details {
@@ -1095,7 +1095,7 @@
       border: 1.5px dashed var(--gt-green);
       border-radius: 10px;
       padding: 14px 16px;
-      background: rgba(0, 180, 148, 0.05);
+      background: rgba(var(--brand-rgb), 0.05);
       display: flex;
       align-items: center;
       gap: 14px;
@@ -1106,7 +1106,7 @@
       height: 42px;
       border-radius: 8px;
       background: var(--gt-green);
-      color: #ffffff;
+      color: var(--on-brand);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1251,29 +1251,29 @@
         margin-top: 2px !important;
       }
 
-      /* Formularios en 1 Sola Columna para Móviles (Expediente y Nuevo Menor) */
+      /* Formularios en 1 Sola Columna para Móviles (Expediente y Nuevo Usuario) */
       .modal-tab-pane .form-grid,
-      #formNuevoMenor .form-grid {
+      #formNuevoUsuario .form-grid {
         grid-template-columns: 1fr !important;
         gap: 10px !important;
       }
 
       .modal-tab-pane .form-group,
-      #formNuevoMenor .form-group {
+      #formNuevoUsuario .form-group {
         grid-column: span 1 !important;
       }
 
       .modal-tab-pane .form-control,
-      #formNuevoMenor .form-control {
+      #formNuevoUsuario .form-control {
         font-size: 14px !important;
         padding: 9px 12px !important;
       }
 
-      #modalNuevoMenor {
+      #modalNuevoUsuario {
         padding: 0 !important;
       }
 
-      #modalNuevoMenor .modal-box {
+      #modalNuevoUsuario .modal-box {
         width: 100% !important;
         max-width: 100% !important;
         height: 100% !important;
@@ -1282,17 +1282,17 @@
         border: none !important;
       }
 
-      #modalNuevoMenor .modal-header {
+      #modalNuevoUsuario .modal-header {
         padding: 12px 16px !important;
       }
 
-      #modalNuevoMenor .modal-body {
+      #modalNuevoUsuario .modal-body {
         padding: 14px 14px 20px !important;
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch;
       }
 
-      #modalNuevoMenor .modal-footer {
+      #modalNuevoUsuario .modal-footer {
         padding: 10px 14px !important;
       }
 
@@ -1331,7 +1331,7 @@
       --text-muted: #334155;
       --text-dim: #64748b;
       --border-subtle: #e2e8f0;
-      --border-focus: #00b494;
+      --border-focus: var(--gt-green);
       --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
     }
 
@@ -1691,11 +1691,11 @@
   gap: 5px !important;
   color: var(--text-brand) !important;
   border-color: var(--gt-green-border) !important;
-  background: rgba(0, 180, 148, 0.08) !important;
+  background: rgba(var(--brand-rgb), 0.08) !important;
 }
 
 .btn-gps-capture:hover {
-  background: rgba(0, 180, 148, 0.16) !important;
+  background: rgba(var(--brand-rgb), 0.16) !important;
 }
 
 .croquis-embed-grid {
@@ -1829,7 +1829,7 @@
 .sedes-chip-btn.active {
   background: var(--gt-green);
   border-color: var(--gt-green);
-  color: #ffffff;
+  color: var(--on-brand);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
@@ -2325,7 +2325,7 @@
 #btnThemeSystem.active .theme-icon-box svg {
   animation: monitorHeartbeat 0.8s var(--ease-out) forwards;
   color: var(--text-brand);
-  filter: drop-shadow(0 0 7px rgba(0, 180, 148, 0.55));
+  filter: drop-shadow(0 0 7px rgba(var(--brand-rgb), 0.55));
 }
 
 @keyframes monitorHeartbeat {
@@ -2345,7 +2345,7 @@
   height: 20px;
   border-radius: 50%;
   background: var(--brand-primary);
-  color: #ffffff;
+  color: var(--on-brand);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2459,7 +2459,7 @@
 
 .btn-gps-capture:hover {
   background: var(--gt-green) !important;
-  color: #ffffff !important;
+  color: var(--on-brand) !important;
 }
 
 .croquis-embed-grid {

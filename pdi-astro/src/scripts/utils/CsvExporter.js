@@ -96,7 +96,7 @@ export const CsvExporter = {
         ? (c.soporteFamiliar.tiene ? "Cuenta con soporte familiar" : "Sin red de soporte familiar")
         : "";
       return [
-        c.codigo, c.menor, c.sede, etapas[c.etapa] || c.etapa, c.urgencia, c.tipoProblematica,
+        c.codigo, c.usuario, c.sede, etapas[c.etapa] || c.etapa, c.urgencia, c.tipoProblematica,
         c.fechaDerivacion, c.vulnerabilidadPuntaje,
         deriva.nombre, deriva.cargo, deriva.telefono, soporte,
         c.situacionEncontrada || c.detalle, c.accionesPrevias

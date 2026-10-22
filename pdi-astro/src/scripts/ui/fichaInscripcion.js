@@ -27,10 +27,11 @@ const OBLIGATORIOS = [
   { id: "regColegio", etiqueta: "I.E. de Origen" },
   { id: "regApoderado", etiqueta: "Apellidos y nombres del apoderado", tipo: "nombre" },
   { id: "regApoderadoDni", etiqueta: "DNI del apoderado", tipo: "dni" },
-  { id: "regTelefono", etiqueta: "Telefono del apoderado", tipo: "telefono" },
+  { id: "regSexoApoderado", etiqueta: "Sexo del apoderado" },
+  { id: "regTelefono", etiqueta: "Celular del apoderado", tipo: "celular" },
   { id: "regRetiroNombre1", etiqueta: "Nombre de la Persona Autorizada 1", tipo: "nombre" },
   { id: "regRetiroDni1", etiqueta: "DNI de la Persona Autorizada 1", tipo: "dni" },
-  { id: "regRetiroTel1", etiqueta: "Telefono de la Persona Autorizada 1", tipo: "telefono" },
+  { id: "regRetiroTel1", etiqueta: "Celular de la Persona Autorizada 1", tipo: "celular" },
 ];
 
 // La Persona Autorizada 2 es opcional, pero si se empieza a llenar se
@@ -39,7 +40,7 @@ const OBLIGATORIOS = [
 const PERSONA_2 = [
   { id: "regRetiroNombre2", etiqueta: "Nombre de la Persona Autorizada 2", tipo: "nombre" },
   { id: "regRetiroDni2", etiqueta: "DNI de la Persona Autorizada 2", tipo: "dni" },
-  { id: "regRetiroTel2", etiqueta: "Telefono de la Persona Autorizada 2", tipo: "telefono" },
+  { id: "regRetiroTel2", etiqueta: "Celular de la Persona Autorizada 2", tipo: "celular" },
   { id: "regRetiroParentesco2", etiqueta: "Parentesco de la Persona Autorizada 2" },
 ];
 
@@ -53,27 +54,108 @@ function tipoDocumentoActual() {
 }
 
 // La alergia se registra como ficha completa (descripcion, tipo y gravedad)
-// solo cuando la persona tiene alguna. "Ninguna" o vacio significa que no
-// tiene: en ese caso la gravedad no se pregunta y no se guarda nada.
+// solo cuando se marca afirmativamente que el usuario si cuenta con alguna.
 function tieneAlergia() {
+  const presencia = document.getElementById("checkAlergiaPresencia");
+  if (presencia) return presencia.value === "si";
   const descripcion = valorDe("regAlergiaDescripcion");
   if (!descripcion) return false;
   return descripcion.toLowerCase() !== "ninguna";
 }
 
-/** Lo que falta de la alergia, o '' si esta completa. */
+/** Cambia programaticamente la seleccion de alergias y sincroniza la vista. */
+export function setTieneAlergias(si) {
+  const btnNo = document.getElementById("btnAlergiaNo");
+  const btnSi = document.getElementById("btnAlergiaSi");
+  const inputPresencia = document.getElementById("checkAlergiaPresencia");
+  const detalle = document.getElementById("alergiaCamposDetalle");
+  const desc = document.getElementById("regAlergiaDescripcion");
+  const tipo = document.getElementById("regAlergiaTipo");
+  const severidad = document.getElementById("regAlergiaSeveridad");
+
+  if (inputPresencia) inputPresencia.value = si ? "si" : "no";
+
+  if (btnNo) btnNo.classList.toggle("is-active", !si);
+  if (btnSi) btnSi.classList.toggle("is-active", !!si);
+
+  if (detalle) detalle.style.display = si ? "block" : "none";
+  if (desc) {
+    desc.disabled = !si;
+    if (si && desc.value === "Ninguna") desc.value = "";
+    if (!si) desc.value = "Ninguna";
+  }
+  if (tipo) {
+    tipo.disabled = !si;
+    if (!si) tipo.value = "Ninguna";
+  }
+  if (severidad) {
+    severidad.disabled = !si;
+    if (!si) severidad.value = "";
+  }
+
+  if (si && desc) {
+    setTimeout(() => desc.focus(), 60);
+  }
+
+  refrescarEstadoFicha();
+}
+
+/** Lo que falta de la alergia, o '' si esta completa o si no presenta alergias. */
 function avisoAlergia() {
   if (!tieneAlergia()) return "";
-  if (valorDe("regAlergiaTipo") === "Ninguna") return "Falta el tipo de alergia";
+  const desc = valorDe("regAlergiaDescripcion");
+  if (!desc || desc.toLowerCase() === "ninguna") return "Falta detallar la alergia";
+  if (!valorDe("regAlergiaTipo") || valorDe("regAlergiaTipo") === "Ninguna") return "Falta el tipo de alergia";
   if (!valorDe("regAlergiaSeveridad")) return "Falta la gravedad de la alergia";
   return "";
 }
 
-/** La gravedad solo se pide cuando hay algo que gravedar. */
-function refrescarGravedadAlergia() {
-  const select = document.getElementById("regAlergiaSeveridad");
-  if (!select) return;
-  select.disabled = !tieneAlergia();
+/** Despliega u oculta el bloque de alergias segun la seleccion. */
+function refrescarAlergias() {
+  const detalle = document.getElementById("alergiaCamposDetalle");
+  const desc = document.getElementById("regAlergiaDescripcion");
+  const tipo = document.getElementById("regAlergiaTipo");
+  const severidad = document.getElementById("regAlergiaSeveridad");
+  const btnNo = document.getElementById("btnAlergiaNo");
+  const btnSi = document.getElementById("btnAlergiaSi");
+  const activa = tieneAlergia();
+
+  if (btnNo) btnNo.classList.toggle("is-active", !activa);
+  if (btnSi) btnSi.classList.toggle("is-active", activa);
+
+  if (detalle) detalle.style.display = activa ? "block" : "none";
+  if (desc) desc.disabled = !activa;
+  if (tipo) tipo.disabled = !activa;
+  if (severidad) severidad.disabled = !activa;
+
+  if (!activa) {
+    if (desc && desc.value !== "Ninguna") desc.value = "Ninguna";
+    if (tipo && tipo.value !== "Ninguna") tipo.value = "Ninguna";
+    if (severidad && severidad.value !== "") severidad.value = "";
+    if (desc) marcarCampo(desc, false);
+  }
+}
+
+/** Sincroniza el campo DNI: si es 'Sin Documento' queda disabled y no requerido. */
+function refrescarDocumento() {
+  const tipoDoc = tipoDocumentoActual();
+  const dni = document.getElementById("regDni");
+  const reqSpan = document.getElementById("regDniReq");
+  if (!dni) return;
+
+  const esSinDoc = tipoDoc === "Sin Documento";
+  dni.disabled = esSinDoc;
+  if (reqSpan) reqSpan.style.display = esSinDoc ? "none" : "";
+
+  if (esSinDoc) {
+    dni.value = "";
+    dni.placeholder = "No aplica (Sin Documento)";
+    dni.removeAttribute("required");
+    marcarCampo(dni, false);
+  } else {
+    dni.placeholder = tipoDoc === "DNI" ? "DNI de 8 dígitos" : "N° de documento";
+    dni.setAttribute("required", "");
+  }
 }
 
 // La modalidad de atencion (fija o itinerante) solo existe en el servicio
@@ -114,7 +196,7 @@ function documentoInvalido() {
 
 function avisoDocumento() {
   if (tipoDocumentoActual() === "Sin Documento") return "";
-  if (!valorDe("regDni")) return "Falta Documento del usuario";
+  if (!valorDe("regDni")) return "Documento de identidad";
   if (tipoDocumentoActual() === "DNI") {
     return "Documento del usuario (DNI de 8 dígitos)";
   }
@@ -240,24 +322,29 @@ export function refrescarEstadoFicha(pedidoDeAnuncio = false) {
 
   const { listo, faltantes } = evaluarFicha();
   boton.disabled = !listo;
-  // La gravedad de la alergia se abre y se cierra con la descripcion.
-  refrescarGravedadAlergia();
-  // La modalidad de atencion solo se abre cuando la inscripcion es de Casita.
+  // Sincroniza campos condicionales y dependientes
+  refrescarDocumento();
+  refrescarAlergias();
   refrescarAtencion();
 
   let resumen = "";
   if (estado) {
     if (listo) {
-      estado.textContent = "Todo listo. Ya se puede guardar.";
+      estado.innerHTML = `<span class="ficha-estado-pill is-ready"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg><span>Ficha lista para guardar</span></span>`;
       estado.classList.remove("ficha-estado--faltan");
       estado.classList.add("ficha-estado--listo");
+      resumen = "Ficha lista para guardar";
     } else {
-      const muestra = faltantes.slice(0, 3).join(", ");
-      const resto = faltantes.length > 3 ? ` y ${faltantes.length - 3} más` : "";
-      const encabezado = faltantes.length === 1 ? "Falta 1 dato" : `Faltan ${faltantes.length} datos`;
-      estado.textContent = `${encabezado}: ${muestra}${resto}.`;
+      let textoDetalle = "";
+      if (faltantes.length > 3) {
+        textoDetalle = "Campos obligatorios pendientes";
+      } else {
+        textoDetalle = `Pendiente: ${faltantes.join(", ")}`;
+      }
+      estado.innerHTML = `<span class="ficha-estado-pill"><span class="ficha-estado-dot"></span><span class="ficha-estado-badge">${faltantes.length} pendientes</span><span class="ficha-estado-text">${textoDetalle}</span></span>`;
       estado.classList.add("ficha-estado--faltan");
       estado.classList.remove("ficha-estado--listo");
+      resumen = `Faltan ${faltantes.length} datos por completar`;
     }
     resumen = estado.textContent;
   }
@@ -277,10 +364,45 @@ export function refrescarEstadoFicha(pedidoDeAnuncio = false) {
 export function alternarPersona2(forzar) {
   const cuerpo = document.getElementById("cuerpoRetiro2");
   const boton = document.getElementById("btnToggleRetiro2");
-  if (!cuerpo || !boton) return;
-  const abierto = forzar === undefined ? cuerpo.hidden : !!forzar;
-  cuerpo.hidden = !abierto;
-  boton.setAttribute("aria-expanded", abierto ? "true" : "false");
+  if (!cuerpo) return;
+  const abrir = forzar === undefined ? cuerpo.hidden : !!forzar;
+  cuerpo.hidden = !abrir;
+  if (boton) {
+    boton.setAttribute("aria-expanded", abrir ? "true" : "false");
+    boton.style.display = abrir ? "none" : "";
+  }
+}
+
+/** Quita la Persona Autorizada 2, limpia sus campos y colapsa la seccion. */
+export function quitarPersona2() {
+  PERSONA_2.forEach((campo) => {
+    const el = document.getElementById(campo.id);
+    if (el) {
+      el.value = "";
+      marcarCampo(el, false);
+    }
+  });
+  const preview = document.getElementById("regFotoRetiro2Preview");
+  const fileInput = document.getElementById("regFotoRetiro2Input");
+  if (fileInput) fileInput.value = "";
+  if (preview) {
+    preview.innerHTML = `
+      <div class="ficha-photo-icon-wrap ficha-photo-icon-wrap--sm">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+        </svg>
+      </div>
+      <span class="ficha-photo-title">Foto P2</span>
+    `;
+  }
+  if (window.PDI?.BeneficiarioController) {
+    window.PDI.BeneficiarioController.tempFotoRetiro2 = null;
+  }
+  alternarPersona2(false);
+  refrescarEstadoFicha();
 }
 
 /** Marca o desmarca un campo como invalido para lectores y para el borde rojo. */
@@ -331,7 +453,7 @@ export function iniciarCroquis() {
 
 /** Conecta los eventos que cambian el estado de la ficha. */
 export function iniciarFicha() {
-  const form = document.getElementById("formNuevoMenor");
+  const form = document.getElementById("formNuevoUsuario");
   if (!form) return;
   // Idempotente: con las transiciones de Astro el script puede pedir la
   // conexion dos veces sobre el mismo formulario.
@@ -409,12 +531,27 @@ export function iniciarFicha() {
   document.getElementById("btnLimpiarFirma")?.addEventListener("click", () => refrescarEstadoFicha());
 
   const botonRetiro2 = document.getElementById("btnToggleRetiro2");
-  botonRetiro2?.addEventListener("click", () => alternarPersona2());
+  botonRetiro2?.addEventListener("click", () => alternarPersona2(true));
 
+  const botonQuitarRetiro2 = document.getElementById("btnQuitarRetiro2");
+  botonQuitarRetiro2?.addEventListener("click", () => quitarPersona2());
+
+  // Conmutador condicional de alergias (Botones táctiles y reactivos)
+  document.getElementById("btnAlergiaNo")?.addEventListener("click", () => setTieneAlergias(false));
+  document.getElementById("btnAlergiaSi")?.addEventListener("click", () => setTieneAlergias(true));
+
+  // Selector de documento: deshabilita DNI si es 'Sin Documento'
+  document.getElementById("regTipoDocumento")?.addEventListener("change", () => {
+    refrescarDocumento();
+    refrescarEstadoFicha();
+  });
+
+  refrescarDocumento();
+  refrescarAlergias();
   refrescarEstadoFicha();
 }
 
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
-  window.PDI.Ficha = { evaluarFicha, refrescarEstadoFicha, alternarPersona2, iniciarFicha, iniciarCroquis };
+  window.PDI.Ficha = { evaluarFicha, refrescarEstadoFicha, alternarPersona2, quitarPersona2, setTieneAlergias, iniciarFicha, iniciarCroquis };
 }

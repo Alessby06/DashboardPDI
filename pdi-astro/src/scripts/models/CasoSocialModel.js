@@ -59,7 +59,7 @@ export const CasoSocialModel = {
           ...c.solicitudCambio,
           casoId: c.id,
           codigo: c.codigo,
-          menor: c.menor,
+          usuario: c.usuario,
           sede: c.sede,
           urgencia: c.urgencia
         });
@@ -72,7 +72,7 @@ export const CasoSocialModel = {
             ...c.ultimaResolucion,
             casoId: c.id,
             codigo: c.codigo,
-            menor: c.menor,
+            usuario: c.usuario,
             sede: c.sede,
             urgencia: c.urgencia
           });
@@ -87,7 +87,7 @@ export const CasoSocialModel = {
               id: h.id,
               casoId: c.id,
               codigo: c.codigo,
-              menor: c.menor,
+              usuario: c.usuario,
               sede: c.sede,
               urgencia: c.urgencia,
               etapaOrigen: h.etapaOrigen,
@@ -224,8 +224,8 @@ export const CasoSocialModel = {
   },
 
   /**
-   * Alta de caso social. La nube localiza a la persona del menor por su código;
-   * sin expediente del menor en la nube el alta es rechazada (avisado por db.js).
+   * Alta de caso social. La nube localiza a la persona del usuario por su código;
+   * sin expediente del usuario en la nube el alta es rechazada (avisado por db.js).
    */
   add(nuevoCaso) {
     const list = this.getAll();

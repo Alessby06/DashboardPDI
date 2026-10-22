@@ -26,7 +26,7 @@ __pycache__/
 # Temporales de herramientas
 .freebuff/
 
-# Dumps de base de datos SurrealDB: contienen datos personales de menores
+# Dumps de base de datos SurrealDB: contienen datos personales de usuarios
 # (nombres, DNI, telefono, direccion) y hashes de credenciales. Este repositorio
 # es publico: los backups NUNCA deben subirse. Guardarlos fuera del arbol del repo.
 *.surql

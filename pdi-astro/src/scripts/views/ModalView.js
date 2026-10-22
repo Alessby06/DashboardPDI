@@ -1,6 +1,6 @@
 
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
-// Vista: Modales (Registro Nuevo Menor, Informe Ejecutivo, Detalle de Auditoria)
+// Vista: Modales (Registro Nuevo Usuario, Informe Ejecutivo, Detalle de Auditoria)
 // El expediente integral ya no esta aqui: es una pagina propia, expediente.html,
 // con su vista en ExpedienteView. Se decidio al convertir la SPA en MPA que un
 // documento que se imprime, se comparte y se navega por URL no puede vivir
@@ -16,7 +16,7 @@ let firmaBorrador = null;
 
 /** Hay trabajo sin guardar cuando alguien escribio algo o firmo. */
 function hayBorrador(modal) {
-  const form = modal.querySelector("#formNuevoMenor");
+  const form = modal.querySelector("#formNuevoUsuario");
   if (!form) return false;
   const escrito = Array.from(
     form.querySelectorAll("input[type='text'], input[type='date'], input[type='tel'], textarea"),
@@ -50,12 +50,12 @@ function conectarDialogoFicha() {
   dialogoFichaListo = true;
 
   document.addEventListener("keydown", (evento) => {
-    const modal = document.getElementById("modalNuevoMenor");
+    const modal = document.getElementById("modalNuevoUsuario");
     if (!modal || !modal.classList.contains("open")) return;
 
     if (evento.key === "Escape") {
       evento.preventDefault();
-      ModalView.closeNuevoMenor({ conservarBorrador: true });
+      ModalView.closeNuevoUsuario({ conservarBorrador: true });
       return;
     }
 
@@ -81,8 +81,8 @@ function conectarDialogoFicha() {
 }
 
 export const ModalView = {
-  openNuevoMenor() {
-    const modal = document.getElementById("modalNuevoMenor");
+  openNuevoUsuario() {
+    const modal = document.getElementById("modalNuevoUsuario");
     if (!modal) return;
 
     conectarDialogoFicha();
@@ -119,8 +119,8 @@ export const ModalView = {
     }, 100);
   },
 
-  closeNuevoMenor({ conservarBorrador = false } = {}) {
-    const modal = document.getElementById("modalNuevoMenor");
+  closeNuevoUsuario({ conservarBorrador = false } = {}) {
+    const modal = document.getElementById("modalNuevoUsuario");
     if (!modal) return;
 
     /* Cerrar no guarda, pero tampoco borra: el usuario decide. Si el cierre
@@ -168,7 +168,7 @@ export const ModalView = {
     const opEl = document.getElementById("informeOperador");
     if (opEl) opEl.textContent = `${activeRole.title} (${activeRole.desc.split(' ')[0]})`;
 
-    const totalEl = document.getElementById("infTotalMenores");
+    const totalEl = document.getElementById("infTotalUsuarios");
     if (totalEl) totalEl.textContent = stats.total;
 
     const normEl = document.getElementById("infNormales");
