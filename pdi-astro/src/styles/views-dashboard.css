@@ -102,7 +102,7 @@
 
       .social-mobile-stage-dropdown.open .social-mobile-stage-select-btn {
         border-color: var(--gt-green) !important;
-        box-shadow: 0 0 0 3px var(--gt-green-bg) !important;
+        box-shadow: none;
       }
 
       .social-mobile-stage-select-btn .stage-select-btn-left {
@@ -1687,7 +1687,7 @@
   background: var(--gt-green);
   border-color: var(--gt-green);
   color: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 180, 148, 0.28);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 /* Master-Detail Split Panel Structure */
@@ -1745,7 +1745,7 @@
   background: var(--gt-green-bg);
   border: 1px solid var(--gt-green-border);
   color: var(--gt-green);
-  box-shadow: 0 2px 10px rgba(0, 180, 148, 0.15);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
 }
 
 .sedes-metric-icon.blue {

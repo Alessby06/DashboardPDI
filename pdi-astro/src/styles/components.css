@@ -494,8 +494,18 @@
     }
 
     .form-control:focus {
-      border-color: var(--gt-green);
-      box-shadow: 0 0 0 3px var(--gt-green-bg);
+      border-color: var(--border-bright, #94a3b8);
+      box-shadow: none;
+      outline: none;
+    }
+
+    .form-control:focus-visible,
+    input.form-control:focus-visible,
+    select.form-control:focus-visible,
+    textarea.form-control:focus-visible {
+      outline: none !important;
+      border-color: var(--border-bright, #94a3b8) !important;
+      box-shadow: none !important;
     }
 
     /* En modo edicion los campos ya van enmarcados en verde: el anillo de foco
@@ -510,7 +520,7 @@
        solo recuadro verde, mas grueso, sin aro exterior ni desplazamiento. */
     .pdi-editando .form-control:focus-visible {
       outline: none;
-      box-shadow: inset 0 0 0 1px var(--gt-green);
+      box-shadow: none;
     }
 
     /* Pulido Enterprise de Select Dropdowns */
@@ -576,7 +586,7 @@
 
     .custom-dropdown.open .custom-dropdown-btn {
       border-color: var(--gt-green);
-      box-shadow: 0 0 0 3px var(--gt-green-bg);
+      box-shadow: none;
     }
 
     .custom-dropdown-btn svg {
@@ -892,8 +902,15 @@
        blanco es casi invisible. Es la unica regla nueva de este bloque que no
        es decorativa: sin ella el sistema no se puede recorrer con el teclado. */
     :focus-visible {
-      outline: 2px solid var(--brand-primary);
+      outline: 2px solid var(--text-dim, #64748b);
       outline-offset: 2px;
+    }
+
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible,
+    .form-control:focus-visible {
+      outline: none !important;
     }
 
     /* ===========================================================================

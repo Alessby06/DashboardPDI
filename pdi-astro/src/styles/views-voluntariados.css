@@ -85,7 +85,7 @@
 
       .social-mobile-stage-dropdown.open .social-mobile-stage-select-btn {
         border-color: var(--gt-green) !important;
-        box-shadow: 0 0 0 3px var(--gt-green-bg) !important;
+        box-shadow: none;
       }
 
       .social-mobile-stage-select-btn .stage-select-btn-left {
@@ -406,8 +406,8 @@
     }
 
     .audit-search-input:focus {
-      border-color: var(--gt-green);
-      box-shadow: 0 0 0 2px var(--gt-green-bg);
+      border-color: var(--border-bright, #94a3b8);
+      box-shadow: none;
     }
 
     .audit-search-clear {
@@ -903,7 +903,7 @@
     }
 
     @keyframes pulseHighlight {
-      0% { outline-color: var(--gt-green); }
+      0% { outline-color: var(--border-medium, #cbd5e1); }
       100% { outline-color: var(--gt-blue); }
     }
 
@@ -1885,7 +1885,7 @@
 
 .padron-inner-dropdown.open .padron-inner-dropdown-btn {
   border-color: var(--gt-green);
-  box-shadow: 0 0 0 2px var(--gt-green-bg);
+  box-shadow: none;
 }
 
 .padron-inner-dropdown-btn svg.caret {
@@ -2190,7 +2190,7 @@
   background: var(--gt-green);
   border-color: var(--gt-green);
   color: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 180, 148, 0.28);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .settings-card-icon-box.blue {
@@ -2952,7 +2952,7 @@
 
 .dot-green {
   background-color: var(--gt-green);
-  box-shadow: 0 0 0 2px var(--gt-green-bg);
+  box-shadow: none;
 }
 
 .dot-amber {
@@ -3063,7 +3063,7 @@
   background: linear-gradient(135deg, #00b494 0%, #008a72 100%) !important;
   color: #ffffff !important;
   border: 1px solid rgba(255, 255, 255, 0.18) !important;
-  box-shadow: 0 4px 14px rgba(0, 180, 148, 0.3) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
   font-weight: 700 !important;
   font-size: 13px !important;
   padding: 0 16px !important;
@@ -3073,7 +3073,7 @@
 
 .view-actions .btn-action.primary:hover {
   background: linear-gradient(135deg, #00c9a5 0%, #009d82 100%) !important;
-  box-shadow: 0 6px 20px rgba(0, 180, 148, 0.42) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
   transform: translateY(-1px);
 }
 
@@ -3416,7 +3416,7 @@
   background: rgba(0, 180, 148, 0.2);
   border-color: rgba(0, 180, 148, 0.55);
   color: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 180, 148, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 /* --- TARJETAS MÓVILES REFINADAS --- */
@@ -3605,7 +3605,7 @@
   background: rgba(0, 180, 148, 0.22) !important;
   border-color: rgba(0, 180, 148, 0.55) !important;
   color: #ffffff !important;
-  box-shadow: 0 2px 10px rgba(0, 180, 148, 0.25) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
 }
 
 [data-theme="dark"] .padron-role-pill {

@@ -85,7 +85,7 @@
 
       .social-mobile-stage-dropdown.open .social-mobile-stage-select-btn {
         border-color: var(--gt-green) !important;
-        box-shadow: 0 0 0 3px var(--gt-green-bg) !important;
+        box-shadow: none;
       }
 
       .social-mobile-stage-select-btn .stage-select-btn-left {
@@ -397,8 +397,8 @@
     }
 
     .audit-search-input:focus {
-      border-color: var(--gt-green);
-      box-shadow: 0 0 0 2px var(--gt-green-bg);
+      border-color: var(--border-bright, #94a3b8);
+      box-shadow: none;
     }
 
     .audit-filters-dropdown {
@@ -853,7 +853,7 @@
     }
 
     @keyframes pulseHighlight {
-      0% { outline-color: var(--gt-green); }
+      0% { outline-color: var(--border-medium, #cbd5e1); }
       100% { outline-color: var(--gt-blue); }
     }
 
@@ -1835,7 +1835,7 @@
 
 .padron-inner-dropdown.open .padron-inner-dropdown-btn {
   border-color: var(--gt-green);
-  box-shadow: 0 0 0 2px var(--gt-green-bg);
+  box-shadow: none;
 }
 
 .padron-inner-dropdown-btn svg.caret {
@@ -2140,7 +2140,7 @@
   background: var(--gt-green);
   border-color: var(--gt-green);
   color: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 180, 148, 0.28);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .settings-card-icon-box.blue {

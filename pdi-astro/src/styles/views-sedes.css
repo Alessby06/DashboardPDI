@@ -113,8 +113,8 @@
     }
 
     .audit-search-input:focus {
-      border-color: var(--gt-green);
-      box-shadow: 0 0 0 2px var(--gt-green-bg);
+      border-color: var(--border-bright, #94a3b8);
+      box-shadow: none;
     }
 
     .audit-search-clear {
@@ -610,7 +610,7 @@
     }
 
     @keyframes pulseHighlight {
-      0% { outline-color: var(--gt-green); }
+      0% { outline-color: var(--border-medium, #cbd5e1); }
       100% { outline-color: var(--gt-blue); }
     }
 
@@ -1592,7 +1592,7 @@
 
 .padron-inner-dropdown.open .padron-inner-dropdown-btn {
   border-color: var(--gt-green);
-  box-shadow: 0 0 0 2px var(--gt-green-bg);
+  box-shadow: none;
 }
 
 .padron-inner-dropdown-btn svg.caret {
@@ -1872,7 +1872,7 @@
   background: var(--gt-green);
   border-color: var(--gt-green);
   color: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 180, 148, 0.28);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .sedes-split-wrapper {
@@ -1949,7 +1949,7 @@
 
 /* Aparca teclado: los items del directorio son seleccionables con Tab + Enter. */
 .sedes-master-item:focus-visible {
-  outline: 2px solid var(--gt-green);
+  outline: 2px solid var(--border-bright, #94a3b8);
   outline-offset: -2px;
 }
 

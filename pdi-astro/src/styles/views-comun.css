@@ -331,8 +331,8 @@
 }
 
 .audit-search-input:focus {
-  border-color: var(--gt-green);
-  box-shadow: 0 0 0 2px var(--gt-green-bg);
+  border-color: var(--border-bright, #94a3b8);
+  box-shadow: none;
 }
 
 .audit-search-clear {

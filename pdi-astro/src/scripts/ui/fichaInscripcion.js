@@ -384,8 +384,7 @@ export function iniciarFicha() {
     }
     const valor = valorDe(campo.id);
     if (!valor) {
-      marcarCampo(el, true);
-      anunciar(`Falta ${campo.etiqueta}`);
+      marcarCampo(el, false);
       return;
     }
     if (campo.tipo && !validarTipo(campo.tipo, valor)) {
