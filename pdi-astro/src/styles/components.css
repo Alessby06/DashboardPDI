@@ -28,6 +28,54 @@
       gap: 8px;
     }
 
+    /* Data panel: misma piel que .card, con cabecera de densidad clinica.
+       Es la pieza que usan los tableros; su titulo es mas pequeno que el de
+       una tarjeta de contenido (14/800 frente a 16.5/700). */
+    .panel {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      padding: 18px 20px;
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-ambient);
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .panel-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: var(--text-main);
+    }
+
+    .panel-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-brand);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .panel-link:hover {
+      color: var(--brand-hover);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
     /* KPI Grid */
     .kpi-grid {
       display: grid;
@@ -52,7 +100,7 @@
     @media (hover: hover) and (pointer: fine) {
       .kpi-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 14px 28px -6px rgba(0, 0, 0, 0.1);
+        box-shadow: var(--shadow-ambient);
       }
     }
 
@@ -66,7 +114,7 @@
     }
 
     .kpi-info h3 {
-      font-size: 32px;
+      font-size: 30px;
       font-weight: 800;
       letter-spacing: -0.02em;
       font-family: var(--mono-font);
@@ -154,7 +202,7 @@
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
       overflow: hidden;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      box-shadow: var(--shadow-sm);
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
@@ -335,7 +383,7 @@
         line-height: 1.35 !important;
       }
       .kpi-info h3 {
-        font-size: 24px !important;
+        font-size: 22px !important;
       }
       .kpi-icon-wrap {
         width: 38px !important;
@@ -377,7 +425,7 @@
     .badge-yellow { background: var(--gt-yellow-bg); color: var(--text-warning); border: 1px solid var(--gt-yellow-border); }
     .badge-blue { background: var(--gt-blue-bg); color: var(--text-info); border: 1px solid var(--gt-blue-border); }
     .badge-red { background: var(--gt-red-bg); color: var(--text-danger); border: 1px solid var(--gt-red-border); }
-    .badge-orange { background: rgba(249, 115, 22, 0.14); color: #f97316; border: 1px solid rgba(249, 115, 22, 0.35); }
+    .badge-orange { background: rgba(249, 115, 22, 0.14); color: var(--gt-orange); border: 1px solid rgba(249, 115, 22, 0.35); }
 
     /* Botones de Asistencia Reactivos (PC y Móvil) */
     .btn-asist {
@@ -407,28 +455,36 @@
       background: var(--gt-green);
       color: var(--on-brand) !important;
       border-color: var(--gt-green);
-      box-shadow: 0 2px 6px rgba(var(--brand-rgb), 0.35);
+      box-shadow: var(--shadow-sm);
     }
 
     .btn-asist.active-T {
       background: var(--gt-yellow);
-      color: #1e1b18 !important;
+      color: var(--on-solid) !important;
       border-color: var(--gt-yellow);
-      box-shadow: 0 2px 6px rgba(245, 158, 11, 0.35);
+      box-shadow: var(--shadow-sm);
     }
 
     .btn-asist.active-FJ {
-      background: #f97316;
-      color: #ffffff !important;
-      border-color: #f97316;
-      box-shadow: 0 2px 6px rgba(249, 115, 22, 0.35);
+      background: var(--gt-orange);
+      color: var(--on-solid) !important;
+      border-color: var(--gt-orange);
+      box-shadow: var(--shadow-sm);
+    }
+
+    [data-theme="dark"] .btn-asist.active-FJ {
+      color: var(--on-solid) !important;
     }
 
     .btn-asist.active-FI {
       background: var(--gt-red);
-      color: #ffffff !important;
+      color: var(--on-solid) !important;
       border-color: var(--gt-red);
-      box-shadow: 0 2px 6px rgba(239, 68, 68, 0.35);
+      box-shadow: var(--shadow-sm);
+    }
+
+    [data-theme="dark"] .btn-asist.active-FI {
+      color: var(--on-solid) !important;
     }
 
 
@@ -493,8 +549,17 @@
       transition: border-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), background-color var(--dur-fast) var(--ease-smooth);
     }
 
+    .form-control::placeholder {
+      color: var(--text-dim);
+      opacity: 1;
+    }
+
+    [data-theme="dark"] .form-control {
+      border-color: var(--border-medium);
+    }
+
     .form-control:focus {
-      border-color: var(--border-bright, #94a3b8);
+      border-color: var(--border-bright, var(--border-bright));
       box-shadow: none;
       outline: none;
     }
@@ -504,7 +569,7 @@
     select.form-control:focus-visible,
     textarea.form-control:focus-visible {
       outline: none !important;
-      border-color: var(--border-bright, #94a3b8) !important;
+      border-color: var(--border-bright, var(--border-bright)) !important;
       box-shadow: none !important;
     }
 
@@ -620,7 +685,7 @@
       background: var(--surface-1);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+      box-shadow: var(--shadow-overlay);
       padding: 6px;
       display: none;
       flex-direction: column;
@@ -726,8 +791,7 @@
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
       box-shadow:
-        0 1px 2px rgba(15, 23, 42, 0.04),
-        0 14px 34px -14px rgba(15, 23, 42, 0.24);
+        var(--shadow-overlay);
       color: var(--text-main);
       font-size: 13px;
       pointer-events: auto;
@@ -744,8 +808,7 @@
     [data-theme="dark"] .toast-msg {
       border-color: var(--border-medium);
       box-shadow:
-        0 1px 2px rgba(0, 0, 0, 0.4),
-        0 16px 38px -14px rgba(0, 0, 0, 0.72);
+        var(--shadow-overlay);
     }
 
     /* Marca de tipo: chip con icono sobre fondo teñido y anillo interior del
@@ -757,7 +820,7 @@
       flex: none;
       display: grid;
       place-items: center;
-      border-radius: 9px;
+      border-radius: var(--radius-md);
       color: var(--toast-tono, var(--text-brand));
       background: color-mix(in srgb, var(--toast-tono, var(--text-brand)) 10%, transparent);
       box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--toast-tono, var(--text-brand)) 18%, transparent);
@@ -786,7 +849,7 @@
       display: block;
       margin-top: 2px;
       color: var(--text-muted);
-      font-size: 12.75px;
+      font-size: 12.5px;
       line-height: 1.45;
       overflow-wrap: anywhere;
     }
@@ -802,7 +865,7 @@
       margin: -1px -2px 0 0;
       padding: 0;
       border: 0;
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       background: transparent;
       color: var(--text-dim);
       cursor: pointer;
@@ -909,7 +972,7 @@
        blanco es casi invisible. Es la unica regla nueva de este bloque que no
        es decorativa: sin ella el sistema no se puede recorrer con el teclado. */
     :focus-visible {
-      outline: 2px solid var(--text-dim, #64748b);
+      outline: 2px solid var(--text-dim, var(--text-dim));
       outline-offset: 2px;
     }
 

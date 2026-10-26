@@ -7,6 +7,8 @@ export const Navigation = {
   _backdrop: null,
   _onKey: null,
   _onResize: null,
+  _rielTimer: null,
+  _rielToken: 0,
 
   /** Ancho por debajo del cual el menu es cajon (móvil / tablet). */
   ANCHO_CAJON: 900,
@@ -64,8 +66,8 @@ export const Navigation = {
     if (this._usaCajon()) {
       sidebar.classList.remove("open");
       if (this._backdrop) this._backdrop.classList.remove("active");
-    } else {
-      sidebar.classList.add("closed-pc");
+    } else if (!sidebar.classList.contains("closed-pc")) {
+      this._animarRiel(false);
     }
   },
 
@@ -77,8 +79,8 @@ export const Navigation = {
     if (this._usaCajon()) {
       sidebar.classList.add("open");
       if (this._backdrop) this._backdrop.classList.add("active");
-    } else {
-      sidebar.classList.remove("closed-pc");
+    } else if (sidebar.classList.contains("closed-pc")) {
+      this._animarRiel(true);
     }
   },
 
@@ -91,8 +93,62 @@ export const Navigation = {
       const abierto = sidebar.classList.toggle("open");
       if (this._backdrop) this._backdrop.classList.toggle("active", abierto);
     } else {
-      sidebar.classList.toggle("closed-pc");
+      this._animarRiel(sidebar.classList.contains("closed-pc"));
     }
+  },
+
+  /**
+   * FLIP del riel de escritorio.
+   *
+   * El layout cambia una sola vez (margen -280 -> 0) y el movimiento se pinta
+   * con transform, en el compositor. Antes se animaba margin-left: cada frame
+   * obligaba a recalcular el ancho del contenido y a reflowear la tabla.
+   * La lectura del rect actual permite revertir a mitad de camino sin saltos.
+   */
+  _animarRiel(abriendo) {
+    const sidebar = document.getElementById("appSidebar");
+    if (!sidebar || this._usaCajon()) return;
+
+    const reducir = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    const antes = sidebar.getBoundingClientRect();
+
+    sidebar.classList.toggle("closed-pc", !abriendo);
+    sidebar.toggleAttribute("inert", !abriendo);
+
+    // Punto de partida visual actual, ya con el layout nuevo.
+    sidebar.style.transition = "none";
+    sidebar.style.removeProperty("transform");
+    const despues = sidebar.getBoundingClientRect();
+    const delta = antes.left - despues.left;
+
+    if (reducir || Math.abs(delta) < 1) {
+      sidebar.style.removeProperty("transition");
+      sidebar.style.removeProperty("transform");
+      sidebar.style.removeProperty("will-change");
+      return;
+    }
+
+    const token = ++this._rielToken;
+    clearTimeout(this._rielTimer);
+
+    sidebar.style.transform = `translate3d(${delta}px, 0, 0)`;
+    void sidebar.offsetWidth;
+    sidebar.style.removeProperty("transition");
+    sidebar.style.willChange = "transform";
+    sidebar.style.transform = "translate3d(0, 0, 0)";
+
+    const limpiar = () => {
+      sidebar.removeEventListener("transitionend", limpiar);
+      if (token !== this._rielToken) return;
+      sidebar.style.removeProperty("transform");
+      sidebar.style.removeProperty("transition");
+      sidebar.style.removeProperty("will-change");
+      clearTimeout(this._rielTimer);
+      this._rielTimer = null;
+    };
+
+    sidebar.addEventListener("transitionend", limpiar, { once: true });
+    this._rielTimer = setTimeout(limpiar, 520);
   },
 
   /**
@@ -132,9 +188,20 @@ export const Navigation = {
     this.actualizarEnlaceActivo();
 
     const sidebar = document.getElementById("appSidebar");
-    if (sidebar && !this._usaCajon()) {
-      // En PC (> 900px) limpiar cualquier clase de drawer móvil
-      sidebar.classList.remove("open");
+    if (sidebar) {
+      // La entrada a la pagina limpia cualquier resto de una animacion previa.
+      sidebar.style.removeProperty("transform");
+      sidebar.style.removeProperty("transition");
+      sidebar.style.removeProperty("will-change");
+
+      if (this._usaCajon()) {
+        sidebar.classList.remove("closed-pc");
+        sidebar.toggleAttribute("inert", false);
+      } else {
+        // En PC (> 900px) limpiar cualquier clase de drawer movil
+        sidebar.classList.remove("open");
+        sidebar.toggleAttribute("inert", sidebar.classList.contains("closed-pc"));
+      }
     }
 
     this._pintarIndiceEscalonado();
@@ -188,11 +255,20 @@ export const Navigation = {
       this._sincronizarMarcaCajon();
       const sidebar = document.getElementById("appSidebar");
       if (!sidebar) return;
+
+      this._rielToken += 1;
+      clearTimeout(this._rielTimer);
+      sidebar.style.removeProperty("transform");
+      sidebar.style.removeProperty("transition");
+      sidebar.style.removeProperty("will-change");
+
       if (!this._usaCajon()) {
         sidebar.classList.remove("open");
         if (this._backdrop) this._backdrop.classList.remove("active");
+        sidebar.toggleAttribute("inert", sidebar.classList.contains("closed-pc"));
       } else {
         sidebar.classList.remove("closed-pc");
+        sidebar.toggleAttribute("inert", false);
       }
     };
     window.addEventListener("resize", this._onResize);

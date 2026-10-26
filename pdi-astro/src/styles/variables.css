@@ -5,12 +5,24 @@
   --bg-canvas: #f4f6f9;
   --surface-1: #ffffff;
   --surface-2: #f8fafc;
-  --surface-hover: rgba(0, 180, 148, 0.08);
+  /* Hover neutro, no tinte de marca: el color solo informa estado
+     (DESIGN.md, The Green Is Not Decoration Rule). */
+  --surface-hover: #eef2f6;
   --surface-glass: rgba(255, 255, 255, 0.95);
   
   --border-subtle: #e2e8f0;
   --border-bright: #94a3b8;
   --border-medium: #cbd5e1;
+  /* Paso intermedio de borde: checkboxes y marcos que no llegan a Rule Strong. */
+  --rule-mid: #cbd5e1;
+  /* Anillo de foco: un solo valor para los dos temas, resuelto desde el verde
+     de marca (DESIGN.md, Components · Hover / Focus). */
+  --border-focus: var(--gt-green);
+  /* Tinta sobre un relleno solido saturado (rojo, ambar, azul): sigue el mismo
+     criterio que On Brand, porque en oscuro esos rellenos se aclaran. */
+  --on-solid: var(--on-brand);
+  /* Tinta sobre un velo oscuro (scrim) que se mantiene oscuro en los dos temas. */
+  --on-scrim: #ffffff;
   
   /* Gutenberg Official 4-Color Signature */
   --gt-green: #00b494;
@@ -32,6 +44,13 @@
   --gt-red: #ef4444;
   --gt-red-bg: rgba(239, 68, 68, 0.16);
   --gt-red-border: rgba(239, 68, 68, 0.38);
+
+  /* Naranja del semaforo MINSA: separa "Moderada" del rojo de "Severa".
+     Antes ambas clases compartian --gt-red y solo se diferenciaban por
+     opacidad, lo que hacia indistinguibles el anillo y la leyenda. */
+  --gt-orange: #ea580c;
+  --gt-orange-bg: rgba(234, 88, 12, 0.14);
+  --gt-orange-border: rgba(234, 88, 12, 0.35);
 
   --brand-primary: var(--gt-green);
   --brand-hover: #00997d;
@@ -86,8 +105,18 @@
   
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
   --shadow-ambient: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+  /* Elevacion de capas flotantes: menus, popovers, tooltips y modales. */
+  --shadow-overlay: 0 16px 40px -8px rgba(15, 23, 42, 0.18), 0 6px 16px -8px rgba(15, 23, 42, 0.12);
   --shadow-glow: none;
   --modal-overlay-bg: rgba(15, 23, 42, 0.65);
+
+  /* Login showcase: maqueta oscura fija, independiente del tema del panel. */
+  --showcase-black: #000000;
+  --showcase-surface: #14161a;
+  --showcase-ink: #0b0f14;
+  --showcase-shadow: rgba(0, 0, 0, 0.3);
+  --showcase-shadow-strong: rgba(0, 0, 0, 0.35);
+  --showcase-shadow-float: rgba(0, 0, 0, 0.55);
 
   /* Performance & Animation Tokens (Emil Kowalski Philosophy) */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);       /* Strong ease-out for entering UI */
@@ -110,13 +139,14 @@
   --obsidian: #ffffff;
   --bg-base: #f8fafc;
   --surface-1: #ffffff;
-  --surface-2: #f1f5f9;
-  --surface-hover: rgba(0, 122, 101, 0.08);
+  --surface-2: #f8fafc;
+  --surface-hover: #eef2f6;
   --surface-glass: rgba(255, 255, 255, 0.92);
   
-  --border-subtle: #cbd5e1;
+  --border-subtle: #e2e8f0;
   --border-bright: #94a3b8;
   --border-medium: #94a3b8;
+  --rule-mid: #cbd5e1;
   
   --gt-green: #00b494;
   --brand-rgb: 0, 180, 148;
@@ -134,6 +164,13 @@
   --gt-red: #ef4444;
   --gt-red-bg: rgba(239, 68, 68, 0.16);
   --gt-red-border: rgba(239, 68, 68, 0.38);
+
+  /* Naranja del semaforo MINSA: separa "Moderada" del rojo de "Severa".
+     Antes ambas clases compartian --gt-red y solo se diferenciaban por
+     opacidad, lo que hacia indistinguibles el anillo y la leyenda. */
+  --gt-orange: #ea580c;
+  --gt-orange-bg: rgba(234, 88, 12, 0.14);
+  --gt-orange-border: rgba(234, 88, 12, 0.35);
 
   --brand-primary: var(--gt-green);
   --brand-dark: #008f75;
@@ -168,6 +205,7 @@
   --status-info-border: var(--gt-blue-border);
   
   --shadow-ambient: 0 4px 16px -2px rgba(15, 23, 42, 0.08), 0 1px 3px 0 rgba(15, 23, 42, 0.05);
+  --shadow-overlay: 0 16px 40px -8px rgba(15, 23, 42, 0.18), 0 6px 16px -8px rgba(15, 23, 42, 0.12);
   --shadow-glow: none;
   --modal-overlay-bg: rgba(15, 23, 42, 0.55);
   
@@ -197,6 +235,7 @@
   --border-subtle: #34343c;
   --border-bright: #9494a3;
   --border-medium: #4a4a55;
+  --rule-mid: #4a4a55;
   
   --gt-green: #2ee6a0;
   --brand-rgb: 46, 230, 160;
@@ -214,6 +253,10 @@
   --gt-red: #ff8b8b;
   --gt-red-bg: rgba(255, 139, 139, 0.16);
   --gt-red-border: rgba(255, 139, 139, 0.45);
+
+  --gt-orange: #ff9d66;
+  --gt-orange-bg: rgba(255, 157, 102, 0.16);
+  --gt-orange-border: rgba(255, 157, 102, 0.45);
 
   --brand-primary: #2ee6a0;
   --brand-hover: #6bffc4;
@@ -268,6 +311,7 @@
      fondo es el borde. Se conserva una sombra muy tenue para el apilado de
      modales y menus, y el borde queda como unico indicador de elevacion. */
   --shadow-ambient: 0 0 0 1px rgba(255, 255, 255, 0.05), 0 20px 40px -16px rgba(0, 0, 0, 0.90);
+  --shadow-overlay: 0 0 0 1px rgba(255, 255, 255, 0.05), 0 20px 40px -16px rgba(0, 0, 0, 0.90);
   --shadow-glow: none;
   --modal-overlay-bg: rgba(0, 0, 0, 0.86);
   

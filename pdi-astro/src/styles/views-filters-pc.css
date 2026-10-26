@@ -42,7 +42,7 @@
   }
 
   .audit-filter-btn:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-sm);
     transform: translateY(-1px);
   }
 
@@ -94,7 +94,6 @@
       opacity var(--dur-popover) var(--ease-out),
       transform var(--dur-popover) var(--ease-out),
       visibility var(--dur-popover) var(--ease-out);
-    will-change: transform, opacity;
   }
 
   .audit-filters-dropdown.open .audit-filters-menu {
@@ -102,6 +101,9 @@
     opacity: 1;
     pointer-events: auto;
     transform: translateY(0) scale(1);
+    /* Solo mientras dura la animacion: antes quedaba reservado en los siete
+       menus cerrados de cada pagina. */
+    will-change: transform, opacity;
   }
 
   .audit-filters-dropdown.open {
@@ -171,30 +173,32 @@
   /* Sombra un poco más profunda en los desplegables de escritorio. */
   .audit-filters-menu,
   .padron-inner-dropdown-menu {
-    box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.24),
-                0 8px 16px -6px rgba(0, 0, 0, 0.14);
+    box-shadow: var(--shadow-overlay);
   }
 
-  /* Campo con focus: realce sutil del borde inferior del grupo. */
+  /* Campo con focus: el rotulo pasa a tinta principal. Antes iba a
+     --text-brand (#00876f), que da 4,42:1 a 11,5px. */
   .audit-filter-field:focus-within .audit-field-label {
-    color: var(--text-brand);
+    color: var(--text-main);
   }
 
-  /* Botón Restablecer/Borrar todos: hacerlo más legible y claro en escritorio. */
+  /* Restablecer: accion secundaria del encabezado. Sin borde ni pastilla
+     llamativa, para que el titulo siga mandando y no choque con el a 0-2px. */
   .btn-text-subtle {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     gap: 6px !important;
-    padding: 6px 12px !important;
-    min-height: 30px !important;
-    border: 1px solid var(--text-dim) !important;
+    padding: 4px 10px !important;
+    min-height: 26px !important;
+    border: 1px solid transparent !important;
     border-radius: var(--radius-full) !important;
-    background: var(--surface-2) !important;
-    color: var(--text-muted) !important;
-    font-size: 12px !important;
+    background: transparent !important;
+    color: var(--text-dim) !important;
+    font-size: 11.5px !important;
     font-weight: 700 !important;
     letter-spacing: 0.01em !important;
+    white-space: nowrap !important;
     transition:
       background-color var(--dur-fast) var(--ease-smooth),
       border-color var(--dur-fast) var(--ease-smooth),
@@ -207,17 +211,14 @@
     color: var(--text-danger) !important;
     background: var(--gt-red-bg) !important;
     border-color: var(--gt-red-border) !important;
-    transform: translateY(-1px) !important;
-    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.12) !important;
   }
 
   .btn-text-subtle:active {
-    transform: scale(0.95);
-    box-shadow: none;
+    transform: scale(0.96);
   }
 
   .btn-text-subtle:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px var(--gt-red-bg);
+    box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--brand-primary) !important;
   }
 }

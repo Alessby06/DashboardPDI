@@ -12,7 +12,7 @@
     }
 
     body {
-      background-color: var(--bg-base);
+      background-color: var(--bg-canvas);
       background-image: 
         radial-gradient(circle at 15% 15%, rgba(var(--brand-rgb), 0.05) 0%, transparent 45%),
         radial-gradient(circle at 85% 85%, rgba(251, 218, 51, 0.03) 0%, transparent 50%);
@@ -33,7 +33,7 @@
       transition: background-color var(--dur-norm) var(--ease-smooth), color var(--dur-norm) var(--ease-smooth);
     }
     [data-theme="light"] body {
-      background-color: #f8fafc;
+      background-color: var(--bg-canvas);
       background-image: 
         radial-gradient(circle at 15% 15%, rgba(var(--brand-rgb), 0.04) 0%, transparent 50%),
         radial-gradient(circle at 85% 85%, rgba(3, 105, 161, 0.03) 0%, transparent 55%);
@@ -189,31 +189,52 @@
         height: 100vh !important;
         height: 100dvh !important;
         margin-left: 0 !important;
-        transform: translate3d(0, 0, 0) !important;
+        transform: translate3d(0, 0, 0);
         box-shadow: none !important;
         z-index: 50 !important;
         flex-shrink: 0 !important;
-        will-change: margin-left !important;
-        transition: margin-left 0.35s cubic-bezier(0.2, 0, 0, 1),
+        transition: transform 0.4s var(--ease-out),
                     background-color 0.38s cubic-bezier(0.16, 1, 0.3, 1),
-                    border-color 0.38s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                    border-color 0.38s cubic-bezier(0.16, 1, 0.3, 1);
       }
 
       .sidebar.closed-pc,
       html[data-sidebar-pc="closed"] .sidebar {
         margin-left: -280px !important;
         pointer-events: none !important;
-        visibility: hidden !important;
-        will-change: margin-left !important;
-        transition: margin-left 0.35s cubic-bezier(0.2, 0, 0, 1),
-                    visibility 0s linear 0.35s,
-                    background-color 0.38s cubic-bezier(0.16, 1, 0.3, 1),
-                    border-color 0.38s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      }
+
+      /* El contenido del panel acompana el desplazamiento con un gesto mas
+         corto: se adelanta 10px y baja un poco de opacidad. Es compositor, no
+         layout, y evita que el cierre se sienta como un bloque rigido. */
+      .sidebar-header,
+      .sidebar .nav-sections,
+      .sidebar-footer {
+        transition: opacity 0.26s var(--ease-out),
+                    transform 0.4s var(--ease-out),
+                    padding 0.28s ease;
+      }
+
+      .sidebar.closed-pc .sidebar-header,
+      .sidebar.closed-pc .nav-sections,
+      .sidebar.closed-pc .sidebar-footer {
+        opacity: 0.72;
+        transform: translate3d(-10px, 0, 0);
       }
 
       .main-wrapper {
         flex: 1 1 0% !important;
         min-width: 0 !important;
+      }
+
+      /* En PC con sidebar desplegado (por defecto), se oculta el logo del topbar para evitar duplicarlo */
+      .topbar-brand-wrap {
+        display: none !important;
+      }
+
+      /* Si el usuario pliega el sidebar en PC, el logo se muestra en el topbar para no perder identidad */
+      html[data-sidebar-pc="closed"] .topbar-brand-wrap {
+        display: flex !important;
       }
     }
 
@@ -278,6 +299,22 @@
         visibility: visible !important;
         pointer-events: auto !important;
         cursor: pointer;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .sidebar,
+      .sidebar-header,
+      .sidebar .nav-sections,
+      .sidebar-footer {
+        transition: none !important;
+      }
+
+      .sidebar.closed-pc .sidebar-header,
+      .sidebar.closed-pc .nav-sections,
+      .sidebar.closed-pc .sidebar-footer {
+        opacity: 1;
+        transform: none;
       }
     }
 

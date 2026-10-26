@@ -1377,11 +1377,11 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
               </div>
               <div>
                 <label for="volInputDni" style="display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">N° DNI / Documento *</label>
-                <input type="text" id="volInputDni" class="modal-input" placeholder="8 dígitos" maxlength="12" required style="width: 100%; height: 36px; padding: 0 10px; background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); color: var(--text-main); font-size: 13px; font-family: var(--mono-font);">
+                <input type="text" id="volInputDni" class="modal-input" inputmode="numeric" data-tipo="dni" placeholder="8 dígitos" maxlength="8" pattern="[0-9]{8}" required style="width: 100%; height: 36px; padding: 0 10px; background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); color: var(--text-main); font-size: 13px; font-family: var(--mono-font);">
               </div>
               <div>
                 <label for="volInputCelular" style="display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">N° Celular / WhatsApp</label>
-                <input type="text" id="volInputCelular" class="modal-input" placeholder="Ej. 987-654-321" style="width: 100%; height: 36px; padding: 0 10px; background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); color: var(--text-main); font-size: 13px;">
+                <input type="text" id="volInputCelular" class="modal-input" inputmode="numeric" data-tipo="celular" placeholder="987654321" maxlength="9" pattern="9[0-9]{8}" style="width: 100%; height: 36px; padding: 0 10px; background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); color: var(--text-main); font-size: 13px;">
               </div>
               <div>
                 <label for="volInputFechaNac" style="display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Fecha de Nacimiento</label>
@@ -1402,7 +1402,7 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px;">
               <div>
                 <label for="volSelectDistrito" style="display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Distrito de Intervención</label>
-                <select id="volSelectDistrito" aria-label="Distrito de Intervención" style="width: 100%; height: 36px; padding: 0 10px; background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); color: var(--text-main); font-size: 13px;">
+                <select id="volSelectDistrito" aria-label="Distrito de Intervención" onchange="window.PDI && window.PDI.VoluntariadosView ? window.PDI.VoluntariadosView.handleDistritoChange(this.value) : null" style="width: 100%; height: 36px; padding: 0 10px; background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); color: var(--text-main); font-size: 13px;">
                   {Object.keys(SEDES_POR_DISTRITO).map((distrito) => (
                     <option value={distrito}>{distrito}</option>
                   ))}

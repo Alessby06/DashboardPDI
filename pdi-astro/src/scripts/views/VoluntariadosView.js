@@ -30,6 +30,27 @@ const FILTROS_VOLUNTARIOS = {
   estado:   { valor: "all", valores: ["all", "Activo", "En Pausa"] },
 };
 
+/**
+ * Reparte 100% entre varios conteos con el metodo del mayor resto. Evita que
+ * la barra muestre 50 + 38 + 13 = 101% o que tres porcentajes sumen 99%.
+ */
+function repartirPorcentajes(valores) {
+  const total = valores.reduce((suma, valor) => suma + (Number(valor) || 0), 0);
+  if (!total) return valores.map(() => 0);
+
+  const exactos = valores.map((valor) => ((Number(valor) || 0) / total) * 100);
+  const base = exactos.map((valor) => Math.floor(valor));
+  let resto = 100 - base.reduce((suma, valor) => suma + valor, 0);
+  const orden = exactos
+    .map((valor, indice) => ({ indice, fraccion: valor - Math.floor(valor) }))
+    .sort((a, b) => b.fraccion - a.fraccion);
+
+  for (let i = 0; i < resto; i += 1) {
+    base[orden[i % orden.length].indice] += 1;
+  }
+  return base;
+}
+
 export const VoluntariadosView = {
   _voluntarios: [],
   _searchQuery: "",
@@ -42,6 +63,7 @@ export const VoluntariadosView = {
   _lastRenderSerial: "",
   _currentPage: 1,
   _pageSize: 20,
+  _guardando: false,
 
   reiniciarEntrada() {
     this._haEntrado = false;
@@ -241,24 +263,23 @@ export const VoluntariadosView = {
 
     setTexto("volRepartoTotal", stats.total);
     setTexto("volRepartoPausa", stats.enPausa);
-    setTexto("volRepartoDesayuno", stats.desayuno);
-    setTexto("volRepartoCasita", stats.casita);
-    setTexto("volRepartoAsp", stats.pastoral);
-    setTexto("volRepartoComas", stats.comas);
-    setTexto("volRepartoCarabayllo", stats.carabayllo);
-    setTexto("volRepartoCanastas", stats.canastasTotal);
 
-    // La barra de composicion es el unico momento animado: crece al entrar, se asienta en los refrescos.
-    const asignados = stats.desayuno + stats.casita + stats.pastoral;
-    const segmentos = [
-      ["volRepartoBarFood", stats.desayuno],
-      ["volRepartoBarCasita", stats.casita],
-      ["volRepartoBarAsp", stats.pastoral]
+    const valores = [stats.desayuno, stats.casita, stats.pastoral, stats.otros];
+    const pcts = repartirPorcentajes(valores);
+    const grupos = [
+      { count: stats.desayuno, barId: "volRepartoBarFood",   countId: "volRepartoDesayuno", pctId: "volRepartoPctDesayuno" },
+      { count: stats.casita,   barId: "volRepartoBarCasita", countId: "volRepartoCasita",   pctId: "volRepartoPctCasita" },
+      { count: stats.pastoral, barId: "volRepartoBarAsp",    countId: "volRepartoAsp",      pctId: "volRepartoPctAsp" },
+      { count: stats.otros,    barId: "volRepartoBarOtros",  countId: "volRepartoOtros",    pctId: "volRepartoPctOtros" },
     ];
-    segmentos.forEach(([id, personas]) => {
-      const el = document.getElementById(id);
+
+    grupos.forEach((grupo, indice) => {
+      setTexto(grupo.countId, grupo.count);
+      setTexto(grupo.pctId, `${pcts[indice]}%`);
+
+      const el = document.getElementById(grupo.barId);
       if (!el) return;
-      const ancho = asignados > 0 ? (personas / asignados) * 100 : 0;
+      const ancho = stats.total > 0 ? (grupo.count / stats.total) * 100 : 0;
       if (animar) {
         el.style.width = "0%";
         requestAnimationFrame(() => { el.style.width = `${ancho}%`; });
@@ -266,6 +287,29 @@ export const VoluntariadosView = {
         el.style.width = `${ancho}%`;
       }
     });
+
+    // "Otros" solo ocupa espacio cuando hay servicios fuera de los tres
+    // programas principales; si no, la barra y la lista mantienen su forma.
+    const hayOtros = stats.otros > 0;
+    const filaOtros = document.getElementById("volRepartoRowOtros");
+    if (filaOtros) filaOtros.hidden = !hayOtros;
+    const barraOtros = document.getElementById("volRepartoBarOtros");
+    if (barraOtros) barraOtros.hidden = !hayOtros;
+
+    const barra = document.querySelector(".vol-reparto-bar");
+    if (barra) {
+      const detalle = [
+        `${pcts[0]}% Servicio Alimentario`,
+        `${pcts[1]}% Casita del Saber`,
+        `${pcts[2]}% Área Social Pastoral`,
+        hayOtros ? `${pcts[3]}% otros servicios` : "",
+      ].filter(Boolean).join(", ");
+      barra.setAttribute("aria-label", `Composición del voluntariado por servicio: ${detalle}.`);
+    }
+
+    setTexto("volRepartoComas", stats.comas);
+    setTexto("volRepartoCarabayllo", stats.carabayllo);
+    setTexto("volRepartoCanastas", stats.canastasTotal);
 
     const badgeNav = document.getElementById("badgeTotalVoluntarios");
     if (badgeNav) badgeNav.textContent = stats.total;
@@ -319,7 +363,11 @@ export const VoluntariadosView = {
     const enMovil = Responsive.esMovil();
 
     const serial = `${enMovil ? 'M' : 'D'}|${this._searchQuery}_${this._filterDistrito.join(',')}_${this._filterServicio.join(',')}_${this._filterRol.join(',')}_${this._filterEstado}_` +
-      list.map(v => `${v.id}_${v.estado}`).join('|');
+      list.map(v => [
+        v.id, v.estado, v.nombres, v.apellidos, v.dni, v.celular,
+        v.distrito, v.sedeAsignada, v.servicio, v.rol, v.estrategia,
+        v.capacitaciones?.length || 0, v.canastasRecibidas,
+      ].join('~')).join('|');
 
     const tbody = document.getElementById("tbodyVoluntarios");
     const mobileContainer = document.getElementById("mobileCardsVoluntarios");
@@ -757,8 +805,10 @@ export const VoluntariadosView = {
     this._currentEditingId = null;
   },
 
-  saveInscripcion(e) {
+  async saveInscripcion(e) {
     if (e) e.preventDefault();
+    // El guardado ahora espera a la nube: un doble clic no debe crear dos altas.
+    if (this._guardando) return;
     const nombres = this._getVal("volInputNombres");
     const apellidos = this._getVal("volInputApellidos");
     const dni = this._getVal("volInputDni");
@@ -774,6 +824,23 @@ export const VoluntariadosView = {
     const estado = this._getVal("volSelectEstado");
     const disponibilidad = this._getVal("volInputDisponibilidad");
     const observaciones = this._getVal("volInputObservaciones");
+
+    // La sede y el distrito deben pertenecer al mismo territorio. Se conserva
+    // una sede antigua fuera de catalogo solo si el registro ya estaba asi y no
+    // se cambio de distrito.
+    const sedesDelDistrito = SEDES_POR_DISTRITO[distrito] || [];
+    const registroActual = this._currentEditingId ? VoluntarioModel.getById(this._currentEditingId) : null;
+    const conservaSede = registroActual
+      && registroActual.distrito === distrito
+      && registroActual.sedeAsignada === sedeAsignada;
+    if (sedeAsignada && !sedesDelDistrito.includes(sedeAsignada) && !conservaSede) {
+      ToastView.show(
+        "Sede incompatible",
+        `La sede "${sedeAsignada}" no pertenece al distrito ${distrito}. Elige una sede de ese distrito.`,
+        "danger",
+      );
+      return;
+    }
 
     if (!nombres || !apellidos || !dni) {
       ToastView.show("Campos Incompletos", "Por favor complete los campos obligatorios (Nombres, Apellidos y DNI).", "warning");
@@ -810,23 +877,39 @@ export const VoluntariadosView = {
       observaciones
     };
 
-    let savedRecord = null;
-    if (this._currentEditingId) {
-      savedRecord = VoluntarioModel.update(this._currentEditingId, payload);
-      ToastView.show("Ficha Actualizada", `Los datos de ${nombres} ${apellidos} se guardaron exitosamente.`, "success");
-      if (AuditModel && AuditModel.log) {
-        AuditModel.log("Sistema", "Coordinación", "Actualización de Voluntario", payload.dni, `Ficha de ${nombres} ${apellidos} editada`);
+    this._guardando = true;
+    try {
+      if (this._currentEditingId) {
+        const savedRecord = await VoluntarioModel.update(this._currentEditingId, payload);
+        // Si la nube rechaza el cambio, la ficha sigue abierta para corregir.
+        if (!savedRecord) {
+          this.render();
+          return;
+        }
+        ToastView.show("Ficha Actualizada", `Los datos de ${nombres} ${apellidos} se guardaron exitosamente.`, "success");
+        if (AuditModel && AuditModel.log) {
+          AuditModel.log("Sistema", "Coordinación", "Actualización de Voluntario", payload.dni, `Ficha de ${nombres} ${apellidos} editada`);
+        }
+      } else {
+        const savedRecord = await VoluntarioModel.create(payload);
+        // Sin confirmación de la base no hay alta: se retira la fila optimista
+        // y la ficha queda abierta con el aviso de error.
+        if (!savedRecord) {
+          this.render();
+          return;
+        }
+        ToastView.show("Inscripción Exitosa", `Se registró a ${nombres} ${apellidos} en el padrón de voluntariados.`, "success");
+        if (AuditModel && AuditModel.log) {
+          AuditModel.log("Sistema", "Coordinación", "Alta de Voluntario", payload.dni, `Inscripción de ${nombres} ${apellidos} (${payload.sedeAsignada})`);
+        }
       }
-    } else {
-      savedRecord = VoluntarioModel.create(payload);
-      ToastView.show("Inscripción Exitosa", `Se registró a ${nombres} ${apellidos} en el padrón de voluntariados.`, "success");
-      if (AuditModel && AuditModel.log) {
-        AuditModel.log("Sistema", "Coordinación", "Alta de Voluntario", payload.dni, `Inscripción de ${nombres} ${apellidos} (${payload.sedeAsignada})`);
-      }
-    }
 
-    this.closeModalInscripcion();
-    this.render();
+      this.closeModalInscripcion();
+      this._lastRenderSerial = null;
+      this.render();
+    } finally {
+      this._guardando = false;
+    }
   },
 
   // Modal Ficha y Credencial del Voluntario
@@ -887,6 +970,7 @@ export const VoluntariadosView = {
     if (btnCanasta) {
       btnCanasta.onclick = () => {
         const updated = VoluntarioModel.incrementCanasta(vol.id);
+        this._lastRenderSerial = null;
         this.render();
         this.openModalFicha(vol.id);
         const total = (updated && updated.canastasRecibidas) || (vol.canastasRecibidas || 0) + 1;
@@ -961,6 +1045,7 @@ export const VoluntariadosView = {
     }
 
     this.closeModalCapacitacion();
+    this._lastRenderSerial = null;
     this.render();
   },
 

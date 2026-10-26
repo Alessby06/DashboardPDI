@@ -1,0 +1,243 @@
+---
+/**
+ * Esqueleto de carga tipo B.
+ *
+ * Se renderiza en el HTML de cada pagina (no lo crea JavaScript), asi que la
+ * silueta aparece desde el primer frame, antes de que SurrealDB hidrate. El
+ * controlador de estado (LoadingState.js) lo retira cuando la capa de datos
+ * confirma la primera carga.
+ */
+const { variant = "default" } = Astro.props;
+
+const esDashboard = variant === "dashboard";
+const esTabla = ["padron", "salud", "educativo", "auditoria", "voluntariados"].includes(variant);
+const esTablero = variant === "social";
+const esTarjetas = variant === "sedes";
+const esDetalle = variant === "expediente";
+const esFormulario = variant === "ajustes";
+
+const filas = Array.from({ length: 8 });
+const tarjetas = Array.from({ length: 6 });
+const columnas = Array.from({ length: 4 });
+const kpis = Array.from({ length: 4 });
+const leyenda = Array.from({ length: 4 });
+const barras = Array.from({ length: 4 });
+const listas = Array.from({ length: 3 });
+---
+
+<div class="pdi-skeleton" id="pdiSkeleton">
+  <div class="pdi-skeleton-body" aria-hidden="true">
+    <div class={`pdi-sk-header pdi-sk-header--${variant}`}>
+      <div class="pdi-sk-heading">
+        <span class="pdi-sk-block pdi-sk-title"></span>
+        <span class="pdi-sk-block pdi-sk-subtitle"></span>
+      </div>
+      <span class="pdi-sk-block pdi-sk-action"></span>
+    </div>
+
+    {esDashboard && (
+      <>
+        <div class="pdi-sk-kpis">
+          {kpis.map(() => (
+            <div class="pdi-sk-kpi">
+              <span class="pdi-sk-block pdi-sk-line pdi-sk-line--xs"></span>
+              <span class="pdi-sk-block pdi-sk-line pdi-sk-line--lg"></span>
+              <span class="pdi-sk-block pdi-sk-line pdi-sk-line--sm"></span>
+            </div>
+          ))}
+        </div>
+
+        <div class="pdi-sk-grid pdi-sk-grid--2">
+          <div class="pdi-sk-panel pdi-sk-panel--chart">
+            <div class="pdi-sk-panel-head">
+              <span class="pdi-sk-block pdi-sk-line pdi-sk-line--md"></span>
+              <span class="pdi-sk-block pdi-sk-line pdi-sk-line--xs"></span>
+            </div>
+            <div class="pdi-sk-chart">
+              <span class="pdi-sk-block pdi-sk-ring"></span>
+              <div class="pdi-sk-legend">
+                {leyenda.map(() => (
+                  <div class="pdi-sk-legend-row">
+                    <span class="pdi-sk-block pdi-sk-dot"></span>
+                    <span class="pdi-sk-block pdi-sk-line pdi-sk-line--sm"></span>
+                    <span class="pdi-sk-block pdi-sk-line pdi-sk-line--xs"></span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div class="pdi-sk-panel">
+            <div class="pdi-sk-panel-head">
+              <span class="pdi-sk-block pdi-sk-line pdi-sk-line--md"></span>
+              <span class="pdi-sk-block pdi-sk-line pdi-sk-line--xs"></span>
+            </div>
+            <div class="pdi-sk-bars">
+              {barras.map(() => (
+                <div class="pdi-sk-bar-row">
+                  <span class="pdi-sk-block pdi-sk-line pdi-sk-line--sm"></span>
+                  <span class="pdi-sk-block pdi-sk-bar"></span>
+                  <span class="pdi-sk-block pdi-sk-line pdi-sk-line--xs"></span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div class="pdi-sk-grid pdi-sk-grid--2">
+          {[0, 1].map(() => (
+            <div class="pdi-sk-panel pdi-sk-panel--list">
+              <div class="pdi-sk-panel-head">
+                <span class="pdi-sk-block pdi-sk-line pdi-sk-line--md"></span>
+              </div>
+              {listas.map(() => (
+                <div class="pdi-sk-list-row">
+                  <span class="pdi-sk-block pdi-sk-avatar"></span>
+                  <div class="pdi-sk-list-lines">
+                    <span class="pdi-sk-block pdi-sk-line pdi-sk-line--md"></span>
+                    <span class="pdi-sk-block pdi-sk-line pdi-sk-line--sm"></span>
+                  </div>
+                  <span class="pdi-sk-block pdi-sk-line pdi-sk-line--xs"></span>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </>
+    )}
+
+    {esTabla && (
+      <>
+        <div class="pdi-sk-toolbar">
+          <span class="pdi-sk-block pdi-sk-search"></span>
+          <span class="pdi-sk-block pdi-sk-filter"></span>
+        </div>
+        <div class="pdi-sk-table">
+          <div class="pdi-sk-thead">
+            {Array.from({ length: 5 }).map(() => (
+              <span class="pdi-sk-block pdi-sk-line pdi-sk-line--xs"></span>
+            ))}
+          </div>
+          {filas.map(() => (
+            <div class="pdi-sk-tr">
+              <span class="pdi-sk-block pdi-sk-avatar"></span>
+              <span class="pdi-sk-block pdi-sk-cell pdi-sk-cell--wide"></span>
+              <span class="pdi-sk-block pdi-sk-cell"></span>
+              <span class="pdi-sk-block pdi-sk-cell"></span>
+              <span class="pdi-sk-block pdi-sk-cell pdi-sk-cell--short"></span>
+            </div>
+          ))}
+        </div>
+      </>
+    )}
+
+    {esTablero && (
+      <div class="pdi-sk-board">
+        {columnas.map(() => (
+          <div class="pdi-sk-column">
+            <div class="pdi-sk-column-head">
+              <span class="pdi-sk-block pdi-sk-line pdi-sk-line--sm"></span>
+              <span class="pdi-sk-block pdi-sk-line pdi-sk-line--xs"></span>
+            </div>
+            {Array.from({ length: 3 }).map(() => (
+              <div class="pdi-sk-board-card">
+                <span class="pdi-sk-block pdi-sk-line pdi-sk-line--sm"></span>
+                <span class="pdi-sk-block pdi-sk-line pdi-sk-line--xs"></span>
+                <span class="pdi-sk-block pdi-sk-line pdi-sk-line--md"></span>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    )}
+
+    {esTarjetas && (
+      <div class="pdi-sk-cards">
+        {tarjetas.map(() => (
+          <div class="pdi-sk-card">
+            <span class="pdi-sk-block pdi-sk-card-icon"></span>
+            <span class="pdi-sk-block pdi-sk-line pdi-sk-line--md"></span>
+            <span class="pdi-sk-block pdi-sk-line pdi-sk-line--sm"></span>
+            <span class="pdi-sk-block pdi-sk-line pdi-sk-line--xs"></span>
+          </div>
+        ))}
+      </div>
+    )}
+
+    {esDetalle && (
+      <div class="pdi-sk-detail">
+        <div class="pdi-sk-profile">
+          <span class="pdi-sk-block pdi-sk-profile-avatar"></span>
+          <div class="pdi-sk-profile-lines">
+            <span class="pdi-sk-block pdi-sk-line pdi-sk-line--lg"></span>
+            <span class="pdi-sk-block pdi-sk-line pdi-sk-line--md"></span>
+            <div class="pdi-sk-chips">
+              {Array.from({ length: 4 }).map(() => (
+                <span class="pdi-sk-block pdi-sk-chip"></span>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div class="pdi-sk-grid pdi-sk-grid--2">
+          {[0, 1].map(() => (
+            <div class="pdi-sk-panel">
+              <div class="pdi-sk-panel-head">
+                <span class="pdi-sk-block pdi-sk-line pdi-sk-line--md"></span>
+              </div>
+              {Array.from({ length: 5 }).map(() => (
+                <span class="pdi-sk-block pdi-sk-line pdi-sk-line--sm"></span>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+
+    {esFormulario && (
+      <div class="pdi-sk-form">
+        {Array.from({ length: 6 }).map(() => (
+          <div class="pdi-sk-field">
+            <span class="pdi-sk-block pdi-sk-line pdi-sk-line--xs"></span>
+            <span class="pdi-sk-block pdi-sk-input"></span>
+          </div>
+        ))}
+      </div>
+    )}
+
+    {!esDashboard && !esTabla && !esTablero && !esTarjetas && !esDetalle && !esFormulario && (
+      <div class="pdi-sk-grid pdi-sk-grid--2">
+        {[0, 1].map(() => (
+          <div class="pdi-sk-panel pdi-sk-panel--list">
+            <div class="pdi-sk-panel-head">
+              <span class="pdi-sk-block pdi-sk-line pdi-sk-line--md"></span>
+            </div>
+            {listas.map(() => (
+              <div class="pdi-sk-list-row">
+                <span class="pdi-sk-block pdi-sk-avatar"></span>
+                <div class="pdi-sk-list-lines">
+                  <span class="pdi-sk-block pdi-sk-line pdi-sk-line--md"></span>
+                  <span class="pdi-sk-block pdi-sk-line pdi-sk-line--sm"></span>
+                </div>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+
+  <div class="pdi-skeleton-error" id="pdiSkeletonError">
+    <span class="pdi-sk-error-icon" aria-hidden="true">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+      </svg>
+    </span>
+    <h2>No se pudo cargar la información</h2>
+    <p id="pdiSkeletonErrorText">Revisa la conexión e inténtalo de nuevo.</p>
+    <button type="button" class="pdi-sk-retry" id="pdiSkeletonRetry">Reintentar</button>
+  </div>
+
+  <span class="pdi-sr-only" id="pdiLoadingStatus" role="status" aria-live="polite">
+    Cargando datos del sistema…
+  </span>
+</div>

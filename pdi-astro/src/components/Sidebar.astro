@@ -60,20 +60,6 @@ const navItems = [
     </div>
 
     <nav class="nav-sections" id="sidebarNav">
-      <!-- Botón de cerrar sesión — encima de todo el menú -->
-      <button
-        type="button"
-        id="btnSidebarLogout"
-        class="nav-btn nav-btn-logout"
-        data-tooltip="Cerrar sesión"
-        aria-label="Cerrar sesión"
-        onclick="try { localStorage.removeItem('pdi_sesion_activa'); localStorage.removeItem('pdi_active_role'); localStorage.removeItem('pdi_usuario_nombre'); localStorage.removeItem('pdi_session_token'); localStorage.removeItem('pdi_session_exp'); sessionStorage.clear(); } catch(e){} window.location.replace('/login');"
-      >
-        <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
-        </svg>
-        <span>Cerrar sesión</span>
-      </button>
       {navItems.map((item) => {
         if (item.section) {
           return <div class="nav-label">{item.section}</div>;
@@ -190,13 +176,30 @@ const navItems = [
       })}
     </nav>
   </div>
+
+  <div class="sidebar-footer" style="padding:10px 14px 14px 14px; border-top:1px solid var(--border-subtle); background:var(--surface-1); margin-top:auto;">
+    <button
+      type="button"
+      id="btnSidebarLogout"
+      class="nav-btn nav-btn-logout"
+      data-tooltip="Cerrar sesión"
+      aria-label="Cerrar sesión"
+      onclick="try { localStorage.removeItem('pdi_sesion_activa'); localStorage.removeItem('pdi_active_role'); localStorage.removeItem('pdi_usuario_nombre'); localStorage.removeItem('pdi_session_token'); localStorage.removeItem('pdi_session_exp'); sessionStorage.clear(); } catch(e){} window.location.replace('/login');"
+    >
+      <svg fill="none" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+      </svg>
+      <span>Cerrar sesión</span>
+    </button>
+  </div>
 </aside>
 
 <style>
   /* Botón de cerrar sesión — mismo layout que nav-btn, color rojo sutil */
   .nav-btn-logout {
     color: var(--text-danger, #dc2626) !important;
-    margin-bottom: 6px;
+    margin-bottom: 0;
+    width: 100%;
     border-color: transparent !important;
   }
 

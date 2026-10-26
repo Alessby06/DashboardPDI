@@ -7,6 +7,7 @@ import {
   crearBeneficiario, actualizarBeneficiario, darBajaBeneficiario,
   crearTamizaje, desactivarTamizaje,
 } from '../core/db.js';
+import { AnemiaCalculator } from '../utils/AnemiaCalculator.js';
 
 export function normalizeBeneficiarioServicios(b) {
   if (!b) return b;
@@ -209,16 +210,22 @@ export const BeneficiarioModel = {
   /**
    * Baja del padrón. La Ley 29733 prohibe el borrado físico: en memoria se
    * retira de la vista y en la nube la inscripción pasa a Retirado.
+   *
+   * Devuelve una promesa: la vista debe esperar la confirmación de la nube
+   * antes de auditar y redirigir. Si la escritura falla, el usuario vuelve a
+   * la lista para que la pantalla no muestre una baja que no ocurrió.
    */
-  delete(id) {
+  async delete(id) {
     const list = this.getAll();
     const idx = list.findIndex(b => String(b.id) === String(id) || b.id === Number(id));
-    if (idx !== -1) {
-      const removed = list.splice(idx, 1)[0];
-      darBajaBeneficiario(removed);
-      return removed;
+    if (idx === -1) return false;
+    const removed = list.splice(idx, 1)[0];
+    const bajaOk = await darBajaBeneficiario(removed);
+    if (!bajaOk) {
+      list.splice(idx, 0, removed);
+      return false;
     }
-    return null;
+    return true;
   },
 
   search(query) {
@@ -238,9 +245,10 @@ export const BeneficiarioModel = {
   getStats() {
     const list = this.getAll();
     const total = list.length;
-    const normales = list.filter(b => b.anemia === "Normal").length;
-    const leves = list.filter(b => b.anemia === "Leve" || b.anemia === "En riesgo").length;
-    const moderadas = list.filter(b => b.anemia === "Moderada" || b.anemia === "Severa").length;
+    const clase = (b) => AnemiaCalculator.normalizar(b && b.anemia);
+    const normales = list.filter(b => clase(b) === "Normal").length;
+    const leves = list.filter(b => clase(b) === "Leve").length;
+    const moderadas = list.filter(b => clase(b) === "Moderada" || clase(b) === "Severa").length;
 
     const pctNormal = total > 0 ? Math.round((normales / total) * 100) : 0;
     const pctLeve = total > 0 ? Math.round((leves / total) * 100) : 0;

@@ -85,6 +85,13 @@ const T_VINCULO = ESQUEMA_USUARIO ? 'usuario_vinculado' : 'persona_vinculada';
 const F_MENOR = ESQUEMA_USUARIO ? 'usuario_id' : 'menor_id';
 const F_FIRMANTE = ESQUEMA_USUARIO ? 'firmante_id' : 'apoderado_firmante';
 
+// `caso_social` se migró antes que el resto de tablas: en la nube solo existe
+// `usuario_id`. Si se usara la bandera global con producción en 0, la consulta
+// pediría `persona_id.nombres` (campo inexistente) y los casos aparecerían sin
+// nombre. Se mantiene separado hasta que la migración termine en todas las
+// tablas y la bandera desaparezca.
+const F_CASO = 'usuario_id';
+
 // ---------------------------------------------------------------------------
 //  Estado de conexión y eventos
 // ---------------------------------------------------------------------------
@@ -394,9 +401,9 @@ const SQL_LOTE_HIDRATACION = [
   SQL_PADRON,
   // 2 · casos sociales activos
   `SELECT *,
-    ${F_USUARIO}.nombres AS p_nom,
-    ${F_USUARIO}.apellidos AS p_ape,
-    ${F_USUARIO}.codigo AS p_cod,
+    ${F_CASO}.nombres AS p_nom,
+    ${F_CASO}.apellidos AS p_ape,
+    ${F_CASO}.codigo AS p_cod,
     sede_id.nombre AS s_nom
   FROM caso_social WHERE activo = true ORDER BY creado_el DESC;`,
   // 3 · solicitudes de cambio de etapa
@@ -756,7 +763,7 @@ function mapearBeneficiarios(personasRes, sedes) {
 /** Obtiene los Casos Sociales (ASP) y sus solicitudes de cambio de etapa. */
 export async function fetchCasosSociales() {
   return mapearCasos(
-    comoLista(await ejecutar(`SELECT *, ${F_USUARIO}.nombres AS p_nom, ${F_USUARIO}.apellidos AS p_ape, ${F_USUARIO}.codigo AS p_cod, sede_id.nombre AS s_nom FROM caso_social WHERE activo = true ORDER BY creado_el DESC;`)),
+    comoLista(await ejecutar(`SELECT *, ${F_CASO}.nombres AS p_nom, ${F_CASO}.apellidos AS p_ape, ${F_CASO}.codigo AS p_cod, sede_id.nombre AS s_nom FROM caso_social WHERE activo = true ORDER BY creado_el DESC;`)),
     comoLista(await ejecutar('SELECT * FROM solicitud_caso WHERE activo = true ORDER BY fecha_solicitud DESC;')),
   );
 }
@@ -795,7 +802,7 @@ function mapearCasos(casosRaw, solicitudesRaw) {
 
     const retorna = {
       _casoId: String(c.id),
-      _personaId: c[F_USUARIO] ? String(c[F_USUARIO]) : '',
+      _personaId: c[F_CASO] ? String(c[F_CASO]) : '',
       _sedeRawId: c.sede_id ? String(c.sede_id) : '',
       id: idNum,
       beneficiarioId: idNum,
@@ -873,7 +880,7 @@ function mapearVoluntarios(volRaw) {
       fechaNacimiento: isoFecha(v.fecha_nacimiento),
       edad: v.edad ?? '',
       domicilio: v.direccion || '',
-      distrito: distritoDeSede(sede) || v.distrito || 'Comas',
+      distrito: v.distrito || distritoDeSede(sede) || 'Comas',
       sedeAsignada: sede,
       sedeRegistrada: !sede || sedeConocida(sede),
       sedeEtiqueta: sede ? etiquetaSede(sede) : 'Sin sede',
@@ -1625,7 +1632,7 @@ export async function crearCasoSocial(ui) {
       return null;
     }
     await ejecutar(`CREATE caso_social CONTENT {
-      ${F_USUARIO}: type::record('persona', $pid),
+      ${F_CASO}: type::record('persona', $pid),
       sede_id: type::record('sede', $sid),
       codigo_caso: $cod,
       etapa: 'pendiente',
@@ -1760,6 +1767,16 @@ export async function resolverSolicitudCaso(solId, caso, decision, comentario, a
 // ---------------------------------------------------------------------------
 //  CRUD · Voluntariados (tabla nueva en la nube)
 // ---------------------------------------------------------------------------
+/**
+ * Distrito operativo del voluntario. Manda el elegido en la ficha; la sede
+ * solo se usa como respaldo para registros antiguos que no traen distrito.
+ */
+function distritoVoluntario(v) {
+  const elegido = String(v.distrito || '').trim();
+  if (elegido === 'Comas' || elegido === 'Carabayllo') return elegido;
+  return distritoDeSede(v.sedeAsignada) || 'Comas';
+}
+
 export async function crearVoluntario(v) {
   try {
     const dup = comoLista(await ejecutar(
@@ -1791,10 +1808,10 @@ export async function crearVoluntario(v) {
       codigo: v.codigo,
       nom: v.nombres, ape: v.apellidos,
       doc: v.dni, tel: v.celular || null,
-      fnac: v.fechaNacimiento || null,
+      fnac: v.fechaNacimiento || '',
       edad: v.edad ? Number(v.edad) : null,
       dir: v.domicilio || null,
-      distrito: distritoDeSede(v.sedeAsignada) || (v.distrito === 'Carabayllo' ? 'Carabayllo' : 'Comas'),
+      distrito: distritoVoluntario(v),
       sede: v.sedeAsignada || '', servicio: SERVICIOS_VOLUNTARIADO.includes(v.servicio) ? v.servicio : 'Desayuno Infantil',
       rol: v.rol || 'Voluntaria de Apoyo',
       estrategia: v.estrategia || 'Atención Fija',
@@ -1817,14 +1834,16 @@ export async function crearVoluntario(v) {
 /** Los servicios válidos salen del catálogo único de programas. */
 
 export async function actualizarVoluntario(v) {
-  const qid = String(v._qid || '').split(':').pop();
-  if (!qid) return false;
+  // El ID completo puede venir con corchetes angulares: `voluntario:⟨...⟩`.
+  // Partirlo por ':' dejaba `⟨...⟩` y type::record no encontraba la fila.
+  const rid = String(v._qid || '').trim();
+  if (!rid) return false;
   try {
     if (v.sedeAsignada && !sedeConocida(v.sedeAsignada)) {
       console.warn(`[PDI] Sede no registrada en el catálogo de voluntariado: "${v.sedeAsignada}". Se conserva el valor.`);
     }
-    await ejecutar(`UPDATE voluntario SET
-      nombres = $nom, apellidos = $ape, telefono = $tel ?? NONE,
+    const res = await ejecutar(`UPDATE voluntario SET
+      nombres = $nom, apellidos = $ape, numero_documento = $doc, telefono = $tel ?? NONE,
       fecha_nacimiento = IF string::len($fnac) = 0 { NONE } ELSE { type::datetime($fnac) },
       edad = $edad ?? NONE,
       direccion = $dir ?? NONE, distrito = $distrito,
@@ -1833,10 +1852,11 @@ export async function actualizarVoluntario(v) {
       tipo_voluntariado = $tipo ?? NONE,
       estado = $estado, disponibilidad = $disponibilidad,
       observaciones = $obs ?? NONE
-    WHERE id = type::record('voluntario', $qid);`, {
-      qid, nom: v.nombres, ape: v.apellidos, tel: v.celular || null,
-      fnac: v.fechaNacimiento || null, edad: v.edad ? Number(v.edad) : null,
-      dir: v.domicilio || null, distrito: distritoDeSede(v.sedeAsignada) || (v.distrito === 'Carabayllo' ? 'Carabayllo' : 'Comas'),
+    WHERE id = type::record($rid)
+    RETURN AFTER;`, {
+      rid, nom: v.nombres, ape: v.apellidos, doc: v.dni, tel: v.celular || null,
+      fnac: v.fechaNacimiento || '', edad: v.edad ? Number(v.edad) : null,
+      dir: v.domicilio || null, distrito: distritoVoluntario(v),
       sede: v.sedeAsignada || '', servicio: SERVICIOS_VOLUNTARIADO.includes(v.servicio) ? v.servicio : 'Desayuno Infantil',
       rol: v.rol || 'Voluntaria de Apoyo', estrategia: v.estrategia || 'Atención Fija',
       tipo: v.tipoVoluntariado || null,
@@ -1844,6 +1864,12 @@ export async function actualizarVoluntario(v) {
       disponibilidad: v.disponibilidad || 'Disponibilidad estándar',
       obs: v.observaciones || null,
     });
+    // Un UPDATE sin coincidencias no lanza error: hay que comprobar que la
+    // fila exista para no mostrar "guardado" cuando no cambio nada.
+    if (!comoLista(res).length) {
+      avisarFallo('Actualización de voluntaria', `No se encontró el registro ${v.codigo || rid} en la base de datos.`);
+      return false;
+    }
     return true;
   } catch (err) {
     return avisarFallo('Actualización de voluntaria', err) !== null;
@@ -1852,10 +1878,14 @@ export async function actualizarVoluntario(v) {
 
 /** Baja en la nube: estado Inactivo + activo=false (Ley 29733: sin borrado físico). */
 export async function darBajaVoluntario(vol) {
-  const qid = String(vol._qid || '').split(':').pop();
-  if (!qid) return false;
+  const rid = String(vol._qid || '').trim();
+  if (!rid) return false;
   try {
-    await ejecutar(`UPDATE voluntario SET estado = 'Inactivo', activo = false WHERE id = type::record('voluntario', $qid);`, { qid });
+    const res = await ejecutar(`UPDATE voluntario SET estado = 'Inactivo', activo = false WHERE id = type::record($rid) RETURN AFTER;`, { rid });
+    if (!comoLista(res).length) {
+      avisarFallo('Baja de voluntaria', `No se encontró el registro ${vol.codigo || rid} en la base de datos.`);
+      return false;
+    }
     return true;
   } catch (err) {
     return avisarFallo('Baja de voluntaria', err) !== null;
@@ -1863,10 +1893,14 @@ export async function darBajaVoluntario(vol) {
 }
 
 export async function addCapacitacionVoluntario(vol, tematica) {
-  const qid = String(vol._qid || '').split(':').pop();
-  if (!qid) return false;
+  const rid = String(vol._qid || '').trim();
+  if (!rid) return false;
   try {
-    await ejecutar(`UPDATE voluntario SET capacitaciones += $tematica WHERE id = type::record('voluntario', $qid);`, { qid, tematica });
+    const res = await ejecutar(`UPDATE voluntario SET capacitaciones += $tematica WHERE id = type::record($rid) RETURN AFTER;`, { rid, tematica });
+    if (!comoLista(res).length) {
+      avisarFallo('Registro de capacitación', `No se encontró el registro ${vol.codigo || rid} en la base de datos.`);
+      return false;
+    }
     return true;
   } catch (err) {
     return avisarFallo('Registro de capacitación', err) !== null;
@@ -1874,10 +1908,14 @@ export async function addCapacitacionVoluntario(vol, tematica) {
 }
 
 export async function incrementarCanastaVoluntario(vol) {
-  const qid = String(vol._qid || '').split(':').pop();
-  if (!qid) return false;
+  const rid = String(vol._qid || '').trim();
+  if (!rid) return false;
   try {
-    await ejecutar(`UPDATE voluntario SET canastas_recibidas += 1 WHERE id = type::record('voluntario', $qid);`, { qid });
+    const res = await ejecutar(`UPDATE voluntario SET canastas_recibidas += 1 WHERE id = type::record($rid) RETURN AFTER;`, { rid });
+    if (!comoLista(res).length) {
+      avisarFallo('Entrega de canasta', `No se encontró el registro ${vol.codigo || rid} en la base de datos.`);
+      return false;
+    }
     return true;
   } catch (err) {
     return avisarFallo('Entrega de canasta', err) !== null;

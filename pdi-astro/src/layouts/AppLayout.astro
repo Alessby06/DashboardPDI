@@ -3,11 +3,14 @@ import { ClientRouter } from 'astro:transitions';
 import Sidebar from '../components/Sidebar.astro';
 import Topbar from '../components/Topbar.astro';
 import GlobalModals from '../components/GlobalModals.astro';
+import LoadingSkeleton from '../components/LoadingSkeleton.astro';
 
 import '../styles/variables.css';
 import '../styles/base.css';
 import '../styles/components.css';
+import '../styles/loading.css';
 import '../styles/views-comun.css';
+import '../styles/views-filters.css';
 import '../styles/views-filters-pc.css';
 
 interface Props {
@@ -128,6 +131,15 @@ const impeccableLive =
         if (ev.newDocument) {
           aplicarTema(ev.newDocument);
 
+          // La capa de datos ya hidrato en esta sesion: la pagina nueva no debe
+          // ensenar el esqueleto. El <html> se reemplaza en la transicion, asi
+          // que la marca se copia al documento nuevo antes del swap.
+          try {
+            if (window.PDI && window.PDI.__pdiDatosListos) {
+              ev.newDocument.documentElement.setAttribute("data-pdi-ready", "1");
+            }
+          } catch (e) {}
+
           try {
             var url = ev.to ? new URL(ev.to) : null;
             if (url && url.pathname.includes("/social")) {
@@ -165,6 +177,11 @@ const impeccableLive =
       // 3. ClientRouter: re-asegurar atributos inmediatamente tras el intercambio
       document.addEventListener("astro:after-swap", function () {
         aplicarTema(document);
+        try {
+          if (window.PDI && window.PDI.__pdiDatosListos) {
+            document.documentElement.setAttribute("data-pdi-ready", "1");
+          }
+        } catch (e) {}
       });
     })();
   </script>
@@ -195,8 +212,14 @@ const impeccableLive =
       <Topbar transition:persist />
 
       <!-- Viewport Body -->
-      <main class="content-viewport" id="mainContent" transition:animate={pdiAppSectionTransition}>        <div id="smoothContent" class="smooth-content">
-          <slot />
+      <main class="content-viewport" id="mainContent" transition:animate={pdiAppSectionTransition}>
+        <div class="pdi-view-shell" id="pdiViewShell">
+          <div class="pdi-view-content" id="pdiViewContent">
+            <div id="smoothContent" class="smooth-content">
+              <slot />
+            </div>
+          </div>
+          <LoadingSkeleton variant={currentPage} />
         </div>
       </main>
     </div>

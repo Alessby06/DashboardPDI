@@ -1397,7 +1397,7 @@ export const ExpedienteView = {
     ToastView.show("Fotografia Eliminada", `Se quito la fotografia de ${b.nombres} ${b.apellidos}.`, "success");
   },
 
-  deleteBeneficiario() {
+  async deleteBeneficiario() {
     if (!this._rolEsDirectivo()) {
       ToastView.show("Accion Restringida", "Unicamente el Coordinador General o el Administrador TI pueden dar de baja a un usuario.", "danger");
       return;
@@ -1411,10 +1411,19 @@ export const ExpedienteView = {
       return;
     }
 
-    BeneficiarioModel.delete(b.id);
+    const bajaOk = await BeneficiarioModel.delete(b.id);
+    if (!bajaOk) {
+      ToastView.show(
+        "Baja no completada",
+        `No se pudo dar de baja a ${b.nombres} ${b.apellidos} en la base de datos. El expediente sigue activo.`,
+        "danger",
+      );
+      return;
+    }
 
+    const usuarioActivo = localStorage.getItem("pdi_usuario_nombre") || "Coordinador General";
     if (AuditModel && AuditModel.addLog) {
-      AuditModel.addLog({
+      await AuditModel.addLog({
         user: usuarioActivo,
         role: "Direccion / Admin",
         action: "Baja de Usuario",

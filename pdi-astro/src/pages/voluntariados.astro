@@ -39,29 +39,36 @@ import '../styles/views-voluntariados.css';
               </div>
               <p class="vol-reparto-total"><span id="volRepartoTotal">8</span> en el padrón · <span id="volRepartoPausa">0</span> en pausa</p>
             </header>
-            <div class="vol-reparto-bar vol-reparto-bar--labels" role="img" aria-label="Composición del voluntariado por servicio">
-              <span class="vol-reparto-seg vol-reparto-seg--food" id="volRepartoBarFood" style="width: 50%;"><span class="vol-reparto-bar-tag">Servicio Alimentario · 50%</span></span>
-              <span class="vol-reparto-seg vol-reparto-seg--casita" id="volRepartoBarCasita" style="width: 37.5%;"><span class="vol-reparto-bar-tag">Casita del Saber · 38%</span></span>
-              <span class="vol-reparto-seg vol-reparto-seg--asp" id="volRepartoBarAsp" style="width: 12.5%;"><span class="vol-reparto-bar-tag">ASP · 13%</span></span>
+            <div class="vol-reparto-bar" role="img" aria-label="Composición del voluntariado por servicio">
+              <span class="vol-reparto-seg vol-reparto-seg--food" id="volRepartoBarFood" style="width: 50%;"></span>
+              <span class="vol-reparto-seg vol-reparto-seg--casita" id="volRepartoBarCasita" style="width: 37.5%;"></span>
+              <span class="vol-reparto-seg vol-reparto-seg--asp" id="volRepartoBarAsp" style="width: 12.5%;"></span>
+              <span class="vol-reparto-seg vol-reparto-seg--otros" id="volRepartoBarOtros" style="width: 0%;" hidden></span>
             </div>
             <ul class="vol-reparto-list">
               <li class="vol-reparto-row">
                 <span class="vol-reparto-dot vol-reparto-dot--food" aria-hidden="true"></span>
                 <span class="vol-reparto-name">Servicio Alimentario</span>
                 <span class="vol-reparto-detail">Desayunos e iglesias aliadas</span>
-                <span class="vol-reparto-count"><strong id="volRepartoDesayuno">4</strong> asignadas</span>
+                <span class="vol-reparto-count"><strong class="vol-reparto-pct" id="volRepartoPctDesayuno">—</strong> · <span id="volRepartoDesayuno">4</span> asignadas</span>
               </li>
               <li class="vol-reparto-row">
                 <span class="vol-reparto-dot vol-reparto-dot--casita" aria-hidden="true"></span>
                 <span class="vol-reparto-name">Casita del Saber</span>
                 <span class="vol-reparto-detail">Acompañamiento y biblioteca</span>
-                <span class="vol-reparto-count"><strong id="volRepartoCasita">3</strong> asignadas</span>
+                <span class="vol-reparto-count"><strong class="vol-reparto-pct" id="volRepartoPctCasita">—</strong> · <span id="volRepartoCasita">3</span> asignadas</span>
               </li>
               <li class="vol-reparto-row">
                 <span class="vol-reparto-dot vol-reparto-dot--asp" aria-hidden="true"></span>
                 <span class="vol-reparto-name">Área Social Pastoral</span>
                 <span class="vol-reparto-detail">Derivaciones y visitas</span>
-                <span class="vol-reparto-count"><strong id="volRepartoAsp">1</strong> asignada</span>
+                <span class="vol-reparto-count"><strong class="vol-reparto-pct" id="volRepartoPctAsp">—</strong> · <span id="volRepartoAsp">1</span> asignada</span>
+              </li>
+              <li class="vol-reparto-row" id="volRepartoRowOtros" hidden>
+                <span class="vol-reparto-dot vol-reparto-dot--otros" aria-hidden="true"></span>
+                <span class="vol-reparto-name">Otros servicios</span>
+                <span class="vol-reparto-detail">Biblioteca y talleres</span>
+                <span class="vol-reparto-count"><strong class="vol-reparto-pct" id="volRepartoPctOtros">0%</strong> · <span id="volRepartoOtros">0</span> asignadas</span>
               </li>
             </ul>
             <footer class="vol-reparto-foot">
@@ -351,7 +358,7 @@ import '../styles/views-voluntariados.css';
                 style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;"></div>
               <button type="button" class="btn-text-subtle" style="margin-left: auto; font-size: 11.5px;"
                 onclick="window.resetVoluntariosFilters ? window.resetVoluntariosFilters() : null">
-                Borrar todos
+                Limpiar filtros
               </button>
             </div>
 

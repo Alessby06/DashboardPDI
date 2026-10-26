@@ -209,7 +209,7 @@ const impeccableLive =
       width: 42px;
       height: 42px;
       border-radius: var(--radius-md);
-      background: #000000;
+      background: var(--showcase-black);
       border: 1px solid rgba(255, 255, 255, 0.12);
       display: flex;
       align-items: center;
@@ -255,7 +255,7 @@ const impeccableLive =
     }
 
     .showcase-title {
-      font-size: 32px;
+      font-size: 30px;
       font-weight: 800;
       line-height: 1.2;
       color: var(--hero-title);
@@ -519,7 +519,7 @@ const impeccableLive =
     }
 
     .form-main-title {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 800;
       color: var(--text-title);
       letter-spacing: -0.02em;
@@ -1002,7 +1002,7 @@ const impeccableLive =
     --v-red: #ff4324;
     --v-yellow: #f7cd03;
   }
-  .showcase-badge-icon { background: #000000; border-color: var(--border-subtle); }
+  .showcase-badge-icon { background: var(--showcase-black); border-color: var(--border-subtle); }
   .showcase-brand-text h3 { color: var(--text-title); }
   .showcase-brand-text p { color: var(--text-muted); }
   .showcase-body { margin: 26px 0; }
@@ -1164,13 +1164,13 @@ const impeccableLive =
     letter-spacing: 0.14em;
   }
   .showcase-column .modules-card .module-text-wrap h4 {
-    font-size: 17.1px;
+    font-size: 16.5px;
     font-weight: 300;
     letter-spacing: -0.018em;
     line-height: 1.12;
   }
   .showcase-column .modules-card .module-text-wrap p {
-    font-size: 11.7px;
+    font-size: 11.5px;
     font-weight: 600;
     line-height: 1.5;
     color: var(--text-muted);
@@ -1336,7 +1336,7 @@ const impeccableLive =
   }
   [data-theme="dark"] .access-column .profile-card-btn {
     border-color: rgba(255, 255, 255, 0.16);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 1px 3px var(--showcase-shadow);
   }
   .access-column .profile-card-btn:hover {
     background: var(--surface-subtle);
@@ -1440,7 +1440,7 @@ const impeccableLive =
     letter-spacing: 0.2em;
   }
   .showcase-title {
-    font-size: 32px;
+    font-size: 30px;
     font-weight: 800;
     line-height: 1.03;
     letter-spacing: -0.028em;
@@ -1467,7 +1467,7 @@ const impeccableLive =
     transition: background 0.24s cubic-bezier(0.2, 0, 0, 1), border-color 0.24s cubic-bezier(0.2, 0, 0, 1), transform 0.2s ease;
   }
   .showcase-column .modules-card .module-row:hover {
-    background: #000000;
+    background: var(--showcase-black);
     border-color: rgba(255, 255, 255, 0.14);
   }
   .showcase-column .modules-card .module-icon-well {
@@ -1483,9 +1483,9 @@ const impeccableLive =
     border-color: rgba(255, 255, 255, 0.2);
   }
   .showcase-column .modules-card .module-radio:checked + .module-row {
-    background: #000000;
+    background: var(--showcase-black);
     border-color: rgba(255, 255, 255, 0.22);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 4px 16px var(--showcase-shadow-strong);
   }
   .showcase-column .modules-card .module-radio:checked + .module-row .module-icon-well {
     color: #ffffff;
@@ -1499,7 +1499,7 @@ const impeccableLive =
   .showcase-column .modules-card .module-radio:focus-visible + .module-row {
     outline: 2px solid #ffffff;
     outline-offset: 2px;
-    border-radius: 12px;
+    border-radius: var(--radius-md);
   }
   /* Rejilla 2×2 de módulos en negro con bordes definidos y consistentes.
      align-items: start evita que la tarjeta abierta estire a su vecina: cada
@@ -1536,8 +1536,8 @@ const impeccableLive =
     flex: 1 1 auto;
     gap: 10px;
     padding: 13px 12px;
-    border-radius: 12px;
-    background: #000000;
+    border-radius: var(--radius-md);
+    background: var(--showcase-black);
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-sizing: border-box;
   }
@@ -1583,17 +1583,17 @@ const impeccableLive =
   /* Ajuste: negro puro (#000000) igual que las tarjetas de módulos, con hover casi negro
      y sombra neutra para que en tema claro conserve la separación del fondo. */
   .access-column .btn-primary-action {
-    background: #000000;
+    background: var(--showcase-black);
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.2);
   }
   .access-column .btn-primary-action:hover {
-    background: #14161a;
+    background: var(--showcase-surface);
   }
   [data-theme="dark"] .access-column .btn-primary-action {
     background: #ffffff;
-    color: #0b0f14;
+    color: var(--showcase-ink);
     border: none;
-    box-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
+    box-shadow: 0 2px 14px var(--showcase-shadow-float);
   }
   [data-theme="dark"] .access-column .btn-primary-action:hover {
     background: #e6e8ec;
@@ -1602,7 +1602,7 @@ const impeccableLive =
      así que sus bordes pasan a oscuro para que siga siendo visible. */
   [data-theme="dark"] .access-column .btn-primary-action .btn-spinner {
     border-color: rgba(15, 23, 42, 0.25);
-    border-top-color: #0b0f14;
+    border-top-color: var(--showcase-ink);
   }
   /* ── Modo oscuro · "Inversión": tarjetas de módulos y botón pasan de negro a superficie clara.
      Jerarquía: el botón es blanco puro (#ffffff) porque es la acción principal y el elemento
@@ -1620,7 +1620,7 @@ const impeccableLive =
   [data-theme="dark"] .showcase-column .modules-card .module-radio:checked + .module-row {
     background: #ffffff;
     border-color: rgba(15, 23, 42, 0.26);
-    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.55);
+    box-shadow: 0 6px 22px var(--showcase-shadow-float);
   }
   [data-theme="dark"] .showcase-column .modules-card .module-icon-well {
     color: #0f172a;

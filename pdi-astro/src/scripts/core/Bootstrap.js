@@ -33,6 +33,7 @@ import { ToastView } from "../views/ToastView.js";
 import {
   iniciarCapaDatos, refrescarDesdeNube, hidratarDesdeSurreal,
 } from "./db.js";
+import { iniciarEstadoCarga } from "./LoadingState.js";
 
 /**
  * Arranca el chrome. Devuelve el slug de la pagina si el acceso fue concedido,
@@ -83,7 +84,9 @@ export function arrancarComun() {
   actualizarBadgesSidebar();
 
   // Encender la capa de datos (conexion, hidratacion, LIVE y reintentos).
-  // No es await: el velo se encarga de la espera visual.
+  // No es await: el controlador de carga retira el esqueleto cuando la capa
+  // avisa que la primera hidratacion termino.
+  iniciarEstadoCarga();
   iniciarCapaDatos();
 
   return slug;

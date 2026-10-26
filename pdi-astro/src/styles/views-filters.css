@@ -1,0 +1,796 @@
+/* ===========================================================================
+   FILTROS DE DATOS - FUENTE UNICA
+   ===========================================================================
+   Un solo sitio para el panel de filtros que comparten auditoria, padron,
+   salud, sedes, social, educativo y voluntariados.
+
+   Antes cada vista traia su copia (223 reglas, 1.147 declaraciones) y las
+   copias ya habian divergido: 330px frente a 310px, padding 16px frente a
+   14px 16px, z-index 1000 anulado por un 2000 !important, y etiquetas de
+   11,5px frente a 12px. Aqui queda una definicion y una sola verdad.
+
+   Orden de capas:
+     1. Estructura y boton (escritorio)
+     2. Popover, cabecera, cuerpo y pie
+     3. Chips y desplegables internos
+     4. Estados de foco, contraste y tamano tactil
+     5. Hoja inferior movil (<= 768px)
+   =========================================================================== */
+
+:root {
+  /* Borde de control: --border-subtle daba 1,18:1 sobre blanco y el control
+     desaparecia. Este tono da 3,6:1 sobre blanco y 5,4:1 sobre el fondo
+     oscuro, que es el minimo para que un borde de control se perciba. */
+  --filter-border: #7c8798;
+}
+
+[data-theme="dark"] {
+  --filter-border: #6b6b78;
+}
+
+/* ---------------------------------------------------------------------------
+   1. ESTRUCTURA Y BOTON
+   --------------------------------------------------------------------------- */
+
+.audit-filter-panel-wrap {
+  position: relative;
+}
+
+.audit-filters-dropdown {
+  position: relative;
+}
+
+.audit-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 13px;
+  border: 1px solid var(--filter-border);
+  background: var(--surface-2);
+  color: var(--text-main);
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background-color var(--dur-fast) var(--ease-smooth),
+    border-color var(--dur-fast) var(--ease-smooth),
+    color var(--dur-fast) var(--ease-smooth),
+    box-shadow var(--dur-fast) var(--ease-smooth);
+}
+
+.audit-filter-btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--text-dim);
+}
+
+.audit-filter-btn.has-filters {
+  background: var(--brand-soft);
+  color: var(--text-brand);
+  /* El borde translucido daba 1,25:1 sobre el blanco: el estado "activo"
+     tiene que leerse tambien como forma, no solo como tinte. */
+  border-color: var(--text-brand);
+}
+
+.audit-filter-btn svg.filter-caret {
+  flex-shrink: 0;
+  transition: transform var(--dur-fast) var(--ease-smooth);
+}
+
+.audit-filters-dropdown.open .audit-filter-btn svg.filter-caret,
+.audit-filter-btn[aria-expanded="true"] svg.filter-caret {
+  transform: rotate(180deg);
+}
+
+.audit-filter-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-full);
+  background: var(--gt-green);
+  color: var(--on-brand);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ---------------------------------------------------------------------------
+   2. POPOVER
+   --------------------------------------------------------------------------- */
+
+.audit-filters-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  left: auto;
+  width: 330px;
+  max-width: calc(100vw - 32px);
+  /* Sin techo, el panel de salud terminaba en y=936 con un viewport de 900 y
+     el de padron dejaba 68px fuera a 1366x768. El techo usa el viewport real
+     y deja aire para la topbar. */
+  max-height: min(76dvh, calc(100dvh - 110px));
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow:
+    var(--shadow-overlay);
+  padding: 16px;
+  z-index: 1000;
+  display: none;
+  flex-direction: column;
+  gap: 14px;
+  overflow: hidden;
+  animation: dropdownFadeIn var(--dur-fast) var(--ease-out);
+}
+
+.audit-filters-dropdown.open .audit-filters-menu {
+  display: flex;
+}
+
+.audit-filters-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 10px;
+  flex-shrink: 0;
+}
+
+.audit-filters-header-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  /* Sin min-width:0 el titulo no encoge y empuja a Restablecer; con elipsis
+     se comia "Casos Sociales". Se permite partir en dos lineas: el titulo se
+     lee entero y el encabezado crece 14px. */
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-main);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.audit-filters-header-title > span,
+.audit-filters-header-title {
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+.audit-filters-header-title svg {
+  flex-shrink: 0;
+  color: var(--text-brand);
+}
+
+.audit-filters-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.btn-text-subtle {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 5px 8px;
+  min-height: 28px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  transition:
+    color var(--dur-fast) var(--ease-smooth),
+    background-color var(--dur-fast) var(--ease-smooth);
+}
+
+.btn-text-subtle:hover {
+  color: var(--text-danger);
+  background: var(--gt-red-bg, rgba(239, 68, 68, 0.08));
+}
+
+.audit-filters-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 2px;
+}
+
+.audit-filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.audit-field-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+}
+
+/* El contador dentro del boton de cierre anunciado por lector de pantalla. */
+.filter-result-count {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------------------
+   3. CHIPS, SEGMENTOS Y DESPLEGABLES INTERNOS
+   --------------------------------------------------------------------------- */
+
+.padron-active-chips-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 8px 12px;
+  background: var(--surface-2);
+  border: 1px dashed var(--border-subtle);
+  border-radius: var(--radius-md);
+  animation: fadeInDataCard var(--dur-fast) var(--ease-smooth);
+}
+
+.padron-active-chips-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.padron-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px 4px 10px;
+  background: var(--surface-1);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-main);
+  box-shadow: var(--shadow-sm);
+}
+
+.padron-chip:hover {
+  border-color: var(--text-dim);
+}
+
+.padron-chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* 14x14 obligaba a apuntar con precision. El circulo visible sigue siendo
+     pequeño, pero el area pulsable llega a 24px. */
+  width: 24px;
+  height: 24px;
+  margin: -4px -2px -4px 0;
+  border-radius: 50%;
+  background: rgba(220, 38, 38, 0.12);
+  color: var(--text-danger);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background-color var(--dur-fast) var(--ease-smooth);
+}
+
+.padron-chip-remove svg {
+  width: 9px;
+  height: 9px;
+}
+
+.padron-chip-remove:hover {
+  background: var(--gt-red);
+  color: var(--on-solid);
+}
+
+[data-theme="dark"] .padron-chip-remove:hover {
+  color: var(--on-solid);
+}
+
+.audit-seg-btn.active {
+  background: var(--brand-soft);
+  color: var(--text-brand);
+  border-color: var(--gt-green-border, var(--border-bright));
+  font-weight: 700;
+}
+
+.audit-chip.active {
+  background: var(--brand-soft);
+  color: var(--text-brand);
+  border-color: var(--border-bright);
+  font-weight: 700;
+}
+
+.padron-inner-dropdown {
+  position: relative;
+}
+
+.padron-inner-dropdown-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--filter-border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text-main);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color var(--dur-fast) var(--ease-smooth),
+    background-color var(--dur-fast) var(--ease-smooth);
+}
+
+.padron-inner-dropdown-btn:hover {
+  border-color: var(--text-dim);
+  background: var(--surface-hover);
+}
+
+.padron-inner-dropdown.open .padron-inner-dropdown-btn {
+  border-color: var(--text-brand);
+}
+
+.padron-inner-dropdown-btn svg.caret {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  transition: transform var(--dur-fast) var(--ease-smooth);
+}
+
+.padron-inner-dropdown.open .padron-inner-dropdown-btn svg.caret {
+  transform: rotate(180deg);
+}
+
+.padron-inner-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 120;
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 240px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 6px;
+  background: var(--surface-1);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-overlay);
+}
+
+.padron-inner-dropdown.open .padron-inner-dropdown-menu {
+  display: flex;
+}
+
+/* Teclado: las opciones son div con onclick; el foco tiene que verse. */
+.padron-dropdown-item:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: -2px;
+  background: var(--surface-hover);
+}
+
+/* Opcion sin resultados: no se puede elegir. Solo estaba estilada en dos
+   vistas; en las demas se podia pulsar y dejar la tabla vacia. */
+.padron-dropdown-item.zero-facet {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+/* ---------------------------------------------------------------------------
+   4. FOCO VISIBLE Y CONTRASTE
+   --------------------------------------------------------------------------- */
+
+.audit-filter-btn:focus-visible,
+.padron-inner-dropdown-btn:focus-visible,
+.audit-filters-menu .btn-text-subtle:focus-visible,
+.audit-filters-menu .btn-close-sheet:focus-visible,
+.audit-filters-menu .btn-apply-filters:focus-visible,
+.audit-filters-menu input:focus-visible,
+.audit-filters-menu select:focus-visible,
+.audit-filters-menu textarea:focus-visible,
+.padron-chip-remove:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--brand-primary);
+}
+
+/* Salida del estado vacio: el filtro que dejo la tabla a cero se quita desde
+   donde el usuario lo esta mirando, no desde la cabecera. */
+.btn-clear-empty-filters {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--filter-border);
+  background: var(--surface-2);
+  color: var(--text-main);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease-smooth),
+    border-color var(--dur-fast) var(--ease-smooth);
+}
+
+.btn-clear-empty-filters:hover {
+  background: var(--surface-hover);
+  border-color: var(--text-dim);
+}
+
+.btn-clear-empty-filters:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--brand-primary);
+}
+
+/* El placeholder del campo de edad daba 4,4:1; --text-dim lo deja en 4,76. */
+.facet-edad-num-input::placeholder {
+  color: var(--text-dim);
+  opacity: 1;
+}
+
+/* Campo de edad del padron: el widget trae su propio sub-panel. Se acota para
+   que quepa en el popover sin que la pastilla "Todas las edades" se monte
+   encima del rotulo ni los extremos del slider se pisen. */
+.audit-filters-menu .facet-edad-header {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.audit-filters-menu .facet-edad-header .audit-field-label {
+  min-width: 0;
+}
+
+.audit-filters-menu .btn-facet-all-edad {
+  position: static;
+  flex-shrink: 0;
+}
+
+.audit-filters-menu .facet-edad-slider-labels {
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 11px;
+}
+
+/* ---------------------------------------------------------------------------
+   Panel de filtros dentro del modal social (misma pieza, contexto estrecho).
+   Solo escritorio: en movil manda la hoja inferior y estas medidas la
+   dejarian fuera de pantalla (top calculado sobre un ancestro distinto).
+   --------------------------------------------------------------------------- */
+
+@media (min-width: 769px) {
+  #dropdownSocialFilterPanel .audit-filters-menu {
+    width: 330px;
+    max-width: calc(100vw - 28px);
+    padding: 16px;
+    top: calc(100% + 6px);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   5. MOVIL: HOJA INFERIOR
+   --------------------------------------------------------------------------- */
+
+@media (min-width: 769px) {
+  .btn-close-sheet {
+    display: none !important;
+  }
+
+  /* Pie de escritorio: estado, no confirmacion. El filtrado ya ocurrio, asi
+     que aqui se informa cuantas coincidencias quedan y se ofrece el cierre
+     explicito que antes solo existia en movil. */
+  .audit-filters-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-top: 10px;
+    margin-top: 2px;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .audit-filters-footer .btn-apply-filters,
+  .audit-filters-footer .btn-clear-filters {
+    display: none;
+  }
+}
+
+.filter-count {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 768px) {
+  body.filter-sheet-open {
+    overflow: hidden !important;
+    touch-action: none !important;
+  }
+
+  /* main tiene contain:layout, que convierte el ancestro en bloque contenedor
+     de position:fixed. En social la hoja se anclaba al final de un main de
+     2197px y quedaba fuera de pantalla (y=1849 sobre un viewport de 844).
+     El .app-view activo suma content-visibility:auto, que implica contencion
+     de layout y paint: tambien hay que soltarlo mientras dura la hoja. */
+  #mainContent.content-viewport,
+  #mainContent .app-view.active {
+    contain: none !important;
+    content-visibility: visible !important;
+  }
+
+  .audit-filters-dropdown.open::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100dvh;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 9998;
+    opacity: 1;
+    pointer-events: auto;
+    animation: sheetBackdropFadeIn 0.22s ease forwards;
+  }
+
+  @keyframes sheetBackdropFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .audit-filters-dropdown .audit-filters-menu,
+  .audit-filters-menu {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100vw;
+    max-width: 100vw;
+    min-width: 100vw;
+    height: auto;
+    max-height: 85dvh;
+    background: var(--surface-1);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    border: 1px solid var(--border-bright);
+    border-bottom: none;
+    box-shadow: var(--shadow-overlay);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    transform: translateY(100%);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 0.2s ease,
+      visibility 0.3s;
+    overflow: hidden;
+  }
+
+  .audit-filters-dropdown.open .audit-filters-menu {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .audit-filters-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--surface-1);
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+
+  .audit-filters-header::before {
+    content: '';
+    display: block;
+    width: 38px;
+    height: 4.5px;
+    border-radius: 999px;
+    background: var(--border-bright);
+    margin: 0 auto 6px auto;
+    flex-basis: 100%;
+  }
+
+  .audit-filters-header-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+
+  .audit-filters-header-title svg {
+    width: 17px;
+    height: 17px;
+    color: var(--brand-primary);
+  }
+
+  .audit-filters-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-close-sheet {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-main);
+    cursor: pointer;
+    padding: 0;
+    touch-action: manipulation;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+
+  .btn-close-sheet:active {
+    transform: scale(0.92);
+  }
+
+  .audit-filters-body {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: 16px 18px 20px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-height: none;
+  }
+
+  .audit-filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: relative;
+  }
+
+  .audit-field-label {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .audit-filters-footer {
+    display: flex;
+    gap: 8px;
+    padding: 12px 18px calc(14px + env(safe-area-inset-bottom, 0px)) 18px;
+    background: var(--surface-1);
+    border-top: 1px solid var(--border-subtle);
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+  }
+
+  .audit-filters-footer .btn-apply-filters {
+    width: 100%;
+    height: 44px;
+    min-height: 44px;
+    font-size: 13.5px;
+    font-weight: 700;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    touch-action: manipulation;
+    /* Solido y con texto oscuro: el degradado dejaba el blanco en 2,66:1. */
+    background: var(--gt-green);
+    background-image: none;
+    color: var(--on-brand);
+  }
+
+  .audit-filters-footer .btn-apply-filters svg {
+    display: none;
+  }
+
+  .audit-filters-footer .filter-count,
+  .audit-filters-footer .btn-close-filter {
+    display: none;
+  }
+
+  /* Recuperacion en el propio pie: borrar todo sin cerrar la hoja. */
+  .audit-filters-footer .btn-clear-filters {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    min-height: 44px;
+    padding: 0 16px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--filter-border);
+    background: var(--surface-2);
+    color: var(--text-main);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+    white-space: nowrap;
+  }
+
+  .padron-inner-dropdown-btn {
+    height: 44px;
+    font-size: 13px;
+  }
+
+  .padron-inner-dropdown-menu {
+    background: var(--surface-2);
+    border: 1px solid var(--border-bright);
+    box-shadow: var(--shadow-overlay);
+    border-radius: var(--radius-md);
+    z-index: 200;
+  }
+
+  .padron-dropdown-item {
+    min-height: 44px;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .audit-filter-btn {
+    height: 44px;
+    padding: 0 14px;
+    font-size: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .audit-filters-menu,
+  .audit-filters-dropdown .audit-filters-menu,
+  .padron-inner-dropdown-menu {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+
+  .audit-filters-dropdown.open::before {
+    animation: none !important;
+  }
+}

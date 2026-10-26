@@ -51,7 +51,7 @@ export const VoluntarioModel = {
     return this._data.find(v => String(v.dni) === String(dni)) || null;
   },
 
-  create(voluntarioData) {
+  async create(voluntarioData) {
     if (!this._data) this.init();
     const maxId = this._data.reduce((max, v) => Math.max(max, Number(v.id) || 0), 0);
     const nextId = maxId + 1;
@@ -83,21 +83,21 @@ export const VoluntarioModel = {
     };
 
     this._data.unshift(newVoluntario);
-    // La nube confirma; si el DNI está duplicado la voluntaria se retira.
-    crearVoluntario(newVoluntario).then(ok => {
-      if (!ok) {
-        const idx = this._data.indexOf(newVoluntario);
-        if (idx !== -1) this._data.splice(idx, 1);
-      } else if (ok?.qid) {
-        newVoluntario._qid = ok.qid;
-      }
-    });
+    // La nube confirma antes de dar el alta por buena. Si la escritura falla,
+    // la fila se retira: antes quedaba en memoria hasta recargar y parecía
+    // guardada aunque la base la hubiera rechazado.
+    const ok = await crearVoluntario(newVoluntario);
+    if (!ok) {
+      const idx = this._data.indexOf(newVoluntario);
+      if (idx !== -1) this._data.splice(idx, 1);
+      return null;
+    }
+    if (ok.qid) newVoluntario._qid = ok.qid;
     return newVoluntario;
   },
 
-  update(id, updatedData) {
+  async update(id, updatedData) {
     if (!this._data) this.init();
-    const original = this._data.find(v => String(v.id) === String(id));
     const index = this._data.findIndex(v => String(v.id) === String(id));
     if (index === -1) return null;
 
@@ -109,8 +109,11 @@ export const VoluntarioModel = {
       ...this._data[index],
       ...updatedData
     };
+    // Igual que en el alta: primero la nube, después la memoria. Si falla, el
+    // registro se queda como estaba y la vista no miente.
+    const ok = await actualizarVoluntario(actualizado);
+    if (!ok) return null;
     this._data[index] = actualizado;
-    actualizarVoluntario(actualizado);
     return actualizado;
   },
 
@@ -158,6 +161,12 @@ export const VoluntarioModel = {
     const desayuno = list.filter(v => v.servicio === "Desayuno Infantil" || v.servicio === "Lonchera Infantil").length;
     const casita = list.filter(v => v.servicio === "Casita del Saber").length;
     const pastoral = list.filter(v => v.servicio === "Área Social Pastoral (ASP)").length;
+    // El catalogo tiene dos servicios mas (Biblioteca Comunitaria y Talleres de
+    // Reposteria). Si no se cuentan, la barra de reparto no representa al total
+    // del voluntariado y los porcentajes no suman 100%.
+    const otros = list.filter(v =>
+      !["Desayuno Infantil", "Lonchera Infantil", "Casita del Saber", "Área Social Pastoral (ASP)"].includes(v.servicio)
+    ).length;
     const canastasTotal = list.reduce((sum, v) => sum + (Number(v.canastasRecibidas) || 0), 0);
 
     return {
@@ -169,6 +178,7 @@ export const VoluntarioModel = {
       desayuno,
       casita,
       pastoral,
+      otros,
       canastasTotal
     };
   },

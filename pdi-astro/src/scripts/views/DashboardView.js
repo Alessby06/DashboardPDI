@@ -171,24 +171,22 @@ export const DashboardView = {
           ? allBeneficiarios.filter(b => (b.distrito || "").toLowerCase() === dist.toLowerCase()).length
           : (dist.toLowerCase() === "comas" ? stats.comasCount : (dist.toLowerCase() === "carabayllo" ? stats.carabaylloCount : 0));
         const distPct = totalBeneficiarios > 0 ? Math.round((distCount / totalBeneficiarios) * 100) : 0;
-        const sedesText = dInfo.sedes.length > 0 ? `Sedes (${dInfo.sedes.length}): ${dInfo.sedes.join(", ")}` : "Sedes activas";
+        const sedesText = dInfo.sedes.length > 0 ? dInfo.sedes.join(", ") : "Sedes activas";
         const barColorClass = dist.toLowerCase() === "comas" ? "green" : (dist.toLowerCase() === "carabayllo" ? "blue" : "yellow");
         const startWidth = esPrimeraEntrada ? "0%" : `${distPct}%`;
         resumenDistritos.push({ slug: distSlug, pct: distPct, count: distCount });
 
         return `
-          <div class="dash-territory-row dash-territory-row--share" data-dist="${dist.toLowerCase()}">
-            <div class="dash-territory-share">
-              <span class="dash-territory-share-pct" id="pctDistrict_${distSlug}">${distPct}%</span>
-              <span class="dash-territory-share-badge" id="badgeDistrict_${distSlug}">${distCount} usuarios</span>
-            </div>
+          <div class="dash-territory-row" data-dist="${dist.toLowerCase()}">
             <div class="dash-territory-share-info">
               <strong>Distrito de ${escapar(dist)}</strong>
               <span class="dash-territory-share-sub">${escapar(sedesText)}</span>
             </div>
-            <div class="dash-territory-track">
-              <div class="dash-territory-bar ${barColorClass}" style="width: ${startWidth};" data-target-width="${distPct}%" id="barDistrict_${distSlug}"></div>
+            <div class="dash-territory-share">
+              <span class="dash-territory-share-pct" id="pctDistrict_${distSlug}">${distPct}%</span>
+              <span class="dash-territory-share-badge" id="badgeDistrict_${distSlug}">${distCount} usuarios</span>
             </div>
+            <div class="dash-territory-track"><div class="dash-territory-bar ${barColorClass}" style="width: ${startWidth};" data-target-width="${distPct}%" id="barDistrict_${distSlug}"></div></div>
           </div>
         `;
       }).join("");
@@ -300,48 +298,41 @@ export const DashboardView = {
     // Panel de Anemia MINSA - Actualización de estado clínico directa con animación fluida
     const anemiaContainer = document.getElementById("dashAnemiaTable");
     if (anemiaContainer) {
-      const segNormal = document.getElementById("segAnemiaNormal");
-      const segLeve = document.getElementById("segAnemiaLeve");
-      const segMod = document.getElementById("segAnemiaMod");
-      const legNormal = document.getElementById("anemiaLegendNormal");
-      const legLeve = document.getElementById("anemiaLegendLeve");
-      const legMod = document.getElementById("anemiaLegendMod");
-      const pctNormal = document.getElementById("anemiaPctNormal");
-      const pctLeve = document.getElementById("anemiaPctLeve");
-      const pctMod = document.getElementById("anemiaPctMod");
+      const bandas = [
+        { fillId: "segAnemiaNormal", pctId: "anemiaPctNormal", legId: "anemiaLegendNormal", pct: stats.pctNormal, casos: stats.normales },
+        { fillId: "segAnemiaLeve", pctId: "anemiaPctLeve", legId: "anemiaLegendLeve", pct: stats.pctLeve, casos: stats.leves },
+        { fillId: "segAnemiaMod", pctId: "anemiaPctMod", legId: "anemiaLegendMod", pct: stats.pctMod, casos: stats.moderadas },
+      ];
+
+      bandas.forEach(({ fillId, pctId, legId, pct, casos }) => {
+        const fill = document.getElementById(fillId);
+        if (fill) {
+          // El destino viaja en el nodo y se lee dentro del rAF, no en el
+          // closure. En la primera entrada la barra arranca en 0% y el
+          // porcentaje real se aplica en el frame siguiente; si para entonces
+          // la hidratación ya pintó los datos reales (el evento de refresco
+          // corre a los 120 ms, a veces antes que el frame), el callback
+          // antiguo leía su `stats` viejo y devolvía la barra a 0%. El
+          // porcentaje y los casos se veían bien porque no pasan por el rAF.
+          fill.dataset.targetWidth = `${pct}%`;
+          if (esPrimeraEntrada) {
+            fill.style.width = "0%";
+            void fill.offsetWidth;
+            requestAnimationFrame(() => { fill.style.width = fill.dataset.targetWidth; });
+          } else {
+            // En refrescos posteriores de datos, transicionar suavemente sin reiniciar a 0%
+            fill.style.width = fill.dataset.targetWidth;
+          }
+        }
+
+        const pctEl = document.getElementById(pctId);
+        if (pctEl) rollNum(pctEl, pct, true);
+        const legEl = document.getElementById(legId);
+        if (legEl) rollNum(legEl, casos);
+      });
+
       const totalEval = document.getElementById("dashAnemiaTotalEvaluados");
-
-      if (esPrimeraEntrada) {
-        // Animar barras segmentadas desde 0% hacia su porcentaje con transición orgánica solo en entrada
-        if (segNormal) {
-          segNormal.style.width = "0%";
-          void segNormal.offsetWidth;
-          requestAnimationFrame(() => { segNormal.style.width = `${stats.pctNormal}%`; });
-        }
-        if (segLeve) {
-          segLeve.style.width = "0%";
-          void segLeve.offsetWidth;
-          requestAnimationFrame(() => { segLeve.style.width = `${stats.pctLeve}%`; });
-        }
-        if (segMod) {
-          segMod.style.width = "0%";
-          void segMod.offsetWidth;
-          requestAnimationFrame(() => { segMod.style.width = `${stats.pctMod}%`; });
-        }
-      } else {
-        // En refrescos posteriores de datos, transicionar suavemente sin reiniciar a 0%
-        if (segNormal) segNormal.style.width = `${stats.pctNormal}%`;
-        if (segLeve) segLeve.style.width = `${stats.pctLeve}%`;
-        if (segMod) segMod.style.width = `${stats.pctMod}%`;
-      }
-
       if (totalEval) rollNum(totalEval, stats.total);
-      if (legNormal) rollNum(legNormal, stats.normales);
-      if (pctNormal) rollNum(pctNormal, stats.pctNormal, true);
-      if (legLeve) rollNum(legLeve, stats.leves);
-      if (pctLeve) rollNum(pctLeve, stats.pctLeve, true);
-      if (legMod) rollNum(legMod, stats.moderadas);
-      if (pctMod) rollNum(pctMod, stats.pctMod, true);
     }
 
     this.renderPriorityCases(esPrimeraEntrada);
@@ -382,6 +373,20 @@ export const DashboardView = {
     return Math.round((atendidos / list.length) * 1000) / 10;
   },
 
+  /**
+   * Un panel vacío no siempre significa "no hay datos": al entrar, la
+   * hidratación todavía puede estar en curso o la conexión puede haberse
+   * caído. El mensaje lo dice en vez de afirmar que el padrón está vacío.
+   */
+  _mensajeSinDatos(textoVacio) {
+    const estado = window.PDI?.DB?.estadoActual?.() || "ok";
+    if (estado === "sin_conexion") {
+      return "Sin conexión con la base de datos. Reintentando…";
+    }
+    if (estado !== "ok") return "Cargando datos…";
+    return textoVacio;
+  },
+
   renderPriorityCases(animar = false) {
     const container = document.getElementById("dashPriorityCasesList");
     if (!container) return;
@@ -389,7 +394,7 @@ export const DashboardView = {
     const bModel = window.PDI?.BeneficiarioModel || (typeof BeneficiarioModel !== "undefined" ? BeneficiarioModel : null);
     const all = bModel && bModel.getAll ? bModel.getAll() : [];
     if (!all.length) {
-      container.innerHTML = '<div class="dash-empty-state">No hay usuarios registrados actualmente.</div>';
+      container.innerHTML = `<div class="dash-empty-state">${this._mensajeSinDatos("No hay usuarios registrados actualmente.")}</div>`;
       return;
     }
 
@@ -444,7 +449,7 @@ export const DashboardView = {
 
     const logs = (auditLogs && auditLogs.length) ? auditLogs.slice(0, 4) : [];
     if (!logs.length) {
-      container.innerHTML = '<div class="dash-empty-state">Sin eventos recientes registrados.</div>';
+      container.innerHTML = `<div class="dash-empty-state">${this._mensajeSinDatos("Sin eventos recientes registrados.")}</div>`;
       return;
     }
 

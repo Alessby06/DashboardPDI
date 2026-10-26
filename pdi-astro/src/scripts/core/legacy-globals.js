@@ -43,6 +43,7 @@
 //  siguen funcionando porque alli si esta.
 import { ModalView } from "../views/ModalView.js";
 import { Dropdown } from "../utils/Dropdown.js";
+import "../utils/FilterPanel.js";
 import { urlDe } from "../auth/RouteMap.js";
 import { Theme } from "./Theme.js";
 
@@ -542,10 +543,21 @@ document.addEventListener("click", (e) => {
 
 document.addEventListener("keydown", (e) => {
   if (e.key !== "Escape") return;
-  Dropdown.cerrarHojasFiltro();
-  document.querySelectorAll(".padron-inner-dropdown.open").forEach((d) => d.classList.remove("open"));
+  // Escape no debe cerrar los filtros cuando el foco vive en otro modal: el
+  // modal de una ficha tiene su propia salida y antes se cerraban ambos.
+  const focoEnFiltro = !!document.activeElement?.closest?.(".audit-filters-dropdown, .padron-inner-dropdown, .audit-filters-menu");
+  const modalVisible = Array.from(document.querySelectorAll(".modal-backdrop")).some(
+    (m) => m.offsetParent !== null || getComputedStyle(m).display !== "none"
+  );
+  if (!modalVisible || focoEnFiltro) {
+    Dropdown.cerrarHojasFiltro();
+    document.querySelectorAll(".padron-inner-dropdown.open").forEach((d) => d.classList.remove("open"));
+  }
   document.getElementById("wrapAuditLegalPopover")?.classList.remove("open");
-  window.closeModalExportAudit();
+  const exportar = document.getElementById("modalConfirmExportAudit");
+  if (exportar && (exportar.classList.contains("open") || exportar.classList.contains("active"))) {
+    window.closeModalExportAudit();
+  }
 });
 
 document.addEventListener("astro:after-swap", () => {

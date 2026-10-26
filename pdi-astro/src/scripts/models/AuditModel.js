@@ -28,7 +28,7 @@ export const AuditModel = {
     return this._logs.find(l => l.id === id) || null;
   },
 
-  log(user, role, action, entity, detail, diff = null, ip = "192.168.1.x", sede = "Central") {
+  async log(user, role, action, entity, detail, diff = null, ip = "192.168.1.x", sede = "Central") {
     this.init();
     const now = new Date();
     const timestamp = now.getFullYear() + "-" +
@@ -40,8 +40,9 @@ export const AuditModel = {
     const id = "LOG-" + String(this._logs.length + 1).padStart(4, '0');
     const entry = { id, timestamp, user, role, action, entity, detail, status: "Registrado", ip, sede, diff };
     this._logs.unshift(entry);
-    // Persistencia real: el evento vive en bitacora_auditoria.
-    crearBitacora(entry);
+    // Persistencia real: el evento vive en bitacora_auditoria. Se espera la
+    // escritura para que una navegación inmediata no la deje a medias.
+    await crearBitacora(entry);
     return entry;
   },
 

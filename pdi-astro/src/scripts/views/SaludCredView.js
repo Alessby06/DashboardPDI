@@ -354,11 +354,12 @@ export const SaludCredView = {
 
   _matchesAnemia(b, anemiaKeys) {
     if (!anemiaKeys || anemiaKeys.length === 0) return true;
+    const actual = AnemiaCalculator.normalizar(b && b.anemia);
     return anemiaKeys.some(key => {
       if (key === "Moderada") {
-        return b.anemia === "Moderada" || b.anemia === "Severa";
+        return actual === "Moderada" || actual === "Severa";
       }
-      return b.anemia === key;
+      return actual === key;
     });
   },
 
@@ -558,6 +559,11 @@ export const SaludCredView = {
             <td>${b.anemia !== "Normal" ? "Sulfato Ferroso 1 dosis/día" : "Dieta Preventiva"}</td>
             <td>
               <div class="row-actions">
+                <button type="button" class="row-action" onclick="window.registrarDosaje ? window.registrarDosaje(${escaparEnManejador(b.id)}) : null" title="Registrar dosaje" aria-label="Registrar un dosaje de hemoglobina">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                </button>
                 <button type="button" class="row-action" onclick="window.openHistorialTamizaje ? window.openHistorialTamizaje(${escaparEnManejador(b.id)}) : window.openExpediente(${escaparEnManejador(b.id)})" title="Historial de tamizajes de hemoglobina" aria-label="Ver historial de tamizajes de hemoglobina">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M2.25 12S5.75 5.25 12 5.25 21.75 12 21.75 12 18.25 18.75 12 18.75 2.25 12 2.25 12Z" />
@@ -628,6 +634,12 @@ export const SaludCredView = {
                   <span class="datacard-value">${b.anemia !== "Normal" ? "Sulfato Ferroso 1 dosis/día" : "Dieta Preventiva"}</span>
                 </div>
                 <div class="datacard-actions-footer">
+                  <button type="button" class="btn-action primary" style="width:100%; justify-content:center; margin-bottom:6px;" onclick="event.stopPropagation(); window.registrarDosaje ? window.registrarDosaje(${escaparEnManejador(b.id)}) : null">
+                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:6px;">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14" />
+                    </svg>
+                    Registrar dosaje
+                  </button>
                   <button type="button" class="btn-action primary" style="width:100%; justify-content:center;" onclick="event.stopPropagation(); window.openHistorialTamizaje ? window.openHistorialTamizaje(${escaparEnManejador(b.id)}) : window.openExpediente(${escaparEnManejador(b.id)})">
                     <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:6px;">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12S5.75 5.25 12 5.25 21.75 12 21.75 12 18.25 18.75 12 18.75 2.25 12 2.25 12Z" />
@@ -959,7 +971,8 @@ export const SaludCredView = {
       fecha: fechaStr,
       hb: hbVal,
       resultado: esNormal ? "Normal" : calc.label.toLowerCase(), // "Anemia leve" | "Anemia moderada" | "Anemia severa"
-      anemia: esNormal ? "Normal" : calc.label,
+      // Clave canónica: la que comparan filtros y conteos del panel.
+      anemia: calc.clase || (esNormal ? "Normal" : "Leve"),
       peso: pesoRaw !== "" ? pesoVal : null,
       talla: tallaRaw !== "" ? tallaVal : null,
     };
@@ -1163,10 +1176,10 @@ export const SaludCredView = {
     const lista = Array.isArray(this._allBeneficiarios) ? this._allBeneficiarios : [];
 
     const CLASES = [
-      { key: "Normal",   color: "var(--gt-green)",  rango: "≥ 11.0",   opacidad: 1 },
+      { key: "Normal",   color: "var(--gt-green)",  rango: "≥ 11.0",    opacidad: 1 },
       { key: "Leve",     color: "var(--gt-yellow)", rango: "10.0–10.9", opacidad: 1 },
-      { key: "Moderada", color: "var(--gt-red)",    rango: "7.0–9.9",  opacidad: 0.6 },
-      { key: "Severa",   color: "var(--gt-red)",    rango: "< 7.0",    opacidad: 1 },
+      { key: "Moderada", color: "var(--gt-orange)", rango: "7.0–9.9",   opacidad: 1 },
+      { key: "Severa",   color: "var(--gt-red)",    rango: "< 7.0",     opacidad: 1 },
     ];
     const cuenta = { Normal: 0, Leve: 0, Moderada: 0, Severa: 0 };
     let conDato = 0;
@@ -1176,8 +1189,12 @@ export const SaludCredView = {
     let pruebasMes = 0;
 
     lista.forEach(b => {
-      if (Object.prototype.hasOwnProperty.call(cuenta, b.anemia)) {
-        cuenta[b.anemia]++;
+      // El almacenamiento puede traer etiquetas históricas ("Anemia Leve",
+      // "En riesgo"): se normalizan para que el semáforo y los filtros cuenten
+      // siempre lo mismo.
+      const clase = AnemiaCalculator.normalizar(b && b.anemia);
+      if (clase && Object.prototype.hasOwnProperty.call(cuenta, clase)) {
+        cuenta[clase]++;
         conDato++;
       }
       const hb = parseFloat(b.hb);
@@ -1196,9 +1213,13 @@ export const SaludCredView = {
       }
     });
 
-    const pctSinAnemia = conDato > 0 ? Math.round((cuenta.Normal / conDato) * 100) : null;
+    const filtroClase = this._filterAnemia && this._filterAnemia.length === 1
+      ? this._filterAnemia[0]
+      : null;
+    const pctDe = (n) => conDato > 0 ? Math.round((n / conDato) * 100) : null;
+    const pctSinAnemia = pctDe(cuenta.Normal);
     const conAnemia = conDato - cuenta.Normal;
-    const pctConAnemia = conDato > 0 ? Math.round((conAnemia / conDato) * 100) : null;
+    const pctConAnemia = pctDe(conAnemia);
     const promedio = nHb > 0 ? Math.round((sumaHb / nHb) * 10) / 10 : null;
     const mesNombre = hoy.toLocaleDateString("es-PE", { month: "long" });
 
@@ -1210,10 +1231,30 @@ export const SaludCredView = {
     if (grupo && grupo.childElementCount === 0) {
       grupo.innerHTML = CLASES.map((c, i) => `
         <circle class="dash-arc" id="dashArc${c.key}" cx="84" cy="84" r="${R}"
+          data-clase="${c.key}" tabindex="0" role="button"
+          aria-label="Filtrar la tabla por ${c.key.toLowerCase()}"
+          aria-pressed="false"
           stroke="${c.color}" stroke-opacity="${c.opacidad}"
           style="--dash-arc-delay:${240 + i * 90}ms;">
           <title>${c.key}</title>
         </circle>`).join("");
+    }
+    if (grupo && !grupo.dataset.wired) {
+      grupo.dataset.wired = "1";
+      const activar = (ev) => {
+        const arco = ev.target && ev.target.closest ? ev.target.closest("[data-clase]") : null;
+        if (!arco) return;
+        if (ev.type === "keydown") {
+          if (ev.key !== "Enter" && ev.key !== " ") return;
+          ev.preventDefault();
+        }
+        const clase = arco.getAttribute("data-clase");
+        if (clase && typeof window.dashboardFiltrar === "function") {
+          window.dashboardFiltrar("clase", clase);
+        }
+      };
+      grupo.addEventListener("click", activar);
+      grupo.addEventListener("keydown", activar);
     }
 
     let avance = 0;
@@ -1224,6 +1265,13 @@ export const SaludCredView = {
       const largo = frac > 0 ? Math.max(frac * C - GAP, 1) : 0;
       arco.setAttribute("stroke-dasharray", `${largo.toFixed(2)} ${(C - largo).toFixed(2)}`);
       arco.setAttribute("stroke-dashoffset", (-avance).toFixed(2));
+      // Con un filtro de clase activo, el resto del anillo se atenúa para que
+      // el segmento elegido quede identificado sin perder el contexto.
+      const cubierto = !filtroClase
+        || c.key === filtroClase
+        || (filtroClase === "Moderada" && c.key === "Severa");
+      arco.setAttribute("stroke-opacity", String(!filtroClase ? c.opacidad : (cubierto ? 1 : 0.24)));
+      arco.setAttribute("aria-pressed", filtroClase === c.key ? "true" : "false");
       const titulo = arco.querySelector("title");
       if (titulo) {
         titulo.textContent = `${c.key} (${c.rango} g/dL): ${cuenta[c.key]} · ${conDato ? Math.round(frac * 100) : 0}%`;
@@ -1231,8 +1279,18 @@ export const SaludCredView = {
       avance += frac * C;
     });
 
+    // --- Centro: sin filtro informa el porcentaje sano; con filtro, la clase ---
+    const foco = filtroClase
+      ? {
+          pct: pctDe(cuenta[filtroClase] + (filtroClase === "Moderada" ? cuenta.Severa : 0)),
+          label: filtroClase === "Moderada" ? "moderada o severa" : filtroClase.toLowerCase(),
+        }
+      : { pct: pctSinAnemia, label: "sin anemia" };
     const pctEl = document.getElementById("dashDonutPct");
-    if (pctEl) pctEl.textContent = pctSinAnemia != null ? `${pctSinAnemia}%` : "—";
+    if (pctEl) pctEl.textContent = foco.pct != null ? `${foco.pct}%` : "—";
+    const labelEl = document.getElementById("dashDonutLabel");
+    if (labelEl) labelEl.textContent = foco.label;
+
     const svg = document.getElementById("dashDonut");
     if (svg) {
       svg.setAttribute("aria-label", conDato > 0
@@ -1262,15 +1320,31 @@ export const SaludCredView = {
       if (cuentaEl) cuentaEl.textContent = String(cuenta[c.key]);
       if (pctItem) pctItem.textContent = conDato > 0 ? `${Math.round((cuenta[c.key] / conDato) * 100)}%` : "0%";
       if (item) {
-        // Un filtro «Moderada» también muestra filas severas, por eso las dos
-        // se encienden juntas; «Severa» aislada solo enciende la severa.
-        const activo = this._filterAnemia.includes(c.key)
-          || (c.key === "Severa" && this._filterAnemia.includes("Moderada"));
-        item.setAttribute("aria-pressed", activo ? "true" : "false");
+        // Solo la clase elegida queda pulsada; «Moderada» incluye filas severas
+        // sin afirmar que el filtro activo sea «Severa».
+        item.setAttribute("aria-pressed", filtroClase === c.key ? "true" : "false");
       }
     });
 
-    // --- KPIs ---
+    // --- Estado del panel: qué parte del padrón se está viendo ---
+    const total = lista.length;
+    const mostrados = Array.isArray(this._filteredBeneficiarios)
+      ? this._filteredBeneficiarios.length
+      : total;
+    const hayFiltros = Boolean(this._searchQuery)
+      || (this._filterAnemia && this._filterAnemia.length > 0)
+      || (this._filterSede && this._filterSede.length > 0)
+      || (this._filterHbNivel && this._filterHbNivel !== "all");
+    const stateEl = document.getElementById("dashRapidoState");
+    if (stateEl) {
+      stateEl.textContent = hayFiltros
+        ? `Mostrando ${mostrados} de ${total} · filtros activos`
+        : `Mostrando ${total} de ${total} · sin filtros`;
+    }
+    const clearBtn = document.getElementById("dashRapidoClear");
+    if (clearBtn) clearBtn.hidden = !hayFiltros;
+
+    // --- KPIs: describen el padrón completo ---
     const setTxt = (id, txt) => {
       const el = document.getElementById(id);
       if (el) el.textContent = txt;
@@ -1286,7 +1360,19 @@ export const SaludCredView = {
     setTxt("dashKpiHbVal", promedio != null ? promedio.toFixed(1) : "—");
     const hbEl = document.getElementById("dashKpiHbVal");
     if (hbEl) {
-      hbEl.style.color = promedio != null ? AnemiaCalculator.calculate(promedio).color : "#f5f4f6";
+      // El color va por clase (no en línea) para que el tema claro use tonos
+      // profundos y el oscuro los tokens vivos del semáforo.
+      hbEl.style.removeProperty("color");
+      hbEl.classList.remove("is-normal", "is-leve", "is-alerta");
+      if (promedio != null) {
+        const diag = AnemiaCalculator.calculate(promedio).label;
+        const estado = /Severa|Moderada/.test(diag)
+          ? "is-alerta"
+          : /Leve/.test(diag)
+            ? "is-leve"
+            : "is-normal";
+        hbEl.classList.add(estado);
+      }
     }
     setTxt("dashKpiHbNote", promedio != null
       ? `g/dL · promedio de ${nHb} con dato`
@@ -1298,6 +1384,69 @@ export const SaludCredView = {
     if (anemiaBtn) {
       anemiaBtn.setAttribute("aria-pressed", this._filterHbNivel === "anemia" ? "true" : "false");
     }
+  },
+  /**
+   * Selector de usuario para registrar un dosaje desde la cabecera.
+   * Evita el camino de tres clics (fila → historial → añadir prueba).
+   */
+  abrirSelectorDosaje() {
+    const cont = document.getElementById("elegirDosajeLista");
+    const modal = document.getElementById("modalElegirDosaje");
+    if (!cont || !modal) return;
+
+    const lista = [...(this._allBeneficiarios || [])]
+      .filter(b => b && b.activo !== false)
+      .sort((a, b) => String(a.apellidos || "").localeCompare(String(b.apellidos || ""), "es"));
+
+    cont.innerHTML = lista.length
+      ? lista.map(b => {
+        const clase = AnemiaCalculator.normalizar(b.anemia);
+        const badge = clase === "Normal"
+          ? "badge-green"
+          : clase === "Leve"
+            ? "badge-yellow"
+            : clase
+              ? "badge-red"
+              : "badge-blue";
+        const etiqueta = clase || "Sin dato";
+        return `
+          <button type="button" class="elegir-dosaje-item" onclick="window.registrarDosaje ? window.registrarDosaje(${escaparEnManejador(b.id)}) : null">
+            <span>
+              <span class="nombre">${escapar(b.nombres)} ${escapar(b.apellidos)}</span>
+              <span class="meta">${escapar(b.codigo)} · ${escapar(b.sede || "Sin sede")}</span>
+            </span>
+            <span class="badge ${badge}">${escapar(etiqueta)}</span>
+          </button>`;
+      }).join("")
+      : '<p class="elegir-dosaje-empty">Sin usuarios en el padrón.</p>';
+
+    modal.removeAttribute("inert");
+    modal.removeAttribute("aria-hidden");
+    modal.classList.add("open");
+    const primero = cont.querySelector(".elegir-dosaje-item");
+    if (primero) requestAnimationFrame(() => primero.focus());
+  },
+
+  cerrarSelectorDosaje() {
+    const modal = document.getElementById("modalElegirDosaje");
+    if (!modal) return;
+    modal.classList.remove("open");
+    modal.setAttribute("aria-hidden", "true");
+    modal.setAttribute("inert", "");
+  },
+
+  /**
+   * Abre el historial del usuario y despliega el formulario de dosaje.
+   * Se usa tanto desde la cabecera como desde la acción de cada fila.
+   */
+  registrarDosaje(id) {
+    this.cerrarSelectorDosaje();
+    this.openHistorialTamizaje(id);
+    this.mostrarFormularioNuevaPrueba();
+    requestAnimationFrame(() => {
+      const campo = document.getElementById("nuevaPruebaFecha");
+      if (campo) campo.focus();
+    });
   },
 
   /**
@@ -1323,6 +1472,12 @@ export const SaludCredView = {
     if (tabla) {
       tabla.scrollIntoView({ behavior: reducido ? "auto" : "smooth", block: "start" });
     }
+    // Al filtrar, el foco viaja al estado del panel: el lector anuncia cuántos
+    // resultados quedaron y el teclado no se pierde en la leyenda.
+    const estado = document.getElementById("dashRapidoState");
+    if (estado) {
+      estado.focus({ preventScroll: true });
+    }
   }
 };
 
@@ -1342,6 +1497,9 @@ if (typeof window !== "undefined") {
   window.saludNextPage = () => SaludCredView.nextPage();
   window.openHistorialTamizaje = (id) => SaludCredView.openHistorialTamizaje(id);
   window.closeHistorialTamizaje = () => SaludCredView.closeModalHistorialTamizaje();
+  window.abrirSelectorDosaje = () => SaludCredView.abrirSelectorDosaje();
+  window.cerrarSelectorDosaje = () => SaludCredView.cerrarSelectorDosaje();
+  window.registrarDosaje = (id) => SaludCredView.registrarDosaje(id);
   window.mostrarFormularioNuevaPrueba = () => SaludCredView.mostrarFormularioNuevaPrueba();
   window.ocultarFormularioNuevaPrueba = () => SaludCredView._ocultarFormularioNuevaPrueba();
   window.actualizarPreviewNuevaPrueba = () => SaludCredView._actualizarPreviewNuevaPrueba();
