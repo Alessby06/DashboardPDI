@@ -32,11 +32,23 @@ export function crearStore(facetas, inicial = {}) {
   /** Deja el valor en una forma valida para su faceta. */
   function normalizar(def, bruto) {
     if (def.tipo === "multi") {
+      // Dominio abierto (p. ej. roles que salen de los datos): se acepta
+      // cualquier valor razonable, sin regla de "todas las opciones".
+      if (!def.opciones || def.opciones.length === 0) {
+        const lista = (Array.isArray(bruto) ? bruto : bruto == null ? [] : [bruto])
+          .map((v) => String(v).trim())
+          .filter((v) => v && v.length <= 60);
+        return [...new Set(lista)];
+      }
       const opciones = def.opciones.filter((v) => v !== "all");
       const lista = Array.isArray(bruto) ? bruto : bruto == null ? [] : [bruto];
       const unicos = [...new Set(lista.filter((v) => opciones.includes(v)))];
       // Marcar todas las opciones equivale a no filtrar.
       return unicos.length === opciones.length ? [] : unicos;
+    }
+    if (!def.opciones || def.opciones.length === 0) {
+      const valor = String(bruto ?? "").trim();
+      return valor && valor.length <= 60 ? valor : def.defecto;
     }
     return def.opciones.includes(bruto) ? bruto : def.defecto;
   }

@@ -2,6 +2,7 @@
 import { SedeModel } from '../models/SedeModel.js';
 import { AnimationEngine } from '../utils/AnimationEngine.js';
 import { crear as crearFiltros } from '../utils/Filters.js';
+import { crearStore } from '../utils/FilterStore.js';
 import { PROGRAMAS, PROGRAMA_POR_CLAVE } from '../../data/opcionesBeneficiario.js';
 
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
@@ -17,6 +18,11 @@ const FILTROS_SEDES = {
   sede:     { valor: "" },
 };
 
+const FACETAS_SEDES = {
+  distrito: { tipo: "single", defecto: "all" },
+  servicio: { tipo: "single", defecto: "all" },
+};
+
 export const SedesView = {
   _allSedes: [],
   _filteredSedes: [],
@@ -25,6 +31,18 @@ export const SedesView = {
   _filterDistrito: "all",
   _filterServicio: "all",
   _sedeEnURL: false,
+
+  _store: null,
+
+  _obtenerStore() {
+    if (!this._store) this._store = crearStore(FACETAS_SEDES);
+    return this._store;
+  },
+
+  _espejarStore() {
+    this._filterDistrito = this._obtenerStore().valor("distrito");
+    this._filterServicio = this._obtenerStore().valor("servicio");
+  },
 
   _filtros: null,
   _filtrosLeidos: false,
@@ -176,7 +194,8 @@ export const SedesView = {
   },
 
   filterByDistrito(distrito) {
-    this._filterDistrito = distrito;
+    this._obtenerStore().fijar("distrito", distrito);
+    this._espejarStore();
     this._updateDistritoDropdownUI();
     document.getElementById("dropdownSedesDistrito")?.classList.remove("open");
     this.applyFilters();
@@ -184,7 +203,8 @@ export const SedesView = {
   },
 
   filterByServicio(servicio) {
-    this._filterServicio = servicio;
+    this._obtenerStore().fijar("servicio", servicio);
+    this._espejarStore();
     this._updateServicioDropdownUI();
     document.getElementById("dropdownSedesServicio")?.classList.remove("open");
     this.applyFilters();
@@ -219,8 +239,8 @@ export const SedesView = {
 
   resetFilters() {
     this._searchQuery = "";
-    this._filterDistrito = "all";
-    this._filterServicio = "all";
+    this._obtenerStore().limpiar();
+    this._espejarStore();
 
     const input = document.getElementById("inputSedesSearch");
     if (input) input.value = "";
@@ -612,14 +632,7 @@ export const SedesView = {
     const listContainer = document.getElementById("sedesMasterList");
     if (!listContainer) return;
 
-    // Firma del conjunto visible: sirve para distinguir "la lista cambio"
-    // (busqueda, filtro, primera carga) de "repintaron la misma lista"
-    // (la sincronizacion con la base al terminar de cargar, ~3-4 s despues
-    // de recargar, que solo actualiza cifras).
-    const firma = this._filteredSedes.map(s => String(s.id)).join("|");
-
     if (this._filteredSedes.length === 0) {
-      this._firmaLista = firma;
       listContainer.innerHTML = `
         <div class="sedes-empty-state">
           <div style="font-size:13px; color:var(--text-muted);">Sin resultados</div>
@@ -653,20 +666,15 @@ export const SedesView = {
       `;
     }).join("");
 
-    // El directorio entra en cascada solo cuando cambia el conjunto de sedes
-    // (al buscar, al filtrar o en la primera carga), de modo que se vea que la
-    // lista acaba de cambiar. Si el repintado trae la misma lista —lo que
-    // pasa al sincronizar los datos al terminar de cargar— se pinta sin
-    // animar, para que toda la columna no parpadee relanzando la entrada.
-    // El contenedor se compara tambien: al volver a la pagina (navegacion
-    // interna) el nodo es nuevo y la entrada si debe correr.
-    if (firma !== this._firmaLista || listContainer !== this._contenedorLista) {
+    // La entrada corre al montar la lista: primera carga o vuelta a la pagina
+    // (navegacion interna, nodo nuevo). Filtrar, buscar o sincronizar datos
+    // repinta el mismo nodo, asi que la cascada no se relanza en cada tecla.
+    if (listContainer !== this._contenedorLista) {
       AnimationEngine.entradaEscalonada(listContainer, ":scope > .sedes-master-item", {
         paso: 30,
         maxDesfase: 12,
       });
     }
-    this._firmaLista = firma;
     this._contenedorLista = listContainer;
   },
 

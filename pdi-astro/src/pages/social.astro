@@ -1,7 +1,16 @@
 ---
 import AppLayout from '../layouts/AppLayout.astro';
+import FilterPanel from '../components/FilterPanel.astro';
+import FilterField from '../components/FilterField.astro';
 import { SEDES_OPERATIVAS } from '../data/opcionesBeneficiario.js';
 import '../styles/views-social.css';
+
+const OPCIONES_URGENCIA = [
+  { valor: 'Alta', etiqueta: 'Alta' },
+  { valor: 'Media', etiqueta: 'Media' },
+  { valor: 'Baja', etiqueta: 'Baja' },
+];
+const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiqueta: sede.etiqueta }));
 ---
 
 <AppLayout title="Servicio Social Pastoral (ASP)" currentPage="social">
@@ -66,154 +75,42 @@ import '../styles/views-social.css';
                 </div>
 
                 <!-- Botón de Filtros y Panel Desplegable (Lado Derecho) -->
-                <div class="audit-filter-panel-wrap">
-                  <div class="custom-dropdown audit-filters-dropdown" id="dropdownSocialFilterPanel">
-                  <button type="button" class="btn-action audit-filter-btn" id="btnDropdownSocialFilterPanel"
-                    onclick="window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSocialFilterPanel') : null">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
-                    </svg>
-                    <span>Filtros</span>
-                    <span class="audit-filter-badge" id="socialActiveFiltersCount" style="display:none;">0</span>
-                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
-                      class="filter-caret">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                    </svg>
-                  </button>
-
-                  <div class="custom-dropdown-menu audit-filters-menu" id="menuSocialFilterPanel">
-                    <div class="audit-filters-header">
-                      <div class="audit-filters-header-title">
-                        <span>Filtros de Casos Sociales</span>
-                      </div>
-                      <div class="audit-filters-header-actions">
-                        <button type="button" class="btn-text-subtle"
-                          onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.clearFilters() : null">Restablecer</button>
-                        <button type="button" class="btn-close-sheet" aria-label="Cerrar filtros"
-                          onclick="window.closeAllFilterSheets ? window.closeAllFilterSheets() : null">
-                          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                        </button>
-                      </div>
-                    </div>
-
-                    <div class="audit-filters-body">
-                      <!-- Filtro 1: Urgencia -->
-                      <div class="audit-filter-field">
-                        <label class="audit-field-label">Nivel de Urgencia</label>
-                        <div class="padron-inner-dropdown" id="dropdownSocialUrgencia">
-                          <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownSocialUrgencia') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSocialUrgencia') : null)">
-                            <span id="labelSocialUrgenciaSelect">Todas las Urgencias</span>
-                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                          </button>
-                          <div class="padron-inner-dropdown-menu" id="menuSocialUrgencia">
-                            <div class="padron-dropdown-item selected" data-value="all"
-                              onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.filterByUrgencia('all') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Todas las Urgencias</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Alta"
-                              onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.filterByUrgencia('Alta') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Alta</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Media"
-                              onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.filterByUrgencia('Media') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Media</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Baja"
-                              onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.filterByUrgencia('Baja') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Baja</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Filtro 2: Sede Territorial -->
-                      <div class="audit-filter-field">
-                        <label class="audit-field-label">Sede Territorial</label>
-                        <div class="padron-inner-dropdown" id="dropdownSocialSede">
-                          <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownSocialSede') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSocialSede') : null)">
-                            <span id="labelSocialSedeSelect">Todas las Sedes</span>
-                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                          </button>
-                          <div class="padron-inner-dropdown-menu" id="menuSocialSede">
-                            <div class="padron-dropdown-item selected" data-value="all"
-                              onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.filterBySede('all') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Todas las Sedes</span>
-                              </div>
-                            </div>
-                            {SEDES_OPERATIVAS.map((sede) => (
-                              <div class="padron-dropdown-item" data-value={sede.nombre}
-                                onclick={`window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.filterBySede('${sede.nombre}') : null`}>
-                                <div class="padron-item-left">
-                                  <span class="padron-item-checkbox"><svg width="10" height="10" fill="none"
-                                      stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                                      <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                    </svg></span>
-                                  <span class="padron-item-label">{sede.etiqueta}</span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Footer fijo móvil con botón para aplicar y cerrar el Bottom Sheet -->
-                    <div class="audit-filters-footer">
-                      <button type="button" class="btn-action primary btn-apply-filters"
-                        onclick="window.closeAllFilterSheets ? window.closeAllFilterSheets() : null">
-                        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                        <span>Aplicar Filtros</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                <FilterPanel
+                  id="dropdownSocialFilterPanel"
+                  buttonId="btnDropdownSocialFilterPanel"
+                  menuId="menuSocialFilterPanel"
+                  badgeId="socialActiveFiltersCount"
+                  title="Filtros de Casos Sociales"
+                  reset="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.clearFilters() : null"
+                >
+                      <!-- Filtro 1: Nivel de urgencia (seleccion unica con radio) -->
+                      <FilterField
+                        id="dropdownSocialUrgencia"
+                        menuId="menuSocialUrgencia"
+                        labelId="labelSocialUrgenciaSelect"
+                        label="Nivel de Urgencia"
+                        labelTodos="Todas las Urgencias"
+                        todosEtiqueta="Todas las Urgencias"
+                        opciones={OPCIONES_URGENCIA}
+                        tipo="single"
+                        onSelect="window.PDI?.SocialKanbanView?.filterByUrgencia"
+                        abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownSocialUrgencia') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSocialUrgencia') : null)"
+                      />
+                      
+                      <!-- Filtro 2: Sede territorial (seleccion unica con radio) -->
+                      <FilterField
+                        id="dropdownSocialSede"
+                        menuId="menuSocialSede"
+                        labelId="labelSocialSedeSelect"
+                        label="Sede Territorial"
+                        labelTodos="Todas las Sedes"
+                        todosEtiqueta="Todas las Sedes"
+                        opciones={OPCIONES_SEDE}
+                        tipo="single"
+                        onSelect="window.PDI?.SocialKanbanView?.filterBySede"
+                        abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownSocialSede') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSocialSede') : null)"
+                      />
+                              </FilterPanel>
             </div>
 
                 <!-- Barra de Píldoras de Filtros Activos de Casos Sociales (Chips Descartables) -->

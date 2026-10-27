@@ -244,7 +244,7 @@ export const BeneficiariosView = {
     this._pageSize = isNaN(num) ? 20 : Math.min(maxAllowed, Math.max(5, num));
     this._currentPage = 1;
     this._syncPageSizeSelectUI();
-    this.applyFilters(false, true);
+    this.applyFilters(false, false);
     this._persistirFiltros();
   },
 
@@ -253,7 +253,7 @@ export const BeneficiariosView = {
     const totalPages = Math.max(1, Math.ceil(this._filteredBeneficiarios.length / pageSize));
     this._currentPage = Math.min(totalPages, Math.max(1, page));
     this._renderPagination(this._filteredBeneficiarios.length);
-    this._renderCurrentPage(true);
+    this._renderCurrentPage(false);
     this._persistirFiltros();
   },
 
@@ -682,7 +682,7 @@ export const BeneficiariosView = {
     });
   },
 
-  applyFilters(resetPage = true, animar = true) {
+  applyFilters(resetPage = true, animar = false) {
     if (resetPage) {
       this._currentPage = 1;
     }

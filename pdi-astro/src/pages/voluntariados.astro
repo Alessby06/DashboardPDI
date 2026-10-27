@@ -1,7 +1,24 @@
 ---
 import AppLayout from '../layouts/AppLayout.astro';
+import FilterPanel from '../components/FilterPanel.astro';
+import FilterField from '../components/FilterField.astro';
 import { OPCIONES_VOLUNTARIADO } from '../data/opcionesBeneficiario.js';
 import '../styles/views-voluntariados.css';
+import { SEDES_POR_DISTRITO } from '../scripts/core/catalogos.js';
+
+const OPCIONES_DISTRITO = Object.keys(SEDES_POR_DISTRITO).map((distrito) => ({ valor: distrito, etiqueta: distrito }));
+const OPCIONES_SERVICIO = OPCIONES_VOLUNTARIADO.map((opcion) => ({ valor: opcion.valor, etiqueta: opcion.etiqueta }));
+const OPCIONES_ROL = [
+  'Voluntaria Responsable',
+  'Voluntaria de Apoyo',
+  'Acompañante Pedagógica',
+  'Mediadora Lectora',
+  'Pastoral Comunitario',
+].map((rol) => ({ valor: rol, etiqueta: rol }));
+const OPCIONES_ESTADO = [
+  { valor: 'Activo', etiqueta: 'Activo' },
+  { valor: 'En Pausa', etiqueta: 'En Pausa' },
+];
 ---
 
 <AppLayout title="Padrón de Voluntarios" currentPage="voluntariados">
@@ -95,260 +112,67 @@ import '../styles/views-voluntariados.css';
               </div>
 
               <!-- Filtro Popover Dropdown -->
-              <div class="audit-filter-panel-wrap">
-                <div class="custom-dropdown audit-filters-dropdown" id="dropdownVoluntariosFilterPanel">
-                  <button type="button" class="btn-action audit-filter-btn" id="btnDropdownVoluntariosFilterPanel" onclick="window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownVoluntariosFilterPanel') : null">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
-                    </svg>
-                    <span>Filtros</span>
-                    <span class="audit-filter-badge" id="voluntariosActiveFiltersCount" style="display:none;">0</span>
-                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" class="filter-caret">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                    </svg>
-                  </button>
-
-                  <div class="custom-dropdown-menu audit-filters-menu" id="menuVoluntariosFilterPanel">
-                    <div class="audit-filters-header">
-                      <div class="audit-filters-header-title">
-                        <span>Filtros de Voluntariados</span>
-                      </div>
-                      <div class="audit-filters-header-actions">
-                        <button type="button" class="btn-text-subtle"
-                          onclick="window.resetVoluntariosFilters ? window.resetVoluntariosFilters() : null">Restablecer</button>
-                        <button type="button" class="btn-close-sheet" aria-label="Cerrar filtros"
-                          onclick="window.closeAllFilterSheets ? window.closeAllFilterSheets() : null">
-                          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                        </button>
-                      </div>
-                    </div>
-
-                    <div class="audit-filters-body">
-                      <!-- Filtro 1: Distrito (multi-selección) -->
-                      <div class="audit-filter-field">
-                        <label class="audit-field-label">Distrito</label>
-                        <div class="padron-inner-dropdown" id="dropdownVoluntariosDistrito">
-                          <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.toggleVoluntariosInnerDropdown ? window.toggleVoluntariosInnerDropdown('dropdownVoluntariosDistrito') : null">
-                            <span id="labelVoluntariosDistritoSelect">Todos los Distritos</span>
-                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                          </button>
-                          <div class="padron-inner-dropdown-menu" id="menuVoluntariosDistrito">
-                            <div class="padron-dropdown-item selected" data-value="all"
-                              onclick="window.toggleVoluntariosDistrito ? window.toggleVoluntariosDistrito('all') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Todos los Distritos</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Comas"
-                              onclick="window.toggleVoluntariosDistrito ? window.toggleVoluntariosDistrito('Comas') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Comas</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Carabayllo"
-                              onclick="window.toggleVoluntariosDistrito ? window.toggleVoluntariosDistrito('Carabayllo') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Carabayllo</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Filtro 2: Servicio Asignado (multi-selección) -->
-                      <div class="audit-filter-field">
-                        <label class="audit-field-label">Servicio Asignado</label>
-                        <div class="padron-inner-dropdown" id="dropdownVoluntariosServicio">
-                          <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.toggleVoluntariosInnerDropdown ? window.toggleVoluntariosInnerDropdown('dropdownVoluntariosServicio') : null">
-                            <span id="labelVoluntariosServicioSelect">Todos los Servicios</span>
-                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                          </button>
-                          <div class="padron-inner-dropdown-menu" id="menuVoluntariosServicio">
-                            <div class="padron-dropdown-item selected" data-value="all"
-                              onclick="window.toggleVoluntariosServicio ? window.toggleVoluntariosServicio('all') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Todos los Servicios</span>
-                              </div>
-                            </div>
-                            {OPCIONES_VOLUNTARIADO.map((opcion) => (
-                              <div class="padron-dropdown-item" data-value={opcion.valor}
-                                onclick={`window.toggleVoluntariosServicio ? window.toggleVoluntariosServicio('${opcion.valor}') : null`}>
-                                <div class="padron-item-left">
-                                  <span class="padron-item-checkbox">
-                                    <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                      viewBox="0 0 24 24">
-                                      <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                    </svg>
-                                  </span>
-                                  <span class="padron-item-label">{opcion.etiqueta}</span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Filtro 3: Rol Comunitario (multi-selección) -->
-                      <div class="audit-filter-field">
-                        <label class="audit-field-label">Rol en Sede</label>
-                        <div class="padron-inner-dropdown" id="dropdownVoluntariosRol">
-                          <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.toggleVoluntariosInnerDropdown ? window.toggleVoluntariosInnerDropdown('dropdownVoluntariosRol') : null">
-                            <span id="labelVoluntariosRolSelect">Todos los Roles</span>
-                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                          </button>
-                          <div class="padron-inner-dropdown-menu" id="menuVoluntariosRol">
-                            <div class="padron-dropdown-item selected" data-value="all"
-                              onclick="window.toggleVoluntariosRol ? window.toggleVoluntariosRol('all') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Todos los Roles</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Voluntaria Responsable"
-                              onclick="window.toggleVoluntariosRol ? window.toggleVoluntariosRol('Voluntaria Responsable') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Voluntaria Responsable</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Voluntaria de Apoyo"
-                              onclick="window.toggleVoluntariosRol ? window.toggleVoluntariosRol('Voluntaria de Apoyo') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Voluntaria de Apoyo</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Acompañante Pedagógica"
-                              onclick="window.toggleVoluntariosRol ? window.toggleVoluntariosRol('Acompañante Pedagógica') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Acompañante Pedagógica</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Mediadora Lectora"
-                              onclick="window.toggleVoluntariosRol ? window.toggleVoluntariosRol('Mediadora Lectora') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Mediadora Lectora</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Pastoral Comunitario"
-                              onclick="window.toggleVoluntariosRol ? window.toggleVoluntariosRol('Pastoral Comunitario') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Pastoral Comunitario</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Filtro 4: Estado de la Voluntaria (selección única) -->
-                      <div class="audit-filter-field">
-                        <label class="audit-field-label">Estado de la Voluntaria</label>
-                        <div class="padron-inner-dropdown" id="dropdownVoluntariosEstado">
-                          <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.toggleVoluntariosInnerDropdown ? window.toggleVoluntariosInnerDropdown('dropdownVoluntariosEstado') : null">
-                            <span id="labelVoluntariosEstadoSelect">Todos los Estados</span>
-                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                          </button>
-                          <div class="padron-inner-dropdown-menu" id="menuVoluntariosEstado">
-                            <div class="padron-dropdown-item selected" data-value="all"
-                              onclick="window.toggleVoluntariosEstado ? window.toggleVoluntariosEstado('all') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Todos los Estados</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Activo"
-                              onclick="window.toggleVoluntariosEstado ? window.toggleVoluntariosEstado('Activo') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Activo</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="En Pausa"
-                              onclick="window.toggleVoluntariosEstado ? window.toggleVoluntariosEstado('En Pausa') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">En Pausa</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Footer fijo móvil con botón para aplicar y cerrar el Bottom Sheet -->
-                    <div class="audit-filters-footer">
-                      <button type="button" class="btn-action primary btn-apply-filters"
-                        onclick="window.closeAllFilterSheets ? window.closeAllFilterSheets() : null">
-                        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                        <span>Aplicar Filtros</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <FilterPanel
+                id="dropdownVoluntariosFilterPanel"
+                buttonId="btnDropdownVoluntariosFilterPanel"
+                menuId="menuVoluntariosFilterPanel"
+                badgeId="voluntariosActiveFiltersCount"
+                title="Filtros de Voluntariados"
+                reset="window.resetVoluntariosFilters ? window.resetVoluntariosFilters() : null"
+              >
+                      <!-- Filtro 1: Distrito (multiseleccion) -->
+                      <FilterField
+                        id="dropdownVoluntariosDistrito"
+                        menuId="menuVoluntariosDistrito"
+                        labelId="labelVoluntariosDistritoSelect"
+                        label="Distrito"
+                        labelTodos="Todos los Distritos"
+                        todosEtiqueta="Todos los Distritos"
+                        opciones={OPCIONES_DISTRITO}
+                        onSelect="window.toggleVoluntariosDistrito"
+                        abrir="window.toggleVoluntariosInnerDropdown ? window.toggleVoluntariosInnerDropdown('dropdownVoluntariosDistrito') : null"
+                      />
+                      
+                      <!-- Filtro 2: Servicio asignado (multiseleccion) -->
+                      <FilterField
+                        id="dropdownVoluntariosServicio"
+                        menuId="menuVoluntariosServicio"
+                        labelId="labelVoluntariosServicioSelect"
+                        label="Servicio Asignado"
+                        labelTodos="Todos los Servicios"
+                        todosEtiqueta="Todos los Servicios"
+                        opciones={OPCIONES_SERVICIO}
+                        onSelect="window.toggleVoluntariosServicio"
+                        abrir="window.toggleVoluntariosInnerDropdown ? window.toggleVoluntariosInnerDropdown('dropdownVoluntariosServicio') : null"
+                      />
+                      
+                      <!-- Filtro 3: Rol en sede (multiseleccion) -->
+                      <FilterField
+                        id="dropdownVoluntariosRol"
+                        menuId="menuVoluntariosRol"
+                        labelId="labelVoluntariosRolSelect"
+                        label="Rol en Sede"
+                        labelTodos="Todos los Roles"
+                        todosEtiqueta="Todos los Roles"
+                        opciones={OPCIONES_ROL}
+                        onSelect="window.toggleVoluntariosRol"
+                        abrir="window.toggleVoluntariosInnerDropdown ? window.toggleVoluntariosInnerDropdown('dropdownVoluntariosRol') : null"
+                      />
+                      
+                      <!-- Filtro 4: Estado de la voluntaria (seleccion unica con radio) -->
+                      <FilterField
+                        id="dropdownVoluntariosEstado"
+                        menuId="menuVoluntariosEstado"
+                        labelId="labelVoluntariosEstadoSelect"
+                        label="Estado de la Voluntaria"
+                        labelTodos="Todos los Estados"
+                        todosEtiqueta="Todos los Estados"
+                        opciones={OPCIONES_ESTADO}
+                        tipo="single"
+                        onSelect="window.toggleVoluntariosEstado"
+                        abrir="window.toggleVoluntariosInnerDropdown ? window.toggleVoluntariosInnerDropdown('dropdownVoluntariosEstado') : null"
+                      />
+                              </FilterPanel>
             </div>
 
             <!-- Chips Activos Bar -->

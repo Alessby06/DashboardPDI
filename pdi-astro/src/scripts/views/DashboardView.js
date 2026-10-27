@@ -1,5 +1,6 @@
 import { AnimationEngine } from '../utils/AnimationEngine.js';
 import { crear as crearFiltros } from '../utils/Filters.js';
+import { crearStore } from '../utils/FilterStore.js';
 import { Dropdown } from '../utils/Dropdown.js';
 import { Responsive } from '../utils/Responsive.js';
 
@@ -25,11 +26,33 @@ const FILTROS_AUDITORIA = {
   tam:     { valor: 10, numeros: { min: 5, max: 100 } },
 };
 
+const FACETAS_AUDITORIA = {
+  accion: { tipo: "multi", opciones: FILTROS_AUDITORIA.accion.valores, defecto: [] },
+  rol: { tipo: "multi", opciones: FILTROS_AUDITORIA.rol.valores, defecto: [] },
+  estado: { tipo: "multi", opciones: FILTROS_AUDITORIA.estado.valores, defecto: [] },
+  fecha: { tipo: "single", opciones: FILTROS_AUDITORIA.fecha.valores, defecto: "all" },
+};
+
 // Vista: Tablero Principal Dashboard
 export const DashboardView = {
   _filtros: null,
   _filtrosLeidos: false,
   _haEntrado: false,
+
+  _store: null,
+
+  _obtenerStore() {
+    if (!this._store) this._store = crearStore(FACETAS_AUDITORIA);
+    return this._store;
+  },
+
+  _espejarStore() {
+    const s = this._obtenerStore().instantanea();
+    this._filterAuditAction = s.accion;
+    this._filterAuditRole = s.rol;
+    this._filterAuditStatus = s.estado;
+    this._filterAuditDate = s.fecha;
+  },
 
   reiniciarEntrada() {
     this._haEntrado = false;
@@ -64,10 +87,8 @@ export const DashboardView = {
 
     const f = this._obtenerFiltros().leer();
     this._auditSearchQuery = (f.q || "").toLowerCase();
-    this._filterAuditAction = f.accion;
-    this._filterAuditDate = f.fecha;
-    this._filterAuditRole = f.rol;
-    this._filterAuditStatus = f.estado;
+    this._obtenerStore().cargar({ accion: f.accion, rol: f.rol, estado: f.estado, fecha: f.fecha });
+    this._espejarStore();
     this._auditCurrentPage = f.pagina;
     this._auditPageSize = f.tam;
 
@@ -527,20 +548,8 @@ export const DashboardView = {
   },
 
   toggleAction(val) {
-    const allActions = ["salud", "social", "educativo", "padron"];
-    if (val === "all") {
-      this._filterAuditAction = [];
-    } else {
-      const idx = this._filterAuditAction.indexOf(val);
-      if (idx > -1) {
-        this._filterAuditAction.splice(idx, 1);
-      } else {
-        this._filterAuditAction.push(val);
-      }
-      if (allActions.every(a => this._filterAuditAction.includes(a))) {
-        this._filterAuditAction = [];
-      }
-    }
+    this._obtenerStore().alternar("accion", val);
+    this._espejarStore();
     this._updateActionDropdownUI();
     this._auditCurrentPage = 1;
     this.applyAuditFilters();
@@ -575,7 +584,8 @@ export const DashboardView = {
   },
 
   selectDate(dateKey, label) {
-    this._filterAuditDate = dateKey || "all";
+    this._obtenerStore().fijar("fecha", dateKey || "all");
+    this._espejarStore();
     this._updateDateUI(label);
 
     // Cerrar dropdown si es selección directa de fecha fija
@@ -628,20 +638,8 @@ export const DashboardView = {
   },
 
   toggleRole(val) {
-    const allRoles = ["Coordinación", "Facilitadora", "Promotora", "Trabajadora Social"];
-    if (val === "all") {
-      this._filterAuditRole = [];
-    } else {
-      const idx = this._filterAuditRole.indexOf(val);
-      if (idx > -1) {
-        this._filterAuditRole.splice(idx, 1);
-      } else {
-        this._filterAuditRole.push(val);
-      }
-      if (allRoles.every(r => this._filterAuditRole.includes(r))) {
-        this._filterAuditRole = [];
-      }
-    }
+    this._obtenerStore().alternar("rol", val);
+    this._espejarStore();
     this._updateRoleDropdownUI();
     this._auditCurrentPage = 1;
     this.applyAuditFilters();
@@ -672,20 +670,8 @@ export const DashboardView = {
   },
 
   toggleStatus(val) {
-    const allStatuses = ["Registrado", "Sensible", "Observado"];
-    if (val === "all") {
-      this._filterAuditStatus = [];
-    } else {
-      const idx = this._filterAuditStatus.indexOf(val);
-      if (idx > -1) {
-        this._filterAuditStatus.splice(idx, 1);
-      } else {
-        this._filterAuditStatus.push(val);
-      }
-      if (allStatuses.every(s => this._filterAuditStatus.includes(s))) {
-        this._filterAuditStatus = [];
-      }
-    }
+    this._obtenerStore().alternar("estado", val);
+    this._espejarStore();
     this._updateStatusDropdownUI();
     this._auditCurrentPage = 1;
     this.applyAuditFilters();
@@ -818,10 +804,8 @@ export const DashboardView = {
   },
 
   resetAuditFilters() {
-    this._filterAuditAction = [];
-    this._filterAuditDate = "all";
-    this._filterAuditRole = [];
-    this._filterAuditStatus = [];
+    this._obtenerStore().limpiar();
+    this._espejarStore();
     this._customDateSpecific = "";
     this._customDateRangeStart = "";
     this._customDateRangeEnd = "";
@@ -953,12 +937,8 @@ export const DashboardView = {
 
     this._filteredAuditLogs = filtered;
 
-    // Actualizar badge de filtros activos
-    let count = 0;
-    if (this._filterAuditAction.length > 0) count += this._filterAuditAction.length;
-    if (this._filterAuditDate !== "all") count++;
-    if (this._filterAuditRole.length > 0) count += this._filterAuditRole.length;
-    if (this._filterAuditStatus.length > 0) count += this._filterAuditStatus.length;
+    // Badge desde el store.
+    const count = this._obtenerStore().contarActivos();
 
     const badge = document.getElementById("auditActiveFiltersCount");
     const filterBtn = document.getElementById("btnDropdownAuditFilterPanel");

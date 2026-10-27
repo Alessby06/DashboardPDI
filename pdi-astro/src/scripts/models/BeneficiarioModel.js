@@ -147,10 +147,11 @@ export const BeneficiarioModel = {
    * Nueva prueba de hemoglobina para el historial del usuario (append-only).
    * Optimista: la fila entra en memoria al instante y los valores vigentes
    * (hb/peso/talla/anemia) pasan a ser los de esta prueba; db.js escribe en la
-   * nube y, si rechaza, avisa con toast y la proxima hidratacion realinea el
-   * estado. No se edita ni anula ningun tamizaje previo.
+   * nube. Devuelve la fila cuando la nube confirma y null si la rechaza, en
+   * cuyo caso deshace el cambio optimista. No se edita ni anula ningún
+   * tamizaje previo.
    */
-  registrarTamizaje(id, prueba) {
+  async registrarTamizaje(id, prueba) {
     const b = this.getById(id);
     if (!b || prueba.hb == null) return null;
     const fila = {
@@ -163,6 +164,7 @@ export const BeneficiarioModel = {
       resultado: prueba.resultado || '',
       anemia: prueba.anemia || '',
     };
+    const previo = { hb: b.hb, peso: b.peso, talla: b.talla, anemia: b.anemia };
     if (!Array.isArray(b.tamizajes)) b.tamizajes = [];
     b.tamizajes.unshift(fila);
     b.hb = prueba.hb;
@@ -170,7 +172,7 @@ export const BeneficiarioModel = {
     if (prueba.talla != null) b.talla = prueba.talla;
     b.anemia = prueba.anemia;
     // El id canonico de la hidratacion reemplazara a _tamizajeId '' despues.
-    crearTamizaje({
+    const ok = await crearTamizaje({
       _personaId: b._personaId,
       _inscripcionId: b._inscripcionId,
       _sedeRawId: b._sedeRawId,
@@ -181,6 +183,15 @@ export const BeneficiarioModel = {
       resultado: prueba.resultado,
       anemia: prueba.anemia,
     });
+    if (!ok) {
+      const pos = b.tamizajes.indexOf(fila);
+      if (pos !== -1) b.tamizajes.splice(pos, 1);
+      b.hb = previo.hb;
+      b.peso = previo.peso;
+      b.talla = previo.talla;
+      b.anemia = previo.anemia;
+      return null;
+    }
     return fila;
   },
 
@@ -188,14 +199,16 @@ export const BeneficiarioModel = {
    * Desactiva una prueba del historial (soft delete por id canonico). La fila
    * sale de memoria al instante y los valores vigentes (hb/peso/talla/anemia)
    * pasan a los de la prueba activa mas reciente restante; si no queda ninguna
-   * quedan en null (se pintan vacios). El motivo lo registra la vista en la
-   * bitacora: aqui solo se saca la fila del historial.
+   * quedan en null (se pintan vacios). Devuelve la fila cuando la nube
+   * confirma y null si la rechaza, restaurando el estado anterior. El motivo lo
+   * registra la vista en la bitacora: aqui solo se saca la fila del historial.
    */
-  desactivarTamizaje(id, tamId) {
+  async desactivarTamizaje(id, tamId) {
     const b = this.getById(id);
     if (!b || !tamId || !Array.isArray(b.tamizajes)) return null;
     const idx = b.tamizajes.findIndex(t => String(t._tamizajeId || '') === String(tamId));
     if (idx === -1) return null;
+    const previo = { hb: b.hb, peso: b.peso, talla: b.talla, anemia: b.anemia };
     const fuera = b.tamizajes[idx];
     b.tamizajes.splice(idx, 1);
     const vigente = b.tamizajes[0] || null;
@@ -203,7 +216,15 @@ export const BeneficiarioModel = {
     b.peso = vigente && vigente.peso != null ? vigente.peso : null;
     b.talla = vigente && vigente.talla != null ? vigente.talla : null;
     b.anemia = vigente ? vigente.anemia : null;
-    desactivarTamizaje(tamId);
+    const ok = await desactivarTamizaje(tamId);
+    if (!ok) {
+      b.tamizajes.splice(idx, 0, fuera);
+      b.hb = previo.hb;
+      b.peso = previo.peso;
+      b.talla = previo.talla;
+      b.anemia = previo.anemia;
+      return null;
+    }
     return fuera;
   },
 

@@ -1,0 +1,177 @@
+---
+// ===========================================================================
+//  CAMPO DE FILTRO (faceta estándar)
+// ===========================================================================
+//  Las siete páginas repetían el mismo desplegable interno: botón, caret,
+//  entrada "todos", opciones con checkbox o radio y contador opcional. Este
+//  componente dibuja ese bloque una vez y las páginas solo declaran sus
+//  opciones.
+//
+//  Lo que cambia entre facetas se expone como prop; lo que de verdad es
+//  distinto (el slider de edad, los paneles de fecha) sigue en la página.
+//
+//  Los ids siguen siendo los mismos que usan las vistas y sus scripts.
+// ===========================================================================
+import { escaparJs } from '../scripts/utils/HtmlHelper.js';
+
+/** Insignia opcional dentro de una opción (semáforo de anemia, módulo de auditoría). */
+interface Badge {
+  texto: string;
+  tono?: 'green' | 'yellow' | 'red' | 'blue';
+  /** El panel de auditoría usaba 10 px; el de padrón, 10.5 px. */
+  compacta?: boolean;
+}
+
+interface Opcion {
+  valor: string;
+  /** Texto visible. Si se omite, la opción se apoya solo en la insignia. */
+  etiqueta?: string;
+  badge?: Badge;
+  /** Una opción sin contador no genera id countFacet* (fechas específicas). */
+  contador?: boolean;
+}
+
+interface Props {
+  /** id del contenedor .padron-inner-dropdown */
+  id: string;
+  /** id del menú desplegable */
+  menuId: string;
+  /** id del span que muestra la selección */
+  labelId: string;
+  /** Texto del campo */
+  label: string;
+  /** Texto de la opción "todos" dentro del menú */
+  todosEtiqueta: string;
+  /** Texto inicial del botón cuando no hay selección (por defecto, el mismo) */
+  labelTodos?: string;
+  opciones: Opcion[];
+  /** Expresión que abre el desplegable interno */
+  abrir?: string;
+  /** `multi` dibuja checkbox; `single`, radio */
+  tipo?: 'multi' | 'single';
+  /**
+   * Función que recibe la opción. `window.miFuncion` se llama con guarda de
+   * existencia; una expresión con optional chaining se llama tal cual.
+   */
+  onSelect: string;
+  /** Pasa la etiqueta como segundo argumento: funcion('valor', 'Etiqueta') */
+  conEtiqueta?: boolean;
+  /** Prefijo de los ids del contador, p. ej. `countFacetSede` */
+  countPrefix?: string;
+  /** Valor de la opción "todos" */
+  todosValor?: string;
+}
+
+const {
+  id,
+  menuId,
+  labelId,
+  label,
+  todosEtiqueta,
+  labelTodos = todosEtiqueta,
+  opciones,
+  abrir,
+  tipo = 'multi',
+  onSelect,
+  conEtiqueta = false,
+  countPrefix,
+  todosValor = 'all',
+} = Astro.props;
+
+const abrirAttr =
+  abrir ??
+  `window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('${escaparJs(id)}') : null`;
+
+// `window.miFuncion` se protege con una guarda, igual que el marcado anterior.
+// Las expresiones con optional chaining ya son seguras por sí mismas.
+const GLOBAL_SIMPLE = /^window\.([A-Za-z_$][\w$]*)$/;
+
+function alSeleccionar(valor: string, etiqueta: string): string {
+  const args = conEtiqueta
+    ? `'${escaparJs(valor)}', '${escaparJs(etiqueta)}'`
+    : `'${escaparJs(valor)}'`;
+  const global = GLOBAL_SIMPLE.exec(onSelect);
+  if (global) {
+    return `window.${global[1]} ? ${onSelect}(${args}) : null`;
+  }
+  return `${onSelect}(${args})`;
+}
+
+const contadorDe = (opcion: Opcion) =>
+  countPrefix && opcion.contador !== false ? `${countPrefix}-${opcion.valor}` : null;
+---
+
+<div class="audit-filter-field">
+  <label class="audit-field-label">{label}</label>
+  <div class="padron-inner-dropdown" id={id}>
+    <button type="button" class="padron-inner-dropdown-btn" onclick={abrirAttr}>
+      <span id={labelId}>{labelTodos}</span>
+      <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+      </svg>
+    </button>
+
+    <div class="padron-inner-dropdown-menu" id={menuId}>
+      <div
+        class="padron-dropdown-item selected"
+        data-value={todosValor}
+        onclick={alSeleccionar(todosValor, todosEtiqueta)}
+      >
+        <div class="padron-item-left">
+          {tipo === 'multi' ? (
+            <span class="padron-item-checkbox">
+              <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+            </span>
+          ) : (
+            <span class="padron-item-radio"></span>
+          )}
+          <span class="padron-item-label">{todosEtiqueta}</span>
+        </div>
+        {countPrefix && (
+          <span class="padron-item-count" id={`${countPrefix}-${todosValor}`}>(0)</span>
+        )}
+      </div>
+
+      {opciones.map((opcion) => {
+        const idContador = contadorDe(opcion);
+        return (
+          <div
+            class="padron-dropdown-item"
+            data-value={opcion.valor}
+            onclick={alSeleccionar(opcion.valor, opcion.etiqueta ?? opcion.valor)}
+          >
+            <div class="padron-item-left">
+              {tipo === 'multi' ? (
+                <span class="padron-item-checkbox">
+                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                  </svg>
+                </span>
+              ) : (
+                <span class="padron-item-radio"></span>
+              )}
+              {opcion.badge && (
+                <span
+                  class:list={[
+                    'badge',
+                    `badge-${opcion.badge.tono ?? 'green'}`,
+                    'facet-badge',
+                    opcion.badge.compacta && 'facet-badge--compacta',
+                  ]}
+                >{opcion.badge.texto}</span>
+              )}
+              {opcion.etiqueta && <span class="padron-item-label">{opcion.etiqueta}</span>}
+            </div>
+            {idContador && (
+              <span class="padron-item-count" id={idContador}>(0)</span>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  </div>
+
+  <slot />
+</div>

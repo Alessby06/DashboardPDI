@@ -94,3 +94,12 @@ test('la instantanea es una copia, no el estado vivo', () => {
   copia.sede.push('Comas');
   assert.deepEqual(s.valor('sede'), []);
 });
+
+test('multi sin catálogo acepta valores libres (roles)', () => {
+  const s = crearStore({ rol: { tipo: 'multi', defecto: [] } });
+  s.alternar('rol', 'Voluntaria de Apoyo');
+  s.alternar('rol', 'Loncherita');
+  assert.deepEqual(s.valor('rol'), ['Voluntaria de Apoyo', 'Loncherita']);
+  s.cargar({ rol: ['A', 'A', ' '] });
+  assert.deepEqual(s.valor('rol'), ['A']);
+});

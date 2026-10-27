@@ -24,6 +24,31 @@ const FOCALIZABLES = [
 let idSeq = 0;
 /** Durante la apertura se ignora el scroll que provoca el propio encaje. */
 let aperturaHasta = 0;
+
+/**
+ * Navegador con anclaje CSS y Popover: el panel se coloca solo bajo el boton,
+ * en el top layer, sin calculos de geometria ni correcciones por el transform
+ * de Lenis. En el resto se mantiene el posicionamiento manual.
+ */
+const SOPORTA_ANCLA =
+  typeof CSS !== "undefined" &&
+  typeof CSS.supports === "function" &&
+  CSS.supports("anchor-name: --x") &&
+  CSS.supports("position-anchor: --x");
+
+/**
+ * Popover API, detectada al margen del anclaje CSS. Antes solo se usaba el
+ * popover si tambien habia anclaje, y los navegadores con popover pero sin
+ * anchor segian colocando el panel a mano dentro del bloque contenedor que
+ * crea el transform de Lenis: ahi venian el desfase, el recorte y el
+ * parpadeo. Con popover solo, el panel ya vive en el top layer y ningun
+ * ancestro lo descoloca ni lo recorta. El anclaje CSS decide como se coloca;
+ * el popover, donde se pinta.
+ */
+const SOPORTA_POPOVER =
+  typeof HTMLElement !== "undefined" &&
+  typeof HTMLElement.prototype === "object" &&
+  typeof HTMLElement.prototype.showPopover === "function";
 const nuevoId = (base) => `fil-${base}-${++idSeq}`;
 
 /**
@@ -236,6 +261,8 @@ function marcarDesborde(panel) {
 function seguirAlBoton(panel) {
   // En movil el panel es una hoja inferior anclada al borde: no se reancla.
   if (window.innerWidth <= 768) return;
+  // Con anclaje CSS el panel sigue al boton solo: no hay nada que recolocar.
+  if (SOPORTA_ANCLA) return;
   const menu = panel.querySelector('.audit-filters-menu');
   const boton = panel.querySelector('.audit-filter-btn');
   if (!menu || !boton) return;
@@ -249,10 +276,31 @@ function seguirAlBoton(panel) {
   const objetivo = Math.round(r.bottom + 8);
   menu.style.top = `${objetivo}px`;
   menu.style.right = `${Math.round(window.innerWidth - r.right)}px`;
+  // Con popover en el top layer, position:fixed mide contra el viewport: no
+  // hay desfase que corregir. Sin el, el transform de Lenis desplaza el panel
+  // y hay que medir y ajustar.
+  if (SOPORTA_POPOVER) return;
   for (let i = 0; i < 2; i++) {
     const desfase = menu.getBoundingClientRect().top - objetivo;
     if (Math.abs(desfase) < 1) break;
     menu.style.top = `${Math.round(parseFloat(menu.style.top) - desfase)}px`;
+  }
+}
+
+/** Muestra el panel en el top layer (solo escritorio; la hoja movil es fija). */
+function abrirPopover(menu) {
+  if (!SOPORTA_POPOVER || window.innerWidth <= 768) return;
+  if (!menu.hasAttribute("popover")) menu.setAttribute("popover", "manual");
+  if (!menu.matches(":popover-open")) {
+    try { menu.showPopover(); } catch {}
+  }
+}
+
+/** Lo retira del top layer al cerrar. */
+function cerrarPopover(menu) {
+  if (!menu.hasAttribute("popover")) return;
+  if (menu.matches(":popover-open")) {
+    try { menu.hidePopover(); } catch {}
   }
 }
 
@@ -266,6 +314,20 @@ function posicionarPanel(panel) {
     menu.style.removeProperty('left');
     menu.style.removeProperty('bottom');
     menu.style.removeProperty('max-height');
+    return;
+  }
+
+  // El CSS ancla el panel al boton; la altura se mide una vez, ya colocado.
+  if (SOPORTA_ANCLA) {
+    menu.style.removeProperty('top');
+    menu.style.removeProperty('right');
+    menu.style.removeProperty('left');
+    menu.style.removeProperty('bottom');
+    const r = menu.getBoundingClientRect();
+    if (r.height > 0) {
+      const disponible = Math.floor(window.innerHeight - r.top - 16);
+      menu.style.maxHeight = `${Math.max(120, disponible)}px`;
+    }
     return;
   }
 
@@ -285,13 +347,15 @@ function posicionarPanel(panel) {
   menu.style.bottom = 'auto';
   menu.style.maxHeight = `${Math.max(90, Math.floor(Math.min(hueco, window.innerHeight - 32)))}px`;
 
-  // Lenis mueve el contenido con transform, y eso convierte al ancestro en
-  // bloque contenedor de position:fixed. Se corrige el desfase medido para
-  // que el panel quede realmente bajo el boton.
-  for (let i = 0; i < 2; i++) {
-    const desfase = menu.getBoundingClientRect().top - objetivo;
-    if (Math.abs(desfase) < 1) break;
-    menu.style.top = `${Math.round(parseFloat(menu.style.top) - desfase)}px`;
+  // Sin popover, el transform de Lenis convierte al ancestro en bloque
+  // contenedor de position:fixed y desplaza el panel: se mide y se ajusta.
+  // En el top layer no hay desfase que corregir.
+  if (!SOPORTA_POPOVER) {
+    for (let i = 0; i < 2; i++) {
+      const desfase = menu.getBoundingClientRect().top - objetivo;
+      if (Math.abs(desfase) < 1) break;
+      menu.style.top = `${Math.round(parseFloat(menu.style.top) - desfase)}px`;
+    }
   }
 }
 
@@ -386,6 +450,7 @@ function prepararPanel(panel) {
 
     if (abierto) {
       aperturaHasta = Date.now() + 450;
+      abrirPopover(menu);
       actualizarEtiqueta(panel);
       posicionarPanel(panel);
       marcarDesborde(panel);
@@ -397,6 +462,7 @@ function prepararPanel(panel) {
     } else if (panel.contains(document.activeElement)) {
       disparador.focus({ preventScroll: true });
     }
+    if (!abierto) cerrarPopover(menu);
   }).observe(panel, { attributes: true, attributeFilter: ['class'] });
 
   menu.addEventListener('scroll', () => marcarDesborde(panel), { passive: true, capture: true });
@@ -441,6 +507,7 @@ function prepararPanel(panel) {
   // mismas consecuencias de apertura.
   if (panel.classList.contains('open')) {
     aperturaHasta = Date.now() + 450;
+    abrirPopover(menu);
     actualizarEtiqueta(panel);
     posicionarPanel(panel);
     const primero = menu.querySelector('.audit-filters-body :is(' + FOCALIZABLES + ')');

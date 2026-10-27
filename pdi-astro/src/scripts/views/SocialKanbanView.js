@@ -2,6 +2,7 @@
 import { CasoSocialModel } from '../models/CasoSocialModel.js';
 import { AnimationEngine } from '../utils/AnimationEngine.js';
 import { crear as crearFiltros } from '../utils/Filters.js';
+import { crearStore } from '../utils/FilterStore.js';
 
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
 import { SEDES_NOMBRES } from "../core/catalogos.js";
@@ -48,6 +49,11 @@ const TITULOS_TAB = {
   "mis-solicitudes": "Mis Solicitudes ASP",
 };
 
+const FACETAS_SOCIAL = {
+  urgencia: { tipo: "single", defecto: "all" },
+  sede: { tipo: "single", defecto: "all" },
+};
+
 export const SocialKanbanView = {
   _searchQuery: "",
   _filterUrgencia: "all",
@@ -57,6 +63,18 @@ export const SocialKanbanView = {
   _mobileActiveStage: "pendiente",
   _haEntrado: false,
   _lastRenderSerial: "",
+
+  _store: null,
+
+  _obtenerStore() {
+    if (!this._store) this._store = crearStore(FACETAS_SOCIAL);
+    return this._store;
+  },
+
+  _espejarStore() {
+    this._filterUrgencia = this._obtenerStore().valor("urgencia");
+    this._filterSede = this._obtenerStore().valor("sede");
+  },
 
   reiniciarEntrada() {
     this._haEntrado = false;
@@ -329,7 +347,8 @@ export const SocialKanbanView = {
   },
 
   filterByUrgencia(urgencia) {
-    this._filterUrgencia = urgencia;
+    this._obtenerStore().fijar("urgencia", urgencia);
+    this._espejarStore();
     this._updateUrgenciaUI();
     document.getElementById("dropdownSocialUrgencia")?.classList.remove("open");
     this.renderKanban(null, true);
@@ -348,7 +367,8 @@ export const SocialKanbanView = {
   },
 
   filterBySede(sede) {
-    this._filterSede = sede;
+    this._obtenerStore().fijar("sede", sede);
+    this._espejarStore();
     this._updateSedeUI();
     document.getElementById("dropdownSocialSede")?.classList.remove("open");
     this.renderKanban(null, true);
@@ -368,8 +388,8 @@ export const SocialKanbanView = {
 
   clearFilters() {
     this._searchQuery = "";
-    this._filterUrgencia = "all";
-    this._filterSede = "all";
+    this._obtenerStore().limpiar();
+    this._espejarStore();
 
     const searchInput = document.getElementById("inputSearchCasosSociales");
     if (searchInput) searchInput.value = "";

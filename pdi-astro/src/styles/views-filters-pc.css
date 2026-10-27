@@ -3,7 +3,7 @@
    ===========================================================================
    Estas reglas solo afectan viewports de escritorio (>= 769px). El
    comportamiento mobil (bottom sheets) queda intacto: sus media queries usan
-   !important y una anchura maxima distinta.
+    y una anchura maxima distinta.
 
    Aporta:
    - Apertura/cierre suave de los popovers de filtros y de los desplegables
@@ -14,45 +14,29 @@
    =========================================================================== */
 
 @media (min-width: 769px) {
-  /* Botón principal de filtros: feedback de pulsación y elevación suave. */
+  /* Botón principal: el hover solo cambia color y borde. Un parte clínico no
+     se eleva ni hace saltar el icono; la única respuesta física es la
+     pulsación, que el sistema define como scale(0.96). */
   .audit-filter-btn {
     transform: translateY(0);
     transition:
       background-color var(--dur-fast) var(--ease-smooth),
       border-color var(--dur-fast) var(--ease-smooth),
       color var(--dur-fast) var(--ease-smooth),
-      box-shadow var(--dur-fast) var(--ease-smooth),
-      transform var(--dur-fast) var(--ease-spring);
-  }
-
-  .audit-filter-btn:hover {
-    box-shadow: var(--shadow-sm);
-  }
-
-  /* El movimiento de hover solo en punteros finos: en táctil el hover falso
-     del toque movía el botón sin intención. */
-  @media (hover: hover) and (pointer: fine) {
-    .audit-filter-btn:hover {
-      transform: translateY(-1px);
-    }
-
-    .audit-filter-btn:hover > svg:first-child {
-      transform: translateY(0.5px) scale(1.06);
-    }
+      transform var(--dur-press) var(--ease-out);
   }
 
   .audit-filter-btn:active {
-    transform: scale(0.97);
-    box-shadow: none;
+    transform: scale(0.96);
   }
 
   .audit-filter-btn svg.filter-caret {
-    transition: transform var(--dur-fast) var(--ease-smooth);
+    transition: transform var(--dur-popover) var(--ease-out);
   }
 
   /* Icono (funnel) + texto: alineación óptica y espaciado estable. */
   .audit-filter-btn {
-    gap: 8px !important;
+    gap: 8px;
   }
 
   .audit-filter-btn > svg {
@@ -61,7 +45,6 @@
     width: 16px;
     height: 16px;
     transform: translateY(0.5px);
-    transition: transform var(--dur-fast) var(--ease-smooth);
   }
 
   /* Badge de filtros activos: sin rebote. Se repinta con cada faceta y el
@@ -93,13 +76,7 @@
   .padron-inner-dropdown-btn {
     transition:
       border-color var(--dur-fast) var(--ease-smooth),
-      background-color var(--dur-fast) var(--ease-smooth),
-      box-shadow var(--dur-fast) var(--ease-smooth),
-      transform var(--dur-fast) var(--ease-spring);
-  }
-
-  .padron-inner-dropdown-btn:active {
-    transform: scale(0.98);
+      background-color var(--dur-fast) var(--ease-smooth);
   }
 
   /* Chips de filtros aplicados: sin animación de entrada. La barra se repinta
@@ -109,12 +86,7 @@
   .padron-chip-remove {
     transition:
       background-color var(--dur-fast) var(--ease-smooth),
-      color var(--dur-fast) var(--ease-smooth),
-      transform var(--dur-fast) var(--ease-spring);
-  }
-
-  .padron-chip-remove:active {
-    transform: scale(0.88);
+      color var(--dur-fast) var(--ease-smooth);
   }
 
   /* Sombra un poco más profunda en los desplegables de escritorio. */
@@ -132,32 +104,24 @@
   /* Restablecer: accion secundaria del encabezado. Sin borde ni pastilla
      llamativa, para que el titulo siga mandando y no choque con el a 0-2px. */
   .btn-text-subtle {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 6px !important;
-    padding: 4px 10px !important;
-    min-height: 26px !important;
-    border: 1px solid transparent !important;
-    border-radius: var(--radius-full) !important;
-    background: transparent !important;
-    color: var(--text-dim) !important;
-    font-size: 11.5px !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.01em !important;
-    white-space: nowrap !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 4px 10px;
+    min-height: 26px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-full);
+    background: transparent;
+    color: var(--text-dim);
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
     transition:
       background-color var(--dur-fast) var(--ease-smooth),
       border-color var(--dur-fast) var(--ease-smooth),
-      color var(--dur-fast) var(--ease-smooth),
-      transform var(--dur-fast) var(--ease-spring),
-      box-shadow var(--dur-fast) var(--ease-smooth) !important;
-  }
-
-  .btn-text-subtle:hover {
-    color: var(--text-danger) !important;
-    background: var(--gt-red-bg) !important;
-    border-color: var(--gt-red-border) !important;
+      color var(--dur-fast) var(--ease-smooth);
   }
 
   .btn-text-subtle:active {
@@ -166,6 +130,6 @@
 
   .btn-text-subtle:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--brand-primary) !important;
+    box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--brand-primary);
   }
 }

@@ -24,6 +24,20 @@ test('normalizar() reconoce las etiquetas históricas y las claves canónicas', 
   assert.equal(AnemiaCalculator.normalizar(null), null);
 });
 
+test('resultadoDb() traduce la clase o etiqueta al catálogo exacto de la nube', () => {
+  assert.equal(AnemiaCalculator.resultadoDb(AnemiaCalculator.calculate(10.4).clase), 'Anemia leve');
+  assert.equal(AnemiaCalculator.resultadoDb('Anemia Leve'), 'Anemia leve');
+  assert.equal(AnemiaCalculator.resultadoDb('anemia leve'), 'Anemia leve');
+  assert.equal(AnemiaCalculator.resultadoDb('Anemia severa'), 'Anemia grave');
+  assert.equal(AnemiaCalculator.resultadoDb('Anemia grave'), 'Anemia grave');
+  assert.equal(AnemiaCalculator.resultadoDb('Normal'), 'Regular');
+  assert.equal(AnemiaCalculator.resultadoDb('Normal (Sin Anemia)'), 'Regular');
+  assert.equal(AnemiaCalculator.resultadoDb('Regular'), 'Regular');
+  assert.equal(AnemiaCalculator.resultadoDb('En riesgo'), 'En riesgo');
+  assert.equal(AnemiaCalculator.resultadoDb(''), null);
+  assert.equal(AnemiaCalculator.resultadoDb(null), null);
+});
+
 test('un dosaje registrado con la clase canónica cuenta en el semáforo', () => {
   // Reproduce el guardado real: se persiste calc.clase, no calc.label.
   const calc = AnemiaCalculator.calculate(10.4);

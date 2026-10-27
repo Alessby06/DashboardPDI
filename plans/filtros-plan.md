@@ -1,7 +1,7 @@
 # Plan de filtros
 
-Estado: **fase 0 y 1 completadas** (red de seguridad + store con padrón).
-Siguiente: fase 2 (marcado único).
+Estado: **todas las fases completadas** (sistema de filtros cerrado).
+Siguiente: mantenimiento; una vista nueva solo declara sus facetas.
 
 ## Problema
 
@@ -19,10 +19,11 @@ El CSS se unificó, el comportamiento no.
 |---|---|---|
 | 0 | Prueba de humo de las 7 vistas + unitarios del store | Hecha |
 | 1 | `FilterStore` y padrón como piloto (el store manda, `_filter*` es espejo) | Hecha |
-| 2 | `<FilterPanel>` declarativo; borrar las 7 copias de marcado | Pendiente |
-| 3 | Popover API + anclaje; retirar posicionamiento manual | Pendiente |
-| 4 | Migrar las 6 vistas restantes | Pendiente |
-| 5 | Retirar deuda (selectores, `!important`, contadores por DOM) y documentar | Pendiente |
+| 2a | `<FilterPanel>`: esqueleto común (contenedor, botón, cabecera, pie) en las 7 vistas | Hecha |
+| 2b | `<FilterField>`: 23 facetas declarativas; la edad conserva su slider en el slot | Hecha |
+| 3 | Popover API como capa base; el anclaje CSS y el cálculo manual quedan como respaldo | Hecha |
+| 4 | Store en las siete vistas; la regla «todos» vive solo en el store | Hecha |
+| 5 | Deuda retirada: 27 `!important`, 3 clases muertas y badges desde el store | Hecha |
 
 ## Contrato de aceptación
 
@@ -52,3 +53,38 @@ npm run test:filtros # humo de navegador contra el dev server
   el render de cada vista de golpe.
 - Las facetas de selección única no aplican «todas las opciones → Todas»; el
   test lo detecta por comportamiento y lo marca como omitido, no como fallo.
+- `<FilterPanel>` dibuja solo el esqueleto; `<FilterField>` dibuja cada campo
+  estándar (botón, opción «todos», opciones con checkbox o radio, contador e
+  insignia). Las páginas solo declaran arrays de opciones y el nombre del
+  manejador; los ids y los `onclick` siguen siendo los mismos. Lo que es un
+  widget distinto —el slider de edad y los paneles de fecha— sigue en la
+  página, dentro del slot del campo. `reset` se pasa como expresión JS porque
+  social no usa un `resetXFilters` global.
+- **Popover API como capa base.** Antes el popover solo se abría si también
+  había CSS anchor positioning, y los navegadores con popover pero sin anchor
+  seguían colocando el panel a mano dentro del bloque contenedor que crea el
+  `transform` de Lenis: ahí venían el desfase, el recorte y el parpadeo. Ahora
+  el popover se abre con independencia de que haya anclaje. En el *top layer*
+  `position: fixed` mide contra el viewport, así que la corrección de desfase
+  se omite; el cálculo manual solo corre en los navegadores sin popover.
+- En escritorio el panel es un `popover` en el top layer, anclado al botón con
+  `anchor-name` / `position-anchor`. Al desplazar la vista lo sigue el CSS, sin
+  JS ni corrección por el transform de Lenis. Si el navegador no soporta el
+  anclaje, se usa el cálculo y el reanclaje anteriores.
+- **Movimiento.** La hoja se posa: panel a 6 px y submenú a 4 px, 175 ms
+  `ease-out`, salida en 120 ms. Sin escalas de texto, rebotes ni sombras que
+  suban. En móvil la hoja sube con `ease-drawer` y el velo se desvanece con
+  ella; se quitó el `backdrop-filter`, que en tablets de sede perdía fotogramas.
+  Filtrar no relanza la cascada de filas: solo la primera entrada de la vista
+  anima la lista.
+- La entrada del panel dependía de una regla de `components.css`
+  (`.custom-dropdown.open .custom-dropdown-menu`, 0,3,0) que ganaba al
+  `@starting-style` y lo dejaba en un aparecer seco. El selector del panel sube
+  a 0,3,0 con `.audit-filter-panel-wrap` y, al cargar después, gana la cascada.
+
+## Hallazgos corregidos de paso
+
+- `resetSedesFilters` no existía: «Restablecer» en sedes no hacía nada. Ahora
+  apunta a `window.PDI.SedesView.resetFilters()`.
+- El título de salud llegaba como `&amp;` literal; se pasa el `&` sin escapar
+  en la prop.

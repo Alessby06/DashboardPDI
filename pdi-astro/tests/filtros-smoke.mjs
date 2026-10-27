@@ -73,9 +73,23 @@ async function main() {
     ws.send(JSON.stringify({ id: n, method, params }));
   });
   const ev = async (script) => {
-    const r = await send('Runtime.evaluate', { expression: script, returnByValue: true, awaitPromise: true });
-    if (r.result?.exceptionDetails) throw new Error(r.result.exceptionDetails.text || 'error de evaluación');
-    return r.result?.result?.value;
+    // Un "Inspected target navigated or closed" es intermitente al cambiar de
+    // vista: se reintenta una vez antes de darse por vencido.
+    for (let intento = 0; intento < 2; intento++) {
+      const r = await send('Runtime.evaluate', { expression: script, returnByValue: true, awaitPromise: true });
+      if (r.error) {
+        if (/navigated or closed/i.test(r.error.message || '') && intento === 0) {
+          await dormir(400);
+          continue;
+        }
+        throw new Error(`CDP: ${JSON.stringify(r.error)}`);
+      }
+      if (r.result?.exceptionDetails) {
+        const d = r.result.exceptionDetails;
+        throw new Error(d.exception?.description || d.text || 'error de evaluación');
+      }
+      return r.result?.result?.value;
+    }
   };
   const tab = async () => {
     await send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9, nativeVirtualKeyCode: 9 });
@@ -154,7 +168,12 @@ async function main() {
       const scrollAntes = main.scrollHeight;
       btn.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
       btn.click();
-      await new Promise((r) => setTimeout(r, 420));
+      // Se espera al fundido, no a un tiempo fijo: a veces 420ms no bastaba y
+      // la comprobacion de visibilidad fallaba por la opacidad a medias.
+      for (let i = 0; i < 30; i++) {
+        if (Number(getComputedStyle(menu).opacity) > 0.9) break;
+        await new Promise((r) => setTimeout(r, 60));
+      }
       const m = menu.getBoundingClientRect();
       const b = btn.getBoundingClientRect();
       const abierto = {
@@ -164,12 +183,16 @@ async function main() {
         dentroViewport: m.bottom <= innerHeight + 1 && m.top >= -1,
         ancho: Math.round(m.width),
         scrollIgual: main.scrollHeight === scrollAntes,
+        // Capa del navegador: con el popover activo, ningún ancestro recorta
+        // ni desplaza el panel.
+        topLayer: menu.matches(':popover-open'),
       };
       return { existe: true, abierto, scrollAntes };
     })()`);
 
     if (!base.existe) { anotar(vista, 'panel', false, 'no hay panel'); continue; }
     anotar(vista, 'abre', base.abierto.visible && base.abierto.aria, `ancho ${base.abierto.ancho}`);
+    anotar(vista, 'capa superior', base.abierto.topLayer);
     anotar(vista, 'dirección', base.abierto.abajo && base.abierto.dentroViewport);
     anotar(vista, 'sin scroll fantasma', base.abierto.scrollIgual);
 
@@ -216,7 +239,7 @@ async function main() {
       const chips = document.querySelectorAll('.padron-chip').length;
       const badge = [...document.querySelectorAll('.audit-filter-badge')].some((b) => b.offsetParent !== null && b.textContent.trim() !== '0');
       return { skip: false, chips, badge };
-    })()`);
+    })()`) ?? { skip: true };
     if (filtro.skip) anotar(vista, 'aplicar faceta', true, 'sin multiselección (skip)');
     else anotar(vista, 'aplicar faceta', filtro.chips > 0 || filtro.badge, `chips ${filtro.chips}`);
 
@@ -228,7 +251,7 @@ async function main() {
         reset.click();
         await new Promise((r) => setTimeout(r, 800));
         return { skip: false, chips: document.querySelectorAll('.padron-chip').length, badge: [...document.querySelectorAll('.audit-filter-badge')].filter((b) => b.offsetParent !== null).every((b) => b.textContent.trim() === '0') };
-      })()`);
+      })()`) ?? { skip: true };
       if (!limpio.skip) anotar(vista, 'restablecer', limpio.chips === 0 && limpio.badge, `chips ${limpio.chips}`);
 
       // Contrato del store: marcar todas las opciones de una faceta equivale
@@ -268,7 +291,7 @@ async function main() {
         const ultimo = valores[valores.length - 1];
         const pareceSimple = seleccionados.length === 1 && seleccionados[0] === ultimo;
         return { skip: false, simple: pareceSimple, allSelected: !!all?.classList.contains('selected'), seleccionados, pasos };
-      })()`);
+      })()`) ?? { skip: true };
       if (!autoTodos.skip && autoTodos.simple) {
         anotar(vista, 'auto-todos', true, 'faceta de selección única (skip)');
       } else if (!autoTodos.skip) {
@@ -284,12 +307,16 @@ async function main() {
   const movil = await ev(`(async () => {
     const dd = document.querySelector('.audit-filters-dropdown');
     dd.querySelector('.audit-filter-btn').click();
-    await new Promise((r) => setTimeout(r, 450));
+    for (let i = 0; i < 25; i++) {
+      const b = dd.querySelector('.audit-filters-menu').getBoundingClientRect().bottom;
+      if (Math.abs(b - innerHeight) <= 1) break;
+      await new Promise((r) => setTimeout(r, 100));
+    }
     const m = dd.querySelector('.audit-filters-menu').getBoundingClientRect();
     const pie = dd.querySelector('.audit-filters-footer')?.getBoundingClientRect();
     return { abajo: Math.abs(m.bottom - innerHeight) <= 1, dentro: m.top >= -1, pie: !pie || pie.bottom <= innerHeight + 1 };
   })()`);
-  anotar('padron', 'móvil anclado', movil.abajo && movil.dentro && movil.pie);
+  anotar('padron', 'móvil anclado', movil.abajo && movil.dentro && movil.pie, JSON.stringify(movil));
 
   const fallos = resultados.filter((r) => !r.ok);
   fs.mkdirSync(OUT, { recursive: true });

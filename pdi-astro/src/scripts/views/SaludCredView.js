@@ -1,5 +1,6 @@
 // Vista: Módulo de Salud y Nutrición CRED
 import { crear as crearFiltros } from '../utils/Filters.js';
+import { crearStore } from '../utils/FilterStore.js';
 import { Responsive } from '../utils/Responsive.js';
 
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
@@ -16,6 +17,12 @@ const FILTROS_SALUD = {
   hb:      { valor: "all", valores: ["all", "anemia", "normal", "critico"] },
 };
 
+const FACETAS_SALUD = {
+  anemia: { tipo: "multi", opciones: FILTROS_SALUD.anemia.valores, defecto: [] },
+  sede: { tipo: "multi", opciones: FILTROS_SALUD.sede.valores, defecto: [] },
+  hb: { tipo: "single", opciones: FILTROS_SALUD.hb.valores, defecto: "all" },
+};
+
 export const SaludCredView = {
   _allBeneficiarios: [],
   _filteredBeneficiarios: [],
@@ -28,6 +35,23 @@ export const SaludCredView = {
 
   _filtros: null,
   _filtrosLeidos: false,
+
+  // Fuente de verdad de las facetas; los campos _filter* son su espejo.
+  _store: null,
+
+  _obtenerStore() {
+    if (!this._store) {
+      this._store = crearStore(FACETAS_SALUD);
+    }
+    return this._store;
+  },
+
+  _espejarStore() {
+    const s = this._obtenerStore().instantanea();
+    this._filterAnemia = s.anemia;
+    this._filterSede = s.sede;
+    this._filterHbNivel = s.hb;
+  },
 
   _obtenerFiltros() {
     if (!this._filtros) {
@@ -137,9 +161,8 @@ export const SaludCredView = {
 
     const f = this._obtenerFiltros().leer();
     this._searchQuery = (f.q || "").toLowerCase();
-    this._filterAnemia = f.anemia;
-    this._filterSede = f.sede;
-    this._filterHbNivel = f.hb;
+    this._obtenerStore().cargar({ anemia: f.anemia, sede: f.sede, hb: f.hb });
+    this._espejarStore();
 
     const input = document.getElementById("inputSaludSearch");
     if (input) input.value = f.q;
@@ -190,20 +213,8 @@ export const SaludCredView = {
   },
 
   toggleAnemia(val) {
-    const allAnemias = ["Normal", "Leve", "Moderada"];
-    if (val === "all") {
-      this._filterAnemia = [];
-    } else {
-      const idx = this._filterAnemia.indexOf(val);
-      if (idx > -1) {
-        this._filterAnemia.splice(idx, 1);
-      } else {
-        this._filterAnemia.push(val);
-      }
-      if (allAnemias.every(a => this._filterAnemia.includes(a))) {
-        this._filterAnemia = [];
-      }
-    }
+    this._obtenerStore().alternar("anemia", val);
+    this._espejarStore();
     this._updateAnemiaDropdownUI();
     this.applyFilters();
     this._persistirFiltros();
@@ -235,20 +246,8 @@ export const SaludCredView = {
   },
 
   toggleSede(val) {
-    const allSedes = SEDES_NOMBRES;
-    if (val === "all") {
-      this._filterSede = [];
-    } else {
-      const idx = this._filterSede.indexOf(val);
-      if (idx > -1) {
-        this._filterSede.splice(idx, 1);
-      } else {
-        this._filterSede.push(val);
-      }
-      if (allSedes.every(s => this._filterSede.includes(s))) {
-        this._filterSede = [];
-      }
-    }
+    this._obtenerStore().alternar("sede", val);
+    this._espejarStore();
     this._updateSedeDropdownUI();
     this.applyFilters();
     this._persistirFiltros();
@@ -280,7 +279,8 @@ export const SaludCredView = {
   },
 
   selectHbNivel(val, label) {
-    this._filterHbNivel = val || "all";
+    this._obtenerStore().fijar("hb", val || "all");
+    this._espejarStore();
     this._updateHbUI(label);
 
     const drop = document.getElementById("dropdownSaludHb");
@@ -333,9 +333,8 @@ export const SaludCredView = {
 
   resetFilters() {
     this._searchQuery = "";
-    this._filterAnemia = [];
-    this._filterSede = [];
-    this._filterHbNivel = "all";
+    this._obtenerStore().limpiar();
+    this._espejarStore();
 
     const input = document.getElementById("inputSaludSearch");
     if (input) input.value = "";
@@ -403,11 +402,8 @@ export const SaludCredView = {
 
     this._filteredBeneficiarios = list;
 
-    // Actualizar badge de filtros activos
-    let count = 0;
-    if (this._filterAnemia.length > 0) count += this._filterAnemia.length;
-    if (this._filterSede.length > 0) count += this._filterSede.length;
-    if (this._filterHbNivel !== "all") count++;
+    // Badge desde el store: una definicion, no una suma por vista.
+    const count = this._obtenerStore().contarActivos();
 
     const badgeEl = document.getElementById("saludActiveFiltersCount");
     const btnFilterEl = document.getElementById("btnDropdownSaludFilterPanel");
@@ -680,6 +676,27 @@ export const SaludCredView = {
   //  Historial de tamizajes de hemoglobina (modal)
   // ---------------------------------------------------------------------------
   /**
+   * Saca el foco fuera del modal antes de ocultarlo. Chrome advierte (y deja
+   * el foco atrapado en un ancestro con aria-hidden) si se marca inert con el
+   * foco todavía dentro. Se usa el mismo patrón que ModalView.
+   */
+  _sacarFocoDelModal(modal, destino, respaldoSelector) {
+    if (!modal || !modal.contains(document.activeElement)) return;
+    const selector = respaldoSelector || "#view-salud button, #view-salud a[href]";
+    const respaldo = [...document.querySelectorAll(selector)]
+      .find(el => !modal.contains(el) && !el.closest("[inert]"));
+    const candidato = destino
+      && document.contains(destino)
+      && destino !== document.body
+      && destino !== document.documentElement
+      && !modal.contains(destino)
+      && !destino.closest("[inert]")
+      ? destino
+      : respaldo;
+    if (candidato && typeof candidato.focus === "function") candidato.focus();
+  },
+
+  /**
    * Abre el modal con la linea de tiempo de tamizajes del usuario. Los datos
    * ya viajan con el padron (b.tamizajes), no hay segunda consulta: el modal
    * pinta lo que la vista ya tenia.
@@ -689,6 +706,9 @@ export const SaludCredView = {
     const b = this._allBeneficiarios.find(x => x.id === num)
       || (window.PDI?.BeneficiarioModel?.getById ? window.PDI.BeneficiarioModel.getById(num) : null);
     if (!b) return;
+
+    // Se guarda el disparador para devolverle el foco al cerrar.
+    this._focoHistorial = document.activeElement;
 
     // Cada apertura arranca con el formulario recogido y el usuario fijado.
     this._pruebaUsuarioId = num;
@@ -876,6 +896,10 @@ export const SaludCredView = {
     if (!modal) return;
     this._ocultarFormularioNuevaPrueba();
     this._pruebaUsuarioId = null;
+    // El foco sale antes de inert/aria-hidden: así Chrome no bloquea el
+    // elemento enfocado ni deja el aviso de accesibilidad en consola.
+    this._sacarFocoDelModal(modal, this._focoHistorial);
+    this._focoHistorial = null;
     modal.classList.remove("open");
     modal.setAttribute("inert", "");
     modal.setAttribute("aria-hidden", "true");
@@ -966,23 +990,39 @@ export const SaludCredView = {
     }
 
     const calc = AnemiaCalculator.calculate(hbVal);
-    const esNormal = calc.label.includes("Normal");
     const prueba = {
       fecha: fechaStr,
       hb: hbVal,
-      resultado: esNormal ? "Normal" : calc.label.toLowerCase(), // "Anemia leve" | "Anemia moderada" | "Anemia severa"
+      // Valor exacto del esquema: 'Regular' | 'Anemia leve' | 'Anemia moderada'
+      // | 'Anemia grave'. calc.label está pensado para mostrar, no para guardar.
+      resultado: AnemiaCalculator.resultadoDb(calc.clase) || "Regular",
       // Clave canónica: la que comparan filtros y conteos del panel.
-      anemia: calc.clase || (esNormal ? "Normal" : "Leve"),
+      anemia: calc.clase || "Normal",
       peso: pesoRaw !== "" ? pesoVal : null,
       talla: tallaRaw !== "" ? tallaVal : null,
     };
 
-    window.PDI?.BeneficiarioModel?.registrarTamizaje(b.id, prueba);
+    // Optimista: el modelo ya insertó la fila en memoria; la nube confirma
+    // después. El toast de éxito espera esa confirmación para no contradecir
+    // al toast de error si la escritura falla.
+    const modelo = window.PDI?.BeneficiarioModel;
+    const pendiente = modelo?.registrarTamizaje ? modelo.registrarTamizaje(b.id, prueba) : null;
     this._ocultarFormularioNuevaPrueba();
     this.applyFilters(); // la fila del padron pasa al nuevo valor vigente
 
-    const listado = document.getElementById("histTamListado");
-    if (listado) listado.innerHTML = this._renderTamizajes(b);
+    const pintarLista = () => {
+      const listado = document.getElementById("histTamListado");
+      if (listado) listado.innerHTML = this._renderTamizajes(b);
+    };
+    pintarLista();
+
+    const filaGuardada = pendiente ? await pendiente : null;
+    if (!filaGuardada) {
+      // La nube rechazó el dosaje: el modelo deshizo el cambio optimista.
+      this.applyFilters();
+      pintarLista();
+      return;
+    }
 
     // Bitácora: los filtros de auditoria ya reconocen la accion "Tamizaje".
     const rol = localStorage.getItem("pdi_active_role") || "facilitadora";
@@ -1062,7 +1102,26 @@ export const SaludCredView = {
       ? fecha.toLocaleDateString("es-PE", { day: "2-digit", month: "long", year: "numeric" })
       : "fecha no registrada";
 
-    window.PDI?.BeneficiarioModel?.desactivarTamizaje(b.id, fila._tamizajeId);
+    // Optimista: el modelo saca la fila en memoria; la nube confirma después.
+    const modelo = window.PDI?.BeneficiarioModel;
+    const pendiente = modelo?.desactivarTamizaje
+      ? modelo.desactivarTamizaje(b.id, fila._tamizajeId)
+      : null;
+
+    const pintarLista = () => {
+      const listado = document.getElementById("histTamListado");
+      if (listado) listado.innerHTML = this._renderTamizajes(b);
+    };
+    pintarLista();
+    this.applyFilters(); // la fila del padron pasa a su valor vigente real
+
+    const desactivada = pendiente ? await pendiente : null;
+    if (!desactivada) {
+      // La nube rechazó el cambio: el modelo restauró la fila y sus valores.
+      this.applyFilters();
+      pintarLista();
+      return;
+    }
 
     // Bitácora: el motivo vive aqui, en el registro inalterable de auditoría.
     const rol = localStorage.getItem("pdi_active_role") || "facilitadora";
@@ -1085,10 +1144,6 @@ export const SaludCredView = {
       `La prueba del ${fechaTxt} ya no cuenta para el historial de ${b.nombres} ${b.apellidos}.`,
       "success"
     );
-
-    const listado = document.getElementById("histTamListado");
-    if (listado) listado.innerHTML = this._renderTamizajes(b);
-    this.applyFilters(); // la fila del padron pasa a su valor vigente real
 
     try {
       if (window.PDI?.DB?.refrescarDesdeNube) await window.PDI.DB.refrescarDesdeNube();
@@ -1439,6 +1494,9 @@ export const SaludCredView = {
     const modal = document.getElementById("modalElegirDosaje");
     if (!cont || !modal) return;
 
+    // Disparador del modal: a él vuelve el foco cuando se cierra.
+    this._focoSelectorDosaje = document.activeElement;
+
     const lista = [...(this._allBeneficiarios || [])]
       .filter(b => b && b.activo !== false)
       .sort((a, b) => String(a.apellidos || "").localeCompare(String(b.apellidos || ""), "es"));
@@ -1469,12 +1527,16 @@ export const SaludCredView = {
     modal.removeAttribute("aria-hidden");
     modal.classList.add("open");
     const primero = cont.querySelector(".elegir-dosaje-item");
-    if (primero) requestAnimationFrame(() => primero.focus());
+    if (primero) requestAnimationFrame(() => {
+      if (modal.classList.contains("open")) primero.focus();
+    });
   },
 
   cerrarSelectorDosaje() {
     const modal = document.getElementById("modalElegirDosaje");
     if (!modal) return;
+    this._sacarFocoDelModal(modal, this._focoSelectorDosaje);
+    this._focoSelectorDosaje = null;
     modal.classList.remove("open");
     modal.setAttribute("aria-hidden", "true");
     modal.setAttribute("inert", "");

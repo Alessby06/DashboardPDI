@@ -1069,20 +1069,26 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
             <div class="form-group" style="margin: 0;">
               <label for="nuevaPruebaFecha">Fecha del dosaje <span class="req">*</span></label>
               <input type="date" class="form-control" id="nuevaPruebaFecha" />
+              <small class="form-help">No puede ser futura ni repetir un día ya registrado.</small>
             </div>
             <div class="form-group" style="margin: 0;">
               <label for="nuevaPruebaHb">Hemoglobina (g/dL) <span class="req">*</span></label>
-              <input type="number" step="0.1" min="3" max="20" class="form-control" id="nuevaPruebaHb"
+              <input type="number" step="0.1" min="3" max="20" inputmode="decimal" class="form-control" id="nuevaPruebaHb"
                 placeholder="Ej. 10.4"
                 oninput="window.actualizarPreviewNuevaPrueba ? window.actualizarPreviewNuevaPrueba() : null" />
+              <small class="form-help">Valor válido: de 3.0 a 20.0 g/dL.</small>
             </div>
             <div class="form-group" style="margin: 0;">
               <label for="nuevaPruebaPeso">Peso (kg) &mdash; opcional</label>
-              <input type="number" step="0.1" class="form-control" id="nuevaPruebaPeso" />
+              <input type="number" step="0.1" min="0.1" max="60" inputmode="decimal" class="form-control" id="nuevaPruebaPeso"
+                placeholder="Ej. 14.2" />
+              <small class="form-help">Opcional · valor válido de 0.1 a 60 kg.</small>
             </div>
             <div class="form-group" style="margin: 0;">
               <label for="nuevaPruebaTalla">Talla (cm) &mdash; opcional</label>
-              <input type="number" step="0.5" class="form-control" id="nuevaPruebaTalla" />
+              <input type="number" step="0.5" min="0.1" max="180" inputmode="decimal" class="form-control" id="nuevaPruebaTalla"
+                placeholder="Ej. 94.5" />
+              <small class="form-help">Opcional · valor válido de 0.1 a 180 cm.</small>
             </div>
           </div>
           <div style="background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 12px 14px;">

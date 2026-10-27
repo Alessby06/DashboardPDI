@@ -1,7 +1,13 @@
 ---
 import AppLayout from '../layouts/AppLayout.astro';
+import FilterPanel from '../components/FilterPanel.astro';
+import FilterField from '../components/FilterField.astro';
 import { PROGRAMAS } from '../data/opcionesBeneficiario.js';
+import { SEDES_POR_DISTRITO } from '../scripts/core/catalogos.js';
 import '../styles/views-sedes.css';
+
+const OPCIONES_DISTRITO = Object.keys(SEDES_POR_DISTRITO).map((distrito) => ({ valor: distrito, etiqueta: distrito }));
+const OPCIONES_SERVICIO = PROGRAMAS.map((programa) => ({ valor: programa.clave, etiqueta: programa.etiqueta }));
 ---
 
 <AppLayout title="Sedes e Iglesias Aliadas" currentPage="sedes">
@@ -44,146 +50,42 @@ import '../styles/views-sedes.css';
               </div>
 
               <!-- Botón Unificado de Filtros y Panel Desplegable (Lado Derecho) -->
-              <div class="audit-filter-panel-wrap">
-                <div class="custom-dropdown audit-filters-dropdown" id="dropdownSedesFilterPanel">
-                  <button type="button" class="btn-action audit-filter-btn" id="btnDropdownSedesFilterPanel"
-                    onclick="window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSedesFilterPanel') : null">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
-                    </svg>
-                    <span>Filtros</span>
-                    <span class="audit-filter-badge" id="sedesActiveFiltersCount" style="display:none;">0</span>
-                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
-                      class="filter-caret">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                    </svg>
-                  </button>
-
-                  <!-- Panel Desplegable Popover de Filtros de Sedes -->
-                  <div class="custom-dropdown-menu audit-filters-menu" id="menuSedesFilterPanel">
-                    <div class="audit-filters-header">
-                      <div class="audit-filters-header-title">
-                        <span>Filtros de Sedes</span>
-                      </div>
-                      <div class="audit-filters-header-actions">
-                        <button type="button" class="btn-text-subtle"
-                          onclick="window.clearSedesFilters ? window.clearSedesFilters() : null">Restablecer</button>
-                        <button type="button" class="btn-close-sheet" aria-label="Cerrar filtros"
-                          onclick="window.closeAllFilterSheets ? window.closeAllFilterSheets() : null">
-                          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                        </button>
-                      </div>
-                    </div>
-
-                    <div class="audit-filters-body">
-                      <!-- Filtro 1: Distrito Territorial -->
-                      <div class="audit-filter-field">
-                        <label class="audit-field-label">Distrito Territorial</label>
-                        <div class="padron-inner-dropdown" id="dropdownSedesDistrito">
-                          <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.toggleSedesInnerDropdown ? window.toggleSedesInnerDropdown('dropdownSedesDistrito') : null">
-                            <span id="labelSedesDistritoSelect">Todos los Distritos</span>
-                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                          </button>
-                          <div class="padron-inner-dropdown-menu" id="menuSedesDistrito">
-                            <div class="padron-dropdown-item selected" data-value="all"
-                              onclick="window.filterSedesByDistrito ? window.filterSedesByDistrito('all') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Todos los Distritos</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Comas"
-                              onclick="window.filterSedesByDistrito ? window.filterSedesByDistrito('Comas') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Comas</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Carabayllo"
-                              onclick="window.filterSedesByDistrito ? window.filterSedesByDistrito('Carabayllo') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Carabayllo</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Filtro 2: Servicio / Programa -->
-                      <div class="audit-filter-field">
-                        <label class="audit-field-label">Servicio / Programa</label>
-                        <div class="padron-inner-dropdown" id="dropdownSedesServicio">
-                          <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.toggleSedesInnerDropdown ? window.toggleSedesInnerDropdown('dropdownSedesServicio') : null">
-                            <span id="labelSedesServicioSelect">Todos los Servicios</span>
-                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                          </button>
-                          <div class="padron-inner-dropdown-menu" id="menuSedesServicio">
-                            <div class="padron-dropdown-item selected" data-value="all"
-                              onclick="window.filterSedesByServicio ? window.filterSedesByServicio('all') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Todos los Servicios</span>
-                              </div>
-                            </div>
-                            {PROGRAMAS.map((programa) => (
-                              <div class="padron-dropdown-item" data-value={programa.clave}
-                                onclick={`window.filterSedesByServicio ? window.filterSedesByServicio('${programa.clave}') : null`}>
-                                <div class="padron-item-left">
-                                  <span class="padron-item-checkbox">
-                                    <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                      viewBox="0 0 24 24">
-                                      <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                    </svg>
-                                  </span>
-                                  <span class="padron-item-label">{programa.etiqueta}</span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-
-                    </div>
-
-                    <!-- Footer fijo móvil con botón para aplicar y cerrar el Bottom Sheet -->
-                    <div class="audit-filters-footer">
-                      <button type="button" class="btn-action primary btn-apply-filters"
-                        onclick="window.closeAllFilterSheets ? window.closeAllFilterSheets() : null">
-                        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                        <span>Aplicar Filtros</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <FilterPanel
+                id="dropdownSedesFilterPanel"
+                buttonId="btnDropdownSedesFilterPanel"
+                menuId="menuSedesFilterPanel"
+                badgeId="sedesActiveFiltersCount"
+                title="Filtros de Sedes"
+                reset="window.PDI?.SedesView ? window.PDI.SedesView.resetFilters() : null"
+              >
+                      <!-- Filtro 1: Distrito territorial (seleccion unica con radio) -->
+                      <FilterField
+                        id="dropdownSedesDistrito"
+                        menuId="menuSedesDistrito"
+                        labelId="labelSedesDistritoSelect"
+                        label="Distrito Territorial"
+                        labelTodos="Todos los Distritos"
+                        todosEtiqueta="Todos los Distritos"
+                        opciones={OPCIONES_DISTRITO}
+                        tipo="single"
+                        onSelect="window.filterSedesByDistrito"
+                        abrir="window.toggleSedesInnerDropdown ? window.toggleSedesInnerDropdown('dropdownSedesDistrito') : null"
+                      />
+                      
+                      <!-- Filtro 2: Servicio / programa (seleccion unica con radio) -->
+                      <FilterField
+                        id="dropdownSedesServicio"
+                        menuId="menuSedesServicio"
+                        labelId="labelSedesServicioSelect"
+                        label="Servicio / Programa"
+                        labelTodos="Todos los Servicios"
+                        todosEtiqueta="Todos los Servicios"
+                        opciones={OPCIONES_SERVICIO}
+                        tipo="single"
+                        onSelect="window.filterSedesByServicio"
+                        abrir="window.toggleSedesInnerDropdown ? window.toggleSedesInnerDropdown('dropdownSedesServicio') : null"
+                      />
+                              </FilterPanel>
             </div>
 
             <!-- Barra de Píldoras de Filtros Activos de Sedes (Chips Descartables) -->

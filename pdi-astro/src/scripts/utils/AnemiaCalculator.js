@@ -59,6 +59,23 @@ export const AnemiaCalculator = {
         badgeClass: "badge-green"
       };
     }
+  },
+
+  /**
+   * Traduce la clase o la etiqueta del semáforo al valor exacto que admite el
+   * esquema de la nube (`resultado` en tamizaje_hemoglobina). Es la única
+   * fuente para ese mapeo: la vista y la capa de datos la usan para no volver
+   * a enviar etiquetas en minúsculas, que la base rechaza.
+   */
+  resultadoDb(valor) {
+    const txt = String(valor == null ? "" : valor).trim().toLowerCase();
+    if (!txt) return null;
+    if (txt.includes("riesgo")) return "En riesgo";
+    if (txt.includes("grave") || txt.includes("sever")) return "Anemia grave";
+    if (txt.includes("moder")) return "Anemia moderada";
+    if (txt.includes("leve")) return "Anemia leve";
+    if (txt.includes("normal") || txt.includes("sin anemia") || txt.includes("regular")) return "Regular";
+    return null;
   }
 };
 

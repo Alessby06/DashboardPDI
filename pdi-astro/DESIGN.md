@@ -378,6 +378,17 @@ No se usan 4, 8, 12 ni 20 px en superficies. Las únicas excepciones son las mar
 - **Loading:** mismo espacio, texto «Cargando datos…».
 - **Sin conexión:** «Sin conexión con la base de datos. Reintentando…». Nunca se afirma que no hay datos si la hidratación está en curso.
 
+### Filter Panel (signature)
+- **Estructura:** `FilterPanel.astro` dibuja contenedor, botón, cabecera (título, Restablecer, cerrar) y pie; `FilterField.astro` dibuja cada campo estándar (etiqueta, desplegable, opción «todos», opciones e insignias). Las páginas solo pasan arrays de opciones y el manejador; lo que es un widget distinto (slider de edad, paneles de fecha) va en el slot del campo.
+- **Marcador:** multiselección con checkbox; selección única con radio. El radio vive en `views-filters.css` una sola vez, no copiado por vista.
+- **Estado:** `FilterStore` es la única fuente. Multiselección, selección simple, dominio abierto (roles, distritos sin catálogo), «marcar todas las opciones = Todas» y `activos()` viven ahí. Las vistas no repiten esa regla.
+- **Escritorio:** popover en el top layer, anclado al botón con `anchor-name` / `position-anchor`. Siempre debajo, 330 px, altura recortada al hueco y scroll interno. El respaldo (sin anclaje) calcula y reancla a mano.
+- **Móvil:** hoja inferior a 85dvh, cabecera con asa y cierre, pie fijo con «Limpiar» y «Ver resultados (N)».
+- **Estados:** badge con facetas activas del store; chips descartables; contador desde el total del paginador, no contando filas; vacío con «Limpiar filtros».
+- **Accesibilidad:** `aria-expanded` / `aria-controls`, `role="dialog"`, foco al primer campo, trampa de Tab, Escape y retorno al disparador; opciones con `role="checkbox"` y teclado.
+- **Motion:** la hoja se posa, no salta. El panel entra con opacidad y 6 px desde su disparador en 175 ms `ease-out`, y sale en 120 ms; el submenú repite el gesto con 4 px. Sin keyframes, escalas ni rebotes. En móvil la hoja sube con `ease-drawer` y el velo se desvanece con ella, sin `backdrop-filter`. Al filtrar no se relanza la cascada de filas: los resultados cambian en el sitio. Con `prefers-reduced-motion` se retiran los desplazamientos y queda el fundido.
+- **Pruebas:** `npm run test:filtros` recorre las siete vistas (apertura, dirección, scroll, foco, reinicio, auto-todos, móvil) y `npm test` cubre el store.
+
 ## Do's and Don'ts
 
 ### Do:

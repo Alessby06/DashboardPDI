@@ -21,6 +21,7 @@
 //  viene de mezclar datos ficticios con reales; esa mezcla está eliminada.
 // ===========================================================================
 import { Surreal } from 'surrealdb';
+import { AnemiaCalculator } from '../utils/AnemiaCalculator.js';
 import { ToastView } from '../views/ToastView.js';
 import { estrategiasDesdePrograma, SERVICIOS_VOLUNTARIADO } from '../../data/opcionesBeneficiario.js';
 import {
@@ -561,12 +562,9 @@ function programaDesdeServicios(servicios, estrategia) {
 }
 
 function resultadoDesdeAnemia(anemia) {
-  const a = (anemia || '').toLowerCase();
-  if (a.includes('moder')) return 'Anemia moderada';
-  if (a.includes('leve')) return 'Anemia leve';
-  if (a.includes('grave') || a.includes('sever')) return 'Anemia grave';
-  if (a.includes('riesgo')) return 'En riesgo';
-  return 'Regular';
+  // El catálogo de valores vive en AnemiaCalculator.resultadoDb: la nube exige
+  // mayúscula inicial y nombres exactos ('Anemia leve', no 'anemia leve').
+  return AnemiaCalculator.resultadoDb(anemia) || 'Regular';
 }
 
 function anemiaDesdeResultado(resultado) {
@@ -1235,7 +1233,7 @@ export async function crearTamizaje(m) {
       insId,
       sedId,
       fecha: (m.fecha || fechaHoy) + 'T12:00:00Z',
-      res: m.resultado || resultadoDesdeAnemia(m.anemia),
+      res: AnemiaCalculator.resultadoDb(m.resultado) || resultadoDesdeAnemia(m.anemia),
       hbStr: String(m.hb),
       pesoStr: m.peso != null && m.peso !== '' ? String(m.peso) : '',
       tallaStr: m.talla != null && m.talla !== '' ? String(m.talla) : '',

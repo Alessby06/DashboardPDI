@@ -1,7 +1,21 @@
 ---
 import AppLayout from "../layouts/AppLayout.astro";
+import FilterPanel from '../components/FilterPanel.astro';
+import FilterField from '../components/FilterField.astro';
 import { SEDES_OPERATIVAS } from "../data/opcionesBeneficiario.js";
 import "../styles/views-salud.css";
+
+const OPCIONES_ANEMIA = [
+  { valor: 'Normal', etiqueta: 'Normal (≥ 11.0 g/dL)' },
+  { valor: 'Leve', etiqueta: 'Anemia Leve (10.0 - 10.9)' },
+  { valor: 'Moderada', etiqueta: 'Anemia Moderada / Severa (< 10.0)' },
+];
+const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiqueta: sede.etiqueta }));
+const OPCIONES_HB = [
+  { valor: 'anemia', etiqueta: 'Hb < 11.0 g/dL (Con Anemia)' },
+  { valor: 'normal', etiqueta: 'Hb ≥ 11.0 g/dL (Normal)' },
+  { valor: 'critico', etiqueta: 'Hb < 10.0 g/dL (Crítico)' },
+];
 ---
 
 <AppLayout title="Servicio Alimentario Nutricional" currentPage="salud">
@@ -148,379 +162,55 @@ import "../styles/views-salud.css";
         </div>
 
         <!-- Botonera de Filtros Salud (Lado Derecho) -->
-        <div class="audit-filter-panel-wrap">
-          <div
-            class="custom-dropdown audit-filters-dropdown"
-            id="dropdownSaludFilterPanel"
-          >
-            <button
-              type="button"
-              class="btn-action audit-filter-btn"
-              id="btnDropdownSaludFilterPanel"
-              onclick="window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSaludFilterPanel') : null"
-            >
-              <svg
-                width="16"
-                height="16"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z"
-                ></path>
-              </svg>
-              <span>Filtros</span>
-              <span
-                class="audit-filter-badge"
-                id="saludActiveFiltersCount"
-                style="display:none;">0</span
-              >
-              <svg
-                width="12"
-                height="12"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-                viewBox="0 0 24 24"
-                class="filter-caret"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M19.5 8.25l-7.5 7.5-7.5-7.5"></path>
-              </svg>
-            </button>
-
-            <div
-              class="custom-dropdown-menu audit-filters-menu"
-              id="menuSaludFilterPanel"
-            >
-              <div class="audit-filters-header">
-                <div class="audit-filters-header-title">
-                  <span>Filtros Salud & Anemia CRED</span>
-                </div>
-                <div class="audit-filters-header-actions">
-                  <button
-                    type="button"
-                    class="btn-text-subtle"
-                    onclick="window.resetSaludFilters ? window.resetSaludFilters() : null"
-                    >Restablecer</button
-                  >
-                  <button type="button" class="btn-close-sheet" aria-label="Cerrar filtros"
-                    onclick="window.closeAllFilterSheets ? window.closeAllFilterSheets() : null">
-                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                  </button>
-                </div>
-              </div>
-
-              <div class="audit-filters-body">
-                <!-- Filtro 1: Diagnóstico Anemia -->
-                <div class="audit-filter-field">
-                  <label class="audit-field-label">Diagnóstico de Anemia</label>
-                  <div class="padron-inner-dropdown" id="dropdownSaludAnemia">
-                    <button
-                      type="button"
-                      class="padron-inner-dropdown-btn"
-                      onclick="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownSaludAnemia') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSaludAnemia') : null)"
-                    >
-                      <span id="labelSaludAnemiaSelect"
-                        >Todas las Condiciones</span
-                      >
-                      <svg
-                        class="caret"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2.5"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          d="M19.5 8.25l-7.5 7.5-7.5-7.5"></path>
-                      </svg>
-                    </button>
-                    <div
-                      class="padron-inner-dropdown-menu"
-                      id="menuSaludAnemia"
-                    >
-                      <div
-                        class="padron-dropdown-item selected"
-                        data-value="all"
-                        onclick="window.toggleSaludAnemia ? window.toggleSaludAnemia('all') : null"
-                      >
-                        <div class="padron-item-left">
-                          <span class="padron-item-checkbox">
-                            <svg
-                              width="10"
-                              height="10"
-                              fill="none"
-                              stroke="currentColor"
-                              stroke-width="3"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M4.5 12.75l6 6 9-13.5"></path>
-                            </svg>
-                          </span>
-                          <span class="padron-item-label"
-                            >Todas las Condiciones</span
-                          >
-                        </div>
-                      </div>
-                      <div
-                        class="padron-dropdown-item"
-                        data-value="Normal"
-                        onclick="window.toggleSaludAnemia ? window.toggleSaludAnemia('Normal') : null"
-                      >
-                        <div class="padron-item-left">
-                          <span class="padron-item-checkbox">
-                            <svg
-                              width="10"
-                              height="10"
-                              fill="none"
-                              stroke="currentColor"
-                              stroke-width="3"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M4.5 12.75l6 6 9-13.5"></path>
-                            </svg>
-                          </span>
-                          <span class="padron-item-label"
-                            >Normal (≥ 11.0 g/dL)</span
-                          >
-                        </div>
-                      </div>
-                      <div
-                        class="padron-dropdown-item"
-                        data-value="Leve"
-                        onclick="window.toggleSaludAnemia ? window.toggleSaludAnemia('Leve') : null"
-                      >
-                        <div class="padron-item-left">
-                          <span class="padron-item-checkbox">
-                            <svg
-                              width="10"
-                              height="10"
-                              fill="none"
-                              stroke="currentColor"
-                              stroke-width="3"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M4.5 12.75l6 6 9-13.5"></path>
-                            </svg>
-                          </span>
-                          <span class="padron-item-label"
-                            >Anemia Leve (10.0 - 10.9)</span
-                          >
-                        </div>
-                      </div>
-                      <div
-                        class="padron-dropdown-item"
-                        data-value="Moderada"
-                        onclick="window.toggleSaludAnemia ? window.toggleSaludAnemia('Moderada') : null"
-                      >
-                        <div class="padron-item-left">
-                          <span class="padron-item-checkbox">
-                            <svg
-                              width="10"
-                              height="10"
-                              fill="none"
-                              stroke="currentColor"
-                              stroke-width="3"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M4.5 12.75l6 6 9-13.5"></path>
-                            </svg>
-                          </span>
-                          <span class="padron-item-label"
-                            >Anemia Moderada / Severa (&lt; 10.0)</span
-                          >
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Filtro 2: Sede Operativa -->
-                <div class="audit-filter-field">
-                  <label class="audit-field-label">Sede Operativa</label>
-                  <div class="padron-inner-dropdown" id="dropdownSaludSede">
-                    <button
-                      type="button"
-                      class="padron-inner-dropdown-btn"
-                      onclick="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownSaludSede') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSaludSede') : null)"
-                    >
-                      <span id="labelSaludSedeSelect">Todas las Sedes</span>
-                      <svg
-                        class="caret"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2.5"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          d="M19.5 8.25l-7.5 7.5-7.5-7.5"></path>
-                      </svg>
-                    </button>
-                    <div class="padron-inner-dropdown-menu" id="menuSaludSede">
-                      <div
-                        class="padron-dropdown-item selected"
-                        data-value="all"
-                        onclick="window.toggleSaludSede ? window.toggleSaludSede('all') : null"
-                      >
-                        <div class="padron-item-left">
-                          <span class="padron-item-checkbox">
-                            <svg
-                              width="10"
-                              height="10"
-                              fill="none"
-                              stroke="currentColor"
-                              stroke-width="3"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M4.5 12.75l6 6 9-13.5"></path>
-                            </svg>
-                          </span>
-                          <span class="padron-item-label">Todas las Sedes</span>
-                        </div>
-                      </div>
-                      {SEDES_OPERATIVAS.map((sede) => (
-                        <div
-                          class="padron-dropdown-item"
-                          data-value={sede.nombre}
-                          onclick={`window.toggleSaludSede ? window.toggleSaludSede('${sede.nombre}') : null`}
-                        >
-                          <div class="padron-item-left">
-                            <span class="padron-item-checkbox">
-                              <svg
-                                width="10"
-                                height="10"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="3"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round"
-                                  d="M4.5 12.75l6 6 9-13.5"></path>
-                              </svg>
-                            </span>
-                            <span class="padron-item-label">{sede.etiqueta}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Filtro 3: Nivel Hemoglobina -->
-                <div class="audit-filter-field">
-                  <label class="audit-field-label">Rango de Hemoglobina</label>
-                  <div class="padron-inner-dropdown" id="dropdownSaludHb">
-                    <button
-                      type="button"
-                      class="padron-inner-dropdown-btn"
-                      onclick="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownSaludHb') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSaludHb') : null)"
-                    >
-                      <span id="labelSaludHbSelect">Todos los Niveles</span>
-                      <svg
-                        class="caret"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2.5"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          d="M19.5 8.25l-7.5 7.5-7.5-7.5"></path>
-                      </svg>
-                    </button>
-                    <div class="padron-inner-dropdown-menu" id="menuSaludHb">
-                      <div
-                        class="padron-dropdown-item selected"
-                        data-value="all"
-                        onclick="window.selectSaludHb ? window.selectSaludHb('all', 'Todos los Niveles') : null"
-                      >
-                        <div class="padron-item-left">
-                          <span class="padron-item-radio"></span>
-                          <span class="padron-item-label"
-                            >Todos los Niveles</span
-                          >
-                        </div>
-                      </div>
-                      <div
-                        class="padron-dropdown-item"
-                        data-value="anemia"
-                        onclick="window.selectSaludHb ? window.selectSaludHb('anemia', 'Hb < 11.0 g/dL (Con Anemia)') : null"
-                      >
-                        <div class="padron-item-left">
-                          <span class="padron-item-radio"></span>
-                          <span class="padron-item-label"
-                            >Hb &lt; 11.0 g/dL (Con Anemia)</span
-                          >
-                        </div>
-                      </div>
-                      <div
-                        class="padron-dropdown-item"
-                        data-value="normal"
-                        onclick="window.selectSaludHb ? window.selectSaludHb('normal', 'Hb ≥ 11.0 g/dL (Normal)') : null"
-                      >
-                        <div class="padron-item-left">
-                          <span class="padron-item-radio"></span>
-                          <span class="padron-item-label"
-                            >Hb &ge; 11.0 g/dL (Normal)</span
-                          >
-                        </div>
-                      </div>
-                      <div
-                        class="padron-dropdown-item"
-                        data-value="critico"
-                        onclick="window.selectSaludHb ? window.selectSaludHb('critico', 'Hb < 10.0 g/dL (Crítico)') : null"
-                      >
-                        <div class="padron-item-left">
-                          <span class="padron-item-radio"></span>
-                          <span class="padron-item-label"
-                            >Hb &lt; 10.0 g/dL (Crítico)</span
-                          >
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Footer fijo móvil con botón para aplicar y cerrar el Bottom Sheet -->
-              <div class="audit-filters-footer">
-                <button type="button" class="btn-action primary btn-apply-filters"
-                  onclick="window.closeAllFilterSheets ? window.closeAllFilterSheets() : null">
-                  <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                  <span>Aplicar Filtros</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <FilterPanel
+          id="dropdownSaludFilterPanel"
+          buttonId="btnDropdownSaludFilterPanel"
+          menuId="menuSaludFilterPanel"
+          badgeId="saludActiveFiltersCount"
+          title="Filtros Salud & Anemia CRED"
+          reset="window.resetSaludFilters ? window.resetSaludFilters() : null"
+        >
+                <!-- Filtro 1: Diagnostico de Anemia (multiseleccion) -->
+                <FilterField
+                  id="dropdownSaludAnemia"
+                  menuId="menuSaludAnemia"
+                  labelId="labelSaludAnemiaSelect"
+                  label="Diagnóstico de Anemia"
+                  labelTodos="Todas las Condiciones"
+                  todosEtiqueta="Todas las Condiciones"
+                  opciones={OPCIONES_ANEMIA}
+                  onSelect="window.toggleSaludAnemia"
+                  abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownSaludAnemia') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSaludAnemia') : null)"
+                />
+                
+                <!-- Filtro 2: Sede Operativa (multiseleccion) -->
+                <FilterField
+                  id="dropdownSaludSede"
+                  menuId="menuSaludSede"
+                  labelId="labelSaludSedeSelect"
+                  label="Sede Operativa"
+                  labelTodos="Todas las Sedes"
+                  todosEtiqueta="Todas las Sedes"
+                  opciones={OPCIONES_SEDE}
+                  onSelect="window.toggleSaludSede"
+                  abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownSaludSede') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSaludSede') : null)"
+                />
+                
+                <!-- Filtro 3: Nivel de Hemoglobina (seleccion unica con radio) -->
+                <FilterField
+                  id="dropdownSaludHb"
+                  menuId="menuSaludHb"
+                  labelId="labelSaludHbSelect"
+                  label="Rango de Hemoglobina"
+                  labelTodos="Todos los Niveles"
+                  todosEtiqueta="Todos los Niveles"
+                  opciones={OPCIONES_HB}
+                  tipo="single"
+                  conEtiqueta={true}
+                  onSelect="window.selectSaludHb"
+                  abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownSaludHb') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSaludHb') : null)"
+                />
+                        </FilterPanel>
       </div>
 
       <!-- Barra de Filtros Aplicados Salud -->

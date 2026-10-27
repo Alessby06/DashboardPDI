@@ -6,7 +6,7 @@
 
    Antes cada vista traia su copia (223 reglas, 1.147 declaraciones) y las
    copias ya habian divergido: 330px frente a 310px, padding 16px frente a
-   14px 16px, z-index 1000 anulado por un 2000 !important, y etiquetas de
+   14px 16px, z-index 1000 anulado por un 2000 , y etiquetas de
    11,5px frente a 12px. Aqui queda una definicion y una sola verdad.
 
    Orden de capas:
@@ -15,6 +15,12 @@
      3. Chips y desplegables internos
      4. Estados de foco, contraste y tamano tactil
      5. Hoja inferior movil (<= 768px)
+
+   Movimiento: la hoja se posa, no salta. El panel y los submenus entran
+   bajando 6/4 px desde su disparador en 175 ms y salen en 120 ms, mas rapido
+   de lo que entran. Sin escalas de texto ni rebotes: al filtrar, los
+   resultados cambian en el sitio; la unica respuesta fisica de los controles
+   es la pulsacion del sistema (0.96).
    =========================================================================== */
 
 :root {
@@ -72,7 +78,7 @@
 
 .audit-filter-btn svg.filter-caret {
   flex-shrink: 0;
-  transition: transform var(--dur-fast) var(--ease-smooth);
+  transition: transform var(--dur-popover) var(--ease-out);
 }
 
 .audit-filters-dropdown.open .audit-filter-btn svg.filter-caret,
@@ -121,6 +127,9 @@
   z-index: 1000;
   display: none;
   opacity: 0;
+  /* Cerrado se retira 3 px hacia su disparador: el cierre se lee como que la
+     hoja vuelve al boton, no como que se apaga en el sitio. */
+  transform: translateY(-3px);
   flex-direction: column;
   gap: 14px;
   overflow: hidden;
@@ -128,21 +137,34 @@
   /* Cerrado queda fuera del layout (display:none). Antes se mantenia en
      `flex` para animar con opacidad y, al ser fijo dentro del contenedor con
      transform, sumaba su altura al scroll de la vista: el espacio de mas bajo
-     las tablas. La entrada es un fundido, sin movimiento, para no desfasar el
-     anclaje bajo el boton. */
+     las tablas. La salida es mas corta que la entrada: al cerrar no se espera. */
   transition:
-    opacity var(--dur-fast) var(--ease-out),
-    display var(--dur-fast) allow-discrete;
+    opacity var(--dur-press) var(--ease-out),
+    transform var(--dur-press) var(--ease-out),
+    display var(--dur-press) allow-discrete;
   /* components.css deja una capa reservada permanente; el fundido no la usa. */
   will-change: auto;
 }
 
-.audit-filters-dropdown.open .audit-filters-menu {
+/* La especificidad sube con el contenedor: components.css define
+   `.custom-dropdown.open .custom-dropdown-menu` (0,3,0) y, al cargarse antes,
+   se comia el `@starting-style` de este panel. El resultado era que aparecia
+   de golpe. Con el ancestro, la entrada y la salida ganan la cascada. */
+.audit-filter-panel-wrap .audit-filters-dropdown.open .audit-filters-menu {
   display: flex;
   opacity: 1;
+  transform: translateY(0);
+  /* Entrada: la hoja baja 6 px desde el borde del boton en 175 ms. El anclaje
+     CSS fija la posicion; el transform es solo el dibujo, asi que al terminar
+     no hay salto ni desfase. */
+  transition:
+    opacity var(--dur-popover) var(--ease-out),
+    transform var(--dur-popover) var(--ease-out),
+    display var(--dur-popover) allow-discrete;
 
   @starting-style {
     opacity: 0;
+    transform: translateY(-6px);
   }
 }
 
@@ -208,8 +230,10 @@
 }
 
 .btn-text-subtle:hover {
-  color: var(--text-danger);
-  background: var(--gt-red-bg, rgba(239, 68, 68, 0.08));
+  /* Restablecer no es destructivo: el hover informa, no alarma. El rojo
+     queda para quitar un filtro concreto, que si borra algo. */
+  color: var(--text-main);
+  background: var(--surface-hover);
 }
 
 .audit-filters-body {
@@ -269,9 +293,6 @@
 }
 
 /* El contador dentro del boton de cierre anunciado por lector de pantalla. */
-.filter-result-count {
-  font-variant-numeric: tabular-nums;
-}
 
 /* ---------------------------------------------------------------------------
    3. CHIPS, SEGMENTOS Y DESPLEGABLES INTERNOS
@@ -352,19 +373,7 @@
   color: var(--gt-red);
 }
 
-.audit-seg-btn.active {
-  background: var(--brand-soft);
-  color: var(--text-brand);
-  border-color: var(--gt-green-border, var(--border-bright));
-  font-weight: 700;
-}
 
-.audit-chip.active {
-  background: var(--brand-soft);
-  color: var(--text-brand);
-  border-color: var(--border-bright);
-  font-weight: 700;
-}
 
 .padron-inner-dropdown {
   position: relative;
@@ -404,7 +413,7 @@
   width: 14px;
   height: 14px;
   flex-shrink: 0;
-  transition: transform var(--dur-fast) var(--ease-smooth);
+  transition: transform var(--dur-popover) var(--ease-out);
 }
 
 .padron-inner-dropdown.open .padron-inner-dropdown-btn svg.caret {
@@ -431,18 +440,23 @@
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-overlay);
   will-change: auto;
-  /* Entrada y salida por transición (interrumpible). Sin `scale`: escalaba el
-     texto de las opciones y se veía como si se reacomodara. */
+  /* Entrada y salida por transicion (interrumpible). Sin `scale`: escalaba el
+     texto de las opciones y se veia como si se reacomodara. La salida es mas
+     corta que la entrada. */
   transition:
-    opacity var(--dur-fast) var(--ease-out),
-    transform var(--dur-fast) var(--ease-out),
-    display var(--dur-fast) allow-discrete;
+    opacity var(--dur-press) var(--ease-out),
+    transform var(--dur-press) var(--ease-out),
+    display var(--dur-press) allow-discrete;
 }
 
 .padron-inner-dropdown.open .padron-inner-dropdown-menu {
   display: flex;
   opacity: 1;
   transform: translateY(0);
+  transition:
+    opacity var(--dur-popover) var(--ease-out),
+    transform var(--dur-popover) var(--ease-out),
+    display var(--dur-popover) allow-discrete;
 
   @starting-style {
     opacity: 0;
@@ -562,7 +576,7 @@
 
 @media (min-width: 769px) {
   .btn-close-sheet {
-    display: none !important;
+    display: none ;
   }
 
   /* Pie de escritorio: estado, no confirmacion. El filtrado ya ocurrio, asi
@@ -599,8 +613,8 @@
 
 @media (max-width: 768px) {
   body.filter-sheet-open {
-    overflow: hidden !important;
-    touch-action: none !important;
+    overflow: hidden ;
+    touch-action: none ;
   }
 
   /* main tiene contain:layout, que convierte el ancestro en bloque contenedor
@@ -610,28 +624,35 @@
      de layout y paint: tambien hay que soltarlo mientras dura la hoja. */
   #mainContent.content-viewport,
   #mainContent .app-view.active {
-    contain: none !important;
-    content-visibility: visible !important;
+    contain: none ;
+    content-visibility: visible ;
   }
 
-  .audit-filters-dropdown.open::before {
+  /* El velo se define siempre y se enciende con opacidad: asi el cierre lo
+     desvanece en vez de borrarlo de golpe. Sin blur: en las tablets de sede
+     el filtro de fondo hacia perder fotogramas justo durante el deslizamiento,
+     que es cuando mas se nota. */
+  .audit-filters-dropdown::before {
     content: '';
     position: fixed;
     inset: 0;
-    width: 100vw;
-    height: 100dvh;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    background: var(--modal-overlay-bg);
     z-index: 9998;
-    opacity: 1;
-    pointer-events: auto;
-    animation: sheetBackdropFadeIn 0.22s ease forwards;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      opacity var(--dur-fast) var(--ease-out),
+      visibility 0s linear var(--dur-fast);
   }
 
-  @keyframes sheetBackdropFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+  .audit-filters-dropdown.open::before {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition:
+      opacity var(--dur-norm) var(--ease-out),
+      visibility 0s;
   }
 
   .audit-filters-dropdown .audit-filters-menu,
@@ -647,7 +668,7 @@
     height: auto;
     max-height: 85dvh;
     background: var(--surface-1);
-    border-radius: 20px 20px 0 0;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     border: 1px solid var(--border-bright);
     border-bottom: none;
     box-shadow: var(--shadow-overlay);
@@ -658,16 +679,22 @@
     box-sizing: border-box;
     transform: translateY(100%);
     opacity: 0;
+    /* Salida mas corta que la entrada. La curva de cajon evita el frenazo
+       seco del ease-out generico en un recorrido de toda la pantalla. */
     transition:
-      transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-      opacity 0.2s ease,
-      display 0.3s allow-discrete;
+      transform var(--dur-norm) var(--ease-drawer),
+      opacity var(--dur-fast) var(--ease-out),
+      display var(--dur-norm) allow-discrete;
     overflow: hidden;
   }
 
-  .audit-filters-dropdown.open .audit-filters-menu {
+  .audit-filter-panel-wrap .audit-filters-dropdown.open .audit-filters-menu {
     transform: translateY(0);
     opacity: 1;
+    transition:
+      transform var(--dur-panel) var(--ease-drawer),
+      opacity var(--dur-norm) var(--ease-out),
+      display var(--dur-panel) allow-discrete;
 
     @starting-style {
       transform: translateY(100%);
@@ -687,7 +714,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    border-radius: 20px 20px 0 0;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   }
 
   .audit-filters-header::before {
@@ -736,11 +763,13 @@
     cursor: pointer;
     padding: 0;
     touch-action: manipulation;
-    transition: background 0.15s ease, transform 0.1s ease;
+    transition:
+      background-color var(--dur-fast) var(--ease-smooth),
+      transform var(--dur-press) var(--ease-out);
   }
 
   .btn-close-sheet:active {
-    transform: scale(0.92);
+    transform: scale(0.96);
   }
 
   .audit-filters-body {
@@ -854,16 +883,73 @@
   }
 }
 
+@media (min-width: 769px) {
+  @supports (anchor-name: --x) and (position-anchor: --x) {
+    /* El panel se ancla al boton con CSS y vive en el top layer: no depende
+       del scroll, no lo recorta ningun ancestro y no necesita calculos de
+       geometria ni correccion por el transform de Lenis. */
+    .audit-filter-btn {
+      anchor-name: --pdi-filtros;
+    }
+
+    .audit-filters-menu {
+      position-anchor: --pdi-filtros;
+      top: anchor(--pdi-filtros bottom);
+      right: anchor(--pdi-filtros right);
+      left: auto;
+      bottom: auto;
+      margin-top: 8px;
+    }
+  }
+}
+
+/* Marcador de seleccion unica. Estaba copiado en cinco hojas de vista;
+   sedes y social no lo tenian y mostraban un circulo invisible. */
+.padron-item-radio {
+  width: 15px;
+  height: 15px;
+  border: 1.5px solid var(--border-medium);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--surface-2);
+  transition: all var(--dur-fast) var(--ease-smooth);
+}
+
+.padron-dropdown-item.selected .padron-item-radio {
+  border-color: var(--gt-green);
+}
+
+.padron-dropdown-item.selected .padron-item-radio::after {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--gt-green);
+}
+
+/* Insignia dentro de una opcion del desplegable. El padding y el tamano que
+   antes iban en linea en cada pagina viven aqui una sola vez. */
+.badge.facet-badge {
+  padding: 1px 5px;
+  font-size: 10.5px;
+  white-space: nowrap;
+}
+
+.badge.facet-badge--compacta {
+  font-size: 10px;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  /* Sin desplazamientos: el panel, los submenus y la hoja se quedan en su
+     sitio. El fundido se conserva porque explica el cambio de estado sin
+     mover nada; quitar tambien la opacidad dejaria un cambio a ciegas. */
   .audit-filters-menu,
   .audit-filters-dropdown .audit-filters-menu,
   .padron-inner-dropdown-menu {
     animation: none !important;
-    transition: none !important;
     transform: none !important;
-  }
-
-  .audit-filters-dropdown.open::before {
-    animation: none !important;
   }
 }

@@ -1,5 +1,6 @@
 // Vista: Acompañamiento Educativo (Casita del Saber)
 import { crear as crearFiltros } from '../utils/Filters.js';
+import { crearStore } from '../utils/FilterStore.js';
 import { Responsive } from '../utils/Responsive.js';
 
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
@@ -11,6 +12,12 @@ const FILTROS_CASITAS = {
   asistencia: { valor: "all", valores: ["all", "P", "T", "FJ", "FI"] },
   sede:       { valor: [], valores: [...SEDES_NOMBRES], multiple: true },
   grado:      { valor: "all", valores: ["all", "inicial", "primaria", "secundaria"] },
+};
+
+const FACETAS_CASITAS = {
+  asistencia: { tipo: "single", opciones: FILTROS_CASITAS.asistencia.valores, defecto: "all" },
+  sede: { tipo: "multi", opciones: FILTROS_CASITAS.sede.valores, defecto: [] },
+  grado: { tipo: "single", opciones: FILTROS_CASITAS.grado.valores, defecto: "all" },
 };
 
 export const CasitasView = {
@@ -26,6 +33,20 @@ export const CasitasView = {
 
   _filtros: null,
   _filtrosLeidos: false,
+
+  _store: null,
+
+  _obtenerStore() {
+    if (!this._store) this._store = crearStore(FACETAS_CASITAS);
+    return this._store;
+  },
+
+  _espejarStore() {
+    const s = this._obtenerStore().instantanea();
+    this._filterAsistencia = s.asistencia;
+    this._filterSede = s.sede;
+    this._filterGrado = s.grado;
+  },
 
   _obtenerFiltros() {
     if (!this._filtros) {
@@ -135,9 +156,8 @@ export const CasitasView = {
 
     const f = this._obtenerFiltros().leer();
     this._searchQuery = (f.q || "").toLowerCase();
-    this._filterAsistencia = f.asistencia;
-    this._filterSede = f.sede;
-    this._filterGrado = f.grado;
+    this._obtenerStore().cargar({ asistencia: f.asistencia, sede: f.sede, grado: f.grado });
+    this._espejarStore();
 
     const input = document.getElementById("inputCasitasSearch");
     if (input) input.value = f.q;
@@ -271,7 +291,8 @@ export const CasitasView = {
   },
 
   selectAsistencia(val, label) {
-    this._filterAsistencia = val || "all";
+    this._obtenerStore().fijar("asistencia", val || "all");
+    this._espejarStore();
     this._updateAsistenciaUI(label);
 
     const drop = document.getElementById("dropdownCasitasAsistencia");
@@ -290,20 +311,8 @@ export const CasitasView = {
   },
 
   toggleSede(val) {
-    const allSedes = SEDES_NOMBRES;
-    if (val === "all") {
-      this._filterSede = [];
-    } else {
-      const idx = this._filterSede.indexOf(val);
-      if (idx > -1) {
-        this._filterSede.splice(idx, 1);
-      } else {
-        this._filterSede.push(val);
-      }
-      if (allSedes.every(s => this._filterSede.includes(s))) {
-        this._filterSede = [];
-      }
-    }
+    this._obtenerStore().alternar("sede", val);
+    this._espejarStore();
     this._updateSedeDropdownUI();
     this.applyFilters();
     this._persistirFiltros();
@@ -335,7 +344,8 @@ export const CasitasView = {
   },
 
   selectGrado(val, label) {
-    this._filterGrado = val || "all";
+    this._obtenerStore().fijar("grado", val || "all");
+    this._espejarStore();
     this._updateGradoUI(label);
 
     const drop = document.getElementById("dropdownCasitasGrado");
@@ -369,9 +379,8 @@ export const CasitasView = {
 
   resetFilters() {
     this._searchQuery = "";
-    this._filterAsistencia = "all";
-    this._filterSede = [];
-    this._filterGrado = "all";
+    this._obtenerStore().limpiar();
+    this._espejarStore();
 
     const input = document.getElementById("inputCasitasSearch");
     if (input) input.value = "";
@@ -440,11 +449,8 @@ export const CasitasView = {
 
     this._filteredBeneficiarios = casitaList;
 
-    // Actualizar badge de filtros activos
-    let count = 0;
-    if (this._filterAsistencia !== "all") count++;
-    if (this._filterSede.length > 0) count += this._filterSede.length;
-    if (this._filterGrado !== "all") count++;
+    // Badge desde el store.
+    const count = this._obtenerStore().contarActivos();
 
     const badgeEl = document.getElementById("casitasActiveFiltersCount");
     const btnFilterEl = document.getElementById("btnDropdownCasitasFilterPanel");

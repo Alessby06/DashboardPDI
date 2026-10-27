@@ -840,32 +840,6 @@
   border-color: var(--gt-green);
   color: var(--on-brand);
 }
-
-.padron-item-radio {
-  width: 15px;
-  height: 15px;
-  border: 1.5px solid var(--border-medium);
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  background: var(--surface-2);
-  transition: all var(--dur-fast) var(--ease-smooth);
-}
-
-.padron-dropdown-item.selected .padron-item-radio {
-  border-color: var(--gt-green);
-}
-
-.padron-dropdown-item.selected .padron-item-radio::after {
-  content: '';
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--gt-green);
-}
-
 .padron-item-checkbox svg {
   display: none;
 }

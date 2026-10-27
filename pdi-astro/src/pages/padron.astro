@@ -1,7 +1,25 @@
 ---
 import AppLayout from '../layouts/AppLayout.astro';
+import FilterPanel from '../components/FilterPanel.astro';
+import FilterField from '../components/FilterField.astro';
 import { ESTRATEGIAS, SEDES_OPERATIVAS } from '../data/opcionesBeneficiario.js';
 import '../styles/views-padron.css';
+
+const OPCIONES_ESTRATEGIA = ESTRATEGIAS.map((opcion) => ({ valor: opcion.clave, etiqueta: opcion.etiqueta }));
+const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiqueta: sede.etiqueta }));
+const OPCIONES_ANEMIA = [
+  { valor: 'Normal', badge: { texto: 'Normal', tono: 'green' } },
+  { valor: 'Leve', badge: { texto: 'Leve', tono: 'yellow' } },
+  { valor: 'Moderada', badge: { texto: 'Mod / Sev', tono: 'red' } },
+];
+const OPCIONES_ESTADO = [
+  { valor: 'Activo', etiqueta: 'Activo' },
+  { valor: 'Inactivo', etiqueta: 'Inactivo / Baja' },
+];
+const OPCIONES_SEXO = [
+  { valor: 'M', etiqueta: 'Masculino (M)' },
+  { valor: 'F', etiqueta: 'Femenino (F)' },
+];
 ---
 
 <AppLayout title="Padrón Único de Usuarios" currentPage="padron">
@@ -53,196 +71,56 @@ import '../styles/views-padron.css';
               </div>
 
               <!-- Botón de Filtros y Panel Desplegable (Lado Derecho) -->
-              <div class="audit-filter-panel-wrap">
-                <div class="custom-dropdown audit-filters-dropdown" id="dropdownPadronFilterPanel">
-                  <button type="button" class="btn-action audit-filter-btn" id="btnDropdownPadronFilterPanel"
-                    onclick="window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownPadronFilterPanel') : null">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
-                    </svg>
-                    <span>Filtros</span>
-                    <span class="audit-filter-badge" id="padronActiveFiltersCount" style="display:none;">0</span>
-                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
-                      class="filter-caret">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                    </svg>
-                  </button>
-
-                  <!-- Panel Desplegable de Filtros de Padrón -->
-                  <div class="custom-dropdown-menu audit-filters-menu" id="menuPadronFilterPanel">
-                    <div class="audit-filters-header">
-                      <div class="audit-filters-header-title">
-                        <span>Filtros de Padrón</span>
-                      </div>
-                      <div class="audit-filters-header-actions">
-                        <button type="button" class="btn-text-subtle"
-                          onclick="window.resetPadronFilters ? window.resetPadronFilters() : null">Restablecer</button>
-                        <button type="button" class="btn-close-sheet" aria-label="Cerrar filtros"
-                          onclick="window.closeAllFilterSheets ? window.closeAllFilterSheets() : null">
-                          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                        </button>
-                      </div>
-                    </div>
-
-                    <div class="audit-filters-body">
-                      <!-- Filtro 1: Estrategia Asignada (Dropdown Multi-selección con Checkbox) -->
-                      <div class="audit-filter-field">
-                        <label class="audit-field-label">Estrategia Asignada</label>
-                        <div class="padron-inner-dropdown" id="dropdownPadronEstrategia">
-                          <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.togglePadronInnerDropdown ? window.togglePadronInnerDropdown('dropdownPadronEstrategia') : null">
-                            <span id="labelPadronEstrategiaSelect">Todas las Estrategias</span>
-                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                          </button>
-                          <div class="padron-inner-dropdown-menu" id="menuPadronEstrategia">
-                            <div class="padron-dropdown-item selected" data-value="all"
-                              onclick="window.togglePadronEstrategia ? window.togglePadronEstrategia('all') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Todas</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetEstrategia-all">(0)</span>
-                            </div>
-                            {ESTRATEGIAS.map((opcion) => (
-                              <div class="padron-dropdown-item" data-value={opcion.clave}
-                                onclick={`window.togglePadronEstrategia ? window.togglePadronEstrategia('${opcion.clave}') : null`}>
-                                <div class="padron-item-left">
-                                  <span class="padron-item-checkbox">
-                                    <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                      viewBox="0 0 24 24">
-                                      <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                    </svg>
-                                  </span>
-                                  <span class="padron-item-label">{opcion.etiqueta}</span>
-                                </div>
-                                <span class="padron-item-count" id={`countFacetEstrategia-${opcion.clave}`}>(0)</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Filtro 2: Sede Operativa (Dropdown Multi-selección con Checkbox) -->
-                      <div class="audit-filter-field">
-                        <label class="audit-field-label">Sede Operativa</label>
-                        <div class="padron-inner-dropdown" id="dropdownPadronSede">
-                          <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.togglePadronInnerDropdown ? window.togglePadronInnerDropdown('dropdownPadronSede') : null">
-                            <span id="labelPadronSedeSelect">Todas las Sedes</span>
-                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                          </button>
-                          <div class="padron-inner-dropdown-menu" id="menuPadronSede">
-                            <div class="padron-dropdown-item selected" data-value="all"
-                              onclick="window.togglePadronSede ? window.togglePadronSede('all') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Todas las Sedes</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetSede-all">(0)</span>
-                            </div>
-                                                        {SEDES_OPERATIVAS.map((sede) => (
-                              <div class="padron-dropdown-item" data-value={sede.nombre}
-                                onclick={`window.togglePadronSede ? window.togglePadronSede('${sede.nombre}') : null`}>
-                                <div class="padron-item-left">
-                                  <span class="padron-item-checkbox">
-                                    <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                      viewBox="0 0 24 24">
-                                      <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                    </svg>
-                                  </span>
-                                  <span class="padron-item-label">{sede.etiqueta}</span>
-                                </div>
-                                <span class="padron-item-count" id={`countFacetSede-${sede.nombre}`}>(0)</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Filtro 3: Condición Nutricional / Semáforo Anemia MINSA (Dropdown Multi-selección con Checkbox) -->
-                      <div class="audit-filter-field">
-                        <label class="audit-field-label">Condición Nutricional (Anemia)</label>
-                        <div class="padron-inner-dropdown" id="dropdownPadronAnemia">
-                          <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.togglePadronInnerDropdown ? window.togglePadronInnerDropdown('dropdownPadronAnemia') : null">
-                            <span id="labelPadronAnemiaSelect">Todas las Condiciones</span>
-                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                          </button>
-                          <div class="padron-inner-dropdown-menu" id="menuPadronAnemia">
-                            <div class="padron-dropdown-item selected" data-value="all"
-                              onclick="window.togglePadronAnemia ? window.togglePadronAnemia('all') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Todos</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetAnemia-all">(0)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Normal"
-                              onclick="window.togglePadronAnemia ? window.togglePadronAnemia('Normal') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="badge badge-green" style="padding:1px 5px; font-size:10.5px;">Normal</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetAnemia-Normal">(0)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Leve"
-                              onclick="window.togglePadronAnemia ? window.togglePadronAnemia('Leve') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="badge badge-yellow" style="padding:1px 5px; font-size:10.5px;">Leve</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetAnemia-Leve">(0)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Moderada"
-                              onclick="window.togglePadronAnemia ? window.togglePadronAnemia('Moderada') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="badge badge-red" style="padding:1px 5px; font-size:10.5px;">Mod /
-                                  Sev</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetAnemia-Moderada">(0)</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
+              <FilterPanel
+                id="dropdownPadronFilterPanel"
+                buttonId="btnDropdownPadronFilterPanel"
+                menuId="menuPadronFilterPanel"
+                badgeId="padronActiveFiltersCount"
+                title="Filtros de Padrón"
+                reset="window.resetPadronFilters ? window.resetPadronFilters() : null"
+              >
+                      <!-- Filtro 1: Estrategia Asignada (multiseleccion con checkbox) -->
+                      <FilterField
+                        id="dropdownPadronEstrategia"
+                        menuId="menuPadronEstrategia"
+                        labelId="labelPadronEstrategiaSelect"
+                        label="Estrategia Asignada"
+                        labelTodos="Todas las Estrategias"
+                        todosEtiqueta="Todas"
+                        opciones={OPCIONES_ESTRATEGIA}
+                        onSelect="window.togglePadronEstrategia"
+                        abrir="window.togglePadronInnerDropdown ? window.togglePadronInnerDropdown('dropdownPadronEstrategia') : null"
+                        countPrefix="countFacetEstrategia"
+                      />
+                      
+                      <!-- Filtro 2: Sede Operativa (multiseleccion con checkbox) -->
+                      <FilterField
+                        id="dropdownPadronSede"
+                        menuId="menuPadronSede"
+                        labelId="labelPadronSedeSelect"
+                        label="Sede Operativa"
+                        labelTodos="Todas las Sedes"
+                        todosEtiqueta="Todas las Sedes"
+                        opciones={OPCIONES_SEDE}
+                        onSelect="window.togglePadronSede"
+                        abrir="window.togglePadronInnerDropdown ? window.togglePadronInnerDropdown('dropdownPadronSede') : null"
+                        countPrefix="countFacetSede"
+                      />
+                      
+                      <!-- Filtro 3: Condicion Nutricional / Semaforo Anemia MINSA (multiseleccion) -->
+                      <FilterField
+                        id="dropdownPadronAnemia"
+                        menuId="menuPadronAnemia"
+                        labelId="labelPadronAnemiaSelect"
+                        label="Condición Nutricional (Anemia)"
+                        labelTodos="Todas las Condiciones"
+                        todosEtiqueta="Todos"
+                        opciones={OPCIONES_ANEMIA}
+                        onSelect="window.togglePadronAnemia"
+                        abrir="window.togglePadronInnerDropdown ? window.togglePadronInnerDropdown('dropdownPadronAnemia') : null"
+                        countPrefix="countFacetAnemia"
+                      />
+                      
                       <!-- Filtro 4: Edad del Usuario (0 a 18 años con Cuadro de Edad Específica, Barra Slider de Rango 0-18 y Botón Todas) -->
                       <div class="audit-filter-field">
                         <div class="facet-edad-header">
@@ -284,98 +162,36 @@ import '../styles/views-padron.css';
                         </div>
                       </div>
 
-                      <!-- Filtro 5: Estado de Inscripción (Dropdown Desplegable) -->
-                      <div class="audit-filter-field">
-                        <label class="audit-field-label">Estado de Inscripción</label>
-                        <div class="padron-inner-dropdown" id="dropdownPadronEstado">
-                          <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.togglePadronInnerDropdown ? window.togglePadronInnerDropdown('dropdownPadronEstado') : null">
-                            <span id="labelPadronEstadoSelect">Todos los Estados</span>
-                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                          </button>
-                          <div class="padron-inner-dropdown-menu" id="menuPadronEstado">
-                            <div class="padron-dropdown-item selected" data-value="all"
-                              onclick="window.selectPadronEstado ? window.selectPadronEstado('all') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Todos</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetEstado-all">(0)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Activo"
-                              onclick="window.selectPadronEstado ? window.selectPadronEstado('Activo') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Activo</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetEstado-Activo">(0)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="Inactivo"
-                              onclick="window.selectPadronEstado ? window.selectPadronEstado('Inactivo') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Inactivo / Baja</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetEstado-Inactivo">(0)</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Filtro 6: Sexo del Usuario (Masculino / Femenino) -->
-                      <div class="audit-filter-field">
-                        <label class="audit-field-label">Sexo del Usuario</label>
-                        <div class="padron-inner-dropdown" id="dropdownPadronSexo">
-                          <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.togglePadronInnerDropdown ? window.togglePadronInnerDropdown('dropdownPadronSexo') : null">
-                            <span id="labelPadronSexoSelect">Todos</span>
-                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                          </button>
-                          <div class="padron-inner-dropdown-menu" id="menuPadronSexo">
-                            <div class="padron-dropdown-item selected" data-value="all"
-                              onclick="window.selectPadronSexo ? window.selectPadronSexo('all') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Todos</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetSexo-all">(0)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="M"
-                              onclick="window.selectPadronSexo ? window.selectPadronSexo('M') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Masculino (M)</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetSexo-M">(0)</span>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="F"
-                              onclick="window.selectPadronSexo ? window.selectPadronSexo('F') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Femenino (F)</span>
-                              </div>
-                              <span class="padron-item-count" id="countFacetSexo-F">(0)</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Footer fijo móvil con botón para aplicar y cerrar el Bottom Sheet -->
-                    <div class="audit-filters-footer">
-                      <button type="button" class="btn-action primary btn-apply-filters"
-                        onclick="window.closeAllFilterSheets ? window.closeAllFilterSheets() : null">
-                        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                        <span>Aplicar Filtros</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                      <!-- Filtro 5: Estado de Inscripcion (seleccion unica con radio) -->
+                      <FilterField
+                        id="dropdownPadronEstado"
+                        menuId="menuPadronEstado"
+                        labelId="labelPadronEstadoSelect"
+                        label="Estado de Inscripción"
+                        labelTodos="Todos los Estados"
+                        todosEtiqueta="Todos"
+                        opciones={OPCIONES_ESTADO}
+                        tipo="single"
+                        onSelect="window.selectPadronEstado"
+                        abrir="window.togglePadronInnerDropdown ? window.togglePadronInnerDropdown('dropdownPadronEstado') : null"
+                        countPrefix="countFacetEstado"
+                      />
+                      
+                      <!-- Filtro 6: Sexo del Usuario (seleccion unica con radio) -->
+                      <FilterField
+                        id="dropdownPadronSexo"
+                        menuId="menuPadronSexo"
+                        labelId="labelPadronSexoSelect"
+                        label="Sexo del Usuario"
+                        labelTodos="Todos"
+                        todosEtiqueta="Todos"
+                        opciones={OPCIONES_SEXO}
+                        tipo="single"
+                        onSelect="window.selectPadronSexo"
+                        abrir="window.togglePadronInnerDropdown ? window.togglePadronInnerDropdown('dropdownPadronSexo') : null"
+                        countPrefix="countFacetSexo"
+                      />
+                              </FilterPanel>
             </div>
 
             <!-- Barra de Píldoras de Filtros Activos (Chips Descartables - Visible en PC/Tablets) -->

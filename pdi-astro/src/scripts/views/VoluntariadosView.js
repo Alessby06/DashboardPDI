@@ -3,6 +3,7 @@
 
 import { VoluntarioModel, TEMATICAS_CAPACITACION } from '../models/VoluntarioModel.js';
 import { crear as crearFiltros } from '../utils/Filters.js';
+import { crearStore } from '../utils/FilterStore.js';
 import { Responsive } from '../utils/Responsive.js';
 import { AnimationEngine } from '../utils/AnimationEngine.js';
 import { ToastView } from './ToastView.js';
@@ -50,6 +51,13 @@ function repartirPorcentajes(valores) {
   }
   return base;
 }
+
+const FACETAS_VOLUNTARIOS = {
+  distrito: { tipo: "multi", opciones: Object.keys(SEDES_POR_DISTRITO), defecto: [] },
+  servicio: { tipo: "multi", opciones: SERVICIOS_VOLUNTARIADO, defecto: [] },
+  rol: { tipo: "multi", defecto: [] },
+  estado: { tipo: "single", opciones: FILTROS_VOLUNTARIOS.estado.valores, defecto: "all" },
+};
 
 export const VoluntariadosView = {
   _voluntarios: [],
@@ -162,6 +170,23 @@ export const VoluntariadosView = {
   _filtros: null,
   _filtrosLeidos: false,
 
+  _store: null,
+
+  _obtenerStore() {
+    if (!this._store) {
+      this._store = crearStore(FACETAS_VOLUNTARIOS);
+    }
+    return this._store;
+  },
+
+  _espejarStore() {
+    const s = this._obtenerStore().instantanea();
+    this._filterDistrito = s.distrito;
+    this._filterServicio = s.servicio;
+    this._filterRol = s.rol;
+    this._filterEstado = s.estado;
+  },
+
   _obtenerFiltros() {
     if (!this._filtros) {
       this._filtros = crearFiltros(FILTROS_VOLUNTARIOS);
@@ -186,10 +211,13 @@ export const VoluntariadosView = {
 
     const f = this._obtenerFiltros().leer();
     this._searchQuery = (f.q || "").toLowerCase();
-    this._filterDistrito = f.distrito;
-    this._filterServicio = f.servicio;
-    this._filterRol = f.rol;
-    this._filterEstado = f.estado;
+    this._obtenerStore().cargar({
+      distrito: f.distrito,
+      servicio: f.servicio,
+      rol: f.rol,
+      estado: f.estado,
+    });
+    this._espejarStore();
 
     const input = document.getElementById("inputVoluntariosSearch");
     if (input) input.value = f.q;
@@ -315,7 +343,7 @@ export const VoluntariadosView = {
     if (badgeNav) badgeNav.textContent = stats.total;
   },
 
-  applyFilters(animar = true) {
+  applyFilters(animar = false) {
     let list = [...this._voluntarios];
 
     // Búsqueda inteligente: insensible a tildes y búsqueda de nombre completo
@@ -394,10 +422,7 @@ export const VoluntariadosView = {
   },
 
   _updateActiveFilterBadge() {
-    const count = this._filterDistrito.length
-      + this._filterServicio.length
-      + this._filterRol.length
-      + (this._filterEstado !== "all" ? 1 : 0);
+    const count = this._obtenerStore().contarActivos();
 
     const badge = document.getElementById("voluntariosActiveFiltersCount");
     if (badge) {
@@ -1114,67 +1139,34 @@ export const VoluntariadosView = {
     this._persistirFiltros();
   },
 
-  /** Opciones individuales de un menú, sin la entrada "all". */
-  _opcionesDeMenu(idMenu) {
-    return Array.from(document.querySelectorAll(`#${idMenu} .padron-dropdown-item`))
-      .map((item) => item.getAttribute("data-value"))
-      .filter((v) => v && v !== "all");
-  },
-
   toggleDistrito(dist) {
-    if (dist === "all") {
-      this._filterDistrito = [];
-    } else {
-      const idx = this._filterDistrito.indexOf(dist);
-      if (idx > -1) this._filterDistrito.splice(idx, 1);
-      else this._filterDistrito.push(dist);
-      // Marcar todas las opciones una a una equivale a "Todos los Distritos".
-      const todas = this._opcionesDeMenu("menuVoluntariosDistrito");
-      if (todas.length > 0 && todas.every((d) => this._filterDistrito.includes(d))) {
-        this._filterDistrito = [];
-      }
-    }
+    this._obtenerStore().alternar("distrito", dist);
+    this._espejarStore();
     this._updateFilterDropdownUI();
     this.applyFilters();
     this._persistirFiltros();
   },
 
   toggleServicio(serv) {
-    if (serv === "all") {
-      this._filterServicio = [];
-    } else {
-      const idx = this._filterServicio.indexOf(serv);
-      if (idx > -1) this._filterServicio.splice(idx, 1);
-      else this._filterServicio.push(serv);
-      const todas = this._opcionesDeMenu("menuVoluntariosServicio");
-      if (todas.length > 0 && todas.every((s) => this._filterServicio.includes(s))) {
-        this._filterServicio = [];
-      }
-    }
+    this._obtenerStore().alternar("servicio", serv);
+    this._espejarStore();
     this._updateFilterDropdownUI();
     this.applyFilters();
     this._persistirFiltros();
   },
 
   toggleRol(rol) {
-    if (rol === "all") {
-      this._filterRol = [];
-    } else {
-      const idx = this._filterRol.indexOf(rol);
-      if (idx > -1) this._filterRol.splice(idx, 1);
-      else this._filterRol.push(rol);
-      const todas = this._opcionesDeMenu("menuVoluntariosRol");
-      if (todas.length > 0 && todas.every((r) => this._filterRol.includes(r))) {
-        this._filterRol = [];
-      }
-    }
+    // El rol no tiene catálogo cerrado: el store acepta cualquier valor.
+    this._obtenerStore().alternar("rol", rol);
+    this._espejarStore();
     this._updateFilterDropdownUI();
     this.applyFilters();
     this._persistirFiltros();
   },
 
   toggleEstado(estado) {
-    this._filterEstado = estado;
+    this._obtenerStore().fijar("estado", estado);
+    this._espejarStore();
     this._updateFilterDropdownUI();
     this.applyFilters();
     this._persistirFiltros();
@@ -1200,10 +1192,8 @@ export const VoluntariadosView = {
 
   resetFilters() {
     this._searchQuery = "";
-    this._filterDistrito = [];
-    this._filterServicio = [];
-    this._filterRol = [];
-    this._filterEstado = "all";
+    this._obtenerStore().limpiar();
+    this._espejarStore();
 
     const input = document.getElementById("inputVoluntariosSearch");
     if (input) input.value = "";

@@ -1,7 +1,22 @@
 ---
 import AppLayout from '../layouts/AppLayout.astro';
+import FilterPanel from '../components/FilterPanel.astro';
+import FilterField from '../components/FilterField.astro';
 import { SEDES_OPERATIVAS } from '../data/opcionesBeneficiario.js';
 import '../styles/views-educativo.css';
+
+const OPCIONES_ASISTENCIA = [
+  { valor: 'P', etiqueta: 'Presente (P)' },
+  { valor: 'T', etiqueta: 'Tardanza (T)' },
+  { valor: 'FJ', etiqueta: 'Falta Justificada (FJ)' },
+  { valor: 'FI', etiqueta: 'Falta Injustificada (FI)' },
+];
+const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiqueta: sede.etiqueta }));
+const OPCIONES_GRADO = [
+  { valor: 'inicial', etiqueta: 'Inicial / Pre-escolar' },
+  { valor: 'primaria', etiqueta: 'Primaria (1° a 6°)' },
+  { valor: 'secundaria', etiqueta: 'Secundaria (1° a 5°)' },
+];
 ---
 
 <AppLayout title="Servicio de Acompañamiento Educativo" currentPage="educativo">
@@ -52,188 +67,57 @@ import '../styles/views-educativo.css';
               </div>
 
               <!-- Botonera de Filtros Casitas (Lado Derecho) -->
-              <div class="audit-filter-panel-wrap">
-                <div class="custom-dropdown audit-filters-dropdown" id="dropdownCasitasFilterPanel">
-                  <button type="button" class="btn-action audit-filter-btn" id="btnDropdownCasitasFilterPanel"
-                    onclick="window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownCasitasFilterPanel') : null">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
-                    </svg>
-                    <span>Filtros</span>
-                    <span class="audit-filter-badge" id="casitasActiveFiltersCount" style="display:none;">0</span>
-                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
-                      class="filter-caret">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                    </svg>
-                  </button>
-
-                  <div class="custom-dropdown-menu audit-filters-menu" id="menuCasitasFilterPanel">
-                    <div class="audit-filters-header">
-                      <div class="audit-filters-header-title">
-                        <span>Filtros Casita del Saber</span>
-                      </div>
-                      <div class="audit-filters-header-actions">
-                        <button type="button" class="btn-text-subtle"
-                          onclick="window.resetCasitasFilters ? window.resetCasitasFilters() : null">Restablecer</button>
-                        <button type="button" class="btn-close-sheet" aria-label="Cerrar filtros"
-                          onclick="window.closeAllFilterSheets ? window.closeAllFilterSheets() : null">
-                          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                        </button>
-                      </div>
-                    </div>
-
-                    <div class="audit-filters-body">
-                      <!-- Filtro 1: Asistencia Hoy -->
-                      <div class="audit-filter-field">
-                        <label class="audit-field-label">Estado de Asistencia Hoy</label>
-                        <div class="padron-inner-dropdown" id="dropdownCasitasAsistencia">
-                          <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownCasitasAsistencia') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownCasitasAsistencia') : null)">
-                            <span id="labelCasitasAsistenciaSelect">Todos los Estados</span>
-                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                          </button>
-                          <div class="padron-inner-dropdown-menu" id="menuCasitasAsistencia">
-                            <div class="padron-dropdown-item selected" data-value="all"
-                              onclick="window.selectCasitasAsistencia ? window.selectCasitasAsistencia('all', 'Todos los Estados') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Todos los Estados</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="P"
-                              onclick="window.selectCasitasAsistencia ? window.selectCasitasAsistencia('P', 'Presente (P)') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Presente (P)</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="T"
-                              onclick="window.selectCasitasAsistencia ? window.selectCasitasAsistencia('T', 'Tardanza (T)') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Tardanza (T)</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="FJ"
-                              onclick="window.selectCasitasAsistencia ? window.selectCasitasAsistencia('FJ', 'Falta Justificada (FJ)') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Falta Justificada (FJ)</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="FI"
-                              onclick="window.selectCasitasAsistencia ? window.selectCasitasAsistencia('FI', 'Falta Injustificada (FI)') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Falta Injustificada (FI)</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Filtro 2: Sede Casita -->
-                      <div class="audit-filter-field">
-                        <label class="audit-field-label">Sede / Casita</label>
-                        <div class="padron-inner-dropdown" id="dropdownCasitasSede">
-                          <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownCasitasSede') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownCasitasSede') : null)">
-                            <span id="labelCasitasSedeSelect">Todas las Sedes</span>
-                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                          </button>
-                          <div class="padron-inner-dropdown-menu" id="menuCasitasSede">
-                            <div class="padron-dropdown-item selected" data-value="all"
-                              onclick="window.toggleCasitasSede ? window.toggleCasitasSede('all') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-checkbox">
-                                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                  </svg>
-                                </span>
-                                <span class="padron-item-label">Todas las Sedes</span>
-                              </div>
-                            </div>
-                            {SEDES_OPERATIVAS.map((sede) => (
-                              <div class="padron-dropdown-item" data-value={sede.nombre}
-                                onclick={`window.toggleCasitasSede ? window.toggleCasitasSede('${sede.nombre}') : null`}>
-                                <div class="padron-item-left">
-                                  <span class="padron-item-checkbox">
-                                    <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"
-                                      viewBox="0 0 24 24">
-                                      <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                    </svg>
-                                  </span>
-                                  <span class="padron-item-label">{sede.etiqueta}</span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Filtro 3: Grado / Nivel -->
-                      <div class="audit-filter-field">
-                        <label class="audit-field-label">Nivel / Grado Escolar</label>
-                        <div class="padron-inner-dropdown" id="dropdownCasitasGrado">
-                          <button type="button" class="padron-inner-dropdown-btn"
-                            onclick="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownCasitasGrado') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownCasitasGrado') : null)">
-                            <span id="labelCasitasGradoSelect">Todos los Grados</span>
-                            <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                            </svg>
-                          </button>
-                          <div class="padron-inner-dropdown-menu" id="menuCasitasGrado">
-                            <div class="padron-dropdown-item selected" data-value="all"
-                              onclick="window.selectCasitasGrado ? window.selectCasitasGrado('all', 'Todos los Grados') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Todos los Grados</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="inicial"
-                              onclick="window.selectCasitasGrado ? window.selectCasitasGrado('inicial', 'Inicial / Pre-escolar') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Inicial / Pre-escolar</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="primaria"
-                              onclick="window.selectCasitasGrado ? window.selectCasitasGrado('primaria', 'Primaria (1° a 6°)') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Primaria (1° a 6°)</span>
-                              </div>
-                            </div>
-                            <div class="padron-dropdown-item" data-value="secundaria"
-                              onclick="window.selectCasitasGrado ? window.selectCasitasGrado('secundaria', 'Secundaria (1° a 5°)') : null">
-                              <div class="padron-item-left">
-                                <span class="padron-item-radio"></span>
-                                <span class="padron-item-label">Secundaria (1° a 5°)</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                    </div>
-
-                    <!-- Footer fijo móvil con botón para aplicar y cerrar el Bottom Sheet -->
-                    <div class="audit-filters-footer">
-                      <button type="button" class="btn-action primary btn-apply-filters"
-                        onclick="window.closeAllFilterSheets ? window.closeAllFilterSheets() : null">
-                        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                        <span>Aplicar Filtros</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <FilterPanel
+                id="dropdownCasitasFilterPanel"
+                buttonId="btnDropdownCasitasFilterPanel"
+                menuId="menuCasitasFilterPanel"
+                badgeId="casitasActiveFiltersCount"
+                title="Filtros Casita del Saber"
+                reset="window.resetCasitasFilters ? window.resetCasitasFilters() : null"
+              >
+                      <!-- Filtro 1: Asistencia de hoy (seleccion unica con radio) -->
+                      <FilterField
+                        id="dropdownCasitasAsistencia"
+                        menuId="menuCasitasAsistencia"
+                        labelId="labelCasitasAsistenciaSelect"
+                        label="Estado de Asistencia Hoy"
+                        labelTodos="Todos los Estados"
+                        todosEtiqueta="Todos los Estados"
+                        opciones={OPCIONES_ASISTENCIA}
+                        tipo="single"
+                        conEtiqueta={true}
+                        onSelect="window.selectCasitasAsistencia"
+                        abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownCasitasAsistencia') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownCasitasAsistencia') : null)"
+                      />
+                      
+                      <!-- Filtro 2: Sede / Casita (multiseleccion) -->
+                      <FilterField
+                        id="dropdownCasitasSede"
+                        menuId="menuCasitasSede"
+                        labelId="labelCasitasSedeSelect"
+                        label="Sede / Casita"
+                        labelTodos="Todas las Sedes"
+                        todosEtiqueta="Todas las Sedes"
+                        opciones={OPCIONES_SEDE}
+                        onSelect="window.toggleCasitasSede"
+                        abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownCasitasSede') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownCasitasSede') : null)"
+                      />
+                      
+                      <!-- Filtro 3: Nivel / Grado escolar (seleccion unica con radio) -->
+                      <FilterField
+                        id="dropdownCasitasGrado"
+                        menuId="menuCasitasGrado"
+                        labelId="labelCasitasGradoSelect"
+                        label="Nivel / Grado Escolar"
+                        labelTodos="Todos los Grados"
+                        todosEtiqueta="Todos los Grados"
+                        opciones={OPCIONES_GRADO}
+                        tipo="single"
+                        conEtiqueta={true}
+                        onSelect="window.selectCasitasGrado"
+                        abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownCasitasGrado') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownCasitasGrado') : null)"
+                      />
+                              </FilterPanel>
             </div>
 
             <!-- Barra de Filtros Aplicados Casitas -->

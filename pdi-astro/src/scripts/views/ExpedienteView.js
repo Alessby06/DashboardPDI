@@ -1008,7 +1008,7 @@ export const ExpedienteView = {
       else el.readOnly = !this.isEditing;
       if (this.isEditing) {
         el.style.borderColor = "var(--gt-green)";
-        el.style.background = "var(--surface-1)";
+        el.style.backgroundColor = "var(--surface-1)";
         // El fondo y la tinta salen del tema, no de un blanco fijo: en oscuro un
         // campo blanco con tinta clara dejaba el texto invisible, y ademas rompia
         // la continuidad del modo oscuro. El estado editable se dice con el borde
@@ -1020,7 +1020,7 @@ export const ExpedienteView = {
         el.style.cursor = el.tagName === "SELECT" ? "pointer" : "text";
       } else {
         el.style.borderColor = "var(--border-subtle)";
-        el.style.background = "var(--surface-2)";
+        el.style.backgroundColor = "var(--surface-2)";
         el.style.color = "";
         el.style.boxShadow = "none";
         el.style.cursor = "default";
