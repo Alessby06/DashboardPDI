@@ -37,3 +37,12 @@ Guides:
 - **No Automatic Background Servers**: Do NOT start `astro dev` or background processes unless the user explicitly requests live verification. The developer already has HMR running in their own browser.
 - **Surgical Edits & Quality**: Target only the requested elements and CSS rules with precision. Maintain visual polish and clean responsive behavior, but avoid refactoring unrelated JavaScript logic or theme mechanics.
 - **No Scope Creep**: Keep diffs minimal, focused, and directly addressing the user prompt.
+
+## Concurrencia y checkpoints
+
+- **Un solo escritor por árbol de trabajo.** Si otra sesión o agente está editando este proyecto, no escribas aquí: crea un worktree (`git worktree add ../pdi-<tarea> -b <tarea>`) y trabaja allí, con su propio servidor y puerto.
+- **Antes de editar**, ejecuta `git status --short`. Si hay cambios que no hiciste tú, detente y avisa; no los sobrescribas.
+- **Edita por reemplazo dirigido**, no reescribas el archivo completo desde una copia leída antes. Relee el archivo justo antes de guardar.
+- **Checkpoint al cerrar cada lote lógico.** Un commit no bloquea escrituras: solo permite recuperar. Contra colisiones manda el aislamiento (worktree o rama), no el commit.
+- **Un servidor de desarrollo por árbol y puerto.** Dos servidores sobre el mismo `node_modules/.vite` rompen el transporte de Vite.
+
