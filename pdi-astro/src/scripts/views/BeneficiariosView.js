@@ -1,5 +1,6 @@
 // Vista: Padrón de Usuarios
 import { crear as crearFiltros } from "../utils/Filters.js";
+import { crearStore } from "../utils/FilterStore.js";
 import { Responsive } from "../utils/Responsive.js";
 import { AnimationEngine } from "../utils/AnimationEngine.js";
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";
@@ -22,6 +23,14 @@ const FILTROS_PADRON = {
   sexo:      { valor: "all", valores: ["all", "M", "F"] },
   pagina:    { valor: 1, numeros: { min: 1, max: 1000 } },
   tam:       { valor: 20, numeros: { min: 5, max: 50 } },
+};
+
+const FACETAS_PADRON = {
+  estrategia: { tipo: "multi", opciones: FILTROS_PADRON.estrategia.valores, defecto: [] },
+  sede: { tipo: "multi", opciones: FILTROS_PADRON.sede.valores, defecto: [] },
+  anemia: { tipo: "multi", opciones: FILTROS_PADRON.anemia.valores, defecto: [] },
+  estado: { tipo: "single", opciones: FILTROS_PADRON.estado.valores, defecto: "all" },
+  sexo: { tipo: "single", opciones: FILTROS_PADRON.sexo.valores, defecto: "all" },
 };
 
 export const BeneficiariosView = {
@@ -50,6 +59,27 @@ export const BeneficiariosView = {
   // es un singleton de modulo: crearlo arriba del todo exigiria que window
   // existiera al cargarlo, y en la prueba de grafos se importa sin DOM.
   _filtros: null,
+
+  // Estado de las facetas. Es la fuente de verdad: los campos _filter* son su
+  // espejo para el resto de la vista (render, persistencia y contadores).
+  _store: null,
+
+  _obtenerStore() {
+    if (!this._store) {
+      this._store = crearStore(FACETAS_PADRON);
+    }
+    return this._store;
+  },
+
+  /** Copia el estado del store a los campos que usa el resto de la vista. */
+  _espejarStore() {
+    const s = this._obtenerStore().instantanea();
+    this._filterEstrategia = s.estrategia;
+    this._filterSede = s.sede;
+    this._filterAnemia = s.anemia;
+    this._filterEstado = s.estado;
+    this._filterSexo = s.sexo;
+  },
 
   // El estado de la URL se lee una sola vez por carga. Sin este guardia,
   // publicarRefresco() vuelve a pintar la vista despues de cada guardado y
@@ -110,11 +140,14 @@ export const BeneficiariosView = {
     const f = this._obtenerFiltros().leer();
 
     this._searchQuery = (f.q || "").toLowerCase();
-    this._filterEstrategia = f.estrategia || f.servicio || [];
-    this._filterSede = f.sede;
-    this._filterAnemia = f.anemia;
-    this._filterEstado = f.estado;
-    this._filterSexo = f.sexo;
+    this._obtenerStore().cargar({
+      estrategia: f.estrategia || f.servicio || [],
+      sede: f.sede,
+      anemia: f.anemia,
+      estado: f.estado,
+      sexo: f.sexo,
+    });
+    this._espejarStore();
     this._filterEdadModo = f.edadModo;
     this._filterEdadExacta = f.edadValor;
     this._currentPage = f.pagina;
@@ -269,27 +302,10 @@ export const BeneficiariosView = {
   },
 
   toggleEstrategia(val) {
-    // Las opciones salen del propio menu: si el catalogo suma una estrategia,
-    // el filtro la muestra sin tocar esta logica.
-    const todas = Array.from(
-      document.querySelectorAll("#menuPadronEstrategia .padron-dropdown-item")
-    )
-      .map((item) => item.getAttribute("data-value"))
-      .filter((v) => v && v !== "all");
-    if (val === "all") {
-      this._filterEstrategia = [];
-    } else {
-      const idx = this._filterEstrategia.indexOf(val);
-      if (idx > -1) {
-        this._filterEstrategia.splice(idx, 1);
-      } else {
-        this._filterEstrategia.push(val);
-      }
-      // Si se seleccionaron individualmente todas las opciones, se restablece a Todos automáticamente
-      if (todas.length > 0 && todas.every(s => this._filterEstrategia.includes(s))) {
-        this._filterEstrategia = [];
-      }
-    }
+    // La lista de opciones vive en FACETAS_PADRON: marcar la ultima vuelve a
+    // "Todas" sin repetir la regla en cada vista.
+    this._obtenerStore().alternar("estrategia", val);
+    this._espejarStore();
     this._updateEstrategiaDropdownUI();
     this.applyFilters();
     this._persistirFiltros();
@@ -324,27 +340,8 @@ export const BeneficiariosView = {
   },
 
   toggleSede(val) {
-    // Las sedes salen del propio menu, que se arma con el catalogo: asi una
-    // sede nueva no puede quedar fuera del filtro.
-    const allSedes = Array.from(
-      document.querySelectorAll("#menuPadronSede .padron-dropdown-item")
-    )
-      .map((item) => item.getAttribute("data-value"))
-      .filter((v) => v && v !== "all");
-    if (val === "all") {
-      this._filterSede = [];
-    } else {
-      const idx = this._filterSede.indexOf(val);
-      if (idx > -1) {
-        this._filterSede.splice(idx, 1);
-      } else {
-        this._filterSede.push(val);
-      }
-      // Si se seleccionaron individualmente todas las sedes, se restablece a Todas automáticamente
-      if (allSedes.every(s => this._filterSede.includes(s))) {
-        this._filterSede = [];
-      }
-    }
+    this._obtenerStore().alternar("sede", val);
+    this._espejarStore();
     this._updateSedeDropdownUI();
     this.applyFilters();
     this._persistirFiltros();
@@ -379,21 +376,8 @@ export const BeneficiariosView = {
   },
 
   toggleAnemia(val) {
-    const allAnemias = ["Normal", "Leve", "Moderada"];
-    if (val === "all") {
-      this._filterAnemia = [];
-    } else {
-      const idx = this._filterAnemia.indexOf(val);
-      if (idx > -1) {
-        this._filterAnemia.splice(idx, 1);
-      } else {
-        this._filterAnemia.push(val);
-      }
-      // Si se seleccionaron individualmente todas las opciones, se restablece a Todos automáticamente
-      if (allAnemias.every(a => this._filterAnemia.includes(a))) {
-        this._filterAnemia = [];
-      }
-    }
+    this._obtenerStore().alternar("anemia", val);
+    this._espejarStore();
     this._updateAnemiaDropdownUI();
     this.applyFilters();
     this._persistirFiltros();
@@ -549,7 +533,8 @@ export const BeneficiariosView = {
   },
 
   selectEstado(estadoVal) {
-    this._filterEstado = estadoVal || "all";
+    this._obtenerStore().fijar("estado", estadoVal || "all");
+    this._espejarStore();
     this._updateEstadoUI();
 
     // Cerrar dropdown de estado al seleccionar
@@ -576,7 +561,8 @@ export const BeneficiariosView = {
   },
 
   selectSexo(sexoVal) {
-    this._filterSexo = sexoVal || "all";
+    this._obtenerStore().fijar("sexo", sexoVal || "all");
+    this._espejarStore();
     this._updateSexoDropdownUI();
 
     const drop = document.getElementById("dropdownPadronSexo");
@@ -629,14 +615,11 @@ export const BeneficiariosView = {
 
   resetFilters() {
     this._searchQuery = "";
-    this._filterEstrategia = [];
-    this._filterSede = [];
-    this._filterAnemia = [];
+    this._obtenerStore().limpiar();
+    this._espejarStore();
     this._filterEdadModo = "all";
     this._filterEdadExacta = null;
     this._filterEdadRango = { min: 0, max: 18 };
-    this._filterEstado = "all";
-    this._filterSexo = "all";
 
     const input = document.getElementById("inputPadronSearch");
     if (input) input.value = "";
@@ -757,13 +740,10 @@ export const BeneficiariosView = {
     this._filteredBeneficiarios = list;
 
     // Actualizar badge de filtros activos
-    let activeFiltersCount = 0;
-    if (this._filterEstrategia.length > 0) activeFiltersCount += this._filterEstrategia.length;
-    if (this._filterSede.length > 0) activeFiltersCount += this._filterSede.length;
-    if (this._filterAnemia.length > 0) activeFiltersCount += this._filterAnemia.length;
+    // El badge sale del store: facetas multiples suman una por opcion y las
+    // simples una. La edad sigue fuera porque es un rango, no una opcion.
+    let activeFiltersCount = this._obtenerStore().contarActivos();
     if (this._filterEdadModo !== "all") activeFiltersCount++;
-    if (this._filterEstado !== "all") activeFiltersCount++;
-    if (this._filterSexo !== "all") activeFiltersCount++;
 
     const badgeEl = document.getElementById("padronActiveFiltersCount");
     const btnFilterEl = document.getElementById("btnDropdownPadronFilterPanel");

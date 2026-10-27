@@ -22,6 +22,8 @@ const FOCALIZABLES = [
 ].join(',');
 
 let idSeq = 0;
+/** Durante la apertura se ignora el scroll que provoca el propio encaje. */
+let aperturaHasta = 0;
 const nuevoId = (base) => `fil-${base}-${++idSeq}`;
 
 /**
@@ -211,32 +213,102 @@ function prepararEtiquetas(panel) {
   });
 }
 
-/** Ajusta el popover al hueco real bajo el boton. */
-function ajustarAltura(panel) {
-  if (window.innerWidth <= 768) {
-    panel.querySelector('.audit-filters-menu')?.style.removeProperty('max-height');
-    return;
-  }
-  const boton = panel.querySelector('.audit-filter-btn');
+/** Avisa al panel si el cuerpo sigue por debajo, para pintar la señal. */
+function marcarDesborde(panel) {
   const menu = panel.querySelector('.audit-filters-menu');
-  if (!boton || !menu) return;
+  const cuerpo = menu?.querySelector('.audit-filters-body');
+  if (!menu || !cuerpo) return;
+  const desborda = cuerpo.scrollHeight - cuerpo.scrollTop > cuerpo.clientHeight + 4;
+  menu.dataset.scrollAbajo = desborda ? 'si' : 'no';
+}
+
+/**
+ * El panel vive en una capa fija anclada al boton. Asi no participa del scroll
+ * de la vista (Lenis lo mueve por codigo y `overflow:hidden` no lo detiene),
+ * no lo recorta ningun ancestro y su altura no cambia al desplazarse: el
+ * parpadeo venia de recalcular la altura en cada scroll.
+ */
+/**
+ * Reancla un panel abierto sin cambiar su altura: solo mueve la caja bajo el
+ * boton. Se usa al desplazar la vista con la barra de la seccion, para que el
+ * panel no se cierre ni cambie de tamano.
+ */
+function seguirAlBoton(panel) {
+  // En movil el panel es una hoja inferior anclada al borde: no se reancla.
+  if (window.innerWidth <= 768) return;
+  const menu = panel.querySelector('.audit-filters-menu');
+  const boton = panel.querySelector('.audit-filter-btn');
+  if (!menu || !boton) return;
 
   const r = boton.getBoundingClientRect();
-  const margen = 16;
-  let abajo = window.innerHeight - r.bottom - margen;
-  const arriba = r.top - margen;
-  const quiere = 320;
-
-  menu.style.top = '';
-  menu.style.bottom = '';
-  menu.style.maxHeight = '';
-
-  if (abajo < quiere && arriba > abajo) {
-    menu.style.top = 'auto';
-    menu.style.bottom = 'calc(100% + 8px)';
-    abajo = arriba;
+  if (r.bottom < 0 || r.top > window.innerHeight) {
+    window.closeAllFilterSheets?.();
+    return;
   }
-  menu.style.maxHeight = `${Math.max(200, Math.min(Math.floor(abajo), window.innerHeight - 32))}px`;
+
+  const objetivo = Math.round(r.bottom + 8);
+  menu.style.top = `${objetivo}px`;
+  menu.style.right = `${Math.round(window.innerWidth - r.right)}px`;
+  for (let i = 0; i < 2; i++) {
+    const desfase = menu.getBoundingClientRect().top - objetivo;
+    if (Math.abs(desfase) < 1) break;
+    menu.style.top = `${Math.round(parseFloat(menu.style.top) - desfase)}px`;
+  }
+}
+
+function posicionarPanel(panel) {
+  const menu = panel.querySelector('.audit-filters-menu');
+  if (!menu) return;
+
+  if (window.innerWidth <= 768) {
+    menu.style.removeProperty('top');
+    menu.style.removeProperty('right');
+    menu.style.removeProperty('left');
+    menu.style.removeProperty('bottom');
+    menu.style.removeProperty('max-height');
+    return;
+  }
+
+  const boton = panel.querySelector('.audit-filter-btn');
+  if (!boton) return;
+
+  // Siempre debajo del boton. La altura se recorta al hueco real y el resto
+  // se desplaza dentro del panel; no se mueve la vista, que era lo que
+  // desincronizaba el anclaje con el scroll animado de la app.
+  const r = boton.getBoundingClientRect();
+  const margen = 16;
+  const objetivo = Math.round(r.bottom + 8);
+  const hueco = window.innerHeight - objetivo - margen;
+  menu.style.top = `${objetivo}px`;
+  menu.style.right = `${Math.round(window.innerWidth - r.right)}px`;
+  menu.style.left = 'auto';
+  menu.style.bottom = 'auto';
+  menu.style.maxHeight = `${Math.max(90, Math.floor(Math.min(hueco, window.innerHeight - 32)))}px`;
+
+  // Lenis mueve el contenido con transform, y eso convierte al ancestro en
+  // bloque contenedor de position:fixed. Se corrige el desfase medido para
+  // que el panel quede realmente bajo el boton.
+  for (let i = 0; i < 2; i++) {
+    const desfase = menu.getBoundingClientRect().top - objetivo;
+    if (Math.abs(desfase) < 1) break;
+    menu.style.top = `${Math.round(parseFloat(menu.style.top) - desfase)}px`;
+  }
+}
+
+/**
+ * Los quitar de los chips llevan solo un svg; el nombre accesible sale del
+ * texto de la propia píldora. Se le una sola vez, sin tocar el marcado de
+ * cada vista.
+ */
+function nombrarQuitarChips() {
+  document.querySelectorAll('.padron-chip').forEach((chip) => {
+    const boton = chip.querySelector('.padron-chip-remove');
+    if (!boton) return;
+    const etiqueta = (chip.firstElementChild?.textContent || chip.textContent || '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    boton.setAttribute('aria-label', etiqueta ? `Quitar filtro: ${etiqueta}` : 'Quitar filtro');
+  });
 }
 
 function prepararPanel(panel) {
@@ -313,8 +385,10 @@ function prepararPanel(panel) {
     menu.inert = !abierto;
 
     if (abierto) {
+      aperturaHasta = Date.now() + 450;
       actualizarEtiqueta(panel);
-      ajustarAltura(panel);
+      posicionarPanel(panel);
+      marcarDesborde(panel);
       decorarEstadoVacio();
       const primero = menu.querySelector('.audit-filters-body :is(' + FOCALIZABLES + ')');
       const enfocar = () => (primero || menu).focus({ preventScroll: true });
@@ -324,6 +398,13 @@ function prepararPanel(panel) {
       disparador.focus({ preventScroll: true });
     }
   }).observe(panel, { attributes: true, attributeFilter: ['class'] });
+
+  menu.addEventListener('scroll', () => marcarDesborde(panel), { passive: true, capture: true });
+
+  // Lenis escucha la rueda en el contenedor de la vista y se tragaba el
+  // scroll del panel. Al cortar la propagacion, la rueda desplaza el cuerpo
+  // del panel y no la pagina (que ademas bloquea el encadenamiento).
+  menu.addEventListener('wheel', (e) => e.stopPropagation(), { passive: true });
 
   menu.addEventListener('keydown', (e) => {
     if (e.key !== 'Tab' || !panel.classList.contains('open')) return;
@@ -340,13 +421,16 @@ function prepararPanel(panel) {
     }
   });
 
-  // Mientras la hoja esta abierta, cada repintado actualiza cifra y vacio.
+  // Mientras la hoja esta abierta, cada repintado actualiza cifra, vacio y
+  // los nombres accesibles de los chips, que se repintan con cada filtro.
   const observador = new MutationObserver(() => {
     if (!panel.classList.contains('open')) return;
     clearTimeout(observador._t);
     observador._t = setTimeout(() => {
       actualizarEtiqueta(panel);
+      marcarDesborde(panel);
       decorarEstadoVacio();
+      nombrarQuitarChips();
     }, 160);
   });
   const main = document.getElementById('mainContent');
@@ -356,8 +440,9 @@ function prepararPanel(panel) {
   // tras la carga), el observador nunca vera el cambio: se aplican aqui las
   // mismas consecuencias de apertura.
   if (panel.classList.contains('open')) {
+    aperturaHasta = Date.now() + 450;
     actualizarEtiqueta(panel);
-    ajustarAltura(panel);
+    posicionarPanel(panel);
     const primero = menu.querySelector('.audit-filters-body :is(' + FOCALIZABLES + ')');
     setTimeout(() => (primero || menu).focus({ preventScroll: true }), 0);
   }
@@ -366,6 +451,7 @@ function prepararPanel(panel) {
 export function mejorarPanelesFiltro() {
   document.querySelectorAll('.audit-filters-dropdown').forEach(prepararPanel);
   document.querySelectorAll('.audit-filters-menu').forEach(prepararOpciones);
+  nombrarQuitarChips();
   decorarEstadoVacio();
 }
 
@@ -378,9 +464,30 @@ if (typeof document !== 'undefined') {
   }
   document.addEventListener('astro:page-load', iniciar);
   document.addEventListener('astro:after-swap', iniciar);
+  // La altura se fija al abrir (y al cambiar el contenido o el viewport). No
+  // se recalcula con el scroll de la pagina: hacerlo redimensionaba el panel
+  // mientras se desplazaba y producia el parpadeo de la parte superior.
   window.addEventListener('resize', () => {
-    document.querySelectorAll('.audit-filters-dropdown.open').forEach(ajustarAltura);
+    document.querySelectorAll('.audit-filters-dropdown.open').forEach((panel) => {
+      posicionarPanel(panel);
+      marcarDesborde(panel);
+    });
   });
+
+  // Al desplazar la vista (barra de la seccion, teclado o rueda fuera del
+  // panel) el panel no se cierra: se reancla bajo el boton manteniendo su
+  // altura. Solo se cierra si el disparador sale de la pantalla.
+  let pedidoScroll = 0;
+  document.addEventListener('scroll', (evento) => {
+    const destino = evento.target;
+    if (destino && destino.nodeType === 1 && destino.closest?.('.audit-filters-menu')) return;
+    if (Date.now() < aperturaHasta) return;
+    if (pedidoScroll) return;
+    pedidoScroll = requestAnimationFrame(() => {
+      pedidoScroll = 0;
+      document.querySelectorAll('.audit-filters-dropdown.open').forEach(seguirAlBoton);
+    });
+  }, { capture: true, passive: true });
   window.PDI = window.PDI || {};
   window.PDI.FilterPanel = { mejorar: mejorarPanelesFiltro, contarResultados };
 }

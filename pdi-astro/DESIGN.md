@@ -43,6 +43,12 @@ typography:
     fontWeight: 700
     lineHeight: 1
     letterSpacing: "-0.035em"
+  metric-light:
+    fontFamily: "Manrope, sans-serif"
+    fontSize: "30px"
+    fontWeight: 300
+    lineHeight: 1
+    letterSpacing: "-0.04em"
   data-value:
     fontFamily: "Manrope, sans-serif"
     fontSize: "20px"
@@ -68,7 +74,7 @@ typography:
     lineHeight: 1.3
   subtitle:
     fontFamily: "Manrope, sans-serif"
-    fontSize: "13px"
+    fontSize: "clamp(12.5px, 3.2vw, 14px)"
     fontWeight: 400
     lineHeight: 1.45
   body:
@@ -203,7 +209,7 @@ Paleta de cuatro colores de marca sobre neutros fríos. El color aparece solo cu
 
 ### Login Showcase
 
-La pantalla de acceso es una maqueta oscura fija, independiente del tema del panel. Usa su propio grupo de tokens —`--showcase-black`, `--showcase-surface`, `--showcase-ink` y `--showcase-shadow*`— y no debe reutilizar las superficies del tablero.
+La pantalla de acceso es una maqueta oscura fija, independiente del tema del panel. Usa su propio grupo de tokens —`--showcase-black`, `--showcase-surface`, `--showcase-ink` y `--showcase-shadow*`— y no debe reutilizar las superficies del tablero. Se declaran en la propia página porque el login no importa `variables.css`; esa duplicación es aislamiento de superficie, no deriva.
 
 ### Dark Theme
 
@@ -224,13 +230,14 @@ No es una paleta nueva: son los mismos roles con otros valores. El fondo es negr
 | Amber / Blue / Red | `#f59e0b` / `#0284c7` / `#ef4444` | `#ffc247` / `#7cc4ff` / `#ff8b8b` |
 | On Brand | `#ffffff` | `#00130c` |
 | On Solid | `#ffffff` | `#00130c` |
+| On Scrim | `#ffffff` | `#ffffff` |
 
 ### Named Rules
 **The Clinical Color Rule.** Un color saturado solo aparece si representa un estado, una serie de datos o la marca. Si el elemento no informa nada, va en neutro.
 
 **The Green Is Not Decoration Rule.** El verde no rellena fondos grandes ni titula secciones: marca acción, estado normal y pertenencia.
 
-**The Two-Ink Rule.** La tinta sobre marca o sobre un relleno saturado sale de `On Brand`/`On Solid`, nunca de un blanco fijo: en claro el relleno es oscuro y pide blanco; en oscuro el relleno se aclara y pide tinta casi negra (`#00130c`). Blanco sobre el verde oscuro da 1,6:1.
+**The Two-Ink Rule.** La tinta sobre marca o sobre un relleno saturado sale de `On Brand`/`On Solid`, nunca de un blanco fijo: en claro el relleno es oscuro y pide blanco; en oscuro el relleno se aclara y pide tinta casi negra (`#00130c`). Sobre un velo oscuro que no cambia con el tema, `On Scrim`. Blanco sobre el verde oscuro da 1,6:1.
 
 **The Contrast Per Theme Rule.** El contraste se verifica dos veces, una por tema. Un texto que pasa en claro puede fallar en oscuro porque los tokens de tinta cambian de valor.
 
@@ -246,11 +253,12 @@ No es una paleta nueva: son los mismos roles con otros valores. El fondo es negr
 - **Metric** (500, 40 px, −0.035em): la cifra de una placa de KPI. Una por placa.
 - **Metric Compact** (800, 30 px): variante para cabeceras clínicas densas que ya compiten con otras cifras. No es el valor por defecto.
 - **Metric Secondary** (700, 26 px): porcentaje de detalle en tarjetas de datos.
+- **Metric Light** (300, 30 px, −0.04em): cifras del panel rápido de salud; el trazo fino las separa de las métricas de cabecera.
 - **Data Value** (700, 20 px): cifra de banda clínica o de fila de datos.
 - **Title** (700, `clamp(18px, 4.5vw, 22px)`, −0.02em): título de página.
 - **Panel Title** (800, 14 px, −0.01em): encabezado de panel de datos. Convive con icono de 16 px.
 - **Card Title** (700, 16.5 px): encabezado de tarjeta de contenido.
-- **Subtitle** (400, 13 px, 1.45): subtítulo de página, en Ink Dim.
+- **Subtitle** (400, `clamp(12.5px, 3.2vw, 14px)`, 1.45): subtítulo de página, en Ink Muted.
 - **Body** (400, 15 px, 1.5): texto corriente. **Body Small** (400, 13 px): celdas de tabla y apoyo.
 - **Label** (800, 11 px, 0.1em, mayúsculas): rótulo de KPI y cabecera de tabla.
 - **Caption** (400, 12.5 px): notas y contexto.
@@ -383,7 +391,7 @@ No se usan 4, 8, 12 ni 20 px en superficies. Las únicas excepciones son las mar
 
 ### Don't:
 - **Don't** redeclarar tokens núcleo (color, superficie, borde, texto, sombra) en una hoja de vista. Los tokens de componente —`--filter-border`, `--sk-base`— viven en su hoja compartida y se declaran una sola vez por tema.
-- **Don't** escribir colores hex ni `rgba()` fuera de `variables.css` o de la definición de un token de componente compartido; la impresión es la única excepción.
+- **Don't** escribir colores hex ni `rgba()` fuera de `variables.css` (incluidos blancos y negros fijos).
 - **Don't** resolver la cascada con `!important`; si una regla no gana, el selector está mal planteado.
 - **Don't** inventar tamaños fuera de la rampa cerrada.
 - **Don't** anidar tarjetas ni duplicar la receta de tarjeta dentro de una hoja de vista.

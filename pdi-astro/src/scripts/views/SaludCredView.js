@@ -1181,6 +1181,14 @@ export const SaludCredView = {
       { key: "Moderada", color: "var(--gt-orange)", rango: "7.0–9.9",   opacidad: 1 },
       { key: "Severa",   color: "var(--gt-red)",    rango: "< 7.0",     opacidad: 1 },
     ];
+    // La leyenda agrupa Moderada y Severa en una sola fila (el filtro ya las
+    // trata juntas en _matchesAnemia); el anillo conserva los dos colores y el
+    // punto de la fila muestra ambos.
+    const LEYENDA = CLASES
+      .filter(c => c.key !== "Severa")
+      .map(c => c.key === "Moderada"
+        ? { ...c, etiqueta: "Moderada o severa", color: "linear-gradient(90deg, var(--gt-orange) 50%, var(--gt-red) 50%)" }
+        : { ...c, etiqueta: c.key });
     const cuenta = { Normal: 0, Leve: 0, Moderada: 0, Severa: 0 };
     let conDato = 0;
     let sumaHb = 0;
@@ -1216,12 +1224,25 @@ export const SaludCredView = {
     const filtroClase = this._filterAnemia && this._filterAnemia.length === 1
       ? this._filterAnemia[0]
       : null;
-    const pctDe = (n) => conDato > 0 ? Math.round((n / conDato) * 100) : null;
-    const pctSinAnemia = pctDe(cuenta.Normal);
+    // Porcentajes con reparto por mayor resto: las cuatro clases suman 100 y
+    // «Con anemia» coincide con Leve + Moderada + Severa. El redondeo
+    // independiente dejaba 46 + 38 + 15 + 0 = 99 frente al 54 % del KPI.
+    const pctClase = (() => {
+      if (conDato <= 0) return { Normal: 0, Leve: 0, Moderada: 0, Severa: 0 };
+      const exactos = CLASES.map(c => (cuenta[c.key] / conDato) * 100);
+      const bases = exactos.map(Math.floor);
+      const resto = 100 - bases.reduce((a, b) => a + b, 0);
+      const orden = exactos
+        .map((v, i) => ({ i, frac: v - bases[i] }))
+        .sort((a, b) => b.frac - a.frac);
+      for (let j = 0; j < resto; j++) bases[orden[j % orden.length].i]++;
+      return Object.fromEntries(CLASES.map((c, i) => [c.key, bases[i]]));
+    })();
+    const pctSinAnemia = pctClase.Normal;
     const conAnemia = conDato - cuenta.Normal;
-    const pctConAnemia = pctDe(conAnemia);
+    const pctConAnemia = conDato > 0 ? 100 - pctSinAnemia : 0;
     const promedio = nHb > 0 ? Math.round((sumaHb / nHb) * 10) / 10 : null;
-    const mesNombre = hoy.toLocaleDateString("es-PE", { month: "long" });
+    const mesNombre = hoy.toLocaleDateString("es-PE", { month: "long" }).toLocaleLowerCase("es-PE");
 
     // --- Anillo: arcos proporcionales con separación fija entre segmentos ---
     const R = 66;
@@ -1231,9 +1252,7 @@ export const SaludCredView = {
     if (grupo && grupo.childElementCount === 0) {
       grupo.innerHTML = CLASES.map((c, i) => `
         <circle class="dash-arc" id="dashArc${c.key}" cx="84" cy="84" r="${R}"
-          data-clase="${c.key}" tabindex="0" role="button"
-          aria-label="Filtrar la tabla por ${c.key.toLowerCase()}"
-          aria-pressed="false"
+          data-clase="${c.key}" aria-hidden="true"
           stroke="${c.color}" stroke-opacity="${c.opacidad}"
           style="--dash-arc-delay:${240 + i * 90}ms;">
           <title>${c.key}</title>
@@ -1250,7 +1269,9 @@ export const SaludCredView = {
         }
         const clase = arco.getAttribute("data-clase");
         if (clase && typeof window.dashboardFiltrar === "function") {
-          window.dashboardFiltrar("clase", clase);
+          // El anillo conserva el arco rojo de Severa, pero la leyenda y el
+          // filtro agrupan Moderada + Severa: pulsar el rojo filtra el grupo.
+          window.dashboardFiltrar("clase", clase === "Severa" ? "Moderada" : clase);
         }
       };
       grupo.addEventListener("click", activar);
@@ -1271,7 +1292,6 @@ export const SaludCredView = {
         || c.key === filtroClase
         || (filtroClase === "Moderada" && c.key === "Severa");
       arco.setAttribute("stroke-opacity", String(!filtroClase ? c.opacidad : (cubierto ? 1 : 0.24)));
-      arco.setAttribute("aria-pressed", filtroClase === c.key ? "true" : "false");
       const titulo = arco.querySelector("title");
       if (titulo) {
         titulo.textContent = `${c.key} (${c.rango} g/dL): ${cuenta[c.key]} · ${conDato ? Math.round(frac * 100) : 0}%`;
@@ -1282,10 +1302,12 @@ export const SaludCredView = {
     // --- Centro: sin filtro informa el porcentaje sano; con filtro, la clase ---
     const foco = filtroClase
       ? {
-          pct: pctDe(cuenta[filtroClase] + (filtroClase === "Moderada" ? cuenta.Severa : 0)),
+          pct: filtroClase === "Moderada"
+            ? pctClase.Moderada + pctClase.Severa
+            : pctClase[filtroClase],
           label: filtroClase === "Moderada" ? "moderada o severa" : filtroClase.toLowerCase(),
         }
-      : { pct: pctSinAnemia, label: "sin anemia" };
+      : { pct: pctSinAnemia, label: "Normal" };
     const pctEl = document.getElementById("dashDonutPct");
     if (pctEl) pctEl.textContent = foco.pct != null ? `${foco.pct}%` : "—";
     const labelEl = document.getElementById("dashDonutLabel");
@@ -1294,31 +1316,35 @@ export const SaludCredView = {
     const svg = document.getElementById("dashDonut");
     if (svg) {
       svg.setAttribute("aria-label", conDato > 0
-        ? `Distribución por semáforo MINSA: ${cuenta.Normal} Normal, ${cuenta.Leve} Leve, ${cuenta.Moderada} Moderada y ${cuenta.Severa} Severa; ${pctSinAnemia}% sin anemia.`
+        ? `Distribución por semáforo MINSA: ${cuenta.Normal} Normal, ${cuenta.Leve} Leve, ${cuenta.Moderada} Moderada y ${cuenta.Severa} Severa; ${pctSinAnemia}% Normal.`
         : "Distribución por semáforo MINSA: sin diagnósticos registrados.");
     }
 
     // --- Leyenda: se construye una sola vez; luego solo cifras y estados ---
     const leyenda = document.getElementById("dashLeyenda");
-    if (leyenda && leyenda.childElementCount === 0) {
-      leyenda.innerHTML = CLASES.map((c, i) => `
+    if (leyenda && !leyenda.dataset.built) {
+      leyenda.innerHTML = LEYENDA.map((c, i) => `
         <button type="button" class="dash-leyenda-item" data-clase="${c.key}"
           style="--dash-seg:${c.color}; --dash-legend-delay:${340 + i * 80}ms;"
           aria-pressed="false"
-          title="Filtrar la tabla por ${c.key.toLowerCase()}"
+          title="Filtrar la tabla por ${c.etiqueta.toLowerCase()}"
           onclick="window.dashboardFiltrar ? window.dashboardFiltrar('clase', '${c.key}') : null">
           <span class="dash-leyenda-dot" aria-hidden="true"></span>
-          <span class="dash-leyenda-name">${c.key} <span class="dash-leyenda-rango">${c.rango}</span></span>
+          <span class="dash-leyenda-name">${c.etiqueta} <span class="dash-leyenda-rango">${c.rango}</span></span>
           <span class="dash-leyenda-count" id="dashCuenta${c.key}">0</span>
           <span class="dash-leyenda-pct" id="dashPct${c.key}">0%</span>
         </button>`).join("");
+      leyenda.dataset.built = "1";
     }
-    CLASES.forEach(c => {
+    LEYENDA.forEach(c => {
       const cuentaEl = document.getElementById(`dashCuenta${c.key}`);
       const pctItem = document.getElementById(`dashPct${c.key}`);
       const item = leyenda ? leyenda.querySelector(`[data-clase="${c.key}"]`) : null;
-      if (cuentaEl) cuentaEl.textContent = String(cuenta[c.key]);
-      if (pctItem) pctItem.textContent = conDato > 0 ? `${Math.round((cuenta[c.key] / conDato) * 100)}%` : "0%";
+      const esModerada = c.key === "Moderada";
+      const n = esModerada ? cuenta.Moderada + cuenta.Severa : cuenta[c.key];
+      const pct = esModerada ? pctClase.Moderada + pctClase.Severa : pctClase[c.key];
+      if (cuentaEl) cuentaEl.textContent = String(n);
+      if (pctItem) pctItem.textContent = conDato > 0 ? `${pct}%` : "0%";
       if (item) {
         // Solo la clase elegida queda pulsada; «Moderada» incluye filas severas
         // sin afirmar que el filtro activo sea «Severa».
@@ -1357,6 +1383,20 @@ export const SaludCredView = {
     setTxt("dashKpiAnemiaNote", pctConAnemia != null
       ? `${pctConAnemia}% de los diagnosticados`
       : "Hb menor a 11.0 g/dL");
+    // El número de «Con anemia» toma el color del caso más grave presente:
+    // ámbar si solo hay leves, naranja con moderadas, rojo con severas.
+    const estadoAnemia = cuenta.Severa > 0
+      ? "is-alerta"
+      : cuenta.Moderada > 0
+        ? "is-moderada"
+        : cuenta.Leve > 0
+          ? "is-leve"
+          : "is-normal";
+    const anemiaVal = document.getElementById("dashKpiAnemiaVal");
+    if (anemiaVal) {
+      anemiaVal.classList.remove("is-normal", "is-leve", "is-moderada", "is-alerta");
+      anemiaVal.classList.add(estadoAnemia);
+    }
     setTxt("dashKpiHbVal", promedio != null ? promedio.toFixed(1) : "—");
     const hbEl = document.getElementById("dashKpiHbVal");
     if (hbEl) {
@@ -1383,6 +1423,11 @@ export const SaludCredView = {
     const anemiaBtn = document.getElementById("dashKpiAnemia");
     if (anemiaBtn) {
       anemiaBtn.setAttribute("aria-pressed", this._filterHbNivel === "anemia" ? "true" : "false");
+      const ring = estadoAnemia === "is-alerta" ? "var(--gt-red)"
+        : estadoAnemia === "is-moderada" ? "var(--gt-orange)"
+          : estadoAnemia === "is-leve" ? "var(--gt-yellow)"
+            : "var(--gt-green)";
+      anemiaBtn.style.setProperty("--dash-kpi-ring", ring);
     }
   },
   /**

@@ -1,0 +1,89 @@
+---
+// ===========================================================================
+//  PANEL DE FILTROS - ESTRUCTURA COMPARTIDA
+// ===========================================================================
+//  El contenedor, el botón, la cabecera y el pie estaban copiados en las siete
+//  páginas. Aquí viven una sola vez; cada vista aporta únicamente sus campos.
+//  Los ids se pasan como props para no romper el JavaScript de cada vista.
+// ===========================================================================
+
+interface Props {
+  /** id del .audit-filters-dropdown */
+  id: string;
+  /** id del botón que abre el panel */
+  btnId: string;
+  /** id del .audit-filters-menu */
+  menuId: string;
+  /** Título visible en la cabecera */
+  titulo: string;
+  /** id del contador de filtros activos; si se omite no se pinta */
+  badgeId?: string;
+  /** onclick del botón Restablecer */
+  resetOnclick: string;
+  /** onclick del botón Filtros; por defecto alterna el dropdown */
+  toggleOnclick?: string;
+  /** Texto del botón del pie (solo visible en móvil) */
+  applyLabel?: string;
+}
+
+const {
+  id,
+  btnId,
+  menuId,
+  titulo,
+  badgeId,
+  resetOnclick,
+  toggleOnclick,
+  applyLabel = 'Aplicar Filtros',
+} = Astro.props;
+
+const toggle =
+  toggleOnclick ?? `window.toggleCustomDropdown ? window.toggleCustomDropdown('${id}') : null`;
+---
+
+<div class="audit-filter-panel-wrap">
+  <div class="custom-dropdown audit-filters-dropdown" id={id}>
+    <button type="button" class="btn-action audit-filter-btn" id={btnId} onclick={toggle}>
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+      </svg>
+      <span>Filtros</span>
+      {badgeId && <span class="audit-filter-badge" id={badgeId} style="display:none;">0</span>}
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" class="filter-caret">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+      </svg>
+    </button>
+
+    <div class="custom-dropdown-menu audit-filters-menu" id={menuId}>
+      <div class="audit-filters-header">
+        <div class="audit-filters-header-title">
+          <span>{titulo}</span>
+        </div>
+        <div class="audit-filters-header-actions">
+          <button type="button" class="btn-text-subtle" onclick={resetOnclick}>Restablecer</button>
+          <button type="button" class="btn-close-sheet" aria-label="Cerrar filtros"
+            onclick="window.closeAllFilterSheets ? window.closeAllFilterSheets() : null">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="audit-filters-body">
+        <slot />
+      </div>
+
+      <div class="audit-filters-footer">
+        <button type="button" class="btn-action primary btn-apply-filters"
+          onclick="window.closeAllFilterSheets ? window.closeAllFilterSheets() : null">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+          </svg>
+          <span>{applyLabel}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

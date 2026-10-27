@@ -293,6 +293,10 @@
       .cred-calc-body {
         padding: 14px 12px 16px !important;
       }
+      .cred-calc-grid {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+      }
       .dash-charts-grid {
         grid-template-columns: 1fr !important;
         gap: 14px !important;
@@ -310,7 +314,7 @@
       background: var(--surface-1);
       border: 1px solid var(--border-subtle);
       border-left: 1px solid var(--gt-green);
-      border-radius: var(--radius-md);
+      border-radius: 10px;
       padding: 12px 14px;
       display: flex;
       flex-direction: column;
@@ -329,7 +333,7 @@
       color: var(--text-dim);
       background: var(--surface-2);
       padding: 2px 6px;
-      border-radius: var(--radius-sm);
+      border-radius: 4px;
       align-self: flex-start;
     }
 
@@ -738,7 +742,7 @@
     background: var(--surface-1) !important;
     border: 1px solid var(--border-subtle) !important;
     border-bottom: none !important;
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0 !important;
+    border-radius: 20px 20px 0 0 !important;
     box-shadow: var(--shadow-ambient) !important;
     overflow-y: auto !important;
     overscroll-behavior: contain !important;
@@ -791,7 +795,7 @@
     width: 40px !important;
     height: 4.5px !important;
     border-radius: 999px !important;
-    background: var(--border-strong, var(--border-bright)) !important;
+    background: var(--border-strong, #94a3b8) !important;
     opacity: 0.8 !important;
     transition: transform var(--dur-fast), background var(--dur-fast) !important;
   }
@@ -853,7 +857,7 @@
   }
 
   .sedes-detail-name {
-    font-size: 20px !important;
+    font-size: 19px !important;
   }
 
   .sedes-detail-actions {

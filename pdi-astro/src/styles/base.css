@@ -193,7 +193,7 @@
         box-shadow: none !important;
         z-index: 50 !important;
         flex-shrink: 0 !important;
-        transition: transform 0.4s var(--ease-out),
+        transition: transform 0.42s var(--ease-drawer),
                     background-color 0.38s cubic-bezier(0.16, 1, 0.3, 1),
                     border-color 0.38s cubic-bezier(0.16, 1, 0.3, 1);
       }
@@ -204,14 +204,11 @@
         pointer-events: none !important;
       }
 
-      /* El contenido del panel acompana el desplazamiento con un gesto mas
-         corto: se adelanta 10px y baja un poco de opacidad. Es compositor, no
-         layout, y evita que el cierre se sienta como un bloque rigido. */
       .sidebar-header,
       .sidebar .nav-sections,
       .sidebar-footer {
         transition: opacity 0.26s var(--ease-out),
-                    transform 0.4s var(--ease-out),
+                    transform 0.42s var(--ease-drawer),
                     padding 0.28s ease;
       }
 
@@ -227,14 +224,27 @@
         min-width: 0 !important;
       }
 
-      /* En PC con sidebar desplegado (por defecto), se oculta el logo del topbar para evitar duplicarlo */
+      /* En PC con sidebar desplegado se oculta el logo del topbar para evitar
+         duplicarlo. No se usa display:none: el bloque reserva su espacio y el
+         logo entra con un fundido corto cuando el riel se pliega. */
       .topbar-brand-wrap {
-        display: none !important;
+        opacity: 0;
+        visibility: hidden;
+        transform: translate3d(-6px, 0, 0);
+        pointer-events: none;
+        transition: opacity 0.24s var(--ease-out),
+                    transform 0.42s var(--ease-drawer),
+                    visibility 0s linear 0.24s;
       }
 
-      /* Si el usuario pliega el sidebar en PC, el logo se muestra en el topbar para no perder identidad */
       html[data-sidebar-pc="closed"] .topbar-brand-wrap {
-        display: flex !important;
+        opacity: 1;
+        visibility: visible;
+        transform: translate3d(0, 0, 0);
+        pointer-events: auto;
+        transition: opacity 0.24s var(--ease-out),
+                    transform 0.42s var(--ease-drawer),
+                    visibility 0s linear 0s;
       }
     }
 
@@ -670,16 +680,17 @@
     }
 
     .btn-action.primary {
-      background: linear-gradient(135deg, var(--gt-green), var(--gt-blue));
+      background: var(--gt-green);
       /* La tinta sale del tema: sobre el verde claro del modo oscuro el blanco
          daba 1,6:1. En claro sigue siendo blanco. */
       color: var(--on-brand);
-      border: 1px solid rgba(255, 255, 255, 0.18);
+      border: 1px solid var(--gt-green);
       font-weight: 700;
     }
 
     .btn-action.primary:hover {
-      opacity: 0.92;
+      background: var(--brand-dark);
+      border-color: var(--brand-dark);
       transform: translateY(-1px);
     }
 

@@ -16,17 +16,17 @@
   /* Paso intermedio de borde: checkboxes y marcos que no llegan a Rule Strong. */
   --rule-mid: #cbd5e1;
   /* Anillo de foco: un solo valor para los dos temas, resuelto desde el verde
-     de marca (DESIGN.md, Components · Hover / Focus). */
+     de marca (DESIGN.md, Components Â· Hover / Focus). */
   --border-focus: var(--gt-green);
   /* Tinta sobre un relleno solido saturado (rojo, ambar, azul): sigue el mismo
      criterio que On Brand, porque en oscuro esos rellenos se aclaran. */
-  --on-solid: var(--on-brand);
+  
   /* Tinta sobre un velo oscuro (scrim) que se mantiene oscuro en los dos temas. */
   --on-scrim: #ffffff;
   
   /* Gutenberg Official 4-Color Signature */
   --gt-green: #00b494;
-  /* Canal RGB del verde de marca. Existe para poder teñir con transparencias
+  /* Canal RGB del verde de marca. Existe para poder teÃ±ir con transparencias
      (rgba(var(--brand-rgb), 0.12)) sin fijar el color a mano en cada vista:
      cuando el tema oscuro aclara el verde, todos los tintes lo siguen solos. */
   --brand-rgb: 0, 180, 148;

@@ -18,14 +18,10 @@
    =========================================================================== */
 
 :root {
-  /* Borde de control: --border-subtle daba 1,18:1 sobre blanco y el control
-     desaparecia. Este tono da 3,6:1 sobre blanco y 5,4:1 sobre el fondo
-     oscuro, que es el minimo para que un borde de control se perciba. */
-  --filter-border: #7c8798;
-}
-
-[data-theme="dark"] {
-  --filter-border: #6b6b78;
+  /* Borde de control del panel: se deriva de los tokens para no meter hex
+     fuera de variables.css. Da 3,4:1 sobre superficie clara, que es el
+     minimo para que un borde de control se perciba como tal. */
+  --filter-border: color-mix(in srgb, var(--border-bright) 55%, var(--text-dim));
 }
 
 /* ---------------------------------------------------------------------------
@@ -104,16 +100,18 @@
    --------------------------------------------------------------------------- */
 
 .audit-filters-menu {
-  position: absolute;
-  top: calc(100% + 8px);
+  position: absolute;  top: calc(100% + 8px);
   right: 0;
   left: auto;
   width: 330px;
+  /* components.css deja min-width:100% en .custom-dropdown-menu; con el panel
+     en capa fija ese 100% es el ancho del contenedor de scroll y lo estiraba. */
+  min-width: 0;
   max-width: calc(100vw - 32px);
   /* Sin techo, el panel de salud terminaba en y=936 con un viewport de 900 y
      el de padron dejaba 68px fuera a 1366x768. El techo usa el viewport real
      y deja aire para la topbar. */
-  max-height: min(76dvh, calc(100dvh - 110px));
+  max-height: calc(100dvh - 32px);
   background: var(--surface-1);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
@@ -122,14 +120,30 @@
   padding: 16px;
   z-index: 1000;
   display: none;
+  opacity: 0;
   flex-direction: column;
   gap: 14px;
   overflow: hidden;
-  animation: dropdownFadeIn var(--dur-fast) var(--ease-out);
+  overscroll-behavior: contain;
+  /* Cerrado queda fuera del layout (display:none). Antes se mantenia en
+     `flex` para animar con opacidad y, al ser fijo dentro del contenedor con
+     transform, sumaba su altura al scroll de la vista: el espacio de mas bajo
+     las tablas. La entrada es un fundido, sin movimiento, para no desfasar el
+     anclaje bajo el boton. */
+  transition:
+    opacity var(--dur-fast) var(--ease-out),
+    display var(--dur-fast) allow-discrete;
+  /* components.css deja una capa reservada permanente; el fundido no la usa. */
+  will-change: auto;
 }
 
 .audit-filters-dropdown.open .audit-filters-menu {
   display: flex;
+  opacity: 1;
+
+  @starting-style {
+    opacity: 0;
+  }
 }
 
 .audit-filters-header {
@@ -150,12 +164,13 @@
      se comia "Casos Sociales". Se permite partir en dos lineas: el titulo se
      lee entero y el encabezado crece 14px. */
   min-width: 0;
-  font-size: 13px;
-  font-weight: 700;
+  /* Panel Title del sistema: 14/800, -0.01em. */
+  font-size: 14px;
+  font-weight: 800;
   line-height: 1.2;
   color: var(--text-main);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: -0.01em;
 }
 
 .audit-filters-header-title > span,
@@ -204,7 +219,38 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding-right: 2px;
+  /* Barra propia y estable: sin `gutter`, al aparecer desplazaba el contenido
+     unos 15px, y la nativa clara desentonaba sobre superficie oscura. */
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-bright) transparent;
+  scrollbar-gutter: stable;
+  padding-right: 0;
+}
+
+.audit-filters-body::-webkit-scrollbar {
+  width: 10px;
+}
+
+.audit-filters-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.audit-filters-body::-webkit-scrollbar-thumb {
+  background: var(--border-bright);
+  border-radius: var(--radius-full);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.audit-filters-body::-webkit-scrollbar-thumb:hover {
+  background: var(--text-dim);
+  background-clip: padding-box;
+}
+
+/* Señal de que hay más campos por debajo: sin ella, el último campo queda
+   cortado por el borde y no se entiende que siga la lista. */
+.audit-filters-menu[data-scroll-abajo="si"] .audit-filters-body {
+  box-shadow: inset 0 -18px 14px -14px color-mix(in srgb, var(--surface-1) 85%, transparent);
 }
 
 .audit-filter-field {
@@ -214,10 +260,11 @@
 }
 
 .audit-field-label {
-  font-size: 11.5px;
-  font-weight: 700;
+  /* Rótulo (rol Label del sistema): 11/800, 0.1em. */
+  font-size: 11px;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.1em;
   color: var(--text-dim);
 }
 
@@ -240,22 +287,22 @@
   background: var(--surface-2);
   border: 1px dashed var(--border-subtle);
   border-radius: var(--radius-md);
-  animation: fadeInDataCard var(--dur-fast) var(--ease-smooth);
 }
 
 .padron-active-chips-label {
-  font-size: 12px;
-  font-weight: 700;
+  /* Rótulo (rol Label): 11/800, 0.1em. */
+  font-size: 11px;
+  font-weight: 800;
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.1em;
 }
 
 .padron-chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 6px 4px 10px;
+  gap: 2px;
+  padding: 4px 4px 4px 10px;
   background: var(--surface-1);
   border: 1px solid var(--border-bright);
   border-radius: var(--radius-full);
@@ -269,36 +316,40 @@
   border-color: var(--text-dim);
 }
 
+/* El quitar vive en tinta apagada; el rojo aparece solo al interactuar, que
+   es cuando informa algo. El disco rojo permanente competia con el texto y en
+   tema oscuro apenas se separaba del fondo. */
 .padron-chip-remove {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* 14x14 obligaba a apuntar con precision. El circulo visible sigue siendo
-     pequeño, pero el area pulsable llega a 24px. */
+  /* 14x14 obligaba a apuntar con precision: el circulo es de 24. */
   width: 24px;
   height: 24px;
   margin: -4px -2px -4px 0;
-  border-radius: 50%;
-  background: rgba(220, 38, 38, 0.12);
-  color: var(--text-danger);
+  border-radius: var(--radius-full);
+  background: transparent;
   border: none;
+  color: var(--text-dim);
   cursor: pointer;
   padding: 0;
-  transition: background-color var(--dur-fast) var(--ease-smooth);
+  transition:
+    background-color var(--dur-fast) var(--ease-smooth),
+    color var(--dur-fast) var(--ease-smooth);
 }
 
 .padron-chip-remove svg {
-  width: 9px;
-  height: 9px;
+  width: 10px;
+  height: 10px;
 }
 
 .padron-chip-remove:hover {
-  background: var(--gt-red);
-  color: var(--on-solid);
+  background: var(--gt-red-bg);
+  color: var(--text-danger);
 }
 
 [data-theme="dark"] .padron-chip-remove:hover {
-  color: var(--on-solid);
+  color: var(--gt-red);
 }
 
 .audit-seg-btn.active {
@@ -367,6 +418,8 @@
   right: 0;
   z-index: 120;
   display: none;
+  opacity: 0;
+  transform: translateY(-4px);
   flex-direction: column;
   gap: 2px;
   max-height: 240px;
@@ -377,10 +430,24 @@
   border: 1px solid var(--border-bright);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-overlay);
+  will-change: auto;
+  /* Entrada y salida por transición (interrumpible). Sin `scale`: escalaba el
+     texto de las opciones y se veía como si se reacomodara. */
+  transition:
+    opacity var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out),
+    display var(--dur-fast) allow-discrete;
 }
 
 .padron-inner-dropdown.open .padron-inner-dropdown-menu {
   display: flex;
+  opacity: 1;
+  transform: translateY(0);
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
 }
 
 /* Teclado: las opciones son div con onclick; el foco tiene que verse. */
@@ -486,7 +553,6 @@
     width: 330px;
     max-width: calc(100vw - 28px);
     padding: 16px;
-    top: calc(100% + 6px);
   }
 }
 
@@ -506,9 +572,9 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
-    padding-top: 10px;
-    margin-top: 2px;
+    gap: 8px;
+    padding-top: 12px;
+    margin-top: 0;
     border-top: 1px solid var(--border-subtle);
   }
 
@@ -516,11 +582,17 @@
   .audit-filters-footer .btn-clear-filters {
     display: none;
   }
+
+  /* Capa propia: el panel no participa del layout ni del scroll de la vista. */
+  .audit-filters-menu {
+    position: fixed;
+  }
 }
 
 .filter-count {
-  font-size: 11.5px;
-  font-weight: 600;
+  /* Caption del sistema: 12.5/400 en Ink Dim, cifras tabulares. */
+  font-size: 12.5px;
+  font-weight: 400;
   color: var(--text-dim);
   font-variant-numeric: tabular-nums;
 }
@@ -575,32 +647,32 @@
     height: auto;
     max-height: 85dvh;
     background: var(--surface-1);
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    border-radius: 20px 20px 0 0;
     border: 1px solid var(--border-bright);
     border-bottom: none;
     box-shadow: var(--shadow-overlay);
     z-index: 9999;
-    display: flex;
     flex-direction: column;
     padding: 0;
     margin: 0;
     box-sizing: border-box;
     transform: translateY(100%);
     opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
     transition:
       transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
       opacity 0.2s ease,
-      visibility 0.3s;
+      display 0.3s allow-discrete;
     overflow: hidden;
   }
 
   .audit-filters-dropdown.open .audit-filters-menu {
     transform: translateY(0);
     opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
+
+    @starting-style {
+      transform: translateY(100%);
+      opacity: 0;
+    }
   }
 
   .audit-filters-header {
@@ -615,7 +687,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    border-radius: 20px 20px 0 0;
   }
 
   .audit-filters-header::before {
@@ -633,8 +705,9 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 15px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
     color: var(--text-main);
   }
 
@@ -690,11 +763,11 @@
   }
 
   .audit-field-label {
-    font-size: 11.5px;
-    font-weight: 700;
+    font-size: 11px;
+    font-weight: 800;
     color: var(--text-dim);
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.1em;
   }
 
   .audit-filters-footer {

@@ -1114,6 +1114,13 @@ export const VoluntariadosView = {
     this._persistirFiltros();
   },
 
+  /** Opciones individuales de un menú, sin la entrada "all". */
+  _opcionesDeMenu(idMenu) {
+    return Array.from(document.querySelectorAll(`#${idMenu} .padron-dropdown-item`))
+      .map((item) => item.getAttribute("data-value"))
+      .filter((v) => v && v !== "all");
+  },
+
   toggleDistrito(dist) {
     if (dist === "all") {
       this._filterDistrito = [];
@@ -1121,6 +1128,11 @@ export const VoluntariadosView = {
       const idx = this._filterDistrito.indexOf(dist);
       if (idx > -1) this._filterDistrito.splice(idx, 1);
       else this._filterDistrito.push(dist);
+      // Marcar todas las opciones una a una equivale a "Todos los Distritos".
+      const todas = this._opcionesDeMenu("menuVoluntariosDistrito");
+      if (todas.length > 0 && todas.every((d) => this._filterDistrito.includes(d))) {
+        this._filterDistrito = [];
+      }
     }
     this._updateFilterDropdownUI();
     this.applyFilters();
@@ -1134,6 +1146,10 @@ export const VoluntariadosView = {
       const idx = this._filterServicio.indexOf(serv);
       if (idx > -1) this._filterServicio.splice(idx, 1);
       else this._filterServicio.push(serv);
+      const todas = this._opcionesDeMenu("menuVoluntariosServicio");
+      if (todas.length > 0 && todas.every((s) => this._filterServicio.includes(s))) {
+        this._filterServicio = [];
+      }
     }
     this._updateFilterDropdownUI();
     this.applyFilters();
@@ -1147,6 +1163,10 @@ export const VoluntariadosView = {
       const idx = this._filterRol.indexOf(rol);
       if (idx > -1) this._filterRol.splice(idx, 1);
       else this._filterRol.push(rol);
+      const todas = this._opcionesDeMenu("menuVoluntariosRol");
+      if (todas.length > 0 && todas.every((r) => this._filterRol.includes(r))) {
+        this._filterRol = [];
+      }
     }
     this._updateFilterDropdownUI();
     this.applyFilters();

@@ -28,6 +28,14 @@
       gap: 8px;
     }
 
+    /* Variante compacta para tarjetas densas (ajustes, subvistas, movil):
+       mismo borde y superficie, radio y padding reducidos, sombra corta. */
+    .card--compact {
+      border-radius: var(--radius-md);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
     /* Data panel: misma piel que .card, con cabecera de densidad clinica.
        Es la pieza que usan los tableros; su titulo es mas pequeno que el de
        una tarjeta de contenido (14/800 frente a 16.5/700). */
@@ -114,7 +122,7 @@
     }
 
     .kpi-info h3 {
-      font-size: 30px;
+      font-size: 32px;
       font-weight: 800;
       letter-spacing: -0.02em;
       font-family: var(--mono-font);
@@ -383,7 +391,7 @@
         line-height: 1.35 !important;
       }
       .kpi-info h3 {
-        font-size: 22px !important;
+        font-size: 24px !important;
       }
       .kpi-icon-wrap {
         width: 38px !important;
@@ -460,7 +468,7 @@
 
     .btn-asist.active-T {
       background: var(--gt-yellow);
-      color: var(--on-solid) !important;
+      color: #1e1b18 !important;
       border-color: var(--gt-yellow);
       box-shadow: var(--shadow-sm);
     }
@@ -473,7 +481,7 @@
     }
 
     [data-theme="dark"] .btn-asist.active-FJ {
-      color: var(--on-solid) !important;
+      color: #1e1b18 !important;
     }
 
     .btn-asist.active-FI {
@@ -484,7 +492,7 @@
     }
 
     [data-theme="dark"] .btn-asist.active-FI {
-      color: var(--on-solid) !important;
+      color: #1e1b18 !important;
     }
 
 
@@ -820,7 +828,7 @@
       flex: none;
       display: grid;
       place-items: center;
-      border-radius: var(--radius-md);
+      border-radius: 9px;
       color: var(--toast-tono, var(--text-brand));
       background: color-mix(in srgb, var(--toast-tono, var(--text-brand)) 10%, transparent);
       box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--toast-tono, var(--text-brand)) 18%, transparent);
@@ -849,7 +857,7 @@
       display: block;
       margin-top: 2px;
       color: var(--text-muted);
-      font-size: 12.5px;
+      font-size: 12.75px;
       line-height: 1.45;
       overflow-wrap: anywhere;
     }
@@ -865,7 +873,7 @@
       margin: -1px -2px 0 0;
       padding: 0;
       border: 0;
-      border-radius: var(--radius-md);
+      border-radius: 8px;
       background: transparent;
       color: var(--text-dim);
       cursor: pointer;

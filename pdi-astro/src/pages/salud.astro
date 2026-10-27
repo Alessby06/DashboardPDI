@@ -34,10 +34,10 @@ import "../styles/views-salud.css";
     </div>
 
     <!-- Panel rápido CRED: semáforo MINSA + KPIs (sustituye a la calculadora) -->
-    <section class="dash-rapido" id="dashRapido" aria-label="Panel rápido de salud CRED">
+    <section class="panel dash-rapido" id="dashRapido" aria-label="Panel rápido de salud CRED">
       <div class="dash-rapido-head">
         <h3 class="dash-rapido-title">Panel rápido CRED</h3>
-        <p class="dash-rapido-hint">Toca un bloque, un segmento o la leyenda para filtrar la tabla de evaluaciones</p>
+        <p class="dash-rapido-hint">Selecciona la leyenda, el anillo o «Con anemia» para filtrar la tabla de evaluaciones</p>
       </div>
       <div class="dash-rapido-statusbar">
         <p class="dash-rapido-state" id="dashRapidoState" tabindex="-1" aria-live="polite">Mostrando los usuarios del padrón</p>
@@ -50,17 +50,16 @@ import "../styles/views-salud.css";
             <circle class="dash-donut-track" cx="84" cy="84" r="66"></circle>
             <g id="dashDonutArcs"></g>
           </svg>
-          <div class="dash-donut-center">
+          <div class="dash-donut-center" aria-hidden="true">
             <strong id="dashDonutPct">46%</strong>
-            <span id="dashDonutLabel">sin anemia</span>
+            <span id="dashDonutLabel">Normal</span>
           </div>
         </div>
 
                 <div class="dash-leyenda" id="dashLeyenda" role="group" aria-label="Filtrar la tabla por diagnóstico">
           <button type="button" class="dash-leyenda-item" data-clase="Normal" style="--dash-seg:var(--gt-green);" aria-pressed="false" title="Filtrar la tabla por normal" onclick="window.dashboardFiltrar ? window.dashboardFiltrar('clase', 'Normal') : null"><span class="dash-leyenda-dot" aria-hidden="true"></span><span class="dash-leyenda-name">Normal <span class="dash-leyenda-rango">≥ 11.0</span></span><span class="dash-leyenda-count" id="dashCuentaNormal">6</span><span class="dash-leyenda-pct" id="dashPctNormal">46%</span></button>
           <button type="button" class="dash-leyenda-item" data-clase="Leve" style="--dash-seg:var(--gt-yellow);" aria-pressed="false" title="Filtrar la tabla por leve" onclick="window.dashboardFiltrar ? window.dashboardFiltrar('clase', 'Leve') : null"><span class="dash-leyenda-dot" aria-hidden="true"></span><span class="dash-leyenda-name">Leve <span class="dash-leyenda-rango">10.0–10.9</span></span><span class="dash-leyenda-count" id="dashCuentaLeve">5</span><span class="dash-leyenda-pct" id="dashPctLeve">38%</span></button>
-          <button type="button" class="dash-leyenda-item" data-clase="Moderada" style="--dash-seg:var(--gt-red);" aria-pressed="false" title="Filtrar la tabla por moderada" onclick="window.dashboardFiltrar ? window.dashboardFiltrar('clase', 'Moderada') : null"><span class="dash-leyenda-dot" aria-hidden="true"></span><span class="dash-leyenda-name">Moderada <span class="dash-leyenda-rango">7.0–9.9</span></span><span class="dash-leyenda-count" id="dashCuentaModerada">2</span><span class="dash-leyenda-pct" id="dashPctModerada">15%</span></button>
-          <button type="button" class="dash-leyenda-item" data-clase="Severa" style="--dash-seg:var(--gt-red);" aria-pressed="false" title="Filtrar la tabla por severa" onclick="window.dashboardFiltrar ? window.dashboardFiltrar('clase', 'Severa') : null"><span class="dash-leyenda-dot" aria-hidden="true"></span><span class="dash-leyenda-name">Severa <span class="dash-leyenda-rango">&lt; 7.0</span></span><span class="dash-leyenda-count" id="dashCuentaSevera">0</span><span class="dash-leyenda-pct" id="dashPctSevera">0%</span></button>
+          <button type="button" class="dash-leyenda-item" data-clase="Moderada" style="--dash-seg:linear-gradient(90deg, var(--gt-orange) 50%, var(--gt-red) 50%);" aria-pressed="false" title="Filtrar la tabla por moderada o severa" onclick="window.dashboardFiltrar ? window.dashboardFiltrar('clase', 'Moderada') : null"><span class="dash-leyenda-dot" aria-hidden="true"></span><span class="dash-leyenda-name">Moderada o severa <span class="dash-leyenda-rango">7.0–9.9</span></span><span class="dash-leyenda-count" id="dashCuentaModerada">2</span><span class="dash-leyenda-pct" id="dashPctModerada">15%</span></button>
         </div>
         <div class="dash-kpis">
           <div class="dash-kpi dash-kpi--compact dash-kpi--static" id="dashKpiCartera" title="Usuarios del padrón de salud">

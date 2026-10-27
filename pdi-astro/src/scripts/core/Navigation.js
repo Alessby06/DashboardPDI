@@ -114,6 +114,11 @@ export const Navigation = {
 
     sidebar.classList.toggle("closed-pc", !abriendo);
     sidebar.toggleAttribute("inert", !abriendo);
+    if (abriendo) {
+      document.documentElement.removeAttribute("data-sidebar-pc");
+    } else {
+      document.documentElement.setAttribute("data-sidebar-pc", "closed");
+    }
 
     // Punto de partida visual actual, ya con el layout nuevo.
     sidebar.style.transition = "none";
@@ -135,7 +140,13 @@ export const Navigation = {
     void sidebar.offsetWidth;
     sidebar.style.removeProperty("transition");
     sidebar.style.willChange = "transform";
-    sidebar.style.transform = "translate3d(0, 0, 0)";
+
+    // Un frame con el punto de partida ya pintado evita que el navegador
+    // agrupe el cambio y arranque la transicion tarde (se notaba al abrir).
+    requestAnimationFrame(() => {
+      if (token !== this._rielToken) return;
+      sidebar.style.transform = "translate3d(0, 0, 0)";
+    });
 
     const limpiar = () => {
       sidebar.removeEventListener("transitionend", limpiar);
@@ -197,10 +208,17 @@ export const Navigation = {
       if (this._usaCajon()) {
         sidebar.classList.remove("closed-pc");
         sidebar.toggleAttribute("inert", false);
+        document.documentElement.removeAttribute("data-sidebar-pc");
       } else {
         // En PC (> 900px) limpiar cualquier clase de drawer movil
         sidebar.classList.remove("open");
-        sidebar.toggleAttribute("inert", sidebar.classList.contains("closed-pc"));
+        const cerrado = sidebar.classList.contains("closed-pc");
+        sidebar.toggleAttribute("inert", cerrado);
+        if (cerrado) {
+          document.documentElement.setAttribute("data-sidebar-pc", "closed");
+        } else {
+          document.documentElement.removeAttribute("data-sidebar-pc");
+        }
       }
     }
 
@@ -265,10 +283,17 @@ export const Navigation = {
       if (!this._usaCajon()) {
         sidebar.classList.remove("open");
         if (this._backdrop) this._backdrop.classList.remove("active");
-        sidebar.toggleAttribute("inert", sidebar.classList.contains("closed-pc"));
+        const cerrado = sidebar.classList.contains("closed-pc");
+        sidebar.toggleAttribute("inert", cerrado);
+        if (cerrado) {
+          document.documentElement.setAttribute("data-sidebar-pc", "closed");
+        } else {
+          document.documentElement.removeAttribute("data-sidebar-pc");
+        }
       } else {
         sidebar.classList.remove("closed-pc");
         sidebar.toggleAttribute("inert", false);
+        document.documentElement.removeAttribute("data-sidebar-pc");
       }
     };
     window.addEventListener("resize", this._onResize);

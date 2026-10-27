@@ -10,7 +10,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "test": "node --test \"tests/**/*.test.js\""
+    "test": "node --test \"tests/**/*.test.js\"",
+    "test:filtros": "node tests/filtros-smoke.mjs"
   },
   "dependencies": {
     "astro": "^7.3.5",

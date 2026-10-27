@@ -25,13 +25,6 @@
         width: 100% !important;
       }
 
-      .social-mobile-stage-dropdown {
-        display: inline-flex !important;
-        position: relative !important;
-        flex: 1 1 54% !important;
-        min-width: 0 !important;
-      }
-
       #dropdownSocialFilterPanel {
         display: inline-flex !important;
         position: relative !important;
@@ -47,18 +40,33 @@
         flex-shrink: 0 !important;
       }
 
-      .social-mobile-stage-select-btn .caret {
-        color: var(--text-dim) !important;
-        transition: transform var(--dur-norm) var(--ease-spring), color var(--dur-fast) var(--ease-smooth) !important;
-        flex-shrink: 0 !important;
-        width: 14px !important;
-        height: 14px !important;
-        will-change: transform;
+      .social-mobile-dropdown-item {
+        padding: 9px 12px;
+        border-radius: var(--radius-sm);
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        transition: background-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-spring) !important;
       }
 
-      .social-mobile-stage-dropdown.open .social-mobile-stage-select-btn .caret {
-        transform: rotate(180deg) !important;
-        color: var(--text-brand) !important;
+      .social-mobile-dropdown-item:active {
+        transform: scale(0.98) !important;
+      }
+
+      .social-mobile-dropdown-item .item-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .social-mobile-dropdown-item:hover {
+        background: var(--surface-hover);
       }
 
       .social-mobile-dropdown-item.selected {
@@ -118,8 +126,60 @@
       }
 
       /* Bottom Sheet / Modal Completo para Caso Social en Móvil */
+      #modalDetalleCasoSocial .modal-box {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100% !important;
+        max-height: 100vh !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+
+      #modalDetalleCasoSocial .modal-body {
+        flex: 1 1 0% !important;
+        overflow-y: auto !important;
+        padding: 16px !important;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      #modalDetalleCasoSocial .modal-footer {
+        position: sticky !important;
+        bottom: 0 !important;
+        z-index: 10;
+        padding: 12px 14px !important;
+        box-shadow: none;
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
+      #modalDetalleCasoSocial .modal-caso-footer-left,
+      #modalDetalleCasoSocial .modal-caso-footer-right {
+        display: contents !important;
+      }
+
+      #modalDetalleCasoSocial .modal-footer .btn-action {
+        width: 100% !important;
+        height: 40px !important;
+        padding: 0 8px !important;
+        justify-content: center !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        gap: 6px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        box-sizing: border-box !important;
+      }
 
       /* Si hay un único botón primario/dinámico (caso impar 3 botones), que ocupe las 2 columnas abajo */
+      #modalDetalleCasoSocial .modal-caso-footer-right > .btn-action:only-child {
+        grid-column: 1 / -1 !important;
+}
       }
 
     /* Canvas Signature */
@@ -317,12 +377,8 @@
 
     /* === PANEL RAPIDO CRED · INSTRUMENT CLUSTER === */
     .dash-rapido {
-      background: var(--surface-1);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm);
-      color: var(--text-main);
       padding: 20px 22px;
+      box-shadow: var(--shadow-sm);
       position: relative;
       overflow: hidden;
     }
@@ -412,7 +468,7 @@
     }
 
     .dash-donut-center strong {
-      font-size: 30px;
+      font-size: 34px;
       font-weight: 800;
       line-height: 1;
       letter-spacing: -0.02em;
@@ -692,7 +748,7 @@
       background: var(--surface-1);
       border: 1px solid var(--border-subtle);
       border-left: 1px solid var(--gt-green);
-      border-radius: var(--radius-md);
+      border-radius: 10px;
       padding: 12px 14px;
       display: flex;
       flex-direction: column;
@@ -711,7 +767,7 @@
       color: var(--text-dim);
       background: var(--surface-2);
       padding: 2px 6px;
-      border-radius: var(--radius-sm);
+      border-radius: 4px;
       align-self: flex-start;
     }
 
@@ -898,31 +954,31 @@
    la letra de esas clases.
    --------------------------------------------------------------------------- */
 .dash-rapido .dash-rapido-title {
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
   color: var(--text-main);
 }
 
 .dash-rapido .dash-rapido-hint {
-  font-size: 11px;
+  font-size: 12.5px;
   font-weight: 400;
   color: var(--text-dim);
 }
 
 .dash-rapido .dash-donut-center strong {
   font-size: 40px;
-  font-weight: 300;
+  font-weight: 500;
   line-height: 1;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.035em;
   font-variant-numeric: tabular-nums;
   color: var(--text-main);
 }
 
 .dash-rapido .dash-donut-center span {
-  font-size: 9.5px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
   color: var(--text-dim);
 }
 
@@ -977,7 +1033,7 @@
 }
 
 .dash-rapido .dash-leyenda-count {
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: var(--text-dim);
@@ -1000,25 +1056,41 @@
 }
 
 .dash-rapido .dash-kpi-label {
-  font-size: 9.5px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-dim);
 }
 
 .dash-rapido .dash-kpi-value {
   font-size: 30px;
-  font-weight: 300;
-  line-height: 1;
-  letter-spacing: -0.04em;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
   color: var(--text-main);
 }
 
+.dash-rapido .dash-kpi-value.is-leve {
+  color: var(--text-warning);
+}
+
+.dash-rapido .dash-kpi-value.is-normal {
+  color: var(--text-brand);
+}
+
+.dash-rapido .dash-kpi-value.is-alerta {
+  color: var(--text-danger);
+}
+
+.dash-rapido .dash-kpi-value.is-moderada {
+  color: var(--gt-orange);
+}
+
 .dash-rapido .dash-kpi-note {
-  font-size: 10.5px;
-  font-weight: 500;
+  font-size: 12.5px;
+  font-weight: 400;
   color: var(--text-dim);
 }
 
@@ -1045,7 +1117,7 @@
   width: 100%;
   padding: 4px 2px;
   border: 0;
-  border-radius: var(--radius-sm);
+  border-radius: 4px;
   background: transparent;
   text-align: left;
   font: inherit;
@@ -1067,20 +1139,20 @@
 .dash-rapido #dashLeyenda .dash-leyenda-name {
   grid-area: name;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--text-main);
 }
 
 .dash-rapido #dashLeyenda .dash-leyenda-rango {
   margin-left: 5px;
   font-size: 9.5px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-dim);
 }
 
 .dash-rapido #dashLeyenda .dash-leyenda-count {
   grid-area: count;
-  font-size: 10.5px;
+  font-size: 9.5px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: var(--text-dim);
@@ -1088,10 +1160,12 @@
 
 .dash-rapido #dashLeyenda .dash-leyenda-pct {
   grid-area: pct;
-  min-width: 40px;
+  min-width: 48px;
   text-align: right;
-  font-size: 14px;
+  font-size: 26px;
   font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.035em;
   font-variant-numeric: tabular-nums;
   color: var(--text-muted);
 }
@@ -1114,7 +1188,7 @@
   font-weight: 500;
   color: var(--text-dim);
   font-variant-numeric: tabular-nums;
-  border-radius: var(--radius-sm);
+  border-radius: 4px;
 }
 
 .dash-rapido-state:focus-visible {
@@ -1200,20 +1274,9 @@
   color: var(--text-dim);
 }
 
-/* Piso de legibilidad en el panel (los 9,5 px no se leen a 200 % de zoom) */
+/* Piso de legibilidad: el rango sube a 10.5; el resto sigue la escala del
+   contrato (Label 11, Caption 12.5). */
 .dash-rapido .dash-leyenda-rango,
 .dash-rapido #dashLeyenda .dash-leyenda-rango {
   font-size: 10.5px;
-}
-
-.dash-rapido .dash-kpi-label {
-  font-size: 10.5px;
-}
-
-.dash-rapido .dash-donut-center span {
-  font-size: 10.5px;
-}
-
-.dash-rapido .dash-rapido-hint {
-  font-size: 11.5px;
 }

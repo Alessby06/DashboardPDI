@@ -25,13 +25,6 @@
         width: 100% !important;
       }
 
-      .social-mobile-stage-dropdown {
-        display: inline-flex !important;
-        position: relative !important;
-        flex: 1 1 54% !important;
-        min-width: 0 !important;
-      }
-
       #dropdownSocialFilterPanel {
         display: inline-flex !important;
         position: relative !important;
@@ -47,18 +40,33 @@
         flex-shrink: 0 !important;
       }
 
-      .social-mobile-stage-select-btn .caret {
-        color: var(--text-dim) !important;
-        transition: transform var(--dur-norm) var(--ease-spring), color var(--dur-fast) var(--ease-smooth) !important;
-        flex-shrink: 0 !important;
-        width: 14px !important;
-        height: 14px !important;
-        will-change: transform;
+      .social-mobile-dropdown-item {
+        padding: 9px 12px;
+        border-radius: var(--radius-sm);
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        transition: background-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-spring) !important;
       }
 
-      .social-mobile-stage-dropdown.open .social-mobile-stage-select-btn .caret {
-        transform: rotate(180deg) !important;
-        color: var(--text-brand) !important;
+      .social-mobile-dropdown-item:active {
+        transform: scale(0.98) !important;
+      }
+
+      .social-mobile-dropdown-item .item-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .social-mobile-dropdown-item:hover {
+        background: var(--surface-hover);
       }
 
       .social-mobile-dropdown-item.selected {
@@ -118,8 +126,60 @@
       }
 
       /* Bottom Sheet / Modal Completo para Caso Social en Móvil */
+      #modalDetalleCasoSocial .modal-box {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100% !important;
+        max-height: 100vh !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+
+      #modalDetalleCasoSocial .modal-body {
+        flex: 1 1 0% !important;
+        overflow-y: auto !important;
+        padding: 16px !important;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      #modalDetalleCasoSocial .modal-footer {
+        position: sticky !important;
+        bottom: 0 !important;
+        z-index: 10;
+        padding: 12px 14px !important;
+        box-shadow: none;
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
+      #modalDetalleCasoSocial .modal-caso-footer-left,
+      #modalDetalleCasoSocial .modal-caso-footer-right {
+        display: contents !important;
+      }
+
+      #modalDetalleCasoSocial .modal-footer .btn-action {
+        width: 100% !important;
+        height: 40px !important;
+        padding: 0 8px !important;
+        justify-content: center !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        gap: 6px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        box-sizing: border-box !important;
+      }
 
       /* Si hay un único botón primario/dinámico (caso impar 3 botones), que ocupe las 2 columnas abajo */
+      #modalDetalleCasoSocial .modal-caso-footer-right > .btn-action:only-child {
+        grid-column: 1 / -1 !important;
+}
       }
 
     /* Canvas Signature */
@@ -398,6 +458,10 @@
       .cred-calc-body {
         padding: 14px 12px 16px !important;
       }
+      .cred-calc-grid {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+      }
       .dash-charts-grid {
         grid-template-columns: 1fr !important;
         gap: 14px !important;
@@ -415,7 +479,7 @@
       background: var(--surface-1);
       border: 1px solid var(--border-subtle);
       border-left: 1px solid var(--gt-green);
-      border-radius: var(--radius-md);
+      border-radius: 10px;
       padding: 12px 14px;
       display: flex;
       flex-direction: column;
@@ -434,7 +498,7 @@
       color: var(--text-dim);
       background: var(--surface-2);
       padding: 2px 6px;
-      border-radius: var(--radius-sm);
+      border-radius: 4px;
       align-self: flex-start;
     }
 
@@ -619,7 +683,15 @@
    ========================================== */
 #view-voluntarios .card {
   padding: 0;
-  overflow: hidden;
+  /* Sin recorte: el popover de filtros vive dentro de esta tarjeta y quedaba
+     cortado (solo asomaba una franja). El redondeo inferior lo asume el pie de
+     paginación, que ya trae radio. */
+  overflow: visible;
+}
+
+#view-voluntarios .table-responsive {
+  border-bottom-left-radius: var(--radius-lg);
+  border-bottom-right-radius: var(--radius-lg);
 }
 
 #view-voluntarios .audit-toolbar {
@@ -867,7 +939,7 @@
    nada por debajo de 11px, jerarquía por peso sobre el color. Escala = 1.
    =========================================================================== */
 .vol-reparto-title {
-  font-size: 16.5px;
+  font-size: 16px;
 }
 
 .vol-reparto-sub {
@@ -1040,6 +1112,11 @@
     gap: 12px !important;
   }
 
+  #view-voluntarios .view-title-group h2 {
+    font-size: clamp(17px, 4.8vw, 20px) !important;
+    line-height: 1.25 !important;
+  }
+
   #view-voluntarios .view-title-group p {
     font-size: 12px !important;
     line-height: 1.4 !important;
@@ -1107,7 +1184,6 @@
 }
 
 .view-actions .btn-action.primary {
-  background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-dark) 100%) !important;
   color: var(--on-brand) !important;
   border: 1px solid rgba(255, 255, 255, 0.18) !important;
   box-shadow: var(--shadow-sm);
@@ -1119,7 +1195,6 @@
 }
 
 .view-actions .btn-action.primary:hover {
-  background: linear-gradient(135deg, var(--brand-hover) 0%, var(--brand-dark) 100%) !important;
   box-shadow: var(--shadow-ambient);
   transform: translateY(-1px);
 }
@@ -1633,7 +1708,7 @@
 [data-theme="dark"] .padron-btn-ficha {
   background: rgba(255, 255, 255, 0.04) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: var(--text-muted) !important;
+  color: #e5e7eb !important;
 }
 
 [data-theme="dark"] .padron-btn-ficha:hover {
@@ -1657,7 +1732,7 @@
 
 [data-theme="dark"] .padron-role-pill {
   border-color: rgba(255, 255, 255, 0.08) !important;
-  color: var(--text-dim) !important;
+  color: #9ca3af !important;
 }
 
 [data-theme="dark"] .padron-role-pill:hover {
@@ -1687,18 +1762,18 @@ Oscuro (ya cumplía 5.77–8.28): #2dd4bf 9.88 · #fcd34d 12.76 · #7dd3fc 11.03
 
 #cardVoluntariosPadron {
   --v-tint: 0.08;
-  --v-teal: var(--brand-dark);
-  --v-amber: var(--text-warning);
-  --v-blue: var(--text-info);
+  --v-teal: #04614f;
+  --v-amber: #92400e;
+  --v-blue: #075985;
   --v-tinte-teal: rgba(var(--brand-rgb), var(--v-tint));
   --v-tinte-amber: rgba(245, 158, 11, var(--v-tint));
   --v-tinte-blue: rgba(2, 132, 199, var(--v-tint));
 }
 
 [data-theme="dark"] #cardVoluntariosPadron {
-  --v-teal: var(--gt-green);
-  --v-amber: var(--gt-yellow);
-  --v-blue: var(--gt-blue);
+  --v-teal: #2dd4bf;
+  --v-amber: #fcd34d;
+  --v-blue: #7dd3fc;
 }
 
 #cardVoluntariosPadron .data-table thead th {
@@ -1936,6 +2011,11 @@ Oscuro (ya cumplía 5.77–8.28): #2dd4bf 9.88 · #fcd34d 12.76 · #7dd3fc 11.03
     align-items: stretch !important;
     gap: 12px !important;
     width: 100% !important;
+  }
+
+  #view-voluntarios .view-title-group h2 {
+    font-size: clamp(17px, 4.8vw, 20px) !important;
+    line-height: 1.25 !important;
   }
 
   #view-voluntarios .view-title-group p {
