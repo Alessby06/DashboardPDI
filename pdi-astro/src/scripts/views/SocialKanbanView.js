@@ -1179,7 +1179,7 @@ export const SocialKanbanView = {
               </div>
 
               <!-- Motivo original -->
-              <div class="auth-justification-box" style="border-left-color: var(--border-hover); background: var(--surface-1);">
+              <div class="auth-justification-box" style="border-left-color: var(--border-bright); background: var(--surface-1);">
                 <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 2px;">
                   Motivo enviado por el solicitante:
                 </div>

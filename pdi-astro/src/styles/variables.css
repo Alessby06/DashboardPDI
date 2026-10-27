@@ -60,6 +60,9 @@
   /* Tinta que se pinta ENCIMA del verde de marca. En claro el verde es oscuro
      y admite blanco; en oscuro se aclara y pide tinta casi negra. */
   --on-brand: #ffffff;
+  /* Tinta sobre rellenos solidos (rojo, ambar, azul): en oscuro esos rellenos
+     se aclaran, asi que la tinta cambia a casi negra. */
+  --on-solid: var(--on-brand);
 
   /* Verde de marca CUANDO EL COLOR ES TEXTO (optimizado para nitidez y contraste) */
   --text-brand: #00876f;

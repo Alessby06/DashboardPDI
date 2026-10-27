@@ -589,7 +589,7 @@
     .social-tab-btn:hover {
       background: var(--surface-hover);
       color: var(--text-main);
-      border-color: var(--border-hover);
+      border-color: var(--border-bright);
     }
 
     .social-tab-btn.active {
@@ -778,7 +778,7 @@
     }
 
     .social-request-card:hover {
-      border-color: var(--border-hover);
+      border-color: var(--border-bright);
     }
 
     .social-request-card-header {
