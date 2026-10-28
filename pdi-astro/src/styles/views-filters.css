@@ -34,6 +34,13 @@
    1. ESTRUCTURA Y BOTON
    --------------------------------------------------------------------------- */
 
+/* La barra agrupa buscador y filtros. El buscador ocupa todo el ancho libre y
+   el disparador se ancla al extremo derecho: sin hueco muerto entre ambos. En
+   movil el buscador ya crecia y el grupo sigue ocupando la fila entera. */
+#mainContent .audit-toolbar {
+  justify-content: space-between;
+}
+
 .audit-filter-panel-wrap {
   position: relative;
 }

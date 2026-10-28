@@ -474,7 +474,10 @@
   display: flex;
   align-items: center;
   flex: 1;
-  max-width: 440px;
+  min-width: 0;
+  /* Crece con la barra: el disparador de filtros queda anclado a la derecha
+     y no queda un vacio entre buscador y filtros. */
+  max-width: none;
 }
 
 .audit-search-wrap > svg.audit-search-icon,
