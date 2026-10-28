@@ -4,6 +4,8 @@ import { AnimationEngine } from '../utils/AnimationEngine.js';
 import { crear as crearFiltros } from '../utils/Filters.js';
 import { crearStore } from '../utils/FilterStore.js';
 import { PROGRAMAS, PROGRAMA_POR_CLAVE } from '../../data/opcionesBeneficiario.js';
+import { contarOpciones } from '../utils/FacetCounts.js';
+import { conectarHoja } from '../utils/SheetController.js';
 
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
 // Filtros del directorio que viajan en la URL. Valores tomados de los
@@ -378,7 +380,9 @@ export const SedesView = {
 
   /**
    * Engancha los gestos táctiles de arrastre para cerrar la hoja deslizando hacia abajo.
-   * Aplica seguimiento 1:1, desvanecimiento dinámico del telón y retorno elástico.
+   * El asa superior es la unica zona de agarre, igual que en la hoja de filtros:
+   * el contenido conserva su scroll nativo. Aplica seguimiento 1:1, desvanecimiento
+   * dinamico del telon y retorno elastico.
    */
   _enlazarGestosHoja() {
     const panel = document.getElementById("sedesDetailPanel");
@@ -396,106 +400,28 @@ export const SedesView = {
       });
     }
 
-    let startY = 0;
-    let currentY = 0;
-    let isDragging = false;
-    let touchHistory = [];
+    // Sin boton X visible, Escape sigue cerrando la ficha en teclado.
+    if (!panel._escapeEnlazado) {
+      panel._escapeEnlazado = true;
+      document.addEventListener("keydown", (e) => {
+        if (e.key !== "Escape" || !panel.classList.contains("open")) return;
+        this.cerrarDetalleMovil();
+      });
+    }
 
-    panel.addEventListener("touchstart", (e) => {
-      if (typeof window === "undefined" || window.innerWidth > 840) return;
-      const touch = e.touches[0];
-      const target = e.target;
-      if (target && target.closest && target.closest(".sedes-sheet-close-x")) return;
-      const handleZone = panel.querySelector(".sedes-sheet-header-mobile, .sedes-sheet-pill-wrap");
-      const isHandle = handleZone && (handleZone === target || handleZone.contains(target));
-
-      // Solo arrastra si el toque fue en el asa superior o si el scroll interno del panel está en el tope
-      if (!isHandle && panel.scrollTop > 4) return;
-
-      startY = touch.clientY;
-      currentY = touch.clientY;
-      touchHistory = [{ y: startY, t: performance.now() }];
-      isDragging = true;
-    }, { passive: true });
-
-    panel.addEventListener("touchmove", (e) => {
-      if (!isDragging || typeof window === "undefined" || window.innerWidth > 840) return;
-      const touch = e.touches[0];
-      currentY = touch.clientY;
-      const deltaY = currentY - startY;
-
-      // Si desliza hacia arriba dentro del contenido, dejamos que el scroll nativo fluya
-      if (deltaY < 0 && panel.scrollTop > 0) {
-        isDragging = false;
-        return;
-      }
-
-      if (deltaY > 0) {
-        // Arrastre hacia abajo: seguimiento físico 1:1
-        if (e.cancelable) e.preventDefault();
-        panel.style.transition = "none";
-        panel.style.transform = `translateY(${deltaY}px)`;
-
-        const bd = document.getElementById("sedesSheetBackdrop");
-        if (bd) {
-          const ratio = Math.max(0, 1 - (deltaY / 280));
-          bd.style.opacity = String(ratio);
-        }
-      }
-
-      touchHistory.push({ y: currentY, t: performance.now() });
-      if (touchHistory.length > 5) touchHistory.shift();
-    }, { passive: false });
-
-    const finalizarArrastre = () => {
-      if (!isDragging) return;
-      isDragging = false;
-
-      const deltaY = currentY - startY;
-      let velocity = 0;
-      if (touchHistory.length >= 2) {
-        const last = touchHistory[touchHistory.length - 1];
-        const prev = touchHistory[0];
-        const dt = last.t - prev.t;
-        if (dt > 0) {
-          velocity = (last.y - prev.y) / dt;
-        }
-      }
-
-      const bd = document.getElementById("sedesSheetBackdrop");
-
-      // Criterio de cierre: arrastre mayor a 75px o flick con velocidad hacia abajo
-      if (deltaY > 75 || velocity > 0.35) {
-        panel.style.transition = "transform 0.24s cubic-bezier(0.23, 1, 0.32, 1)";
-        panel.style.transform = "translateY(105%)";
-        if (bd) {
-          bd.style.transition = "opacity 0.22s ease-out";
-          bd.style.opacity = "0";
-        }
-        setTimeout(() => {
-          this.cerrarDetalleMovil();
-        }, 230);
-      } else {
-        // Regreso elástico suave a la posición abierta
-        panel.style.transition = "transform 0.28s cubic-bezier(0.16, 1, 0.3, 1)";
-        panel.style.transform = "translateY(0%)";
-        if (bd) {
-          bd.style.transition = "opacity 0.24s ease-out";
-          bd.style.opacity = "1";
-        }
-        setTimeout(() => {
-          panel.style.transform = "";
-          panel.style.transition = "";
-          if (bd) {
-            bd.style.opacity = "";
-            bd.style.transition = "";
-          }
-        }, 300);
-      }
-    };
-
-    panel.addEventListener("touchend", finalizarArrastre, { passive: true });
-    panel.addEventListener("touchcancel", finalizarArrastre, { passive: true });
+    // El arrastre 1:1 del asa vive en SheetController, compartido con los
+    // modales convertidos a bottom sheet. La escucha va delegada sobre el
+    // panel porque la cabecera se repinta con cada sede; el velo sigue al
+    // dedo con su propia variable.
+    conectarHoja({
+      hoja: panel,
+      asaSelector: ".sedes-sheet-header-mobile",
+      telon: backdrop,
+      alCerrar: () => this.cerrarDetalleMovil(),
+      umbral: 75,
+      umbralVelocidad: 0.35,
+      velo: { variable: "--sedes-velo", rango: 280 },
+    });
   },
 
   /** Compara ids sin importar si vienen como string, numero, slug o id de SurrealDB. */

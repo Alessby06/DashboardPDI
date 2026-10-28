@@ -126,61 +126,7 @@
         height: 16px !important;
       }
 
-      /* Bottom Sheet / Modal Completo para Caso Social en Móvil */
-      #modalDetalleCasoSocial .modal-box {
-        width: 100% !important;
-        max-width: 100% !important;
-        height: 100% !important;
-        max-height: 100vh !important;
-        border-radius: 0 !important;
-        margin: 0 !important;
-        display: flex !important;
-        flex-direction: column !important;
-      }
 
-      #modalDetalleCasoSocial .modal-body {
-        flex: 1 1 0% !important;
-        overflow-y: auto !important;
-        padding: 16px !important;
-        -webkit-overflow-scrolling: touch;
-      }
-
-      #modalDetalleCasoSocial .modal-footer {
-        position: sticky !important;
-        bottom: 0 !important;
-        z-index: 10;
-        padding: 12px 14px !important;
-        box-shadow: none;
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 8px !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-      }
-
-      #modalDetalleCasoSocial .modal-caso-footer-left,
-      #modalDetalleCasoSocial .modal-caso-footer-right {
-        display: contents !important;
-      }
-
-      #modalDetalleCasoSocial .modal-footer .btn-action {
-        width: 100% !important;
-        height: 40px !important;
-        padding: 0 8px !important;
-        justify-content: center !important;
-        font-size: 12px !important;
-        font-weight: 600 !important;
-        gap: 6px !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        box-sizing: border-box !important;
-      }
-
-      /* Si hay un único botón primario/dinámico (caso impar 3 botones), que ocupe las 2 columnas abajo */
-      #modalDetalleCasoSocial .modal-caso-footer-right > .btn-action:only-child {
-        grid-column: 1 / -1 !important;
-}
       }
 
     /* Canvas Signature */

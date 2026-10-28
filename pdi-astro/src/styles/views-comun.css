@@ -14,6 +14,21 @@
 
    El orden de las reglas se respeta, que es lo que decide la cascada.
    =========================================================================== */
+    /* Tokens de componente: velo de drawers, bottom sheets y modales. Viven
+       aqui, una vez por tema, porque esta es la hoja compartida de esos
+       componentes; variables.css guarda los nucleos, no las pieles. */
+    :root {
+      --sheet-veil-margen: rgba(15, 23, 42, 0.74);
+      --sheet-veil-borde: rgba(15, 23, 42, 0.38);
+      --sheet-veil-marca: rgba(0, 180, 148, 0.09);
+    }
+
+    [data-theme="dark"] {
+      --sheet-veil-margen: rgba(0, 0, 0, 0.88);
+      --sheet-veil-borde: rgba(0, 0, 0, 0.58);
+      --sheet-veil-marca: rgba(46, 230, 160, 0.08);
+    }
+
     /* Modals & Drawers - Performance y Fluididad de Apertura/Cierre */
     .modal-backdrop {
       position: fixed;
@@ -37,15 +52,25 @@
     .modal-backdrop.active {
       opacity: 1;
       pointer-events: auto;
-      background: rgba(0, 0, 0, 0.72);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
+      /* Velo de modal: mismo de las hojas, sin desenfoque, con foco radial
+         detras de la ventana. Longhands a proposito: un shorthand con capas
+         y var() es fragil y, si el parser lo descarta, el telon desaparece. */
+      background-color: var(--sheet-veil-margen);
+      background-image: radial-gradient(ellipse 70% 60% at 50% 42%, var(--sheet-veil-borde), transparent 70%);
+    }
+
+    /* El pie pinta fondo solido: sin heredar el redondeo, las dos esquinas
+       inferiores del dialogo salian rectas. */
+    .modal-box > .modal-footer,
+    .modal-box > form > .modal-footer {
+      border-bottom-left-radius: inherit;
+      border-bottom-right-radius: inherit;
     }
 
     .modal-box {
       background: var(--surface-1);
       border: 1px solid var(--border-bright);
-      border-radius: var(--radius-lg);
+      border-radius: 20px;
       width: 100%;
       max-width: 840px;
       max-height: 90vh;
@@ -64,6 +89,180 @@
     .modal-backdrop.active .modal-box {
       opacity: 1;
       transform: scale(1) translateY(0);
+    }
+
+    /* === Drawers (PC) y bottom sheets de formulario (movil) =================
+       Lote 0+1: las fichas de escritura dejan la caja centrada generica.
+       El marcado senala el patron con .drawer (backdrop) y .drawer-box (caja)
+       + el asa .sheet-grab; el resto de modales conserva la caja centrada
+       hasta su propio lote. Estado de apertura: la clase .open del backdrop
+       sigue siendo el unico interruptor, como el resto de modales. */
+    .modal-backdrop.drawer {
+      align-items: stretch;
+      justify-content: flex-end;
+    }
+
+    .modal-box.drawer-box {
+      width: min(720px, 96vw);
+      max-width: min(720px, 96vw);
+      height: 100dvh;
+      max-height: 100dvh;
+      border-top: 0;
+      border-bottom: 0;
+      border-right: 0;
+      border-radius: 0;
+      transform: translateX(24px);
+      transition: transform var(--dur-panel) var(--ease-drawer),
+                  opacity var(--dur-panel) var(--ease-out);
+    }
+
+    .modal-backdrop.open .modal-box.drawer-box {
+      transform: translateX(0);
+    }
+
+    /* Velo de drawer: la pagina oscurece hacia fuera y se aclara junto al
+       panel, con un suspiro de marca en el borde de contacto. Sin blur. */
+    .modal-backdrop.drawer.open {
+      background-color: var(--sheet-veil-margen);
+      background-image:
+        linear-gradient(to left, var(--sheet-veil-marca) 0, transparent 200px),
+        linear-gradient(to left, var(--sheet-veil-borde) 0, var(--sheet-veil-margen) 300px);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+
+    /* El asa solo existe en tactil; en PC la cabecera de la ficha no la lleva. */
+    .sheet-grab {
+      display: none;
+    }
+
+    /* El formulario llena la hoja: el cuerpo scrollea y el pie queda fijo. */
+    .modal-box.drawer-box > form {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .modal-box.drawer-box > form .modal-body,
+    .modal-box.drawer-box .modal-body {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    @media (min-width: 769px) {
+      .modal-backdrop.drawer {
+        padding: 0;
+      }
+
+      /* Variante de lectura: panel mas contenido que una ficha editable. */
+      .modal-box.drawer-box.drawer-read {
+        width: min(620px, 94vw);
+        max-width: min(620px, 94vw);
+      }
+
+      /* Workflow corto / selector de escritura: el drawer mas angosto. */
+      .modal-box.drawer-box.drawer-narrow {
+        width: min(520px, 92vw);
+        max-width: min(520px, 92vw);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .modal-backdrop.drawer {
+        padding: 0;
+        align-items: stretch;
+        justify-content: stretch;
+      }
+
+      /* Bottom sheet de formulario: casi toda la pantalla porque el punto
+         focal es el teclado, no el contenido; esquinas arriba y asa. */
+      .modal-box.drawer-box {
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100vw;
+        max-width: 100vw;
+        height: 92dvh;
+        max-height: 92dvh;
+        border: none;
+        border-radius: 20px 20px 0 0;
+        transform: translateY(100%);
+        padding-bottom: env(safe-area-inset-bottom, 0);
+      }
+
+      .modal-backdrop.open .modal-box.drawer-box {
+        transform: translateY(0);
+      }
+
+      /* En movil la luz sube con la hoja: foco desde abajo, sin blur. */
+      .modal-backdrop.drawer.open {
+        background-color: var(--sheet-veil-margen);
+        background-image:
+          linear-gradient(to top, var(--sheet-veil-marca) 0, transparent 150px),
+          linear-gradient(to top, var(--sheet-veil-borde) 0, var(--sheet-veil-margen) 45vh);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+      }
+
+      /* Variante de lectura y workflow corto: la hoja crece segun contenido
+         sin pasar de 88dvh; no ocupar pantalla entera para leer. */
+      .modal-box.drawer-box.drawer-read,
+      .modal-box.drawer-box.drawer-narrow {
+        height: auto;
+        max-height: 88dvh;
+      }
+
+      /* Pie de caso social dentro de la hoja: la linea de 2 columnas que
+         vivia copiada en cada vista se retiro; aqui el respaldo. */
+      .modal-box.drawer-box .modal-caso-footer {
+        flex-wrap: wrap;
+        padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0));
+      }
+
+      .modal-box.drawer-box .modal-caso-footer .btn-action {
+        min-height: 40px;
+      }
+
+      /* Asa: zona de agarre que SheetController anima 1:1 con el dedo. */
+      .sheet-grab {
+        display: flex;
+        flex: 0 0 auto;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 0 6px;
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
+        cursor: grab;
+      }
+
+      .sheet-grab:active {
+        cursor: grabbing;
+      }
+
+      .sheet-pill {
+        width: 40px;
+        height: 4.5px;
+        border-radius: 999px;
+        background: var(--border-strong, #94a3b8);
+        opacity: 0.8;
+        transition: transform var(--dur-fast), background var(--dur-fast);
+      }
+
+      .sheet-grab:active .sheet-pill {
+        transform: scaleX(1.15);
+        background: var(--text-brand);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .modal-box.drawer-box {
+        transition: none;
+      }
     }
 
     .modal-header {
@@ -1181,14 +1380,6 @@ input[type="range"] {
 #modalNuevoUsuario {
           padding: 0 !important;
         }
-#modalNuevoUsuario .modal-box {
-          width: 100% !important;
-          max-width: 100% !important;
-          height: 100% !important;
-          max-height: 100vh !important;
-          border-radius: 0 !important;
-          border: none !important;
-        }
 #modalNuevoUsuario .modal-header {
           padding: 12px 16px !important;
         }
@@ -1206,7 +1397,7 @@ input[type="range"] {
   }
 
 @media (max-width: 768px) {
-.modal-backdrop {
+.modal-backdrop:not(.drawer) {
       position: fixed !important;
       top: 0 !important;
       left: 0 !important;
@@ -1221,8 +1412,8 @@ input[type="range"] {
       align-items: stretch !important;
       justify-content: stretch !important;
     }
-.modal-box,
-    .modal-backdrop.open .modal-box {
+.modal-box:not(.drawer-box),
+    .modal-backdrop.open:not(.drawer) .modal-box {
       position: absolute !important;
       top: 0 !important;
       left: 0 !important;

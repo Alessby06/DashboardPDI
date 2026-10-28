@@ -23,9 +23,10 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
      ========================================== -->
   <!-- Cerrada queda inert: si no, sus 49 controles siguen en el orden de
        tabulación y se puede escribir en un formulario que no se ve. -->
-  <div class="modal-backdrop" id="modalNuevoUsuario" inert aria-hidden="true">
-    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="fichaInscripcionTitulo" tabindex="-1"
-      style="max-width: 960px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; overscroll-behavior: contain;">
+  <div class="modal-backdrop drawer" id="modalNuevoUsuario" inert aria-hidden="true">
+    <div class="modal-box drawer-box" role="dialog" aria-modal="true" aria-labelledby="fichaInscripcionTitulo" tabindex="-1"
+      style="display: flex; flex-direction: column; overflow: hidden; overscroll-behavior: contain;">
+      <div class="sheet-grab" aria-hidden="true"><span class="sheet-pill"></span></div>
       <div class="modal-header">
         <div class="modal-title-stack">
           <h3 id="fichaInscripcionTitulo">Ficha de Inscripción de Usuario</h3>
@@ -699,8 +700,9 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
   <!-- ==========================================
        MODAL: DETALLE PROFUNDO DE AUDITORÍA (DIFF & FORENSE)
        ========================================== -->
-  <div class="modal-backdrop" id="modalAuditDetail">
-    <div class="modal-box" style="max-width: 720px; max-height: 90vh; overflow-y: auto;">
+  <div class="modal-backdrop drawer" id="modalAuditDetail">
+    <div class="modal-box drawer-box drawer-read" style="display: flex; flex-direction: column; overflow: hidden;">
+      <div class="sheet-grab" aria-hidden="true"><span class="sheet-pill"></span></div>
       <div class="modal-header">
         <div style="display: flex; align-items: center; gap: 10px;">
           <div
@@ -872,8 +874,9 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
   <!-- ==========================================
        MODAL: FICHA Y DETALLE COMPLETO DE CASO SOCIAL (ASP)
        ========================================== -->
-  <div class="modal-backdrop" id="modalDetalleCasoSocial">
-    <div class="modal-box" style="max-width: 780px; width: 92%; max-height: 90vh; overflow-y: auto;">
+  <div class="modal-backdrop drawer" id="modalDetalleCasoSocial">
+    <div class="modal-box drawer-box drawer-read" style="display: flex; flex-direction: column; overflow: hidden;">
+      <div class="sheet-grab" aria-hidden="true"><span class="sheet-pill"></span></div>
       <div class="modal-header">
         <div style="display: flex; align-items: center; gap: 10px;">
           <div
@@ -1020,8 +1023,9 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
        MODAL: HISTORIAL DE TAMIZAJES DE HEMOGLOBINA (SALUD CRED)
        La vista las llena: SaludCredView.openHistorialTamizaje(id).
        ========================================== -->
-  <div class="modal-backdrop" id="modalHistorialTamizaje" inert aria-hidden="true">
-    <div class="modal-box" style="max-width: 640px; width: 92%; max-height: 90vh; overflow-y: auto;">
+  <div class="modal-backdrop drawer" id="modalHistorialTamizaje" inert aria-hidden="true">
+    <div class="modal-box drawer-box drawer-read" style="display: flex; flex-direction: column; overflow: hidden;">
+      <div class="sheet-grab" aria-hidden="true"><span class="sheet-pill"></span></div>
       <div class="modal-header">
         <div style="display: flex; align-items: center; gap: 10px;">
           <div
@@ -1141,8 +1145,9 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
   <!-- ==========================================
        MODAL: SOLICITUD DE CAMBIO DE ESTADO DE DERIVACIÓN (ÁREA SOCIAL)
        ========================================== -->
-  <div class="modal-backdrop" id="modalSolicitarCambioEtapa">
-    <div class="modal-box" style="max-width: 540px; width: 92%;">
+  <div class="modal-backdrop drawer" id="modalSolicitarCambioEtapa">
+    <div class="modal-box drawer-box drawer-narrow">
+      <div class="sheet-grab" aria-hidden="true"><span class="sheet-pill"></span></div>
       <div class="modal-header">
         <div style="display: flex; align-items: center; gap: 10px;">
           <div
@@ -1229,8 +1234,9 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
   <!-- ==========================================
        MODAL: RESOLVER AUTORIZACIÓN (APROBAR / RECHAZAR POR COORDINACIÓN)
        ========================================== -->
-  <div class="modal-backdrop" id="modalResolverSolicitudCambio">
-    <div class="modal-box" style="max-width: 580px; width: 92%;">
+  <div class="modal-backdrop drawer" id="modalResolverSolicitudCambio">
+    <div class="modal-box drawer-box drawer-narrow">
+      <div class="sheet-grab" aria-hidden="true"><span class="sheet-pill"></span></div>
       <div class="modal-header">
         <div style="display: flex; align-items: center; gap: 10px;">
           <div
@@ -1340,8 +1346,9 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
   <!-- ==========================================
        MODAL: FICHA DE INSCRIPCIÓN DE VOLUNTARIO(A) (FICHAS A4 Y A5)
        ========================================== -->
-  <div class="modal-backdrop" id="modalInscripcionVoluntario">
-    <div class="modal-box" style="max-width: 760px; width: 92%; max-height: 90vh; overflow-y: auto;">
+  <div class="modal-backdrop drawer" id="modalInscripcionVoluntario">
+    <div class="modal-box drawer-box" style="display: flex; flex-direction: column; overflow: hidden;">
+      <div class="sheet-grab" aria-hidden="true"><span class="sheet-pill"></span></div>
       <div class="modal-header">
         <div style="display: flex; align-items: center; gap: 10px;">
           <div style="width: 38px; height: 38px; border-radius: var(--radius-md); background: rgba(var(--brand-rgb), 0.12); border: 1px solid var(--gt-green-border); display: flex; align-items: center; justify-content: center; color: var(--text-brand); flex-shrink: 0;">
@@ -1494,8 +1501,9 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
   <!-- ==========================================
        MODAL: FICHA INTEGRAL Y CREDENCIAL DEL VOLUNTARIO(A)
        ========================================== -->
-  <div class="modal-backdrop" id="modalFichaVoluntario">
-    <div class="modal-box" style="max-width: 780px; width: 92%; max-height: 90vh; overflow-y: auto;">
+  <div class="modal-backdrop drawer" id="modalFichaVoluntario">
+    <div class="modal-box drawer-box drawer-read" style="display: flex; flex-direction: column; overflow: hidden;">
+      <div class="sheet-grab" aria-hidden="true"><span class="sheet-pill"></span></div>
       <div class="modal-header">
         <div style="display: flex; align-items: center; gap: 12px;">
           <div style="width: 44px; height: 44px; border-radius: var(--radius-full); background: var(--gt-green-bg); border: 1px solid var(--gt-green-border); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 15px; color: var(--text-brand); flex-shrink: 0;">
@@ -1608,8 +1616,9 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
   <!-- ==========================================
        MODAL: REGISTRAR CAPACITACIÓN A VOLUNTARIAS (FICHA A6)
        ========================================== -->
-  <div class="modal-backdrop" id="modalCapacitacionVoluntarias">
-    <div class="modal-box" style="max-width: 580px; width: 92%; max-height: 85vh; overflow-y: auto;">
+  <div class="modal-backdrop drawer" id="modalCapacitacionVoluntarias">
+    <div class="modal-box drawer-box drawer-narrow">
+      <div class="sheet-grab" aria-hidden="true"><span class="sheet-pill"></span></div>
       <div class="modal-header">
         <div style="display: flex; align-items: center; gap: 10px;">
           <div style="width: 36px; height: 36px; border-radius: var(--radius-md); background: rgba(var(--brand-rgb), 0.12); display: flex; align-items: center; justify-content: center; color: var(--text-brand);">
