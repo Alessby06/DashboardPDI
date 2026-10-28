@@ -198,7 +198,11 @@ function colapsarConexion(origen) {
  * falla por transporte, colapsa la sesión para que el backoff reconecte.
  */
 async function ejecutar(ql, params) {
-  _escriturasEnVuelo += 1;
+  const escritura = esSentenciaDeEscritura(ql);
+  if (escritura) {
+    _escriturasEnVuelo += 1;
+    _versionEscrituras += 1;
+  }
   try {
     const db = await conectar();
     return await db.query(ql, params);
@@ -392,7 +396,27 @@ let _hidratando = null;
 // eso la aplicacion de datasets se difiere mientras haya escrituras
 // pendientes y se relanza en cuanto terminan.
 let _escriturasEnVuelo = 0;
+// Version monotona de escrituras. Una hidratacion anota la version al salir a
+// la red; si al volver la version cambio, su snapshot es anterior a una
+// escritura y se descarta (aunque la escritura ya haya terminado).
+let _versionEscrituras = 0;
 let _hidratacionDiferida = false;
+
+const RE_ESCRITURA = /^\s*(INSERT|UPDATE|UPSERT|CREATE|DELETE|RELATE|REMOVE)\b/i;
+
+function esSentenciaDeEscritura(ql) {
+  return RE_ESCRITURA.test(String(ql || ''));
+}
+
+function programarHidratacion() {
+  _hidratacionDiferida = true;
+  if (_escriturasEnVuelo > 0) return; // la relanza el finally de ejecutar
+  setTimeout(() => {
+    if (_escriturasEnVuelo || !_hidratacionDiferida) return;
+    _hidratacionDiferida = false;
+    hidratar(true);
+  }, 0);
+}
 /** Consulta del padrón completa (también usada en el lote de hidratación). */
 const SQL_PADRON = `SELECT *,
   centro_salud.nombre AS centro_salud_nombre,
@@ -438,10 +462,11 @@ export async function hidratar(promedioSilencioso = false) {
   // Con una escritura en vuelo, el snapshot que traeria esta hidratacion es
   // anterior al cambio: se pospone hasta que la nube confirme.
   if (_escriturasEnVuelo > 0) {
-    _hidratacionDiferida = true;
+    programarHidratacion();
     return;
   }
   if (_hidratando) return _hidratando;
+  const versionAlSalir = _versionEscrituras;
   _hidratando = (async () => {
     cambiarEstado('cargando');
     try {
@@ -456,10 +481,10 @@ export async function hidratar(promedioSilencioso = false) {
       const logs = mapearBitacora(logsRaw);
       const asistencia = mapearAsistencia(asistenciaRaw, beneficiarios);
 
-      // Segunda comprobacion: la escritura pudo empezar durante el viaje.
-      // Se descarta el snapshot viejo y se relanza al terminar.
-      if (_escriturasEnVuelo > 0) {
-        _hidratacionDiferida = true;
+      // Segunda comprobacion: la escritura pudo empezar (o terminar) durante
+      // el viaje. En cualquier caso este snapshot es anterior a ella.
+      if (_escriturasEnVuelo > 0 || _versionEscrituras !== versionAlSalir) {
+        programarHidratacion();
         return;
       }
 
