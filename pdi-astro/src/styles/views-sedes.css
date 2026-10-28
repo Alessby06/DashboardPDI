@@ -24,85 +24,16 @@
       to { transform: translateY(0); opacity: 1; }
     }
 
-    /* Barra de Herramientas y Filtros para Auditoría (Buscador izquierda, Filtros derecha) */
-    .audit-toolbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 10px;
+    /* La barra y el buscador son compartidos: views-comun.css. */
+
+    /* La barra de chips de sedes cierra la tarjeta con una linea superior; el
+       margen solo existe cuando hay filtros, para no dejar hueco en reposo. */
+    #sedesActiveChipsBar {
+      border-top-style: solid;
     }
 
-    .audit-search-wrap {
-      position: relative;
-      display: flex;
-      align-items: center;
-      flex: 1;
-      max-width: 440px;
-    }
-
-    .audit-search-wrap > svg.audit-search-icon {
-      position: absolute;
-      left: 12px;
-      width: 15px;
-      height: 15px;
-      color: var(--text-dim);
-      pointer-events: none;
-    }
-
-    .audit-search-input {
-      width: 100%;
-      height: 38px;
-      padding: 0 36px 0 36px;
-      font-size: 13px;
-      background: var(--surface-1);
-      color: var(--text-main);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      outline: none;
-      transition: border-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth);
-      font-family: inherit;
-    }
-
-    .audit-search-input:focus {
-      border-color: var(--border-bright, var(--border-bright));
-      box-shadow: none;
-    }
-
-    .audit-search-clear {
-      position: absolute;
-      right: 9px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 22px;
-      height: 22px;
-      background: var(--surface-2);
-      border: 1px solid var(--border-subtle);
-      color: var(--text-dim);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-      border-radius: var(--radius-full);
-      transition: background-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth);
-      z-index: 2;
-    }
-
-    .audit-search-clear svg {
-      position: static !important;
-      width: 12px !important;
-      height: 12px !important;
-      color: inherit;
-      pointer-events: none;
-      margin: 0;
-      display: block;
-    }
-
-    .audit-search-clear:hover {
-      background: var(--surface-hover);
-      color: var(--text-main);
-      border-color: var(--border-bright);
+    #sedesActiveChipsBar.is-visible {
+      margin-top: 10px;
     }
 
     /* Estilo para Facetas con conteo Cero (Deshabilitadas y en gris) */
@@ -198,27 +129,6 @@
       .audit-kpi-value {
         font-size: 13px !important;
       }
-      .audit-toolbar,
-      .sedes-controls-row {
-        position: relative !important;
-        overflow: visible !important;
-      }
-      .audit-search-wrap {
-        flex: 1 !important;
-        min-width: 0 !important;
-        max-width: none !important;
-      }
-      .audit-search-input {
-        height: 36px !important;
-        font-size: 12px !important;
-        padding-left: 32px !important;
-      }
-      .audit-search-icon {
-        left: 8px !important;
-        width: 15px !important;
-        height: 15px !important;
-
-}
 }
 
     /* Modal Detalle Forense / Diff */
@@ -747,23 +657,24 @@
     overflow-y: auto !important;
     overscroll-behavior: contain !important;
     -webkit-overflow-scrolling: touch !important;
-    transform: translateY(105%) !important;
-    transition: transform 0.32s cubic-bezier(0.23, 1, 0.32, 1) !important;
+    transform: translateY(105%);
+    transition: transform 0.32s cubic-bezier(0.23, 1, 0.32, 1);
     will-change: transform;
     z-index: 1200 !important;
     padding-bottom: max(24px, env(safe-area-inset-bottom, 24px)) !important;
   }
 
   .sedes-detail-column.open {
-    transform: translateY(0%) !important;
+    transform: translateY(0%);
   }
 
-  /* Cabecera móvil moderna: Asa de arrastre centrada + Botón X a la derecha */
+  /* Cabecera movil: el asa es la zona de agarre de toda la hoja. Se comporta
+     como la de filtros: sigue el dedo 1:1 y cierra a los 75 px o con un flick. */
   .sedes-sheet-header-mobile {
     display: flex !important;
     align-items: center !important;
-    justify-content: space-between !important;
-    padding: 10px 14px 6px !important;
+    justify-content: center !important;
+    padding: 10px 14px 8px !important;
     position: sticky !important;
     top: 0 !important;
     z-index: 30 !important;
@@ -771,12 +682,10 @@
     border-top-left-radius: 20px !important;
     border-top-right-radius: 20px !important;
     border-bottom: 1px solid var(--border-subtle) !important;
-  }
-
-  .sedes-sheet-header-spacer {
-    width: 32px !important;
-    height: 32px !important;
-    flex-shrink: 0 !important;
+    cursor: grab !important;
+    touch-action: none !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
   }
 
   .sedes-sheet-pill-wrap {
@@ -785,7 +694,6 @@
     align-items: center !important;
     justify-content: center !important;
     padding: 6px 0 !important;
-    cursor: grab !important;
     touch-action: none !important;
     user-select: none !important;
     -webkit-user-select: none !important;
@@ -805,27 +713,30 @@
     background: var(--text-brand) !important;
   }
 
-  .sedes-sheet-close-x {
-    width: 32px !important;
-    height: 32px !important;
-    min-width: 32px !important;
-    border-radius: 50% !important;
-    background: var(--surface-2, var(--surface-2)) !important;
-    border: 1px solid var(--border-subtle, var(--border-subtle)) !important;
-    color: var(--text-main, var(--text-muted)) !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+  /* Sin boton X visible: el asa y el telon cierran la hoja, y Escape en
+     teclado. El cierre sigue existiendo para lectores de pantalla y teclado,
+     oculto en reposo y visible solo cuando recibe el foco. */
+  .sedes-sheet-close-sr {
     cursor: pointer !important;
-    touch-action: manipulation !important;
-    transition: background var(--dur-fast), transform var(--dur-fast), color var(--dur-fast) !important;
-    flex-shrink: 0 !important;
   }
 
-  .sedes-sheet-close-x:active {
-    transform: scale(0.92) !important;
-    background: var(--border-subtle) !important;
-    color: var(--gt-red, var(--text-danger)) !important;
+  .sedes-sheet-close-sr:focus-visible {
+    position: absolute !important;
+    top: 8px !important;
+    right: 10px !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 4px 10px !important;
+    overflow: visible !important;
+    clip: auto !important;
+    white-space: nowrap !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: var(--radius-full) !important;
+    background: var(--surface-2) !important;
+    color: var(--text-main) !important;
+    font-size: 11.5px !important;
+    z-index: 2 !important;
   }
 
   .sedes-sheet-topbar {

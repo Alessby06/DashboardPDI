@@ -136,86 +136,7 @@
       to { transform: translateY(0); opacity: 1; }
     }
 
-    /* Barra de Herramientas y Filtros para Auditoría (Buscador izquierda, Filtros derecha) */
-    .audit-toolbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 10px;
-    }
-
-    .audit-search-wrap {
-      position: relative;
-      display: flex;
-      align-items: center;
-      flex: 1;
-      max-width: 440px;
-    }
-
-    .audit-search-wrap > svg.audit-search-icon {
-      position: absolute;
-      left: 12px;
-      width: 15px;
-      height: 15px;
-      color: var(--text-dim);
-      pointer-events: none;
-    }
-
-    .audit-search-input {
-      width: 100%;
-      height: 38px;
-      padding: 0 36px 0 36px;
-      font-size: 13px;
-      background: var(--surface-1);
-      color: var(--text-main);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      outline: none;
-      transition: border-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth);
-      font-family: inherit;
-    }
-
-    .audit-search-input:focus {
-      border-color: var(--border-bright, var(--border-bright));
-      box-shadow: none;
-    }
-
-    .audit-search-clear {
-      position: absolute;
-      right: 9px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 22px;
-      height: 22px;
-      background: var(--surface-2);
-      border: 1px solid var(--border-subtle);
-      color: var(--text-dim);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-      border-radius: var(--radius-full);
-      transition: background-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth);
-      z-index: 2;
-    }
-
-    .audit-search-clear svg {
-      position: static !important;
-      width: 12px !important;
-      height: 12px !important;
-      color: inherit;
-      pointer-events: none;
-      margin: 0;
-      display: block;
-    }
-
-    .audit-search-clear:hover {
-      background: var(--surface-hover);
-      color: var(--text-main);
-      border-color: var(--border-bright);
-    }
+    /* La barra y el buscador son compartidos: views-comun.css. */
 
     /* Estilo para Facetas con conteo Cero (Deshabilitadas y en gris) */
 
@@ -318,26 +239,6 @@
       }
       .audit-kpi-value {
         font-size: 13px !important;
-      }
-      .audit-toolbar,
-      .sedes-controls-row {
-        position: relative !important;
-        overflow: visible !important;
-      }
-      .audit-search-wrap {
-        flex: 1 !important;
-        min-width: 0 !important;
-        max-width: none !important;
-      }
-      .audit-search-input {
-        height: 36px !important;
-        font-size: 12px !important;
-        padding-left: 32px !important;
-      }
-      .audit-search-icon {
-        left: 8px !important;
-        width: 15px !important;
-        height: 15px !important;
       }
     }
 

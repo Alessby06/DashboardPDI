@@ -5,6 +5,7 @@ import { Responsive } from '../utils/Responsive.js';
 
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
 import { SEDES_NOMBRES, etiquetaSede } from "../core/catalogos.js";
+import { contarOpciones } from "../utils/FacetCounts.js";
 // Filtros del módulo educativo que viajan en la URL. Valores tomados de los
 // desplegables de educativo.html.
 const FILTROS_CASITAS = {
@@ -19,6 +20,11 @@ const FACETAS_CASITAS = {
   sede: { tipo: "multi", opciones: FILTROS_CASITAS.sede.valores, defecto: [] },
   grado: { tipo: "single", opciones: FILTROS_CASITAS.grado.valores, defecto: "all" },
 };
+
+function colegioOrigenVisible(beneficiario) {
+  const colegio = String(beneficiario?.colegio ?? '').trim();
+  return colegio && colegio !== '-' ? colegio : 'Sin registrar';
+}
 
 export const CasitasView = {
   _allBeneficiarios: [],
@@ -406,26 +412,56 @@ export const CasitasView = {
     return true;
   },
 
-  applyFilters() {
-    // Filtrar base casita (Casita del Saber)
-    let casitaList = (this._allBeneficiarios || []).filter(b => 
-      Array.isArray(b.servicios) && b.servicios.some(s => 
-        s === "Casita del Saber" || 
-        s === "Casita del Saber" || 
-        (s || "").toLowerCase().includes("educat") || 
-        (s || "").toLowerCase().includes("casita") || 
+  /** Base fija de la vista: solo usuarios con servicio de Casita del Saber. */
+  _baseCasitas() {
+    return (this._allBeneficiarios || []).filter(b =>
+      Array.isArray(b.servicios) && b.servicios.some(s =>
+        s === "Casita del Saber" ||
+        (s || "").toLowerCase().includes("educat") ||
+        (s || "").toLowerCase().includes("casita") ||
         (s || "").toLowerCase().includes("acompañ")
       )
     );
+  },
 
-    // 1. Buscador texto libre
-    if (this._searchQuery) {
-      const q = this._searchQuery;
-      casitaList = casitaList.filter(b => {
-        const full = `${b.nombres} ${b.apellidos} ${b.codigo} ${b.colegio} ${b.grado} ${b.apoderado} ${b.sede} ${b.distrito}`.toLowerCase();
-        return full.includes(q);
-      });
-    }
+  /** Busqueda comun a la lista y a los contadores de faceta. */
+  _aplicaBusqueda(lista) {
+    if (!this._searchQuery) return lista;
+    const q = this._searchQuery;
+    return lista.filter(b => {
+      const full = `${b.nombres} ${b.apellidos} ${b.codigo} ${b.colegio} ${b.grado} ${b.apoderado} ${b.sede} ${b.distrito}`.toLowerCase();
+      return full.includes(q);
+    });
+  },
+
+  /**
+   * Contadores de asistencia, sede y grado. Cada faceta se cuenta con las
+   * otras dos y la busqueda aplicadas, sin su propia seleccion.
+   */
+  _updateFacetCounts() {
+    const base = this._aplicaBusqueda(this._baseCasitas());
+
+    const sedeOk = (b) => this._filterSede.length === 0 ||
+      (b.sede && this._filterSede.some(s => b.sede.toLowerCase().includes(s.toLowerCase())));
+    const gradoOk = (b) => this._filterGrado === "all" || this._matchesGrado(b, this._filterGrado);
+    const asistOk = (b) => this._filterAsistencia === "all" ||
+      this._estadoAsistenciaInfo(b.id).clave === this._filterAsistencia;
+
+    const sinAsistencia = base.filter(b => sedeOk(b) && gradoOk(b));
+    const sinSede = base.filter(b => gradoOk(b) && asistOk(b));
+    const sinGrado = base.filter(b => sedeOk(b) && asistOk(b));
+
+    contarOpciones("menuCasitasAsistencia", sinAsistencia,
+      (b, valor) => this._estadoAsistenciaInfo(b.id).clave === valor);
+    contarOpciones("menuCasitasSede", sinSede,
+      (b, valor) => !!b.sede && b.sede.toLowerCase().includes(valor.toLowerCase()));
+    contarOpciones("menuCasitasGrado", sinGrado,
+      (b, valor) => this._matchesGrado(b, valor));
+  },
+
+  applyFilters() {
+    // Filtrar base casita (Casita del Saber)
+    let casitaList = this._aplicaBusqueda(this._baseCasitas());
 
     // 2. Sede
     if (this._filterSede.length > 0) {
@@ -448,6 +484,8 @@ export const CasitasView = {
     }
 
     this._filteredBeneficiarios = casitaList;
+
+    this._updateFacetCounts();
 
     // Badge desde el store.
     const count = this._obtenerStore().contarActivos();
@@ -509,7 +547,7 @@ export const CasitasView = {
     }
 
     if (chips.length > 0) {
-      bar.style.display = "flex";
+      bar.classList.add("is-visible");
       list.innerHTML = chips.map(chip => `
         <span class="padron-chip">
           <span>${escapar(chip.label)}</span>
@@ -521,7 +559,7 @@ export const CasitasView = {
         </span>
       `).join("");
     } else {
-      bar.style.display = "none";
+      bar.classList.remove("is-visible");
       list.innerHTML = "";
     }
   },
@@ -595,7 +633,7 @@ export const CasitasView = {
         <tr>
           <td><strong>${escapar(b.nombres)} ${escapar(b.apellidos)}</strong><div style="font-size:11px; color:var(--text-dim);">${escapar(b.codigo)}</div></td>
           <td>${escapar(b.grado)}</td>
-          <td>${escapar(b.colegio)}</td>
+          <td>${escapar(colegioOrigenVisible(b))}</td>
           <td>
             <div style="font-weight:600; color:var(--text-main);">${escapar(b.apoderado)}</div>
             <div style="font-size:11.5px; color:var(--text-muted);">${escapar(b.parentesco)} &bull; ${escapar(b.telefono || 'Sin tel')}</div>
@@ -654,7 +692,7 @@ export const CasitasView = {
               </div>
               <div class="datacard-row">
                 <span class="datacard-label">Colegio de Origen</span>
-                <span class="datacard-value">${escapar(b.colegio)}</span>
+                <span class="datacard-value">${escapar(colegioOrigenVisible(b))}</span>
               </div>
               <div class="datacard-row">
                 <span class="datacard-label">Sede Casita</span>

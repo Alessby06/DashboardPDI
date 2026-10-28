@@ -86,7 +86,7 @@
       [data-theme="dark"] .stage-seg-btn.active {
         background: var(--surface-hover);
         border-color: var(--border-bright);
-        color: var(--on-solid);
+        color: var(--text-main);
         box-shadow: var(--shadow-sm);
       }
 
@@ -134,6 +134,20 @@
         .stage-seg-btn .badge {
           font-size: 9px !important;
           padding: 1px 4px !important;
+        }
+      }
+
+      /* A 360 px el rotulo mas largo ("Canalizados") pedia 62 px dentro de
+         una pastilla de 80: la etiqueta se cortaba con puntos suspensivos.
+         Un badge mas justo y un punto menos de separacion lo dejan holgado. */
+      @media (max-width: 380px) {
+        .stage-seg-btn {
+          gap: 2px;
+          font-size: 10px;
+        }
+
+        .stage-seg-btn .badge {
+          padding: 1px 3px !important;
         }
       }
 
@@ -416,7 +430,7 @@
       .kanban-board {
         display: grid;
         /* Cuatro pistas exactamente iguales: 1fr reparte el ancho disponible
-           en partes id├®nticas y minmax(0, ...) impide que el contenido de una
+           en partes idénticas y minmax(0, ...) impide que el contenido de una
            tarjeta estire su pista. */
         grid-template-columns: repeat(4, minmax(0, 1fr));
         column-gap: 18px;
@@ -440,7 +454,7 @@
       }
 
       /* La pastilla no se pega al borde del carril ni al divisor: va junto al
-         titulo, se lee como "fase ┬À 7" y no como un numero huerfano. */
+         titulo, se lee como "fase · 7" y no como un numero huerfano. */
       .kanban-col-header {
         justify-content: flex-start;
         gap: 10px;
@@ -1331,42 +1345,7 @@
       to { transform: translateY(0); opacity: 1; }
     }
 
-    /* Barra de Herramientas y Filtros para Auditoría (Buscador izquierda, Filtros derecha) */
-    .audit-toolbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 10px;
-    }
-
-    .audit-search-wrap {
-      position: relative;
-      display: flex;
-      align-items: center;
-      flex: 1;
-      max-width: 440px;
-    }
-
-    .audit-search-input {
-      width: 100%;
-      height: 38px;
-      padding: 0 36px 0 36px;
-      font-size: 13px;
-      background: var(--surface-1);
-      color: var(--text-main);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      outline: none;
-      transition: border-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth);
-      font-family: inherit;
-    }
-
-    .audit-search-input:focus {
-      border-color: var(--border-bright, var(--border-bright));
-      box-shadow: none;
-    /* Estilo para Facetas con conteo Cero (Deshabilitadas y en gris) */
-}
+    /* La barra y el buscador son compartidos: views-comun.css. */
 
     @media (max-width: 768px) {
       .audit-view-header {
@@ -1427,6 +1406,13 @@
         display: flex !important;
         align-items: center !important;
       }
+      /* Exportar es la unica accion de esta cabecera. El estandar movil le
+         reservaba una fila entera y la dejaba sola contra el borde izquierdo,
+         lejos de la columna de filtros con la que se alinea. */
+      #viewSocialKanban > .view-header .view-actions {
+        justify-content: flex-end !important;
+        margin-top: 0 !important;
+      }
       .btn-action-icon.btn-audit-export-icon {
         width: 32px !important;
         height: 32px !important;
@@ -1459,27 +1445,6 @@
       .audit-kpi-value {
         font-size: 13px !important;
       }
-      .audit-toolbar,
-      .sedes-controls-row {
-        position: relative !important;
-        overflow: visible !important;
-      }
-      .audit-search-wrap {
-        flex: 1 !important;
-        min-width: 0 !important;
-        max-width: none !important;
-      }
-      .audit-search-input {
-        height: 36px !important;
-        font-size: 12px !important;
-        padding-left: 32px !important;
-      }
-      .audit-search-icon {
-        left: 8px !important;
-        width: 15px !important;
-        height: 15px !important;
-
-}
 }
 
     /* Modal Detalle Forense / Diff */
@@ -1703,6 +1668,13 @@
         font-size: 13.5px !important;
       }
       .cred-calc-subtitle {
+        display: none !important;
+      }
+      /* La insignia vive dentro del titulo, no en la columna derecha, asi que
+         la regla de arriba no la alcanzaba: a 360 px robaba 110 px al rotulo
+         y lo partia en cuatro lineas. La cabecera movil ya oculta la
+         subtitula y la insignia derecha; esta es la misma pieza. */
+      .cred-calc-title .badge {
         display: none !important;
       }
       .cred-calc-header-right .badge {
@@ -2116,6 +2088,7 @@
   /* Barra de búsqueda/filtros: banda full-bleed con "techo" */
   #viewSocialKanban > .card > .audit-toolbar {
     margin-inline: -16px;
+    margin-bottom: 0;
     padding-inline: 16px;
     padding-bottom: 12px;
     border-bottom: 1px solid var(--border-subtle);
@@ -2131,6 +2104,12 @@
     border-right: none;
     border-top: none;
     border-bottom: 1px solid var(--border-subtle);
+  }
+
+  #viewSocialKanban > .card > #socialActiveChipsBar:not(.is-visible) {
+    padding-block: 0;
+    border-width: 0;
+    margin-bottom: 0;
   }
 
   /* Tablero: encerrado por izquierda, derecha y abajo; arriba lo delimita la banda */

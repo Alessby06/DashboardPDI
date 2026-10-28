@@ -90,18 +90,14 @@ export const SocialController = {
       );
     }
 
-    const view = window.PDI?.SocialKanbanView || SocialKanbanView;
-    if (view) {
-      view.renderKanban(model.getAll());
-    }
-
+    view?.renderKanban(model.getAll());
     window.PDI?.Bootstrap?.actualizarBadgesSidebar?.();
   },
 
   /**
    * Registra la solicitud de cambio de estado enviada a Coordinación y notifica al usuario.
    */
-  solicitarCambio(id, nuevaEtapa, motivo = "") {
+  async solicitarCambio(id, nuevaEtapa, motivo = "") {
     const model = window.PDI?.CasoSocialModel || CasoSocialModel;
     const activeRole = localStorage.getItem("pdi_active_role") || "social";
     const userName = localStorage.getItem("pdi_usuario_nombre") || "Lic. Ruth Soto";
@@ -150,7 +146,6 @@ export const SocialController = {
       );
     }
 
-    const view = window.PDI?.SocialKanbanView || SocialKanbanView;
     if (view) {
       view.renderKanban(model.getAll());
       view.renderVistaAutorizaciones?.();

@@ -725,9 +725,11 @@
 
     /* Pintado mas barato en vistas largas: el navegador puede recortar lo que
        esta fuera del viewport inicial. Las vistas inactivas siguen usando
-       display:none por encima, asi que esta regla solo afecta a la activa. */
+       display:none por encima, asi que esta regla solo afecta a la activa.
+       Se deja en visible: content-visibility:auto hacia que Lenis midiera el
+       alto del esqueleto y limitara el scroll a unos cientos de pixeles. */
     .content-viewport > .app-view.active {
-      content-visibility: auto;
+      content-visibility: visible;
       contain-intrinsic-size: auto 100vh;
     }
 
@@ -758,6 +760,10 @@
       justify-content: space-between;
       gap: 16px;
       flex-wrap: wrap;
+      /* La cabecera cierra con aire propio: se suma al gap de .app-view para
+         que el primer bloque no arranque pegado al subtitulo (32 px en total,
+         no los 22 que dejaba el gap a secas). */
+      margin-bottom: 8px;
     }
 
     .view-actions {
@@ -777,7 +783,9 @@
     .view-title-group p {
       font-size: clamp(12.5px, 3.2vw, 14px);
       color: var(--text-muted);
-      margin-top: 2px;
+      /* 4 px, como fija DESIGN.md para el subtitulo de pagina. Estaba en 2 y
+         ademas ganaba por especificidad al margen propio de cada vista. */
+      margin-top: 4px;
     }
 
     @media (max-width: 900px) {
@@ -856,18 +864,32 @@
 }
 
 @media (max-width: 900px) {
+  /* Mantener en las secciones el mismo movimiento que en las subvistas sociales. */
+  ::view-transition-group(pdi-main-section) {
+    animation-duration: 260ms;
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  ::view-transition-new(pdi-main-section) {
+    animation: pdiAppSectionIn 260ms cubic-bezier(0.16, 1, 0.3, 1) both !important;
+  }
+
+  ::view-transition-old(pdi-main-section) {
+    animation: pdiAppSectionOut 200ms cubic-bezier(0.4, 0, 1, 1) both !important;
+  }
+
   ::view-transition-new(root),
   ::view-transition-new(social-subview-panel) {
     animation-name: pdiMobileSectionFadeIn !important;
-    animation-duration: 0.33s !important;
-    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
+    animation-duration: 0.32s !important;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
   }
 
   ::view-transition-old(root),
   ::view-transition-old(social-subview-panel) {
     animation-name: pdiMobileSectionFadeOut !important;
-    animation-duration: 0.33s !important;
-    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
+    animation-duration: 0.26s !important;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
   }
 }
 
@@ -881,6 +903,21 @@
   from { opacity: 1; }
   to { opacity: 0; }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(pdi-main-section),
+  ::view-transition-old(pdi-main-section),
+  ::view-transition-new(pdi-main-section),
+  ::view-transition-group(root),
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  ::view-transition-group(social-subview-panel),
+  ::view-transition-old(social-subview-panel),
+  ::view-transition-new(social-subview-panel) {
+    animation-duration: 1ms !important;
+  }
+}
+
 @media (max-width: 900px) {
   .sidebar.open .nav-btn {
     animation-duration: 0.3s !important;

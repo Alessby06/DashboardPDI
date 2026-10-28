@@ -180,6 +180,7 @@ async function main() {
         visible: getComputedStyle(menu).display !== 'none' && getComputedStyle(menu).visibility !== 'hidden' && Number(getComputedStyle(menu).opacity) > 0.9,
         aria: btn.getAttribute('aria-expanded') === 'true',
         abajo: m.top >= b.bottom - 2,
+        arriba: m.bottom <= b.top + 2,
         dentroViewport: m.bottom <= innerHeight + 1 && m.top >= -1,
         ancho: Math.round(m.width),
         scrollIgual: main.scrollHeight === scrollAntes,
@@ -193,8 +194,35 @@ async function main() {
     if (!base.existe) { anotar(vista, 'panel', false, 'no hay panel'); continue; }
     anotar(vista, 'abre', base.abierto.visible && base.abierto.aria, `ancho ${base.abierto.ancho}`);
     anotar(vista, 'capa superior', base.abierto.topLayer);
-    anotar(vista, 'dirección', base.abierto.abajo && base.abierto.dentroViewport);
+    anotar(vista, 'dirección', (base.abierto.abajo || base.abierto.arriba) && base.abierto.dentroViewport);
     anotar(vista, 'sin scroll fantasma', base.abierto.scrollIgual);
+
+    // Contadores de faceta: las siete vistas deben traer cifras reales, no
+    // solo las dos que ya los tenian antes de FacetCounts.
+    const contadores = await ev(`(() => {
+      const dd = document.querySelector('.audit-filters-dropdown');
+      const spans = [...dd.querySelectorAll('.audit-filters-menu .padron-item-count')];
+      const valores = spans.map((s) => Number((s.textContent.match(/\\d+/) || [0])[0]));
+      return { hay: spans.length, conDato: valores.filter((n) => n > 0).length };
+    })()`);
+    anotar(vista, 'contadores', contadores.hay > 0 && contadores.conDato > 0, JSON.stringify(contadores));
+
+    // Facetas: seleccion unica anunciada como radio y apertura anunciada.
+    const facetas = await ev(`(async () => {
+      const dd = document.querySelector('.audit-filters-dropdown');
+      const subs = [...dd.querySelectorAll('.audit-filters-menu .padron-inner-dropdown')];
+      const conRadio = subs.find((s) => s.querySelector('.padron-item-radio'));
+      const roles = conRadio ? [...conRadio.querySelectorAll('.padron-dropdown-item')].map((i) => i.getAttribute('role')) : [];
+      const sub = subs[0];
+      const btn = sub?.querySelector('.padron-inner-dropdown-btn');
+      if (sub && !sub.classList.contains('open')) btn.click();
+      await new Promise((r) => setTimeout(r, 150));
+      const expande = btn?.getAttribute('aria-expanded') === 'true';
+      const controls = !!btn?.getAttribute('aria-controls');
+      if (sub && sub.classList.contains('open')) btn.click();
+      return { radios: !conRadio || roles.every((r) => r === 'radio'), expande, controls };
+    })()`);
+    anotar(vista, 'a11y facetas', facetas.radios && facetas.expande && facetas.controls, JSON.stringify(facetas));
 
     // Cierre por API y comparación abierto→cerrado: aísla el efecto del panel.
     const cierreApi = await ev(`(async () => {
@@ -222,6 +250,28 @@ async function main() {
       return { abierto: dd.classList.contains('open'), display: getComputedStyle(menu).display };
     })()`);
     anotar(vista, 'Escape cierra', !cerrado.abierto && cerrado.display === 'none');
+
+    // Escape por capas: la faceta se cierra primero y el panel en la segunda
+    // pulsacion. Antes una sola tecla cerraba las dos.
+    const capas = await ev(`(async () => {
+      const dd = document.querySelector('.audit-filters-dropdown');
+      dd.querySelector('.audit-filter-btn').click();
+      await new Promise((r) => setTimeout(r, 320));
+      const sub = dd.querySelector('.audit-filters-menu .padron-inner-dropdown');
+      if (!sub) return { skip: true };
+      sub.querySelector('.padron-inner-dropdown-btn').click();
+      await new Promise((r) => setTimeout(r, 150));
+      const abierta = sub.classList.contains('open');
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      await new Promise((r) => setTimeout(r, 120));
+      const trasPrimera = { faceta: sub.classList.contains('open'), panel: dd.classList.contains('open') };
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      await new Promise((r) => setTimeout(r, 280));
+      return { abierta, trasPrimera, panelFinal: dd.classList.contains('open') };
+    })()`);
+    if (!capas.skip) {
+      anotar(vista, 'Escape por capas', capas.abierta && !capas.trasPrimera.faceta && capas.trasPrimera.panel && !capas.panelFinal, JSON.stringify(capas));
+    }
 
     const filtro = await ev(`(async () => {
       const dd = document.querySelector('.audit-filters-dropdown');
@@ -314,9 +364,42 @@ async function main() {
     }
     const m = dd.querySelector('.audit-filters-menu').getBoundingClientRect();
     const pie = dd.querySelector('.audit-filters-footer')?.getBoundingClientRect();
-    return { abajo: Math.abs(m.bottom - innerHeight) <= 1, dentro: m.top >= -1, pie: !pie || pie.bottom <= innerHeight + 1 };
+    const arriba = document.elementFromPoint(innerWidth / 2, 35);
+    const input = document.querySelector('.audit-search-input')?.getBoundingClientRect().height || 0;
+    const trigger = dd.querySelector('.audit-filter-btn').getBoundingClientRect().height;
+    return {
+      abajo: Math.abs(m.bottom - innerHeight) <= 1,
+      dentro: m.top >= -1,
+      pie: !pie || pie.bottom <= innerHeight + 1,
+      topbarTapado: !arriba?.closest?.('.topbar'),
+      alineados: Math.abs(input - trigger) < 1,
+      input, trigger
+    };
   })()`);
   anotar('padron', 'móvil anclado', movil.abajo && movil.dentro && movil.pie, JSON.stringify(movil));
+  anotar('padron', 'móvil velo y barra', movil.topbarTapado && movil.alineados, JSON.stringify({ topbarTapado: movil.topbarTapado, input: movil.input, trigger: movil.trigger }));
+
+  // Viewport corto (portátil): el panel debe elegir el lado con hueco y dejar
+  // cuerpo suficiente. Antes abria siempre abajo y el cuerpo quedaba en 0-74 px.
+  await send('Emulation.setDeviceMetricsOverride', { width: 1536, height: 774, deviceScaleFactor: 1, mobile: false });
+  await ir(`${BASE}/voluntariados`);
+  await dormir(1600);
+  const corto = await ev(`(async () => {
+    const dd = document.querySelector('.audit-filters-dropdown');
+    const btn = dd.querySelector('.audit-filter-btn');
+    btn.click();
+    await new Promise((r) => setTimeout(r, 400));
+    const menu = dd.querySelector('.audit-filters-menu');
+    const m = menu.getBoundingClientRect();
+    const b = btn.getBoundingClientRect();
+    const body = dd.querySelector('.audit-filters-body');
+    return {
+      encima: m.bottom <= b.top + 2,
+      dentro: m.top >= -1 && m.bottom <= innerHeight + 1,
+      cuerpo: body.clientHeight,
+    };
+  })()`);
+  anotar('voluntariados', 'viewport corto', corto.encima && corto.dentro && corto.cuerpo >= 200, JSON.stringify(corto));
 
   const fallos = resultados.filter((r) => !r.ok);
   fs.mkdirSync(OUT, { recursive: true });

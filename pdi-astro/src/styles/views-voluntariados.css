@@ -135,86 +135,7 @@
       to { transform: translateY(0); opacity: 1; }
     }
 
-    /* Barra de Herramientas y Filtros para Auditoría (Buscador izquierda, Filtros derecha) */
-    .audit-toolbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 10px;
-    }
-
-    .audit-search-wrap {
-      position: relative;
-      display: flex;
-      align-items: center;
-      flex: 1;
-      max-width: 440px;
-    }
-
-    .audit-search-wrap > svg.audit-search-icon {
-      position: absolute;
-      left: 12px;
-      width: 15px;
-      height: 15px;
-      color: var(--text-dim);
-      pointer-events: none;
-    }
-
-    .audit-search-input {
-      width: 100%;
-      height: 38px;
-      padding: 0 36px 0 36px;
-      font-size: 13px;
-      background: var(--surface-1);
-      color: var(--text-main);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      outline: none;
-      transition: border-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth);
-      font-family: inherit;
-    }
-
-    .audit-search-input:focus {
-      border-color: var(--border-bright, var(--border-bright));
-      box-shadow: none;
-    }
-
-    .audit-search-clear {
-      position: absolute;
-      right: 9px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 22px;
-      height: 22px;
-      background: var(--surface-2);
-      border: 1px solid var(--border-subtle);
-      color: var(--text-dim);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-      border-radius: var(--radius-full);
-      transition: background-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth);
-      z-index: 2;
-    }
-
-    .audit-search-clear svg {
-      position: static !important;
-      width: 12px !important;
-      height: 12px !important;
-      color: inherit;
-      pointer-events: none;
-      margin: 0;
-      display: block;
-    }
-
-    .audit-search-clear:hover {
-      background: var(--surface-hover);
-      color: var(--text-main);
-      border-color: var(--border-bright);
-    }
+    /* La barra y el buscador son compartidos: views-comun.css. */
 
     /* Estilo para Facetas con conteo Cero (Deshabilitadas y en gris) */
 
@@ -309,27 +230,6 @@
       .audit-kpi-value {
         font-size: 13px !important;
       }
-      .audit-toolbar,
-      .sedes-controls-row {
-        position: relative !important;
-        overflow: visible !important;
-      }
-      .audit-search-wrap {
-        flex: 1 !important;
-        min-width: 0 !important;
-        max-width: none !important;
-      }
-      .audit-search-input {
-        height: 36px !important;
-        font-size: 12px !important;
-        padding-left: 32px !important;
-      }
-      .audit-search-icon {
-        left: 8px !important;
-        width: 15px !important;
-        height: 15px !important;
-
-}
 }
 
     /* Modal Detalle Forense / Diff */
@@ -629,6 +529,12 @@
   border-right: none;
   border-top: none;
   border-bottom: 1px solid var(--border-subtle);
+}
+
+#view-voluntarios .padron-active-chips-bar:not(.is-visible) {
+  padding-block: 0;
+  border-width: 0;
+  margin-bottom: 0;
 }
 
 #view-voluntarios .table-responsive {
@@ -1513,9 +1419,14 @@
   font-weight: 700;
   color: var(--text-main);
   line-height: 1.25;
-  white-space: nowrap;
+  /* El nombre es el dato principal de la tarjeta: dos lineas antes de
+     recortar. En 360 px el nombre completo no cabe en una. */
+  white-space: normal;
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-overflow: clip;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .padron-mcard-body {
@@ -1526,7 +1437,7 @@
   padding: 4px 0;
 }
 
-@media (max-width: 380px) {
+@media (max-width: 480px) {
   .padron-mcard-body {
     grid-template-columns: 1fr;
     row-gap: 10px;
@@ -1559,6 +1470,70 @@
   margin-left: 2px;
 }
 
+/* Las metricas de la tarjeta llevan el nombre de chip pero no tenian receta:
+   el tinte del ID se veia como un subrayado de seleccion. */
+.padron-metric-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 24px;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: var(--surface-2);
+  color: var(--text-soft);
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+}
+
+/* El rol es un acceso al filtro, no un control nativo. Sin esta receta el
+   <button> conservaba el fondo y el borde del sistema: una barra gris que
+   parecia deshabilitada. */
+.padron-role-pill {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  min-height: 28px;
+  padding: 3px 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  background: var(--surface-2);
+  color: var(--text-soft);
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: left;
+  white-space: normal;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease-smooth),
+    border-color var(--dur-fast) var(--ease-smooth),
+    color var(--dur-fast) var(--ease-smooth);
+}
+
+.padron-role-pill:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-bright);
+  color: var(--text-main);
+}
+
+.padron-role-pill:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--brand-primary);
+}
+
+/* La insignia de servicio ya tiene su pildora; en la columna flex del detalle
+   se estiraba hasta el ancho completo y parecia otro control. */
+.padron-service-badge {
+  align-self: flex-start;
+  max-width: 100%;
+  white-space: normal;
+  text-align: left;
+}
+
 .padron-mcard-phone-link {
   color: var(--text-brand);
   text-decoration: none;
@@ -1566,7 +1541,7 @@
   font-family: var(--mono-font);
   display: inline-flex;
   align-items: center;
-  min-height: 24px;
+  min-height: 32px;
 }
 
 .padron-mcard-phone-link:hover {
@@ -1592,9 +1567,9 @@
 
 .padron-mcard-actions .padron-btn-ficha,
 .padron-mcard-actions .padron-btn-edit {
-  min-height: 36px;
-  padding: 6px 14px;
-  font-size: 12px;
+  min-height: 44px;
+  padding: 0 14px;
+  font-size: 12.5px;
 }
 
 [data-theme="dark"] #cardVoluntariosPadron {
@@ -1651,16 +1626,6 @@
   box-shadow: var(--shadow-sm);
 }
 
-[data-theme="dark"] .padron-role-pill {
-  border-color: rgba(255, 255, 255, 0.08) !important;
-  color: #9ca3af !important;
-}
-
-[data-theme="dark"] .padron-role-pill:hover {
-  border-color: var(--gt-green) !important;
-  color: var(--text-brand) !important;
-  background: rgba(var(--brand-rgb), 0.08) !important;
-}
 /* ===========================================================================
 CONTRASTE Y CUERPO DE TEXTO · #cardVoluntariosPadron (Voluntariados)
 

@@ -1115,10 +1115,10 @@ export const DashboardView = {
     }
 
     if (chips.length === 0) {
-      bar.style.display = "none";
+      bar.classList.remove("is-visible");
       list.innerHTML = "";
     } else {
-      bar.style.display = "flex";
+      bar.classList.add("is-visible");
       list.innerHTML = chips.map(chip => `
         <span class="padron-chip">
           <span>${escapar(chip.label)}</span>

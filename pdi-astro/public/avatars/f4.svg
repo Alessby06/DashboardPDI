@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 260" width="240" height="260">
+  <defs>
+    <!-- Scoped Card Clip for F4 -->
+    <clipPath id="f4-card-clip">
+      <rect x="0" y="0" width="240" height="260" />
+    </clipPath>
+    <!-- Scoped Soft Drop Shadow for F4 -->
+    <filter id="f4-soft-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-opacity="0.12" />
+    </filter>
+    <filter id="f4-braid-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="-1" dy="3" stdDeviation="3" flood-opacity="0.25" />
+    </filter>
+    <!-- Matte Iris Gradient -->
+    <linearGradient id="f4-iris-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#140B07" />
+      <stop offset="65%" stop-color="#23140D" />
+      <stop offset="100%" stop-color="#382115" />
+    </linearGradient>
+  </defs>
+
+  <!-- Outer Card Frame -->
+  <g clip-path="url(#f4-card-clip)">
+    <!-- Card Background (Soft Slate Ice) -->
+    <rect x="0" y="0" width="240" height="260" fill="#EEF2F6" />
+    <!-- Central Backdrop Circle (Muted Silver Slate) -->
+    <circle cx="120" cy="132" r="86" fill="#DDE4EC" />
+
+    <!-- Back Hair Silhouette -->
+    <path d="M 66 122 C 64 72 82 50 120 48 C 158 50 176 72 174 122 C 174 156 166 182 156 196 L 84 196 C 74 182 66 156 66 122 Z" fill="#361F13" />
+
+    <!-- Body / Pine Green Uniform Sweater -->
+    <g id="sweater-f4">
+      <path d="M 42 260 C 44 212 75 194 104 190 L 136 190 C 165 194 196 212 198 260 Z" fill="#136643" />
+      <!-- Subtle Shoulder Contours -->
+      <path d="M 50 260 C 53 220 78 202 104 196" stroke="#1D8357" stroke-width="2.4" stroke-linecap="round" fill="none" opacity="0.6" />
+      <path d="M 190 260 C 187 220 162 202 136 196" stroke="#1D8357" stroke-width="2.4" stroke-linecap="round" fill="none" opacity="0.6" />
+    </g>
+
+    <!-- Neck -->
+    <path d="M 107 160 L 107 195 C 107 202 133 202 133 195 L 133 160 Z" fill="#F8CBA6" />
+    <!-- Neck Shadow under chin -->
+    <path d="M 107 163 C 114 175 126 175 133 163 C 133 173 107 173 107 163 Z" fill="#E2A77E" />
+
+    <!-- Peter Pan Collar -->
+    <g id="collar-f4" filter="url(#f4-soft-shadow)">
+      <path d="M 120 194 C 116 190 95 190 89 203 C 85 212 95 222 108 220 C 119 218 121 202 120 194 Z" fill="#FFFFFF" />
+      <path d="M 108 220 C 98 221 90 213 93 205" stroke="#E2E8F0" stroke-width="1.2" stroke-linecap="round" fill="none" />
+      <path d="M 120 194 C 124 190 145 190 151 203 C 155 212 145 222 132 220 C 121 218 119 202 120 194 Z" fill="#FFFFFF" />
+      <path d="M 132 220 C 142 221 150 213 147 205" stroke="#E2E8F0" stroke-width="1.2" stroke-linecap="round" fill="none" />
+      <circle cx="120" cy="198" r="2.2" fill="#D0D9DC" />
+    </g>
+
+    <!-- Head & Ears -->
+    <g id="head-f4">
+      <!-- Left Ear -->
+      <ellipse cx="76" cy="138" rx="6.5" ry="9.5" fill="#F8CBA6" />
+      <path d="M 77 134 C 75 137 75 141 78 142" stroke="#E5AC84" stroke-width="1.8" stroke-linecap="round" fill="none" />
+      <!-- Right Ear -->
+      <ellipse cx="164" cy="138" rx="6.5" ry="9.5" fill="#F8CBA6" />
+      <path d="M 163 134 C 165 137 165 141 162 142" stroke="#E5AC84" stroke-width="1.8" stroke-linecap="round" fill="none" />
+
+      <!-- Face Base Shape -->
+      <path d="M 80 120 C 80 82 160 82 160 120 C 160 152 148 174 120 174 C 92 174 80 152 80 120 Z" fill="#FCD3B3" />
+
+      <!-- Hair Cast Shadow on Forehead -->
+      <path d="M 84 98 C 102 92 138 92 156 98 C 146 95 114 94 84 98 Z" fill="#D48E66" opacity="0.22" />
+
+      <!-- Eyebrows -->
+      <path d="M 94 121 C 99 118 107 119 110 122" stroke="#3D2517" stroke-width="2.5" stroke-linecap="round" fill="none" />
+      <path d="M 146 121 C 141 118 133 119 130 122" stroke="#3D2517" stroke-width="2.5" stroke-linecap="round" fill="none" />
+
+      <!-- Eyes (Matte Depth without specular shine) -->
+      <ellipse cx="102" cy="134" rx="4.8" ry="5.8" fill="url(#f4-iris-grad)" />
+      <path d="M 96 131 C 98 128 106 128 108 131" stroke="#20150E" stroke-width="1.5" stroke-linecap="round" fill="none" />
+      <path d="M 99 139 C 102 140 105 140 106 139" stroke="#382115" stroke-width="0.8" stroke-linecap="round" fill="none" opacity="0.45" />
+
+      <ellipse cx="138" cy="134" rx="4.8" ry="5.8" fill="url(#f4-iris-grad)" />
+      <path d="M 132 131 C 134 128 142 128 144 131" stroke="#20150E" stroke-width="1.5" stroke-linecap="round" fill="none" />
+      <path d="M 134 139 C 136 140 139 140 141 139" stroke="#382115" stroke-width="0.8" stroke-linecap="round" fill="none" opacity="0.45" />
+
+      <!-- Nose -->
+      <path d="M 119 143 C 120 146 123 146 124 144" stroke="#DC9C72" stroke-width="1.8" stroke-linecap="round" fill="none" />
+
+      <!-- Friendly Smile -->
+      <path d="M 112 154 C 116 160 124 160 128 154" stroke="#8E4632" stroke-width="2.2" stroke-linecap="round" fill="none" />
+    </g>
+
+    <!-- Front Hair & Right Tuck -->
+    <g id="hair-front-f4">
+      <!-- Hair Top Crown -->
+      <path d="M 72 108 C 70 66 100 50 120 50 C 140 50 170 66 168 108 C 166 84 150 64 120 64 C 90 64 74 84 72 108 Z" fill="#44291A" />
+
+      <!-- Right Hair Sweep (Tucked Behind Right Ear) -->
+      <path d="M 120 64 C 138 64 156 74 166 92 C 172 102 174 116 172 132 C 168 126 166 116 162 108 C 156 94 140 84 120 82 Z" fill="#44291A" />
+      <path d="M 134 76 C 148 84 160 98 166 114" stroke="#5E3B27" stroke-width="2" stroke-linecap="round" fill="none" />
+
+      <!-- Left Flowing Section that gathers into Braid -->
+      <path d="M 120 64 C 102 64 84 74 74 92 C 68 104 66 120 66 138 C 66 156 70 174 76 188 C 78 174 78 158 80 144 C 84 116 100 86 120 82 Z" fill="#44291A" />
+      <path d="M 106 76 C 92 84 80 98 74 114" stroke="#5E3B27" stroke-width="2" stroke-linecap="round" fill="none" />
+
+      <!-- Crown Sheen Arc -->
+      <path d="M 96 64 C 108 58 132 58 144 64" stroke="#5E3B27" stroke-width="2.2" stroke-linecap="round" fill="none" />
+    </g>
+
+    <!-- Herringbone Side Braid Draping Over Left Shoulder -->
+    <g id="braid-f4" filter="url(#f4-braid-shadow)">
+      <!-- Segment 1 (Top crossover) -->
+      <path d="M 68 158 C 64 168 66 178 74 184 C 82 178 82 168 76 158 Z" fill="#3D2517" />
+      <path d="M 74 184 C 82 178 88 174 86 164 C 84 158 76 156 72 164 Z" fill="#4E3321" />
+
+      <!-- Segment 2 (Upper mid crossover) -->
+      <path d="M 66 180 C 62 190 64 200 72 206 C 80 200 80 190 74 180 Z" fill="#3D2517" />
+      <path d="M 72 206 C 80 200 86 196 84 186 C 82 180 74 178 70 186 Z" fill="#4E3321" />
+
+      <!-- Segment 3 (Lower mid crossover) -->
+      <path d="M 64 202 C 60 212 62 222 70 228 C 78 222 78 212 72 202 Z" fill="#3D2517" />
+      <path d="M 70 228 C 78 222 84 218 82 208 C 80 202 72 200 68 208 Z" fill="#4E3321" />
+
+      <!-- Segment 4 (Tapering end crossover) -->
+      <path d="M 62 224 C 58 234 60 242 68 246 C 74 242 74 234 68 224 Z" fill="#3D2517" />
+      <path d="M 68 246 C 74 242 80 238 78 230 C 76 224 70 222 66 230 Z" fill="#4E3321" />
+
+      <!-- Braid Fine Strand Texture Lines -->
+      <path d="M 70 162 C 68 172 70 180 74 184" stroke="#684530" stroke-width="1.4" stroke-linecap="round" fill="none" />
+      <path d="M 68 184 C 66 194 68 202 72 206" stroke="#684530" stroke-width="1.4" stroke-linecap="round" fill="none" />
+      <path d="M 66 206 C 64 216 66 224 70 228" stroke="#684530" stroke-width="1.4" stroke-linecap="round" fill="none" />
+
+      <!-- Teal Scrunchie Tie at end of braid -->
+      <g id="braid-tie-f4">
+        <ellipse cx="68" cy="246" rx="6.5" ry="3.5" fill="#0D9488" />
+        <ellipse cx="68" cy="245.5" rx="5.5" ry="2" fill="#14B8A6" />
+        <path d="M 65 245 C 67 248 70 248 71 245" stroke="#042F2E" stroke-width="1" stroke-linecap="round" fill="none" />
+      </g>
+
+      <!-- Tail tuft -->
+      <path d="M 66 248 C 64 254 62 260 62 262 C 66 262 70 258 72 254 C 74 250 72 248 66 248 Z" fill="#3D2517" />
+      <path d="M 66 250 C 65 255 64 258 64 260" stroke="#5E3B27" stroke-width="1.2" stroke-linecap="round" fill="none" />
+    </g>
+
+    <!-- Card Outer Stroke/Border (Forest Pine) -->
+  </g>
+</svg>

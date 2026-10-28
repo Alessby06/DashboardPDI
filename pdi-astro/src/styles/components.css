@@ -773,7 +773,9 @@
     .app-view {
       display: none;
       flex-direction: column;
-      gap: 22px;
+      /* 24 px: la rampa de layout de DESIGN.md, no los 22 px que se habian
+         quedado como resto. */
+      gap: 24px;
     }
 
     .app-view.active {

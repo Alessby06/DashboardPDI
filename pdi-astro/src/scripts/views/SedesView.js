@@ -308,12 +308,15 @@ export const SedesView = {
       }
     }
 
+    const trigger = document.getElementById("btnDropdownSedesFilterPanel");
+    if (trigger) trigger.classList.toggle("has-filters", activeCount > 0);
+
     if (activeCount > 0) {
       chipsList.innerHTML = chipsHTML.join("");
-      chipsBar.style.display = "flex";
+      chipsBar.classList.add("is-visible");
     } else {
       chipsList.innerHTML = "";
-      chipsBar.style.display = "none";
+      chipsBar.classList.remove("is-visible");
     }
   },
 
@@ -349,8 +352,8 @@ export const SedesView = {
         panel.style.transition = "";
       }
       if (backdrop) {
-        backdrop.style.opacity = "";
-        backdrop.style.transition = "";
+        backdrop.classList.remove("is-dragging");
+        backdrop.style.removeProperty("--sedes-velo");
       }
       panel?.classList.add("open");
       backdrop?.classList.add("open");
@@ -368,8 +371,8 @@ export const SedesView = {
       panel.style.transition = "";
     }
     if (backdrop) {
-      backdrop.style.opacity = "";
-      backdrop.style.transition = "";
+      backdrop.classList.remove("is-dragging");
+      backdrop.style.removeProperty("--sedes-velo");
     }
     panel?.classList.remove("open");
     backdrop?.classList.remove("open");
@@ -488,20 +491,46 @@ export const SedesView = {
     });
   },
 
+  /** Busqueda comun a la lista y a los contadores de faceta. */
+  _aplicaBusqueda(lista) {
+    if (!this._searchQuery) return lista;
+    const q = this._searchQuery;
+    return lista.filter(s =>
+      s.nombre.toLowerCase().includes(q) ||
+      s.distrito.toLowerCase().includes(q) ||
+      s.direccion.toLowerCase().includes(q) ||
+      s.facilitadora.toLowerCase().includes(q) ||
+      s.iglesiaAliada.toLowerCase().includes(q) ||
+      s.pastorAliado.toLowerCase().includes(q)
+    );
+  },
+
+  /**
+   * Contadores de distrito y servicio. Cada faceta se cuenta con el resto de
+   * filtros y la busqueda aplicados, pero sin su propia seleccion.
+   */
+  _updateFacetCounts() {
+    const base = this._aplicaBusqueda([...this._allSedes]);
+
+    const sinDistrito = this._filterServicio !== "all"
+      ? base.filter(s => (s.servicios || []).some(sv => sv.toLowerCase().includes(this._filterServicio.toLowerCase())))
+      : base;
+
+    const sinServicio = this._filterDistrito !== "all"
+      ? base.filter(s => s.distrito.toLowerCase() === this._filterDistrito.toLowerCase())
+      : base;
+
+    contarOpciones("menuSedesDistrito", sinDistrito,
+      (s, valor) => s.distrito.toLowerCase() === valor.toLowerCase());
+
+    contarOpciones("menuSedesServicio", sinServicio,
+      (s, valor) => (s.servicios || []).some(sv => sv.toLowerCase().includes(valor.toLowerCase())));
+  },
+
   applyFilters() {
     let filtered = [...this._allSedes];
 
-    if (this._searchQuery) {
-      const q = this._searchQuery;
-      filtered = filtered.filter(s =>
-        s.nombre.toLowerCase().includes(q) ||
-        s.distrito.toLowerCase().includes(q) ||
-        s.direccion.toLowerCase().includes(q) ||
-        s.facilitadora.toLowerCase().includes(q) ||
-        s.iglesiaAliada.toLowerCase().includes(q) ||
-        s.pastorAliado.toLowerCase().includes(q)
-      );
-    }
+    filtered = this._aplicaBusqueda(filtered);
 
     if (this._filterDistrito && this._filterDistrito !== "all") {
       filtered = filtered.filter(s => s.distrito.toLowerCase() === this._filterDistrito.toLowerCase());
@@ -539,6 +568,7 @@ export const SedesView = {
     }
 
     this._updateActiveChips();
+    this._updateFacetCounts();
     this.renderMasterList();
     this.renderDetailPanel();
 
@@ -660,17 +690,12 @@ export const SedesView = {
 
     panel.innerHTML = `
       <div class="sedes-sheet-header-mobile">
-        <div class="sedes-sheet-header-spacer"></div>
-        <div class="sedes-sheet-pill-wrap" aria-label="Deslizar hacia abajo para cerrar">
+        <div class="sedes-sheet-pill-wrap" aria-hidden="true">
           <span class="sedes-sheet-pill"></span>
         </div>
-        <button type="button" class="sedes-sheet-close-x"
+        <button type="button" class="sedes-sheet-close-sr pdi-sr-only"
           onclick="window.PDI?.SedesView?.cerrarDetalleMovil()"
-          title="Cerrar ventana" aria-label="Cerrar ventana">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+          aria-label="Cerrar ficha de sede">Cerrar ficha</button>
       </div>
       <div class="sedes-detail-card">
         <!-- Header de la Ficha Técnica -->

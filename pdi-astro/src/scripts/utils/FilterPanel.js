@@ -51,6 +51,29 @@ const SOPORTA_POPOVER =
   typeof HTMLElement.prototype.showPopover === "function";
 const nuevoId = (base) => `fil-${base}-${++idSeq}`;
 
+/** Separación entre el disparador y el panel, y margen con el borde. */
+const HUECO_PANEL = 8;
+const MARGEN_PANEL = 16;
+/** Por debajo de este hueco, el panel se abre hacia arriba. */
+const HUECO_MINIMO = 260;
+
+/**
+ * Decide si el panel cabe mejor debajo o encima del botón.
+ * Antes siempre abría hacia abajo y, con el disparador en la mitad inferior,
+ * el encabezado y el pie se comían el cuerpo: quedaban 0-74 px para los campos.
+ */
+function decidirDireccion(boton) {
+  const r = boton.getBoundingClientRect();
+  const abajo = window.innerHeight - r.bottom - HUECO_PANEL - MARGEN_PANEL;
+  // Al abrir hacia arriba no se invade la barra superior: el panel se detiene
+  // bajo el topbar (68 px en escritorio), que es el chrome persistente.
+  const topbar = document.querySelector('.topbar');
+  const techo = Math.max(MARGEN_PANEL, topbar ? topbar.getBoundingClientRect().bottom + HUECO_PANEL : 0);
+  const arriba = r.top - HUECO_PANEL - techo;
+  const usarArriba = abajo < HUECO_MINIMO && arriba > abajo;
+  return { usarArriba, disponible: usarArriba ? arriba : abajo };
+}
+
 /**
  * Un elemento cuenta para el teclado solo si se ve. Los submenus cerrados
  * siguen en layout (visibility:hidden) y su offsetParent no es nulo: sin esta
@@ -59,6 +82,9 @@ const nuevoId = (base) => `fil-${base}-${++idSeq}`;
  */
 function esVisible(el) {
   if (!el || el.offsetParent === null) return false;
+  // Las facetas cerradas siguen en el DOM para animar su altura; inert las
+  // saca del foco y del arbol accesible.
+  if (el.closest('[inert]')) return false;
   const cs = getComputedStyle(el);
   if (cs.visibility === 'hidden' || cs.display === 'none') return false;
   if (cs.pointerEvents === 'none') return false;
@@ -202,7 +228,11 @@ function prepararOpciones(menu) {
   menu.querySelectorAll('.padron-dropdown-item').forEach((item) => {
     if (!item.dataset.filOpcion) {
       item.dataset.filOpcion = '1';
-      item.setAttribute('role', 'checkbox');
+      // El tipo se deduce del marcador que dibuja el campo: un círculo es
+      // selección única (radio) y una casilla es multiselección (checkbox).
+      // Antes todo se anunciaba como checkbox, incluso "Distrito" en sedes.
+      const esRadio = !!item.parentElement?.querySelector('.padron-item-radio');
+      item.setAttribute('role', esRadio ? 'radio' : 'checkbox');
       item.addEventListener('click', () => marcarOpcion(item));
       item.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -219,6 +249,43 @@ function prepararOpciones(menu) {
     }
     marcarOpcion(item);
     new MutationObserver(() => marcarOpcion(item)).observe(item, { attributes: true, attributeFilter: ['class'] });
+  });
+}
+
+/**
+ * Los desplegables internos necesitan anunciar su estado. El panel exterior ya
+ * lo hacía; las facetas no, y un lector de pantalla no sabía que se abrían.
+ */
+function prepararSubpaneles(panel) {
+  panel.querySelectorAll('.padron-inner-dropdown').forEach((sub) => {
+    const boton = sub.querySelector('.padron-inner-dropdown-btn');
+    const menu = sub.querySelector('.padron-inner-dropdown-menu');
+    if (!boton || !menu) return;
+
+    if (!menu.id) menu.id = nuevoId('submenu');
+    boton.setAttribute('aria-controls', menu.id);
+    menu.setAttribute('role', menu.querySelector('.padron-item-radio') ? 'radiogroup' : 'group');
+
+    const sincronizar = () => {
+      const abierto = sub.classList.contains('open');
+      boton.setAttribute('aria-expanded', abierto ? 'true' : 'false');
+      menu.inert = !abierto;
+    };
+    sincronizar();
+    if (!sub.dataset.filSub) {
+      sub.dataset.filSub = '1';
+      new MutationObserver(sincronizar).observe(sub, { attributes: true, attributeFilter: ['class'] });
+      // El acordeon cambia la altura del cuerpo; la señal de desborde tiene
+      // que reevaluarse al terminar la transicion, no solo al hacer scroll.
+      const reveal = sub.querySelector('.padron-inner-dropdown-reveal');
+      if (reveal) {
+        reveal.addEventListener('transitionend', (ev) => {
+          if (ev.target === reveal && ev.propertyName === 'grid-template-rows') {
+            marcarDesborde(panel);
+          }
+        });
+      }
+    }
   });
 }
 
@@ -273,13 +340,22 @@ function seguirAlBoton(panel) {
     return;
   }
 
-  const objetivo = Math.round(r.bottom + 8);
-  menu.style.top = `${objetivo}px`;
+  const { usarArriba } = decidirDireccion(boton);
+  menu.classList.toggle('is-above', usarArriba);
+  menu.style.left = 'auto';
   menu.style.right = `${Math.round(window.innerWidth - r.right)}px`;
+  if (usarArriba) {
+    menu.style.top = 'auto';
+    menu.style.bottom = `${Math.round(window.innerHeight - r.top + HUECO_PANEL)}px`;
+  } else {
+    menu.style.bottom = 'auto';
+    menu.style.top = `${Math.round(r.bottom + HUECO_PANEL)}px`;
+  }
   // Con popover en el top layer, position:fixed mide contra el viewport: no
   // hay desfase que corregir. Sin el, el transform de Lenis desplaza el panel
   // y hay que medir y ajustar.
-  if (SOPORTA_POPOVER) return;
+  if (SOPORTA_POPOVER || usarArriba) return;
+  const objetivo = Math.round(r.bottom + HUECO_PANEL);
   for (let i = 0; i < 2; i++) {
     const desfase = menu.getBoundingClientRect().top - objetivo;
     if (Math.abs(desfase) < 1) break;
@@ -294,6 +370,10 @@ function abrirPopover(menu) {
   if (!menu.matches(":popover-open")) {
     try { menu.showPopover(); } catch {}
   }
+  // El click previo deja display:flex para poder mostrar el top layer antes de
+  // la clase .open; ya con la clase, el CSS lo mantiene y el inline sobra.
+  menu.style.removeProperty('display');
+  menu.style.removeProperty('pointer-events');
 }
 
 /** Lo retira del top layer al cerrar. */
@@ -309,6 +389,7 @@ function posicionarPanel(panel) {
   if (!menu) return;
 
   if (window.innerWidth <= 768) {
+    menu.classList.remove('is-above');
     menu.style.removeProperty('top');
     menu.style.removeProperty('right');
     menu.style.removeProperty('left');
@@ -317,45 +398,45 @@ function posicionarPanel(panel) {
     return;
   }
 
-  // El CSS ancla el panel al boton; la altura se mide una vez, ya colocado.
+  const boton = panel.querySelector('.audit-filter-btn');
+  if (!boton) return;
+
+  const r = boton.getBoundingClientRect();
+  const { usarArriba, disponible } = decidirDireccion(boton);
+  menu.classList.toggle('is-above', usarArriba);
+  // La altura se recorta al hueco real del lado elegido; el resto se desplaza
+  // dentro del panel. Nunca se deja la vista con un cuerpo de 0 px.
+  menu.style.maxHeight = `${Math.max(90, Math.floor(disponible))}px`;
+
+  // El CSS ancla el panel al boton y la clase .is-above decide el lado.
   if (SOPORTA_ANCLA) {
     menu.style.removeProperty('top');
     menu.style.removeProperty('right');
     menu.style.removeProperty('left');
     menu.style.removeProperty('bottom');
-    const r = menu.getBoundingClientRect();
-    if (r.height > 0) {
-      const disponible = Math.floor(window.innerHeight - r.top - 16);
-      menu.style.maxHeight = `${Math.max(120, disponible)}px`;
-    }
     return;
   }
 
-  const boton = panel.querySelector('.audit-filter-btn');
-  if (!boton) return;
-
-  // Siempre debajo del boton. La altura se recorta al hueco real y el resto
-  // se desplaza dentro del panel; no se mueve la vista, que era lo que
-  // desincronizaba el anclaje con el scroll animado de la app.
-  const r = boton.getBoundingClientRect();
-  const margen = 16;
-  const objetivo = Math.round(r.bottom + 8);
-  const hueco = window.innerHeight - objetivo - margen;
-  menu.style.top = `${objetivo}px`;
-  menu.style.right = `${Math.round(window.innerWidth - r.right)}px`;
+  // Respaldo sin anclaje CSS.
   menu.style.left = 'auto';
-  menu.style.bottom = 'auto';
-  menu.style.maxHeight = `${Math.max(90, Math.floor(Math.min(hueco, window.innerHeight - 32)))}px`;
+  menu.style.right = `${Math.round(window.innerWidth - r.right)}px`;
+  if (usarArriba) {
+    menu.style.top = 'auto';
+    menu.style.bottom = `${Math.round(window.innerHeight - r.top + HUECO_PANEL)}px`;
+  } else {
+    menu.style.bottom = 'auto';
+    menu.style.top = `${Math.round(r.bottom + HUECO_PANEL)}px`;
+  }
 
   // Sin popover, el transform de Lenis convierte al ancestro en bloque
   // contenedor de position:fixed y desplaza el panel: se mide y se ajusta.
   // En el top layer no hay desfase que corregir.
-  if (!SOPORTA_POPOVER) {
-    for (let i = 0; i < 2; i++) {
-      const desfase = menu.getBoundingClientRect().top - objetivo;
-      if (Math.abs(desfase) < 1) break;
-      menu.style.top = `${Math.round(parseFloat(menu.style.top) - desfase)}px`;
-    }
+  if (SOPORTA_POPOVER || usarArriba) return;
+  const objetivo = Math.round(r.bottom + HUECO_PANEL);
+  for (let i = 0; i < 2; i++) {
+    const desfase = menu.getBoundingClientRect().top - objetivo;
+    if (Math.abs(desfase) < 1) break;
+    menu.style.top = `${Math.round(parseFloat(menu.style.top) - desfase)}px`;
   }
 }
 
@@ -373,6 +454,132 @@ function nombrarQuitarChips() {
       .trim();
     boton.setAttribute('aria-label', etiqueta ? `Quitar filtro: ${etiqueta}` : 'Quitar filtro');
   });
+}
+
+/**
+ * Prepara el panel antes de que Dropdown le agregue `.open`: decide el lado y
+ * lo muestra en el top layer. Mostrarlo despues movia la capa a mitad de la
+ * transicion y dejaba un silencio de ~70 ms antes del despliegue.
+ */
+function prepararApertura(panel) {
+  if (!panel || panel.classList.contains('open')) return;
+  const boton = panel.querySelector('.audit-filter-btn');
+  const menu = panel.querySelector('.audit-filters-menu');
+  if (!boton || !menu || window.innerWidth <= 768) return;
+
+  const { usarArriba } = decidirDireccion(boton);
+  menu.classList.toggle('is-above', usarArriba);
+
+  if (!SOPORTA_POPOVER) return;
+  if (!menu.hasAttribute('popover')) menu.setAttribute('popover', 'manual');
+  menu.style.display = 'flex';
+  menu.style.pointerEvents = 'none';
+  try { menu.showPopover(); } catch {}
+
+  window.setTimeout(() => {
+    if (!panel.classList.contains('open')) {
+      cerrarPopover(menu);
+      menu.style.removeProperty('display');
+      menu.style.removeProperty('pointer-events');
+    }
+  }, 0);
+}
+
+/**
+ * El asa de la hoja movil arrastra para cerrar: seguimiento 1:1, velo que
+ * acompana y retorno elastico si el gesto no alcanza el umbral. Es el mismo
+ * gesto que la ficha de sedes.
+ */
+function enlazarArrastreHoja(panel) {
+  if (panel.dataset.filArrastre) return;
+  panel.dataset.filArrastre = '1';
+  // Con movimiento reducido el arrastre no se engancha: la hoja no se mueve y
+  // la X y Escape siguen siendo el cierre. Un gesto sin seguimiento confunde.
+  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+
+  const menu = panel.querySelector('.audit-filters-menu');
+  const header = menu?.querySelector('.audit-filters-header');
+  if (!menu || !header) return;
+
+  let startY = 0;
+  let currentY = 0;
+  let arrastrando = false;
+  let historial = [];
+  const esControl = (el) => !!el.closest?.('.btn-text-subtle, .btn-close-sheet');
+
+  header.addEventListener('touchstart', (e) => {
+    if (window.innerWidth > 768) return;
+    if (esControl(e.target)) return;
+    const t = e.touches[0];
+    startY = currentY = t.clientY;
+    historial = [{ y: startY, t: performance.now() }];
+    arrastrando = true;
+    panel.classList.add('is-dragging');
+  }, { passive: true });
+
+  header.addEventListener('touchmove', (e) => {
+    if (!arrastrando || window.innerWidth > 768) return;
+    const t = e.touches[0];
+    currentY = t.clientY;
+    const delta = currentY - startY;
+
+    if (delta <= 0) {
+      menu.style.transform = '';
+      menu.style.transition = '';
+      panel.style.removeProperty('--filtro-velo');
+      arrastrando = false;
+      panel.classList.remove('is-dragging');
+      return;
+    }
+
+    if (e.cancelable) e.preventDefault();
+    menu.style.transition = 'none';
+    menu.style.transform = `translateY(${delta}px)`;
+    panel.style.setProperty('--filtro-velo', String(Math.max(0, 1 - delta / 280)));
+
+    historial.push({ y: currentY, t: performance.now() });
+    if (historial.length > 5) historial.shift();
+  }, { passive: false });
+
+  const finalizar = () => {
+    if (!arrastrando) return;
+    arrastrando = false;
+    panel.classList.remove('is-dragging');
+
+    const delta = currentY - startY;
+    let velocidad = 0;
+    if (historial.length >= 2) {
+      const ultimo = historial[historial.length - 1];
+      const primero = historial[0];
+      const dt = ultimo.t - primero.t;
+      if (dt > 0) velocidad = (ultimo.y - primero.y) / dt;
+    }
+
+    const cerrar = delta > 75 || velocidad > 0.35;
+    // El asentado usa los tokens de la hoja: cerrar es rapido y con ease-out;
+    // volver sigue la curva de apertura (drawer) para que parezca que la hoja
+    // regresa a su sitio y no otra animacion distinta.
+    menu.style.transition = cerrar
+      ? 'transform var(--dur-norm) var(--ease-out)'
+      : 'transform var(--dur-panel) var(--ease-drawer)';
+    // Cerrar termina en 100%, que es el estado cerrado de la hoja. Con 105% se
+    // retiraba la clase a los 230 ms y la hoja retrocedia ~29 px mientras se
+    // desvanecia: un borde reaparecia justo al soltar.
+    menu.style.transform = cerrar ? 'translateY(100%)' : 'translateY(0%)';
+    panel.style.setProperty('--filtro-velo', cerrar ? '0' : '1');
+
+    window.setTimeout(() => {
+      if (cerrar) {
+        window.closeAllFilterSheets?.();
+      }
+      menu.style.transform = '';
+      menu.style.transition = '';
+      panel.style.removeProperty('--filtro-velo');
+    }, cerrar ? 240 : 290);
+  };
+
+  header.addEventListener('touchend', finalizar, { passive: true });
+  header.addEventListener('touchcancel', finalizar, { passive: true });
 }
 
 function prepararPanel(panel) {
@@ -409,17 +616,6 @@ function prepararPanel(panel) {
 
   const pie = menu.querySelector('.audit-filters-footer');
   if (pie) {
-    if (!pie.querySelector('.btn-clear-filters')) {
-      const limpiar = document.createElement('button');
-      limpiar.type = 'button';
-      limpiar.className = 'btn-clear-filters';
-      limpiar.textContent = 'Limpiar';
-      limpiar.addEventListener('click', () => {
-        limpiarFiltrosDePagina();
-        actualizarEtiqueta(panel);
-      });
-      pie.insertBefore(limpiar, pie.firstChild);
-    }
     if (!pie.querySelector('.filter-count')) {
       const cifra = document.createElement('span');
       cifra.className = 'filter-count';
@@ -458,7 +654,9 @@ function prepararPanel(panel) {
       const primero = menu.querySelector('.audit-filters-body :is(' + FOCALIZABLES + ')');
       const enfocar = () => (primero || menu).focus({ preventScroll: true });
       enfocar();
-      setTimeout(enfocar, 180);
+      // La entrada dura 220 ms; enfocar a los 180 hacia que el anillo de foco
+      // viajara con el panel. A los 240 el panel ya esta quieto.
+      setTimeout(enfocar, 240);
     } else if (panel.contains(document.activeElement)) {
       disparador.focus({ preventScroll: true });
     }
@@ -489,6 +687,8 @@ function prepararPanel(panel) {
 
   // Mientras la hoja esta abierta, cada repintado actualiza cifra, vacio y
   // los nombres accesibles de los chips, que se repintan con cada filtro.
+  // 80 ms: la cifra acompana a la barra de chips (175 ms de entrada) en vez
+  // de llegar 160 ms despues y dar un segundo golpe visual.
   const observador = new MutationObserver(() => {
     if (!panel.classList.contains('open')) return;
     clearTimeout(observador._t);
@@ -497,7 +697,7 @@ function prepararPanel(panel) {
       marcarDesborde(panel);
       decorarEstadoVacio();
       nombrarQuitarChips();
-    }, 160);
+    }, 80);
   });
   const main = document.getElementById('mainContent');
   if (main) observador.observe(main, { childList: true, subtree: true });
@@ -517,6 +717,8 @@ function prepararPanel(panel) {
 
 export function mejorarPanelesFiltro() {
   document.querySelectorAll('.audit-filters-dropdown').forEach(prepararPanel);
+  document.querySelectorAll('.audit-filters-dropdown').forEach(prepararSubpaneles);
+  document.querySelectorAll('.audit-filters-dropdown').forEach(enlazarArrastreHoja);
   document.querySelectorAll('.audit-filters-menu').forEach(prepararOpciones);
   nombrarQuitarChips();
   decorarEstadoVacio();
@@ -556,5 +758,5 @@ if (typeof document !== 'undefined') {
     });
   }, { capture: true, passive: true });
   window.PDI = window.PDI || {};
-  window.PDI.FilterPanel = { mejorar: mejorarPanelesFiltro, contarResultados };
+  window.PDI.FilterPanel = { mejorar: mejorarPanelesFiltro, contarResultados, prepararApertura };
 }

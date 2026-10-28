@@ -605,15 +605,6 @@
     touch-action: none !important;
   }
 
-  @keyframes sheetBackdropFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  .btn-close-sheet:active {
-    transform: scale(0.92) !important;
-  }
-
   .padron-dropdown-item {
     min-height: 40px !important;
     padding: 8px 12px !important;
@@ -967,6 +958,16 @@
     border-right: none;
     border-top: none;
     border-bottom: 1px solid var(--border-subtle);
+  }
+
+  /* En reposo la banda no debe dejar su padding ni su linea. */
+  #cardSaludEvaluaciones .padron-active-chips-bar:not(.is-visible),
+  #cardAsistenciaCasita .padron-active-chips-bar:not(.is-visible),
+  #cardPadronBeneficiarios .padron-active-chips-bar:not(.is-visible),
+  #view-auditoria .card .padron-active-chips-bar:not(.is-visible) {
+    padding-block: 0;
+    border-width: 0;
+    margin-bottom: 0;
   }
 
   /* Paginación: pie full-bleed que cierra la card */
@@ -1412,7 +1413,9 @@ input[type="range"] {
       height: 100dvh !important;
       max-height: 100vh !important;
       max-height: 100dvh !important;
-      border-radius: 0 !important;
+      /* Redondeo completo tambien a pantalla llena: el velo asoma por las
+         esquinas y la ventana deja de ser un rectangulo pegado al borde. */
+      border-radius: 20px !important;
       border: none !important;
       transform: none !important;
       display: flex !important;
@@ -1694,7 +1697,7 @@ input[type="range"] {
         height: 64px;
         min-width: 64px;
         border-radius: 8px;
-        border: 1.5px solid var(--gt-green-border);
+        border: 1.5px solid var(--border-subtle);
         overflow: hidden;
         background: var(--surface-2);
         display: flex;

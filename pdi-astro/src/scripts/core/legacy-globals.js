@@ -543,12 +543,27 @@ document.addEventListener("click", (e) => {
 
 document.addEventListener("keydown", (e) => {
   if (e.key !== "Escape") return;
+  // Un modal abierto manda: su Escape no debe consumirse en una faceta que
+  // quedo abierta detras.
+  const modalVisible = Array.from(document.querySelectorAll(".modal-backdrop")).some((m) => {
+    const cs = getComputedStyle(m);
+    // Los backdrops viven siempre en el DOM con display:flex y opacity:0. El
+    // display por si solo los daba por abiertos y Escape no cerraba filtros.
+    return cs.display !== "none" && cs.visibility !== "hidden" && Number(cs.opacity) > 0.01;
+  });
+  // Escape cierra la capa mas interna: primero la faceta abierta y despues el
+  // panel. Antes una sola pulsacion cerraba las dos y el foco se perdia.
+  const facetaAbierta = !modalVisible
+    ? document.querySelector(".audit-filters-menu .padron-inner-dropdown.open")
+    : null;
+  if (facetaAbierta) {
+    facetaAbierta.classList.remove("open");
+    facetaAbierta.querySelector(".padron-inner-dropdown-btn")?.focus({ preventScroll: true });
+    return;
+  }
   // Escape no debe cerrar los filtros cuando el foco vive en otro modal: el
   // modal de una ficha tiene su propia salida y antes se cerraban ambos.
   const focoEnFiltro = !!document.activeElement?.closest?.(".audit-filters-dropdown, .padron-inner-dropdown, .audit-filters-menu");
-  const modalVisible = Array.from(document.querySelectorAll(".modal-backdrop")).some(
-    (m) => m.offsetParent !== null || getComputedStyle(m).display !== "none"
-  );
   if (!modalVisible || focoEnFiltro) {
     Dropdown.cerrarHojasFiltro();
     document.querySelectorAll(".padron-inner-dropdown.open").forEach((d) => d.classList.remove("open"));

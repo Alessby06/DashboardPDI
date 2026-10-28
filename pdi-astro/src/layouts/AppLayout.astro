@@ -31,7 +31,7 @@ const pdiAppSectionTransition = {
     },
     new: {
       name: "pdiAppSectionIn",
-      duration: "0.24s",
+      duration: "0.26s",
       easing: "cubic-bezier(0.16, 1, 0.3, 1)",
       fillMode: "both",
     },
@@ -45,7 +45,7 @@ const pdiAppSectionTransition = {
     },
     new: {
       name: "pdiAppSectionIn",
-      duration: "0.24s",
+      duration: "0.26s",
       easing: "cubic-bezier(0.16, 1, 0.3, 1)",
       fillMode: "both",
     },
@@ -212,7 +212,12 @@ const impeccableLive =
       <Topbar transition:persist />
 
       <!-- Viewport Body -->
-      <main class="content-viewport" id="mainContent" transition:animate={pdiAppSectionTransition}>
+      <main
+        class="content-viewport"
+        id="mainContent"
+        transition:name="pdi-main-section"
+        transition:animate={pdiAppSectionTransition}
+      >
         <div class="pdi-view-shell" id="pdiViewShell">
           <div class="pdi-view-content" id="pdiViewContent">
             <div id="smoothContent" class="smooth-content">
@@ -243,8 +248,5 @@ const impeccableLive =
   <script>
     import '../scripts/utils/SheetController.js';
   </script>
-<!-- impeccable-live-start -->
-<script is:inline src="http://localhost:8400/live.js?token=e86a0507-0b51-4053-b1b1-45fdd847eee9"></script>
-<!-- impeccable-live-end -->
 </body>
 </html>

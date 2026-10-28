@@ -1,0 +1,156 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 260" width="240" height="260">
+  <defs>
+    <!-- Scoped Card Clip for F3 -->
+    <clipPath id="f3-card-clip">
+      <rect x="0" y="0" width="240" height="260" />
+    </clipPath>
+    <!-- Scoped Soft Drop Shadow for F3 -->
+    <filter id="f3-soft-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-opacity="0.12" />
+    </filter>
+    <!-- Matte Iris Gradient -->
+    <linearGradient id="f3-iris-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#100A08" />
+      <stop offset="65%" stop-color="#1B120E" />
+      <stop offset="100%" stop-color="#2D1C16" />
+    </linearGradient>
+  </defs>
+
+  <!-- Outer Card Frame -->
+  <g clip-path="url(#f3-card-clip)">
+    <!-- Card Background (Cream / Vanilla) -->
+    <rect x="0" y="0" width="240" height="260" fill="#F6EFE5" />
+    <!-- Central Backdrop Circle (Warm Tan) -->
+    <circle cx="120" cy="132" r="86" fill="#E8DBC9" />
+
+    <!-- Organic Curly Afro Silhouette (Sculpted continuous bezier lobes, no loose primitive circles) -->
+    <g id="f3-afro-sculpted">
+      <!-- Back Foundation Volume -->
+      <path d="M 64 125 
+               C 52 110 52 90 62 74 
+               C 56 58 72 44 88 40 
+               C 98 32 114 30 128 32 
+               C 142 32 158 40 166 48 
+               C 180 54 188 70 184 86 
+               C 194 102 192 122 182 138 
+               C 186 156 174 172 158 178 
+               C 146 182 136 182 120 182 
+               C 104 182 94 182 82 178 
+               C 66 172 54 156 58 138 
+               C 54 132 58 126 64 125 Z" fill="#17100D" />
+
+      <!-- Outer Cloud Lobe Layer (Alternating Midtones for rich lush afro depth) -->
+      <!-- Left side curl lobes -->
+      <path d="M 60 148 C 50 144 48 130 54 120 C 60 110 70 114 74 122 C 78 130 72 144 60 148 Z" fill="#241913" />
+      <path d="M 54 118 C 48 108 50 94 60 88 C 70 82 78 90 76 100 C 74 110 64 116 54 118 Z" fill="#1C1410" />
+      <path d="M 64 84 C 60 72 68 60 80 58 C 92 56 96 68 92 78 C 88 88 74 90 64 84 Z" fill="#291D17" />
+      
+      <!-- Top crown curl lobes -->
+      <path d="M 86 52 C 86 40 100 32 112 36 C 124 40 124 52 116 60 C 108 68 94 62 86 52 Z" fill="#1C1410" />
+      <path d="M 116 42 C 120 30 136 28 148 34 C 158 40 156 54 146 60 C 136 66 122 56 116 42 Z" fill="#291D17" />
+      <path d="M 148 46 C 156 36 172 40 178 52 C 184 64 176 76 166 76 C 156 76 148 60 148 46 Z" fill="#1C1410" />
+
+      <!-- Right side curl lobes -->
+      <path d="M 174 76 C 186 78 194 92 188 104 C 182 114 170 112 166 102 C 162 92 168 80 174 76 Z" fill="#291D17" />
+      <path d="M 178 112 C 190 116 192 132 184 142 C 176 152 164 146 162 136 C 160 126 168 114 178 112 Z" fill="#1C1410" />
+      <path d="M 170 146 C 178 152 176 168 164 172 C 152 176 144 166 148 154 C 152 142 164 142 170 146 Z" fill="#241913" />
+
+      <!-- Fine interior curl swirl lines -->
+      <path d="M 72 106 C 70 114 74 122 80 122" stroke="#3A2920" stroke-width="2" stroke-linecap="round" fill="none" />
+      <path d="M 88 64 C 94 60 102 62 104 68" stroke="#3A2920" stroke-width="2" stroke-linecap="round" fill="none" />
+      <path d="M 134 50 C 142 48 150 52 150 58" stroke="#3A2920" stroke-width="2" stroke-linecap="round" fill="none" />
+      <path d="M 168 94 C 172 100 170 108 164 110" stroke="#3A2920" stroke-width="2" stroke-linecap="round" fill="none" />
+    </g>
+
+    <!-- Body / Slate Navy Sweater -->
+    <g id="sweater-f3">
+      <path d="M 42 260 C 44 212 75 194 104 190 L 136 190 C 165 194 196 212 198 260 Z" fill="#2C3746" />
+      <!-- Subtle Shoulder Seams -->
+      <path d="M 50 260 C 53 220 78 202 104 196" stroke="#3A485B" stroke-width="2.4" stroke-linecap="round" fill="none" opacity="0.6" />
+      <path d="M 190 260 C 187 220 162 202 136 196" stroke="#3A485B" stroke-width="2.4" stroke-linecap="round" fill="none" opacity="0.6" />
+    </g>
+
+    <!-- Neck -->
+    <path d="M 107 160 L 107 195 C 107 202 133 202 133 195 L 133 160 Z" fill="#844E2E" />
+    <!-- Neck Shadow under chin -->
+    <path d="M 107 163 C 114 175 126 175 133 163 C 133 173 107 173 107 163 Z" fill="#6A3B1F" />
+
+    <!-- Peter Pan Collar -->
+    <g id="collar-f3" filter="url(#f3-soft-shadow)">
+      <path d="M 120 194 C 116 190 95 190 89 203 C 85 212 95 222 108 220 C 119 218 121 202 120 194 Z" fill="#FFFFFF" />
+      <path d="M 108 220 C 98 221 90 213 93 205" stroke="#E2E8F0" stroke-width="1.2" stroke-linecap="round" fill="none" />
+      <path d="M 120 194 C 124 190 145 190 151 203 C 155 212 145 222 132 220 C 121 218 119 202 120 194 Z" fill="#FFFFFF" />
+      <path d="M 132 220 C 142 221 150 213 147 205" stroke="#E2E8F0" stroke-width="1.2" stroke-linecap="round" fill="none" />
+      <circle cx="120" cy="198" r="2.2" fill="#D2D6DC" />
+    </g>
+
+    <!-- Head & Ears -->
+    <g id="head-f3">
+      <!-- Left Ear -->
+      <ellipse cx="76" cy="138" rx="6.5" ry="9.5" fill="#844E2E" />
+      <path d="M 77 134 C 75 137 75 141 78 142" stroke="#68391C" stroke-width="1.8" stroke-linecap="round" fill="none" />
+      <!-- Right Ear -->
+      <ellipse cx="164" cy="138" rx="6.5" ry="9.5" fill="#844E2E" />
+      <path d="M 163 134 C 165 137 165 141 162 142" stroke="#68391C" stroke-width="1.8" stroke-linecap="round" fill="none" />
+
+      <!-- Face Base Shape (Bronze / Warm Chocolate) -->
+      <path d="M 80 120 C 80 82 160 82 160 120 C 160 152 148 174 120 174 C 92 174 80 152 80 120 Z" fill="#915634" />
+
+      <!-- Forehead Shadow under curls & headband -->
+      <path d="M 84 96 C 102 90 138 90 156 96 C 146 93 114 92 84 96 Z" fill="#663A20" opacity="0.32" />
+
+      <!-- Eyebrows -->
+      <path d="M 94 121 C 99 118 107 119 110 122" stroke="#1C1410" stroke-width="2.5" stroke-linecap="round" fill="none" />
+      <path d="M 146 121 C 141 118 133 119 130 122" stroke="#1C1410" stroke-width="2.5" stroke-linecap="round" fill="none" />
+
+      <!-- Eyes (Matte Depth without specular shine) -->
+      <ellipse cx="102" cy="134" rx="4.8" ry="5.8" fill="url(#f3-iris-grad)" />
+      <path d="M 96 131 C 98 128 106 128 108 131" stroke="#140E0C" stroke-width="1.5" stroke-linecap="round" fill="none" />
+      <path d="M 99 139 C 102 140 105 140 106 139" stroke="#2D1C16" stroke-width="0.8" stroke-linecap="round" fill="none" opacity="0.45" />
+
+      <ellipse cx="138" cy="134" rx="4.8" ry="5.8" fill="url(#f3-iris-grad)" />
+      <path d="M 132 131 C 134 128 142 128 144 131" stroke="#140E0C" stroke-width="1.5" stroke-linecap="round" fill="none" />
+      <path d="M 134 139 C 136 140 139 140 141 139" stroke="#2D1C16" stroke-width="0.8" stroke-linecap="round" fill="none" opacity="0.45" />
+
+      <!-- Nose -->
+      <path d="M 119 143 C 120 146 123 146 124 144" stroke="#6C3E22" stroke-width="1.8" stroke-linecap="round" fill="none" />
+
+      <!-- Radiant Warm Smile -->
+      <path d="M 112 154 C 116 160 124 160 128 154" stroke="#502414" stroke-width="2.2" stroke-linecap="round" fill="none" />
+    </g>
+
+    <!-- White Satin Headband & Sculpted Ribbon Bow -->
+    <g id="headband-f3" filter="url(#f3-soft-shadow)">
+      <!-- Headband Arc -->
+      <path d="M 72 110 C 72 68 100 58 120 58 C 140 58 168 68 168 110" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" fill="none" />
+      <path d="M 75 106 C 75 70 100 60 120 60 C 140 60 165 70 165 106" stroke="#E2E8F0" stroke-width="1.6" stroke-linecap="round" fill="none" />
+
+      <!-- Front Curly Bang Fringe over Headband -->
+      <g id="front-curls-f3">
+        <path d="M 96 68 C 90 76 92 88 102 90 C 110 92 116 84 114 76 C 112 70 102 64 96 68 Z" fill="#291D17" />
+        <path d="M 112 72 C 110 80 114 90 124 92 C 132 94 138 86 136 78 C 134 72 122 66 112 72 Z" fill="#1C1410" />
+        <path d="M 132 70 C 128 78 132 88 140 90 C 148 92 154 84 150 76 C 148 70 138 66 132 70 Z" fill="#291D17" />
+      </g>
+
+      <!-- Side Bow with Folded Fabric Wings (Placed on right side above ear) -->
+      <g id="side-bow-f3" transform="translate(162, 78) rotate(18)">
+        <!-- Bow Shadow -->
+        <ellipse cx="0" cy="2" rx="14" ry="7" fill="#17100D" opacity="0.3" />
+        <!-- Left Wing -->
+        <path d="M 0 0 C -8 -10 -16 -6 -14 0 C -16 6 -8 10 0 0 Z" fill="#FFFFFF" />
+        <path d="M -2 0 C -8 -4 -12 -2 -11 0" stroke="#CBD5E1" stroke-width="1.2" stroke-linecap="round" fill="none" />
+        <!-- Right Wing -->
+        <path d="M 0 0 C 8 -10 16 -6 14 0 C 16 6 8 10 0 0 Z" fill="#FFFFFF" />
+        <path d="M 2 0 C 8 -4 12 -2 11 0" stroke="#CBD5E1" stroke-width="1.2" stroke-linecap="round" fill="none" />
+        <!-- Ribbon Tails -->
+        <path d="M -2 2 L -8 14 L -4 13 L 0 5 Z" fill="#F1F5F9" />
+        <path d="M 2 2 L 6 15 L 3 13 L 0 5 Z" fill="#E2E8F0" />
+        <!-- Amber Cabochon Knot/Gem Center -->
+        <ellipse cx="0" cy="0" rx="3.6" ry="4.2" fill="#D97706" />
+        <ellipse cx="-0.8" cy="-1" rx="1.4" ry="1.8" fill="#FDE68A" />
+      </g>
+    </g>
+
+    <!-- Card Outer Stroke/Border (Bronzed Caramel) -->
+  </g>
+</svg>

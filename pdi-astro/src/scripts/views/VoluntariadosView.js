@@ -11,6 +11,7 @@ import { AuditModel } from '../models/AuditModel.js';
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";
 import { OPCIONES_VOLUNTARIADO, SERVICIOS_VOLUNTARIADO } from '../../data/opcionesBeneficiario.js';
 import { SEDES_POR_DISTRITO, etiquetaSede } from '../core/catalogos.js';
+import { contarOpciones } from "../utils/FacetCounts.js";
 // Etiquetas de servicio desde el catálogo único de programas: un programa
 // nuevo aparece en chips y desplegables sin tocar nada aquí.
 const SERVICIO_LABELS = Object.fromEntries(
@@ -343,27 +344,54 @@ export const VoluntariadosView = {
     if (badgeNav) badgeNav.textContent = stats.total;
   },
 
+  /** Busqueda comun a la lista y a los contadores de faceta. */
+  _aplicaBusqueda(lista) {
+    if (!this._searchQuery) return lista;
+    const normalize = s => (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+    const q = normalize(this._searchQuery);
+    return lista.filter(v => {
+      const fullName = `${normalize(v.nombres)} ${normalize(v.apellidos)}`;
+      const reverseName = `${normalize(v.apellidos)} ${normalize(v.nombres)}`;
+      return fullName.includes(q) ||
+        reverseName.includes(q) ||
+        (v.dni && v.dni.includes(q)) ||
+        (v.codigo && normalize(v.codigo).includes(q)) ||
+        (v.sedeAsignada && normalize(v.sedeAsignada).includes(q)) ||
+        (v.distrito && normalize(v.distrito).includes(q)) ||
+        (v.servicio && normalize(v.servicio).includes(q)) ||
+        (v.rol && normalize(v.rol).includes(q)) ||
+        (v.celular && v.celular.includes(q));
+    });
+  },
+
+  /**
+   * Contadores de distrito, servicio, rol y estado. Cada faceta se cuenta con
+   * las otras tres y la busqueda aplicadas, sin su propia seleccion.
+   */
+  _updateFacetCounts() {
+    const base = this._aplicaBusqueda([...(this._voluntarios || [])]);
+
+    const distritoOk = (v) => this._filterDistrito.length === 0 || this._filterDistrito.includes(v.distrito);
+    const servicioOk = (v) => this._filterServicio.length === 0 || this._filterServicio.includes(v.servicio);
+    const rolOk = (v) => this._filterRol.length === 0 || this._filterRol.includes(v.rol);
+    const estadoOk = (v) => this._filterEstado === "all" || v.estado === this._filterEstado;
+
+    const sinDistrito = base.filter(v => servicioOk(v) && rolOk(v) && estadoOk(v));
+    const sinServicio = base.filter(v => distritoOk(v) && rolOk(v) && estadoOk(v));
+    const sinRol = base.filter(v => distritoOk(v) && servicioOk(v) && estadoOk(v));
+    const sinEstado = base.filter(v => distritoOk(v) && servicioOk(v) && rolOk(v));
+
+    contarOpciones("menuVoluntariosDistrito", sinDistrito, (v, valor) => v.distrito === valor);
+    contarOpciones("menuVoluntariosServicio", sinServicio, (v, valor) => v.servicio === valor);
+    contarOpciones("menuVoluntariosRol", sinRol, (v, valor) => v.rol === valor);
+    contarOpciones("menuVoluntariosEstado", sinEstado, (v, valor) => v.estado === valor);
+  },
+
   applyFilters(animar = false) {
     let list = [...this._voluntarios];
 
     // Búsqueda inteligente: insensible a tildes y búsqueda de nombre completo
-    if (this._searchQuery) {
-      const normalize = s => (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
-      const q = normalize(this._searchQuery);
-      list = list.filter(v => {
-        const fullName = `${normalize(v.nombres)} ${normalize(v.apellidos)}`;
-        const reverseName = `${normalize(v.apellidos)} ${normalize(v.nombres)}`;
-        return fullName.includes(q) ||
-          reverseName.includes(q) ||
-          (v.dni && v.dni.includes(q)) ||
-          (v.codigo && normalize(v.codigo).includes(q)) ||
-          (v.sedeAsignada && normalize(v.sedeAsignada).includes(q)) ||
-          (v.distrito && normalize(v.distrito).includes(q)) ||
-          (v.servicio && normalize(v.servicio).includes(q)) ||
-          (v.rol && normalize(v.rol).includes(q)) ||
-          (v.celular && v.celular.includes(q));
-      });
-    }
+    list = this._aplicaBusqueda(list);
 
     // Filter Distrito
     if (this._filterDistrito.length > 0) {
@@ -410,6 +438,7 @@ export const VoluntariadosView = {
     this._lastRenderSerial = serial;
 
     this._filteredList = list;
+    this._updateFacetCounts();
     this._updateActiveFilterBadge();
     this._renderActiveChips();
     this._renderTableAndCards(list);
@@ -464,7 +493,7 @@ export const VoluntariadosView = {
     }
 
     if (chips.length > 0) {
-      bar.style.display = "flex";
+      bar.classList.add("is-visible");
       list.innerHTML = chips.map(chip => `
         <span class="padron-chip">
           <span>${escapar(chip.label)}</span>
@@ -476,7 +505,7 @@ export const VoluntariadosView = {
         </span>
       `).join("");
     } else {
-      bar.style.display = "none";
+      bar.classList.remove("is-visible");
       list.innerHTML = "";
     }
   },

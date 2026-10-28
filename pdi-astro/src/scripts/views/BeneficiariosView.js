@@ -4,6 +4,7 @@ import { crearStore } from "../utils/FilterStore.js";
 import { Responsive } from "../utils/Responsive.js";
 import { AnimationEngine } from "../utils/AnimationEngine.js";
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";
+import { Dropdown } from "../utils/Dropdown.js";
 import { SEDES_NOMBRES } from "../core/catalogos.js";
 // Qué filtros del padrón viajan en la URL, con qué valores y cuáles son los
 // defectos. La lista de valores no se inventa: es la misma que admiten los
@@ -291,14 +292,7 @@ export const BeneficiariosView = {
   },
 
   toggleInnerDropdown(dropdownId) {
-    const dropdown = document.getElementById(dropdownId);
-    if (!dropdown) return;
-    const isCurrentlyOpen = dropdown.classList.contains("open");
-    // Cerrar otros dropdowns internos abiertos
-    document.querySelectorAll(".padron-inner-dropdown.open").forEach(d => {
-      if (d !== dropdown) d.classList.remove("open");
-    });
-    dropdown.classList.toggle("open", !isCurrentlyOpen);
+    Dropdown.alternarInterno(dropdownId);
   },
 
   toggleEstrategia(val) {
@@ -1007,10 +1001,10 @@ export const BeneficiariosView = {
     }
 
     if (chips.length === 0) {
-      bar.style.display = "none";
+      bar.classList.remove("is-visible");
       list.innerHTML = "";
     } else {
-      bar.style.display = "flex";
+      bar.classList.add("is-visible");
       list.innerHTML = chips.map(chip => `
         <span class="padron-chip">
           <span>${escapar(chip.label)}</span>

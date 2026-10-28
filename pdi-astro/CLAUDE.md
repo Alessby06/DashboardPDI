@@ -40,9 +40,10 @@ Guides:
 
 ## Concurrencia y checkpoints
 
-- **Un solo escritor por árbol de trabajo.** Si otra sesión o agente está editando este proyecto, no escribas aquí: crea un worktree (`git worktree add ../pdi-<tarea> -b <tarea>`) y trabaja allí, con su propio servidor y puerto.
-- **Antes de editar**, ejecuta `git status --short`. Si hay cambios que no hiciste tú, detente y avisa; no los sobrescribas.
-- **Edita por reemplazo dirigido**, no reescribas el archivo completo desde una copia leída antes. Relee el archivo justo antes de guardar.
-- **Checkpoint al cerrar cada lote lógico.** Un commit no bloquea escrituras: solo permite recuperar. Contra colisiones manda el aislamiento (worktree o rama), no el commit.
-- **Un servidor de desarrollo por árbol y puerto.** Dos servidores sobre el mismo `node_modules/.vite` rompen el transporte de Vite.
-
+- **Paralelismo con alcance explícito.** Varias sesiones pueden trabajar en el mismo árbol si, antes de empezar, el coordinador asigna a cada una una lista exclusiva de archivos. Una sesión es la única escritora de sus archivos; no edites fuera de tu lista. Si los alcances se solapan, son ambiguos o afectan la misma zona, usa un worktree o serializa esas tareas.
+- **Protege los cambios ajenos.** Antes de editar, ejecuta `git status --short` y revisa los diffs de los archivos que planeas tocar. Los cambios fuera de tu alcance se dejan intactos: no los reformatees, reemplaces, reviertas ni incluyas al preparar el commit. Usa `git add <rutas explícitas>`, nunca `git add -A` cuando haya trabajo paralelo.
+- **Archivos de alto riesgo de colisión.** `AppLayout.astro`, estilos globales, configuración, lockfiles y esquema/migraciones requieren un único dueño por lote. Si dos tareas necesitan el mismo archivo, sepáralas en worktrees o acuerda un orden de integración.
+- **Edición quirúrgica.** Relee cada archivo justo antes de editar y aplica reemplazos dirigidos; no reescribas archivos completos desde una copia antigua.
+- **Integración explícita.** Al terminar, cada sesión informa archivos modificados, pruebas ejecutadas y limitaciones. El integrador revisa los diffs y combina solo los hunks asignados. Los cambios de un worktree no aparecen en el checkout canónico ni en su `localhost` hasta integrarlos.
+- **Checkpoints.** Cierra cada lote lógico con un diff revisable. Un commit facilita recuperar cambios, pero no es un bloqueo ni sustituye la asignación de archivos.
+- **Servidores aislados.** Un servidor por checkout y puerto. Los worktrees usan puertos y cachés propios; nunca compartas `node_modules/.vite` entre worktrees.

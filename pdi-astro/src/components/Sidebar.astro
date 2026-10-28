@@ -228,8 +228,10 @@ const navItems = [
   /* Entrada sin modulo todavia (Padrón de Colaboradores): se ve en el menu,
      pero atenuada y sin destino. */
   .nav-btn-placeholder {
-    cursor: default;
-    opacity: 0.55;
+    cursor: not-allowed;
+    opacity: 0.42;
+    filter: grayscale(1);
+    color: var(--text-dim);
   }
 
   .nav-btn-placeholder:hover {

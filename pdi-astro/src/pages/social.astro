@@ -70,7 +70,10 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                       d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                   </svg>
                   <input type="text" class="audit-search-input" id="inputSearchCasosSociales"
-                    placeholder="Buscar caso por usuario, código, situación o sede..."
+                    placeholder="Buscar caso..."
+                    data-placeholder-largo="Buscar por usuario, código, situación o sede..."
+                    aria-label="Buscar caso por usuario, código, situación o sede"
+                    title="Buscar caso por usuario, código, situación o sede"
                     oninput="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.handleSearch(this.value) : null">
                 </div>
 
@@ -93,6 +96,7 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                         todosEtiqueta="Todas las Urgencias"
                         opciones={OPCIONES_URGENCIA}
                         tipo="single"
+                        countPrefix="countFacetSocialUrgencia"
                         onSelect="window.PDI?.SocialKanbanView?.filterByUrgencia"
                         abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownSocialUrgencia') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSocialUrgencia') : null)"
                       />
@@ -107,14 +111,33 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                         todosEtiqueta="Todas las Sedes"
                         opciones={OPCIONES_SEDE}
                         tipo="single"
+                        countPrefix="countFacetSocialSede"
                         onSelect="window.PDI?.SocialKanbanView?.filterBySede"
                         abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownSocialSede') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSocialSede') : null)"
                       />
                               </FilterPanel>
             </div>
 
+            <script is:inline>
+              // En 179 px de movil el texto completo del buscador no cabe y
+              // se cortaba a mitad de palabra. El campo conserva la pista
+              // larga donde tiene ancho para mostrarla.
+              (function () {
+                var input = document.getElementById('inputSearchCasosSociales');
+                if (!input) return;
+                var ancho = window.matchMedia('(min-width: 769px)');
+                var aplicar = function () {
+                  input.placeholder = ancho.matches
+                    ? input.dataset.placeholderLargo
+                    : 'Buscar caso...';
+                };
+                aplicar();
+                ancho.addEventListener('change', aplicar);
+              })();
+            </script>
+
                 <!-- Barra de Píldoras de Filtros Activos de Casos Sociales (Chips Descartables) -->
-                <div class="padron-active-chips-bar" id="socialActiveChipsBar" style="display: none;">
+                <div class="padron-active-chips-bar" id="socialActiveChipsBar">
                   <span class="padron-active-chips-label">Filtros aplicados:</span>
                   <div id="socialActiveChipsList"
                     style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">

@@ -111,65 +111,67 @@ const contadorDe = (opcion: Opcion) =>
       </svg>
     </button>
 
-    <div class="padron-inner-dropdown-menu" id={menuId}>
-      <div
-        class="padron-dropdown-item selected"
-        data-value={todosValor}
-        onclick={alSeleccionar(todosValor, todosEtiqueta)}
-      >
-        <div class="padron-item-left">
-          {tipo === 'multi' ? (
-            <span class="padron-item-checkbox">
-              <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-              </svg>
-            </span>
-          ) : (
-            <span class="padron-item-radio"></span>
-          )}
-          <span class="padron-item-label">{todosEtiqueta}</span>
-        </div>
-        {countPrefix && (
-          <span class="padron-item-count" id={`${countPrefix}-${todosValor}`}>(0)</span>
-        )}
-      </div>
-
-      {opciones.map((opcion) => {
-        const idContador = contadorDe(opcion);
-        return (
-          <div
-            class="padron-dropdown-item"
-            data-value={opcion.valor}
-            onclick={alSeleccionar(opcion.valor, opcion.etiqueta ?? opcion.valor)}
-          >
-            <div class="padron-item-left">
-              {tipo === 'multi' ? (
-                <span class="padron-item-checkbox">
-                  <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                  </svg>
-                </span>
-              ) : (
-                <span class="padron-item-radio"></span>
-              )}
-              {opcion.badge && (
-                <span
-                  class:list={[
-                    'badge',
-                    `badge-${opcion.badge.tono ?? 'green'}`,
-                    'facet-badge',
-                    opcion.badge.compacta && 'facet-badge--compacta',
-                  ]}
-                >{opcion.badge.texto}</span>
-              )}
-              {opcion.etiqueta && <span class="padron-item-label">{opcion.etiqueta}</span>}
-            </div>
-            {idContador && (
-              <span class="padron-item-count" id={idContador}>(0)</span>
+    <div class="padron-inner-dropdown-reveal">
+      <div class="padron-inner-dropdown-menu" id={menuId}>
+        <div
+          class="padron-dropdown-item selected"
+          data-value={todosValor}
+          onclick={alSeleccionar(todosValor, todosEtiqueta)}
+        >
+          <div class="padron-item-left">
+            {tipo === 'multi' ? (
+              <span class="padron-item-checkbox">
+                <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+              </span>
+            ) : (
+              <span class="padron-item-radio"></span>
             )}
+            <span class="padron-item-label">{todosEtiqueta}</span>
           </div>
-        );
-      })}
+          {countPrefix && (
+            <span class="padron-item-count" id={`${countPrefix}-${todosValor}`}>(0)</span>
+          )}
+        </div>
+
+        {opciones.map((opcion) => {
+          const idContador = contadorDe(opcion);
+          return (
+            <div
+              class="padron-dropdown-item"
+              data-value={opcion.valor}
+              onclick={alSeleccionar(opcion.valor, opcion.etiqueta ?? opcion.valor)}
+            >
+              <div class="padron-item-left">
+                {tipo === 'multi' ? (
+                  <span class="padron-item-checkbox">
+                    <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                  </span>
+                ) : (
+                  <span class="padron-item-radio"></span>
+                )}
+                {opcion.badge && (
+                  <span
+                    class:list={[
+                      'badge',
+                      `badge-${opcion.badge.tono ?? 'green'}`,
+                      'facet-badge',
+                      opcion.badge.compacta && 'facet-badge--compacta',
+                    ]}
+                  >{opcion.badge.texto}</span>
+                )}
+                {opcion.etiqueta && <span class="padron-item-label">{opcion.etiqueta}</span>}
+              </div>
+              {idContador && (
+                <span class="padron-item-count" id={idContador}>(0)</span>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   </div>
 

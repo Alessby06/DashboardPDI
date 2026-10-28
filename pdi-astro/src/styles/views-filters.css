@@ -67,12 +67,62 @@
     background-color var(--dur-fast) var(--ease-smooth),
     border-color var(--dur-fast) var(--ease-smooth),
     color var(--dur-fast) var(--ease-smooth),
-    box-shadow var(--dur-fast) var(--ease-smooth);
+    box-shadow var(--dur-fast) var(--ease-smooth),
+    filter var(--dur-press) var(--ease-smooth);
+}
+
+/* El disparador ancla el panel: su caja no se mueve. base.css aplica
+   translateY(-1.5px) en hover y scale(0.97) !important en active a todo
+   .btn-action; mientras el boton se hundia, el panel se colocaba con esa caja
+   encogida y se desplazaba 5 px durante la entrada. La pulsacion se pinta. */
+.btn-action.audit-filter-btn:hover,
+.btn-action.audit-filter-btn:active {
+  transform: none !important;
+  will-change: auto;
+}
+
+.btn-action.audit-filter-btn:active {
+  filter: brightness(0.95);
 }
 
 .audit-filter-btn:hover {
   background: var(--surface-hover);
   border-color: var(--text-dim);
+}
+
+/* Variante aceptada en la pasada live «animate»: el disparador subraya en
+   verde cuando anuncia acción. La forma entra con un barrido direccional. */
+.audit-filter-btn {
+  position: relative;
+}
+
+.audit-filter-btn::after {
+  content: "";
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 3px;
+  height: 2px;
+  background: var(--text-brand);
+  border-radius: var(--radius-full);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur-norm) var(--ease-out);
+}
+
+.audit-filter-btn:hover {
+  color: var(--text-brand);
+}
+
+.audit-filter-btn:hover::after {
+  transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .audit-filter-btn::after {
+    transition: none;
+    opacity: 0;
+  }
 }
 
 .audit-filter-btn.has-filters {
@@ -134,9 +184,9 @@
   z-index: 1000;
   display: none;
   opacity: 0;
-  /* Cerrado se retira 3 px hacia su disparador: el cierre se lee como que la
+  /* Cerrado se retira 6 px hacia su disparador: el cierre se lee como que la
      hoja vuelve al boton, no como que se apaga en el sitio. */
-  transform: translateY(-3px);
+  transform: translateY(-6px);
   flex-direction: column;
   gap: 14px;
   overflow: hidden;
@@ -144,11 +194,14 @@
   /* Cerrado queda fuera del layout (display:none). Antes se mantenia en
      `flex` para animar con opacidad y, al ser fijo dentro del contenedor con
      transform, sumaba su altura al scroll de la vista: el espacio de mas bajo
-     las tablas. La salida es mas corta que la entrada: al cerrar no se espera. */
+     las tablas. La salida es mas corta que la entrada: al cerrar no se espera.
+     La curva es ease-out, no ease-in-out: esa arrancaba al 77 % del recorrido
+     y el panel parecia dudar antes de irse. */
   transition:
-    opacity var(--dur-press) var(--ease-out),
-    transform var(--dur-press) var(--ease-out),
-    display var(--dur-press) allow-discrete;
+    opacity var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out),
+    clip-path var(--dur-fast) var(--ease-out),
+    display var(--dur-fast) allow-discrete;
   /* components.css deja una capa reservada permanente; el fundido no la usa. */
   will-change: auto;
 }
@@ -165,14 +218,44 @@
      CSS fija la posicion; el transform es solo el dibujo, asi que al terminar
      no hay salto ni desfase. */
   transition:
-    opacity var(--dur-popover) var(--ease-out),
-    transform var(--dur-popover) var(--ease-out),
-    display var(--dur-popover) allow-discrete;
+    opacity var(--dur-norm) var(--ease-out),
+    transform var(--dur-norm) var(--ease-out),
+    clip-path var(--dur-norm) var(--ease-out),
+    display var(--dur-norm) allow-discrete;
 
   @starting-style {
     opacity: 0;
     transform: translateY(-6px);
   }
+}
+
+/* Variante de entrada «compás»: el recorte direccional y el descenso de 6 px
+   siguen siendo la firma del sistema; lo que cambia es el contenido, que se
+   asienta en tres tiempos (cabecera, campos, pie) en vez de aparecer de golpe
+   con la hoja. La suma queda en ~310 ms, dentro del techo de 400 ms que el
+   sistema reserva a capas. Al cerrar no hay compás: el recorte ya es la
+   salida y no conviene hacer esperar. */
+@keyframes pdi-filtros-zona-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.audit-filters-dropdown.open .audit-filters-menu > .audit-filters-header {
+  animation: pdi-filtros-zona-in 200ms var(--ease-out) both;
+}
+
+.audit-filters-dropdown.open .audit-filters-menu > .audit-filters-body {
+  animation: pdi-filtros-zona-in 210ms var(--ease-out) 55ms both;
+}
+
+.audit-filters-dropdown.open .audit-filters-menu > .audit-filters-footer {
+  animation: pdi-filtros-zona-in 200ms var(--ease-out) 110ms both;
 }
 
 .audit-filters-header {
@@ -193,12 +276,12 @@
      se comia "Casos Sociales". Se permite partir en dos lineas: el titulo se
      lee entero y el encabezado crece 14px. */
   min-width: 0;
-  /* Panel Title del sistema: 14/800, -0.01em. */
+  /* Panel Title del sistema: 14/800, -0.01em. Sin mayusculas: en 330 px
+     "Filtros de Voluntariados" partia en dos lineas y descolocaba la cabecera. */
   font-size: 14px;
   font-weight: 800;
   line-height: 1.2;
   color: var(--text-main);
-  text-transform: uppercase;
   letter-spacing: -0.01em;
 }
 
@@ -256,6 +339,9 @@
   scrollbar-color: var(--border-bright) transparent;
   scrollbar-gutter: stable;
   padding-right: 0;
+  /* La sombra que avisa de mas campos abajo entra y sale con el scroll; sin
+     transicion aparecia y desaparecia como una linea que parpadea. */
+  transition: box-shadow var(--dur-fast) var(--ease-out);
 }
 
 .audit-filters-body::-webkit-scrollbar {
@@ -305,16 +391,62 @@
    3. CHIPS, SEGMENTOS Y DESPLEGABLES INTERNOS
    --------------------------------------------------------------------------- */
 
+/* Barra de filtros aplicados: entra y sale con su altura, no con display.
+   La barra vive siempre en el flujo (altura 0 cuando esta cerrada) para que
+   aplicar un filtro no empuje la tabla de golpe. `interpolate-size` permite
+   animar 0 -> auto; donde no exista, el cambio es instantaneo pero correcto. */
 .padron-active-chips-bar {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 14px;
-  padding: 8px 12px;
+  height: 0;
+  margin-bottom: 0;
+  padding: 0 12px;
   background: var(--surface-2);
-  border: 1px dashed var(--border-subtle);
+  border: 0 dashed var(--border-subtle);
   border-radius: var(--radius-md);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  overflow: hidden;
+  interpolate-size: allow-keywords;
+  transition:
+    height var(--dur-popover) var(--ease-out),
+    padding-block var(--dur-popover) var(--ease-out),
+    margin-top var(--dur-popover) var(--ease-out),
+    margin-bottom var(--dur-popover) var(--ease-out),
+    border-width var(--dur-popover) var(--ease-out),
+    opacity var(--dur-fast) var(--ease-out),
+    visibility 0s linear var(--dur-popover);
+}
+
+.padron-active-chips-bar.is-visible {
+  height: auto;
+  margin-bottom: 14px;
+  padding-block: 8px;
+  border-width: 1px;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition:
+    height var(--dur-popover) var(--ease-out),
+    padding-block var(--dur-popover) var(--ease-out),
+    margin-top var(--dur-popover) var(--ease-out),
+    margin-bottom var(--dur-popover) var(--ease-out),
+    border-width var(--dur-popover) var(--ease-out),
+    opacity var(--dur-fast) var(--ease-out),
+    visibility 0s;
+}
+
+/* Las bandas full-bleed de las vistas fijan padding y borde con selectores de
+   tarjeta. En reposo hay que anularlos: si no, la altura 0 dejaria una franja
+   de 10 px y una linea visibles. Las reglas especificas viven junto a cada
+   banda; esta cubre las barras que no son full-bleed. */
+.padron-active-chips-bar:not(.is-visible) {
+  padding-block: 0;
+  border-width: 0;
+  margin-bottom: 0;
 }
 
 .padron-active-chips-label {
@@ -471,6 +603,80 @@
   }
 }
 
+/* ---------------------------------------------------------------------------
+   Facetas en acordeon dentro del panel.
+   Antes cada faceta abria un segundo popover absoluto dentro de un cuerpo que
+   ya tenia scroll: las opciones se cortaban contra el borde del panel y habia
+   que scrollear dos cajas distintas. Ahora la lista ocupa su sitio en el
+   cuerpo y el unico scroll es el del panel.
+   --------------------------------------------------------------------------- */
+
+/* El wrapper anima la altura de la fila. La lista sigue en el flujo con
+   altura 0 cuando esta cerrada; no se retira con display a mitad del cierre. */
+.audit-filters-menu .padron-inner-dropdown-reveal {
+  display: grid;
+  grid-template-rows: 0fr;
+  padding-top: 0;
+  overflow: hidden;
+  transition:
+    grid-template-rows 150ms var(--ease-out),
+    padding-top 150ms var(--ease-out);
+}
+
+.audit-filters-menu .padron-inner-dropdown.open .padron-inner-dropdown-reveal {
+  grid-template-rows: 1fr;
+  padding-top: 6px;
+  transition-duration: 190ms;
+}
+
+.audit-filters-menu .padron-inner-dropdown-reveal > .padron-inner-dropdown-menu {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.audit-filters-menu .padron-inner-dropdown-menu {
+  position: static;
+  top: auto;
+  right: auto;
+  left: auto;
+  z-index: auto;
+  width: 100%;
+  max-height: none;
+  overflow: hidden;
+  display: flex;
+  opacity: 0;
+  transform: translateY(-4px);
+  margin-top: 0;
+  padding: 0 4px;
+  background: var(--surface-2);
+  border: 0;
+  outline: 1px solid var(--border-subtle);
+  outline-offset: -1px;
+  box-shadow: none;
+  transition:
+    opacity var(--dur-press) var(--ease-out),
+    transform var(--dur-press) var(--ease-out);
+}
+
+/* El inset vertical del marco ya no puede vivir en el padding del menu: un
+   track 0fr no baja de su padding y dejaba 16 px de franja al cerrar. Se pone
+   en la primera y la ultima opcion, que si se recortan con la altura. */
+.audit-filters-menu .padron-inner-dropdown-menu > .padron-dropdown-item:first-child {
+  margin-top: 4px;
+}
+
+.audit-filters-menu .padron-inner-dropdown-menu > .padron-dropdown-item:last-child {
+  margin-bottom: 4px;
+}
+
+.audit-filters-menu .padron-inner-dropdown.open .padron-inner-dropdown-menu {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity var(--dur-popover) var(--ease-out),
+    transform var(--dur-popover) var(--ease-out);
+}
+
 /* Teclado: las opciones son div con onclick; el foco tiene que verse. */
 .padron-dropdown-item:focus-visible {
   outline: 2px solid var(--brand-primary);
@@ -599,8 +805,7 @@
     border-top: 1px solid var(--border-subtle);
   }
 
-  .audit-filters-footer .btn-apply-filters,
-  .audit-filters-footer .btn-clear-filters {
+  .audit-filters-footer .btn-apply-filters {
     display: none;
   }
 
@@ -618,10 +823,29 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Asa de la hoja movil. Decorativa para el lector; el gesto se engancha en la
+   cabecera completa. En escritorio no existe. */
+.audit-sheet-handle-row {
+  display: none;
+}
+
 @media (max-width: 768px) {
   body.filter-sheet-open {
     overflow: hidden ;
     touch-action: none ;
+  }
+
+  /* El topbar es un flex item con z-index 40. El velo vive dentro de main y no
+     podia taparlo: el menu hamburguesa seguia activo detras de la hoja. Mientras
+     la hoja esta abierta, main sube por encima. */
+  body.filter-sheet-open #mainContent {
+    z-index: 60;
+  }
+
+  /* El disparador mide 44 px en movil; el buscador se quedaba en 36 (40 en
+     voluntariados) y los dos controles de la barra no alineaban. */
+  #mainContent .audit-toolbar .audit-search-input {
+    height: 44px !important;
   }
 
   /* main tiene contain:layout, que convierte el ancestro en bloque contenedor
@@ -733,17 +957,32 @@
     justify-content: space-between;
     gap: 8px;
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    /* El asa arrastra la hoja: la cabecera no deja que el navegador haga scroll. */
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
   }
 
-  .audit-filters-header::before {
-    content: '';
-    display: block;
-    width: 38px;
+  .audit-sheet-handle-row {
+    display: flex;
+    flex: 0 0 100%;
+    justify-content: center;
+    padding-bottom: 6px;
+  }
+
+  .audit-sheet-handle {
+    width: 40px;
     height: 4.5px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     background: var(--border-bright);
-    margin: 0 auto 6px auto;
-    flex-basis: 100%;
+    opacity: 0.8;
+    transition: transform var(--dur-fast) var(--ease-smooth), background var(--dur-fast) var(--ease-smooth);
+  }
+
+  .audit-sheet-handle-row:active .audit-sheet-handle {
+    transform: scaleX(1.15);
+    background: var(--text-brand);
   }
 
   .audit-filters-header-title {
@@ -856,25 +1095,6 @@
     display: none;
   }
 
-  /* Recuperacion en el propio pie: borrar todo sin cerrar la hoja. */
-  .audit-filters-footer .btn-clear-filters {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 44px;
-    min-height: 44px;
-    padding: 0 16px;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--filter-border);
-    background: var(--surface-2);
-    color: var(--text-main);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    touch-action: manipulation;
-    white-space: nowrap;
-  }
-
   .padron-inner-dropdown-btn {
     height: 44px;
     font-size: 13px;
@@ -918,6 +1138,47 @@
       bottom: auto;
       margin-top: 8px;
     }
+
+    /* Sin hueco debajo, el mismo anclaje se lee desde el borde superior. */
+    .audit-filters-menu.is-above {
+      top: auto;
+      bottom: anchor(--pdi-filtros top);
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+  }
+
+  /* El panel se despliega desde el borde que toca al disparador: por arriba
+     si cuelga debajo, por abajo si se abre encima. El clip no mueve texto ni
+     cambia el layout; solo descubre la superficie ya maquetada. Los 56 px
+     negativos dejan respirar la sombra overlay fuera de la caja. */
+  .audit-filters-menu {
+    clip-path: inset(-56px -56px 100% -56px round var(--radius-md));
+  }
+
+  .audit-filter-panel-wrap .audit-filters-dropdown.open .audit-filters-menu {
+    clip-path: inset(-56px -56px -56px -56px round var(--radius-md));
+  }
+
+  .audit-filter-panel-wrap .audit-filters-dropdown.open .audit-filters-menu:not(.is-above) {
+    @starting-style {
+      clip-path: inset(-56px -56px 100% -56px round var(--radius-md));
+    }
+  }
+
+  /* El cierre se retrae hacia el disparador, no siempre hacia arriba. */
+  .audit-filters-menu.is-above {
+    transform: translateY(6px);
+    clip-path: inset(100% -56px -56px -56px round var(--radius-md));
+  }
+
+  .audit-filter-panel-wrap .audit-filters-dropdown.open .audit-filters-menu.is-above {
+    clip-path: inset(-56px -56px -56px -56px round var(--radius-md));
+
+    @starting-style {
+      transform: translateY(6px);
+      clip-path: inset(100% -56px -56px -56px round var(--radius-md));
+    }
   }
 }
 
@@ -933,7 +1194,12 @@
   justify-content: center;
   flex-shrink: 0;
   background: var(--surface-2);
-  transition: all var(--dur-fast) var(--ease-smooth);
+  /* `all` animaba propiedades que nadie pidio y sacaba el trabajo del
+     compositor; el marcador solo cambia borde y relleno. */
+  transition:
+    border-color var(--dur-fast) var(--ease-smooth),
+    background-color var(--dur-fast) var(--ease-smooth),
+    box-shadow var(--dur-fast) var(--ease-smooth);
 }
 
 .padron-dropdown-item.selected .padron-item-radio {
@@ -969,5 +1235,29 @@
   .padron-inner-dropdown-menu {
     animation: none !important;
     transform: none !important;
+    clip-path: none !important;
+  }
+
+  /* El compás de zonas es movimiento puro: sin él, el contenido aparece
+     entero con el fundido del panel. */
+  .audit-filters-dropdown.open .audit-filters-menu > * {
+    animation: none !important;
+  }
+
+  /* La altura y el scroll no se animan: el estado cambia de inmediato. El
+     acordeon y la barra de chips conservan solo el fundido. */
+  .audit-filters-menu .padron-inner-dropdown-reveal {
+    transition: none !important;
+  }
+
+  .audit-filters-menu .padron-inner-dropdown-menu,
+  .padron-active-chips-bar {
+    transition: opacity var(--dur-fast) var(--ease-out) !important;
+  }
+
+  /* El caret conserva el cambio de estado, pero sin girar animado. */
+  .padron-inner-dropdown-btn svg.caret,
+  .audit-filter-btn svg.filter-caret {
+    transition: none !important;
   }
 }

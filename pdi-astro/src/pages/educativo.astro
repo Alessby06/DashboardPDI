@@ -85,6 +85,7 @@ const OPCIONES_GRADO = [
                         todosEtiqueta="Todos los Estados"
                         opciones={OPCIONES_ASISTENCIA}
                         tipo="single"
+                        countPrefix="countFacetCasitasAsistencia"
                         conEtiqueta={true}
                         onSelect="window.selectCasitasAsistencia"
                         abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownCasitasAsistencia') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownCasitasAsistencia') : null)"
@@ -99,6 +100,7 @@ const OPCIONES_GRADO = [
                         labelTodos="Todas las Sedes"
                         todosEtiqueta="Todas las Sedes"
                         opciones={OPCIONES_SEDE}
+                        countPrefix="countFacetCasitasSede"
                         onSelect="window.toggleCasitasSede"
                         abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownCasitasSede') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownCasitasSede') : null)"
                       />
@@ -113,6 +115,7 @@ const OPCIONES_GRADO = [
                         todosEtiqueta="Todos los Grados"
                         opciones={OPCIONES_GRADO}
                         tipo="single"
+                        countPrefix="countFacetCasitasGrado"
                         conEtiqueta={true}
                         onSelect="window.selectCasitasGrado"
                         abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownCasitasGrado') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownCasitasGrado') : null)"
@@ -121,7 +124,7 @@ const OPCIONES_GRADO = [
             </div>
 
             <!-- Barra de Filtros Aplicados Casitas -->
-            <div class="padron-active-chips-bar" id="casitasActiveChipsBar" style="display: none;">
+            <div class="padron-active-chips-bar" id="casitasActiveChipsBar">
               <span class="padron-active-chips-label">Filtros aplicados:</span>
               <div id="casitasActiveChipsList" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
               </div>

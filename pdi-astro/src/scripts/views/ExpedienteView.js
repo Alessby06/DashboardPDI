@@ -77,42 +77,54 @@ function opcionesParentescoHtml(seleccionado) {
   }
   return opciones.join("");
 }
-// Avatares cuando no hay fotografia. Un expediente de DEMUNA tiene que poder
-// imprimirse, y una imagen rota o un icono de usuario generico no sirven ni
-// para eso ni para leerlo a distancia. Estos SVG no dependen de la red.
-function getChildAvatarSvg(sex) {
-  const isFemale = sex === "F";
-  const bgColor = isFemale ? "#2a152f" : "#002b23";
-  const accent = isFemale ? "#d946ef" : "#00b494";
-  const skin = isFemale ? "#f0b88c" : "#e5a676";
-  const hair = "#1e1b18";
+// Retrato de portada cuando el usuario no tiene fotografia. Un expediente de
+// DEMUNA tiene que poder imprimirse, y el retrato no puede depender de la red.
+//
+// Chicas: cuatro retratos vectoriales (F1-F4) servidos desde /avatars. La
+// eleccion es aleatoria y se fija por usuario, para que el mismo expediente
+// conserve su rostro entre visitas y entre las piezas que lo muestran a la vez,
+// en lugar de cambiar en cada repintado.
+//
+// Chicos: silueta neutra, sin rasgos inventados.
+const RETRATOS_F = ["/avatars/f1.svg", "/avatars/f2.svg", "/avatars/f3.svg", "/avatars/f4.svg"];
+const CLAVE_RETRATO = "pdi_retrato_f_";
 
-  if (!isFemale) {
-    return `<svg viewBox="0 0 120 120" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" style="display:block; width:100%; height:100%; background:${bgColor};">
-          <rect width="120" height="120" fill="${bgColor}"/>
-          <circle cx="60" cy="52" r="26" fill="${skin}"/>
-          <path d="M34 46 C34 30, 44 22, 60 22 C76 22, 86 30, 86 46 C80 40, 72 38, 60 38 C48 38, 40 40, 34 46 Z" fill="${hair}"/>
-          <ellipse cx="50" cy="52" rx="3" ry="3.5" fill="#1e293b"/>
-          <ellipse cx="70" cy="52" rx="3" ry="3.5" fill="#1e293b"/>
-          <path d="M52 62 Q60 69 68 62" stroke="#b45309" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-          <path d="M52 76 L68 76 L72 88 L48 88 Z" fill="${skin}"/>
-          <path d="M30 120 C30 92, 45 84, 60 84 C75 84, 90 92, 90 120 Z" fill="${accent}"/>
-          <polygon points="60,84 52,98 68,98" fill="#ffffff" opacity="0.9"/>
-        </svg>`;
+function retratoFemenino(clave) {
+  const llave = CLAVE_RETRATO + String(clave ?? "");
+  try {
+    const guardado = Number.parseInt(window.localStorage.getItem(llave), 10);
+    if (Number.isInteger(guardado) && guardado >= 0 && guardado < RETRATOS_F.length) {
+      return RETRATOS_F[guardado];
+    }
+  } catch {
+    /* sin almacenamiento: la eleccion vive solo en esta carga */
   }
-  return `<svg viewBox="0 0 120 120" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" style="display:block; width:100%; height:100%; background:${bgColor};">
-          <rect width="120" height="120" fill="${bgColor}"/>
-          <circle cx="60" cy="52" r="26" fill="${skin}"/>
-          <path d="M32 50 C30 26, 44 20, 60 20 C76 20, 90 26, 88 50 C88 68, 84 76, 82 82 C78 72, 78 50, 78 40 C66 42, 54 42, 42 40 C42 50, 42 72, 38 82 C36 76, 32 68, 32 50 Z" fill="${hair}"/>
-          <circle cx="36" cy="34" r="6" fill="${accent}"/>
-          <circle cx="84" cy="34" r="6" fill="${accent}"/>
-          <ellipse cx="50" cy="52" rx="3" ry="3.5" fill="#1e293b"/>
-          <ellipse cx="70" cy="52" rx="3" ry="3.5" fill="#1e293b"/>
-          <path d="M52 63 Q60 70 68 63" stroke="#b45309" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-          <path d="M52 76 L68 76 L72 88 L48 88 Z" fill="${skin}"/>
-          <path d="M28 120 C28 92, 44 84, 60 84 C76 84, 92 92, 92 120 Z" fill="${accent}"/>
-          <path d="M50 84 Q60 94 70 84" fill="#ffffff" opacity="0.9"/>
-        </svg>`;
+
+  const indice = Math.floor(Math.random() * RETRATOS_F.length);
+  try {
+    window.localStorage.setItem(llave, String(indice));
+  } catch {
+    /* idem */
+  }
+  return RETRATOS_F[indice];
+}
+
+/** Dato estable que identifica al usuario para fijar su retrato. */
+function avatarSeedFor(b) {
+  return b?.id ?? b?.codigo ?? b?.dni ?? `${b?.nombres || ""}${b?.apellidos || ""}`;
+}
+
+const SILUETA_NEUTRA = `<svg viewBox="0 0 120 120" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false" style="display:block;width:100%;height:100%;">
+    <circle cx="60" cy="45" r="21" fill="#94a3b8" opacity=".42"/>
+    <path d="M17 120c0-24 19-38 43-38s43 14 43 38z" fill="#94a3b8" opacity=".42"/>
+  </svg>`;
+
+/** Portada del carnet: retrato femenino aleatorio o silueta neutra. */
+function portadaInfantil(sexo, seed) {
+  if (sexo === "F") {
+    return `<img src="${retratoFemenino(seed)}" alt="" width="240" height="260" decoding="async">`;
+  }
+  return SILUETA_NEUTRA;
 }
 
 function getAdultAvatarSvg(parentesco) {
@@ -513,7 +525,7 @@ export const ExpedienteView = {
     if (marco) {
       marco.innerHTML = b.fotoUrl
         ? `<img src="${escapar(b.fotoUrl)}" alt="Foto de ${escapar(b.nombres)}">`
-        : getChildAvatarSvg(b.sexo);
+        : portadaInfantil(b.sexo, avatarSeedFor(b));
     }
     this._set("expPhotoName", `${b.nombres} ${b.apellidos}`);
     this._set("expPhotoCode", b.codigo);
@@ -1380,7 +1392,7 @@ export const ExpedienteView = {
     // Mismo trato que la actualizacion: se repinta solo el carnet, sin meter
     // la foto en el formulario de Guardar Cambios.
     const marco = document.getElementById("expChildPhotoFrame");
-    if (marco) marco.innerHTML = getChildAvatarSvg(b.sexo);
+    if (marco) marco.innerHTML = portadaInfantil(b.sexo, avatarSeedFor(b));
 
     const usuarioActivo = localStorage.getItem("pdi_usuario_nombre") || "Coordinador General";
     if (AuditModel && AuditModel.addLog) {

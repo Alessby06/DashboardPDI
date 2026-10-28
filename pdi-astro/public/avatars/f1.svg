@@ -1,0 +1,143 @@
+<!-- F1 without yellow bobby pins on forehead -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 260" width="240" height="260">
+  <defs>
+    <!-- Scoped Card Clip for F1 -->
+    <clipPath id="f1-card-clip">
+      <rect x="0" y="0" width="240" height="260" />
+    </clipPath>
+    <!-- Scoped Soft Drop Shadow for F1 -->
+    <filter id="f1-soft-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-opacity="0.12" />
+    </filter>
+    <filter id="f1-hair-shadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="-1" dy="3" stdDeviation="3" flood-opacity="0.22" />
+    </filter>
+    <!-- Matte Iris Gradient -->
+    <linearGradient id="f1-iris-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#151211" />
+      <stop offset="65%" stop-color="#241B18" />
+      <stop offset="100%" stop-color="#322521" />
+    </linearGradient>
+  </defs>
+
+  <g clip-path="url(#f1-card-clip)">
+    <!-- Card Background (Mint Light) -->
+    <rect x="0" y="0" width="240" height="260" fill="#E6F5F0" />
+    <circle cx="120" cy="132" r="86" fill="#CEEFE3" />
+
+    <!-- Back Hair Silhouette: Full, Lush Cranial Volume Framing Both Sides -->
+    <path d="M 66 122 
+             C 64 72 82 48 120 46 
+             C 158 48 176 72 174 122 
+             C 174 154 166 178 156 190 
+             L 84 190 
+             C 74 178 66 154 66 122 Z" fill="#1C1E23" />
+
+    <!-- Body / Emerald Green Sweater -->
+    <g id="sweater-f1">
+      <path d="M 42 260 C 44 212 75 194 104 190 L 136 190 C 165 194 196 212 198 260 Z" fill="#0E6553" />
+      <path d="M 50 260 C 53 220 78 202 104 196" stroke="#167D67" stroke-width="2.4" stroke-linecap="round" fill="none" opacity="0.6" />
+      <path d="M 190 260 C 187 220 162 202 136 196" stroke="#167D67" stroke-width="2.4" stroke-linecap="round" fill="none" opacity="0.6" />
+    </g>
+
+    <!-- Neck -->
+    <path d="M 107 160 L 107 195 C 107 202 133 202 133 195 L 133 160 Z" fill="#F8CBA6" />
+    <path d="M 107 163 C 114 175 126 175 133 163 C 133 173 107 173 107 163 Z" fill="#E2A77E" />
+
+    <!-- Peter Pan Collar -->
+    <g id="collar-f1" filter="url(#f1-soft-shadow)">
+      <path d="M 120 194 C 116 190 95 190 89 203 C 85 212 95 222 108 220 C 119 218 121 202 120 194 Z" fill="#FFFFFF" />
+      <path d="M 108 220 C 98 221 90 213 93 205" stroke="#E2E8F0" stroke-width="1.2" stroke-linecap="round" fill="none" />
+      <path d="M 120 194 C 124 190 145 190 151 203 C 155 212 145 222 132 220 C 121 218 119 202 120 194 Z" fill="#FFFFFF" />
+      <path d="M 132 220 C 142 221 150 213 147 205" stroke="#E2E8F0" stroke-width="1.2" stroke-linecap="round" fill="none" />
+      <circle cx="120" cy="198" r="2.2" fill="#F59E0B" />
+      <circle cx="119.5" cy="197.5" r="0.8" fill="#FEF3C7" />
+    </g>
+
+    <!-- Head & Ears -->
+    <g id="head-f1">
+      <ellipse cx="76" cy="138" rx="6.5" ry="9.5" fill="#F8CBA6" />
+      <path d="M 77 134 C 75 137 75 141 78 142" stroke="#E5AC84" stroke-width="1.8" stroke-linecap="round" fill="none" />
+
+      <ellipse cx="164" cy="138" rx="6.5" ry="9.5" fill="#F8CBA6" />
+      <path d="M 163 134 C 165 137 165 141 162 142" stroke="#E5AC84" stroke-width="1.8" stroke-linecap="round" fill="none" />
+      <circle cx="166" cy="145" r="2.4" fill="#F59E0B" />
+      <circle cx="165.4" cy="144.3" r="1" fill="#FEF3C7" />
+
+      <!-- Face Base Shape -->
+      <path d="M 80 120 C 80 82 160 82 160 120 C 160 152 148 174 120 174 C 92 174 80 152 80 120 Z" fill="#FCD7B6" />
+      <path d="M 84 98 C 102 90 138 90 156 98 C 146 94 114 93 84 98 Z" fill="#D28C62" opacity="0.22" />
+
+      <!-- Eyebrows -->
+      <path d="M 94 121 C 99 117 107 118 110 122" stroke="#251814" stroke-width="2.5" stroke-linecap="round" fill="none" />
+      <path d="M 146 121 C 141 117 133 118 130 122" stroke="#251814" stroke-width="2.5" stroke-linecap="round" fill="none" />
+
+      <!-- Eyes (Matte Depth without specular shine) -->
+      <ellipse cx="102" cy="134" rx="4.8" ry="5.8" fill="url(#f1-iris-grad)" />
+      <path d="M 96 131 C 98 128 106 128 108 131" stroke="#1C1411" stroke-width="1.5" stroke-linecap="round" fill="none" />
+      <path d="M 99 139 C 102 140 105 140 106 139" stroke="#322521" stroke-width="0.8" stroke-linecap="round" fill="none" opacity="0.45" />
+
+      <ellipse cx="138" cy="134" rx="4.8" ry="5.8" fill="url(#f1-iris-grad)" />
+      <path d="M 132 131 C 134 128 142 128 144 131" stroke="#1C1411" stroke-width="1.5" stroke-linecap="round" fill="none" />
+      <path d="M 134 139 C 136 140 139 140 141 139" stroke="#322521" stroke-width="0.8" stroke-linecap="round" fill="none" opacity="0.45" />
+
+      <!-- Nose -->
+      <path d="M 119 143 C 120 146 123 146 124 144" stroke="#DC9C72" stroke-width="1.8" stroke-linecap="round" fill="none" />
+
+      <!-- Sweet Gentle Smile -->
+      <path d="M 112 154 C 116 160 124 160 128 154" stroke="#8E4632" stroke-width="2.2" stroke-linecap="round" fill="none" />
+    </g>
+
+    <!-- FRONT HAIR: French Wavy Bob with Soft Curtain Bangs (Clean, No distracting yellow lines) -->
+    <g id="hair-front-f1">
+      <!-- Crown Dome -->
+      <path d="M 72 108 
+               C 70 64 96 46 120 46 
+               C 144 46 170 64 168 108 
+               C 164 82 148 62 120 62 
+               C 92 62 76 82 72 108 Z" fill="#272A32" />
+
+      <!-- Right Hair Mass Tucked Gracefully Behind Right Ear (Clean, Natural Hair Sweep) -->
+      <path d="M 120 62 
+               C 136 62 154 72 163 90 
+               C 168 100 168 114 164 126 
+               C 160 120 158 110 154 100 
+               C 146 86 134 76 120 74 Z" fill="#22252C" />
+      <!-- Subtle hair strand texture line over tucked side -->
+      <path d="M 132 72 C 146 80 156 94 160 110" stroke="#3A3E48" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.7" />
+
+      <!-- Soft Airy Curtain Bangs Framing Forehead -->
+      <path d="M 120 62 C 112 68 102 76 92 86 C 98 82 108 76 118 72 Z" fill="#2F333D" />
+      <path d="M 120 62 C 128 68 138 76 146 84 C 140 80 130 74 122 70 Z" fill="#2F333D" />
+
+      <!-- Left Flowing Wavy Bob (Cascades Softly over Cheek & Left Shoulder) -->
+      <g id="left-bob-cascade" filter="url(#f1-hair-shadow)">
+        <!-- Back Shadow / Depth Layer -->
+        <path d="M 72 104 
+                 C 66 124 66 152 72 176 
+                 C 76 192 86 202 94 204 
+                 C 96 200 94 192 90 180 
+                 C 84 162 82 138 86 120 
+                 C 88 112 94 102 100 94 
+                 C 90 92 80 96 72 104 Z" fill="#181A1F" />
+
+        <!-- Main Glossy Wave Lobe -->
+        <path d="M 74 102 
+                 C 68 122 68 148 74 170 
+                 C 78 186 86 196 92 198 
+                 C 88 188 86 176 84 162 
+                 C 82 144 82 126 86 110 
+                 C 90 98 100 88 112 80 
+                 C 96 78 84 86 74 102 Z" fill="#22252C" />
+
+        <!-- Flowing Surface Wave with Soft Sheen -->
+        <path d="M 76 110 C 72 130 72 154 78 176 C 82 186 86 192 90 194" stroke="#3D424E" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.75" />
+        <path d="M 82 122 C 78 142 80 164 84 180" stroke="#4F5564" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.6" />
+      </g>
+
+      <!-- Crown Sheen Arc -->
+      <path d="M 96 62 C 108 56 132 56 144 62" stroke="#4B515E" stroke-width="2.2" stroke-linecap="round" fill="none" opacity="0.6" />
+    </g>
+
+  </g>
+</svg>

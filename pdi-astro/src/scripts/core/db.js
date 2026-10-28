@@ -212,10 +212,12 @@ async function ejecutar(ql, params) {
     }
     throw err;
   } finally {
-    _escriturasEnVuelo -= 1;
-    if (_escriturasEnVuelo === 0 && _hidratacionDiferida) {
-      _hidratacionDiferida = false;
-      hidratar(true);
+    if (escritura) {
+      _escriturasEnVuelo -= 1;
+      if (_escriturasEnVuelo === 0 && _hidratacionDiferida) {
+        _hidratacionDiferida = false;
+        hidratar(true);
+      }
     }
   }
 }
@@ -750,6 +752,11 @@ function mapearBeneficiarios(personasRes, sedes) {
     // El tamizaje vigente es el mas reciente de la lista completa; la lista
     // entera viaja en b.tamizajes para el historial de salud.
     const tam = Array.isArray(m.tams) && m.tams.length ? m.tams[0] : null;
+    const colegioOrigen = [
+      m.institucion_origen_nombre,
+      m.institucion_origen?.nombre,
+      m.colegio,
+    ].find(nombre => typeof nombre === 'string' && nombre.trim());
 
     return {
       _personaId: String(m.id),
@@ -782,7 +789,7 @@ function mapearBeneficiarios(personasRes, sedes) {
       alergiaSeveridad: severidadAlergiaCanonico(alergiaVigente?.severidad),
       nivelEducativo: m.nivel_educativo || '',
       grado: m.grado || '',
-      colegio: m.institucion_origen_nombre || '',
+      colegio: colegioOrigen ? colegioOrigen.trim() : '',
       tipoDocumento: m.tipo_documento || 'DNI',
       tipoAtencion: m.ins?.tipo_atencion || '',
       apoderado: apoderadoNom,

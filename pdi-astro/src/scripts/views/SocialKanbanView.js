@@ -260,20 +260,13 @@ export const SocialKanbanView = {
     const allCasos = casos || (model.getAll ? model.getAll() : []);
 
     // Aplicar filtros de búsqueda, urgencia y sede
-    const filtered = allCasos.filter(c => {
-      const q = this._searchQuery.toLowerCase().trim();
-      const matchQuery = !q || 
-        (c.usuario && c.usuario.toLowerCase().includes(q)) ||
-        (c.codigo && c.codigo.toLowerCase().includes(q)) ||
-        (c.sede && c.sede.toLowerCase().includes(q)) ||
-        (c.situacionEncontrada && c.situacionEncontrada.toLowerCase().includes(q)) ||
-        (c.tipoProblematica && c.tipoProblematica.toLowerCase().includes(q));
-
+    const filtered = this._aplicaBusqueda(allCasos).filter(c => {
       const matchUrgencia = (this._filterUrgencia === "all") || (c.urgencia === this._filterUrgencia);
       const matchSede = (this._filterSede === "all") || (c.sede && c.sede.includes(this._filterSede));
-
-      return matchQuery && matchUrgencia && matchSede;
+      return matchUrgencia && matchSede;
     });
+
+    this._updateFacetCounts(allCasos);
 
     // Se guarda el conjunto ya filtrado para que la exportacion a CSV baje
     // exactamente lo que se esta viendo y no la bandeja entera.
@@ -582,10 +575,13 @@ export const SocialKanbanView = {
       }
     }
 
+    const trigger = document.getElementById("btnDropdownSocialFilterPanel");
+    if (trigger) trigger.classList.toggle("has-filters", activeCount > 0);
+
     if (!chipsBar || !chipsList) return;
 
     if (chips.length > 0) {
-      chipsBar.style.display = "flex";
+      chipsBar.classList.add("is-visible");
       chipsList.innerHTML = "";
       chips.forEach(chip => {
         const chipEl = document.createElement("span");
@@ -602,7 +598,7 @@ export const SocialKanbanView = {
         chipsList.appendChild(chipEl);
       });
     } else {
-      chipsBar.style.display = "none";
+      chipsBar.classList.remove("is-visible");
       chipsList.innerHTML = "";
     }
   },

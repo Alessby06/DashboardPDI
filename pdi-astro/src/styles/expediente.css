@@ -185,8 +185,10 @@ body.pdi-editando #view-expediente select:not(:disabled) {
       Debajo de 768px se anula el marco y vuelve el flujo natural: la pagina
       entera desplaza dentro de .content-viewport, la cabecera y la barra de
       acciones se van con ella, y el expediente se lee como un documento. Las
-      reglas de movil de views.css ya ponen el reparto de maestro-detalle en
-      columna, de modo que aqui solo hay que soltar las alturas. */
+      reglas de movil compartidas ya ponen el reparto en columna, pero la hoja
+      base del expediente se carga despues y vuelve a fijar la barra lateral a
+      220 px con !important; por eso el reparto se cierra aqui, en la hoja que
+      gana la cascada. */
 
    @media (max-width: 768px) {
      #view-expediente {
@@ -266,6 +268,61 @@ body.pdi-editando #view-expediente select:not(:disabled) {
 
      .expediente-sin-expediente {
        padding: 36px 16px !important;
+     }
+
+     /* La barra lateral pasa a ser una tira horizontal de secciones. Se
+        declara con #view-expediente para ganar a la base de la hoja de la
+        vista, que fija 220 px y columna con !important. */
+     #view-expediente .expediente-sidebar {
+       width: 100% !important;
+       min-width: 100% !important;
+       max-width: 100% !important;
+       height: auto !important;
+       flex-direction: row !important;
+       align-items: center !important;
+       gap: 6px !important;
+       padding: 8px 10px !important;
+       overflow-x: auto !important;
+       overflow-y: hidden !important;
+       border-right: 0 !important;
+       border-bottom: 1px solid var(--border-subtle) !important;
+       background: var(--surface-2) !important;
+       overscroll-behavior-x: contain;
+       scrollbar-width: none;
+       -webkit-overflow-scrolling: touch;
+       /* En escritorio la barra lateral no se va al desplazar el contenido;
+          en el telefono la tira hace lo mismo y queda pegada bajo la barra
+          superior. El top negativo consume el padding de 14 px de la vista. */
+       position: sticky;
+       top: -14px;
+       z-index: 4;
+     }
+
+     #view-expediente .expediente-sidebar::-webkit-scrollbar {
+       display: none;
+     }
+
+     #view-expediente .expediente-nav-item {
+       flex: 0 0 auto !important;
+       width: auto !important;
+       min-height: 40px !important;
+       padding: 8px 12px !important;
+       border-radius: var(--radius-full) !important;
+       font-size: 11.5px !important;
+       white-space: nowrap !important;
+     }
+
+     #view-expediente .expediente-nav-item:hover {
+       transform: none;
+     }
+
+     #view-expediente .expediente-content-area {
+       padding: 14px 12px 24px !important;
+     }
+
+     #view-expediente .modal-footer-pinned {
+       padding: 12px 14px !important;
+       gap: 10px !important;
      }
    }
 

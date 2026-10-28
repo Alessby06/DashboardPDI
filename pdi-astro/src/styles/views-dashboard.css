@@ -2235,14 +2235,15 @@
 
 /* ===========================================================================
    TIRA DE KPI DEL DASHBOARD
-   Cuatro placas de metrica. El rotulo manda por tamano, la cifra por peso 600
-   (valor elegido en la revision tipografica) y el contexto por tono. La placa
-   de alerta conserva el tinte rojo semantico del sistema.
+   Cuatro placas de metrica. El rotulo sube un paso (12/800) y la cifra usa
+   Metric Compact con trazo fino (30/385): la placa se lee como parte clinico,
+   no como titular. La unidad queda en 300 al 60 % para no competir.
+   La placa de alerta conserva el tinte rojo semantico del sistema.
    =========================================================================== */
 .dash-kpi-strip {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 20px;
+  gap: 16px;
   margin-bottom: 20px;
 }
 
@@ -2258,7 +2259,7 @@
 .dash-kpi-plate {
   display: flex;
   flex-direction: column;
-  padding: 18px 20px;
+  padding: 16px 18px;
   /* Misma piel que las cards de la rejilla inferior (.dash-anemia-panel y
      .dash-coverage-panel): superficie base, radio de 16 y sombra ambiente. */
   background: var(--surface-1);
@@ -2268,13 +2269,16 @@
   transition: border-color 200ms var(--ease-smooth);
 }
 
-.dash-kpi-plate:hover {
-  border-color: var(--border-bright);
+/* El hover es una señal de ratón: en táctil se queda pegado tras el toque. */
+@media (hover: hover) {
+  .dash-kpi-plate:hover {
+    border-color: var(--border-bright);
+  }
 }
 
 .dash-kpi-label {
-  margin-bottom: 12px;
-  font-size: 11px;
+  margin-bottom: 10px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;

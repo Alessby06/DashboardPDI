@@ -340,34 +340,30 @@
     }
 
     .expediente-nav-item.active {
-      background: rgba(var(--brand-rgb), 0.12) !important;
-      color: var(--text-brand) !important;
-      border-color: rgba(var(--brand-rgb), 0.35) !important;
+      /* La tinta de marca sobre su propio tinte bajaba a 3,83:1 a 12,5 px.
+         Superficie, borde de marca e icono verde dejan el estado activo
+         legible en los dos temas sin tocar la rampa de color. */
+      background: var(--surface-1) !important;
+      color: var(--text-main) !important;
+      border-color: var(--brand-primary) !important;
       font-weight: 700 !important;
     }
 
     /* Esta barra se quedaba con los colores del tema claro al pasar al
-       oscuro, porque las tres reglas de arriba los llevan escritos a pelo y
-       no habia ninguna regla de tema oscuro que los contradijera. Se
-       traducia en dos fallos: la etiqueta inactiva caia en #334155 sobre
-       fondo oscuro (1,8:1, casi no se leia) y al pasar el raton el fondo
-       salia #f1f5f9, un fogonazo blanco en mitad de una pantalla oscura.
-       Aqui cada estado recibe su color de tema oscuro. */
-    [data-theme="dark"] .expediente-nav-item {
-      color: #9ca3af !important;
+       oscuro, porque las reglas de arriba los llevan escritos a pelo y no
+       habia ninguna regla de tema oscuro que los contradijera. Se traducia en
+       dos fallos: la etiqueta inactiva caia en #334155 sobre fondo oscuro
+       (1,8:1, casi no se leia) y al pasar el raton el fondo salia #f1f5f9, un
+       fogonazo blanco en mitad de una pantalla oscura. El estado activo ya usa
+       tokens que cambian solos; inactivo y hover reciben aqui su version
+       oscura. */
+    [data-theme="dark"] .expediente-nav-item:not(.active) {
+      color: var(--text-dim) !important;
     }
 
-    [data-theme="dark"] .expediente-nav-item:hover {
+    [data-theme="dark"] .expediente-nav-item:not(.active):hover {
       background: var(--surface-hover) !important;
-      color: #f3f4f6 !important;
-    }
-
-    [data-theme="dark"] .expediente-nav-item.active {
-      background: rgba(var(--brand-rgb), 0.15) !important;
-      /* El estado activo usa el verde del tema en vez de un tono fijo: asi
-         sigue al modo de alto contraste, donde el verde es mas claro. */
-      color: var(--text-brand) !important;
-      border-color: rgba(var(--brand-rgb), 0.4) !important;
+      color: var(--text-main) !important;
     }
 
     .expediente-nav-item svg {
@@ -375,6 +371,10 @@
       height: 17px !important;
       flex-shrink: 0 !important;
       stroke: currentColor !important;
+    }
+
+    .expediente-nav-item.active svg {
+      color: var(--text-brand);
     }
 
     .expediente-content-area {
@@ -420,14 +420,13 @@
       width: 130px;
       height: 140px;
       border-radius: 10px;
-      border: 2px solid var(--gt-green-border);
-      background: #002b23 !important;
+      border: 2px solid var(--border-subtle);
+      background: var(--surface-2);
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
-      box-shadow: var(--shadow-ambient);
     }
 
     /* Acciones de la foto del carnet (Ver / Actualizar / Eliminar). En PC la
@@ -738,7 +737,7 @@
 }
 .child-photo-frame {
   background: var(--surface-2) !important;
-  border: 2px solid var(--gt-green-border) !important;
+  border: 2px solid var(--border-subtle) !important;
 }
 
 /* === OPTIMIZACIÓN MÓVIL TOTAL EXPEDIENTE (ALTA PRIORIDAD PARA ANDROID <= 768px) === */

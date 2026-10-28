@@ -31,6 +31,11 @@ export const Dropdown = {
     });
     if (target) {
       const willOpen = !target.classList.contains('open');
+      if (willOpen && target.classList.contains('audit-filters-dropdown')) {
+        // El panel se muestra en el top layer antes de la clase .open para que
+        // la transicion no se reinicie al moverlo de capa.
+        window.PDI?.FilterPanel?.prepararApertura?.(target);
+      }
       target.classList.toggle('open');
       if (target.classList.contains('audit-filters-dropdown')) {
         if (willOpen && typeof window !== 'undefined' && window.innerWidth <= 768) {
@@ -57,10 +62,26 @@ export const Dropdown = {
     const dropdown = document.getElementById(dropdownId);
     if (!dropdown) return;
     const isCurrentlyOpen = dropdown.classList.contains('open');
+    const abrir = !isCurrentlyOpen;
     document.querySelectorAll('.padron-inner-dropdown.open').forEach(d => {
       if (d !== dropdown) d.classList.remove('open');
     });
-    dropdown.classList.toggle('open', !isCurrentlyOpen);
+    dropdown.classList.toggle('open', abrir);
+    // En el panel las facetas ya no flotan: crecen dentro del cuerpo. El
+    // desplazamiento espera a que la altura termine (190 ms) y se hace suave;
+    // en el mismo clic se sentia como un tiron. Con movimiento reducido no se
+    // mueve el contexto: el usuario conserva su posicion.
+    if (abrir && dropdown.closest('.audit-filters-menu')) {
+      const reducir = typeof window !== 'undefined' &&
+        window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      if (!reducir) {
+        const lista = dropdown.querySelector('.padron-inner-dropdown-menu');
+        window.setTimeout(() => {
+          if (!dropdown.classList.contains('open') || !lista?.isConnected) return;
+          lista.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 190);
+      }
+    }
   },
 };
 

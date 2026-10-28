@@ -296,7 +296,7 @@ En tema oscuro la sombra difusa desaparece y el borde asume toda la elevación; 
 - **Small** (`0 1px 3px rgba(0,0,0,0.06)`): controles, chips, miniaturas y estados activos. No compite con la tarjeta.
 - **Ambient** (`0 10px 25px -5px rgba(0,0,0,0.08)`; en claro `0 4px 16px -2px rgba(15,23,42,0.08), 0 1px 3px rgba(15,23,42,0.05)`): tarjetas, paneles, placas y su hover.
 - **Overlay** (`0 16px 40px -8px rgba(15,23,42,0.18), 0 6px 16px -8px rgba(15,23,42,0.12)`; en oscuro `0 0 0 1px rgba(255,255,255,0.05), 0 20px 40px -16px rgba(0,0,0,0.9)`): modales, menús, popovers y tooltips.
-- **Press** (sin token): el feedback de presión se resuelve con `transform: scale(0.96)`, no con sombra.
+- **Press** (sin token): el feedback de presión se resuelve con `transform: scale(0.96)`, no con sombra. Excepción: los controles que **anclan un panel** (el disparador de filtros) no mueven su caja; el panel se coloca al soltar y seguiría al botón durante la entrada. Ahí la presión es `filter: brightness(0.95)`, que solo pinta.
 
 ### Named Rules
 **The Single Border Rule.** Una superficie = un borde de 1 px + una sombra ambiente. Si necesitas una segunda caja, el problema es la jerarquía, no la profundidad.
@@ -313,6 +313,7 @@ No se usan 4, 8, 12 ni 20 px en superficies. Las únicas excepciones son las mar
 
 ### Page Header
 - **Title:** rol Title, Ink. **Subtitle:** rol Subtitle, Ink Dim, 4 px de separación.
+- **Separation:** 32 px entre el bloque de título y el primer contenido de la vista (24 px del `gap` de `.app-view` + 8 px de margen de la cabecera). La cabecera nunca arranca pegada a las tarjetas.
 - **Actions:** icono de 36×36 con borde Rule y radio 10; texto visible solo si hay espacio.
 - **Mobile:** bajo 640 px, título y acciones se apilan; bajo 420 px la acción queda solo con icono.
 
@@ -379,14 +380,15 @@ No se usan 4, 8, 12 ni 20 px en superficies. Las únicas excepciones son las mar
 - **Sin conexión:** «Sin conexión con la base de datos. Reintentando…». Nunca se afirma que no hay datos si la hidratación está en curso.
 
 ### Filter Panel (signature)
-- **Estructura:** `FilterPanel.astro` dibuja contenedor, botón, cabecera (título, Restablecer, cerrar) y pie; `FilterField.astro` dibuja cada campo estándar (etiqueta, desplegable, opción «todos», opciones e insignias). Las páginas solo pasan arrays de opciones y el manejador; lo que es un widget distinto (slider de edad, paneles de fecha) va en el slot del campo.
+- **Estructura:** `FilterPanel.astro` dibuja contenedor, botón, cabecera (título, Restablecer, cerrar) y pie; `FilterField.astro` dibuja cada campo estándar (etiqueta, desplegable, opción «todos», opciones e insignias). Las facetas despliegan sus opciones en acordeón dentro del cuerpo del panel, no en un segundo popover: hay un solo scroll y ninguna opción queda cortada. Las páginas solo pasan arrays de opciones y el manejador; lo que es un widget distinto (slider de edad, paneles de fecha) va en el slot del campo.
 - **Marcador:** multiselección con checkbox; selección única con radio. El radio vive en `views-filters.css` una sola vez, no copiado por vista.
 - **Estado:** `FilterStore` es la única fuente. Multiselección, selección simple, dominio abierto (roles, distritos sin catálogo), «marcar todas las opciones = Todas» y `activos()` viven ahí. Las vistas no repiten esa regla.
-- **Escritorio:** popover en el top layer, anclado al botón con `anchor-name` / `position-anchor`. Siempre debajo, 330 px, altura recortada al hueco y scroll interno. El respaldo (sin anclaje) calcula y reancla a mano.
-- **Móvil:** hoja inferior a 85dvh, cabecera con asa y cierre, pie fijo con «Limpiar» y «Ver resultados (N)».
+- **Contadores:** cada opción muestra cuántas coincidencias quedarían al elegirla, calculadas con la búsqueda y el resto de facetas (nunca con su propia selección). Las opciones con cero se deshabilitan. `FacetCounts` pinta la cifra y el estado; cada vista solo aporta sus datos y su predicado.
+- **Escritorio:** popover en el top layer, anclado al botón con `anchor-name` / `position-anchor`. Debajo si hay hueco; si no, encima con el mismo anclaje. 330 px, altura recortada al hueco y scroll interno. El respaldo (sin anclaje) calcula y reancla a mano.
+- **Móvil:** hoja inferior a 85dvh, cabecera con asa de arrastre real (40×4.5 px, centrada, con feedback al presionar) y cierre; el asa sigue el dedo 1:1, cierra pasados 75 px o un flick y vuelve elástica si el gesto es corto. Pie fijo con «Ver resultados (N)». La limpieza vive en la cabecera («Restablecer») y en los chips, no duplicada en el pie.
 - **Estados:** badge con facetas activas del store; chips descartables; contador desde el total del paginador, no contando filas; vacío con «Limpiar filtros».
-- **Accesibilidad:** `aria-expanded` / `aria-controls`, `role="dialog"`, foco al primer campo, trampa de Tab, Escape y retorno al disparador; opciones con `role="checkbox"` y teclado.
-- **Motion:** la hoja se posa, no salta. El panel entra con opacidad y 6 px desde su disparador en 175 ms `ease-out`, y sale en 120 ms; el submenú repite el gesto con 4 px. Sin keyframes, escalas ni rebotes. En móvil la hoja sube con `ease-drawer` y el velo se desvanece con ella, sin `backdrop-filter`. Al filtrar no se relanza la cascada de filas: los resultados cambian en el sitio. Con `prefers-reduced-motion` se retiran los desplazamientos y queda el fundido.
+- **Accesibilidad:** `aria-expanded` / `aria-controls`, `role="dialog"`, foco al primer campo, trampa de Tab, Escape por capas (faceta y luego panel) y retorno al disparador; opciones con `role="checkbox"` o `role="radio"` y teclado.
+- **Motion:** la hoja se despliega, no salta. El panel nace desde el borde que toca al disparador con un `clip-path` direccional, sube o baja 6 px y funde en 220 ms `ease-out`; pliega hacia ese mismo borde en 160 ms. El submenú de cada faceta conserva su gesto de 4 px en 175 ms. El acordeón de faceta anima su **altura** (`grid-template-rows: 0fr → 1fr`, 190 ms al abrir y 150 ms al cerrar) para que el cuerpo no cambie de golpe; el scroll del cuerpo espera a esa expansión y se hace suave. La barra de chips entra y sale con la misma técnica (175 ms) y el contador del pie se actualiza a los 80 ms, no 160. En móvil la hoja sube con `ease-drawer` (260 ms) y el velo comparte sus tiempos (260/220 ms), sin `backdrop-filter`. Al filtrar no se relanza la cascada de filas: los resultados cambian en el sitio. Con `prefers-reduced-motion` se retiran el clip, los desplazamientos, la altura animada y el scroll; solo queda el fundido.
 - **Pruebas:** `npm run test:filtros` recorre las siete vistas (apertura, dirección, scroll, foco, reinicio, auto-todos, móvil) y `npm test` cubre el store.
 
 ## Do's and Don'ts

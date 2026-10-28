@@ -103,7 +103,7 @@ const OPCIONES_ESTADO = [
                 <svg class="audit-search-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                 </svg>
-                <input type="text" id="inputVoluntariosSearch" class="audit-search-input" placeholder="Buscar por nombre, DNI, código, sede o rol...">
+                <input type="text" id="inputVoluntariosSearch" class="audit-search-input" placeholder="Buscar..." aria-label="Buscar por nombre, DNI, código, sede o rol" title="Buscar por nombre, DNI, código, sede o rol">
                 <button type="button" class="audit-search-clear" id="btnVoluntariosSearchClear" onclick="window.clearVoluntariosSearch ? window.clearVoluntariosSearch() : (window.PDI?.VoluntariadosView?.clearSearch ? window.PDI.VoluntariadosView.clearSearch() : null)" style="display: none;" title="Limpiar búsqueda">
                   <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -129,6 +129,7 @@ const OPCIONES_ESTADO = [
                         labelTodos="Todos los Distritos"
                         todosEtiqueta="Todos los Distritos"
                         opciones={OPCIONES_DISTRITO}
+                        countPrefix="countFacetVoluntariosDistrito"
                         onSelect="window.toggleVoluntariosDistrito"
                         abrir="window.toggleVoluntariosInnerDropdown ? window.toggleVoluntariosInnerDropdown('dropdownVoluntariosDistrito') : null"
                       />
@@ -142,6 +143,7 @@ const OPCIONES_ESTADO = [
                         labelTodos="Todos los Servicios"
                         todosEtiqueta="Todos los Servicios"
                         opciones={OPCIONES_SERVICIO}
+                        countPrefix="countFacetVoluntariosServicio"
                         onSelect="window.toggleVoluntariosServicio"
                         abrir="window.toggleVoluntariosInnerDropdown ? window.toggleVoluntariosInnerDropdown('dropdownVoluntariosServicio') : null"
                       />
@@ -155,6 +157,7 @@ const OPCIONES_ESTADO = [
                         labelTodos="Todos los Roles"
                         todosEtiqueta="Todos los Roles"
                         opciones={OPCIONES_ROL}
+                        countPrefix="countFacetVoluntariosRol"
                         onSelect="window.toggleVoluntariosRol"
                         abrir="window.toggleVoluntariosInnerDropdown ? window.toggleVoluntariosInnerDropdown('dropdownVoluntariosRol') : null"
                       />
@@ -169,6 +172,7 @@ const OPCIONES_ESTADO = [
                         todosEtiqueta="Todos los Estados"
                         opciones={OPCIONES_ESTADO}
                         tipo="single"
+                        countPrefix="countFacetVoluntariosEstado"
                         onSelect="window.toggleVoluntariosEstado"
                         abrir="window.toggleVoluntariosInnerDropdown ? window.toggleVoluntariosInnerDropdown('dropdownVoluntariosEstado') : null"
                       />
@@ -176,7 +180,7 @@ const OPCIONES_ESTADO = [
             </div>
 
             <!-- Chips Activos Bar -->
-            <div class="padron-active-chips-bar" id="voluntariosActiveChipsBar" style="display: none;">
+            <div class="padron-active-chips-bar" id="voluntariosActiveChipsBar">
               <span class="padron-active-chips-label">Filtros aplicados:</span>
               <div class="padron-active-chips-list" id="voluntariosActiveChipsList"
                 style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;"></div>

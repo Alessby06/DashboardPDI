@@ -1,33 +1,24 @@
 /* ===========================================================================
-   FILTROS DE ESCRITORIO (PC) - MEJORAS DE INTERFAZ Y ANIMACION
+   FILTROS DE ESCRITORIO (PC)
    ===========================================================================
-   Estas reglas solo afectan viewports de escritorio (>= 769px). El
-   comportamiento mobil (bottom sheets) queda intacto: sus media queries usan
-    y una anchura maxima distinta.
+   Reglas para viewports de escritorio (>= 769px). El comportamiento movil
+   (hoja inferior) queda intacto.
 
    Aporta:
-   - Apertura/cierre suave de los popovers de filtros y de los desplegables
-     internos (opacity + transform + visibility), en vez del cambio instantaneo
-     display:none / display:flex que habia antes.
-   - Caret, badge y chips con microinteracciones consistentes.
-   - Sin keyframes: transiciones interrumpibles y `@starting-style` para entrar.
+   - La pulsacion del disparador y la alineacion de sus iconos.
+   - El foco del rotulo y el tratamiento secundario de «Restablecer».
+   - El recorte por display de los desplegables internos.
+
+   La entrada y la salida del panel y de los submenus viven en
+   views-filters.css: esta hoja no las duplica.
    =========================================================================== */
 
 @media (min-width: 769px) {
   /* Botón principal: el hover solo cambia color y borde. Un parte clínico no
-     se eleva ni hace saltar el icono; la única respuesta física es la
-     pulsación, que el sistema define como scale(0.96). */
+     se eleva ni hace saltar el icono. La pulsación tampoco mueve la caja: el
+     panel se ancla a este botón (ver views-filters.css). */
   .audit-filter-btn {
-    transform: translateY(0);
-    transition:
-      background-color var(--dur-fast) var(--ease-smooth),
-      border-color var(--dur-fast) var(--ease-smooth),
-      color var(--dur-fast) var(--ease-smooth),
-      transform var(--dur-press) var(--ease-out);
-  }
-
-  .audit-filter-btn:active {
-    transform: scale(0.96);
+    gap: 8px;
   }
 
   .audit-filter-btn svg.filter-caret {
@@ -35,10 +26,6 @@
   }
 
   /* Icono (funnel) + texto: alineación óptica y espaciado estable. */
-  .audit-filter-btn {
-    gap: 8px;
-  }
-
   .audit-filter-btn > svg {
     display: block;
     flex-shrink: 0;
