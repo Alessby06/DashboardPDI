@@ -451,11 +451,11 @@
       }
     }
 
-    /* Escritorio estrecho: pistas fijas iguales y scroll horizontal del
-       tablero. Con 1fr bajar├¡an de 230 px y las tarjetas se aplastar├¡an. */
+    /* Escritorio estrecho: mismo reparto igual, con menos separacion para que
+       las tarjetas conserven espacio. Nunca se provoca scroll horizontal. */
     @media (min-width: 769px) and (max-width: 1100px) {
       .kanban-board {
-        grid-template-columns: repeat(4, 280px);
+        column-gap: 12px;
       }
     }
 

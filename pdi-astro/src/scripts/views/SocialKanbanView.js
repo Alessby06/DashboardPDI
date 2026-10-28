@@ -220,10 +220,12 @@ export const SocialKanbanView = {
     const estilo = getComputedStyle(board);
     const relleno = parseFloat(estilo.paddingLeft) + parseFloat(estilo.paddingRight);
     const hueco = parseFloat(estilo.columnGap) || 18;
-    const disponible = board.getBoundingClientRect().width - relleno - hueco * 3;
-    // Mismo umbral que la hoja: por debajo de 4x280 el tablero conserva 280
-    // por pista y desplaza en horizontal, en vez de aplastar las tarjetas.
-    const anchoPista = disponible >= 1120 ? disponible / 4 : 280;
+    // clientWidth = caja de relleno: excluye los bordes de 1 px del tablero.
+    // Restando el padding queda el ancho real disponible para pistas + gaps.
+    const disponible = board.clientWidth - relleno - hueco * 3;
+    // Reparto siempre igual: si el tablero se estrecha, las cuatro pistas
+    // menguan por igual antes que provocar una barra horizontal.
+    const anchoPista = Math.floor(disponible / 4);
     if (!(anchoPista > 0)) return;
 
     board.style.display = "grid";
