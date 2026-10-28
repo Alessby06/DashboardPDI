@@ -11,7 +11,7 @@ import '../styles/views-ajustes.css';
             (function () {
               function sincronizarAjustesTema() {
                 try {
-                  var saved = localStorage.getItem("pdi_theme") || "system";
+                  var saved = localStorage.getItem("pdi_theme") || "light";
                   var usaSistema = saved === "system";
                   var oscuro = usaSistema
                     ? !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches)

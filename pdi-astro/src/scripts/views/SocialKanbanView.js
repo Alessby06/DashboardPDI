@@ -3,6 +3,8 @@ import { CasoSocialModel } from '../models/CasoSocialModel.js';
 import { AnimationEngine } from '../utils/AnimationEngine.js';
 import { crear as crearFiltros } from '../utils/Filters.js';
 import { crearStore } from '../utils/FilterStore.js';
+import { contarOpciones } from '../utils/FacetCounts.js';
+import { KanbanDrag } from '../utils/KanbanDrag.js';
 
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
 import { SEDES_NOMBRES } from "../core/catalogos.js";
@@ -132,7 +134,72 @@ export const SocialKanbanView = {
     this.renderKanban();
   },
 
+  /** Busqueda comun a la lista y a los contadores de faceta. */
+  _aplicaBusqueda(lista) {
+    const q = this._searchQuery.toLowerCase().trim();
+    if (!q) return lista;
+    return lista.filter(c =>
+      (c.usuario && c.usuario.toLowerCase().includes(q)) ||
+      (c.codigo && c.codigo.toLowerCase().includes(q)) ||
+      (c.sede && c.sede.toLowerCase().includes(q)) ||
+      (c.situacionEncontrada && c.situacionEncontrada.toLowerCase().includes(q)) ||
+      (c.tipoProblematica && c.tipoProblematica.toLowerCase().includes(q))
+    );
+  },
+
+  /**
+   * Contadores de urgencia y sede. Cada faceta se cuenta con la busqueda y la
+   * otra faceta aplicadas, sin su propia seleccion.
+   */
+  _updateFacetCounts(allCasos) {
+    const base = this._aplicaBusqueda(allCasos);
+
+    const sinUrgencia = this._filterSede === "all"
+      ? base
+      : base.filter(c => c.sede && c.sede.includes(this._filterSede));
+
+    const sinSede = this._filterUrgencia === "all"
+      ? base
+      : base.filter(c => c.urgencia === this._filterUrgencia);
+
+    contarOpciones("menuSocialUrgencia", sinUrgencia, (c, valor) => c.urgencia === valor);
+    contarOpciones("menuSocialSede", sinSede, (c, valor) => !!c.sede && c.sede.includes(valor));
+  },
+
+  /**
+   * Marcado del estado vacio de una fase. Un icono dibujado (mismo trazo que
+   * el resto del sistema), un titulo y una salida clara: arrastrar o usar los
+   * botones. El bloque no captura el puntero, asi que el carril entero sigue
+   * siendo zona de drop.
+   */
+  _htmlEstadoVacio(etapa, hayFiltros = false) {
+    const nombre = ETAPA_NOMBRES_OFICIALES[etapa] || "esta fase";
+    const titulo = hayFiltros ? "Sin coincidencias" : "Sin casos en esta fase";
+    const ayuda = hayFiltros
+      ? "Ningún caso coincide con la búsqueda o los filtros activos."
+      : `${escapar(nombre)} está vacía. Arrastra una tarjeta aquí o usa los botones de cada caso.`;
+    return `
+      <div class="kanban-empty">
+        <span class="kanban-empty-icon" aria-hidden="true">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.75h4.5l1.5 2.25h4.5l1.5-2.25h4.5" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.75 6 4.5h12l2.25 5.25v7.5a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25z" />
+          </svg>
+        </span>
+        <span class="kanban-empty-title">${titulo}</span>
+        <span class="kanban-empty-hint">${ayuda}</span>
+      </div>
+    `;
+  },
+
   renderKanban(casos, forzarAnimacion = false) {
+    // Un re-render a mitad del arrastre arrancaria el nodo de debajo del dedo.
+    // Se difiere: el gesto termina y entonces se repinta con los datos frescos.
+    if (KanbanDrag.arrastrando()) {
+      this._renderPendiente = true;
+      return;
+    }
+
     this._leerFiltrosDeURL();
 
     const pCol = document.getElementById("kanbanColPendientes");
@@ -190,9 +257,14 @@ export const SocialKanbanView = {
     filtered.forEach(c => {
       const card = document.createElement("div");
       card.className = "kanban-card";
+      card.dataset.casoId = String(c.id);
+      card.dataset.etapa = c.etapa;
       const tieneSolicitud = !!(c.solicitudCambio && c.solicitudCambio.estado === "pendiente");
       if (tieneSolicitud) {
         card.classList.add("en-proceso-autorizacion");
+        // Con una solicitud en curso la etapa esta en manos de Coordinacion:
+        // la tarjeta no se arrastra, igual que no ofrece botones.
+        card.dataset.bloqueada = "1";
       }
       card.setAttribute("data-urgencia", c.urgencia || "Media");
       card.setAttribute("onclick", `window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.openDetalleCaso(${c.id}) : null`);
@@ -308,6 +380,23 @@ export const SocialKanbanView = {
       if (c.etapa === "canalizado") cCol.appendChild(card);
       if (c.etapa === "cerrado") zCol.appendChild(card);
     });
+
+    // Estado vacio por fase: el carril explica que esta vacio y como llenarlo.
+    // En escritorio es ademas la zona de drop; en movil, el mismo bloque sirve.
+    const carriles = [
+      [pCol, countP, "pendiente"],
+      [eCol, countE, "evaluacion"],
+      [cCol, countC, "canalizado"],
+      [zCol, countZ, "cerrado"],
+    ];
+    const hayFiltros = Boolean(
+      this._searchQuery || this._filterUrgencia !== "all" || this._filterSede !== "all",
+    );
+    for (const [columna, total, etapa] of carriles) {
+      const carril = columna.closest(".kanban-col");
+      if (carril) carril.toggleAttribute("data-empty", total === 0);
+      if (total === 0) columna.innerHTML = this._htmlEstadoVacio(etapa, hayFiltros);
+    }
 
     const setBadge = (id, count) => {
       const el = document.getElementById(id);

@@ -22,7 +22,7 @@
 // ===========================================================================
 
 export const Theme = {
-  _currentTheme: (typeof localStorage !== 'undefined' && localStorage.getItem('pdi_theme')) || 'system',
+  _currentTheme: (typeof localStorage !== 'undefined' && localStorage.getItem('pdi_theme')) || 'light',
   _mediaListenerBound: false,
 
   /** Tema elegido, tal cual se guardo: light, dark o system. */
@@ -63,7 +63,10 @@ export const Theme = {
     }
 
     // Restauro, no cambio: sin transicion. Ver el comentario de setTheme().
-    this.setTheme(savedTheme || 'system', false, null, false);
+    // Sin preferencia guardada el sistema abre en claro (no en el tema del
+    // sistema operativo): el tablero clinico se lee mejor en papel y asi lo
+    // espera quien entra por primera vez. "Sistema" sigue disponible.
+    this.setTheme(savedTheme || 'light', false, null, false);
   },
 
   /** Conmutador de la barra superior: alterna sobre el tema ya resuelto. */

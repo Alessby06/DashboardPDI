@@ -223,18 +223,34 @@
       letter-spacing: -0.01em;
     }
 
+    /* Contador de fase. En claro es papel con tinta; en oscuro se invierte
+       (fondo tinta clara, numero casi negro) para que el conteo no se lea
+       como un hueco muerto sobre el carril negro. */
+    :root {
+      --kanban-pill-bg: var(--surface-2);
+      --kanban-pill-ink: var(--text-main);
+      --kanban-pill-border: var(--border-subtle);
+    }
+
+    [data-theme="dark"] {
+      --kanban-pill-bg: var(--text-main);
+      --kanban-pill-ink: var(--bg-base);
+      --kanban-pill-border: transparent;
+    }
+
     .kanban-count-pill {
       font-size: 11px;
-      font-weight: 700;
+      font-weight: var(--peso-cifra);
       font-family: var(--mono-font);
-      color: var(--text-dim);
-      background: var(--surface-1);
-      border: 1px solid var(--border-subtle);
+      color: var(--kanban-pill-ink);
+      background: var(--kanban-pill-bg);
+      border: 1px solid var(--kanban-pill-border);
       padding: 1px 7px;
       border-radius: 10px;
       min-width: 18px;
       text-align: center;
       line-height: 1.4;
+      font-variant-numeric: tabular-nums;
     }
 
     .kanban-col-body {
@@ -378,6 +394,158 @@
       }
 
 
+    }
+
+    /* ---------------------------------------------------------------------
+       TABLERO DE CUATRO CARRILES IGUALES (ESCRITORIO)
+       En flex, el contenido minimo de cada tarjeta (botones sin wrap, titulos
+       largos) empujaba el ancho de su columna. En grid las cuatro columnas
+       nacen iguales y ceden por igual; si el viewport no alcanza, el tablero
+       se desplaza en horizontal en lugar de comprimir el contenido.
+       --------------------------------------------------------------------- */
+    @media (min-width: 769px) {
+      .kanban-board {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(230px, 1fr));
+        column-gap: 18px;
+        row-gap: 18px;
+        align-items: stretch;
+      }
+
+      .kanban-col {
+        flex: initial;
+        min-width: 0;
+        max-width: none;
+        width: auto;
+      }
+
+      /* El hilo de 1 px ya no necesita el relleno interno: el gap lo separa. */
+      .kanban-col:not(:last-child) {
+        padding-right: 0;
+      }
+    }
+
+    /* ---------------------------------------------------------------------
+       ESTADO VACIO DE FASE
+       Sin casos, la columna explica que esta vacia y como llenarla. El bloque
+       no intercepta el puntero: es tambien la zona de drop del carril.
+       --------------------------------------------------------------------- */
+    .kanban-empty {
+      margin: auto;
+      width: 100%;
+      max-width: 230px;
+      padding: 26px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      text-align: center;
+      color: var(--text-dim);
+      border: 1px dashed var(--border-subtle);
+      border-radius: var(--radius-md);
+      pointer-events: none;
+    }
+
+    .kanban-empty-icon {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: var(--radius-full);
+      border: 1px dashed var(--border-bright);
+      color: var(--text-brand);
+    }
+
+    .kanban-empty-title {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .kanban-empty-hint {
+      font-size: 11.5px;
+      line-height: 1.45;
+      max-width: 190px;
+    }
+
+    /* ---------------------------------------------------------------------
+       ARRASTRE DE CASOS (SOLO ESCRITORIO, PUNTERO FINO)
+       El ghost vive en position:fixed y se mueve por transform en rAF; la
+       tarjeta original se atenua. Un solo bloque de clases controla el gesto
+       y se limpia siempre en finally.
+       --------------------------------------------------------------------- */
+    .kanban-card.is-dragging {
+      opacity: 0.38;
+      transform: none !important;
+      transition: none !important;
+    }
+
+    .kanban-card[data-bloqueada="1"] {
+      cursor: not-allowed;
+    }
+
+    .kanban-drag-ghost {
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 12000;
+      margin: 0;
+      pointer-events: none;
+      box-shadow: var(--shadow-overlay);
+      transform-origin: top left;
+      will-change: transform;
+      opacity: 0.98;
+    }
+
+    body.kanban-drag-activo {
+      cursor: grabbing;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body.kanban-drag-activo .kanban-card {
+      transition: none;
+    }
+
+    .kanban-col.is-drop-target .kanban-col-body {
+      background: color-mix(in srgb, var(--brand-primary) 7%, transparent);
+      border-radius: var(--radius-md);
+      box-shadow: inset 0 0 0 1px var(--brand-primary);
+    }
+
+    .kanban-col.is-drop-target .kanban-empty {
+      border-color: var(--brand-primary);
+      color: var(--text-muted);
+    }
+
+    .kanban-col.is-drop-invalida .kanban-col-body {
+      box-shadow: inset 0 0 0 1px var(--border-bright);
+    }
+
+    .kanban-card.is-drop-invalida {
+      animation: kanban-sacudida 160ms var(--ease-smooth);
+    }
+
+    @keyframes kanban-sacudida {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
+
+    @media (hover: hover) and (pointer: fine) and (min-width: 769px) {
+      .kanban-card:not([data-bloqueada="1"]) {
+        cursor: grab;
+      }
+
+      .kanban-card:not([data-bloqueada="1"]):active {
+        cursor: grabbing;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .kanban-card.is-drop-invalida {
+        animation: none;
+      }
     }
 
     /* Enhanced Kanban Card & Refined Action Buttons (Responsive & Colorized) */
