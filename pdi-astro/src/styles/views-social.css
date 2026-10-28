@@ -415,7 +415,10 @@
     @media (min-width: 769px) {
       .kanban-board {
         display: grid;
-        grid-template-columns: repeat(4, minmax(230px, 1fr));
+        /* Cuatro pistas exactamente iguales: 1fr reparte el ancho disponible
+           en partes id├®nticas y minmax(0, ...) impide que el contenido de una
+           tarjeta estire su pista. */
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         column-gap: 18px;
         row-gap: 18px;
         align-items: stretch;
