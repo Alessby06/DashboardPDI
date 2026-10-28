@@ -253,9 +253,9 @@
   --gt-blue-bg: rgba(124, 196, 255, 0.16);
   --gt-blue-border: rgba(124, 196, 255, 0.45);
   
-  --gt-red: #ff8b8b;
-  --gt-red-bg: rgba(255, 139, 139, 0.16);
-  --gt-red-border: rgba(255, 139, 139, 0.45);
+  --gt-red: #ff6b6b;
+  --gt-red-bg: rgba(255, 107, 107, 0.16);
+  --gt-red-border: rgba(255, 107, 107, 0.45);
 
   --gt-orange: #ff9d66;
   --gt-orange-bg: rgba(255, 157, 102, 0.16);
@@ -278,7 +278,7 @@
   /* Rojo, ambar y azul como texto, en tema oscuro. Los tres se aclaran en la
      misma proporcion para que se lean sobre las insignias tintadas, que ahora
      llevan un 16 % del color en vez del 15 % anterior. */
-  --text-danger: #ff9d9d;
+  --text-danger: #ff7a7a;
   --text-warning: var(--gt-yellow);
   --text-info: var(--gt-blue);
   /* El verde de marca da mas de 9:1 sobre el pie oscuro de la ficha. */

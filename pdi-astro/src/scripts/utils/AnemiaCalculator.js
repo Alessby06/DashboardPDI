@@ -39,7 +39,7 @@ export const AnemiaCalculator = {
         label: "Anemia Moderada",
         clase: "Moderada",
         accion: "Sulfato Ferroso 2 gotas/kg/día + Visita Domiciliaria ASP",
-        color: "var(--gt-orange)",
+        color: "var(--gt-red)",
         badgeClass: "badge-red"
       };
     } else if (val < 11.0) {

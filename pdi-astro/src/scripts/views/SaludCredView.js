@@ -8,6 +8,7 @@ import { AnemiaCalculator } from "../utils/AnemiaCalculator.js";
 import { ToastView } from "./ToastView.js";
 import { AuditModel } from "../models/AuditModel.js";
 import { SEDES_NOMBRES, etiquetaSede } from "../core/catalogos.js";
+import { contarOpciones } from "../utils/FacetCounts.js";
 // Filtros del modulo CRED que viajan en la URL. Valores tomados de los
 // desplegables de salud.html.
 const FILTROS_SALUD = {
@@ -373,17 +374,43 @@ export const SaludCredView = {
     return true;
   },
 
+  /** Busqueda comun a la lista y a los contadores de faceta. */
+  _aplicaBusqueda(lista) {
+    if (!this._searchQuery) return lista;
+    const q = this._searchQuery;
+    return lista.filter(b => {
+      const full = `${b.nombres} ${b.apellidos} ${b.codigo} ${b.dni} ${b.sede} ${b.distrito} ${b.apoderado}`.toLowerCase();
+      return full.includes(q);
+    });
+  },
+
+  /**
+   * Contadores de anemia, sede y hemoglobina. Cada faceta se cuenta con las
+   * otras dos y la busqueda aplicadas, sin su propia seleccion.
+   */
+  _updateFacetCounts() {
+    const base = this._aplicaBusqueda([...(this._allBeneficiarios || [])]);
+
+    const sedeOk = (b) => this._filterSede.length === 0 ||
+      (b.sede && this._filterSede.some(s => b.sede.toLowerCase().includes(s.toLowerCase())));
+    const anemiaOk = (b) => this._filterAnemia.length === 0 || this._matchesAnemia(b, this._filterAnemia);
+    const hbOk = (b) => this._filterHbNivel === "all" || this._matchesHbNivel(b, this._filterHbNivel);
+
+    const sinAnemia = base.filter(b => sedeOk(b) && hbOk(b));
+    const sinSede = base.filter(b => anemiaOk(b) && hbOk(b));
+    const sinHb = base.filter(b => anemiaOk(b) && sedeOk(b));
+
+    contarOpciones("menuSaludAnemia", sinAnemia, (b, valor) => this._matchesAnemia(b, [valor]));
+    contarOpciones("menuSaludSede", sinSede, (b, valor) =>
+      !!b.sede && b.sede.toLowerCase().includes(valor.toLowerCase()));
+    contarOpciones("menuSaludHb", sinHb, (b, valor) => this._matchesHbNivel(b, valor));
+  },
+
   applyFilters() {
     let list = [...(this._allBeneficiarios || [])];
 
     // 1. Buscador de texto
-    if (this._searchQuery) {
-      const q = this._searchQuery;
-      list = list.filter(b => {
-        const full = `${b.nombres} ${b.apellidos} ${b.codigo} ${b.dni} ${b.sede} ${b.distrito} ${b.apoderado}`.toLowerCase();
-        return full.includes(q);
-      });
-    }
+    list = this._aplicaBusqueda(list);
 
     // 2. Condición Anemia
     if (this._filterAnemia.length > 0) {
@@ -402,6 +429,8 @@ export const SaludCredView = {
 
     this._filteredBeneficiarios = list;
 
+    this._updateFacetCounts();
+
     // Badge desde el store: una definicion, no una suma por vista.
     const count = this._obtenerStore().contarActivos();
 
@@ -417,7 +446,140 @@ export const SaludCredView = {
 
     this._renderActiveChips();
     this._renderTableAndCards(list);
-    this._pintarDashboard();
+    this._pintarTriaje();
+  },
+
+  filtrarTriaje(filtro) {
+    this._triajeFiltro = filtro;
+    document.querySelectorAll(".triaje-chip").forEach(btn => {
+      btn.setAttribute("aria-pressed", btn.dataset.filtro === filtro ? "true" : "false");
+    });
+    // Identidad de lista: las filas que siguen se deslizan a su nueva
+    // posición; las que entran o salen se funden. Sin React, el disparador es
+    // la View Transition API nativa.
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (typeof document.startViewTransition === "function" && !reduce) {
+      const transicion = document.startViewTransition(() => this._pintarTriaje());
+      // Un filtro nuevo interrumpe la transición anterior: el navegador
+      // rechaza su promesa con AbortError. No es un fallo del panel.
+      if (transicion) {
+        transicion.ready.catch(() => {});
+        transicion.finished.catch(() => {});
+      }
+    } else {
+      this._pintarTriaje();
+    }
+  },
+
+  /**
+   * Cola de triaje: ordena el padrón por riesgo clínico y por días sin dosaje.
+   * No duplica la tabla: muestra solo los casos que piden una acción.
+   */
+  _pintarTriaje() {
+    const cont = document.getElementById("triajeLista");
+    if (!cont) return;
+    const estado = document.getElementById("triajeEstado");
+    const lista = Array.isArray(this._allBeneficiarios) ? this._allBeneficiarios : [];
+    const hoy = Date.now();
+
+    const norm = (v) => {
+      const s = String(v || "").toLowerCase();
+      if (s.includes("sever")) return "Severa";
+      if (s.includes("moder")) return "Moderada";
+      if (s.includes("leve")) return "Leve";
+      if (s.includes("normal")) return "Normal";
+      return null;
+    };
+
+    const filas = lista.map(b => {
+      const hb = parseFloat(b.hb);
+      let banda = AnemiaCalculator.normalizar(b.anemia);
+      if (!banda && !isNaN(hb)) banda = norm(AnemiaCalculator.calculate(hb).label);
+      const fechas = (Array.isArray(b.tamizajes) ? b.tamizajes : [])
+        .map(t => new Date(t && t.fecha))
+        .filter(d => d && !isNaN(d.getTime()));
+      const ultimo = fechas.length ? Math.max(...fechas.map(d => d.getTime())) : null;
+      const dias = ultimo ? Math.max(0, Math.floor((hoy - ultimo) / 86400000)) : null;
+      return { b, hb, banda, dias };
+    }).filter(f => f.banda);
+
+    const peso = { Severa: 0, Moderada: 0, Leve: 2, Normal: 3 };
+    filas.sort((a, b) => (peso[a.banda] - peso[b.banda])
+      || ((b.dias == null ? 99999 : b.dias) - (a.dias == null ? 99999 : a.dias)));
+
+    const prioritarios = filas.filter(f => f.banda === "Severa" || f.banda === "Moderada").length;
+    const vencidos = filas.filter(f => f.dias === null || f.dias >= 90).length;
+
+    if (estado) {
+      estado.textContent = filas.length
+        ? `${prioritarios} ${prioritarios === 1 ? "caso prioritario" : "casos prioritarios"} · ${vencidos} ${vencidos === 1 ? "control vencido" : "controles vencidos"}`
+        : "Sin dosajes registrados en el padrón.";
+    }
+
+    const pendiente = f => f.banda === "Severa" || f.banda === "Moderada"
+      || f.dias === null || f.dias >= 90;
+    const filtro = this._triajeFiltro || "todos";
+    let vista = filas.filter(f => {
+      if (filtro === "prioridad") return f.banda === "Severa" || f.banda === "Moderada";
+      if (filtro === "leve") return f.banda === "Leve";
+      if (filtro === "normal") return f.banda === "Normal";
+      return true;
+    });
+    if (filtro === "todos") {
+      const p = vista.filter(pendiente);
+      const resto = vista.filter(f => !pendiente(f));
+      vista = p.length >= 3 ? p : p.concat(resto.slice(0, 3 - p.length));
+    }
+    vista = vista.slice(0, 6);
+
+    if (!vista.length) {
+      cont.innerHTML = '<li class="triaje-vacio">Sin controles pendientes esta semana.</li>';
+      return;
+    }
+
+    cont.innerHTML = vista.map((f, i) => {
+      const b = f.b;
+      const nombre = `${b.nombres || ""} ${b.apellidos || ""}`.trim() || "Sin nombre";
+      const edad = b.edad
+        ? (/año/i.test(String(b.edad)) ? String(b.edad) : `${b.edad} años`)
+        : "";
+      const hbTxt = isNaN(f.hb) ? "—" : f.hb.toFixed(1);
+      const pos = isNaN(f.hb) ? 50 : Math.max(0, Math.min(100, ((f.hb - 6) / 8) * 100));
+      const diasTxt = f.dias === null
+        ? "Sin dosaje"
+        : (f.dias === 0 ? "Hoy" : `Hace ${f.dias} días`);
+      const idArg = escaparEnManejador(b.id);
+      const vtName = `triaje-nino-${String(b.id || i).replace(/[^a-zA-Z0-9_-]/g, "")}`;
+      const bandaVisible = (f.banda === "Severa" || f.banda === "Moderada")
+        ? "Moderada o severa"
+        : f.banda;
+      const bandaClave = (f.banda === "Severa" || f.banda === "Moderada")
+        ? "moderada"
+        : f.banda.toLowerCase();
+      return `
+        <li class="triaje-fila" data-banda="${bandaClave}" style="view-transition-name:${vtName}">
+          <div class="triaje-name">
+            <span class="triaje-nombre">${escapar(nombre)}</span>
+            ${edad ? `<span class="triaje-edad">${escapar(edad)}</span>` : ""}
+          </div>
+          <div class="triaje-hb">
+            <strong>${hbTxt}</strong><span class="triaje-unit">g/dL</span>
+            <span class="triaje-track" style="--pos:${pos.toFixed(1)}%" aria-hidden="true"><span class="triaje-mark"></span></span>
+          </div>
+          <div class="triaje-meta">
+            <span class="triaje-sede">${escapar(b.sede || "Sin sede")}</span>
+            <span class="triaje-dias">${diasTxt}</span>
+          </div>
+          <div class="triaje-banda"><span class="triaje-dot" aria-hidden="true"></span>${bandaVisible}</div>
+          <button type="button" class="triaje-action" title="Ver historial de ${escapar(nombre)}"
+            aria-label="Ver historial de ${escapar(nombre)}"
+            onclick="window.openHistorialTamizaje ? window.openHistorialTamizaje(${idArg}) : null">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"></circle><path stroke-linecap="round" d="M12 7v5l3 2"></path>
+            </svg>
+          </button>
+        </li>`;
+    }).join("");
   },
 
   _renderActiveChips() {
@@ -459,7 +621,7 @@ export const SaludCredView = {
     }
 
     if (chips.length > 0) {
-      bar.style.display = "flex";
+      bar.classList.add("is-visible");
       list.innerHTML = chips.map(chip => `
         <span class="padron-chip">
           <span>${escapar(chip.label)}</span>
@@ -471,7 +633,7 @@ export const SaludCredView = {
         </span>
       `).join("");
     } else {
-      bar.style.display = "none";
+      bar.classList.remove("is-visible");
       list.innerHTML = "";
     }
   },
@@ -1212,279 +1374,6 @@ export const SaludCredView = {
     );
   },
 
-  // ---------------------------------------------------------------------------
-  //  Panel rápido CRED · semáforo MINSA + KPIs
-  // ---------------------------------------------------------------------------
-  /**
-   * Pinta el panel rápido: anillo de distribución, leyenda y 4 KPIs. Las
-   * cifras salen del padrón completo (no de la tabla filtrada) y el estado de
-   * los filtros se refleja en leyenda y KPI.
-   *
-   * Se construye una sola vez (arcs y leyenda conservan su animación de
-   * entrada); después solo actualiza cifras, largos de arco y estados. Corre
-   * al final de applyFilters, así que todos los caminos de filtrado quedan
-   * sincronizados sin código extra en cada acción.
-   */
-  _pintarDashboard() {
-    const root = document.getElementById("dashRapido");
-    if (!root) return;
-    const lista = Array.isArray(this._allBeneficiarios) ? this._allBeneficiarios : [];
-
-    const CLASES = [
-      { key: "Normal",   color: "var(--gt-green)",  rango: "≥ 11.0",    opacidad: 1 },
-      { key: "Leve",     color: "var(--gt-yellow)", rango: "10.0–10.9", opacidad: 1 },
-      { key: "Moderada", color: "var(--gt-orange)", rango: "7.0–9.9",   opacidad: 1 },
-      { key: "Severa",   color: "var(--gt-red)",    rango: "< 7.0",     opacidad: 1 },
-    ];
-    // La leyenda agrupa Moderada y Severa en una sola fila (el filtro ya las
-    // trata juntas en _matchesAnemia); el anillo conserva los dos colores y el
-    // punto de la fila muestra ambos.
-    const LEYENDA = CLASES
-      .filter(c => c.key !== "Severa")
-      .map(c => c.key === "Moderada"
-        ? { ...c, etiqueta: "Moderada o severa", color: "linear-gradient(90deg, var(--gt-orange) 50%, var(--gt-red) 50%)" }
-        : { ...c, etiqueta: c.key });
-    const cuenta = { Normal: 0, Leve: 0, Moderada: 0, Severa: 0 };
-    let conDato = 0;
-    let sumaHb = 0;
-    let nHb = 0;
-    const hoy = new Date();
-    let pruebasMes = 0;
-
-    lista.forEach(b => {
-      // El almacenamiento puede traer etiquetas históricas ("Anemia Leve",
-      // "En riesgo"): se normalizan para que el semáforo y los filtros cuenten
-      // siempre lo mismo.
-      const clase = AnemiaCalculator.normalizar(b && b.anemia);
-      if (clase && Object.prototype.hasOwnProperty.call(cuenta, clase)) {
-        cuenta[clase]++;
-        conDato++;
-      }
-      const hb = parseFloat(b.hb);
-      if (!isNaN(hb)) {
-        sumaHb += hb;
-        nHb++;
-      }
-      if (Array.isArray(b.tamizajes)) {
-        b.tamizajes.forEach(t => {
-          const f = t.fecha ? new Date(t.fecha) : null;
-          if (f && !isNaN(f.getTime())
-            && f.getMonth() === hoy.getMonth() && f.getFullYear() === hoy.getFullYear()) {
-            pruebasMes++;
-          }
-        });
-      }
-    });
-
-    const filtroClase = this._filterAnemia && this._filterAnemia.length === 1
-      ? this._filterAnemia[0]
-      : null;
-    // Porcentajes con reparto por mayor resto: las cuatro clases suman 100 y
-    // «Con anemia» coincide con Leve + Moderada + Severa. El redondeo
-    // independiente dejaba 46 + 38 + 15 + 0 = 99 frente al 54 % del KPI.
-    const pctClase = (() => {
-      if (conDato <= 0) return { Normal: 0, Leve: 0, Moderada: 0, Severa: 0 };
-      const exactos = CLASES.map(c => (cuenta[c.key] / conDato) * 100);
-      const bases = exactos.map(Math.floor);
-      const resto = 100 - bases.reduce((a, b) => a + b, 0);
-      const orden = exactos
-        .map((v, i) => ({ i, frac: v - bases[i] }))
-        .sort((a, b) => b.frac - a.frac);
-      for (let j = 0; j < resto; j++) bases[orden[j % orden.length].i]++;
-      return Object.fromEntries(CLASES.map((c, i) => [c.key, bases[i]]));
-    })();
-    const pctSinAnemia = pctClase.Normal;
-    const conAnemia = conDato - cuenta.Normal;
-    const pctConAnemia = conDato > 0 ? 100 - pctSinAnemia : 0;
-    const promedio = nHb > 0 ? Math.round((sumaHb / nHb) * 10) / 10 : null;
-    const mesNombre = hoy.toLocaleDateString("es-PE", { month: "long" }).toLocaleLowerCase("es-PE");
-
-    // --- Anillo: arcos proporcionales con separación fija entre segmentos ---
-    const R = 66;
-    const C = 2 * Math.PI * R;
-    const GAP = 3;
-    const grupo = document.getElementById("dashDonutArcs");
-    if (grupo && grupo.childElementCount === 0) {
-      grupo.innerHTML = CLASES.map((c, i) => `
-        <circle class="dash-arc" id="dashArc${c.key}" cx="84" cy="84" r="${R}"
-          data-clase="${c.key}" aria-hidden="true"
-          stroke="${c.color}" stroke-opacity="${c.opacidad}"
-          style="--dash-arc-delay:${240 + i * 90}ms;">
-          <title>${c.key}</title>
-        </circle>`).join("");
-    }
-    if (grupo && !grupo.dataset.wired) {
-      grupo.dataset.wired = "1";
-      const activar = (ev) => {
-        const arco = ev.target && ev.target.closest ? ev.target.closest("[data-clase]") : null;
-        if (!arco) return;
-        if (ev.type === "keydown") {
-          if (ev.key !== "Enter" && ev.key !== " ") return;
-          ev.preventDefault();
-        }
-        const clase = arco.getAttribute("data-clase");
-        if (clase && typeof window.dashboardFiltrar === "function") {
-          // El anillo conserva el arco rojo de Severa, pero la leyenda y el
-          // filtro agrupan Moderada + Severa: pulsar el rojo filtra el grupo.
-          window.dashboardFiltrar("clase", clase === "Severa" ? "Moderada" : clase);
-        }
-      };
-      grupo.addEventListener("click", activar);
-      grupo.addEventListener("keydown", activar);
-    }
-
-    let avance = 0;
-    CLASES.forEach(c => {
-      const arco = document.getElementById(`dashArc${c.key}`);
-      if (!arco) return;
-      const frac = conDato > 0 ? cuenta[c.key] / conDato : 0;
-      const largo = frac > 0 ? Math.max(frac * C - GAP, 1) : 0;
-      arco.setAttribute("stroke-dasharray", `${largo.toFixed(2)} ${(C - largo).toFixed(2)}`);
-      arco.setAttribute("stroke-dashoffset", (-avance).toFixed(2));
-      // Con un filtro de clase activo, el resto del anillo se atenúa para que
-      // el segmento elegido quede identificado sin perder el contexto.
-      const cubierto = !filtroClase
-        || c.key === filtroClase
-        || (filtroClase === "Moderada" && c.key === "Severa");
-      arco.setAttribute("stroke-opacity", String(!filtroClase ? c.opacidad : (cubierto ? 1 : 0.24)));
-      const titulo = arco.querySelector("title");
-      if (titulo) {
-        titulo.textContent = `${c.key} (${c.rango} g/dL): ${cuenta[c.key]} · ${conDato ? Math.round(frac * 100) : 0}%`;
-      }
-      avance += frac * C;
-    });
-
-    // --- Centro: sin filtro informa el porcentaje sano; con filtro, la clase ---
-    const foco = filtroClase
-      ? {
-          pct: filtroClase === "Moderada"
-            ? pctClase.Moderada + pctClase.Severa
-            : pctClase[filtroClase],
-          label: filtroClase === "Moderada" ? "moderada o severa" : filtroClase.toLowerCase(),
-        }
-      : { pct: pctSinAnemia, label: "Normal" };
-    const pctEl = document.getElementById("dashDonutPct");
-    if (pctEl) pctEl.textContent = foco.pct != null ? `${foco.pct}%` : "—";
-    const labelEl = document.getElementById("dashDonutLabel");
-    if (labelEl) labelEl.textContent = foco.label;
-
-    const svg = document.getElementById("dashDonut");
-    if (svg) {
-      svg.setAttribute("aria-label", conDato > 0
-        ? `Distribución por semáforo MINSA: ${cuenta.Normal} Normal, ${cuenta.Leve} Leve, ${cuenta.Moderada} Moderada y ${cuenta.Severa} Severa; ${pctSinAnemia}% Normal.`
-        : "Distribución por semáforo MINSA: sin diagnósticos registrados.");
-    }
-
-    // --- Leyenda: se construye una sola vez; luego solo cifras y estados ---
-    const leyenda = document.getElementById("dashLeyenda");
-    if (leyenda && !leyenda.dataset.built) {
-      leyenda.innerHTML = LEYENDA.map((c, i) => `
-        <button type="button" class="dash-leyenda-item" data-clase="${c.key}"
-          style="--dash-seg:${c.color}; --dash-legend-delay:${340 + i * 80}ms;"
-          aria-pressed="false"
-          title="Filtrar la tabla por ${c.etiqueta.toLowerCase()}"
-          onclick="window.dashboardFiltrar ? window.dashboardFiltrar('clase', '${c.key}') : null">
-          <span class="dash-leyenda-dot" aria-hidden="true"></span>
-          <span class="dash-leyenda-name">${c.etiqueta} <span class="dash-leyenda-rango">${c.rango}</span></span>
-          <span class="dash-leyenda-count" id="dashCuenta${c.key}">0</span>
-          <span class="dash-leyenda-pct" id="dashPct${c.key}">0%</span>
-        </button>`).join("");
-      leyenda.dataset.built = "1";
-    }
-    LEYENDA.forEach(c => {
-      const cuentaEl = document.getElementById(`dashCuenta${c.key}`);
-      const pctItem = document.getElementById(`dashPct${c.key}`);
-      const item = leyenda ? leyenda.querySelector(`[data-clase="${c.key}"]`) : null;
-      const esModerada = c.key === "Moderada";
-      const n = esModerada ? cuenta.Moderada + cuenta.Severa : cuenta[c.key];
-      const pct = esModerada ? pctClase.Moderada + pctClase.Severa : pctClase[c.key];
-      if (cuentaEl) cuentaEl.textContent = String(n);
-      if (pctItem) pctItem.textContent = conDato > 0 ? `${pct}%` : "0%";
-      if (item) {
-        // Solo la clase elegida queda pulsada; «Moderada» incluye filas severas
-        // sin afirmar que el filtro activo sea «Severa».
-        item.setAttribute("aria-pressed", filtroClase === c.key ? "true" : "false");
-      }
-    });
-
-    // --- Estado del panel: qué parte del padrón se está viendo ---
-    const total = lista.length;
-    const mostrados = Array.isArray(this._filteredBeneficiarios)
-      ? this._filteredBeneficiarios.length
-      : total;
-    const hayFiltros = Boolean(this._searchQuery)
-      || (this._filterAnemia && this._filterAnemia.length > 0)
-      || (this._filterSede && this._filterSede.length > 0)
-      || (this._filterHbNivel && this._filterHbNivel !== "all");
-    const stateEl = document.getElementById("dashRapidoState");
-    if (stateEl) {
-      stateEl.textContent = hayFiltros
-        ? `Mostrando ${mostrados} de ${total} · filtros activos`
-        : `Mostrando ${total} de ${total} · sin filtros`;
-    }
-    const clearBtn = document.getElementById("dashRapidoClear");
-    if (clearBtn) clearBtn.hidden = !hayFiltros;
-
-    // --- KPIs: describen el padrón completo ---
-    const setTxt = (id, txt) => {
-      const el = document.getElementById(id);
-      if (el) el.textContent = txt;
-    };
-    setTxt("dashKpiCarteraVal", String(lista.length));
-    setTxt("dashKpiCarteraNote", conDato > 0
-      ? `${conDato} con diagnóstico activo`
-      : "Sin diagnósticos registrados");
-    setTxt("dashKpiAnemiaVal", String(conAnemia));
-    setTxt("dashKpiAnemiaNote", pctConAnemia != null
-      ? `${pctConAnemia}% de los diagnosticados`
-      : "Hb menor a 11.0 g/dL");
-    // El número de «Con anemia» toma el color del caso más grave presente:
-    // ámbar si solo hay leves, naranja con moderadas, rojo con severas.
-    const estadoAnemia = cuenta.Severa > 0
-      ? "is-alerta"
-      : cuenta.Moderada > 0
-        ? "is-moderada"
-        : cuenta.Leve > 0
-          ? "is-leve"
-          : "is-normal";
-    const anemiaVal = document.getElementById("dashKpiAnemiaVal");
-    if (anemiaVal) {
-      anemiaVal.classList.remove("is-normal", "is-leve", "is-moderada", "is-alerta");
-      anemiaVal.classList.add(estadoAnemia);
-    }
-    setTxt("dashKpiHbVal", promedio != null ? promedio.toFixed(1) : "—");
-    const hbEl = document.getElementById("dashKpiHbVal");
-    if (hbEl) {
-      // El color va por clase (no en línea) para que el tema claro use tonos
-      // profundos y el oscuro los tokens vivos del semáforo.
-      hbEl.style.removeProperty("color");
-      hbEl.classList.remove("is-normal", "is-leve", "is-alerta");
-      if (promedio != null) {
-        const diag = AnemiaCalculator.calculate(promedio).label;
-        const estado = /Severa|Moderada/.test(diag)
-          ? "is-alerta"
-          : /Leve/.test(diag)
-            ? "is-leve"
-            : "is-normal";
-        hbEl.classList.add(estado);
-      }
-    }
-    setTxt("dashKpiHbNote", promedio != null
-      ? `g/dL · promedio de ${nHb} con dato`
-      : "Sin valores de Hb");
-    setTxt("dashKpiMesVal", String(pruebasMes));
-    setTxt("dashKpiMesNote", `dosajes en ${mesNombre}`);
-
-    const anemiaBtn = document.getElementById("dashKpiAnemia");
-    if (anemiaBtn) {
-      anemiaBtn.setAttribute("aria-pressed", this._filterHbNivel === "anemia" ? "true" : "false");
-      const ring = estadoAnemia === "is-alerta" ? "var(--gt-red)"
-        : estadoAnemia === "is-moderada" ? "var(--gt-orange)"
-          : estadoAnemia === "is-leve" ? "var(--gt-yellow)"
-            : "var(--gt-green)";
-      anemiaBtn.style.setProperty("--dash-kpi-ring", ring);
-    }
-  },
   /**
    * Selector de usuario para registrar un dosaje desde la cabecera.
    * Evita el camino de tres clics (fila → historial → añadir prueba).
@@ -1579,12 +1468,6 @@ export const SaludCredView = {
     if (tabla) {
       tabla.scrollIntoView({ behavior: reducido ? "auto" : "smooth", block: "start" });
     }
-    // Al filtrar, el foco viaja al estado del panel: el lector anuncia cuántos
-    // resultados quedaron y el teclado no se pierde en la leyenda.
-    const estado = document.getElementById("dashRapidoState");
-    if (estado) {
-      estado.focus({ preventScroll: true });
-    }
   }
 };
 
@@ -1592,6 +1475,7 @@ if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
   window.PDI.SaludCredView = SaludCredView;
   window.dashboardFiltrar = (tipo, valor) => SaludCredView.aplicarFiltroDashboard(tipo, valor);
+  window.triajeFiltrar = (filtro) => SaludCredView.filtrarTriaje(filtro);
   window.filterSaludSearch = (val) => SaludCredView.filterBySearch(val);
   window.clearSaludSearch = () => SaludCredView.clearSearch();
   window.toggleSaludAnemia = (val) => SaludCredView.toggleAnemia(val);

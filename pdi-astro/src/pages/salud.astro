@@ -47,63 +47,12 @@ const OPCIONES_HB = [
       </div>
     </div>
 
-    <!-- Panel rápido CRED: semáforo MINSA + KPIs (sustituye a la calculadora) -->
-    <section class="panel dash-rapido" id="dashRapido" aria-label="Panel rápido de salud CRED">
-      <div class="dash-rapido-head">
-        <h3 class="dash-rapido-title">Panel rápido CRED</h3>
-        <p class="dash-rapido-hint">Selecciona la leyenda, el anillo o «Con anemia» para filtrar la tabla de evaluaciones</p>
-      </div>
-      <div class="dash-rapido-statusbar">
-        <p class="dash-rapido-state" id="dashRapidoState" tabindex="-1" aria-live="polite">Mostrando los usuarios del padrón</p>
-        <button type="button" class="dash-rapido-clear" id="dashRapidoClear" hidden
-          onclick="window.resetSaludFilters ? window.resetSaludFilters() : null">Ver todo</button>
-      </div>
-      <div class="dash-rapido-body">
-        <div class="dash-donut-wrap">
-          <svg class="dash-donut" id="dashDonut" width="168" height="168" viewBox="0 0 168 168" role="img" aria-label="Distribución de diagnósticos por semáforo MINSA">
-            <circle class="dash-donut-track" cx="84" cy="84" r="66"></circle>
-            <g id="dashDonutArcs"></g>
-          </svg>
-          <div class="dash-donut-center" aria-hidden="true">
-            <strong id="dashDonutPct">46%</strong>
-            <span id="dashDonutLabel">Normal</span>
-          </div>
-        </div>
-
-                <div class="dash-leyenda" id="dashLeyenda" role="group" aria-label="Filtrar la tabla por diagnóstico">
-          <button type="button" class="dash-leyenda-item" data-clase="Normal" style="--dash-seg:var(--gt-green);" aria-pressed="false" title="Filtrar la tabla por normal" onclick="window.dashboardFiltrar ? window.dashboardFiltrar('clase', 'Normal') : null"><span class="dash-leyenda-dot" aria-hidden="true"></span><span class="dash-leyenda-name">Normal <span class="dash-leyenda-rango">≥ 11.0</span></span><span class="dash-leyenda-count" id="dashCuentaNormal">6</span><span class="dash-leyenda-pct" id="dashPctNormal">46%</span></button>
-          <button type="button" class="dash-leyenda-item" data-clase="Leve" style="--dash-seg:var(--gt-yellow);" aria-pressed="false" title="Filtrar la tabla por leve" onclick="window.dashboardFiltrar ? window.dashboardFiltrar('clase', 'Leve') : null"><span class="dash-leyenda-dot" aria-hidden="true"></span><span class="dash-leyenda-name">Leve <span class="dash-leyenda-rango">10.0–10.9</span></span><span class="dash-leyenda-count" id="dashCuentaLeve">5</span><span class="dash-leyenda-pct" id="dashPctLeve">38%</span></button>
-          <button type="button" class="dash-leyenda-item" data-clase="Moderada" style="--dash-seg:linear-gradient(90deg, var(--gt-orange) 50%, var(--gt-red) 50%);" aria-pressed="false" title="Filtrar la tabla por moderada o severa" onclick="window.dashboardFiltrar ? window.dashboardFiltrar('clase', 'Moderada') : null"><span class="dash-leyenda-dot" aria-hidden="true"></span><span class="dash-leyenda-name">Moderada o severa <span class="dash-leyenda-rango">7.0–9.9</span></span><span class="dash-leyenda-count" id="dashCuentaModerada">2</span><span class="dash-leyenda-pct" id="dashPctModerada">15%</span></button>
-        </div>
-        <div class="dash-kpis">
-          <div class="dash-kpi dash-kpi--compact dash-kpi--static" id="dashKpiCartera" title="Usuarios del padrón de salud">
-            <span class="dash-kpi-label">Usuarios en cartera</span>
-            <strong class="dash-kpi-value" id="dashKpiCarteraVal">13</strong>
-            <span class="dash-kpi-note" id="dashKpiCarteraNote">13 con diagnóstico activo</span>
-          </div>
-          <button type="button" class="dash-kpi dash-kpi--compact" id="dashKpiAnemia" style="--dash-kpi-ring: var(--gt-yellow);" title="Filtrar la tabla: Hb menor a 11.0 g/dL" aria-pressed="false" onclick="window.dashboardFiltrar ? window.dashboardFiltrar('hb', 'anemia') : null">
-            <span class="dash-kpi-label">Con anemia</span>
-            <strong class="dash-kpi-value" id="dashKpiAnemiaVal">7</strong>
-            <span class="dash-kpi-note" id="dashKpiAnemiaNote">54% de los diagnosticados</span>
-          </button>
-          <div class="dash-kpi dash-kpi--compact dash-kpi--static" id="dashKpiHb" title="Promedio del valor de hemoglobina vigente del padrón">
-            <span class="dash-kpi-label">Hb promedio</span>
-            <strong class="dash-kpi-value is-leve" id="dashKpiHbVal">10.9</strong>
-            <span class="dash-kpi-note" id="dashKpiHbNote">g/dL · promedio de 13 con dato</span>
-          </div>
-          <div class="dash-kpi dash-kpi--compact dash-kpi--static" id="dashKpiMes" title="Dosajes de hemoglobina registrados en el mes en curso">
-            <span class="dash-kpi-label">Pruebas este mes</span>
-            <strong class="dash-kpi-value" id="dashKpiMesVal">38</strong>
-            <span class="dash-kpi-note" id="dashKpiMesNote">dosajes en Octubre</span>
-          </div>
-        </div>
-      </div>
-    </section>
 
     <!-- Selector de usuario para registrar un dosaje desde la cabecera -->
     <div class="modal-backdrop" id="modalElegirDosaje" inert aria-hidden="true"
       onclick="if (event.target === this && window.cerrarSelectorDosaje) window.cerrarSelectorDosaje()">
       <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="elegirDosajeTitulo"
+        data-lenis-prevent
         style="max-width: 560px; width: 92%; max-height: 85vh; overflow-y: auto;">
         <div class="modal-header">
           <div>
@@ -125,6 +74,28 @@ const OPCIONES_HB = [
         </div>
       </div>
     </div>
+
+    <!-- Cola de triaje: a quién atender primero -->
+    <section class="triaje" id="triajeAnemia" aria-labelledby="triajeTitulo">
+      <header class="triaje-head">
+        <div class="triaje-heading">
+          <h3 class="triaje-title" id="triajeTitulo">Seguimiento de anemia</h3>
+          <p class="triaje-state" id="triajeEstado">Leyendo el padrón…</p>
+        </div>
+        <a class="triaje-link" href="#cardSaludEvaluaciones">Ver todas las evaluaciones</a>
+      </header>
+      <div class="triaje-chips" role="group" aria-label="Filtrar la cola de seguimiento">
+        <button type="button" class="triaje-chip" data-filtro="todos" aria-pressed="true"
+          onclick="window.triajeFiltrar ? window.triajeFiltrar('todos') : null">Todos</button>
+        <button type="button" class="triaje-chip" data-filtro="prioridad" aria-pressed="false"
+          onclick="window.triajeFiltrar ? window.triajeFiltrar('prioridad') : null">Prioridad</button>
+        <button type="button" class="triaje-chip" data-filtro="leve" aria-pressed="false"
+          onclick="window.triajeFiltrar ? window.triajeFiltrar('leve') : null">Leve</button>
+        <button type="button" class="triaje-chip" data-filtro="normal" aria-pressed="false"
+          onclick="window.triajeFiltrar ? window.triajeFiltrar('normal') : null">Normal</button>
+      </div>
+      <ul class="triaje-lista" id="triajeLista" aria-live="polite"></ul>
+    </section>
 
     <!-- Tabla y Evaluaciones CRED en Tarjeta Unificada (Estandarizada con padron.astro) -->
     <div class="card" id="cardSaludEvaluaciones" style="margin-top: 18px;">
@@ -179,6 +150,7 @@ const OPCIONES_HB = [
                   labelTodos="Todas las Condiciones"
                   todosEtiqueta="Todas las Condiciones"
                   opciones={OPCIONES_ANEMIA}
+                  countPrefix="countFacetSaludAnemia"
                   onSelect="window.toggleSaludAnemia"
                   abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownSaludAnemia') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSaludAnemia') : null)"
                 />
@@ -192,6 +164,7 @@ const OPCIONES_HB = [
                   labelTodos="Todas las Sedes"
                   todosEtiqueta="Todas las Sedes"
                   opciones={OPCIONES_SEDE}
+                  countPrefix="countFacetSaludSede"
                   onSelect="window.toggleSaludSede"
                   abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownSaludSede') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSaludSede') : null)"
                 />
@@ -206,6 +179,7 @@ const OPCIONES_HB = [
                   todosEtiqueta="Todos los Niveles"
                   opciones={OPCIONES_HB}
                   tipo="single"
+                  countPrefix="countFacetSaludHb"
                   conEtiqueta={true}
                   onSelect="window.selectSaludHb"
                   abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownSaludHb') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSaludHb') : null)"
@@ -214,7 +188,7 @@ const OPCIONES_HB = [
       </div>
 
       <!-- Barra de Filtros Aplicados Salud -->
-      <div class="padron-active-chips-bar" id="saludActiveChipsBar" style="display: none;">
+      <div class="padron-active-chips-bar" id="saludActiveChipsBar">
         <span class="padron-active-chips-label">Filtros aplicados:</span>
         <div id="saludActiveChipsList" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
         </div>

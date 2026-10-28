@@ -189,42 +189,7 @@
       to { transform: translateY(0); opacity: 1; }
     }
 
-    /* Barra de Herramientas y Filtros para Auditoría (Buscador izquierda, Filtros derecha) */
-    .audit-toolbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 10px;
-    }
-
-    .audit-search-wrap {
-      position: relative;
-      display: flex;
-      align-items: center;
-      flex: 1;
-      max-width: 440px;
-    }
-
-    .audit-search-input {
-      width: 100%;
-      height: 38px;
-      padding: 0 36px 0 36px;
-      font-size: 13px;
-      background: var(--surface-1);
-      color: var(--text-main);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      outline: none;
-      transition: border-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth);
-      font-family: inherit;
-    }
-
-    .audit-search-input:focus {
-      border-color: var(--border-bright, var(--border-bright));
-      box-shadow: none;
-    /* Estilo para Facetas con conteo Cero (Deshabilitadas y en gris) */
-}
+    /* La barra y el buscador son compartidos: views-comun.css. */
 
     @media (max-width: 768px) {
       .audit-view-header {
@@ -317,27 +282,6 @@
       .audit-kpi-value {
         font-size: 13px !important;
       }
-      .audit-toolbar,
-      .sedes-controls-row {
-        position: relative !important;
-        overflow: visible !important;
-      }
-      .audit-search-wrap {
-        flex: 1 !important;
-        min-width: 0 !important;
-        max-width: none !important;
-      }
-      .audit-search-input {
-        height: 36px !important;
-        font-size: 12px !important;
-        padding-left: 32px !important;
-      }
-      .audit-search-icon {
-        left: 8px !important;
-        width: 15px !important;
-        height: 15px !important;
-
-}
 }
 
     /* Modal Detalle Forense / Diff */
@@ -372,368 +316,6 @@
           opacity: 0.35;
           transform: translate3d(0, 0, 0);
         }
-      }
-    }
-
-    /* === PANEL RAPIDO CRED · INSTRUMENT CLUSTER === */
-    .dash-rapido {
-      padding: 20px 22px;
-      box-shadow: var(--shadow-sm);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .dash-rapido-head {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 8px 18px;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
-    }
-
-    .dash-rapido-title {
-      margin: 0;
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: 0.06em;
-      color: var(--text-main);
-    }
-
-    .dash-rapido-hint {
-      margin: 0;
-      font-size: 11.5px;
-      color: var(--text-dim);
-    }
-
-    .dash-rapido-body {
-      display: grid;
-      grid-template-columns: 168px minmax(215px, 265px) minmax(0, 1fr);
-      gap: 24px;
-      align-items: center;
-    }
-
-    .dash-donut-wrap {
-      position: relative;
-      width: 168px;
-      height: 168px;
-      flex-shrink: 0;
-    }
-
-    .dash-donut {
-      display: block;
-      transform: rotate(-90deg); /* los arcos arrancan a las 12 en punto */
-    }
-
-    .dash-donut-track {
-      fill: none;
-      stroke: var(--surface-2);
-      stroke-width: 16;
-    }
-
-    .dash-arc {
-      fill: none;
-      stroke-width: 16;
-      cursor: pointer;
-      animation: dashArcIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) backwards;
-      animation-delay: var(--dash-arc-delay, 0ms);
-      transition: stroke-width var(--dur-fast) var(--ease-smooth);
-    }
-
-    .dash-arc:hover {
-      stroke-width: 21;
-    }
-
-    @keyframes dashArcIn {
-      from {
-        opacity: 0;
-        stroke-width: 7;
-      }
-      to {
-        opacity: 1;
-        stroke-width: 16;
-      }
-    }
-
-    .dash-donut-center {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 3px;
-      text-align: center;
-      pointer-events: none;
-    }
-
-    .dash-donut-center strong {
-      font-size: 34px;
-      font-weight: 800;
-      line-height: 1;
-      letter-spacing: -0.02em;
-      font-variant-numeric: tabular-nums;
-      color: var(--text-main);
-    }
-
-    .dash-donut-center span {
-      font-size: 10.5px;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--text-dim);
-    }
-
-    .dash-leyenda {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      min-width: 0;
-    }
-
-    .dash-leyenda-item {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      width: 100%;
-      padding: 7px 9px;
-      background: transparent;
-      border: 1px solid transparent;
-      border-radius: var(--radius-sm);
-      color: var(--text-main);
-      font-family: inherit;
-      font-size: 12px;
-      text-align: left;
-      cursor: pointer;
-      transition: background-color var(--dur-fast) var(--ease-smooth),
-        border-color var(--dur-fast) var(--ease-smooth);
-      animation: dashLegendIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
-      animation-delay: var(--dash-legend-delay, 0ms);
-    }
-
-    .dash-leyenda-item:hover {
-      background: var(--surface-hover);
-      border-color: var(--border-subtle);
-    }
-
-    .dash-leyenda-item[aria-pressed="true"] {
-      background: var(--surface-hover);
-      border-color: var(--dash-seg, var(--border-bright));
-    }
-
-    @keyframes dashLegendIn {
-      from {
-        opacity: 0;
-        transform: translateY(6px);
-      }
-      to {
-        opacity: 1;
-        transform: none;
-      }
-    }
-
-    .dash-leyenda-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 3px;
-      flex-shrink: 0;
-      background: var(--dash-seg, var(--text-dim));
-    }
-
-    .dash-leyenda-name {
-      flex: 1;
-      min-width: 0;
-      color: var(--text-main);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .dash-leyenda-rango {
-      font-size: 10.5px;
-      color: var(--text-dim);
-    }
-
-    .dash-leyenda-count {
-      font-size: 13px;
-      font-weight: 800;
-      font-variant-numeric: tabular-nums;
-      color: var(--text-main);
-    }
-
-    .dash-leyenda-pct {
-      width: 36px;
-      text-align: right;
-      font-size: 11px;
-      font-variant-numeric: tabular-nums;
-      color: var(--text-dim);
-    }
-
-    .dash-kpis {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      align-self: stretch;
-      min-width: 0;
-    }
-
-    .dash-kpi {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 5px;
-      min-width: 0;
-      padding: 8px 16px;
-      background: none;
-      border: none;
-      border-left: 1px solid var(--border-subtle);
-      color: var(--text-main);
-      font-family: inherit;
-      text-align: left;
-    }
-
-    button.dash-kpi {
-      cursor: pointer;
-      transition: background-color var(--dur-fast) var(--ease-smooth),
-        box-shadow var(--dur-fast) var(--ease-smooth);
-    }
-
-    button.dash-kpi:hover {
-      background: var(--surface-hover);
-    }
-
-    button.dash-kpi[aria-pressed="true"] {
-      background: var(--surface-hover);
-      box-shadow: inset 0 -2px 0 var(--dash-kpi-ring, var(--gt-green));
-    }
-
-    .dash-kpi--static {
-      cursor: default;
-    }
-
-    .dash-kpi-label {
-      font-size: 11px;
-      color: var(--text-dim);
-    }
-
-    .dash-kpi--compact .dash-kpi-value {
-      font-size: 30px;
-      font-weight: 800;
-      line-height: 1.05;
-      letter-spacing: -0.02em;
-      font-variant-numeric: tabular-nums;
-      color: var(--text-main);
-    }
-
-    /* El semáforo aplicado al texto: tonos profundos sobre superficie clara
-       (≥ 4.5:1) y los tokens vivos en oscuro. El valor de Hb se tiñe por
-       clase, nunca por estilo en línea, para que el tema mande. */
-    .dash-kpi-value.is-normal {
-      color: var(--text-brand);
-    }
-
-    .dash-kpi-value.is-leve {
-      color: var(--text-warning);
-    }
-
-    .dash-kpi-value.is-alerta {
-      color: var(--text-danger);
-    }
-
-    [data-theme="dark"] .dash-kpi-value.is-normal {
-      color: var(--gt-green);
-    }
-
-    [data-theme="dark"] .dash-kpi-value.is-leve {
-      color: var(--gt-yellow);
-    }
-
-    [data-theme="dark"] .dash-kpi-value.is-alerta {
-      color: var(--gt-red);
-    }
-
-    .dash-kpi-note {
-      font-size: 10.5px;
-      line-height: 1.35;
-      color: var(--text-dim);
-    }
-
-    .dash-rapido :focus-visible {
-      outline: 2px solid var(--gt-blue);
-      outline-offset: 2px;
-    }
-
-    .dash-rapido ::selection {
-      background: rgba(var(--brand-rgb), 0.25);
-      color: var(--text-main);
-    }
-
-    @media (max-width: 1100px) {
-      .dash-rapido-body {
-        grid-template-columns: 168px minmax(150px, 1fr);
-        grid-template-areas:
-          "donut leyenda"
-          "kpis kpis";
-        gap: 16px 22px;
-      }
-      .dash-donut-wrap {
-        grid-area: donut;
-      }
-      .dash-leyenda {
-        grid-area: leyenda;
-      }
-      .dash-kpis {
-        grid-area: kpis;
-        border-top: 1px solid var(--border-subtle);
-        padding-top: 12px;
-      }
-      .dash-kpi:first-child {
-        border-left: none;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .dash-arc,
-      .dash-leyenda-item {
-        animation: none;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .dash-rapido {
-        padding: 16px 14px;
-      }
-      .dash-rapido-body {
-        grid-template-columns: 1fr;
-        grid-template-areas: "donut" "leyenda" "kpis";
-        justify-items: center;
-        gap: 16px;
-      }
-      .dash-leyenda {
-        width: 100%;
-      }
-      .dash-kpis {
-        width: 100%;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        align-self: auto;
-        border-top: none;
-        padding-top: 0;
-      }
-      .dash-kpi {
-        border-left: none;
-        border-top: 1px solid var(--border-subtle);
-        padding: 10px 12px;
-      }
-      .dash-kpi:nth-child(even) {
-        border-left: 1px solid var(--border-subtle);
-      }
-      .dash-kpi--compact .dash-kpi-value {
-        font-size: 26px;
-      }
-      .dash-donut-center strong {
-        font-size: 30px;
-      }
-      .dash-charts-grid {
-        grid-template-columns: 1fr !important;
-        gap: 14px !important;
       }
     }
 
@@ -921,277 +503,6 @@
    ESTILOS: CROQUIS Y MAPA GOOGLE EMBED
    ========================================== */
 
-/* ---------------------------------------------------------------------------
-   PANEL RÁPIDO CRED — sistema tipográfico editorial
-   Nombres en peso 600, cifras en peso 300 y versalitas para las etiquetas.
-   El marcado de arcos y leyenda lo inyecta SaludCredView: aquí solo se ajusta
-   la letra de esas clases.
-   --------------------------------------------------------------------------- */
-.dash-rapido .dash-rapido-title {
-  font-size: 14px;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  color: var(--text-main);
-}
-
-.dash-rapido .dash-rapido-hint {
-  font-size: 12.5px;
-  font-weight: 400;
-  color: var(--text-dim);
-}
-
-.dash-rapido .dash-donut-center strong {
-  font-size: 40px;
-  font-weight: 500;
-  line-height: 1;
-  letter-spacing: -0.035em;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-main);
-}
-
-.dash-rapido .dash-donut-center span {
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  color: var(--text-dim);
-}
-
-.dash-rapido .dash-leyenda {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
-}
-
-.dash-rapido .dash-leyenda-item {
-  display: grid;
-  grid-template-columns: 6px minmax(0, 1fr) auto auto;
-  align-items: baseline;
-  column-gap: 10px;
-  width: 100%;
-  padding: 5px 2px;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  text-align: left;
-  font: inherit;
-  cursor: pointer;
-}
-
-.dash-rapido .dash-leyenda-item:hover {
-  background: var(--surface-2);
-}
-
-.dash-rapido .dash-leyenda-item[aria-pressed="true"] {
-  background: var(--surface-hover);
-}
-
-.dash-rapido .dash-leyenda-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--dash-seg);
-}
-
-.dash-rapido .dash-leyenda-name {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-.dash-rapido .dash-leyenda-rango {
-  margin-left: 5px;
-  font-size: 9.5px;
-  font-weight: 500;
-  color: var(--text-dim);
-}
-
-.dash-rapido .dash-leyenda-count {
-  font-size: 10px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-dim);
-}
-
-.dash-rapido .dash-leyenda-pct {
-  font-size: 26px;
-  font-weight: 300;
-  line-height: 1;
-  letter-spacing: -0.04em;
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum" 1;
-  color: var(--text-main);
-}
-
-.dash-rapido .dash-kpis {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-}
-
-.dash-rapido .dash-kpi-label {
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-}
-
-.dash-rapido .dash-kpi-value {
-  font-size: 30px;
-  font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-main);
-}
-
-.dash-rapido .dash-kpi-value.is-leve {
-  color: var(--text-warning);
-}
-
-.dash-rapido .dash-kpi-value.is-normal {
-  color: var(--text-brand);
-}
-
-.dash-rapido .dash-kpi-value.is-alerta {
-  color: var(--text-danger);
-}
-
-.dash-rapido .dash-kpi-value.is-moderada {
-  color: var(--gt-orange);
-}
-
-.dash-rapido .dash-kpi-note {
-  font-size: 12.5px;
-  font-weight: 400;
-  color: var(--text-dim);
-}
-
-/* ---------------------------------------------------------------------------
-   LEYENDA DEL SEMÁFORO CRED — el diagnóstico manda
-   Nombre en 13px/800 y porcentaje en 14px/700 como dato de apoyo; el conteo
-   queda en una segunda línea bajo el nombre. El marcado lo inyecta
-   SaludCredView sobre #dashLeyenda.
-   --------------------------------------------------------------------------- */
-.dash-rapido #dashLeyenda {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.dash-rapido #dashLeyenda .dash-leyenda-item {
-  display: grid;
-  grid-template-columns: 8px minmax(0, 1fr) auto;
-  grid-template-areas:
-    "dot name pct"
-    "dot count pct";
-  align-items: baseline;
-  column-gap: 9px;
-  width: 100%;
-  padding: 4px 2px;
-  border: 0;
-  border-radius: 4px;
-  background: transparent;
-  text-align: left;
-  font: inherit;
-  cursor: pointer;
-}
-
-.dash-rapido #dashLeyenda .dash-leyenda-item:hover {
-  background: var(--surface-2);
-}
-
-.dash-rapido #dashLeyenda .dash-leyenda-dot {
-  grid-area: dot;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--dash-seg);
-}
-
-.dash-rapido #dashLeyenda .dash-leyenda-name {
-  grid-area: name;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-main);
-}
-
-.dash-rapido #dashLeyenda .dash-leyenda-rango {
-  margin-left: 5px;
-  font-size: 9.5px;
-  font-weight: 600;
-  color: var(--text-dim);
-}
-
-.dash-rapido #dashLeyenda .dash-leyenda-count {
-  grid-area: count;
-  font-size: 9.5px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-dim);
-}
-
-.dash-rapido #dashLeyenda .dash-leyenda-pct {
-  grid-area: pct;
-  min-width: 48px;
-  text-align: right;
-  font-size: 26px;
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: -0.035em;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-muted);
-}
-
-/* ---------------------------------------------------------------------------
-   PANEL RÁPIDO CRED — estado del filtro, arcos interactivos y selector de dosaje
-   --------------------------------------------------------------------------- */
-.dash-rapido-statusbar {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-top: -4px;
-}
-
-.dash-rapido-state {
-  margin: 0;
-  font-size: 11.5px;
-  font-weight: 500;
-  color: var(--text-dim);
-  font-variant-numeric: tabular-nums;
-  border-radius: 4px;
-}
-
-.dash-rapido-state:focus-visible {
-  outline: 2px solid var(--border-focus);
-  outline-offset: 2px;
-}
-
-.dash-rapido-clear {
-  border: 0;
-  background: none;
-  padding: 0;
-  font: inherit;
-  font-size: 11.5px;
-  font-weight: 700;
-  color: var(--text-brand);
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.dash-rapido-clear:hover {
-  color: var(--brand-hover);
-}
-
-.dash-arc:focus-visible {
-  outline: 2px solid var(--border-focus);
-  outline-offset: 3px;
-}
-
 .elegir-dosaje-lista {
   display: flex;
   flex-direction: column;
@@ -1248,9 +559,311 @@
   color: var(--text-dim);
 }
 
-/* Piso de legibilidad: el rango sube a 10.5; el resto sigue la escala del
-   contrato (Label 11, Caption 12.5). */
-.dash-rapido .dash-leyenda-rango,
-.dash-rapido #dashLeyenda .dash-leyenda-rango {
-  font-size: 10.5px;
+/* ===========================================================================
+   TRIAJE DE ANEMIA — la cola de a quién atender primero
+   Sin tarjetas: una sección sobre el canvas, con la lista como héroe. El
+   contenedor decide su forma; la fila se apila antes de 560 px.
+   =========================================================================== */
+.triaje {
+  container: triaje / inline-size;
+  margin-top: 24px;
+  padding-block: 24px 8px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.triaje-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px 24px;
+  flex-wrap: wrap;
+}
+
+.triaje-title {
+  margin: 0;
+  font-size: clamp(1.375rem, 1.1rem + 0.8vw, 1.75rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  color: var(--text-main);
+}
+
+.triaje-state {
+  margin: 4px 0 0;
+  font-size: clamp(0.8125rem, 0.78rem + 0.15vw, 0.875rem);
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.triaje-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-brand);
+  text-decoration: none;
+}
+
+.triaje-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.triaje-link:focus-visible {
+  outline: 2px solid var(--gt-blue);
+  outline-offset: 2px;
+}
+
+.triaje-chips {
+  display: flex;
+  gap: 8px;
+  margin-block: 14px 6px;
+  padding-block: 2px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+
+.triaje-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.triaje-chip {
+  flex: none;
+  min-height: 44px;
+  padding-inline: 14px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  white-space: nowrap;
+  cursor: pointer;
+  scroll-snap-align: start;
+  transition: background-color 160ms var(--ease-smooth),
+    border-color 160ms var(--ease-smooth),
+    color 160ms var(--ease-smooth);
+}
+
+.triaje-chip[aria-pressed="true"] {
+  background: var(--text-main);
+  border-color: var(--text-main);
+  color: var(--surface-1);
+}
+
+.triaje-chip:focus-visible {
+  outline: 2px solid var(--gt-blue);
+  outline-offset: 2px;
+}
+
+.triaje-lista {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.triaje-fila {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "name state"
+    "meta meta"
+    "hb action";
+  gap: 6px 12px;
+  align-items: center;
+  padding-block: 14px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.triaje-name {
+  grid-area: name;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.triaje-nombre {
+  min-width: 0;
+  font-size: clamp(0.9375rem, 0.9rem + 0.2vw, 1rem);
+  font-weight: 600;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.triaje-edad {
+  flex: none;
+  font-size: 12px;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.triaje-meta {
+  grid-area: meta;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.triaje-sede,
+.triaje-dias {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.triaje-hb {
+  grid-area: hb;
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.triaje-hb strong {
+  font-size: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--text-main);
+}
+
+.triaje-unit {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.triaje-track {
+  display: none;
+}
+
+.triaje-banda {
+  grid-area: state;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.triaje-dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--dot, var(--text-main));
+}
+
+.triaje-action {
+  grid-area: action;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.triaje-action:hover {
+  border-color: var(--border-bright);
+  color: var(--text-main);
+}
+
+.triaje-action:focus-visible {
+  outline: 2px solid var(--gt-blue);
+  outline-offset: 2px;
+}
+
+.triaje-vacio {
+  padding-block: 24px;
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+.triaje-fila[data-banda="normal"] { --dot: var(--gt-green); }
+.triaje-fila[data-banda="leve"] { --dot: var(--gt-yellow); }
+.triaje-fila[data-banda="moderada"],
+.triaje-fila[data-banda="severa"] { --dot: var(--gt-red); }
+
+@container triaje (min-width: 560px) {
+  .triaje-fila {
+    grid-template-columns: minmax(0, 1.6fr) 84px minmax(120px, 1fr) auto 44px;
+    grid-template-areas: "name hb meta state action";
+    gap: 12px;
+    padding-block: 12px;
+  }
+
+  .triaje-track {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 1px;
+    margin-inline-start: 4px;
+    background: var(--border-medium);
+  }
+
+  .triaje-track .triaje-mark {
+    position: absolute;
+    top: 50%;
+    left: var(--pos, 50%);
+    width: 6px;
+    height: 6px;
+    border: 1.5px solid var(--surface-1);
+    border-radius: 50%;
+    background: var(--dot, var(--text-main));
+    transform: translate(-50%, -50%);
+  }
+}
+
+.triaje-fila:last-child {
+  border-bottom: 0;
+}
+
+/* ===========================================================================
+   VIEW TRANSITIONS · identidad de lista en el triaje
+   Cada fila conserva su view-transition-name entre filtros: la API nativa la
+   desplaza a su nueva posición y funde las que entran o salen.
+   =========================================================================== */
+#triajeEstado {
+  view-transition-name: triaje-estado;
+}
+
+::view-transition-group(*) {
+  animation-duration: 260ms;
+  animation-timing-function: var(--ease-spring, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: 180ms;
+  animation-timing-function: var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
 }
