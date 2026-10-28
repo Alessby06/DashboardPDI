@@ -689,7 +689,7 @@
 
     .social-stat-val {
       font-size: 20px;
-      font-weight: 800;
+      font-weight: var(--peso-cifra);
       color: var(--text-main);
     }
 
@@ -1592,7 +1592,7 @@
 
 .socio-score-badge {
   font-size: 13px;
-  font-weight: 800;
+  font-weight: var(--peso-cifra);
   font-family: var(--mono-font);
   color: var(--text-brand);
   background: rgba(var(--brand-rgb), 0.12);
@@ -1692,7 +1692,7 @@
 
 .socio-total-score {
   font-size: 26px;
-  font-weight: 800;
+  font-weight: var(--peso-cifra);
   font-family: var(--mono-font);
   color: var(--text-main);
 }

@@ -516,7 +516,7 @@
 
     .audit-kpi-value {
       font-size: 14.5px;
-      font-weight: 800;
+      font-weight: var(--peso-cifra);
       color: var(--text-main);
       font-family: var(--mono-font);
     }

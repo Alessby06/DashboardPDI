@@ -707,13 +707,13 @@
 .vol-reparto-total {
   margin: 0;
   font-size: 12.5px;
-  font-weight: 600;
+  font-weight: var(--peso-cifra);
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
 }
 
 .vol-reparto-total span {
-  font-weight: 800;
+  font-weight: var(--peso-cifra);
   color: var(--text-main);
 }
 
@@ -800,7 +800,7 @@
 
 .vol-reparto-count strong {
   font-size: 13.5px;
-  font-weight: 800;
+  font-weight: var(--peso-cifra);
   color: var(--text-main);
   font-variant-numeric: tabular-nums;
 }
@@ -890,12 +890,12 @@
 
 .vol-reparto-count {
   font-size: 12.5px;
-  font-weight: 600;
+  font-weight: var(--peso-cifra);
   color: var(--text-muted);
 }
 
 .vol-reparto-count strong {
-  font-weight: 800;
+  font-weight: var(--peso-cifra);
   color: var(--text-main);
 }
 

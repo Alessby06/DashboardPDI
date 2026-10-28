@@ -21,6 +21,11 @@
       --sheet-veil-margen: rgba(15, 23, 42, 0.74);
       --sheet-veil-borde: rgba(15, 23, 42, 0.38);
       --sheet-veil-marca: rgba(0, 180, 148, 0.09);
+      /* Peso canonico de las cifras, tomado de .dash-kpi-value (30/385): el
+         trazo fino separa la cifra del rotulo sin competir con el. Las
+         unidades y signos que acompanan a la cifra bajan a 300. */
+      --peso-cifra: 385;
+      --peso-cifra-aux: 300;
     }
 
     [data-theme="dark"] {

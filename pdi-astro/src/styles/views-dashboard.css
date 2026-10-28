@@ -413,7 +413,7 @@
 
 .sedes-metric-num {
   font-size: clamp(16.5px, 4.5vw, 26px);
-  font-weight: 800;
+  font-weight: var(--peso-cifra);
   color: var(--text-main);
   line-height: 1.12;
   white-space: nowrap;
@@ -753,7 +753,7 @@
 .dash-anemia-tcount {
   width: 56px;
   font-size: 24px;
-  font-weight: 600;
+  font-weight: var(--peso-cifra);
   color: var(--text-main);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.03em;
@@ -806,7 +806,7 @@
   width: 52px;
   text-align: right;
   font-size: 12.5px;
-  font-weight: 700;
+  font-weight: var(--peso-cifra);
   color: var(--text-dim);
   font-variant-numeric: tabular-nums;
 }
@@ -923,7 +923,7 @@
 }
 .dash-anemia-metric .dash-anemia-pct {
   font-variant-numeric: tabular-nums;
-  font-weight: 800;
+  font-weight: var(--peso-cifra);
   font-size: 24px;
   color: var(--text-main);
 }
@@ -978,7 +978,7 @@
 .dash-anemia-tcount {
   width: 48px;
   font-variant-numeric: tabular-nums;
-  font-weight: 700;
+  font-weight: var(--peso-cifra);
   color: var(--text-dim);
   font-size: 13px;
 }
@@ -1013,7 +1013,7 @@
 .dash-anemia-tpct {
   width: 52px;
   font-variant-numeric: tabular-nums;
-  font-weight: 700;
+  font-weight: var(--peso-cifra);
   color: var(--text-main);
   text-align: right;
   font-size: 13px;
@@ -1171,7 +1171,7 @@
 
 .dash-territory-metric strong {
   font-size: 13.5px;
-  font-weight: 600;
+  font-weight: var(--peso-cifra);
   color: var(--text-main);
   font-variant-numeric: tabular-nums;
 }
@@ -1179,7 +1179,7 @@
 .dash-territory-pct {
   font-size: 12px;
   color: var(--text-dim);
-  font-weight: 600;
+  font-weight: var(--peso-cifra);
   font-variant-numeric: tabular-nums;
 }
 
@@ -1292,7 +1292,7 @@
 .dash-territory-pct {
   order: 1;
   font-size: 20px;
-  font-weight: 600;
+  font-weight: var(--peso-cifra);
   color: var(--text-main);
   letter-spacing: -0.02em;
 }
@@ -1367,7 +1367,7 @@
 .dash-territory-list--hierarchy .dash-territory-metric { grid-column: 2; align-items: baseline; }
 .dash-territory-list--hierarchy .dash-territory-pct {
   font-size: 28px;
-  font-weight: 800;
+  font-weight: var(--peso-cifra);
   color: var(--gt-green);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
@@ -1993,7 +1993,7 @@
 
 .dash-anemia-row-count {
   font-size: 26px;
-  font-weight: 800;
+  font-weight: var(--peso-cifra);
   line-height: 1.1;
   letter-spacing: -0.02em;
   text-align: center;
@@ -2030,7 +2030,7 @@
 .dash-anemia-row-pct {
   margin-left: auto;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: var(--peso-cifra);
   color: var(--text-dim);
   font-variant-numeric: tabular-nums;
 }
@@ -2089,7 +2089,7 @@
 .dash-territory-list--hierarchy .dash-territory-share-pct {
   display: block;
   font-size: 30px;
-  font-weight: 700;
+  font-weight: var(--peso-cifra);
   line-height: 1;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
@@ -2282,32 +2282,93 @@
 }
 
 .dash-kpi-value {
-  margin-bottom: 10px;
-  font-size: 40px;
-  font-weight: 500;
-  line-height: 1;
+  margin-bottom: 8px;
+  font-size: 30px;
+  font-weight: var(--peso-cifra);
+  line-height: 1.05;
   letter-spacing: -0.035em;
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
   color: var(--text-main);
 }
 
+/* La cifra y su unidad no comparten peso: la barra de fracción y el signo de
+   porcentaje quedan en 300 al 60 %, así "13/13" se lee como una cifra con
+   acompañamiento y no como una cadena de texto. */
+.dash-kpi-value .odometer-glyph {
+  font-weight: var(--peso-cifra-aux);
+  opacity: 0.6;
+}
+
 .dash-kpi-context {
-  font-size: 12.5px;
+  font-size: 11.5px;
   font-weight: 500;
-  line-height: 1.5;
+  line-height: 1.4;
   color: var(--text-muted);
 }
 
 .dash-kpi-plate.is-alert {
-  background: rgba(239, 68, 68, 0.05);
-  border-color: rgba(239, 68, 68, 0.26);
+  /* Tinte opaco sobre la superficie de la placa: al mezclar sobre el lienzo,
+     el rojo de texto bajaba a 4,19:1 en claro. Sobre superficie queda en AA. */
+  background: color-mix(in srgb, var(--gt-red) 5%, var(--surface-1));
+  border-color: color-mix(in srgb, var(--gt-red) 26%, var(--surface-1));
 }
 
 .dash-kpi-plate.is-alert .dash-kpi-label,
 .dash-kpi-plate.is-alert .dash-kpi-context,
 .dash-kpi-plate.is-alert .dash-kpi-value {
   color: var(--text-danger);
+}
+
+/* En Android el 2x2 se lee como una sola retícula. El rótulo reserva dos
+   líneas para que las cuatro cifras caigan en la misma línea base, y el
+   contexto se ancla al pie: las placas dejan de parecer cuatro cajas sueltas.
+   El relleno baja de 20 a 14 px para que "13/13" respire a 360 dp. */
+@media (max-width: 640px) {
+  .dash-kpi-strip {
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .dash-kpi-plate {
+    padding: 14px 14px 15px;
+  }
+
+  .dash-kpi-label {
+    min-height: 2.6em;
+    margin-bottom: 10px;
+    font-size: 10.5px;
+    line-height: 1.3;
+    letter-spacing: 0.075em;
+    text-wrap: balance;
+  }
+
+  .dash-kpi-value {
+    margin-bottom: 8px;
+  }
+
+  /* La barra de fracción y el signo de porcentaje acompañan a la cifra:
+     se atenúan sin cambiar de tamaño para no romper la línea base. */
+  .dash-kpi-value .odometer-glyph {
+    opacity: 0.55;
+  }
+
+  .dash-kpi-context {
+    margin-top: auto;
+    min-height: 2.9em;
+    font-size: 11.5px;
+    line-height: 1.45;
+    text-wrap: balance;
+  }
+}
+
+/* 320 dp: "13/13" a 40 px no cabe entre los rellenos. Se usa la variante
+   compacta declarada del sistema (Metric Compact, 30/385), no un tamaño suelto. */
+@media (max-width: 340px) {
+  .dash-kpi-value {
+    font-size: 30px;
+    font-weight: var(--peso-cifra);
+  }
 }
 
 /* ===========================================================================
@@ -2389,7 +2450,7 @@
   display: block;
   text-align: right;
   font-size: 20px;
-  font-weight: 700;
+  font-weight: var(--peso-cifra);
   line-height: 1;
   letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
@@ -2496,7 +2557,7 @@
 
 .dash-coverage-panel .dash-territory-share-pct {
   font-size: 26px;
-  font-weight: 700;
+  font-weight: var(--peso-cifra);
   line-height: 1;
   letter-spacing: -0.035em;
   font-variant-numeric: tabular-nums;

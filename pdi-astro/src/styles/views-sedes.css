@@ -460,7 +460,7 @@
 
 .sedes-master-count {
   font-size: 11.5px;
-  font-weight: 600;
+  font-weight: var(--peso-cifra);
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
 }
@@ -1030,7 +1030,7 @@
 }
 
 .sede-aforo-count {
-  font-weight: 600;
+  font-weight: var(--peso-cifra);
   color: var(--text-main);
   display: inline-flex;
   align-items: baseline;
@@ -1039,7 +1039,7 @@
 
 .sede-aforo-count strong {
   font-size: 14px;
-  font-weight: 700;
+  font-weight: var(--peso-cifra);
   color: var(--text-main);
   line-height: 1;
 }
