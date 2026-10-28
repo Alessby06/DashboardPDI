@@ -451,6 +451,14 @@
       }
     }
 
+    /* Escritorio estrecho: pistas fijas iguales y scroll horizontal del
+       tablero. Con 1fr bajar├¡an de 230 px y las tarjetas se aplastar├¡an. */
+    @media (min-width: 769px) and (max-width: 1100px) {
+      .kanban-board {
+        grid-template-columns: repeat(4, 280px);
+      }
+    }
+
     /* ---------------------------------------------------------------------
        ESTADO VACIO DE FASE
        Sin casos, la columna explica que esta vacia y como llenarla. El bloque
