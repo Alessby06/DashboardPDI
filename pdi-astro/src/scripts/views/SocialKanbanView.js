@@ -197,6 +197,46 @@ export const SocialKanbanView = {
     `;
   },
 
+  /**
+   * Garantiza cuatro pistas iguales en escritorio midiendo el tablero real.
+   * Es un cinturon sobre la regla CSS: si una hoja cacheada, una extension o
+   * cualquier override deja el grid descentrado, aqui se fija en linea con el
+   * ancho exacto de cada pista. En movil retira el override.
+   */
+  _igualarCarriles() {
+    const board = document.getElementById("kanbanCasosSociales");
+    if (!board) return;
+    const escritorio = typeof window !== "undefined"
+      && window.matchMedia
+      && window.matchMedia("(min-width: 769px)").matches;
+
+    if (!escritorio) {
+      board.style.removeProperty("grid-template-columns");
+      board.style.removeProperty("display");
+      board.style.removeProperty("align-items");
+      return;
+    }
+
+    const estilo = getComputedStyle(board);
+    const relleno = parseFloat(estilo.paddingLeft) + parseFloat(estilo.paddingRight);
+    const hueco = parseFloat(estilo.columnGap) || 18;
+    const disponible = board.getBoundingClientRect().width - relleno - hueco * 3;
+    // Mismo umbral que la hoja: por debajo de 4x280 el tablero conserva 280
+    // por pista y desplaza en horizontal, en vez de aplastar las tarjetas.
+    const anchoPista = disponible >= 1120 ? disponible / 4 : 280;
+    if (!(anchoPista > 0)) return;
+
+    board.style.display = "grid";
+    board.style.alignItems = "stretch";
+    board.style.gridTemplateColumns = `repeat(4, ${anchoPista}px)`;
+  },
+
+  /** Anchos reales de las cuatro columnas; util para comprobar el layout. */
+  medirCarriles() {
+    return Array.from(document.querySelectorAll(".kanban-col"))
+      .map((col) => Math.round(col.getBoundingClientRect().width));
+  },
+
   renderKanban(casos, forzarAnimacion = false) {
     // Un re-render a mitad del arrastre arrancaria el nodo de debajo del dedo.
     // Se difiere: el gesto termina y entonces se repinta con los datos frescos.
@@ -433,6 +473,17 @@ export const SocialKanbanView = {
     // filterByUrgencia(), filterBySede() y clearFilters() terminan todos aqui,
     // y en cuanto cambian un filtro lo unico que hacen falta es repintar.
     this._persistirFiltros({ q: this._searchQuery });
+
+    // Cinturon de layout: cuatro pistas identicas y re-medicion al redimensionar.
+    this._igualarCarriles();
+    if (!this._resizeCarriles) {
+      this._resizeCarriles = true;
+      let cuadro = 0;
+      window.addEventListener("resize", () => {
+        cancelAnimationFrame(cuadro);
+        cuadro = requestAnimationFrame(() => this._igualarCarriles());
+      });
+    }
   },
 
   handleSearch(query) {
