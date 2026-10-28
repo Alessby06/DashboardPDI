@@ -436,9 +436,15 @@
         padding-right: 0;
       }
 
-      /* La pastilla no se pega al borde del carril ni al divisor. */
+      /* La pastilla no se pega al borde del carril ni al divisor: va junto al
+         titulo, se lee como "fase ┬À 7" y no como un numero huerfano. */
+      .kanban-col-header {
+        justify-content: flex-start;
+        gap: 10px;
+      }
+
       .kanban-count-pill {
-        margin-inline-end: 8px;
+        margin-inline-end: 0;
       }
     }
 
