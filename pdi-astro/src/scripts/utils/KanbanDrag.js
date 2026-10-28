@@ -5,25 +5,30 @@
 //    debajo de ese umbral sigue siendo un clic que abre la ficha.
 //  - Solo se engancha con puntero fino y viewport >= 769 px. En movil el
 //    gesto nativo es el scroll y las acciones viven en los botones.
-//  - Solo se puede soltar en la fase anterior o siguiente (lo mismo que
-//    ofrecen los botones de la tarjeta) y nunca si hay una solicitud de
-//    cambio pendiente (data-bloqueada="1").
-//  - Al soltar se llama exactamente a SocialController.moverCaso(), el mismo
-//    camino que el boton: Coordinacion mueve y re-renderiza; el rol social
-//    abre el modal de solicitud. La vista nunca escribe la etapa por su cuenta.
+//  - Al levantar la tarjeta sale del flujo: los casos de su columna suben y
+//    ocupan su hueco. Al entrar en un carril valido se abre un hueco del mismo
+//    alto en el punto donde caeria, y los casos de ese carril bajan. Si el
+//    puntero vuelve al carril de origen, el hueco viaja con el.
+//  - Solo vale el carril de origen (volver) o una fase contigua. Nunca si la
+//    tarjeta tiene una solicitud de cambio pendiente (data-bloqueada="1").
+//  - Al soltar en otra fase se llama exactamente a SocialController.moverCaso(),
+//    el mismo camino que el boton: Coordinacion mueve y re-renderiza; el rol
+//    social abre el modal de solicitud. La vista nunca escribe la etapa.
 //
 // Coreografia sin desfases:
-//  - Un unico bucle rAF mueve el ghost y decide el carril bajo el puntero.
-//  - Antes de delegar la accion se limpia todo (ghost, clases, listeners).
-//  - El re-render que hace el controlador se aprovecha para un FLIP: la
-//    tarjeta nueva nace en la posicion del drop y viaja a su hueco final con
-//    Web Animations. Se cancelan animaciones previas del nodo para que no se
-//    sumen. Con prefers-reduced-motion no hay FLIP ni sacudida.
+//  - Un unico bucle rAF mueve el ghost, decide el carril y coloca el hueco.
+//  - Cada vez que el hueco cambia de sitio se hace FLIP sobre las tarjetas
+//    afectadas y se cancelan sus animaciones anteriores: una sola animacion
+//    por nodo y ninguna capa acumulada.
+//  - Al soltar se limpia todo antes de delegar en el controlador; el render
+//    que este hace se aprovecha para un FLIP desde el punto del drop.
+//  - Con prefers-reduced-motion no hay reflujo ni FLIP, solo el cambio final.
 
 const ETAPAS = ["pendiente", "evaluacion", "canalizado", "cerrado"];
 const UMBRAL_ARRASTRE = 6;
 const UMBRAL_AUTOSCROLL = 64;
 const VELOCIDAD_AUTOSCROLL = 14;
+const DURACION_REFLUJO = 190;
 
 const menosMovimiento = () =>
   typeof window !== "undefined" &&
@@ -42,6 +47,10 @@ let gesto = null;
 let ghost = null;
 let tarjeta = null;
 let tablero = null;
+let slot = null;
+let slotCarril = null;
+let slotIndice = -1;
+let cardAlto = 0;
 let destinoActual = null;
 let raf = 0;
 let xPunta = 0;
@@ -55,10 +64,91 @@ function avisar(mensaje) {
   }
 }
 
-function limpiarCarril() {
-  document.querySelectorAll(".kanban-col.is-drop-target, .kanban-col.is-drop-invalida")
+function limpiarSeleccion() {
+  try {
+    const seleccion = window.getSelection && window.getSelection();
+    if (seleccion && seleccion.rangeCount) seleccion.removeAllRanges();
+  } catch { /* sin seleccion activa */ }
+}
+
+function limpiarCarriles() {
+  document
+    .querySelectorAll(".kanban-col.is-drop-target, .kanban-col.is-drop-invalida")
     .forEach((col) => col.classList.remove("is-drop-target", "is-drop-invalida"));
   destinoActual = null;
+}
+
+function tarjetasVisibles() {
+  return Array.from(document.querySelectorAll(".kanban-col-body > .kanban-card")).filter(
+    (card) => card !== tarjeta && card.offsetParent !== null,
+  );
+}
+
+/** Instantanea de posiciones para el FLIP del reflujo. */
+function congelarPosiciones() {
+  const posiciones = new Map();
+  for (const card of tarjetasVisibles()) {
+    posiciones.set(card, card.getBoundingClientRect());
+  }
+  return posiciones;
+}
+
+/** Anima cada tarjeta desde su posicion anterior a la actual. */
+function animarReflujo(posiciones) {
+  if (menosMovimiento()) return;
+  for (const [card, antes] of posiciones) {
+    if (!card.isConnected) continue;
+    card.getAnimations().forEach((animacion) => animacion.cancel());
+    const ahora = card.getBoundingClientRect();
+    const dx = antes.left - ahora.left;
+    const dy = antes.top - ahora.top;
+    if (!dx && !dy) continue;
+    card.animate(
+      [{ transform: `translate(${dx}px, ${dy}px)` }, { transform: "translate(0, 0)" }],
+      { duration: DURACION_REFLUJO, easing: "cubic-bezier(0.23, 1, 0.32, 1)" },
+    );
+  }
+}
+
+function quitarSlot() {
+  if (!slot || !slot.isConnected) {
+    slotCarril = null;
+    slotIndice = -1;
+    return;
+  }
+  const posiciones = congelarPosiciones();
+  slot.remove();
+  slotCarril = null;
+  slotIndice = -1;
+  animarReflujo(posiciones);
+}
+
+function indiceDeInsercion(cuerpo) {
+  const tarjetas = Array.from(cuerpo.children).filter(
+    (nodo) => nodo.classList.contains("kanban-card") && nodo !== tarjeta,
+  );
+  for (let i = 0; i < tarjetas.length; i += 1) {
+    const rect = tarjetas[i].getBoundingClientRect();
+    if (yPunta < rect.top + rect.height / 2) return i;
+  }
+  return tarjetas.length;
+}
+
+function colocarSlot(carril) {
+  const cuerpo = carril.querySelector(".kanban-col-body");
+  if (!cuerpo) return;
+
+  const indice = indiceDeInsercion(cuerpo);
+  if (slotCarril === carril && slotIndice === indice && slot && slot.isConnected) return;
+
+  const posiciones = congelarPosiciones();
+  const tarjetas = Array.from(cuerpo.children).filter(
+    (nodo) => nodo.classList.contains("kanban-card") && nodo !== tarjeta,
+  );
+  cuerpo.insertBefore(slot, tarjetas[indice] || null);
+  slotCarril = carril;
+  slotIndice = indice;
+  animarReflujo(posiciones);
 }
 
 function soltarListenersDeGesto() {
@@ -70,29 +160,41 @@ function soltarListenersDeGesto() {
   document.removeEventListener("visibilitychange", alCambiarVisibilidad);
 }
 
-function terminarGesto() {
+function terminarGesto({ conservarTarjetaOculta = false } = {}) {
   cancelAnimationFrame(raf);
   raf = 0;
-  limpiarCarril();
+  quitarSlot();
+  limpiarCarriles();
   soltarListenersDeGesto();
 
   if (ghost) {
     ghost.remove();
     ghost = null;
   }
-  if (tarjeta) {
-    tarjeta.classList.remove("is-dragging");
-    tarjeta.style.transition = "";
-    tarjeta.style.willChange = "";
-  }
-  document.body.classList.remove("kanban-drag-activo");
 
+  const card = tarjeta;
   tarjeta = null;
   tablero = null;
   gesto = null;
   pendiente = null;
+  slot = null;
+  cardAlto = 0;
 
-  // Si llegó un re-render mientras el dedo sostenía la tarjeta, se aplica
+  document.body.classList.remove("kanban-drag-activo");
+
+  if (card) {
+    if (conservarTarjetaOculta) {
+      // El render del controlador va a sustituirla; si por lo que sea no
+      // llega, se restaura en el siguiente frame para no dejarla invisible.
+      requestAnimationFrame(() => {
+        if (card.isConnected) card.classList.remove("is-dragging");
+      });
+    } else {
+      card.classList.remove("is-dragging");
+    }
+  }
+
+  // Si llego un re-render mientras el dedo sostenia la tarjeta, se aplica
   // ahora, con el DOM en reposo.
   const vista = window.PDI?.SocialKanbanView;
   if (vista && vista._renderPendiente) {
@@ -102,14 +204,14 @@ function terminarGesto() {
 }
 
 function alTeclear(evento) {
-  if (evento.key === "Escape" && gesto) {
+  if (evento.key === "Escape" && (gesto || pendiente)) {
     evento.preventDefault();
     terminarGesto();
   }
 }
 
 function alCambiarVisibilidad() {
-  if (document.hidden && gesto) terminarGesto();
+  if (document.hidden && (gesto || pendiente)) terminarGesto();
 }
 
 function alCancelar() {
@@ -121,33 +223,47 @@ function hitTest() {
   return bajo ? bajo.closest(".kanban-col") : null;
 }
 
-function marcarDestino() {
-  const col = hitTest();
-  if (col === destinoActual && col) return;
-
-  limpiarCarril();
-  if (!col) return;
-
-  const etapa = col.getAttribute("data-col-stage");
-  const valido = Boolean(etapa) && esMovimientoValido(etapa);
-  col.classList.add(valido ? "is-drop-target" : "is-drop-invalida");
-  destinoActual = col;
+function etapaDeCarril(carril) {
+  return carril ? carril.getAttribute("data-col-stage") : null;
 }
 
-function esMovimientoValido(etapaDestino) {
-  if (!tarjeta || !etapaDestino) return false;
-  if (tarjeta.dataset.bloqueada === "1") return false;
-  const origen = tarjeta.dataset.etapa;
+function esFaseValida(etapaDestino) {
+  const origen = tarjeta ? tarjeta.dataset.etapa : null;
+  if (!origen || !etapaDestino) return false;
+  if (origen === etapaDestino) return true; // volver al carril de origen
   const iOrigen = ETAPAS.indexOf(origen);
   const iDestino = ETAPAS.indexOf(etapaDestino);
-  if (iOrigen < 0 || iDestino < 0 || iOrigen === iDestino) return false;
+  if (iOrigen < 0 || iDestino < 0) return false;
   return Math.abs(iOrigen - iDestino) === 1;
+}
+
+function actualizarDestino() {
+  const carril = hitTest();
+  if (!carril) {
+    quitarSlot();
+    limpiarCarriles();
+    return;
+  }
+
+  if (carril !== destinoActual) {
+    limpiarCarriles();
+    destinoActual = carril;
+  }
+
+  const valido = esFaseValida(etapaDeCarril(carril));
+  carril.classList.toggle("is-drop-target", valido);
+  carril.classList.toggle("is-drop-invalida", !valido);
+
+  if (valido) {
+    colocarSlot(carril);
+  } else {
+    quitarSlot();
+  }
 }
 
 function frame() {
   if (!ghost) return;
 
-  // Auto-scroll horizontal del tablero cuando el puntero se acerca al borde.
   const rectTablero = tablero.getBoundingClientRect();
   if (xPunta < rectTablero.left + UMBRAL_AUTOSCROLL) {
     tablero.scrollLeft -= VELOCIDAD_AUTOSCROLL;
@@ -156,7 +272,7 @@ function frame() {
   }
 
   ghost.style.transform = `translate3d(${xPunta - offsetX}px, ${yPunta - offsetY}px, 0)`;
-  marcarDestino();
+  actualizarDestino();
   raf = requestAnimationFrame(frame);
 }
 
@@ -166,6 +282,7 @@ function iniciarArrastre(evento) {
   offsetY = pendiente.startY - rect.top;
   xPunta = evento.clientX;
   yPunta = evento.clientY;
+  cardAlto = rect.height;
 
   try {
     tarjeta.setPointerCapture(evento.pointerId);
@@ -173,6 +290,7 @@ function iniciarArrastre(evento) {
 
   ghost = tarjeta.cloneNode(true);
   ghost.classList.add("kanban-drag-ghost");
+  ghost.classList.remove("is-dragging");
   ghost.removeAttribute("id");
   ghost.removeAttribute("onclick");
   ghost.setAttribute("aria-hidden", "true");
@@ -184,8 +302,19 @@ function iniciarArrastre(evento) {
   ghost.style.transform = `translate3d(${rect.left}px, ${rect.top}px, 0)`;
   document.body.appendChild(ghost);
 
+  slot = document.createElement("div");
+  slot.className = "kanban-drop-slot";
+  slot.setAttribute("aria-hidden", "true");
+  slot.style.height = `${cardAlto}px`;
+
+  // La tarjeta sale del flujo Y de la seleccion de texto. Los casos de su
+  // columna suben a ocupar el hueco con el mismo FLIP del reflujo.
+  const posiciones = congelarPosiciones();
   tarjeta.classList.add("is-dragging");
+  animarReflujo(posiciones);
   document.body.classList.add("kanban-drag-activo");
+  limpiarSeleccion();
+
   gesto = { id: tarjeta.dataset.casoId, origen: tarjeta.dataset.etapa };
 
   window.addEventListener("keydown", alTeclear, true);
@@ -204,7 +333,6 @@ function alMover(evento) {
     const dx = xPunta - pendiente.startX;
     const dy = yPunta - pendiente.startY;
     if (Math.hypot(dx, dy) < UMBRAL_ARRASTRE) return;
-    // A partir de aqui el gesto es arrastre: se corta la seleccion de texto.
     if (evento.cancelable) evento.preventDefault();
     iniciarArrastre(evento);
     return;
@@ -217,13 +345,11 @@ function flipADestino(id, etapaDestino, rectSalida) {
   if (menosMovimiento()) return;
 
   requestAnimationFrame(() => {
-    const candidatas = document.querySelectorAll(".kanban-card");
-    const nueva = Array.from(candidatas).find(
-      (c) => c.dataset.casoId === String(id) && c.dataset.etapa === etapaDestino,
+    const nueva = Array.from(document.querySelectorAll(".kanban-card")).find(
+      (card) => card.dataset.casoId === String(id) && card.dataset.etapa === etapaDestino,
     );
     if (!nueva) return;
 
-    // Una sola animacion por tarjeta: nada de sumar capas.
     nueva.getAnimations().forEach((animacion) => animacion.cancel());
 
     const rectLlegada = nueva.getBoundingClientRect();
@@ -249,13 +375,16 @@ function sacudir(card) {
   setTimeout(quitar, 220);
 }
 
-// Un click que nace de un arrastre no debe abrir la ficha.
+/** Un click que nace de un arrastre no debe abrir la ficha. Solo se bloquea
+ *  dentro del tablero: si el gesto abre un modal, sus botones responden. */
 function suprimirClickSiguiente() {
   const suprimir = (evento) => {
+    const enTablero = evento.target instanceof Element && evento.target.closest(".kanban-board");
+    if (!enTablero) return;
     evento.preventDefault();
     evento.stopPropagation();
   };
-  document.addEventListener("click", suprimir, { capture: true, once: true });
+  document.addEventListener("click", suprimir, { capture: true });
   setTimeout(() => {
     document.removeEventListener("click", suprimir, { capture: true });
   }, 400);
@@ -265,24 +394,47 @@ function alSoltar(evento) {
   if (!pendiente) return;
   xPunta = evento.clientX;
   yPunta = evento.clientY;
+
   if (!ghost) {
-    // Fue un clic: se deja pasar tal cual.
     terminarGesto();
     return;
   }
 
-  const col = hitTest();
-  const etapaDestino = col ? col.getAttribute("data-col-stage") : null;
-  const valido = esMovimientoValido(etapaDestino);
-  const rectSalida = ghost ? ghost.getBoundingClientRect() : null;
+  const carril = hitTest();
+  const etapaDestino = etapaDeCarril(carril);
+  const origen = tarjeta ? tarjeta.dataset.etapa : null;
+  const esMismaFase = Boolean(etapaDestino) && etapaDestino === origen;
+  const esContigua = Boolean(etapaDestino) && esFaseValida(etapaDestino) && !esMismaFase;
+  const rectSalida = ghost.getBoundingClientRect();
   const id = tarjeta ? tarjeta.dataset.casoId : null;
   const cardOriginal = tarjeta;
 
-  terminarGesto();
-  suprimirClickSiguiente();
+  if (esMismaFase) {
+    // Volver al carril de origen no pide autorizacion: solo se reacomoda.
+    terminarGesto();
+    suprimirClickSiguiente();
+    // terminarGesto dejo la tarjeta visible; se anima desde el punto del drop.
+    if (cardOriginal) {
+      requestAnimationFrame(() => {
+        if (!cardOriginal.isConnected) return;
+        const destino = cardOriginal.getBoundingClientRect();
+        const dx = rectSalida.left - destino.left;
+        const dy = rectSalida.top - destino.top;
+        if (!dx && !dy) return;
+        cardOriginal.getAnimations().forEach((animacion) => animacion.cancel());
+        cardOriginal.animate(
+          [{ transform: `translate(${dx}px, ${dy}px)` }, { transform: "translate(0, 0)" }],
+          { duration: 220, easing: "cubic-bezier(0.23, 1, 0.32, 1)" },
+        );
+      });
+    }
+    return;
+  }
 
-  if (!valido) {
-    if (col && etapaDestino) {
+  if (!esContigua) {
+    terminarGesto();
+    suprimirClickSiguiente();
+    if (carril && etapaDestino) {
       avisar("Solo puedes mover el caso a la fase anterior o siguiente.");
     }
     sacudir(cardOriginal);
@@ -290,10 +442,22 @@ function alSoltar(evento) {
   }
 
   const controlador = window.PDI?.SocialController || (window.app && window.app.socialController);
-  if (!controlador || typeof controlador.moverCaso !== "function") return;
+  if (!controlador || typeof controlador.moverCaso !== "function") {
+    terminarGesto();
+    return;
+  }
 
-  // Mismo camino que el boton de la tarjeta: el controlador decide si mueve
-  // de inmediato (Coordinacion/Admin) o si abre el modal de solicitud.
+  // Coordinacion/Admin mueven de inmediato: la tarjeta vieja se oculta hasta
+  // que el render la sustituya. El rol social solo abre una solicitud, asi
+  // que su tarjeta se revela ya (no hay nueva tarjeta que la reemplace).
+  let rol = "coord";
+  try {
+    rol = localStorage.getItem("pdi_active_role") || "coord";
+  } catch { /* sin storage: se asume coordinacion */ }
+  const mueveInmediato = rol === "coord" || rol === "admin";
+
+  terminarGesto({ conservarTarjetaOculta: mueveInmediato });
+  suprimirClickSiguiente();
   controlador.moverCaso(id, etapaDestino);
   flipADestino(id, etapaDestino, rectSalida);
 }

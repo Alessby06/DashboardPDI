@@ -175,9 +175,14 @@ export const SocialKanbanView = {
   _htmlEstadoVacio(etapa, hayFiltros = false) {
     const nombre = ETAPA_NOMBRES_OFICIALES[etapa] || "esta fase";
     const titulo = hayFiltros ? "Sin coincidencias" : "Sin casos en esta fase";
+    const puedeArrastrar = typeof window === "undefined"
+      || !window.matchMedia
+      || window.matchMedia("(min-width: 769px)").matches;
     const ayuda = hayFiltros
       ? "Ningún caso coincide con la búsqueda o los filtros activos."
-      : `${escapar(nombre)} está vacía. Arrastra una tarjeta aquí o usa los botones de cada caso.`;
+      : puedeArrastrar
+        ? `${escapar(nombre)} está vacía. Arrastra una tarjeta aquí o usa los botones de cada caso.`
+        : `${escapar(nombre)} está vacía. Usa los botones de cada caso para moverlo de fase.`;
     return `
       <div class="kanban-empty">
         <span class="kanban-empty-icon" aria-hidden="true">
