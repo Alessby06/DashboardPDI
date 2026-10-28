@@ -266,6 +266,9 @@
       touch-action: pan-y;
       scrollbar-width: thin;
       scrollbar-color: var(--border-bright) transparent;
+      /* La barra interior reserva su carril siempre: al entrar o salir durante
+         el arrastre no cambia el ancho del contenido ni el de las columnas. */
+      scrollbar-gutter: stable;
       user-select: text;
       -webkit-user-select: text;
     }
@@ -492,7 +495,11 @@
       cursor: not-allowed;
     }
 
-    .kanban-drag-ghost {
+    /* Selector compuesto a proposito: .kanban-card se declara despues en esta
+       hoja y, con la misma especificidad, devolvia el ghost a position:relative
+       (se iba al final del documento, alargaba la pagina y hacia saltar las
+       columnas al aparecer la barra de scroll). */
+    .kanban-card.kanban-drag-ghost {
       position: fixed;
       left: 0;
       top: 0;
