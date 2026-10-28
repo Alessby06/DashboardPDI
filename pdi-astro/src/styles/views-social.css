@@ -518,23 +518,18 @@
       transition: none;
     }
 
-    .kanban-col.is-drop-target .kanban-col-body {
-      background: color-mix(in srgb, var(--brand-primary) 7%, transparent);
-      border-radius: var(--radius-md);
-      box-shadow: inset 0 0 0 1px var(--brand-primary);
-    }
-
+    /* El carril valido solo se comunica con el hueco: sin tintes ni contornos
+       verdes. La columna vacia se oculta mientras el hueco esta abierto. */
     .kanban-col.is-drop-target .kanban-empty {
       display: none;
     }
 
-    /* Hueco que abre la tarjeta en el aire: mismo alto que el caso que viaja
-       y separacion identica a la de la lista, para que el reflujo no mienta. */
+    /* Hueco que abre la tarjeta en el aire: mismo alto que el caso que viaja,
+       sin guias de color. Es un vacio neutro, no una senal de "aqui puedes". */
     .kanban-drop-slot {
       flex: 0 0 auto;
-      border: 1px dashed var(--brand-primary);
       border-radius: 10px;
-      background: color-mix(in srgb, var(--brand-primary) 8%, transparent);
+      background: color-mix(in srgb, var(--text-main) 5%, transparent);
       box-sizing: border-box;
     }
 
@@ -544,7 +539,7 @@
     }
 
     .kanban-col.is-drop-invalida .kanban-col-body {
-      box-shadow: inset 0 0 0 1px var(--border-bright);
+      box-shadow: none;
     }
 
     .kanban-card.is-drop-invalida {
@@ -591,6 +586,7 @@
       box-sizing: border-box;
       min-width: 0;
       flex-shrink: 0 !important; /* CRITICO: evita que flexbox aplaste y corte los botones en columnas con 3+ tarjetas */
+      -webkit-user-drag: none;
     }
 
     .kanban-card:hover {

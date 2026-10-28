@@ -497,5 +497,14 @@ export const KanbanDrag = {
   },
 };
 
+/** El navegador no debe iniciar su propio "drag" de texto: secuestra el gesto
+ *  y cancela nuestro arrastre (era la causa de que el ghost no llegara a
+ *  verse). Se engancha una sola vez sobre el tablero. */
+function evitarDragNativo(evento) {
+  const enTablero = evento.target instanceof Element && evento.target.closest(".kanban-board");
+  if (enTablero && evento.target.closest(".kanban-card")) evento.preventDefault();
+}
+
 KanbanDrag.iniciar();
+document.addEventListener("dragstart", evitarDragNativo, { capture: true });
 document.addEventListener("astro:page-load", () => KanbanDrag.iniciar());

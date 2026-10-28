@@ -32,15 +32,34 @@ export const SocialController = {
 
   /**
    * Ejecuta el cambio de fase inmediato por parte de Coordinación General / Dirección.
+   * La vista se mueve de forma optimista, pero el exito solo se anuncia cuando
+   * SurrealDB confirma. Si la nube rechaza, la tarjeta vuelve a su fase.
    */
-  moverCasoInmediato(id, nuevaEtapa) {
+  async moverCasoInmediato(id, nuevaEtapa) {
     const model = window.PDI?.CasoSocialModel || CasoSocialModel;
     const activeRole = localStorage.getItem("pdi_active_role") || "coord";
     const userName = localStorage.getItem("pdi_usuario_nombre") || "Coordinación General";
     const cargo = (activeRole === "admin") ? "Administrador de Sistemas TI" : "Dirección y Coordinación General";
 
+    const previa = model.getAll().find(c => String(c.id) === String(id))?.etapa;
     const caso = model.updateStage(id, nuevaEtapa);
     if (!caso) return;
+
+    const view = window.PDI?.SocialKanbanView || SocialKanbanView;
+    // Optimista: la tarjeta viaja ya. La hidratacion no pisara este cambio
+    // mientras la escritura siga en vuelo (ver guard en db.js).
+    view?.renderKanban(model.getAll());
+
+    const guardado = caso._guardadoPendiente ? await caso._guardadoPendiente : true;
+    delete caso._guardadoPendiente;
+
+    if (guardado === false) {
+      // La nube rechazo la escritura (db.js ya aviso el motivo): se deshace
+      // el movimiento local para no mentir en el tablero.
+      if (previa) caso.etapa = previa;
+      view?.renderKanban(model.getAll());
+      return;
+    }
 
     // Si había una solicitud pendiente para este caso, se cierra/resuelve como aprobada directamente
     if (caso.solicitudCambio && caso.solicitudCambio.estado === "pendiente") {
@@ -93,6 +112,22 @@ export const SocialController = {
       cargo: cargo
     });
     if (!caso) return;
+
+    const view = window.PDI?.SocialKanbanView || SocialKanbanView;
+    view?.renderKanban(model.getAll());
+
+    const guardada = caso._solicitudPendiente ? await caso._solicitudPendiente : true;
+    delete caso._solicitudPendiente;
+
+    if (guardada === false) {
+      // La nube no registro la solicitud: se retira de la vista para que no
+      // quede un "en proceso" que Coordinacion jamas podra resolver.
+      delete caso.solicitudCambio;
+      if (Array.isArray(caso.historialSolicitudes)) caso.historialSolicitudes.shift();
+      view?.renderKanban(model.getAll());
+      view?.actualizarBadgesPestañas?.();
+      return;
+    }
 
     const audit = window.PDI?.AuditModel || AuditModel;
     if (audit) {

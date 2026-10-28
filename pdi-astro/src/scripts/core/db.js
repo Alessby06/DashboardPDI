@@ -198,6 +198,7 @@ function colapsarConexion(origen) {
  * falla por transporte, colapsa la sesión para que el backoff reconecte.
  */
 async function ejecutar(ql, params) {
+  _escriturasEnVuelo += 1;
   try {
     const db = await conectar();
     return await db.query(ql, params);
@@ -206,6 +207,12 @@ async function ejecutar(ql, params) {
       colapsarConexion(err?.message || 'transporte');
     }
     throw err;
+  } finally {
+    _escriturasEnVuelo -= 1;
+    if (_escriturasEnVuelo === 0 && _hidratacionDiferida) {
+      _hidratacionDiferida = false;
+      hidratar(true);
+    }
   }
 }
 
@@ -377,6 +384,15 @@ async function suscribirLive() {
 
 /** Re-hidratación por evento LIVE: una sola pasada, artistas equivalents. */
 let _hidratando = null;
+
+// Escrituras en vuelo. Las mutaciones son optimistas: el modelo cambia al
+// instante y la nube confirma despues. Si una suscripcion LIVE dispara una
+// hidratacion mientras la escritura aun no ha llegado, el snapshot traeria la
+// etapa anterior y la pintaria encima (el caso "vuelve solo" a su fase). Por
+// eso la aplicacion de datasets se difiere mientras haya escrituras
+// pendientes y se relanza en cuanto terminan.
+let _escriturasEnVuelo = 0;
+let _hidratacionDiferida = false;
 /** Consulta del padrón completa (también usada en el lote de hidratación). */
 const SQL_PADRON = `SELECT *,
   centro_salud.nombre AS centro_salud_nombre,
@@ -419,6 +435,12 @@ const SQL_LOTE_HIDRATACION = [
 ].join('\n');
 
 export async function hidratar(promedioSilencioso = false) {
+  // Con una escritura en vuelo, el snapshot que traeria esta hidratacion es
+  // anterior al cambio: se pospone hasta que la nube confirme.
+  if (_escriturasEnVuelo > 0) {
+    _hidratacionDiferida = true;
+    return;
+  }
   if (_hidratando) return _hidratando;
   _hidratando = (async () => {
     cambiarEstado('cargando');
@@ -433,6 +455,13 @@ export async function hidratar(promedioSilencioso = false) {
       const voluntarios = mapearVoluntarios(voluntariosRaw);
       const logs = mapearBitacora(logsRaw);
       const asistencia = mapearAsistencia(asistenciaRaw, beneficiarios);
+
+      // Segunda comprobacion: la escritura pudo empezar durante el viaje.
+      // Se descarta el snapshot viejo y se relanza al terminar.
+      if (_escriturasEnVuelo > 0) {
+        _hidratacionDiferida = true;
+        return;
+      }
 
       aplicarDatasets(beneficiarios, sedes, casos, voluntarios, logs, asistencia);
       _hidratado = true;

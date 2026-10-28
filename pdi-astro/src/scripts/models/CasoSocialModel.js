@@ -156,7 +156,9 @@ export const CasoSocialModel = {
     });
 
     // La nube es la fuente de verdad: la solicitud vive en solicitud_caso.
-    crearSolicitudCaso(caso, caso.solicitudCambio);
+    // La promesa queda colgada del caso para que el controlador pueda saber
+    // si la nube la acepto y revertir la vista si no.
+    caso._solicitudPendiente = crearSolicitudCaso(caso, caso.solicitudCambio);
     return caso;
   },
 
@@ -217,7 +219,9 @@ export const CasoSocialModel = {
     const caso = list.find(c => String(c.id) === String(id) || c.id === Number(id));
     if (caso) {
       caso.etapa = nuevaEtapa;
-      cambiarEtapaCaso(caso, nuevaEtapa);
+      // Se guarda la promesa de la nube: el controlador espera la respuesta
+      // para no anunciar un exito que la base haya rechazado.
+      caso._guardadoPendiente = cambiarEtapaCaso(caso, nuevaEtapa);
       return caso;
     }
     return null;
