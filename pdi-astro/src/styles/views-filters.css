@@ -629,30 +629,41 @@
   }
 
   /* El velo se define siempre y se enciende con opacidad: asi el cierre lo
-     desvanece en vez de borrarlo de golpe. Sin blur: en las tablets de sede
-     el filtro de fondo hacia perder fotogramas justo durante el deslizamiento,
-     que es cuando mas se nota. */
+     desvanece en vez de borrarlo de golpe. Misma receta que el resto de
+     modales y drawers (tinta con foco radial) y sin blur: en las tablets de
+     sede el filtro de fondo hacia perder fotogramas durante el deslizamiento. */
   .audit-filters-dropdown::before {
     content: '';
     position: fixed;
     inset: 0;
-    background: var(--modal-overlay-bg);
+    background-color: var(--sheet-veil-margen);
+    background-image: radial-gradient(ellipse 70% 60% at 50% 42%, var(--sheet-veil-borde), transparent 70%);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     z-index: 9998;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
+    /* El velo dura lo mismo que la hoja: 260 al abrir y 220 al cerrar. Antes
+       se apagaba 60 ms antes y dejaba ver la pagina sin oscurecer mientras la
+       hoja aun bajaba. */
     transition:
-      opacity var(--dur-fast) var(--ease-out),
-      visibility 0s linear var(--dur-fast);
+      opacity var(--dur-norm) var(--ease-out),
+      visibility 0s linear var(--dur-norm);
   }
 
   .audit-filters-dropdown.open::before {
-    opacity: 1;
+    opacity: var(--filtro-velo, 1);
     visibility: visible;
     pointer-events: auto;
     transition:
-      opacity var(--dur-norm) var(--ease-out),
+      opacity var(--dur-panel) var(--ease-out),
       visibility 0s;
+  }
+
+  /* Durante el arrastre del asa el velo sigue la mano 1:1, sin su easing. */
+  .audit-filters-dropdown.is-dragging::before {
+    transition: none;
   }
 
   .audit-filters-dropdown .audit-filters-menu,

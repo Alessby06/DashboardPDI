@@ -896,14 +896,17 @@
     border-top: 1px solid var(--border-subtle);
   }
 
-  /* Telón de fondo del Drawer (Backdrop) - SOLO VISIBLE EN MÓVIL */
+  /* Telón de fondo del Drawer (Backdrop) - SOLO VISIBLE EN MÓVIL.
+     Misma receta que el modal de descarga y el resto de modales: tinta con
+     foco radial, sin desenfoque (el blur se retiraba fotogramas al arrastrar). */
   .sedes-sheet-backdrop {
     display: block !important;
     position: fixed !important;
     inset: 0 !important;
-    background: rgba(15, 23, 42, 0.65) !important;
-    backdrop-filter: blur(5px) !important;
-    -webkit-backdrop-filter: blur(5px) !important;
+    background-color: var(--sheet-veil-margen) !important;
+    background-image: radial-gradient(ellipse 70% 60% at 50% 42%, var(--sheet-veil-borde), transparent 70%) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
     z-index: 1100 !important;
     opacity: 0 !important;
     pointer-events: none !important;
@@ -911,11 +914,18 @@
   }
 
   .sedes-sheet-backdrop.open {
-    opacity: 1 !important;
+    opacity: var(--sedes-velo, 1) !important;
     pointer-events: auto !important;
   }
 
-  /* Bloqueo de scroll cuando el bottom sheet está abierto en móvil */
+  /* Durante el arrastre el velo sigue la mano, sin su easing. */
+  .sedes-sheet-backdrop.is-dragging {
+    transition: none !important;
+  }
+
+  /* Bloqueo de scroll cuando el bottom sheet está abierto en móvil.
+     El scroll tactil de la hoja sigue funcionando: su contenedor interno
+     conserva su propio scroll. */
   body.sedes-sheet-open {
     overflow: hidden !important;
     touch-action: none;

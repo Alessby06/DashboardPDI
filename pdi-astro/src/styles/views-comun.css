@@ -120,17 +120,6 @@
       transform: translateX(0);
     }
 
-    /* Velo de drawer: la pagina oscurece hacia fuera y se aclara junto al
-       panel, con un suspiro de marca en el borde de contacto. Sin blur. */
-    .modal-backdrop.drawer.open {
-      background-color: var(--sheet-veil-margen);
-      background-image:
-        linear-gradient(to left, var(--sheet-veil-marca) 0, transparent 200px),
-        linear-gradient(to left, var(--sheet-veil-borde) 0, var(--sheet-veil-margen) 300px);
-      backdrop-filter: none;
-      -webkit-backdrop-filter: none;
-    }
-
     /* El asa solo existe en tactil; en PC la cabecera de la ficha no la lleva. */
     .sheet-grab {
       display: none;
@@ -196,16 +185,6 @@
 
       .modal-backdrop.open .modal-box.drawer-box {
         transform: translateY(0);
-      }
-
-      /* En movil la luz sube con la hoja: foco desde abajo, sin blur. */
-      .modal-backdrop.drawer.open {
-        background-color: var(--sheet-veil-margen);
-        background-image:
-          linear-gradient(to top, var(--sheet-veil-marca) 0, transparent 150px),
-          linear-gradient(to top, var(--sheet-veil-borde) 0, var(--sheet-veil-margen) 45vh);
-        backdrop-filter: none;
-        -webkit-backdrop-filter: none;
       }
 
       /* Variante de lectura y workflow corto: la hoja crece segun contenido
