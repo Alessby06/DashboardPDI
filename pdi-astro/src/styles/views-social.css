@@ -425,12 +425,20 @@
         flex: initial;
         min-width: 0;
         max-width: none;
-        width: auto;
+        /* Cada carril ocupa exactamente su pista del grid: mismo ancho para
+           las cuatro, sin que el contenido ni el scrollbar lo alteren. */
+        width: 100%;
+        justify-self: stretch;
       }
 
       /* El hilo de 1 px ya no necesita el relleno interno: el gap lo separa. */
       .kanban-col:not(:last-child) {
         padding-right: 0;
+      }
+
+      /* La pastilla no se pega al borde del carril ni al divisor. */
+      .kanban-count-pill {
+        margin-inline-end: 8px;
       }
     }
 
