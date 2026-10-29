@@ -396,8 +396,10 @@
   border-bottom: none;
 }
 
-.sedes-master-item:hover {
-  background: var(--surface-2);
+@media (hover: hover) and (pointer: fine) {
+  .sedes-master-item:hover {
+    background: var(--surface-2);
+  }
 }
 
 .sedes-master-item.active {

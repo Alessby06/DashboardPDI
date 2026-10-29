@@ -641,10 +641,12 @@
       -webkit-user-drag: none;
     }
 
-    .kanban-card:hover {
-      border-color: var(--border-bright);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-ambient);
+    @media (hover: hover) and (pointer: fine) {
+      .kanban-card:hover {
+        border-color: var(--border-bright);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-ambient);
+      }
     }
 
     .kanban-card-header-row {

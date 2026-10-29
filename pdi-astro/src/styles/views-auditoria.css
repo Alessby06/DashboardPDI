@@ -599,9 +599,11 @@
          todas esas capas en cada fotograma. */
     }
 
-    .btn-action-sm:hover {
-      background: var(--surface-hover);
-      border-color: var(--border-bright);
+    @media (hover: hover) and (pointer: fine) {
+      .btn-action-sm:hover {
+        background: var(--surface-hover);
+        border-color: var(--border-bright);
+      }
     }
 
     .btn-action-sm:active {

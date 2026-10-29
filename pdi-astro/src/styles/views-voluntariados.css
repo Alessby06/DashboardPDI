@@ -1341,9 +1341,11 @@
   transition: all var(--dur-fast) var(--ease-smooth);
 }
 
-.padron-btn-ficha:hover {
-  background: var(--surface-hover);
-  border-color: var(--border-bright);
+@media (hover: hover) and (pointer: fine) {
+  .padron-btn-ficha:hover {
+    background: var(--surface-hover);
+    border-color: var(--border-bright);
+  }
 }
 
 .padron-btn-edit {
@@ -1607,10 +1609,12 @@
   color: #e5e7eb !important;
 }
 
-[data-theme="dark"] .padron-btn-ficha:hover {
-  background: rgba(255, 255, 255, 0.09) !important;
-  border-color: rgba(255, 255, 255, 0.22) !important;
-  color: var(--on-solid) !important;
+@media (hover: hover) and (pointer: fine) {
+  [data-theme="dark"] .padron-btn-ficha:hover {
+    background: rgba(255, 255, 255, 0.09) !important;
+    border-color: rgba(255, 255, 255, 0.22) !important;
+    color: var(--on-solid) !important;
+  }
 }
 
 [data-theme="dark"] .padron-btn-edit {
@@ -1831,9 +1835,11 @@ Oscuro (ya cumplía 5.77–8.28): #2dd4bf 9.88 · #fcd34d 12.76 · #7dd3fc 11.03
   transition: all var(--dur-fast) var(--ease-smooth);
 }
 
-#cardVoluntariosPadron .padron-btn-ficha:hover {
-  background: var(--surface-hover);
-  border-color: var(--border-bright);
+@media (hover: hover) and (pointer: fine) {
+  #cardVoluntariosPadron .padron-btn-ficha:hover {
+    background: var(--surface-hover);
+    border-color: var(--border-bright);
+  }
 }
 
 #cardVoluntariosPadron .padron-active-chips-label,
