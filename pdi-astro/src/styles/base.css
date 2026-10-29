@@ -753,6 +753,23 @@
       background: var(--bg-base);
     }
 
+    /* Progreso de lectura: barra fina sobre el topbar. */
+    .scroll-progress {
+      position: fixed;
+      inset-block-start: 0;
+      inset-inline: 0;
+      height: 2px;
+      background: var(--gt-green);
+      transform: scaleX(0);
+      transform-origin: 0 50%;
+      pointer-events: none;
+      z-index: 1200;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .scroll-progress { display: none; }
+    }
+
     /* View Header */
     .view-header {
       display: flex;

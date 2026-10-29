@@ -1,125 +1,11 @@
-import Lenis from 'lenis';
-import 'lenis/dist/lenis.css';
+import { ScrollManager } from './ScrollManager.js';
+import { initScrollAnimations, destroyScrollAnimations } from './ScrollAnimations.js';
 
-let active = null;
 let reduce = false;
-let rafId = null;
-let resizeObserver = null;
-let mutationObserver = null;
-let resizeRaf = null;
 const mqReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-const loop = (time) => {
-  active?.raf(time);
-  rafId = requestAnimationFrame(loop);
-};
-
-function startLoop() {
-  if (rafId !== null) return;
-  rafId = requestAnimationFrame(loop);
-}
-
-function stopLoop() {
-  if (rafId === null) return;
-  cancelAnimationFrame(rafId);
-  rafId = null;
-}
 
 function contenedor() {
   return document.querySelector('.content-viewport');
-}
-
-function teardown() {
-  if (resizeObserver) {
-    resizeObserver.disconnect();
-    resizeObserver = null;
-  }
-  if (mutationObserver) {
-    mutationObserver.disconnect();
-    mutationObserver = null;
-  }
-  if (resizeRaf !== null) {
-    cancelAnimationFrame(resizeRaf);
-    resizeRaf = null;
-  }
-  const instancia = window.__pdiLenis || active;
-  if (instancia) instancia.destroy();
-  window.__pdiLenis = null;
-  active = null;
-  stopLoop();
-}
-
-function observar(content) {
-  const remide = () => {
-    if (resizeRaf !== null) return;
-    resizeRaf = requestAnimationFrame(() => {
-      resizeRaf = null;
-      window.__pdiLenis?.resize();
-    });
-  };
-  if (typeof ResizeObserver === 'function') {
-    resizeObserver = new ResizeObserver(remide);
-    resizeObserver.observe(content);
-  }
-  if (typeof MutationObserver === 'function') {
-    mutationObserver = new MutationObserver(remide);
-    mutationObserver.observe(content, { childList: true, subtree: true });
-  }
-}
-
-function setup() {
-  reduce = mqReduce.matches;
-  if (reduce) {
-    teardown();
-    return;
-  }
-
-  const wrapper = contenedor();
-  // Lenis transforma el content: debe ser el hijo directo del wrapper. El
-  // .smooth-content está dos niveles más adentro y no mueve el scroll.
-  const content = wrapper?.querySelector(':scope > .app-view.active')
-    || document.querySelector('.smooth-content');
-  if (!wrapper || !content) return;
-
-  if (window.__pdiLenis) {
-    active = window.__pdiLenis;
-    active.resize();
-    startLoop();
-    return;
-  }
-
-  active = new Lenis({
-    wrapper,
-    content,
-    lerp: 0.1,
-    smoothWheel: true,
-    smoothTouch: false,
-    wheelMultiplier: 1,
-    touchMultiplier: 1.6,
-    autoResize: true
-  });
-
-  window.__pdiLenis = active;
-  observar(content);
-  startLoop();
-
-  try {
-    active.scrollTo(0, { immediate: true });
-  } catch {}
-  requestAnimationFrame(() => window.__pdiLenis?.resize());
-  setTimeout(() => window.__pdiLenis?.resize(), 120);
-  setTimeout(() => window.__pdiLenis?.resize(), 800);
-  window.addEventListener('load', () => window.__pdiLenis?.resize(), { once: true });
-
-  // La tabla se hidrata por tramos: se remide durante los primeros segundos
-  // hasta que el alto real estabiliza el límite de scroll.
-  let intentos = 0;
-  const remide = () => {
-    if (!window.__pdiLenis) return;
-    window.__pdiLenis.resize();
-    if (intentos++ < 16) setTimeout(remide, 250);
-  };
-  remide();
 }
 
 function offsetSuperior() {
@@ -130,7 +16,7 @@ function offsetSuperior() {
   return flotante ? -(topbar.getBoundingClientRect().height + 12) : -16;
 }
 
-/** Interpolación de respaldo si Lenis no acepta el destino. */
+/** Interpolación propia para el ancla: no depende del scrollTo de Lenis. */
 function animarScroll(box, destino, duracion = 520) {
   const desde = box.scrollTop;
   const delta = destino - desde;
@@ -160,11 +46,7 @@ function scrollToHash(hash) {
     + box.scrollTop
     + offsetSuperior());
 
-  const lenis = window.__pdiLenis;
-  if (lenis) lenis.resize();
-
-  // El ancla usa la interpolación propia: scrollTo() de Lenis no acepta el
-  // destino en este contenedor anidado. Lenis queda para la rueda.
+  ScrollManager.main?.resize();
   animarScroll(box, destino);
   return true;
 }
@@ -198,29 +80,38 @@ function enlazarAnclas() {
 
 function resetScroll() {
   if (location.hash) return;
-  const box = contenedor();
-  if (box) box.scrollTo({ top: 0, behavior: 'auto' });
-  window.scrollTo(0, 0);
+  ScrollManager.reset();
 }
 
 if (!window.__pdiSmoothScrollBound) {
   window.__pdiSmoothScrollBound = true;
+  reduce = mqReduce.matches;
 
-  document.addEventListener('astro:before-swap', teardown);
-  document.addEventListener('astro:after-swap', () => {
-    resetScroll();
-    setup();
+  ScrollManager.init();
+  initScrollAnimations();
+
+  document.addEventListener('astro:before-swap', () => {
+    destroyScrollAnimations();
+    ScrollManager.stop();
   });
-  document.addEventListener('astro:page-load', setup);
+  document.addEventListener('astro:after-swap', () => {
+    ScrollManager.rebind();
+    resetScroll();
+    ScrollManager.refresh();
+    ScrollManager.start();
+    ScrollManager.discover();
+    ScrollManager._syncModales?.();
+    initScrollAnimations();
+  });
+  document.addEventListener('astro:page-load', () => ScrollManager.refresh());
 
   if (typeof mqReduce.addEventListener === 'function') {
     mqReduce.addEventListener('change', () => {
       reduce = mqReduce.matches;
-      if (reduce) teardown();
-      else setup();
+      if (reduce) ScrollManager.stop();
+      else ScrollManager.start();
     });
   }
 
   enlazarAnclas();
-  setup();
 }

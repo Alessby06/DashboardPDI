@@ -59,7 +59,7 @@ const navItems = [
       </button>
     </div>
 
-    <nav class="nav-sections" id="sidebarNav">
+    <nav class="nav-sections" id="sidebarNav" data-smooth-scroll>
       {navItems.map((item) => {
         if (item.section) {
           return <div class="nav-label">{item.section}</div>;

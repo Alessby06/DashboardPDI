@@ -1696,7 +1696,7 @@ const impeccableLive =
   <div class="login-container">
     <!-- COLUMNA IZQUIERDA: Contexto Institucional Humano (Desktop) -->
     
-      <aside class="showcase-column" aria-label="Identidad del Programa">
+      <aside class="showcase-column" aria-label="Identidad del Programa" data-snap>
         <div class="showcase-header">
           <div class="showcase-badge-icon" aria-hidden="true"><img src="/assets/jg-icon.png" alt="Emblema ACJG" loading="lazy" decoding="async" /></div>
           <div class="showcase-brand-text">
@@ -1783,7 +1783,7 @@ const impeccableLive =
         <h2 class="form-main-title">Ingreso al Sistema</h2>
         <p class="form-sub-title">Digita tus credenciales para acceder a los módulos de trabajo.</p>        </div>
 
-      <form class="form-stack" id="loginForm" autocomplete="on" novalidate>
+      <form class="form-stack" id="loginForm" autocomplete="on" novalidate data-snap>
         <!-- Usuario -->
         <div class="form-row">
           <label class="label-caption" for="inputUsuario">Usuario institucional</label>
@@ -1850,7 +1850,7 @@ const impeccableLive =
       </form>
 
       <!-- Directorio de Perfiles para Acceso Rápido -->
-      <section class="profiles-directory" aria-label="Perfiles autorizados de trabajo">
+      <section class="profiles-directory" aria-label="Perfiles autorizados de trabajo" data-snap>
         <div class="profiles-label-bar">
           <span class="profiles-title">Perfiles autorizados</span>
           <span class="profiles-note">Acceso rápido</span>
@@ -2064,7 +2064,10 @@ const impeccableLive =
     });
   </script>
 
-
+  <script>
+    import { initScrollAnimations } from '../scripts/core/ScrollAnimations.js';
+    initScrollAnimations();
+  </script>
 </body>
 </html>
 
