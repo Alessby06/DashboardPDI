@@ -11,8 +11,8 @@
 // elástico. La escucha va delegada sobre la hoja (no sobre el asa) porque la
 // cabecera de sedes se reemplaza por innerHTML entre aperturas.
 
-const UMBRAL_CIERRE = 80; // px de arrastre hacia abajo que cierran la hoja
-const UMBRAL_VELOCIDAD = 0.45; // px/ms: un flick mas rapido que esto cierra
+const UMBRAL_CIERRE = 75; // px de arrastre hacia abajo que cierran la hoja
+const UMBRAL_VELOCIDAD = 0.35; // px/ms: un flick mas rapido que esto cierra
 const INTERACTIVOS = "button, a, input, select, textarea, [role='button'], [contenteditable='true']";
 
 /** El arrastre desde la cabecera solo se habilita en la variante móvil. */
@@ -55,13 +55,30 @@ export function conectarHoja({
   const abierta = () => (telon ? telon.classList.contains("open") : hoja.classList.contains("open"));
 
   let activo = false;
+  let baseY = 0;
   let yInicio = 0;
   let yAnterior = 0;
   let tAnterior = 0;
   let velocidad = 0;
+  let historial = [];
+  let animacion = null;
+
+  const raiz = document.documentElement;
+  const easeCierre = getComputedStyle(raiz).getPropertyValue("--sheet-ease").trim()
+    || "cubic-bezier(0.22, 0.61, 0.36, 1)";
+  const easeVuelta = getComputedStyle(raiz).getPropertyValue("--ease-drawer").trim()
+    || "cubic-bezier(0.32, 0.72, 0, 1)";
 
   const pintarVelo = (valor) => {
     if (velo && telon) telon.style.setProperty(velo.variable, String(valor));
+  };
+
+  /** Desplazamiento visible actual: si la hoja venía entrando, el dedo debe
+   * agarrarla donde está, no donde acabaría. */
+  const transformActual = () => {
+    const valor = getComputedStyle(hoja).transform;
+    if (!valor || valor === "none") return 0;
+    try { return new DOMMatrixReadOnly(valor).m42 || 0; } catch { return 0; }
   };
 
   const limpiar = () => {
@@ -70,43 +87,46 @@ export function conectarHoja({
     delete hoja.dataset.sheetArrastre;
   };
 
-  // Retorno de un arrastre corto. No puede heredar la entrada completa de la
-  // hoja: en Android son 420 ms y devolver 40 px a ese ritmo se siente pastoso.
-  const volver = (arrastre) => {
-    if (!arrastre) {
-      limpiar();
-      return;
-    }
-    let hecho = false;
-    const terminar = () => {
-      if (hecho) return;
-      hecho = true;
-      hoja.removeEventListener("transitionend", terminar);
-      if (!activo) limpiar();
-    };
-    hoja.style.transition = "transform 260ms var(--ease-out)";
-    hoja.style.transform = "";
-    hoja.addEventListener("transitionend", terminar);
-    setTimeout(terminar, 320);
+  const detenerAnimacion = () => {
+    if (!animacion) return;
+    try { animacion.cancel(); } catch { /* ya terminó */ }
+    animacion = null;
   };
 
-  const cerrar = () => {
+  /** Suelta con inercia, igual que la hoja de filtros: la duración sale de lo
+   * que queda por recorrer y de la velocidad con la que soltó el dedo. */
+  const soltarConInercia = (total, cerrarPorGesto) => {
     const accion = alCerrar || (() => telon?.classList.remove("open"));
-    if (velo && telon) {
-      // La hoja termina su salida con el mismo gesto que traia el arrastre y
-      // el velo se apaga con ella; el cierre real ocurre al acabar la salida.
-      telon.classList.remove("is-dragging");
-      pintarVelo(0);
-      hoja.style.transition = "transform 240ms var(--ease-out)";
-      hoja.style.transform = "translateY(105%)";
-      setTimeout(() => {
-        limpiar();
-        accion();
-      }, 240);
-    } else {
+    const alto = hoja.offsetHeight || hoja.getBoundingClientRect().height || 1;
+    const destino = cerrarPorGesto ? alto * (velo ? 1.05 : 1) : 0;
+    const distancia = Math.abs(destino - total);
+    const rapidez = Math.max(0.35, Math.abs(velocidad));
+    const duracion = Math.round(
+      Math.min(cerrarPorGesto ? 320 : 260, Math.max(140, distancia / rapidez))
+    );
+
+    detenerAnimacion();
+    animacion = hoja.animate(
+      [
+        { transform: `translateY(${total}px)` },
+        { transform: `translateY(${destino}px)` }
+      ],
+      { duration: duracion, easing: cerrarPorGesto ? easeCierre : easeVuelta, fill: "forwards" }
+    );
+
+    let terminado = false;
+    const terminar = () => {
+      if (terminado) return;
+      terminado = true;
+      // Primero el estado (quita .open), luego los estilos: la hoja ya está
+      // en el punto final y no hay salto al soltar la animación.
+      if (cerrarPorGesto) accion();
       limpiar();
-      accion();
-    }
+      detenerAnimacion();
+    };
+    animacion.finished.then(terminar, () => { /* interrumpida por otro gesto */ });
+    // Respaldo por si la pestaña se congela a mitad de la animación.
+    setTimeout(() => { if (animacion) terminar(); }, duracion + 80);
   };
 
   const soltar = () => {
@@ -114,6 +134,17 @@ export function conectarHoja({
     activo = false;
 
     const arrastre = Number(hoja.dataset.sheetArrastre || "0");
+    const total = Math.max(0, baseY + arrastre);
+
+    // Velocidad media del último tramo, como en la hoja de filtros: el último
+    // sample aislado puede ser un temblor del dedo.
+    if (historial.length >= 2) {
+      const ultimo = historial[historial.length - 1];
+      const primero = historial[0];
+      const dt = ultimo.t - primero.t;
+      if (dt > 0) velocidad = (ultimo.y - primero.y) / dt;
+    }
+
     const cerrarPorGesto = arrastre >= umbral || velocidad >= umbralVelocidad;
     telon?.classList.remove("is-dragging");
 
@@ -121,15 +152,15 @@ export function conectarHoja({
       limpiar();
       return;
     }
-    if (cerrarPorGesto) {
-      cerrar();
-    } else {
-      volver(arrastre);
-      if (velo && telon) {
+    if (velo) {
+      if (cerrarPorGesto) {
+        pintarVelo(0);
+      } else {
         pintarVelo(1);
         setTimeout(() => telon.style.removeProperty(velo.variable), 320);
       }
     }
+    soltarConInercia(total, cerrarPorGesto);
   };
 
   hoja.addEventListener("pointerdown", (evento) => {
@@ -144,15 +175,22 @@ export function conectarHoja({
     if (evento.pointerType === "mouse" && evento.button !== 0) return;
 
     if (evento.cancelable) evento.preventDefault();
+    // Congela la hoja donde está: si venía entrando, agarrarla no debe saltarla
+    // al destino. Después se cancela cualquier suelta que siguiera en curso.
+    const visible = transformActual();
+    detenerAnimacion();
+    baseY = Math.max(0, visible);
     activo = true;
     yInicio = evento.clientY;
     yAnterior = evento.clientY;
     tAnterior = performance.now();
+    historial = [{ y: yInicio, t: tAnterior }];
     velocidad = 0;
     delete hoja.dataset.sheetArrastre;
     hoja.style.transition = "none";
+    hoja.style.transform = `translateY(${baseY}px)`;
     telon?.classList.add("is-dragging");
-    if (velo) pintarVelo(1);
+    if (velo) pintarVelo(Math.max(0, 1 - baseY / velo.rango));
     try {
       hoja.setPointerCapture(evento.pointerId);
     } catch { /* sin captura el arrastre sigue: buen fallback */ }
@@ -166,11 +204,15 @@ export function conectarHoja({
     yAnterior = evento.clientY;
     tAnterior = ahora;
 
-    const dy = Math.max(0, evento.clientY - yInicio);
-    hoja.dataset.sheetArrastre = String(dy);
+    const dedo = Math.max(0, evento.clientY - yInicio);
+    const total = baseY + dedo;
+    hoja.dataset.sheetArrastre = String(dedo);
     // Hacia arriba no hay gesto que completar: la hoja no se mueve.
-    hoja.style.transform = dy > 0 ? `translateY(${dy}px)` : "";
-    if (velo) pintarVelo(Math.max(0, 1 - dy / velo.rango));
+    hoja.style.transform = total > 0 ? `translateY(${total}px)` : "";
+    if (velo) pintarVelo(Math.max(0, 1 - total / velo.rango));
+
+    historial.push({ y: evento.clientY, t: ahora });
+    if (historial.length > 5) historial.shift();
   };
 
   hoja.addEventListener("pointermove", mover);
