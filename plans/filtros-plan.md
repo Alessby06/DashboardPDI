@@ -27,7 +27,7 @@ El CSS se unificó, el comportamiento no.
 
 ## Contrato de aceptación
 
-- Abre bajo el botón, 330px, dentro del viewport, sin recortes.
+- Abre junto al botón (debajo si hay hueco; encima si no), 330px, dentro del viewport, sin recortes.
 - Abrir/cerrar no altera el scroll de la vista.
 - Rueda sobre el panel desplaza el panel; la barra de la vista no lo cierra.
 - Marcar todas las opciones de una faceta vuelve a «Todas» (solo multiselección).
@@ -71,12 +71,64 @@ npm run test:filtros # humo de navegador contra el dev server
   `anchor-name` / `position-anchor`. Al desplazar la vista lo sigue el CSS, sin
   JS ni corrección por el transform de Lenis. Si el navegador no soporta el
   anclaje, se usa el cálculo y el reanclaje anteriores.
-- **Movimiento.** La hoja se posa: panel a 6 px y submenú a 4 px, 175 ms
-  `ease-out`, salida en 120 ms. Sin escalas de texto, rebotes ni sombras que
-  suban. En móvil la hoja sube con `ease-drawer` y el velo se desvanece con
-  ella; se quitó el `backdrop-filter`, que en tablets de sede perdía fotogramas.
-  Filtrar no relanza la cascada de filas: solo la primera entrada de la vista
-  anima la lista.
+- **Lado del panel.** Se elige el lado con hueco: debajo si quedan al menos
+  260 px; si no, encima con el mismo anclaje. Antes abría siempre abajo y, con
+  el disparador en la mitad inferior (voluntariados a 1536×774), el cuerpo
+  quedaba en 74 px; a 720 px de alto, en 0.
+- **Facetas en acordeón.** Las opciones de cada faceta ocupan su sitio dentro
+  del cuerpo del panel. Antes eran un segundo popover absoluto dentro de un
+  cuerpo con scroll: en padrón, la octava sede quedaba fuera y en ventanas
+  cortas la lista sobresalía 80 px del panel.
+- **Contadores en las siete vistas.** `FacetCounts` centraliza el cálculo
+  (búsqueda + resto de facetas, sin la propia) y el estado a cero. Sedes,
+  social, salud, casitas y voluntariados pasaron de no tener cifras a marcar
+  las opciones sin resultados como deshabilitadas, igual que padrón y
+  auditoría.
+- **Una limpieza por contexto.** Se retiró el «Limpiar» inyectado en el pie
+  móvil: quedan «Restablecer» en la cabecera y «Limpiar filtros» en la barra
+  de chips/estado vacío. El pie móvil solo cierra y confirma («Ver resultados»).
+- **Escape por capas.** La primera pulsación cierra la faceta abierta y
+  devuelve el foco a su botón; la segunda cierra el panel. El detector de modal
+  mira opacidad y visibilidad, no solo `display`, porque los backdrops viven
+  ocultos con `display:flex; opacity:0`.
+- **Popover antes de `.open`.** `Dropdown` llama a `FilterPanel.prepararApertura`
+  antes de alternar la clase: decide el lado y muestra el top layer con el panel
+  todavía cerrado. Mostrarlo después movía la capa a mitad de la transición y
+  dejaba ~70 ms de silencio antes del despliegue. El clip deja 56 px negativos
+  para que la sombra overlay no se recorte.
+- **Asa de la hoja móvil.** El `::before` con `flex-basis:100%` se estiraba a
+  todo el ancho y parecía una línea divisoria; no tenía gesto. Ahora es un
+  elemento real de 40×4.5 px, centrado, con `scaleX(1.15)` y color de marca al
+  presionar. La cabecera entera es la zona de agarre (botones excluidos) y
+  arrastra la hoja 1:1; cierra a los 75 px o con flick y vuelve si el gesto es
+  corto. El velo sigue la mano con `--filtro-velo`. Sedes ya tenía este gesto
+  con su propia píldora; se conserva.
+- **Movimiento.** La hoja se despliega desde el borde del disparador con un
+  clip direccional, 6 px y opacidad en 220 ms `ease-out`, y pliega en 160 ms;
+  el submenú conserva 4 px/175 ms. El acordeón anima su altura (190/150 ms) y
+  el scroll del cuerpo arranca al terminar la expansión; los chips entran con
+  175 ms y el contador a los 80 ms. En móvil la hoja sube con `ease-drawer` y
+  el velo comparte sus tiempos (260/220 ms); se quitó el `backdrop-filter`, que
+  en tablets de sede perdía fotogramas. Filtrar no relanza la cascada de filas:
+  solo la primera entrada de la vista anima la lista. Con movimiento reducido
+  se quitan clip, transformaciones, altura animada y scroll; queda el fundido.
+- **Ajustes de movimiento (auditoría).** La salida del panel de escritorio
+  usaba `--ease-in-out`, que arranca al 77 % del recorrido y hacía dudar al
+  panel antes de irse: pasó a `--ease-out`. Al cerrar arrastrando, la hoja iba
+  a `translateY(105%)` y perdía `.open` a los 230 ms de una transición de 240;
+  como su estado cerrado es `100%`, retrocedía ~29 px mientras se desvanecía.
+  Ahora cierra en `100%` y espera 240 ms. El asentado usa los tokens
+  (`--dur-norm`/`--ease-out` al cerrar, `--dur-panel`/`--ease-drawer` al
+  volver) en vez de curvas escritas a mano. `.padron-item-radio` dejó de usar
+  `transition: all`; la sombra de scroll del cuerpo funde en 160 ms y el foco
+  espera a que el panel termine de entrar (240 ms).
+- **El disparador no se hunde.** El botón de filtros lleva `.btn-action`, y esa
+  clase aplica `translateY(-1.5px)` al pasar el ratón y `scale(0.97)` con
+  `!important` al pulsar. Como el panel se ancla a su caja y se coloca al
+  soltar, el ancla se encogía 3,6 px: el panel nacía 5 px más arriba y se
+  desplazaba durante la entrada. Ahora ese botón no transforma su caja
+  (`transform: none !important`, `will-change: auto`) y la pulsación se pinta
+  con `filter: brightness(0.95)`. El resto de botones conserva el `scale`.
 - La entrada del panel dependía de una regla de `components.css`
   (`.custom-dropdown.open .custom-dropdown-menu`, 0,3,0) que ganaba al
   `@starting-style` y lo dejaba en un aparecer seco. El selector del panel sube
@@ -88,3 +140,13 @@ npm run test:filtros # humo de navegador contra el dev server
   apunta a `window.PDI.SedesView.resetFilters()`.
 - El título de salud llegaba como `&amp;` literal; se pasa el `&` sin escapar
   en la prop.
+- El botón de cerrar la hoja móvil seguía con `scale(0.92) !important` en
+  `views-comun.css`, que ganaba a la hoja de filtros. Se retiró junto con el
+  `@keyframes` muerto del velo.
+- **Toolbar única.** Se retiraron las siete copias de `.audit-toolbar` y
+  `.audit-search-*`; la definición vive solo en `views-comun.css`. Se
+  conservan las reglas de página que describen la geometría de su card (banda
+  full-bleed, barra de voluntariados, buscador del kanban). Medición
+  antes/después en las siete vistas, escritorio y móvil: solo cambia el margen
+  inferior de sedes y del móvil de auditoría (10→16 px) y el `z-index` del
+  botón de limpiar (2→3); tamaños, colores e iconos quedan idénticos.
