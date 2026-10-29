@@ -160,6 +160,16 @@
       contain: layout style;
     }
 
+    /* Cabecera, proyectos y nav viven en una columna flexible. Sin esto el
+       bloque crece con su contenido, el aside lo recorta y el nav se queda sin
+       altura para scrollear: no aparece ninguna barra. */
+    .sidebar-main {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
     .sidebar .logo-text,
     .sidebar .nav-btn > span:not(.nav-badge),
     .sidebar .nav-label {
