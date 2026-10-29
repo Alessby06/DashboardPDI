@@ -501,12 +501,29 @@ function enlazarArrastreHoja(panel) {
   const header = menu?.querySelector('.audit-filters-header');
   if (!menu || !header) return;
 
+  const UMBRAL_PX = 75;
+  const UMBRAL_VEL = 0.35;
+  const VELO_RANGO = 280;
+  const EASE_CIERRE = 'cubic-bezier(0.22, 0.61, 0.36, 1)';
+  const EASE_VUELTA = 'cubic-bezier(0.32, 0.72, 0, 1)';
+
   let startY = 0;
-  let currentY = 0;
+  let baseY = 0;
+  let desplazamiento = 0;
   let arrastrando = false;
   let pointerId = null;
   let historial = [];
+  let animacion = null;
+
   const esControl = (el) => !!el.closest?.('.btn-text-subtle, .btn-close-sheet');
+
+  /** Desplazamiento visible actual: si la hoja venía entrando, el dedo debe
+   * agarrarla donde está, no donde acabaría. */
+  const transformActual = () => {
+    const valor = getComputedStyle(menu).transform;
+    if (!valor || valor === 'none') return 0;
+    try { return new DOMMatrixReadOnly(valor).m42 || 0; } catch { return 0; }
+  };
 
   const limpiarEstilos = () => {
     menu.style.removeProperty('transform');
@@ -521,11 +538,10 @@ function enlazarArrastreHoja(panel) {
     pointerId = null;
   };
 
-  const cancelarGesto = () => {
-    arrastrando = false;
-    panel.classList.remove('is-dragging');
-    soltarCaptura();
-    limpiarEstilos();
+  const detenerAnimacion = () => {
+    if (!animacion) return;
+    try { animacion.cancel(); } catch { /* ya terminó */ }
+    animacion = null;
   };
 
   // Puntero y captura, como el resto de hojas: el gesto sigue al dedo aunque
@@ -535,31 +551,34 @@ function enlazarArrastreHoja(panel) {
     if (esControl(e.target)) return;
     if (e.pointerType === 'mouse' && e.button !== 0) return;
 
-    startY = currentY = e.clientY;
+    // Si venía una animación (entrada o suelta anterior), se congela en el
+    // punto exacto antes de cancelarla: sin esto la hoja saltaba al destino.
+    const visible = transformActual();
+    detenerAnimacion();
+    baseY = Math.max(0, visible);
+    startY = e.clientY;
+    desplazamiento = 0;
     historial = [{ y: startY, t: performance.now() }];
     arrastrando = true;
     pointerId = e.pointerId;
     panel.classList.add('is-dragging');
+    panel.style.setProperty('--filtro-velo', String(Math.max(0, 1 - baseY / VELO_RANGO)));
     // Se mueve en el compositor: sin esto, cada frame repinta la hoja entera.
     menu.style.willChange = 'transform';
     menu.style.transition = 'none';
+    menu.style.transform = `translateY(${baseY}px)`;
     try { header.setPointerCapture(e.pointerId); } catch { /* el gesto sigue */ }
   });
 
   header.addEventListener('pointermove', (e) => {
     if (!arrastrando || e.pointerId !== pointerId) return;
-    currentY = e.clientY;
-    const delta = currentY - startY;
+    desplazamiento = e.clientY - startY;
+    const total = Math.max(0, baseY + desplazamiento);
 
-    if (delta <= 0) {
-      cancelarGesto();
-      return;
-    }
+    menu.style.transform = `translateY(${total}px)`;
+    panel.style.setProperty('--filtro-velo', String(Math.max(0, 1 - total / VELO_RANGO)));
 
-    menu.style.transform = `translateY(${delta}px)`;
-    panel.style.setProperty('--filtro-velo', String(Math.max(0, 1 - delta / 280)));
-
-    historial.push({ y: currentY, t: performance.now() });
+    historial.push({ y: e.clientY, t: performance.now() });
     if (historial.length > 5) historial.shift();
   });
 
@@ -570,7 +589,7 @@ function enlazarArrastreHoja(panel) {
     panel.classList.remove('is-dragging');
     soltarCaptura();
 
-    const delta = currentY - startY;
+    const total = Math.max(0, baseY + desplazamiento);
     let velocidad = 0;
     if (historial.length >= 2) {
       const ultimo = historial[historial.length - 1];
@@ -579,42 +598,42 @@ function enlazarArrastreHoja(panel) {
       if (dt > 0) velocidad = (ultimo.y - primero.y) / dt;
     }
 
-    const cerrar = delta > 75 || velocidad > 0.35;
-    // El asentado usa los tokens de la hoja: cerrar es rapido y con ease-out;
-    // volver sigue la curva de apertura (drawer) para que parezca que la hoja
-    // regresa a su sitio y no otra animacion distinta.
-    menu.style.transition = cerrar
-      ? 'transform var(--sheet-out) var(--sheet-ease)'
-      : 'transform var(--dur-panel) var(--ease-drawer)';
-    // Cerrar termina en 100%, que es el estado cerrado de la hoja. Con 105% se
-    // retiraba la clase a los 230 ms y la hoja retrocedia ~29 px mientras se
-    // desvanecia: un borde reaparecia justo al soltar.
-    menu.style.transform = cerrar ? 'translateY(100%)' : 'translateY(0%)';
+    // Cierra por gesto, no por base: agarrar una hoja a medio entrar no debe
+    // cerrarla solo porque aún no había llegado a su sitio.
+    const cerrar = desplazamiento > UMBRAL_PX || velocidad > UMBRAL_VEL;
+    const alto = menu.offsetHeight || menu.getBoundingClientRect().height || 1;
+    const destino = cerrar ? alto : 0;
+    const distancia = Math.abs(destino - total);
+    const rapidez = Math.max(0.35, Math.abs(velocidad));
+    const duracion = Math.round(Math.min(cerrar ? 320 : 260, Math.max(140, distancia / rapidez)));
+
     panel.style.setProperty('--filtro-velo', cerrar ? '0' : '1');
 
-    if (!cerrar) {
-      window.setTimeout(() => {
-        if (!arrastrando) limpiarEstilos();
-      }, 320);
-      return;
-    }
+    // La suelta continúa el gesto: la duración sale de lo que queda por
+    // recorrer y de la velocidad con la que soltó el dedo, no de un valor fijo.
+    detenerAnimacion();
+    animacion = menu.animate(
+      [
+        { transform: `translateY(${total}px)` },
+        { transform: `translateY(${destino}px)` }
+      ],
+      { duration: duracion, easing: cerrar ? EASE_CIERRE : EASE_VUELTA, fill: 'forwards' }
+    );
 
-    // El estado no puede depender solo de un temporizador: si el navegador lo
-    // frena, la hoja se va pero el boton sigue marcado como abierto. Se cierra
-    // al terminar la animacion, con un temporizador como respaldo.
-    let cerrado = false;
-    const terminar = (ev) => {
-      if (cerrado) return;
-      if (ev && ev.target !== menu) return;
-      cerrado = true;
-      menu.removeEventListener('transitionend', terminar);
-      // Primero el estado (quita .open y resetea el boton), luego los estilos
-      // en linea: la hoja ya esta fuera de pantalla.
-      window.closeAllFilterSheets?.();
+    let terminado = false;
+    const terminar = () => {
+      if (terminado) return;
+      terminado = true;
+      // Primero el estado (quita .open y resetea el botón), después los
+      // estilos en línea: la hoja ya está en su sitio final.
+      if (cerrar) window.closeAllFilterSheets?.();
       limpiarEstilos();
+      detenerAnimacion();
     };
-    menu.addEventListener('transitionend', terminar);
-    window.setTimeout(terminar, 360);
+
+    animacion.finished.then(terminar, () => { /* interrumpida: la maneja el nuevo gesto */ });
+    // Respaldo por si la pestaña se congela a mitad de la animación.
+    window.setTimeout(() => { if (animacion) terminar(); }, duracion + 80);
   };
 
   header.addEventListener('pointerup', finalizar);
