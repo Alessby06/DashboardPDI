@@ -554,6 +554,19 @@ export async function refrescarDesdeNube() {
 // ---------------------------------------------------------------------------
 //  Funciones utilitarias y mapeos de dominio
 // ---------------------------------------------------------------------------
+/**
+ * Clave de registro utilizable en type::record('tabla', $clave).
+ *
+ * SurrealDB muestra entre corchetes angulares las claves que empiezan por
+ * digito (caso_social:⟨53p9b0z...⟩). Partir por ':' devolvia "⟨53p9b0z...⟩"
+ * CON los corchetes y type::record construia una clave distinta: el UPDATE
+ * no encontraba ninguna fila, no lanzaba error y la escritura se perdia sin
+ * aviso (el caso "vuelve solo" al recargar). Aqui se quitan los corchetes.
+ */
+function claveRegistro(rid) {
+  return String(rid == null ? '' : rid).split(':').pop().replace(/^⟨/, '').replace(/⟩$/, '');
+}
+
 function extraerNumeroId(codigo, idStr, fallbackIdx) {
   if (codigo) {
     const parts = String(codigo).split('-');
@@ -1136,7 +1149,7 @@ export async function crearBeneficiario(m) {
     if (!sedeFound.length) {
       return avisarFallo('Registro de usuario', `La sede "${m.sede || '(vacío)'}" no existe en la nube. Créala en el Directorio Territorial primero.`) === null ? null : null;
     }
-    params.sid = String(sedeFound[0].id).split(':').pop();
+    params.sid = claveRegistro(sedeFound[0].id);
     // El distrito operativo sale de la sede, no de lo que haya quedado escrito
     // a mano en la ficha. Si la sede no lo trae, se conserva el valor previo.
     params.dist = sedeFound[0].distrito || params.dist;
@@ -1248,7 +1261,7 @@ export async function crearBeneficiario(m) {
     `, {
       ...params,
       foto: m.fotoUrl || null,
-      cuiId: cuiId ? String(cuiId).split(':').pop() : '',
+      cuiId: cuiId ? claveRegistro(cuiId) : '',
       par: normalizarParentesco(m.parentesco || 'Otro'),
       cEval: m.consentimientos?.evaluacionSocial ?? true,
       cFoto: m.consentimientos?.usoFotografia ?? true,
@@ -1280,9 +1293,9 @@ export async function crearTamizaje(m) {
     const hoy = new Date();
     const fechaHoy = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
     // Los ids crudos llegan como 'tabla:id' o ':id'; la base quiere el sufijo.
-    const pid = String(m._personaId || '').split(':').pop();
-    const insId = m._inscripcionId ? String(m._inscripcionId).split(':').pop() : '';
-    const sedId = m._sedeRawId ? String(m._sedeRawId).split(':').pop() : '';
+    const pid = claveRegistro(m._personaId);
+    const insId = m._inscripcionId ? claveRegistro(m._inscripcionId) : '';
+    const sedId = m._sedeRawId ? claveRegistro(m._sedeRawId) : '';
     await ejecutar(`
       CREATE tamizaje_hemoglobina CONTENT {
         ${F_USUARIO}: type::record('persona', $pid),
@@ -1319,7 +1332,7 @@ export async function crearTamizaje(m) {
  */
 export async function desactivarTamizaje(tamId) {
   try {
-    const tid = String(tamId).split(':').pop();
+    const tid = claveRegistro(tamId);
     if (!tid) return false;
     await ejecutar(`UPDATE tamizaje_hemoglobina SET activo = false
       WHERE id = type::record('tamizaje_hemoglobina', $tid);`, { tid });
@@ -1382,7 +1395,7 @@ async function asegurarPersonaCuidador(apoderado) {
       sexo,
     });
     const lista = comoLista(res);
-    return lista.length ? 'persona:' + String(lista[0].id ?? lista[0]).split(':').pop() : null;
+    return lista.length ? 'persona:' + claveRegistro(lista[0].id ?? lista[0]) : null;
   } catch (err) {
     return avisarFallo('Registro del apoderado', err) === null ? null : null;
   }
@@ -1397,7 +1410,7 @@ async function asegurarInstitucion(nombre, tipo, distrito) {
       'SELECT id FROM institucion WHERE nombre = $nombre AND tipo = $tipo LIMIT 1;',
       { nombre: limpio, tipo },
     ));
-    if (found.length) return String(found[0].id).split(':').pop();
+    if (found.length) return claveRegistro(found[0].id);
 
     const res = await ejecutar(`CREATE institucion CONTENT {
       nombre: $nombre, tipo: $tipo, distrito: $distrito, activo: true
@@ -1407,7 +1420,7 @@ async function asegurarInstitucion(nombre, tipo, distrito) {
       distrito: ['Comas', 'Carabayllo', 'Otro'].includes(distrito) ? distrito : 'Comas',
     });
     const lista = comoLista(res);
-    return lista.length ? String(lista[0].id ?? lista[0]).split(':').pop() : null;
+    return lista.length ? claveRegistro(lista[0].id ?? lista[0]) : null;
   } catch (err) {
     avisarFallo('Registro de institución', err);
     return null;
@@ -1471,7 +1484,7 @@ async function guardarAlergia(personaId, entrada, motivo) {
 
 /** Actualiza los datos del usuario que la UI edita (expediente / servicios). */
 export async function actualizarBeneficiario(b) {
-  const pid = String(b._personaId || '').split(':').pop();
+  const pid = claveRegistro(b._personaId);
   if (!pid) return false;
   try {
     // Un solo viaje de ida al cuidador (si la ficha trae apoderado).
@@ -1485,7 +1498,7 @@ export async function actualizarBeneficiario(b) {
         parentesco: b.parentesco || 'Madre',
         sexo: b.sexoApoderado || '',
       });
-      cuiId = String(creado || '').split(':').pop();
+      cuiId = claveRegistro(creado);
     }
 
     // El distrito operativo se deriva de la sede elegida. Si la sede no existe
@@ -1606,7 +1619,7 @@ export async function actualizarBeneficiario(b) {
 
 /** Baja del padrón: la Ley 29733 prohibe borrado físico; se retira con baja lógica. */
 export async function darBajaBeneficiario(b, motivo = 'Baja administrativa') {
-  const pid = String(b._personaId || '').split(':').pop();
+  const pid = claveRegistro(b._personaId);
   if (!pid) return false;
   try {
     await ejecutar(`
@@ -1652,7 +1665,7 @@ export async function crearSede(s) {
 }
 
 export async function actualizarSede(s) {
-  const sid = String(s._rawId || '').split(':').pop();
+  const sid = claveRegistro(s._rawId);
   if (!sid) return false;
   try {
     await ejecutar(`UPDATE sede SET
@@ -1712,8 +1725,8 @@ export async function crearCasoSocial(ui) {
       detalle_soporte_familiar: $soporteDet ?? NONE,
       activo: true
     };`, {
-      pid: usuario._personaId.split(':').pop(),
-      sid: usuario._sedeRawId ? usuario._sedeRawId.split(':').pop() : null,
+      pid: claveRegistro(usuario._personaId),
+      sid: usuario._sedeRawId ? claveRegistro(usuario._sedeRawId) : null,
       cod: 'CAS-' + new Date().getFullYear() + '-' + String(Date.now()).slice(-5),
       urg: ['Alta', 'Media', 'Baja'].includes(ui.prioridad || ui.urgencia) ? (ui.prioridad || ui.urgencia) : 'Media',
       tipo: TIPO_PROBLEMATICA.includes(ui.tipoProblematica) ? ui.tipoProblematica : 'Nutricional / Abandono',
@@ -1740,12 +1753,20 @@ function avisarElUsuarioNoEsta() {
 
 /** Movimiento directo de etapa desde el kanban (sin flujo de autorización). */
 export async function cambiarEtapaCaso(caso, etapaUiValor) {
-  const cid = String(caso._casoId || '').split(':').pop();
+  const cid = claveRegistro(caso._casoId);
   if (!cid) return false;
   try {
-    await ejecutar(`UPDATE caso_social SET etapa = $etapa WHERE id = type::record('caso_social', $cid);`, {
-      cid, etapa: etapaNubeDe(etapaUiValor),
-    });
+    // RETURN AFTER: un UPDATE sin coincidencias no lanza error. Sin comprobar
+    // la fila devuelta, una clave mal formada se reportaba como guardada y la
+    // etapa volvia a la anterior al recargar (la base nunca cambio).
+    const res = await ejecutar(
+      `UPDATE caso_social SET etapa = $etapa WHERE id = type::record('caso_social', $cid) RETURN AFTER;`,
+      { cid, etapa: etapaNubeDe(etapaUiValor) },
+    );
+    if (!comoLista(res).length) {
+      avisarFallo('Cambio de etapa', `No se encontro el caso ${caso.codigo || cid} en la base de datos.`);
+      return false;
+    }
     return true;
   } catch (err) {
     return avisarFallo('Cambio de etapa', err) !== null;
@@ -1754,7 +1775,7 @@ export async function cambiarEtapaCaso(caso, etapaUiValor) {
 
 /** Registra una solicitud de cambio de estado (requiere autorización). */
 export async function crearSolicitudCaso(caso, sol) {
-  const cid = String(caso._casoId || '').split(':').pop();
+  const cid = claveRegistro(caso._casoId);
   if (!cid) return false;
   try {
     const res = await ejecutar(`CREATE solicitud_caso CONTENT {
@@ -1990,7 +2011,7 @@ export async function incrementarCanastaVoluntario(vol) {
 //  CRUD · Asistencia diaria (Casita del Saber)
 // ---------------------------------------------------------------------------
 export async function registrarAsistencia(beneficiario, estadoClave) {
-  const inscripcionId = String(beneficiario._inscripcionId || '').split(':').pop();
+  const inscripcionId = claveRegistro(beneficiario._inscripcionId);
   if (!inscripcionId) {
     avisarFallo('Asistencia', 'El usuario no tiene inscripción activa en la nube.');
     return false;
@@ -2006,7 +2027,7 @@ export async function registrarAsistencia(beneficiario, estadoClave) {
     } ON DUPLICATE KEY UPDATE
       estado = $data.estado, racion_entregada = $data.racion_entregada;`, {
       iid: inscripcionId,
-      sid: (beneficiario._sedeRawId || 'sede:sin_sede').split(':').pop(),
+      sid: claveRegistro(beneficiario._sedeRawId || 'sede:sin_sede'),
       fecha: new Date().toISOString().slice(0, 10),
       estado: ['P', 'T', 'FJ', 'FI'].includes(estadoClave) ? estadoClave : 'P',
       racion: estadoClave === 'P' || estadoClave === 'T',
