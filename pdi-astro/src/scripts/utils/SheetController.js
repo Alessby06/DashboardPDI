@@ -70,6 +70,26 @@ export function conectarHoja({
     delete hoja.dataset.sheetArrastre;
   };
 
+  // Retorno de un arrastre corto. No puede heredar la entrada completa de la
+  // hoja: en Android son 420 ms y devolver 40 px a ese ritmo se siente pastoso.
+  const volver = (arrastre) => {
+    if (!arrastre) {
+      limpiar();
+      return;
+    }
+    let hecho = false;
+    const terminar = () => {
+      if (hecho) return;
+      hecho = true;
+      hoja.removeEventListener("transitionend", terminar);
+      if (!activo) limpiar();
+    };
+    hoja.style.transition = "transform 260ms var(--ease-out)";
+    hoja.style.transform = "";
+    hoja.addEventListener("transitionend", terminar);
+    setTimeout(terminar, 320);
+  };
+
   const cerrar = () => {
     const accion = alCerrar || (() => telon?.classList.remove("open"));
     if (velo && telon) {
@@ -104,7 +124,7 @@ export function conectarHoja({
     if (cerrarPorGesto) {
       cerrar();
     } else {
-      limpiar();
+      volver(arrastre);
       if (velo && telon) {
         pintarVelo(1);
         setTimeout(() => telon.style.removeProperty(velo.variable), 320);

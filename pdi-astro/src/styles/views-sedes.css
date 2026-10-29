@@ -668,6 +668,22 @@
     transform: translateY(0%);
   }
 
+  /* Android: misma entrada pausada que las hojas globales. */
+  html.pdi-android .sedes-detail-column {
+    transition: transform 280ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  html.pdi-android .sedes-detail-column.open {
+    transition: transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html.pdi-android .sedes-detail-column,
+    html.pdi-android .sedes-detail-column.open {
+      transition: none;
+    }
+  }
+
   /* Cabecera movil: el asa es la zona de agarre de toda la hoja. Se comporta
      como la de filtros: sigue el dedo 1:1 y cierra a los 75 px o con un flick. */
   .sedes-sheet-header-mobile {

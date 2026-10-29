@@ -120,6 +120,14 @@ const impeccableLive =
           }
           var rolActivo = localStorage.getItem("pdi_active_role") || "coord";
           targetDoc.documentElement.setAttribute("data-user-role", rolActivo);
+
+          // Android recibe una entrada/salida de bottom sheet más pausada.
+          // La clase sobrevive a las transiciones del ClientRouter.
+          if (/Android/i.test(navigator.userAgent || "")) {
+            targetDoc.documentElement.classList.add("pdi-android");
+          } else {
+            targetDoc.documentElement.classList.remove("pdi-android");
+          }
         } catch (e) {}
       }
 

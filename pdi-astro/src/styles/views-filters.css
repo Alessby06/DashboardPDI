@@ -944,6 +944,28 @@
     }
   }
 
+  /* Android: la hoja de filtros comparte la entrada pausada de los drawers. */
+  html.pdi-android .audit-filters-dropdown .audit-filters-menu {
+    transition:
+      transform 280ms cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 180ms var(--ease-out),
+      display 280ms allow-discrete;
+  }
+
+  html.pdi-android .audit-filter-panel-wrap .audit-filters-dropdown.open .audit-filters-menu {
+    transition:
+      transform 420ms cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 280ms var(--ease-out),
+      display 420ms allow-discrete;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html.pdi-android .audit-filters-dropdown .audit-filters-menu,
+    html.pdi-android .audit-filter-panel-wrap .audit-filters-dropdown.open .audit-filters-menu {
+      transition: opacity 140ms linear;
+    }
+  }
+
   .audit-filters-header {
     position: sticky;
     top: 0;
