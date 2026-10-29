@@ -120,7 +120,17 @@ export function conectarHoja({
       terminado = true;
       // Primero el estado (quita .open), luego los estilos: la hoja ya está
       // en el punto final y no hay salto al soltar la animación.
-      if (cerrarPorGesto) accion();
+      if (cerrarPorGesto) {
+        // El gesto ya dejó la hoja fuera; el estado cerrado se aplica sin
+        // transición para que no reaparezca un fotograma al soltar.
+        detenerAnimacion();
+        hoja.classList.add("pdi-sin-transicion");
+        accion();
+        limpiar();
+        void hoja.offsetWidth;
+        hoja.classList.remove("pdi-sin-transicion");
+        return;
+      }
       limpiar();
       detenerAnimacion();
     };

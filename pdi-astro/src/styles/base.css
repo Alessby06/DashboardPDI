@@ -790,6 +790,13 @@
       touch-action: none;
     }
 
+    /* Al cerrar por arrastre la hoja ya está fuera de pantalla; el paso al
+       estado cerrado de la cortina (26 %) se hace sin transición para que no
+       reaparezca un instante. */
+    .pdi-sin-transicion {
+      transition: none !important;
+    }
+
     /* Progreso de lectura: barra fina sobre el topbar. */
     .scroll-progress {
       position: fixed;

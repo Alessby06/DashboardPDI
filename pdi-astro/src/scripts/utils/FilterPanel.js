@@ -625,9 +625,19 @@ function enlazarArrastreHoja(panel) {
     const terminar = () => {
       if (terminado) return;
       terminado = true;
+      if (cerrar) {
+        // El gesto ya dejó la hoja fuera; el estado cerrado se aplica sin
+        // transición para que no reaparezca un fotograma al soltar.
+        detenerAnimacion();
+        menu.classList.add('pdi-sin-transicion');
+        window.closeAllFilterSheets?.();
+        limpiarEstilos();
+        void menu.offsetWidth;
+        menu.classList.remove('pdi-sin-transicion');
+        return;
+      }
       // Primero el estado (quita .open y resetea el botón), después los
       // estilos en línea: la hoja ya está en su sitio final.
-      if (cerrar) window.closeAllFilterSheets?.();
       limpiarEstilos();
       detenerAnimacion();
     };
