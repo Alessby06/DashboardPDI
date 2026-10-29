@@ -53,6 +53,10 @@ export const Dropdown = {
 
   /** Cierra todas las hojas y dropdowns de filtros abiertos, restaurando el scroll del body */
   cerrarHojasFiltro() {
+    // Este método se invoca en cada clic fuera del desplegable. Solo debe
+    // reanudar el scroll si había una hoja de filtros abierta: si no, deshacía
+    // el bloqueo de la hoja de sedes o de una ficha.
+    const habiaHoja = document.body.classList.contains('filter-sheet-open');
     document.querySelectorAll('.custom-dropdown.open, .audit-filters-dropdown.open').forEach(d => {
       d.classList.remove('open');
     });
@@ -71,7 +75,7 @@ export const Dropdown = {
     });
     if (typeof document !== 'undefined') {
       document.body.classList.remove('filter-sheet-open');
-      window.__pdiScroll?.main?.start?.();
+      if (habiaHoja) window.__pdiScroll?.main?.start?.();
     }
   },
 
