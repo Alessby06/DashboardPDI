@@ -99,7 +99,6 @@ if (!window.__pdiSmoothScrollBound) {
     resetScroll();
     ScrollManager.refresh();
     ScrollManager.start();
-    ScrollManager.discover();
     ScrollManager._syncModales?.();
     initScrollAnimations();
   });

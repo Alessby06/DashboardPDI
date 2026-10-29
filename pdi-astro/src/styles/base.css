@@ -777,6 +777,99 @@
       .scroll-progress { display: none; }
     }
 
+    /* Barras de scroll consistentes. Lenis suaviza el viewport principal; los
+       paneles internos usan scroll nativo y comparten esta barra. */
+    :is(
+      .content-viewport,
+      .nav-sections,
+      .modal-body,
+      .modal-box,
+      .audit-filters-body,
+      .padron-inner-dropdown-menu,
+      .sedes-master-list,
+      .sedes-detail-column,
+      .expediente-content-area,
+      .kanban-col-body,
+      .table-container,
+      .kanban-board
+    ) {
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-bright) transparent;
+    }
+
+    :is(
+      .content-viewport,
+      .nav-sections,
+      .modal-body,
+      .modal-box,
+      .audit-filters-body,
+      .padron-inner-dropdown-menu,
+      .sedes-master-list,
+      .sedes-detail-column,
+      .expediente-content-area,
+      .kanban-col-body,
+      .table-container,
+      .kanban-board
+    )::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    :is(
+      .content-viewport,
+      .nav-sections,
+      .modal-body,
+      .modal-box,
+      .audit-filters-body,
+      .padron-inner-dropdown-menu,
+      .sedes-master-list,
+      .sedes-detail-column,
+      .expediente-content-area,
+      .kanban-col-body,
+      .table-container,
+      .kanban-board
+    )::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    :is(
+      .content-viewport,
+      .nav-sections,
+      .modal-body,
+      .modal-box,
+      .audit-filters-body,
+      .padron-inner-dropdown-menu,
+      .sedes-master-list,
+      .sedes-detail-column,
+      .expediente-content-area,
+      .kanban-col-body,
+      .table-container,
+      .kanban-board
+    )::-webkit-scrollbar-thumb {
+      background: var(--border-bright);
+      border: 2px solid transparent;
+      border-radius: 999px;
+      background-clip: content-box;
+    }
+
+    :is(
+      .content-viewport,
+      .nav-sections,
+      .modal-body,
+      .modal-box,
+      .audit-filters-body,
+      .padron-inner-dropdown-menu,
+      .sedes-master-list,
+      .sedes-detail-column,
+      .expediente-content-area,
+      .kanban-col-body,
+      .table-container,
+      .kanban-board
+    )::-webkit-scrollbar-thumb:hover {
+      background: var(--text-dim);
+      background-clip: content-box;
+    }
+
     /* View Header */
     .view-header {
       display: flex;
