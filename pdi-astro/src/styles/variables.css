@@ -134,6 +134,13 @@
   --dur-norm: 220ms;
   --dur-panel: 260ms;    /* Modales, drawers, cards */
   --dur-fluid: 260ms;
+
+  /* Hojas inferiores. Un recorrido de casi toda la pantalla no admite las
+     curvas de popover: arrancan con el 80 % del trayecto hecho y dejan una
+     cola casi quieta. Entrada larga y regular; salida mas corta. */
+  --sheet-in: 320ms;
+  --sheet-out: 220ms;
+  --sheet-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
   
   color-scheme: light;
 }

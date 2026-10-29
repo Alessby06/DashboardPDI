@@ -584,7 +584,7 @@ function enlazarArrastreHoja(panel) {
     // volver sigue la curva de apertura (drawer) para que parezca que la hoja
     // regresa a su sitio y no otra animacion distinta.
     menu.style.transition = cerrar
-      ? 'transform var(--dur-norm) var(--ease-out)'
+      ? 'transform var(--sheet-out) var(--sheet-ease)'
       : 'transform var(--dur-panel) var(--ease-drawer)';
     // Cerrar termina en 100%, que es el estado cerrado de la hoja. Con 105% se
     // retiraba la clase a los 230 ms y la hoja retrocedia ~29 px mientras se
