@@ -46,9 +46,7 @@
       opacity: 0;
       pointer-events: none;
       transition: opacity var(--dur-panel) var(--ease-out),
-                  background-color var(--dur-panel) var(--ease-out),
-                  backdrop-filter var(--dur-panel) var(--ease-out),
-                  -webkit-backdrop-filter var(--dur-panel) var(--ease-out);
+                  background-color var(--dur-panel) var(--ease-out);
       padding: 20px;
     }
 
