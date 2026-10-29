@@ -46,6 +46,15 @@
         radial-gradient(circle at 85% 85%, rgba(56, 189, 248, 0.03) 0%, transparent 55%);
     }
 
+    /* El bloqueo de fondo de las hojas retira la barra del documento (el
+       overflow del body se propaga al viewport) y el contenido se ensancha
+       unos píxeles al abrir. Mientras hay una hoja abierta se reserva su
+       carril: el ancho no salta ni al abrir ni al cerrar. */
+    html:has(body.filter-sheet-open),
+    html:has(body.pdi-drawer-open) {
+      scrollbar-gutter: stable;
+    }
+
     /* Transición Suave y Fluida al Cambiar entre Modo Claro y Oscuro */
     body,
     .app-shell,
