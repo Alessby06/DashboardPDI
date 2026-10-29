@@ -195,25 +195,35 @@
         margin: 0;
         border: none;
         border-radius: 20px 20px 0 0;
-        transform: translateY(100%);
+        /* Cortina: la hoja sube solo un 26 % y se descubre desde el borde
+           inferior con un clip. El clip abierto deja 80 px de más por los
+           lados para que la sombra siga existiendo en reposo. */
+        transform: translateY(26%);
+        clip-path: inset(100% 0 0 0 round 20px 20px 0 0);
+        visibility: hidden;
         padding-bottom: env(safe-area-inset-bottom, 0);
         overscroll-behavior: contain;
         /* Solo la hoja que recorre la pantalla conserva su capa: el aviso en
            los 12 modales y 12 telones creaba 24 capas permanentes. */
         will-change: transform;
-        /* Salida: la hoja se retira antes de que el velo termine de apagarse. */
+        /* Salida: la cortina se cierra mientras la hoja se retira. */
         transition:
-          transform 200ms var(--ease-out),
-          opacity 200ms var(--ease-out);
+          transform 240ms var(--ease-out),
+          clip-path 240ms var(--ease-out),
+          opacity 220ms var(--ease-out),
+          visibility 0s linear 240ms;
       }
 
       .modal-backdrop.open .modal-box.drawer-box {
         transform: translateY(0);
-        /* Entrada: el velo ya está puesto cuando la hoja arranca; la hoja
-           recorre la pantalla con una desaceleración larga y sin rebote. */
+        clip-path: inset(-80px -80px 0 -80px round 20px 20px 0 0);
+        visibility: visible;
+        /* Entrada: el velo ya está puesto cuando la hoja arranca. */
         transition:
-          transform 360ms var(--sheet-ease),
-          opacity 180ms var(--ease-out);
+          transform 400ms var(--sheet-ease),
+          clip-path 400ms var(--sheet-ease),
+          opacity 220ms var(--ease-out),
+          visibility 0s;
       }
 
       /* Variante de lectura y workflow corto: la hoja crece segun contenido
