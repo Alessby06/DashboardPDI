@@ -1737,23 +1737,30 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
     margin-left: 2px;
   }
 
-  /* Filas de formulario con cuadrícula consistente y sin espacios en blanco */
+  /* Filas de formulario con cuadrícula consistente y sin espacios en blanco.
+     minmax(0, 1fr): los selects tienen un min-content amplio (el texto de su
+     opción más larga) y un 1fr normal no puede encogerse por debajo, lo que
+     desbordaba el body del drawer en 56 px y metia una barra horizontal. */
   .ficha-form-row {
     display: grid;
     gap: 12px;
     width: 100%;
   }
 
+  .ficha-form-row > * {
+    min-width: 0;
+  }
+
   .ficha-form-row--2col {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 
   .ficha-form-row--3col {
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
   }
 
   .ficha-form-row--dir {
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
   }
 
   /* Identidad: Columna de foto y campos alineados */
@@ -1928,7 +1935,7 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
 
   .ficha-dual-blocks {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 16px;
     margin-top: 14px;
     padding-top: 14px;
