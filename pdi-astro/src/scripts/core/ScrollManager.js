@@ -196,15 +196,37 @@ export const ScrollManager = {
 
   _cleanup() {
     ScrollPane.panes.forEach((_state, el) => {
-      if (!el.isConnected) ScrollPane.detach(el);
+      // Desconectado o sin caja (display: none): se suelta para no dejar una
+      // instancia viva en un panel cerrado.
+      if (!el.isConnected || el.getClientRects().length === 0) ScrollPane.detach(el);
     });
   },
 
   _observeModales() {
     if (typeof MutationObserver !== 'function') return;
     this.modalObserver = new MutationObserver((mutaciones) => {
-      const tocaModal = mutaciones.some((m) => m.target.matches?.('.modal-backdrop'));
+      let tocaModal = false;
+      const paneles = new Set();
+
+      mutaciones.forEach((m) => {
+        const t = m.target;
+        if (!t.matches) return;
+        if (t.matches('.modal-backdrop')) tocaModal = true;
+        // Desplegables y hojas no existen al descubrir la página: al abrirse
+        // hay que medirlos o su scroll interno se queda sin Lenis.
+        if (t.matches('.custom-dropdown, .padron-inner-dropdown') && t.classList.contains('open')) {
+          paneles.add(t);
+        }
+      });
+
       if (tocaModal) this._syncModales();
+
+      paneles.forEach((t) => {
+        // Primer frame: el panel ya es visible. Segundo, pasada la animación
+        // de apertura, para los menús que crecen en altura.
+        requestAnimationFrame(() => this.discover(t));
+        setTimeout(() => this.discover(t), 260);
+      });
     });
     this.modalObserver.observe(document.body, {
       attributes: true,
