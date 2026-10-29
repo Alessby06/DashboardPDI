@@ -286,57 +286,9 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
                     </select>
                   </div>
                   <div class="form-group">
-                    <label for="regCentroSalud">Centro de Salud (Referencia) <span class="req">*</span></label>
+                    <label for="regCentroSalud" title="Centro de Salud de referencia (hospital o posta de cabecera)">Centro de Salud (Ref.) <span class="req">*</span></label>
                     <input type="text" id="regCentroSalud" name="centro_salud" class="form-control" maxlength="80"
                       placeholder="Ej. C.S. Año Nuevo / C.S. El Progreso" required>
-                  </div>
-                </div>
-
-                <!-- Control Condicional de Alergias -->
-                <div class="alergia-control-block">
-                  <div class="alergia-toggle-row">
-                    <div class="alergia-toggle-info">
-                      <span class="alergia-toggle-title">¿Presenta alergias o restricciones médicas?</span>
-                      <span class="alergia-toggle-sub">Alimentos, medicamentos o condiciones especiales</span>
-                    </div>
-                    <div class="alergia-segmented" role="group" aria-label="Alergias o restricciones">
-                      <button type="button" class="alergia-seg-btn is-active" id="btnAlergiaNo">
-                        No (Ninguna)
-                      </button>
-                      <button type="button" class="alergia-seg-btn" id="btnAlergiaSi">
-                        Sí presenta
-                      </button>
-                    </div>
-                    <input type="hidden" id="checkAlergiaPresencia" value="no">
-                  </div>
-
-                  <!-- Campos condicionales: se abren solo si marca Sí -->
-                  <div id="alergiaCamposDetalle" class="alergia-campos-detalle" style="display: none;">
-                    <div class="form-group" style="margin-top: 10px;">
-                      <label for="regAlergiaDescripcion">Alergias o Restricciones <span class="req">*</span></label>
-                      <input type="text" id="regAlergiaDescripcion" name="alergia_descripcion" class="form-control" maxlength="120"
-                        placeholder="Especifique: ej. Penicilina, Intolerancia a la lactosa, Asma" disabled value="Ninguna">
-                    </div>
-
-                    <div class="ficha-form-row ficha-form-row--2col" style="margin-top: 10px;">
-                      <div class="form-group">
-                        <label for="regAlergiaTipo">Tipo de Alergia <span class="req">*</span></label>
-                        <select id="regAlergiaTipo" name="alergia_tipo" class="form-control" disabled>
-                          {TIPOS_ALERGIA.map((opcion) => (
-                            <option value={opcion.valor}>{opcion.etiqueta}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div class="form-group">
-                        <label for="regAlergiaSeveridad">Gravedad / Severidad <span class="req">*</span></label>
-                        <select id="regAlergiaSeveridad" name="alergia_severidad" class="form-control" disabled>
-                          <option value="">Selecciona gravedad…</option>
-                          {SEVERIDADES_ALERGIA.map((opcion) => (
-                            <option value={opcion.valor}>{opcion.etiqueta}</option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -367,6 +319,56 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
                   <label for="regColegio">Nombre de la I.E. de Origen <span class="req">*</span></label>
                   <input type="text" id="regColegio" name="colegio" class="form-control" maxlength="80" placeholder="Ej. I.E. 3054 / I.E. San Martín"
                     required>
+                </div>
+              </div>
+            </div>
+
+            <!-- Control Condicional de Alergias (a ancho completo: antes estaba
+                 dentro del bloque Salud y su altura descompensaba la fila dual) -->
+            <div class="alergia-control-block ficha-alergia-fullwidth">
+              <div class="alergia-toggle-row">
+                <div class="alergia-toggle-info">
+                  <span class="alergia-toggle-title">¿Presenta alergias o restricciones médicas?</span>
+                  <span class="alergia-toggle-sub">Alimentos, medicamentos o condiciones especiales</span>
+                </div>
+                <div class="alergia-segmented" role="group" aria-label="Alergias o restricciones">
+                  <button type="button" class="alergia-seg-btn is-active" id="btnAlergiaNo">
+                    No (Ninguna)
+                  </button>
+                  <button type="button" class="alergia-seg-btn" id="btnAlergiaSi">
+                    Sí presenta
+                  </button>
+                </div>
+                <input type="hidden" id="checkAlergiaPresencia" value="no">
+              </div>
+
+              <!-- Campos condicionales: se abren solo si marca Sí; ahora en
+                   una sola hilera de tres columnas porque el bloque va a todo
+                   el ancho de la ficha -->
+              <div id="alergiaCamposDetalle" class="alergia-campos-detalle" style="display: none;">
+                <div class="ficha-form-row ficha-form-row--3col ficha-alergia-detalle-row">
+                  <div class="form-group">
+                    <label for="regAlergiaDescripcion">Alergias o Restricciones <span class="req">*</span></label>
+                    <input type="text" id="regAlergiaDescripcion" name="alergia_descripcion" class="form-control" maxlength="120"
+                      placeholder="Especifique: ej. Penicilina, Intolerancia a la lactosa, Asma" disabled value="Ninguna">
+                  </div>
+                  <div class="form-group">
+                    <label for="regAlergiaTipo">Tipo de Alergia <span class="req">*</span></label>
+                    <select id="regAlergiaTipo" name="alergia_tipo" class="form-control" disabled>
+                      {TIPOS_ALERGIA.map((opcion) => (
+                        <option value={opcion.valor}>{opcion.etiqueta}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="regAlergiaSeveridad">Gravedad / Severidad <span class="req">*</span></label>
+                    <select id="regAlergiaSeveridad" name="alergia_severidad" class="form-control" disabled>
+                      <option value="">Selecciona gravedad…</option>
+                      {SEVERIDADES_ALERGIA.map((opcion) => (
+                        <option value={opcion.valor}>{opcion.etiqueta}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
@@ -2241,6 +2243,11 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
     border-radius: var(--radius-sm, 6px);
     padding: 10px 12px;
     margin-top: 10px;
+  }
+
+  /* A ancho completo, separado del par de columnas anterior. */
+  .ficha-alergia-fullwidth {
+    margin-top: 16px;
   }
 
   .alergia-toggle-row {
