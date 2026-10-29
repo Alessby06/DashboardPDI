@@ -900,7 +900,9 @@
     visibility: visible;
     pointer-events: auto;
     transition:
-      opacity var(--dur-panel) var(--ease-out),
+      /* El velo entra antes que la hoja: primero se retira la página, luego
+         sube el panel. La salida lo deja atrás. */
+      opacity 140ms var(--ease-out),
       visibility 0s;
   }
 
@@ -931,6 +933,11 @@
     padding: 0;
     margin: 0;
     box-sizing: border-box;
+    display: flex;
+    /* Cerrada no se retira con display: la transición discreta se quedaba a
+       medias con pulsaciones rápidas (abierta pero invisible). Con visibility
+       el estado siempre se puede interrumpir y revertir. */
+    visibility: hidden;
     transform: translateY(100%);
     /* Misma receta que la ficha de Nuevo Usuario: la hoja funde mientras sube
        y el velo la acompaña. Sin el fundido se siente un golpe seco. */
@@ -940,22 +947,18 @@
     transition:
       transform var(--dur-norm) var(--ease-drawer),
       opacity var(--dur-norm) var(--ease-out),
-      display var(--dur-norm) allow-discrete;
+      visibility 0s linear var(--dur-norm);
     overflow: hidden;
   }
 
   .audit-filter-panel-wrap .audit-filters-dropdown.open .audit-filters-menu {
+    visibility: visible;
     transform: translateY(0);
     opacity: 1;
     transition:
       transform var(--dur-panel) var(--ease-drawer),
       opacity var(--dur-norm) var(--ease-out),
-      display var(--dur-panel) allow-discrete;
-
-    @starting-style {
-      transform: translateY(100%);
-      opacity: 0;
-    }
+      visibility 0s;
   }
 
   /* Android: misma curva, duraciones y fundido que la ficha de Nuevo Usuario. */
@@ -963,20 +966,35 @@
     transition:
       transform var(--sheet-out) var(--sheet-ease),
       opacity var(--sheet-out) linear,
-      display var(--sheet-out) allow-discrete;
+      visibility 0s linear var(--sheet-out);
   }
 
   html.pdi-android .audit-filter-panel-wrap .audit-filters-dropdown.open .audit-filters-menu {
     transition:
       transform var(--sheet-in) var(--sheet-ease),
       opacity 200ms var(--ease-out),
-      display var(--sheet-in) allow-discrete;
+      visibility 0s;
+  }
+
+  /* El contenido se asienta cuando la hoja ya está arriba: sin esto, los tres
+     tiempos del compás quedaban enterrados por el ascenso y la entrada se leía
+     como un deslizamiento genérico. */
+  .audit-filters-dropdown.open .audit-filters-menu > .audit-filters-header {
+    animation: pdi-filtros-zona-in 160ms var(--ease-out) 40ms both;
+  }
+
+  .audit-filters-dropdown.open .audit-filters-menu > .audit-filters-body {
+    animation: pdi-filtros-zona-in 180ms var(--ease-out) 100ms both;
+  }
+
+  .audit-filters-dropdown.open .audit-filters-menu > .audit-filters-footer {
+    animation: pdi-filtros-zona-in 160ms var(--ease-out) 160ms both;
   }
 
   @media (prefers-reduced-motion: reduce) {
     html.pdi-android .audit-filters-dropdown .audit-filters-menu,
     html.pdi-android .audit-filter-panel-wrap .audit-filters-dropdown.open .audit-filters-menu {
-      transition: opacity 140ms linear;
+      transition: opacity 140ms linear, visibility 0s;
     }
   }
 
