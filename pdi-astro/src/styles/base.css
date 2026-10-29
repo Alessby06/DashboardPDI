@@ -155,6 +155,7 @@
       flex-direction: column;
       justify-content: space-between;
       overflow-x: hidden;
+      overflow-y: hidden;
       box-sizing: border-box;
       contain: layout style;
     }
@@ -442,6 +443,7 @@
 
     .nav-sections {
       flex: 1;
+      min-height: 0;
       overflow-y: auto;
       overflow-x: hidden;
       padding: 14px 12px;

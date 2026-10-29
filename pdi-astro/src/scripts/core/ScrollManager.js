@@ -68,7 +68,25 @@ export const ScrollManager = {
 
   _createMain() {
     const wrapper = document.querySelector('.content-viewport');
-    if (!wrapper) return;
+
+    // Login e index no usan AppLayout: Lenis va sobre la ventana.
+    if (!wrapper) {
+      this.mainWrapper = null;
+      this.main = new Lenis({
+        lerp: 0.1,
+        smoothWheel: true,
+        smoothTouch: this.touch,
+        syncTouch: this.touch,
+        wheelMultiplier: 1,
+        touchMultiplier: 1.6,
+        autoRaf: false
+      });
+      const remide = () => this.main?.resize();
+      requestAnimationFrame(remide);
+      setTimeout(remide, 200);
+      return;
+    }
+
     this.mainWrapper = wrapper;
 
     const content = wrapper.querySelector(':scope > .app-view.active')
@@ -114,16 +132,30 @@ export const ScrollManager = {
   _observe() {
     if (typeof MutationObserver !== 'function') return;
     let raf = null;
-    const schedule = () => {
+    this.observer = new MutationObserver((mutaciones) => {
       if (raf !== null) return;
       raf = requestAnimationFrame(() => {
         raf = null;
-        this.discover();
+        mutaciones.forEach((m) => {
+          m.addedNodes.forEach((n) => {
+            if (n.nodeType === 1) this.discover(n);
+          });
+        });
         this._cleanup();
       });
-    };
-    this.observer = new MutationObserver(schedule);
+    });
     this.observer.observe(document.body, { childList: true, subtree: true });
+  },
+
+  autoAttach(el) {
+    if (!this.enabled || !el || el.nodeType !== 1) return;
+    if (el === this.mainWrapper) return;
+    if (el.closest('.is-scroll-pane, [data-lenis-prevent], [data-scroll-native]')) return;
+    if (el.matches('pre, code, textarea, input, select, .table-container, .table-responsive, .kanban-board, .triaje-chips, .expediente-sidebar, .sidebar')) return;
+    if (el.clientHeight < 40 || el.scrollHeight <= el.clientHeight + 4) return;
+    const cs = getComputedStyle(el);
+    if (cs.overflowY !== 'auto' && cs.overflowY !== 'scroll') return;
+    ScrollPane.attach(el);
   },
 
   discover(root = document) {
@@ -131,10 +163,15 @@ export const ScrollManager = {
     root.querySelectorAll(PANE_SELECTOR).forEach((el) => {
       if (el.closest('[data-lenis-prevent]')) return;
       if (el === this.mainWrapper) return;
-      // Un pane dentro de otro pane ya lo mueve el contenedor exterior.
       if (el.closest('.is-scroll-pane')) return;
       ScrollPane.attach(el);
     });
+
+    // La regla cubre cualquier panel con scroll vertical, aunque no esté en la
+    // lista de selectores. Se revisa una vez por página o por nodo añadido.
+    const ambito = root === document ? document.body : root;
+    if (ambito && ambito.nodeType === 1) this.autoAttach(ambito);
+    ambito?.querySelectorAll?.('*').forEach((el) => this.autoAttach(el));
   },
 
   _cleanup() {
