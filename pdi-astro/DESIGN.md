@@ -307,7 +307,7 @@ En tema oscuro la sombra difusa desaparece y el borde asume toda la elevación; 
 
 Radios cortos y contenidos: 6 px para controles pequeños, 10 px para botones, campos y desplegables, 16 px para tarjetas, paneles y placas, `9999px` solo para insignias y píldoras.
 
-No se usan 4, 8, 12 ni 20 px en superficies. Las únicas excepciones son las marcas de datos: pista de barra de 2 px, barra de 3–6 px y punto de estado de 50 %.
+No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: las **hojas inferiores** llevan 20 px solo en las esquinas superiores, porque nacen del borde de la pantalla y el radio inferior no existe; y las **opciones dentro de un marco de 6 px** derivan su esquina con `calc(var(--radius-sm) - 2px)` para que el resalte quede concéntrico con el marco. Las marcas de datos conservan sus medidas: pista de barra de 2 px, barra de 3–6 px y punto de estado de 50 %.
 
 ## Components
 
@@ -388,8 +388,16 @@ No se usan 4, 8, 12 ni 20 px en superficies. Las únicas excepciones son las mar
 - **Móvil:** hoja inferior a 85dvh, cabecera con asa de arrastre real (40×4.5 px, centrada, con feedback al presionar) y cierre; el asa sigue el dedo 1:1, cierra pasados 75 px o un flick y vuelve elástica si el gesto es corto. Pie fijo con «Ver resultados (N)». La limpieza vive en la cabecera («Restablecer») y en los chips, no duplicada en el pie.
 - **Estados:** badge con facetas activas del store; chips descartables; contador desde el total del paginador, no contando filas; vacío con «Limpiar filtros».
 - **Accesibilidad:** `aria-expanded` / `aria-controls`, `role="dialog"`, foco al primer campo, trampa de Tab, Escape por capas (faceta y luego panel) y retorno al disparador; opciones con `role="checkbox"` o `role="radio"` y teclado.
-- **Motion:** la hoja se despliega, no salta. El panel nace desde el borde que toca al disparador con un `clip-path` direccional, sube o baja 6 px y funde en 220 ms `ease-out`; pliega hacia ese mismo borde en 160 ms. El submenú de cada faceta conserva su gesto de 4 px en 175 ms. El acordeón de faceta anima su **altura** (`grid-template-rows: 0fr → 1fr`, 190 ms al abrir y 150 ms al cerrar) para que el cuerpo no cambie de golpe; el scroll del cuerpo espera a esa expansión y se hace suave. La barra de chips entra y sale con la misma técnica (175 ms) y el contador del pie se actualiza a los 80 ms, no 160. En móvil la hoja sube con `ease-drawer` (260 ms) y el velo comparte sus tiempos (260/220 ms), sin `backdrop-filter`. Al filtrar no se relanza la cascada de filas: los resultados cambian en el sitio. Con `prefers-reduced-motion` se retiran el clip, los desplazamientos, la altura animada y el scroll; solo queda el fundido.
+- **Motion:** la hoja se despliega, no salta. El panel nace desde el borde que toca al disparador con un `clip-path` direccional, sube o baja 6 px y funde en 220 ms `ease-out`; pliega hacia ese mismo borde en 160 ms. El submenú de cada faceta conserva su gesto de 4 px en 175 ms. El acordeón de faceta anima su **altura** (`grid-template-rows: 0fr → 1fr`, 190 ms al abrir y 150 ms al cerrar) para que el cuerpo no cambie de golpe; el scroll del cuerpo espera a esa expansión y se hace suave. La barra de chips entra y sale con la misma técnica (175 ms) y el contador del pie se actualiza a los 80 ms, no 160. En móvil la hoja sube con `ease-drawer` (260 ms); en Android usa los tokens de hoja (`--sheet-in` 320 ms, `--sheet-out` 220 ms, `--sheet-ease`), porque un recorrido de casi toda la pantalla no admite la curva de los popovers. El velo comparte sus tiempos y no usa `backdrop-filter`. Al filtrar no se relanza la cascada de filas: los resultados cambian en el sitio. Con `prefers-reduced-motion` se retiran el clip, los desplazamientos, la altura animada y el scroll; solo queda el fundido.
 - **Pruebas:** `npm run test:filtros` recorre las siete vistas (apertura, dirección, scroll, foco, reinicio, auto-todos, móvil) y `npm test` cubre el store.
+
+### Bottom Sheets (móvil)
+
+- **Estructura:** `.modal-backdrop.drawer` con `.modal-box.drawer-box` (92dvh) para las fichas, o una hoja propia (filtros, sedes). El asa `.sheet-grab` mide 44 px de alto.
+- **Movimiento:** solo `transform` sobre la hoja; el telón funde por su cuenta. En Android, `--sheet-in` / `--sheet-out` con `--sheet-ease`; en el resto, `--ease-drawer` a 260 ms. La salida es más corta que la entrada y el fundido de la hoja no termina antes que la bajada.
+- **Gesto:** arrastre 1:1 con captura de puntero, cierre a 80 px o con un flick y retorno elástico de 260 ms. Al cerrar por arrastre, el estado se retira al terminar la salida, con temporizador solo como respaldo.
+- **Accesibilidad:** `inert` y `aria-hidden` mientras están cerradas; Escape cierra la hoja superior; foco al primer control al abrir y retorno al disparador al cerrar.
+- **Rendimiento:** el aviso de composición (`will-change`) queda solo en la hoja que recorre la pantalla, no en cada modal ni en el telón.
 
 ## Do's and Don'ts
 
