@@ -105,11 +105,24 @@ const { id, label = 'Estrategia Asignada', disabled = false } = Astro.props;
 
   .estr-chips.is-disabled .estr-chip {
     cursor: default;
-    opacity: 0.6;
   }
 
   .estr-chips.is-disabled .estr-chip:hover {
     border-color: var(--border-subtle);
+  }
+
+  /* El navegador pinta los <button disabled> con su propio gris. El control
+     de solo lectura debe conservar el color de la estrategia marcada. */
+  .estr-chip:disabled {
+    opacity: 1;
+    color: var(--text-main);
+    cursor: default;
+  }
+
+  /* El expediente no muestra las pisoras hasta que el control recibió los
+     valores reales. Así no aparece un selector vacío mientras hidrata. */
+  #expEstrategia:not([data-listo="1"]) .estr-chips-list {
+    visibility: hidden;
   }
 
   /* Mientras se aplica el estado, la pisora cambia de color de golpe: si la

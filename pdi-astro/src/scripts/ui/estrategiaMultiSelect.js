@@ -33,6 +33,11 @@ function pintar(control) {
     item.classList.toggle("active", marcado);
   });
 
+  // El expediente oculta las pisoras hasta que recibe los valores reales.
+  // Asi no aparece un selector vacio mientras la pagina hidrata.
+  if (control.datosAplicados) raiz.dataset.listo = "1";
+  else delete raiz.dataset.listo;
+
   // Un reflujo obliga al navegador a aplicar el color ya, sin animacion.
   void raiz.offsetWidth;
   raiz.classList.remove("estr-chips-sin-transicion");
@@ -56,13 +61,23 @@ function alternar(control, item) {
 /** Conecta un control y lo deja listo para usarse. */
 function conectar(root) {
   const id = root.id;
-  if (!id || controles.has(id)) return;
+  if (!id) return;
+
+  // Astro reemplaza el DOM en cada navegacion interna. El control anterior
+  // queda huerfano con el mismo id; si se conserva, el nuevo nunca se conecta
+  // y las estrategias aparecen vacias hasta recargar la pagina.
+  const existente = controles.get(id);
+  if (existente) {
+    if (existente.root === root) return;
+    controles.delete(id);
+  }
 
   const control = {
     id,
     root,
     seleccion: new Set(),
     deshabilitado: root.dataset.disabled === "true",
+    datosAplicados: false,
   };
   controles.set(id, control);
 
@@ -76,13 +91,17 @@ function conectar(root) {
   if (pendientes.has(id)) {
     control.seleccion = new Set(pendientes.get(id));
     pendientes.delete(id);
+    control.datosAplicados = true;
+  } else {
+    // La pre-hidratacion del expediente corre antes que este modulo y deja
+    // las estrategias preparadas en una variable global.
+    const preparado = typeof window !== "undefined" ? window.__pdiEstrategias?.[id] : null;
+    if (Array.isArray(preparado)) {
+      control.seleccion = new Set(preparado);
+      control.datosAplicados = true;
+    }
   }
-  // La pre-hidratacion del expediente corre antes que este modulo y deja las
-  // estrategias preparadas en una variable global.
-  const preparado = typeof window !== "undefined" ? window.__pdiEstrategias?.[id] : null;
-  if (Array.isArray(preparado) && preparado.length) {
-    control.seleccion = new Set(preparado);
-  }
+
   pintar(control);
   // El control puede nacer apagado (en el expediente solo se edita en modo
   // edicion), asi que el estado inicial se aplica igual que en el resto.
@@ -97,12 +116,19 @@ export function initEstrategiaMultiSelect() {
 /** Pinta las estrategias de un control (estado guardado o recien leido). */
 export function setValues(id, valores) {
   const lista = (Array.isArray(valores) ? valores : [valores]).filter(Boolean);
+  // El puente global es la red de seguridad cuando el control aún no existe:
+  // la vista puede pintar antes de que se cargue este módulo.
+  if (typeof window !== "undefined") {
+    window.__pdiEstrategias = window.__pdiEstrategias || {};
+    window.__pdiEstrategias[id] = lista;
+  }
   const control = controles.get(id);
   if (!control) {
     pendientes.set(id, lista);
     return;
   }
   control.seleccion = new Set(lista);
+  control.datosAplicados = true;
   pintar(control);
 }
 
@@ -128,4 +154,13 @@ export function setDisabled(id, deshabilitado) {
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
   window.PDI.EstrategiaMultiSelect = { initEstrategiaMultiSelect, setValues, getValues, setDisabled };
+}
+
+// El ClientRouter reemplaza el marcado sin recargar el documento. Hay que
+// reconectar los controles nuevos después de cada intercambio y al terminar
+// la carga de la página; de lo contrario el expediente se queda con el
+// control de la página anterior y muestra las estrategias vacías.
+if (typeof document !== "undefined") {
+  document.addEventListener("astro:after-swap", initEstrategiaMultiSelect);
+  document.addEventListener("astro:page-load", initEstrategiaMultiSelect);
 }

@@ -621,13 +621,21 @@ export const ExpedienteView = {
     // llegaban al expediente. Se pintan con el mismo catalogo compartido.
     seleccionarValor("expModalidad", b.modalidad || "Comunitaria");
     // La estrategia son varias: se marcan las casillas de las que trae el
-    // usuario, y si el dato viene de una version anterior se reconstruye.
-    window.PDI?.EstrategiaMultiSelect?.setValues(
-      "expEstrategia",
-      Array.isArray(b.estrategias) && b.estrategias.length
-        ? b.estrategias
-        : [b.estrategia || "Desayuno Infantil"]
-    );
+    // usuario y, si el dato viene de una versión anterior, se reconstruye.
+    const textoEstrategia = String(b.estrategia || "");
+    const derivadas = textoEstrategia.includes("Mixto")
+      ? ["Desayuno Infantil", "Casita del Saber"]
+      : textoEstrategia.split("+").map((s) => s.trim()).filter(Boolean);
+    const estrategias = Array.isArray(b.estrategias) && b.estrategias.length
+      ? b.estrategias
+      : derivadas;
+
+    // El control puede inicializarse después que esta vista, sobre todo en
+    // una navegación interna de Astro. Se deja el valor en el puente global
+    // y se intenta pintar: cualquiera de los dos caminos termina mostrándolo.
+    window.__pdiEstrategias = window.__pdiEstrategias || {};
+    window.__pdiEstrategias["expEstrategia"] = estrategias;
+    window.PDI?.EstrategiaMultiSelect?.setValues("expEstrategia", estrategias);
   },
 
   _pintarSalud(b) {
