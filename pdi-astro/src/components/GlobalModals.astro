@@ -528,13 +528,8 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
                 <!-- Botón compacto de adición rápida -->
                 <button type="button" class="btn-agregar-persona2" id="btnToggleRetiro2"
                   aria-expanded="false" aria-controls="cuerpoRetiro2">
-                  <div class="btn-agregar-persona2-icon">
-                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>
-                  </div>
                   <div class="btn-agregar-persona2-text">
-                    <span class="btn-agregar-persona2-title">+ Agregar Persona Autorizada 2 (Opcional)</span>
+                    <span class="btn-agregar-persona2-title">Agregar Persona Autorizada 2</span>
                     <span class="btn-agregar-persona2-sub">Contacto de respaldo adicional para el retiro en sede</span>
                   </div>
                 </button>
@@ -1966,8 +1961,10 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
     padding: 12px;
   }
 
+  /* La tarjeta 2, ya abierta, se ve igual que la 1: el punteado queda solo
+     en el boton recogido, que es donde indica "esto es opcional/anadible". */
   .section-retirador-card--optional {
-    border-style: dashed;
+    border-style: solid;
   }
 
   /* Consentimiento Ley 29733 */
@@ -2360,23 +2357,6 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
     color: var(--text-main);
   }
 
-  .btn-agregar-persona2-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    background: var(--surface-2);
-    color: var(--text-dim);
-    flex-shrink: 0;
-  }
-
-  .btn-agregar-persona2:hover .btn-agregar-persona2-icon {
-    color: var(--text-main);
-    background: var(--surface-1);
-  }
-
   .btn-agregar-persona2-text {
     display: flex;
     flex-direction: column;
@@ -2384,8 +2364,8 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
   }
 
   .btn-agregar-persona2-title {
-    font-size: 12.5px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 700;
     color: var(--text-main);
   }
 
