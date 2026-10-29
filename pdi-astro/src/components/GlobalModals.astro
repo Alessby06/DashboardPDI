@@ -1740,6 +1740,10 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
     display: grid;
     gap: 12px;
     width: 100%;
+    /* Alineacion por la base: aunque una etiqueta ocupe dos lineas (p. ej.
+       "Centro de Salud (Referencia)"), su campo queda en la misma raya que
+       el de la columna hermana y la fila no se rompe. */
+    align-items: end;
   }
 
   .ficha-form-row > * {
