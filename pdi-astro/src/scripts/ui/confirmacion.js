@@ -39,11 +39,24 @@ function terminar(valor) {
 
   // El foco sale antes de inert/aria-hidden: si queda dentro, Chrome bloquea
   // el cambio y avisa por consola.
-  if (focoAntes && document.contains(focoAntes)) {
+  const destino = focoAntes
+    && document.contains(focoAntes)
+    && !modal.contains(focoAntes)
+    ? focoAntes
+    : null;
+  if (destino) {
     try {
-      focoAntes.focus({ preventScroll: true });
+      destino.focus({ preventScroll: true });
     } catch {
       // El elemento de origen pudo desaparecer; no hay nada que restaurar.
+    }
+  } else if (document.activeElement && modal.contains(document.activeElement)) {
+    // Sin un origen enfocable (por ejemplo, un clic programático), no se deja
+    // el foco atrapado dentro de un modal que acaba de quedar inert.
+    try {
+      document.activeElement.blur();
+    } catch {
+      // Nada que hacer.
     }
   }
   focoAntes = null;
@@ -111,7 +124,9 @@ export function confirmar({
   confirmar: textoAceptar = "Confirmar",
   cancelar: textoCancelar = "Cancelar",
   peligro = false,
+  origen = null,
 } = {}) {
+  const activoAntes = document.activeElement;
   const {
     modal, titulo: elTitulo, mensaje: elMensaje, aceptar, cancelar, cerrar,
   } = referencias();
@@ -129,7 +144,13 @@ export function confirmar({
     anterior(false);
   }
 
-  focoAntes = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  focoAntes = origen instanceof HTMLElement
+    ? origen
+    : (activoAntes instanceof HTMLElement ? activoAntes : null);
+  // Si el origen quedó dentro del propio modal (una confirmación anterior),
+  // no sirve para devolver el foco: se deja el blur de cierre.
+  if (focoAntes && modal.contains(focoAntes)) focoAntes = null;
+
   elTitulo.textContent = titulo;
   elMensaje.textContent = mensaje;
   aceptar.textContent = textoAceptar;

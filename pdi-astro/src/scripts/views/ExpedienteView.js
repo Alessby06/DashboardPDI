@@ -1194,6 +1194,7 @@ export const ExpedienteView = {
         confirmar: "Continuar",
         cancelar: "Conservar",
         peligro: true,
+        origen: document.getElementById("btnSaveExpChanges"),
       });
       if (!acepta) {
         seleccionarValor("expAlergiaSeveridad", gravedadAntes);
@@ -1435,6 +1436,7 @@ export const ExpedienteView = {
       confirmar: "Eliminar",
       cancelar: "Cancelar",
       peligro: true,
+      origen: document.querySelector('button[onclick*="eliminarFotoExpediente"]'),
     });
     if (!acepta) return;
 
@@ -1482,6 +1484,7 @@ export const ExpedienteView = {
       confirmar: "Dar de baja",
       cancelar: "Cancelar",
       peligro: true,
+      origen: document.getElementById("btnDeleteBeneficiario"),
     });
     if (!acepta) return;
 
