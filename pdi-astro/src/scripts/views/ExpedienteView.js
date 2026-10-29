@@ -348,6 +348,7 @@ export const ExpedienteView = {
     this._id = b.id;
     if (this.isEditing) {
       this.isEditing = false;
+      this._respaldoEdicion = null;
       if (typeof document !== "undefined") {
         document.body.classList.remove("pdi-editando");
       }
@@ -1004,6 +1005,27 @@ export const ExpedienteView = {
 
   toggleEdit() {
     if (!this._id) return;
+    if (this._guardandoExpediente) return;
+
+    // Cancelar la edición descarta cualquier cambio no confirmado. El respaldo
+    // se toma al entrar; si el guardado falló, la vista no puede quedarse
+    // mostrando valores que la nube rechazó.
+    if (this.isEditing) {
+      if (this._respaldoEdicion) {
+        BeneficiarioModel.restaurar(this._id, this._respaldoEdicion);
+        this._respaldoEdicion = null;
+        this.isEditing = false;
+        if (typeof document !== "undefined") {
+          document.body.classList.remove("pdi-editando");
+        }
+        this.render();
+        return;
+      }
+    } else {
+      const actual = BeneficiarioModel.getById(this._id);
+      this._respaldoEdicion = actual ? structuredClone(actual) : null;
+    }
+
     this.isEditing = !this.isEditing;
 
     // Marca de cuerpo para que el foco no vuelva a enmarcar en verde los
@@ -1387,6 +1409,7 @@ export const ExpedienteView = {
     }
 
     this.isEditing = false;
+    this._respaldoEdicion = null;
     if (typeof document !== "undefined") {
       document.body.classList.remove("pdi-editando");
     }

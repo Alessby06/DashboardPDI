@@ -158,6 +158,21 @@ export const BeneficiarioModel = {
     return actualizado;
   },
 
+  /**
+   * Devuelve el registro a una copia anterior. La usa "Cancelar Edición" para
+   * descartar los cambios que no llegaron a confirmarse en la nube.
+   */
+  restaurar(id, respaldo) {
+    if (!respaldo) return null;
+    const list = this.getAll();
+    const idx = list.findIndex(b => String(b.id) === String(id) || b.id === Number(id));
+    if (idx === -1) return null;
+
+    const restaurado = normalizeBeneficiarioServicios(structuredClone(respaldo));
+    list[idx] = restaurado;
+    return restaurado;
+  },
+
   update(id, updatedData) {
     const list = this.getAll();
     const idx = list.findIndex(b => String(b.id) === String(id) || b.id === Number(id));
