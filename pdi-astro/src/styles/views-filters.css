@@ -839,11 +839,10 @@
 
 @media (max-width: 768px) {
   body.filter-sheet-open {
-    overflow: hidden ;
+    /* Solo se bloquea el gesto táctil. Sin `overflow: hidden` ni padding: el
+       cambio de ancho/scrollbar al cerrar repintaba la tabla y se veía un
+       parpadeo cuando el arrastre ya había retirado el velo. */
     touch-action: none ;
-    /* El bloqueo retira la barra del documento: se repone su ancho exacto para
-       que el contenido de atrás no se ensanche ni al abrir ni al cerrar. */
-    padding-right: var(--pdi-scrollbar-lock, 0px);
   }
 
   /* El topbar es un flex item con z-index 40. El velo vive dentro de main y no

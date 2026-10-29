@@ -294,11 +294,9 @@
 
     /* Evita que la página de atrás se desplace bajo la hoja. Lenis se detiene
        desde SheetController; esto cubre el scroll nativo. */
-    body.pdi-drawer-open {
-      overflow: hidden !important;
-      /* Repone el ancho de la barra que retira el bloqueo. */
-      padding-right: var(--pdi-scrollbar-lock, 0px);
-    }
+    /* El telón cubre toda la pantalla, así que no hace falta bloquear el
+       scroll del body. Cambiar `overflow` al cerrar repintaba la tabla y se
+       veía un parpadeo al soltar el asa. */
 
     .modal-header {
       padding: 18px 22px;
@@ -652,7 +650,8 @@
 }
 @media (max-width: 768px) {
   body.filter-sheet-open {
-    overflow: hidden !important;
+    /* Sin overflow: el bloqueo del body al cerrar repintaba la tabla. El gesto
+       sigue bloqueado con touch-action. */
     touch-action: none !important;
   }
 

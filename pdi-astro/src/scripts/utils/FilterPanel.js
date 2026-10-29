@@ -576,7 +576,6 @@ function enlazarArrastreHoja(panel) {
     const total = Math.max(0, baseY + desplazamiento);
 
     menu.style.transform = `translateY(${total}px)`;
-    panel.style.setProperty('--filtro-velo', String(Math.max(0, 1 - total / VELO_RANGO)));
 
     historial.push({ y: e.clientY, t: performance.now() });
     if (historial.length > 5) historial.shift();
@@ -607,7 +606,9 @@ function enlazarArrastreHoja(panel) {
     const rapidez = Math.max(0.35, Math.abs(velocidad));
     const duracion = Math.round(Math.min(cerrar ? 320 : 260, Math.max(140, distancia / rapidez)));
 
-    panel.style.setProperty('--filtro-velo', cerrar ? '0' : '1');
+    // El velo se queda opaco durante el gesto y el cierre: el desbloqueo de la
+    // página (y su repintado) ocurre debajo, y luego el velo se apaga solo.
+    panel.style.setProperty('--filtro-velo', '1');
 
     // La suelta continúa el gesto: la duración sale de lo que queda por
     // recorrer y de la velocidad con la que soltó el dedo, no de un valor fijo.

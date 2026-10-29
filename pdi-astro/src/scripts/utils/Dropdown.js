@@ -15,16 +15,6 @@
 //  con la pagina en lugar de acumularse como en la SPA.
 // ===========================================================================
 
-/** Ancho de la barra que el bloqueo de fondo retira (0 con barras superpuestas). */
-function anchoBarra() {
-  if (typeof window === 'undefined') return 0;
-  return Math.max(
-    0,
-    window.innerWidth - document.documentElement.clientWidth,
-    document.body.offsetWidth - document.body.clientWidth
-  );
-}
-
 export const Dropdown = {
   /**
    * Alterna un .custom-dropdown y cierra los hermanos, sin tocar los anidados:
@@ -49,12 +39,9 @@ export const Dropdown = {
       target.classList.toggle('open');
       if (target.classList.contains('audit-filters-dropdown')) {
         if (willOpen && typeof window !== 'undefined' && window.innerWidth <= 768) {
-          // Se mide antes de bloquear: después la barra ya no está.
-          document.documentElement.style.setProperty('--pdi-scrollbar-lock', `${anchoBarra()}px`);
           document.body.classList.add('filter-sheet-open');
         } else {
           document.body.classList.remove('filter-sheet-open');
-          document.documentElement.style.removeProperty('--pdi-scrollbar-lock');
         }
       }
     }
@@ -80,7 +67,6 @@ export const Dropdown = {
     });
     if (typeof document !== 'undefined') {
       document.body.classList.remove('filter-sheet-open');
-      document.documentElement.style.removeProperty('--pdi-scrollbar-lock');
     }
   },
 
