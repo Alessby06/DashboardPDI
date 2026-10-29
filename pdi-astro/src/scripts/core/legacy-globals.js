@@ -98,7 +98,50 @@ window.closeModalNuevoUsuario = () => ModalView.closeNuevoUsuario({ conservarBor
 window.closeModalAuditDetail = () => ModalView.closeAuditDetail();
 let _currentExportHandler = null;
 
+/** Android incluye teléfonos, tablets y WebViews; el UA es la señal estable. */
+function esAndroid() {
+  return typeof navigator !== "undefined" && /Android/i.test(navigator.userAgent || "");
+}
+
 window.openModalExportGeneric = (config) => {
+  const count = typeof config.count === "number" ? config.count : 0;
+
+  // En Android no se pide confirmación: la descarga empieza y el aviso inferior
+  // lo comunica. Cada exportador ya muestra su propio toast con el resultado.
+  if (esAndroid()) {
+    window.closeModalExportAudit?.();
+
+    if (count === 0) {
+      window.PDI?.ToastView?.show?.(
+        "Sin registros para descargar",
+        "No hay datos disponibles para este reporte.",
+        "warning",
+      );
+      return;
+    }
+
+    if (typeof config.onConfirm !== "function") {
+      window.PDI?.ToastView?.show?.(
+        "Descarga no disponible",
+        "Este reporte no tiene una acción de descarga configurada.",
+        "danger",
+      );
+      return;
+    }
+
+    try {
+      config.onConfirm();
+    } catch (error) {
+      console.error("[PDI] No se pudo iniciar la descarga:", error);
+      window.PDI?.ToastView?.show?.(
+        "No se pudo descargar",
+        "Revisa la conexión e inténtalo de nuevo.",
+        "danger",
+      );
+    }
+    return;
+  }
+
   const modal = document.getElementById("modalConfirmExportAudit");
   const titleEl = document.getElementById("exportAuditModalTitle");
   const subEl = document.getElementById("exportAuditModalSubtitle");
@@ -112,7 +155,6 @@ window.openModalExportGeneric = (config) => {
   if (descEl && config.description) descEl.innerHTML = config.description;
   if (legalEl && config.legal) legalEl.textContent = config.legal;
 
-  const count = typeof config.count === "number" ? config.count : 0;
   if (badgeEl) badgeEl.textContent = `${count} ${config.unit || "registros"}`;
 
   if (btnConfirm) {

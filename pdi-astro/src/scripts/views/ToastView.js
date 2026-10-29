@@ -1,6 +1,11 @@
 // Vista: Sistema de Notificaciones Toast Flotantes
 import { escapar } from "../utils/HtmlHelper.js";
 
+/** Android incluye teléfonos, tablets y WebViews. */
+function esAndroid() {
+  return typeof navigator !== "undefined" && /Android/i.test(navigator.userAgent || "");
+}
+
 /**
  * Marca de cada tipo de aviso: el tono del chip de icono.
  *
@@ -61,6 +66,10 @@ export const ToastView = {
   show(title, message, type = "success") {
     const container = document.getElementById("toastContainer");
     if (!container) return;
+
+    // En Android el aviso se ancla al ancho útil y al borde inferior, también
+    // en tablets donde el corte móvil de 768 px no se aplica.
+    if (esAndroid()) container.classList.add("toast-container--android");
 
     const tono = TONOS[type] || TONOS.success;
 

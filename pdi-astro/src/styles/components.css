@@ -948,6 +948,15 @@
       }
     }
 
+    /* Android: el aviso de descarga ocupa el ancho útil y queda centrado
+       abajo, también en tablets donde el corte de 768 px no aplica. */
+    .toast-container.toast-container--android {
+      left: 12px;
+      right: 12px;
+      bottom: max(12px, env(safe-area-inset-bottom));
+      width: auto;
+    }
+
     /* ===========================================================================
        INTERACCIONES (IxD)
        ===========================================================================
