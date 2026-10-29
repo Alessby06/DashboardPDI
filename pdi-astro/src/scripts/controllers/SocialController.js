@@ -56,6 +56,7 @@ export const SocialController = {
     if (guardado === false) {
       // La nube rechazo la escritura (db.js ya aviso el motivo): se deshace
       // el movimiento local para no mentir en el tablero.
+      model.olvidarEtapaPendiente?.(caso, previa);
       if (previa) caso.etapa = previa;
       view?.renderKanban(model.getAll());
       return;

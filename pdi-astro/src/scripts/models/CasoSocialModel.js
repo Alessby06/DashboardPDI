@@ -9,6 +9,9 @@ import {
 
 export const CasoSocialModel = {
   _data: null,
+  // Etapas movidas localmente y aun no confirmadas por un snapshot de la nube.
+  // Clave: id de registro (_casoId). Valor: { etapa, ts }.
+  _etapasPendientes: new Map(),
 
   init() {
     if (!this._data) this._data = [];
@@ -18,7 +21,46 @@ export const CasoSocialModel = {
   /** La capa de datos entrega los casos con sus solicitudes ya adjuntas. */
   aplicarDatos(lista) {
     if (!Array.isArray(lista)) return;
+
+    // Un snapshot puede ser anterior a una escritura recien confirmada (LIVE
+    // reordenado, reconexion con token nuevo, lectura que se solapa con el
+    // commit). Mientras la etapa propia no vuelva confirmada, manda la local:
+    // asi el caso no "regresa solo" a su fase anterior en la cara del usuario.
+    if (this._etapasPendientes.size) {
+      const ahora = Date.now();
+      for (const [clave, pendiente] of this._etapasPendientes) {
+        if (ahora - pendiente.ts > 20000) {
+          this._etapasPendientes.delete(clave);
+          continue;
+        }
+        const caso = lista.find(c => String(c._casoId || c.id) === clave);
+        if (!caso) continue;
+        if (caso.etapa === pendiente.etapa) {
+          // La nube ya trae el cambio: se libera la propiedad local.
+          this._etapasPendientes.delete(clave);
+        } else {
+          caso.etapa = pendiente.etapa;
+        }
+      }
+    }
+
     this._data = lista;
+  },
+
+  /** Marca una etapa como propia mientras la nube la confirma. */
+  recordarEtapaPendiente(caso, etapa) {
+    if (!caso) return;
+    const clave = String(caso._casoId || caso.id);
+    if (!clave || clave === 'undefined') return;
+    this._etapasPendientes.set(clave, { etapa, ts: Date.now() });
+  },
+
+  /** La escritura fallo: se suelta la etapa propia y se vuelve a la previa. */
+  olvidarEtapaPendiente(caso, etapaPrevia) {
+    if (!caso) return;
+    const clave = String(caso._casoId || caso.id);
+    this._etapasPendientes.delete(clave);
+    if (etapaPrevia) caso.etapa = etapaPrevia;
   },
 
   getAll() {
@@ -219,6 +261,7 @@ export const CasoSocialModel = {
     const caso = list.find(c => String(c.id) === String(id) || c.id === Number(id));
     if (caso) {
       caso.etapa = nuevaEtapa;
+      this.recordarEtapaPendiente(caso, nuevaEtapa);
       // Se guarda la promesa de la nube: el controlador espera la respuesta
       // para no anunciar un exito que la base haya rechazado.
       caso._guardadoPendiente = cambiarEtapaCaso(caso, nuevaEtapa);

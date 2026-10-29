@@ -405,9 +405,14 @@ let _versionEscrituras = 0;
 let _hidratacionDiferida = false;
 
 const RE_ESCRITURA = /^\s*(INSERT|UPDATE|UPSERT|CREATE|DELETE|RELATE|REMOVE)\b/i;
+// Las escrituras compuestas empiezan con LET/IF y llevan UPDATE dentro
+// (resolucion de solicitudes): mirar solo el inicio las dejaba fuera del
+// guard, y una hidratacion posterior podia pintar la etapa anterior.
+const RE_ESCRITURA_INTERNA = /\b(INSERT|UPDATE|UPSERT|CREATE|DELETE|RELATE|REMOVE)\b/i;
 
 function esSentenciaDeEscritura(ql) {
-  return RE_ESCRITURA.test(String(ql || ''));
+  const texto = String(ql || '');
+  return RE_ESCRITURA.test(texto) || RE_ESCRITURA_INTERNA.test(texto);
 }
 
 function programarHidratacion() {
