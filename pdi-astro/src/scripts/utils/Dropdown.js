@@ -39,9 +39,13 @@ export const Dropdown = {
       target.classList.toggle('open');
       if (target.classList.contains('audit-filters-dropdown')) {
         if (willOpen && typeof window !== 'undefined' && window.innerWidth <= 768) {
+          // El fondo no puede desplazarse bajo la hoja; el scroll del panel
+          // vive en su propio contenedor y no depende del principal.
+          window.__pdiScroll?.main?.stop?.();
           document.body.classList.add('filter-sheet-open');
         } else {
           document.body.classList.remove('filter-sheet-open');
+          window.__pdiScroll?.main?.start?.();
         }
       }
     }
@@ -67,6 +71,7 @@ export const Dropdown = {
     });
     if (typeof document !== 'undefined') {
       document.body.classList.remove('filter-sheet-open');
+      window.__pdiScroll?.main?.start?.();
     }
   },
 

@@ -781,6 +781,15 @@
       background: var(--bg-base);
     }
 
+    /* Con una hoja abierta el fondo no acepta gestos. Se aplica al viewport y
+       no al body para no tocar scrollbar ni layout (eso repintaba la tabla).
+       El cuerpo de la hoja conserva su scroll: es su contenedor más cercano. */
+    body.filter-sheet-open #mainContent,
+    body.pdi-drawer-open #mainContent,
+    body.sedes-sheet-open #mainContent {
+      touch-action: none;
+    }
+
     /* Progreso de lectura: barra fina sobre el topbar. */
     .scroll-progress {
       position: fixed;

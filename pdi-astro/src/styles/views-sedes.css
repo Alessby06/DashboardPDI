@@ -860,7 +860,8 @@
      El scroll tactil de la hoja sigue funcionando: su contenedor interno
      conserva su propio scroll. */
   body.sedes-sheet-open {
-    overflow: hidden !important;
+    /* Sin overflow: bloquear la scrollbar al cerrar repintaba la tabla. El
+       gesto se bloquea en #mainContent (base.css). */
     touch-action: none;
   }
 }
