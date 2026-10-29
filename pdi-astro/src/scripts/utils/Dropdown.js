@@ -52,6 +52,19 @@ export const Dropdown = {
     document.querySelectorAll('.custom-dropdown.open, .audit-filters-dropdown.open').forEach(d => {
       d.classList.remove('open');
     });
+    // El cierre por arrastre puede dejar el disparador marcado como abierto y
+    // los estilos del gesto en linea; se limpian siempre, venga de donde venga.
+    document.querySelectorAll('.audit-filter-btn[aria-expanded="true"]').forEach(b => {
+      b.setAttribute('aria-expanded', 'false');
+    });
+    document.querySelectorAll('.audit-filters-dropdown').forEach(d => {
+      d.style.removeProperty('--filtro-velo');
+      d.querySelectorAll('.audit-filters-menu').forEach(m => {
+        m.style.removeProperty('transform');
+        m.style.removeProperty('transition');
+        m.style.removeProperty('will-change');
+      });
+    });
     if (typeof document !== 'undefined') {
       document.body.classList.remove('filter-sheet-open');
     }

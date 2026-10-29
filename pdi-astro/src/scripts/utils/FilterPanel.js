@@ -504,47 +504,71 @@ function enlazarArrastreHoja(panel) {
   let startY = 0;
   let currentY = 0;
   let arrastrando = false;
+  let pointerId = null;
   let historial = [];
   const esControl = (el) => !!el.closest?.('.btn-text-subtle, .btn-close-sheet');
 
-  header.addEventListener('touchstart', (e) => {
+  const limpiarEstilos = () => {
+    menu.style.removeProperty('transform');
+    menu.style.removeProperty('transition');
+    menu.style.removeProperty('will-change');
+    panel.style.removeProperty('--filtro-velo');
+  };
+
+  const soltarCaptura = () => {
+    if (pointerId === null) return;
+    try { header.releasePointerCapture(pointerId); } catch { /* ya liberado */ }
+    pointerId = null;
+  };
+
+  const cancelarGesto = () => {
+    arrastrando = false;
+    panel.classList.remove('is-dragging');
+    soltarCaptura();
+    limpiarEstilos();
+  };
+
+  // Puntero y captura, como el resto de hojas: el gesto sigue al dedo aunque
+  // salga de la cabecera y Android no lo interpreta como scroll de la hoja.
+  header.addEventListener('pointerdown', (e) => {
     if (window.innerWidth > 768) return;
     if (esControl(e.target)) return;
-    const t = e.touches[0];
-    startY = currentY = t.clientY;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+
+    startY = currentY = e.clientY;
     historial = [{ y: startY, t: performance.now() }];
     arrastrando = true;
+    pointerId = e.pointerId;
     panel.classList.add('is-dragging');
-  }, { passive: true });
+    // Se mueve en el compositor: sin esto, cada frame repinta la hoja entera.
+    menu.style.willChange = 'transform';
+    menu.style.transition = 'none';
+    try { header.setPointerCapture(e.pointerId); } catch { /* el gesto sigue */ }
+  });
 
-  header.addEventListener('touchmove', (e) => {
-    if (!arrastrando || window.innerWidth > 768) return;
-    const t = e.touches[0];
-    currentY = t.clientY;
+  header.addEventListener('pointermove', (e) => {
+    if (!arrastrando || e.pointerId !== pointerId) return;
+    currentY = e.clientY;
     const delta = currentY - startY;
 
     if (delta <= 0) {
-      menu.style.transform = '';
-      menu.style.transition = '';
-      panel.style.removeProperty('--filtro-velo');
-      arrastrando = false;
-      panel.classList.remove('is-dragging');
+      cancelarGesto();
       return;
     }
 
-    if (e.cancelable) e.preventDefault();
-    menu.style.transition = 'none';
     menu.style.transform = `translateY(${delta}px)`;
     panel.style.setProperty('--filtro-velo', String(Math.max(0, 1 - delta / 280)));
 
     historial.push({ y: currentY, t: performance.now() });
     if (historial.length > 5) historial.shift();
-  }, { passive: false });
+  });
 
-  const finalizar = () => {
+  const finalizar = (e) => {
     if (!arrastrando) return;
+    if (e && e.pointerId !== undefined && e.pointerId !== pointerId) return;
     arrastrando = false;
     panel.classList.remove('is-dragging');
+    soltarCaptura();
 
     const delta = currentY - startY;
     let velocidad = 0;
@@ -568,18 +592,37 @@ function enlazarArrastreHoja(panel) {
     menu.style.transform = cerrar ? 'translateY(100%)' : 'translateY(0%)';
     panel.style.setProperty('--filtro-velo', cerrar ? '0' : '1');
 
-    window.setTimeout(() => {
-      if (cerrar) {
-        window.closeAllFilterSheets?.();
-      }
-      menu.style.transform = '';
-      menu.style.transition = '';
-      panel.style.removeProperty('--filtro-velo');
-    }, cerrar ? 240 : 290);
+    if (!cerrar) {
+      window.setTimeout(() => {
+        if (!arrastrando) limpiarEstilos();
+      }, 320);
+      return;
+    }
+
+    // El estado no puede depender solo de un temporizador: si el navegador lo
+    // frena, la hoja se va pero el boton sigue marcado como abierto. Se cierra
+    // al terminar la animacion, con un temporizador como respaldo.
+    let cerrado = false;
+    const terminar = (ev) => {
+      if (cerrado) return;
+      if (ev && ev.target !== menu) return;
+      cerrado = true;
+      menu.removeEventListener('transitionend', terminar);
+      // Primero el estado (quita .open y resetea el boton), luego los estilos
+      // en linea: la hoja ya esta fuera de pantalla.
+      window.closeAllFilterSheets?.();
+      limpiarEstilos();
+    };
+    menu.addEventListener('transitionend', terminar);
+    window.setTimeout(terminar, 360);
   };
 
-  header.addEventListener('touchend', finalizar, { passive: true });
-  header.addEventListener('touchcancel', finalizar, { passive: true });
+  header.addEventListener('pointerup', finalizar);
+  header.addEventListener('pointercancel', finalizar);
+  // Respaldo: si la captura falla y el dedo suelta fuera de la cabecera, el
+  // gesto no puede quedarse a medio arrastre con la hoja desplazada.
+  window.addEventListener('pointerup', finalizar);
+  window.addEventListener('pointercancel', finalizar);
 }
 
 function prepararPanel(panel) {
