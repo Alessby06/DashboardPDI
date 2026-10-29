@@ -60,7 +60,7 @@ const navItems = [
     </div>
 
     <nav class="nav-sections" id="sidebarNav">
-      <div class="nav-sections-inner">
+      <div class="nav-sections-inner" data-scroll-content>
       {navItems.map((item) => {
         if (item.section) {
           return <div class="nav-label">{item.section}</div>;

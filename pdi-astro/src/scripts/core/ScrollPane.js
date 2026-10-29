@@ -42,6 +42,7 @@ function attach(wrapper) {
     smoothWheel: true,
     smoothTouch: true,
     syncTouch: true,
+    allowNestedScroll: true,
     autoRaf: false
   });
 

@@ -79,6 +79,7 @@ export const ScrollManager = {
         syncTouch: this.touch,
         wheelMultiplier: 1,
         touchMultiplier: 1.6,
+        allowNestedScroll: true,
         autoRaf: false
       });
       const remide = () => this.main?.resize();
@@ -101,6 +102,7 @@ export const ScrollManager = {
       syncTouch: this.touch,
       wheelMultiplier: 1,
       touchMultiplier: 1.6,
+      allowNestedScroll: true,
       autoRaf: false
     });
 

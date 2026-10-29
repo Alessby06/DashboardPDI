@@ -441,15 +441,19 @@
       display: block;
     }
 
+    /* El padding vive en el inner, no en el contenedor que scrollea: si
+       estuviera aquí, el primer elemento se recortaría al desplazar el
+       contenido con Lenis. */
     .nav-sections {
       flex: 1;
       min-height: 0;
       overflow-y: auto;
       overflow-x: hidden;
-      padding: 14px 12px;
+      padding: 0;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 0;
+      overscroll-behavior: contain;
     }
 
     /* Lenis necesita un content único: el nav scrollea y este div se mueve. */
@@ -457,6 +461,7 @@
       display: flex;
       flex-direction: column;
       gap: 4px;
+      padding: 14px 12px;
     }
 
     .nav-label {
@@ -779,142 +784,36 @@
       .scroll-progress { display: none; }
     }
 
-    /* Barras de scroll consistentes. Lenis suaviza el viewport principal; los
-       paneles internos usan scroll nativo y comparten esta barra. */
-    :is(
-      .content-viewport,
-      .nav-sections,
-      .modal-body,
-      .modal-box,
-      .audit-filters-body,
-      .padron-inner-dropdown-menu,
-      .sedes-master-list,
-      .sedes-detail-column,
-      .expediente-content-area,
-      .kanban-col-body,
-      .table-container,
-      .kanban-board
-    ) {
+    /* Barras de scroll finas y consistentes en todo el sistema. Se aplica a
+       cualquier elemento porque scrollbar-width no se hereda: asi toda barra
+       actual o futura (sidebar, modales, tablas, kanban) nace fina. */
+    * {
       scrollbar-width: thin;
       scrollbar-color: var(--border-bright) transparent;
     }
 
-    :is(
-      .content-viewport,
-      .nav-sections,
-      .modal-body,
-      .modal-box,
-      .audit-filters-body,
-      .padron-inner-dropdown-menu,
-      .sedes-master-list,
-      .sedes-detail-column,
-      .expediente-content-area,
-      .kanban-col-body,
-      .table-container,
-      .kanban-board
-    )::-webkit-scrollbar {
-      width: 10px;
-      height: 10px;
-    }
+    /* Navegadores antiguos sin propiedades estandar: barra propia de WebKit.
+       Chrome y Firefox actuales ignoran estos pseudo-elementos por diseno. */
+    @supports not (scrollbar-width: thin) {
+      ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
 
-    :is(
-      .content-viewport,
-      .nav-sections,
-      .modal-body,
-      .modal-box,
-      .audit-filters-body,
-      .padron-inner-dropdown-menu,
-      .sedes-master-list,
-      .sedes-detail-column,
-      .expediente-content-area,
-      .kanban-col-body,
-      .table-container,
-      .kanban-board
-    )::-webkit-scrollbar-track {
-      background: transparent;
-    }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
 
-    :is(
-      .content-viewport,
-      .nav-sections,
-      .modal-body,
-      .modal-box,
-      .audit-filters-body,
-      .padron-inner-dropdown-menu,
-      .sedes-master-list,
-      .sedes-detail-column,
-      .expediente-content-area,
-      .kanban-col-body,
-      .table-container,
-      .kanban-board
-    )::-webkit-scrollbar-thumb {
-      background: var(--border-bright);
-      border: 2px solid transparent;
-      border-radius: 999px;
-      background-clip: content-box;
-    }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border-bright);
+        border: 2px solid transparent;
+        border-radius: 999px;
+        background-clip: content-box;
+      }
 
-    :is(
-      .content-viewport,
-      .nav-sections,
-      .modal-body,
-      .modal-box,
-      .audit-filters-body,
-      .padron-inner-dropdown-menu,
-      .sedes-master-list,
-      .sedes-detail-column,
-      .expediente-content-area,
-      .kanban-col-body,
-      .table-container,
-      .kanban-board
-    )::-webkit-scrollbar-thumb:hover {
-      background: var(--text-dim);
-      background-clip: content-box;
-    }
-
-    /* Paneles con Lenis: el wrapper no scrollea y la barra es propia. */
-    .is-scroll-pane {
-      overflow: hidden !important;
-      scrollbar-width: none;
-      position: relative;
-    }
-
-    .is-scroll-pane::-webkit-scrollbar {
-      display: none;
-    }
-
-    .scroll-pane-content {
-      will-change: transform;
-    }
-
-    .scroll-pane-thumb {
-      position: absolute;
-      inset-block-start: 0;
-      inset-inline-end: 2px;
-      width: 6px;
-      border-radius: 999px;
-      background: var(--border-bright);
-      opacity: 0.55;
-      transition: opacity 160ms var(--ease-out),
-        background-color 160ms var(--ease-out);
-      z-index: 8;
-      touch-action: none;
-      cursor: grab;
-    }
-
-    .is-scroll-pane:hover .scroll-pane-thumb,
-    .is-scroll-pane:focus-within .scroll-pane-thumb {
-      opacity: 1;
-    }
-
-    .scroll-pane-thumb:active {
-      cursor: grabbing;
-      background: var(--text-dim);
-    }
-
-    @media (pointer: coarse) {
-      .scroll-pane-thumb {
-        opacity: 0.75;
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--text-dim);
+        background-clip: content-box;
       }
     }
 
