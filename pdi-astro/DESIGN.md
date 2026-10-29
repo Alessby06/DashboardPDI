@@ -394,7 +394,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 ### Bottom Sheets (móvil)
 
 - **Estructura:** `.modal-backdrop.drawer` con `.modal-box.drawer-box` (92dvh) para las fichas, o una hoja propia (filtros, sedes). El asa `.sheet-grab` mide 44 px de alto.
-- **Movimiento:** solo `transform` sobre la hoja; el telón funde por su cuenta. En Android, `--sheet-in` / `--sheet-out` con `--sheet-ease`; en el resto, `--ease-drawer` a 260 ms. La salida es más corta que la entrada y el fundido de la hoja no termina antes que la bajada.
+- **Movimiento:** el telón entra en 160 ms y la hoja arranca cuando el fondo ya está atenuado: sube en 360 ms con `--sheet-ease` y funde en 180 ms. La salida es más corta (200 ms, `--ease-out`) y el telón se apaga después. Solo `transform` y `opacity`; el lienzo de firma y el estado del pie se restauran al terminar la entrada, no durante ella.
 - **Gesto:** arrastre 1:1 con captura de puntero, cierre a 80 px o con un flick y retorno elástico de 260 ms. Al cerrar por arrastre, el estado se retira al terminar la salida, con temporizador solo como respaldo.
 - **Accesibilidad:** `inert` y `aria-hidden` mientras están cerradas; Escape cierra la hoja superior; foco al primer control al abrir y retorno al disparador al cerrar.
 - **Rendimiento:** el aviso de composición (`will-change`) queda solo en la hoja que recorre la pantalla, no en cada modal ni en el telón.

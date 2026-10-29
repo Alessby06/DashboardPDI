@@ -97,26 +97,40 @@ export const ModalView = {
 
     // El foco entra en el dialogo. Si se queda en el fondo, el lector sigue
     // leyendo la pagina de atras y el teclado tabula por ahi. Se hace en el
-    // acto y no en un frame: una pestana en segundo plano no lo pintaria.
+    // acto y sin arrastrar scroll: la hoja viene entrando desde abajo.
     const caja = modal.querySelector(".modal-box");
-    if (caja) caja.focus();
+    if (caja) caja.focus({ preventScroll: true });
 
     // El borrador conserva los datos, pero la lectura empieza arriba.
     const cuerpo = modal.querySelector(".modal-body");
     if (cuerpo) cuerpo.scrollTop = 0;
 
-    setTimeout(() => {
-      const ctrl = window.PDI?.BeneficiarioController || (window.app && window.app.beneficiarioController);
-      if (ctrl && ctrl.initSignature) ctrl.initSignature();
-      const helper = ctrl && ctrl.signatureCanvasHelper;
+    // El lienzo se prepara una vez por carga. Re-inicializarlo en cada apertura
+    // añadía cinco oyentes duplicados y repintaba la firma mientras la hoja se
+    // movía: ese era el parpadeo del formulario al abrir.
+    const ctrl = window.PDI?.BeneficiarioController || (window.app && window.app.beneficiarioController);
+    if (ctrl && !ctrl.signatureCanvasHelper && ctrl.initSignature) ctrl.initSignature();
+
+    // La firma del borrador y el estado del pie se restauran cuando la hoja ya
+    // llegó, no a los 100 ms: antes competían con la animación de entrada.
+    let restaurado = false;
+    const alLlegar = () => {
+      if (restaurado) return;
+      restaurado = true;
+      if (caja) caja.removeEventListener("transitionend", alTerminar);
+      const helper = window.PDI?.BeneficiarioController?.signatureCanvasHelper;
       if (firmaBorrador && helper && helper.loadFromDataURL) {
         helper.loadFromDataURL(firmaBorrador, () => {
           window.PDI?.Ficha?.refrescarEstadoFicha?.();
         });
       }
-      // El boton de guardar se habilita solo si no falta ningun dato.
       window.PDI?.Ficha?.refrescarEstadoFicha?.();
-    }, 100);
+    };
+    const alTerminar = (evento) => {
+      if (evento.target === caja && evento.propertyName === "transform") alLlegar();
+    };
+    if (caja) caja.addEventListener("transitionend", alTerminar);
+    setTimeout(alLlegar, 420);
   },
 
   closeNuevoUsuario({ conservarBorrador = false } = {}) {

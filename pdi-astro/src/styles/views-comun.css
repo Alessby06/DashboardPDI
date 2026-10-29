@@ -45,8 +45,8 @@
       z-index: 1000;
       opacity: 0;
       pointer-events: none;
-      transition: opacity var(--dur-panel) var(--ease-out),
-                  background-color var(--dur-panel) var(--ease-out);
+      transition: opacity 200ms var(--ease-out),
+                  background-color 200ms var(--ease-out);
       padding: 20px;
     }
 
@@ -54,6 +54,10 @@
     .modal-backdrop.active {
       opacity: 1;
       pointer-events: auto;
+      /* El velo entra antes que la hoja: retira la página en 160 ms y la hoja
+         arranca cuando el fondo ya está atenuado. */
+      transition: opacity 160ms var(--ease-out),
+                  background-color 160ms var(--ease-out);
       /* Velo de modal: mismo de las hojas, sin desenfoque, con foco radial
          detras de la ventana. Longhands a proposito: un shorthand con capas
          y var() es fragil y, si el parser lo descarta, el telon desaparece. */
@@ -197,10 +201,19 @@
         /* Solo la hoja que recorre la pantalla conserva su capa: el aviso en
            los 12 modales y 12 telones creaba 24 capas permanentes. */
         will-change: transform;
+        /* Salida: la hoja se retira antes de que el velo termine de apagarse. */
+        transition:
+          transform 200ms var(--ease-out),
+          opacity 200ms var(--ease-out);
       }
 
       .modal-backdrop.open .modal-box.drawer-box {
         transform: translateY(0);
+        /* Entrada: el velo ya está puesto cuando la hoja arranca; la hoja
+           recorre la pantalla con una desaceleración larga y sin rebote. */
+        transition:
+          transform 360ms var(--sheet-ease),
+          opacity 180ms var(--ease-out);
       }
 
       /* Variante de lectura y workflow corto: la hoja crece segun contenido
@@ -260,34 +273,6 @@
       .sheet-grab:active .sheet-pill {
         transform: scaleX(1.15);
         background: var(--text-brand);
-      }
-    }
-
-    /* Android: el mismo recorrido con una curva que reparte el movimiento.
-       La anterior (0.16, 1, 0.3, 1) hacia el 83 % en el primer cuarto y
-       dejaba los ultimos 20 px casi quietos durante 200 ms: se leia como un
-       salto y un frenazo. La opacidad acompana a la salida para que la hoja no
-       se desvanezca antes de terminar de bajar. */
-    @media (max-width: 768px) {
-      html.pdi-android .modal-box.drawer-box {
-        transform: translate3d(0, 100%, 0);
-        transition:
-          transform var(--sheet-out) var(--sheet-ease),
-          opacity var(--sheet-out) linear;
-      }
-
-      html.pdi-android .modal-backdrop.open .modal-box.drawer-box {
-        transform: translate3d(0, 0, 0);
-        transition:
-          transform var(--sheet-in) var(--sheet-ease),
-          opacity 200ms var(--ease-out);
-      }
-    }
-
-    @media (max-width: 768px) and (prefers-reduced-motion: reduce) {
-      html.pdi-android .modal-box.drawer-box,
-      html.pdi-android .modal-backdrop.open .modal-box.drawer-box {
-        transition: opacity 140ms linear;
       }
     }
 
