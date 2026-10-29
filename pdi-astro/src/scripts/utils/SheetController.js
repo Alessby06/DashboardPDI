@@ -11,8 +11,19 @@
 // elástico. La escucha va delegada sobre la hoja (no sobre el asa) porque la
 // cabecera de sedes se reemplaza por innerHTML entre aperturas.
 
-const UMBRAL_CIERRE = 90; // px de arrastre hacia abajo que cierran la hoja
-const UMBRAL_VELOCIDAD = 0.55; // px/ms: un flick mas rapido que esto cierra
+const UMBRAL_CIERRE = 80; // px de arrastre hacia abajo que cierran la hoja
+const UMBRAL_VELOCIDAD = 0.45; // px/ms: un flick mas rapido que esto cierra
+const INTERACTIVOS = "button, a, input, select, textarea, [role='button'], [contenteditable='true']";
+
+/** El arrastre desde la cabecera solo se habilita en la variante móvil. */
+function esMovil() {
+  return typeof window !== "undefined"
+    && typeof window.matchMedia === "function"
+    && window.matchMedia("(max-width: 768px)").matches;
+}
+
+/** Cierre propio de cada hoja, para Escape. */
+const cerradores = new WeakMap();
 
 /**
  * Engancha el arrastre de una hoja por su asa.
@@ -39,6 +50,7 @@ export function conectarHoja({
 }) {
   if (!hoja || hoja.dataset.sheetArrastreListo) return;
   hoja.dataset.sheetArrastreListo = "1";
+  cerradores.set(hoja, alCerrar || (() => telon?.classList.remove("open")));
 
   const abierta = () => (telon ? telon.classList.contains("open") : hoja.classList.contains("open"));
 
@@ -102,9 +114,16 @@ export function conectarHoja({
 
   hoja.addEventListener("pointerdown", (evento) => {
     if (!abierta()) return;
-    if (!evento.target.closest(asaSelector)) return;
+    const asa = evento.target.closest(asaSelector);
+    if (!asa) return;
+    // Los controles del encabezado (sobre todo la X) no arrastran la hoja.
+    if (evento.target.closest(INTERACTIVOS)) return;
+    // Arrastrar desde la cabecera es una comodidad móvil; en el drawer de
+    // escritorio solo el asa visible inicia el gesto.
+    if (asa.classList.contains("modal-header") && !esMovil()) return;
     if (evento.pointerType === "mouse" && evento.button !== 0) return;
 
+    if (evento.cancelable) evento.preventDefault();
     activo = true;
     yInicio = evento.clientY;
     yAnterior = evento.clientY;
@@ -119,7 +138,7 @@ export function conectarHoja({
     } catch { /* sin captura el arrastre sigue: buen fallback */ }
   });
 
-  hoja.addEventListener("pointermove", (evento) => {
+  const mover = (evento) => {
     if (!activo) return;
     const ahora = performance.now();
     const dt = ahora - tAnterior;
@@ -132,10 +151,15 @@ export function conectarHoja({
     // Hacia arriba no hay gesto que completar: la hoja no se mueve.
     hoja.style.transform = dy > 0 ? `translateY(${dy}px)` : "";
     if (velo) pintarVelo(Math.max(0, 1 - dy / velo.rango));
-  });
+  };
 
+  hoja.addEventListener("pointermove", mover);
   hoja.addEventListener("pointerup", soltar);
   hoja.addEventListener("pointercancel", soltar);
+  // Respaldo: si el puntero sale de la hoja y no llega el pointerup del
+  // elemento, el gesto no puede quedarse congelado a medio arrastre.
+  window.addEventListener("pointerup", soltar);
+  window.addEventListener("pointercancel", soltar);
 }
 
 function engancharAsaDeModal(asa) {
@@ -145,33 +169,72 @@ function engancharAsaDeModal(asa) {
 
   conectarHoja({
     hoja: caja,
-    asaSelector: ".sheet-grab",
+    // El asa grande y la cabecera arrastran; los controles de dentro se
+    // excluyen en conectarHoja.
+    asaSelector: ".sheet-grab, .modal-header",
     telon,
     alCerrar: () => {
-      // El cierre por asa delega en quien ya sabe cerrar cada ficha, para
-      // conservar el borrador y el toast: mismo camino que pulsar la X.
-      if (telon.id === "modalNuevoUsuario" && window.PDI?.ModalView) {
-        window.PDI.ModalView.closeNuevoUsuario({ conservarBorrador: true });
-      } else {
-        telon.classList.remove("open");
-      }
+      // El cierre por asa delega en la X de cada ficha: así se conserva el
+      // borrador, se limpia el estado y se actualizan inert/aria-hidden.
+      const cerrar = telon.querySelector(".btn-close-modal");
+      if (cerrar) cerrar.click();
+      else telon.classList.remove("open");
     },
   });
 }
 
-let listo = false;
+let escapeListo = false;
+
+/** Escape cierra la hoja superior abierta. */
+function conectarEscape() {
+  if (escapeListo) return;
+  escapeListo = true;
+  document.addEventListener("keydown", (evento) => {
+    if (evento.key !== "Escape") return;
+    const abiertos = Array.from(document.querySelectorAll(".modal-backdrop.drawer.open"));
+    const abierto = abiertos[abiertos.length - 1];
+    if (!abierto) return;
+    const caja = abierto.querySelector(".modal-box");
+    const cerrar = caja ? cerradores.get(caja) : null;
+    if (typeof cerrar !== "function") return;
+    evento.preventDefault();
+    cerrar();
+  });
+}
+
+let observadorFondo = null;
+const observadosFondo = new WeakSet();
+
+/** Bloquea el scroll de la página mientras haya una hoja abierta. */
+function actualizarBloqueoFondo() {
+  if (typeof document === "undefined" || !document.body) return;
+  const abierta = Array.from(document.querySelectorAll(".modal-backdrop.drawer"))
+    .some((modal) => modal.classList.contains("open"));
+  document.body.classList.toggle("pdi-drawer-open", abierta);
+  if (abierta) window.__pdiLenis?.stop?.();
+  else window.__pdiLenis?.start?.();
+}
+
+function observarFondo() {
+  if (typeof MutationObserver === "undefined") return;
+  if (!observadorFondo) observadorFondo = new MutationObserver(actualizarBloqueoFondo);
+  document.querySelectorAll(".modal-backdrop.drawer").forEach((modal) => {
+    if (observadosFondo.has(modal)) return;
+    observadosFondo.add(modal);
+    observadorFondo.observe(modal, { attributes: true, attributeFilter: ["class"] });
+  });
+  actualizarBloqueoFondo();
+}
 
 export function iniciarSheets() {
-  if (listo) return;
-  const asas = document.querySelectorAll(".modal-backdrop.drawer .sheet-grab");
-  if (!asas.length) return;
-  listo = true;
-  asas.forEach(engancharAsaDeModal);
+  document.querySelectorAll(".modal-backdrop.drawer .sheet-grab").forEach(engancharAsaDeModal);
+  conectarEscape();
+  observarFondo();
 }
 
 // Los modales globales viajan con transition:persist: persisten entre
-// paginas. Se repite el intento en cada navegacion por si el asa todavia no
-// existia cuando el script cargo; el dataset.sheetArrastreListo evita el
-// doble enganche.
+// páginas. Se repite el intento en cada navegación por si el DOM cambió; el
+// dataset.sheetArrastreListo evita el doble enganche de la misma hoja.
 iniciarSheets();
 document.addEventListener("astro:page-load", iniciarSheets);
+document.addEventListener("astro:after-swap", iniciarSheets);

@@ -358,6 +358,7 @@ export const SedesView = {
       panel?.classList.add("open");
       backdrop?.classList.add("open");
       document.body.classList.add("sedes-sheet-open");
+      window.__pdiLenis?.stop?.();
       this._enlazarGestosHoja();
     }
   },
@@ -378,6 +379,7 @@ export const SedesView = {
     backdrop?.classList.remove("open");
     if (typeof window !== "undefined") {
       document.body.classList.remove("sedes-sheet-open");
+      window.__pdiLenis?.start?.();
     }
   },
 
