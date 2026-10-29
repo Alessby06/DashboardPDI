@@ -7,6 +7,13 @@ import Lenis from 'lenis';
  */
 const panes = new Map();
 
+/** Un contenedor solo debe capturar la rueda si de verdad tiene contenido que
+ * desplazar. Los que no desbordan se dejan nativos para que el evento suba al
+ * viewport y la página siga moviéndose. */
+function puedeScrollear(el) {
+  return el.scrollHeight > el.clientHeight + 2;
+}
+
 function crearContenido(wrapper) {
   const existente = wrapper.querySelector(':scope > [data-scroll-content]');
   if (existente) return { content: existente, creado: false };
@@ -31,6 +38,7 @@ function attach(wrapper) {
   if (!wrapper || panes.has(wrapper)) return null;
   const cs = getComputedStyle(wrapper);
   if (cs.overflowY !== 'auto' && cs.overflowY !== 'scroll') return null;
+  if (!puedeScrollear(wrapper)) return null;
 
   const { content, creado } = crearContenido(wrapper);
   wrapper.classList.add('lenis-pane');
@@ -47,7 +55,15 @@ function attach(wrapper) {
   });
 
   const ro = typeof ResizeObserver === 'function'
-    ? new ResizeObserver(() => lenis.resize())
+    ? new ResizeObserver(() => {
+        // Si el panel deja de desbordar (o aún no tiene contenido), se suelta
+        // para no bloquear la rueda del viewport.
+        if (!puedeScrollear(wrapper)) {
+          detach(wrapper);
+          return;
+        }
+        lenis.resize();
+      })
     : null;
   ro?.observe(content);
   ro?.observe(wrapper);
@@ -86,7 +102,12 @@ export const ScrollPane = {
     panes.forEach((state) => state.lenis.start());
   },
   refresh() {
-    panes.forEach((state) => state.lenis.resize());
+    [...panes.keys()].forEach((el) => {
+      const state = panes.get(el);
+      if (!state) return;
+      if (puedeScrollear(el)) state.lenis.resize();
+      else detach(el);
+    });
   },
   detachAll() {
     [...panes.keys()].forEach(detach);

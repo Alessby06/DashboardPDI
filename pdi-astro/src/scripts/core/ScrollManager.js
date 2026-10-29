@@ -30,6 +30,14 @@ function prefiereReducido() {
   return mqReduce.matches;
 }
 
+/** Un panel dentro de un modal cerrado no se monta: no recibe puntero y solo
+ * gastaría una instancia de Lenis. */
+function enModalCerrado(el) {
+  const backdrop = el.closest('.modal-backdrop');
+  if (!backdrop) return false;
+  return !(backdrop.classList.contains('open') || backdrop.getAttribute('aria-hidden') === 'false');
+}
+
 export const ScrollManager = {
   main: null,
   mainWrapper: null,
@@ -62,6 +70,14 @@ export const ScrollManager = {
     this._observeModales();
     this._syncModales();
     this._tick();
+
+    // Al cambiar el tamaño de la ventana pueden aparecer o desaparecer
+    // desbordamientos: se vuelve a decidir qué paneles merecen Lenis.
+    this._onResize = () => {
+      if (this._resizeId) clearTimeout(this._resizeId);
+      this._resizeId = setTimeout(() => this.refresh(), 180);
+    };
+    window.addEventListener('resize', this._onResize);
 
     window.__pdiScroll = this;
   },
@@ -152,7 +168,8 @@ export const ScrollManager = {
   autoAttach(el) {
     if (!this.enabled || !el || el.nodeType !== 1) return;
     if (el === this.mainWrapper) return;
-    if (el.closest('.is-scroll-pane, [data-lenis-prevent], [data-scroll-native]')) return;
+    if (el.closest('.lenis-pane, [data-lenis-prevent], [data-scroll-native]')) return;
+    if (enModalCerrado(el)) return;
     if (el.matches('pre, code, textarea, input, select, .table-container, .table-responsive, .kanban-board, .triaje-chips, .expediente-sidebar, .sidebar')) return;
     if (el.clientHeight < 40 || el.scrollHeight <= el.clientHeight + 4) return;
     const cs = getComputedStyle(el);
@@ -165,7 +182,8 @@ export const ScrollManager = {
     root.querySelectorAll(PANE_SELECTOR).forEach((el) => {
       if (el.closest('[data-lenis-prevent]')) return;
       if (el === this.mainWrapper) return;
-      if (el.closest('.is-scroll-pane')) return;
+      if (el.closest('.lenis-pane')) return;
+      if (enModalCerrado(el)) return;
       ScrollPane.attach(el);
     });
 
@@ -204,6 +222,9 @@ export const ScrollManager = {
     if (abiertos.length) {
       this.lock();
       abiertos.forEach((b) => this.discover(b));
+      // El modal acaba de cambiar a visible: se repite en el siguiente frame
+      // para medir con el layout ya aplicado.
+      requestAnimationFrame(() => abiertos.forEach((b) => this.discover(b)));
     } else {
       this.unlock();
     }
@@ -277,6 +298,10 @@ export const ScrollManager = {
     this.main?.destroy();
     this.main = null;
     this.mainWrapper = null;
+    if (this._onResize) window.removeEventListener('resize', this._onResize);
+    this._onResize = null;
+    if (this._resizeId) clearTimeout(this._resizeId);
+    this._resizeId = null;
     this._bound = false;
   }
 };
