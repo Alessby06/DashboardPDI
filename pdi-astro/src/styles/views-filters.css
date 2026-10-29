@@ -929,44 +929,39 @@
     margin: 0;
     box-sizing: border-box;
     transform: translateY(100%);
-    opacity: 0;
+    /* La hoja no se desvanece: entra deslizando, sólida, y el velo es quien
+       funde. Un fundido simultáneo la hacía materializarse en el aire. */
+    opacity: 1;
     /* Salida mas corta que la entrada. La curva de cajon evita el frenazo
        seco del ease-out generico en un recorrido de toda la pantalla. */
     transition:
       transform var(--dur-norm) var(--ease-drawer),
-      opacity var(--dur-fast) var(--ease-out),
       display var(--dur-norm) allow-discrete;
     overflow: hidden;
   }
 
   .audit-filter-panel-wrap .audit-filters-dropdown.open .audit-filters-menu {
     transform: translateY(0);
-    opacity: 1;
     transition:
       transform var(--dur-panel) var(--ease-drawer),
-      opacity var(--dur-norm) var(--ease-out),
       display var(--dur-panel) allow-discrete;
 
     @starting-style {
       transform: translateY(100%);
-      opacity: 0;
     }
   }
 
-  /* Android: misma curva y duraciones que las hojas globales. El fundido de
-     salida dura lo mismo que el recorrido, para que la hoja no desaparezca a
-     mitad de la bajada. */
+  /* Android: misma curva y duraciones que las hojas globales. La hoja entra
+     sólida y el velo se ocupa del fundido. */
   html.pdi-android .audit-filters-dropdown .audit-filters-menu {
     transition:
       transform var(--sheet-out) var(--sheet-ease),
-      opacity var(--sheet-out) linear,
       display var(--sheet-out) allow-discrete;
   }
 
   html.pdi-android .audit-filter-panel-wrap .audit-filters-dropdown.open .audit-filters-menu {
     transition:
       transform var(--sheet-in) var(--sheet-ease),
-      opacity 200ms var(--ease-out),
       display var(--sheet-in) allow-discrete;
   }
 
