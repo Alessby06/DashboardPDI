@@ -347,9 +347,23 @@ export const SedesView = {
     if (typeof window !== "undefined" && window.innerWidth <= 840) {
       const panel = document.getElementById("sedesDetailPanel");
       const backdrop = document.getElementById("sedesSheetBackdrop");
+      const yaAbierta = panel?.classList.contains("open");
+      if (!yaAbierta) {
+        // El disparador es la tarjeta de la sede recién marcada; si no, lo que
+        // tuviera el foco.
+        this._focoAntesHoja = document.querySelector(".sedes-master-item.active")
+          || (document.activeElement instanceof HTMLElement ? document.activeElement : null);
+      }
       if (panel) {
         panel.style.transform = "";
         panel.style.transition = "";
+        // Cada sede se lee desde arriba, no desde donde quedó la anterior.
+        panel.scrollTop = 0;
+        // La hoja es un diálogo modal mientras está abierta en móvil.
+        panel.setAttribute("role", "dialog");
+        panel.setAttribute("aria-modal", "true");
+        panel.setAttribute("aria-labelledby", "sedesDetailTitulo");
+        panel.setAttribute("tabindex", "-1");
       }
       if (backdrop) {
         backdrop.classList.remove("is-dragging");
@@ -360,6 +374,8 @@ export const SedesView = {
       document.body.classList.add("sedes-sheet-open");
       window.__pdiScroll?.main?.stop?.();
       this._enlazarGestosHoja();
+      // El foco entra en la hoja para que el lector anuncie el diálogo.
+      if (panel && !yaAbierta) panel.focus({ preventScroll: true });
     }
   },
 
@@ -367,9 +383,14 @@ export const SedesView = {
   cerrarDetalleMovil() {
     const panel = document.getElementById("sedesDetailPanel");
     const backdrop = document.getElementById("sedesSheetBackdrop");
+    const estabaAbierta = panel?.classList.contains("open");
     if (panel) {
       panel.style.transform = "";
       panel.style.transition = "";
+      panel.removeAttribute("role");
+      panel.removeAttribute("aria-modal");
+      panel.removeAttribute("aria-labelledby");
+      panel.removeAttribute("tabindex");
     }
     if (backdrop) {
       backdrop.classList.remove("is-dragging");
@@ -380,6 +401,13 @@ export const SedesView = {
     if (typeof window !== "undefined") {
       document.body.classList.remove("sedes-sheet-open");
       window.__pdiScroll?.main?.start?.();
+      if (estabaAbierta) {
+        const destino = this._focoAntesHoja?.isConnected
+          ? this._focoAntesHoja
+          : document.querySelector(".sedes-master-item.active");
+        this._focoAntesHoja = null;
+        destino?.focus?.({ preventScroll: true });
+      }
     }
   },
 
@@ -411,6 +439,27 @@ export const SedesView = {
       document.addEventListener("keydown", (e) => {
         if (e.key !== "Escape" || !panel.classList.contains("open")) return;
         this.cerrarDetalleMovil();
+      });
+    }
+
+    // Trampa de foco: mientras la hoja está abierta, Tab cicla dentro.
+    if (!panel._trampaFoco) {
+      panel._trampaFoco = true;
+      const ENFOCABLES = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+      document.addEventListener("keydown", (e) => {
+        if (e.key !== "Tab" || !panel.classList.contains("open")) return;
+        const lista = Array.from(panel.querySelectorAll(ENFOCABLES))
+          .filter((el) => el.getClientRects().length > 0);
+        if (!lista.length) return;
+        const primero = lista[0];
+        const ultimo = lista[lista.length - 1];
+        if (e.shiftKey && (document.activeElement === primero || document.activeElement === panel)) {
+          e.preventDefault();
+          ultimo.focus();
+        } else if (!e.shiftKey && document.activeElement === ultimo) {
+          e.preventDefault();
+          primero.focus();
+        }
       });
     }
 
@@ -695,9 +744,13 @@ export const SedesView = {
         <div class="sedes-sheet-pill-wrap" aria-hidden="true">
           <span class="sedes-sheet-pill"></span>
         </div>
-        <button type="button" class="sedes-sheet-close-sr pdi-sr-only"
+        <button type="button" class="sedes-sheet-close"
           onclick="window.PDI?.SedesView?.cerrarDetalleMovil()"
-          aria-label="Cerrar ficha de sede">Cerrar ficha</button>
+          aria-label="Cerrar ficha de sede" title="Cerrar ficha de sede">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
       <div class="sedes-detail-card">
         <!-- Header de la Ficha Técnica -->
@@ -709,7 +762,7 @@ export const SedesView = {
               </svg>
             </div>
             <div style="display:flex; align-items:baseline; flex-wrap:wrap; gap:10px;">
-              <h2 class="sedes-detail-name" style="margin:0;">Sede ${escapar(sede.nombre)}</h2>
+              <h2 class="sedes-detail-name" id="sedesDetailTitulo" style="margin:0;">Sede ${escapar(sede.nombre)}</h2>
               ${sede.distrito ? `<span class="sedes-detail-meta">· ${escapar(sede.distrito)}</span>` : ""}
             </div>
           </div>

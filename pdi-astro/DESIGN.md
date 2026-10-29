@@ -396,7 +396,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Estructura:** `.modal-backdrop.drawer` con `.modal-box.drawer-box` (92dvh) para las fichas, o una hoja propia (filtros, sedes). El asa `.sheet-grab` mide 44 px de alto.
 - **Movimiento (cortina):** la misma en las nueve fichas, la hoja de filtros y el detalle de sedes. El telón entra en 160 ms; la hoja sube un 26 % y se descubre con `clip-path` de `inset(100%)` a `inset(-80px …)` en `--sheet-in` con `--sheet-ease`, fundiendo en 220 ms. La salida cierra la cortina en `--sheet-out` con `--ease-out` y el telón se apaga después. Solo `transform`, `opacity` y `clip-path`; el lienzo de firma y el estado del pie se restauran al terminar la entrada.
 - **Gesto:** arrastre 1:1 con captura de puntero, cierre a 80 px o con un flick y retorno elástico de 260 ms. Al cerrar por arrastre, el estado se retira al terminar la salida, con temporizador solo como respaldo.
-- **Accesibilidad:** `inert` y `aria-hidden` mientras están cerradas; Escape cierra la hoja superior; foco al primer control al abrir y retorno al disparador al cerrar.
+- **Accesibilidad:** `inert` y `aria-hidden` mientras están cerradas; Escape cierra la hoja superior; foco al primer control al abrir y retorno al disparador al cerrar. La hoja de sedes se anuncia como diálogo modal con el nombre de la sede, atrapa el tabulador y ofrece un cierre visible además del asa.
 - **Rendimiento:** el aviso de composición (`will-change`) queda solo en la hoja que recorre la pantalla, no en cada modal ni en el telón.
 
 ## Do's and Don'ts

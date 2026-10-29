@@ -721,6 +721,41 @@
     -webkit-user-select: none !important;
   }
 
+  /* Cierre visible de la hoja. El botón queda fuera del gesto de arrastre
+     porque SheetController excluye los controles del asa. */
+  .sedes-sheet-close {
+    position: absolute !important;
+    inset-inline-end: 12px !important;
+    top: 50% !important;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    color: var(--text-dim);
+    cursor: pointer;
+    z-index: 2;
+    transition:
+      background-color var(--dur-fast) var(--ease-smooth),
+      color var(--dur-fast) var(--ease-smooth);
+  }
+
+  .sedes-sheet-close:active {
+    background: var(--surface-hover);
+    color: var(--text-main);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .sedes-sheet-close:hover {
+      background: var(--surface-hover);
+      color: var(--text-main);
+    }
+  }
+
   .sedes-sheet-pill {
     width: 44px !important;
     height: 5px !important;
