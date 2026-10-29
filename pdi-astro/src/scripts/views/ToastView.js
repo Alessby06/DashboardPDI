@@ -153,7 +153,12 @@ export const ToastView = {
     // La pila no crece sin limite: si llegan varios avisos de golpe, el mas
     // viejo se retira para que el monton no tape la pantalla.
     while (container.children.length >= MAX_VISIBLES) {
-      container.firstElementChild?.remove();
+      // La confirmación de descarga es persistente: no debe desaparecer
+      // porque lleguen otros avisos mientras el usuario decide.
+      const candidato = Array.from(container.children)
+        .find((elemento) => elemento.dataset.persistente !== "true");
+      if (!candidato) break;
+      candidato.remove();
     }
 
     container.appendChild(toast);

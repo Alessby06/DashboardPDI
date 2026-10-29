@@ -46,6 +46,7 @@ import { Dropdown } from "../utils/Dropdown.js";
 import "../utils/FilterPanel.js";
 import { urlDe } from "../auth/RouteMap.js";
 import { Theme } from "./Theme.js";
+import { confirmarDescarga } from "../ui/descargaToast.js";
 
 /**
  * Refresca lo que haya que refrescar en la pagina actual.
@@ -106,8 +107,8 @@ function esAndroid() {
 window.openModalExportGeneric = (config) => {
   const count = typeof config.count === "number" ? config.count : 0;
 
-  // En Android no se pide confirmación: la descarga empieza y el aviso inferior
-  // lo comunica. Cada exportador ya muestra su propio toast con el resultado.
+  // En Android el modal se convierte en un toast inferior resumido. La
+  // descarga NO empieza sola: el toast conserva la confirmación explícita.
   if (esAndroid()) {
     window.closeModalExportAudit?.();
 
@@ -129,16 +130,17 @@ window.openModalExportGeneric = (config) => {
       return;
     }
 
-    try {
-      config.onConfirm();
-    } catch (error) {
-      console.error("[PDI] No se pudo iniciar la descarga:", error);
-      window.PDI?.ToastView?.show?.(
-        "No se pudo descargar",
-        "Revisa la conexión e inténtalo de nuevo.",
-        "danger",
-      );
-    }
+    const unidad = config.unit || "registros";
+    const legal = String(config.legal || "").replace(/\s*\([^)]*\)\s*/g, "").trim();
+    const resumen = `${count} ${unidad} · CSV${legal ? ` · ${legal}` : ""}`;
+    const titulo = String(config.title || "Descargar reporte")
+      .replace(/^Descarga (de|del|de la)\s+/i, "");
+
+    confirmarDescarga({
+      titulo,
+      mensaje: resumen,
+      onConfirm: () => config.onConfirm(),
+    });
     return;
   }
 
