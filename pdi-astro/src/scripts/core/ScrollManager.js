@@ -158,8 +158,15 @@ export const ScrollManager = {
 
   register(el) {
     if (!this.enabled || !el || this.panes.has(el) || el === this.main?.wrapper) return;
+
+    // Lenis necesita un content único para mover el scroll. Sin él (filtros,
+    // sedes, kanban) el pane se deja nativo antes que romper su barra.
+    const content = el.querySelector(':scope > [data-scroll-content]');
+    if (!content) return;
+
     const pane = new Lenis({
       wrapper: el,
+      content,
       lerp: 0.12,
       smoothWheel: true,
       smoothTouch: this.touch,
@@ -225,12 +232,12 @@ export const ScrollManager = {
 
     if (abiertos.length) {
       this.lock();
-      abiertos.forEach((b) => this.discover(b, MODAL_PANE_SELECTOR));
     } else {
       this.unlock();
     }
 
-    // Los panes de un modal cerrado no deben seguir vivos.
+    // Los modales conservan su scroll nativo: Lenis no resuelve bien un
+    // wrapper con header y body. Solo se bloquea el fondo.
     backdrops.forEach((b) => {
       if (b.classList.contains('open') || b.getAttribute('aria-hidden') === 'false') return;
       b.querySelectorAll(MODAL_PANE_SELECTOR).forEach((el) => this.unregister(el));
