@@ -1,12 +1,25 @@
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
+import { ScrollPane } from './ScrollPane.js';
 
 /**
- * Lenis suaviza el viewport principal. Los paneles internos (sidebar,
- * modales, filtros) conservan el scroll nativo: en un wrapper con
- * overflow-y:auto, Lenis compite con la barra del navegador y la deja clavada.
- * La barra de todos los paneles se unifica por CSS.
+ * Lenis en el viewport principal y en cada panel con scroll vertical. Los
+ * paneles usan ScrollPane: wrapper sin barra nativa, contenido transformado y
+ * barra propia arrastrable. Un solo requestAnimationFrame para todos.
  */
+const PANE_SELECTOR = [
+  '[data-smooth-scroll]',
+  '.nav-sections',
+  '.modal-body',
+  '.modal-box',
+  '.audit-filters-body',
+  '.padron-inner-dropdown-menu',
+  '.sedes-master-list',
+  '.sedes-detail-column',
+  '.expediente-content-area',
+  '.kanban-col-body'
+].join(',');
+
 const mqReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 function esFino() {
@@ -14,13 +27,14 @@ function esFino() {
 }
 
 function prefiereReducido() {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  return mqReduce.matches;
 }
 
 export const ScrollManager = {
   main: null,
   mainWrapper: null,
   rafId: null,
+  observer: null,
   modalObserver: null,
   locked: false,
   enabled: false,
@@ -34,8 +48,8 @@ export const ScrollManager = {
     const touchOptIn = document.documentElement.hasAttribute('data-smooth-touch')
       || new URLSearchParams(location.search).get('smoothTouch') === '1'
       || localStorage.getItem('pdi:smooth-touch') === '1';
-    this.touch = !esFino() && touchOptIn;
-    this.enabled = (esFino() || this.touch) && !prefiereReducido();
+    this.touch = !esFino() || touchOptIn;
+    this.enabled = !prefiereReducido();
 
     if (!this.enabled) {
       window.__pdiScroll = this;
@@ -43,6 +57,8 @@ export const ScrollManager = {
     }
 
     this._createMain();
+    this.discover();
+    this._observe();
     this._observeModales();
     this._syncModales();
     this._tick();
@@ -70,8 +86,6 @@ export const ScrollManager = {
       autoRaf: false
     });
 
-    // La tabla y el triaje crecen después del montaje: sin remirar, el límite
-    // se queda en el alto del esqueleto.
     const remide = () => this.main?.resize();
     requestAnimationFrame(remide);
     setTimeout(remide, 120);
@@ -91,9 +105,42 @@ export const ScrollManager = {
     if (this.rafId !== null) return;
     const loop = (time) => {
       this.main?.raf(time);
+      ScrollPane.raf(time);
       this.rafId = requestAnimationFrame(loop);
     };
     this.rafId = requestAnimationFrame(loop);
+  },
+
+  _observe() {
+    if (typeof MutationObserver !== 'function') return;
+    let raf = null;
+    const schedule = () => {
+      if (raf !== null) return;
+      raf = requestAnimationFrame(() => {
+        raf = null;
+        this.discover();
+        this._cleanup();
+      });
+    };
+    this.observer = new MutationObserver(schedule);
+    this.observer.observe(document.body, { childList: true, subtree: true });
+  },
+
+  discover(root = document) {
+    if (!this.enabled) return;
+    root.querySelectorAll(PANE_SELECTOR).forEach((el) => {
+      if (el.closest('[data-lenis-prevent]')) return;
+      if (el === this.mainWrapper) return;
+      // Un pane dentro de otro pane ya lo mueve el contenedor exterior.
+      if (el.closest('.is-scroll-pane')) return;
+      ScrollPane.attach(el);
+    });
+  },
+
+  _cleanup() {
+    ScrollPane.panes.forEach((_state, el) => {
+      if (!el.isConnected) ScrollPane.detach(el);
+    });
   },
 
   _observeModales() {
@@ -111,10 +158,21 @@ export const ScrollManager = {
 
   _syncModales() {
     if (!this.enabled) return;
-    const abiertos = [...document.querySelectorAll('.modal-backdrop')]
-      .some((b) => b.classList.contains('open') || b.getAttribute('aria-hidden') === 'false');
-    if (abiertos) this.lock();
-    else this.unlock();
+    const backdrops = [...document.querySelectorAll('.modal-backdrop')];
+    const abiertos = backdrops.filter((b) => b.classList.contains('open')
+      || b.getAttribute('aria-hidden') === 'false');
+
+    if (abiertos.length) {
+      this.lock();
+      abiertos.forEach((b) => this.discover(b));
+    } else {
+      this.unlock();
+    }
+
+    backdrops.forEach((b) => {
+      if (b.classList.contains('open') || b.getAttribute('aria-hidden') === 'false') return;
+      b.querySelectorAll(PANE_SELECTOR).forEach((el) => ScrollPane.detach(el));
+    });
   },
 
   lock() {
@@ -139,15 +197,20 @@ export const ScrollManager = {
   },
 
   refresh() {
+    this._cleanup();
     this.main?.resize();
+    ScrollPane.refresh();
+    this.discover();
   },
 
   stop() {
     this.main?.stop();
+    ScrollPane.stop();
   },
 
   start() {
     this.main?.start();
+    ScrollPane.start();
   },
 
   reset() {
@@ -167,8 +230,11 @@ export const ScrollManager = {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
     }
+    this.observer?.disconnect();
+    this.observer = null;
     this.modalObserver?.disconnect();
     this.modalObserver = null;
+    ScrollPane.detachAll();
     this.main?.destroy();
     this.main = null;
     this.mainWrapper = null;
