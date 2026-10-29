@@ -1,9 +1,9 @@
 import Lenis from 'lenis';
 
 /**
- * Panel con scroll suave y barra propia. El wrapper deja de scrollear
- * (overflow: hidden); Lenis mueve el contenido y una barra dibujada refleja el
- * progreso. Así la barra nunca se queda clavada como con la nativa.
+ * Pane con Lenis conservando la barra nativa. El wrapper sigue siendo el que
+ * scrollea (overflow-y: auto); Lenis mueve su scrollTop y la barra del
+ * navegador se desplaza con él. No se oculta la barra ni se dibuja otra.
  */
 const panes = new Map();
 
@@ -33,12 +33,7 @@ function attach(wrapper) {
   if (cs.overflowY !== 'auto' && cs.overflowY !== 'scroll') return null;
 
   const { content, creado } = crearContenido(wrapper);
-  const overflowOriginal = wrapper.style.overflow;
-  const positionOriginal = wrapper.style.position;
-
-  wrapper.classList.add('is-scroll-pane');
-  wrapper.style.overflow = 'hidden';
-  if (cs.position === 'static') wrapper.style.position = 'relative';
+  wrapper.classList.add('lenis-pane');
 
   const lenis = new Lenis({
     wrapper,
@@ -50,58 +45,15 @@ function attach(wrapper) {
     autoRaf: false
   });
 
-  const thumb = document.createElement('div');
-  thumb.className = 'scroll-pane-thumb';
-  thumb.setAttribute('aria-hidden', 'true');
-  wrapper.appendChild(thumb);
-
-  const update = () => {
-    const max = content.scrollHeight - wrapper.clientHeight;
-    if (max <= 0) {
-      thumb.style.opacity = '0';
-      return;
-    }
-    const alto = Math.max(28, (wrapper.clientHeight / content.scrollHeight) * wrapper.clientHeight);
-    const top = (lenis.progress || 0) * (wrapper.clientHeight - alto);
-    thumb.style.height = `${alto}px`;
-    thumb.style.transform = `translateY(${top}px)`;
-    thumb.style.opacity = '1';
-  };
-
-  lenis.on('scroll', update);
-
-  const arrastrar = (ev) => {
-    ev.preventDefault();
-    const startY = ev.clientY;
-    const startScroll = lenis.actualScroll || 0;
-    const max = content.scrollHeight - wrapper.clientHeight;
-    const pista = wrapper.clientHeight - thumb.offsetHeight;
-    if (pista <= 0) return;
-
-    const mover = (e) => {
-      const delta = ((e.clientY - startY) / pista) * max;
-      lenis.scrollTo(startScroll + delta, { immediate: true });
-    };
-    const soltar = () => {
-      window.removeEventListener('pointermove', mover);
-      window.removeEventListener('pointerup', soltar);
-    };
-    window.addEventListener('pointermove', mover);
-    window.addEventListener('pointerup', soltar);
-  };
-  thumb.addEventListener('pointerdown', arrastrar);
-
   const ro = typeof ResizeObserver === 'function'
-    ? new ResizeObserver(() => { lenis.resize(); update(); })
+    ? new ResizeObserver(() => lenis.resize())
     : null;
   ro?.observe(content);
   ro?.observe(wrapper);
 
-  requestAnimationFrame(() => { lenis.resize(); update(); });
+  requestAnimationFrame(() => lenis.resize());
 
-  const state = {
-    lenis, content, thumb, creado, overflowOriginal, positionOriginal, ro, update
-  };
+  const state = { lenis, content, creado, ro };
   panes.set(wrapper, state);
   return state;
 }
@@ -111,10 +63,7 @@ function detach(wrapper) {
   if (!state) return;
   state.ro?.disconnect();
   state.lenis.destroy();
-  state.thumb.remove();
-  wrapper.classList.remove('is-scroll-pane');
-  wrapper.style.overflow = state.overflowOriginal;
-  wrapper.style.position = state.positionOriginal;
+  wrapper.classList.remove('lenis-pane');
   if (state.creado && state.content.parentElement === wrapper) {
     while (state.content.firstChild) wrapper.insertBefore(state.content.firstChild, state.content);
     state.content.remove();
@@ -136,7 +85,7 @@ export const ScrollPane = {
     panes.forEach((state) => state.lenis.start());
   },
   refresh() {
-    panes.forEach((state) => { state.lenis.resize(); state.update(); });
+    panes.forEach((state) => state.lenis.resize());
   },
   detachAll() {
     [...panes.keys()].forEach(detach);
