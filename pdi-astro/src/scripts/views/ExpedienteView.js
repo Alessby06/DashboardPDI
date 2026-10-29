@@ -22,6 +22,7 @@ import { BeneficiarioModel } from "../models/BeneficiarioModel.js";
 import { CasoSocialModel } from "../models/CasoSocialModel.js";
 import { AuditModel } from "../models/AuditModel.js";
 import { ToastView } from "./ToastView.js";
+import { confirmar } from "../ui/confirmacion.js";
 import { crear as crearFiltros } from "../utils/Filters.js";
 import { edadDesdeFecha, estadoActual } from "../core/db.js";
 import { PARENTESCOS, valoresDeGrado } from "../../data/opcionesBeneficiario.js";
@@ -363,6 +364,10 @@ export const ExpedienteView = {
     this._pintarSocial(b, caso);
     this.renderProgramasInscritos(b.servicios, false);
     this._pintarCroquisYFachada(b);
+    // Al repintar se sale de edicion: los campos vuelven a quedar bloqueados.
+    // Antes solo `toggleEdit` aplicaba el candado, asi que tras guardar los
+    // campos seguian editables aunque el boton ya dijera "Editar Datos".
+    this._aplicarBloqueoCampos();
   },
 
   // --- cabecera, estado de los botones y navegacion entre usuarios ------------
@@ -539,10 +544,16 @@ export const ExpedienteView = {
         const archivo = e.target.files && e.target.files[0];
         if (!archivo) return;
         const lector = new FileReader();
-        lector.onload = (ev) => {
+        lector.onload = async (ev) => {
+          const anterior = b.fotoUrl;
           b.fotoUrl = ev.target.result;
+          const guardado = await BeneficiarioModel.updateConfirmado(b.id, b);
+          if (!guardado) {
+            // La nube rechazó la foto: se conserva la anterior y db.js ya avisó.
+            b.fotoUrl = anterior;
+            return;
+          }
           if (marco) marco.innerHTML = `<img src="${escapar(b.fotoUrl)}" alt="Foto de ${escapar(b.nombres)}">`;
-          BeneficiarioModel.update(b.id, b);
           ToastView.show("Fotografia actualizada", `Se guardo la fotografia de ${b.nombres} ${b.apellidos}.`, "success");
         };
         lector.readAsDataURL(archivo);
@@ -894,10 +905,16 @@ export const ExpedienteView = {
         const archivo = e.target.files && e.target.files[0];
         if (!archivo) return;
         const lector = new FileReader();
-        lector.onload = (ev) => {
+        lector.onload = async (ev) => {
+          const anterior = b.fotoFachada;
           b.fotoFachada = ev.target.result;
+          const guardado = await BeneficiarioModel.updateConfirmado(b.id, b);
+          if (!guardado) {
+            // La nube rechazó la foto: se conserva la anterior y db.js ya avisó.
+            b.fotoFachada = anterior;
+            return;
+          }
           if (vista) vista.innerHTML = `<img src="${escapar(b.fotoFachada)}" alt="Fachada de vivienda de ${escapar(b.nombres)}">`;
-          BeneficiarioModel.update(b.id, b);
           ToastView.show("Fachada actualizada", `Se guardo la foto de la fachada de ${b.nombres} ${b.apellidos}.`, "success");
         };
         lector.readAsDataURL(archivo);
@@ -1003,41 +1020,7 @@ export const ExpedienteView = {
     // editables mientras dura la edicion.
     if (b) this._pintarRetiro(b);
 
-    CAMPOS_EDITABLES.forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      // La estrategia es un control propio (pisoras con casilla): no es un
-      // input, asi que su candado y su estado visual los lleva el control,
-      // no el readOnly del formulario.
-      if (el.dataset && el.dataset.estrategiaMultiselect !== undefined) {
-        window.PDI?.EstrategiaMultiSelect?.setDisabled(id, !this.isEditing);
-        el.style.borderColor = this.isEditing ? "var(--gt-green)" : "var(--border-subtle)";
-        return;
-      }
-      // El desplegable de sexo no entiende readOnly: su unico candado honesto
-      // es disabled, asi que cada tipo de control lleva el suyo.
-      if (el.tagName === "SELECT") el.disabled = !this.isEditing;
-      else el.readOnly = !this.isEditing;
-      if (this.isEditing) {
-        el.style.borderColor = "var(--gt-green)";
-        el.style.backgroundColor = "var(--surface-1)";
-        // El fondo y la tinta salen del tema, no de un blanco fijo: en oscuro un
-        // campo blanco con tinta clara dejaba el texto invisible, y ademas rompia
-        // la continuidad del modo oscuro. El estado editable se dice con el borde
-        // verde, nada mas.
-        el.style.color = "var(--text-main)";
-        el.style.boxShadow = "none";
-        // Un desplegable no se escribe: el cursor de texto sobre un select
-        // promete una interaccion que el control no tiene.
-        el.style.cursor = el.tagName === "SELECT" ? "pointer" : "text";
-      } else {
-        el.style.borderColor = "var(--border-subtle)";
-        el.style.backgroundColor = "var(--surface-2)";
-        el.style.color = "";
-        el.style.boxShadow = "none";
-        el.style.cursor = "default";
-      }
-    });
+    this._aplicarBloqueoCampos();
 
     // La gravedad de la alergia depende de si hay algo que gravedar: si la
     // descripcion queda en "Ninguna", el desplegable se cierra.
@@ -1100,10 +1083,61 @@ export const ExpedienteView = {
     }
   },
 
-  saveChanges() {
+  /**
+   * Aplica el candado de los campos según `this.isEditing`. Vive aparte porque
+   * lo necesitan dos caminos: entrar o salir de edición (`toggleEdit`) y cada
+   * repintado (`_pintar`). Sin esta segunda llamada, guardar dejaba los campos
+   * editables aunque el botón ya hubiera vuelto a "Editar Datos".
+   */
+  _aplicarBloqueoCampos() {
+    CAMPOS_EDITABLES.forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+
+      // La estrategia es un control propio (pisoras con casilla): no es un
+      // input, así que su candado y su estado visual los lleva el control.
+      if (el.dataset && el.dataset.estrategiaMultiselect !== undefined) {
+        window.PDI?.EstrategiaMultiSelect?.setDisabled(id, !this.isEditing);
+        el.style.borderColor = this.isEditing ? "var(--gt-green)" : "var(--border-subtle)";
+        return;
+      }
+
+      // El desplegable de sexo no entiende readOnly: su único candado honesto
+      // es disabled, así que cada tipo de control lleva el suyo.
+      if (el.tagName === "SELECT") el.disabled = !this.isEditing;
+      else el.readOnly = !this.isEditing;
+
+      if (this.isEditing) {
+        el.style.borderColor = "var(--gt-green)";
+        el.style.backgroundColor = "var(--surface-1)";
+        // El fondo y la tinta salen del tema, no de un blanco fijo: en oscuro
+        // un campo blanco con tinta clara dejaba el texto invisible.
+        el.style.color = "var(--text-main)";
+        el.style.boxShadow = "none";
+        // Un desplegable no se escribe: el cursor de texto sobre un select
+        // promete una interacción que el control no tiene.
+        el.style.cursor = el.tagName === "SELECT" ? "pointer" : "text";
+      } else {
+        el.style.borderColor = "var(--border-subtle)";
+        el.style.backgroundColor = "var(--surface-2)";
+        el.style.color = "";
+        el.style.boxShadow = "none";
+        el.style.cursor = "default";
+      }
+    });
+  },
+
+  async saveChanges() {
     if (!this._id) return;
+    if (this._guardandoExpediente) return;
     const b = BeneficiarioModel.getById(this._id);
     if (!b) return;
+
+    this._guardandoExpediente = true;
+    const saveBtn = document.getElementById("btnSaveExpChanges");
+    if (saveBtn) saveBtn.disabled = true;
+
+    try {
 
     const valor = (id) => {
       const el = document.getElementById(id);
@@ -1154,10 +1188,13 @@ export const ExpedienteView = {
       && pesoSeveridadAlergia(gravedadNueva) < pesoSeveridadAlergia(gravedadAntes),
     );
     if (bajaGravedad) {
-      const acepta = confirm(
-        `La alergia registrada era "${gravedadAntes}" y se está guardando como "${gravedadNueva}".\n`
-        + `Bajar la gravedad hace que la clínica ya no la trate como urgente. ¿Continuar?`,
-      );
+      const acepta = await confirmar({
+        titulo: "Bajar la gravedad de la alergia",
+        mensaje: `La alergia registrada era "${gravedadAntes}" y se está guardando como "${gravedadNueva}". Bajar la gravedad hace que la clínica ya no la trate como urgente. ¿Continuar?`,
+        confirmar: "Continuar",
+        cancelar: "Conservar",
+        peligro: true,
+      });
       if (!acepta) {
         seleccionarValor("expAlergiaSeveridad", gravedadAntes);
         ToastView.show(
@@ -1300,7 +1337,10 @@ export const ExpedienteView = {
       b.servicios = Array.from(new Set(this._editServicios));
     }
 
-    BeneficiarioModel.update(b.id, b);
+    // Se espera la confirmación de la nube: sin ella no hay éxito ni auditoría.
+    // Si falla, la ficha sigue en edición con los datos para poder reintentar.
+    const guardado = await BeneficiarioModel.updateConfirmado(b.id, b);
+    if (!guardado) return;
 
     // Activar el Area Social Pastoral implica que el usuario tiene caso social. Si
     // no lo tenia, se crea: de lo contrario el expediente prometeria un
@@ -1351,6 +1391,10 @@ export const ExpedienteView = {
     }
     this.render();
     ToastView.show("Expediente Actualizado", `Los cambios en ${b.nombres} ${b.apellidos} se guardaron y auditaron correctamente.`, "success");
+    } finally {
+      this._guardandoExpediente = false;
+      if (saveBtn) saveBtn.disabled = false;
+    }
   },
 
   /**
@@ -1377,18 +1421,31 @@ export const ExpedienteView = {
     caja.style.display = "flex";
   },
 
-  eliminarFoto() {
+  async eliminarFoto() {
     const b = BeneficiarioModel.getById(this._id);
     if (!b) return;
     if (!b.fotoUrl) {
       ToastView.show("Sin Fotografia", "No hay ninguna foto que eliminar para este usuario.", "info");
       return;
     }
-    if (!confirm(`¿Eliminar la fotografia de ${b.nombres} ${b.apellidos} (${b.codigo})?\n\nLa foto se quitara del expediente y no volvera a aparecer al recargar. La accion queda en la bitacora del sistema.`)) {
+
+    const acepta = await confirmar({
+      titulo: "Eliminar fotografía",
+      mensaje: `¿Eliminar la fotografía de ${b.nombres} ${b.apellidos} (${b.codigo})? Se quitará del expediente y la acción quedará registrada en la auditoría.`,
+      confirmar: "Eliminar",
+      cancelar: "Cancelar",
+      peligro: true,
+    });
+    if (!acepta) return;
+
+    const anterior = b.fotoUrl;
+    b.fotoUrl = "";
+    const guardado = await BeneficiarioModel.updateConfirmado(b.id, b);
+    if (!guardado) {
+      b.fotoUrl = anterior;
       return;
     }
-    b.fotoUrl = "";
-    BeneficiarioModel.update(b.id, b);
+
     // Mismo trato que la actualizacion: se repinta solo el carnet, sin meter
     // la foto en el formulario de Guardar Cambios.
     const marco = document.getElementById("expChildPhotoFrame");
@@ -1419,11 +1476,24 @@ export const ExpedienteView = {
     const b = BeneficiarioModel.getById(this._id);
     if (!b) return;
 
-    if (!confirm(`¿Está seguro de eliminar definitivamente al usuario ${b.nombres} ${b.apellidos} (${b.codigo})?\n\nEsta acción retirará al usuario del Padrón Único y de todos los servicios. Se registrará en la auditoría del sistema.`)) {
-      return;
+    const acepta = await confirmar({
+      titulo: "Dar de baja al usuario",
+      mensaje: `¿Dar de baja a ${b.nombres} ${b.apellidos} (${b.codigo})? Dejará de aparecer en el padrón y en los servicios activos. La acción quedará registrada en la auditoría.`,
+      confirmar: "Dar de baja",
+      cancelar: "Cancelar",
+      peligro: true,
+    });
+    if (!acepta) return;
+
+    if (this._eliminando) return;
+    this._eliminando = true;
+    let bajaOk = false;
+    try {
+      bajaOk = await BeneficiarioModel.delete(b.id);
+    } finally {
+      this._eliminando = false;
     }
 
-    const bajaOk = await BeneficiarioModel.delete(b.id);
     if (!bajaOk) {
       ToastView.show(
         "Baja no completada",

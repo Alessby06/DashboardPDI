@@ -5,7 +5,7 @@
 
 import {
   crearVoluntario, actualizarVoluntario, darBajaVoluntario,
-  addCapacitacionVoluntario, incrementarCanastaVoluntario,
+  incrementarCanastaVoluntario, registrarCapacitacionVoluntario,
 } from '../core/db.js';
 
 export const TEMATICAS_CAPACITACION = [
@@ -131,23 +131,55 @@ export const VoluntarioModel = {
     return true;
   },
 
-  addCapacitacion(id, tematica) {
+  /**
+   * Registra el taller y, si corresponde, la canasta en una sola escritura.
+   * Devuelve el voluntario actualizado o null si la nube rechaza el cambio.
+   * El estado en memoria se revierte si la escritura falla: el contador y la
+   * lista de talleres no pueden quedar por delante de la base.
+   */
+  async registrarCapacitacion(id, tematica, { canasta = false } = {}) {
     const vol = this.getById(id);
     if (!vol) return null;
-    if (!vol.capacitaciones) vol.capacitaciones = [];
-    if (!vol.capacitaciones.includes(tematica)) {
+
+    const capacitacionesPrevias = Array.isArray(vol.capacitaciones) ? [...vol.capacitaciones] : [];
+    const canastasPrevias = Number(vol.canastasRecibidas) || 0;
+    const yaLaTiene = capacitacionesPrevias.includes(tematica);
+
+    if (yaLaTiene && !canasta) return vol;
+
+    if (!yaLaTiene) {
+      if (!Array.isArray(vol.capacitaciones)) vol.capacitaciones = [];
       vol.capacitaciones.push(tematica);
-      // La nube agrega el taller sin duplicarlo en la lista del registro.
-      addCapacitacionVoluntario(vol, tematica);
+    }
+    if (canasta) vol.canastasRecibidas = canastasPrevias + 1;
+
+    const ok = await registrarCapacitacionVoluntario(vol, tematica, {
+      canasta,
+      conTematica: !yaLaTiene,
+    });
+    if (!ok) {
+      vol.capacitaciones = capacitacionesPrevias;
+      vol.canastasRecibidas = canastasPrevias;
+      return null;
     }
     return vol;
   },
 
-  incrementCanasta(id) {
+  async addCapacitacion(id, tematica) {
+    return this.registrarCapacitacion(id, tematica, { canasta: false });
+  },
+
+  async incrementCanasta(id) {
     const vol = this.getById(id);
     if (!vol) return null;
-    vol.canastasRecibidas = (Number(vol.canastasRecibidas) || 0) + 1;
-    incrementarCanastaVoluntario(vol);
+
+    const anterior = Number(vol.canastasRecibidas) || 0;
+    vol.canastasRecibidas = anterior + 1;
+    const ok = await incrementarCanastaVoluntario(vol);
+    if (!ok) {
+      vol.canastasRecibidas = anterior;
+      return null;
+    }
     return vol;
   },
 

@@ -1661,12 +1661,36 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
         <button type="button" class="btn-action btn-secondary" onclick="window.closeModalCapacitacionVoluntarias ? window.closeModalCapacitacionVoluntarias() : null">
           Cancelar
         </button>
-        <button type="button" class="btn-action primary" onclick="window.saveCapacitacionVoluntaria ? window.saveCapacitacionVoluntaria() : null">
+        <button type="button" class="btn-action primary" id="btnGuardarCapacitacion" onclick="window.saveCapacitacionVoluntaria ? window.saveCapacitacionVoluntaria() : null">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
           </svg>
           <span>Registrar Asistencia</span>
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL: CONFIRMACIÓN DE ACCIONES DESTRUCTIVAS
+       ========================================== -->
+  <div class="modal-backdrop" id="modalConfirmacion" inert aria-hidden="true">
+    <div class="modal-box confirm-box" role="dialog" aria-modal="true"
+      aria-labelledby="confirmacionTitulo" aria-describedby="confirmacionMensaje" tabindex="-1">
+      <div class="modal-header">
+        <h3 id="confirmacionTitulo" class="confirm-title">Confirmar acción</h3>
+        <button type="button" class="btn-close-modal" id="btnConfirmacionCerrar" aria-label="Cerrar confirmación">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="confirmacionMensaje" class="confirm-message"></p>
+      </div>
+      <div class="modal-footer confirm-actions">
+        <button type="button" class="btn-action" id="btnConfirmacionCancelar">Cancelar</button>
+        <button type="button" class="btn-action primary confirm-aceptar" id="btnConfirmacionAceptar">Confirmar</button>
       </div>
     </div>
   </div>
@@ -2140,8 +2164,11 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
     border-radius: var(--radius-full, 9999px);
     font-size: 11px;
     font-weight: 700;
-    background: var(--surface-3, #e2e8f0);
+    /* `--surface-3` se retiró del sistema de tokens; el respaldo claro dejaba
+       el texto blanco del tema oscuro sobre un fondo casi blanco (1.1:1). */
+    background: var(--surface-hover);
     color: var(--text-main);
+    border: 1px solid var(--border-subtle);
     flex-shrink: 0;
   }
 
@@ -2570,6 +2597,44 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
       transition: none;
     }
   }
+
+  /* Modal de confirmación reutilizable (sustituye al confirm() nativo). */
+  #modalConfirmacion .confirm-box {
+    width: min(480px, calc(100vw - 32px));
+    max-width: 480px;
+  }
+
+  #modalConfirmacion .confirm-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text-main);
+  }
+
+  #modalConfirmacion .confirm-message {
+    margin: 0;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--text-muted);
+  }
+
+  #modalConfirmacion .confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 14px 20px 18px;
+  }
+
+  #modalConfirmacion .confirm-aceptar.peligro {
+    background: var(--gt-red-bg);
+    border-color: var(--gt-red-border);
+    color: var(--text-danger);
+  }
+
+  #modalConfirmacion .confirm-aceptar.peligro:hover {
+    background: var(--gt-red-border);
+    color: var(--text-main);
+  }
 </style>
 
 <script>
@@ -2577,6 +2642,7 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
   import { iniciarTiposCampo } from '../scripts/ui/tiposCampo.js';
   import { conectarGrado } from '../scripts/ui/gradoEscolar.js';
   import { iniciarCajasArchivo } from '../scripts/ui/archivos.js';
+  import { iniciarConfirmacion } from '../scripts/ui/confirmacion.js';
 
   function prepararFicha() {
     iniciarTiposCampo();
@@ -2591,6 +2657,7 @@ import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
   }
 
   prepararFicha();
+  iniciarConfirmacion();
   // Con las transiciones de Astro el documento se vuelve a pintar y los
   // escuchas se pierden: hay que reconectar sobre el marcado nuevo.
   document.addEventListener('astro:page-load', prepararFicha);

@@ -1022,15 +1022,26 @@ export const VoluntariadosView = {
 
     const btnCanasta = document.getElementById("btnFichaVolEntregarCanasta");
     if (btnCanasta) {
-      btnCanasta.onclick = () => {
-        const updated = VoluntarioModel.incrementCanasta(vol.id);
-        this._lastRenderSerial = null;
-        this.render();
-        this.openModalFicha(vol.id);
-        const total = (updated && updated.canastasRecibidas) || (vol.canastasRecibidas || 0) + 1;
-        ToastView.show("Canasta Entregada", `Se acreditó una canasta de estímulo a ${vol.nombres} ${vol.apellidos} (Total: ${total}).`, "success");
-        if (AuditModel && AuditModel.log) {
-          AuditModel.log("Sistema", "Coordinación", "Entrega de Canasta", vol.codigo, `Canasta entregada a ${vol.nombres} ${vol.apellidos}`);
+      btnCanasta.onclick = async () => {
+        if (this._guardandoCanasta) return;
+        this._guardandoCanasta = true;
+        btnCanasta.disabled = true;
+        try {
+          const updated = await VoluntarioModel.incrementCanasta(vol.id);
+          // Sin confirmación de la nube no hay toast de éxito ni auditoría.
+          if (!updated) return;
+
+          this._lastRenderSerial = null;
+          this.render();
+          this.openModalFicha(vol.id);
+          const total = updated.canastasRecibidas;
+          ToastView.show("Canasta Entregada", `Se acreditó una canasta de estímulo a ${vol.nombres} ${vol.apellidos} (Total: ${total}).`, "success");
+          if (AuditModel && AuditModel.log) {
+            AuditModel.log("Sistema", "Coordinación", "Entrega de Canasta", vol.codigo, `Canasta entregada a ${vol.nombres} ${vol.apellidos}`);
+          }
+        } finally {
+          this._guardandoCanasta = false;
+          btnCanasta.disabled = false;
         }
       };
     }
@@ -1078,29 +1089,56 @@ export const VoluntariadosView = {
     this._currentEditingId = null;
   },
 
-  saveCapacitacion() {
-    if (!this._currentEditingId) return;
+  async saveCapacitacion() {
+    if (!this._currentEditingId || this._guardandoCapacitacion) return;
     const selectEl = document.getElementById("selectCapacitacionTematica");
     if (!selectEl || !selectEl.value) return;
 
     const vol = VoluntarioModel.getById(this._currentEditingId);
-    VoluntarioModel.addCapacitacion(this._currentEditingId, selectEl.value);
-    
-    // Check if canasta delivery checkbox was checked
     const chkCanasta = document.getElementById("chkEntregarCanastaCap");
-    if (chkCanasta && chkCanasta.checked) {
-      VoluntarioModel.incrementCanasta(this._currentEditingId);
-      chkCanasta.checked = false;
-    }
+    const conCanasta = Boolean(chkCanasta && chkCanasta.checked);
 
-    ToastView.show("Capacitación Registrada", `Taller "${selectEl.value}" acreditado para ${vol ? vol.nombres : 'voluntaria'}.`, "success");
-    if (AuditModel && AuditModel.log && vol) {
-      AuditModel.log("Sistema", "Coordinación", "Capacitación Voluntaria", vol.codigo, `Taller "${selectEl.value}" registrado`);
-    }
+    this._guardandoCapacitacion = true;
+    const btnGuardar = document.getElementById("btnGuardarCapacitacion");
+    if (btnGuardar) btnGuardar.disabled = true;
 
-    this.closeModalCapacitacion();
-    this._lastRenderSerial = null;
-    this.render();
+    try {
+      // Una sola escritura: el taller y la canasta se confirman juntos o no se
+      // confirma ninguno. Antes eran dos UPDATE simultáneos y la canasta se
+      // perdía con "Transaction conflict: Resource busy".
+      const actualizado = await VoluntarioModel.registrarCapacitacion(
+        this._currentEditingId,
+        selectEl.value,
+        { canasta: conCanasta },
+      );
+
+      // Sin confirmación de la nube no se cierra el modal ni se muestra éxito:
+      // db.js ya mostró el error y la ficha sigue abierta para reintentar.
+      if (!actualizado) return;
+
+      if (chkCanasta) chkCanasta.checked = false;
+      ToastView.show(
+        "Capacitación Registrada",
+        `Taller "${selectEl.value}" acreditado para ${vol ? vol.nombres : "voluntaria"}${conCanasta ? " y canasta de estímulo registrada" : ""}.`,
+        "success",
+      );
+      if (AuditModel && AuditModel.log && vol) {
+        AuditModel.log(
+          "Sistema",
+          "Coordinación",
+          "Capacitación Voluntaria",
+          vol.codigo,
+          `Taller "${selectEl.value}" registrado${conCanasta ? " con entrega de canasta" : ""}`,
+        );
+      }
+
+      this.closeModalCapacitacion();
+      this._lastRenderSerial = null;
+      this.render();
+    } finally {
+      this._guardandoCapacitacion = false;
+      if (btnGuardar) btnGuardar.disabled = false;
+    }
   },
 
   // Exportar Padrón en CSV

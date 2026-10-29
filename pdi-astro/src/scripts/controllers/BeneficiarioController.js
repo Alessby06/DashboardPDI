@@ -314,7 +314,7 @@ export const BeneficiarioController = {
     view.renderTable(filtered);
   },
 
-  saveNuevoUsuario(event, onComplete) {
+  async saveNuevoUsuario(event, onComplete) {
     event.preventDefault();
 
     // El boton de guardar solo se habilita cuando no falta ningun dato. Si se
@@ -550,7 +550,29 @@ export const BeneficiarioController = {
       vulnerabilidad: exoneracionAporte.includes("100%") ? 82 : 55
     };
 
-    bModel.add(nuevoObj);
+    // El alta solo se cierra cuando la nube confirma. Mientras tanto el boton
+    // queda bloqueado para que un doble clic no cree dos registros.
+    if (this._guardandoAlta) return;
+    this._guardandoAlta = true;
+    const btnGuardar = document.getElementById("btnGuardarFicha");
+    if (btnGuardar) btnGuardar.disabled = true;
+
+    let creado = null;
+    try {
+      creado = await bModel.add(nuevoObj);
+    } catch (error) {
+      console.error("[PDI] No se pudo completar el alta:", error);
+    } finally {
+      this._guardandoAlta = false;
+      if (btnGuardar) {
+        btnGuardar.disabled = false;
+        window.PDI?.Ficha?.refrescarEstadoFicha?.();
+      }
+    }
+
+    // Sin confirmación de la base no hay alta: la ficha sigue abierta con los
+    // datos y el error ya lo mostró db.js. No se audita ni se muestra éxito.
+    if (!creado) return;
 
     // Registro en Log de Auditoría Inviolable
     const audit = window.PDI?.AuditModel || AuditModel;
@@ -559,13 +581,17 @@ export const BeneficiarioController = {
         "Usuario Activo",
         "Coordinación",
         "Inscripción de Usuario",
-        nuevoObj.codigo,
+        creado.codigo || nuevoObj.codigo,
         `Alta integral con Ficha A1/A3 Ley 29733: ${nombres} ${apellidos} (DNI ${dni})`,
         "Válido"
       );
     }
 
-    toast.show("Usuario Incorporado", `${nombres} ${apellidos} registrado exitosamente con código ${nuevoObj.codigo}`, "success");
+    toast.show(
+      "Usuario Incorporado",
+      `${nombres} ${apellidos} registrado exitosamente con código ${creado.codigo || nuevoObj.codigo}`,
+      "success",
+    );
 
     const mView = window.PDI?.ModalView || ModalView;
     mView.closeNuevoUsuario();

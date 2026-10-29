@@ -43,6 +43,9 @@ import {
   resumenAlergias,
   alergiaPrincipal,
 } from './catalogos.js';
+import { campoUsuario, campoViveCon } from './esquemaCampos.js';
+import { consultaCapacitacion } from './consultasVoluntario.js';
+import { conReintentos } from '../utils/reintento.js';
 
 const URL = import.meta.env.PUBLIC_SURREAL_URL;
 const NS = import.meta.env.PUBLIC_SURREAL_NS;
@@ -81,10 +84,14 @@ async function pedirToken() {
 // PUBLIC_ESQUEMA_USUARIO=1 usa usuario_id / usuario_vinculado / firmante_id.
 // Cuando producción termine la migración, la bandera se retira.
 const ESQUEMA_USUARIO = import.meta.env.PUBLIC_ESQUEMA_USUARIO === '1';
-const F_USUARIO = ESQUEMA_USUARIO ? 'usuario_id' : 'persona_id';
+const F_USUARIO = campoUsuario(ESQUEMA_USUARIO);
 const T_VINCULO = ESQUEMA_USUARIO ? 'usuario_vinculado' : 'persona_vinculada';
 const F_MENOR = ESQUEMA_USUARIO ? 'usuario_id' : 'menor_id';
 const F_FIRMANTE = ESQUEMA_USUARIO ? 'firmante_id' : 'apoderado_firmante';
+// El booleano del vínculo también cambió de nombre en el esquema nuevo.
+// Escribir `vive_con_usuario` contra `persona_vinculada` (SCHEMAFULL) rompe
+// el alta y la edición del expediente; por eso se resuelve con la bandera.
+const F_VIVE_CON = campoViveCon(ESQUEMA_USUARIO);
 
 // `caso_social` se migró antes que el resto de tablas: en la nube solo existe
 // `usuario_id`. Si se usara la bandera global con producción en 0, la consulta
@@ -1229,7 +1236,7 @@ export async function crearBeneficiario(m) {
       IF string::len($cuiId) > 0 {
         CREATE ${T_VINCULO} CONTENT {
           ${F_MENOR}: $usuario, cuidador_id: type::record('persona', $cuiId),
-          parentesco: $par, rol_vinculo: 'Responsable', vive_con_usuario: true
+          parentesco: $par, rol_vinculo: 'Responsable', ${F_VIVE_CON}: true
         };
         CREATE consentimiento CONTENT {
           ${F_USUARIO}: $usuario, ${F_FIRMANTE}: type::record('persona', $cuiId),
@@ -1545,7 +1552,7 @@ export async function actualizarBeneficiario(b) {
         DELETE ${T_VINCULO} WHERE ${F_MENOR} = $usuario;
         CREATE ${T_VINCULO} CONTENT {
           ${F_MENOR}: $usuario, cuidador_id: type::record('persona', $cuiId),
-          parentesco: $par, rol_vinculo: 'Responsable', vive_con_usuario: true
+          parentesco: $par, rol_vinculo: 'Responsable', ${F_VIVE_CON}: true
         };
       };
       UPDATE inscripcion SET
@@ -1977,11 +1984,20 @@ export async function darBajaVoluntario(vol) {
   }
 }
 
-export async function addCapacitacionVoluntario(vol, tematica) {
+/**
+ * Registra el taller y, si corresponde, la canasta en UNA sola escritura.
+ * Antes eran dos UPDATE simultáneos sobre el mismo registro y SurrealDB
+ * respondía "Transaction conflict: Resource busy"; el taller quedaba y la
+ * canasta se perdía. Una sola sentencia hace que ambos cambios se confirmen
+ * juntos. El reintento cubre conflictos con otras pestañas o sesiones.
+ */
+export async function registrarCapacitacionVoluntario(vol, tematica, { canasta = false, conTematica = true } = {}) {
   const rid = String(vol._qid || '').trim();
   if (!rid) return false;
+  const consulta = consultaCapacitacion({ conCanasta: canasta, conTematica });
+  if (!consulta) return false;
   try {
-    const res = await ejecutar(`UPDATE voluntario SET capacitaciones += $tematica WHERE id = type::record($rid) RETURN AFTER;`, { rid, tematica });
+    const res = await conReintentos(() => ejecutar(consulta, { rid, tematica }));
     if (!comoLista(res).length) {
       avisarFallo('Registro de capacitación', `No se encontró el registro ${vol.codigo || rid} en la base de datos.`);
       return false;
@@ -1992,11 +2008,16 @@ export async function addCapacitacionVoluntario(vol, tematica) {
   }
 }
 
+export async function addCapacitacionVoluntario(vol, tematica) {
+  return registrarCapacitacionVoluntario(vol, tematica, { canasta: false, conTematica: true });
+}
+
 export async function incrementarCanastaVoluntario(vol) {
   const rid = String(vol._qid || '').trim();
   if (!rid) return false;
+  const consulta = consultaCapacitacion({ conCanasta: true, conTematica: false });
   try {
-    const res = await ejecutar(`UPDATE voluntario SET canastas_recibidas += 1 WHERE id = type::record($rid) RETURN AFTER;`, { rid });
+    const res = await conReintentos(() => ejecutar(consulta, { rid }));
     if (!comoLista(res).length) {
       avisarFallo('Entrega de canasta', `No se encontró el registro ${vol.codigo || rid} en la base de datos.`);
       return false;

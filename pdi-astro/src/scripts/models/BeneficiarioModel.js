@@ -114,20 +114,48 @@ export const BeneficiarioModel = {
    * rechaza, db.js notifica el error y la próxima hidratación realinea los
    * estados; no se toca ningun almacen local.
    */
-  add(nuevoUsuario) {
+  async add(nuevoUsuario) {
     const list = this.getAll();
     normalizeBeneficiarioServicios(nuevoUsuario);
     list.unshift(nuevoUsuario);
-    crearBeneficiario(nuevoUsuario).then(res => {
-      if (!res) {
-        list.splice(list.indexOf(nuevoUsuario), 1);
-        return;
-      }
-      // El codigo con el formato del programa lo asigna la base; el de memoria
-      // era provisional.
-      if (res.codigo) nuevoUsuario.codigo = res.codigo;
-    });
+
+    let res = null;
+    try {
+      res = await crearBeneficiario(nuevoUsuario);
+    } catch (error) {
+      console.error("[PDI] Alta de usuario rechazada:", error);
+    }
+
+    if (!res) {
+      const indice = list.indexOf(nuevoUsuario);
+      if (indice !== -1) list.splice(indice, 1);
+      return null;
+    }
+
+    // El codigo con el formato del programa lo asigna la base; el de memoria
+    // era provisional.
+    if (res.codigo) nuevoUsuario.codigo = res.codigo;
     return nuevoUsuario;
+  },
+
+  /**
+   * Actualización que espera la confirmación de la nube. La usa el expediente:
+   * si la escritura falla, el modelo no reemplaza el registro y la vista no
+   * muestra un éxito falso. Las actualizaciones secundarias (fotos, servicios)
+   * siguen usando `update` para no bloquear la interfaz.
+   */
+  async updateConfirmado(id, updatedData) {
+    const list = this.getAll();
+    const idx = list.findIndex(b => String(b.id) === String(id) || b.id === Number(id));
+    if (idx === -1) return null;
+
+    const previo = list[idx];
+    const actualizado = normalizeBeneficiarioServicios({ ...previo, ...updatedData });
+    const ok = await actualizarBeneficiario(actualizado);
+    if (!ok) return null;
+
+    list[idx] = actualizado;
+    return actualizado;
   },
 
   update(id, updatedData) {
