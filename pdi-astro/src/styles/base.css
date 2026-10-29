@@ -698,9 +698,19 @@
       stroke: currentColor;
     }
 
-    .btn-action:hover {
-      background: var(--surface-hover);
-      border-color: var(--border-bright);
+    /* El hover solo existe donde hay puntero fino: en táctil se queda pegado
+       después del toque y el botón parece activo cuando ya no lo está. */
+    @media (hover: hover) and (pointer: fine) {
+      .btn-action:hover {
+        background: var(--surface-hover);
+        border-color: var(--border-bright);
+      }
+
+      .btn-action.primary:hover {
+        background: var(--brand-dark);
+        border-color: var(--brand-dark);
+        transform: translateY(-1px);
+      }
     }
 
     .btn-action.primary {
@@ -710,12 +720,6 @@
       color: var(--on-brand);
       border: 1px solid var(--gt-green);
       font-weight: 700;
-    }
-
-    .btn-action.primary:hover {
-      background: var(--brand-dark);
-      border-color: var(--brand-dark);
-      transform: translateY(-1px);
     }
 
     .btn-action:active {
