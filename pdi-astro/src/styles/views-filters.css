@@ -650,12 +650,21 @@
   padding: 0 4px;
   background: var(--surface-2);
   border: 0;
-  outline: 1px solid var(--border-subtle);
+  /* Mismo borde y mismo radio que el campo que lo abre: la lista se lee como
+     ese control desplegado, no como una tarjeta dentro de otra tarjeta. */
+  outline: 1px solid var(--filter-border);
   outline-offset: -1px;
+  border-radius: var(--radius-sm);
   box-shadow: none;
   transition:
     opacity var(--dur-press) var(--ease-out),
     transform var(--dur-press) var(--ease-out);
+}
+
+/* El marco tiene 6 px de radio con 4 px de inset: las opciones piden 4 px para
+   que la esquina del resaltado no se vea mas redonda que la del marco. */
+.audit-filters-menu .padron-inner-dropdown-menu > .padron-dropdown-item {
+  border-radius: 4px;
 }
 
 /* El inset vertical del marco ya no puede vivir en el padding del menu: un
@@ -1124,9 +1133,9 @@
 
   .padron-inner-dropdown-menu {
     background: var(--surface-2);
-    border: 1px solid var(--border-bright);
+    border: 1px solid var(--filter-border);
     box-shadow: var(--shadow-overlay);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-sm);
     z-index: 200;
   }
 
