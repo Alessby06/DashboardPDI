@@ -301,6 +301,8 @@
        desde SheetController; esto cubre el scroll nativo. */
     body.pdi-drawer-open {
       overflow: hidden !important;
+      /* Repone el ancho de la barra que retira el bloqueo. */
+      padding-right: var(--pdi-scrollbar-lock, 0px);
     }
 
     .modal-header {

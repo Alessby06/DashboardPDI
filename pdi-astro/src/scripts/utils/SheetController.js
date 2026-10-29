@@ -272,6 +272,17 @@ function actualizarBloqueoFondo() {
   if (typeof document === "undefined" || !document.body) return;
   const abierta = Array.from(document.querySelectorAll(".modal-backdrop.drawer"))
     .some((modal) => modal.classList.contains("open"));
+  if (abierta) {
+    // Se mide antes de bloquear: es el ancho que la barra deja libre.
+    const barra = Math.max(
+      0,
+      window.innerWidth - document.documentElement.clientWidth,
+      document.body.offsetWidth - document.body.clientWidth
+    );
+    document.documentElement.style.setProperty("--pdi-scrollbar-lock", `${barra}px`);
+  } else {
+    document.documentElement.style.removeProperty("--pdi-scrollbar-lock");
+  }
   document.body.classList.toggle("pdi-drawer-open", abierta);
   if (abierta) window.__pdiLenis?.stop?.();
   else window.__pdiLenis?.start?.();
