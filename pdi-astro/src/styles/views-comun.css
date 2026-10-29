@@ -208,10 +208,10 @@
         will-change: transform;
         /* Salida: la cortina se cierra mientras la hoja se retira. */
         transition:
-          transform 240ms var(--ease-out),
-          clip-path 240ms var(--ease-out),
+          transform var(--sheet-out) var(--ease-out),
+          clip-path var(--sheet-out) var(--ease-out),
           opacity 220ms var(--ease-out),
-          visibility 0s linear 240ms;
+          visibility 0s linear var(--sheet-out);
       }
 
       .modal-backdrop.open .modal-box.drawer-box {
@@ -220,8 +220,8 @@
         visibility: visible;
         /* Entrada: el velo ya está puesto cuando la hoja arranca. */
         transition:
-          transform 400ms var(--sheet-ease),
-          clip-path 400ms var(--sheet-ease),
+          transform var(--sheet-in) var(--sheet-ease),
+          clip-path var(--sheet-in) var(--sheet-ease),
           opacity 220ms var(--ease-out),
           visibility 0s;
       }

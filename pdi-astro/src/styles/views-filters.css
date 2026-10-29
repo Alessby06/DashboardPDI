@@ -933,67 +933,47 @@
     margin: 0;
     box-sizing: border-box;
     display: flex;
-    /* Cerrada no se retira con display: la transición discreta se quedaba a
-       medias con pulsaciones rápidas (abierta pero invisible). Con visibility
-       el estado siempre se puede interrumpir y revertir. */
+    /* Cortina, la misma receta que las fichas: la hoja sube un 26 % y se
+       descubre desde el borde inferior. El clip se abre 80 px de más para que
+       la sombra siga existiendo en reposo; visibility evita que la hoja
+       descolocada capture toques. */
     visibility: hidden;
-    transform: translateY(100%);
-    /* Misma receta que la ficha de Nuevo Usuario: la hoja funde mientras sube
-       y el velo la acompaña. Sin el fundido se siente un golpe seco. */
+    transform: translateY(26%);
+    clip-path: inset(100% 0 0 0 round 16px 16px 0 0);
     opacity: 0;
-    /* Salida mas corta que la entrada. La curva de cajon evita el frenazo
-       seco del ease-out generico en un recorrido de toda la pantalla. */
     transition:
-      transform var(--dur-norm) var(--ease-drawer),
-      opacity var(--dur-norm) var(--ease-out),
-      visibility 0s linear var(--dur-norm);
+      transform var(--sheet-out) var(--ease-out),
+      clip-path var(--sheet-out) var(--ease-out),
+      opacity 220ms var(--ease-out),
+      visibility 0s linear var(--sheet-out);
     overflow: hidden;
   }
 
   .audit-filter-panel-wrap .audit-filters-dropdown.open .audit-filters-menu {
     visibility: visible;
     transform: translateY(0);
+    clip-path: inset(-80px -80px 0 -80px round 16px 16px 0 0);
     opacity: 1;
     transition:
-      transform var(--dur-panel) var(--ease-drawer),
-      opacity var(--dur-norm) var(--ease-out),
-      visibility 0s;
-  }
-
-  /* Android: misma curva, duraciones y fundido que la ficha de Nuevo Usuario. */
-  html.pdi-android .audit-filters-dropdown .audit-filters-menu {
-    transition:
-      transform var(--sheet-out) var(--sheet-ease),
-      opacity var(--sheet-out) linear,
-      visibility 0s linear var(--sheet-out);
-  }
-
-  html.pdi-android .audit-filter-panel-wrap .audit-filters-dropdown.open .audit-filters-menu {
-    transition:
       transform var(--sheet-in) var(--sheet-ease),
-      opacity 200ms var(--ease-out),
+      clip-path var(--sheet-in) var(--sheet-ease),
+      opacity 220ms var(--ease-out),
       visibility 0s;
   }
 
-  /* El contenido se asienta cuando la hoja ya está arriba: sin esto, los tres
-     tiempos del compás quedaban enterrados por el ascenso y la entrada se leía
-     como un deslizamiento genérico. */
-  .audit-filters-dropdown.open .audit-filters-menu > .audit-filters-header {
-    animation: pdi-filtros-zona-in 160ms var(--ease-out) 40ms both;
-  }
-
-  .audit-filters-dropdown.open .audit-filters-menu > .audit-filters-body {
-    animation: pdi-filtros-zona-in 180ms var(--ease-out) 100ms both;
-  }
-
+  /* La cortina es la misma en todas las plataformas: sin overrides por SO.
+     En la cortina el contenido entra con la hoja; el compás queda para el
+     popover de escritorio. */
+  .audit-filters-dropdown.open .audit-filters-menu > .audit-filters-header,
+  .audit-filters-dropdown.open .audit-filters-menu > .audit-filters-body,
   .audit-filters-dropdown.open .audit-filters-menu > .audit-filters-footer {
-    animation: pdi-filtros-zona-in 160ms var(--ease-out) 160ms both;
+    animation: none;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    html.pdi-android .audit-filters-dropdown .audit-filters-menu,
-    html.pdi-android .audit-filter-panel-wrap .audit-filters-dropdown.open .audit-filters-menu {
-      transition: opacity 140ms linear, visibility 0s;
+    .audit-filters-dropdown .audit-filters-menu,
+    .audit-filter-panel-wrap .audit-filters-dropdown.open .audit-filters-menu {
+      transition: none;
     }
   }
 

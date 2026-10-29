@@ -659,8 +659,14 @@
     overflow-y: auto !important;
     overscroll-behavior: contain !important;
     -webkit-overflow-scrolling: touch !important;
-    transform: translateY(105%);
-    transition: transform 0.32s cubic-bezier(0.23, 1, 0.32, 1);
+    transform: translateY(26%);
+    clip-path: inset(100% 0 0 0 round 20px 20px 0 0);
+    visibility: hidden;
+    /* Cortina: misma receta que las fichas y los filtros. */
+    transition:
+      transform var(--sheet-out) var(--ease-out),
+      clip-path var(--sheet-out) var(--ease-out),
+      visibility 0s linear var(--sheet-out);
     will-change: transform;
     z-index: 1200 !important;
     padding-bottom: max(24px, env(safe-area-inset-bottom, 24px)) !important;
@@ -668,20 +674,17 @@
 
   .sedes-detail-column.open {
     transform: translateY(0%);
-  }
-
-  /* Android: misma entrada que las hojas globales. */
-  html.pdi-android .sedes-detail-column {
-    transition: transform var(--sheet-out) var(--sheet-ease);
-  }
-
-  html.pdi-android .sedes-detail-column.open {
-    transition: transform var(--sheet-in) var(--sheet-ease);
+    clip-path: inset(-80px -80px 0 -80px round 20px 20px 0 0);
+    visibility: visible;
+    transition:
+      transform var(--sheet-in) var(--sheet-ease),
+      clip-path var(--sheet-in) var(--sheet-ease),
+      visibility 0s;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    html.pdi-android .sedes-detail-column,
-    html.pdi-android .sedes-detail-column.open {
+    .sedes-detail-column,
+    .sedes-detail-column.open {
       transition: none;
     }
   }
