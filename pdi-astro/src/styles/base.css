@@ -454,6 +454,7 @@
 
     /* Lenis necesita un content único: el nav scrollea y este div se mueve. */
     .nav-sections-inner {
+      flex: none;
       display: flex;
       flex-direction: column;
       gap: 4px;
@@ -884,6 +885,7 @@
     }
 
     .scroll-pane-content {
+      flex: none;
       will-change: transform;
     }
 
@@ -891,31 +893,23 @@
       position: absolute;
       inset-block-start: 0;
       inset-inline-end: 2px;
-      width: 6px;
+      width: 8px;
       border-radius: 999px;
-      background: var(--border-bright);
-      opacity: 0;
-      transition: opacity 160ms var(--ease-out),
-        background-color 160ms var(--ease-out);
+      background: var(--text-dim);
+      opacity: 1;
+      transition: background-color 160ms var(--ease-out);
       z-index: 8;
       touch-action: none;
       cursor: grab;
     }
 
-    .is-scroll-pane:hover .scroll-pane-thumb,
-    .is-scroll-pane:focus-within .scroll-pane-thumb {
-      opacity: 1;
+    .is-scroll-pane:hover .scroll-pane-thumb {
+      background: var(--text-main);
     }
 
     .scroll-pane-thumb:active {
       cursor: grabbing;
-      background: var(--text-dim);
-    }
-
-    @media (pointer: coarse) {
-      .scroll-pane-thumb {
-        opacity: 0.65;
-      }
+      background: var(--text-main);
     }
 
     /* View Header */
