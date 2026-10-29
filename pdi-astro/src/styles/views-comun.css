@@ -273,7 +273,7 @@
     /* Evita que la página de atrás se desplace bajo la hoja. Lenis se detiene
        desde SheetController; esto cubre el scroll nativo. */
     body.pdi-drawer-open {
-      overflow: hidden;
+      overflow: hidden !important;
     }
 
     .modal-header {
