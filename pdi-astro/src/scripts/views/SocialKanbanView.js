@@ -8,6 +8,7 @@ import { KanbanDrag } from '../utils/KanbanDrag.js';
 
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
 import { SEDES_NOMBRES } from "../core/catalogos.js";
+import { iconHtml } from '../../data/iconos.js';
 // Filtros del tablero que viajan en la URL. Los valores son los de los
 // desplegables de social.html.
 const FILTROS_SOCIAL = {
@@ -186,10 +187,7 @@ export const SocialKanbanView = {
     return `
       <div class="kanban-empty">
         <span class="kanban-empty-icon" aria-hidden="true">
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.75h4.5l1.5 2.25h4.5l1.5-2.25h4.5" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.75 6 4.5h12l2.25 5.25v7.5a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25z" />
-          </svg>
+          ${iconHtml("archivo.bandeja", { size: 18 })}
         </span>
         <span class="kanban-empty-title">${titulo}</span>
         <span class="kanban-empty-hint">${ayuda}</span>
@@ -321,9 +319,7 @@ export const SocialKanbanView = {
 
         actionsHtml = `
           <div class="kanban-card-pending-notice" title="En espera de aprobación de Coordinación">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-            </svg>
+            ${iconHtml("estado.pendiente", { size: 14 })}
             <span>En proceso de autorización → ${escapar(destEtapaNombre)}</span>
           </div>
         `;
@@ -332,9 +328,7 @@ export const SocialKanbanView = {
           <div class="kanban-actions-row">
             <button type="button" class="kanban-btn primary full-width"
               onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso(${escaparEnManejador(c.id)}, 'evaluacion') : (window.app?.socialController?.moverCaso(${escaparEnManejador(c.id)}, 'evaluacion'))">
-              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-              </svg>
+              ${iconHtml("accion.editar", { size: 13 })}
               <span>Iniciar Evaluación</span>
             </button>
           </div>
@@ -344,16 +338,12 @@ export const SocialKanbanView = {
           <div class="kanban-actions-row">
             <button type="button" class="kanban-btn secondary flex-1"
               onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso(${escaparEnManejador(c.id)}, 'pendiente') : (window.app?.socialController?.moverCaso(${escaparEnManejador(c.id)}, 'pendiente'))">
-              <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-              </svg>
+              ${iconHtml("accion.volver", { size: null })}
               <span>Alerta</span>
             </button>
             <button type="button" class="kanban-btn primary flex-1"
               onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso(${escaparEnManejador(c.id)}, 'canalizado') : (window.app?.socialController?.moverCaso(${escaparEnManejador(c.id)}, 'canalizado'))">
-              <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-              </svg>
+              ${iconHtml("comunicacion.enviar", { size: null })}
               <span>Canalizar</span>
             </button>
           </div>
@@ -363,16 +353,12 @@ export const SocialKanbanView = {
           <div class="kanban-actions-row">
             <button type="button" class="kanban-btn secondary flex-1"
               onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso(${escaparEnManejador(c.id)}, 'evaluacion') : (window.app?.socialController?.moverCaso(${escaparEnManejador(c.id)}, 'evaluacion'))">
-              <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-              </svg>
+              ${iconHtml("accion.volver", { size: null })}
               <span>Evaluar</span>
             </button>
             <button type="button" class="kanban-btn success flex-1"
               onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso(${escaparEnManejador(c.id)}, 'cerrado') : (window.app?.socialController?.moverCaso(${escaparEnManejador(c.id)}, 'cerrado'))">
-              <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-              </svg>
+              ${iconHtml("accion.confirmar", { size: null })}
               <span>Cerrar</span>
             </button>
           </div>
@@ -382,9 +368,7 @@ export const SocialKanbanView = {
           <div class="kanban-actions-row">
             <button type="button" class="kanban-btn warning full-width"
               onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso(${escaparEnManejador(c.id)}, 'canalizado') : (window.app?.socialController?.moverCaso(${escaparEnManejador(c.id)}, 'canalizado'))">
-              <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-              </svg>
+              ${iconHtml("accion.actualizar", { size: null })}
               <span>Reabrir Caso</span>
             </button>
           </div>
@@ -401,7 +385,7 @@ export const SocialKanbanView = {
             ${escapar(c.codigo)}
           </a>
           <span class="kanban-card-sede-badge" title="${escapar(c.sede)}">
-            <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/></svg>
+            ${iconHtml("lugar.ubicacion", { size: 11 })}
             <span>${escapar(c.sede)}</span>
           </span>
         </div>
@@ -589,9 +573,7 @@ export const SocialKanbanView = {
         chipEl.innerHTML = `
           <span>${escapar(chip.label)}</span>
           <button type="button" class="padron-chip-remove" title="Quitar filtro">
-            <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            ${iconHtml("accion.cerrar", { size: 10 })}
           </button>
         `;
         chipEl.querySelector(".padron-chip-remove").onclick = chip.clear;
@@ -745,57 +727,43 @@ export const SocialKanbanView = {
       if (tieneSolicitud) {
         dynamicBox.innerHTML = `
           <button type="button" class="btn-action warning" onclick="window.PDI?.SocialKanbanView?.abrirModalResolverSolicitud(${caso.id})">
-            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" />
-            </svg>
+            ${iconHtml("estado.ok", { size: 15 })}
             <span>Gestionar Autorización (Coordinación)</span>
           </button>
         `;
       } else if (caso.etapa === "pendiente") {
         dynamicBox.innerHTML = `
           <button type="button" class="btn-action primary" onclick="window.PDI?.SocialKanbanView?.moverCasoFromModal('evaluacion')">
-            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-            </svg>
+            ${iconHtml("accion.editar", { size: 15 })}
             <span>Iniciar Evaluación</span>
           </button>
         `;
       } else if (caso.etapa === "evaluacion") {
         dynamicBox.innerHTML = `
           <button type="button" class="btn-action btn-secondary" onclick="window.PDI?.SocialKanbanView?.moverCasoFromModal('pendiente')">
-            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-            </svg>
+            ${iconHtml("accion.volver", { size: 15 })}
             <span>Regresar a Alerta</span>
           </button>
           <button type="button" class="btn-action primary" onclick="window.PDI?.SocialKanbanView?.moverCasoFromModal('canalizado')">
-            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-            </svg>
+            ${iconHtml("comunicacion.enviar", { size: 15 })}
             <span>Canalizar Caso</span>
           </button>
         `;
       } else if (caso.etapa === "canalizado") {
         dynamicBox.innerHTML = `
           <button type="button" class="btn-action btn-secondary" onclick="window.PDI?.SocialKanbanView?.moverCasoFromModal('evaluacion')">
-            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-            </svg>
+            ${iconHtml("accion.volver", { size: 15 })}
             <span>Regresar a Evaluación</span>
           </button>
           <button type="button" class="btn-action success" onclick="window.PDI?.SocialKanbanView?.moverCasoFromModal('cerrado')">
-            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-            </svg>
+            ${iconHtml("accion.confirmar", { size: 15 })}
             <span>Cerrar Caso con Informe</span>
           </button>
         `;
       } else if (caso.etapa === "cerrado") {
         dynamicBox.innerHTML = `
           <button type="button" class="btn-action btn-secondary" onclick="window.PDI?.SocialKanbanView?.moverCasoFromModal('canalizado')">
-            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-            </svg>
+            ${iconHtml("accion.actualizar", { size: 15 })}
             <span>Reabrir Caso</span>
           </button>
         `;
@@ -1142,9 +1110,7 @@ export const SocialKanbanView = {
       container.innerHTML = `
         <div style="text-align: center; padding: 48px 20px; color: var(--text-dim);">
           <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--status-success-bg); color: var(--status-success); display: flex; align-items: center; justify-content: center; margin: 0 auto 14px auto;">
-            <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-            </svg>
+            ${iconHtml("accion.confirmar", { size: 28 })}
           </div>
           <h4 style="font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">Bandeja de Autorizaciones al Día</h4>
           <p style="font-size: 13px; color: var(--text-muted); max-width: 440px; margin: 0 auto;">
@@ -1182,10 +1148,7 @@ export const SocialKanbanView = {
                     ${escapar(caso.urgencia || 'Media')}
                   </span>
                   <span class="badge badge-gray">
-                    <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 3px;">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                    </svg>
+                    ${iconHtml("lugar.ubicacion", { size: 11, style: "margin-right: 3px;" })}
                     ${escapar(caso.sede || 'Sede General')}
                   </span>
                 </div>
@@ -1221,17 +1184,12 @@ export const SocialKanbanView = {
               <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 6px; padding-top: 8px; border-top: 1px solid var(--border-subtle);">
                 <button type="button" class="btn-action" style="font-size: 12px; padding: 6px 12px;"
                   onclick="window.PDI?.SocialKanbanView?.openDetalleCaso(${escaparEnManejador(caso.id)})">
-                  <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
+                  ${iconHtml("accion.ver", { size: 13 })}
                   <span>Ver Ficha</span>
                 </button>
                 <button type="button" class="btn-action primary" style="font-size: 12px; padding: 6px 16px; font-weight: 700;"
                   onclick="window.PDI?.SocialKanbanView?.abrirModalResolverSolicitud(${escaparEnManejador(caso.id)})">
-                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" />
-                  </svg>
+                  ${iconHtml("estado.ok", { size: 14 })}
                   <span>Revisar y Resolver</span>
                 </button>
               </div>
@@ -1279,9 +1237,7 @@ export const SocialKanbanView = {
       container.innerHTML = `
         <div style="text-align: center; padding: 48px 20px; color: var(--text-dim);">
           <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--surface-2); color: var(--text-dim); display: flex; align-items: center; justify-content: center; margin: 0 auto 14px auto;">
-            <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-            </svg>
+            ${iconHtml("archivo.documento", { size: 28 })}
           </div>
           <h4 style="font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">No hay solicitudes registradas</h4>
           <p style="font-size: 13px; color: var(--text-muted); max-width: 440px; margin: 0 auto;">
@@ -1316,10 +1272,7 @@ export const SocialKanbanView = {
                   </span>
                   ${badgeEstado}
                   <span class="badge badge-gray">
-                    <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 3px;">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                    </svg>
+                    ${iconHtml("lugar.ubicacion", { size: 11, style: "margin-right: 3px;" })}
                     ${escapar(sol.sede || 'Sede General')}
                   </span>
                 </div>
@@ -1356,11 +1309,9 @@ export const SocialKanbanView = {
                 <div class="coordination-feedback-box ${sol.estado}">
                   <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; flex-wrap: wrap;">
                     <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; color: ${sol.estado === 'aprobada' ? 'var(--text-success)' : 'var(--text-danger)'};">
-                      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                        ${sol.estado === 'aprobada' 
-                          ? '<path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />' 
-                          : '<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />'}
-                      </svg>
+                      ${sol.estado === 'aprobada'
+                        ? iconHtml('accion.confirmar', { size: 13 })
+                        : iconHtml('accion.cerrar', { size: 13 })}
                       <span>Dictamen de Coordinación: ${sol.estado.toUpperCase()}</span>
                     </div>
                     <div style="font-size: 11px; color: var(--text-dim);">
@@ -1373,9 +1324,7 @@ export const SocialKanbanView = {
                 </div>
               ` : `
                 <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #d97706; background: rgba(245, 158, 11, 0.08); padding: 7px 12px; border-radius: var(--radius-sm); border: 1px dashed rgba(245, 158, 11, 0.3);">
-                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
+                  ${iconHtml("estado.pendiente", { size: 14 })}
                   <span>Esperando resolución de Coordinación General. El caso permanece en su fase actual hasta su aprobación.</span>
                 </div>
               `}
@@ -1384,10 +1333,7 @@ export const SocialKanbanView = {
               <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
                 <button type="button" class="btn-action" style="font-size: 11.5px; padding: 4px 10px;"
                   onclick="window.PDI?.SocialKanbanView?.openDetalleCaso(${escaparEnManejador(sol.casoId)})">
-                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
+                  ${iconHtml("accion.ver", { size: 12 })}
                   <span>Ver Ficha del Caso</span>
                 </button>
               </div>

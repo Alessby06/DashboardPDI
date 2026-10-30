@@ -8,6 +8,7 @@ import { contarOpciones } from '../utils/FacetCounts.js';
 import { conectarHoja } from '../utils/SheetController.js';
 
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
+import { iconHtml } from '../../data/iconos.js';
 // Filtros del directorio que viajan en la URL. Valores tomados de los
 // desplegables de sedes.html. El servicio valida contra el catálogo único
 // de programas: un programa nuevo no exige tocar esta lista.
@@ -123,10 +124,7 @@ export const SedesView = {
       <div class="sedes-metric-strip">
         <div class="sedes-metric-item">
           <div class="sedes-metric-icon green">
-            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-            </svg>
+            ${iconHtml("lugar.ubicacion", { size: 18 })}
           </div>
           <div class="sedes-metric-data">
             <span class="sedes-metric-num">${escapar(stats.sedesOperativas)} / ${escapar(stats.totalSedes)}</span>
@@ -138,9 +136,7 @@ export const SedesView = {
 
         <div class="sedes-metric-item">
           <div class="sedes-metric-icon blue">
-            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-            </svg>
+            ${iconHtml("persona.grupo", { size: 18 })}
           </div>
           <div class="sedes-metric-data">
             <span class="sedes-metric-num">${escapar(stats.totalNinos)} usuarios</span>
@@ -152,9 +148,7 @@ export const SedesView = {
 
         <div class="sedes-metric-item">
           <div class="sedes-metric-icon yellow">
-            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.333A1.125 1.125 0 0018.375 9.21H5.625A1.125 1.125 0 004.5 10.333V21h15z" />
-            </svg>
+            ${iconHtml("dinero.banco", { size: 18 })}
           </div>
           <div class="sedes-metric-data">
             <span class="sedes-metric-num">${escapar(stats.totalAliados)} aliados</span>
@@ -166,9 +160,7 @@ export const SedesView = {
 
         <div class="sedes-metric-item">
           <div class="sedes-metric-icon red">
-            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
-            </svg>
+            ${iconHtml("grafico.barras", { size: 18 })}
           </div>
           <div class="sedes-metric-data">
             <span class="sedes-metric-num">${escapar(stats.tasaOcupacionPromedio)}% ocupación</span>
@@ -276,9 +268,7 @@ export const SedesView = {
         <span class="padron-chip">
           <span>Distrito: ${escapar(this._filterDistrito)}</span>
           <button type="button" class="padron-chip-remove" onclick="window.PDI?.SedesView?.removeFilterChip('distrito')" title="Eliminar filtro">
-            <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
+            ${iconHtml("accion.cerrar", { size: 10 })}
           </button>
         </span>
       `);
@@ -291,9 +281,7 @@ export const SedesView = {
         <span class="padron-chip">
           <span>Servicio: ${escapar(programa ? programa.etiqueta : this._filterServicio)}</span>
           <button type="button" class="padron-chip-remove" onclick="window.PDI?.SedesView?.removeFilterChip('servicio')" title="Eliminar filtro">
-            <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
+            ${iconHtml("accion.cerrar", { size: 10 })}
           </button>
         </span>
       `);
@@ -664,9 +652,7 @@ export const SedesView = {
           </div>
           <div class="sedes-master-item-name">Sede ${escapar(s.nombre)}</div>
           <div class="sedes-master-item-sub">
-            <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-            </svg>
+            ${iconHtml("persona.usuario", { size: 11 })}
             <span>${escapar(s.facilitadora)}</span>
           </div>
         </div>
@@ -692,10 +678,7 @@ export const SedesView = {
     if (!this._selectedSedeId) {
       panel.innerHTML = `
         <div class="sedes-detail-empty">
-          <svg width="48" height="48" fill="none" stroke="var(--text-dim)" stroke-width="1.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-          </svg>
+          ${iconHtml("lugar.ubicacion", { size: 48 })}
           <div style="font-size:16px; font-weight:700; color:var(--text-main); margin-top:8px;">Ninguna sede seleccionada</div>
           <div style="font-size:13px; color:var(--text-muted); margin-top:4px;">Seleccione una sede del directorio lateral para examinar su ficha oficial.</div>
         </div>
@@ -726,9 +709,7 @@ export const SedesView = {
 
     const telLink = telDigits ? `
       <a class="sedes-people-tel" href="tel:${telDigits}">
-        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-        </svg>
+        ${iconHtml("comunicacion.llamar", { size: 12 })}
         <span>${escapar(facilitadoraTel)}</span>
       </a>
     ` : '';
@@ -747,9 +728,7 @@ export const SedesView = {
         <button type="button" class="sedes-sheet-close"
           onclick="window.PDI?.SedesView?.cerrarDetalleMovil()"
           aria-label="Cerrar ficha de sede" title="Cerrar ficha de sede">
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
+          ${iconHtml("accion.cerrar", { size: 16 })}
         </button>
       </div>
       <div class="sedes-detail-card">
@@ -757,9 +736,7 @@ export const SedesView = {
         <div class="sedes-detail-header">
           <div class="sedes-detail-title-group">
             <div class="sedes-detail-avatar">
-              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.333A1.125 1.125 0 0018.375 9.21H5.625A1.125 1.125 0 004.5 10.333V21h15z" />
-              </svg>
+              ${iconHtml("dinero.banco", { size: 24 })}
             </div>
             <div style="display:flex; align-items:baseline; flex-wrap:wrap; gap:10px;">
               <h2 class="sedes-detail-name" id="sedesDetailTitulo" style="margin:0;">Sede ${escapar(sede.nombre)}</h2>
@@ -768,15 +745,11 @@ export const SedesView = {
           </div>
           <div class="sedes-detail-actions">
             <a href="${escapar(mapsNavUrl)}" target="_blank" class="btn-action btn-sede-map" title="Navegar en Google Maps">
-              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934a1.12 1.12 0 01-1.006 0L9.503 3.31a1.125 1.125 0 00-1.006 0L3.623 5.748A1.125 1.125 0 003 6.754v11.926c0 .836.88 1.38 1.628 1.006l3.869-1.934a1.12 1.12 0 011.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
-              </svg>
+              ${iconHtml("lugar.ruta", { size: 14 })}
               <span>Ubicación GPS</span>
             </a>
             <button type="button" class="btn-action primary" onclick="window.filterPadronBySede ? window.filterPadronBySede('${escaparEnManejador(sede.nombre)}') : null">
-              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
-              </svg>
+              ${iconHtml("persona.grupo", { size: 14 })}
               <span>Ver Usuarios</span>
             </button>
           </div>
@@ -785,9 +758,7 @@ export const SedesView = {
         <!-- Cobertura y Capacidad de Aforo -->
         <div class="sedes-detail-section">
           <div class="sedes-section-title">
-            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
-            </svg>
+            ${iconHtml("grafico.barras", { size: 15 })}
             <span>Capacidad Instalada y Aforo</span>
           </div>
           <div class="sede-aforo-section" style="margin-top:8px;">
@@ -806,9 +777,7 @@ export const SedesView = {
         <!-- Servicios Institucionales Activos -->
         <div class="sedes-detail-section">
           <div class="sedes-section-title">
-            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+            ${iconHtml("estado.ok", { size: 15 })}
             <span>Programas Institucionales en Operación</span>
           </div>
           <div class="sede-servicios-wrap" style="margin-top:8px; gap:8px;">
@@ -816,9 +785,7 @@ export const SedesView = {
               const displayServ = escapar(serv);
               return `
                 <span class="sede-servicio-pill" style="font-size:12px; padding:6px 12px;">
-                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
-                  </svg>
+                  ${iconHtml("accion.confirmar", { size: 14 })}
                   <span>${displayServ}</span>
                 </span>
               `;
@@ -849,10 +816,7 @@ export const SedesView = {
         <!-- Dirección Territorial y Referencia -->
         <div class="sedes-detail-section" style="margin-top:16px;">
           <div class="sedes-section-title">
-            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-            </svg>
+            ${iconHtml("lugar.ubicacion", { size: 15 })}
             <span>Dirección Física y Referencias de Campo</span>
           </div>
           <div style="margin-top:6px; font-size:13.5px; color:var(--text-main); font-weight:600;">
