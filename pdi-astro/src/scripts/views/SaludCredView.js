@@ -9,6 +9,7 @@ import { ToastView } from "./ToastView.js";
 import { AuditModel } from "../models/AuditModel.js";
 import { SEDES_NOMBRES, etiquetaSede } from "../core/catalogos.js";
 import { contarOpciones } from "../utils/FacetCounts.js";
+import { iconHtml } from '../../data/iconos.js';
 // Filtros del modulo CRED que viajan en la URL. Valores tomados de los
 // desplegables de salud.html.
 const FILTROS_SALUD = {
@@ -574,9 +575,7 @@ export const SaludCredView = {
           <button type="button" class="triaje-action" title="Ver historial de ${escapar(nombre)}"
             aria-label="Ver historial de ${escapar(nombre)}"
             onclick="window.openHistorialTamizaje ? window.openHistorialTamizaje(${idArg}) : null">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-              <circle cx="12" cy="12" r="9"></circle><path stroke-linecap="round" d="M12 7v5l3 2"></path>
-            </svg>
+            ${iconHtml("estado.pendiente", { size: 16 })}
           </button>
         </li>`;
     }).join("");
@@ -626,9 +625,7 @@ export const SaludCredView = {
         <span class="padron-chip">
           <span>${escapar(chip.label)}</span>
           <button type="button" class="padron-chip-remove" onclick="window.removeSaludChip ? window.removeSaludChip('${escaparEnManejador(chip.id)}', '${escaparEnManejador(chip.val || '')}') : null" title="Eliminar filtro">
-            <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            ${iconHtml("accion.cerrar", { size: 10 })}
           </button>
         </span>
       `).join("");
@@ -667,9 +664,7 @@ export const SaludCredView = {
         <tr>
           <td colspan="7" style="text-align: center; padding: 36px 16px;">
             <div style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; background: var(--gt-green-bg); display: flex; align-items: center; justify-content: center; color: var(--text-brand);">
-              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-              </svg>
+              ${iconHtml("salud.corazon", { size: 24 })}
             </div>
             <div style="font-weight: 700; color: var(--text-main); font-size: 14.5px;">No se encontraron evaluaciones CRED</div>
             <div style="color: var(--text-muted); font-size: 12.5px; margin-top: 4px;">Prueba ajustando el término de búsqueda o restableciendo los filtros.</div>
@@ -685,9 +680,7 @@ export const SaludCredView = {
         mobileContainer.innerHTML = `
           <div style="text-align: center; padding: 36px 16px; background: var(--surface-1); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-top: 8px;">
             <div style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; background: var(--gt-green-bg); display: flex; align-items: center; justify-content: center; color: var(--text-brand);">
-              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-              </svg>
+              ${iconHtml("salud.corazon", { size: 24 })}
             </div>
             <div style="font-weight: 700; color: var(--text-main); font-size: 14px;">No se encontraron evaluaciones</div>
             <div style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">No hay registros que coincidan con la búsqueda o filtros.</div>
@@ -718,23 +711,13 @@ export const SaludCredView = {
             <td>
               <div class="row-actions">
                 <button type="button" class="row-action" onclick="window.registrarDosaje ? window.registrarDosaje(${escaparEnManejador(b.id)}) : null" title="Registrar dosaje" aria-label="Registrar un dosaje de hemoglobina">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M12 5v14M5 12h14" />
-                  </svg>
+                  ${iconHtml("accion.agregar", { size: 15 })}
                 </button>
                 <button type="button" class="row-action" onclick="window.openHistorialTamizaje ? window.openHistorialTamizaje(${escaparEnManejador(b.id)}) : window.openExpediente(${escaparEnManejador(b.id)})" title="Historial de tamizajes de hemoglobina" aria-label="Ver historial de tamizajes de hemoglobina">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M2.25 12S5.75 5.25 12 5.25 21.75 12 21.75 12 18.25 18.75 12 18.75 2.25 12 2.25 12Z" />
-                    <circle cx="12" cy="12" r="3.25" />
-                    <circle cx="12" cy="12" r="1.05" fill="currentColor" stroke="none" />
-                  </svg>
+                  ${iconHtml("accion.ver", { size: 15 })}
                 </button>
                 <button type="button" class="row-action" onclick="window.openExpediente(${escaparEnManejador(b.id)})" title="Abrir expediente integral" aria-label="Abrir expediente integral">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-                    <path d="M14 2v6h6" />
-                    <path d="M9 15h6" />
-                  </svg>
+                  ${iconHtml("archivo.documento", { size: 15 })}
                 </button>
               </div>
             </td>
@@ -793,16 +776,11 @@ export const SaludCredView = {
                 </div>
                 <div class="datacard-actions-footer">
                   <button type="button" class="btn-action primary" style="width:100%; justify-content:center; margin-bottom:6px;" onclick="event.stopPropagation(); window.registrarDosaje ? window.registrarDosaje(${escaparEnManejador(b.id)}) : null">
-                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:6px;">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14" />
-                    </svg>
+                    ${iconHtml("accion.agregar", { size: 15, style: "margin-right:6px;" })}
                     Registrar dosaje
                   </button>
                   <button type="button" class="btn-action primary" style="width:100%; justify-content:center;" onclick="event.stopPropagation(); window.openHistorialTamizaje ? window.openHistorialTamizaje(${escaparEnManejador(b.id)}) : window.openExpediente(${escaparEnManejador(b.id)})">
-                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:6px;">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12S5.75 5.25 12 5.25 21.75 12 21.75 12 18.25 18.75 12 18.75 2.25 12 2.25 12Z" />
-                      <circle cx="12" cy="12" r="3.25" />
-                    </svg>
+                    ${iconHtml("accion.ver", { size: 15, style: "margin-right:6px;" })}
                     Historial de Tamizajes (Hb)
                   </button>
                 </div>
@@ -811,9 +789,7 @@ export const SaludCredView = {
               <!-- Botón Ver más / Ver menos -->
               <button type="button" class="datacard-toggle-btn" id="btnToggleSalud-${escapar(b.id)}" onclick="window.PDI ? window.PDI.SaludCredView.toggleCard(${escaparEnManejador(b.id)}) : SaludCredView.toggleCard(${escaparEnManejador(b.id)})">
                 <span class="btn-text">Ver más</span>
-                <svg fill="none" stroke-width="2.5" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                </svg>
+                ${iconHtml("nav.desplegar", { size: null })}
               </button>
             </div>
           </div>

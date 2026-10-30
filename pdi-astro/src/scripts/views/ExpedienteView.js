@@ -32,6 +32,7 @@ import {
   descripcionAlergia,
   resumenAlergias,
 } from "../core/catalogos.js";
+import { iconHtml } from '../../data/iconos.js';
 import { pintarGrados, conectarGrado } from "../ui/gradoEscolar.js";
 
 import { escapar } from "../utils/HtmlHelper.js";
@@ -396,8 +397,7 @@ export const ExpedienteView = {
       editBtn.style.display = "inline-flex";
       editBtn.classList.remove("danger");
       editBtn.innerHTML = `
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round"
-          d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+        ${iconHtml("accion.editar", { size: 15 })}
         <span>Editar Datos</span>`;
     }
     if (saveBtn) saveBtn.style.display = "none";
@@ -769,7 +769,7 @@ export const ExpedienteView = {
             <span style="font-size:11.5px; color:var(--text-muted); font-family:var(--mono-font);">DNI ${escapar(p.dni)}</span>
           </div>
           <div style="font-size:11.5px; color:var(--text-dim); display:flex; align-items:center; gap:4px;">
-            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg>
+            ${iconHtml("comunicacion.llamar", { size: 12 })}
             <span>Tel: ${escapar(p.telefono || "-")}</span>
           </div>
         </div>
@@ -785,7 +785,7 @@ export const ExpedienteView = {
       <div class="ley-consent-card">
         <div class="ley-card-header">
           <div class="ley-card-title">
-            <svg width="15" height="15" fill="none" stroke="var(--gt-green)" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+            ${iconHtml("accion.confirmar", { size: 15 })}
             <span>${titulo}</span>
           </div>
         </div>
@@ -802,9 +802,7 @@ export const ExpedienteView = {
       </div>
       <div class="ley-cert-box">
         <div class="ley-cert-badge-icon">
-          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-          </svg>
+          ${iconHtml("estado.ok", { size: 24 })}
         </div>
         <div class="ley-cert-text">
           <strong>Certificación de Consentimiento Informado Válido</strong><br>
@@ -901,9 +899,7 @@ export const ExpedienteView = {
         ? `<img src="${escapar(b.fotoFachada)}" alt="Fachada de vivienda de ${escapar(b.nombres)}">`
         : `
           <div class="croquis-fachada-placeholder">
-            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-            </svg>
+            ${iconHtml("nav.inicio", { size: 24 })}
             <span>Sin foto de fachada</span>
           </div>`;
     }
@@ -964,7 +960,7 @@ export const ExpedienteView = {
                        : `title="${p.activo ? "Inscrito" : "No inscrito"}"`}
            ${isEditing ? `data-prog-btn="${p.nombre}"` : ""}>
         <div class="programa-check-box">
-          ${p.activo ? `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>` : ""}
+          ${p.activo ? `${iconHtml("accion.confirmar", { size: 14 })}` : ""}
         </div>
         <span class="programa-name">${escapar(p.nombre)}</span>
       </div>
@@ -1097,7 +1093,7 @@ export const ExpedienteView = {
       if (editBtn) {
         editBtn.classList.add("danger");
         editBtn.innerHTML = `
-          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          ${iconHtml("accion.cerrar", { size: 15 })}
           <span>Cancelar Edicion</span>`;
       }
       if (saveBtn) saveBtn.style.display = "inline-flex";
@@ -1106,7 +1102,7 @@ export const ExpedienteView = {
       if (editBtn) {
         editBtn.classList.remove("danger");
         editBtn.innerHTML = `
-          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+          ${iconHtml("accion.editar", { size: 15 })}
           <span>Editar Datos</span>`;
       }
       if (saveBtn) saveBtn.style.display = "none";

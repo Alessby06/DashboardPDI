@@ -12,6 +12,7 @@ import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";
 import { OPCIONES_VOLUNTARIADO, SERVICIOS_VOLUNTARIADO } from '../../data/opcionesBeneficiario.js';
 import { SEDES_POR_DISTRITO, etiquetaSede } from '../core/catalogos.js';
 import { contarOpciones } from "../utils/FacetCounts.js";
+import { iconHtml } from '../../data/iconos.js';
 // Etiquetas de servicio desde el catálogo único de programas: un programa
 // nuevo aparece en chips y desplegables sin tocar nada aquí.
 const SERVICIO_LABELS = Object.fromEntries(
@@ -498,9 +499,7 @@ export const VoluntariadosView = {
         <span class="padron-chip">
           <span>${escapar(chip.label)}</span>
           <button type="button" class="padron-chip-remove" onclick="window.removeVoluntarioChip ? window.removeVoluntarioChip('${escaparEnManejador(chip.id)}', '${escaparEnManejador(chip.val || '')}') : null" title="Eliminar filtro">
-            <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            ${iconHtml("accion.cerrar", { size: 10 })}
           </button>
         </span>
       `).join("");
@@ -541,9 +540,7 @@ export const VoluntariadosView = {
         <tr>
           <td colspan="7" style="text-align: center; padding: 40px 16px;">
             <div style="width: 48px; height: 48px; margin: 0 auto 12px; border-radius: 50%; background: var(--gt-green-bg); display: flex; align-items: center; justify-content: center; color: var(--gt-green);">
-              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-              </svg>
+              ${iconHtml("persona.grupo", { size: 24 })}
             </div>
             <div style="font-weight: 700; color: var(--text-main); font-size: 15px;">No se encontraron voluntarias o personal comunitario</div>
             <div style="color: var(--text-muted); font-size: 12.5px; margin-top: 4px;">Prueba ajustando el término de búsqueda o restableciendo los filtros.</div>
@@ -559,9 +556,7 @@ export const VoluntariadosView = {
         mobileContainer.innerHTML = `
           <div style="text-align: center; padding: 36px 16px; background: var(--surface-1); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-top: 8px;">
             <div style="width: 48px; height: 48px; margin: 0 auto 12px; border-radius: 50%; background: var(--gt-green-bg); display: flex; align-items: center; justify-content: center; color: var(--gt-green);">
-              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-              </svg>
+              ${iconHtml("persona.grupo", { size: 24 })}
             </div>
             <div style="font-weight: 700; color: var(--text-main); font-size: 14px;">No se encontraron registros</div>
             <div style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">No hay voluntarias que coincidan con la búsqueda o filtros.</div>
@@ -637,16 +632,12 @@ export const VoluntariadosView = {
             <td>
               <div class="padron-rewards-wrap">
                 <div class="padron-metric-item" title="Talleres de capacitación cursados">
-                  <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" />
-                  </svg>
+                  ${iconHtml("educacion.grado", { size: 13 })}
                   <span>${capCount} taller${capCount === 1 ? '' : 'es'}</span>
                 </div>
                 ${v.canastasRecibidas > 0 ? `
                   <div class="padron-metric-item padron-metric-sub" title="Canastas de alimentos entregadas">
-                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
-                    </svg>
+                    ${iconHtml("accion.archivar", { size: 13 })}
                     <span>${v.canastasRecibidas} canasta${v.canastasRecibidas === 1 ? '' : 's'}</span>
                   </div>
                 ` : ''}
@@ -661,16 +652,10 @@ export const VoluntariadosView = {
             <td>
               <div class="row-actions">
                 <button type="button" class="row-action" onclick="window.openFichaVoluntario ? window.openFichaVoluntario(${escaparEnManejador(v.id)}) : null" title="Ver ficha y credencial" aria-label="Ver ficha y credencial">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M2.25 12S5.75 5.25 12 5.25 21.75 12 21.75 12 18.25 18.75 12 18.75 2.25 12 2.25 12Z" />
-                    <circle cx="12" cy="12" r="3.25" />
-                    <circle cx="12" cy="12" r="1.05" fill="currentColor" stroke="none" />
-                  </svg>
+                  ${iconHtml("accion.ver", { size: 15 })}
                 </button>
                 <button type="button" class="row-action row-action--edit" onclick="window.openEditVoluntario ? window.openEditVoluntario(${escaparEnManejador(v.id)}) : null" title="Editar voluntario" aria-label="Editar voluntario">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
-                  </svg>
+                  ${iconHtml("accion.editar", { size: 15 })}
                 </button>
               </div>
             </td>
@@ -760,16 +745,12 @@ export const VoluntariadosView = {
             <div class="padron-mcard-footer">
               <div class="padron-rewards-wrap">
                 <span class="padron-metric-chip chip-talleres">
-                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" />
-                  </svg>
+                  ${iconHtml("educacion.grado", { size: 12 })}
                   <span>${capCount} cap.</span>
                 </span>
                 ${v.canastasRecibidas > 0 ? `
                   <span class="padron-metric-chip chip-canastas">
-                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
-                    </svg>
+                    ${iconHtml("accion.archivar", { size: 12 })}
                     <span>${v.canastasRecibidas}</span>
                   </span>
                 ` : ''}
@@ -1002,9 +983,7 @@ export const VoluntariadosView = {
       } else {
         capListEl.innerHTML = caps.map(c => `
           <div style="display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border-subtle); font-size: 12.5px; color: var(--text-main);">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="color: var(--text-brand); flex-shrink: 0;">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-            </svg>
+            ${iconHtml("accion.confirmar", { size: 14, style: "color: var(--text-brand); flex-shrink: 0;" })}
             <span>${escapar(c)}</span>
           </div>
         `).join("");
