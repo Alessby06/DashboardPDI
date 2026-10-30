@@ -1,6 +1,7 @@
 ---
 import AppLayout from '../layouts/AppLayout.astro';
 import '../styles/views-dashboard.css';
+import Icon from '../components/Icon.astro';
 ---
 
 <AppLayout title="Dashboard General" currentPage="dashboard">
@@ -19,10 +20,7 @@ import '../styles/views-dashboard.css';
         <button type="button" class="btn-action-icon btn-audit-export-icon" id="btnExportDashboardCSV"
           onclick="window.openModalExportDashboard ? window.openModalExportDashboard() : window.exportDataCSV()"
           aria-label="Descargar Informe CSV" title="Descargar Informe Consolidado CSV">
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-          </svg>
+          <Icon name="accion.descargar" size={18} />
         </button>
       </div>
     </div>
@@ -57,10 +55,10 @@ import '../styles/views-dashboard.css';
       <div class="panel dash-anemia-panel stagger-item" id="widgetAnemiaStatus">
         <div class="panel-head dash-anemia-panel-head">
           <div class="panel-title dash-anemia-panel-title">
-            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z"></path></svg>
+            <Icon name="grafico.torta" size={16} />
             <span>Estado Nutricional y Anemia</span>
           </div>
-          <a href="/salud" class="panel-link dash-anemia-panel-link" title="Abrir módulo de salud">Ver Servicio Alimentario<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"></path></svg></a>
+          <a href="/salud" class="panel-link dash-anemia-panel-link" title="Abrir módulo de salud">Ver Servicio Alimentario<Icon name="accion.abrir" size={12} /></a>
         </div>
         <div class="dash-anemia-panel-table" id="dashAnemiaTable">
           <div class="dash-anemia-line" data-band="normal">
@@ -109,10 +107,10 @@ import '../styles/views-dashboard.css';
       <div class="panel dash-coverage-panel stagger-item" id="widgetCoverageStatus">
         <div class="panel-head dash-coverage-head">
           <div class="panel-title dash-coverage-title">
-            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"></path></svg>
+            <Icon name="lugar.ubicacion" size={16} />
             <span>Cobertura Territorial por Distrito</span>
           </div>
-          <a href="/sedes" class="panel-link dash-coverage-link" title="Abrir directorio de sedes">Ver Sedes e Iglesias<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"></path></svg></a>
+          <a href="/sedes" class="panel-link dash-coverage-link" title="Abrir directorio de sedes">Ver Sedes e Iglesias<Icon name="accion.abrir" size={12} /></a>
         </div>
         <div class="dash-territory-list" id="dashDistrictCoverage">
           <div class="dash-territory-row" data-dist="comas">
@@ -161,7 +159,7 @@ import '../styles/views-dashboard.css';
         <div class="card-header">
           <div class="dash-card-header-flex">
             <div class="card-title">
-              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--gt-red);"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"></path></svg>
+              <Icon name="estado.alerta" size={18} style="color: var(--gt-red);" />
               <span>Usuarios con Atención Prioritaria</span>
             </div>
           </div>
@@ -176,12 +174,12 @@ import '../styles/views-dashboard.css';
         <div class="card-header">
           <div class="dash-card-header-flex">
             <div class="card-title">
-              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--gt-green);"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <Icon name="estado.pendiente" size={18} style="color: var(--gt-green);" />
               <span>Actividad Reciente del Programa</span>
             </div>
             <a href="/auditoria" class="dash-card-action" title="Abrir bitácora completa">
               <span>Ver Historial de Cambios</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"></path></svg>
+              <Icon name="accion.abrir" size={null} />
             </a>
           </div>
         </div>

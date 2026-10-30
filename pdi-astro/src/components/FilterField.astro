@@ -13,6 +13,7 @@
 //  Los ids siguen siendo los mismos que usan las vistas y sus scripts.
 // ===========================================================================
 import { escaparJs } from '../scripts/utils/HtmlHelper.js';
+import Icon from './Icon.astro';
 
 /** Insignia opcional dentro de una opción (semáforo de anemia, módulo de auditoría). */
 interface Badge {
@@ -106,9 +107,7 @@ const contadorDe = (opcion: Opcion) =>
   <div class="padron-inner-dropdown" id={id}>
     <button type="button" class="padron-inner-dropdown-btn" onclick={abrirAttr}>
       <span id={labelId}>{labelTodos}</span>
-      <svg class="caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-      </svg>
+      <Icon name="nav.desplegar" size={null} class="caret" />
     </button>
 
     <div class="padron-inner-dropdown-reveal">
@@ -121,9 +120,7 @@ const contadorDe = (opcion: Opcion) =>
           <div class="padron-item-left">
             {tipo === 'multi' ? (
               <span class="padron-item-checkbox">
-                <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                </svg>
+                <Icon name="accion.confirmar" size={10} />
               </span>
             ) : (
               <span class="padron-item-radio"></span>
@@ -146,9 +143,7 @@ const contadorDe = (opcion: Opcion) =>
               <div class="padron-item-left">
                 {tipo === 'multi' ? (
                   <span class="padron-item-checkbox">
-                    <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                    </svg>
+                    <Icon name="accion.confirmar" size={10} />
                   </span>
                 ) : (
                   <span class="padron-item-radio"></span>
