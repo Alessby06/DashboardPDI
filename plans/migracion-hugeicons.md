@@ -6,10 +6,26 @@ y el orden de los lotes.
 > **Relación con `plans/002-iconoir-icon-system-migration.md`.** Ese plan (status TODO) nació
 > para migrar a Iconoir. La petición actual cambia la familia a Hugeicons, así que este
 > documento lo **sustituye** en la decisión de familia. Se conservan sus aciertos: entrega
-> vendorizada sin dependencia npm, `Icon.astro` + módulo central, escala óptica de trazo,
-> prohibición de colores literales y lista de ilustraciones que no se migran.
+> vendorizada sin dependencia npm, `Icon.astro` + módulo central, prohibición de colores
+> literales y lista de ilustraciones que no se migran.
 > El plan 002 queda desactualizado en cifras (habla de 377 SVG; el recuento real a hoy es 294)
 > y debe marcarse como reemplazado al aprobar este.
+
+## 0. Decisiones cerradas
+
+| Fecha | Decisión | Motivo | Consecuencia |
+|---|---|---|---|
+| 2026-10-30 | Migrar a Hugeicons por **coherencia visual** | Los iconos actuales se ven genéricos | Se aceptan 285 reemplazos y 12–15 commits |
+| 2026-10-30 | **Vendorizar** los 59 iconos (4.4.0) | Sin dependencia ni lockfile; build sin red | Actualización manual y deliberada |
+| 2026-10-30 | **Trazo 1.75 global** | Elegido en la muestra de la fase 0 | Un solo token `--icon-stroke` |
+| 2026-10-30 | **Conservar** las 9 ilustraciones | Son ilustraciones, no iconos | Frontera documentada |
+| 2026-10-30 | **Desplegar por superficies** | Commits revisables y reversibles | Dos familias conviven unos días |
+| 2026-10-30 | **QA con capturas manuales** | Sin dependencias nuevas | Antes/después por lote, claro/oscuro y 3 anchos |
+
+**Fase 0 completada:** muestra real en `/fase0-iconos` (matriz de tamaños, barra lateral,
+tarjeta de kanban y botones; claro/oscuro), verificada a 1440 px y con las cuatro columnas
+midiendo lo mismo. La página temporal se eliminó al cerrar la decisión. Sin captura automática:
+la ventana del navegador integrado no era visible; la comparación se hizo en vivo.
 
 ## 1. Inventario medido (base actual)
 
@@ -131,20 +147,16 @@ navegador.
 Misma fuente de datos, devuelve la cadena SVG. Sustituye los `innerHTML` del tema y de los
 toasts y las plantillas de kanban, sedes, expediente, salud y voluntariados.
 
-### 4.4 Peso de trazo: escala óptica, no número mágico
+### 4.4 Peso de trazo: 1.75 global (decidido en fase 0)
 
-Hugeicons nace en 1.5 sobre grid de 24. Se adopta la escala ya definida en el plan 002,
-que compensa la pérdida de peso al reducir tamaño:
+Hugeicons nace en 1.5 sobre grid de 24. La muestra comparativa de la fase 0 (matriz de
+tamaños, barra lateral real, tarjeta de kanban y botones) se resolvió por **1.75 en todos los
+tamaños**: conserva el carácter del set sin el aspecto tenue de 1.5 en 12–14 px.
 
-| Tamaño renderizado | `stroke-width` |
-|---|---|
-| ≥ 19 px | 1.5 |
-| 15 – 18 px | 1.75 |
-| 12 – 14 px | 2 |
-| ≤ 11 px | 2.25 |
-
-Se implementa como tokens `--icon-stroke-lg | md | sm | xs` y el componente elige por `size`.
-Si la muestra visual en la fase 0 pide más peso, se sube un escalón completo en un solo sitio.
+Se implementa como un único token `--icon-stroke: 1.75`. No hay escala por tamaño ni
+`stroke-width` incrustado en los paths. Si más adelante hace falta una variante (por ejemplo,
+acciones destacadas), se añade `--icon-stroke-strong` y se usa de forma explícita, sin
+convertir el grosor en un número mágico por instancia.
 
 ### 4.5 Accesibilidad
 
@@ -214,7 +226,7 @@ representa bien el concepto PDI, se cambia solo en el alias.
 
 | Fase | Contenido | Archivos | Commit |
 |---|---|---|---|
-| **0. Muestra** | 8–10 iconos en una página real, comparación de los 4 grosores a tamaño real y 200 % | sin commit | — |
+| **0. Muestra** | Matriz de tamaños, sidebar, tarjeta y botones; 1.75 elegido | página temporal eliminada | sin commit (hecho) |
 | **1. Infraestructura** | script generador, `hugeicons.js` con los 59, `Icon.astro`, `iconHtml`, tokens de tamaño/trazo, test guardián | 4 nuevos + tokens | `feat(ui): sistema de iconos Hugeicons` |
 | **2. Chrome** | Sidebar (13), botón de tema, toggles de ajustes, chevrones de `<select>` | `Sidebar.astro`, `ajustes.astro`, `base.css`, `components.css`, `expediente.css` | 2 commits |
 | **3. Modales** | `GlobalModals.astro` (46) | 1 | 1–2 commits |
@@ -240,7 +252,7 @@ reversible por superficie.
 
 | Riesgo | Impacto | Mitigación |
 |---|---|---|
-| La escala de trazo no reproduce el peso actual | Medio | Fase 0 con capturas reales antes de migrar |
+| El trazo 1.75 no encaja en algún contexto | Bajo | Se ajusta el token global o se añade `--icon-stroke-strong` sin tocar los paths |
 | Metáfora distinta en algún icono PDI (casita, lonchera, croquis) | Bajo | Revisión por lote; el alias permite cambiar sin tocar vistas |
 | Estilos Astro con alcance que apuntan a `svg` | Bajo | Solo 3 reglas; pasar a `:global` o mover a hoja global |
 | Iconos inyectados por `innerHTML` se quedan atrás | Medio | `iconHtml` obligatorio + guardián que busca `<svg` en JS |
@@ -250,6 +262,9 @@ reversible por superficie.
 
 ## 9. Decisiones pendientes antes de empezar
 
-1. **Entrega**: vendorizar los 59 (recomendado, coherente con el plan 002) o instalar el paquete npm.
-2. **Trazo**: escala óptica 1.5/1.75/2/2.25 (recomendada) o peso plano 2.
-3. **Marcar el plan 002 como reemplazado** y archivar el mapa borrador cuando se apruebe.
+1. **Marcar el plan 002 como reemplazado** (no borrarlo) y conservar `icon-map-draft.json`
+   como referencia hasta cerrar la migración.
+2. Confirmar el **orden del primer lote**: chrome (sidebar, tema, filtros) según lo decidido.
+
+Las decisiones de entrega, trazo, ilustraciones, despliegue y QA ya están cerradas en la
+sección 0.

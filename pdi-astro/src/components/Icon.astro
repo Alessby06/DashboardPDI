@@ -1,0 +1,30 @@
+---
+// Icono del sistema. Única vía para pintar iconografía en plantillas Astro.
+//
+//   <Icon name="accion.cerrar" size={14} class="filter-caret" />
+//
+// El grosor sale de --icon-stroke; el color, de currentColor. No se aceptan
+// hex ni trazos sueltos: si un icono no existe, el build falla con el nombre.
+import '../styles/iconos.css';
+import { iconHtml, ICON_STROKE } from '../data/iconos.js';
+
+interface Props {
+  /** Alias semántico ("accion.cerrar") o clave del set ("cancel-01"). */
+  name: string;
+  /** Tamaño en px; null deja que el CSS lo dimensione. */
+  size?: number | null;
+  /** Grosor explícito; por defecto, el token global. */
+  stroke?: number;
+  /** Clases que espera el CSS existente. */
+  class?: string;
+  /** Nombre accesible; sin él el icono es decorativo. */
+  title?: string;
+  style?: string;
+}
+
+const { name, size = 16, stroke = ICON_STROKE, class: clase = '', title = '', style = '' } = Astro.props;
+
+const svg = iconHtml(name, { size, stroke, className: clase, title, style });
+---
+
+<Fragment set:html={svg} />

@@ -1,0 +1,5 @@
+/* Un solo grosor para toda la iconografía. Cambiar este valor ajusta la
+   familia completa sin tocar plantillas ni paths. */
+:root {
+  --icon-stroke: 1.75;
+}
