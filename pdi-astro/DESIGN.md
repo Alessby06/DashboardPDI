@@ -406,7 +406,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Trazo:** token único `--icon-stroke: 1.75` en `src/styles/iconos.css`. Ningún path lleva `stroke-width` incrustado; un cambio de peso se hace en un solo sitio. El color siempre es `currentColor`.
 - **Tamaño:** lo fija la vista o el CSS existente. `size={null}` deja que el CSS dimensione; los selectores `.nav-btn svg`, `.btn-action svg`, `.audit-search-icon`, `.filter-caret` y `.caret` siguen mandando.
 - **Accesibilidad:** decorativo por defecto (`aria-hidden="true"`); con `title` pasa a `role="img"` + `aria-label` + `<title>`. Los botones icono-only conservan su `aria-label`, que no se sustituye por el icono.
-- **Excepciones (no son iconografía de sistema):** los 4 módulos animados del login, la silueta y los dos rostros de avatar del expediente, la serie de hemoglobina, la mascota del foco y su cursor de ayuda. Se quedan con su geometría y animación propias; `tests/iconos-guard.test.js` impide que aparezcan nuevos `<svg>` fuera de esa lista.
+- **Excepciones (no son iconografía de sistema):** la silueta y los dos rostros de avatar del expediente, la serie de hemoglobina, la mascota del foco y su cursor de ayuda. Los módulos del login ya son iconos del set, con micro-movimiento aplicado al icono completo. `tests/iconos-guard.test.js` impide que aparezcan nuevos `<svg>` fuera de esa lista.
 - **Prohibido:** hex en paths, `stroke-width` por instancia, importar Hugeicons en runtime y duplicar geometría en una vista. Si falta un icono, se añade al generador y se regenera.
 
 ## Do's and Don'ts

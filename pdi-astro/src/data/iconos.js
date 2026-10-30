@@ -23,6 +23,7 @@ export const ALIAS = {
   'nav.grupo': 'user-group',
   'nav.voluntarios': 'user-multiple',
   'nav.desplegar': 'arrow-down-01',
+  'nav.alimentario': 'serving-food',
   'nav.ajustes': 'settings-01',
   'nav.salir': 'logout-01',
   'nav.menu': 'menu-01',
@@ -81,6 +82,9 @@ export const ALIAS = {
   'salud.medico': 'health',
 
   'educacion.grado': 'mortarboard-01',
+  'educacion.libro': 'book-open-01',
+  'modulo.salud': 'activity-01',
+  'modulo.social': 'favourite',
   'dinero.banco': 'bank',
   'datos.base': 'database-01',
   'grafico.barras': 'chart-01',

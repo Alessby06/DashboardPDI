@@ -10,7 +10,6 @@ import path from 'node:path';
 // src/data/iconos.js queda fuera del recuento: es el renderizador y contiene
 // las etiquetas <svg> de sus plantillas internas, no iconos.
 const PERMITIDOS = {
-  'pages/login.astro': 4,            // módulos animados (brote, libro, manos, pulso)
   'pages/ajustes.astro': 2,          // mascota del foco y su cursor de ayuda
   'scripts/views/ExpedienteView.js': 3, // silueta y dos rostros de avatar
   'scripts/views/SaludCredView.js': 1,  // serie de hemoglobina
@@ -47,5 +46,5 @@ test('no hay SVG sueltos fuera de las ilustraciones permitidas', () => {
   }
 
   const total = [...encontrados.values()].reduce((a, b) => a + b, 0);
-  assert.equal(total, 10, 'el número de ilustraciones propias cambió: actualiza la lista con motivo');
+  assert.equal(total, 6, 'el número de ilustraciones propias cambió: actualiza la lista con motivo');
 });

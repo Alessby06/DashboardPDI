@@ -329,87 +329,44 @@ const impeccableLive =
     }
 
     /* ── SVG Micro-Animations (Seamless Harmonic Loops) ────────── */
-    /* 1. Nutrición: respiración y balanceo orgánico continuo */
-    .anim-svg-sprout .anim-leaf-main {
-      transform-origin: 12px 10px;
-      animation: sproutBreathe 3.8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
-    }
-    .anim-svg-sprout .anim-leaf-sub {
-      transform-origin: 12px 13px;
-      animation: sproutSubBreathe 3.8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    /* Micro-movimiento de los módulos: la geometría ya es Hugeicons y el
+       gesto se aplica al icono completo, no a paths internos que ya no existen. */
+    :global(.module-icon-well svg) {
+      transform-box: fill-box;
+      transform-origin: center;
+      will-change: transform, opacity;
     }
 
-    @keyframes sproutBreathe {
+    :global(.anim-svg-sprout) { animation: moduloRespira 3.8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite; }
+    :global(.anim-svg-book)   { animation: moduloFlota  4.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite; }
+    :global(.anim-svg-social) { animation: moduloLate   3.4s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite; }
+    :global(.anim-svg-pulse)  { animation: moduloPulso  3.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite; }
+
+    @keyframes moduloRespira {
       0%, 100% { transform: rotate(0deg) scale(1); }
-      50%      { transform: rotate(4deg) scale(1.05); }
+      50%      { transform: rotate(3deg) scale(1.05); }
     }
-    @keyframes sproutSubBreathe {
-      0%, 100% { transform: rotate(0deg) scale(1); }
-      50%      { transform: rotate(-3.5deg) scale(1.04); }
-    }
-
-    /* 2. Educación: libro flotante con leve arqueo de páginas */
-    .anim-svg-book {
-      animation: bookFloat 4.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
-    }
-    .anim-svg-book .anim-page-right {
-      transform-origin: 12px 12px;
-      animation: pageRightTurn 4.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
-    }
-    .anim-svg-book .anim-page-left {
-      transform-origin: 12px 12px;
-      animation: pageLeftTurn 4.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
-    }
-
-    @keyframes bookFloat {
+    @keyframes moduloFlota {
       0%, 100% { transform: translateY(0); }
-      50%      { transform: translateY(-1.8px); }
+      50%      { transform: translateY(-1.6px); }
     }
-    @keyframes pageRightTurn {
-      0%, 100% { transform: skewY(0deg) scaleX(1); }
-      50%      { transform: skewY(-1.6deg) scaleX(0.97); }
-    }
-    @keyframes pageLeftTurn {
-      0%, 100% { transform: skewY(0deg) scaleX(1); }
-      50%      { transform: skewY(1.6deg) scaleX(0.97); }
-    }
-
-    /* 3. Atención Social: latido armónico y cálido en reposo */
-    .anim-svg-social .anim-social-heart {
-      transform-origin: 12px 12px;
-      animation: heartWarmPulse 3.4s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
-    }
-    .anim-svg-social .anim-social-hands {
-      transform-origin: 12px 12px;
-      animation: handsWarmTouch 3.4s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
-    }
-
-    @keyframes heartWarmPulse {
+    @keyframes moduloLate {
       0%, 100% { transform: scale(1); opacity: 0.88; }
       22%      { transform: scale(1.09); opacity: 1; }
-      38%      { transform: scale(1.02); opacity: 0.92; }
+      38%      { transform: scale(1.02); opacity: 0.94; }
       52%      { transform: scale(1.06); opacity: 1; }
       72%      { transform: scale(1); opacity: 0.88; }
     }
-
-    @keyframes handsWarmTouch {
-      0%, 100% { opacity: 0.82; transform: translateY(0); }
-      22%, 52% { opacity: 1; transform: translateY(-0.5px); }
-      72%      { opacity: 0.82; transform: translateY(0); }
+    @keyframes moduloPulso {
+      0%, 100% { transform: scaleY(1); opacity: 0.8; }
+      24%      { transform: scaleY(1.16); opacity: 1; filter: drop-shadow(0 0 2px rgba(var(--hero-accent-rgb), 0.5)); }
+      48%      { transform: scaleY(0.93); opacity: 0.86; filter: none; }
+      68%      { transform: scaleY(1.05); opacity: 0.94; }
+      85%      { transform: scaleY(1); opacity: 0.8; }
     }
 
-    /* 4. Salud Preventiva: pulso vital armónico continuo */
-    .anim-svg-pulse .anim-ecg-path {
-      transform-origin: 12px 12px;
-      animation: ecgHarmonicPulse 3.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
-    }
-
-    @keyframes ecgHarmonicPulse {
-      0%, 100% { transform: scaleY(1); opacity: 0.78; filter: none; }
-      24%      { transform: scaleY(1.18); opacity: 1; filter: drop-shadow(0 0 2px rgba(var(--hero-accent-rgb), 0.55)); }
-      48%      { transform: scaleY(0.92); opacity: 0.85; filter: none; }
-      68%      { transform: scaleY(1.06); opacity: 0.94; }
-      85%      { transform: scaleY(1); opacity: 0.78; filter: none; }
+    @media (prefers-reduced-motion: reduce) {
+      :global(.module-icon-well svg) { animation: none; }
     }
 
     
@@ -1714,7 +1671,7 @@ const impeccableLive =
             <div class="module-item">
               <input class="module-radio" type="radio" name="pdi-modulo" id="pdi-modulo-m1" />
               <label class="module-row" for="pdi-modulo-m1">
-                <span class="module-icon-well" aria-hidden="true"><svg class="anim-svg-sprout" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21V10" /><path class="anim-leaf-main" stroke-linecap="round" stroke-linejoin="round" d="M12 10c0-3.8 3.8-6.5 7.5-6.5-.9 3.8-3.8 6.5-7.5 6.5z" /><path class="anim-leaf-sub" stroke-linecap="round" stroke-linejoin="round" d="M12 13c0-2.8-2.8-4.8-5.5-4.8.7 2.8 2.8 4.8 5.5 4.8z" /></svg></span>
+                <span class="module-icon-well" aria-hidden="true"><Icon name="nav.alimentario" size={18} class="anim-svg-sprout" /></span>
                 <span class="module-text-wrap"><h4>Servicio Alimentario y Nutricional</h4><p>Monitoreo antropométrico, asistencia en comedores y control de tamizaje.</p></span>
                 <span class="module-chev" aria-hidden="true"><Icon name="nav.desplegar" size={12} /></span>
               </label>
@@ -1722,7 +1679,7 @@ const impeccableLive =
             <div class="module-item">
               <input class="module-radio" type="radio" name="pdi-modulo" id="pdi-modulo-m2" />
               <label class="module-row" for="pdi-modulo-m2">
-                <span class="module-icon-well" aria-hidden="true"><svg class="anim-svg-book" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path class="anim-book-spine" stroke-linecap="round" stroke-linejoin="round" d="M12 6.25v12.5" /><path class="anim-page-left" stroke-linecap="round" stroke-linejoin="round" d="M12 6.25C10.5 5.4 8.7 5 6.8 5 4.9 5 3.3 5.5 2 6.3v12.4c1.3-.8 2.9-1.2 4.8-1.2 1.9 0 3.7.4 5.2 1.2" /><path class="anim-page-right" stroke-linecap="round" stroke-linejoin="round" d="M12 6.25C13.5 5.4 15.3 5 17.2 5c1.9 0 3.5.5 4.8 1.3v12.4c-1.3-.8-2.9-1.2-4.8-1.2-1.9 0-3.7.4-5.2 1.2" /></svg></span>
+                <span class="module-icon-well" aria-hidden="true"><Icon name="educacion.libro" size={18} class="anim-svg-book" /></span>
                 <span class="module-text-wrap"><h4>Acompañamiento Educativo</h4><p>Refuerzo escolar comunitario, talleres y soporte pedagógico.</p></span>
                 <span class="module-chev" aria-hidden="true"><Icon name="nav.desplegar" size={12} /></span>
               </label>
@@ -1730,7 +1687,7 @@ const impeccableLive =
             <div class="module-item">
               <input class="module-radio" type="radio" name="pdi-modulo" id="pdi-modulo-m3" />
               <label class="module-row" for="pdi-modulo-m3">
-                <span class="module-icon-well" aria-hidden="true"><svg class="anim-svg-social" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path class="anim-social-heart" stroke-linecap="round" stroke-linejoin="round" d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" /><path class="anim-social-hands" stroke-linecap="round" stroke-linejoin="round" d="M12 5l-2.5 2.5a2 2 0 0 0 0 2.8l.5.5a2 2 0 0 0 2.8 0l2-2" /><path class="anim-social-hands" stroke-linecap="round" stroke-linejoin="round" d="m14 10 1.5 1.5a2 2 0 0 0 2.8 0" /></svg></span>
+                <span class="module-icon-well" aria-hidden="true"><Icon name="modulo.social" size={18} class="anim-svg-social" /></span>
                 <span class="module-text-wrap"><h4>Atención Social y Familiar</h4><p>Visitas domiciliarias, canalización de casos y expediente único.</p></span>
                 <span class="module-chev" aria-hidden="true"><Icon name="nav.desplegar" size={12} /></span>
               </label>
@@ -1738,7 +1695,7 @@ const impeccableLive =
             <div class="module-item">
               <input class="module-radio" type="radio" name="pdi-modulo" id="pdi-modulo-m4" />
               <label class="module-row" for="pdi-modulo-m4">
-                <span class="module-icon-well" aria-hidden="true"><svg class="anim-svg-pulse" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path class="anim-ecg-path" stroke-linecap="round" stroke-linejoin="round" d="M2 12h4l2-5 3 10 2.5-7 1.5 3.5 2-1.5H22" /></svg></span>
+                <span class="module-icon-well" aria-hidden="true"><Icon name="modulo.salud" size={18} class="anim-svg-pulse" /></span>
                 <span class="module-text-wrap"><h4>Salud Preventiva</h4><p>Controles de desarrollo infantil, vacunas y derivaciones.</p></span>
                 <span class="module-chev" aria-hidden="true"><Icon name="nav.desplegar" size={12} /></span>
               </label>

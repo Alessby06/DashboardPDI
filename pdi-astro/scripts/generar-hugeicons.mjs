@@ -16,7 +16,7 @@ const SALIDA = path.resolve('src/data/hugeicons.js');
 // Catálogo exacto que usa el producto. Si una vista necesita un icono nuevo,
 // se añade aquí y se regenera; no se importa nada en tiempo de ejecución.
 const ICONOS = [
-  'Add01Icon', 'Alert02Icon', 'AlertCircleIcon', 'Archive01Icon', 'ArrowDown01Icon',
+  'Add01Icon', 'Activity01Icon', 'Alert02Icon', 'AlertCircleIcon', 'Archive01Icon', 'ArrowDown01Icon',
   'ArrowLeft01Icon', 'ArrowRight01Icon', 'BankIcon', 'BookOpen01Icon', 'Briefcase01Icon',
   'Calendar03Icon', 'CallIcon', 'Camera01Icon', 'Cancel01Icon', 'Chart01Icon',
   'CheckmarkCircle02Icon', 'ClipboardListIcon', 'Clock01Icon', 'ComputerIcon', 'Cursor01Icon',
@@ -25,7 +25,7 @@ const ICONOS = [
   'Gps01Icon', 'HealthIcon', 'Home01Icon', 'InboxIcon', 'InformationCircleIcon',
   'ListViewIcon', 'Location01Icon', 'LockIcon', 'Logout01Icon', 'MapsIcon', 'Menu01Icon', 'Moon02Icon',
   'Mortarboard01Icon', 'Mouse01Icon', 'PencilEdit02Icon', 'PieChartIcon', 'PrinterIcon',
-  'RefreshIcon', 'Route01Icon', 'Search01Icon', 'SentIcon', 'Settings01Icon',
+  'RefreshIcon', 'Route01Icon', 'Search01Icon', 'SentIcon', 'ServingFoodIcon', 'Settings01Icon',
   'ShieldCheckIcon', 'SmartPhone01Icon', 'Sun03Icon', 'Tick02Icon', 'Upload01Icon',
   'UserAdd01Icon', 'UserGroupIcon', 'UserIcon', 'UserMultipleIcon',
 ];
