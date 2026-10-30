@@ -12,8 +12,8 @@ import {
 
 test('el set está fijado a la versión elegida y completo', () => {
   assert.equal(HUGEICONS_VERSION, '4.4.0');
-  assert.equal(CLAVES.length, 59);
-  assert.equal(new Set(CLAVES).size, 59);
+  assert.equal(CLAVES.length, 61);
+  assert.equal(new Set(CLAVES).size, 61);
 });
 
 test('los paths no llevan grosor ni color incrustados', () => {

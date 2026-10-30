@@ -16,7 +16,7 @@ y el orden de los lotes.
 | Fecha | Decisión | Motivo | Consecuencia |
 |---|---|---|---|
 | 2026-10-30 | Migrar a Hugeicons por **coherencia visual** | Los iconos actuales se ven genéricos | Se aceptan 285 reemplazos y 12–15 commits |
-| 2026-10-30 | **Vendorizar** los 59 iconos (4.4.0) | Sin dependencia ni lockfile; build sin red | Actualización manual y deliberada |
+| 2026-10-30 | **Vendorizar** los 61 iconos (4.4.0) | Sin dependencia ni lockfile; build sin red | Actualización manual y deliberada |
 | 2026-10-30 | **Trazo 1.75 global** | Elegido en la muestra de la fase 0 | Un solo token `--icon-stroke` |
 | 2026-10-30 | **Conservar** las 9 ilustraciones | Son ilustraciones, no iconos | Frontera documentada |
 | 2026-10-30 | **Desplegar por superficies** | Commits revisables y reversibles | Dos familias conviven unos días |
@@ -35,7 +35,7 @@ la ventana del navegador integrado no era visible; la comparación se hizo en vi
 | Archivos afectados | **32** (12 páginas, 6 componentes, 14 módulos JS de vistas) |
 | Iconos únicos (por `d`) | **93** |
 | Usos reemplazables por Hugeicons | **285** |
-| Iconos Hugeicons distintos necesarios | **59** |
+| Iconos Hugeicons distintos necesarios | **61** |
 | Ilustraciones propias que se conservan | **9 usos** |
 | Lienzo | 289 de 294 son `0 0 24 24` |
 | Relleno | **0 SVG con `fill` distinto de none** (todo trazo) |
@@ -91,9 +91,9 @@ redondeado. Eso hace que Hugeicons encaje sin cambiar la retícula ni el flujo d
 ## 3. Entrega: vendorizar, no depender
 
 Siguiendo la frontera del plan 002 (**ninguna dependencia npm nueva**) y como aquí solo hacen
-falta **59 iconos**, se vendorizan:
+falta **61 iconos**, se vendorizan:
 
-- `scripts/generar-hugeicons.mjs` — descarga los 59 módulos desde `unpkg` con la versión fijada
+- `scripts/generar-hugeicons.mjs` — descarga los 61 módulos desde `unpkg` con la versión fijada
   (`4.4.0`), normaliza la geometría (quita `stroke`, `strokeWidth`, `strokeLinecap`,
   `strokeLinejoin`) y escribe `src/data/hugeicons.js`.
 - `src/data/hugeicons.js` — generado, con `HUGICONS_VERSION = "4.4.0"`, licencia MIT y los
@@ -104,9 +104,9 @@ falta **59 iconos**, se vendorizan:
 - Contra: la actualización es manual y deliberada (que es justo lo que se quiere en un sistema
   clínico).
 
-Alternativa descartada por ahora: `npm i -D @hugeicons/core-free-icons` e importar los 59
+Alternativa descartada por ahora: `npm i -D @hugeicons/core-free-icons` e importar los 61
 módulos. Aporta tipos y actualización con `npm update`, pero añade dependencia, lockfile y
-churn de nombres; no compensa para 59 iconos.
+churn de nombres; no compensa para 61 iconos.
 
 ## 4. Arquitectura del reemplazo
 
@@ -205,7 +205,7 @@ convertir el grosor en un número mágico por instancia.
 | Carpeta | 4 | `Folder01Icon` |
 | Tema oscuro | 4 | `Moon02Icon` |
 
-### 5.2 Resto (59 iconos distintos)
+### 5.2 Resto (61 iconos distintos)
 
 El detalle de los 93 únicos, con archivo, número de usos y nombre propuesto, está en
 `plans/icon-map-draft.json`. Nombres verificados contra el índice del paquete (todos existen).
@@ -227,7 +227,7 @@ representa bien el concepto PDI, se cambia solo en el alias.
 | Fase | Contenido | Archivos | Commit |
 |---|---|---|---|
 | **0. Muestra** | Matriz de tamaños, sidebar, tarjeta y botones; 1.75 elegido | página temporal eliminada | sin commit (hecho) |
-| **1. Infraestructura** | script generador, `hugeicons.js` con los 59, `Icon.astro`, `iconHtml`, tokens de tamaño/trazo, test guardián | 4 nuevos + tokens | `feat(ui): sistema de iconos Hugeicons` |
+| **1. Infraestructura** | script generador, `hugeicons.js` con los 61, `Icon.astro`, `iconHtml`, tokens de tamaño/trazo, test guardián | 4 nuevos + tokens | `feat(ui): sistema de iconos Hugeicons` |
 | **2. Chrome** | Sidebar (13), botón de tema, toggles de ajustes, chevrones de `<select>` | `Sidebar.astro`, `ajustes.astro`, `base.css`, `components.css`, `expediente.css` | 2 commits |
 | **3. Modales** | `GlobalModals.astro` (46) | 1 | 1–2 commits |
 | **4. Vistas JS** | Kanban social (26), sedes (16), expediente (11), salud (11), voluntariados (10), dashboard (5), beneficiarios (5), toasts (5), ajustes (5), casitas (4) | 10 JS | 3 commits |

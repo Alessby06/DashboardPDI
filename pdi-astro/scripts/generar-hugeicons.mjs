@@ -19,7 +19,7 @@ const ICONOS = [
   'Add01Icon', 'Alert02Icon', 'AlertCircleIcon', 'Archive01Icon', 'ArrowDown01Icon',
   'ArrowLeft01Icon', 'ArrowRight01Icon', 'BankIcon', 'BookOpen01Icon', 'Briefcase01Icon',
   'Calendar03Icon', 'CallIcon', 'Camera01Icon', 'Cancel01Icon', 'Chart01Icon',
-  'CheckmarkCircle02Icon', 'ClipboardListIcon', 'Clock01Icon', 'Cursor01Icon',
+  'CheckmarkCircle02Icon', 'ClipboardListIcon', 'Clock01Icon', 'ComputerIcon', 'Cursor01Icon',
   'DashboardSquare01Icon', 'Database01Icon', 'Delete02Icon', 'Download01Icon', 'EyeIcon',
   'EyeOffIcon', 'FavouriteIcon', 'File01Icon', 'FilterIcon', 'FireIcon', 'Folder01Icon',
   'Gps01Icon', 'HealthIcon', 'Home01Icon', 'InboxIcon', 'InformationCircleIcon',
@@ -27,7 +27,7 @@ const ICONOS = [
   'Mortarboard01Icon', 'Mouse01Icon', 'PencilEdit02Icon', 'PieChartIcon', 'PrinterIcon',
   'RefreshIcon', 'Route01Icon', 'Search01Icon', 'SentIcon', 'Settings01Icon',
   'ShieldCheckIcon', 'SmartPhone01Icon', 'Sun03Icon', 'Tick02Icon', 'Upload01Icon',
-  'UserAdd01Icon', 'UserGroupIcon', 'UserIcon',
+  'UserAdd01Icon', 'UserGroupIcon', 'UserIcon', 'UserMultipleIcon',
 ];
 
 /** Cancel01Icon → cancel-01; SmartPhone01Icon → smart-phone-01. */

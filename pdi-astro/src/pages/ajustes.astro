@@ -1,5 +1,6 @@
 ---
 import AppLayout from '../layouts/AppLayout.astro';
+import Icon from '../components/Icon.astro';
 import '../styles/views-ajustes.css';
 ---
 
@@ -205,55 +206,34 @@ import '../styles/views-ajustes.css';
                   <button type="button" class="theme-option-btn" id="btnThemeLight"
                     onclick="window.PDI?.AjustesView?.setTheme ? window.PDI.AjustesView.setTheme('light', false, event) : (window.setTheme ? window.setTheme('light', false, event) : null)">
                     <div class="theme-icon-box">
-                      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M12 3v2.25M12 18.75V21M18.75 12H21M3 12h2.25M18.364 5.636l-1.591 1.591M18.364 18.364l-1.591-1.591M5.636 18.364l1.591-1.591M5.636 5.636l1.591 1.591M12 7.5a4.5 4.5 0 100 9 4.5 4.5 0 000-9z" />
-                      </svg>
+                      <Icon name="tema.claro" size={22} />
                     </div>
                     <span>Tema Claro</span>
                     <span class="theme-active-indicator" id="badgeThemeLight" style="display:none;" title="Tema Activo">
-                      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="3"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                      </svg>
+                      <Icon name="accion.confirmar" size={12} />
                     </span>
                   </button>
 
                   <button type="button" class="theme-option-btn" id="btnThemeDark"
                     onclick="window.PDI?.AjustesView?.setTheme ? window.PDI.AjustesView.setTheme('dark', false, event) : (window.setTheme ? window.setTheme('dark', false, event) : null)">
                     <div class="theme-icon-box">
-                      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-                      </svg>
+                      <Icon name="tema.oscuro" size={22} />
                     </div>
                     <span>Tema Oscuro</span>
                     <span class="theme-active-indicator" id="badgeThemeDark" style="display:none;" title="Tema Activo">
-                      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="3"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                      </svg>
+                      <Icon name="accion.confirmar" size={12} />
                     </span>
                   </button>
 
                   <button type="button" class="theme-option-btn" id="btnThemeSystem"
                     onclick="window.PDI?.AjustesView?.setTheme ? window.PDI.AjustesView.setTheme('system', false, event) : (window.setTheme ? window.setTheme('system', false, event) : null)">
                     <div class="theme-icon-box">
-                      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0h-18" />
-                      </svg>
+                      <Icon name="tema.sistema" size={22} />
                     </div>
                     <span>Tema Auto (SO)</span>
                     <span class="theme-active-indicator" id="badgeThemeSystem" style="display:none;"
                       title="Tema Activo">
-                      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="3"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                      </svg>
+                      <Icon name="accion.confirmar" size={12} />
                     </span>
                   </button>
                 </div>

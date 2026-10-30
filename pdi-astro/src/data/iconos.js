@@ -21,6 +21,7 @@ export const ALIAS = {
   'nav.inicio': 'home-01',
   'nav.usuarios': 'user',
   'nav.grupo': 'user-group',
+  'nav.voluntarios': 'user-multiple',
   'nav.desplegar': 'arrow-down-01',
   'nav.ajustes': 'settings-01',
   'nav.salir': 'logout-01',
@@ -55,6 +56,7 @@ export const ALIAS = {
 
   'tema.claro': 'sun-03',
   'tema.oscuro': 'moon-02',
+  'tema.sistema': 'computer',
 
   'persona.usuario': 'user',
   'persona.grupo': 'user-group',
