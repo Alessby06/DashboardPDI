@@ -23,7 +23,7 @@ const ICONOS = [
   'DashboardSquare01Icon', 'Database01Icon', 'Delete02Icon', 'Download01Icon', 'EyeIcon',
   'EyeOffIcon', 'FavouriteIcon', 'File01Icon', 'FilterIcon', 'FireIcon', 'Folder01Icon',
   'Gps01Icon', 'HealthIcon', 'Home01Icon', 'InboxIcon', 'InformationCircleIcon',
-  'ListViewIcon', 'Location01Icon', 'Logout01Icon', 'MapsIcon', 'Menu01Icon', 'Moon02Icon',
+  'ListViewIcon', 'Location01Icon', 'LockIcon', 'Logout01Icon', 'MapsIcon', 'Menu01Icon', 'Moon02Icon',
   'Mortarboard01Icon', 'Mouse01Icon', 'PencilEdit02Icon', 'PieChartIcon', 'PrinterIcon',
   'RefreshIcon', 'Route01Icon', 'Search01Icon', 'SentIcon', 'Settings01Icon',
   'ShieldCheckIcon', 'SmartPhone01Icon', 'Sun03Icon', 'Tick02Icon', 'Upload01Icon',

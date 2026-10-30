@@ -19,12 +19,14 @@ interface Props {
   class?: string;
   /** Nombre accesible; sin él el icono es decorativo. */
   title?: string;
+  /** id del SVG, para scripts que reemplazan su contenido. */
+  id?: string;
   style?: string;
 }
 
-const { name, size = 16, stroke = ICON_STROKE, class: clase = '', title = '', style = '' } = Astro.props;
+const { name, size = 16, stroke = ICON_STROKE, class: clase = '', title = '', id = '', style = '' } = Astro.props;
 
-const svg = iconHtml(name, { size, stroke, className: clase, title, style });
+const svg = iconHtml(name, { size, stroke, className: clase, title, id, style });
 ---
 
 <Fragment set:html={svg} />

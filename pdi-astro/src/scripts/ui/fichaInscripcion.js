@@ -10,6 +10,7 @@
 //  Por eso va plegada: se abre solo si se la va a usar.
 // ===========================================================================
 import { validarTipo, etiquetaTipo } from "./tiposCampo.js";
+import { iconHtml } from '../../data/iconos.js';
 
 // Los datos que de verdad hacen falta para dar de alta a un usuario. Los que
 // tienen un valor por defecto (sexo, sede, modalidad, exoneracion, seguro,
@@ -330,7 +331,7 @@ export function refrescarEstadoFicha(pedidoDeAnuncio = false) {
   let resumen = "";
   if (estado) {
     if (listo) {
-      estado.innerHTML = `<span class="ficha-estado-pill is-ready"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg><span>Ficha lista para guardar</span></span>`;
+      estado.innerHTML = `<span class="ficha-estado-pill is-ready">${iconHtml("accion.confirmar", { size: 14 })}<span>Ficha lista para guardar</span></span>`;
       estado.classList.remove("ficha-estado--faltan");
       estado.classList.add("ficha-estado--listo");
       resumen = "Ficha lista para guardar";
@@ -388,12 +389,7 @@ export function quitarPersona2() {
   if (preview) {
     preview.innerHTML = `
       <div class="ficha-photo-icon-wrap ficha-photo-icon-wrap--sm">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
-        </svg>
+        ${iconHtml("accion.foto", { size: 15 })}
       </div>
       <span class="ficha-photo-title">Foto P2</span>
     `;

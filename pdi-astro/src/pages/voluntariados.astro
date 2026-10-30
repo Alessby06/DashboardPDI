@@ -5,6 +5,7 @@ import FilterField from '../components/FilterField.astro';
 import { OPCIONES_VOLUNTARIADO } from '../data/opcionesBeneficiario.js';
 import '../styles/views-voluntariados.css';
 import { SEDES_POR_DISTRITO } from '../scripts/core/catalogos.js';
+import Icon from '../components/Icon.astro';
 
 const OPCIONES_DISTRITO = Object.keys(SEDES_POR_DISTRITO).map((distrito) => ({ valor: distrito, etiqueta: distrito }));
 const OPCIONES_SERVICIO = OPCIONES_VOLUNTARIADO.map((opcion) => ({ valor: opcion.valor, etiqueta: opcion.etiqueta }));
@@ -32,15 +33,10 @@ const OPCIONES_ESTADO = [
               <button type="button" class="btn-action-icon btn-audit-export-icon" id="btnExportVoluntariosCSV"
                 onclick="window.openModalExportVoluntarios ? window.openModalExportVoluntarios() : window.exportVoluntariosCSV()"
                 aria-label="Descargar Padrón de Voluntariados CSV" title="Descargar Padrón de Voluntariados CSV">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                </svg>
+                <Icon name="accion.descargar" size={18} />
               </button>
               <button type="button" class="btn-action primary" onclick="window.openInscripcionVoluntario ? window.openInscripcionVoluntario() : null" title="Registrar nueva voluntaria o personal de apoyo">
-                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
+                <Icon name="accion.agregar" size={15} />
                 <span>Nueva Inscripción</span>
               </button>
             </div>
@@ -100,14 +96,10 @@ const OPCIONES_ESTADO = [
           <div class="card" id="cardVoluntariosPadron" style="position: relative; z-index: 80;">
             <div class="audit-toolbar">
               <div class="audit-search-wrap">
-                <svg class="audit-search-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                </svg>
+                <Icon name="accion.buscar" size={2} class="audit-search-icon" />
                 <input type="text" id="inputVoluntariosSearch" class="audit-search-input" placeholder="Buscar..." aria-label="Buscar por nombre, DNI, código, sede o rol" title="Buscar por nombre, DNI, código, sede o rol">
                 <button type="button" class="audit-search-clear" id="btnVoluntariosSearchClear" onclick="window.clearVoluntariosSearch ? window.clearVoluntariosSearch() : (window.PDI?.VoluntariadosView?.clearSearch ? window.PDI.VoluntariadosView.clearSearch() : null)" style="display: none;" title="Limpiar búsqueda">
-                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                  <Icon name="accion.cerrar" size={12} />
                 </button>
               </div>
 
@@ -235,18 +227,14 @@ const OPCIONES_ESTADO = [
               <div class="padron-pagination-right">
                 <button type="button" class="btn-page" id="btnVoluntariosPagePrev"
                   onclick="window.voluntariosPrevPage ? window.voluntariosPrevPage() : (window.PDI?.VoluntariadosView?.prevPage ? window.PDI.VoluntariadosView.prevPage() : null)">
-                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                  </svg>
+                  <Icon name="accion.volver" size={14} />
                   <span>Anterior</span>
                 </button>
                 <span class="audit-page-indicator" id="voluntariosCurrentPageNum">Página 1</span>
                 <button type="button" class="btn-page" id="btnVoluntariosPageNext"
                   onclick="window.voluntariosNextPage ? window.voluntariosNextPage() : (window.PDI?.VoluntariadosView?.nextPage ? window.PDI.VoluntariadosView.nextPage() : null)">
                   <span>Siguiente</span>
-                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                  </svg>
+                  <Icon name="accion.abrir" size={14} />
                 </button>
               </div>
             </div>

@@ -1,3 +1,4 @@
+import { iconHtml } from '../../data/iconos.js';
 // Controlador: Alta y edicion de usuarios beneficiarios
 // Maneja el 100% de los campos normativos de inscripción PDI
 import { BeneficiarioModel } from '../models/BeneficiarioModel.js';
@@ -184,10 +185,7 @@ export const BeneficiarioController = {
       const el = document.getElementById(id);
       if (el) {
         el.innerHTML = `
-          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" style="color:var(--text-muted); margin-bottom:2px;">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
-          </svg>
+          ${iconHtml("accion.foto", { size: 22 })}
           <span style="font-size:9.5px; font-weight:600; color:var(--text-muted);">${escapar(label)}</span>
         `;
       }
@@ -202,9 +200,7 @@ export const BeneficiarioController = {
     if (fachadaBox) {
       fachadaBox.innerHTML = `
         <div class="croquis-fachada-placeholder">
-          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-          </svg>
+          ${iconHtml("nav.inicio", { size: 24 })}
           <span>Subir foto de vivienda</span>
         </div>
       `;

@@ -9,6 +9,7 @@
 //  cancelar, con Escape o al cambiar de página. Solo puede existir uno a la vez.
 // ===========================================================================
 import { escapar } from "../utils/HtmlHelper.js";
+import { iconHtml } from '../../data/iconos.js';
 
 const ID = "pdiDescargaToast";
 let abierto = null;
@@ -57,11 +58,7 @@ export function confirmarDescarga({ titulo = "Descargar reporte", mensaje = "", 
   toast.innerHTML = `
     <div class="download-toast-head">
       <span class="toast-icono" style="--toast-tono: var(--text-brand);" aria-hidden="true">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 3v12" />
-          <path d="m7 10 5 5 5-5" />
-          <path d="M5 21h14" />
-        </svg>
+        ${iconHtml("accion.descargar", { size: 16 })}
       </span>
       <div class="toast-cuerpo">
         <strong class="toast-titulo" id="${ID}-titulo">${escapar(titulo)}</strong>

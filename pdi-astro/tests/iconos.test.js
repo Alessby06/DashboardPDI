@@ -7,13 +7,14 @@ import {
   HUGEICONS_VERSION,
   ICONOS,
   ICON_STROKE,
+  iconBody,
   iconHtml,
 } from '../src/data/iconos.js';
 
 test('el set está fijado a la versión elegida y completo', () => {
   assert.equal(HUGEICONS_VERSION, '4.4.0');
-  assert.equal(CLAVES.length, 61);
-  assert.equal(new Set(CLAVES).size, 61);
+  assert.equal(CLAVES.length, 62);
+  assert.equal(new Set(CLAVES).size, 62);
 });
 
 test('los paths no llevan grosor ni color incrustados', () => {
@@ -82,6 +83,15 @@ test('un grosor explícito no depende del token', () => {
 
 test('el token global coincide con el grosor declarado', () => {
   assert.equal(ICON_STROKE, 1.75);
+});
+
+test('el id se conserva y el cuerpo se puede inyectar aparte', () => {
+  const svg = iconHtml('seguridad.candado', { id: 'iconPassEye' });
+  assert.match(svg, /id="iconPassEye"/);
+
+  const cuerpo = iconBody('accion.ver');
+  assert.match(cuerpo, /^<path /);
+  assert.doesNotMatch(cuerpo, /<svg/);
 });
 
 test('un icono desconocido falla en vez de pintar un hueco', () => {

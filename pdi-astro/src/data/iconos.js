@@ -61,6 +61,7 @@ export const ALIAS = {
   'persona.usuario': 'user',
   'persona.grupo': 'user-group',
   'persona.agregar': 'user-add-01',
+  'seguridad.candado': 'lock',
 
   'lugar.ubicacion': 'location-01',
   'lugar.mapa': 'maps',
@@ -121,13 +122,11 @@ export function iconHtml(nombre, opciones = {}) {
     className = '',
     title = '',
     style = '',
+    id = '',
   } = opciones;
 
-  const clave = ALIAS[nombre] || nombre;
-  const cuerpo = ICONOS[clave];
-  if (!cuerpo) {
-    throw new Error(`[iconos] Icono desconocido: "${nombre}". Añádelo a scripts/generar-hugeicons.mjs y regenera.`);
-  }
+  const { cuerpo, titulo } = preparar(nombre, title);
+  const cuerpoHtml = serializar(cuerpo);
 
   // Con el grosor por defecto se usa el token; si alguien pide uno explícito,
   // se respeta sin tocar el token global.
@@ -145,16 +144,37 @@ export function iconHtml(nombre, opciones = {}) {
     'stroke-linejoin="round"',
     `style="${escapar(estilo)}"`,
     className ? `class="${escapar(className)}"` : '',
+    id ? `id="${escapar(id)}"` : '',
     title ? `role="img" aria-label="${escapar(title)}"` : 'aria-hidden="true"',
   ].filter(Boolean).join(' ');
 
-  const titulo = title ? `<title>${escapar(title)}</title>` : '';
-  const path = cuerpo.map(([tag, a]) => {
+  return `<svg ${attrs}>${titulo}${cuerpoHtml}</svg>`;
+}
+
+/**
+ * Solo el contenido del icono (paths), sin <svg>. Sirve para los casos en que
+ * el marcado ya existe y el script reemplaza su interior conservando el nodo
+ * (por ejemplo, el ojo de la contraseña en el login).
+ */
+export function iconBody(nombre) {
+  const { cuerpo } = preparar(nombre, '');
+  return serializar(cuerpo);
+}
+
+function preparar(nombre, title) {
+  const clave = ALIAS[nombre] || nombre;
+  const cuerpo = ICONOS[clave];
+  if (!cuerpo) {
+    throw new Error(`[iconos] Icono desconocido: "${nombre}". Añádelo a scripts/generar-hugeicons.mjs y regenera.`);
+  }
+  return { cuerpo, titulo: title ? `<title>${escapar(title)}</title>` : '' };
+}
+
+function serializar(cuerpo) {
+  return cuerpo.map(([tag, a]) => {
     const atributos = Object.entries(a).map(([k, v]) => `${k}="${escapar(v)}"`).join(' ');
     return `<${tag} ${atributos}></${tag}>`;
   }).join('');
-
-  return `<svg ${attrs}>${titulo}${path}</svg>`;
 }
 
 /** Nombres de icono disponibles, para validaciones y tests. */
