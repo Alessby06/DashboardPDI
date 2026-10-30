@@ -5,6 +5,7 @@ import { AuditModel } from '../models/AuditModel.js';
 import { VulnerabilityCalculator } from '../utils/VulnerabilityCalculator.js';
 import { SocialKanbanView } from '../views/SocialKanbanView.js';
 import { ToastView } from '../views/ToastView.js';
+import { iconHtml } from '../../data/iconos.js';
 
 export const SocialController = {
   /**
@@ -309,9 +310,7 @@ export const SocialController = {
       listaRecomEl.innerHTML = res.recomendaciones.map(r => `
         <li class="socio-recommendation-item">
           <div class="socio-rec-icon">
-            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-            </svg>
+            ${iconHtml('accion.confirmar', { size: 15 })}
           </div>
           <span>${r}</span>
         </li>
