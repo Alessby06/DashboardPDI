@@ -1,3 +1,4 @@
+import { iconHtml } from '../../data/iconos.js';
 // Vista: Ajustes del Sistema y Preferencias (Modo Oscuro & Sync BD)
 //
 // El tema vive en js/core/Theme.js, no aqui. Antes estaba en esta vista y
@@ -105,10 +106,7 @@ export const AjustesView = {
       }
       if (bubbleIcon) {
         bubbleIcon.innerHTML = `
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-          </svg>
+          ${iconHtml("tema.oscuro", { size: 18 })}
         `;
       }
     } else if (themeName === 'system') {
@@ -118,10 +116,7 @@ export const AjustesView = {
       }
       if (bubbleIcon) {
         bubbleIcon.innerHTML = `
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0h-18" />
-          </svg>
+          ${iconHtml("tema.sistema", { size: 18 })}
         `;
       }
     } else {
@@ -131,10 +126,7 @@ export const AjustesView = {
       }
       if (bubbleIcon) {
         bubbleIcon.innerHTML = `
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M12 3v2.25M12 18.75V21M18.75 12H21M3 12h2.25M18.364 5.636l-1.591 1.591M18.364 18.364l-1.591-1.591M5.636 18.364l1.591-1.591M5.636 5.636l1.591 1.591M12 7.5a4.5 4.5 0 100 9 4.5 4.5 0 000-9z" />
-          </svg>
+          ${iconHtml("tema.claro", { size: 18 })}
         `;
       }
     }
@@ -149,9 +141,7 @@ export const AjustesView = {
       btn.disabled = true;
       btn.style.opacity = '0.7';
       btn.innerHTML = `
-        <svg class="spin" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-        </svg>
+        ${iconHtml("accion.actualizar", { size: 15 })}
         <span>Sincronizando...</span>
       `;
     }
@@ -170,9 +160,7 @@ export const AjustesView = {
         btn.disabled = false;
         btn.style.opacity = '1';
         btn.innerHTML = `
-          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-          </svg>
+          ${iconHtml("accion.actualizar", { size: 15 })}
           <span>Sincronizar Ahora</span>
         `;
       }

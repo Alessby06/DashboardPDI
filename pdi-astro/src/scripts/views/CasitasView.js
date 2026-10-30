@@ -6,6 +6,7 @@ import { Responsive } from '../utils/Responsive.js';
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
 import { SEDES_NOMBRES, etiquetaSede } from "../core/catalogos.js";
 import { contarOpciones } from "../utils/FacetCounts.js";
+import { iconHtml } from '../../data/iconos.js';
 // Filtros del módulo educativo que viajan en la URL. Valores tomados de los
 // desplegables de educativo.html.
 const FILTROS_CASITAS = {
@@ -552,9 +553,7 @@ export const CasitasView = {
         <span class="padron-chip">
           <span>${escapar(chip.label)}</span>
           <button type="button" class="padron-chip-remove" onclick="window.removeCasitasChip ? window.removeCasitasChip('${escaparEnManejador(chip.id)}', '${escaparEnManejador(chip.val || '')}') : null" title="Eliminar filtro">
-            <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            ${iconHtml("accion.cerrar", { size: 10 })}
           </button>
         </span>
       `).join("");
@@ -595,9 +594,7 @@ export const CasitasView = {
         <tr>
           <td colspan="6" style="text-align: center; padding: 36px 16px;">
             <div style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; background: var(--gt-yellow-bg, rgba(254, 215, 102, 0.12)); display: flex; align-items: center; justify-content: center; color: var(--text-warning, #fed766);">
-              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-              </svg>
+              ${iconHtml("archivo.libro", { size: 24 })}
             </div>
             <div style="font-weight: 700; color: var(--text-main); font-size: 14.5px;">No se encontraron registros de asistencia</div>
             <div style="color: var(--text-muted); font-size: 12.5px; margin-top: 4px;">Prueba con otro término de búsqueda o restablece los filtros.</div>
@@ -613,9 +610,7 @@ export const CasitasView = {
         mobileContainer.innerHTML = `
           <div style="text-align: center; padding: 36px 16px; background: var(--surface-1); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-top: 8px;">
             <div style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; background: var(--gt-yellow-bg, rgba(254, 215, 102, 0.12)); display: flex; align-items: center; justify-content: center; color: var(--text-warning, #fed766);">
-              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-              </svg>
+              ${iconHtml("archivo.libro", { size: 24 })}
             </div>
             <div style="font-weight: 700; color: var(--text-main); font-size: 14px;">No se encontraron usuarios</div>
             <div style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">No hay usuarios que coincidan con la búsqueda o filtros.</div>
@@ -707,9 +702,7 @@ export const CasitasView = {
             <!-- Botón Ver más / Ver menos -->
             <button type="button" class="datacard-toggle-btn" id="btnToggleCasita-${escapar(b.id)}" onclick="window.PDI ? window.PDI.CasitasView.toggleCard(${escaparEnManejador(b.id)}) : CasitasView.toggleCard(${escaparEnManejador(b.id)})">
               <span class="btn-text">Ver más</span>
-              <svg fill="none" stroke-width="2.5" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-              </svg>
+              ${iconHtml("nav.desplegar", { size: null })}
             </button>
           </div>
         </div>

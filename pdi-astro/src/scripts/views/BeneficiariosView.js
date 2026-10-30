@@ -6,6 +6,7 @@ import { AnimationEngine } from "../utils/AnimationEngine.js";
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";
 import { Dropdown } from "../utils/Dropdown.js";
 import { SEDES_NOMBRES } from "../core/catalogos.js";
+import { iconHtml } from '../../data/iconos.js';
 // Qué filtros del padrón viajan en la URL, con qué valores y cuáles son los
 // defectos. La lista de valores no se inventa: es la misma que admiten los
 // desplegables de padron.html. Si algún día se añade un filtro
@@ -1009,9 +1010,7 @@ export const BeneficiariosView = {
         <span class="padron-chip">
           <span>${escapar(chip.label)}</span>
           <button type="button" class="padron-chip-remove" onclick="window.removePadronChip ? window.removePadronChip('${escaparEnManejador(chip.id)}', '${escaparEnManejador(chip.val || '')}') : null" title="Eliminar filtro">
-            <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            ${iconHtml("accion.cerrar", { size: 10 })}
           </button>
         </span>
       `).join("");
@@ -1043,9 +1042,7 @@ export const BeneficiariosView = {
         tbody.innerHTML = `
           <tr>
             <td colspan="8" style="text-align: center; padding: 32px 16px; color: var(--text-dim);">
-              <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin:0 auto 8px; display:block; opacity:0.6;">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
-              </svg>
+              ${iconHtml("persona.grupo", { size: 36, style: "margin:0 auto 8px; display:block; opacity:0.6;" })}
               No se encontraron usuarios con los filtros seleccionados.
             </td>
           </tr>
@@ -1067,11 +1064,7 @@ export const BeneficiariosView = {
             <td>
               <div class="row-actions">
                 <a href="/expediente?id=${encodeURIComponent(b.id)}" class="row-action" data-astro-prefetch title="Ver expediente" aria-label="Ver expediente">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M2.25 12S5.75 5.25 12 5.25 21.75 12 21.75 12 18.25 18.75 12 18.75 2.25 12 2.25 12Z" />
-                    <circle cx="12" cy="12" r="3.25" />
-                    <circle cx="12" cy="12" r="1.05" fill="currentColor" stroke="none" />
-                  </svg>
+                  ${iconHtml("accion.ver", { size: 15 })}
                 </a>
               </div>
             </td>
@@ -1134,10 +1127,7 @@ export const BeneficiariosView = {
                 </div>
                 <div class="datacard-actions-footer">
                   <a href="/expediente?id=${encodeURIComponent(b.id)}" class="btn-action primary" style="width:100%; justify-content:center; text-decoration:none;" data-astro-prefetch onclick="event.stopPropagation();">
-                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:6px;">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
+                    ${iconHtml("accion.ver", { size: 15, style: "margin-right:6px;" })}
                     Ver Expediente Completo
                   </a>
                 </div>
@@ -1146,9 +1136,7 @@ export const BeneficiariosView = {
               <!-- Botón Ver más / Ver menos -->
               <button type="button" class="datacard-toggle-btn" id="btnToggleCard-${escapar(b.id)}" onclick="window.PDI ? window.PDI.BeneficiariosView.toggleCard(${escaparEnManejador(b.id)}) : BeneficiariosView.toggleCard(${escaparEnManejador(b.id)})">
                 <span class="btn-text">Ver más</span>
-                <svg fill="none" stroke-width="2.5" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                </svg>
+                ${iconHtml("nav.desplegar", { size: null })}
               </button>
             </div>
           </div>

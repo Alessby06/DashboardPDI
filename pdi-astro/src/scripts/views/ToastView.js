@@ -1,5 +1,6 @@
 // Vista: Sistema de Notificaciones Toast Flotantes
 import { escapar } from "../utils/HtmlHelper.js";
+import { iconHtml } from '../../data/iconos.js';
 
 /** Android incluye teléfonos, tablets y WebViews. */
 function esAndroid() {
@@ -22,19 +23,19 @@ function esAndroid() {
 const TONOS = {
   success: {
     tono: "var(--text-brand)",
-    icono: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="m8.2 12.4 2.6 2.6 5-5.4" /></svg>`,
+    icono: `${iconHtml("accion.confirmar", { size: 16 })}`,
   },
   warning: {
     tono: "var(--text-warning)",
-    icono: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.6 3.8 2.4 17.6A1.8 1.8 0 0 0 4 20.4h16a1.8 1.8 0 0 0 1.6-2.8L13.4 3.8a1.8 1.8 0 0 0-2.8 0Z" /><path d="M12 9.5v4.6" /><path d="M12 17.2h.01" /></svg>`,
+    icono: `${iconHtml("estado.alerta", { size: 16 })}`,
   },
   danger: {
     tono: "var(--text-danger)",
-    icono: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="m9 9 6 6" /><path d="m15 9-6 6" /></svg>`,
+    icono: `${iconHtml("accion.cerrar", { size: 16 })}`,
   },
   info: {
     tono: "var(--text-info)",
-    icono: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5" /><path d="M12 7.7h.01" /></svg>`,
+    icono: `${iconHtml("estado.info", { size: 16 })}`,
   },
 };
 
@@ -95,7 +96,7 @@ export const ToastView = {
         ${message ? `<span class="toast-texto">${escapar(message)}</span>` : ""}
       </div>
       <button type="button" class="toast-cerrar" aria-label="Cerrar aviso">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+        ${iconHtml("accion.cerrar", { size: 14 })}
       </button>
     `;
 
