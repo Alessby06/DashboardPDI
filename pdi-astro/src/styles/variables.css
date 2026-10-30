@@ -295,11 +295,10 @@
   --text-muted: #dcdce4;
   /* El token mas usado de la interfaz: 431 declaraciones, y el color de las
      etiquetas secundarias, el menu y los datos de la auditoria. En el tema
-     anterior daba 3,3:1 sobre las tarjetas y no llegaba al minimo AA. Este da
-     9,6:1 sobre --surface-1 y 9,0:1 sobre --surface-2. Sigue por debajo de
-     --text-muted (#dcdce4), que es lo que tiene que pasar: dim es mas apagado
-     que muted. */
-  --text-dim: #b4b4c0;
+     anterior daba 3,3:1 sobre las tarjetas y no llegaba al minimo AA. Aumentado
+     a #c4c4d4 para mejorar legibilidad en elementos pequeños del formulario
+     de Nuevo Usuario. Sigue siendo más apagado que --text-muted (#dcdce4). */
+  --text-dim: #c4c4d4;
 
   --status-danger: var(--gt-red);
   --status-danger-bg: var(--gt-red-bg);

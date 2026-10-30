@@ -680,8 +680,19 @@ function mapearTamizajes(tamsCrudos) {
 function avisarFallo(operacion, err) {
   const detalle = err?.message || String(err || 'Error desconocido');
   console.error('[PDI] Fallo al escribir en SurrealDB (' + operacion + '):', detalle);
+  
+  // Traducciones amigables para errores técnicos comunes
+  let mensajeAmigable = detalle;
+  if (detalle.includes('no such field')) {
+    mensajeAmigable = 'Error al guardar: algunos campos no están disponibles en la base de datos. Contacte al administrador.';
+  } else if (detalle.includes('Transaction conflict') || detalle.includes('Resource busy')) {
+    mensajeAmigable = 'La operación no se pudo completar por falta de espacio temporal. Intente de nuevo en un momento.';
+  } else if (detalle.includes('Found field') && detalle.includes('does not exist')) {
+    mensajeAmigable = 'Error de sincronización de datos. Por favor, recargue la página e intente de nuevo.';
+  }
+  
   try {
-    ToastView.show('No se pudo guardar en la base de datos', `${operacion}: ${detalle}`.slice(0, 140), 'danger');
+    ToastView.show('No se pudo guardar en la base de datos', `${operacion}: ${mensajeAmigable}`.slice(0, 160), 'danger');
   } catch (e) {
     // Si ToastView no está listo, el error queda en consola.
   }
