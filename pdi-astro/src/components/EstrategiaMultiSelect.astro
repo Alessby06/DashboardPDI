@@ -11,6 +11,7 @@
 //  el marcado y los estilos viven aqui una sola vez.
 // ===========================================================================
 import { ESTRATEGIAS } from '../data/opcionesBeneficiario.js';
+import Icon from './Icon.astro';
 
 const { id, label = 'Estrategia Asignada', disabled = false } = Astro.props;
 ---
@@ -21,9 +22,7 @@ const { id, label = 'Estrategia Asignada', disabled = false } = Astro.props;
     {ESTRATEGIAS.map((opcion) => (
       <button type="button" class="estr-chip" role="checkbox" aria-checked="false" data-value={opcion.valor}>
         <span class="estr-chip-check" aria-hidden="true">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-          </svg>
+          <Icon name="accion.confirmar" size={14} />
         </span>
         <span class="estr-chip-name">{opcion.etiqueta}</span>
       </button>

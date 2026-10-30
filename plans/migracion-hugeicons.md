@@ -237,6 +237,9 @@ representa bien el concepto PDI, se cambia solo en el alias.
 Estimación: **5–7 días** de trabajo efectivo, 12–15 commits locales, cada uno revisable y
 reversible por superficie.
 
+**Estado:** fases 0–3 completadas (`ddce977` sistema, `5f32b41` chrome, este lote modales).
+Quedan las vistas JS, las páginas y el cierre.
+
 ## 7. Criterios de aceptación
 
 1. **285 de 294** SVG reemplazados; las 9 ilustraciones propias documentadas y aisladas.
