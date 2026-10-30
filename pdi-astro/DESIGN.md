@@ -399,6 +399,16 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Accesibilidad:** `inert` y `aria-hidden` mientras están cerradas; Escape cierra la hoja superior; foco al primer control al abrir y retorno al disparador al cerrar. La hoja de sedes se anuncia como diálogo modal con el nombre de la sede, atrapa el tabulador y ofrece un cierre visible además del asa.
 - **Rendimiento:** el aviso de composición (`will-change`) queda solo en la hoja que recorre la pantalla, no en cada modal ni en el telón.
 
+### Iconografía
+
+- **Familia:** Hugeicons Free **4.4.0** (MIT), trazo redondeado sobre retícula de 24. Los 62 iconos que usa el producto están **vendorizados** en `src/data/hugeicons.js`; no hay dependencia npm ni peticiones en runtime. `scripts/generar-hugeicons.mjs` fija la versión y regenera el archivo.
+- **Fuente única:** `src/data/iconos.js` expone los alias semánticos (`accion.cerrar`, `nav.desplegar`, `estado.pendiente`…) y las dos puertas de render: `Icon.astro` para plantillas y `iconHtml()` / `iconBody()` para las vistas que construyen HTML por JS. Las vistas no escriben `<svg>` ni conocen nombres del set.
+- **Trazo:** token único `--icon-stroke: 1.75` en `src/styles/iconos.css`. Ningún path lleva `stroke-width` incrustado; un cambio de peso se hace en un solo sitio. El color siempre es `currentColor`.
+- **Tamaño:** lo fija la vista o el CSS existente. `size={null}` deja que el CSS dimensione; los selectores `.nav-btn svg`, `.btn-action svg`, `.audit-search-icon`, `.filter-caret` y `.caret` siguen mandando.
+- **Accesibilidad:** decorativo por defecto (`aria-hidden="true"`); con `title` pasa a `role="img"` + `aria-label` + `<title>`. Los botones icono-only conservan su `aria-label`, que no se sustituye por el icono.
+- **Excepciones (no son iconografía de sistema):** los 4 módulos animados del login, la silueta y los dos rostros de avatar del expediente, la serie de hemoglobina, la mascota del foco y su cursor de ayuda. Se quedan con su geometría y animación propias; `tests/iconos-guard.test.js` impide que aparezcan nuevos `<svg>` fuera de esa lista.
+- **Prohibido:** hex en paths, `stroke-width` por instancia, importar Hugeicons en runtime y duplicar geometría en una vista. Si falta un icono, se añade al generador y se regenera.
+
 ## Do's and Don'ts
 
 ### Do:

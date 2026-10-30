@@ -1,6 +1,6 @@
 # 002 — Migración del sistema de iconos a Iconoir
 
-- Status: TODO
+- Status: Reemplazado por `plans/migracion-hugeicons.md`
 - Category: Iconografía / Design system
 - Autor: análisis con `@impeccable` (modo Operate)
 - Alcance estimado: 1 módulo nuevo + 1 componente + 27 archivos de icono (377 etiquetas `<svg>`, 97 paths únicos)

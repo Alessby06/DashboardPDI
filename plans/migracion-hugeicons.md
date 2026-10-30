@@ -15,8 +15,8 @@ y el orden de los lotes.
 
 | Fecha | Decisión | Motivo | Consecuencia |
 |---|---|---|---|
-| 2026-10-30 | Migrar a Hugeicons por **coherencia visual** | Los iconos actuales se ven genéricos | Se aceptan 285 reemplazos y 12–15 commits |
-| 2026-10-30 | **Vendorizar** los 61 iconos (4.4.0) | Sin dependencia ni lockfile; build sin red | Actualización manual y deliberada |
+| 2026-10-30 | Migrar a Hugeicons por **coherencia visual** | Los iconos actuales se ven genéricos | Se aceptan 284 reemplazos y 12–15 commits |
+| 2026-10-30 | **Vendorizar** los 62 iconos (4.4.0) | Sin dependencia ni lockfile; build sin red | Actualización manual y deliberada |
 | 2026-10-30 | **Trazo 1.75 global** | Elegido en la muestra de la fase 0 | Un solo token `--icon-stroke` |
 | 2026-10-30 | **Conservar** las 9 ilustraciones | Son ilustraciones, no iconos | Frontera documentada |
 | 2026-10-30 | **Desplegar por superficies** | Commits revisables y reversibles | Dos familias conviven unos días |
@@ -34,9 +34,9 @@ la ventana del navegador integrado no era visible; la comparación se hizo en vi
 | SVG en línea | **294** |
 | Archivos afectados | **32** (12 páginas, 6 componentes, 14 módulos JS de vistas) |
 | Iconos únicos (por `d`) | **93** |
-| Usos reemplazables por Hugeicons | **285** |
-| Iconos Hugeicons distintos necesarios | **61** |
-| Ilustraciones propias que se conservan | **9 usos** |
+| Usos reemplazables por Hugeicons | **284** |
+| Iconos Hugeicons distintos necesarios | **62** |
+| Ilustraciones propias que se conservan | **10 usos** |
 | Lienzo | 289 de 294 son `0 0 24 24` |
 | Relleno | **0 SVG con `fill` distinto de none** (todo trazo) |
 | Trazos | 2 (200 usos), 2.5 (45), 1.8 (24), 2.2 (21), 3.5 (7), 3 (7), 2.4 (4), 1.5 (3), 2.8 (1), 1 (1) |
@@ -91,9 +91,9 @@ redondeado. Eso hace que Hugeicons encaje sin cambiar la retícula ni el flujo d
 ## 3. Entrega: vendorizar, no depender
 
 Siguiendo la frontera del plan 002 (**ninguna dependencia npm nueva**) y como aquí solo hacen
-falta **61 iconos**, se vendorizan:
+falta **62 iconos**, se vendorizan:
 
-- `scripts/generar-hugeicons.mjs` — descarga los 61 módulos desde `unpkg` con la versión fijada
+- `scripts/generar-hugeicons.mjs` — descarga los 62 módulos desde `unpkg` con la versión fijada
   (`4.4.0`), normaliza la geometría (quita `stroke`, `strokeWidth`, `strokeLinecap`,
   `strokeLinejoin`) y escribe `src/data/hugeicons.js`.
 - `src/data/hugeicons.js` — generado, con `HUGICONS_VERSION = "4.4.0"`, licencia MIT y los
@@ -104,9 +104,9 @@ falta **61 iconos**, se vendorizan:
 - Contra: la actualización es manual y deliberada (que es justo lo que se quiere en un sistema
   clínico).
 
-Alternativa descartada por ahora: `npm i -D @hugeicons/core-free-icons` e importar los 61
+Alternativa descartada por ahora: `npm i -D @hugeicons/core-free-icons` e importar los 62
 módulos. Aporta tipos y actualización con `npm update`, pero añade dependencia, lockfile y
-churn de nombres; no compensa para 61 iconos.
+churn de nombres; no compensa para 62 iconos.
 
 ## 4. Arquitectura del reemplazo
 
@@ -205,18 +205,19 @@ convertir el grosor en un número mágico por instancia.
 | Carpeta | 4 | `Folder01Icon` |
 | Tema oscuro | 4 | `Moon02Icon` |
 
-### 5.2 Resto (61 iconos distintos)
+### 5.2 Resto (62 iconos distintos)
 
 El detalle de los 93 únicos, con archivo, número de usos y nombre propuesto, está en
 `plans/icon-map-draft.json`. Nombres verificados contra el índice del paquete (todos existen).
 La metáfora visual de cada uno se valida en pantalla al migrar su lote; si un nombre no
 representa bien el concepto PDI, se cambia solo en el alias.
 
-### 5.3 Ilustraciones que NO se reemplazan (9 usos)
+### 5.3 Ilustraciones que NO se reemplazan (10 usos)
 
 | Elemento | Dónde | Motivo |
 |---|---|---|
 | Mascota "foco" y su sonrisa | `ajustes.astro` | Ilustración con animación propia |
+| Cursor de ayuda del foco | `ajustes.astro` | Parte de la ilustración interactiva, no icono de sistema |
 | 4 módulos animados del login (brote, libro, manos/corazón, pulso) | `login.astro` | El CSS anima paths internos por clase; cambiar geometría rompe la animación |
 | Avatares generados (silueta y dos variantes) | `Avatar.js` | Ilustración generada con datos |
 | Serie de hemoglobina | `SaludCredView.js` | Visualización de datos, no icono |
@@ -227,7 +228,7 @@ representa bien el concepto PDI, se cambia solo en el alias.
 | Fase | Contenido | Archivos | Commit |
 |---|---|---|---|
 | **0. Muestra** | Matriz de tamaños, sidebar, tarjeta y botones; 1.75 elegido | página temporal eliminada | sin commit (hecho) |
-| **1. Infraestructura** | script generador, `hugeicons.js` con los 61, `Icon.astro`, `iconHtml`, tokens de tamaño/trazo, test guardián | 4 nuevos + tokens | `feat(ui): sistema de iconos Hugeicons` |
+| **1. Infraestructura** | script generador, `hugeicons.js` con los 62, `Icon.astro`, `iconHtml`, tokens de tamaño/trazo, test guardián | 4 nuevos + tokens | `feat(ui): sistema de iconos Hugeicons` |
 | **2. Chrome** | Sidebar (13), botón de tema, toggles de ajustes, chevrones de `<select>` | `Sidebar.astro`, `ajustes.astro`, `base.css`, `components.css`, `expediente.css` | 2 commits |
 | **3. Modales** | `GlobalModals.astro` (46) | 1 | 1–2 commits |
 | **4. Vistas JS** | Kanban social (26), sedes (16), expediente (11), salud (11), voluntariados (10), dashboard (5), beneficiarios (5), toasts (5), ajustes (5), casitas (4) | 10 JS | 3 commits |
@@ -237,12 +238,20 @@ representa bien el concepto PDI, se cambia solo en el alias.
 Estimación: **5–7 días** de trabajo efectivo, 12–15 commits locales, cada uno revisable y
 reversible por superficie.
 
-**Estado:** fases 0–3 completadas (`ddce977` sistema, `5f32b41` chrome, este lote modales).
-Quedan las vistas JS, las páginas y el cierre.
+**Estado:** fases 0–6 completadas.
+
+- Sistema: `ddce977` · Chrome: `5f32b41` · Modales: `a1e73ad`
+- Vistas JS: `cdcf82f`, `8d5b268`, `7f84c90`
+- Páginas: `601c36c`, `2521cb6`, `8ebcdb7`
+
+Quedan **10 ilustraciones propias** (4 módulos animados del login, 3 avatares, gráfico de
+hemoglobina, mascota del foco y su cursor) y el renderizador. El set completo (62 iconos)
+pesa ~15 KB gzip y solo viaja en páginas que importan el registro. `DESIGN.md` documenta la
+familia, el token y las reglas; `tests/iconos-guard.test.js` impide nuevos SVG sueltos.
 
 ## 7. Criterios de aceptación
 
-1. **285 de 294** SVG reemplazados; las 9 ilustraciones propias documentadas y aisladas.
+1. **284 de 294** SVG reemplazados; las 10 ilustraciones propias documentadas y aisladas.
 2. `npm test` verde y nuevo test guardián verde (no quedan `<svg>` sueltos fuera de la lista).
 3. Cero cambios de layout: mismas cajas, mismos tamaños, mismos saltos de línea.
 4. QA visual en claro y oscuro, a 1440 / 1024 / 768 / 390 px, con ficha, filtros y kanban abiertos.
@@ -263,11 +272,7 @@ Quedan las vistas JS, las páginas y el cierre.
 | El archivo generado se edita a mano y se desincroniza | Medio | Cabecera "generado por scripts/generar-hugeicons.mjs" + comprobación de versión en el test |
 | Inflación del HTML por seguir inline | Bajo | Se mide; si crece, fase opcional de sprite (la geometría ya está normalizada para `<use>`) |
 
-## 9. Decisiones pendientes antes de empezar
+## 9. Decisiones pendientes
 
-1. **Marcar el plan 002 como reemplazado** (no borrarlo) y conservar `icon-map-draft.json`
-   como referencia hasta cerrar la migración.
-2. Confirmar el **orden del primer lote**: chrome (sidebar, tema, filtros) según lo decidido.
-
-Las decisiones de entrega, trazo, ilustraciones, despliegue y QA ya están cerradas en la
-sección 0.
+Ninguna: entrega, trazo, ilustraciones, despliegue, QA y excepciones están cerradas y
+documentadas. El plan 002 queda marcado como reemplazado por este documento.
