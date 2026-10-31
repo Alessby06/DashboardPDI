@@ -585,20 +585,6 @@ document.addEventListener("click", (e) => {
   }
 });
 
-/** Cierra el selector de dosaje si quedó abierto al cambiar de página. */
-function cerrarSelectorDosajeSiAbierto() {
-  const modal = document.getElementById("modalElegirDosaje");
-  if (!modal?.classList.contains("open")) return false;
-  if (typeof window.cerrarSelectorDosaje === "function") {
-    window.cerrarSelectorDosaje();
-  } else {
-    modal.classList.remove("open");
-    modal.setAttribute("inert", "");
-    modal.setAttribute("aria-hidden", "true");
-  }
-  return true;
-}
-
 document.addEventListener("keydown", (e) => {
   if (e.key !== "Escape") return;
   // Un modal abierto manda: su Escape no debe consumirse en una faceta que
@@ -609,7 +595,6 @@ document.addEventListener("keydown", (e) => {
     // display por si solo los daba por abiertos y Escape no cerraba filtros.
     return cs.display !== "none" && cs.visibility !== "hidden" && Number(cs.opacity) > 0.01;
   });
-  if (cerrarSelectorDosajeSiAbierto()) return;
   // Escape cierra la capa mas interna: primero la faceta abierta y despues el
   // panel. Antes una sola pulsacion cerraba las dos y el foco se perdia.
   const facetaAbierta = !modalVisible
@@ -636,7 +621,6 @@ document.addEventListener("keydown", (e) => {
 
 document.addEventListener("astro:after-swap", () => {
   document.body.classList.remove("filter-sheet-open");
-  cerrarSelectorDosajeSiAbierto();
 });
 
 if (typeof window !== "undefined") {

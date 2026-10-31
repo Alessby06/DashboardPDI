@@ -226,6 +226,8 @@ export const BeneficiarioModel = {
       resultado: prueba.resultado,
       anemia: prueba.anemia,
     });
+    // El id canonico viaja con la respuesta del CREATE; la hidratacion lo
+    // volveria a confirmar, pero la fila ya puede ofrecer "Desactivar".
     if (!ok) {
       const pos = b.tamizajes.indexOf(fila);
       if (pos !== -1) b.tamizajes.splice(pos, 1);
@@ -235,6 +237,7 @@ export const BeneficiarioModel = {
       b.anemia = previo.anemia;
       return null;
     }
+    if (typeof ok === 'string') fila._tamizajeId = ok;
     return fila;
   },
 

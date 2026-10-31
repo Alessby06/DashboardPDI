@@ -979,7 +979,11 @@ export const SaludCredView = {
     };
 
     if (!fechaStr) return aviso("Falta la fecha", "Indica la fecha en que se tomó el dosaje.");
-    if (new Date(`${fechaStr}T23:59:59`) > new Date()) return aviso("Fecha futura", "El dosaje se registra con fecha igual o anterior a hoy.");
+    // Comparación por día local: el <input type="date"> entrega YYYY-MM-DD y
+    // comparar contra el final del día rechazaba el día de hoy hasta las 23:59.
+    const hoy = new Date();
+    const hoyStr = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}-${String(hoy.getDate()).padStart(2, "0")}`;
+    if (fechaStr > hoyStr) return aviso("Fecha futura", "El dosaje se registra con fecha igual o anterior a hoy.");
     if (Array.isArray(b.tamizajes) && b.tamizajes.some(t => String(t.fecha || "").slice(0, 10) === fechaStr)) {
       return aviso("Fecha duplicada", "Ya existe una prueba registrada para ese día; completa el formulario con otra fecha.");
     }
@@ -1029,6 +1033,9 @@ export const SaludCredView = {
       pintarLista();
       return;
     }
+    // La fila ya trae el id canonico del CREATE: repintar habilita el enlace
+    // "Desactivar esta prueba" sin cerrar y reabrir el historial.
+    pintarLista();
 
     // Bitácora: los filtros de auditoria ya reconocen la accion "Tamizaje".
     const rol = localStorage.getItem("pdi_active_role") || "facilitadora";
@@ -1219,68 +1226,10 @@ export const SaludCredView = {
   },
 
   /**
-   * Selector de usuario para registrar un dosaje desde la cabecera.
-   * Evita el camino de tres clics (fila → historial → añadir prueba).
-   */
-  abrirSelectorDosaje() {
-    const cont = document.getElementById("elegirDosajeLista");
-    const modal = document.getElementById("modalElegirDosaje");
-    if (!cont || !modal) return;
-
-    // Disparador del modal: a él vuelve el foco cuando se cierra.
-    this._focoSelectorDosaje = document.activeElement;
-
-    const lista = [...(this._allBeneficiarios || [])]
-      .filter(b => b && b.activo !== false)
-      .sort((a, b) => String(a.apellidos || "").localeCompare(String(b.apellidos || ""), "es"));
-
-    cont.innerHTML = lista.length
-      ? lista.map(b => {
-        const clase = AnemiaCalculator.normalizar(b.anemia);
-        const badge = clase === "Normal"
-          ? "badge-green"
-          : clase === "Leve"
-            ? "badge-yellow"
-            : clase
-              ? "badge-red"
-              : "badge-blue";
-        const etiqueta = clase || "Sin dato";
-        return `
-          <button type="button" class="elegir-dosaje-item" onclick="window.registrarDosaje ? window.registrarDosaje(${escaparEnManejador(b.id)}) : null">
-            <span>
-              <span class="nombre">${escapar(b.nombres)} ${escapar(b.apellidos)}</span>
-              <span class="meta">${escapar(b.codigo)} · ${escapar(b.sede || "Sin sede")}</span>
-            </span>
-            <span class="badge ${badge}">${escapar(etiqueta)}</span>
-          </button>`;
-      }).join("")
-      : '<p class="elegir-dosaje-empty">Sin usuarios en el padrón.</p>';
-
-    modal.removeAttribute("inert");
-    modal.removeAttribute("aria-hidden");
-    modal.classList.add("open");
-    const primero = cont.querySelector(".elegir-dosaje-item");
-    if (primero) requestAnimationFrame(() => {
-      if (modal.classList.contains("open")) primero.focus();
-    });
-  },
-
-  cerrarSelectorDosaje() {
-    const modal = document.getElementById("modalElegirDosaje");
-    if (!modal) return;
-    this._sacarFocoDelModal(modal, this._focoSelectorDosaje);
-    this._focoSelectorDosaje = null;
-    modal.classList.remove("open");
-    modal.setAttribute("aria-hidden", "true");
-    modal.setAttribute("inert", "");
-  },
-
-  /**
    * Abre el historial del usuario y despliega el formulario de dosaje.
-   * Se usa tanto desde la cabecera como desde la acción de cada fila.
+   * Se usa desde la acción de cada fila y de la tarjeta móvil.
    */
   registrarDosaje(id) {
-    this.cerrarSelectorDosaje();
     this.openHistorialTamizaje(id);
     this.mostrarFormularioNuevaPrueba();
     requestAnimationFrame(() => {
@@ -1331,8 +1280,6 @@ if (typeof window !== "undefined") {
   window.saludNextPage = () => SaludCredView.nextPage();
   window.openHistorialTamizaje = (id) => SaludCredView.openHistorialTamizaje(id);
   window.closeHistorialTamizaje = () => SaludCredView.closeModalHistorialTamizaje();
-  window.abrirSelectorDosaje = () => SaludCredView.abrirSelectorDosaje();
-  window.cerrarSelectorDosaje = () => SaludCredView.cerrarSelectorDosaje();
   window.registrarDosaje = (id) => SaludCredView.registrarDosaje(id);
   window.mostrarFormularioNuevaPrueba = () => SaludCredView.mostrarFormularioNuevaPrueba();
   window.ocultarFormularioNuevaPrueba = () => SaludCredView._ocultarFormularioNuevaPrueba();

@@ -1316,7 +1316,7 @@ export async function crearTamizaje(m) {
     const pid = claveRegistro(m._personaId);
     const insId = m._inscripcionId ? claveRegistro(m._inscripcionId) : '';
     const sedId = m._sedeRawId ? claveRegistro(m._sedeRawId) : '';
-    await ejecutar(`
+    const res = await ejecutar(`
       CREATE tamizaje_hemoglobina CONTENT {
         ${F_USUARIO}: type::record('persona', $pid),
         inscripcion_id: IF string::len($insId) > 0 { type::record('inscripcion', $insId) } ELSE { NONE },
@@ -1327,7 +1327,7 @@ export async function crearTamizaje(m) {
         peso_kg: IF string::len($pesoStr) > 0 { type::decimal($pesoStr) } ELSE { NONE },
         talla_cm: IF string::len($tallaStr) > 0 { type::decimal($tallaStr) } ELSE { NONE },
         msnm: 150, activo: true
-      };`, {
+      } RETURN AFTER;`, {
       pid,
       insId,
       sedId,
@@ -1337,9 +1337,14 @@ export async function crearTamizaje(m) {
       pesoStr: m.peso != null && m.peso !== '' ? String(m.peso) : '',
       tallaStr: m.talla != null && m.talla !== '' ? String(m.talla) : '',
     });
-    return true;
+    // El id canonico viaja de vuelta para que la fila optimista pueda ofrecer
+    // "Desactivar esta prueba" sin esperar a la siguiente hidratacion.
+    const creado = comoLista(res)[0];
+    if (!creado) return false;
+    return creado.id ? String(creado.id) : true;
   } catch (err) {
-    return avisarFallo('Registro de tamizaje', err) !== null;
+    avisarFallo('Registro de tamizaje', err);
+    return null;
   }
 }
 
