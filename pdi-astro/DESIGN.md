@@ -348,6 +348,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Style:** fondo Paper, borde Rule, radio 10, padding 10/14, 14 px.
 - **Focus:** borde Rule Strong, sin glow ni sombra.
 - **Error / Disabled:** error con texto y borde Alert; deshabilitado en Ink Dim.
+- **Selects:** ningún `<select>` nativo se muestra sin mejorar. `src/scripts/ui/customSelect.js` los convierte al dropdown propio (`pdi-select` + `pdi-select-trigger` + `pdi-select-menu`, hoja `custom-select.css`): mismo `<select>` vivo para `id`, `name`, `value`, `required`, `disabled` y `onchange`; menú en `<body>` con `position: fixed` para que ningún modal lo recorte; entrada de 6 px + fundido en `--dur-norm` y salida en `--dur-fast`. Un `<select>` nuevo se mejora solo; si no se puede, se marca `data-pdi-select="native"` y se documenta la excepción.
 
 ### Tables
 - **Header:** 11.5/700, 0.05em, mayúsculas, fondo Paper, borde inferior.
@@ -399,6 +400,12 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Accesibilidad:** `inert` y `aria-hidden` mientras están cerradas; Escape cierra la hoja superior; foco al primer control al abrir y retorno al disparador al cerrar. La hoja de sedes se anuncia como diálogo modal con el nombre de la sede, atrapa el tabulador y ofrece un cierre visible además del asa.
 - **Rendimiento:** el aviso de composición (`will-change`) queda solo en la hoja que recorre la pantalla, no en cada modal ni en el telón.
 
+### Motion
+
+- **Pulsación:** todo botón comprime a `scale(0.97)` en `--dur-fast`, con `--surface-3` y borde `--text-dim` en neutros; los primarios conservan su relleno y bajan `brightness(0.96)`. El botón de filtros no mueve su caja porque ancla el panel: allí solo cambia el tinte.
+- **Dropdowns:** todo menú entra con fundido + 6 px en `--dur-norm` y sale en `--dur-fast`, con `@starting-style` y `display … allow-discrete`. El subnivel de facetas dentro del panel conserva su gesto de 4 px / 175 ms.
+- **Reduced motion:** se retira el `scale` y los desplazamientos; se conservan los cambios de color, borde y estado.
+
 ### Iconografía
 
 - **Familia:** Hugeicons Free **4.4.0** (MIT), trazo redondeado sobre retícula de 24. Los 62 iconos que usa el producto están **vendorizados** en `src/data/hugeicons.js`; no hay dependencia npm ni peticiones en runtime. `scripts/generar-hugeicons.mjs` fija la versión y regenera el archivo.
@@ -430,6 +437,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Don't** reutilizar una clase de otra página cambiándole tamaño o peso (el caso `.dash-kpi-value` en salud).
 - **Don't** fijar un tema con valores absolutos (`#ffffff`, `#000000`) en pantalla; usa los tokens. La impresión sí puede forzar papel blanco y tinta negra.
 - **Don't** añadir sombras de color para señalar alertas.
+- **Don't** dejar un `<select>` nativo visible ni estilizarlo por vista: todo desplegable de selección pasa por `customSelect.js` y `custom-select.css`. La única excepción es un control que no pueda mejorarse (por ejemplo, `multiple` o `size > 1`); se marca `data-pdi-select="native"` y se justifica en el código.
 
 ### Conformance Checklist
 1. Ninguna hoja de vista declara tokens núcleo ni bloques `[data-theme]`; los de componente viven en su hoja compartida.
@@ -437,3 +445,4 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 3. Toda cifra alineada lleva `tabular-nums` y pertenece a la rampa.
 4. Toda superficie nueva usa una primitiva; ninguna repite la receta de tarjeta.
 5. La pieza se ve correcta en ambos temas y en 375 px de ancho.
+6. Ningún `<select>` nativo visible: todos pasan por `customSelect.js`; las excepciones llevan `data-pdi-select="native"` y están justificadas.

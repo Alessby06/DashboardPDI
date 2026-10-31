@@ -30,11 +30,6 @@ const OPCIONES_HB = [
         </p>
       </div>
       <div class="view-actions">
-        <button type="button" class="btn-action primary" id="btnRegistrarDosaje"
-          onclick="window.abrirSelectorDosaje ? window.abrirSelectorDosaje() : null">
-          <Icon name="accion.agregar" size={16} />
-          Registrar dosaje
-        </button>
         <button type="button" class="btn-action-icon btn-audit-export-icon" id="btnExportSaludCSV"
           onclick="window.openModalExportSalud ? window.openModalExportSalud() : null"
           aria-label="Descargar Reporte CRED CSV" title="Descargar Reporte CRED CSV">
@@ -43,28 +38,6 @@ const OPCIONES_HB = [
       </div>
     </div>
 
-
-    <!-- Cola de triaje: a quién atender primero -->
-    <section class="triaje" id="triajeAnemia" aria-labelledby="triajeTitulo">
-      <header class="triaje-head">
-        <div class="triaje-heading">
-          <h3 class="triaje-title" id="triajeTitulo">Seguimiento de anemia</h3>
-          <p class="triaje-state" id="triajeEstado">Leyendo el padrón…</p>
-        </div>
-        <a class="triaje-link" href="#cardSaludEvaluaciones">Ver todas las evaluaciones</a>
-      </header>
-      <div class="triaje-chips" role="group" aria-label="Filtrar la cola de seguimiento">
-        <button type="button" class="triaje-chip" data-filtro="todos" aria-pressed="true"
-          onclick="window.triajeFiltrar ? window.triajeFiltrar('todos') : null">Todos</button>
-        <button type="button" class="triaje-chip" data-filtro="prioridad" aria-pressed="false"
-          onclick="window.triajeFiltrar ? window.triajeFiltrar('prioridad') : null">Prioridad</button>
-        <button type="button" class="triaje-chip" data-filtro="leve" aria-pressed="false"
-          onclick="window.triajeFiltrar ? window.triajeFiltrar('leve') : null">Leve</button>
-        <button type="button" class="triaje-chip" data-filtro="normal" aria-pressed="false"
-          onclick="window.triajeFiltrar ? window.triajeFiltrar('normal') : null">Normal</button>
-      </div>
-      <ul class="triaje-lista" id="triajeLista" aria-live="polite"></ul>
-    </section>
 
     <!-- Tabla y Evaluaciones CRED en Tarjeta Unificada (Estandarizada con padron.astro) -->
     <div class="card" id="cardSaludEvaluaciones" style="margin-top: 18px;">

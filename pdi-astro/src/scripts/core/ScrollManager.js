@@ -170,7 +170,7 @@ export const ScrollManager = {
     if (el === this.mainWrapper) return;
     if (el.closest('.lenis-pane, [data-lenis-prevent], [data-scroll-native]')) return;
     if (enModalCerrado(el)) return;
-    if (el.matches('pre, code, textarea, input, select, .table-container, .table-responsive, .kanban-board, .triaje-chips, .expediente-sidebar, .sidebar')) return;
+    if (el.matches('pre, code, textarea, input, select, .table-container, .table-responsive, .kanban-board, .expediente-sidebar, .sidebar')) return;
     if (el.clientHeight < 40 || el.scrollHeight <= el.clientHeight + 4) return;
     const cs = getComputedStyle(el);
     if (cs.overflowY !== 'auto' && cs.overflowY !== 'scroll') return;

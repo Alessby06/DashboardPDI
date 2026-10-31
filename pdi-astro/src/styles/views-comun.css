@@ -735,10 +735,6 @@
   border-color: var(--border-bright);
 }
 
-.btn-page:active:not(:disabled) {
-  transform: scale(0.96);
-}
-
 .btn-page:disabled {
   opacity: 0.45;
   cursor: not-allowed;
@@ -865,10 +861,6 @@
     transform: translateY(-1px);
   }
 
-  .row-action:active {
-    transform: scale(0.94);
-  }
-
   /* El lápiz (editar) se insinúa en verde de marca */
   .row-action--edit:hover {
     border-color: var(--gt-green);
@@ -922,10 +914,6 @@
   color: var(--text-brand);
   transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
-}
-
-.btn-action-icon.btn-audit-export-icon:active {
-  transform: scale(0.95);
 }
 
 [data-theme="dark"] .btn-action-icon.btn-audit-export-icon {
@@ -1105,9 +1093,6 @@ input[type="range"] {
 .btn-page:hover:not(:disabled) {
         background: var(--surface-hover);
         border-color: var(--border-bright);
-      }
-.btn-page:active:not(:disabled) {
-        transform: scale(0.96);
       }
 .audit-meta-grid {
         display: grid;

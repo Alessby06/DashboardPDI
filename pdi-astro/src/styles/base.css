@@ -122,9 +122,49 @@
       }
     }
 
-    .btn-action:active, .nav-btn:active, .theme-toggle-btn:active, .btn-menu-toggle:active {
-      transform: scale(0.97) !important;
-      transition-duration: 90ms !important;
+    /* Pulsación del sistema: compresión suave + tinte. */
+    .btn-action:active:not(:disabled),
+    .btn-action-icon:active:not(:disabled),
+    .row-action:active,
+    .btn-page:active:not(:disabled),
+    .btn-action-sm:active:not(:disabled),
+    .btn-asist:active:not(:disabled),
+    .btn-text-subtle:active:not(:disabled),
+    .theme-option-btn:active:not(:disabled),
+    .stage-seg-btn:active,
+    .nav-btn:active,
+    .theme-toggle-btn:active,
+    .btn-menu-toggle:active {
+      transform: scale(0.97);
+      transition-duration: var(--dur-fast);
+    }
+
+    .btn-action:active:not(:disabled):not(.primary),
+    .btn-action-icon:active:not(:disabled),
+    .row-action:active {
+      background: var(--surface-hover);
+      border-color: var(--text-dim);
+    }
+
+    .btn-action.primary:active:not(:disabled) {
+      filter: brightness(0.96);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .btn-action:active:not(:disabled),
+      .btn-action-icon:active:not(:disabled),
+      .row-action:active,
+      .btn-page:active:not(:disabled),
+      .btn-action-sm:active:not(:disabled),
+      .btn-asist:active:not(:disabled),
+      .btn-text-subtle:active:not(:disabled),
+      .theme-option-btn:active:not(:disabled),
+      .stage-seg-btn:active,
+      .nav-btn:active,
+      .theme-toggle-btn:active,
+      .btn-menu-toggle:active {
+        transform: none;
+      }
     }
 
     /* View Transitions API (Circular Ripple Reveal Animation) */
@@ -720,10 +760,6 @@
       color: var(--on-brand);
       border: 1px solid var(--gt-green);
       font-weight: 700;
-    }
-
-    .btn-action:active {
-      transform: scale(0.98);
     }
 
     .theme-toggle-btn {

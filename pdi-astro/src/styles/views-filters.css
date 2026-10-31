@@ -71,36 +71,8 @@
     filter var(--dur-press) var(--ease-smooth);
 }
 
-/* El disparador ancla el panel: su caja no se mueve. base.css aplica
-   translateY(-1.5px) en hover y scale(0.97) !important en active a todo
-   .btn-action; mientras el boton se hundia, el panel se colocaba con esa caja
-   encogida y se desplazaba 5 px durante la entrada. La pulsacion se pinta. */
-.btn-action.audit-filter-btn:hover,
-.btn-action.audit-filter-btn:active {
-  transform: none !important;
-  will-change: auto;
-}
-
-.btn-action.audit-filter-btn:active {
-  filter: brightness(0.95);
-}
-
 .audit-filter-btn {
   position: relative;
-}
-
-.audit-filter-btn::after {
-  content: "";
-  position: absolute;
-  left: 16px;
-  right: 16px;
-  bottom: 3px;
-  height: 2px;
-  background: var(--text-brand);
-  border-radius: var(--radius-full);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform var(--dur-norm) var(--ease-out);
 }
 
 /* El hover solo existe con puntero fino: en táctil se queda pegado tras el
@@ -110,17 +82,6 @@
     background: var(--surface-hover);
     border-color: var(--text-dim);
     color: var(--text-brand);
-  }
-
-  .audit-filter-btn:hover::after {
-    transform: scaleX(1);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .audit-filter-btn::after {
-    transition: none;
-    opacity: 0;
   }
 }
 
@@ -1155,10 +1116,11 @@
 
 @media (min-width: 769px) {
   @supports (anchor-name: --x) and (position-anchor: --x) {
-    /* El panel se ancla al boton con CSS y vive en el top layer: no depende
-       del scroll, no lo recorta ningun ancestro y no necesita calculos de
-       geometria ni correccion por el transform de Lenis. */
-    .audit-filter-btn {
+    /* El panel se ancla al wrapper, no al boton: asi el boton puede comprimirse
+       en :active sin mover la referencia del ancla. Vive en el top layer: no
+       depende del scroll, no lo recorta ningun ancestro y no necesita calculos
+       de geometria ni correccion por el transform de Lenis. */
+    .audit-filter-panel-wrap {
       anchor-name: --pdi-filtros;
     }
 

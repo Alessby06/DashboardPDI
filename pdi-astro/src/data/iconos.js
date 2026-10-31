@@ -95,9 +95,25 @@ export const ALIAS = {
   'trabajo.maletin': 'briefcase-01',
 };
 
+// ---------------------------------------------------------------------------
+//  Iconos propios (no vienen del set de Hugeicons)
+// ---------------------------------------------------------------------------
+//  El ojo de "ver" se sustituyó por la variante minimalista elegida en el
+//  comparador de diseño (párpado superior + pupila). Se declara aquí, junto al
+//  registro semántico, para no editar hugeicons.js, que es generado. La clave
+//  conserva el nombre `eye` para que todos los alias y usos existentes
+//  (tablas, login, expediente, dashboard, salud, social y voluntariados)
+//  apunten a la nueva forma sin tocar las vistas.
+const PERSONALIZADOS = {
+  eye: [
+    ["path", { d: "M2.5 12.3C4.9 8 8.3 5.8 12 5.8s7.1 2.2 9.5 6.5" }],
+    ["circle", { cx: "12", cy: "12.4", r: "2.4" }],
+  ],
+};
+
 // Un alias roto es un error de programación, no un icono vacío en pantalla.
 for (const [alias, clave] of Object.entries(ALIAS)) {
-  if (!ICONOS[clave]) {
+  if (!ICONOS[clave] && !PERSONALIZADOS[clave]) {
     throw new Error(`[iconos] El alias "${alias}" apunta a un icono inexistente: "${clave}"`);
   }
 }
@@ -167,7 +183,7 @@ export function iconBody(nombre) {
 
 function preparar(nombre, title) {
   const clave = ALIAS[nombre] || nombre;
-  const cuerpo = ICONOS[clave];
+  const cuerpo = PERSONALIZADOS[clave] || ICONOS[clave];
   if (!cuerpo) {
     throw new Error(`[iconos] Icono desconocido: "${nombre}". Añádelo a scripts/generar-hugeicons.mjs y regenera.`);
   }

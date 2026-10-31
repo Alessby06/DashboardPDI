@@ -367,10 +367,6 @@
       box-shadow: var(--shadow-sm);
     }
 
-    .btn-action-icon.btn-audit-export-icon:active {
-      transform: scale(0.95);
-    }
-
     /* Estilo para Facetas con conteo Cero (Deshabilitadas y en gris) */
 
     /* Barra Resumen Dinámica y Compacta de Auditoría */
@@ -604,10 +600,6 @@
         background: var(--surface-hover);
         border-color: var(--border-bright);
       }
-    }
-
-    .btn-action-sm:active {
-      transform: scale(0.96);
     }
 
     .btn-action-sm.primary {

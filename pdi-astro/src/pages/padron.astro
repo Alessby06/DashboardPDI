@@ -51,7 +51,7 @@ const OPCIONES_SEXO = [
             <div class="audit-toolbar" style="margin-bottom: 16px;">
               <!-- Buscador Rápido del Padrón (Lado Izquierdo) -->
               <div class="audit-search-wrap">
-                <Icon name="accion.buscar" size={2} class="audit-search-icon" />
+                <Icon name="accion.buscar" size={15} class="audit-search-icon" />
                 <input type="text" id="inputPadronSearch" class="audit-search-input"
                   placeholder="Buscar por Nombre, Apellidos, DNI o Código..."
                   oninput="window.filterPadronSearch ? window.filterPadronSearch(this.value) : null">
@@ -59,6 +59,43 @@ const OPCIONES_SEXO = [
                   onclick="window.clearPadronSearch ? window.clearPadronSearch() : null" title="Limpiar búsqueda">
                   <Icon name="accion.cerrar" size={12} />
                 </button>
+              </div>
+
+              <!-- Orden del padrón: apellido por defecto y fechas del registro -->
+              <div class="padron-sort-wrap">
+                <div class="custom-dropdown padron-sort-dropdown" id="dropdownPadronSort">
+                  <button type="button" class="btn-action padron-sort-btn"
+                    id="btnPadronSort" aria-haspopup="listbox" aria-expanded="false"
+                    aria-controls="menuPadronSort"
+                    onclick="window.togglePadronSortMenu ? window.togglePadronSortMenu() : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownPadronSort') : null)">
+                    <span class="padron-sort-prefix">Ordenar:</span>
+                    <span class="padron-sort-value" id="padronSortValue">Apellido (A-Z)</span>
+                    <Icon name="nav.desplegar" size={12} class="filter-caret" />
+                  </button>
+                  <div class="custom-dropdown-menu padron-sort-menu" id="menuPadronSort"
+                    role="listbox" aria-labelledby="btnPadronSort">
+                    <button type="button" role="option" aria-selected="true" data-sort-value="apellido-asc"
+                      onclick="window.sortPadronOpcion ? window.sortPadronOpcion('apellido-asc') : null">Apellido (A-Z)</button>
+                    <button type="button" role="option" aria-selected="false" data-sort-value="apellido-desc"
+                      onclick="window.sortPadronOpcion ? window.sortPadronOpcion('apellido-desc') : null">Apellido (Z-A)</button>
+                    <button type="button" role="option" aria-selected="false" data-sort-value="sede-asc"
+                      onclick="window.sortPadronOpcion ? window.sortPadronOpcion('sede-asc') : null">Sede (A-Z)</button>
+                    <button type="button" role="option" aria-selected="false" data-sort-value="edad-asc"
+                      onclick="window.sortPadronOpcion ? window.sortPadronOpcion('edad-asc') : null">Edad (menor a mayor)</button>
+                    <button type="button" role="option" aria-selected="false" data-sort-value="edad-desc"
+                      onclick="window.sortPadronOpcion ? window.sortPadronOpcion('edad-desc') : null">Edad (mayor a menor)</button>
+                    <button type="button" role="option" aria-selected="false" data-sort-value="estado-asc"
+                      onclick="window.sortPadronOpcion ? window.sortPadronOpcion('estado-asc') : null">Estado (activo primero)</button>
+                    <button type="button" role="option" aria-selected="false" data-sort-value="creado-desc"
+                      onclick="window.sortPadronOpcion ? window.sortPadronOpcion('creado-desc') : null">Creación (reciente)</button>
+                    <button type="button" role="option" aria-selected="false" data-sort-value="creado-asc"
+                      onclick="window.sortPadronOpcion ? window.sortPadronOpcion('creado-asc') : null">Creación (antigua)</button>
+                    <button type="button" role="option" aria-selected="false" data-sort-value="actualizado-desc"
+                      onclick="window.sortPadronOpcion ? window.sortPadronOpcion('actualizado-desc') : null">Modificación (reciente)</button>
+                    <button type="button" role="option" aria-selected="false" data-sort-value="actualizado-asc"
+                      onclick="window.sortPadronOpcion ? window.sortPadronOpcion('actualizado-asc') : null">Modificación (antigua)</button>
+                  </div>
+                </div>
               </div>
 
               <!-- Botón de Filtros y Panel Desplegable (Lado Derecho) -->
@@ -201,14 +238,13 @@ const OPCIONES_SEXO = [
               <table class="data-table" id="tablaBeneficiarios">
                 <thead>
                   <tr>
-                    <th>Código</th>
-                    <th>Nombres y Apellidos</th>
-                    <th style="text-align: center;">DNI / Doc</th>
-                    <th style="text-align: center;">Edad / Sexo</th>
-                    <th>Distrito / Sede</th>
+                    <th>Usuario(a) / DNI</th>
+                    <th>Sede y distrito</th>
                     <th>Estrategias</th>
-                    <th style="text-align: center;">Estado</th>
-                    <th style="text-align: center;">Acciones</th>
+                    <th>Edad / Contacto</th>
+                    <th>Apoderado / Tamizaje</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody id="tbodyBeneficiarios">

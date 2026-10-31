@@ -8,8 +8,7 @@ let iniciado = false;
 
 /**
  * Animaciones atadas al scroll. Se ejecutan después de ScrollManager.init().
- * Un solo eje: progreso de lectura, reveals de bloques principales y la
- * entrada de las marcas del triaje. Nada de animar cada tarjeta.
+ * Un solo eje: progreso de lectura y reveals de bloques principales.
  */
 export function initScrollAnimations() {
   if (iniciado) return;
@@ -50,19 +49,6 @@ export function initScrollAnimations() {
       scrollTrigger: { trigger: el, start: 'top 85%', once: true }
     });
   });
-
-  // La regla de Hb: las marcas de cada fila entran escalonadas una sola vez.
-  const marcas = gsap.utils.toArray('.triaje-mark');
-  if (marcas.length) {
-    gsap.from(marcas, {
-      scale: 0,
-      opacity: 0,
-      duration: 0.35,
-      stagger: 0.025,
-      ease: 'back.out(1.6)',
-      scrollTrigger: { trigger: '.triaje', start: 'top 80%', once: true }
-    });
-  }
 
   // El login no tiene layout de panel: su scroll es el de la ventana y la
   // columna del showcase se mueve más despacio que el formulario.

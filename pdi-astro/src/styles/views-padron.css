@@ -863,73 +863,28 @@
 
 #tablaBeneficiarios {
   width: 100%;
-  min-width: 1120px;
+  min-width: 0;
   table-layout: fixed;
   border-collapse: separate;
   border-spacing: 0;
 }
 
+/* La tabla hereda de `.data-table` el padding, el borde y el hover. La única
+   excepción local es permitir que los encabezados largos partan en dos líneas
+   dentro de las siete columnas. */
 #tablaBeneficiarios thead th {
-  padding: 11px 14px;
-  font-size: 11.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
-  border-bottom: 1px solid var(--border-subtle);
-  background: var(--surface-2);
-  white-space: nowrap;
-}
-
-/* Anchos calibrados para que todos los datos se muestren íntegros y la columna de acciones tenga holgura */
-#tablaBeneficiarios thead th:nth-child(1) { width: 11%; min-width: 120px; text-align: left; }
-#tablaBeneficiarios thead th:nth-child(2) { width: 19%; min-width: 180px; text-align: left; }
-#tablaBeneficiarios thead th:nth-child(3) { width: 9%;  min-width: 90px;  text-align: center; }
-#tablaBeneficiarios thead th:nth-child(4) { width: 10%; min-width: 95px;  text-align: center; }
-#tablaBeneficiarios thead th:nth-child(5) { width: 16%; min-width: 150px; text-align: left; }
-#tablaBeneficiarios thead th:nth-child(6) { width: 18%; min-width: 175px; text-align: left; }
-#tablaBeneficiarios thead th:nth-child(7) { width: 7%;  min-width: 70px;  text-align: center; }
-#tablaBeneficiarios thead th:nth-child(8) { width: 10%; min-width: 115px; text-align: center; }
-
-#tablaBeneficiarios tbody td {
-  padding: 11px 14px;
-  border-bottom: 1px solid var(--border-subtle);
-  vertical-align: middle;
-}
-
-#tablaBeneficiarios tbody td:nth-child(1) {
-  white-space: nowrap;
-}
-
-#tablaBeneficiarios tbody td:nth-child(2) {
-  white-space: normal;
-  line-height: 1.35;
-}
-
-#tablaBeneficiarios tbody td:nth-child(3) {
-  text-align: center;
-  white-space: nowrap;
-}
-
-#tablaBeneficiarios tbody td:nth-child(4) {
-  text-align: center;
-  white-space: nowrap;
-}
-
-#tablaBeneficiarios tbody td:nth-child(5) {
-  white-space: normal;
-  line-height: 1.35;
-}
-
-#tablaBeneficiarios tbody td:nth-child(6) {
-  overflow: visible;
   white-space: normal;
 }
 
-#tablaBeneficiarios tbody td:nth-child(7) {
-  text-align: center;
-  white-space: nowrap;
-}
+/* Anchos para las 7 columnas actuales. La suma da 100 %; Estado y Acciones
+   conservan holgura para «Inactivo» y para el botón de la fila. */
+#tablaBeneficiarios thead th:nth-child(1) { width: 22%; text-align: left; }
+#tablaBeneficiarios thead th:nth-child(2) { width: 15%; text-align: left; }
+#tablaBeneficiarios thead th:nth-child(3) { width: 17%; text-align: left; }
+#tablaBeneficiarios thead th:nth-child(4) { width: 11%; text-align: left; }
+#tablaBeneficiarios thead th:nth-child(5) { width: 17%; text-align: left; }
+#tablaBeneficiarios thead th:nth-child(6) { width: 9%;  text-align: left; }
+#tablaBeneficiarios thead th:nth-child(7) { width: 9%;  text-align: center; }
 
 #tablaBeneficiarios tbody td:last-child {
   overflow: visible;
@@ -937,12 +892,168 @@
   white-space: nowrap;
 }
 
-#tablaBeneficiarios tbody tr {
-  transition: background-color var(--dur-fast) var(--ease-smooth);
+/* Selector de orden propio: mismo lenguaje que el botón de filtros, pero
+   como control secundario (sin el verde de acción). */
+.padron-sort-wrap {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
-#tablaBeneficiarios tbody tr:hover {
-  background-color: var(--surface-hover);
+.padron-sort-dropdown {
+  position: relative;
+}
+
+.padron-sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-2);
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease-smooth),
+    border-color var(--dur-fast) var(--ease-smooth);
+}
+
+.padron-sort-btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--text-dim);
+}
+
+.padron-sort-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--brand-primary);
+}
+
+/* El foco programático con puntero (cerrar el menú) no pinta anillo. */
+.padron-sort-btn:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+.padron-sort-prefix {
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.padron-sort-value {
+  max-width: 190px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.padron-sort-btn .filter-caret {
+  flex-shrink: 0;
+  transition: transform var(--dur-popover) var(--ease-out);
+}
+
+.padron-sort-dropdown.open .filter-caret {
+  transform: rotate(180deg);
+}
+
+.padron-sort-menu {
+  min-width: 240px;
+  padding: 6px;
+  gap: 2px;
+  flex-direction: column;
+  opacity: 0;
+  transform: translateY(-6px);
+  will-change: auto;
+  transition:
+    opacity var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out),
+    display var(--dur-fast) allow-discrete;
+}
+
+/* Misma entrada que el panel de filtros: aparece bajando 6 px desde el
+   disparador, con la curva y la duración del sistema. */
+.padron-sort-wrap .padron-sort-dropdown.open .padron-sort-menu {
+  display: flex;
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity var(--dur-norm) var(--ease-out),
+    transform var(--dur-norm) var(--ease-out),
+    display var(--dur-norm) allow-discrete;
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+.padron-sort-menu [role="option"] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  min-height: 36px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-main);
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.padron-sort-menu [role="option"]:hover {
+  background: var(--surface-hover);
+}
+
+.padron-sort-menu [role="option"][aria-selected="true"] {
+  background: var(--brand-soft);
+  color: var(--text-brand);
+  font-weight: 600;
+}
+
+.padron-sort-menu [role="option"]:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--brand-primary);
+}
+
+@media (max-width: 768px) {
+  #cardPadronBeneficiarios .audit-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .padron-sort-wrap {
+    width: 100%;
+  }
+
+  .padron-sort-dropdown {
+    width: 100%;
+  }
+
+  .padron-sort-btn {
+    width: 100%;
+    height: 44px;
+    justify-content: space-between;
+  }
+
+  .padron-sort-value {
+    flex: 1;
+    max-width: none;
+    text-align: left;
+  }
+
+  .padron-sort-menu {
+    min-width: 0;
+    width: 100%;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
 }
 
 /* Animación de entrada suave sin translateY para filas de tabla */
@@ -1032,3 +1143,223 @@
     height: 14px !important;
   }
 }
+
+/* Los textos largos se recortan con elipsis dentro de su columna. */
+#cardPadronBeneficiarios .padron-user-name,
+#cardPadronBeneficiarios .padron-location-title,
+#cardPadronBeneficiarios .padron-location-sub,
+#cardPadronBeneficiarios .padron-role-text,
+#cardPadronBeneficiarios .padron-contact-phone,
+#cardPadronBeneficiarios .padron-contact-sub,
+#cardPadronBeneficiarios .padron-metric-item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#tablaBeneficiarios .padron-user-info {
+  min-width: 0;
+}
+
+#tablaBeneficiarios .padron-user-meta {
+  min-width: 0;
+  overflow: hidden;
+}
+
+#tablaBeneficiarios .padron-service-indicator {
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* ===========================================================================
+   TABLA DEL PADRÓN · formato de usuario en dos líneas (estilo Voluntariados)
+   Avatar con iniciales + nombre + código en verde; sede/distrito, estrategia,
+   contacto, tamizajes/apoderado y estado con el mismo lenguaje visual.
+   =========================================================================== */
+#tablaBeneficiarios .padron-user-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+#tablaBeneficiarios .padron-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: -0.01em;
+  flex-shrink: 0;
+  border: 1px solid transparent;
+}
+
+#tablaBeneficiarios .padron-avatar.serv-desayuno {
+  background: rgba(var(--brand-rgb), 0.12);
+  color: var(--gt-green);
+  border-color: rgba(var(--brand-rgb), 0.25);
+}
+
+#tablaBeneficiarios .padron-avatar.serv-casita {
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--gt-yellow);
+  border-color: rgba(245, 158, 11, 0.25);
+}
+
+#tablaBeneficiarios .padron-avatar.serv-pastoral,
+#tablaBeneficiarios .padron-avatar.serv-biblioteca {
+  background: rgba(2, 132, 199, 0.12);
+  color: var(--gt-blue);
+  border-color: rgba(2, 132, 199, 0.25);
+}
+
+#tablaBeneficiarios .padron-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+#tablaBeneficiarios .padron-user-name {
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--text-main);
+  line-height: 1.25;
+}
+
+#tablaBeneficiarios .padron-user-meta {
+  font-size: 11.5px;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono-font);
+}
+
+#tablaBeneficiarios .padron-code {
+  color: var(--text-brand);
+}
+
+#tablaBeneficiarios .padron-meta-sep {
+  opacity: 0.4;
+}
+
+#tablaBeneficiarios .padron-location-title {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-main);
+  line-height: 1.25;
+}
+
+#tablaBeneficiarios .padron-location-sub {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+#tablaBeneficiarios .padron-service-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+}
+
+#tablaBeneficiarios .padron-service-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--text-main);
+  line-height: 1.25;
+}
+
+#tablaBeneficiarios .padron-service-indicator strong {
+  font-weight: 600;
+}
+
+#tablaBeneficiarios .padron-service-indicator.serv-desayuno strong { color: var(--gt-green); }
+#tablaBeneficiarios .padron-service-indicator.serv-casita strong { color: var(--gt-yellow); }
+#tablaBeneficiarios .padron-service-indicator.serv-pastoral strong,
+#tablaBeneficiarios .padron-service-indicator.serv-biblioteca strong { color: var(--gt-blue); }
+
+#tablaBeneficiarios .padron-role-text {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+
+#tablaBeneficiarios .padron-contact-phone {
+  font-size: 13px;
+  color: var(--text-main);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+#tablaBeneficiarios .padron-contact-sub {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+#tablaBeneficiarios .padron-rewards-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+}
+
+#tablaBeneficiarios .padron-metric-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-main);
+  font-variant-numeric: tabular-nums;
+}
+
+#tablaBeneficiarios .padron-metric-item svg {
+  color: var(--gt-green);
+  flex-shrink: 0;
+}
+
+#tablaBeneficiarios .padron-metric-item.padron-metric-sub {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+#tablaBeneficiarios .padron-metric-item.padron-metric-sub svg {
+  color: var(--gt-blue);
+}
+
+#tablaBeneficiarios .padron-status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+#tablaBeneficiarios .padron-status-tag.is-active { color: var(--text-main); }
+#tablaBeneficiarios .padron-status-tag.is-paused { color: var(--text-main); }
+
+#tablaBeneficiarios .padron-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+#tablaBeneficiarios .dot-green { background-color: var(--gt-green); }
+#tablaBeneficiarios .dot-amber { background-color: var(--gt-yellow); box-shadow: 0 0 0 2px var(--gt-yellow-bg); }
+#tablaBeneficiarios .dot-blue { background-color: var(--gt-blue); box-shadow: 0 0 0 2px var(--gt-blue-bg); }
+#tablaBeneficiarios .dot-gray { background-color: var(--text-dim); opacity: 0.6; }
+
+/* Filas uniformes como el resto de tablas; el hover lo aporta `.data-table`. */

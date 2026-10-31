@@ -71,10 +71,6 @@
         background: rgba(255, 255, 255, 0.04);
       }
 
-      .stage-seg-btn:active {
-        transform: scale(0.97);
-      }
-
       .stage-seg-btn.active {
         background: var(--surface-1);
         border-color: var(--border-subtle);

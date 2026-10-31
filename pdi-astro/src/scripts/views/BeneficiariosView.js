@@ -39,6 +39,10 @@ export const BeneficiariosView = {
   _allBeneficiarios: [],
   _filteredBeneficiarios: [],
   _currentPage: 1,
+  _sortKey: 'apellido',
+  _sortDir: 'asc',
+  _menuOrdenEnlazado: false,
+  _menuOrdenPorTeclado: false,
   _pageSize: 20,
   _searchQuery: "",
   _filterEstrategia: [], // array de estrategias seleccionadas (vacío = todas)
@@ -180,6 +184,7 @@ export const BeneficiariosView = {
     this._leerFiltrosDeURL();
     this._pageSize = this._getEffectivePageSize();
     this._syncPageSizeSelectUI();
+    this._enlazarMenuOrden();
     this.applyFilters(false);
   },
 
@@ -194,6 +199,7 @@ export const BeneficiariosView = {
 
     this._leerFiltrosDeURL();
     this._pageSize = this._getEffectivePageSize();
+    this._enlazarMenuOrden();
     if (beneficiarios) {
       this._allBeneficiarios = beneficiarios;
     }
@@ -677,6 +683,148 @@ export const BeneficiariosView = {
     });
   },
 
+  /**
+   * Ordena la lista filtrada. Mantiene un orden estable: ante empate vuelve
+   * al apellido y al nombre, que es el orden natural de un padrón.
+   */
+  _ordenarLista(lista) {
+    const key = this._sortKey || 'apellido';
+    const dir = this._sortDir === 'desc' ? -1 : 1;
+    const pesoEstado = { Activo: 0, 'En Pausa': 1, Inactivo: 2, Retirado: 3, Graduado: 4, Trasladado: 5 };
+    const porNombre = (a, b) => `${a.apellidos || ''} ${a.nombres || ''}`.localeCompare(`${b.apellidos || ''} ${b.nombres || ''}`, 'es');
+    return [...lista].sort((a, b) => {
+      let cmp = 0;
+      if (key === 'sede') {
+        cmp = `${a.sede || ''} ${a.apellidos || ''}`.localeCompare(`${b.sede || ''} ${b.apellidos || ''}`, 'es');
+      } else if (key === 'edad') {
+        const va = parseInt(a.edad, 10);
+        const vb = parseInt(b.edad, 10);
+        cmp = (isNaN(va) ? 999 : va) - (isNaN(vb) ? 999 : vb);
+      } else if (key === 'estado') {
+        cmp = (pesoEstado[a.estado] ?? 99) - (pesoEstado[b.estado] ?? 99);
+      } else if (key === 'creado') {
+        cmp = String(a.creadoEl || '').localeCompare(String(b.creadoEl || ''));
+      } else if (key === 'actualizado') {
+        cmp = String(a.actualizadoEl || '').localeCompare(String(b.actualizadoEl || ''));
+      } else {
+        cmp = porNombre(a, b);
+      }
+      if (cmp === 0) cmp = porNombre(a, b);
+      return cmp * dir;
+    });
+  },
+
+  /** Cambia el orden desde el desplegable del padrón. */
+  sortPadron(valor) {
+    const [key, dir] = String(valor || '').split('-');
+    if (!key) return;
+    this._sortKey = key;
+    this._sortDir = dir === 'desc' ? 'desc' : 'asc';
+    this._sincronizarOrden();
+    this.applyFilters();
+  },
+
+  /** Refleja el orden activo en el desplegable y en su etiqueta. */
+  _sincronizarOrden() {
+    const valor = `${this._sortKey}-${this._sortDir}`;
+    const menu = document.getElementById('menuPadronSort');
+    const opciones = menu ? [...menu.querySelectorAll('[role="option"]')] : [];
+    let etiqueta = '';
+    opciones.forEach(opcion => {
+      const activo = opcion.dataset.sortValue === valor;
+      opcion.setAttribute('aria-selected', activo ? 'true' : 'false');
+      if (activo) etiqueta = opcion.textContent.trim();
+    });
+    const val = document.getElementById('padronSortValue');
+    if (val && etiqueta) val.textContent = etiqueta;
+  },
+
+  /** Enlaza el botón y el menú de orden una sola vez por carga. */
+  _enlazarMenuOrden() {
+    if (this._menuOrdenEnlazado) return;
+    const btn = document.getElementById('btnPadronSort');
+    const menu = document.getElementById('menuPadronSort');
+    if (!btn || !menu) return;
+    this._menuOrdenEnlazado = true;
+
+    btn.addEventListener('keydown', (evento) => {
+      if (evento.key === 'ArrowDown' || evento.key === 'Enter' || evento.key === ' ') {
+        evento.preventDefault();
+        this.abrirMenuOrden(true);
+      }
+    });
+
+    menu.addEventListener('keydown', (evento) => this._tecladoMenuOrden(evento));
+
+    // El cierre por clic fuera lo resuelve el escuchador global; este sincroniza
+    // el aria-expanded cuando el menú ya se cerró.
+    document.addEventListener('click', (evento) => {
+      const dd = document.getElementById('dropdownPadronSort');
+      if (!dd || dd.contains(evento.target)) return;
+      btn.setAttribute('aria-expanded', dd.classList.contains('open') ? 'true' : 'false');
+    });
+  },
+
+  /** Abre o cierra el menú de orden y lleva el foco a la opción activa. */
+  abrirMenuOrden(porTeclado = false) {
+    const dd = document.getElementById('dropdownPadronSort');
+    const btn = document.getElementById('btnPadronSort');
+    if (!dd || !btn) return;
+    this._menuOrdenPorTeclado = Boolean(porTeclado);
+    const abrir = !dd.classList.contains('open');
+    window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownPadronSort') : dd.classList.toggle('open', abrir);
+    btn.setAttribute('aria-expanded', abrir ? 'true' : 'false');
+    if (abrir) {
+      const opciones = [...dd.querySelectorAll('[role="option"]')];
+      const activa = opciones.find(o => o.getAttribute('aria-selected') === 'true') || opciones[0];
+      activa?.focus();
+    }
+  },
+
+  /** Cierra el menú. Con teclado devuelve el foco; con ratón no deja el anillo. */
+  cerrarMenuOrden() {
+    const dd = document.getElementById('dropdownPadronSort');
+    const btn = document.getElementById('btnPadronSort');
+    if (!dd) return;
+    if (dd.classList.contains('open')) {
+      window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownPadronSort') : dd.classList.remove('open');
+    }
+    btn?.setAttribute('aria-expanded', 'false');
+    if (this._menuOrdenPorTeclado) btn?.focus();
+    else btn?.blur();
+  },
+
+  /** Selecciona una opción del menú, aplica el orden y cierra. */
+  sortPadronOpcion(valor) {
+    if (!valor) return;
+    this.sortPadron(valor);
+    this.cerrarMenuOrden();
+  },
+
+  /** Navegación por teclado dentro del menú. */
+  _tecladoMenuOrden(evento) {
+    this._menuOrdenPorTeclado = true;
+    const opciones = [...document.querySelectorAll('#menuPadronSort [role="option"]')];
+    if (!opciones.length) return;
+    const idx = opciones.indexOf(document.activeElement);
+    if (evento.key === 'ArrowDown') {
+      evento.preventDefault();
+      opciones[Math.min(idx + 1, opciones.length - 1)]?.focus();
+    } else if (evento.key === 'ArrowUp') {
+      evento.preventDefault();
+      opciones[Math.max(idx - 1, 0)]?.focus();
+    } else if (evento.key === 'Home') {
+      evento.preventDefault();
+      opciones[0]?.focus();
+    } else if (evento.key === 'End') {
+      evento.preventDefault();
+      opciones[opciones.length - 1]?.focus();
+    } else if (evento.key === 'Escape') {
+      evento.preventDefault();
+      this.cerrarMenuOrden();
+    }
+  },
+
   applyFilters(resetPage = true, animar = false) {
     if (resetPage) {
       this._currentPage = 1;
@@ -732,7 +880,7 @@ export const BeneficiariosView = {
       list = list.filter(b => (b.sexo || "").toUpperCase() === this._filterSexo.toUpperCase());
     }
 
-    this._filteredBeneficiarios = list;
+    this._filteredBeneficiarios = this._ordenarLista(list);
 
     // Actualizar badge de filtros activos
     // El badge sale del store: facetas multiples suman una por opcion y las
@@ -766,6 +914,7 @@ export const BeneficiariosView = {
 
     this._renderPagination(this._filteredBeneficiarios.length);
     this._renderCurrentPage(animar);
+    this._sincronizarOrden();
   },
 
   _renderCurrentPage(animar = false) {
@@ -1041,26 +1190,73 @@ export const BeneficiariosView = {
       if (beneficiarios.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="8" style="text-align: center; padding: 32px 16px; color: var(--text-dim);">
+            <td colspan="7" style="text-align: center; padding: 32px 16px; color: var(--text-dim);">
               ${iconHtml("persona.grupo", { size: 36, style: "margin:0 auto 8px; display:block; opacity:0.6;" })}
               No se encontraron usuarios con los filtros seleccionados.
             </td>
           </tr>
         `;
       } else {
-        tbody.innerHTML = beneficiarios.map(b => `
+        tbody.innerHTML = beneficiarios.map(b => {
+          const estrategiaPrincipal = (Array.isArray(b.estrategias) && b.estrategias[0]) || b.estrategia || '';
+          const esCasita = /casita/i.test(estrategiaPrincipal);
+          const esPastoral = /pastoral|social|asp/i.test(estrategiaPrincipal);
+          const esBiblioteca = /biblioteca/i.test(estrategiaPrincipal);
+          const servColorClass = esCasita ? 'serv-casita'
+            : esPastoral ? 'serv-pastoral'
+              : esBiblioteca ? 'serv-biblioteca'
+                : 'serv-desayuno';
+
+          const iniciales = `${(b.nombres || '').charAt(0)}${(b.apellidos || '').charAt(0)}`.toUpperCase() || '?';
+          const telefono = b.telefono ? String(b.telefono).replace(/-/g, ' ') : 'Sin teléfono';
+          const edadTxt = b.edad || 'Edad no reg.';
+          const nTam = Array.isArray(b.tamizajes) ? b.tamizajes.length : 0;
+          const apoderadoTxt = b.apoderado || 'Sin apoderado';
+          const parentescoTxt = b.parentesco || '';
+          const estadoClase = b.estado === 'Activo' ? 'is-active' : 'is-paused';
+          const estadoDot = b.estado === 'Activo' ? 'dot-green' : 'dot-gray';
+
+          return `
           <tr>
-            <td title="${escapar(b.codigo)}"><strong style="font-family:var(--mono-font); color:var(--text-brand);">${escapar(b.codigo)}</strong></td>
-            <td><strong>${escapar(b.nombres)} ${escapar(b.apellidos)}</strong></td>
-            <td style="text-align: center;">${escapar(b.dni)}</td>
-            <td style="text-align: center;">${escapar(b.edad)} / ${escapar(b.sexo)}</td>
-            <td>${escapar(b.distrito)}: ${escapar(b.sede)}</td>
+            <td>
+              <div class="padron-user-cell">
+                <div class="padron-avatar ${servColorClass}" aria-hidden="true">${escapar(iniciales)}</div>
+                <div class="padron-user-info">
+                  <div class="padron-user-name" title="${escapar(`${b.nombres} ${b.apellidos}`)}">${escapar(b.nombres)} ${escapar(b.apellidos)}</div>
+                  <div class="padron-user-meta">
+                    <span class="padron-code">${escapar(b.codigo)}</span>
+                    <span class="padron-meta-sep">&bull;</span>
+                    <span>DNI ${escapar(b.dni || '—')}</span>
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="padron-location-title">${escapar(b.sede || 'Sin sede')}</div>
+              <div class="padron-location-sub">${escapar(b.distrito || '—')} &bull; ${escapar(b.modalidad || '—')}</div>
+            </td>
             <td>
               <div class="servicios-badge-group">
                 ${this._getEstrategiasBadgesHtml(b.estrategias)}
               </div>
             </td>
-            <td style="text-align: center;"><span class="badge ${b.estado === 'Activo' ? 'badge-green' : 'badge-yellow'}">${escapar(b.estado)}</span></td>
+            <td>
+              <div class="padron-contact-phone">${escapar(edadTxt)}</div>
+              <div class="padron-contact-sub">${escapar(telefono)}</div>
+            </td>
+            <td>
+              <div class="padron-user-name" title="Apoderado">${escapar(apoderadoTxt)}</div>
+              <div class="padron-metric-item padron-metric-sub">
+                ${parentescoTxt ? `<span>${escapar(parentescoTxt)}</span><span class="padron-meta-sep">&bull;</span>` : ''}
+                <span>${nTam > 0 ? 'Con tamizaje' : 'Sin tamizaje'}</span>
+              </div>
+            </td>
+            <td>
+              <div class="padron-status-tag ${estadoClase}">
+                <span class="padron-dot ${estadoDot}"></span>
+                <span>${escapar(b.estado || '—')}</span>
+              </div>
+            </td>
             <td>
               <div class="row-actions">
                 <a href="/expediente?id=${encodeURIComponent(b.id)}" class="row-action" data-astro-prefetch title="Ver expediente" aria-label="Ver expediente">
@@ -1069,7 +1265,8 @@ export const BeneficiariosView = {
               </div>
             </td>
           </tr>
-        `).join("");
+        `;
+        }).join("");
       }
     }
 
@@ -1166,6 +1363,9 @@ if (typeof window !== "undefined") {
   window.padronPrevPage = () => BeneficiariosView.prevPage();
   window.padronNextPage = () => BeneficiariosView.nextPage();
   window.selectPadronSexo = (sexo) => BeneficiariosView.selectSexo(sexo);
+  window.sortPadron = (valor) => BeneficiariosView.sortPadron(valor);
+  window.togglePadronSortMenu = () => BeneficiariosView.abrirMenuOrden();
+  window.sortPadronOpcion = (valor) => BeneficiariosView.sortPadronOpcion(valor);
 
   window.addEventListener("resize", () => {
     BeneficiariosView._syncPageSizeSelectUI();

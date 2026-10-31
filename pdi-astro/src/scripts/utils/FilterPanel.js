@@ -334,13 +334,15 @@ function seguirAlBoton(panel) {
   const boton = panel.querySelector('.audit-filter-btn');
   if (!menu || !boton) return;
 
-  const r = boton.getBoundingClientRect();
+  // El boton se comprime en :active; el ancla es el wrapper (caja estable).
+  const ancla = panel.closest('.audit-filter-panel-wrap') || boton;
+  const r = ancla.getBoundingClientRect();
   if (r.bottom < 0 || r.top > window.innerHeight) {
     window.closeAllFilterSheets?.();
     return;
   }
 
-  const { usarArriba } = decidirDireccion(boton);
+  const { usarArriba } = decidirDireccion(ancla);
   menu.classList.toggle('is-above', usarArriba);
   menu.style.left = 'auto';
   menu.style.right = `${Math.round(window.innerWidth - r.right)}px`;
@@ -401,8 +403,9 @@ function posicionarPanel(panel) {
   const boton = panel.querySelector('.audit-filter-btn');
   if (!boton) return;
 
-  const r = boton.getBoundingClientRect();
-  const { usarArriba, disponible } = decidirDireccion(boton);
+  const ancla = panel.closest('.audit-filter-panel-wrap') || boton;
+  const r = ancla.getBoundingClientRect();
+  const { usarArriba, disponible } = decidirDireccion(ancla);
   menu.classList.toggle('is-above', usarArriba);
   // La altura se recorta al hueco real del lado elegido; el resto se desplaza
   // dentro del panel. Nunca se deja la vista con un cuerpo de 0 px.

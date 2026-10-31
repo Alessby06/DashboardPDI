@@ -801,6 +801,8 @@ function mapearBeneficiarios(personasRes, sedes) {
       _sedeRawId: sedeObj ? sedeObj._rawId : '',
       id: idNum,
       codigo: m.codigo || '',
+      creadoEl: isoFecha(m.creado_el),
+      actualizadoEl: isoFecha(m.actualizado_el),
       nombres: m.nombres || '',
       apellidos: m.apellidos || '',
       dni: m.numero_documento || '',
@@ -1352,8 +1354,20 @@ export async function desactivarTamizaje(tamId) {
   try {
     const tid = claveRegistro(tamId);
     if (!tid) return false;
-    await ejecutar(`UPDATE tamizaje_hemoglobina SET activo = false
-      WHERE id = type::record('tamizaje_hemoglobina', $tid);`, { tid });
+    const res = await ejecutar(
+      `UPDATE tamizaje_hemoglobina SET activo = false
+       WHERE id = type::record('tamizaje_hemoglobina', $tid)
+       RETURN AFTER;`,
+      { tid },
+    );
+    // El UPDATE no lanza error si no coincide ninguna fila: SurrealDB responde
+    // con una lista vacía y el registro queda activo en la nube. Sin esta
+    // comprobación, la vista creía que la desactivación había triunfado y la
+    // prueba "resucitaba" al recargar la página.
+    if (!comoLista(res).length) {
+      avisarFallo('Desactivación de tamizaje', 'No se encontró la prueba en la base de datos. Recargue la página e intente de nuevo.');
+      return false;
+    }
     return true;
   } catch (err) {
     return avisarFallo('Desactivación de tamizaje', err) !== null;

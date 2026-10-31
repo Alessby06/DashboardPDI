@@ -1,0 +1,202 @@
+/* ===========================================================================
+   SELECTS MEJORADOS
+   ===========================================================================
+   El <select> nativo queda oculto pero vivo (formularios, id, value, required).
+   El disparador hereda las clases y el estilo en linea del select original,
+   asi que conserva la geometria de cada formulario.
+   =========================================================================== */
+
+.pdi-select {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+.pdi-select--full {
+  display: block;
+  width: 100%;
+}
+
+.pdi-select-native {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Especificidad cero: cualquier clase del select (.form-control, etc.) o su
+   estilo en linea manda sobre este fallback. */
+:where(.pdi-select-trigger) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 36px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+}
+
+.pdi-select-trigger {
+  padding-right: 32px;
+  position: relative;
+  transition:
+    border-color var(--dur-fast) var(--ease-smooth),
+    background-color var(--dur-fast) var(--ease-smooth),
+    box-shadow var(--dur-fast) var(--ease-smooth);
+}
+
+.pdi-select-trigger:hover:not(:disabled) {
+  border-color: var(--border-bright, var(--text-dim));
+}
+
+.pdi-select-trigger:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--brand-primary);
+}
+
+.pdi-select-trigger:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.pdi-select-value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pdi-select-caret {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  display: inline-flex;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+  transition: transform var(--dur-popover) var(--ease-out);
+}
+
+.pdi-select.is-open .pdi-select-caret {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.pdi-select.is-invalid .pdi-select-trigger {
+  border-color: var(--status-danger);
+}
+
+/* Menu: misma entrada que el panel de filtros (fundido + 6 px). Vive en
+   <body> con position:fixed para que ningún modal con overflow lo recorte. */
+.pdi-select-menu {
+  position: fixed;
+  z-index: 1200;
+  max-height: min(320px, 60vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 6px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-1);
+  box-shadow: var(--shadow-overlay);
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition:
+    opacity var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out),
+    display var(--dur-fast) allow-discrete;
+}
+
+.pdi-select-menu.is-open {
+  display: flex;
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity var(--dur-norm) var(--ease-out),
+    transform var(--dur-norm) var(--ease-out),
+    display var(--dur-norm) allow-discrete;
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+/* Si no hay espacio debajo, el menu abre hacia arriba. */
+.pdi-select-menu--up {
+  transform: translateY(6px);
+}
+
+.pdi-select-menu--up.is-open {
+  transform: translateY(0);
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.pdi-select-option {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-main);
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pdi-select-option:hover:not(:disabled) {
+  background: var(--surface-hover);
+}
+
+.pdi-select-option[aria-selected="true"] {
+  background: var(--brand-soft);
+  color: var(--text-brand);
+  font-weight: 600;
+}
+
+.pdi-select-option:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--brand-primary);
+}
+
+.pdi-select-option:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .pdi-select-trigger {
+    min-height: 44px;
+  }
+
+  .pdi-select-menu {
+    max-height: 60vh;
+  }
+}
