@@ -4,6 +4,7 @@ import { crearStore } from '../utils/FilterStore.js';
 import { Responsive } from '../utils/Responsive.js';
 
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
+import { marcarError } from "../utils/FieldError.js";
 import { AnemiaCalculator } from "../utils/AnemiaCalculator.js";
 import { ToastView } from "./ToastView.js";
 import { AuditModel } from "../models/AuditModel.js";
@@ -974,29 +975,29 @@ export const SaludCredView = {
     const tallaRaw = (valorDe("nuevaPruebaTalla") || {}).value || "";
     const hbVal = parseFloat((valorDe("nuevaPruebaHb") || {}).value);
 
-    const aviso = (titulo, msg) => {
-      (window.PDI?.ToastView || ToastView).show(titulo, msg, "danger");
+    const aviso = (campo, msg) => {
+      marcarError(campo, msg);
     };
 
-    if (!fechaStr) return aviso("Falta la fecha", "Indica la fecha en que se tomó el dosaje.");
+    if (!fechaStr) return aviso("nuevaPruebaFecha", "Indica la fecha en que se tomó el dosaje.");
     // Comparación por día local: el <input type="date"> entrega YYYY-MM-DD y
     // comparar contra el final del día rechazaba el día de hoy hasta las 23:59.
     const hoy = new Date();
     const hoyStr = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}-${String(hoy.getDate()).padStart(2, "0")}`;
-    if (fechaStr > hoyStr) return aviso("Fecha futura", "El dosaje se registra con fecha igual o anterior a hoy.");
+    if (fechaStr > hoyStr) return aviso("nuevaPruebaFecha", "El dosaje se registra con fecha igual o anterior a hoy.");
     if (Array.isArray(b.tamizajes) && b.tamizajes.some(t => String(t.fecha || "").slice(0, 10) === fechaStr)) {
-      return aviso("Fecha duplicada", "Ya existe una prueba registrada para ese día; completa el formulario con otra fecha.");
+      return aviso("nuevaPruebaFecha", "Ya existe una prueba registrada para ese día; completa el formulario con otra fecha.");
     }
     if (isNaN(hbVal) || hbVal < 3 || hbVal > 20) {
-      return aviso("Hemoglobina fuera de rango", "El valor debe estar entre 3.0 y 20.0 g/dL (rango clínicamente plausible).");
+      return aviso("nuevaPruebaHb", "El valor debe estar entre 3.0 y 20.0 g/dL (rango clínicamente plausible).");
     }
     const pesoVal = parseFloat(pesoRaw);
     if (pesoRaw !== "" && (isNaN(pesoVal) || pesoVal <= 0 || pesoVal > 60)) {
-      return aviso("Peso inválido", "Si se registra el peso, debe estar entre 0.1 y 60 kg.");
+      return aviso("nuevaPruebaPeso", "Si se registra el peso, debe estar entre 0.1 y 60 kg.");
     }
     const tallaVal = parseFloat(tallaRaw);
     if (tallaRaw !== "" && (isNaN(tallaVal) || tallaVal <= 0 || tallaVal > 180)) {
-      return aviso("Talla inválida", "Si se registra la talla, debe estar entre 0.1 y 180 cm.");
+      return aviso("nuevaPruebaTalla", "Si se registra la talla, debe estar entre 0.1 y 180 cm.");
     }
 
     const calc = AnemiaCalculator.calculate(hbVal);
@@ -1053,11 +1054,7 @@ export const SaludCredView = {
         "Válido"
       );
     }
-    (window.PDI?.ToastView || ToastView).show(
-      "Prueba Registrada",
-      `Dosaje de ${b.nombres} ${b.apellidos}: ${prueba.hb} g/dL (${calc.label}).`,
-      "success"
-    );
+
 
     // La nube confirma la escritura y realinea ids y fechas canonicas.
     try {
@@ -1105,8 +1102,7 @@ export const SaludCredView = {
 
     const motivo = ((document.getElementById(`tamDesactMotivo_${idx}`) || {}).value || "").trim();
     if (motivo.length < 4) {
-      (window.PDI?.ToastView || ToastView).show(
-        "Falta el motivo", "Describe por qué se desactiva la prueba (mínimo 4 caracteres).", "danger");
+      marcarError(`tamDesactMotivo_${idx}`, "Describe por qué se desactiva la prueba (mínimo 4 caracteres).");
       return;
     }
 
@@ -1218,11 +1214,7 @@ export const SaludCredView = {
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 400);
 
-    (window.PDI?.ToastView || ToastView).show(
-      "Historial Exportado",
-      `${filas.length - 1} prueba(s) de ${b.nombres} ${b.apellidos} en archivo CSV.`,
-      "success"
-    );
+
   },
 
   /**

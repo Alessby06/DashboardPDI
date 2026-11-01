@@ -12,6 +12,7 @@ import { SEDES_OPERATIVAS } from '../../data/opcionesBeneficiario.js';
 import { distritoDeSede, resumenAlergias } from '../core/catalogos.js';
 
 import { escapar } from "../utils/HtmlHelper.js";;
+import { marcarError } from "../utils/FieldError.js";
 export const BeneficiarioController = {
   signatureCanvasHelper: null,
   tempFotoUsuario: null,
@@ -131,7 +132,7 @@ export const BeneficiarioController = {
         }
 
         if (indicator) indicator.style.display = 'none';
-        if (toast) toast.show("Coordenadas GPS Obtenidas", `Ubicación satelital fijada: ${lat.toFixed(5)}, ${lng.toFixed(5)}`, "success");
+
       },
       (error) => {
         if (indicator) indicator.style.display = 'none';
@@ -166,9 +167,6 @@ export const BeneficiarioController = {
       if (roleKey === 'retiro1') this.tempFotoRetiro1 = base64;
       if (roleKey === 'retiro2') this.tempFotoRetiro2 = base64;
       if (roleKey === 'fachada') this.tempFotoFachada = base64;
-
-      const toast = window.PDI?.ToastView || ToastView;
-      if (toast) toast.show("Foto Cargada", "Fotografía incorporada al registro correctamente.", "info");
     };
     reader.readAsDataURL(file);
   },
@@ -225,8 +223,6 @@ export const BeneficiarioController = {
         // La firma subida tambien cuenta: el boton de guardar tiene que
         // enterarse sin esperar a que se toque otro campo.
         window.PDI?.Ficha?.refrescarEstadoFicha?.();
-        const toast = window.PDI?.ToastView || ToastView;
-        if (toast) toast.show("Firma Cargada", "La imagen de la firma fue procesada e incorporada al formulario.", "success");
       });
     }
   },
@@ -386,8 +382,7 @@ export const BeneficiarioController = {
     const telefonoAlt = getVal("regTelefonoAlt");
 
     if (apoderado && !sexoApoderado) {
-      const toastSexo = window.PDI?.ToastView || ToastView;
-      toastSexo.show("Sexo del Apoderado", "Seleccione el sexo del apoderado para completar la ficha.", "warning");
+      marcarError("regSexoApoderado", "Seleccione el sexo del apoderado para completar la ficha.");
       return;
     }
 
@@ -420,20 +415,30 @@ export const BeneficiarioController = {
       const hoyReg = new Date();
       hoyReg.setHours(0, 0, 0, 0);
       if (isNaN(nacimientoReg.getTime()) || nacimientoReg > hoyReg) {
-        toast.show("Fecha Futura", "La fecha de nacimiento no puede ser posterior a hoy. Revise el dato e intente otra vez.", "warning");
+        marcarError("regFechaNacimiento", "La fecha de nacimiento no puede ser posterior a hoy. Revise el dato e intente otra vez.");
         return;
       }
     }
 
     // Validación de firma digital (Ley 29733)
     if (this.signatureCanvasHelper && !this.signatureCanvasHelper.hasSignature()) {
-      toast.show("Firma Obligatoria", "El apoderado debe estampar o subir su firma para validar el Consentimiento Ley N.° 29733.", "warning");
+      const bloqueFirma = document.querySelector(".ficha-signature-block");
+      marcarError("canvasSignature", "El apoderado debe estampar o subir su firma para validar el Consentimiento Ley N.° 29733.", {
+        contenedor: bloqueFirma,
+        marca: bloqueFirma,
+        foco: document.querySelector(".btn-upload-firma"),
+      });
       return;
     }
 
     // La estrategia es obligatoria: sin al menos una marcada no hay inscripcion.
     if (!estrategias.length) {
-      toast.show("Estrategia Requerida", "Marque al menos una estrategia de intervencion para el usuario.", "warning");
+      const est = document.getElementById("regEstrategia");
+      marcarError(est, "Marque al menos una estrategia de intervencion para el usuario.", {
+        contenedor: est,
+        marca: est,
+        foco: est?.querySelector(".estr-chip"),
+      });
       return;
     }
 
@@ -601,7 +606,6 @@ export const BeneficiarioController = {
 
   toggleServicio(id, servicioNombre) {
     const bModel = window.PDI?.BeneficiarioModel || BeneficiarioModel;
-    const toast = window.PDI?.ToastView || ToastView;
     const usuario = bModel.getById(id);
     if (!usuario) return;
 
@@ -681,15 +685,6 @@ export const BeneficiarioController = {
         usuario.codigo,
         `${isAdded ? 'Habilitado' : 'Deshabilitado'} servicio "${canonicalName}" para el usuario ${usuario.nombres} ${usuario.apellidos}`,
         "Válido"
-      );
-    }
-
-    // Notificación Toast
-    if (toast) {
-      toast.show(
-        isAdded ? "Servicio Activado" : "Servicio Desactivado",
-        `${canonicalName} ${isAdded ? 'habilitado para' : 'retirado de'} ${usuario.nombres} ${usuario.apellidos}`,
-        isAdded ? "success" : "info"
       );
     }
 

@@ -83,15 +83,6 @@ export const SocialController = {
       );
     }
 
-    const toast = window.PDI?.ToastView || ToastView;
-    if (toast) {
-      toast.show(
-        "Fase Actualizada",
-        `Caso ${caso.codigo} ahora en etapa: ${nuevaEtapa.toUpperCase()} (Autorización Directa)`,
-        "success"
-      );
-    }
-
     view?.renderKanban(model.getAll());
     window.PDI?.Bootstrap?.actualizarBadgesSidebar?.();
   },
@@ -230,7 +221,7 @@ export const SocialController = {
     if (label) label.textContent = `${num} pts`;
 
     // Reactividad en vivo: calcular y actualizar el resultado inmediatamente sin toast intrusivo
-    this.calcularEvaluacion(false);
+    this.calcularEvaluacion();
   },
 
   cargarCasoEnSimulador(codigo) {
@@ -258,15 +249,10 @@ export const SocialController = {
     this.syncScore("SaludFam", sal);
 
     // Calcular resultado en vivo para el perfil cargado
-    this.calcularEvaluacion(false);
-
-    const toast = window.PDI?.ToastView || ToastView;
-    if (toast) {
-      toast.show("Perfil Cargado", `Datos de ${usuario.nombres} ${usuario.apellidos} sincronizados en el simulador (${vScore}/100 pts).`, "info");
-    }
+    this.calcularEvaluacion();
   },
 
-  calcularEvaluacion(showToast = true) {
+  calcularEvaluacion() {
     const getVal = (id, fallback) => {
       const el = document.getElementById(id);
       return el ? (Number(el.value) || 0) : fallback;
@@ -320,17 +306,10 @@ export const SocialController = {
     if (resultBox) {
       resultBox.style.display = "block";
     }
-
-    if (showToast) {
-      const toast = window.PDI?.ToastView || ToastView;
-      if (toast && typeof toast.show === "function") {
-        toast.show("Evaluación Calculada", `Índice de Vulnerabilidad: ${res.total}/100 (${res.category})`, "success");
-      }
-    }
   },
 
-  handleVulnerabilidadChange(showToast = false) {
-    this.calcularEvaluacion(showToast);
+  handleVulnerabilidadChange() {
+    this.calcularEvaluacion();
   }
 };
 

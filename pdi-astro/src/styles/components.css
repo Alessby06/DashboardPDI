@@ -1130,5 +1130,38 @@
       opacity: 0.9;
     }
 
+    /* === VALIDACION INLINE ===
+       El aviso de un campo invalido vive debajo del control, no en un toast
+       que desaparece. La logica esta en scripts/utils/FieldError.js. */
+    .campo-error {
+      display: block;
+      margin-top: 5px;
+      font-size: 11.5px;
+      font-weight: 600;
+      line-height: 1.35;
+      color: var(--text-danger);
+    }
+
+    .form-control.campo-invalido,
+    select.campo-invalido,
+    input.campo-invalido,
+    textarea.campo-invalido {
+      border-color: var(--gt-red) !important;
+    }
+
+    .form-control.campo-invalido:focus,
+    select.campo-invalido:focus,
+    input.campo-invalido:focus,
+    textarea.campo-invalido:focus {
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+    }
+
+    .estr-chips.campo-invalido,
+    .ficha-signature-block.campo-invalido {
+      outline: 2px solid var(--gt-red);
+      outline-offset: 3px;
+      border-radius: 10px;
+    }
+
 
 

@@ -36,7 +36,7 @@ import { iconHtml } from '../../data/iconos.js';
 import { pintarGrados, conectarGrado } from "../ui/gradoEscolar.js";
 
 import { escapar } from "../utils/HtmlHelper.js";
-import { avatarSeed, claseServicio, esFemenino, inicialesDe, retratoFemenino } from "../utils/Avatar.js";
+import { marcarError } from "../utils/FieldError.js";
 
 /** Estado de anemia con las mismas etiquetas que usan los filtros y tableros. */
 function estadoAnemia(hb) {
@@ -517,7 +517,7 @@ export const ExpedienteView = {
             return;
           }
           if (marco) marco.innerHTML = `<img src="${escapar(b.fotoUrl)}" alt="Foto de ${escapar(b.nombres)}">`;
-          ToastView.show("Fotografia actualizada", `Se guardo la fotografia de ${b.nombres} ${b.apellidos}.`, "success");
+
         };
         lector.readAsDataURL(archivo);
       };
@@ -882,7 +882,7 @@ export const ExpedienteView = {
             return;
           }
           if (vista) vista.innerHTML = `<img src="${escapar(b.fotoFachada)}" alt="Fachada de vivienda de ${escapar(b.nombres)}">`;
-          ToastView.show("Fachada actualizada", `Se guardo la foto de la fachada de ${b.nombres} ${b.apellidos}.`, "success");
+
         };
         lector.readAsDataURL(archivo);
       };
@@ -1059,7 +1059,7 @@ export const ExpedienteView = {
           <span>Cancelar Edicion</span>`;
       }
       if (saveBtn) saveBtn.style.display = "inline-flex";
-      ToastView.show("Modo Edicion Activado", "Los campos y los servicios son editables. Modifique los datos y presione Guardar Cambios.", "info");
+
     } else {
       if (editBtn) {
         editBtn.classList.remove("danger");
@@ -1139,12 +1139,12 @@ export const ExpedienteView = {
     // Beta Testing pide no guardar documentos a medias.
     let dniNuevo = valor("expDni");
     if (dniNuevo && !/^\d{8}$/.test(dniNuevo)) {
-      ToastView.show("DNI Incompleto", "El DNI del usuario debe tener exactamente 8 digitos numericos. Se conservo el valor anterior.", "warning");
+      marcarError("expDni", "El DNI del usuario debe tener exactamente 8 digitos numericos. Se conservo el valor anterior.");
       dniNuevo = "";
     }
     let dniApoderadoNuevo = valor("expApoderadoDni");
     if (dniApoderadoNuevo && !/^\d{8}$/.test(dniApoderadoNuevo)) {
-      ToastView.show("DNI Incompleto", "El DNI del apoderado debe tener exactamente 8 digitos numericos. Se conservo el valor anterior.", "warning");
+      marcarError("expApoderadoDni", "El DNI del apoderado debe tener exactamente 8 digitos numericos. Se conservo el valor anterior.");
       dniApoderadoNuevo = "";
     }
 
@@ -1186,11 +1186,7 @@ export const ExpedienteView = {
       });
       if (!acepta) {
         seleccionarValor("expAlergiaSeveridad", gravedadAntes);
-        ToastView.show(
-          "Alergia sin cambios",
-          "Se conservó la gravedad registrada. Vuelve a guardar si de verdad quieres bajarla.",
-          "warning",
-        );
+        marcarError("expAlergiaSeveridad", "Se conservó la gravedad registrada. Vuelve a guardar si de verdad quieres bajarla.");
         return;
       }
     }
@@ -1231,7 +1227,7 @@ export const ExpedienteView = {
         b.fechaNacimiento = fechaNueva;
         b.edad = edadDesdeFecha(fechaNueva);
       } else {
-        ToastView.show("Fecha Invalida", "La fecha de nacimiento no puede ser futura. Se conservo la fecha anterior.", "warning");
+        marcarError("expFechaNac", "La fecha de nacimiento no puede ser futura. Se conservo la fecha anterior.");
       }
     }
 
@@ -1258,11 +1254,7 @@ export const ExpedienteView = {
     const nivelNuevo = valor("expNivelEducativo");
     if (nivelNuevo && nivelNuevo !== b.nivelEducativo
       && !valoresDeGrado(nivelNuevo).includes(valor("expGrado"))) {
-      ToastView.show(
-        "Falta el Grado",
-        `Elija el grado escolar de ${nivelNuevo} antes de guardar.`,
-        "warning"
-      );
+      marcarError("expGrado", `Elija el grado escolar de ${nivelNuevo} antes de guardar.`);
       return;
     }
     b.nivelEducativo = nivelNuevo || b.nivelEducativo;
@@ -1294,14 +1286,17 @@ export const ExpedienteView = {
     if (tarjetasRetiro.length > 0) {
       const padronAnterior = Array.isArray(b.retiroPadron) ? b.retiroPadron : [];
       let dniRetiroIncompleto = false;
+      let campoDniRetiroIncompleto = null;
       const padronNuevo = Array.from(tarjetasRetiro).map((tarjeta, indice) => {
         const campo = (nombre) => {
           const el = tarjeta.querySelector(`[data-retiro-campo="${nombre}"]`);
           return el ? String(el.value || "").trim() : "";
         };
-        let dni = campo("dni");
+        const inputDni = tarjeta.querySelector('[data-retiro-campo="dni"]');
+        let dni = inputDni ? String(inputDni.value || "").trim() : "";
         if (dni && !/^\d{8}$/.test(dni)) {
           dniRetiroIncompleto = true;
+          campoDniRetiroIncompleto = campoDniRetiroIncompleto || inputDni;
           dni = padronAnterior[indice]?.dni || "";
         }
         return {
@@ -1318,7 +1313,7 @@ export const ExpedienteView = {
         b.retiroAutorizado = `${padronNuevo[0].nombre} (${padronNuevo[0].parentesco})`;
       }
       if (dniRetiroIncompleto) {
-        ToastView.show("DNI Incompleto", "El DNI de una persona autorizada debe tener 8 digitos numericos. Se conservo el valor anterior.", "warning");
+        marcarError(campoDniRetiroIncompleto, "El DNI de una persona autorizada debe tener 8 digitos numericos. Se conservo el valor anterior.");
       }
     }
 

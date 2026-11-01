@@ -65,11 +65,6 @@ export const CasitasController = {
         toast?.show?.("Asistencia no guardada", "La base de datos rechazó el registro. Revisa tu conexión.", "danger");
       }
     });
-
-    const toast = window.PDI?.ToastView || ToastView;
-    if (toast && toast.show) {
-      toast.show("Asistencia Actualizada", `${target.label} registrado para el usuario ID ${id}`, "info");
-    }
   },
 
   /** Pinta badges y botones del pase (escritorio y móvil) para un usuario. */

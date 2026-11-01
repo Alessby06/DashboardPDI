@@ -9,6 +9,7 @@ import { AnimationEngine } from '../utils/AnimationEngine.js';
 import { ToastView } from './ToastView.js';
 import { AuditModel } from '../models/AuditModel.js';
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";
+import { marcarError } from "../utils/FieldError.js";
 import { OPCIONES_VOLUNTARIADO, SERVICIOS_VOLUNTARIADO } from '../../data/opcionesBeneficiario.js';
 import { SEDES_POR_DISTRITO, etiquetaSede } from '../core/catalogos.js';
 import { contarOpciones } from "../utils/FacetCounts.js";
@@ -869,28 +870,29 @@ export const VoluntariadosView = {
       && registroActual.distrito === distrito
       && registroActual.sedeAsignada === sedeAsignada;
     if (sedeAsignada && !sedesDelDistrito.includes(sedeAsignada) && !conservaSede) {
-      ToastView.show(
-        "Sede incompatible",
-        `La sede "${sedeAsignada}" no pertenece al distrito ${distrito}. Elige una sede de ese distrito.`,
-        "danger",
-      );
+      marcarError("volSelectSede", `La sede "${sedeAsignada}" no pertenece al distrito ${distrito}. Elige una sede de ese distrito.`);
       return;
     }
 
     if (!nombres || !apellidos || !dni) {
-      ToastView.show("Campos Incompletos", "Por favor complete los campos obligatorios (Nombres, Apellidos y DNI).", "warning");
+      const faltantes = [
+        !nombres && ["volInputNombres", "Ingrese los nombres del voluntario."],
+        !apellidos && ["volInputApellidos", "Ingrese los apellidos del voluntario."],
+        !dni && ["volInputDni", "Ingrese el DNI del voluntario."],
+      ].filter(Boolean);
+      faltantes.forEach(([id, msg], i) => marcarError(id, msg, { focus: i === 0 }));
       return;
     }
 
     if (!/^\d{8}$/.test(dni)) {
-      ToastView.show("DNI Inválido", "El DNI peruano debe contener exactamente 8 dígitos numéricos.", "danger");
+      marcarError("volInputDni", "El DNI peruano debe contener exactamente 8 dígitos numéricos.");
       return;
     }
 
     // Validación de DNI único para evitar duplicados accidentales
     const existing = VoluntarioModel.getByDni(dni);
     if (existing && String(existing.id) !== String(this._currentEditingId || "")) {
-      ToastView.show("DNI Duplicado", `Ya existe un registro a nombre de ${existing.nombres} ${existing.apellidos} con el DNI ${dni}.`, "danger");
+      marcarError("volInputDni", `Ya existe un registro a nombre de ${existing.nombres} ${existing.apellidos} con el DNI ${dni}.`);
       return;
     }
 
@@ -921,7 +923,7 @@ export const VoluntariadosView = {
           this.render();
           return;
         }
-        ToastView.show("Ficha Actualizada", `Los datos de ${nombres} ${apellidos} se guardaron exitosamente.`, "success");
+
         if (AuditModel && AuditModel.log) {
           AuditModel.log("Sistema", "Coordinación", "Actualización de Voluntario", payload.dni, `Ficha de ${nombres} ${apellidos} editada`);
         }
@@ -933,7 +935,7 @@ export const VoluntariadosView = {
           this.render();
           return;
         }
-        ToastView.show("Inscripción Exitosa", `Se registró a ${nombres} ${apellidos} en el padrón de voluntariados.`, "success");
+
         if (AuditModel && AuditModel.log) {
           AuditModel.log("Sistema", "Coordinación", "Alta de Voluntario", payload.dni, `Inscripción de ${nombres} ${apellidos} (${payload.sedeAsignada})`);
         }
@@ -1156,7 +1158,7 @@ export const VoluntariadosView = {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    ToastView.show("Padrón Exportado", `Se descargó el reporte CSV con ${list.length} voluntaria(s).`, "info");
+
   },
 
   // Helpers
