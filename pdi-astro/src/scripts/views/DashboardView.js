@@ -453,7 +453,7 @@ export const DashboardView = {
         '</div>' +
         '<a href="/expediente?id=' + encodeURIComponent(m.id) + '" class="btn-micro-action" title="Abrir expediente de ' + escapar(m.nombres) + '" data-astro-prefetch>' +
           '<span>Expediente</span>' +
-          '${iconHtml("accion.abrir", { size: 12 })}' +
+          iconHtml("accion.abrir", { size: 12 }) +
         '</a>' +
       '</div>';
     }).join("");
