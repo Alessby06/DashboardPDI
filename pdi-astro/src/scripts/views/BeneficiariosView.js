@@ -7,6 +7,7 @@ import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";
 import { Dropdown } from "../utils/Dropdown.js";
 import { SEDES_NOMBRES } from "../core/catalogos.js";
 import { iconHtml } from '../../data/iconos.js';
+import { avatarHtml } from "../utils/Avatar.js";
 // Qué filtros del padrón viajan en la URL, con qué valores y cuáles son los
 // defectos. La lista de valores no se inventa: es la misma que admiten los
 // desplegables de padron.html. Si algún día se añade un filtro
@@ -1198,16 +1199,6 @@ export const BeneficiariosView = {
         `;
       } else {
         tbody.innerHTML = beneficiarios.map(b => {
-          const estrategiaPrincipal = (Array.isArray(b.estrategias) && b.estrategias[0]) || b.estrategia || '';
-          const esCasita = /casita/i.test(estrategiaPrincipal);
-          const esPastoral = /pastoral|social|asp/i.test(estrategiaPrincipal);
-          const esBiblioteca = /biblioteca/i.test(estrategiaPrincipal);
-          const servColorClass = esCasita ? 'serv-casita'
-            : esPastoral ? 'serv-pastoral'
-              : esBiblioteca ? 'serv-biblioteca'
-                : 'serv-desayuno';
-
-          const iniciales = `${(b.nombres || '').charAt(0)}${(b.apellidos || '').charAt(0)}`.toUpperCase() || '?';
           const telefono = b.telefono ? String(b.telefono).replace(/-/g, ' ') : 'Sin teléfono';
           const edadTxt = b.edad || 'Edad no reg.';
           const nTam = Array.isArray(b.tamizajes) ? b.tamizajes.length : 0;
@@ -1220,7 +1211,7 @@ export const BeneficiariosView = {
           <tr>
             <td>
               <div class="padron-user-cell">
-                <div class="padron-avatar ${servColorClass}" aria-hidden="true">${escapar(iniciales)}</div>
+                ${avatarHtml(b)}
                 <div class="padron-user-info">
                   <div class="padron-user-name" title="${escapar(`${b.nombres} ${b.apellidos}`)}">${escapar(b.nombres)} ${escapar(b.apellidos)}</div>
                   <div class="padron-user-meta">
@@ -1281,10 +1272,13 @@ export const BeneficiariosView = {
       } else {
         mobileContainer.innerHTML = beneficiarios.map(b => `
           <div class="mobile-card-item" id="mobile-card-${escapar(b.id)}">
-            <!-- Cabecera: ID + Badge Estado -->
+            <!-- Cabecera: avatar + ID + Badge Estado -->
             <div class="datacard-header">
-              <div class="datacard-id">
-                <span>ID:</span> ${escapar(b.codigo)}
+              <div class="datacard-header-left">
+                ${avatarHtml(b)}
+                <div class="datacard-id">
+                  <span>ID:</span> ${escapar(b.codigo)}
+                </div>
               </div>
               <div class="datacard-header-right">
                 <span class="badge ${b.estado === 'Activo' ? 'badge-green' : 'badge-yellow'}">${escapar(b.estado)}</span>

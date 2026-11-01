@@ -236,6 +236,21 @@
       background: var(--surface-2);
     }
 
+    /* Cabecera movil con avatar: el ID no debe empujar el badge. */
+    .datacard-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .datacard-header-left .datacard-id {
+      min-width: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
     .datacard-id {
       font-size: 13px;
       font-weight: 700;

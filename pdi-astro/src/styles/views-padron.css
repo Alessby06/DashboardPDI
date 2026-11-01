@@ -1216,6 +1216,71 @@
   border-color: rgba(2, 132, 199, 0.25);
 }
 
+/* Retrato de las chicas dentro del circulo del padron. */
+#tablaBeneficiarios .padron-avatar.is-retrato {
+  padding: 0;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+#tablaBeneficiarios .padron-avatar.is-retrato img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 22%;
+  display: block;
+  border-radius: inherit;
+}
+
+/* El mismo avatar en la cabecera de la tarjeta movil del padron. */
+#mobileCardsBeneficiarios .padron-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: -0.01em;
+  flex-shrink: 0;
+  border: 1px solid transparent;
+}
+
+#mobileCardsBeneficiarios .padron-avatar.serv-desayuno {
+  background: rgba(var(--brand-rgb), 0.12);
+  color: var(--gt-green);
+  border-color: rgba(var(--brand-rgb), 0.25);
+}
+
+#mobileCardsBeneficiarios .padron-avatar.serv-casita {
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--gt-yellow);
+  border-color: rgba(245, 158, 11, 0.25);
+}
+
+#mobileCardsBeneficiarios .padron-avatar.serv-pastoral,
+#mobileCardsBeneficiarios .padron-avatar.serv-biblioteca {
+  background: rgba(2, 132, 199, 0.12);
+  color: var(--gt-blue);
+  border-color: rgba(2, 132, 199, 0.25);
+}
+
+#mobileCardsBeneficiarios .padron-avatar.is-retrato {
+  padding: 0;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+#mobileCardsBeneficiarios .padron-avatar.is-retrato img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 22%;
+  display: block;
+  border-radius: inherit;
+}
+
 #tablaBeneficiarios .padron-user-info {
   display: flex;
   flex-direction: column;

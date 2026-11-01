@@ -857,3 +857,40 @@
     justify-content: center !important;
   }
 }
+
+/* === PORTADA DEL CARNET SIN FOTO ===
+   Chicos: iniciales sobre el color del servicio, igual que el avatar del
+   padrón. Chicas: retrato de /avatars (child-photo-frame img ya lo cubre). */
+.child-photo-frame .portada-iniciales {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.6rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.portada-iniciales.serv-desayuno {
+  background: rgba(var(--brand-rgb), 0.12);
+  color: var(--gt-green);
+}
+
+.portada-iniciales.serv-casita {
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--gt-yellow);
+}
+
+.portada-iniciales.serv-pastoral,
+.portada-iniciales.serv-biblioteca {
+  background: rgba(2, 132, 199, 0.12);
+  color: var(--gt-blue);
+}
+
+@media (max-width: 768px) {
+  .child-photo-frame .portada-iniciales {
+    font-size: 1.55rem;
+  }
+}

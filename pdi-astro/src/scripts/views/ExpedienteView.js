@@ -36,6 +36,7 @@ import { iconHtml } from '../../data/iconos.js';
 import { pintarGrados, conectarGrado } from "../ui/gradoEscolar.js";
 
 import { escapar } from "../utils/HtmlHelper.js";
+import { avatarSeed, claseServicio, esFemenino, inicialesDe, retratoFemenino } from "../utils/Avatar.js";
 
 /** Estado de anemia con las mismas etiquetas que usan los filtros y tableros. */
 function estadoAnemia(hb) {
@@ -79,54 +80,15 @@ function opcionesParentescoHtml(seleccionado) {
   }
   return opciones.join("");
 }
-// Retrato de portada cuando el usuario no tiene fotografia. Un expediente de
+// Portada del carnet cuando el usuario no tiene fotografia. Un expediente de
 // DEMUNA tiene que poder imprimirse, y el retrato no puede depender de la red.
-//
-// Chicas: cuatro retratos vectoriales (F1-F4) servidos desde /avatars. La
-// eleccion es aleatoria y se fija por usuario, para que el mismo expediente
-// conserve su rostro entre visitas y entre las piezas que lo muestran a la vez,
-// en lugar de cambiar en cada repintado.
-//
-// Chicos: silueta neutra, sin rasgos inventados.
-const RETRATOS_F = ["/avatars/f1.svg", "/avatars/f2.svg", "/avatars/f3.svg", "/avatars/f4.svg"];
-const CLAVE_RETRATO = "pdi_retrato_f_";
-
-function retratoFemenino(clave) {
-  const llave = CLAVE_RETRATO + String(clave ?? "");
-  try {
-    const guardado = Number.parseInt(window.localStorage.getItem(llave), 10);
-    if (Number.isInteger(guardado) && guardado >= 0 && guardado < RETRATOS_F.length) {
-      return RETRATOS_F[guardado];
-    }
-  } catch {
-    /* sin almacenamiento: la eleccion vive solo en esta carga */
+// Chicas: retrato vectorial estable de /avatars. Chicos: iniciales sobre el
+// color del servicio, igual que el avatar del padron.
+function portadaInfantil(b) {
+  if (esFemenino(b?.sexo)) {
+    return `<img src="${retratoFemenino(avatarSeed(b))}" alt="" width="240" height="260" decoding="async">`;
   }
-
-  const indice = Math.floor(Math.random() * RETRATOS_F.length);
-  try {
-    window.localStorage.setItem(llave, String(indice));
-  } catch {
-    /* idem */
-  }
-  return RETRATOS_F[indice];
-}
-
-/** Dato estable que identifica al usuario para fijar su retrato. */
-function avatarSeedFor(b) {
-  return b?.id ?? b?.codigo ?? b?.dni ?? `${b?.nombres || ""}${b?.apellidos || ""}`;
-}
-
-const SILUETA_NEUTRA = `<svg viewBox="0 0 120 120" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false" style="display:block;width:100%;height:100%;">
-    <circle cx="60" cy="45" r="21" fill="#94a3b8" opacity=".42"/>
-    <path d="M17 120c0-24 19-38 43-38s43 14 43 38z" fill="#94a3b8" opacity=".42"/>
-  </svg>`;
-
-/** Portada del carnet: retrato femenino aleatorio o silueta neutra. */
-function portadaInfantil(sexo, seed) {
-  if (sexo === "F") {
-    return `<img src="${retratoFemenino(seed)}" alt="" width="240" height="260" decoding="async">`;
-  }
-  return SILUETA_NEUTRA;
+  return `<div class="portada-iniciales ${claseServicio(b)}" aria-hidden="true">${escapar(inicialesDe(b))}</div>`;
 }
 
 function getAdultAvatarSvg(parentesco) {
@@ -531,7 +493,7 @@ export const ExpedienteView = {
     if (marco) {
       marco.innerHTML = b.fotoUrl
         ? `<img src="${escapar(b.fotoUrl)}" alt="Foto de ${escapar(b.nombres)}">`
-        : portadaInfantil(b.sexo, avatarSeedFor(b));
+        : portadaInfantil(b);
     }
     this._set("expPhotoName", `${b.nombres} ${b.apellidos}`);
     this._set("expPhotoCode", b.codigo);
@@ -1478,7 +1440,7 @@ export const ExpedienteView = {
     // Mismo trato que la actualizacion: se repinta solo el carnet, sin meter
     // la foto en el formulario de Guardar Cambios.
     const marco = document.getElementById("expChildPhotoFrame");
-    if (marco) marco.innerHTML = portadaInfantil(b.sexo, avatarSeedFor(b));
+    if (marco) marco.innerHTML = portadaInfantil(b);
 
     const usuarioActivo = localStorage.getItem("pdi_usuario_nombre") || "Coordinador General";
     if (AuditModel && AuditModel.addLog) {
