@@ -894,8 +894,14 @@ function mapearCasos(casosRaw, solicitudesRaw) {
     })).reverse();
 
     const pendiente = listaSol.find(s => s.estado === 'pendiente');
+    // fecha_resolucion llega como datetime del SDK (Date), no como texto:
+    // localeCompare reventaba la hidratación entera. Se ordena por instante.
+    const instante = (s) => {
+      const t = new Date(s.fecha_resolucion).getTime();
+      return Number.isFinite(t) ? t : 0;
+    };
     const resuelta = listaSol.filter(s => s.estado !== 'pendiente')
-      .sort((a, b) => (b.fecha_resolucion || '').localeCompare(a.fecha_resolucion || ''))[0];
+      .sort((a, b) => instante(b) - instante(a))[0];
 
     const retorna = {
       _casoId: String(c.id),
