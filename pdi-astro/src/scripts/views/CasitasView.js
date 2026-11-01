@@ -624,11 +624,13 @@ export const CasitasView = {
     }
 
     if (tbody && !enMovil) {
-      tbody.innerHTML = pageItems.map(b => `
+      tbody.innerHTML = pageItems.map(b => {
+        const colegio = colegioOrigenVisible(b);
+        return `
         <tr>
           <td><strong>${escapar(b.nombres)} ${escapar(b.apellidos)}</strong><div style="font-size:11px; color:var(--text-dim);">${escapar(b.codigo)}</div></td>
           <td>${escapar(b.grado)}</td>
-          <td>${escapar(colegioOrigenVisible(b))}</td>
+          <td><span class="celda-recortada" title="${escapar(colegio)}">${escapar(colegio)}</span></td>
           <td>
             <div style="font-weight:600; color:var(--text-main);">${escapar(b.apoderado)}</div>
             <div style="font-size:11.5px; color:var(--text-muted);">${escapar(b.parentesco)} &bull; ${escapar(b.telefono || 'Sin tel')}</div>
@@ -642,7 +644,8 @@ export const CasitasView = {
             </div>
           </td>
         </tr>
-      `).join("");
+      `;
+      }).join("");
     }
 
     if (mobileContainer && enMovil) {

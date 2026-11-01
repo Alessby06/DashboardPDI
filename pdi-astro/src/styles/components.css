@@ -187,6 +187,19 @@
       border-bottom: 1px solid var(--border-subtle);
       color: var(--text-main);
       vertical-align: middle;
+      /* Un valor libre muy largo (p. ej. un colegio sin espacios) no debe
+         ensanchar la tabla ni empujar las demas columnas. */
+      overflow-wrap: anywhere;
+    }
+
+    /* Recorte de una linea para columnas de texto libre. El valor completo
+       queda en el title del elemento. */
+    .celda-recortada {
+      display: block;
+      max-width: 240px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .data-table tbody tr {
