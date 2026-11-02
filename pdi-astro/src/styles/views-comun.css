@@ -195,35 +195,64 @@
         margin: 0;
         border: none;
         border-radius: 20px 20px 0 0;
-        /* Cortina: la hoja sube solo un 26 % y se descubre desde el borde
-           inferior con un clip. El clip abierto deja 80 px de más por los
-           lados para que la sombra siga existiendo en reposo. */
-        transform: translateY(26%);
-        clip-path: inset(100% 0 0 0 round 20px 20px 0 0);
+        /* Elevación: la hoja se levanta en perspectiva desde el borde
+           inferior, inclinada hacia atrás, y cae plana. El origen es su propio
+           borde inferior y la perspectiva viaja dentro del transform. */
+        transform-origin: 50% 100%;
+        transform: var(--sheet-tilt-closed);
+        backface-visibility: hidden;
         visibility: hidden;
         padding-bottom: env(safe-area-inset-bottom, 0);
         overscroll-behavior: contain;
         /* Solo la hoja que recorre la pantalla conserva su capa: el aviso en
            los 12 modales y 12 telones creaba 24 capas permanentes. */
         will-change: transform;
-        /* Salida: la cortina se cierra mientras la hoja se retira. */
+        /* Salida: cae inclinada en 240 ms. La opacidad se apaga antes para
+           que el borde no deje un fantasma al final. */
         transition:
-          transform var(--sheet-out) var(--ease-out),
-          clip-path var(--sheet-out) var(--ease-out),
-          opacity 220ms var(--ease-out),
+          transform var(--sheet-out) var(--sheet-exit-ease),
+          opacity 160ms linear,
           visibility 0s linear var(--sheet-out);
       }
 
       .modal-backdrop.open .modal-box.drawer-box {
-        transform: translateY(0);
-        clip-path: inset(-80px -80px 0 -80px round 20px 20px 0 0);
+        transform: var(--sheet-tilt-open);
         visibility: visible;
-        /* Entrada: el velo ya está puesto cuando la hoja arranca. */
+        /* Entrada: 500 ms con ease-out; el velo ya está puesto. */
         transition:
-          transform var(--sheet-in) var(--sheet-ease),
-          clip-path var(--sheet-in) var(--sheet-ease),
-          opacity 220ms var(--ease-out),
+          transform var(--sheet-in) var(--sheet-lift-ease),
+          opacity 180ms linear,
           visibility 0s;
+      }
+
+      /* El contenido aterriza detrás de la inclinación, no con ella:
+         90/130/180 ms. En la salida no espera. */
+      .modal-box.drawer-box > .modal-header,
+      .modal-box.drawer-box > .modal-body,
+      .modal-box.drawer-box > .modal-footer,
+      .modal-box.drawer-box > form > .modal-header,
+      .modal-box.drawer-box > form > .modal-body,
+      .modal-box.drawer-box > form > .modal-footer {
+        opacity: 0;
+        transition: opacity 140ms linear;
+      }
+
+      .modal-backdrop.open .modal-box.drawer-box > .modal-header,
+      .modal-backdrop.open .modal-box.drawer-box > form > .modal-header {
+        opacity: 1;
+        transition-delay: 90ms;
+      }
+
+      .modal-backdrop.open .modal-box.drawer-box > .modal-body,
+      .modal-backdrop.open .modal-box.drawer-box > form > .modal-body {
+        opacity: 1;
+        transition-delay: 130ms;
+      }
+
+      .modal-backdrop.open .modal-box.drawer-box > .modal-footer,
+      .modal-backdrop.open .modal-box.drawer-box > form > .modal-footer {
+        opacity: 1;
+        transition-delay: 180ms;
       }
 
       /* Variante de lectura y workflow corto: la hoja crece segun contenido
@@ -288,6 +317,16 @@
 
     @media (prefers-reduced-motion: reduce) {
       .modal-box.drawer-box {
+        transition: none;
+      }
+
+      /* Sin elevación ni compás: el contenido aparece con la hoja. */
+      .modal-box.drawer-box > .modal-header,
+      .modal-box.drawer-box > .modal-body,
+      .modal-box.drawer-box > .modal-footer,
+      .modal-box.drawer-box > form > .modal-header,
+      .modal-box.drawer-box > form > .modal-body,
+      .modal-box.drawer-box > form > .modal-footer {
         transition: none;
       }
     }

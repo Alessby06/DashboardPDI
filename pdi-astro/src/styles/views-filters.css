@@ -946,46 +946,69 @@
     margin: 0;
     box-sizing: border-box;
     display: flex;
-    /* Cortina, la misma receta que las fichas: la hoja sube un 26 % y se
-       descubre desde el borde inferior. El clip se abre 80 px de más para que
-       la sombra siga existiendo en reposo; visibility evita que la hoja
-       descolocada capture toques. */
+    /* Elevación: la hoja se levanta en perspectiva desde su borde inferior,
+       inclinada hacia atrás, y cae plana. La perspectiva viaja en el propio
+       transform para no alterar el anclaje fixed de la hoja. `visibility`
+       evita que la hoja descolocada capture toques. */
     visibility: hidden;
-    transform: translateY(26%);
-    clip-path: inset(100% 0 0 0 round 16px 16px 0 0);
+    transform-origin: 50% 100%;
+    transform: var(--sheet-tilt-closed);
+    backface-visibility: hidden;
     opacity: 0;
     transition:
-      transform var(--sheet-out) var(--ease-out),
-      clip-path var(--sheet-out) var(--ease-out),
-      opacity 220ms var(--ease-out),
+      transform var(--sheet-out) var(--sheet-exit-ease),
+      opacity 160ms linear,
       visibility 0s linear var(--sheet-out);
     overflow: hidden;
   }
 
   .audit-filter-panel-wrap .audit-filters-dropdown.open .audit-filters-menu {
     visibility: visible;
-    transform: translateY(0);
-    clip-path: inset(-80px -80px 0 -80px round 16px 16px 0 0);
+    transform: var(--sheet-tilt-open);
     opacity: 1;
     transition:
-      transform var(--sheet-in) var(--sheet-ease),
-      clip-path var(--sheet-in) var(--sheet-ease),
-      opacity 220ms var(--ease-out),
+      transform var(--sheet-in) var(--sheet-lift-ease),
+      opacity 180ms linear,
       visibility 0s;
   }
 
-  /* La cortina es la misma en todas las plataformas: sin overrides por SO.
-     En la cortina el contenido entra con la hoja; el compás queda para el
-     popover de escritorio. */
-  .audit-filters-dropdown.open .audit-filters-menu > .audit-filters-header,
-  .audit-filters-dropdown.open .audit-filters-menu > .audit-filters-body,
+  /* El contenido aterriza detrás de la inclinación: 90/130/180 ms. La
+     animación de compás sigue siendo solo del popover de escritorio. */
+  .audit-filters-menu > .audit-filters-header,
+  .audit-filters-menu > .audit-filters-body,
+  .audit-filters-menu > .audit-filters-footer {
+    animation: none;
+    opacity: 0;
+    transition: opacity 140ms linear;
+  }
+
+  .audit-filters-dropdown.open .audit-filters-menu > .audit-filters-header {
+    animation: none;
+    opacity: 1;
+    transition-delay: 90ms;
+  }
+
+  .audit-filters-dropdown.open .audit-filters-menu > .audit-filters-body {
+    animation: none;
+    opacity: 1;
+    transition-delay: 130ms;
+  }
+
   .audit-filters-dropdown.open .audit-filters-menu > .audit-filters-footer {
     animation: none;
+    opacity: 1;
+    transition-delay: 180ms;
   }
 
   @media (prefers-reduced-motion: reduce) {
     .audit-filters-dropdown .audit-filters-menu,
     .audit-filter-panel-wrap .audit-filters-dropdown.open .audit-filters-menu {
+      transition: none;
+    }
+
+    .audit-filters-menu > .audit-filters-header,
+    .audit-filters-menu > .audit-filters-body,
+    .audit-filters-menu > .audit-filters-footer {
       transition: none;
     }
   }

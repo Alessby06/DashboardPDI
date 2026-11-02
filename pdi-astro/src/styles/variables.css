@@ -135,12 +135,17 @@
   --dur-panel: 260ms;    /* Modales, drawers, cards */
   --dur-fluid: 260ms;
 
-  /* Hojas inferiores. Un recorrido de casi toda la pantalla no admite las
-     curvas de popover: arrancan con el 80 % del trayecto hecho y dejan una
-     cola casi quieta. Entrada larga y regular; salida mas corta. */
-  --sheet-in: 400ms;
+  /* Hojas inferiores: Elevación. La hoja se levanta en perspectiva desde su
+     borde inferior, inclinada hacia atrás, y cae plana. La perspectiva viaja
+     dentro del propio transform: un `perspective` en un ancestro convertiría
+     ese ancestro en bloque contenedor de las hojas `position: fixed`. */
+  --sheet-in: 500ms;
   --sheet-out: 240ms;
-  --sheet-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --sheet-ease: cubic-bezier(0.22, 0.61, 0.36, 1); /* gesto de arrastre */
+  --sheet-lift-ease: cubic-bezier(0.23, 1, 0.32, 1);
+  --sheet-exit-ease: cubic-bezier(0.4, 0, 1, 1);
+  --sheet-tilt-closed: perspective(1200px) translateY(100%) rotateX(14deg) scale(0.97);
+  --sheet-tilt-open: perspective(1200px) translateY(0deg) rotateX(0deg) scale(1);
   
   color-scheme: light;
 }
