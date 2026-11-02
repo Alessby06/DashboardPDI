@@ -110,6 +110,12 @@ export const BeneficiarioModel = {
     return this._retirados.find(b => String(b.id) === String(id) || b.id === Number(id)) || null;
   },
 
+  getRetiradoByCodigo(codigo) {
+    const clean = String(codigo || "").trim().toLowerCase();
+    if (!clean) return null;
+    return this._retirados.find(b => String(b.codigo || "").toLowerCase() === clean) || null;
+  },
+
   getAll() {
     if (!this._data) this.init();
     return this._data;
@@ -301,9 +307,12 @@ export const BeneficiarioModel = {
    * antes de auditar y redirigir. Si la escritura falla, el usuario vuelve a
    * la lista para que la pantalla no muestre una baja que no ocurrió.
    */
-  async delete(id) {
+  async delete(idOCodigo) {
     const list = this.getAll();
-    const idx = list.findIndex(b => String(b.id) === String(id) || b.id === Number(id));
+    const idx = list.findIndex(b =>
+      String(b.id) === String(idOCodigo)
+      || b.id === Number(idOCodigo)
+      || String(b.codigo || "") === String(idOCodigo));
     if (idx === -1) return false;
     const removed = list.splice(idx, 1)[0];
     const bajaOk = await darBajaBeneficiario(removed);
@@ -313,7 +322,7 @@ export const BeneficiarioModel = {
     }
     // El archivo se actualiza al momento; la hidratación confirmará la fecha y
     // el estado reales. La sede estaba operativa cuando se dio la baja.
-    this._retirados = [{ ...removed, estado: 'Retirado', sedeActiva: true }, ...this._retirados];
+    this._retirados = [{ ...removed, estado: 'Inactivo', sedeActiva: true }, ...this._retirados];
     return true;
   },
 
@@ -322,15 +331,18 @@ export const BeneficiarioModel = {
    * Activo y conserva su inscripción, sede y servicio. La vista valida antes
    * que la sede y el servicio sigan operativos.
    */
-  async reactivar(id) {
-    const item = this.getRetiradoById(id);
+  async reactivar(idOCodigo) {
+    const item = this.getRetiradoById(idOCodigo) || this.getRetiradoByCodigo(idOCodigo);
     if (!item) return false;
     const ok = await reactivarBeneficiario(item);
     if (!ok) return false;
-    const reactivado = { ...item, estado: 'Activo', fechaBaja: '', sedeActiva: true };
+    const reactivado = { ...item, estado: 'Activo', sedeActiva: true };
+    const clave = String(reactivado.codigo || reactivado.id);
     const list = this.getAll();
-    if (!list.some(b => String(b.id) === String(reactivado.id))) list.push(reactivado);
-    this._retirados = this._retirados.filter(b => String(b.id) !== String(reactivado.id));
+    // El código es la clave estable: los ids numéricos pueden repetirse entre
+    // el archivo y el padrón activo.
+    if (!list.some(b => String(b.codigo || b.id) === clave)) list.push(reactivado);
+    this._retirados = this._retirados.filter(b => String(b.codigo || b.id) !== clave);
     return true;
   },
 

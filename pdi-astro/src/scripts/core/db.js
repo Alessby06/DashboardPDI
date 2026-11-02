@@ -445,22 +445,22 @@ WHERE activo = true
   AND id IN (SELECT VALUE ${F_USUARIO} FROM inscripcion WHERE activo = true);`;
 
 /**
- * Archivo de retirados. Es una consulta aparte y no un cambio de SQL_PADRON:
- * los retirados no pueden entrar en el modelo que alimenta los KPIs, el
- * dashboard ni los servicios activos. La inscripción se busca por estado
- * «Retirado» porque la baja la deja inactiva.
+ * Archivo de desactivados. Es una consulta aparte y no un cambio de SQL_PADRON:
+ * los inactivos no pueden entrar en el modelo que alimenta los KPIs, el
+ * dashboard ni los servicios activos. Se busca la inscripción apagada, que es
+ * la que deja la baja.
  */
 const SQL_RETIRADOS = `SELECT *,
   centro_salud.nombre AS centro_salud_nombre,
   institucion_origen.nombre AS institucion_origen_nombre,
   (SELECT * FROM alergia WHERE persona_id = $parent.id) AS alergias,
-  (SELECT * FROM inscripcion WHERE ${F_USUARIO} = $parent.id AND estado = 'Retirado' LIMIT 1)[0] AS ins,
+  (SELECT * FROM inscripcion WHERE ${F_USUARIO} = $parent.id AND activo = false LIMIT 1)[0] AS ins,
   (SELECT * FROM tamizaje_hemoglobina WHERE ${F_USUARIO} = $parent.id AND activo = true ORDER BY fecha_tamizaje DESC) AS tams,
   (SELECT cuidador_id.nombres AS c_nom, cuidador_id.apellidos AS c_ape, cuidador_id.numero_documento AS c_dni, cuidador_id.sexo AS c_sexo, parentesco FROM ${T_VINCULO} WHERE ${F_MENOR} = $parent.id LIMIT 1)[0] AS apo,
   (SELECT VALUE pct_exoneracion FROM aporte WHERE inscripcion_id.${F_USUARIO} = $parent.id ORDER BY periodo DESC, mes DESC LIMIT 1)[0] AS pct
 FROM persona
 WHERE activo = false
-  AND id IN (SELECT VALUE ${F_USUARIO} FROM inscripcion WHERE estado = 'Retirado');`;
+  AND id IN (SELECT VALUE ${F_USUARIO} FROM inscripcion WHERE activo = false);`;
 
 /**
  * Lote de consultas del padrón completo. Van pegadas para que la hidratación
@@ -895,7 +895,7 @@ function mapearRetirados(personasRes, sedesTodas) {
     const sede = porId.get(b._sedeRawId) || null;
     return {
       ...b,
-      estado: 'Retirado',
+      estado: b.estado || 'Inactivo',
       sedeActiva: Boolean(sede && sede.activo),
     };
   });
@@ -1714,7 +1714,7 @@ export async function darBajaBeneficiario(b, motivo = 'Baja administrativa') {
   try {
     await ejecutar(`
       UPDATE inscripcion SET
-        activo = false, estado = 'Retirado',
+        activo = false, estado = 'Inactivo',
         motivo_baja = $motivo
       WHERE ${F_USUARIO} = (SELECT VALUE id FROM persona WHERE codigo = $codigo LIMIT 1)[0]
         AND activo = true;
@@ -1742,7 +1742,7 @@ export async function reactivarBeneficiario(b) {
         activo = true, estado = 'Activo',
         motivo_baja = NONE
       WHERE ${F_USUARIO} = (SELECT VALUE id FROM persona WHERE codigo = $codigo LIMIT 1)[0]
-        AND estado = 'Retirado';
+        AND activo = false;
       UPDATE persona SET activo = true WHERE codigo = $codigo;`, {
       codigo,
     });

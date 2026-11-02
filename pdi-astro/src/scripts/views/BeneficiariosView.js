@@ -24,7 +24,7 @@ const FILTROS_PADRON = {
   edadValor: { valor: null, numeros: { min: 0, max: 18 } },
   edadMin:   { valor: 0, numeros: { min: 0, max: 18 } },
   edadMax:   { valor: 18, numeros: { min: 0, max: 18 } },
-  estado:    { valor: "all", valores: ["all", "Activo", "Inactivo", "Retirado"] },
+  estado:    { valor: "all", valores: ["all", "Activo", "Inactivo"] },
   sexo:      { valor: "all", valores: ["all", "M", "F"] },
   pagina:    { valor: 1, numeros: { min: 1, max: 1000 } },
   tam:       { valor: 20, numeros: { min: 5, max: 50 } },
@@ -156,12 +156,6 @@ export const BeneficiariosView = {
       estado: f.estado,
       sexo: f.sexo,
     });
-    // El archivo de retirados solo lo ve la dirección. Una URL compartida no
-    // puede saltarse el permiso. Se mira `f.estado` porque `_filterEstado`
-    // todavía no refleja lo que acaba de cargar el store.
-    if (f.estado === "Retirado" && !this._puedeVerRetirados()) {
-      this._obtenerStore().fijar("estado", "all");
-    }
     this._espejarStore();
     this._filterEdadModo = f.edadModo;
     this._filterEdadExacta = f.edadValor;
@@ -542,8 +536,8 @@ export const BeneficiariosView = {
     }
   },
 
-  /** Roles que pueden consultar el archivo de retirados. */
-  _puedeVerRetirados() {
+  /** Roles que pueden consultar el archivo de usuarios desactivados. */
+  _puedeVerArchivo() {
     try {
       const rol = localStorage.getItem("pdi_active_role");
       return rol === "coord" || rol === "admin";
@@ -553,7 +547,6 @@ export const BeneficiariosView = {
   },
 
   selectEstado(estadoVal) {
-    if (estadoVal === "Retirado" && !this._puedeVerRetirados()) return;
     this._obtenerStore().fijar("estado", estadoVal || "all");
     this._espejarStore();
     this._updateEstadoUI();
@@ -566,13 +559,21 @@ export const BeneficiariosView = {
     this._persistirFiltros();
   },
 
+  /**
+   * Enlace al expediente. Los desactivados se buscan por código: su id numérico
+   * puede coincidir con el de un usuario activo y abriría al Equipo equivocado.
+   */
+  _urlExpediente(b) {
+    const inactivo = b.estado === "Inactivo" || b.estado === "Retirado";
+    return inactivo
+      ? `/expediente?codigo=${encodeURIComponent(b.codigo)}`
+      : `/expediente?id=${encodeURIComponent(b.id)}`;
+  },
+
   /** Pinta el desplegable y la etiqueta del filtro de estado. */
   _updateEstadoUI() {
     const items = document.querySelectorAll("#menuPadronEstado .padron-dropdown-item");
-    const puedeVerRetirados = this._puedeVerRetirados();
     items.forEach(item => {
-      const esRetirado = item.getAttribute("data-value") === "Retirado";
-      if (esRetirado) item.hidden = !puedeVerRetirados;
       item.classList.toggle("selected", item.getAttribute("data-value") === this._filterEstado);
     });
 
@@ -581,16 +582,28 @@ export const BeneficiariosView = {
       if (this._filterEstado === "all") labelEl.textContent = "Todos los Estados";
       else if (this._filterEstado === "Activo") labelEl.textContent = "Activo";
       else if (this._filterEstado === "Inactivo") labelEl.textContent = "Inactivo";
-      else if (this._filterEstado === "Retirado") labelEl.textContent = "Retirado";
     }
   },
 
-  /** Dataset de la tabla: los retirados no se mezclan con los activos. */
+  /**
+   * Dataset de la tabla y de las facetas: activos + desactivados. «Todos» es
+   * el total real, no solo la lista operativa; el filtro de estado es el que
+   * separa unos de otros. El archivo solo entra para dirección, así que una
+   * facilitadora sigue viendo únicamente su padrón operativo.
+   */
   _obtenerBaseLista() {
-    if (this._filterEstado === "Retirado" && this._puedeVerRetirados()) {
-      return BeneficiarioModel.getRetirados();
+    const archivo = this._puedeVerArchivo() ? BeneficiarioModel.getRetirados() : [];
+    if (!archivo.length) return this._allBeneficiarios;
+
+    const vistos = new Set();
+    const union = [];
+    for (const b of [...this._allBeneficiarios, ...archivo]) {
+      const clave = b._personaId || b.codigo || `id-${b.id}`;
+      if (vistos.has(clave)) continue;
+      vistos.add(clave);
+      union.push(b);
     }
-    return this._allBeneficiarios;
+    return union;
   },
 
   selectSexo(sexoVal) {
@@ -1087,10 +1100,7 @@ export const BeneficiariosView = {
     this._setFacetBadge("countFacetEstado-all", `(${forEstado.length})`, forEstado.length === 0);
     this._setFacetBadge("countFacetEstado-Activo", `(${forEstado.filter(b => b.estado === "Activo").length})`, forEstado.filter(b => b.estado === "Activo").length === 0);
     this._setFacetBadge("countFacetEstado-Inactivo", `(${forEstado.filter(b => b.estado === "Inactivo").length})`, forEstado.filter(b => b.estado === "Inactivo").length === 0);
-    // El archivo de retirados se cuenta siempre sobre sí mismo: si se contara
-    // sobre la lista de activos daría 0 y parecería que no hay nadie guardado.
-    const forRetirado = getFilteredExcluding("estado", BeneficiarioModel.getRetirados());
-    this._setFacetBadge("countFacetEstado-Retirado", `(${forRetirado.length})`, forRetirado.length === 0);
+
 
     // 5. Facetas de Sexo
     const forSexo = getFilteredExcluding("sexo");
@@ -1282,7 +1292,7 @@ export const BeneficiariosView = {
             </td>
             <td>
               <div class="row-actions">
-                <a href="/expediente?id=${encodeURIComponent(b.id)}" class="row-action" data-astro-prefetch title="Ver expediente" aria-label="Ver expediente">
+                <a href="${this._urlExpediente(b)}" class="row-action" data-astro-prefetch title="Ver expediente" aria-label="Ver expediente">
                   ${iconHtml("accion.ver", { size: 15 })}
                 </a>
               </div>
@@ -1313,7 +1323,7 @@ export const BeneficiariosView = {
                 </div>
               </div>
               <div class="datacard-header-right">
-                <span class="badge ${b.estado === 'Activo' ? 'badge-green' : (b.estado === 'Retirado' ? 'badge-gray' : 'badge-yellow')}">${escapar(b.estado)}</span>
+                <span class="badge ${b.estado === 'Activo' ? 'badge-green' : (b.estado === 'Inactivo' || b.estado === 'Retirado' ? 'badge-gray' : 'badge-yellow')}">${escapar(b.estado)}</span>
               </div>
             </div>
 
@@ -1349,7 +1359,7 @@ export const BeneficiariosView = {
                   <span class="datacard-value">${escapar(b.seguro || 'SIS Gratuito')}</span>
                 </div>
                 <div class="datacard-actions-footer">
-                  <a href="/expediente?id=${encodeURIComponent(b.id)}" class="btn-action primary" style="width:100%; justify-content:center; text-decoration:none;" data-astro-prefetch onclick="event.stopPropagation();">
+                  <a href="${this._urlExpediente(b)}" class="btn-action primary" style="width:100%; justify-content:center; text-decoration:none;" data-astro-prefetch onclick="event.stopPropagation();">
                     ${iconHtml("accion.ver", { size: 15, style: "margin-right:6px;" })}
                     Ver Expediente Completo
                   </a>

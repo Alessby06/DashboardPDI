@@ -137,6 +137,9 @@ function getAdultAvatarSvg(parentesco) {
 // having un solo responsable, y para que una URL editada a mano no rompa nada.
 const FILTROS_EXPEDIENTE = {
   id: { valor: null, numeros: { min: 1 } },
+  // Los inactivos se abren por código: su id numérico puede coincidir con el
+  // de un usuario activo.
+  codigo: { valor: null },
 };
 
 // Leyenda por omision de la referencia de ubicacion: se muestra en el campo
@@ -157,6 +160,8 @@ const CAMPOS_EDITABLES = [
 
 export const ExpedienteView = {
   _id: null,
+  _usuarioActual: null,
+  _esArchivo: false,
   isEditing: false,
   _editServicios: [],
   _enlazado: false,
@@ -242,25 +247,36 @@ export const ExpedienteView = {
         // y el codigo se va por redundante, diga o no lo que dijera.
         this._obtenerFiltros().escribir({}, { quitar: ["codigo"] });
       } else {
-        const porCodigo = BeneficiarioModel.getByCodigo(codigoPedido);
-        if (porCodigo) {
-          this._obtenerFiltros().escribir({ id: porCodigo.id }, { quitar: ["codigo"] });
+        const activoPorCodigo = BeneficiarioModel.getByCodigo(codigoPedido);
+        const archivoPorCodigo = this._rolEsDirectivo()
+          ? BeneficiarioModel.getRetiradoByCodigo(codigoPedido)
+          : null;
+
+        if (activoPorCodigo) {
+          // Entre activos el id es estable: se puede reescribir la URL.
+          this._obtenerFiltros().escribir({ id: activoPorCodigo.id }, { quitar: ["codigo"] });
           return this.render();
         }
-        codigoNoEncontrado = codigoPedido;
+        // Un inactivo conserva el código en la URL: su id puede chocar con el
+        // de un activo, y reescribirlo abriría a la persona equivocada.
+        if (!archivoPorCodigo) codigoNoEncontrado = codigoPedido;
       }
     }
 
     const f = this._obtenerFiltros().leer();
-    // Un retirado solo se abre desde el archivo, y solo para dirección. El
+    // Un inactivo solo se abre desde el archivo, y solo para dirección. El
     // resto del sistema sigue leyendo getById(), que no lo incluye.
     const usuario = f.id
       ? (BeneficiarioModel.getById(f.id)
         || (this._rolEsDirectivo() ? BeneficiarioModel.getRetiradoById(f.id) : null))
-      : null;
+      : (f.codigo && this._rolEsDirectivo()
+        ? BeneficiarioModel.getRetiradoByCodigo(f.codigo)
+        : null);
 
     if (!usuario) {
       this._id = null;
+      this._usuarioActual = null;
+      this._esArchivo = false;
       this.isEditing = false;
 
       // Mientras la capa de datos sigue conectando o hidratando, un id sin
@@ -316,6 +332,8 @@ export const ExpedienteView = {
 
   _pintar(b, caso) {
     this._id = b.id;
+    this._usuarioActual = b;
+    this._esArchivo = b.estado === "Inactivo" || b.estado === "Retirado";
     if (this.isEditing) {
       this.isEditing = false;
       this._respaldoEdicion = null;
@@ -363,19 +381,23 @@ export const ExpedienteView = {
     const delBtn = document.getElementById("btnDeleteBeneficiario");
     const reBtn = document.getElementById("btnReactivarBeneficiario");
 
-    const b = BeneficiarioModel.getById(this._id) || BeneficiarioModel.getRetiradoById(this._id);
-    const retirado = b?.estado === "Retirado";
+    const b = this._usuarioActual
+      || BeneficiarioModel.getById(this._id)
+      || BeneficiarioModel.getRetiradoById(this._id);
+    const inactivo = this._esArchivo
+      || b?.estado === "Inactivo"
+      || b?.estado === "Retirado";
 
     if (editBtn) {
-      editBtn.style.display = retirado ? "none" : "inline-flex";
+      editBtn.style.display = inactivo ? "none" : "inline-flex";
       editBtn.classList.remove("danger");
       editBtn.innerHTML = `
         ${iconHtml("accion.editar", { size: 15 })}
         <span>Editar Datos</span>`;
     }
     if (saveBtn) saveBtn.style.display = "none";
-    if (delBtn) delBtn.style.display = !retirado && this._rolEsDirectivo() ? "inline-flex" : "none";
-    if (reBtn) reBtn.style.display = retirado && this._rolEsDirectivo() ? "inline-flex" : "none";
+    if (delBtn) delBtn.style.display = !inactivo && this._rolEsDirectivo() ? "inline-flex" : "none";
+    if (reBtn) reBtn.style.display = inactivo && this._rolEsDirectivo() ? "inline-flex" : "none";
   },
 
   _rolEsDirectivo() {
@@ -984,8 +1006,10 @@ export const ExpedienteView = {
   toggleEdit() {
     if (!this._id) return;
     if (this._guardandoExpediente) return;
-    // Un retirado se consulta y se reactiva, no se edita: sus datos ya no
-    // están en el padrón operativo.
+    // Un inactivo se consulta y se reactiva, no se edita: sus datos ya no
+    // están en el padrón operativo. No se busca por id: puede coincidir con el
+    // de un activo y abriría el expediente equivocado.
+    if (this._esArchivo) return;
     if (!BeneficiarioModel.getById(this._id)) return;
 
     // Cancelar la edición descarta cualquier cambio no confirmado. El respaldo
@@ -1178,6 +1202,7 @@ export const ExpedienteView = {
 
   async saveChanges() {
     if (!this._id) return;
+    if (this._esArchivo) return;
     if (this._guardandoExpediente) return;
     const b = BeneficiarioModel.getById(this._id);
     if (!b) return;
@@ -1526,7 +1551,7 @@ export const ExpedienteView = {
 
     const acepta = await confirmar({
       titulo: "Desactivar usuario",
-      mensaje: `¿Desactivar a ${b.nombres} ${b.apellidos} (${b.codigo})? Dejará de aparecer en el padrón y en los servicios activos, y podrá reactivarse después desde «Retirados». La acción quedará registrada en la auditoría.`,
+      mensaje: `¿Desactivar a ${b.nombres} ${b.apellidos} (${b.codigo})? Pasará a Inactivo: dejará de aparecer en los servicios activos y podrá reactivarse después desde el filtro «Inactivo». La acción quedará registrada en la auditoría.`,
       confirmar: "Desactivar",
       cancelar: "Cancelar",
       peligro: true,
@@ -1559,7 +1584,7 @@ export const ExpedienteView = {
         role: "Direccion / Admin",
         action: "Desactivación de Usuario",
         entity: b.codigo,
-        detail: `Desactivación del usuario ${b.nombres} ${b.apellidos} autorizada por rol directivo; puede reactivarse desde Retirados`,
+        detail: `Desactivación del usuario ${b.nombres} ${b.apellidos} autorizada por rol directivo; queda Inactivo y puede reactivarse`,
         status: "Ejecutado",
       });
     }
@@ -1568,7 +1593,7 @@ export const ExpedienteView = {
     // filtro «Retirados» puesto: si se volviera a la lista de activos, el
     // usuario desaparecería sin dejar rastro visible de dónde quedó.
     const base = window.PDI?.RouteMap?.urlDe?.("padron") || "/padron";
-    const destino = `${base}${base.includes("?") ? "&" : "?"}estado=Retirado`;
+    const destino = `${base}${base.includes("?") ? "&" : "?"}estado=Inactivo`;
     window.location.href = destino;
   },
 
@@ -1584,7 +1609,9 @@ export const ExpedienteView = {
     }
     if (this._reactivando) return;
 
-    const b = BeneficiarioModel.getRetiradoById(this._id);
+    const b = this._esArchivo
+      ? this._usuarioActual
+      : BeneficiarioModel.getRetiradoById(this._id);
     if (!b) return;
 
     if (!b.sedeActiva) {
@@ -1610,7 +1637,7 @@ export const ExpedienteView = {
     this._reactivando = true;
     let ok = false;
     try {
-      ok = await BeneficiarioModel.reactivar(b.id);
+      ok = await BeneficiarioModel.reactivar(b.codigo);
     } finally {
       this._reactivando = false;
     }
