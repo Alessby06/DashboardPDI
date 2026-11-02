@@ -1390,6 +1390,7 @@ if (typeof window !== "undefined") {
   window.exportVoluntariosCSV = () => VoluntariadosView.exportCSV();
   window.toggleVoluntariosDistrito = (d) => VoluntariadosView.toggleDistrito(d);
   window.toggleVoluntariosServicio = (s) => VoluntariadosView.toggleServicio(s);
+  window.toggleVoluntariosRol = (r) => VoluntariadosView.toggleRol(r);
   window.toggleVoluntariosEstado = (e) => VoluntariadosView.toggleEstado(e);
   window.toggleVoluntariosInnerDropdown = function (dropdownId) {
     const dropdown = document.getElementById(dropdownId);

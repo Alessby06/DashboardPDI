@@ -636,6 +636,14 @@
 .audit-filters-menu .padron-inner-dropdown-reveal > .padron-inner-dropdown-menu {
   min-height: 0;
   overflow: hidden;
+  /* El menú heredaba `overscroll-behavior: contain` del popover absoluto.
+     Como `overflow:hidden` también es un contenedor de scroll, la rueda se
+     quedaba atrapada ahí y no llegaba al cuerpo del panel. */
+  overscroll-behavior: auto;
+}
+
+.audit-filters-menu .padron-inner-dropdown-reveal {
+  overscroll-behavior: auto;
 }
 
 .audit-filters-menu .padron-inner-dropdown-menu {
