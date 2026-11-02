@@ -215,8 +215,8 @@
     }
 
     .audit-calendar-icon-btn:hover {
-      color: var(--text-brand);
-      background: rgba(var(--brand-rgb), 0.1);
+      color: var(--text-main);
+      background: var(--surface-hover);
     }
 
     .audit-range-grid {
@@ -277,9 +277,8 @@
     }
 
     .audit-legal-icon-btn:hover {
-      background: rgba(var(--brand-rgb), 0.22);
-      border-color: var(--gt-green);
-      transform: scale(1.06);
+      background: var(--surface-hover);
+      border-color: var(--text-dim);
     }
 
     /* Popover Flotante de Ley N.° 29733 */
@@ -361,9 +360,8 @@
 
     .btn-action-icon.btn-audit-export-icon:hover {
       background: var(--surface-hover);
-      border-color: var(--gt-green);
-      color: var(--text-brand);
-      box-shadow: var(--shadow-sm);
+      border-color: var(--text-dim);
+      color: var(--text-main);
     }
 
     /* Estilo para Facetas con conteo Cero (Deshabilitadas y en gris) */

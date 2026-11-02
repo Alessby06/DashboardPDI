@@ -764,7 +764,7 @@
     }
 
     .custom-dropdown.open .custom-dropdown-btn {
-      border-color: var(--gt-green);
+      border-color: var(--text-dim);
       box-shadow: none;
     }
 
@@ -870,7 +870,7 @@
 
     .custom-dropdown-item:hover {
       background: var(--surface-hover);
-      color: var(--text-brand);
+      color: var(--text-main);
     }
 
     .custom-dropdown-item.selected {

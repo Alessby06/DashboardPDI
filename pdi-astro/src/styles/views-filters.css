@@ -83,15 +83,14 @@
   .audit-filter-btn:hover {
     background: var(--surface-hover);
     border-color: var(--text-dim);
-    color: var(--text-brand);
   }
 }
 
 .audit-filter-btn.has-filters {
-  /* El contador y el tinte ya comunican que hay filtros. El borde verde
-     hacía que el botón desentonara con el resto de la barra. */
-  background: var(--brand-soft);
-  color: var(--text-brand);
+  /* El contador comunica que hay filtros. El texto y el fondo verdes eran
+     el mismo «encendido» que el resto de botones neutros ya no tiene. */
+  background: var(--surface-hover);
+  color: var(--text-main);
 }
 
 .audit-filter-btn svg.filter-caret {
@@ -549,7 +548,7 @@
 }
 
 .padron-inner-dropdown.open .padron-inner-dropdown-btn {
-  border-color: var(--text-brand);
+  border-color: var(--text-dim);
 }
 
 .padron-inner-dropdown-btn svg.caret {

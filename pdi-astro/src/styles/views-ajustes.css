@@ -780,9 +780,8 @@
 }
 
 .theme-option-btn:hover {
-  border-color: var(--brand-primary);
+  border-color: var(--text-dim);
   background: var(--surface-hover);
-  transform: translateY(-2px);
 }
 
 .theme-option-btn.active {

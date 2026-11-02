@@ -1110,13 +1110,13 @@
   .row-action:hover {
     background: var(--surface-hover);
     border-color: var(--border-bright);
-    color: var(--text-brand);
+    color: var(--text-main);
   }
 
-  /* El lápiz (editar) se insinúa en verde de marca */
+  /* El lápiz comparte el hover neutro del resto de acciones de fila. */
   .row-action--edit:hover {
-    border-color: var(--gt-green);
-    color: var(--gt-green);
+    border-color: var(--border-bright);
+    color: var(--text-main);
   }
 }
 
@@ -1162,9 +1162,8 @@
 
 .btn-action-icon.btn-audit-export-icon:hover {
   background: var(--surface-hover);
-  border-color: var(--gt-green);
-  color: var(--text-brand);
-  box-shadow: var(--shadow-sm);
+  border-color: var(--text-dim);
+  color: var(--text-main);
 }
 
 [data-theme="dark"] .btn-action-icon.btn-audit-export-icon {
@@ -1174,9 +1173,9 @@
 }
 
 [data-theme="dark"] .btn-action-icon.btn-audit-export-icon:hover {
-  background: rgba(var(--brand-rgb), 0.12);
-  border-color: var(--gt-green);
-  color: var(--text-brand);
+  background: var(--surface-hover);
+  border-color: var(--text-dim);
+  color: var(--text-main);
 }
 
 /* En móvil (<= 768px): integración simétrica y orgánica con .view-actions y .dash-header-actions */

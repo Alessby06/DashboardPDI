@@ -659,7 +659,7 @@
     .btn-menu-toggle:hover {
       background: var(--surface-hover);
       border-color: var(--border-bright);
-      color: var(--text-brand);
+      color: var(--text-main);
     }
 
     .topbar-right {
@@ -749,8 +749,8 @@
     }
 
     .theme-toggle-btn:hover {
-      border-color: var(--brand-primary);
-      background: var(--brand-soft);
+      border-color: var(--text-dim);
+      background: var(--surface-hover);
     }
 
     .theme-toggle-btn svg {
