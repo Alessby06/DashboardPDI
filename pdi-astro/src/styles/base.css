@@ -789,6 +789,15 @@
       background: var(--bg-base);
     }
 
+    /* Lenis aplica `overflow: clip` cuando se detiene (.lenis-stopped). En este
+       layout el propio contenedor es el scroller: recortarlo resetea su
+       scrollTop a 0 y el contenido de atrás salta al inicio al abrir una hoja.
+       Se conserva el eje vertical mientras la hoja está abierta; el gesto y el
+       foco siguen bloqueados por las clases de la hoja. */
+    #mainContent.content-viewport.lenis-stopped {
+      overflow-y: auto;
+    }
+
     /* Con una hoja abierta el fondo no acepta gestos. Se aplica al viewport y
        no al body para no tocar scrollbar ni layout (eso repintaba la tabla).
        El cuerpo de la hoja conserva su scroll: es su contenedor más cercano. */
