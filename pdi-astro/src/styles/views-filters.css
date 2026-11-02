@@ -954,10 +954,9 @@
     transform-origin: 50% 100%;
     transform: var(--sheet-tilt-closed);
     backface-visibility: hidden;
-    opacity: 0;
+    will-change: transform;
     transition:
       transform var(--sheet-out) var(--sheet-exit-ease),
-      opacity 160ms linear,
       visibility 0s linear var(--sheet-out);
     overflow: hidden;
   }
@@ -965,50 +964,22 @@
   .audit-filter-panel-wrap .audit-filters-dropdown.open .audit-filters-menu {
     visibility: visible;
     transform: var(--sheet-tilt-open);
-    opacity: 1;
     transition:
       transform var(--sheet-in) var(--sheet-lift-ease),
-      opacity 180ms linear,
       visibility 0s;
   }
 
-  /* El contenido aterriza detrás de la inclinación: 90/130/180 ms. La
-     animación de compás sigue siendo solo del popover de escritorio. */
-  .audit-filters-menu > .audit-filters-header,
-  .audit-filters-menu > .audit-filters-body,
-  .audit-filters-menu > .audit-filters-footer {
-    animation: none;
-    opacity: 0;
-    transition: opacity 140ms linear;
-  }
-
-  .audit-filters-dropdown.open .audit-filters-menu > .audit-filters-header {
-    animation: none;
-    opacity: 1;
-    transition-delay: 90ms;
-  }
-
-  .audit-filters-dropdown.open .audit-filters-menu > .audit-filters-body {
-    animation: none;
-    opacity: 1;
-    transition-delay: 130ms;
-  }
-
+  /* El compás de escritorio no viaja a la hoja móvil: el contenido entra
+     con la hoja, sin capas de opacidad ni retardos. */
+  .audit-filters-dropdown.open .audit-filters-menu > .audit-filters-header,
+  .audit-filters-dropdown.open .audit-filters-menu > .audit-filters-body,
   .audit-filters-dropdown.open .audit-filters-menu > .audit-filters-footer {
     animation: none;
-    opacity: 1;
-    transition-delay: 180ms;
   }
 
   @media (prefers-reduced-motion: reduce) {
     .audit-filters-dropdown .audit-filters-menu,
     .audit-filter-panel-wrap .audit-filters-dropdown.open .audit-filters-menu {
-      transition: none;
-    }
-
-    .audit-filters-menu > .audit-filters-header,
-    .audit-filters-menu > .audit-filters-body,
-    .audit-filters-menu > .audit-filters-footer {
       transition: none;
     }
   }

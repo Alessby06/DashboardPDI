@@ -207,52 +207,20 @@
         /* Solo la hoja que recorre la pantalla conserva su capa: el aviso en
            los 12 modales y 12 telones creaba 24 capas permanentes. */
         will-change: transform;
-        /* Salida: cae inclinada en 240 ms. La opacidad se apaga antes para
-           que el borde no deje un fantasma al final. */
+        /* Salida: cae inclinada en 240 ms. La hoja se mantiene opaca, como el
+           cajón lateral; `visibility` la retira al terminar. */
         transition:
           transform var(--sheet-out) var(--sheet-exit-ease),
-          opacity 160ms linear,
           visibility 0s linear var(--sheet-out);
       }
 
       .modal-backdrop.open .modal-box.drawer-box {
         transform: var(--sheet-tilt-open);
         visibility: visible;
-        /* Entrada: 500 ms con ease-out; el velo ya está puesto. */
+        /* Entrada: 320 ms, la misma curva del cajón. */
         transition:
           transform var(--sheet-in) var(--sheet-lift-ease),
-          opacity 180ms linear,
           visibility 0s;
-      }
-
-      /* El contenido aterriza detrás de la inclinación, no con ella:
-         90/130/180 ms. En la salida no espera. */
-      .modal-box.drawer-box > .modal-header,
-      .modal-box.drawer-box > .modal-body,
-      .modal-box.drawer-box > .modal-footer,
-      .modal-box.drawer-box > form > .modal-header,
-      .modal-box.drawer-box > form > .modal-body,
-      .modal-box.drawer-box > form > .modal-footer {
-        opacity: 0;
-        transition: opacity 140ms linear;
-      }
-
-      .modal-backdrop.open .modal-box.drawer-box > .modal-header,
-      .modal-backdrop.open .modal-box.drawer-box > form > .modal-header {
-        opacity: 1;
-        transition-delay: 90ms;
-      }
-
-      .modal-backdrop.open .modal-box.drawer-box > .modal-body,
-      .modal-backdrop.open .modal-box.drawer-box > form > .modal-body {
-        opacity: 1;
-        transition-delay: 130ms;
-      }
-
-      .modal-backdrop.open .modal-box.drawer-box > .modal-footer,
-      .modal-backdrop.open .modal-box.drawer-box > form > .modal-footer {
-        opacity: 1;
-        transition-delay: 180ms;
       }
 
       /* Variante de lectura y workflow corto: la hoja crece segun contenido
@@ -317,16 +285,6 @@
 
     @media (prefers-reduced-motion: reduce) {
       .modal-box.drawer-box {
-        transition: none;
-      }
-
-      /* Sin elevación ni compás: el contenido aparece con la hoja. */
-      .modal-box.drawer-box > .modal-header,
-      .modal-box.drawer-box > .modal-body,
-      .modal-box.drawer-box > .modal-footer,
-      .modal-box.drawer-box > form > .modal-header,
-      .modal-box.drawer-box > form > .modal-body,
-      .modal-box.drawer-box > form > .modal-footer {
         transition: none;
       }
     }

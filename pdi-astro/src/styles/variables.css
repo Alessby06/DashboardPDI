@@ -138,14 +138,16 @@
   /* Hojas inferiores: Elevación. La hoja se levanta en perspectiva desde su
      borde inferior, inclinada hacia atrás, y cae plana. La perspectiva viaja
      dentro del propio transform: un `perspective` en un ancestro convertiría
-     ese ancestro en bloque contenedor de las hojas `position: fixed`. */
-  --sheet-in: 500ms;
+     ese ancestro en bloque contenedor de las hojas `position: fixed`.
+     El ritmo sigue al cajón lateral (250 ms, misma curva) para que la hoja
+     no se sienta más lenta que la navegación. */
+  --sheet-in: 320ms;
   --sheet-out: 240ms;
   --sheet-ease: cubic-bezier(0.22, 0.61, 0.36, 1); /* gesto de arrastre */
-  --sheet-lift-ease: cubic-bezier(0.23, 1, 0.32, 1);
+  --sheet-lift-ease: cubic-bezier(0.16, 1, 0.3, 1);
   --sheet-exit-ease: cubic-bezier(0.4, 0, 1, 1);
-  --sheet-tilt-closed: perspective(1200px) translateY(100%) rotateX(14deg) scale(0.97);
-  --sheet-tilt-open: perspective(1200px) translateY(0deg) rotateX(0deg) scale(1);
+  --sheet-tilt-closed: perspective(1200px) translate3d(0, 100%, 0) rotateX(14deg) scale(0.97);
+  --sheet-tilt-open: perspective(1200px) translate3d(0, 0, 0) rotateX(0deg) scale(1);
   
   color-scheme: light;
 }
