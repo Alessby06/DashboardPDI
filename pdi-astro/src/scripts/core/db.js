@@ -726,7 +726,7 @@ function mapearSedes(raw) {
       pastorAliado: '',
       aliadoTel: s.facilitadora_tel || '',
       tipoAliado: s.aliado_institucion || s.tipo_local || '',
-      servicios: Array.isArray(s.servicios) ? s.servicios : [],
+      servicios: Array.isArray(s.servicios) ? s.servicios.map(nombreServicioVisible) : [],
       aforoMax: s.aforo_max || 0,
       horario: s.horario || '',
       estado: s.estado || 'Operativa',
