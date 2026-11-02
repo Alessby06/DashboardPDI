@@ -9,6 +9,7 @@ import { SEDES_NOMBRES } from "../core/catalogos.js";
 import { iconHtml } from '../../data/iconos.js';
 import { avatarHtml } from "../utils/Avatar.js";
 import { claseLineaServicio, nombreServicioVisible } from "../../data/opcionesBeneficiario.js";
+import { BeneficiarioModel } from "../models/BeneficiarioModel.js";
 // Qué filtros del padrón viajan en la URL, con qué valores y cuáles son los
 // defectos. La lista de valores no se inventa: es la misma que admiten los
 // desplegables de padron.html. Si algún día se añade un filtro
@@ -23,7 +24,7 @@ const FILTROS_PADRON = {
   edadValor: { valor: null, numeros: { min: 0, max: 18 } },
   edadMin:   { valor: 0, numeros: { min: 0, max: 18 } },
   edadMax:   { valor: 18, numeros: { min: 0, max: 18 } },
-  estado:    { valor: "all", valores: ["all", "Activo", "Inactivo"] },
+  estado:    { valor: "all", valores: ["all", "Activo", "Inactivo", "Retirado"] },
   sexo:      { valor: "all", valores: ["all", "M", "F"] },
   pagina:    { valor: 1, numeros: { min: 1, max: 1000 } },
   tam:       { valor: 20, numeros: { min: 5, max: 50 } },
@@ -155,6 +156,12 @@ export const BeneficiariosView = {
       estado: f.estado,
       sexo: f.sexo,
     });
+    // El archivo de retirados solo lo ve la dirección. Una URL compartida no
+    // puede saltarse el permiso. Se mira `f.estado` porque `_filterEstado`
+    // todavía no refleja lo que acaba de cargar el store.
+    if (f.estado === "Retirado" && !this._puedeVerRetirados()) {
+      this._obtenerStore().fijar("estado", "all");
+    }
     this._espejarStore();
     this._filterEdadModo = f.edadModo;
     this._filterEdadExacta = f.edadValor;
@@ -535,7 +542,18 @@ export const BeneficiariosView = {
     }
   },
 
+  /** Roles que pueden consultar el archivo de retirados. */
+  _puedeVerRetirados() {
+    try {
+      const rol = localStorage.getItem("pdi_active_role");
+      return rol === "coord" || rol === "admin";
+    } catch {
+      return false;
+    }
+  },
+
   selectEstado(estadoVal) {
+    if (estadoVal === "Retirado" && !this._puedeVerRetirados()) return;
     this._obtenerStore().fijar("estado", estadoVal || "all");
     this._espejarStore();
     this._updateEstadoUI();
@@ -551,7 +569,10 @@ export const BeneficiariosView = {
   /** Pinta el desplegable y la etiqueta del filtro de estado. */
   _updateEstadoUI() {
     const items = document.querySelectorAll("#menuPadronEstado .padron-dropdown-item");
+    const puedeVerRetirados = this._puedeVerRetirados();
     items.forEach(item => {
+      const esRetirado = item.getAttribute("data-value") === "Retirado";
+      if (esRetirado) item.hidden = !puedeVerRetirados;
       item.classList.toggle("selected", item.getAttribute("data-value") === this._filterEstado);
     });
 
@@ -560,7 +581,16 @@ export const BeneficiariosView = {
       if (this._filterEstado === "all") labelEl.textContent = "Todos los Estados";
       else if (this._filterEstado === "Activo") labelEl.textContent = "Activo";
       else if (this._filterEstado === "Inactivo") labelEl.textContent = "Inactivo / Baja";
+      else if (this._filterEstado === "Retirado") labelEl.textContent = "Retirado";
     }
+  },
+
+  /** Dataset de la tabla: los retirados no se mezclan con los activos. */
+  _obtenerBaseLista() {
+    if (this._filterEstado === "Retirado" && this._puedeVerRetirados()) {
+      return BeneficiarioModel.getRetirados();
+    }
+    return this._allBeneficiarios;
   },
 
   selectSexo(sexoVal) {
@@ -828,7 +858,7 @@ export const BeneficiariosView = {
     if (resetPage) {
       this._currentPage = 1;
     }
-    let list = [...this._allBeneficiarios];
+    let list = [...this._obtenerBaseLista()];
 
     // 1. Buscador texto libre
     if (this._searchQuery) {
@@ -988,7 +1018,7 @@ export const BeneficiariosView = {
     if (!document.getElementById("menuPadronEstrategia")) return;
     // Calculo facetado con respecto a los otros filtros activos excepto la propia categoría
     const getFilteredExcluding = (excludeKey) => {
-      let l = [...this._allBeneficiarios];
+      let l = [...this._obtenerBaseLista()];
       if (this._searchQuery) {
         const q = this._searchQuery;
         l = l.filter(b => `${b.nombres} ${b.apellidos} ${b.codigo} ${b.dni} ${b.sede} ${b.distrito} ${b.apoderado}`.toLowerCase().includes(q));
@@ -1057,6 +1087,7 @@ export const BeneficiariosView = {
     this._setFacetBadge("countFacetEstado-all", `(${forEstado.length})`, forEstado.length === 0);
     this._setFacetBadge("countFacetEstado-Activo", `(${forEstado.filter(b => b.estado === "Activo").length})`, forEstado.filter(b => b.estado === "Activo").length === 0);
     this._setFacetBadge("countFacetEstado-Inactivo", `(${forEstado.filter(b => b.estado === "Inactivo").length})`, forEstado.filter(b => b.estado === "Inactivo").length === 0);
+    this._setFacetBadge("countFacetEstado-Retirado", `(${forEstado.filter(b => b.estado === "Retirado").length})`, forEstado.filter(b => b.estado === "Retirado").length === 0);
 
     // 5. Facetas de Sexo
     const forSexo = getFilteredExcluding("sexo");
@@ -1279,7 +1310,7 @@ export const BeneficiariosView = {
                 </div>
               </div>
               <div class="datacard-header-right">
-                <span class="badge ${b.estado === 'Activo' ? 'badge-green' : 'badge-yellow'}">${escapar(b.estado)}</span>
+                <span class="badge ${b.estado === 'Activo' ? 'badge-green' : (b.estado === 'Retirado' ? 'badge-gray' : 'badge-yellow')}">${escapar(b.estado)}</span>
               </div>
             </div>
 

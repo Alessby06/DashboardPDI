@@ -23,9 +23,10 @@ import { CasoSocialModel } from "../models/CasoSocialModel.js";
 import { AuditModel } from "../models/AuditModel.js";
 import { ToastView } from "./ToastView.js";
 import { confirmar } from "../ui/confirmacion.js";
+import { confirmarEnToast } from "../ui/toastConfirmacion.js";
 import { crear as crearFiltros } from "../utils/Filters.js";
 import { edadDesdeFecha, estadoActual } from "../core/db.js";
-import { PARENTESCOS, valoresDeGrado } from "../../data/opcionesBeneficiario.js";
+import { PARENTESCOS, PROGRAMAS, valoresDeGrado } from "../../data/opcionesBeneficiario.js";
 import {
   severidadAlergiaCanonico,
   pesoSeveridadAlergia,
@@ -251,7 +252,12 @@ export const ExpedienteView = {
     }
 
     const f = this._obtenerFiltros().leer();
-    const usuario = f.id ? BeneficiarioModel.getById(f.id) : null;
+    // Un retirado solo se abre desde el archivo, y solo para dirección. El
+    // resto del sistema sigue leyendo getById(), que no lo incluye.
+    const usuario = f.id
+      ? (BeneficiarioModel.getById(f.id)
+        || (this._rolEsDirectivo() ? BeneficiarioModel.getRetiradoById(f.id) : null))
+      : null;
 
     if (!usuario) {
       this._id = null;
@@ -355,16 +361,21 @@ export const ExpedienteView = {
     const editBtn = document.getElementById("btnToggleEditExp");
     const saveBtn = document.getElementById("btnSaveExpChanges");
     const delBtn = document.getElementById("btnDeleteBeneficiario");
+    const reBtn = document.getElementById("btnReactivarBeneficiario");
+
+    const b = BeneficiarioModel.getById(this._id) || BeneficiarioModel.getRetiradoById(this._id);
+    const retirado = b?.estado === "Retirado";
 
     if (editBtn) {
-      editBtn.style.display = "inline-flex";
+      editBtn.style.display = retirado ? "none" : "inline-flex";
       editBtn.classList.remove("danger");
       editBtn.innerHTML = `
         ${iconHtml("accion.editar", { size: 15 })}
         <span>Editar Datos</span>`;
     }
     if (saveBtn) saveBtn.style.display = "none";
-    if (delBtn) delBtn.style.display = this._rolEsDirectivo() ? "inline-flex" : "none";
+    if (delBtn) delBtn.style.display = !retirado && this._rolEsDirectivo() ? "inline-flex" : "none";
+    if (reBtn) reBtn.style.display = retirado && this._rolEsDirectivo() ? "inline-flex" : "none";
   },
 
   _rolEsDirectivo() {
@@ -973,21 +984,28 @@ export const ExpedienteView = {
   toggleEdit() {
     if (!this._id) return;
     if (this._guardandoExpediente) return;
+    // Un retirado se consulta y se reactiva, no se edita: sus datos ya no
+    // están en el padrón operativo.
+    if (!BeneficiarioModel.getById(this._id)) return;
 
     // Cancelar la edición descarta cualquier cambio no confirmado. El respaldo
     // se toma al entrar; si el guardado falló, la vista no puede quedarse
-    // mostrando valores que la nube rechazó.
+    // mostrando valores que la nube rechazó. Antes de descartar se comprueba el
+    // formulario: solo se pregunta cuando de verdad hay algo que perder.
     if (this.isEditing) {
-      if (this._respaldoEdicion) {
-        BeneficiarioModel.restaurar(this._id, this._respaldoEdicion);
-        this._respaldoEdicion = null;
-        this.isEditing = false;
-        if (typeof document !== "undefined") {
-          document.body.classList.remove("pdi-editando");
-        }
-        this.render();
+      if (this._hayCambiosSinGuardar()) {
+        confirmarEnToast({
+          titulo: "¿Descartar cambios?",
+          mensaje: "Los cambios sin guardar se perderán.",
+          textoConfirmar: "Descartar cambios",
+          textoCancelar: "Seguir editando",
+          peligro: true,
+          onConfirm: () => this._descartarEdicion(),
+        });
         return;
       }
+      this._descartarEdicion();
+      return;
     } else {
       const actual = BeneficiarioModel.getById(this._id);
       this._respaldoEdicion = actual ? structuredClone(actual) : null;
@@ -1069,6 +1087,49 @@ export const ExpedienteView = {
       }
       if (saveBtn) saveBtn.style.display = "none";
     }
+
+    // El retrato se toma al final, cuando el modo edición ya ajustó placeholders
+    // y desbloqueó los campos. Comparar antes marcaría cambios que no existen.
+    this._snapshotEdicion = this.isEditing ? this._capturarFormulario() : null;
+  },
+
+  /** Descarta la edición y vuelve a pintar el expediente con el respaldo. */
+  _descartarEdicion() {
+    if (this._respaldoEdicion) {
+      BeneficiarioModel.restaurar(this._id, this._respaldoEdicion);
+    }
+    this._respaldoEdicion = null;
+    this._snapshotEdicion = null;
+    this.isEditing = false;
+    if (typeof document !== "undefined") {
+      document.body.classList.remove("pdi-editando");
+    }
+    this.render();
+  },
+
+  /**
+   * Retrato de los controles editables. El guardado lee del DOM
+   * (`saveChanges`), no del modelo, así que la única comparación honesta es
+   * formulario contra formulario.
+   */
+  _capturarFormulario() {
+    const cont = document.getElementById("view-expediente")
+      || document.querySelector(".expediente-page-body")
+      || document.body;
+    const campos = [];
+    cont.querySelectorAll("input, select, textarea").forEach((el, idx) => {
+      if (el.type === "file") return;
+      const clave = el.id || el.name || `campo-${idx}`;
+      const esMarca = el.type === "checkbox" || el.type === "radio";
+      campos.push([clave, esMarca ? (el.checked ? "1" : "0") : el.value]);
+    });
+    const servicios = [...(this._editServicios || [])].sort();
+    return JSON.stringify({ campos, servicios });
+  },
+
+  _hayCambiosSinGuardar() {
+    if (!this._snapshotEdicion) return false;
+    return this._capturarFormulario() !== this._snapshotEdicion;
   },
 
   /**
@@ -1371,6 +1432,7 @@ export const ExpedienteView = {
 
     this.isEditing = false;
     this._respaldoEdicion = null;
+    this._snapshotEdicion = null;
     if (typeof document !== "undefined") {
       document.body.classList.remove("pdi-editando");
     }
@@ -1463,9 +1525,9 @@ export const ExpedienteView = {
     if (!b) return;
 
     const acepta = await confirmar({
-      titulo: "Dar de baja al usuario",
-      mensaje: `¿Dar de baja a ${b.nombres} ${b.apellidos} (${b.codigo})? Dejará de aparecer en el padrón y en los servicios activos. La acción quedará registrada en la auditoría.`,
-      confirmar: "Dar de baja",
+      titulo: "Desactivar usuario",
+      mensaje: `¿Desactivar a ${b.nombres} ${b.apellidos} (${b.codigo})? Dejará de aparecer en el padrón y en los servicios activos, y podrá reactivarse después desde «Retirados». La acción quedará registrada en la auditoría.`,
+      confirmar: "Desactivar",
       cancelar: "Cancelar",
       peligro: true,
       origen: document.getElementById("btnDeleteBeneficiario"),
@@ -1495,9 +1557,9 @@ export const ExpedienteView = {
       await AuditModel.addLog({
         user: usuarioActivo,
         role: "Direccion / Admin",
-        action: "Baja de Usuario",
+        action: "Desactivación de Usuario",
         entity: b.codigo,
-        detail: `Baja definitiva del usuario ${b.nombres} ${b.apellidos} autorizada por rol directivo`,
+        detail: `Desactivación del usuario ${b.nombres} ${b.apellidos} autorizada por rol directivo; puede reactivarse desde Retirados`,
         status: "Ejecutado",
       });
     }
@@ -1506,6 +1568,74 @@ export const ExpedienteView = {
     // pintar: se vuelve al padron, que es donde el usuario puede ver el efecto.
     const destino = window.PDI?.RouteMap?.urlDe?.("padron") || "/padron";
     window.location.href = destino;
+  },
+
+  /**
+   * Devuelve al usuario retirado al padrón. Antes valida que su sede siga
+   * operativa y que conserve al menos un servicio del catálogo; sin eso, el
+   * usuario volvería a una sede fantasma o sin programa.
+   */
+  async reactivarUsuario() {
+    if (!this._rolEsDirectivo()) {
+      ToastView.show("Accion Restringida", "Unicamente el Coordinador General o el Administrador TI pueden reactivar a un usuario.", "danger");
+      return;
+    }
+    if (this._reactivando) return;
+
+    const b = BeneficiarioModel.getRetiradoById(this._id);
+    if (!b) return;
+
+    if (!b.sedeActiva) {
+      ToastView.show(
+        "Sede inactiva",
+        `La sede de ${b.nombres} ${b.apellidos} ya no está operativa. Reasigne una sede activa antes de reactivar.`,
+        "danger",
+      );
+      return;
+    }
+
+    const catalogo = new Set([...PROGRAMAS.map(p => p.valor), "Área Social Pastoral", "Lonchera Saludable"]);
+    const servicios = Array.isArray(b.servicios) ? b.servicios : [];
+    if (!servicios.some(s => catalogo.has(s))) {
+      ToastView.show(
+        "Servicio no vigente",
+        `Los servicios de ${b.nombres} ${b.apellidos} ya no están en el catálogo. Reasigne el servicio antes de reactivar.`,
+        "danger",
+      );
+      return;
+    }
+
+    this._reactivando = true;
+    let ok = false;
+    try {
+      ok = await BeneficiarioModel.reactivar(b.id);
+    } finally {
+      this._reactivando = false;
+    }
+
+    if (!ok) {
+      ToastView.show(
+        "Reactivación no completada",
+        `No se pudo reactivar a ${b.nombres} ${b.apellidos} en la base de datos.`,
+        "danger",
+      );
+      return;
+    }
+
+    const usuarioActivo = localStorage.getItem("pdi_usuario_nombre") || "Coordinador General";
+    if (AuditModel && AuditModel.addLog) {
+      await AuditModel.addLog({
+        user: usuarioActivo,
+        role: "Direccion / Admin",
+        action: "Reactivación de Usuario",
+        entity: b.codigo,
+        detail: `Reactivación del usuario ${b.nombres} ${b.apellidos} en la sede ${b.sede || "sin sede"}; vuelve como Activo. Motivo de la baja: ${b.motivoBaja || "no registrado"}`,
+        status: "Ejecutado",
+      });
+    }
+
+    this.render();
+    ToastView.show("Usuario Reactivado", `${b.nombres} ${b.apellidos} volvió al padrón como Activo.`, "success");
   },
 };
 

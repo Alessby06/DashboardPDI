@@ -922,27 +922,32 @@
         border-color var(--dur-fast) var(--ease-smooth);
     }
 
-    /* Confirmación de descarga compacta (Android): mismo cartón que un toast,
-       con dos acciones y sin autodestrucción. */
-    .toast-msg.download-toast {
+    /* Confirmación con acciones (descarga en Android y descarte de cambios):
+       mismo cartón que un toast, con dos botones y sin autodestrucción. */
+    .toast-msg.download-toast,
+    .toast-msg.toast-confirmacion {
       flex-direction: column;
       align-items: stretch;
       gap: 12px;
     }
 
-    .download-toast-head {
+    .download-toast-head,
+    .toast-confirmacion-head {
       display: flex;
       align-items: flex-start;
       gap: 12px;
     }
 
-    .download-toast-actions {
+    .download-toast-actions,
+    .toast-confirmacion-actions {
       display: flex;
       justify-content: flex-end;
       gap: 8px;
+      flex-wrap: wrap;
     }
 
-    .download-toast-actions .btn-action {
+    .download-toast-actions .btn-action,
+    .toast-confirmacion-actions .btn-action {
       min-height: 34px;
       padding: 0 14px;
       font-size: 12.5px;

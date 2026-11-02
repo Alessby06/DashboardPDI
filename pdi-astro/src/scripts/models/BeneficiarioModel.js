@@ -5,7 +5,7 @@
 // de forma optimista: la memoria se actualiza aquí y db.js confirma el cambio.
 import {
   crearBeneficiario, actualizarBeneficiario, darBajaBeneficiario,
-  crearTamizaje, desactivarTamizaje,
+  reactivarBeneficiario, crearTamizaje, desactivarTamizaje,
 } from '../core/db.js';
 import { AnemiaCalculator } from '../utils/AnemiaCalculator.js';
 
@@ -78,6 +78,7 @@ export function normalizeBeneficiarioServicios(b) {
 
 export const BeneficiarioModel = {
   _data: null,
+  _retirados: [],
 
   init() {
     // Sin conexión aún no hay lista: db.js rehidrata sola al reconectar.
@@ -89,6 +90,24 @@ export const BeneficiarioModel = {
   aplicarDatos(lista) {
     if (!Array.isArray(lista)) return;
     this._data = lista.map(b => normalizeBeneficiarioServicios(b));
+  },
+
+  /**
+   * Archivo de retirados. Vive aparte de `_data` a propósito: los KPIs, el
+   * dashboard y los servicios activos leen getAll() y no deben contarlos.
+   */
+  aplicarRetirados(lista) {
+    this._retirados = Array.isArray(lista)
+      ? lista.map(b => normalizeBeneficiarioServicios(b))
+      : [];
+  },
+
+  getRetirados() {
+    return this._retirados;
+  },
+
+  getRetiradoById(id) {
+    return this._retirados.find(b => String(b.id) === String(id) || b.id === Number(id)) || null;
   },
 
   getAll() {
@@ -292,6 +311,26 @@ export const BeneficiarioModel = {
       list.splice(idx, 0, removed);
       return false;
     }
+    // El archivo se actualiza al momento; la hidratación confirmará la fecha y
+    // el estado reales. La sede estaba operativa cuando se dio la baja.
+    this._retirados = [{ ...removed, estado: 'Retirado', sedeActiva: true }, ...this._retirados];
+    return true;
+  },
+
+  /**
+   * Devuelve al usuario al padrón desde el archivo de retirados. Vuelve como
+   * Activo y conserva su inscripción, sede y servicio. La vista valida antes
+   * que la sede y el servicio sigan operativos.
+   */
+  async reactivar(id) {
+    const item = this.getRetiradoById(id);
+    if (!item) return false;
+    const ok = await reactivarBeneficiario(item);
+    if (!ok) return false;
+    const reactivado = { ...item, estado: 'Activo', fechaBaja: '', sedeActiva: true };
+    const list = this.getAll();
+    if (!list.some(b => String(b.id) === String(reactivado.id))) list.push(reactivado);
+    this._retirados = this._retirados.filter(b => String(b.id) !== String(reactivado.id));
     return true;
   },
 

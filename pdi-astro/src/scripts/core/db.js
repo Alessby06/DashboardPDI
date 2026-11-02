@@ -445,6 +445,24 @@ WHERE activo = true
   AND id IN (SELECT VALUE ${F_USUARIO} FROM inscripcion WHERE activo = true);`;
 
 /**
+ * Archivo de retirados. Es una consulta aparte y no un cambio de SQL_PADRON:
+ * los retirados no pueden entrar en el modelo que alimenta los KPIs, el
+ * dashboard ni los servicios activos. La inscripción se busca por estado
+ * «Retirado» porque la baja la deja inactiva.
+ */
+const SQL_RETIRADOS = `SELECT *,
+  centro_salud.nombre AS centro_salud_nombre,
+  institucion_origen.nombre AS institucion_origen_nombre,
+  (SELECT * FROM alergia WHERE persona_id = $parent.id) AS alergias,
+  (SELECT * FROM inscripcion WHERE ${F_USUARIO} = $parent.id AND estado = 'Retirado' LIMIT 1)[0] AS ins,
+  (SELECT * FROM tamizaje_hemoglobina WHERE ${F_USUARIO} = $parent.id AND activo = true ORDER BY fecha_tamizaje DESC) AS tams,
+  (SELECT cuidador_id.nombres AS c_nom, cuidador_id.apellidos AS c_ape, cuidador_id.numero_documento AS c_dni, cuidador_id.sexo AS c_sexo, parentesco FROM ${T_VINCULO} WHERE ${F_MENOR} = $parent.id LIMIT 1)[0] AS apo,
+  (SELECT VALUE pct_exoneracion FROM aporte WHERE inscripcion_id.${F_USUARIO} = $parent.id ORDER BY periodo DESC, mes DESC LIMIT 1)[0] AS pct
+FROM persona
+WHERE activo = false
+  AND id IN (SELECT VALUE ${F_USUARIO} FROM inscripcion WHERE estado = 'Retirado');`;
+
+/**
  * Lote de consultas del padrón completo. Van pegadas para que la hidratación
  * sea UNA sola ida y vuelta (ejecutarLote devuelve una lista por sentencia,
  * en este orden).
@@ -470,6 +488,11 @@ const SQL_LOTE_HIDRATACION = [
   // 6 · asistencia de hoy
   `SELECT inscripcion_id AS iid, estado FROM asistencia_diaria
   WHERE fecha >= time::floor(time::now(), 1d) AND fecha < time::floor(time::now(), 1d) + 1d;`,
+  // 7 · todas las sedes, incluidas las inactivas: el archivo de retirados
+  //     necesita saber si la sede de la que se fue sigue operativa.
+  'SELECT * FROM sede ORDER BY creado_el;',
+  // 8 · archivo de retirados
+  SQL_RETIRADOS,
 ].join('\n');
 
 export async function hidratar(promedioSilencioso = false) {
@@ -485,11 +508,12 @@ export async function hidratar(promedioSilencioso = false) {
     cambiarEstado('cargando');
     try {
       // Un solo viaje: el lote completo cuesta 1 RTT en lugar de 6-8.
-      const [sedesRaw, personasRaw, casosRaw, solicitudesRaw, voluntariosRaw, logsRaw, asistenciaRaw] =
+      const [sedesRaw, personasRaw, casosRaw, solicitudesRaw, voluntariosRaw, logsRaw, asistenciaRaw, sedesTodasRaw, retiradosRaw] =
         await ejecutarLote(SQL_LOTE_HIDRATACION);
 
       const sedes = mapearSedes(sedesRaw);
       const beneficiarios = mapearBeneficiarios(personasRaw, sedes);
+      const retirados = mapearRetirados(retiradosRaw, mapearSedes(sedesTodasRaw));
       const casos = mapearCasos(casosRaw, solicitudesRaw);
       const voluntarios = mapearVoluntarios(voluntariosRaw);
       const logs = mapearBitacora(logsRaw);
@@ -502,7 +526,7 @@ export async function hidratar(promedioSilencioso = false) {
         return;
       }
 
-      aplicarDatasets(beneficiarios, sedes, casos, voluntarios, logs, asistencia);
+      aplicarDatasets(beneficiarios, sedes, casos, voluntarios, logs, asistencia, retirados);
       _hidratado = true;
       _jsonDeReintento = 5000;
       // La nube volvió: el próximo corte puede avisar de nuevo.
@@ -532,9 +556,10 @@ export async function hidratarDesdeSurreal() {
   await hidratar();
 }
 
-function aplicarDatasets(beneficiarios, sedes, casos, voluntarios, logs, asistencia) {
+function aplicarDatasets(beneficiarios, sedes, casos, voluntarios, logs, asistencia, retirados) {
   const pdi = (typeof window !== 'undefined' && window.PDI) || {};
   pdi.BeneficiarioModel?.aplicarDatos?.(beneficiarios);
+  pdi.BeneficiarioModel?.aplicarRetirados?.(retirados || []);
   pdi.SedeModel?.aplicarDatos?.(sedes);
   pdi.CasoSocialModel?.aplicarDatos?.(casos);
   pdi.VoluntarioModel?.aplicarDatos?.(voluntarios);
@@ -730,6 +755,7 @@ function mapearSedes(raw) {
       aforoMax: s.aforo_max || 0,
       horario: s.horario || '',
       estado: s.estado || 'Operativa',
+      activo: s.activo !== false,
       coordenadas: s.coordenadas || null,
     };
   });
@@ -837,6 +863,7 @@ function mapearBeneficiarios(personasRes, sedes) {
       telefono: m.telefono || '',
       telefonoAlt: m.telefono_alt || '',
       estado: m.ins?.estado || 'Activo',
+      motivoBaja: m.ins?.motivo_baja || '',
       hb: tam?.hb_valor != null ? Number(tam.hb_valor) : null,
       peso: tam?.peso_kg != null ? Number(tam.peso_kg) : null,
       talla: tam?.talla_cm != null ? Number(tam.talla_cm) : null,
@@ -853,6 +880,23 @@ function mapearBeneficiarios(personasRes, sedes) {
         autorizadoPor: 'Dirección PDI',
         estado: 'Acreditado',
       }] : [],
+    };
+  });
+}
+
+/**
+ * Mapea el archivo de retirados con todas las sedes (no solo las activas).
+ * `sedeActiva` decide si la reactivación puede devolver al usuario a su sede
+ * o si antes hay que reasignarlo.
+ */
+function mapearRetirados(personasRes, sedesTodas) {
+  const porId = new Map(sedesTodas.map(s => [s._rawId, s]));
+  return mapearBeneficiarios(personasRes, sedesTodas).map(b => {
+    const sede = porId.get(b._sedeRawId) || null;
+    return {
+      ...b,
+      estado: 'Retirado',
+      sedeActiva: Boolean(sede && sede.activo),
     };
   });
 }
@@ -1662,20 +1706,49 @@ export async function actualizarBeneficiario(b) {
 
 /** Baja del padrón: la Ley 29733 prohibe borrado físico; se retira con baja lógica. */
 export async function darBajaBeneficiario(b, motivo = 'Baja administrativa') {
-  const pid = claveRegistro(b._personaId);
-  if (!pid) return false;
+  // Se opera por `codigo`, no por type::record('persona', id): los ids que
+  // empiezan por dígito se muestran entre ⟨⟩ y al reconstruirlos desde texto
+  // SurrealDB puede resolver otra persona. El código es único y estable.
+  const codigo = String(b?.codigo || '').trim();
+  if (!codigo) return false;
   try {
     await ejecutar(`
       UPDATE inscripcion SET
         activo = false, estado = 'Retirado',
         motivo_baja = $motivo
-      WHERE ${F_USUARIO} = type::record('persona', $pid) AND activo = true;
-      UPDATE persona SET activo = false WHERE id = type::record('persona', $pid);`, {
-      pid, motivo,
+      WHERE ${F_USUARIO} = (SELECT VALUE id FROM persona WHERE codigo = $codigo LIMIT 1)[0]
+        AND activo = true;
+      UPDATE persona SET activo = false WHERE codigo = $codigo;`, {
+      codigo, motivo,
     });
     return true;
   } catch (err) {
     return avisarFallo('Baja del usuario', err) !== null ? false : false;
+  }
+}
+
+/**
+ * Reactiva a un usuario retirado. Vuelve siempre a `Activo`: el vocabulario
+ * operativo es Activo / Inactivo / Retirado, y la baja no conserva el estado
+ * anterior. La inscripción se enciende otra vez para que el usuario recupere
+ * su sede y su servicio; la vista valida antes que ambos sigan operativos.
+ */
+export async function reactivarBeneficiario(b) {
+  const codigo = String(b?.codigo || '').trim();
+  if (!codigo) return false;
+  try {
+    await ejecutar(`
+      UPDATE inscripcion SET
+        activo = true, estado = 'Activo',
+        motivo_baja = NONE
+      WHERE ${F_USUARIO} = (SELECT VALUE id FROM persona WHERE codigo = $codigo LIMIT 1)[0]
+        AND estado = 'Retirado';
+      UPDATE persona SET activo = true WHERE codigo = $codigo;`, {
+      codigo,
+    });
+    return true;
+  } catch (err) {
+    return avisarFallo('Reactivación del usuario', err) !== null ? false : false;
   }
 }
 

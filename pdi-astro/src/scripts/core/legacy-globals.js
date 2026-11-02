@@ -356,6 +356,7 @@ window.openExpedienteByCodigo = (codigo) => {
 };
 window.toggleEditExpediente = () => window.PDI?.ExpedienteView?.toggleEdit?.();
 window.saveExpedienteChanges = () => window.PDI?.ExpedienteView?.saveChanges?.();
+window.reactivarBeneficiarioExpediente = () => window.PDI?.ExpedienteView?.reactivarUsuario?.();
 window.verFotoExpediente = () => window.PDI?.ExpedienteView?.verFoto?.();
 window.eliminarFotoExpediente = () => window.PDI?.ExpedienteView?.eliminarFoto?.();
 window.deleteBeneficiarioExpediente = () => window.PDI?.ExpedienteView?.deleteBeneficiario?.();
