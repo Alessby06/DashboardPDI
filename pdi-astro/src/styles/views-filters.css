@@ -622,6 +622,7 @@
   grid-template-rows: 0fr;
   padding-top: 0;
   overflow: hidden;
+  overscroll-behavior: auto;
   transition:
     grid-template-rows 150ms var(--ease-out),
     padding-top 150ms var(--ease-out);
@@ -636,14 +637,6 @@
 .audit-filters-menu .padron-inner-dropdown-reveal > .padron-inner-dropdown-menu {
   min-height: 0;
   overflow: hidden;
-  /* El menú heredaba `overscroll-behavior: contain` del popover absoluto.
-     Como `overflow:hidden` también es un contenedor de scroll, la rueda se
-     quedaba atrapada ahí y no llegaba al cuerpo del panel. */
-  overscroll-behavior: auto;
-}
-
-.audit-filters-menu .padron-inner-dropdown-reveal {
-  overscroll-behavior: auto;
 }
 
 .audit-filters-menu .padron-inner-dropdown-menu {
@@ -655,6 +648,9 @@
   width: 100%;
   max-height: none;
   overflow: hidden;
+  /* El submenú no scrollea solo: si conserva `contain`, se traga la rueda y
+     el cuerpo del panel deja de desplazarse mientras el cursor está encima. */
+  overscroll-behavior: auto;
   display: flex;
   opacity: 0;
   transform: translateY(-4px);
