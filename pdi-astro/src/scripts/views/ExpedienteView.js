@@ -37,6 +37,7 @@ import { pintarGrados, conectarGrado } from "../ui/gradoEscolar.js";
 
 import { escapar } from "../utils/HtmlHelper.js";
 import { marcarError } from "../utils/FieldError.js";
+import { avatarSeed, claseServicio, esFemenino, inicialesDe, retratoFemenino } from "../utils/Avatar.js";
 
 /** Estado de anemia con las mismas etiquetas que usan los filtros y tableros. */
 function estadoAnemia(hb) {
