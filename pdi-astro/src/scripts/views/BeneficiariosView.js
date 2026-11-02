@@ -580,7 +580,7 @@ export const BeneficiariosView = {
     if (labelEl) {
       if (this._filterEstado === "all") labelEl.textContent = "Todos los Estados";
       else if (this._filterEstado === "Activo") labelEl.textContent = "Activo";
-      else if (this._filterEstado === "Inactivo") labelEl.textContent = "Inactivo / Baja";
+      else if (this._filterEstado === "Inactivo") labelEl.textContent = "Inactivo";
       else if (this._filterEstado === "Retirado") labelEl.textContent = "Retirado";
     }
   },
@@ -1017,8 +1017,8 @@ export const BeneficiariosView = {
   _updateFacetCounts() {
     if (!document.getElementById("menuPadronEstrategia")) return;
     // Calculo facetado con respecto a los otros filtros activos excepto la propia categoría
-    const getFilteredExcluding = (excludeKey) => {
-      let l = [...this._obtenerBaseLista()];
+    const getFilteredExcluding = (excludeKey, base = this._obtenerBaseLista()) => {
+      let l = [...base];
       if (this._searchQuery) {
         const q = this._searchQuery;
         l = l.filter(b => `${b.nombres} ${b.apellidos} ${b.codigo} ${b.dni} ${b.sede} ${b.distrito} ${b.apoderado}`.toLowerCase().includes(q));
@@ -1087,7 +1087,10 @@ export const BeneficiariosView = {
     this._setFacetBadge("countFacetEstado-all", `(${forEstado.length})`, forEstado.length === 0);
     this._setFacetBadge("countFacetEstado-Activo", `(${forEstado.filter(b => b.estado === "Activo").length})`, forEstado.filter(b => b.estado === "Activo").length === 0);
     this._setFacetBadge("countFacetEstado-Inactivo", `(${forEstado.filter(b => b.estado === "Inactivo").length})`, forEstado.filter(b => b.estado === "Inactivo").length === 0);
-    this._setFacetBadge("countFacetEstado-Retirado", `(${forEstado.filter(b => b.estado === "Retirado").length})`, forEstado.filter(b => b.estado === "Retirado").length === 0);
+    // El archivo de retirados se cuenta siempre sobre sí mismo: si se contara
+    // sobre la lista de activos daría 0 y parecería que no hay nadie guardado.
+    const forRetirado = getFilteredExcluding("estado", BeneficiarioModel.getRetirados());
+    this._setFacetBadge("countFacetEstado-Retirado", `(${forRetirado.length})`, forRetirado.length === 0);
 
     // 5. Facetas de Sexo
     const forSexo = getFilteredExcluding("sexo");

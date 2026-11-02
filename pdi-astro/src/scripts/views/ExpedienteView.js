@@ -1564,9 +1564,11 @@ export const ExpedienteView = {
       });
     }
 
-    // Tras la baja el expediente ya no existe, asi que no hay nada que volver a
-    // pintar: se vuelve al padron, que es donde el usuario puede ver el efecto.
-    const destino = window.PDI?.RouteMap?.urlDe?.("padron") || "/padron";
+    // Tras desactivar, el expediente ya no existe. Se vuelve al padrón con el
+    // filtro «Retirados» puesto: si se volviera a la lista de activos, el
+    // usuario desaparecería sin dejar rastro visible de dónde quedó.
+    const base = window.PDI?.RouteMap?.urlDe?.("padron") || "/padron";
+    const destino = `${base}${base.includes("?") ? "&" : "?"}estado=Retirado`;
     window.location.href = destino;
   },
 
