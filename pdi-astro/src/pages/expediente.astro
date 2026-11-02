@@ -647,12 +647,12 @@ import Icon from '../components/Icon.astro';
       <!-- Botón Eliminar: solo visible y permitido para Coordinador General o Admin TI -->
       <button type="button" class="btn-action danger" id="btnDeleteBeneficiario"
         onclick="deleteBeneficiarioExpediente()" title="Desactivar al usuario; dejará de aparecer en el padrón (Solo Dirección / Admin)">
-        <Icon name="accion.eliminar" size={15} />
+        <Icon name="accion.desactivar" size={15} />
         <span>Desactivar usuario</span>
       </button>
       <button type="button" class="btn-action" id="btnReactivarBeneficiario" style="display: none;"
         onclick="reactivarBeneficiarioExpediente()" title="Devolver al usuario al padrón (Solo Dirección / Admin)">
-        <Icon name="accion.confirmar" size={15} />
+        <Icon name="accion.reactivar" size={15} />
         <span>Reactivar usuario</span>
       </button>
     </div>

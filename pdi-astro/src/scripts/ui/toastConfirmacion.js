@@ -71,7 +71,7 @@ export function confirmarEnToast({
   toast.innerHTML = `
     <div class="toast-confirmacion-head">
       <span class="toast-icono" style="--toast-tono: ${peligro ? "var(--text-danger)" : "var(--text-warning)"};" aria-hidden="true">
-        ${iconHtml(peligro ? "accion.eliminar" : "estado.alerta", { size: 16 })}
+        ${iconHtml("estado.alerta", { size: 16 })}
       </span>
       <div class="toast-cuerpo">
         <strong class="toast-titulo" id="${ID}-titulo">${escapar(titulo)}</strong>

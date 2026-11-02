@@ -45,6 +45,8 @@ export const ALIAS = {
   'accion.volver': 'arrow-left-01',
   'accion.exportar': 'download-01',
   'accion.archivar': 'archive-01',
+  'accion.desactivar': 'archive-01',
+  'accion.reactivar': 'refresh',
   'accion.foto': 'camera-01',
   'accion.lista': 'list-view',
 
