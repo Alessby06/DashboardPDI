@@ -600,9 +600,6 @@ export const VoluntariadosView = {
             </div>
             <div style="font-weight: 700; color: var(--text-main); font-size: 15px;">No se encontraron voluntarias o personal comunitario</div>
             <div style="color: var(--text-muted); font-size: 12.5px; margin-top: 4px;">Prueba ajustando el término de búsqueda o restableciendo los filtros.</div>
-            <button type="button" class="btn-action btn-secondary" style="margin-top: 14px; display: inline-flex;" onclick="window.resetVoluntariosFilters ? window.resetVoluntariosFilters() : null">
-              Restablecer Filtros
-            </button>
           </td>
         </tr>
       `;
@@ -616,9 +613,6 @@ export const VoluntariadosView = {
             </div>
             <div style="font-weight: 700; color: var(--text-main); font-size: 14px;">No se encontraron registros</div>
             <div style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">No hay voluntarias que coincidan con la búsqueda o filtros.</div>
-            <button type="button" class="btn-action btn-secondary" style="margin-top: 12px; display: inline-flex;" onclick="window.resetVoluntariosFilters ? window.resetVoluntariosFilters() : null">
-              Restablecer Filtros
-            </button>
           </div>
         `;
       }

@@ -651,9 +651,6 @@ export const CasitasView = {
             </div>
             <div style="font-weight: 700; color: var(--text-main); font-size: 14.5px;">No se encontraron registros de asistencia</div>
             <div style="color: var(--text-muted); font-size: 12.5px; margin-top: 4px;">Prueba con otro término de búsqueda o restablece los filtros.</div>
-            <button type="button" class="btn-action btn-secondary" style="margin-top: 14px; display: inline-flex;" onclick="window.resetCasitasFilters ? window.resetCasitasFilters() : null">
-              Restablecer Filtros
-            </button>
           </td>
         </tr>
       `;
@@ -667,9 +664,6 @@ export const CasitasView = {
             </div>
             <div style="font-weight: 700; color: var(--text-main); font-size: 14px;">No se encontraron usuarios</div>
             <div style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">No hay usuarios que coincidan con la búsqueda o filtros.</div>
-            <button type="button" class="btn-action btn-secondary" style="margin-top: 12px; display: inline-flex;" onclick="window.resetCasitasFilters ? window.resetCasitasFilters() : null">
-              Restablecer Filtros
-            </button>
           </div>
         `;
       }

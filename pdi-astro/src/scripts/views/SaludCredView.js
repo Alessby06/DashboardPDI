@@ -598,9 +598,6 @@ export const SaludCredView = {
             </div>
             <div style="font-weight: 700; color: var(--text-main); font-size: 14.5px;">No se encontraron evaluaciones CRED</div>
             <div style="color: var(--text-muted); font-size: 12.5px; margin-top: 4px;">Prueba ajustando el término de búsqueda o restableciendo los filtros.</div>
-            <button type="button" class="btn-action btn-secondary" style="margin-top: 14px; display: inline-flex;" onclick="window.resetSaludFilters ? window.resetSaludFilters() : null">
-              Restablecer Filtros
-            </button>
           </td>
         </tr>
       `;
@@ -614,9 +611,6 @@ export const SaludCredView = {
             </div>
             <div style="font-weight: 700; color: var(--text-main); font-size: 14px;">No se encontraron evaluaciones</div>
             <div style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">No hay registros que coincidan con la búsqueda o filtros.</div>
-            <button type="button" class="btn-action btn-secondary" style="margin-top: 12px; display: inline-flex;" onclick="window.resetSaludFilters ? window.resetSaludFilters() : null">
-              Restablecer Filtros
-            </button>
           </div>
         `;
       }

@@ -169,35 +169,6 @@ function textoCifra(n) {
   return `${n} ${n === 1 ? 'coincidencia' : 'coincidencias'}`;
 }
 
-/**
- * Anade "Limpiar filtros" al estado vacio visible, si la vista expone un reset.
- * Acepta tanto cajas con clase como la celda colspan que pintan padrón y
- * auditoría: antes solo miraba divs y el boton no llegaba a existir.
- */
-function decorarEstadoVacio() {
-  const pagina = document.body.dataset.page;
-  if (!pagina) return;
-  const candidatos = document.querySelectorAll(
-    '#mainContent .dash-empty-state, #mainContent .sedes-empty-state, #mainContent .empty-state, #mainContent td[colspan], #mainContent .padron-empty-state'
-  );
-  candidatos.forEach((caja) => {
-    if (caja.offsetParent === null) return;
-    if (!/No se encontr|Sin resultados|No hay |Mostrando 0 de 0/i.test(caja.textContent || '')) return;
-    if (caja.querySelector('.btn-clear-empty-filters')) return;
-    const boton = document.createElement('button');
-    boton.type = 'button';
-    boton.className = 'btn-clear-empty-filters';
-    boton.textContent = 'Limpiar filtros';
-    boton.addEventListener('click', () => {
-      const resultado = limpiarFiltrosDePagina();
-      if (resultado === null) {
-        window.location.href = window.location.pathname;
-      }
-    });
-    caja.appendChild(boton);
-  });
-}
-
 function actualizarEtiqueta(panel) {
   const n = contarResultados();
   const boton = panel.querySelector('.btn-apply-filters');
@@ -726,7 +697,6 @@ function prepararPanel(panel) {
       actualizarEtiqueta(panel);
       posicionarPanel(panel);
       marcarDesborde(panel);
-      decorarEstadoVacio();
       const primero = menu.querySelector('.audit-filters-body :is(' + FOCALIZABLES + ')');
       const enfocar = () => (primero || menu).focus({ preventScroll: true });
       enfocar();
@@ -771,7 +741,6 @@ function prepararPanel(panel) {
     observador._t = setTimeout(() => {
       actualizarEtiqueta(panel);
       marcarDesborde(panel);
-      decorarEstadoVacio();
       nombrarQuitarChips();
     }, 80);
   });
@@ -797,7 +766,6 @@ export function mejorarPanelesFiltro() {
   document.querySelectorAll('.audit-filters-dropdown').forEach(enlazarArrastreHoja);
   document.querySelectorAll('.audit-filters-menu').forEach(prepararOpciones);
   nombrarQuitarChips();
-  decorarEstadoVacio();
 }
 
 if (typeof document !== 'undefined') {

@@ -287,6 +287,21 @@
   background: var(--surface-hover);
 }
 
+/* El «Limpiar filtros» de la barra de chips necesita un contorno propio:
+   como texto suelto parecía flotar sobre la barra. */
+.padron-active-chips-bar .btn-text-subtle {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-1);
+  color: var(--text-main);
+  padding: 4px 10px;
+}
+
+.padron-active-chips-bar .btn-text-subtle:hover {
+  border-color: var(--border-bright);
+  background: var(--surface-hover);
+}
+
 .audit-filters-body {
   display: flex;
   flex-direction: column;
