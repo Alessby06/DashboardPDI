@@ -660,17 +660,18 @@ export const BeneficiariosView = {
     });
   },
 
-  _getEstrategiasBadgesHtml(estrategias) {
+  _getEstrategiasHtml(estrategias) {
     const lista = Array.isArray(estrategias) ? estrategias : [];
     if (lista.length === 0) {
-      return `<span class="badge" style="background:var(--surface-2); color:var(--text-dim); border:1px dashed var(--border-subtle); font-size:10.5px;">Sin estrategia asignada</span>`;
+      return `<span class="servicio-registro is-empty">Sin estrategia</span>`;
     }
     return lista.map(e => {
       const low = (e || "").toLowerCase();
-      let badgeCls = "badge-blue";
-      if (low.includes("desayuno") || low.includes("lonchera")) badgeCls = "badge-green";
-      else if (low.includes("casita")) badgeCls = "badge-blue";
-      return `<span class="badge ${badgeCls}">${escapar(e)}</span>`;
+      let servicioCls = "is-otro";
+      if (low.includes("desayuno") || low.includes("lonchera")) servicioCls = "is-desayuno";
+      else if (low.includes("casita")) servicioCls = "is-casita";
+      else if (low.includes("biblioteca")) servicioCls = "is-biblioteca";
+      return `<span class="servicio-registro ${servicioCls}">${escapar(e)}</span>`;
     }).join("");
   },
 
@@ -1228,7 +1229,7 @@ export const BeneficiariosView = {
             </td>
             <td>
               <div class="servicios-badge-group">
-                ${this._getEstrategiasBadgesHtml(b.estrategias)}
+                ${this._getEstrategiasHtml(b.estrategias)}
               </div>
             </td>
             <td>
@@ -1306,10 +1307,10 @@ export const BeneficiariosView = {
                   <span class="datacard-label">Edad / Sexo</span>
                   <span class="datacard-value">${escapar(b.edad)} / ${escapar(b.sexo)}</span>
                 </div>
-                <div class="datacard-row">
+                <div class="datacard-row datacard-row--stack">
                   <span class="datacard-label">Estrategias</span>
-                  <div class="servicios-badge-group align-end">
-                    ${this._getEstrategiasBadgesHtml(b.estrategias)}
+                  <div class="servicios-badge-group">
+                    ${this._getEstrategiasHtml(b.estrategias)}
                   </div>
                 </div>
                 <div class="datacard-row">

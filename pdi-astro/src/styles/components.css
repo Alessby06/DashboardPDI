@@ -287,6 +287,18 @@
       gap: 12px;
     }
 
+    /* La lista de estrategias necesita el ancho completo: etiqueta arriba y
+       las lineas del parte debajo, sin apretarlas contra el borde derecho. */
+    .datacard-row--stack {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .datacard-row--stack .servicios-badge-group {
+      width: 100%;
+    }
+
     .datacard-row:last-child {
       border-bottom: none;
     }
@@ -447,14 +459,48 @@
 
     .servicios-badge-group {
       display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 6px 8px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 3px;
       padding: 2px 0;
     }
 
-    .servicios-badge-group.align-end {
-      justify-content: flex-end;
+    /* La estrategia como linea del parte: barra fina y nombre en tinta. */
+    .servicio-registro {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+
+    .servicio-registro::before {
+      content: "";
+      width: 3px;
+      height: 12px;
+      flex: none;
+      background: var(--servicio-color, var(--border-medium));
+    }
+
+    .servicio-registro.is-desayuno {
+      --servicio-color: var(--gt-green);
+    }
+
+    .servicio-registro.is-casita,
+    .servicio-registro.is-biblioteca,
+    .servicio-registro.is-otro {
+      --servicio-color: var(--gt-blue);
+    }
+
+    .servicio-registro.is-empty {
+      color: var(--text-dim);
+      font-weight: 500;
+    }
+
+    .servicio-registro.is-empty::before {
+      background: var(--border-medium);
     }
 
     .badge-green { background: var(--gt-green-bg); color: var(--text-brand); border: 1px solid var(--gt-green-border); }
