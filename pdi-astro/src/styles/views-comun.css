@@ -587,13 +587,15 @@
   justify-content: space-between;
 }
 
-/* El contador del filtro se lee junto a «Filtros», no pegado al caret. */
+/* «Filtros» es una acción corta, no un selector: su contenido se centra en
+   la columna completa. El contador sigue junto a la etiqueta y el caret
+   acompaña al grupo en vez de huir al extremo derecho. */
 .table-toolbar .audit-filter-btn {
-  justify-content: flex-start;
+  justify-content: center;
 }
 
 .table-toolbar .audit-filter-btn .filter-caret {
-  margin-left: auto;
+  margin-left: 0;
 }
 .table-toolbar .padron-sort-value {
   flex: 1;
