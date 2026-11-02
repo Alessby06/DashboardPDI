@@ -1319,7 +1319,7 @@ export const BeneficiariosView = {
                   <span class="datacard-label">Edad / Sexo</span>
                   <span class="datacard-value">${escapar(b.edad)} / ${escapar(b.sexo)}</span>
                 </div>
-                <div class="datacard-row datacard-row--stack">
+                <div class="datacard-row">
                   <span class="datacard-label">Estrategias</span>
                   <div class="servicios-badge-group">
                     ${this._getEstrategiasHtml(b.estrategias)}

@@ -299,6 +299,20 @@
       width: 100%;
     }
 
+    /* En la tarjeta móvil las estrategias se leen como el resto de valores:
+       alineadas a la derecha y con el mismo tamaño y tinta. */
+    .datacard-row .servicios-badge-group {
+      align-items: flex-end;
+      text-align: right;
+      padding: 0;
+    }
+
+    .datacard-row .servicios-badge-group .servicio-registro {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
     .datacard-row:last-child {
       border-bottom: none;
     }
