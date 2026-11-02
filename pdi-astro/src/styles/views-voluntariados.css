@@ -952,11 +952,12 @@
   #view-voluntarios .audit-toolbar {
     padding: 10px 12px !important;
     gap: 8px !important;
-    flex-wrap: nowrap !important;
+    flex-wrap: wrap !important;
   }
 
   #view-voluntarios .audit-search-wrap {
-    flex: 1 1 auto !important;
+    /* La barra móvil reserva 44 px para la descarga y 8 px de separación. */
+    flex: 0 0 calc(100% - 52px) !important;
     max-width: none !important;
     min-width: 0 !important;
   }

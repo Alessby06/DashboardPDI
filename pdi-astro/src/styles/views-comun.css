@@ -547,6 +547,15 @@
   min-width: 0;
   justify-content: space-between;
 }
+
+/* El contador del filtro se lee junto a «Filtros», no pegado al caret. */
+.table-toolbar .audit-filter-btn {
+  justify-content: flex-start;
+}
+
+.table-toolbar .audit-filter-btn .filter-caret {
+  margin-left: auto;
+}
 .table-toolbar .padron-sort-value {
   flex: 1;
   min-width: 0;

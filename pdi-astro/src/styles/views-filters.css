@@ -434,6 +434,34 @@
   letter-spacing: 0.1em;
 }
 
+@media (max-width: 768px) {
+  /* En móvil el rótulo y «Limpiar filtros» comparten la primera fila; los
+     chips bajan a la segunda y ocupan todo el ancho. */
+  .padron-active-chips-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 6px 8px;
+  }
+
+  .padron-active-chips-bar .padron-active-chips-label {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .padron-active-chips-bar .btn-text-subtle {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    margin-left: 0 !important;
+  }
+
+  .padron-active-chips-bar > div {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
 .padron-chip {
   display: inline-flex;
   align-items: center;
