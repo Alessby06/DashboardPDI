@@ -2,6 +2,7 @@
 import AppLayout from '../layouts/AppLayout.astro';
 import FilterPanel from '../components/FilterPanel.astro';
 import FilterField from '../components/FilterField.astro';
+import SortMenu from '../components/SortMenu.astro';
 import '../styles/views-auditoria.css';
 import Icon from '../components/Icon.astro';
 
@@ -27,6 +28,13 @@ const OPCIONES_ESTADO_AUDIT = [
   { valor: 'Registrado', badge: { texto: 'Conforme', tono: 'green', compacta: true }, etiqueta: 'Registrado' },
   { valor: 'Sensible', badge: { texto: 'Sensible', tono: 'red', compacta: true }, etiqueta: 'Alerta / Crítico' },
   { valor: 'Observado', badge: { texto: 'Observado', tono: 'yellow', compacta: true }, etiqueta: 'En Revisión' },
+];
+const OPCIONES_ORDEN_AUDIT = [
+  { valor: 'reciente-desc', etiqueta: 'Más reciente' },
+  { valor: 'reciente-asc', etiqueta: 'Más antigua' },
+  { valor: 'usuario-asc', etiqueta: 'Usuario (A-Z)' },
+  { valor: 'accion-asc', etiqueta: 'Acción (A-Z)' },
+  { valor: 'entidad-asc', etiqueta: 'Entidad (A-Z)' },
 ];
 ---
 
@@ -58,14 +66,6 @@ const OPCIONES_ESTADO_AUDIT = [
                   </div>
                 </div>
 
-                <div class="audit-header-badge-actions">
-                  <!-- Botón Descargar Bitácora CSV en formato icono con apertura de confirmación -->
-                  <button type="button" class="btn-action-icon btn-audit-export-icon" id="btnExportAuditCSV"
-                    onclick="window.openModalExportAudit ? window.openModalExportAudit() : null"
-                    aria-label="Descargar Bitácora CSV" title="Descargar Bitácora Oficial CSV">
-                    <Icon name="accion.descargar" size={18} />
-                  </button>
-                </div>
               </div>
             </div>
           </div>
@@ -95,7 +95,7 @@ const OPCIONES_ESTADO_AUDIT = [
 
           <div class="card">
             <!-- Barra de Filtros y Búsqueda Rápida Interna -->
-            <div class="audit-toolbar">
+            <div class="audit-toolbar table-toolbar">
               <!-- Buscador Rápido de Auditoría (Lado Izquierdo) -->
               <div class="audit-search-wrap">
                 <Icon name="accion.buscar" size={2} class="audit-search-icon" />
@@ -107,6 +107,14 @@ const OPCIONES_ESTADO_AUDIT = [
                   <Icon name="accion.cerrar" size={12} />
                 </button>
               </div>
+
+              <button type="button" class="btn-action-icon btn-audit-export-icon table-export-btn" id="btnExportAuditCSV"
+                onclick="window.openModalExportAudit ? window.openModalExportAudit() : null"
+                aria-label="Descargar la bitácora filtrada" title="Descargar la bitácora filtrada">
+                <Icon name="accion.descargar" size={18} />
+              </button>
+
+              <SortMenu id="AuditoriaSort" options={OPCIONES_ORDEN_AUDIT} selected="reciente-desc" />
 
               <!-- Botón Unificado de Filtros y Panel Desplegable (Lado Derecho) -->
               <FilterPanel

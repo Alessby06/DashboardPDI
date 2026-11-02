@@ -35,11 +35,6 @@ const OPCIONES_SEXO = [
                 <span id="padronArchivoLabel">Archivo</span>
                 <span class="badge badge-gray" id="padronArchivoCount">0</span>
               </button>
-              <button type="button" class="btn-action-icon btn-audit-export-icon" id="btnExportPadronCSV"
-                onclick="window.openModalExportPadron ? window.openModalExportPadron() : window.exportDataCSV()"
-                aria-label="Descargar Padrón de Usuarios CSV" title="Descargar Padrón de Usuarios CSV">
-                <Icon name="accion.descargar" size={18} />
-              </button>
               <button type="button" class="btn-action primary" id="btnNuevoBeneficiario"
                 onclick="window.openModalNuevoBeneficiario ? window.openModalNuevoBeneficiario() : (window.openModalNuevoUsuario ? window.openModalNuevoUsuario() : null)" title="Registrar nuevo usuario">
                 <Icon name="accion.agregar" size={15} />
@@ -51,7 +46,7 @@ const OPCIONES_SEXO = [
           <!-- Usuarios Table Card -->
           <div class="card" id="cardPadronBeneficiarios">
             <!-- Barra de Filtros y Búsqueda Rápida de Padrón -->
-            <div class="audit-toolbar" style="margin-bottom: 16px;">
+            <div class="audit-toolbar table-toolbar" style="margin-bottom: 16px;">
               <!-- Buscador Rápido del Padrón (Lado Izquierdo) -->
               <div class="audit-search-wrap">
                 <Icon name="accion.buscar" size={15} class="audit-search-icon" />
@@ -63,6 +58,12 @@ const OPCIONES_SEXO = [
                   <Icon name="accion.cerrar" size={12} />
                 </button>
               </div>
+
+              <button type="button" class="btn-action-icon btn-audit-export-icon table-export-btn" id="btnExportPadronCSV"
+                onclick="window.openModalExportPadron ? window.openModalExportPadron() : window.exportDataCSV()"
+                aria-label="Descargar el padrón filtrado" title="Descargar el padrón filtrado">
+                <Icon name="accion.descargar" size={18} />
+              </button>
 
               <!-- Orden del padrón: apellido por defecto y fechas del registro -->
               <div class="padron-sort-wrap">

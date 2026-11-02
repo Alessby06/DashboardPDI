@@ -3,6 +3,7 @@ import { crear as crearFiltros } from '../utils/Filters.js';
 import { crearStore } from '../utils/FilterStore.js';
 import { Dropdown } from '../utils/Dropdown.js';
 import { Responsive } from '../utils/Responsive.js';
+import { initSortMenu } from '../ui/SortMenu.js';
 
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
 import { SEDES_POR_DISTRITO } from "../core/catalogos.js";
@@ -501,10 +502,52 @@ export const DashboardView = {
     }
   },
 
+  _initAuditSort() {
+    this._auditSortMenu = initSortMenu({
+      id: "AuditoriaSort",
+      onSelect: (valor) => this.sortAuditLogs(valor),
+    });
+    this._auditSortMenu?.sync(`${this._auditSortKey}-${this._auditSortDir}`);
+  },
+
+  sortAuditLogs(valor) {
+    const [key, dir] = String(valor || "").split("-");
+    if (!key) return;
+    this._auditSortKey = key;
+    this._auditSortDir = dir === "asc" ? "asc" : "desc";
+    this._auditSortMenu?.sync(`${this._auditSortKey}-${this._auditSortDir}`);
+    this._auditCurrentPage = 1;
+    this.applyAuditFilters();
+  },
+
+  _ordenarAuditoria(lista) {
+    const dir = this._auditSortDir === "desc" ? -1 : 1;
+    const fecha = (l) => String(l?.timestamp || l?.fecha || "");
+    return [...lista].sort((a, b) => {
+      let cmp = 0;
+      switch (this._auditSortKey) {
+        case "usuario":
+          cmp = String(a.user || "").localeCompare(String(b.user || ""), "es");
+          break;
+        case "accion":
+          cmp = String(a.action || "").localeCompare(String(b.action || ""), "es");
+          break;
+        case "entidad":
+          cmp = String(a.entity || "").localeCompare(String(b.entity || ""), "es");
+          break;
+        default:
+          cmp = fecha(a).localeCompare(fecha(b));
+      }
+      if (cmp === 0) cmp = fecha(a).localeCompare(fecha(b));
+      return cmp * dir;
+    });
+  },
+
   renderAuditLogs(logs) {
     // La lectura va antes de los indicadores: si se lee despues, el total que
     // se muestra es el de la pagina entera y no el de lo que se esta viendo.
     this._leerFiltrosDeURL();
+    this._initAuditSort();
     this._currentAuditLogs = logs || [];
     this._filteredAuditLogs = logs || [];
     this.updateAuditKpis(this._currentAuditLogs);
@@ -531,6 +574,8 @@ export const DashboardView = {
   },
 
   _currentAuditLogs: [],
+  _auditSortKey: "reciente",
+  _auditSortDir: "desc",
   _auditSearchQuery: "",
   _filterAuditAction: [], // array de acciones seleccionadas (vacío = todas)
   _filterAuditDate: "all", // "all" | "today" | "week" | "specific" | "range"
@@ -914,7 +959,7 @@ export const DashboardView = {
     const logs = this._currentAuditLogs || [];
     const query = this._auditSearchQuery || "";
 
-    const filtered = logs.filter(l => {
+    let filtered = logs.filter(l => {
       let matchAction = this._matchesAuditAction(l, this._filterAuditAction);
       let matchRole = this._matchesAuditRole(l, this._filterAuditRole);
       let matchStatus = this._matchesAuditStatus(l, this._filterAuditStatus);
@@ -934,6 +979,7 @@ export const DashboardView = {
       return matchAction && matchRole && matchStatus && matchDate && matchQuery;
     });
 
+    filtered = this._ordenarAuditoria(filtered);
     this._filteredAuditLogs = filtered;
 
     // Badge desde el store.

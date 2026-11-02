@@ -86,11 +86,10 @@
 }
 
 .audit-filter-btn.has-filters {
+  /* El contador y el tinte ya comunican que hay filtros. El borde verde
+     hacía que el botón desentonara con el resto de la barra. */
   background: var(--brand-soft);
   color: var(--text-brand);
-  /* El borde translucido daba 1,25:1 sobre el blanco: el estado "activo"
-     tiene que leerse tambien como forma, no solo como tinte. */
-  border-color: var(--text-brand);
 }
 
 .audit-filter-btn svg.filter-caret {

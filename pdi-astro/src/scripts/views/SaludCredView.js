@@ -10,6 +10,7 @@ import { ToastView } from "./ToastView.js";
 import { AuditModel } from "../models/AuditModel.js";
 import { SEDES_NOMBRES, etiquetaSede } from "../core/catalogos.js";
 import { contarOpciones } from "../utils/FacetCounts.js";
+import { initSortMenu } from "../ui/SortMenu.js";
 import { iconHtml } from '../../data/iconos.js';
 // Filtros del modulo CRED que viajan en la URL. Valores tomados de los
 // desplegables de salud.html.
@@ -35,6 +36,8 @@ export const SaludCredView = {
   _filterHbNivel: "all",
   _currentPage: 1,
   _pageSize: 20,
+  _sortKey: "apellido",
+  _sortDir: "asc",
 
   _filtros: null,
   _filtrosLeidos: false,
@@ -177,8 +180,65 @@ export const SaludCredView = {
     this._updateHbUI();
   },
 
+  _initSort() {
+    this._sortMenu = initSortMenu({
+      id: "SaludSort",
+      onSelect: (valor) => this.sortBy(valor),
+    });
+    this._sortMenu?.sync(`${this._sortKey}-${this._sortDir}`);
+  },
+
+  sortBy(valor) {
+    const [key, dir] = String(valor || "").split("-");
+    if (!key) return;
+    this._sortKey = key;
+    this._sortDir = dir === "desc" ? "desc" : "asc";
+    this._sortMenu?.sync(`${this._sortKey}-${this._sortDir}`);
+    this.applyFilters();
+  },
+
+  _ordenarLista(lista) {
+    const dir = this._sortDir === "desc" ? -1 : 1;
+    const nombre = (b) => `${b.apellidos || ""} ${b.nombres || ""}`;
+    const pesoAnemia = { Severa: 0, Moderada: 1, Leve: 2, Normal: 3 };
+    return [...lista].sort((a, b) => {
+      let cmp = 0;
+      switch (this._sortKey) {
+        case "sede":
+          cmp = String(a.sede || "").localeCompare(String(b.sede || ""), "es");
+          break;
+        case "edad": {
+          const va = parseInt(a.edad, 10);
+          const vb = parseInt(b.edad, 10);
+          cmp = (isNaN(va) ? 999 : va) - (isNaN(vb) ? 999 : vb);
+          break;
+        }
+        case "hb": {
+          const va = a.hb == null ? 999 : Number(a.hb);
+          const vb = b.hb == null ? 999 : Number(b.hb);
+          cmp = va - vb;
+          break;
+        }
+        case "anemia":
+          cmp = (pesoAnemia[a.anemia] ?? 9) - (pesoAnemia[b.anemia] ?? 9);
+          break;
+        case "ultima": {
+          const fa = a.tamizajes?.[0]?.fecha || "";
+          const fb = b.tamizajes?.[0]?.fecha || "";
+          cmp = String(fa).localeCompare(String(fb));
+          break;
+        }
+        default:
+          cmp = nombre(a).localeCompare(nombre(b), "es");
+      }
+      if (cmp === 0) cmp = nombre(a).localeCompare(nombre(b), "es");
+      return cmp * dir;
+    });
+  },
+
   renderTable(beneficiarios) {
     this._leerFiltrosDeURL();
+    this._initSort();
     if (beneficiarios && Array.isArray(beneficiarios)) {
       this._allBeneficiarios = beneficiarios;
     } else if (window.PDI?.BeneficiarioModel) {
@@ -429,6 +489,7 @@ export const SaludCredView = {
       list = list.filter(b => this._matchesHbNivel(b, this._filterHbNivel));
     }
 
+    list = this._ordenarLista(list);
     this._filteredBeneficiarios = list;
 
     this._updateFacetCounts();

@@ -523,6 +523,82 @@
   margin-bottom: 16px;
 }
 
+/* Barra con descarga y orden: el buscador cede ancho, la descarga queda
+   compacta y ordenar/filtros comparten el mismo espacio a la derecha. */
+.audit-toolbar.table-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) auto minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+
+.table-toolbar .audit-search-wrap { grid-column: 1; min-width: 0; }
+.table-toolbar .table-export-btn { grid-column: 2; }
+.table-toolbar .padron-sort-wrap { grid-column: 3; width: 100%; min-width: 0; }
+.table-toolbar .audit-filter-panel-wrap { grid-column: 4; width: 100%; min-width: 0; }
+.table-toolbar .padron-sort-btn,
+.table-toolbar .audit-filter-btn { width: 100%; justify-content: space-between; }
+.table-toolbar .padron-sort-value {
+  flex: 1;
+  min-width: 0;
+  max-width: none;
+  text-align: left;
+}
+.table-toolbar .audit-filter-panel-wrap .audit-filters-dropdown { width: 100%; }
+
+.audit-toolbar .btn-action-icon.table-export-btn {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  min-height: 38px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  /* En móvil la barra se parte en dos filas: buscador + descarga, y debajo
+     ordenar + filtros con el mismo ancho. */
+  .audit-toolbar.table-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .table-toolbar .audit-search-wrap {
+    order: 1;
+    /* La regla móvil general del buscador usa flex:1 !important; aquí se
+       necesita una base fija para que la descarga quepa a su lado. */
+    flex: 0 0 calc(100% - 52px) !important;
+    min-width: 0;
+  }
+  .audit-toolbar .btn-action-icon.table-export-btn {
+    order: 2;
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .table-toolbar .padron-sort-wrap {
+    order: 3;
+    flex: 0 0 calc(50% - 4px);
+    width: auto;
+    min-width: 0;
+  }
+  .table-toolbar .audit-filter-panel-wrap {
+    order: 4;
+    flex: 0 0 calc(50% - 4px);
+    width: auto;
+    min-width: 0;
+  }
+  .table-toolbar .padron-sort-prefix { display: none; }
+  .table-toolbar .padron-sort-btn,
+  .table-toolbar .audit-filter-btn { height: 44px; width: 100%; }
+  .table-toolbar .padron-sort-value { max-width: none; }
+}
+
 .audit-search-wrap {
   position: relative;
   display: flex;
@@ -710,6 +786,38 @@
   font-size: 12px;
   outline: none;
   cursor: pointer;
+  /* Sin esto el flex de la paginación lo comprimía y el caret pisaba
+     «página». El selector debe medir lo que mide su texto. */
+  flex-shrink: 0;
+  min-width: max-content;
+  white-space: nowrap;
+}
+
+.padron-density-wrapper,
+.audit-density-wrapper,
+.table-density-wrapper {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* El select nativo queda oculto y el control visible es el trigger del
+   custom-select. Si el wrapper se encoge, el caret pisa «página». */
+.padron-density-wrapper .pdi-select,
+.audit-density-wrapper .pdi-select,
+.table-density-wrapper .pdi-select {
+  flex-shrink: 0;
+  width: max-content;
+  max-width: none;
+  min-width: max-content;
+}
+
+.padron-density-wrapper .pdi-select-trigger,
+.audit-density-wrapper .pdi-select-trigger,
+.table-density-wrapper .pdi-select-trigger {
+  width: auto;
+  min-width: max-content;
+  padding-right: 32px;
+  white-space: nowrap;
 }
 
 .btn-page {

@@ -13,6 +13,7 @@ import { marcarError } from "../utils/FieldError.js";
 import { OPCIONES_VOLUNTARIADO, SERVICIOS_VOLUNTARIADO, claseAvatarServicio, claseLineaServicio, nombreServicioVisible } from '../../data/opcionesBeneficiario.js';
 import { SEDES_POR_DISTRITO, etiquetaSede } from '../core/catalogos.js';
 import { contarOpciones } from "../utils/FacetCounts.js";
+import { initSortMenu } from "../ui/SortMenu.js";
 import { iconHtml } from '../../data/iconos.js';
 // Etiquetas de servicio desde el catálogo único de programas: un programa
 // nuevo aparece en chips y desplegables sin tocar nada aquí.
@@ -74,6 +75,8 @@ export const VoluntariadosView = {
   _lastRenderSerial: "",
   _currentPage: 1,
   _pageSize: 20,
+  _sortKey: "apellido",
+  _sortDir: "asc",
   _guardando: false,
 
   reiniciarEntrada() {
@@ -260,11 +263,62 @@ export const VoluntariadosView = {
     });
   },
 
+  _initSort() {
+    this._sortMenu = initSortMenu({
+      id: "VoluntariosSort",
+      onSelect: (valor) => this.sortBy(valor),
+    });
+    this._sortMenu?.sync(`${this._sortKey}-${this._sortDir}`);
+  },
+
+  sortBy(valor) {
+    const [key, dir] = String(valor || "").split("-");
+    if (!key) return;
+    this._sortKey = key;
+    this._sortDir = dir === "desc" ? "desc" : "asc";
+    this._sortMenu?.sync(`${this._sortKey}-${this._sortDir}`);
+    this.applyFilters(false);
+  },
+
+  _ordenarLista(lista) {
+    const dir = this._sortDir === "desc" ? -1 : 1;
+    const nombre = (v) => `${v.apellidos || ""} ${v.nombres || ""}`;
+    const peso = { Activo: 0, "En Pausa": 1, Inactivo: 2, Retirado: 3 };
+    return [...lista].sort((a, b) => {
+      let cmp = 0;
+      switch (this._sortKey) {
+        case "sede":
+          cmp = String(a.sedeAsignada || "").localeCompare(String(b.sedeAsignada || ""), "es");
+          break;
+        case "distrito":
+          cmp = String(a.distrito || "").localeCompare(String(b.distrito || ""), "es");
+          break;
+        case "servicio":
+          cmp = String(a.servicio || "").localeCompare(String(b.servicio || ""), "es");
+          break;
+        case "rol":
+          cmp = String(a.rol || "").localeCompare(String(b.rol || ""), "es");
+          break;
+        case "estado":
+          cmp = (peso[a.estado] ?? 9) - (peso[b.estado] ?? 9);
+          break;
+        case "ingreso":
+          cmp = String(a.fechaIngreso || "").localeCompare(String(b.fechaIngreso || ""));
+          break;
+        default:
+          cmp = nombre(a).localeCompare(nombre(b), "es");
+      }
+      if (cmp === 0) cmp = nombre(a).localeCompare(nombre(b), "es");
+      return cmp * dir;
+    });
+  },
+
   render(forzarAnimacion = false) {
     const esPrimeraEntrada = !this._haEntrado || forzarAnimacion;
     this._haEntrado = true;
 
     this._leerFiltrosDeURL();
+    this._initSort();
     this._voluntarios = VoluntarioModel.getAll();
     this._renderReparto(esPrimeraEntrada);
     this._renderActiveChips();
@@ -439,6 +493,7 @@ export const VoluntariadosView = {
     }
     this._lastRenderSerial = serial;
 
+    list = this._ordenarLista(list);
     this._filteredList = list;
     this._updateFacetCounts();
     this._updateActiveFilterBadge();

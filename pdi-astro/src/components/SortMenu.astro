@@ -1,0 +1,54 @@
+---
+import Icon from './Icon.astro';
+
+// Menú de orden compartido por las tablas. El comportamiento (abrir, cerrar,
+// teclado, aria y etiqueta) vive en scripts/ui/SortMenu.js; aquí solo se
+// dibuja la misma estructura que ya usaba el padrón.
+interface Opcion {
+  valor: string;
+  etiqueta: string;
+}
+
+interface Props {
+  id: string;
+  options: Opcion[];
+  selected?: string;
+}
+
+const { id, options, selected = options[0]?.valor } = Astro.props;
+const actual = options.find((opcion) => opcion.valor === selected) || options[0];
+---
+
+<div class="padron-sort-wrap table-sort-wrap">
+  <div class="custom-dropdown padron-sort-dropdown" id={`dropdown${id}`}>
+    <button
+      type="button"
+      class="btn-action padron-sort-btn"
+      id={`btn${id}`}
+      aria-haspopup="listbox"
+      aria-expanded="false"
+      aria-controls={`menu${id}`}
+    >
+      <span class="padron-sort-prefix">Ordenar:</span>
+      <span class="padron-sort-value" id={`${id}Value`}>{actual?.etiqueta}</span>
+      <Icon name="nav.desplegar" size={12} class="filter-caret" />
+    </button>
+    <div
+      class="custom-dropdown-menu padron-sort-menu"
+      id={`menu${id}`}
+      role="listbox"
+      aria-labelledby={`btn${id}`}
+    >
+      {options.map((opcion) => (
+        <button
+          type="button"
+          role="option"
+          data-sort-value={opcion.valor}
+          aria-selected={opcion.valor === selected ? 'true' : 'false'}
+        >
+          {opcion.etiqueta}
+        </button>
+      ))}
+    </div>
+  </div>
+</div>

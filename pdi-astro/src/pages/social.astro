@@ -49,13 +49,6 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                 <h2>Servicio Social Pastoral (ASP): Derivaciones y Vulnerabilidad</h2>
                 <p>Bandeja de casos sociales clasificados, solicitudes de cambio de estado y simulador socioeconómico paramétrico (0-100%).</p>
               </div>
-              <div class="view-actions">
-                <button type="button" class="btn-action-icon btn-audit-export-icon" id="btnExportSocialCSV"
-                  onclick="window.openModalExportSocial ? window.openModalExportSocial() : null"
-                  aria-label="Descargar Bandeja ASP CSV" title="Descargar Bandeja ASP CSV">
-                  <Icon name="accion.descargar" size={18} />
-                </button>
-              </div>
             </div>
             <!-- Barra de Búsqueda y Filtros de Casos Sociales (Estándar Padrón) -->
             <div class="card"
@@ -71,6 +64,12 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                     title="Buscar caso por usuario, código, situación o sede"
                     oninput="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.handleSearch(this.value) : null">
                 </div>
+
+                <button type="button" class="btn-action-icon btn-audit-export-icon table-export-btn" id="btnExportSocialCSV"
+                  onclick="window.openModalExportSocial ? window.openModalExportSocial() : null"
+                  aria-label="Descargar la bandeja ASP filtrada" title="Descargar la bandeja filtrada">
+                  <Icon name="accion.descargar" size={18} />
+                </button>
 
                 <!-- Botón de Filtros y Panel Desplegable (Lado Derecho) -->
                 <FilterPanel

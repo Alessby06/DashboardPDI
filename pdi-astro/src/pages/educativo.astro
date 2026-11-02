@@ -2,6 +2,7 @@
 import AppLayout from '../layouts/AppLayout.astro';
 import FilterPanel from '../components/FilterPanel.astro';
 import FilterField from '../components/FilterField.astro';
+import SortMenu from '../components/SortMenu.astro';
 import { SEDES_OPERATIVAS } from '../data/opcionesBeneficiario.js';
 import '../styles/views-educativo.css';
 import Icon from '../components/Icon.astro';
@@ -18,6 +19,14 @@ const OPCIONES_GRADO = [
   { valor: 'primaria', etiqueta: 'Primaria (1° a 6°)' },
   { valor: 'secundaria', etiqueta: 'Secundaria (1° a 5°)' },
 ];
+const OPCIONES_ORDEN_CASITAS = [
+  { valor: 'apellido-asc', etiqueta: 'Apellido (A-Z)' },
+  { valor: 'apellido-desc', etiqueta: 'Apellido (Z-A)' },
+  { valor: 'sede-asc', etiqueta: 'Sede (A-Z)' },
+  { valor: 'edad-asc', etiqueta: 'Edad (menor a mayor)' },
+  { valor: 'edad-desc', etiqueta: 'Edad (mayor a menor)' },
+  { valor: 'grado-asc', etiqueta: 'Grado (inicial a secundaria)' },
+];
 ---
 
 <AppLayout title="Servicio de Acompañamiento Educativo" currentPage="educativo">
@@ -27,13 +36,6 @@ const OPCIONES_GRADO = [
               <h2>Acompañamiento Educativo: Casita del Saber</h2>
               <p>Control de asistencia formativa rápida y padrón seguro de retiro de usuarios con acreditación legal.
               </p>
-            </div>
-            <div class="view-actions">
-              <button type="button" class="btn-action-icon btn-audit-export-icon" id="btnExportEducativoCSV"
-                onclick="window.openModalExportEducativo ? window.openModalExportEducativo() : null"
-                aria-label="Descargar Pase de Asistencia CSV" title="Descargar Pase de Asistencia CSV">
-                <Icon name="accion.descargar" size={18} />
-              </button>
             </div>
           </div>
 
@@ -46,7 +48,7 @@ const OPCIONES_GRADO = [
             </div>
 
             <!-- Barra de Filtros y Búsqueda Rápida de Casitas (Estandarizada con padron.astro) -->
-            <div class="audit-toolbar" style="margin-bottom: 16px;">
+            <div class="audit-toolbar table-toolbar" style="margin-bottom: 16px;">
               <!-- Buscador Casitas (Lado Izquierdo) -->
               <div class="audit-search-wrap">
                 <Icon name="accion.buscar" size={2} class="audit-search-icon" />
@@ -58,6 +60,14 @@ const OPCIONES_GRADO = [
                   <Icon name="accion.cerrar" size={12} />
                 </button>
               </div>
+
+              <button type="button" class="btn-action-icon btn-audit-export-icon table-export-btn" id="btnExportEducativoCSV"
+                onclick="window.openModalExportEducativo ? window.openModalExportEducativo() : null"
+                aria-label="Descargar el pase de asistencia filtrado" title="Descargar el pase filtrado">
+                <Icon name="accion.descargar" size={18} />
+              </button>
+
+              <SortMenu id="CasitasSort" options={OPCIONES_ORDEN_CASITAS} selected="apellido-asc" />
 
               <!-- Botonera de Filtros Casitas (Lado Derecho) -->
               <FilterPanel

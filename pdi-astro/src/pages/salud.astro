@@ -2,6 +2,7 @@
 import AppLayout from "../layouts/AppLayout.astro";
 import FilterPanel from '../components/FilterPanel.astro';
 import FilterField from '../components/FilterField.astro';
+import SortMenu from '../components/SortMenu.astro';
 import { SEDES_OPERATIVAS } from "../data/opcionesBeneficiario.js";
 import "../styles/views-salud.css";
 import Icon from '../components/Icon.astro';
@@ -17,6 +18,17 @@ const OPCIONES_HB = [
   { valor: 'normal', etiqueta: 'Hb ≥ 11.0 g/dL (Normal)' },
   { valor: 'critico', etiqueta: 'Hb < 10.0 g/dL (Crítico)' },
 ];
+const OPCIONES_ORDEN_SALUD = [
+  { valor: 'apellido-asc', etiqueta: 'Apellido (A-Z)' },
+  { valor: 'apellido-desc', etiqueta: 'Apellido (Z-A)' },
+  { valor: 'sede-asc', etiqueta: 'Sede (A-Z)' },
+  { valor: 'edad-asc', etiqueta: 'Edad (menor a mayor)' },
+  { valor: 'edad-desc', etiqueta: 'Edad (mayor a menor)' },
+  { valor: 'hb-asc', etiqueta: 'Hemoglobina (menor a mayor)' },
+  { valor: 'hb-desc', etiqueta: 'Hemoglobina (mayor a menor)' },
+  { valor: 'anemia-asc', etiqueta: 'Anemia (severa primero)' },
+  { valor: 'ultima-desc', etiqueta: 'Última evaluación (reciente)' },
+];
 ---
 
 <AppLayout title="Desayuno Infantil" currentPage="salud">
@@ -29,13 +41,6 @@ const OPCIONES_HB = [
           de hemoglobina y suplementación ferrosa.
         </p>
       </div>
-      <div class="view-actions">
-        <button type="button" class="btn-action-icon btn-audit-export-icon" id="btnExportSaludCSV"
-          onclick="window.openModalExportSalud ? window.openModalExportSalud() : null"
-          aria-label="Descargar Reporte CRED CSV" title="Descargar Reporte CRED CSV">
-          <Icon name="accion.descargar" size={18} />
-        </button>
-      </div>
     </div>
 
 
@@ -46,7 +51,7 @@ const OPCIONES_HB = [
       </div>
 
       <!-- Barra de Filtros y Búsqueda Rápida de Salud CRED -->
-      <div class="audit-toolbar" style="margin-bottom: 16px;">
+      <div class="audit-toolbar table-toolbar" style="margin-bottom: 16px;">
         <!-- Buscador de Salud (Lado Izquierdo) -->
         <div class="audit-search-wrap">
           <Icon name="accion.buscar" size={2} class="audit-search-icon" />
@@ -68,6 +73,14 @@ const OPCIONES_HB = [
             <Icon name="accion.cerrar" size={12} />
           </button>
         </div>
+
+        <button type="button" class="btn-action-icon btn-audit-export-icon table-export-btn" id="btnExportSaludCSV"
+          onclick="window.openModalExportSalud ? window.openModalExportSalud() : null"
+          aria-label="Descargar el reporte CRED filtrado" title="Descargar el reporte filtrado">
+          <Icon name="accion.descargar" size={18} />
+        </button>
+
+        <SortMenu id="SaludSort" options={OPCIONES_ORDEN_SALUD} selected="apellido-asc" />
 
         <!-- Botonera de Filtros Salud (Lado Derecho) -->
         <FilterPanel

@@ -6,6 +6,7 @@ import { Responsive } from '../utils/Responsive.js';
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
 import { SEDES_NOMBRES, etiquetaSede } from "../core/catalogos.js";
 import { contarOpciones } from "../utils/FacetCounts.js";
+import { initSortMenu } from "../ui/SortMenu.js";
 import { iconHtml } from '../../data/iconos.js';
 // Filtros del módulo educativo que viajan en la URL. Valores tomados de los
 // desplegables de educativo.html.
@@ -37,6 +38,8 @@ export const CasitasView = {
   _asistenciaDelegada: false,
   _currentPage: 1,
   _pageSize: 20,
+  _sortKey: "apellido",
+  _sortDir: "asc",
 
   _filtros: null,
   _filtrosLeidos: false,
@@ -258,9 +261,58 @@ export const CasitasView = {
     document.addEventListener("click", alPulsar);
   },
 
+  _initSort() {
+    this._sortMenu = initSortMenu({
+      id: "CasitasSort",
+      onSelect: (valor) => this.sortBy(valor),
+    });
+    this._sortMenu?.sync(`${this._sortKey}-${this._sortDir}`);
+  },
+
+  sortBy(valor) {
+    const [key, dir] = String(valor || "").split("-");
+    if (!key) return;
+    this._sortKey = key;
+    this._sortDir = dir === "desc" ? "desc" : "asc";
+    this._sortMenu?.sync(`${this._sortKey}-${this._sortDir}`);
+    this.applyFilters();
+  },
+
+  _ordenarLista(lista) {
+    const dir = this._sortDir === "desc" ? -1 : 1;
+    const nombre = (b) => `${b.apellidos || ""} ${b.nombres || ""}`;
+    const pesoNivel = { Inicial: 0, Primaria: 1, Secundaria: 2 };
+    return [...lista].sort((a, b) => {
+      let cmp = 0;
+      switch (this._sortKey) {
+        case "sede":
+          cmp = String(a.sede || "").localeCompare(String(b.sede || ""), "es");
+          break;
+        case "edad": {
+          const va = parseInt(a.edad, 10);
+          const vb = parseInt(b.edad, 10);
+          cmp = (isNaN(va) ? 999 : va) - (isNaN(vb) ? 999 : vb);
+          break;
+        }
+        case "grado": {
+          const na = pesoNivel[a.nivelEducativo] ?? 9;
+          const nb = pesoNivel[b.nivelEducativo] ?? 9;
+          cmp = na - nb;
+          if (cmp === 0) cmp = String(a.grado || "").localeCompare(String(b.grado || ""), "es");
+          break;
+        }
+        default:
+          cmp = nombre(a).localeCompare(nombre(b), "es");
+      }
+      if (cmp === 0) cmp = nombre(a).localeCompare(nombre(b), "es");
+      return cmp * dir;
+    });
+  },
+
   renderTable(beneficiarios) {
     this._delegarAsistencia();
     this._leerFiltrosDeURL();
+    this._initSort();
     if (beneficiarios && Array.isArray(beneficiarios)) {
       this._allBeneficiarios = beneficiarios;
     } else if (window.PDI?.BeneficiarioModel) {
@@ -484,6 +536,7 @@ export const CasitasView = {
       });
     }
 
+    casitaList = this._ordenarLista(casitaList);
     this._filteredBeneficiarios = casitaList;
 
     this._updateFacetCounts();

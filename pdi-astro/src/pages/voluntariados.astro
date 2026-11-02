@@ -2,6 +2,7 @@
 import AppLayout from '../layouts/AppLayout.astro';
 import FilterPanel from '../components/FilterPanel.astro';
 import FilterField from '../components/FilterField.astro';
+import SortMenu from '../components/SortMenu.astro';
 import { OPCIONES_VOLUNTARIADO } from '../data/opcionesBeneficiario.js';
 import '../styles/views-voluntariados.css';
 import { SEDES_POR_DISTRITO } from '../scripts/core/catalogos.js';
@@ -20,6 +21,17 @@ const OPCIONES_ESTADO = [
   { valor: 'Activo', etiqueta: 'Activo' },
   { valor: 'En Pausa', etiqueta: 'En Pausa' },
 ];
+const OPCIONES_ORDEN_VOLUNTARIOS = [
+  { valor: 'apellido-asc', etiqueta: 'Apellido (A-Z)' },
+  { valor: 'apellido-desc', etiqueta: 'Apellido (Z-A)' },
+  { valor: 'sede-asc', etiqueta: 'Sede (A-Z)' },
+  { valor: 'distrito-asc', etiqueta: 'Distrito (A-Z)' },
+  { valor: 'servicio-asc', etiqueta: 'Servicio (A-Z)' },
+  { valor: 'rol-asc', etiqueta: 'Rol (A-Z)' },
+  { valor: 'estado-asc', etiqueta: 'Estado (activo primero)' },
+  { valor: 'ingreso-desc', etiqueta: 'Ingreso (reciente)' },
+  { valor: 'ingreso-asc', etiqueta: 'Ingreso (antiguo)' },
+];
 ---
 
 <AppLayout title="Padrón de Voluntarios" currentPage="voluntariados">
@@ -30,11 +42,6 @@ const OPCIONES_ESTADO = [
               <p>Gestión de voluntarias de sede, promotoras de apoyo, capacitaciones oficiales y asignación territorial (Fichas A4, A5 y A6).</p>
             </div>
             <div class="view-actions">
-              <button type="button" class="btn-action-icon btn-audit-export-icon" id="btnExportVoluntariosCSV"
-                onclick="window.openModalExportVoluntarios ? window.openModalExportVoluntarios() : window.exportVoluntariosCSV()"
-                aria-label="Descargar Padrón de Voluntariados CSV" title="Descargar Padrón de Voluntariados CSV">
-                <Icon name="accion.descargar" size={18} />
-              </button>
               <button type="button" class="btn-action primary" onclick="window.openInscripcionVoluntario ? window.openInscripcionVoluntario() : null" title="Registrar nueva voluntaria o personal de apoyo">
                 <Icon name="accion.agregar" size={15} />
                 <span>Nueva Inscripción</span>
@@ -94,7 +101,7 @@ const OPCIONES_ESTADO = [
           </section>
           <!-- Barra de Filtros y Búsqueda Rápida de Voluntariados -->
           <div class="card" id="cardVoluntariosPadron" style="position: relative; z-index: 80;">
-            <div class="audit-toolbar">
+            <div class="audit-toolbar table-toolbar">
               <div class="audit-search-wrap">
                 <Icon name="accion.buscar" size={2} class="audit-search-icon" />
                 <input type="text" id="inputVoluntariosSearch" class="audit-search-input" placeholder="Buscar..." aria-label="Buscar por nombre, DNI, código, sede o rol" title="Buscar por nombre, DNI, código, sede o rol">
@@ -102,6 +109,14 @@ const OPCIONES_ESTADO = [
                   <Icon name="accion.cerrar" size={12} />
                 </button>
               </div>
+
+              <button type="button" class="btn-action-icon btn-audit-export-icon table-export-btn" id="btnExportVoluntariosCSV"
+                onclick="window.openModalExportVoluntarios ? window.openModalExportVoluntarios() : window.exportVoluntariosCSV()"
+                aria-label="Descargar el padrón de voluntariados filtrado" title="Descargar el padrón filtrado">
+                <Icon name="accion.descargar" size={18} />
+              </button>
+
+              <SortMenu id="VoluntariosSort" options={OPCIONES_ORDEN_VOLUNTARIOS} selected="apellido-asc" />
 
               <!-- Filtro Popover Dropdown -->
               <FilterPanel

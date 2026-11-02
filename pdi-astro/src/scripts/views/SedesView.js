@@ -5,6 +5,7 @@ import { crear as crearFiltros } from '../utils/Filters.js';
 import { crearStore } from '../utils/FilterStore.js';
 import { PROGRAMAS, PROGRAMA_POR_CLAVE } from '../../data/opcionesBeneficiario.js';
 import { contarOpciones } from '../utils/FacetCounts.js';
+import { initSortMenu } from '../ui/SortMenu.js';
 import { conectarHoja } from '../utils/SheetController.js';
 
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
@@ -33,6 +34,8 @@ export const SedesView = {
   _searchQuery: "",
   _filterDistrito: "all",
   _filterServicio: "all",
+  _sortKey: "nombre",
+  _sortDir: "asc",
   _sedeEnURL: false,
 
   _store: null,
@@ -102,8 +105,49 @@ export const SedesView = {
     this._filtros = null;
   },
 
+  _initSort() {
+    this._sortMenu = initSortMenu({
+      id: "SedesSort",
+      onSelect: (valor) => this.sortBy(valor),
+    });
+    this._sortMenu?.sync(`${this._sortKey}-${this._sortDir}`);
+  },
+
+  sortBy(valor) {
+    const [key, dir] = String(valor || "").split("-");
+    if (!key) return;
+    this._sortKey = key;
+    this._sortDir = dir === "desc" ? "desc" : "asc";
+    this._sortMenu?.sync(`${this._sortKey}-${this._sortDir}`);
+    this.applyFilters();
+  },
+
+  _ordenarLista(lista) {
+    const dir = this._sortDir === "desc" ? -1 : 1;
+    const pesoEstado = { Operativa: 0 };
+    return [...lista].sort((a, b) => {
+      let cmp = 0;
+      switch (this._sortKey) {
+        case "distrito":
+          cmp = String(a.distrito || "").localeCompare(String(b.distrito || ""), "es");
+          break;
+        case "aforo":
+          cmp = (Number(a.aforoMax) || 0) - (Number(b.aforoMax) || 0);
+          break;
+        case "estado":
+          cmp = (pesoEstado[a.estado] ?? 1) - (pesoEstado[b.estado] ?? 1);
+          break;
+        default:
+          cmp = String(a.nombre || "").localeCompare(String(b.nombre || ""), "es");
+      }
+      if (cmp === 0) cmp = String(a.nombre || "").localeCompare(String(b.nombre || ""), "es");
+      return cmp * dir;
+    });
+  },
+
   render(sedes) {
     this._leerFiltrosDeURL();
+    this._initSort();
     if (sedes) {
       this._allSedes = sedes;
     } else {
@@ -582,13 +626,10 @@ export const SedesView = {
       );
     }
 
+    // El orden por defecto sigue siendo alfabético, pero ahora es una elección
+    // de la barra y no una regla escondida en el filtro.
+    filtered = this._ordenarLista(filtered);
     this._filteredSedes = filtered;
-
-    // Orden alfabetico fijo. El fetch (fixtures vs base de datos) puede devolver
-    // las sedes en otro orden, y un reordenamiento repintaba la lista completa
-    // al refrescar los datos.
-    this._filteredSedes.sort((a, b) =>
-      String(a.nombre).localeCompare(String(b.nombre), "es"));
 
     const countBadge = document.getElementById("sedesCountBadge");
     const masterCountBadge = document.getElementById("sedesMasterCountBadge");
