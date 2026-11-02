@@ -363,7 +363,6 @@
       background: var(--surface-hover);
       border-color: var(--gt-green);
       color: var(--text-brand);
-      transform: translateY(-1px);
       box-shadow: var(--shadow-sm);
     }
 

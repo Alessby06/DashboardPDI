@@ -1018,9 +1018,6 @@
       transform var(--dur-press) var(--ease-out);
   }
 
-  .btn-close-sheet:active {
-    transform: scale(0.96);
-  }
 
   .audit-filters-body {
     flex: 1 1 auto;

@@ -1,0 +1,61 @@
+/* ===========================================================================
+   CONTRATO ÚNICO DE MOVIMIENTO DE BOTONES
+   ---------------------------------------------------------------------------
+   Modelo: la micro-interacción de .btn-action (Tactile Spring Feedback).
+     · hover  → sube 1.5 px
+     · pulsar → comprime al 97 %
+     · 160 ms, transform con --ease-spring y color con --ease-smooth
+
+   Usa las propiedades individuales translate/scale, no transform: así los
+   chevrons, carets y drawers que ya animan transform no se pisan. La clase
+   .pdi-motion la pone scripts/core/ButtonMotion.js en todos los botones,
+   incluidos filtros y ordenaciones, también en los que se crean después.
+
+   La repetición de la clase sube la especificidad sin !important y permite
+   ganar a las reglas de vista que aún declaran su propio translateY.
+   =========================================================================== */
+
+.pdi-motion.pdi-motion.pdi-motion.pdi-motion {
+  translate: 0 0;
+  scale: 1;
+  transition:
+    translate var(--dur-fast) var(--ease-spring),
+    scale var(--dur-fast) var(--ease-spring),
+    background-color var(--dur-fast) var(--ease-smooth),
+    border-color var(--dur-fast) var(--ease-smooth),
+    color var(--dur-fast) var(--ease-smooth),
+    box-shadow var(--dur-fast) var(--ease-smooth),
+    opacity var(--dur-fast) var(--ease-smooth);
+}
+
+/* El hover solo existe donde hay puntero fino: en táctil se queda pegado
+   después del toque y el botón parece activo cuando ya no lo está. */
+@media (hover: hover) and (pointer: fine) {
+  .pdi-motion.pdi-motion.pdi-motion.pdi-motion:hover:not(:disabled):not([aria-disabled="true"]) {
+    translate: 0 -1.5px;
+  }
+}
+
+.pdi-motion.pdi-motion.pdi-motion.pdi-motion:active:not(:disabled):not([aria-disabled="true"]) {
+  translate: 0 0;
+  scale: 0.97;
+}
+
+/* Con movimiento reducido el botón no se desplaza ni se comprime, pero los
+   cambios de color siguen comunicando el estado. */
+@media (prefers-reduced-motion: reduce) {
+  .pdi-motion.pdi-motion.pdi-motion.pdi-motion {
+    transition:
+      background-color var(--dur-fast) var(--ease-smooth),
+      border-color var(--dur-fast) var(--ease-smooth),
+      color var(--dur-fast) var(--ease-smooth),
+      box-shadow var(--dur-fast) var(--ease-smooth),
+      opacity var(--dur-fast) var(--ease-smooth);
+  }
+
+  .pdi-motion.pdi-motion.pdi-motion.pdi-motion:hover,
+  .pdi-motion.pdi-motion.pdi-motion.pdi-motion:active {
+    translate: 0 0;
+    scale: 1;
+  }
+}

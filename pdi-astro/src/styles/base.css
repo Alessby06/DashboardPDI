@@ -107,38 +107,9 @@
       }
     }
 
-    /* Micro-Interacciones en Botones (Tactile Spring Feedback) */
-    .btn-action, .nav-btn, .theme-toggle-btn, .btn-menu-toggle {
-      transition: transform var(--dur-press) var(--ease-spring),
-                  background-color var(--dur-fast) var(--ease-smooth),
-                  box-shadow var(--dur-fast) var(--ease-smooth),
-                  border-color var(--dur-fast) var(--ease-smooth);
-      will-change: transform;
-    }
-
-    @media (hover: hover) and (pointer: fine) {
-      .btn-action:hover, .theme-toggle-btn:hover {
-        transform: translateY(-1.5px);
-      }
-    }
-
-    /* Pulsación del sistema: compresión suave + tinte. */
-    .btn-action:active:not(:disabled),
-    .btn-action-icon:active:not(:disabled),
-    .row-action:active,
-    .btn-page:active:not(:disabled),
-    .btn-action-sm:active:not(:disabled),
-    .btn-asist:active:not(:disabled),
-    .btn-text-subtle:active:not(:disabled),
-    .theme-option-btn:active:not(:disabled),
-    .stage-seg-btn:active,
-    .nav-btn:active,
-    .theme-toggle-btn:active,
-    .btn-menu-toggle:active {
-      transform: scale(0.97);
-      transition-duration: var(--dur-fast);
-    }
-
+    /* El movimiento de los botones vive en button-motion.css. Aquí solo queda
+       el tinte de la pulsación; el lift y la compresión usan las propiedades
+       translate/scale para no pisar los transform de chevrons ni drawers. */
     .btn-action:active:not(:disabled):not(.primary),
     .btn-action-icon:active:not(:disabled),
     .row-action:active {
@@ -148,23 +119,6 @@
 
     .btn-action.primary:active:not(:disabled) {
       filter: brightness(0.96);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .btn-action:active:not(:disabled),
-      .btn-action-icon:active:not(:disabled),
-      .row-action:active,
-      .btn-page:active:not(:disabled),
-      .btn-action-sm:active:not(:disabled),
-      .btn-asist:active:not(:disabled),
-      .btn-text-subtle:active:not(:disabled),
-      .theme-option-btn:active:not(:disabled),
-      .stage-seg-btn:active,
-      .nav-btn:active,
-      .theme-toggle-btn:active,
-      .btn-menu-toggle:active {
-        transform: none;
-      }
     }
 
     /* View Transitions API (Circular Ripple Reveal Animation) */
@@ -729,7 +683,6 @@
       color: var(--text-main);
       transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-spring), opacity var(--dur-fast) var(--ease-smooth);
       white-space: nowrap;
-      will-change: transform;
     }
 
     .btn-action svg {
@@ -749,7 +702,6 @@
       .btn-action.primary:hover {
         background: var(--brand-dark);
         border-color: var(--brand-dark);
-        transform: translateY(-1px);
       }
     }
 
@@ -760,6 +712,24 @@
       color: var(--on-brand);
       border: 1px solid var(--gt-green);
       font-weight: 700;
+    }
+
+    /* Rojo reservado a acciones destructivas e irreversibles («Dar de Baja»).
+       «Cancelar Edición» no lo usa: cancelar no destruye nada. */
+    .btn-action.danger,
+    .btn-action.btn-danger {
+      background: var(--gt-red-bg);
+      border-color: var(--gt-red-border);
+      color: var(--text-danger);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .btn-action.danger:hover,
+      .btn-action.btn-danger:hover {
+        background: var(--gt-red);
+        border-color: var(--gt-red);
+        color: var(--on-solid);
+      }
     }
 
     .theme-toggle-btn {

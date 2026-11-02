@@ -550,10 +550,6 @@ html:not([data-pdi-ready="1"]) .nav-badge {
   background: var(--brand-hover);
 }
 
-.pdi-sk-retry:active {
-  transform: scale(0.97);
-}
-
 .pdi-sk-retry:focus-visible {
   outline: 2px solid var(--brand-primary);
   outline-offset: 3px;

@@ -858,7 +858,6 @@
     background: var(--surface-hover);
     border-color: var(--border-bright);
     color: var(--text-brand);
-    transform: translateY(-1px);
   }
 
   /* El lápiz (editar) se insinúa en verde de marca */
@@ -912,7 +911,6 @@
   background: var(--surface-hover);
   border-color: var(--gt-green);
   color: var(--text-brand);
-  transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
 }
 
@@ -1487,9 +1485,6 @@ input[type="range"] {
       width: 100% !important;
     }
 }
-.photo-uploader-box:active {
-    transform: scale(0.98);
-  }
 .photo-uploader-box img {
     width: 100%;
     height: 100%;

@@ -335,10 +335,6 @@
       transform: translateX(2px);
     }
 
-    .expediente-nav-item:active {
-      transform: scale(0.98);
-    }
-
     .expediente-nav-item.active {
       /* La tinta de marca sobre su propio tinte bajaba a 3,83:1 a 12,5 px.
          Superficie, borde de marca e icono verde dejan el estado activo

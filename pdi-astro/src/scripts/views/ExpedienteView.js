@@ -1054,7 +1054,6 @@ export const ExpedienteView = {
 
     if (this.isEditing) {
       if (editBtn) {
-        editBtn.classList.add("danger");
         editBtn.innerHTML = `
           ${iconHtml("accion.cerrar", { size: 15 })}
           <span>Cancelar Edicion</span>`;

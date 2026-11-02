@@ -837,7 +837,6 @@
   background: var(--surface-hover);
   border-color: var(--border-bright);
   color: var(--text-main);
-  transform: translateY(-1px);
 }
 
 .view-actions .btn-action.primary {
@@ -848,12 +847,11 @@
   font-size: 13px !important;
   padding: 0 16px !important;
   border-radius: var(--radius-md) !important;
-  transition: all var(--dur-fast) var(--ease-smooth) !important;
+
 }
 
 .view-actions .btn-action.primary:hover {
   box-shadow: var(--shadow-ambient);
-  transform: translateY(-1px);
 }
 
 /* --- TABLA PRINCIPAL DEL PADRÓN: ESTABILIDAD Y ZERO LAYOUT SHIFT --- */

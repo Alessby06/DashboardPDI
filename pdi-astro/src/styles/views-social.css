@@ -1282,7 +1282,6 @@
       background: var(--brand-primary);
       border-color: var(--brand-primary);
       color: var(--on-brand) !important;
-      transform: translateY(-1px);
       box-shadow: var(--shadow-sm);
     }
 
@@ -1296,7 +1295,6 @@
       background: var(--surface-hover);
       border-color: var(--border-bright);
       color: var(--text-main);
-      transform: translateY(-1px);
     }
 
     /* Success / Cerrar Caso: Johannes Gutenberg Azul Institucional */
@@ -1309,7 +1307,6 @@
       background: var(--gt-blue);
       color: var(--on-solid) !important;
       border-color: var(--gt-blue);
-      transform: translateY(-1px);
       box-shadow: var(--shadow-sm);
     }
 
@@ -1323,7 +1320,6 @@
       background: #d97706;
       color: var(--on-solid) !important;
       border-color: #d97706;
-      transform: translateY(-1px);
       box-shadow: var(--shadow-sm);
     }
 
