@@ -94,6 +94,50 @@ export const OPCIONES_VOLUNTARIADO = [
 /** Valores guardados válidos de servicio de un voluntario. */
 export const SERVICIOS_VOLUNTARIADO = OPCIONES_VOLUNTARIADO.map((opcion) => opcion.valor);
 
+/**
+ * Clasificación única de un servicio para la línea «Registro» y el avatar.
+ * Colores de la imagen de reparto: alimentario verde, casita ámbar,
+ * Área Social Pastoral azul, otros neutro.
+ */
+export function tipoServicio(nombre) {
+  const low = String(nombre || "").toLowerCase();
+  if (/desayuno|lonchera|aliment/.test(low)) return "alimentario";
+  if (/casita|biblioteca/.test(low)) return "casita";
+  if (/pastoral|social|asp/.test(low)) return "social";
+  return "otro";
+}
+
+export function claseLineaServicio(nombre) {
+  return {
+    alimentario: "is-desayuno",
+    casita: "is-casita",
+    social: "is-social",
+    otro: "is-otro",
+  }[tipoServicio(nombre)];
+}
+
+export function claseAvatarServicio(nombre) {
+  return {
+    alimentario: "serv-desayuno",
+    casita: "serv-casita",
+    social: "serv-pastoral",
+    otro: "serv-otro",
+  }[tipoServicio(nombre)];
+}
+
+/**
+ * Etiqueta visible del servicio. «Servicio Alimentario…» es el nombre
+ * histórico del módulo; la regla de negocio actual muestra «Desayuno Infantil».
+ * El sidebar conserva la etiqueta larga por decisión de producto.
+ */
+export function nombreServicioVisible(nombre) {
+  const texto = String(nombre || "").trim();
+  if (/^servicio\s+alimentario\b|^alimentario\b|alimentario\s+nutricional/i.test(texto)) {
+    return "Desayuno Infantil";
+  }
+  return texto;
+}
+
 // Antes la estrategia cabia en un solo texto de la inscripcion y por eso
 // existia el valor "Mixto (Desayuno + Casita)": un multi-select de mentira, un
 // solo valor que significaba dos. Ahora son varias y ese valor desaparece del

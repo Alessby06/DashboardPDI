@@ -10,7 +10,7 @@ import { ToastView } from './ToastView.js';
 import { AuditModel } from '../models/AuditModel.js';
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";
 import { marcarError } from "../utils/FieldError.js";
-import { OPCIONES_VOLUNTARIADO, SERVICIOS_VOLUNTARIADO } from '../../data/opcionesBeneficiario.js';
+import { OPCIONES_VOLUNTARIADO, SERVICIOS_VOLUNTARIADO, claseAvatarServicio, claseLineaServicio, nombreServicioVisible } from '../../data/opcionesBeneficiario.js';
 import { SEDES_POR_DISTRITO, etiquetaSede } from '../core/catalogos.js';
 import { contarOpciones } from "../utils/FacetCounts.js";
 import { iconHtml } from '../../data/iconos.js';
@@ -330,7 +330,7 @@ export const VoluntariadosView = {
     const barra = document.querySelector(".vol-reparto-bar");
     if (barra) {
       const detalle = [
-        `${pcts[0]}% Servicio Alimentario`,
+        `${pcts[0]}% Desayuno Infantil`,
         `${pcts[1]}% Casita del Saber`,
         `${pcts[2]}% Área Social Pastoral`,
         hayOtros ? `${pcts[3]}% otros servicios` : "",
@@ -573,19 +573,9 @@ export const VoluntariadosView = {
     // Render Table (PC)
     if (tbody && !enMovil) {
       tbody.innerHTML = pageItems.map(v => {
-        let badgeServClass = "badge-green";
-        let servDotClass = "dot-green";
-        let servColorClass = "serv-desayuno";
-        if (v.servicio === "Casita del Saber") {
-          badgeServClass = "badge-yellow";
-          servDotClass = "dot-amber";
-          servColorClass = "serv-casita";
-        }
-        if (v.servicio === "Área Social Pastoral (ASP)") {
-          badgeServClass = "badge-blue";
-          servDotClass = "dot-blue";
-          servColorClass = "serv-pastoral";
-        }
+        const servColorClass = claseAvatarServicio(v.servicio);
+        const servClaseLinea = claseLineaServicio(v.servicio);
+        const servNombre = nombreServicioVisible(v.servicio);
 
         let badgeEstadoClass = v.estado === "Activo" ? "badge-green" : (v.estado === "En Pausa" ? "badge-yellow" : "badge-gray");
         let estadoDotClass = v.estado === "Activo" ? "dot-green" : (v.estado === "En Pausa" ? "dot-amber" : "dot-gray");
@@ -617,10 +607,7 @@ export const VoluntariadosView = {
             </td>
             <td>
               <div class="padron-service-stack">
-                <span class="padron-service-indicator ${servColorClass}">
-                  <span class="padron-dot ${servDotClass}"></span>
-                  <strong>${escapar(v.servicio)}</strong>
-                </span>
+                <span class="servicio-registro ${servClaseLinea}">${escapar(servNombre)}</span>
                 <span class="padron-role-text" title="Rol asignado">
                   ${escapar(v.rol)}
                 </span>
@@ -668,19 +655,9 @@ export const VoluntariadosView = {
     // Render Cards (Mobile)
     if (mobileContainer && enMovil) {
       mobileContainer.innerHTML = pageItems.map(v => {
-        let badgeServClass = "badge-green";
-        let servDotClass = "dot-green";
-        let servColorClass = "serv-desayuno";
-        if (v.servicio === "Casita del Saber") {
-          badgeServClass = "badge-yellow";
-          servDotClass = "dot-amber";
-          servColorClass = "serv-casita";
-        }
-        if (v.servicio === "Área Social Pastoral (ASP)") {
-          badgeServClass = "badge-blue";
-          servDotClass = "dot-blue";
-          servColorClass = "serv-pastoral";
-        }
+        const servColorClass = claseAvatarServicio(v.servicio);
+        const servClaseLinea = claseLineaServicio(v.servicio);
+        const servNombre = nombreServicioVisible(v.servicio);
 
         let badgeEstadoClass = v.estado === "Activo" ? "badge-green" : (v.estado === "En Pausa" ? "badge-yellow" : "badge-gray");
         let estadoDotClass = v.estado === "Activo" ? "dot-green" : (v.estado === "En Pausa" ? "dot-amber" : "dot-gray");
@@ -728,10 +705,7 @@ export const VoluntariadosView = {
 
               <div class="padron-mcard-detail-item">
                 <span class="padron-mcard-detail-label">Servicio</span>
-                <span class="badge ${badgeServClass} padron-service-badge">
-                  <span class="padron-dot ${servDotClass}"></span>
-                  ${escapar(v.servicio)}
-                </span>
+                <span class="servicio-registro ${servClaseLinea}">${escapar(servNombre)}</span>
               </div>
 
               <div class="padron-mcard-detail-item">

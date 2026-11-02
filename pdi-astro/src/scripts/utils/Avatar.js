@@ -9,6 +9,7 @@
 //  Este modulo no toca el DOM: devuelve datos y, como mucho, el HTML del
 //  avatar circular. Asi lo pueden usar las dos vistas sin duplicar la regla.
 import { escapar } from "./HtmlHelper.js";
+import { claseAvatarServicio } from "../../data/opcionesBeneficiario.js";
 
 export const RETRATOS_F = ["/avatars/f1.svg", "/avatars/f2.svg", "/avatars/f3.svg", "/avatars/f4.svg"];
 const CLAVE_RETRATO = "pdi_retrato_f_";
@@ -32,10 +33,7 @@ export function inicialesDe(b) {
 /** Color del servicio, el mismo que usa el avatar del padron. */
 export function claseServicio(b) {
   const principal = (Array.isArray(b?.estrategias) && b.estrategias[0]) || b?.estrategia || "";
-  if (/casita/i.test(principal)) return "serv-casita";
-  if (/pastoral|social|asp/i.test(principal)) return "serv-pastoral";
-  if (/biblioteca/i.test(principal)) return "serv-biblioteca";
-  return "serv-desayuno";
+  return claseAvatarServicio(principal);
 }
 
 /**

@@ -1203,17 +1203,23 @@
   border-color: rgba(var(--brand-rgb), 0.25);
 }
 
-#tablaBeneficiarios .padron-avatar.serv-casita {
+#tablaBeneficiarios .padron-avatar.serv-casita,
+#tablaBeneficiarios .padron-avatar.serv-biblioteca {
   background: rgba(245, 158, 11, 0.12);
   color: var(--gt-yellow);
   border-color: rgba(245, 158, 11, 0.25);
 }
 
-#tablaBeneficiarios .padron-avatar.serv-pastoral,
-#tablaBeneficiarios .padron-avatar.serv-biblioteca {
+#tablaBeneficiarios .padron-avatar.serv-pastoral {
   background: rgba(2, 132, 199, 0.12);
   color: var(--gt-blue);
   border-color: rgba(2, 132, 199, 0.25);
+}
+
+#tablaBeneficiarios .padron-avatar.serv-otro {
+  background: var(--surface-2);
+  color: var(--text-dim);
+  border-color: var(--border-subtle);
 }
 
 /* Retrato de las chicas dentro del circulo del padron. */
@@ -1253,17 +1259,23 @@
   border-color: rgba(var(--brand-rgb), 0.25);
 }
 
-#mobileCardsBeneficiarios .padron-avatar.serv-casita {
+#mobileCardsBeneficiarios .padron-avatar.serv-casita,
+#mobileCardsBeneficiarios .padron-avatar.serv-biblioteca {
   background: rgba(245, 158, 11, 0.12);
   color: var(--gt-yellow);
   border-color: rgba(245, 158, 11, 0.25);
 }
 
-#mobileCardsBeneficiarios .padron-avatar.serv-pastoral,
-#mobileCardsBeneficiarios .padron-avatar.serv-biblioteca {
+#mobileCardsBeneficiarios .padron-avatar.serv-pastoral {
   background: rgba(2, 132, 199, 0.12);
   color: var(--gt-blue);
   border-color: rgba(2, 132, 199, 0.25);
+}
+
+#mobileCardsBeneficiarios .padron-avatar.serv-otro {
+  background: var(--surface-2);
+  color: var(--text-dim);
+  border-color: var(--border-subtle);
 }
 
 #mobileCardsBeneficiarios .padron-avatar.is-retrato {

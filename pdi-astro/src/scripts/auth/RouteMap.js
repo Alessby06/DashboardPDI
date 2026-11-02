@@ -42,7 +42,7 @@ export const PAGINAS = {
 
   salud: {
     ruta: "/salud",
-    etiqueta: "Servicio Alimentario Nutricional",
+    etiqueta: "Desayuno Infantil",
     view: "view-salud",
     grupo: "Operación",
     enMenu: true,

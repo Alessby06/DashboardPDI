@@ -1188,6 +1188,12 @@
   border-color: rgba(2, 132, 199, 0.25);
 }
 
+.padron-avatar.serv-otro {
+  background: var(--surface-2);
+  color: var(--text-dim);
+  border-color: var(--border-subtle);
+}
+
 .padron-user-info {
   display: flex;
   flex-direction: column;
@@ -1799,6 +1805,11 @@ Oscuro (ya cumplía 5.77–8.28): #2dd4bf 9.88 · #fcd34d 12.76 · #7dd3fc 11.03
 #cardVoluntariosPadron .padron-metric-chip.chip-canastas {
   background: var(--v-tinte-blue);
   color: var(--v-blue);
+}
+
+#cardVoluntariosPadron .padron-avatar.serv-otro {
+  background: var(--surface-2);
+  color: var(--text-dim);
 }
 
 #cardVoluntariosPadron .padron-btn-edit {

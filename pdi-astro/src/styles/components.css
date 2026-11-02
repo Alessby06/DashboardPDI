@@ -489,9 +489,16 @@
     }
 
     .servicio-registro.is-casita,
-    .servicio-registro.is-biblioteca,
-    .servicio-registro.is-otro {
+    .servicio-registro.is-biblioteca {
+      --servicio-color: var(--gt-yellow);
+    }
+
+    .servicio-registro.is-social {
       --servicio-color: var(--gt-blue);
+    }
+
+    .servicio-registro.is-otro {
+      --servicio-color: var(--border-medium);
     }
 
     .servicio-registro.is-empty {

@@ -33,7 +33,7 @@ export const defaultBeneficiarios = [
     "estrategia": "Mixto (Desayuno + Casita)",
     "exoneracionAporte": "100% (Exonerado Vulnerabilidad Extrema)",
     "servicios": [
-      "Servicio Alimentario Nutricional",
+      "Desayuno Infantil",
       "Casita del Saber",
       "Lonchera Saludable"
     ],
@@ -98,10 +98,10 @@ export const defaultBeneficiarios = [
     "distrito": "Comas",
     "sede": "La Libertad",
     "modalidad": "Comunitaria",
-    "estrategia": "Servicio Alimentario Nutricional",
+    "estrategia": "Desayuno Infantil",
     "exoneracionAporte": "50% (Semi-exonerado)",
     "servicios": [
-      "Servicio Alimentario Nutricional"
+      "Desayuno Infantil"
     ],
     "seguro": "SIS Gratuito",
     "centroSalud": "C.S. La Libertad",
@@ -156,7 +156,7 @@ export const defaultBeneficiarios = [
     "estrategia": "Mixto (Desayuno + Casita)",
     "exoneracionAporte": "100% (Exonerado Vulnerabilidad Extrema)",
     "servicios": [
-      "Servicio Alimentario Nutricional",
+      "Desayuno Infantil",
       "Casita del Saber"
     ],
     "seguro": "SIS Gratuito",
@@ -264,10 +264,10 @@ export const defaultBeneficiarios = [
     "distrito": "Carabayllo",
     "sede": "San Pedro",
     "modalidad": "Comunitaria",
-    "estrategia": "Servicio Alimentario Nutricional",
+    "estrategia": "Desayuno Infantil",
     "exoneracionAporte": "100% (Exonerado Vulnerabilidad Extrema)",
     "servicios": [
-      "Servicio Alimentario Nutricional"
+      "Desayuno Infantil"
     ],
     "seguro": "SIS Gratuito",
     "centroSalud": "P.S. San Pedro",
@@ -322,7 +322,7 @@ export const defaultBeneficiarios = [
     "estrategia": "Mixto (Desayuno + Casita)",
     "exoneracionAporte": "100% (Exonerado Vulnerabilidad Extrema)",
     "servicios": [
-      "Servicio Alimentario Nutricional",
+      "Desayuno Infantil",
       "Casita del Saber"
     ],
     "seguro": "SIS Gratuito",
@@ -375,10 +375,10 @@ export const defaultBeneficiarios = [
     "distrito": "Comas",
     "sede": "Año Nuevo",
     "modalidad": "Comunitaria",
-    "estrategia": "Servicio Alimentario Nutricional",
+    "estrategia": "Desayuno Infantil",
     "exoneracionAporte": "50% (Semi-exonerado)",
     "servicios": [
-      "Servicio Alimentario Nutricional"
+      "Desayuno Infantil"
     ],
     "seguro": "SIS Gratuito",
     "centroSalud": "C.S. Año Nuevo",
@@ -436,10 +436,10 @@ export const defaultBeneficiarios = [
     "distrito": "Carabayllo",
     "sede": "San Pedro",
     "modalidad": "Comunitaria",
-    "estrategia": "Servicio Alimentario Nutricional",
+    "estrategia": "Desayuno Infantil",
     "exoneracionAporte": "100% (Exonerado Vulnerabilidad Extrema)",
     "servicios": [
-      "Servicio Alimentario Nutricional"
+      "Desayuno Infantil"
     ],
     "seguro": "SIS Gratuito",
     "centroSalud": "P.S. San Pedro",
@@ -549,7 +549,7 @@ export const defaultBeneficiarios = [
     "estrategia": "Mixto (Desayuno + Casita)",
     "exoneracionAporte": "100% (Exonerado Vulnerabilidad Extrema)",
     "servicios": [
-      "Servicio Alimentario Nutricional",
+      "Desayuno Infantil",
       "Casita del Saber"
     ],
     "seguro": "SIS Gratuito",
@@ -657,10 +657,10 @@ export const defaultBeneficiarios = [
     "distrito": "Carabayllo",
     "sede": "San Pedro",
     "modalidad": "Comunitaria",
-    "estrategia": "Servicio Alimentario Nutricional",
+    "estrategia": "Desayuno Infantil",
     "exoneracionAporte": "100% (Exonerado Vulnerabilidad Extrema)",
     "servicios": [
-      "Servicio Alimentario Nutricional"
+      "Desayuno Infantil"
     ],
     "seguro": "SIS Gratuito",
     "centroSalud": "P.S. San Pedro",
@@ -715,7 +715,7 @@ export const defaultBeneficiarios = [
     "estrategia": "Mixto (Desayuno + Casita)",
     "exoneracionAporte": "50% (Semi-exonerado)",
     "servicios": [
-      "Servicio Alimentario Nutricional",
+      "Desayuno Infantil",
       "Casita del Saber"
     ],
     "seguro": "SIS Gratuito",
@@ -768,10 +768,10 @@ export const defaultBeneficiarios = [
     "distrito": "Carabayllo",
     "sede": "El Progreso",
     "modalidad": "Comunitaria",
-    "estrategia": "Servicio Alimentario Nutricional",
+    "estrategia": "Desayuno Infantil",
     "exoneracionAporte": "100% (Exonerado Vulnerabilidad Extrema)",
     "servicios": [
-      "Servicio Alimentario Nutricional"
+      "Desayuno Infantil"
     ],
     "seguro": "SIS Gratuito",
     "centroSalud": "C.S. El Progreso",

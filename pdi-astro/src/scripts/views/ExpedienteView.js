@@ -901,7 +901,7 @@ export const ExpedienteView = {
 
     const programas = [
       {
-        nombre: "Servicio Alimentario Nutricional",
+        nombre: "Desayuno Infantil",
         desc: "Racion matutina balanceada, complemento alimentario y tamizaje antropometrico periodico",
         activo: incluye("aliment") || incluye("nutric") || incluye("desayuno") || incluye("lonchera"),
       },
@@ -950,7 +950,7 @@ export const ExpedienteView = {
     // Educativo") y con nombres cortos ("Casita del Saber"). Se canoniza a una
     // sola forma para que la comparacion no falle por como se escribio.
     const canonico = {
-      "Servicio Alimentario Nutricional": ["aliment", "nutric", "desayuno", "lonchera"],
+      "Desayuno Infantil": ["aliment", "nutric", "desayuno", "lonchera"],
       "Servicio Acompanamiento Educativo": ["educat", "casita", "acomp", "refuerzo"],
       "Area Social Pastoral": ["pastoral", "social", "asp"],
     };

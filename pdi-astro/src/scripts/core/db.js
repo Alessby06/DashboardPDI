@@ -23,7 +23,7 @@
 import { Surreal } from 'surrealdb';
 import { AnemiaCalculator } from '../utils/AnemiaCalculator.js';
 import { ToastView } from '../views/ToastView.js';
-import { estrategiasDesdePrograma, SERVICIOS_VOLUNTARIADO } from '../../data/opcionesBeneficiario.js';
+import { estrategiasDesdePrograma, SERVICIOS_VOLUNTARIADO, nombreServicioVisible } from '../../data/opcionesBeneficiario.js';
 import {
   normalizarParentesco,
   seguroDbAUi,
@@ -771,13 +771,13 @@ function mapearBeneficiarios(personasRes, sedes) {
       : estrategiasDesdePrograma(prog);
     const estrategia = estrategias.join(' + ');
 
-    let servicios = ['Servicio Alimentario Nutricional'];
+    let servicios = ['Desayuno Infantil'];
     if (prog === 'Mixto') {
-      servicios = ['Servicio Alimentario Nutricional', 'Casita del Saber'];
+      servicios = ['Desayuno Infantil', 'Casita del Saber'];
     } else if (prog === 'Casita del Saber') {
       servicios = ['Casita del Saber'];
     } else if (prog === 'Lonchera Infantil') {
-      servicios = ['Servicio Alimentario Nutricional', 'Lonchera Saludable'];
+      servicios = ['Desayuno Infantil', 'Lonchera Saludable'];
     }
 
     const apoderadoNom = m.apo ? `${m.apo.c_nom || ''} ${m.apo.c_ape || ''}`.trim() : '';
@@ -987,7 +987,7 @@ function mapearVoluntarios(volRaw) {
       sedeAsignada: sede,
       sedeRegistrada: !sede || sedeConocida(sede),
       sedeEtiqueta: sede ? etiquetaSede(sede) : 'Sin sede',
-      servicio: v.servicio || '',
+      servicio: nombreServicioVisible(v.servicio || ''),
       rol: v.rol || '',
       estrategia: v.estrategia || 'Atención Fija',
       tipoVoluntariado: v.tipo_voluntariado || '',
@@ -1697,7 +1697,7 @@ export async function crearSede(s) {
       aliado: s.iglesiaAliada || s.pastorAliado || s.nombre,
       aliadoInst: s.tipoAliado || 'Local Comunal',
       fac: s.facilitadora || '', facTel: s.facilitadoraTel || '',
-      serv: Array.isArray(s.servicios) && s.servicios.length ? s.servicios : ['Servicio Alimentario Nutricional'],
+      serv: Array.isArray(s.servicios) && s.servicios.length ? s.servicios : ['Desayuno Infantil'],
       aforo: Number(s.aforoMax) > 0 ? Number(s.aforoMax) : 30,
       horario: s.horario || null, estado: s.estado || 'Operativa',
     });
@@ -1724,7 +1724,7 @@ export async function actualizarSede(s) {
       aliado: s.iglesiaAliada || s.nombre,
       aliadoInst: s.tipoAliado || 'Local Comunal',
       fac: s.facilitadora || '', facTel: s.facilitadoraTel || '',
-      serv: Array.isArray(s.servicios) && s.servicios.length ? s.servicios : ['Servicio Alimentario Nutricional'],
+      serv: Array.isArray(s.servicios) && s.servicios.length ? s.servicios : ['Desayuno Infantil'],
       aforo: Number(s.aforoMax) > 0 ? Number(s.aforoMax) : 30,
       horario: s.horario || null, estado: s.estado || 'Operativa',
     });

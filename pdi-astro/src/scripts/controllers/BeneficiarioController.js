@@ -501,7 +501,7 @@ export const BeneficiarioController = {
         const s = new Set();
         const estLow = (estrategia || "").toLowerCase();
         if (estLow.includes("desayuno") || estLow.includes("lonchera") || estLow.includes("alimento") || estLow.includes("nutric") || estLow.includes("mixto")) {
-          s.add("Servicio Alimentario Nutricional");
+          s.add("Desayuno Infantil");
         }
         if (estLow.includes("casita") || estLow.includes("educativ") || estLow.includes("acompañ") || estLow.includes("mixto")) {
           s.add("Casita del Saber");
@@ -509,7 +509,7 @@ export const BeneficiarioController = {
         if (estLow.includes("pastoral") || estLow.includes("social") || (exoneracionAporte && exoneracionAporte.includes("100%"))) {
           s.add("Área Social Pastoral");
         }
-        if (s.size === 0) s.add("Servicio Alimentario Nutricional");
+        if (s.size === 0) s.add("Desayuno Infantil");
         return Array.from(s);
       })(),
       tipoAtencion,
@@ -615,7 +615,7 @@ export const BeneficiarioController = {
     let canonicalName = servicioNombre;
     const low = (servicioNombre || "").toLowerCase();
     if (low.includes("nutric") || low.includes("aliment") || low.includes("desayuno") || low.includes("lonchera")) {
-      canonicalName = "Servicio Alimentario Nutricional";
+      canonicalName = "Desayuno Infantil";
     } else if (low.includes("educat") || low.includes("casita") || low.includes("acompañ") || low.includes("refuerzo")) {
       canonicalName = "Casita del Saber";
     } else if (low.includes("pastoral") || low.includes("social") || low.includes("asp")) {
@@ -624,7 +624,7 @@ export const BeneficiarioController = {
 
     const idx = usuario.servicios.findIndex(s => {
       const sLow = (s || "").toLowerCase();
-      if (canonicalName === "Servicio Alimentario Nutricional") {
+      if (canonicalName === "Desayuno Infantil") {
         return s === canonicalName || sLow.includes("nutric") || sLow.includes("aliment") || sLow.includes("desayuno") || sLow.includes("lonchera");
       }
       if (canonicalName === "Casita del Saber") {

@@ -8,6 +8,7 @@ import { Dropdown } from "../utils/Dropdown.js";
 import { SEDES_NOMBRES } from "../core/catalogos.js";
 import { iconHtml } from '../../data/iconos.js';
 import { avatarHtml } from "../utils/Avatar.js";
+import { claseLineaServicio, nombreServicioVisible } from "../../data/opcionesBeneficiario.js";
 // Qué filtros del padrón viajan en la URL, con qué valores y cuáles son los
 // defectos. La lista de valores no se inventa: es la misma que admiten los
 // desplegables de padron.html. Si algún día se añade un filtro
@@ -666,12 +667,8 @@ export const BeneficiariosView = {
       return `<span class="servicio-registro is-empty">Sin estrategia</span>`;
     }
     return lista.map(e => {
-      const low = (e || "").toLowerCase();
-      let servicioCls = "is-otro";
-      if (low.includes("desayuno") || low.includes("lonchera")) servicioCls = "is-desayuno";
-      else if (low.includes("casita")) servicioCls = "is-casita";
-      else if (low.includes("biblioteca")) servicioCls = "is-biblioteca";
-      return `<span class="servicio-registro ${servicioCls}">${escapar(e)}</span>`;
+      const servicioCls = claseLineaServicio(e);
+      return `<span class="servicio-registro ${servicioCls}">${escapar(nombreServicioVisible(e))}</span>`;
     }).join("");
   },
 

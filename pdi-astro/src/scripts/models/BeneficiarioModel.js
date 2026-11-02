@@ -22,7 +22,7 @@ export function normalizeBeneficiarioServicios(b) {
       if (!e) return;
       const low = String(e).toLowerCase();
       if (low.includes("desayuno") || low.includes("lonchera") || low.includes("alimento") || low.includes("nutric")) {
-        normalized.add("Servicio Alimentario Nutricional");
+        normalized.add("Desayuno Infantil");
       } else if (low.includes("casita") || low.includes("educativ") || low.includes("refuerzo") || low.includes("escolar") || low.includes("acompañ")) {
         normalized.add("Casita del Saber");
       } else if (low.includes("pastoral") || low.includes("social") || low.includes("asp")) {
@@ -38,13 +38,13 @@ export function normalizeBeneficiarioServicios(b) {
       if (!s) return;
       const low = String(s).toLowerCase();
       if (low.includes("desayuno") || low.includes("alimento") || low.includes("nutric") || low.includes("lonchera")) {
-        normalized.add("Servicio Alimentario Nutricional");
+        normalized.add("Desayuno Infantil");
       } else if (low.includes("casita") || low.includes("educativ") || low.includes("refuerzo") || low.includes("escolar") || low.includes("acompañ")) {
         normalized.add("Casita del Saber");
       } else if (low.includes("pastoral") || low.includes("social") || low.includes("asp")) {
         normalized.add("Área Social Pastoral");
       } else if (low.includes("mixto")) {
-        normalized.add("Servicio Alimentario Nutricional");
+        normalized.add("Desayuno Infantil");
         normalized.add("Casita del Saber");
       } else {
         normalized.add(s);
@@ -54,7 +54,7 @@ export function normalizeBeneficiarioServicios(b) {
 
   // Inferir de estrategia y vulnerabilidad
   if (lowerEstrategia.includes("desayuno") || lowerEstrategia.includes("alimento") || lowerEstrategia.includes("nutric") || lowerEstrategia.includes("lonchera")) {
-    normalized.add("Servicio Alimentario Nutricional");
+    normalized.add("Desayuno Infantil");
   }
   if (lowerEstrategia.includes("casita") || lowerEstrategia.includes("educat") || lowerEstrategia.includes("acompañ")) {
     normalized.add("Casita del Saber");
@@ -63,13 +63,13 @@ export function normalizeBeneficiarioServicios(b) {
     normalized.add("Área Social Pastoral");
   }
   if (lowerEstrategia.includes("mixto")) {
-    normalized.add("Servicio Alimentario Nutricional");
+    normalized.add("Desayuno Infantil");
     normalized.add("Casita del Saber");
   }
 
   // Si no se asignó ninguno por defecto en datos iniciales
   if (normalized.size === 0) {
-    normalized.add("Servicio Alimentario Nutricional");
+    normalized.add("Desayuno Infantil");
   }
 
   b.servicios = Array.from(normalized);

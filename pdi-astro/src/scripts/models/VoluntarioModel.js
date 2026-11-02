@@ -191,13 +191,12 @@ export const VoluntarioModel = {
     const comas = list.filter(v => v.distrito === "Comas").length;
     const carabayllo = list.filter(v => v.distrito === "Carabayllo").length;
     const desayuno = list.filter(v => v.servicio === "Desayuno Infantil" || v.servicio === "Lonchera Infantil").length;
-    const casita = list.filter(v => v.servicio === "Casita del Saber").length;
+    const casita = list.filter(v => v.servicio === "Casita del Saber" || v.servicio === "Biblioteca Comunitaria").length;
     const pastoral = list.filter(v => v.servicio === "Área Social Pastoral (ASP)").length;
-    // El catalogo tiene dos servicios mas (Biblioteca Comunitaria y Talleres de
-    // Reposteria). Si no se cuentan, la barra de reparto no representa al total
-    // del voluntariado y los porcentajes no suman 100%.
+    // Biblioteca Comunitaria pertenece a Casita (acompañamiento y biblioteca).
+    // Quedan fuera solo los talleres y cualquier servicio nuevo sin grupo.
     const otros = list.filter(v =>
-      !["Desayuno Infantil", "Lonchera Infantil", "Casita del Saber", "Área Social Pastoral (ASP)"].includes(v.servicio)
+      !["Desayuno Infantil", "Lonchera Infantil", "Casita del Saber", "Biblioteca Comunitaria", "Área Social Pastoral (ASP)"].includes(v.servicio)
     ).length;
     const canastasTotal = list.reduce((sum, v) => sum + (Number(v.canastasRecibidas) || 0), 0);
 
