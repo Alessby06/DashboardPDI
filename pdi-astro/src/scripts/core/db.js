@@ -633,6 +633,16 @@ function isoFecha(fecha) {
   }
 }
 
+/** Timestamp completo, para ordenar por momento exacto y no solo por día. */
+function isoTimestamp(fecha) {
+  if (!fecha) return '';
+  try {
+    return new Date(fecha).toISOString();
+  } catch (e) {
+    return '';
+  }
+}
+
 function textoTiempo(fecha) {
   if (!fecha) return '';
   try {
@@ -829,6 +839,7 @@ function mapearBeneficiarios(personasRes, sedes) {
       codigo: m.codigo || '',
       creadoEl: isoFecha(m.creado_el),
       actualizadoEl: isoFecha(m.actualizado_el),
+      actualizadoTs: isoTimestamp(m.actualizado_el),
       nombres: m.nombres || '',
       apellidos: m.apellidos || '',
       dni: m.numero_documento || '',

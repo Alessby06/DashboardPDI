@@ -1593,7 +1593,7 @@ export const ExpedienteView = {
     // filtro «Retirados» puesto: si se volviera a la lista de activos, el
     // usuario desaparecería sin dejar rastro visible de dónde quedó.
     const base = window.PDI?.RouteMap?.urlDe?.("padron") || "/padron";
-    const destino = `${base}${base.includes("?") ? "&" : "?"}estado=Inactivo`;
+    const destino = `${base}${base.includes("?") ? "&" : "?"}vista=archivo`;
     window.location.href = destino;
   },
 

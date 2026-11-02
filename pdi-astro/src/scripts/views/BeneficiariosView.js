@@ -24,7 +24,7 @@ const FILTROS_PADRON = {
   edadValor: { valor: null, numeros: { min: 0, max: 18 } },
   edadMin:   { valor: 0, numeros: { min: 0, max: 18 } },
   edadMax:   { valor: 18, numeros: { min: 0, max: 18 } },
-  estado:    { valor: "all", valores: ["all", "Activo", "Inactivo"] },
+  vista:     { valor: "activos", valores: ["activos", "archivo"] },
   sexo:      { valor: "all", valores: ["all", "M", "F"] },
   pagina:    { valor: 1, numeros: { min: 1, max: 1000 } },
   tam:       { valor: 20, numeros: { min: 5, max: 50 } },
@@ -34,7 +34,6 @@ const FACETAS_PADRON = {
   estrategia: { tipo: "multi", opciones: FILTROS_PADRON.estrategia.valores, defecto: [] },
   sede: { tipo: "multi", opciones: FILTROS_PADRON.sede.valores, defecto: [] },
   anemia: { tipo: "multi", opciones: FILTROS_PADRON.anemia.valores, defecto: [] },
-  estado: { tipo: "single", opciones: FILTROS_PADRON.estado.valores, defecto: "all" },
   sexo: { tipo: "single", opciones: FILTROS_PADRON.sexo.valores, defecto: "all" },
 };
 
@@ -42,8 +41,8 @@ export const BeneficiariosView = {
   _allBeneficiarios: [],
   _filteredBeneficiarios: [],
   _currentPage: 1,
-  _sortKey: 'apellido',
-  _sortDir: 'asc',
+  _sortKey: 'actualizado',
+  _sortDir: 'desc',
   _menuOrdenEnlazado: false,
   _menuOrdenPorTeclado: false,
   _pageSize: 20,
@@ -54,7 +53,7 @@ export const BeneficiariosView = {
   _filterEdadModo: "all", // "all" | "exacta" | "rango"
   _filterEdadExacta: null, // number 0-18 o null
   _filterEdadRango: { min: 0, max: 18 },
-  _filterEstado: "all", // "all" | "Activo" | "Inactivo"
+  _vista: "activos", // "activos" | "archivo"
   _filterSexo: "all",   // "all" | "M" | "F"
   _haEntrado: false,
   _lastRenderSerial: "",
@@ -86,7 +85,6 @@ export const BeneficiariosView = {
     this._filterEstrategia = s.estrategia;
     this._filterSede = s.sede;
     this._filterAnemia = s.anemia;
-    this._filterEstado = s.estado;
     this._filterSexo = s.sexo;
   },
 
@@ -124,7 +122,7 @@ export const BeneficiariosView = {
       edadValor: this._filterEdadExacta,
       edadMin: this._filterEdadRango.min,
       edadMax: this._filterEdadRango.max,
-      estado: this._filterEstado,
+      vista: this._vista,
       sexo: this._filterSexo,
       pagina: this._currentPage,
       tam: this._pageSize,
@@ -136,7 +134,7 @@ export const BeneficiariosView = {
    * Toma el estado de filtrado de la URL y lo refleja en los controles.
    *
    * Se ejecuta antes de applyFilters, y por eso actualiza la interfaz a mano en
-   * vez de llamar a los selectEstado()/setEdadExacta() de la vista: esos metodos
+   * vez de llamar a los selectX()/setEdadExacta() de la vista: esos metodos
    * terminan en applyFilters(), y llamarlos aqui filtraria contra una lista
    * todavia vacia.
    *
@@ -153,10 +151,12 @@ export const BeneficiariosView = {
       estrategia: f.estrategia || f.servicio || [],
       sede: f.sede,
       anemia: f.anemia,
-      estado: f.estado,
       sexo: f.sexo,
     });
     this._espejarStore();
+    // El archivo solo se abre para dirección. Una URL compartida no puede
+    // saltarse el permiso: cae en la vista operativa.
+    this._vista = f.vista === "archivo" && this._puedeVerArchivo() ? "archivo" : "activos";
     this._filterEdadModo = f.edadModo;
     this._filterEdadExacta = f.edadValor;
     this._currentPage = f.pagina;
@@ -179,7 +179,6 @@ export const BeneficiariosView = {
     this._updateAnemiaDropdownUI();
     this._updateEdadUI();
     this._updateSexoDropdownUI();
-    this._updateEstadoUI();
   },
 
   init(beneficiarios) {
@@ -546,22 +545,19 @@ export const BeneficiariosView = {
     }
   },
 
-  selectEstado(estadoVal) {
-    this._obtenerStore().fijar("estado", estadoVal || "all");
-    this._espejarStore();
-    this._updateEstadoUI();
-
-    // Cerrar dropdown de estado al seleccionar
-    const drop = document.getElementById("dropdownPadronEstado");
-    if (drop) drop.classList.remove("open");
-
-    this.applyFilters();
+  /** Cambia entre el padrón operativo y el archivo de desactivados. */
+  cambiarVista(vista) {
+    const destino = vista === "archivo" && this._puedeVerArchivo() ? "archivo" : "activos";
+    if (destino === this._vista) return;
+    this._vista = destino;
+    this._currentPage = 1;
     this._persistirFiltros();
+    this.applyFilters();
   },
 
   /**
    * Enlace al expediente. Los desactivados se buscan por código: su id numérico
-   * puede coincidir con el de un usuario activo y abriría al Equipo equivocado.
+   * puede coincidir con el de un usuario activo y abriría a otra persona.
    */
   _urlExpediente(b) {
     const inactivo = b.estado === "Inactivo" || b.estado === "Retirado";
@@ -570,40 +566,38 @@ export const BeneficiariosView = {
       : `/expediente?id=${encodeURIComponent(b.id)}`;
   },
 
-  /** Pinta el desplegable y la etiqueta del filtro de estado. */
-  _updateEstadoUI() {
-    const items = document.querySelectorAll("#menuPadronEstado .padron-dropdown-item");
-    items.forEach(item => {
-      item.classList.toggle("selected", item.getAttribute("data-value") === this._filterEstado);
-    });
+  /** Refleja la vista actual en el botón, el título y el alta de usuarios. */
+  _actualizarBotonArchivo() {
+    const btn = document.getElementById("btnPadronArchivo");
+    const count = document.getElementById("padronArchivoCount");
+    const label = document.getElementById("padronArchivoLabel");
+    const nuevo = document.getElementById("btnNuevoBeneficiario");
+    const titulo = document.getElementById("padronViewTitle");
+    const enArchivo = this._vista === "archivo";
 
-    const labelEl = document.getElementById("labelPadronEstadoSelect");
-    if (labelEl) {
-      if (this._filterEstado === "all") labelEl.textContent = "Todos los Estados";
-      else if (this._filterEstado === "Activo") labelEl.textContent = "Activo";
-      else if (this._filterEstado === "Inactivo") labelEl.textContent = "Inactivo";
+    if (btn) {
+      btn.style.display = this._puedeVerArchivo() ? "inline-flex" : "none";
+      btn.classList.toggle("is-active", enArchivo);
+      btn.setAttribute("aria-pressed", enArchivo ? "true" : "false");
+    }
+    if (label) label.textContent = enArchivo ? "Volver al padrón" : "Archivo";
+    if (count) {
+      const n = BeneficiarioModel.getRetirados().length;
+      count.textContent = String(n);
+      count.style.display = enArchivo || n === 0 ? "none" : "inline-flex";
+    }
+    if (nuevo) nuevo.style.display = enArchivo ? "none" : "inline-flex";
+    if (titulo) {
+      titulo.textContent = enArchivo ? "Archivo de Usuarios" : "Padrón Único de Usuarios";
     }
   },
 
-  /**
-   * Dataset de la tabla y de las facetas: activos + desactivados. «Todos» es
-   * el total real, no solo la lista operativa; el filtro de estado es el que
-   * separa unos de otros. El archivo solo entra para dirección, así que una
-   * facilitadora sigue viendo únicamente su padrón operativo.
-   */
+  /** Base de la vista: solo activos o solo el archivo. No se mezclan. */
   _obtenerBaseLista() {
-    const archivo = this._puedeVerArchivo() ? BeneficiarioModel.getRetirados() : [];
-    if (!archivo.length) return this._allBeneficiarios;
-
-    const vistos = new Set();
-    const union = [];
-    for (const b of [...this._allBeneficiarios, ...archivo]) {
-      const clave = b._personaId || b.codigo || `id-${b.id}`;
-      if (vistos.has(clave)) continue;
-      vistos.add(clave);
-      union.push(b);
+    if (this._vista === "archivo" && this._puedeVerArchivo()) {
+      return BeneficiarioModel.getRetirados();
     }
-    return union;
+    return this._allBeneficiarios;
   },
 
   selectSexo(sexoVal) {
@@ -655,7 +649,6 @@ export const BeneficiariosView = {
       }
     }
     if (filterKey === "edad") this.clearEdad();
-    if (filterKey === "estado") this.selectEstado("all");
     if (filterKey === "sexo") this.selectSexo("all");
   },
 
@@ -677,7 +670,6 @@ export const BeneficiariosView = {
     this._updateAnemiaDropdownUI();
     this._updateEdadUI();
     this._updateSexoDropdownUI();
-    this._updateEstadoUI();
 
     // Cerrar cualquier dropdown interno que haya quedado abierto
     document.querySelectorAll(".padron-inner-dropdown.open").forEach(d => d.classList.remove("open"));
@@ -732,7 +724,6 @@ export const BeneficiariosView = {
   _ordenarLista(lista) {
     const key = this._sortKey || 'apellido';
     const dir = this._sortDir === 'desc' ? -1 : 1;
-    const pesoEstado = { Activo: 0, 'En Pausa': 1, Inactivo: 2, Retirado: 3, Graduado: 4, Trasladado: 5 };
     const porNombre = (a, b) => `${a.apellidos || ''} ${a.nombres || ''}`.localeCompare(`${b.apellidos || ''} ${b.nombres || ''}`, 'es');
     return [...lista].sort((a, b) => {
       let cmp = 0;
@@ -742,12 +733,13 @@ export const BeneficiariosView = {
         const va = parseInt(a.edad, 10);
         const vb = parseInt(b.edad, 10);
         cmp = (isNaN(va) ? 999 : va) - (isNaN(vb) ? 999 : vb);
-      } else if (key === 'estado') {
-        cmp = (pesoEstado[a.estado] ?? 99) - (pesoEstado[b.estado] ?? 99);
       } else if (key === 'creado') {
         cmp = String(a.creadoEl || '').localeCompare(String(b.creadoEl || ''));
       } else if (key === 'actualizado') {
-        cmp = String(a.actualizadoEl || '').localeCompare(String(b.actualizadoEl || ''));
+        // Timestamp completo: la fecha visible solo llega al día y empataría
+        // a todos los que se tocaron la misma jornada.
+        cmp = String(a.actualizadoTs || a.actualizadoEl || '')
+          .localeCompare(String(b.actualizadoTs || b.actualizadoEl || ''));
       } else {
         cmp = porNombre(a, b);
       }
@@ -912,12 +904,7 @@ export const BeneficiariosView = {
       });
     }
 
-    // 6. Estado
-    if (this._filterEstado !== "all") {
-      list = list.filter(b => b.estado === this._filterEstado);
-    }
-
-    // 7. Sexo (Masculino M / Femenino F)
+    // 6. Sexo (Masculino M / Femenino F)
     if (this._filterSexo !== "all") {
       list = list.filter(b => (b.sexo || "").toUpperCase() === this._filterSexo.toUpperCase());
     }
@@ -943,6 +930,7 @@ export const BeneficiariosView = {
 
     this._updateFacetCounts();
     this._renderActiveChips();
+    this._actualizarBotonArchivo();
 
     // Validar rango de página actual
     const pageSize = this._getEffectivePageSize();
@@ -972,7 +960,7 @@ export const BeneficiariosView = {
     // seguia vacia. La tabla salia en blanco hasta el siguiente filtro.
     const enMovil = Responsive.esMovil();
 
-    const serial = `${enMovil ? 'M' : 'D'}|${this._searchQuery}_${this._filterEstrategia.join(',')}_${this._filterSede.join(',')}_${this._filterAnemia.join(',')}_${this._filterEdadModo}_${this._filterEdadExacta}_${this._filterEdadRango.min}-${this._filterEdadRango.max}_${this._filterEstado}_${this._filterSexo}_${this._currentPage}_${this._pageSize}_` +
+    const serial = `${enMovil ? 'M' : 'D'}|${this._vista}_${this._searchQuery}_${this._filterEstrategia.join(',')}_${this._filterSede.join(',')}_${this._filterAnemia.join(',')}_${this._filterEdadModo}_${this._filterEdadExacta}_${this._filterEdadRango.min}-${this._filterEdadRango.max}_${this._filterSexo}_${this._currentPage}_${this._pageSize}_` +
       pageItems.map(b => `${b.id}_${b.estado}`).join('|');
 
     const tbody = document.getElementById("tbodyBeneficiarios");
@@ -1057,9 +1045,6 @@ export const BeneficiariosView = {
           });
         }
       }
-      if (excludeKey !== "estado" && this._filterEstado !== "all") {
-        l = l.filter(b => b.estado === this._filterEstado);
-      }
       if (excludeKey !== "sexo" && this._filterSexo !== "all") {
         l = l.filter(b => (b.sexo || "").toUpperCase() === this._filterSexo.toUpperCase());
       }
@@ -1095,14 +1080,7 @@ export const BeneficiariosView = {
     this._setFacetBadge("countFacetAnemia-Leve", `(${forAnemia.filter(b => b.anemia === "Leve").length})`, forAnemia.filter(b => b.anemia === "Leve").length === 0);
     this._setFacetBadge("countFacetAnemia-Moderada", `(${forAnemia.filter(b => b.anemia === "Moderada" || b.anemia === "Severa").length})`, forAnemia.filter(b => b.anemia === "Moderada" || b.anemia === "Severa").length === 0);
 
-    // 4. Facetas de Estado
-    const forEstado = getFilteredExcluding("estado");
-    this._setFacetBadge("countFacetEstado-all", `(${forEstado.length})`, forEstado.length === 0);
-    this._setFacetBadge("countFacetEstado-Activo", `(${forEstado.filter(b => b.estado === "Activo").length})`, forEstado.filter(b => b.estado === "Activo").length === 0);
-    this._setFacetBadge("countFacetEstado-Inactivo", `(${forEstado.filter(b => b.estado === "Inactivo").length})`, forEstado.filter(b => b.estado === "Inactivo").length === 0);
-
-
-    // 5. Facetas de Sexo
+    // 4. Facetas de Sexo
     const forSexo = getFilteredExcluding("sexo");
     this._setFacetBadge("countFacetSexo-all", `(${forSexo.length})`, forSexo.length === 0);
     this._setFacetBadge("countFacetSexo-M", `(${forSexo.filter(b => (b.sexo || '').toUpperCase() === 'M').length})`, forSexo.filter(b => (b.sexo || '').toUpperCase() === 'M').length === 0);
@@ -1176,13 +1154,6 @@ export const BeneficiariosView = {
       chips.push({
         id: "edad",
         label: min === max ? `Edad: ${min} años` : `Edad: ${min} a ${max} años`,
-      });
-    }
-
-    if (this._filterEstado !== "all") {
-      chips.push({
-        id: "estado",
-        label: `Estado: ${this._filterEstado === "Inactivo" ? "Inactivo / Baja" : this._filterEstado}`,
       });
     }
 

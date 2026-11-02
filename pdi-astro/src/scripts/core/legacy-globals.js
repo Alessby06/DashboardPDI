@@ -515,8 +515,13 @@ window.setPadronEdadExacta = vista("BeneficiariosView", "setEdadExacta");
 window.syncPadronEdadRango = vista("BeneficiariosView", "syncEdadRango");
 window.clearPadronEdad = vista("BeneficiariosView", "clearEdad");
 window.removePadronChip = vista("BeneficiariosView", "removeFilter");
-window.selectPadronEstado = vista("BeneficiariosView", "selectEstado");
+
 window.resetPadronFilters = vista("BeneficiariosView", "resetFilters");
+window.togglePadronArchivo = () => {
+  const v = window.PDI?.BeneficiariosView;
+  if (!v) return;
+  v.cambiarVista(v._vista === "archivo" ? "activos" : "archivo");
+};
 
 // Salud CRED, Casitas del Saber, Sedes y los filtros de la tabla de
 // voluntarios ya NO se cablean aqui. Cada una de esas vistas cuelga de window

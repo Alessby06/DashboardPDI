@@ -13,10 +13,6 @@ const OPCIONES_ANEMIA = [
   { valor: 'Leve', badge: { texto: 'Leve', tono: 'yellow' } },
   { valor: 'Moderada', badge: { texto: 'Mod / Sev', tono: 'red' } },
 ];
-const OPCIONES_ESTADO = [
-  { valor: 'Activo', etiqueta: 'Activo' },
-  { valor: 'Inactivo', etiqueta: 'Inactivo' },
-];
 const OPCIONES_SEXO = [
   { valor: 'M', etiqueta: 'Masculino (M)' },
   { valor: 'F', etiqueta: 'Femenino (F)' },
@@ -27,11 +23,18 @@ const OPCIONES_SEXO = [
         <section class="app-view active" id="view-beneficiarios">
           <div class="view-header">
             <div class="view-title-group">
-              <h2>Padrón Único de Usuarios</h2>
+              <h2 id="padronViewTitle">Padrón Único de Usuarios</h2>
               <p>Identidad central del usuario, seguro de salud, escolaridad, apoderados y consentimiento informado Ley
                 N.° 29733.</p>
             </div>
             <div class="view-actions">
+              <button type="button" class="btn-action" id="btnPadronArchivo"
+                onclick="window.togglePadronArchivo ? window.togglePadronArchivo() : null"
+                title="Ver usuarios desactivados (Solo Dirección / Admin)" aria-pressed="false" style="display: none;">
+                <Icon name="accion.archivar" size={15} />
+                <span id="padronArchivoLabel">Archivo</span>
+                <span class="badge badge-gray" id="padronArchivoCount">0</span>
+              </button>
               <button type="button" class="btn-action-icon btn-audit-export-icon" id="btnExportPadronCSV"
                 onclick="window.openModalExportPadron ? window.openModalExportPadron() : window.exportDataCSV()"
                 aria-label="Descargar Padrón de Usuarios CSV" title="Descargar Padrón de Usuarios CSV">
@@ -69,12 +72,12 @@ const OPCIONES_SEXO = [
                     aria-controls="menuPadronSort"
                     onclick="window.togglePadronSortMenu ? window.togglePadronSortMenu() : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownPadronSort') : null)">
                     <span class="padron-sort-prefix">Ordenar:</span>
-                    <span class="padron-sort-value" id="padronSortValue">Apellido (A-Z)</span>
+                    <span class="padron-sort-value" id="padronSortValue">Modificación (reciente)</span>
                     <Icon name="nav.desplegar" size={12} class="filter-caret" />
                   </button>
                   <div class="custom-dropdown-menu padron-sort-menu" id="menuPadronSort"
                     role="listbox" aria-labelledby="btnPadronSort">
-                    <button type="button" role="option" aria-selected="true" data-sort-value="apellido-asc"
+                    <button type="button" role="option" aria-selected="false" data-sort-value="apellido-asc"
                       onclick="window.sortPadronOpcion ? window.sortPadronOpcion('apellido-asc') : null">Apellido (A-Z)</button>
                     <button type="button" role="option" aria-selected="false" data-sort-value="apellido-desc"
                       onclick="window.sortPadronOpcion ? window.sortPadronOpcion('apellido-desc') : null">Apellido (Z-A)</button>
@@ -84,13 +87,11 @@ const OPCIONES_SEXO = [
                       onclick="window.sortPadronOpcion ? window.sortPadronOpcion('edad-asc') : null">Edad (menor a mayor)</button>
                     <button type="button" role="option" aria-selected="false" data-sort-value="edad-desc"
                       onclick="window.sortPadronOpcion ? window.sortPadronOpcion('edad-desc') : null">Edad (mayor a menor)</button>
-                    <button type="button" role="option" aria-selected="false" data-sort-value="estado-asc"
-                      onclick="window.sortPadronOpcion ? window.sortPadronOpcion('estado-asc') : null">Estado (activo primero)</button>
                     <button type="button" role="option" aria-selected="false" data-sort-value="creado-desc"
                       onclick="window.sortPadronOpcion ? window.sortPadronOpcion('creado-desc') : null">Creación (reciente)</button>
                     <button type="button" role="option" aria-selected="false" data-sort-value="creado-asc"
                       onclick="window.sortPadronOpcion ? window.sortPadronOpcion('creado-asc') : null">Creación (antigua)</button>
-                    <button type="button" role="option" aria-selected="false" data-sort-value="actualizado-desc"
+                    <button type="button" role="option" aria-selected="true" data-sort-value="actualizado-desc"
                       onclick="window.sortPadronOpcion ? window.sortPadronOpcion('actualizado-desc') : null">Modificación (reciente)</button>
                     <button type="button" role="option" aria-selected="false" data-sort-value="actualizado-asc"
                       onclick="window.sortPadronOpcion ? window.sortPadronOpcion('actualizado-asc') : null">Modificación (antigua)</button>
@@ -190,22 +191,7 @@ const OPCIONES_SEXO = [
                         </div>
                       </div>
 
-                      <!-- Filtro 5: Estado de Inscripcion (seleccion unica con radio) -->
-                      <FilterField
-                        id="dropdownPadronEstado"
-                        menuId="menuPadronEstado"
-                        labelId="labelPadronEstadoSelect"
-                        label="Estado de Inscripción"
-                        labelTodos="Todos los Estados"
-                        todosEtiqueta="Todos"
-                        opciones={OPCIONES_ESTADO}
-                        tipo="single"
-                        onSelect="window.selectPadronEstado"
-                        abrir="window.togglePadronInnerDropdown ? window.togglePadronInnerDropdown('dropdownPadronEstado') : null"
-                        countPrefix="countFacetEstado"
-                      />
-                      
-                      <!-- Filtro 6: Sexo del Usuario (seleccion unica con radio) -->
+                      <!-- Filtro 5: Sexo del Usuario (seleccion unica con radio) -->
                       <FilterField
                         id="dropdownPadronSexo"
                         menuId="menuPadronSexo"
