@@ -529,20 +529,32 @@
   display: grid;
   grid-template-columns: minmax(0, 1.7fr) auto minmax(0, 1fr) minmax(0, 1fr);
   align-items: center;
-  gap: 12px;
+  gap: 12px 8px;
 }
 
 .table-toolbar .audit-search-wrap { grid-column: 1; min-width: 0; }
 .table-toolbar .table-export-btn { grid-column: 2; }
 .table-toolbar .padron-sort-wrap { grid-column: 3; width: 100%; min-width: 0; }
+.table-toolbar .padron-sort-dropdown {
+  display: flex;
+  width: 100%;
+}
+.table-toolbar .padron-sort-btn { flex: 1 1 100%; }
 .table-toolbar .audit-filter-panel-wrap { grid-column: 4; width: 100%; min-width: 0; }
 .table-toolbar .padron-sort-btn,
-.table-toolbar .audit-filter-btn { width: 100%; justify-content: space-between; }
+.table-toolbar .audit-filter-btn {
+  width: 100%;
+  min-width: 0;
+  justify-content: space-between;
+}
 .table-toolbar .padron-sort-value {
   flex: 1;
   min-width: 0;
   max-width: none;
   text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .table-toolbar .audit-filter-panel-wrap .audit-filters-dropdown { width: 100%; }
 
@@ -585,18 +597,142 @@
     order: 3;
     flex: 0 0 calc(50% - 4px);
     width: auto;
+    max-width: calc(50% - 4px);
     min-width: 0;
   }
   .table-toolbar .audit-filter-panel-wrap {
     order: 4;
     flex: 0 0 calc(50% - 4px);
     width: auto;
+    max-width: calc(50% - 4px);
     min-width: 0;
   }
   .table-toolbar .padron-sort-prefix { display: none; }
   .table-toolbar .padron-sort-btn,
-  .table-toolbar .audit-filter-btn { height: 44px; width: 100%; }
+  .table-toolbar .audit-filter-btn { height: 44px; width: 100%; min-width: 0; }
   .table-toolbar .padron-sort-value { max-width: none; }
+}
+
+/* ===========================================================================
+   MENÚ DE ORDEN COMPARTIDO
+   ===========================================================================
+   El botón y las opciones viven aquí, no en views-padron.css, para que
+   Auditoría, Salud, Casitas, Sedes y Voluntariados no caigan al estilo nativo
+   del navegador (fondo gris, borde outset y radio 0). */
+.padron-sort-wrap {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.padron-sort-dropdown {
+  position: relative;
+}
+
+.padron-sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-2);
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease-smooth),
+    border-color var(--dur-fast) var(--ease-smooth);
+}
+
+.padron-sort-btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--text-dim);
+}
+
+.padron-sort-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--brand-primary);
+}
+
+.padron-sort-btn:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+.padron-sort-prefix {
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.padron-sort-value {
+  max-width: 190px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.padron-sort-btn .filter-caret {
+  flex-shrink: 0;
+  transition: transform var(--dur-popover) var(--ease-out);
+}
+
+.padron-sort-dropdown.open .filter-caret {
+  transform: rotate(180deg);
+}
+
+.padron-sort-menu {
+  min-width: 220px;
+}
+
+.padron-sort-menu [role="option"] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  min-height: 36px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-main);
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.padron-sort-menu [role="option"]:hover {
+  background: var(--surface-hover);
+}
+
+.padron-sort-menu [role="option"][aria-selected="true"] {
+  background: var(--brand-soft);
+  color: var(--text-brand);
+  font-weight: 600;
+}
+
+.padron-sort-menu [role="option"]:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--brand-primary);
+}
+
+@media (max-width: 768px) {
+  .padron-sort-menu {
+    min-width: 0;
+    width: 100%;
+    max-height: 60vh;
+    overflow-y: auto;
+    z-index: 1200;
+  }
+
+  .padron-sort-menu [role="option"] {
+    min-height: 44px;
+    font-size: 13.5px;
+  }
 }
 
 .audit-search-wrap {

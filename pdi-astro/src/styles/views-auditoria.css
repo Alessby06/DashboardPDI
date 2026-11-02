@@ -509,14 +509,24 @@
         width: 16px !important;
         height: 16px !important;
       }
+      /* Los dos indicadores en una sola fila, aunque el ancho sea corto. */
       .audit-summary-bar {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
         gap: 8px !important;
-        margin-bottom: 8px !important;
+        margin-bottom: 6px !important;
+        flex-wrap: nowrap !important;
       }
       .audit-kpi-chip {
-        padding: 4px 10px !important;
+        width: 100%;
+        min-width: 0;
+        padding: 4px 8px !important;
         border-radius: var(--radius-sm) !important;
         gap: 6px !important;
+      }
+      .audit-kpi-info {
+        min-width: 0;
+        gap: 4px !important;
       }
       .audit-kpi-icon-box {
         width: 22px !important;
@@ -527,10 +537,24 @@
         height: 12px !important;
       }
       .audit-kpi-label {
-        font-size: 10.5px !important;
+        font-size: 10px !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
       .audit-kpi-value {
         font-size: 13px !important;
+      }
+
+      /* Acercar la tarjeta de la tabla: el encabezado ya no necesita tanto aire. */
+      #view-auditoria {
+        gap: 10px !important;
+      }
+      .audit-view-header {
+        margin-bottom: 2px !important;
+      }
+      #view-auditoria .audit-toolbar.table-toolbar {
+        margin-bottom: 10px !important;
       }
 }
     .audit-user-cell {

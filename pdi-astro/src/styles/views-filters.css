@@ -58,7 +58,9 @@
   border-radius: var(--radius-md);
   font-weight: 600;
   font-size: 13px;
-  border: 1px solid var(--filter-border);
+  /* Mismo borde que el botón de ordenar: el tono --filter-border era más
+     oscuro y hacía que Filtros pareciera tener un contorno aparte. */
+  border: 1px solid var(--border-subtle);
   background: var(--surface-2);
   color: var(--text-main);
   cursor: pointer;
@@ -663,6 +665,12 @@
 /* ---------------------------------------------------------------------------
    4. FOCO VISIBLE Y CONTRASTE
    --------------------------------------------------------------------------- */
+
+/* El clic de ratón no debe dejar el contorno oscuro del foco. El teclado sí. */
+.audit-filter-btn:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
 
 .audit-filter-btn:focus-visible,
 .padron-inner-dropdown-btn:focus-visible,
