@@ -113,7 +113,15 @@ export function iniciarEstadoCarga() {
   function mensajeDeError() {
     const actual = window.PDI?.DB?.estadoActual?.();
     if (actual === "sin_conexion") {
-      return "No hay conexión con la base de datos. Revisa tu conexión e inténtalo de nuevo.";
+      // db.js usa 'sin_conexion' para cualquier fallo de hidratación, no solo
+      // para una caída de red. Si el detalle no parece de conexión, no se
+      // culpa a la base: se muestra un mensaje neutro y se conserva el log.
+      const detalle = String(window.PDI?.DB?.ultimoError?.()?.message || "");
+      const pareceRed = !detalle
+        || /fetch|network|offline|timeout|ECONN|ENOTFOUND|token|servidor|conexi|acceso a la base|database/i.test(detalle);
+      return pareceRed
+        ? "No hay conexión con la base de datos. Revisa tu conexión e inténtalo de nuevo."
+        : "No se pudo cargar la información. Reintenta; si persiste, contacta a Administración TI.";
     }
     return "La carga está tardando más de lo esperado. Revisa tu conexión e inténtalo de nuevo.";
   }

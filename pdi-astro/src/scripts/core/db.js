@@ -117,9 +117,15 @@ let _temporizadorReintento = null;
 let _liveHandle = [];
 let _liveGeneracion = 0;
 let _tempDebounceLive = null;
+let _ultimoError = null;
 
 export function estadoActual() {
   return _estado;
+}
+
+/** Último fallo de hidratación, para que la UI no lo confunda con una caída. */
+export function ultimoError() {
+  return _ultimoError;
 }
 
 /** Suscribe a cambios de estado de la capa. Devuelve función de des-suscripción. */
@@ -531,6 +537,7 @@ export async function hidratar(promedioSilencioso = false) {
       _jsonDeReintento = 5000;
       // La nube volvió: el próximo corte puede avisar de nuevo.
       _avisoConexionMostrado = false;
+      _ultimoError = null;
       cambiarEstado('ok');
       document.dispatchEvent(new CustomEvent('pdi:datos-actualizados'));
       refrescarVistaActual();
@@ -540,6 +547,11 @@ export async function hidratar(promedioSilencioso = false) {
           casos.length, 'casos ·', voluntarios.length, 'voluntarios ·', logs.length, 'eventos.');
       }
     } catch (err) {
+      _ultimoError = {
+        message: err?.message || String(err),
+        name: err?.name || 'Error',
+        at: Date.now(),
+      };
       console.warn('[PDI] Hidratación fallida:', err?.message || err);
       cambiarEstado('sin_conexion');
       agendarReintento();
@@ -2219,6 +2231,6 @@ if (typeof window !== 'undefined') {
   window.PDI = window.PDI || {};
   window.PDI.DB = {
     iniciarCapaDatos, suscribirEstado, estadoActual,
-    hidratarDesdeSurreal, refrescarDesdeNube, reintentarAhora,
+    hidratarDesdeSurreal, refrescarDesdeNube, reintentarAhora, ultimoError,
   };
 }

@@ -150,7 +150,11 @@ export const CasoSocialModel = {
     });
 
     const arr = Array.from(map.values());
-    return arr.sort((a, b) => (b.fechaSolicitud || "").localeCompare(a.fechaSolicitud || ""));
+    // fechaSolicitud se pinta como texto, pero puede llegar como Date desde
+    // alguna ruta de hidratacion. String() evita el TypeError que tumbaba
+    // toda la lista, igual que ya se hace con fecha_resolucion en db.js.
+    const porFecha = (valor) => (valor instanceof Date ? valor.toISOString() : String(valor ?? ""));
+    return arr.sort((a, b) => porFecha(b.fechaSolicitud).localeCompare(porFecha(a.fechaSolicitud)));
   },
 
   /**

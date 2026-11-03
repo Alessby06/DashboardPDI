@@ -410,14 +410,19 @@
       justify-content: space-between !important;
       align-items: center !important;
       gap: 12px !important;
-      flex-wrap: nowrap !important;
+      /* El pie suma acciones segun la etapa. Con nowrap la ultima quedaba
+         fuera de la hoja; ahora los grupos bajan de linea y ningun boton
+         se recorta. */
+      flex-wrap: wrap !important;
     }
 
     .modal-caso-footer-left {
       display: flex !important;
       align-items: center !important;
       gap: 8px !important;
-      flex-shrink: 0 !important;
+      flex: 1 1 auto !important;
+      flex-wrap: wrap !important;
+      min-width: 0 !important;
     }
 
     .modal-caso-footer-right {
@@ -426,7 +431,9 @@
       justify-content: flex-end !important;
       gap: 8px !important;
       margin-left: auto !important;
-      flex-shrink: 0 !important;
+      flex: 1 1 auto !important;
+      flex-wrap: wrap !important;
+      min-width: 0 !important;
     }
 
     .modal-caso-footer .btn-action {
@@ -434,6 +441,32 @@
       padding: 0 14px !important;
       font-size: 13px !important;
       font-weight: 600 !important;
+      flex: 0 1 auto !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+    }
+
+    /* En movil y ventanas estrechas cada grupo ocupa su fila; los botones
+       comparten el ancho y las etiquetas largas pueden pasar a dos lineas. */
+    @media (max-width: 900px) {
+      .modal-caso-footer-left,
+      .modal-caso-footer-right {
+        flex: 1 1 100% !important;
+      }
+
+      .modal-caso-footer-right {
+        margin-left: 0 !important;
+      }
+
+      .modal-caso-footer .btn-action {
+        flex: 1 1 auto !important;
+        height: auto !important;
+        min-height: 40px !important;
+        padding: 8px 12px !important;
+        justify-content: center !important;
+        white-space: normal !important;
+        line-height: 1.25 !important;
+      }
     }
 
     .btn-close-modal {
