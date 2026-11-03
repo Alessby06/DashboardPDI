@@ -1004,10 +1004,14 @@
   box-shadow: var(--shadow-sm);
 }
 
-.view-actions .btn-action:not(.primary):hover {
-  background: var(--surface-hover);
-  border-color: var(--border-bright);
-  color: var(--text-main);
+/* Mismo criterio que el padrón: el hover pegajoso del táctil no debe dejar
+   el botón con aspecto de pulsado. */
+@media (hover: hover) and (pointer: fine) {
+  .view-actions .btn-action:not(.primary):hover {
+    background: var(--surface-hover);
+    border-color: var(--border-bright);
+    color: var(--text-main);
+  }
 }
 
 .view-actions .btn-action.primary {
@@ -1021,8 +1025,10 @@
 
 }
 
-.view-actions .btn-action.primary:hover {
-  box-shadow: var(--shadow-ambient);
+@media (hover: hover) and (pointer: fine) {
+  .view-actions .btn-action.primary:hover {
+    box-shadow: var(--shadow-ambient);
+  }
 }
 
 /* --- CONTENEDOR GENERAL DEL PADRÓN --- */

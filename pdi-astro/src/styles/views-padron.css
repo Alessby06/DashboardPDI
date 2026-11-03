@@ -833,10 +833,14 @@
   box-shadow: var(--shadow-sm);
 }
 
-.view-actions .btn-action:not(.primary):hover {
-  background: var(--surface-hover);
-  border-color: var(--border-bright);
-  color: var(--text-main);
+/* El hover solo existe con puntero fino: en táctil el navegador deja el
+   :hover pegado tras el toque y el botón parecía seguir pulsado. */
+@media (hover: hover) and (pointer: fine) {
+  .view-actions .btn-action:not(.primary):hover {
+    background: var(--surface-hover);
+    border-color: var(--border-bright);
+    color: var(--text-main);
+  }
 }
 
 .view-actions .btn-action.primary {
@@ -850,8 +854,10 @@
 
 }
 
-.view-actions .btn-action.primary:hover {
-  box-shadow: var(--shadow-ambient);
+@media (hover: hover) and (pointer: fine) {
+  .view-actions .btn-action.primary:hover {
+    box-shadow: var(--shadow-ambient);
+  }
 }
 
 /* --- TABLA PRINCIPAL DEL PADRÓN: ESTABILIDAD Y ZERO LAYOUT SHIFT --- */
@@ -921,9 +927,11 @@
     border-color var(--dur-fast) var(--ease-smooth);
 }
 
-.padron-sort-btn:hover {
-  background: var(--surface-hover);
-  border-color: var(--text-dim);
+@media (hover: hover) and (pointer: fine) {
+  .padron-sort-btn:hover {
+    background: var(--surface-hover);
+    border-color: var(--text-dim);
+  }
 }
 
 .padron-sort-btn:focus-visible {

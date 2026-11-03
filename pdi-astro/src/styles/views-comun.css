@@ -700,9 +700,11 @@
     border-color var(--dur-fast) var(--ease-smooth);
 }
 
-.padron-sort-btn:hover {
-  background: var(--surface-hover);
-  border-color: var(--text-dim);
+@media (hover: hover) and (pointer: fine) {
+  .padron-sort-btn:hover {
+    background: var(--surface-hover);
+    border-color: var(--text-dim);
+  }
 }
 
 .padron-sort-btn:focus-visible {
@@ -1203,10 +1205,12 @@
   stroke-width: 2.2;
 }
 
-.btn-action-icon.btn-audit-export-icon:hover {
-  background: var(--surface-hover);
-  border-color: var(--text-dim);
-  color: var(--text-main);
+@media (hover: hover) and (pointer: fine) {
+  .btn-action-icon.btn-audit-export-icon:hover {
+    background: var(--surface-hover);
+    border-color: var(--text-dim);
+    color: var(--text-main);
+  }
 }
 
 [data-theme="dark"] .btn-action-icon.btn-audit-export-icon {
@@ -1215,10 +1219,12 @@
   color: var(--text-main);
 }
 
-[data-theme="dark"] .btn-action-icon.btn-audit-export-icon:hover {
-  background: var(--surface-hover);
-  border-color: var(--text-dim);
-  color: var(--text-main);
+@media (hover: hover) and (pointer: fine) {
+  [data-theme="dark"] .btn-action-icon.btn-audit-export-icon:hover {
+    background: var(--surface-hover);
+    border-color: var(--text-dim);
+    color: var(--text-main);
+  }
 }
 
 /* En móvil (<= 768px): integración simétrica y orgánica con .view-actions y .dash-header-actions */

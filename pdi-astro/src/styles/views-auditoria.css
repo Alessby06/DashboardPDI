@@ -358,10 +358,12 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    .btn-action-icon.btn-audit-export-icon:hover {
-      background: var(--surface-hover);
-      border-color: var(--text-dim);
-      color: var(--text-main);
+    @media (hover: hover) and (pointer: fine) {
+      .btn-action-icon.btn-audit-export-icon:hover {
+        background: var(--surface-hover);
+        border-color: var(--text-dim);
+        color: var(--text-main);
+      }
     }
 
     /* Estilo para Facetas con conteo Cero (Deshabilitadas y en gris) */
