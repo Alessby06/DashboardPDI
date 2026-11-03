@@ -750,13 +750,25 @@ export const SocialKanbanView = {
 
     if (dynamicBox) {
       dynamicBox.innerHTML = "";
+      const rolActivo = localStorage.getItem("pdi_active_role") || "social";
+      const puedeResolver = rolActivo === "coord" || rolActivo === "admin";
       if (tieneSolicitud) {
-        dynamicBox.innerHTML = `
-          <button type="button" class="btn-action warning" onclick="window.PDI?.SocialKanbanView?.abrirModalResolverSolicitud(${caso.id})">
-            ${iconHtml("estado.ok", { size: 15 })}
-            <span>Gestionar Autorización (Coordinación)</span>
-          </button>
-        `;
+        if (puedeResolver) {
+          dynamicBox.innerHTML = `
+            <button type="button" class="btn-action warning" onclick="window.PDI?.SocialKanbanView?.abrirModalResolverSolicitud(${caso.id})">
+              ${iconHtml("estado.ok", { size: 15 })}
+              <span>Gestionar Autorización (Coordinación)</span>
+            </button>
+          `;
+        } else {
+          // La solicitud la resuelve Coordinación/Administración, no quien la
+          // envía. Antes el rol social podía abrir el modal de aprobación.
+          dynamicBox.innerHTML = `
+            <span style="font-size:12px; color:var(--text-dim); text-align:right; line-height:1.35;">
+              En revisión por Coordinación General
+            </span>
+          `;
+        }
       } else if (caso.etapa === "pendiente") {
         dynamicBox.innerHTML = `
           <button type="button" class="btn-action primary" onclick="window.PDI?.SocialKanbanView?.moverCasoFromModal('evaluacion')">
@@ -902,6 +914,15 @@ export const SocialKanbanView = {
    * Abre modal para que Coordinación apruebe o rechace la solicitud con comentarios.
    */
   abrirModalResolverSolicitud(id) {
+    const rolActivo = localStorage.getItem("pdi_active_role") || "social";
+    if (rolActivo !== "coord" && rolActivo !== "admin") {
+      window.PDI?.ToastView?.show?.(
+        "Autorizaci��n restringida",
+        "Solo Coordinaci��n General o Administraci��n TI pueden resolver solicitudes de fase.",
+        "warning",
+      );
+      return;
+    }
     const model = window.PDI?.CasoSocialModel || CasoSocialModel;
     const caso = model.getAll().find(c => String(c.id) === String(id) || c.id === Number(id));
     if (!caso || !caso.solicitudCambio) return;
@@ -952,6 +973,15 @@ export const SocialKanbanView = {
   },
 
   ejecutarResolucion(decision) {
+    const rolActivo = localStorage.getItem("pdi_active_role") || "social";
+    if (rolActivo !== "coord" && rolActivo !== "admin") {
+      window.PDI?.ToastView?.show?.(
+        "Autorizaci��n restringida",
+        "Solo Coordinaci��n General o Administraci��n TI pueden resolver solicitudes de fase.",
+        "warning",
+      );
+      return;
+    }
     const rId = document.getElementById("resolverCasoId")?.value;
     const com = document.getElementById("resolverComentarioInput")?.value || "";
 
@@ -1255,7 +1285,13 @@ export const SocialKanbanView = {
     }
 
     const model = window.PDI?.CasoSocialModel || CasoSocialModel;
-    const solicitudes = model.getTodasLasSolicitudes ? model.getTodasLasSolicitudes() : [];
+    const userName = String(localStorage.getItem("pdi_usuario_nombre") || "").trim();
+    const todas = model.getTodasLasSolicitudes ? model.getTodasLasSolicitudes() : [];
+    // "Mis Solicitudes" es del usuario social que las envía, no la bandeja
+    // completa de Coordinación. Antes mostraba las solicitudes de todos.
+    const solicitudes = userName
+      ? todas.filter((s) => String(s.solicitadoPor || "").trim() === userName)
+      : [];
     this.actualizarBadgesPestañas();
 
     // Actualizar contadores en las tarjetas de estadísticas

@@ -152,8 +152,16 @@ export const SocialController = {
    * Resuelve una solicitud de cambio: Aprobada o Rechazada por Coordinación.
    */
   resolverSolicitud(id, decision, comentario = "") {
-    const model = window.PDI?.CasoSocialModel || CasoSocialModel;
     const activeRole = localStorage.getItem("pdi_active_role") || "coord";
+    if (activeRole !== "coord" && activeRole !== "admin") {
+      window.PDI?.ToastView?.show?.(
+        "Autorización restringida",
+        "Solo Coordinación General o Administración TI pueden resolver solicitudes de fase.",
+        "warning",
+      );
+      return;
+    }
+    const model = window.PDI?.CasoSocialModel || CasoSocialModel;
     const userName = localStorage.getItem("pdi_usuario_nombre") || "Coordinación General";
     const cargo = (activeRole === "admin") ? "Administrador de Sistemas TI" : "Dirección y Coordinación General";
 
