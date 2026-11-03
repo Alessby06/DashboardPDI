@@ -1274,7 +1274,7 @@ export const DashboardView = {
               </td>
               <td><span class="badge ${getActionBadgeClass(l.action)}">${escapar(l.action)}</span></td>
               <td>${entityHtml}</td>
-              <td style="font-size:12.5px; color:var(--text-muted); max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapar(l.detail)}</td>
+              <td><span class="audit-detail-cell" title="${escapar(l.detail)}">${escapar(l.detail)}</span></td>
               <td><span class="badge ${getStatusBadgeClass(l.status)}">${escapar(l.status)}</span></td>
               <td>
                 <button type="button" class="btn-action-sm" onclick="event.stopPropagation(); window.openAuditDetail ? window.openAuditDetail('${escaparEnManejador(logIdStr)}') : (window.PDI?.DashboardView?.openLogDetail ? window.PDI.DashboardView.openLogDetail('${escaparEnManejador(logIdStr)}') : null)" title="Ver detalle de trazabilidad">
@@ -1315,7 +1315,7 @@ export const DashboardView = {
               </div>
 
               <div class="datacard-body">
-                <div class="datacard-row">
+                <div class="datacard-row audit-row-action">
                   <span class="datacard-label">Acción Registrada</span>
                   <span class="datacard-value"><span class="badge ${getActionBadgeClass(l.action)}">${escapar(l.action)}</span></span>
                 </div>
