@@ -15,10 +15,38 @@
 //  window porque Astro reemplaza el <html> en cada transicion.
 // ===========================================================================
 import { suscribirEstado } from "./db.js";
+import { prefetch } from "astro:prefetch";
 
 const MIN_VISIBLE_MS = 350;
 const ERROR_AFTER_MS = 7000;
 const FADE_MS = 240;
+const RUTAS_PREFETCH = [
+  "/dashboard",
+  "/padron",
+  "/salud",
+  "/social",
+  "/voluntariados",
+  "/auditoria",
+];
+
+/** Prefetch ocioso de los módulos principales.
+ *
+ * Con `hover` (la estrategia configurada) un enlace solo se adelanta cuando
+ * hay puntero fino; en móvil el primer toque paga la descarga completa del
+ * HTML. Una vez que los datos están en memoria y la pantalla ya se reveló, se
+ * piden esas rutas en tiempo muerto. `prefetch()` respeta Data Saver y las
+ * conexiones lentas. */
+function prefetchRutasPrincipales() {
+  if (window.__pdiPrefetchHecho) return;
+  window.__pdiPrefetchHecho = true;
+  const rutas = RUTAS_PREFETCH.filter((ruta) => ruta !== location.pathname);
+  const lanzar = () => rutas.forEach((ruta) => prefetch(ruta));
+  if (typeof requestIdleCallback === "function") {
+    requestIdleCallback(lanzar, { timeout: 3000 });
+  } else {
+    setTimeout(lanzar, 1200);
+  }
+}
 
 let iniciadoEn = 0;
 let revelado = false;
@@ -163,6 +191,8 @@ export function iniciarEstadoCarga() {
       if (marcarListo) document.documentElement.dataset.pdiReady = "1";
       if (esqueleto) esqueleto.setAttribute("hidden", "");
     }, espera);
+
+    prefetchRutasPrincipales();
   }
 
   function mostrarError(mensaje) {
