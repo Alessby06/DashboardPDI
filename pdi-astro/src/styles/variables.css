@@ -134,6 +134,11 @@
   --dur-norm: 220ms;
   --dur-panel: 260ms;    /* Modales, drawers, cards */
   --dur-fluid: 260ms;
+  --dur-nav: 250ms;      /* Cajón lateral en móvil */
+  --dur-rail: 420ms;     /* Riel del sidebar en escritorio */
+  --dur-theme: 380ms;    /* Cambio de tema: fondos y bordes */
+  --dur-bar: 720ms;      /* Barras de datos del dashboard */
+  --dur-highlight: 700ms; /* Destello de un cambio recién aplicado */
 
   /* Hojas inferiores: suben desde el borde inferior en un solo gesto
      vertical. Sin perspectiva ni escala: el texto viaja sin deformarse y la

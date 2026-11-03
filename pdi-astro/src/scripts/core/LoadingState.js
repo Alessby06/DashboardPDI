@@ -157,8 +157,7 @@ export function iniciarEstadoCarga() {
     window.PDI = window.PDI || {};
     window.PDI.__pdiDatosListos = true;
 
-    const reducir = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-    const espera = animar && !reducir ? FADE_MS : 0;
+    const espera = animar ? FADE_MS : 0;
 
     setTimeout(() => {
       if (marcarListo) document.documentElement.dataset.pdiReady = "1";

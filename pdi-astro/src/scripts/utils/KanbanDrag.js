@@ -1,4 +1,4 @@
-// Arrastre de casos entre columnas del tablero Kanban (solo escritorio).
+﻿// Arrastre de casos entre columnas del tablero Kanban (solo escritorio).
 //
 // Reglas del gesto:
 //  - Un pointerdown sobre una tarjeta no arrastra hasta superar 6 px: por
@@ -22,18 +22,12 @@
 //    por nodo y ninguna capa acumulada.
 //  - Al soltar se limpia todo antes de delegar en el controlador; el render
 //    que este hace se aprovecha para un FLIP desde el punto del drop.
-//  - Con prefers-reduced-motion no hay reflujo ni FLIP, solo el cambio final.
 
 const ETAPAS = ["pendiente", "evaluacion", "canalizado", "cerrado"];
 const UMBRAL_ARRASTRE = 6;
 const UMBRAL_AUTOSCROLL = 64;
 const VELOCIDAD_AUTOSCROLL = 14;
 const DURACION_REFLUJO = 190;
-
-const menosMovimiento = () =>
-  typeof window !== "undefined" &&
-  window.matchMedia &&
-  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const escritorioConPunteroFino = () =>
   typeof window !== "undefined" &&
@@ -95,7 +89,6 @@ function congelarPosiciones() {
 
 /** Anima cada tarjeta desde su posicion anterior a la actual. */
 function animarReflujo(posiciones) {
-  if (menosMovimiento()) return;
   for (const [card, antes] of posiciones) {
     if (!card.isConnected) continue;
     card.getAnimations().forEach((animacion) => animacion.cancel());
@@ -342,7 +335,6 @@ function alMover(evento) {
 }
 
 function flipADestino(id, etapaDestino, rectSalida) {
-  if (menosMovimiento()) return;
 
   requestAnimationFrame(() => {
     const nueva = Array.from(document.querySelectorAll(".kanban-card")).find(
@@ -368,7 +360,7 @@ function flipADestino(id, etapaDestino, rectSalida) {
 }
 
 function sacudir(card) {
-  if (!card || menosMovimiento()) return;
+  if (!card) return;
   card.classList.add("is-drop-invalida");
   const quitar = () => card.classList.remove("is-drop-invalida");
   card.addEventListener("animationend", quitar, { once: true });
@@ -508,3 +500,4 @@ function evitarDragNativo(evento) {
 KanbanDrag.iniciar();
 document.addEventListener("dragstart", evitarDragNativo, { capture: true });
 document.addEventListener("astro:page-load", () => KanbanDrag.iniciar());
+

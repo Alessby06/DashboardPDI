@@ -1,4 +1,4 @@
-/* ===========================================================================
+﻿/* ===========================================================================
    VISTAS - PARTE COMUN A LAS DIEZ PAGINAS
    ===========================================================================
    Este archivo y los views-<pagina>.css salieron de views.css, que era uno
@@ -45,8 +45,8 @@
       z-index: 1000;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 200ms var(--ease-out),
-                  background-color 200ms var(--ease-out);
+      transition: opacity var(--dur-norm) var(--ease-out),
+                  background-color var(--dur-norm) var(--ease-out);
       padding: 20px;
     }
 
@@ -54,10 +54,10 @@
     .modal-backdrop.active {
       opacity: 1;
       pointer-events: auto;
-      /* El velo entra antes que la hoja: retira la página en 160 ms y la hoja
-         arranca cuando el fondo ya está atenuado. */
-      transition: opacity 160ms var(--ease-out),
-                  background-color 160ms var(--ease-out);
+      /* El velo entra antes que la hoja: retira la pÃ¡gina en 160 ms y la hoja
+         arranca cuando el fondo ya estÃ¡ atenuado. */
+      transition: opacity var(--dur-fast) var(--ease-out),
+                  background-color var(--dur-fast) var(--ease-out);
       /* Velo de modal: mismo de las hojas, sin desenfoque, con foco radial
          detras de la ventana. Longhands a proposito: un shorthand con capas
          y var() es fragil y, si el parser lo descarta, el telon desaparece. */
@@ -105,19 +105,19 @@
     .modal-backdrop.drawer {
       align-items: stretch;
       justify-content: flex-end;
-      /* El velo completo vive ya en el estado base: así, al cerrar, el
+      /* El velo completo vive ya en el estado base: asÃ­, al cerrar, el
          degradado no desaparece de golpe mientras el color se desvanece. */
       background-color: var(--sheet-veil-margen);
       background-image: radial-gradient(ellipse 70% 60% at 50% 42%, var(--sheet-veil-borde), transparent 70%);
-      /* El velo se apaga con la hoja y con su misma curva de salida: así la
-         página no reaparece mientras la hoja todavía baja. */
+      /* El velo se apaga con la hoja y con su misma curva de salida: asÃ­ la
+         pÃ¡gina no reaparece mientras la hoja todavÃ­a baja. */
       transition: opacity var(--sheet-out) var(--sheet-exit-ease),
                   background-color var(--sheet-out) var(--sheet-exit-ease);
     }
 
     .modal-backdrop.drawer.open {
-      transition: opacity 160ms var(--ease-out),
-                  background-color 160ms var(--ease-out);
+      transition: opacity var(--dur-fast) var(--ease-out),
+                  background-color var(--dur-fast) var(--ease-out);
     }
 
     .modal-box.drawer-box {
@@ -162,7 +162,7 @@
       scroll-padding-bottom: 24px;
     }
 
-    /* El pie no se comprime ni se mezcla con el último campo del cuerpo. */
+    /* El pie no se comprime ni se mezcla con el Ãºltimo campo del cuerpo. */
     .modal-box.drawer-box .modal-footer {
       flex: 0 0 auto;
       box-shadow: 0 -10px 24px -22px rgba(0, 0, 0, 0.55);
@@ -190,7 +190,7 @@
       .modal-backdrop.drawer {
         padding: 0;
         /* La hoja nace en el borde inferior. Antes el flex la alineaba arriba
-           y el `bottom:0` no servía porque la caja no estaba posicionada. */
+           y el `bottom:0` no servÃ­a porque la caja no estaba posicionada. */
         align-items: flex-end;
         justify-content: center;
         overflow: hidden;
@@ -210,31 +210,29 @@
         border-radius: 20px 20px 0 0;
         /* Sube desde el borde inferior sin inclinarse: solo se desplaza. El
            origen queda en su propio borde por coherencia con el gesto, pero
-           al no haber rotación no hay deformación del contenido. */
+           al no haber rotaciÃ³n no hay deformaciÃ³n del contenido. */
         transform-origin: 50% 100%;
         transform: var(--sheet-closed);
         backface-visibility: hidden;
         visibility: hidden;
         padding-bottom: env(safe-area-inset-bottom, 0);
         overscroll-behavior: contain;
-        /* Aviso de composición solo en la hoja que recorre la pantalla. */
+        /* Aviso de composiciÃ³n solo en la hoja que recorre la pantalla. */
         will-change: transform;
-        /* Salida: baja en 260 ms con una curva que acompaña la caída. La hoja
-           se mantiene opaca, como el cajón lateral; `visibility` la retira al
+        /* Salida: baja en 260 ms con una curva que acompaÃ±a la caÃ­da. La hoja
+           se mantiene opaca, como el cajÃ³n lateral; `visibility` la retira al
            terminar. */
-        transition:
-          transform var(--sheet-out) var(--sheet-exit-ease),
+        transition: transform var(--sheet-out) var(--sheet-exit-ease),
           visibility 0s linear var(--sheet-out);
       }
 
       .modal-backdrop.open .modal-box.drawer-box {
         transform: var(--sheet-open);
         visibility: visible;
-        /* Entrada: la misma curva del cajón lateral. La duración es mayor
+        /* Entrada: la misma curva del cajÃ³n lateral. La duraciÃ³n es mayor
            porque la hoja recorre casi toda la pantalla; a igual velocidad
            percibida, 380 ms no se sienten lentos. */
-        transition:
-          transform var(--sheet-in) var(--sheet-lift-ease),
+        transition: transform var(--sheet-in) var(--sheet-lift-ease),
           visibility 0s;
       }
 
@@ -258,7 +256,7 @@
       }
 
       /* Asa: zona de agarre que SheetController anima 1:1 con el dedo.
-         Minimo tactil de 44 px: antes medía ~20 px y costaba acertarle. */
+         Minimo tactil de 44 px: antes medÃ­a ~20 px y costaba acertarle. */
       .sheet-grab {
         display: flex;
         flex: 0 0 auto;
@@ -285,7 +283,7 @@
         transition: transform var(--dur-fast), background var(--dur-fast);
       }
 
-      /* La cabecera también es zona de arrastre; los controles de dentro
+      /* La cabecera tambiÃ©n es zona de arrastre; los controles de dentro
          (la X) se excluyen desde SheetController. */
       .modal-box.drawer-box .modal-header {
         flex: 0 0 auto;
@@ -298,17 +296,11 @@
       }
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      .modal-box.drawer-box {
-        transition: none;
-      }
-    }
-
-    /* Evita que la página de atrás se desplace bajo la hoja. Lenis se detiene
+    /* Evita que la pÃ¡gina de atrÃ¡s se desplace bajo la hoja. Lenis se detiene
        desde SheetController; esto cubre el scroll nativo. */
-    /* El telón cubre toda la pantalla, así que no hace falta bloquear el
+    /* El telÃ³n cubre toda la pantalla, asÃ­ que no hace falta bloquear el
        scroll del body. Cambiar `overflow` al cerrar repintaba la tabla y se
-       veía un parpadeo al soltar el asa. */
+       veÃ­a un parpadeo al soltar el asa. */
 
     .modal-header {
       padding: 18px 22px;
@@ -346,7 +338,7 @@
        lo puede cambiar: los estilos inline ganan a cualquier selector.
        ------------------------------------------------------------------ */
 
-    /* Acciones pegadas a la derecha (Cancelar + acción principal). */
+    /* Acciones pegadas a la derecha (Cancelar + acciÃ³n principal). */
     .modal-footer-end {
       justify-content: flex-end;
       gap: 10px;
@@ -377,10 +369,10 @@
     }
 
     /* ------------------------------------------------------------------
-       Móvil: un footer con varios botones no cabe en una línea y, sin
-       envolver, el último queda fuera de la pantalla (Informe Beta 3).
-       Con flex-wrap los botones bajan de línea en vez de desbordarse, y
-       la acción principal ocupa su propia fila, a ancho completo.
+       MÃ³vil: un footer con varios botones no cabe en una lÃ­nea y, sin
+       envolver, el Ãºltimo queda fuera de la pantalla (Informe Beta 3).
+       Con flex-wrap los botones bajan de lÃ­nea en vez de desbordarse, y
+       la acciÃ³n principal ocupa su propia fila, a ancho completo.
        ------------------------------------------------------------------ */
     @media (max-width: 768px) {
       .modal-footer-responsive {
@@ -411,7 +403,7 @@
         display: contents !important;
       }
 
-      /* La acción principal ocupa la fila completa. */
+      /* La acciÃ³n principal ocupa la fila completa. */
       .modal-footer-responsive .modal-footer-acciones > .modal-footer-principal,
       .modal-footer-responsive > .modal-footer-principal {
         flex: 1 1 100% !important;
@@ -501,8 +493,8 @@
     }
 
     /* ===========================================================================
-       ESTÁNDAR DE BOTONES DE ACCIÓN EN CABECERA MÓVIL (IMPECCABLE / OPERATE NORM)
-       Garantiza simetría, separación lateral y touch targets óptimos (40px/38px)
+       ESTÃNDAR DE BOTONES DE ACCIÃ“N EN CABECERA MÃ“VIL (IMPECCABLE / OPERATE NORM)
+       Garantiza simetrÃ­a, separaciÃ³n lateral y touch targets Ã³ptimos (40px/38px)
        sin alterar la vista de escritorio.
        =========================================================================== */
     @media (max-width: 768px) {
@@ -560,7 +552,7 @@
     }
 
 /* ===========================================================================
-   BARRA DE HERRAMIENTAS Y BÚSQUEDA CANÓNICA (ESTÁNDAR PADRÓN: PC Y MÓVIL)
+   BARRA DE HERRAMIENTAS Y BÃšSQUEDA CANÃ“NICA (ESTÃNDAR PADRÃ“N: PC Y MÃ“VIL)
    =========================================================================== */
 .audit-toolbar {
   display: flex;
@@ -593,11 +585,11 @@
   width: 100%;
   min-width: 0;
   /* Los dos disparadores se leen igual: el contenido se centra en su columna.
-     Solo afecta al botón; el menú desplegable conserva su alineación. */
+     Solo afecta al botÃ³n; el menÃº desplegable conserva su alineaciÃ³n. */
   justify-content: center;
 }
 
-/* El caret acompaña al grupo en vez de huir al extremo derecho. */
+/* El caret acompaÃ±a al grupo en vez de huir al extremo derecho. */
 .table-toolbar .audit-filter-btn .filter-caret {
   margin-left: 0;
 }
@@ -624,7 +616,7 @@
 }
 
 @media (max-width: 768px) {
-  /* En móvil la barra se parte en dos filas: buscador + descarga, y debajo
+  /* En mÃ³vil la barra se parte en dos filas: buscador + descarga, y debajo
      ordenar + filtros con el mismo ancho. */
   .audit-toolbar.table-toolbar {
     display: flex;
@@ -634,7 +626,7 @@
 
   .table-toolbar .audit-search-wrap {
     order: 1;
-    /* La regla móvil general del buscador usa flex:1 !important; aquí se
+    /* La regla mÃ³vil general del buscador usa flex:1 !important; aquÃ­ se
        necesita una base fija para que la descarga quepa a su lado. */
     flex: 0 0 calc(100% - 52px) !important;
     min-width: 0;
@@ -668,10 +660,10 @@
 }
 
 /* ===========================================================================
-   MENÚ DE ORDEN COMPARTIDO
+   MENÃš DE ORDEN COMPARTIDO
    ===========================================================================
-   El botón y las opciones viven aquí, no en views-padron.css, para que
-   Auditoría, Salud, Casitas, Sedes y Voluntariados no caigan al estilo nativo
+   El botÃ³n y las opciones viven aquÃ­, no en views-padron.css, para que
+   AuditorÃ­a, Salud, Casitas, Sedes y Voluntariados no caigan al estilo nativo
    del navegador (fondo gris, borde outset y radio 0). */
 .padron-sort-wrap {
   display: flex;
@@ -697,8 +689,7 @@
   font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
-  transition:
-    background-color var(--dur-fast) var(--ease-smooth),
+  transition: background-color var(--dur-fast) var(--ease-smooth),
     border-color var(--dur-fast) var(--ease-smooth);
 }
 
@@ -909,14 +900,14 @@
     max-height: 14px !important;
 
 /* ===========================================================================
-   ESTÁNDAR MÓVIL: HOJAS INFERIORES DE FILTROS (BOTTOM SHEETS)
+   ESTÃNDAR MÃ“VIL: HOJAS INFERIORES DE FILTROS (BOTTOM SHEETS)
    ===========================================================================
-   Convierte los menús de filtros de escritorio en Bottom Sheets nativos y
-   ergonómicos para pantallas móviles (<= 768px). En escritorio (> 768px) no
-   afecta la interfaz y oculta controles móviles.
+   Convierte los menÃºs de filtros de escritorio en Bottom Sheets nativos y
+   ergonÃ³micos para pantallas mÃ³viles (<= 768px). En escritorio (> 768px) no
+   afecta la interfaz y oculta controles mÃ³viles.
    =========================================================================== */
 
-/* Elementos exclusivos de móvil: Ocultos en Desktop */
+/* Elementos exclusivos de mÃ³vil: Ocultos en Desktop */
 
 }
 }
@@ -935,7 +926,7 @@
 }
 
 /* ===========================================================================
-   BARRA DE PAGINACIÓN Y PIE DE TABLA COMPARTIDO
+   BARRA DE PAGINACIÃ“N Y PIE DE TABLA COMPARTIDO
    =========================================================================== */
 .table-pagination-bar,
 .audit-pagination-bar,
@@ -982,8 +973,8 @@
   font-size: 12px;
   outline: none;
   cursor: pointer;
-  /* Sin esto el flex de la paginación lo comprimía y el caret pisaba
-     «página». El selector debe medir lo que mide su texto. */
+  /* Sin esto el flex de la paginaciÃ³n lo comprimÃ­a y el caret pisaba
+     Â«pÃ¡ginaÂ». El selector debe medir lo que mide su texto. */
   flex-shrink: 0;
   min-width: max-content;
   white-space: nowrap;
@@ -997,7 +988,7 @@
 }
 
 /* El select nativo queda oculto y el control visible es el trigger del
-   custom-select. Si el wrapper se encoge, el caret pisa «página». */
+   custom-select. Si el wrapper se encoge, el caret pisa Â«pÃ¡ginaÂ». */
 .padron-density-wrapper .pdi-select,
 .audit-density-wrapper .pdi-select,
 .table-density-wrapper .pdi-select {
@@ -1120,9 +1111,9 @@
 
 /* ===========================================================================
    ACCIONES DE FILA ESTANDARIZADAS (SOLO PC / ESCRITORIO)
-   Botones cuadrados y solo icono, idénticos en padrón, salud y voluntariados:
-   el ojo abre el expediente/ficha y el lápiz entra directo a editar. Nada de
-   icono + texto y sin botón de eliminar.
+   Botones cuadrados y solo icono, idÃ©nticos en padrÃ³n, salud y voluntariados:
+   el ojo abre el expediente/ficha y el lÃ¡piz entra directo a editar. Nada de
+   icono + texto y sin botÃ³n de eliminar.
    =========================================================================== */
 @media (min-width: 769px) {
   .row-actions {
@@ -1177,7 +1168,7 @@
 }
 
 /* ===========================================================================
-   BOTÓN ICONO DE EXPORTACIÓN ESTANDARIZADO (.btn-action-icon.btn-audit-export-icon)
+   BOTÃ“N ICONO DE EXPORTACIÃ“N ESTANDARIZADO (.btn-action-icon.btn-audit-export-icon)
    =========================================================================== */
 .btn-action-icon.btn-audit-export-icon {
   width: 36px;
@@ -1238,7 +1229,7 @@
   }
 }
 
-/* En móvil (<= 768px): integración simétrica y orgánica con .view-actions y .dash-header-actions */
+/* En mÃ³vil (<= 768px): integraciÃ³n simÃ©trica y orgÃ¡nica con .view-actions y .dash-header-actions */
 @media (max-width: 768px) {
   .view-actions .btn-action-icon.btn-audit-export-icon,
   .dash-header-actions .btn-action-icon.btn-audit-export-icon {
@@ -1264,16 +1255,16 @@
 }
 
 /* ===========================================================================
-   TABLA AL BORDE DE LA CARD (consistencia con Voluntariados · solo escritorio).
-   La card conserva su padding, pero las bandas de la sección (barra de
-   búsqueda/filtros, filtros aplicados, tabla y paginación) se expanden a sus
-   extremos con un margen negativo igual a ese padding (22px). Así el "techo"
+   TABLA AL BORDE DE LA CARD (consistencia con Voluntariados Â· solo escritorio).
+   La card conserva su padding, pero las bandas de la secciÃ³n (barra de
+   bÃºsqueda/filtros, filtros aplicados, tabla y paginaciÃ³n) se expanden a sus
+   extremos con un margen negativo igual a ese padding (22px). AsÃ­ el "techo"
    y el "piso" llegan de borde a borde, igual que en Voluntariados.
-   En móvil no se toca nada: la tabla de PC está oculta y el padding de la card
+   En mÃ³vil no se toca nada: la tabla de PC estÃ¡ oculta y el padding de la card
    cambia por media.
    =========================================================================== */
 @media (min-width: 769px) {
-  /* Barra de búsqueda/filtros: banda full-bleed con "techo" */
+  /* Barra de bÃºsqueda/filtros: banda full-bleed con "techo" */
   #cardSaludEvaluaciones .audit-toolbar,
   #cardAsistenciaCasita .audit-toolbar,
   #cardPadronBeneficiarios .audit-toolbar,
@@ -1318,7 +1309,7 @@
     margin-bottom: 0;
   }
 
-  /* Paginación: pie full-bleed que cierra la card */
+  /* PaginaciÃ³n: pie full-bleed que cierra la card */
   #cardSaludEvaluaciones .padron-pagination-bar,
   #cardAsistenciaCasita .padron-pagination-bar,
   #cardPadronBeneficiarios .padron-pagination-bar,
@@ -1328,12 +1319,12 @@
     padding-inline: 22px;
   }
 
-  /* Suelo común de ancho: las tablas scrollean con el mismo criterio */
+  /* Suelo comÃºn de ancho: las tablas scrollean con el mismo criterio */
   #cardSaludEvaluaciones .data-table { min-width: 980px; }
   #cardAsistenciaCasita .data-table { min-width: 900px; }
   #view-auditoria .card .data-table { min-width: 1160px; }
 
-  /* Última columna (acciones / asistencia / detalle): centrada en las cinco */
+  /* Ãšltima columna (acciones / asistencia / detalle): centrada en las cinco */
   #cardSaludEvaluaciones .data-table th:last-child,
   #cardSaludEvaluaciones .data-table td:last-child,
   #cardAsistenciaCasita .data-table th:last-child,
@@ -1347,7 +1338,7 @@
     text-align: center;
   }
 
-  /* Ancho cómodo para el par ojo + lápiz */
+  /* Ancho cÃ³modo para el par ojo + lÃ¡piz */
   #cardSaludEvaluaciones .data-table th:last-child,
   #cardSaludEvaluaciones .data-table td:last-child {
     width: 118px;
@@ -1357,7 +1348,7 @@
 /* ===========================================================================
    BLOQUES COMPARTIDOS CONSOLIDADOS
    Reglas que estaban copiadas literalmente en las diez hojas de vista.
-   Una sola copia aquí; las hojas de vista quedan como variantes.
+   Una sola copia aquÃ­; las hojas de vista quedan como variantes.
    =========================================================================== */
 .socio-calc-accordion.open {
         border-color: rgba(239, 68, 68, 0.35);
@@ -1500,7 +1491,6 @@ input[type="range"] {
           will-change: transform;
           touch-action: manipulation;
           -webkit-tap-highlight-color: transparent;
-          transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
 .sidebar.open {
           transform: translate3d(0, 0, 0) !important;
@@ -1513,11 +1503,11 @@ input[type="range"] {
           -webkit-tap-highlight-color: transparent;
         }
 .sidebar.open .nav-btn:not(.role-restricted) {
-          animation: mobileNavSlideIn 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
+          animation: mobileNavSlideIn var(--dur-norm) var(--ease-spring) both;
           animation-delay: calc(var(--nav-idx, 0) * 22ms);
         }
 .sidebar.open .nav-btn.role-restricted {
-          animation: mobileNavSlideInRestricted 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
+          animation: mobileNavSlideInRestricted var(--dur-norm) var(--ease-spring) both;
           animation-delay: calc(var(--nav-idx, 0) * 22ms);
           opacity: 0.35 !important;
           cursor: not-allowed !important;
@@ -1567,7 +1557,7 @@ input[type="range"] {
         border-radius: 6px;
         background: var(--surface-1);
         border: 1px solid var(--border-subtle);
-        transition: background-color 0.18s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.18s cubic-bezier(0.4, 0, 0.2, 1), color 0.18s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.18s cubic-bezier(0.4, 0, 0.2, 1), transform 0.18s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.18s cubic-bezier(0.4, 0, 0.2, 1), filter 0.18s cubic-bezier(0.4, 0, 0.2, 1), outline-color 0.18s cubic-bezier(0.4, 0, 0.2, 1), translate 0.18s cubic-bezier(0.4, 0, 0.2, 1), scale 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: background-color var(--dur-popover) cubic-bezier(0.4, 0, 0.2, 1), border-color var(--dur-popover) cubic-bezier(0.4, 0, 0.2, 1), color var(--dur-popover) cubic-bezier(0.4, 0, 0.2, 1), box-shadow var(--dur-popover) cubic-bezier(0.4, 0, 0.2, 1), transform var(--dur-popover) cubic-bezier(0.4, 0, 0.2, 1), opacity var(--dur-popover) cubic-bezier(0.4, 0, 0.2, 1), filter var(--dur-popover) cubic-bezier(0.4, 0, 0.2, 1), outline-color var(--dur-popover) cubic-bezier(0.4, 0, 0.2, 1), translate var(--dur-popover) cubic-bezier(0.4, 0, 0.2, 1), scale var(--dur-popover) cubic-bezier(0.4, 0, 0.2, 1);
         cursor: default;
         user-select: none;
       }
@@ -1848,15 +1838,15 @@ input[type="range"] {
     border: 1px solid var(--gt-blue-border);
   }
 ::view-transition-group(root) {
-    animation-duration: 0.2s;
+    animation-duration: var(--dur-norm);
     animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   }
 ::view-transition-old(root) {
-    animation: 0.2s cubic-bezier(0.16, 1, 0.3, 1) both fadeOutTheme;
+    animation: var(--dur-norm) cubic-bezier(0.16, 1, 0.3, 1) both fadeOutTheme;
     z-index: 1;
   }
 ::view-transition-new(root) {
-    animation: 0.2s cubic-bezier(0.16, 1, 0.3, 1) both fadeInTheme;
+    animation: var(--dur-norm) cubic-bezier(0.16, 1, 0.3, 1) both fadeInTheme;
     z-index: 2;
   }
 .disable-theme-transitions,
@@ -1900,7 +1890,7 @@ input[type="range"] {
     stroke: var(--text-main);
   }
 #btnThemeSystem.active .theme-icon-box svg {
-    animation: monitorHeartbeat 0.8s var(--ease-out) forwards;
+    animation: monitorHeartbeat var(--dur-highlight) var(--ease-out) forwards;
     color: var(--text-brand);
     filter: drop-shadow(0 0 7px rgba(var(--brand-rgb), 0.55));
   }
@@ -1946,7 +1936,7 @@ input[type="range"] {
     font-weight: 700 !important;
   }
 
-/* --- Segunda pasada: selectores con más de una variante por hoja --- */
+/* --- Segunda pasada: selectores con mÃ¡s de una variante por hoja --- */
 .sidebar-backdrop {
         display: none !important;
         opacity: 0 !important;
@@ -1972,8 +1962,8 @@ input[type="range"] {
           pointer-events: none;
           touch-action: manipulation;
           -webkit-tap-highlight-color: transparent;
-          transition: opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1),
-                      visibility 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+          transition: opacity var(--dur-norm) var(--ease-spring),
+                      visibility var(--dur-norm) var(--ease-spring);
           will-change: opacity, visibility;
         }
 }
@@ -2497,7 +2487,7 @@ input[type="range"] {
     background: var(--surface-1);
     margin: 6px 0;
     cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
+    transition: border-color var(--dur-norm), background var(--dur-norm);
     overflow: hidden;
     box-sizing: border-box;
   }
@@ -2523,3 +2513,5 @@ input[type="range"] {
     font-size: 10.5px;
     font-weight: 600;
   }
+
+

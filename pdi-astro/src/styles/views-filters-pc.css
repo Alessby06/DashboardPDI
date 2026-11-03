@@ -61,8 +61,7 @@
   }
 
   .padron-inner-dropdown-btn {
-    transition:
-      border-color var(--dur-fast) var(--ease-smooth),
+    transition: border-color var(--dur-fast) var(--ease-smooth),
       background-color var(--dur-fast) var(--ease-smooth);
   }
 
@@ -71,8 +70,7 @@
      reacomodarse en cada cambio. */
 
   .padron-chip-remove {
-    transition:
-      background-color var(--dur-fast) var(--ease-smooth),
+    transition: background-color var(--dur-fast) var(--ease-smooth),
       color var(--dur-fast) var(--ease-smooth);
   }
 
@@ -105,8 +103,7 @@
     font-weight: 700;
     letter-spacing: 0.01em;
     white-space: nowrap;
-    transition:
-      background-color var(--dur-fast) var(--ease-smooth),
+    transition: background-color var(--dur-fast) var(--ease-smooth),
       border-color var(--dur-fast) var(--ease-smooth),
       color var(--dur-fast) var(--ease-smooth);
   }

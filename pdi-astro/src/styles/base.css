@@ -1,4 +1,4 @@
-/* Reset & Base */
+﻿/* Reset & Base */
     *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
@@ -6,7 +6,7 @@
     }
 
     /* Los controles nativos no heredan la fuente por defecto del navegador
-       (en Chrome/Windows caían a Arial). Forzamos que hereden Manrope. */
+       (en Chrome/Windows caÃ­an a Arial). Forzamos que hereden Manrope. */
     input, select, textarea, button {
       font-family: inherit;
     }
@@ -46,7 +46,7 @@
         radial-gradient(circle at 85% 85%, rgba(56, 189, 248, 0.03) 0%, transparent 55%);
     }
 
-    /* Transición Suave y Fluida al Cambiar entre Modo Claro y Oscuro */
+    /* TransiciÃ³n Suave y Fluida al Cambiar entre Modo Claro y Oscuro */
     body,
     .app-shell,
     .topbar,
@@ -68,13 +68,13 @@
     .audit-search-wrap,
     .custom-dropdown-btn,
     .custom-dropdown-menu {
-      transition: background-color 0.38s cubic-bezier(0.16, 1, 0.3, 1),
-                  color 0.38s cubic-bezier(0.16, 1, 0.3, 1),
-                  border-color 0.38s cubic-bezier(0.16, 1, 0.3, 1),
-                  box-shadow 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: background-color var(--dur-theme) var(--ease-spring),
+                  color var(--dur-theme) var(--ease-spring),
+                  border-color var(--dur-theme) var(--ease-spring),
+                  box-shadow var(--dur-theme) var(--ease-spring);
     }
 
-    /* Vistas Activas - Visualización Inmediata y Fluida */
+    /* Vistas Activas - VisualizaciÃ³n Inmediata y Fluida */
     .app-view, .content-view {
       display: none;
     }
@@ -83,7 +83,7 @@
       display: block;
     }
 
-    /* Carga en Cascada Viva (Stagger Assembly con Física Orgánica).
+    /* Carga en Cascada Viva (Stagger Assembly con FÃ­sica OrgÃ¡nica).
 
        El estado inicial oculto lo revela .stagger-animate al entrar; si esa
        clase no llega a anadirse, AnimationEngine deja el contenido visible. */
@@ -93,7 +93,7 @@
     }
 
     .stagger-animate {
-      animation: staggerEntrance 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      animation: staggerEntrance var(--dur-rail) cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
 
     @keyframes staggerEntrance {
@@ -107,8 +107,8 @@
       }
     }
 
-    /* El movimiento de los botones vive en button-motion.css. Aquí solo queda
-       el tinte de la pulsación; el lift y la compresión usan las propiedades
+    /* El movimiento de los botones vive en button-motion.css. AquÃ­ solo queda
+       el tinte de la pulsaciÃ³n; el lift y la compresiÃ³n usan las propiedades
        translate/scale para no pisar los transform de chevrons ni drawers. */
     .btn-action:active:not(:disabled):not(.primary),
     .btn-action-icon:active:not(:disabled),
@@ -176,7 +176,7 @@
        1. MODO PC (Pantallas anchas > 900px)
        - Por defecto SIEMPRE DESPLEGADA (280px)
        - SIN fondo azul/oscurecido (backdrop desactivado)
-       - Permite abrir y cerrar suavemente con animación
+       - Permite abrir y cerrar suavemente con animaciÃ³n
        ================================================================== */
     @media (min-width: 901px) {
       .sidebar-backdrop {
@@ -198,9 +198,9 @@
         box-shadow: none !important;
         z-index: 50 !important;
         flex-shrink: 0 !important;
-        transition: transform 0.42s var(--ease-drawer),
-                    background-color 0.38s cubic-bezier(0.16, 1, 0.3, 1),
-                    border-color 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: transform var(--dur-rail) var(--ease-drawer),
+                    background-color var(--dur-theme) cubic-bezier(0.16, 1, 0.3, 1),
+                    border-color var(--dur-theme) cubic-bezier(0.16, 1, 0.3, 1);
       }
 
       .sidebar.closed-pc,
@@ -212,9 +212,9 @@
       .sidebar-header,
       .sidebar .nav-sections,
       .sidebar-footer {
-        transition: opacity 0.26s var(--ease-out),
-                    transform 0.42s var(--ease-drawer),
-                    padding 0.28s ease;
+        transition: opacity var(--dur-panel) var(--ease-out),
+                    transform var(--dur-rail) var(--ease-drawer),
+                    padding var(--dur-panel) ease;
       }
 
       .sidebar.closed-pc .sidebar-header,
@@ -237,9 +237,9 @@
         visibility: hidden;
         transform: translate3d(-6px, 0, 0);
         pointer-events: none;
-        transition: opacity 0.24s var(--ease-out),
-                    transform 0.42s var(--ease-drawer),
-                    visibility 0s linear 0.24s;
+        transition: opacity var(--dur-norm) var(--ease-out),
+                    transform var(--dur-rail) var(--ease-drawer),
+                    visibility 0s linear var(--dur-norm);
       }
 
       html[data-sidebar-pc="closed"] .topbar-brand-wrap {
@@ -247,15 +247,15 @@
         visibility: visible;
         transform: translate3d(0, 0, 0);
         pointer-events: auto;
-        transition: opacity 0.24s var(--ease-out),
-                    transform 0.42s var(--ease-drawer),
+        transition: opacity var(--dur-norm) var(--ease-out),
+                    transform var(--dur-rail) var(--ease-drawer),
                     visibility 0s linear 0s;
       }
     }
 
     /* ==================================================================
-       2. MODO MÓVIL Y PANTALLA A LA MITAD (<= 900px)
-       - Cajón fuera de pantalla por defecto (-100%)
+       2. MODO MÃ“VIL Y PANTALLA A LA MITAD (<= 900px)
+       - CajÃ³n fuera de pantalla por defecto (-100%)
        - Fondo oscurecido cuando se abre (.sidebar.open)
        ================================================================== */
     @media (max-width: 900px) {
@@ -278,9 +278,10 @@
         will-change: transform;
         touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
-        transition: transform 0.33s cubic-bezier(0.16, 1, 0.3, 1),
-                    background-color 0.38s cubic-bezier(0.16, 1, 0.3, 1),
-                    border-color 0.38s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        contain: layout style;
+        transition: transform var(--dur-nav) var(--ease-spring),
+                    background-color var(--dur-theme) var(--ease-spring),
+                    border-color var(--dur-theme) var(--ease-spring) !important;
       }
 
       .sidebar.open {
@@ -304,8 +305,8 @@
         pointer-events: none;
         touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
-        transition: opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1),
-                    visibility 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: opacity var(--dur-norm) var(--ease-spring),
+                    visibility var(--dur-norm) var(--ease-spring);
         will-change: opacity, visibility;
       }
 
@@ -314,22 +315,6 @@
         visibility: visible !important;
         pointer-events: auto !important;
         cursor: pointer;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .sidebar,
-      .sidebar-header,
-      .sidebar .nav-sections,
-      .sidebar-footer {
-        transition: none !important;
-      }
-
-      .sidebar.closed-pc .sidebar-header,
-      .sidebar.closed-pc .nav-sections,
-      .sidebar.closed-pc .sidebar-footer {
-        opacity: 1;
-        transform: none;
       }
     }
 
@@ -363,7 +348,7 @@
       align-items: center;
       gap: 12px;
       overflow: hidden;
-      transition: padding 0.28s ease;
+      transition: padding var(--dur-panel) ease;
     }
 
     /* Selector de proyecto: Infancia Saludable activo; Mamitas visible como
@@ -429,7 +414,7 @@
     }
 
     .logo-text {
-      transition: opacity 0.2s ease, visibility 0.2s ease;
+      transition: opacity var(--dur-norm) ease, visibility var(--dur-norm) ease;
       white-space: nowrap;
       overflow: hidden;
     }
@@ -448,7 +433,7 @@
     }
 
     /* El padding vive en el inner, no en el contenedor que scrollea: si
-       estuviera aquí, el primer elemento se recortaría al desplazar el
+       estuviera aquÃ­, el primer elemento se recortarÃ­a al desplazar el
        contenido con Lenis. */
     .nav-sections {
       flex: 1;
@@ -462,7 +447,7 @@
       overscroll-behavior: contain;
     }
 
-    /* Lenis necesita un content único: el nav scrollea y este div se mueve. */
+    /* Lenis necesita un content Ãºnico: el nav scrollea y este div se mueve. */
     .nav-sections-inner {
       display: flex;
       flex-direction: column;
@@ -479,10 +464,10 @@
       padding: 10px 10px 4px;
       white-space: nowrap;
       overflow: hidden;
-      transition: opacity 0.24s cubic-bezier(0.2, 0, 0, 1),
-                  height 0.28s cubic-bezier(0.2, 0, 0, 1),
-                  padding 0.28s cubic-bezier(0.2, 0, 0, 1),
-                  margin 0.28s cubic-bezier(0.2, 0, 0, 1);
+      transition: opacity var(--dur-norm) cubic-bezier(0.2, 0, 0, 1),
+                  height var(--dur-panel) cubic-bezier(0.2, 0, 0, 1),
+                  padding var(--dur-panel) cubic-bezier(0.2, 0, 0, 1),
+                  margin var(--dur-panel) cubic-bezier(0.2, 0, 0, 1);
     }
 
     .nav-btn {
@@ -527,7 +512,7 @@
       overflow: visible;
       text-overflow: clip;
       line-height: 1.3;
-      transition: opacity 0.18s ease, width 0.18s ease;
+      transition: opacity var(--dur-popover) ease, width var(--dur-popover) ease;
     }
 
     .nav-btn svg {
@@ -562,7 +547,7 @@
       stroke: var(--brand-primary);
     }
 
-    /* Role Restricted Tab Styles (Grisáceo / Deshabilitado tanto en PC como en Móvil) */
+    /* Role Restricted Tab Styles (GrisÃ¡ceo / Deshabilitado tanto en PC como en MÃ³vil) */
     .nav-btn.role-restricted,
     .sidebar .nav-btn.role-restricted,
     .sidebar.open .nav-btn.role-restricted {
@@ -573,7 +558,7 @@
       color: var(--text-muted) !important;
     }
 
-    /* Antiflash CSS Instantáneo: Reglas nativas basadas en html[data-user-role]
+    /* Antiflash CSS InstantÃ¡neo: Reglas nativas basadas en html[data-user-role]
        Evitan que durante el renderizado inicial los botones no permitidos se muestren activos o clickeables. */
     html[data-user-role="social"] .nav-btn[data-roles]:not([data-roles*="social"]),
     html[data-user-role="facilitadora"] .nav-btn[data-roles]:not([data-roles*="facilitadora"]),
@@ -589,7 +574,7 @@
       display: none !important;
     }
 
-    /* Ocultamiento absoluto para ítems de workflow exclusivos (sin grisáceo, no existen para roles no autorizados) */
+    /* Ocultamiento absoluto para Ã­tems de workflow exclusivos (sin grisÃ¡ceo, no existen para roles no autorizados) */
     html[data-user-role="social"] .nav-btn[data-hide-unauthorized]:not([data-roles*="social"]),
     html[data-user-role="coord"] .nav-btn[data-hide-unauthorized]:not([data-roles*="coord"]),
     html[data-user-role="admin"] .nav-btn[data-hide-unauthorized]:not([data-roles*="admin"]),
@@ -608,7 +593,7 @@
       background: var(--surface-2);
       color: var(--text-muted);
       border: 1px solid var(--border-subtle);
-      transition: opacity 0.2s ease;
+      transition: opacity var(--dur-norm) ease;
       white-space: nowrap;
     }
 
@@ -697,8 +682,8 @@
       stroke: currentColor;
     }
 
-    /* El hover solo existe donde hay puntero fino: en táctil se queda pegado
-       después del toque y el botón parece activo cuando ya no lo está. */
+    /* El hover solo existe donde hay puntero fino: en tÃ¡ctil se queda pegado
+       despuÃ©s del toque y el botÃ³n parece activo cuando ya no lo estÃ¡. */
     @media (hover: hover) and (pointer: fine) {
       .btn-action:hover {
         background: var(--surface-hover);
@@ -720,9 +705,9 @@
       font-weight: 700;
     }
 
-    /* Rojo reservado a acciones destructivas («Desactivar usuario»). Vive solo
-       en el borde y la tinta: rellenar el botón de rojo lo convierte en una
-       alarma que compite con todo lo demás de la vista. «Cancelar Edición» no
+    /* Rojo reservado a acciones destructivas (Â«Desactivar usuarioÂ»). Vive solo
+       en el borde y la tinta: rellenar el botÃ³n de rojo lo convierte en una
+       alarma que compite con todo lo demÃ¡s de la vista. Â«Cancelar EdiciÃ³nÂ» no
        lo usa: cancelar no destruye nada. */
     .btn-action.danger,
     .btn-action.btn-danger {
@@ -799,8 +784,8 @@
 
     /* Lenis aplica `overflow: clip` cuando se detiene (.lenis-stopped). En este
        layout el propio contenedor es el scroller: recortarlo resetea su
-       scrollTop a 0 y el contenido de atrás salta al inicio al abrir una hoja.
-       Se conserva el eje vertical mientras la hoja está abierta; el gesto y el
+       scrollTop a 0 y el contenido de atrÃ¡s salta al inicio al abrir una hoja.
+       Se conserva el eje vertical mientras la hoja estÃ¡ abierta; el gesto y el
        foco siguen bloqueados por las clases de la hoja. */
     #mainContent.content-viewport.lenis-stopped {
       overflow-y: auto;
@@ -808,15 +793,15 @@
 
     /* Con una hoja abierta el fondo no acepta gestos. Se aplica al viewport y
        no al body para no tocar scrollbar ni layout (eso repintaba la tabla).
-       El cuerpo de la hoja conserva su scroll: es su contenedor más cercano. */
+       El cuerpo de la hoja conserva su scroll: es su contenedor mÃ¡s cercano. */
     body.filter-sheet-open #mainContent,
     body.pdi-drawer-open #mainContent,
     body.sedes-sheet-open #mainContent {
       touch-action: none;
     }
 
-    /* Al cerrar por arrastre la hoja ya está fuera de pantalla; el paso al
-       estado cerrado inclinado se hace sin transición para que no reaparezca
+    /* Al cerrar por arrastre la hoja ya estÃ¡ fuera de pantalla; el paso al
+       estado cerrado inclinado se hace sin transiciÃ³n para que no reaparezca
        un instante. */
     .pdi-sin-transicion {
       transition: none !important;
@@ -833,10 +818,6 @@
       transform-origin: 0 50%;
       pointer-events: none;
       z-index: 1200;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .scroll-progress { display: none; }
     }
 
     /* Barras de scroll finas y consistentes en todo el sistema. Se aplica a
@@ -940,8 +921,6 @@
       }
     }
 
-
-
     /* Mientras el panel se retira y antes de cambiar de pagina, los enlaces no
        aceptan pulsaciones: si no, un doble clic acumula dos navegaciones. */
     html[data-menu-cerrandose] .nav-btn {
@@ -954,7 +933,7 @@
 
 @media (min-width: 901px) {
   .content-viewport > .app-view.active {
-    animation: pdiViewportEnter 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: pdiViewportEnter var(--dur-norm) cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 }
 
@@ -987,33 +966,32 @@
 @media (max-width: 900px) {
   /* Mantener en las secciones el mismo movimiento que en las subvistas sociales. */
   ::view-transition-group(pdi-main-section) {
-    animation-duration: 260ms;
+    animation-duration: var(--dur-panel);
     animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   ::view-transition-new(pdi-main-section) {
-    animation: pdiAppSectionIn 260ms cubic-bezier(0.16, 1, 0.3, 1) both !important;
+    animation: pdiAppSectionIn var(--dur-panel) cubic-bezier(0.16, 1, 0.3, 1) both !important;
   }
 
   ::view-transition-old(pdi-main-section) {
-    animation: pdiAppSectionOut 200ms cubic-bezier(0.4, 0, 1, 1) both !important;
+    animation: pdiAppSectionOut var(--dur-norm) cubic-bezier(0.4, 0, 1, 1) both !important;
   }
 
   ::view-transition-new(root),
   ::view-transition-new(social-subview-panel) {
     animation-name: pdiMobileSectionFadeIn !important;
-    animation-duration: 0.32s !important;
+    animation-duration: var(--dur-theme) !important;
     animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
   }
 
   ::view-transition-old(root),
   ::view-transition-old(social-subview-panel) {
     animation-name: pdiMobileSectionFadeOut !important;
-    animation-duration: 0.26s !important;
+    animation-duration: var(--dur-panel) !important;
     animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
   }
 }
-
 
 @keyframes pdiMobileSectionFadeIn {
   from { opacity: 0; }
@@ -1025,22 +1003,99 @@
   to { opacity: 0; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-group(pdi-main-section),
-  ::view-transition-old(pdi-main-section),
-  ::view-transition-new(pdi-main-section),
-  ::view-transition-group(root),
-  ::view-transition-old(root),
-  ::view-transition-new(root),
-  ::view-transition-group(social-subview-panel),
-  ::view-transition-old(social-subview-panel),
-  ::view-transition-new(social-subview-panel) {
-    animation-duration: 1ms !important;
+@media (max-width: 900px) {
+  .sidebar.open .nav-btn {
+    animation-duration: var(--dur-panel) !important;
   }
 }
 
-@media (max-width: 900px) {
-  .sidebar.open .nav-btn {
-    animation-duration: 0.3s !important;
+/* ===========================================================================
+   KEYFRAMES COMPARTIDOS
+   Una sola definiciÃ³n para todo el producto. Antes estaban copiados en las
+   nueve hojas de vista (142 definiciones para 31 nombres); cualquier ajuste
+   en una copia divergÃ­a de las demÃ¡s.
+   =========================================================================== */
+
+@keyframes antennaPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes fadeInTheme {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOutTheme {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes mobileNavSlideIn {
+        0% {
+          opacity: 0;
+          transform: translate3d(-14px, 0, 0);
+        }
+        100% {
+          opacity: 1;
+          transform: translate3d(0, 0, 0);
+        }
+      }
+
+@keyframes mobileNavSlideInRestricted {
+        0% {
+          opacity: 0;
+          transform: translate3d(-14px, 0, 0);
+        }
+        100% {
+          opacity: 0.35;
+          transform: translate3d(0, 0, 0);
+        }
+      }
+
+@keyframes monitorHeartbeat {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.28); }
+  50% { transform: scale(0.95); }
+  70% { transform: scale(1.18); }
+  100% { transform: scale(1.15); }
+}
+
+@keyframes checkSettlePop {
+  0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes moonSwayGlow {
+  0% { transform: rotate(0deg) scale(1); }
+  35% { transform: rotate(-18deg) scale(1.25); }
+  70% { transform: rotate(12deg) scale(1.18); }
+  100% { transform: rotate(0deg) scale(1.15); }
+}
+
+@keyframes pulseFocoHalo {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+
+@keyframes pulseFocoRays {
+  0% { opacity: 0.6; stroke-width: 2.2; }
+  100% { opacity: 1; stroke-width: 3.2; }
+}
+
+@keyframes sunRotatePulse {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(45deg) scale(1.25); }
+  100% { transform: rotate(45deg) scale(1.15); }
+}
+
+@keyframes ixdEntradaRow {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
+
+

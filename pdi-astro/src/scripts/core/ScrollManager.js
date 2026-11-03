@@ -20,14 +20,8 @@ const PANE_SELECTOR = [
   '.kanban-col-body'
 ].join(',');
 
-const mqReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-
 function esFino() {
   return window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-}
-
-function prefiereReducido() {
-  return mqReduce.matches;
 }
 
 /** Un panel dentro de un modal cerrado no se monta: no recibe puntero y solo
@@ -57,7 +51,7 @@ export const ScrollManager = {
       || new URLSearchParams(location.search).get('smoothTouch') === '1'
       || localStorage.getItem('pdi:smooth-touch') === '1';
     this.touch = !esFino() || touchOptIn;
-    this.enabled = !prefiereReducido();
+    this.enabled = true;
 
     if (!this.enabled) {
       window.__pdiScroll = this;

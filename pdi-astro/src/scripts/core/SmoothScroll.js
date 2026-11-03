@@ -1,9 +1,6 @@
 import { ScrollManager } from './ScrollManager.js';
 import { initScrollAnimations, destroyScrollAnimations } from './ScrollAnimations.js';
 
-let reduce = false;
-const mqReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-
 function contenedor() {
   return document.querySelector('.content-viewport');
 }
@@ -20,7 +17,7 @@ function offsetSuperior() {
 function animarScroll(box, destino, duracion = 520) {
   const desde = box.scrollTop;
   const delta = destino - desde;
-  if (reduce || Math.abs(delta) < 1) {
+  if (Math.abs(delta) < 1) {
     box.scrollTop = destino;
     return;
   }
@@ -85,7 +82,6 @@ function resetScroll() {
 
 if (!window.__pdiSmoothScrollBound) {
   window.__pdiSmoothScrollBound = true;
-  reduce = mqReduce.matches;
 
   ScrollManager.init();
   initScrollAnimations();
@@ -103,14 +99,6 @@ if (!window.__pdiSmoothScrollBound) {
     initScrollAnimations();
   });
   document.addEventListener('astro:page-load', () => ScrollManager.refresh());
-
-  if (typeof mqReduce.addEventListener === 'function') {
-    mqReduce.addEventListener('change', () => {
-      reduce = mqReduce.matches;
-      if (reduce) ScrollManager.stop();
-      else ScrollManager.start();
-    });
-  }
 
   enlazarAnclas();
 }

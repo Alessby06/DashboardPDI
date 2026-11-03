@@ -420,11 +420,6 @@ function limpiarMarcaDeCampo(el) {
   if (!sigueMal) marcarCampo(el, false);
 }
 
-function prefiereMenosMovimiento() {
-  return typeof window.matchMedia === "function"
-    && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
-
 /**
  * El croquis se carga solo cuando alguien lo pide. Al abrir la ficha el
  * iframe de Google no recibe el domicilio del usuario: ese dato es suyo y
@@ -478,7 +473,7 @@ export function iniciarFicha() {
     if (el && el.tagName === "SELECT") {
       el.scrollIntoView({
         block: "center",
-        behavior: prefiereMenosMovimiento() ? "auto" : "smooth",
+        behavior: "smooth",
       });
     }
   });

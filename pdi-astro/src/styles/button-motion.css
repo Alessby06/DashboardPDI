@@ -18,8 +18,7 @@
 .pdi-motion.pdi-motion.pdi-motion.pdi-motion {
   translate: 0 0;
   scale: 1;
-  transition:
-    translate var(--dur-fast) var(--ease-spring),
+  transition: translate var(--dur-fast) var(--ease-spring),
     scale var(--dur-fast) var(--ease-spring),
     background-color var(--dur-fast) var(--ease-smooth),
     border-color var(--dur-fast) var(--ease-smooth),
@@ -43,25 +42,3 @@
 
 /* Con movimiento reducido el botón no se desplaza ni se comprime, pero los
    cambios de color siguen comunicando el estado. */
-@media (prefers-reduced-motion: reduce) {
-  .pdi-motion.pdi-motion.pdi-motion.pdi-motion {
-    transition:
-      background-color var(--dur-fast) var(--ease-smooth),
-      border-color var(--dur-fast) var(--ease-smooth),
-      color var(--dur-fast) var(--ease-smooth),
-      box-shadow var(--dur-fast) var(--ease-smooth),
-      opacity var(--dur-fast) var(--ease-smooth);
-  }
-
-  .pdi-motion.pdi-motion.pdi-motion.pdi-motion:active {
-    translate: 0 0;
-    scale: 1;
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .pdi-motion.pdi-motion.pdi-motion.pdi-motion:hover {
-      translate: 0 0;
-      scale: 1;
-    }
-  }
-}

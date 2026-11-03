@@ -1,4 +1,4 @@
-/* ===========================================================================
+﻿/* ===========================================================================
    VISTAS - DASHBOARD
    ===========================================================================
    Porcion de views.css que necesita esta pagina y solo esta. Views.css eran
@@ -84,7 +84,7 @@
         gap: 14px;
       }
 
-      /* Filtrado activo de columna según la pestaña seleccionada en móvil */
+      /* Filtrado activo de columna segÃºn la pestaÃ±a seleccionada en mÃ³vil */
       .kanban-board[data-mobile-active-stage="pendiente"] .kanban-col:not([data-col-stage="pendiente"]),
       .kanban-board[data-mobile-active-stage="evaluacion"] .kanban-col:not([data-col-stage="evaluacion"]),
       .kanban-board[data-mobile-active-stage="canalizado"] .kanban-col:not([data-col-stage="canalizado"]),
@@ -127,12 +127,11 @@
         height: 16px !important;
       }
 
-
     }
 
     /* Canvas Signature */
 
-    /* Barra de Herramientas y Filtros para Auditoría (Buscador izquierda, Filtros derecha) */
+    /* Barra de Herramientas y Filtros para AuditorÃ­a (Buscador izquierda, Filtros derecha) */
     .audit-toolbar {
       display: flex;
       align-items: center;
@@ -148,28 +147,8 @@
 
     @media (max-width: 900px) {
 
-      /* Animación de entrada viva y escalonada (Staggered Reveal) en móviles */
-      @keyframes mobileNavSlideIn {
-        0% {
-          opacity: 0;
-          transform: translate3d(-14px, 0, 0);
-        }
-        100% {
-          opacity: 1;
-          transform: translate3d(0, 0, 0);
-        }
-      }
+      /* AnimaciÃ³n de entrada viva y escalonada (Staggered Reveal) en mÃ³viles */
 
-      @keyframes mobileNavSlideInRestricted {
-        0% {
-          opacity: 0;
-          transform: translate3d(-14px, 0, 0);
-        }
-        100% {
-          opacity: 0.35;
-          transform: translate3d(0, 0, 0);
-        }
-      }
     }
 
     /* Cobertura Territorial por Distrito & Dashboard Widgets Responsivo (Android) */
@@ -275,7 +254,7 @@
        antes dimensionaba la caja del modal (82vh, 1080px) no hace falta:
        el marco de la pagina vive en css/expediente.css. === */
 
-    /* Rediseño Sección 5: Ley N.° 29733 (PC & Móvil) */
+    /* RediseÃ±o SecciÃ³n 5: Ley N.Â° 29733 (PC & MÃ³vil) */
 
     .ley-consent-card {
       background: var(--surface-1);
@@ -304,27 +283,27 @@
       align-self: flex-start;
     }
 
-    /* === OPTIMIZACIÓN RESPONSIVA PARA DISPOSITIVOS MÓVILES (ANDROID / TABLETS <= 768px) === */
+    /* === OPTIMIZACIÃ“N RESPONSIVA PARA DISPOSITIVOS MÃ“VILES (ANDROID / TABLETS <= 768px) === */
     @media (max-width: 768px) {
 
-      /* Barra de Pestañas Deslizable Horizontal (Pill Tabs) */
+      /* Barra de PestaÃ±as Deslizable Horizontal (Pill Tabs) */
 
       /* Carnet de Identidad en formato Horizontal Compacto */
 
-      /* Formularios en 1 Sola Columna para Móviles (Expediente y Nuevo Usuario) */
+      /* Formularios en 1 Sola Columna para MÃ³viles (Expediente y Nuevo Usuario) */
 
-      /* Padrón de Personas Autorizadas */
+      /* PadrÃ³n de Personas Autorizadas */
     }
 
-/* === OPTIMIZACIÓN MÓVIL TOTAL EXPEDIENTE (ALTA PRIORIDAD PARA ANDROID <= 768px) === */
+/* === OPTIMIZACIÃ“N MÃ“VIL TOTAL EXPEDIENTE (ALTA PRIORIDAD PARA ANDROID <= 768px) === */
 
 /* Photo Uploader Component */
 
 /* ==========================================================================
-   PADRÓN BENEFICIARIOS: Búsqueda Facetada, Píldoras de Chips y Slider de Edad
+   PADRÃ“N BENEFICIARIOS: BÃºsqueda Facetada, PÃ­ldoras de Chips y Slider de Edad
    ========================================================================== */
 
-/* === CROQUIS Y GEORREFERENCIACIÓN DE VIVIENDA (GOOGLE MAPS & FACHADA) === */
+/* === CROQUIS Y GEORREFERENCIACIÃ“N DE VIVIENDA (GOOGLE MAPS & FACHADA) === */
 
 /* Master-Detail Split Panel Structure */
 .sedes-metric-strip {
@@ -349,7 +328,7 @@
   gap: clamp(9px, 2vw, 18px);
   flex: 1;
   min-width: 0;
-  transition: transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform var(--dur-norm) var(--ease-spring);
   cursor: default;
 }
 
@@ -367,7 +346,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.28s ease;
+  transition: transform var(--dur-panel) var(--ease-spring), box-shadow var(--dur-panel) var(--ease-smooth);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -475,34 +454,11 @@
 
 /* Estilo Linear / Raycast: Cross-Fade de Opacidad Pura (200ms) - Cero Lag y 120 FPS */
 
-@keyframes fadeOutTheme {
-  from { opacity: 1; }
-  to { opacity: 0; }
-}
-
-@keyframes fadeInTheme {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
 /* Congelar transiciones del DOM durante el Cross-Fade para garantizar 120 FPS nativos */
 
 /* Estado 3: Modo Auto (Sensor Inteligente) */
 
-@keyframes antennaPulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
-}
-
-/* 3. Sensor / Monitor SO: Latido rítmico de sincronización inteligente */
-
-@keyframes monitorHeartbeat {
-  0% { transform: scale(1); }
-  30% { transform: scale(1.28); }
-  50% { transform: scale(0.95); }
-  70% { transform: scale(1.18); }
-  100% { transform: scale(1.15); }
-}
+/* 3. Sensor / Monitor SO: Latido rÃ­tmico de sincronizaciÃ³n inteligente */
 
 /* Adaptabilidad para Cajas de Carga de Foto y Secciones de Retiro en Modo Oscuro */
 
@@ -511,7 +467,7 @@
    ========================================== */
 
 /* ===========================================================================
-   REDISEÑO DASHBOARD - ESTÉTICA OPERATIVA Y CLÍNICA (ANTI-SLOP PDI)
+   REDISEÃ‘O DASHBOARD - ESTÃ‰TICA OPERATIVA Y CLÃNICA (ANTI-SLOP PDI)
    =========================================================================== */
 
 /* Header contextual sobrio */
@@ -547,7 +503,7 @@
   line-height: 1.45;
 }
 
-/* Enlaces de acción en cabeceras de tarjeta */
+/* Enlaces de acciÃ³n en cabeceras de tarjeta */
 .dash-card-header-flex {
   display: flex;
   align-items: center;
@@ -557,7 +513,7 @@
   gap: 8px;
 }
 
-/* El título ocupa el espacio disponible y la flecha queda siempre pegada a su derecha */
+/* El tÃ­tulo ocupa el espacio disponible y la flecha queda siempre pegada a su derecha */
 .dash-card-header-flex .card-title {
   flex: 1 1 auto;
   min-width: 0;
@@ -618,7 +574,7 @@
   }
 }
 
-/* Tira de Métricas Operativas Clave — Placas (fichas con valor ancla y pie hairline) */
+/* Tira de MÃ©tricas Operativas Clave â€” Placas (fichas con valor ancla y pie hairline) */
 .plq-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -685,7 +641,7 @@
   color: var(--text-dim);
 }
 
-/* Rejilla Principal de Gráficos / Clínico y Territorial */
+/* Rejilla Principal de GrÃ¡ficos / ClÃ­nico y Territorial */
 .dash-charts-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
@@ -722,7 +678,7 @@
   margin-bottom: 0 !important;
 }
 
-/* Panel Clínico de Estado Nutricional / Anemia MINSA */
+/* Panel ClÃ­nico de Estado Nutricional / Anemia MINSA */
 .dash-clinical-panel {
   display: flex;
   flex-direction: column;
@@ -730,11 +686,11 @@
 }
 
 /* ===========================================================================
-   ESTADO NUTRICIONAL Y ANEMIA — Tabla de rangos
-   Distribución de usuarios por nivel de hemoglobina. Cada fila lleva su conteo
+   ESTADO NUTRICIONAL Y ANEMIA â€” Tabla de rangos
+   DistribuciÃ³n de usuarios por nivel de hemoglobina. Cada fila lleva su conteo
    tabular, el rango MINSA y una regla fina que codifica el porcentaje; el dato
    lo actualiza DashboardView por id (dashAnemiaTable, anemiaLegend*, segAnemia*,
-   anemiaPct*), así que los anchos de .dash-anemia-fill siguen siendo inline.
+   anemiaPct*), asÃ­ que los anchos de .dash-anemia-fill siguen siendo inline.
    =========================================================================== */
 .dash-anemia-table-card {
   display: flex;
@@ -797,7 +753,7 @@
   display: block;
   height: 6px;
   border-radius: var(--radius-full);
-  transition: width 620ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: width var(--dur-bar) cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .dash-anemia-fill.normal {
@@ -848,7 +804,7 @@
     font-size: 22px;
     padding-right: 6px;
     /* line-height:1 elimina el espacio bajo la baseline para que el
-       número quede visualmente centrado en la celda */
+       nÃºmero quede visualmente centrado en la celda */
     line-height: 1;
     text-align: center;
     transform: translate(-4px, -2px);
@@ -856,7 +812,7 @@
   .dash-anemia-band {
     width: 1%;
     white-space: nowrap;
-    /* 10% de separación respecto a la barra (antes 5%) */
+    /* 10% de separaciÃ³n respecto a la barra (antes 5%) */
     padding-right: 10%;
   }
   .dash-anemia-bname {
@@ -871,7 +827,7 @@
     padding: 0 8px 0 10px;
     position: relative;
   }
-  /* Pista de fondo horizontal con separación armónica */
+  /* Pista de fondo horizontal con separaciÃ³n armÃ³nica */
   .dash-anemia-trow td:nth-child(3)::before {
     content: "";
     display: block;
@@ -901,9 +857,9 @@
 }
 
 /* ===========================================================================
-   ESTADO NUTRICIONAL Y ANEMIA — Métricas grandes (variante aceptada, density 0.6)
+   ESTADO NUTRICIONAL Y ANEMIA â€” MÃ©tricas grandes (variante aceptada, density 0.6)
    Carbonize del accept en /dashboard #widgetAnemiaStatus (variante 3).
-   Reglas bakeadas con density = 0.6; selectores retargetados a clases semánticas.
+   Reglas bakeadas con density = 0.6; selectores retargetados a clases semÃ¡nticas.
    =========================================================================== */
 .dash-anemia-table-card .card-title span {
   font-size: 16.5px;
@@ -1034,7 +990,7 @@
   color: var(--text-muted);
 }
 
-/* Tintes semánticos por nivel de hemoglobina */
+/* Tintes semÃ¡nticos por nivel de hemoglobina */
 
 .dash-status-dot {
   width: 8px;
@@ -1205,8 +1161,7 @@
 .dash-territory-bar {
   height: 100%;
   border-radius: var(--radius-full);
-  transition: width 0.85s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: width;
+  transition: width var(--dur-bar) var(--ease-spring);
 }
 
 .dash-territory-bar.green {
@@ -1258,12 +1213,12 @@
 }
 
 /* ===========================================================================
-   COBERTURA TERRITORIAL — Porcentaje protagonista
+   COBERTURA TERRITORIAL â€” Porcentaje protagonista
    El reparto entre distritos se lee por peso relativo: el porcentaje manda y el
    conteo de usuarios queda fuera de la vista (variante aceptada "solo
-   porcentaje"). El marcado lo emite DashboardView (dash-territory-*), así que
-   aquí solo se reestiliza lo que el JS ya genera: al re-renderizar la tarjeta
-   sigue viéndose igual.
+   porcentaje"). El marcado lo emite DashboardView (dash-territory-*), asÃ­ que
+   aquÃ­ solo se reestiliza lo que el JS ya genera: al re-renderizar la tarjeta
+   sigue viÃ©ndose igual.
    =========================================================================== */
 .dash-territory-row {
   background: none;
@@ -1288,12 +1243,12 @@
   gap: 9px;
 }
 
-/* Para volver a mostrar el conteo por distrito, quitar esta línea. */
+/* Para volver a mostrar el conteo por distrito, quitar esta lÃ­nea. */
 .dash-territory-metric strong {
   display: none;
 }
 
-/* En móvil el texto de sedes puede ser largo y empujar el porcentaje hacia
+/* En mÃ³vil el texto de sedes puede ser largo y empujar el porcentaje hacia
    abajo; flex-shrink:0 lo mantiene siempre alineado a la derecha. */
 .dash-territory-metric {
   flex-shrink: 0;
@@ -1325,7 +1280,7 @@
   align-self: start;
 }
 
-/* El enlace de acción comparte el acento territorial */
+/* El enlace de acciÃ³n comparte el acento territorial */
 #widgetCoverageStatus .dash-card-action {
   color: var(--brand-primary);
 }
@@ -1336,13 +1291,13 @@
   justify-content: flex-start;
   flex: 0 0 auto;
   gap: 0;
-  /* Alineación óptica con la card hermana: el anemia row añade 10px de padding
-     superior antes de su primera línea de texto. Margen reducido a 8px para
+  /* AlineaciÃ³n Ã³ptica con la card hermana: el anemia row aÃ±ade 10px de padding
+     superior antes de su primera lÃ­nea de texto. Margen reducido a 8px para
      acercar las filas territoriales a las pills en desktop. */
   margin-top: 8px;
 }
 
-/* Cobertura Territorial — variante Hierarchy con ritmo espacial impecable */
+/* Cobertura Territorial â€” variante Hierarchy con ritmo espacial impecable */
 .dash-territory-list--hierarchy {
   gap: 12px;
   padding: 0;
@@ -1393,7 +1348,7 @@
 }
 
 @media (max-width: 640px) {
-  /* En móviles: Grid de 2x2 compacto para no desplazar el contenido hacia abajo */
+  /* En mÃ³viles: Grid de 2x2 compacto para no desplazar el contenido hacia abajo */
   .plq-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
@@ -1408,7 +1363,7 @@
     padding-top: 8px;
   }
 
-  /* Mantener semáforo clínico en 3 columnas compactas tipo indicador médico */
+  /* Mantener semÃ¡foro clÃ­nico en 3 columnas compactas tipo indicador mÃ©dico */
 
   /* Tarjetas operativas y lista de Usuarios Prioritarios (Compact Mobile Layout) */
   .dash-priority-list {
@@ -1488,7 +1443,7 @@
     margin-left: 4px !important;
   }
   .btn-micro-action span {
-    display: none !important; /* Oculta texto "Expediente" en móvil y deja el chevron táctil nítido */
+    display: none !important; /* Oculta texto "Expediente" en mÃ³vil y deja el chevron tÃ¡ctil nÃ­tido */
   }
   .btn-micro-action svg {
     width: 16px !important;
@@ -1619,7 +1574,7 @@
   padding: 2px 7px;
 }
 
-/* El código ya vive en el enlace al expediente: retirarlo quita ruido sin quitar datos
+/* El cÃ³digo ya vive en el enlace al expediente: retirarlo quita ruido sin quitar datos
    accesibles, porque el title del enlace nombra al usuario. */
 .dash-priority-code {
   display: none;
@@ -1662,9 +1617,9 @@
   outline-offset: 2px;
 }
 
-/* Casos Prioritarios — bandas por severidad (aceptada en live dcea1c5b, densidad 1.4).
-   Cada caso es una banda propia: los críticos crecen y toman el rojo de alerta, los
-   de seguimiento se apagan en ámbar. Sin `:has()` las bandas quedan neutras. */
+/* Casos Prioritarios â€” bandas por severidad (aceptada en live dcea1c5b, densidad 1.4).
+   Cada caso es una banda propia: los crÃ­ticos crecen y toman el rojo de alerta, los
+   de seguimiento se apagan en Ã¡mbar. Sin `:has()` las bandas quedan neutras. */
 #widgetPriorityCases .dash-priority-list {
   display: flex;
   flex-direction: column;
@@ -1746,7 +1701,7 @@
   background: var(--gt-yellow-bg);
 }
 
-/* Lista de Bitácora / Timeline */
+/* Lista de BitÃ¡cora / Timeline */
 .dash-timeline-list {
   display: flex;
   flex-direction: column;
@@ -1830,7 +1785,7 @@
 }
 
 /* ---------------------------------------------------------------------------
-   ACTIVIDAD RECIENTE — Hilo de cuidado
+   ACTIVIDAD RECIENTE â€” Hilo de cuidado
    La entrada sigue sin caja anidada (texto sobre el registro), pero la union
    vuelve a ser un hilo: el espinazo de 1px que liga una entrada con la
    siguiente pasa por el punto de estado. No hay rejas entre entradas: el hilo
@@ -1969,9 +1924,9 @@
 }
 
 /* ===========================================================================
-   ESTADO NUTRICIONAL Y ANEMIA — Filas vivas (variante aceptada en /dashboard)
-   Limpieza del accept live (sesión d86349be): cada banda es una fila con nota
-   clínica, sin acciones (link "Ver plan" eliminado). Parámetros bakeados:
+   ESTADO NUTRICIONAL Y ANEMIA â€” Filas vivas (variante aceptada en /dashboard)
+   Limpieza del accept live (sesiÃ³n d86349be): cada banda es una fila con nota
+   clÃ­nica, sin acciones (link "Ver plan" eliminado). ParÃ¡metros bakeados:
    density = compact, actions = false. Filas planas con divisor inferior.
    =========================================================================== */
 .dash-anemia-rows {
@@ -1980,11 +1935,11 @@
   flex: 0 0 auto;
   gap: 0;
   margin-top: 8px;
-  /* Coincide con la card hermana (list margin-top) para simetría vertical. */
+  /* Coincide con la card hermana (list margin-top) para simetrÃ­a vertical. */
 }
 
 /* Filas planas: sin borde/fondo propio (evita nested cards dentro del .card
-   contenedor). Separación por divisor inferior, mismo patrón que la lista
+   contenedor). SeparaciÃ³n por divisor inferior, mismo patrÃ³n que la lista
    de territorio hermana. */
 .dash-anemia-row {
   display: flex;
@@ -1995,7 +1950,7 @@
   border-bottom: 1px solid var(--border-subtle);
   border-radius: 8px;
   background: transparent;
-  transition: background-color 200ms var(--ease-out);
+  transition: background-color var(--dur-norm) var(--ease-out);
 }
 
 .dash-anemia-row:last-child {
@@ -2088,9 +2043,9 @@
 }
 
 /* ===========================================================================
-   COBERTURA TERRITORIAL — Share primero (variante aceptada en /dashboard)
-   Limpieza del accept live (sesión d66afce6): el porcentaje y el conteo
-   lideran; nombre y sedes van debajo. Parámetros bakeados: size = 1 (30px),
+   COBERTURA TERRITORIAL â€” Share primero (variante aceptada en /dashboard)
+   Limpieza del accept live (sesiÃ³n d66afce6): el porcentaje y el conteo
+   lideran; nombre y sedes van debajo. ParÃ¡metros bakeados: size = 1 (30px),
    tint = false (sin fondos por distrito).
    =========================================================================== */
 .dash-territory-list--hierarchy .dash-territory-row--share {
@@ -2114,11 +2069,11 @@
   line-height: 1;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
-  /* Reservar el ancho del slot del porcentaje. El HTML estatico pinta "—" (muy
+  /* Reservar el ancho del slot del porcentaje. El HTML estatico pinta "â€”" (muy
      estrecho, ~23px) y al llegar los datos la columna "auto" del grid crecia a
      ~62px, empujando el nombre del distrito ~40px a la derecha de golpe. Con un
      ancho minimo en em (escala con el font-size de 30px) el slot ya nace con el
-     tamano final y la columna no cambia entre "—" y "53%". */
+     tamano final y la columna no cambia entre "â€”" y "53%". */
   min-width: 2.1em;
 }
 
@@ -2274,7 +2229,7 @@
   margin-bottom: 20px;
 }
 
-/* En ventanas medianas (portátil pequeño, ventana partida) cuatro placas de
+/* En ventanas medianas (portÃ¡til pequeÃ±o, ventana partida) cuatro placas de
    230px no caben y la cuarta cae sola a una segunda fila, dejando un hueco.
    A dos columnas la tira queda 2x2, que es la composicion prevista. */
 @media (max-width: 1024px) {
@@ -2293,10 +2248,10 @@
   border: 1px solid var(--border-subtle);
   border-radius: 16px;
   box-shadow: var(--shadow-ambient);
-  transition: border-color 200ms var(--ease-smooth);
+  transition: border-color var(--dur-norm) var(--ease-smooth);
 }
 
-/* El hover es una señal de ratón: en táctil se queda pegado tras el toque. */
+/* El hover es una seÃ±al de ratÃ³n: en tÃ¡ctil se queda pegado tras el toque. */
 @media (hover: hover) {
   .dash-kpi-plate:hover {
     border-color: var(--border-bright);
@@ -2323,9 +2278,9 @@
   color: var(--text-main);
 }
 
-/* La cifra y su unidad no comparten peso: la barra de fracción y el signo de
-   porcentaje quedan en 300 al 60 %, así "13/13" se lee como una cifra con
-   acompañamiento y no como una cadena de texto. */
+/* La cifra y su unidad no comparten peso: la barra de fracciÃ³n y el signo de
+   porcentaje quedan en 300 al 60 %, asÃ­ "13/13" se lee como una cifra con
+   acompaÃ±amiento y no como una cadena de texto. */
 .dash-kpi-value .odometer-glyph {
   font-weight: var(--peso-cifra-aux);
   opacity: 0.6;
@@ -2351,8 +2306,8 @@
   color: var(--text-danger);
 }
 
-/* En Android el 2x2 se lee como una sola retícula. El rótulo reserva dos
-   líneas para que las cuatro cifras caigan en la misma línea base, y el
+/* En Android el 2x2 se lee como una sola retÃ­cula. El rÃ³tulo reserva dos
+   lÃ­neas para que las cuatro cifras caigan en la misma lÃ­nea base, y el
    contexto se ancla al pie: las placas dejan de parecer cuatro cajas sueltas.
    El relleno baja de 20 a 14 px para que "13/13" respire a 360 dp. */
 @media (max-width: 640px) {
@@ -2378,8 +2333,8 @@
     margin-bottom: 8px;
   }
 
-  /* La barra de fracción y el signo de porcentaje acompañan a la cifra:
-     se atenúan sin cambiar de tamaño para no romper la línea base. */
+  /* La barra de fracciÃ³n y el signo de porcentaje acompaÃ±an a la cifra:
+     se atenÃºan sin cambiar de tamaÃ±o para no romper la lÃ­nea base. */
   .dash-kpi-value .odometer-glyph {
     opacity: 0.55;
   }
@@ -2394,7 +2349,7 @@
 }
 
 /* 320 dp: "13/13" a 40 px no cabe entre los rellenos. Se usa la variante
-   compacta declarada del sistema (Metric Compact, 30/385), no un tamaño suelto. */
+   compacta declarada del sistema (Metric Compact, 30/385), no un tamaÃ±o suelto. */
 @media (max-width: 340px) {
   .dash-kpi-value {
     font-size: 30px;
@@ -2518,7 +2473,7 @@
   height: 100%;
   border-radius: 2px;
   background: var(--gt-green);
-  transition: width 600ms var(--ease-spring);
+  transition: width var(--dur-bar) var(--ease-spring);
 }
 
 .dash-anemia-line[data-band="leve"] .dash-anemia-line-fill {
@@ -2698,3 +2653,6 @@
   font-variant-numeric: tabular-nums;
   color: var(--text-dim);
 }
+
+
+

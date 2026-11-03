@@ -1,4 +1,4 @@
-/* ===========================================================================
+﻿/* ===========================================================================
    VISTAS - PADRON
    ===========================================================================
    Porcion de views.css que necesita esta pagina y solo esta. Views.css eran
@@ -85,7 +85,7 @@
         gap: 14px;
       }
 
-      /* Filtrado activo de columna según la pestaña seleccionada en móvil */
+      /* Filtrado activo de columna segÃºn la pestaÃ±a seleccionada en mÃ³vil */
       .kanban-board[data-mobile-active-stage="pendiente"] .kanban-col:not([data-col-stage="pendiente"]),
       .kanban-board[data-mobile-active-stage="evaluacion"] .kanban-col:not([data-col-stage="evaluacion"]),
       .kanban-board[data-mobile-active-stage="canalizado"] .kanban-col:not([data-col-stage="canalizado"]),
@@ -128,15 +128,9 @@
         height: 16px !important;
       }
 
-
       }
 
     /* Canvas Signature */
-
-    @keyframes slideUp {
-      from { transform: translateY(30px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
 
     /* La barra y el buscador son compartidos: views-comun.css. */
 
@@ -244,7 +238,7 @@
       }
     }
 
-    /* Barra de Paginación y Densidad */
+    /* Barra de PaginaciÃ³n y Densidad */
     .audit-pagination-bar,
     .padron-pagination-bar {
       display: flex;
@@ -364,37 +358,12 @@
 
     /* Modal Detalle Forense / Diff */
 
-    @keyframes pulseHighlight {
-      0% { outline-color: var(--border-medium, var(--rule-mid)); }
-      100% { outline-color: var(--gt-blue); }
-    }
-
     /* Responsive */
 
     @media (max-width: 900px) {
 
-      /* Animación de entrada viva y escalonada (Staggered Reveal) en móviles */
-      @keyframes mobileNavSlideIn {
-        0% {
-          opacity: 0;
-          transform: translate3d(-14px, 0, 0);
-        }
-        100% {
-          opacity: 1;
-          transform: translate3d(0, 0, 0);
-        }
-      }
+      /* AnimaciÃ³n de entrada viva y escalonada (Staggered Reveal) en mÃ³viles */
 
-      @keyframes mobileNavSlideInRestricted {
-        0% {
-          opacity: 0;
-          transform: translate3d(-14px, 0, 0);
-        }
-        100% {
-          opacity: 0.35;
-          transform: translate3d(0, 0, 0);
-        }
-      }
     }
 
     .cred-calc-accordion.open {
@@ -449,7 +418,7 @@
        antes dimensionaba la caja del modal (82vh, 1080px) no hace falta:
        el marco de la pagina vive en css/expediente.css. === */
 
-    /* Rediseño Sección 5: Ley N.° 29733 (PC & Móvil) */
+    /* RediseÃ±o SecciÃ³n 5: Ley N.Â° 29733 (PC & MÃ³vil) */
 
     .ley-consent-card {
       background: var(--surface-1);
@@ -478,24 +447,24 @@
       align-self: flex-start;
     }
 
-    /* === OPTIMIZACIÓN RESPONSIVA PARA DISPOSITIVOS MÓVILES (ANDROID / TABLETS <= 768px) === */
+    /* === OPTIMIZACIÃ“N RESPONSIVA PARA DISPOSITIVOS MÃ“VILES (ANDROID / TABLETS <= 768px) === */
     @media (max-width: 768px) {
 
-      /* Barra de Pestañas Deslizable Horizontal (Pill Tabs) */
+      /* Barra de PestaÃ±as Deslizable Horizontal (Pill Tabs) */
 
       /* Carnet de Identidad en formato Horizontal Compacto */
 
-      /* Formularios en 1 Sola Columna para Móviles (Expediente y Nuevo Usuario) */
+      /* Formularios en 1 Sola Columna para MÃ³viles (Expediente y Nuevo Usuario) */
 
-      /* Padrón de Personas Autorizadas */
+      /* PadrÃ³n de Personas Autorizadas */
     }
 
-/* === OPTIMIZACIÓN MÓVIL TOTAL EXPEDIENTE (ALTA PRIORIDAD PARA ANDROID <= 768px) === */
+/* === OPTIMIZACIÃ“N MÃ“VIL TOTAL EXPEDIENTE (ALTA PRIORIDAD PARA ANDROID <= 768px) === */
 
 /* Photo Uploader Component */
 
 /* ==========================================================================
-   PADRÓN BENEFICIARIOS: Búsqueda Facetada, Píldoras de Chips y Slider de Edad
+   PADRÃ“N BENEFICIARIOS: BÃºsqueda Facetada, PÃ­ldoras de Chips y Slider de Edad
    ========================================================================== */
 
 .facet-edad-header {
@@ -646,7 +615,7 @@
   cursor: pointer;
   pointer-events: auto;
   box-shadow: var(--shadow-sm);
-  transition: transform 0.1s ease;
+  transition: transform var(--dur-press) ease;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -745,66 +714,15 @@
   margin-left: 6px;
 }
 
-/* === CROQUIS Y GEORREFERENCIACIÓN DE VIVIENDA (GOOGLE MAPS & FACHADA) === */
+/* === CROQUIS Y GEORREFERENCIACIÃ“N DE VIVIENDA (GOOGLE MAPS & FACHADA) === */
 
 /* Estilo Linear / Raycast: Cross-Fade de Opacidad Pura (200ms) - Cero Lag y 120 FPS */
-
-@keyframes fadeOutTheme {
-  from { opacity: 1; }
-  to { opacity: 0; }
-}
-
-@keyframes fadeInTheme {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
 
 /* Congelar transiciones del DOM durante el Cross-Fade para garantizar 120 FPS nativos */
 
 /* Estado 3: Modo Auto (Sensor Inteligente) */
 
-@keyframes pulseFocoHalo {
-  0%, 100% { transform: scale(1); opacity: 0.7; }
-  50% { transform: scale(1.1); opacity: 1; }
-}
-
-@keyframes pulseFocoRays {
-  0% { opacity: 0.6; stroke-width: 2.2; }
-  100% { opacity: 1; stroke-width: 3.2; }
-}
-
-@keyframes antennaPulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
-}
-
-@keyframes sunRotatePulse {
-  0% { transform: rotate(0deg) scale(1); }
-  50% { transform: rotate(45deg) scale(1.25); }
-  100% { transform: rotate(45deg) scale(1.15); }
-}
-
-@keyframes moonSwayGlow {
-  0% { transform: rotate(0deg) scale(1); }
-  35% { transform: rotate(-18deg) scale(1.25); }
-  70% { transform: rotate(12deg) scale(1.18); }
-  100% { transform: rotate(0deg) scale(1.15); }
-}
-
-/* 3. Sensor / Monitor SO: Latido rítmico de sincronización inteligente */
-
-@keyframes monitorHeartbeat {
-  0% { transform: scale(1); }
-  30% { transform: scale(1.28); }
-  50% { transform: scale(0.95); }
-  70% { transform: scale(1.18); }
-  100% { transform: scale(1.15); }
-}
-
-@keyframes checkSettlePop {
-  0% { transform: scale(0) rotate(-45deg); opacity: 0; }
-  100% { transform: scale(1) rotate(0deg); opacity: 1; }
-}
+/* 3. Sensor / Monitor SO: Latido rÃ­tmico de sincronizaciÃ³n inteligente */
 
 /* Adaptabilidad para Cajas de Carga de Foto y Secciones de Retiro en Modo Oscuro */
 
@@ -841,8 +759,8 @@
   box-shadow: var(--shadow-sm);
 }
 
-/* El hover solo existe con puntero fino: en táctil el navegador deja el
-   :hover pegado tras el toque y el botón parecía seguir pulsado. */
+/* El hover solo existe con puntero fino: en tÃ¡ctil el navegador deja el
+   :hover pegado tras el toque y el botÃ³n parecÃ­a seguir pulsado. */
 @media (hover: hover) and (pointer: fine) {
   .view-actions .btn-action:not(.primary):hover {
     background: var(--surface-hover);
@@ -868,7 +786,7 @@
   }
 }
 
-/* --- TABLA PRINCIPAL DEL PADRÓN: ESTABILIDAD Y ZERO LAYOUT SHIFT --- */
+/* --- TABLA PRINCIPAL DEL PADRÃ“N: ESTABILIDAD Y ZERO LAYOUT SHIFT --- */
 #cardPadronBeneficiarios .table-container {
   overflow-x: auto;
 }
@@ -881,15 +799,15 @@
   border-spacing: 0;
 }
 
-/* La tabla hereda de `.data-table` el padding, el borde y el hover. La única
-   excepción local es permitir que los encabezados largos partan en dos líneas
+/* La tabla hereda de `.data-table` el padding, el borde y el hover. La Ãºnica
+   excepciÃ³n local es permitir que los encabezados largos partan en dos lÃ­neas
    dentro de las siete columnas. */
 #tablaBeneficiarios thead th {
   white-space: normal;
 }
 
 /* Anchos para las 7 columnas actuales. La suma da 100 %; Estado y Acciones
-   conservan holgura para «Inactivo» y para el botón de la fila. */
+   conservan holgura para Â«InactivoÂ» y para el botÃ³n de la fila. */
 #tablaBeneficiarios thead th:nth-child(1) { width: 22%; text-align: left; }
 #tablaBeneficiarios thead th:nth-child(2) { width: 15%; text-align: left; }
 #tablaBeneficiarios thead th:nth-child(3) { width: 17%; text-align: left; }
@@ -904,8 +822,8 @@
   white-space: nowrap;
 }
 
-/* Selector de orden propio: mismo lenguaje que el botón de filtros, pero
-   como control secundario (sin el verde de acción). */
+/* Selector de orden propio: mismo lenguaje que el botÃ³n de filtros, pero
+   como control secundario (sin el verde de acciÃ³n). */
 .padron-sort-wrap {
   display: flex;
   align-items: center;
@@ -930,8 +848,7 @@
   font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
-  transition:
-    background-color var(--dur-fast) var(--ease-smooth),
+  transition: background-color var(--dur-fast) var(--ease-smooth),
     border-color var(--dur-fast) var(--ease-smooth);
 }
 
@@ -947,7 +864,7 @@
   box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--brand-primary);
 }
 
-/* El foco programático con puntero (cerrar el menú) no pinta anillo. */
+/* El foco programÃ¡tico con puntero (cerrar el menÃº) no pinta anillo. */
 .padron-sort-btn:focus:not(:focus-visible) {
   outline: none;
   box-shadow: none;
@@ -980,21 +897,18 @@
   flex-direction: column;
   opacity: 0;
   transform: translateY(-6px);
-  will-change: auto;
-  transition:
-    opacity var(--dur-fast) var(--ease-out),
+  transition: opacity var(--dur-fast) var(--ease-out),
     transform var(--dur-fast) var(--ease-out),
     display var(--dur-fast) allow-discrete;
 }
 
 /* Misma entrada que el panel de filtros: aparece bajando 6 px desde el
-   disparador, con la curva y la duración del sistema. */
+   disparador, con la curva y la duraciÃ³n del sistema. */
 .padron-sort-wrap .padron-sort-dropdown.open .padron-sort-menu {
   display: flex;
   opacity: 1;
   transform: translateY(0);
-  transition:
-    opacity var(--dur-norm) var(--ease-out),
+  transition: opacity var(--dur-norm) var(--ease-out),
     transform var(--dur-norm) var(--ease-out),
     display var(--dur-norm) allow-discrete;
 
@@ -1072,25 +986,16 @@
   }
 }
 
-/* Animación de entrada suave sin translateY para filas de tabla */
+/* AnimaciÃ³n de entrada suave sin translateY para filas de tabla */
 #tablaBeneficiarios tbody tr.ixd-entrada {
   animation: ixdEntradaRow var(--dur-norm) var(--ease-out) backwards;
   transform: none !important;
 }
 
-@keyframes ixdEntradaRow {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 /* ===========================================================================
-   ESTÁNDAR DE BOTONES DE ACCIÓN EN CABECERA MÓVIL (IMPECCABLE / OPERATE NORM)
-   Garantiza simetría exacta, distribución lateral de extremo a extremo y
-   touch targets ergonómicos (40px/38px) idénticos a /voluntariados.
+   ESTÃNDAR DE BOTONES DE ACCIÃ“N EN CABECERA MÃ“VIL (IMPECCABLE / OPERATE NORM)
+   Garantiza simetrÃ­a exacta, distribuciÃ³n lateral de extremo a extremo y
+   touch targets ergonÃ³micos (40px/38px) idÃ©nticos a /voluntariados.
    =========================================================================== */
 @media (max-width: 768px) {
   #view-beneficiarios .view-header,
@@ -1188,8 +1093,8 @@
 }
 
 /* ===========================================================================
-   TABLA DEL PADRÓN · formato de usuario en dos líneas (estilo Voluntariados)
-   Avatar con iniciales + nombre + código en verde; sede/distrito, estrategia,
+   TABLA DEL PADRÃ“N Â· formato de usuario en dos lÃ­neas (estilo Voluntariados)
+   Avatar con iniciales + nombre + cÃ³digo en verde; sede/distrito, estrategia,
    contacto, tamizajes/apoderado y estado con el mismo lenguaje visual.
    =========================================================================== */
 #tablaBeneficiarios .padron-user-cell {
@@ -1456,3 +1361,4 @@
 #tablaBeneficiarios .dot-gray { background-color: var(--text-dim); opacity: 0.6; }
 
 /* Filas uniformes como el resto de tablas; el hover lo aporta `.data-table`. */
+

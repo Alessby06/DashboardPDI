@@ -109,7 +109,6 @@ export const Navigation = {
     const sidebar = document.getElementById("appSidebar");
     if (!sidebar || this._usaCajon()) return;
 
-    const reducir = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
     const antes = sidebar.getBoundingClientRect();
 
     sidebar.classList.toggle("closed-pc", !abriendo);
@@ -126,7 +125,7 @@ export const Navigation = {
     const despues = sidebar.getBoundingClientRect();
     const delta = antes.left - despues.left;
 
-    if (reducir || Math.abs(delta) < 1) {
+    if (Math.abs(delta) < 1) {
       sidebar.style.removeProperty("transition");
       sidebar.style.removeProperty("transform");
       sidebar.style.removeProperty("will-change");

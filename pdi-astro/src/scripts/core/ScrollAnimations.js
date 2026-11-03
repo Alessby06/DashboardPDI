@@ -12,7 +12,6 @@ let iniciado = false;
  */
 export function initScrollAnimations() {
   if (iniciado) return;
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   const viewport = document.querySelector('.content-viewport');
   const scroller = viewport || window;

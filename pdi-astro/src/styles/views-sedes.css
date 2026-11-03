@@ -19,11 +19,6 @@
 
     /* Canvas Signature */
 
-    @keyframes slideUp {
-      from { transform: translateY(30px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
     /* La barra y el buscador son compartidos: views-comun.css. */
 
     /* La barra de chips de sedes cierra la tarjeta con una linea superior; el
@@ -133,37 +128,12 @@
 
     /* Modal Detalle Forense / Diff */
 
-    @keyframes pulseHighlight {
-      0% { outline-color: var(--border-medium, var(--rule-mid)); }
-      100% { outline-color: var(--gt-blue); }
-    }
-
     /* Responsive */
 
     @media (max-width: 900px) {
 
       /* Animación de entrada viva y escalonada (Staggered Reveal) en móviles */
-      @keyframes mobileNavSlideIn {
-        0% {
-          opacity: 0;
-          transform: translate3d(-14px, 0, 0);
-        }
-        100% {
-          opacity: 1;
-          transform: translate3d(0, 0, 0);
-        }
-      }
 
-      @keyframes mobileNavSlideInRestricted {
-        0% {
-          opacity: 0;
-          transform: translate3d(-14px, 0, 0);
-        }
-        100% {
-          opacity: 0.35;
-          transform: translate3d(0, 0, 0);
-        }
-      }
     }
 
     .cred-calc-accordion.open {
@@ -669,8 +639,7 @@
     visibility: hidden;
     /* Misma receta y mismo ritmo que las fichas y los filtros: sube sin
        inclinarse y el velo se apaga con ella. */
-    transition:
-      transform var(--sheet-out) var(--sheet-exit-ease),
+    transition: transform var(--sheet-out) var(--sheet-exit-ease),
       visibility 0s linear var(--sheet-out);
     will-change: transform;
     z-index: 1200 !important;
@@ -680,16 +649,8 @@
   .sedes-detail-column.open {
     transform: var(--sheet-open);
     visibility: visible;
-    transition:
-      transform var(--sheet-in) var(--sheet-lift-ease),
+    transition: transform var(--sheet-in) var(--sheet-lift-ease),
       visibility 0s;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .sedes-detail-column,
-    .sedes-detail-column.open {
-      transition: none;
-    }
   }
 
   /* Cabecera movil: el asa es la zona de agarre de toda la hoja. Se comporta
@@ -742,8 +703,7 @@
     color: var(--text-dim);
     cursor: pointer;
     z-index: 2;
-    transition:
-      background-color var(--dur-fast) var(--ease-smooth),
+    transition: background-color var(--dur-fast) var(--ease-smooth),
       color var(--dur-fast) var(--ease-smooth);
   }
 
@@ -888,7 +848,7 @@
     opacity: var(--sedes-velo, 1) !important;
     pointer-events: auto !important;
     /* Entra antes que la hoja, como el resto de velos. */
-    transition: opacity 180ms var(--ease-out) !important;
+    transition: opacity var(--dur-popover) var(--ease-out) !important;
   }
 
   /* Durante el arrastre el velo sigue la mano, sin su easing. */
@@ -1029,7 +989,7 @@
 .sede-aforo-fill {
   height: 100%;
   border-radius: 3px;
-  transition: width 0.4s ease;
+  transition: width var(--dur-theme) ease;
 }
 
 .sede-tel-link {
@@ -1063,62 +1023,11 @@
 
 /* Estilo Linear / Raycast: Cross-Fade de Opacidad Pura (200ms) - Cero Lag y 120 FPS */
 
-@keyframes fadeOutTheme {
-  from { opacity: 1; }
-  to { opacity: 0; }
-}
-
-@keyframes fadeInTheme {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
 /* Congelar transiciones del DOM durante el Cross-Fade para garantizar 120 FPS nativos */
 
 /* Estado 3: Modo Auto (Sensor Inteligente) */
 
-@keyframes pulseFocoHalo {
-  0%, 100% { transform: scale(1); opacity: 0.7; }
-  50% { transform: scale(1.1); opacity: 1; }
-}
-
-@keyframes pulseFocoRays {
-  0% { opacity: 0.6; stroke-width: 2.2; }
-  100% { opacity: 1; stroke-width: 3.2; }
-}
-
-@keyframes antennaPulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
-}
-
-@keyframes sunRotatePulse {
-  0% { transform: rotate(0deg) scale(1); }
-  50% { transform: rotate(45deg) scale(1.25); }
-  100% { transform: rotate(45deg) scale(1.15); }
-}
-
-@keyframes moonSwayGlow {
-  0% { transform: rotate(0deg) scale(1); }
-  35% { transform: rotate(-18deg) scale(1.25); }
-  70% { transform: rotate(12deg) scale(1.18); }
-  100% { transform: rotate(0deg) scale(1.15); }
-}
-
 /* 3. Sensor / Monitor SO: Latido rítmico de sincronización inteligente */
-
-@keyframes monitorHeartbeat {
-  0% { transform: scale(1); }
-  30% { transform: scale(1.28); }
-  50% { transform: scale(0.95); }
-  70% { transform: scale(1.18); }
-  100% { transform: scale(1.15); }
-}
-
-@keyframes checkSettlePop {
-  0% { transform: scale(0) rotate(-45deg); opacity: 0; }
-  100% { transform: scale(1) rotate(0deg); opacity: 1; }
-}
 
 /* Adaptabilidad para Cajas de Carga de Foto y Secciones de Retiro en Modo Oscuro */
 

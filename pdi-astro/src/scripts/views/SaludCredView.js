@@ -1303,10 +1303,8 @@ export const SaludCredView = {
       this.resetFilters();
     }
     const tabla = document.getElementById("cardSaludEvaluaciones");
-    const reducido = typeof window.matchMedia === "function"
-      && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (tabla) {
-      tabla.scrollIntoView({ behavior: reducido ? "auto" : "smooth", block: "start" });
+      tabla.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }
 };

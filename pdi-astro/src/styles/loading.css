@@ -32,7 +32,7 @@
 
 .pdi-view-content {
   flex: 1;
-  transition: opacity 200ms var(--ease-out);
+  transition: opacity var(--dur-norm) var(--ease-out);
 }
 
 html:not([data-pdi-ready="1"]) .pdi-view-content {
@@ -64,7 +64,7 @@ html[data-pdi-ready="1"] .pdi-view-content {
   gap: 24px;
   overflow: hidden;
   background: var(--bg-base);
-  transition: opacity 220ms var(--ease-out);
+  transition: opacity var(--dur-norm) var(--ease-out);
 }
 
 .pdi-view-shell.is-ready .pdi-skeleton {
@@ -718,14 +718,3 @@ html:not([data-pdi-ready="1"]) .nav-badge {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .pdi-sk-block {
-    animation: none;
-    background-image: none;
-  }
-
-  .pdi-skeleton,
-  .pdi-view-content {
-    transition-duration: 0.01ms;
-  }
-}

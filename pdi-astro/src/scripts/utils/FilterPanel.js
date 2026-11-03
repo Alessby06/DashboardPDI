@@ -467,9 +467,6 @@ function prepararApertura(panel) {
 function enlazarArrastreHoja(panel) {
   if (panel.dataset.filArrastre) return;
   panel.dataset.filArrastre = '1';
-  // Con movimiento reducido el arrastre no se engancha: la hoja no se mueve y
-  // la X y Escape siguen siendo el cierre. Un gesto sin seguimiento confunde.
-  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
 
   const menu = panel.querySelector('.audit-filters-menu');
   const header = menu?.querySelector('.audit-filters-header');

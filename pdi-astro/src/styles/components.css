@@ -1,4 +1,4 @@
-/* Cards & Glass Containers */
+﻿/* Cards & Glass Containers */
     .card {
       background: var(--surface-1);
       /* Sin backdrop-filter: iba sobre --surface-1, que es opaco (#ffffff en
@@ -104,7 +104,6 @@
       gap: 14px;
       transition: transform var(--dur-fast) var(--ease-spring), border-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth);
       box-shadow: var(--shadow-ambient);
-      will-change: transform;
     }
 
     @media (hover: hover) and (pointer: fine) {
@@ -155,8 +154,8 @@
       stroke: currentColor;
     }
 
-    /* Tables — estándar único para TODAS las tablas de escritorio (padrón,
-       salud, educativo, auditoría y voluntariados). Misma cabecera, misma
+    /* Tables â€” estÃ¡ndar Ãºnico para TODAS las tablas de escritorio (padrÃ³n,
+       salud, educativo, auditorÃ­a y voluntariados). Misma cabecera, misma
        densidad de fila y mismo ritmo, para que se lean como hermanas.
        Las acciones de fila viven en .row-action (views-comun.css). */
     .table-container {
@@ -205,7 +204,7 @@
     }
 
     .data-table tbody tr {
-      transition: background 0.15s ease;
+      transition: background var(--dur-fast) ease;
     }
 
     @media (hover: hover) and (pointer: fine) {
@@ -214,7 +213,7 @@
       }
     }
 
-    /* Mobile Cards Accordion (Modo Móvil/Celulares) */
+    /* Mobile Cards Accordion (Modo MÃ³vil/Celulares) */
     .mobile-accordion-list {
       display: none;
       flex-direction: column;
@@ -228,7 +227,7 @@
       border-radius: var(--radius-md);
       overflow: hidden;
       box-shadow: var(--shadow-sm);
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      transition: border-color var(--dur-norm) ease, box-shadow var(--dur-norm) ease;
     }
 
     .datacard-header {
@@ -303,8 +302,8 @@
       width: 100%;
     }
 
-    /* En la tarjeta móvil las estrategias se leen como el resto de valores:
-       alineadas a la derecha y con el mismo tamaño y tinta. */
+    /* En la tarjeta mÃ³vil las estrategias se leen como el resto de valores:
+       alineadas a la derecha y con el mismo tamaÃ±o y tinta. */
     .datacard-row .servicios-badge-group {
       align-items: flex-end;
       text-align: right;
@@ -335,7 +334,7 @@
       word-break: break-word;
     }
 
-    /* Bloque expandible para "Ver más" / "View more" */
+    /* Bloque expandible para "Ver mÃ¡s" / "View more" */
     .datacard-extra {
       display: none;
       flex-direction: column;
@@ -366,7 +365,7 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
-      transition: background 0.15s ease, color 0.15s ease;
+      transition: background var(--dur-fast) ease, color var(--dur-fast) ease;
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -380,7 +379,7 @@
       width: 15px;
       height: 15px;
       stroke: currentColor;
-      transition: transform 0.2s ease;
+      transition: transform var(--dur-norm) ease;
     }
 
     .mobile-card-item.expanded .datacard-toggle-btn svg {
@@ -393,7 +392,7 @@
       background: var(--surface-2);
     }
 
-    /* Detección Responsiva para Celulares / Pantallas Menores a 768px (Android / Tablets) */
+    /* DetecciÃ³n Responsiva para Celulares / Pantallas Menores a 768px (Android / Tablets) */
     @media (max-width: 768px) {
       .card {
         padding: 14px 14px !important;
@@ -536,7 +535,7 @@
     .badge-red { background: var(--gt-red-bg); color: var(--text-danger); border: 1px solid var(--gt-red-border); }
     .badge-orange { background: rgba(249, 115, 22, 0.14); color: var(--gt-orange); border: 1px solid rgba(249, 115, 22, 0.35); }
 
-    /* Botones de Asistencia Reactivos (PC y Móvil) */
+    /* Botones de Asistencia Reactivos (PC y MÃ³vil) */
     .btn-asist {
       padding: 6px 10px;
       font-size: 12px;
@@ -548,7 +547,6 @@
       cursor: pointer;
       transition: background-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-spring);
       user-select: none;
-      will-change: transform;
     }
 
     @media (hover: hover) and (pointer: fine) {
@@ -593,7 +591,6 @@
     [data-theme="dark"] .btn-asist.active-FI {
       color: #1e1b18 !important;
     }
-
 
     /* Forms & Inputs */
     .form-grid {
@@ -644,7 +641,7 @@
       color: var(--text-muted);
     }
 
-    /* Texto de apoyo bajo un campo: explica el rango válido sin competir con
+    /* Texto de apoyo bajo un campo: explica el rango vÃ¡lido sin competir con
        el valor ni con el estado de error. */
     .form-help {
       font-size: 11px;
@@ -786,7 +783,6 @@
       stroke: var(--gt-green);
       transition: transform var(--dur-norm) var(--ease-spring);
       flex-shrink: 0;
-      will-change: transform;
     }
 
     .custom-dropdown.open .custom-dropdown-btn svg {
@@ -812,39 +808,22 @@
       z-index: 100;
       opacity: 0;
       transform: translateY(-6px);
-      transition:
-        opacity var(--dur-fast) var(--ease-out),
+      transition: opacity var(--dur-fast) var(--ease-out),
         transform var(--dur-fast) var(--ease-out),
         display var(--dur-fast) allow-discrete;
-      will-change: auto;
     }
 
     .custom-dropdown.open .custom-dropdown-menu {
       display: flex;
       opacity: 1;
       transform: translateY(0);
-      transition:
-        opacity var(--dur-norm) var(--ease-out),
+      transition: opacity var(--dur-norm) var(--ease-out),
         transform var(--dur-norm) var(--ease-out),
         display var(--dur-norm) allow-discrete;
 
       @starting-style {
         opacity: 0;
         transform: translateY(-6px);
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .custom-dropdown-menu,
-      .custom-dropdown.open .custom-dropdown-menu {
-        transform: none;
-        transition: opacity 120ms linear, display 120ms allow-discrete;
-      }
-
-      .custom-dropdown.open .custom-dropdown-menu {
-        @starting-style {
-          opacity: 0;
-        }
       }
     }
 
@@ -911,7 +890,7 @@
       display: flex;
     }
 
-    /* Toast Notifications Container (Bottom-Right en PC, Bottom-Center en Móviles) */
+    /* Toast Notifications Container (Bottom-Right en PC, Bottom-Center en MÃ³viles) */
     .toast-container {
       position: fixed;
       bottom: max(20px, env(safe-area-inset-bottom));
@@ -942,16 +921,14 @@
       color: var(--text-main);
       font-size: 13px;
       pointer-events: auto;
-      will-change: transform, opacity;
       animation: toastInBottom var(--dur-norm) var(--ease-out) backwards;
-      transition:
-        opacity 180ms var(--ease-smooth),
-        transform 180ms var(--ease-smooth),
+      transition: opacity var(--dur-popover) var(--ease-smooth),
+        transform var(--dur-popover) var(--ease-smooth),
         border-color var(--dur-fast) var(--ease-smooth);
     }
 
-    /* Confirmación con acciones (descarga en Android y descarte de cambios):
-       mismo cartón que un toast, con dos botones y sin autodestrucción. */
+    /* ConfirmaciÃ³n con acciones (descarga en Android y descarte de cambios):
+       mismo cartÃ³n que un toast, con dos botones y sin autodestrucciÃ³n. */
     .toast-msg.download-toast,
     .toast-msg.toast-confirmacion {
       flex-direction: column;
@@ -989,7 +966,7 @@
         var(--shadow-overlay);
     }
 
-    /* Marca de tipo: chip con icono sobre fondo teñido y anillo interior del
+    /* Marca de tipo: chip con icono sobre fondo teÃ±ido y anillo interior del
        mismo tono. El titulo queda neutro para que el color no compita con la
        lectura; el tipo lo dice el chip. */
     .toast-icono {
@@ -1047,8 +1024,7 @@
       background: transparent;
       color: var(--text-dim);
       cursor: pointer;
-      transition:
-        background-color var(--dur-fast) var(--ease-smooth),
+      transition: background-color var(--dur-fast) var(--ease-smooth),
         color var(--dur-fast) var(--ease-smooth);
     }
 
@@ -1088,16 +1064,6 @@
       to { transform: translateY(0) scale(1); opacity: 1; }
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      .toast-msg {
-        animation: none;
-        transition: opacity 120ms linear;
-      }
-      .toast-msg.toast-saliendo {
-        transform: none;
-      }
-    }
-
     @media (max-width: 768px) {
       .toast-container {
         bottom: max(12px, env(safe-area-inset-bottom));
@@ -1110,8 +1076,8 @@
       }
     }
 
-    /* Android: el aviso de descarga ocupa el ancho útil y queda centrado
-       abajo, también en tablets donde el corte de 768 px no aplica. */
+    /* Android: el aviso de descarga ocupa el ancho Ãºtil y queda centrado
+       abajo, tambiÃ©n en tablets donde el corte de 768 px no aplica. */
     .toast-container.toast-container--android {
       left: 12px;
       right: 12px;
@@ -1153,7 +1119,7 @@
        el resto de transiciones de la interfaz. */
     .ixd-destello {
       background-color: var(--gt-green-bg) !important;
-      transition: background-color 700ms ease-out !important;
+      transition: background-color var(--dur-bar) ease-out !important;
     }
 
     /* El foco de teclado no estaba declarado en ninguna de las 30.000 lineas de
@@ -1173,7 +1139,7 @@
     }
 
     /* ===========================================================================
-       ODÓMETRO / CONTADOR DE KILOMETRAJE (SLOT ROLL METRICS)
+       ODÃ“METRO / CONTADOR DE KILOMETRAJE (SLOT ROLL METRICS)
        =========================================================================== */
     .odometer-wrap {
       display: inline-flex;
@@ -1198,7 +1164,6 @@
     .odometer-ribbon {
       display: flex;
       flex-direction: column;
-      will-change: transform;
     }
 
     .odometer-ribbon > span {

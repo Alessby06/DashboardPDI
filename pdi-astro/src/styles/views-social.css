@@ -418,7 +418,6 @@
         height: 16px !important;
       }
 
-
     }
 
     /* ---------------------------------------------------------------------
@@ -597,7 +596,7 @@
     }
 
     .kanban-card.is-drop-invalida {
-      animation: kanban-sacudida 160ms var(--ease-smooth);
+      animation: kanban-sacudida var(--dur-fast) var(--ease-smooth);
     }
 
     @keyframes kanban-sacudida {
@@ -613,12 +612,6 @@
 
       .kanban-card:not([data-bloqueada="1"]):active {
         cursor: grabbing;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .kanban-card.is-drop-invalida {
-        animation: none;
       }
     }
 
@@ -800,7 +793,7 @@
     .social-subview-panel.active {
       display: block;
       view-transition-name: social-subview-panel;
-      animation: subpanelFadeIn 240ms cubic-bezier(0.16, 1, 0.3, 1);
+      animation: subpanelFadeIn var(--dur-norm) cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     body.filter-sheet-open .social-subview-panel.active {
@@ -837,29 +830,29 @@
 
       .social-subview-panel.active {
         view-transition-name: pdi-mobile-social;
-        animation: pdiAppSectionIn 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+        animation: pdiAppSectionIn var(--dur-norm) cubic-bezier(0.16, 1, 0.3, 1) both;
       }
 
       ::view-transition-group(pdi-mobile-social) {
-        animation-duration: 260ms;
+        animation-duration: var(--dur-panel);
         animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
       }
 
       ::view-transition-old(pdi-mobile-social) {
-        animation: pdiAppSectionOut 200ms cubic-bezier(0.4, 0, 1, 1) both;
+        animation: pdiAppSectionOut var(--dur-norm) cubic-bezier(0.4, 0, 1, 1) both;
       }
 
       ::view-transition-new(pdi-mobile-social) {
-        animation: pdiAppSectionIn 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+        animation: pdiAppSectionIn var(--dur-panel) cubic-bezier(0.16, 1, 0.3, 1) both;
       }
     }
 
     ::view-transition-old(social-subview-panel) {
-      animation: 200ms cubic-bezier(0.4, 0, 1, 1) both subpanelFadeOut;
+      animation: var(--dur-norm) cubic-bezier(0.4, 0, 1, 1) both subpanelFadeOut;
     }
 
     ::view-transition-new(social-subview-panel) {
-      animation: 260ms cubic-bezier(0.16, 1, 0.3, 1) both subpanelFadeIn;
+      animation: var(--dur-panel) cubic-bezier(0.16, 1, 0.3, 1) both subpanelFadeIn;
     }
 
     /* Tarjetas y Contenedores de Autorizaciones y Solicitudes */
@@ -955,7 +948,7 @@
       flex-direction: column;
       gap: 10px;
       transition: border-color var(--dur-fast) var(--ease-smooth);
-      animation: cardStaggerIn 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation: cardStaggerIn var(--dur-norm) cubic-bezier(0.16, 1, 0.3, 1) both;
       animation-delay: calc(var(--item-index, 0) * 45ms);
     }
 
@@ -1354,11 +1347,6 @@
 
     /* Canvas Signature */
 
-    @keyframes slideUp {
-      from { transform: translateY(30px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
     /* La barra y el buscador son compartidos: views-comun.css. */
 
     @media (max-width: 768px) {
@@ -1463,37 +1451,12 @@
 
     /* Modal Detalle Forense / Diff */
 
-    @keyframes pulseHighlight {
-      0% { outline-color: var(--border-medium, var(--rule-mid)); }
-      100% { outline-color: var(--gt-blue); }
-    }
-
     /* Responsive */
 
     @media (max-width: 900px) {
 
       /* Animación de entrada viva y escalonada (Staggered Reveal) en móviles */
-      @keyframes mobileNavSlideIn {
-        0% {
-          opacity: 0;
-          transform: translate3d(-14px, 0, 0);
-        }
-        100% {
-          opacity: 1;
-          transform: translate3d(0, 0, 0);
-        }
-      }
 
-      @keyframes mobileNavSlideInRestricted {
-        0% {
-          opacity: 0;
-          transform: translate3d(-14px, 0, 0);
-        }
-        100% {
-          opacity: 0.35;
-          transform: translate3d(0, 0, 0);
-        }
-      }
     }
 
     /* === CALCULADORA CRED DESPLEGABLE / ACCORDION === */
@@ -1597,7 +1560,7 @@
       padding: 18px 20px 22px;
       border-top: 1px solid var(--border-subtle);
       background: var(--surface-2);
-      animation: fadeInDataCard 0.25s ease-out;
+      animation: fadeInDataCard var(--dur-nav) ease-out;
     }
 
     @media (max-width: 768px) {
@@ -1785,7 +1748,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  transition: border-color 0.2s;
+  transition: border-color var(--dur-norm);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -2025,62 +1988,11 @@
 
 /* Estilo Linear / Raycast: Cross-Fade de Opacidad Pura (200ms) - Cero Lag y 120 FPS */
 
-@keyframes fadeOutTheme {
-  from { opacity: 1; }
-  to { opacity: 0; }
-}
-
-@keyframes fadeInTheme {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
 /* Congelar transiciones del DOM durante el Cross-Fade para garantizar 120 FPS nativos */
 
 /* Estado 3: Modo Auto (Sensor Inteligente) */
 
-@keyframes pulseFocoHalo {
-  0%, 100% { transform: scale(1); opacity: 0.7; }
-  50% { transform: scale(1.1); opacity: 1; }
-}
-
-@keyframes pulseFocoRays {
-  0% { opacity: 0.6; stroke-width: 2.2; }
-  100% { opacity: 1; stroke-width: 3.2; }
-}
-
-@keyframes antennaPulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
-}
-
-@keyframes sunRotatePulse {
-  0% { transform: rotate(0deg) scale(1); }
-  50% { transform: rotate(45deg) scale(1.25); }
-  100% { transform: rotate(45deg) scale(1.15); }
-}
-
-@keyframes moonSwayGlow {
-  0% { transform: rotate(0deg) scale(1); }
-  35% { transform: rotate(-18deg) scale(1.25); }
-  70% { transform: rotate(12deg) scale(1.18); }
-  100% { transform: rotate(0deg) scale(1.15); }
-}
-
 /* 3. Sensor / Monitor SO: Latido rítmico de sincronización inteligente */
-
-@keyframes monitorHeartbeat {
-  0% { transform: scale(1); }
-  30% { transform: scale(1.28); }
-  50% { transform: scale(0.95); }
-  70% { transform: scale(1.18); }
-  100% { transform: scale(1.15); }
-}
-
-@keyframes checkSettlePop {
-  0% { transform: scale(0) rotate(-45deg); opacity: 0; }
-  100% { transform: scale(1) rotate(0deg); opacity: 1; }
-}
 
 /* Adaptabilidad para Cajas de Carga de Foto y Secciones de Retiro en Modo Oscuro */
 

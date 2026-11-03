@@ -91,18 +91,13 @@ export const Dropdown = {
     dropdown.classList.toggle('open', abrir);
     // En el panel las facetas ya no flotan: crecen dentro del cuerpo. El
     // desplazamiento espera a que la altura termine (190 ms) y se hace suave;
-    // en el mismo clic se sentia como un tiron. Con movimiento reducido no se
-    // mueve el contexto: el usuario conserva su posicion.
+    // en el mismo clic se sentía como un tirón.
     if (abrir && dropdown.closest('.audit-filters-menu')) {
-      const reducir = typeof window !== 'undefined' &&
-        window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-      if (!reducir) {
-        const lista = dropdown.querySelector('.padron-inner-dropdown-menu');
-        window.setTimeout(() => {
-          if (!dropdown.classList.contains('open') || !lista?.isConnected) return;
-          lista.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 190);
-      }
+      const lista = dropdown.querySelector('.padron-inner-dropdown-menu');
+      window.setTimeout(() => {
+        if (!dropdown.classList.contains('open') || !lista?.isConnected) return;
+        lista.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 190);
     }
   },
 };
