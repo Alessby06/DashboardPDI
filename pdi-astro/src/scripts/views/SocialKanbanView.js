@@ -238,6 +238,9 @@ export const SocialKanbanView = {
   },
 
   renderKanban(casos, forzarAnimacion = false) {
+    // El selector del simulador se llena con los codigos reales del padron;
+    // las opciones fijas PDI-2026-XXX ya no correspondian a los datos.
+    this._poblarSelectSimulador();
     // Un re-render a mitad del arrastre arrancaria el nodo de debajo del dedo.
     // Se difiere: el gesto termina y entonces se repinta con los datos frescos.
     if (KanbanDrag.arrastrando()) {
@@ -600,6 +603,29 @@ export const SocialKanbanView = {
     }
   },
 
+  /**
+   * El selector del simulador se llena con los beneficiarios reales. Las
+   * opciones fijas del HTML usaban PDI-2026-XXX, mientras los datos usan
+   * 0007-IS2026: seleccionar una opción no cargaba ninguna evaluación.
+   */
+  _poblarSelectSimulador() {
+    const select = document.getElementById("selBeneficiarioSimulador");
+    if (!select) return;
+    const bModel = window.PDI?.BeneficiarioModel;
+    const lista = (bModel?.getAll?.() || []).slice().sort((a, b) =>
+      `${a.apellidos || ""} ${a.nombres || ""}`.localeCompare(`${b.apellidos || ""} ${b.nombres || ""}`, "es")
+    );
+    const actual = select.value;
+    const opciones = ['<option value="custom">-- Calificación Manual / Libre --</option>'];
+    lista.forEach((b) => {
+      const nombre = `${b.nombres || ""} ${b.apellidos || ""}`.trim();
+      const sede = b.sede ? ` (${b.sede})` : "";
+      opciones.push(`<option value="${escapar(b.codigo || "")}">${escapar(nombre + sede)}</option>`);
+    });
+    select.innerHTML = opciones.join("");
+    if (actual && [...select.options].some((o) => o.value === actual)) select.value = actual;
+  },
+
   openDetalleCaso(id) {
     const model = window.PDI?.CasoSocialModel || CasoSocialModel;
     const all = model.getAll ? model.getAll() : [];
@@ -944,6 +970,9 @@ export const SocialKanbanView = {
 
   openInSimuladorFromModal() {
     if (!this._activeCaso) return;
+    // El código del caso y el del beneficiario comparten el formato
+    // 0007-IS2026 en este esquema. El selector se puebla con ese mismo código;
+    // antes tenía opciones fijas PDI-2026-XXX que no existían en los datos.
     const codigo = this._activeCaso.codigo;
     this.closeModalDetalleCaso();
 

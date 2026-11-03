@@ -230,7 +230,15 @@ export const SocialController = {
     const usuario = bModel.getByCodigo(codigo);
     if (!usuario) return;
 
-    const vScore = usuario.vulnerabilidad || 75;
+    // El boton se abre desde la ficha de caso: su puntaje oficial manda sobre
+    // el agregado del beneficiario. Si el codigo viene del selector manual y no
+    // tiene caso, se conserva el puntaje del beneficiario.
+    const caso = (window.PDI?.CasoSocialModel?.getAll?.() || [])
+      .find(c => String(c.codigo) === String(codigo));
+    const puntajeCaso = Number(caso?.vulnerabilidadPuntaje);
+    const vScore = (Number.isFinite(puntajeCaso) && puntajeCaso > 0)
+      ? puntajeCaso
+      : (usuario.vulnerabilidad || 75);
     
     // Distribuir proporcionalmente el puntaje oficial de vulnerabilidad entre las 6 dimensiones
     const factor = vScore / 100;

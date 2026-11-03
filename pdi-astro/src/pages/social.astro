@@ -260,15 +260,10 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                         style="font-size:12px; padding:4px 8px; max-width:240px;"
                         onchange="window.cargarCasoEnSimulador ? window.cargarCasoEnSimulador(this.value) : (window.PDI?.SocialController?.cargarCasoEnSimulador ? window.PDI.SocialController.cargarCasoEnSimulador(this.value) : null)">
                         <option value="custom">-- Calificación Manual / Libre --</option>
-                        <option value="PDI-2026-003">Liam Mateo Sanchez (El Progreso)</option>
-                        <option value="PDI-2026-008">Dylan Josué Quispe (San Pedro)</option>
-                        <option value="PDI-2026-001">Thiago Gael Flores (Año Nuevo)</option>
-                        <option value="PDI-2026-005">Mateo Sebastian Castillo (San Pedro)</option>
-                        <option value="PDI-2026-006">Benjamín Elías Navarro (Santa Rosa)</option>
-                        <option value="PDI-2026-010">Lucas Alejandro Torres (Los Bendecidos)</option>
-                        <option value="PDI-2026-007">Camila Fernanda Rojas (Año Nuevo)</option>
-                        <option value="PDI-2026-002">Mia Valentina Mendoza (La Libertad)</option>
-                        <option value="PDI-2026-004">Luciana Sofia Alvarez (Año Nuevo)</option>
+                        <!-- Los usuarios se cargan desde BeneficiarioModel en
+                             SocialKanbanView._poblarSelectSimulador(). Las
+                             opciones fijas PDI-2026-XXX no coincidían con los
+                             códigos reales 0007-IS2026. -->
                       </select>
                     </div>
                   </div>
