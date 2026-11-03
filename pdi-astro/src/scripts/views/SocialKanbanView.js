@@ -874,9 +874,21 @@ export const SocialKanbanView = {
   confirmarSolicitudCambio() {
     const cId = document.getElementById("solicitudCasoId")?.value;
     const nEt = document.getElementById("solicitudNuevaEtapa")?.value;
-    const mot = document.getElementById("solicitudMotivoInput")?.value || "";
+    const inputMotivo = document.getElementById("solicitudMotivoInput");
+    const mot = (inputMotivo?.value || "").trim();
 
     if (!cId || !nEt) return;
+    // La etiqueta dice "Requerido para Coordinación": no se puede enviar una
+    // solicitud sin justificación y dejar que el modelo ponga un texto genérico.
+    if (!mot) {
+      window.PDI?.ToastView?.show?.(
+        "Falta la justificación",
+        "Escribe el motivo del cambio de fase antes de enviar la solicitud.",
+        "warning",
+      );
+      inputMotivo?.focus();
+      return;
+    }
 
     const controller = window.PDI?.SocialController;
     if (controller && controller.solicitarCambio) {
