@@ -105,6 +105,19 @@
     .modal-backdrop.drawer {
       align-items: stretch;
       justify-content: flex-end;
+      /* El velo completo vive ya en el estado base: así, al cerrar, el
+         degradado no desaparece de golpe mientras el color se desvanece. */
+      background-color: var(--sheet-veil-margen);
+      background-image: radial-gradient(ellipse 70% 60% at 50% 42%, var(--sheet-veil-borde), transparent 70%);
+      /* El velo se apaga con la hoja y con su misma curva de salida: así la
+         página no reaparece mientras la hoja todavía baja. */
+      transition: opacity var(--sheet-out) var(--sheet-exit-ease),
+                  background-color var(--sheet-out) var(--sheet-exit-ease);
+    }
+
+    .modal-backdrop.drawer.open {
+      transition: opacity 160ms var(--ease-out),
+                  background-color 160ms var(--ease-out);
     }
 
     .modal-box.drawer-box {
@@ -195,29 +208,31 @@
         margin: 0;
         border: none;
         border-radius: 20px 20px 0 0;
-        /* Elevación: la hoja se levanta en perspectiva desde el borde
-           inferior, inclinada hacia atrás, y cae plana. El origen es su propio
-           borde inferior y la perspectiva viaja dentro del transform. */
+        /* Sube desde el borde inferior sin inclinarse: solo se desplaza. El
+           origen queda en su propio borde por coherencia con el gesto, pero
+           al no haber rotación no hay deformación del contenido. */
         transform-origin: 50% 100%;
-        transform: var(--sheet-tilt-closed);
+        transform: var(--sheet-closed);
         backface-visibility: hidden;
         visibility: hidden;
         padding-bottom: env(safe-area-inset-bottom, 0);
         overscroll-behavior: contain;
-        /* Solo la hoja que recorre la pantalla conserva su capa: el aviso en
-           los 12 modales y 12 telones creaba 24 capas permanentes. */
+        /* Aviso de composición solo en la hoja que recorre la pantalla. */
         will-change: transform;
-        /* Salida: cae inclinada en 240 ms. La hoja se mantiene opaca, como el
-           cajón lateral; `visibility` la retira al terminar. */
+        /* Salida: baja en 260 ms con una curva que acompaña la caída. La hoja
+           se mantiene opaca, como el cajón lateral; `visibility` la retira al
+           terminar. */
         transition:
           transform var(--sheet-out) var(--sheet-exit-ease),
           visibility 0s linear var(--sheet-out);
       }
 
       .modal-backdrop.open .modal-box.drawer-box {
-        transform: var(--sheet-tilt-open);
+        transform: var(--sheet-open);
         visibility: visible;
-        /* Entrada: 320 ms, la misma curva del cajón. */
+        /* Entrada: la misma curva del cajón lateral. La duración es mayor
+           porque la hoja recorre casi toda la pantalla; a igual velocidad
+           percibida, 380 ms no se sienten lentos. */
         transition:
           transform var(--sheet-in) var(--sheet-lift-ease),
           visibility 0s;

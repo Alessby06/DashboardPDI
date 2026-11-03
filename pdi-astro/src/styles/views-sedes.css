@@ -660,10 +660,11 @@
     overscroll-behavior: contain !important;
     -webkit-overflow-scrolling: touch !important;
     transform-origin: 50% 100%;
-    transform: var(--sheet-tilt-closed);
+    transform: var(--sheet-closed);
     backface-visibility: hidden;
     visibility: hidden;
-    /* Elevación: misma receta y mismo ritmo que las fichas y los filtros. */
+    /* Misma receta y mismo ritmo que las fichas y los filtros: sube sin
+       inclinarse y el velo se apaga con ella. */
     transition:
       transform var(--sheet-out) var(--sheet-exit-ease),
       visibility 0s linear var(--sheet-out);
@@ -673,7 +674,7 @@
   }
 
   .sedes-detail-column.open {
-    transform: var(--sheet-tilt-open);
+    transform: var(--sheet-open);
     visibility: visible;
     transition:
       transform var(--sheet-in) var(--sheet-lift-ease),
@@ -876,12 +877,14 @@
     z-index: 1100 !important;
     opacity: 0 !important;
     pointer-events: none !important;
-    transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    transition: opacity var(--sheet-out) var(--sheet-exit-ease) !important;
   }
 
   .sedes-sheet-backdrop.open {
     opacity: var(--sedes-velo, 1) !important;
     pointer-events: auto !important;
+    /* Entra antes que la hoja, como el resto de velos. */
+    transition: opacity 180ms var(--ease-out) !important;
   }
 
   /* Durante el arrastre el velo sigue la mano, sin su easing. */

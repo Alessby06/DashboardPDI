@@ -899,12 +899,11 @@
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    /* El velo dura lo mismo que la hoja: 260 al abrir y 220 al cerrar. Antes
-       se apagaba 60 ms antes y dejaba ver la pagina sin oscurecer mientras la
-       hoja aun bajaba. */
+    /* El velo se apaga con la hoja y con su curva de salida: si se adelanta,
+       se ve la página sin oscurecer mientras la hoja aún baja. */
     transition:
-      opacity var(--dur-norm) var(--ease-out),
-      visibility 0s linear var(--dur-norm);
+      opacity var(--sheet-out) var(--sheet-exit-ease),
+      visibility 0s linear var(--sheet-out);
   }
 
   .audit-filters-dropdown.open::before {
@@ -946,13 +945,12 @@
     margin: 0;
     box-sizing: border-box;
     display: flex;
-    /* Elevación: la hoja se levanta en perspectiva desde su borde inferior,
-       inclinada hacia atrás, y cae plana. La perspectiva viaja en el propio
-       transform para no alterar el anclaje fixed de la hoja. `visibility`
-       evita que la hoja descolocada capture toques. */
+    /* Hoja inferior de filtros: sube desde el borde sin inclinarse ni
+       escalar. El texto viaja nítido y la animación se queda en el
+       compositor. `visibility` evita que la hoja descolocada capture toques. */
     visibility: hidden;
     transform-origin: 50% 100%;
-    transform: var(--sheet-tilt-closed);
+    transform: var(--sheet-closed);
     backface-visibility: hidden;
     will-change: transform;
     transition:
@@ -963,7 +961,7 @@
 
   .audit-filter-panel-wrap .audit-filters-dropdown.open .audit-filters-menu {
     visibility: visible;
-    transform: var(--sheet-tilt-open);
+    transform: var(--sheet-open);
     transition:
       transform var(--sheet-in) var(--sheet-lift-ease),
       visibility 0s;

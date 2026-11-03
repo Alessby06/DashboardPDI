@@ -135,19 +135,21 @@
   --dur-panel: 260ms;    /* Modales, drawers, cards */
   --dur-fluid: 260ms;
 
-  /* Hojas inferiores: Elevación. La hoja se levanta en perspectiva desde su
-     borde inferior, inclinada hacia atrás, y cae plana. La perspectiva viaja
-     dentro del propio transform: un `perspective` en un ancestro convertiría
-     ese ancestro en bloque contenedor de las hojas `position: fixed`.
-     El ritmo sigue al cajón lateral (250 ms, misma curva) para que la hoja
-     no se sienta más lenta que la navegación. */
-  --sheet-in: 320ms;
-  --sheet-out: 240ms;
+  /* Hojas inferiores: suben desde el borde inferior en un solo gesto
+     vertical. Sin perspectiva ni escala: el texto viaja sin deformarse y la
+     hoja se compone en el compositor con un único `translate3d`. La entrada
+     usa la curva del cajón lateral y dura más porque recorre casi toda la
+     pantalla; la salida es más corta y no frena en seco al desaparecer.
+     El velo se apaga con la misma duración que la salida. */
+  --sheet-in: 400ms;
+  --sheet-out: 260ms;
   --sheet-ease: cubic-bezier(0.22, 0.61, 0.36, 1); /* gesto de arrastre */
-  --sheet-lift-ease: cubic-bezier(0.16, 1, 0.3, 1);
-  --sheet-exit-ease: cubic-bezier(0.4, 0, 1, 1);
-  --sheet-tilt-closed: perspective(1200px) translate3d(0, 100%, 0) rotateX(14deg) scale(0.97);
-  --sheet-tilt-open: perspective(1200px) translate3d(0, 0, 0) rotateX(0deg) scale(1);
+  /* La entrada usa la misma curva con la que la hoja termina un arrastre:
+     el gesto y la apertura por toque acaban igual. */
+  --sheet-lift-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --sheet-exit-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --sheet-closed: translate3d(0, 100%, 0);
+  --sheet-open: translate3d(0, 0, 0);
   
   color-scheme: light;
 }
