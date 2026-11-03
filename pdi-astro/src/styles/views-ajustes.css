@@ -508,18 +508,22 @@
   outline: none;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-  transition: transform var(--dur-panel) var(--ease-spring);
   user-select: none;
 }
 
+/* El contrato .pdi-motion ya anima translate/scale en 160 ms. Se usan esas
+   propiedades, no `transform`, para no acumular dos escalas ni cambiar de
+   golpe al pulsar. */
 @media (hover: hover) and (pointer: fine) {
-  .foco-trigger-btn:hover {
-    transform: scale(1.08);
+  #focoInteractiveTrigger:hover {
+    translate: 0 -2px;
+    scale: 1.04;
   }
 }
 
-.foco-trigger-btn:active {
-  transform: scale(0.92) translateY(5px);
+#focoInteractiveTrigger:active {
+  translate: 0 2px;
+  scale: 0.96;
 }
 
 .foco-svg {
@@ -554,6 +558,16 @@
 /* Elementos del SVG por Defecto (Transparente / Reposo) */
 .foco-halo {
   display: none;
+  /* Escala desde su propio centro: sin esto el SVG usa el origen 0 0 y el
+     halo se desplazaba mientras respiraba. */
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.foco-glass-body {
+  transition:
+    fill var(--dur-panel) var(--ease-smooth),
+    stroke var(--dur-panel) var(--ease-smooth),
+    filter var(--dur-panel) var(--ease-smooth);
 }
 .foco-rays line {
   stroke: transparent;
@@ -603,11 +617,11 @@
   display: block;
   fill: rgba(251, 191, 36, 0.22);
   filter: blur(6px);
-  animation: pulseFocoHalo 2.2s infinite ease-in-out;
+  animation: pulseFocoHalo 3.2s infinite ease-in-out;
 }
 .foco-trigger-btn.state-dark .foco-rays line {
   stroke: var(--gt-yellow);
-  animation: pulseFocoRays 1.8s infinite alternate ease-in-out;
+  animation: pulseFocoRays 2.8s infinite alternate ease-in-out;
 }
 .foco-trigger-btn.state-dark .foco-glass-body {
   fill: var(--gt-yellow);
@@ -823,4 +837,5 @@
 /* ==========================================
    ESTILOS: CROQUIS Y MAPA GOOGLE EMBED
    ========================================== */
+
 
