@@ -575,24 +575,20 @@
 .table-toolbar .audit-filter-btn {
   width: 100%;
   min-width: 0;
-  justify-content: space-between;
-}
-
-/* «Filtros» es una acción corta, no un selector: su contenido se centra en
-   la columna completa. El contador sigue junto a la etiqueta y el caret
-   acompaña al grupo en vez de huir al extremo derecho. */
-.table-toolbar .audit-filter-btn {
+  /* Los dos disparadores se leen igual: el contenido se centra en su columna.
+     Solo afecta al botón; el menú desplegable conserva su alineación. */
   justify-content: center;
 }
 
+/* El caret acompaña al grupo en vez de huir al extremo derecho. */
 .table-toolbar .audit-filter-btn .filter-caret {
   margin-left: 0;
 }
 .table-toolbar .padron-sort-value {
-  flex: 1;
+  flex: 0 1 auto;
   min-width: 0;
   max-width: none;
-  text-align: left;
+  text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
