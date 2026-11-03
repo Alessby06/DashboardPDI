@@ -1098,4 +1098,15 @@
   }
 }
 
+/* Pulso breve de un contador que acaba de cambiar (badges del sidebar). */
+@keyframes contadorPulso {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.16); }
+  100% { transform: scale(1); }
+}
 
+/* Entrada de un estado vacío: aparece, no salta. */
+@keyframes estadoVacioEntra {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

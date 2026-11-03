@@ -1216,5 +1216,15 @@
       border-radius: 10px;
     }
 
+/* Contadores que cambian tras una acción: un pulso de 260 ms señala el
+   cambio sin mover el layout. */
+.nav-badge.contador-pulso {
+  animation: contadorPulso var(--dur-panel) var(--ease-spring);
+}
 
-
+/* Estados vacíos: entran con un fundido corto en lugar de aparecer de golpe. */
+tbody > tr > td[colspan],
+.mobile-accordion-list > div:not(.mobile-card-item),
+.social-requests-grid > div:not(.social-request-card):only-child {
+  animation: estadoVacioEntra var(--dur-norm) var(--ease-out);
+}

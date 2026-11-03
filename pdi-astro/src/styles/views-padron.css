@@ -791,6 +791,17 @@
   overflow-x: auto;
 }
 
+/* Al alternar Archivo ↔ Padrón el dataset se sustituye por completo. La
+   atenuación de un fotograma evita que la tabla cambie de golpe. */
+#cardPadronBeneficiarios .table-container,
+#mobileCardsBeneficiarios {
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.padron-cambio-vista {
+  opacity: 0.55;
+}
+
 #tablaBeneficiarios {
   width: 100%;
   min-width: 0;

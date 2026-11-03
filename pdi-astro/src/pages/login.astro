@@ -1,7 +1,7 @@
----
+﻿---
 import Icon from '../components/Icon.astro';
-// Login page — Versión Definitiva con diseño artesanal (Craft & Human-First)
-// Basado en /frontend-design y /interface-design para el Sistema PDI — ACJG
+// Login page â€” Versión Definitiva con diseño artesanal (Craft & Human-First)
+// Basado en /frontend-design y /interface-design para el Sistema PDI â€” ACJG
 
 // Edicion visual en vivo de impeccable: mismo toggle que AppLayout. La
 // inyeccion de live.js solo entra en dev y con la llave activa; el build de
@@ -14,8 +14,8 @@ const impeccableLive =
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="description" content="Sistema PDI — Portal de gestión y seguimiento del Programa de Desarrollo Integral de la Asociación Cultural Johannes Gutenberg." />
-  <title>Acceso al Sistema | PDI — Johannes Gutenberg</title>
+  <meta name="description" content="Sistema PDI â€” Portal de gestión y seguimiento del Programa de Desarrollo Integral de la Asociación Cultural Johannes Gutenberg." />
+  <title>Acceso al Sistema | PDI â€” Johannes Gutenberg</title>
   <link rel="icon" type="image/png" href="/assets/jg-icon.png" />
   <link rel="apple-touch-icon" href="/assets/jg-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -53,7 +53,7 @@ const impeccableLive =
   </script>
 
   <style>
-    /* ── Reset & Tokens Fundacionales (Dominio PDI) ─────────────── */
+    /* â”€â”€ Reset & Tokens Fundacionales (Dominio PDI) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
@@ -169,7 +169,7 @@ const impeccableLive =
       --shadow-raised: 0 0 0 1px rgba(255, 255, 255, 0.10), 0 4px 18px rgba(0, 0, 0, 0.70);
     }
 
-    /* ── Estructura de Página ───────────────────────────────────── */
+    /* â”€â”€ Estructura de Página â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     html, body {
       min-height: 100dvh;
       font-family: var(--ui-font);
@@ -191,7 +191,7 @@ const impeccableLive =
       }
     }
 
-    /* ── Columna Izquierda: Identidad Institucional ─────────────── */
+    /* â”€â”€ Columna Izquierda: Identidad Institucional â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .showcase-column {
       display: none;
       background: var(--hero-bg);
@@ -328,7 +328,7 @@ const impeccableLive =
       transform: translateY(-2px) scale(1.05);
     }
 
-    /* ── SVG Micro-Animations (Seamless Harmonic Loops) ────────── */
+    /* â”€â”€ SVG Micro-Animations (Seamless Harmonic Loops) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     /* Micro-movimiento de los módulos: la geometría ya es Hugeicons y el
        gesto se aplica al icono completo, no a paths internos que ya no existen. */
     :global(.module-icon-well svg) {
@@ -365,12 +365,6 @@ const impeccableLive =
       85%      { transform: scaleY(1); opacity: 0.8; }
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      :global(.module-icon-well svg) { animation: none; }
-    }
-
-    
-
     .module-text-wrap h4 {
       font-size: 13px;
       font-weight: 700;
@@ -394,7 +388,7 @@ const impeccableLive =
       color: var(--text-faint);
     }
 
-    /* ── Columna Derecha: Panel de Acceso ───────────────────────── */
+    /* â”€â”€ Columna Derecha: Panel de Acceso â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .access-column {
       display: flex;
       flex-direction: column;
@@ -680,7 +674,7 @@ const impeccableLive =
       to { transform: rotate(360deg); }
     }
 
-    /* ── Selector de Perfiles Institucionales ──────────────────── */
+    /* â”€â”€ Selector de Perfiles Institucionales â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .profiles-directory {
       margin-top: 24px;
       padding-top: 20px;
@@ -815,7 +809,7 @@ const impeccableLive =
     .showcase-footer {
       border-top-color: rgba(255, 255, 255, 0.1);
     }
-    /* Entrada del panel de identidad — coreografía b06589e2 sustituida por la accion 5caee1a3
+    /* Entrada del panel de identidad â€” coreografía b06589e2 sustituida por la accion 5caee1a3
        "Manifiesto" (aceptada): el panel asienta por capas a distinta profundidad, sin cascada heredada. */
     @keyframes layerSettle {
       from { opacity: 0; transform: translateY(var(--dy)); }
@@ -946,7 +940,7 @@ const impeccableLive =
       opacity: 0.9;
     }
     
-  /* ── Aceptado dd791b86 · "Franja bandera": identidad tricolor del logo ACJG (azul #3048f0 · rojo #c03018 · amarillo #e8c21a) ── */
+  /* â”€â”€ Aceptado dd791b86 · "Franja bandera": identidad tricolor del logo ACJG (azul #3048f0 · rojo #c03018 · amarillo #e8c21a) â”€â”€ */
   .showcase-column {
     --v-blue: #3048f0;
     --v-blue-focus: #3048f0;
@@ -957,7 +951,7 @@ const impeccableLive =
     padding: 40px 44px;
   }
   /* Modo oscuro: los tres se calculan en OKLCh conservando el matiz exacto del
-     color claro. El azul recupera el 100% de su croma (0.248) —imposible a esta
+     color claro. El azul recupera el 100% de su croma (0.248) â€”imposible a esta
      luminosidad en el tono pastel anterior, que ya estaba en el límite de gamut sRGB.
      Rojo y amarillo superan la croma de su versión clara.
      --v-blue-focus existe porque el gamut no permite croma pleno Y contraste alto
@@ -1021,7 +1015,7 @@ const impeccableLive =
     border-color: color-mix(in srgb, var(--v-blue) 45%, transparent);
   }
   .showcase-footer { border-top-color: var(--border-subtle); color: var(--text-faint); }
-  /* ── Aceptado 77a6f0fc · "Espejo tricolor": panel de acceso con la paleta azul del logo ACJG y contraste corregido (consistente con el aside) ── */
+  /* â”€â”€ Aceptado 77a6f0fc · "Espejo tricolor": panel de acceso con la paleta azul del logo ACJG y contraste corregido (consistente con el aside) â”€â”€ */
   .access-column {
     --v-blue: #3048f0;
     --v-blue-focus: #3048f0;
@@ -1093,7 +1087,7 @@ const impeccableLive =
     outline: 2px solid var(--text-dim, #64748b);
     outline-offset: 2px;
   }
-  /* ── Aceptado 19731e3c · "Contraste editorial": sube el contraste del texto del aside y devuelve presencia al rótulo "Módulos de Atención Activos" ── */
+  /* â”€â”€ Aceptado 19731e3c · "Contraste editorial": sube el contraste del texto del aside y devuelve presencia al rótulo "Módulos de Atención Activos" â”€â”€ */
   .showcase-column .module-chev { color: var(--text-muted); }
   .showcase-column .showcase-footer { color: var(--text-muted); }
   .showcase-column .modules-card-label {
@@ -1111,7 +1105,7 @@ const impeccableLive =
     line-height: 1.55;
   }
   .showcase-column .module-text-wrap h4 { color: var(--text-title); }
-  /* ── Help & recovery (critique fix) ── */
+  /* â”€â”€ Help & recovery (critique fix) â”€â”€ */
   .help-recovery {
     font-size: 12px;
     color: var(--text-muted);
@@ -1124,7 +1118,7 @@ const impeccableLive =
     margin-top: 4px;
     line-height: 1.4;
   }
-  /* ── Aceptado 6d3aa132 · "Contraste de pesos": titulares finos 300 y cuerpo semibold; escala tipográfica 0.9 ── */
+  /* â”€â”€ Aceptado 6d3aa132 · "Contraste de pesos": titulares finos 300 y cuerpo semibold; escala tipográfica 0.9 â”€â”€ */
   .showcase-column .modules-card { gap: 10px; }
   .showcase-column .modules-card .modules-card-label {
     font-size: 9.9px;
@@ -1157,7 +1151,7 @@ const impeccableLive =
     opacity: 1;
     transform: none;
   }
-  /* ── Aceptado 52a7ec60 · "Jerarquía tipográfica": título sobrio, rótulos en versalitas y campos de línea; perfiles como chips ── */
+  /* â”€â”€ Aceptado 52a7ec60 · "Jerarquía tipográfica": título sobrio, rótulos en versalitas y campos de línea; perfiles como chips â”€â”€ */
   .access-column .form-header-group { margin-bottom: 34px; }
   .access-column .form-main-title {
     font-size: 26px;
@@ -1228,9 +1222,9 @@ const impeccableLive =
   .access-column .profile-card-btn.active .profile-role-name { color: var(--v-blue); }
   .access-column .profile-role-name { font-size: 11.5px; }
   .access-column .profile-user-id { font-size: 10px; color: var(--text-faint); }
-  /* ── Aceptado 8ff0256c · "Distill — Punto": el selector de perfiles se reduce a filas planas; el rol activo
+  /* â”€â”€ Aceptado 8ff0256c · "Distill â€” Punto": el selector de perfiles se reduce a filas planas; el rol activo
      se senala con un punto v-azul funcional. Se ocultan el id de usuario (redundante con la etiqueta), la
-     nota "Acceso rapido" y el punto tricolor decorativo del titulo. ── */
+     nota "Acceso rapido" y el punto tricolor decorativo del titulo. â”€â”€ */
   .access-column .profile-user-id { display: none; }
   .access-column .profiles-note { display: none; }
   .access-column .profiles-title::before { display: none; }
@@ -1260,9 +1254,9 @@ const impeccableLive =
   .access-column .profile-card-btn.active .profile-role-name { color: var(--text-title); font-weight: 600; }
   /* El punto azul v-azul del activo se define mas abajo, en el bloque de las pastillas
      (posicion absoluto para no descentrar la etiqueta). */
-  /* ── Aceptado 31cf7d7f · "Polish — Rótulo-cabecera": el encabezado entra al sistema de kickers del kit
+  /* â”€â”€ Aceptado 31cf7d7f · "Polish â€” Rótulo-cabecera": el encabezado entra al sistema de kickers del kit
      (12px / 800 / mayusculas / 0.08em) con hairline bajo el rotulo; el rol gana un tracking ligeramente
-     apretado. Se mantiene el punto v-azul del activo y los cortes del distill (nota e id ocultos). ── */
+     apretado. Se mantiene el punto v-azul del activo y los cortes del distill (nota e id ocultos). â”€â”€ */
   .access-column .profiles-title {
     font-size: 12px;
     font-weight: 800;
@@ -1276,9 +1270,9 @@ const impeccableLive =
     border-bottom: 1px solid color-mix(in srgb, var(--text-title) 18%, transparent);
   }
   .access-column .profile-role-name { letter-spacing: -0.008em; }
-  /* ── Aceptado 5a292619 · "Pills en rejilla ordenada" (libre): los perfiles pasan a pastillas con relleno
+  /* â”€â”€ Aceptado 5a292619 · "Pills en rejilla ordenada" (libre): los perfiles pasan a pastillas con relleno
      suave, en rejilla equilibrada de 3 columnas y orden alfabetico por CSS order (el DOM y el grafo
-     data-user quedan intactos). El activo conserva el punto v-azul; foco visible en v-azul. ── */
+     data-user quedan intactos). El activo conserva el punto v-azul; foco visible en v-azul. â”€â”€ */
   .access-column .profiles-grid {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
@@ -1388,7 +1382,7 @@ const impeccableLive =
     order: 5;
   }
   
-  /* ── Aceptado 9271afa6 · "Bandas y manifiesto sobrio": banda tricolor superior, cabecera fileteada, kicker en versalitas, titular 32px y módulos como registro abierto con acordeón ── */
+  /* â”€â”€ Aceptado 9271afa6 · "Bandas y manifiesto sobrio": banda tricolor superior, cabecera fileteada, kicker en versalitas, titular 32px y módulos como registro abierto con acordeón â”€â”€ */
   .showcase-column { padding: 44px 46px; }
   .showcase-header { padding-bottom: 22px; border-bottom: 1px solid var(--border-subtle); }
   .showcase-brand-text h3 { font-size: 13px; font-weight: 600; letter-spacing: 0; }
@@ -1429,7 +1423,7 @@ const impeccableLive =
     opacity: 1;
     transform: none;
   }
-  /* ── Acompañamiento sobrio: transiciones suaves y limpias para despliegue/pliegue, fondo negro/neutro en reposo ── */
+  /* â”€â”€ Acompañamiento sobrio: transiciones suaves y limpias para despliegue/pliegue, fondo negro/neutro en reposo â”€â”€ */
   .showcase-column .modules-card .module-row {
     transition: background 0.24s cubic-bezier(0.2, 0, 0, 1), border-color 0.24s cubic-bezier(0.2, 0, 0, 1), transform 0.2s ease;
   }
@@ -1546,7 +1540,7 @@ const impeccableLive =
     color: #ffffff !important;
     opacity: 1;
   }
-  /* ── Aceptado 4b350464 · "Tinta azulada": botón primario en azul-negro #1c2233, sombra neutra y hover con un toque del azul del logo ACJG ── */
+  /* â”€â”€ Aceptado 4b350464 · "Tinta azulada": botón primario en azul-negro #1c2233, sombra neutra y hover con un toque del azul del logo ACJG â”€â”€ */
   /* Ajuste: negro puro (#000000) igual que las tarjetas de módulos, con hover casi negro
      y sombra neutra para que en tema claro conserve la separación del fondo. */
   .access-column .btn-primary-action {
@@ -1571,11 +1565,11 @@ const impeccableLive =
     border-color: rgba(15, 23, 42, 0.25);
     border-top-color: var(--showcase-ink);
   }
-  /* ── Modo oscuro · "Inversión": tarjetas de módulos y botón pasan de negro a superficie clara.
+  /* â”€â”€ Modo oscuro · "Inversión": tarjetas de módulos y botón pasan de negro a superficie clara.
      Jerarquía: el botón es blanco puro (#ffffff) porque es la acción principal y el elemento
-     más pequeño — el punto más brillante de la pantalla. Las tarjetas usan un blancobatido
+     más pequeño â€” el punto más brillante de la pantalla. Las tarjetas usan un blancobatido
      (#f4f6f8) para no competir con él y evitar el deslumbramiento de una superficie grande
-     en blanco absoluto sobre un fondo casi negro. Texto y bordes se invieren a oscuro. ── */
+     en blanco absoluto sobre un fondo casi negro. Texto y bordes se invieren a oscuro. â”€â”€ */
   [data-theme="dark"] .showcase-column .modules-card .module-row {
     background: #f4f6f8;
     border-color: rgba(15, 23, 42, 0.1);
@@ -1621,7 +1615,7 @@ const impeccableLive =
   [data-theme="dark"] .showcase-column .modules-card .module-radio:focus-visible + .module-row {
     outline-color: #0f172a;
   }
-  /* ── Aceptado 5e7e4623 · "Wipe": la columna de acceso se revela como lámina por máscara desde la izquierda; el titular asienta en una segunda ola ── */
+  /* â”€â”€ Aceptado 5e7e4623 · "Wipe": la columna de acceso se revela como lámina por máscara desde la izquierda; el titular asienta en una segunda ola â”€â”€ */
   @keyframes accWipeLeft {
     from { clip-path: inset(0 100% 0 0); opacity: 0.4; }
     to   { clip-path: inset(0 0 0 0);    opacity: 1; }
@@ -1654,7 +1648,7 @@ const impeccableLive =
   <div class="login-container">
     <!-- COLUMNA IZQUIERDA: Contexto Institucional Humano (Desktop) -->
     
-      <aside class="showcase-column" aria-label="Identidad del Programa" data-snap>
+      <aside class="showcase-column" aria-label="Identidad del Programa">
         <div class="showcase-header">
           <div class="showcase-badge-icon" aria-hidden="true"><img src="/assets/jg-icon.png" alt="Emblema ACJG" loading="lazy" decoding="async" /></div>
           <div class="showcase-brand-text">
@@ -1739,7 +1733,7 @@ const impeccableLive =
         <h2 class="form-main-title">Ingreso al Sistema</h2>
         <p class="form-sub-title">Digita tus credenciales para acceder a los módulos de trabajo.</p>        </div>
 
-      <form class="form-stack" id="loginForm" autocomplete="on" novalidate data-snap>
+      <form class="form-stack" id="loginForm" autocomplete="on" novalidate>
         <!-- Usuario -->
         <div class="form-row">
           <label class="label-caption" for="inputUsuario">Usuario institucional</label>
@@ -1772,7 +1766,7 @@ const impeccableLive =
               id="inputClave"
               name="clave"
               class="text-input"
-              placeholder="••••••••"
+              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
               autocomplete="current-password"
               required
             />
@@ -1797,7 +1791,7 @@ const impeccableLive =
       </form>
 
       <!-- Directorio de Perfiles para Acceso Rápido -->
-      <section class="profiles-directory" aria-label="Perfiles autorizados de trabajo" data-snap>
+      <section class="profiles-directory" aria-label="Perfiles autorizados de trabajo">
         <div class="profiles-label-bar">
           <span class="profiles-title">Perfiles autorizados</span>
           <span class="profiles-note">Acceso rápido</span>
@@ -2017,4 +2011,5 @@ const impeccableLive =
   </script>
 </body>
 </html>
+
 

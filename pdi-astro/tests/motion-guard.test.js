@@ -137,7 +137,7 @@ test('el producto no consulta prefers-reduced-motion', () => {
     for (const entrada of fs.readdirSync(dir, { withFileTypes: true })) {
       const ruta = path.join(dir, entrada.name);
       if (entrada.isDirectory()) { recorrer(ruta); continue; }
-      if (!/\.(css|js)$/.test(entrada.name)) continue;
+      if (!/\.(css|js|astro)$/.test(entrada.name)) continue;
       const texto = fs.readFileSync(ruta, 'utf8');
       if (/prefers-reduced-motion/.test(texto)) fallos.push(path.relative(raiz, ruta));
     }

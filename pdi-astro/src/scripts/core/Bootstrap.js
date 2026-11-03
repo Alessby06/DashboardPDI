@@ -99,7 +99,17 @@ export function arrancarComun() {
 export function actualizarBadgesSidebar() {
   const set = (id, valor) => {
     const el = document.getElementById(id);
-    if (el) el.textContent = String(valor);
+    if (!el) return;
+    const texto = String(valor);
+    // Solo pulsa cuando el número cambia de verdad y ya tenía un valor: el
+    // primer pintado no debe celebrar nada.
+    if (el.textContent && el.textContent !== texto) {
+      el.classList.remove("contador-pulso");
+      void el.offsetWidth;
+      el.classList.add("contador-pulso");
+      window.setTimeout(() => el.classList.remove("contador-pulso"), 320);
+    }
+    el.textContent = texto;
   };
 
   try {

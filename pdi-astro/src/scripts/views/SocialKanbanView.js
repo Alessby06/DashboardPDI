@@ -1161,6 +1161,22 @@ export const SocialKanbanView = {
   },
 
   /**
+   * La cascada de tarjetas se ve una sola vez por contenedor. En los
+   * re-renders (cambiar de pestaña, resolver) las tarjetas aparecen en el
+   * sitio, sin repetir el desfase.
+   */
+  _activarCascada(container) {
+    if (!container) return;
+    if (container.dataset.cascada === "1") {
+      container.classList.remove("social-cards--entrada");
+      return;
+    }
+    container.dataset.cascada = "1";
+    container.classList.add("social-cards--entrada");
+    window.setTimeout(() => container.classList.remove("social-cards--entrada"), 900);
+  },
+
+  /**
    * Renderiza la subvista completa de Bandeja de Autorizaciones para Coordinación General.
    */
   renderVistaAutorizaciones() {
@@ -1198,6 +1214,7 @@ export const SocialKanbanView = {
       Baja: "badge-blue"
     };
 
+    this._activarCascada(container);
     container.innerHTML = `
       <div class="social-requests-grid">
         ${pendientes.map((caso, idx) => {
@@ -1325,6 +1342,7 @@ export const SocialKanbanView = {
       return;
     }
 
+    this._activarCascada(container);
     container.innerHTML = `
       <div class="social-requests-grid">
         ${solicitudes.map((sol, idx) => {

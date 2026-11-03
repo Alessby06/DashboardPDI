@@ -549,10 +549,23 @@ export const BeneficiariosView = {
   cambiarVista(vista) {
     const destino = vista === "archivo" && this._puedeVerArchivo() ? "archivo" : "activos";
     if (destino === this._vista) return;
+    // El contenido cambia de dataset: se atenúa el contenedor antes del
+    // recambio y vuelve a su opacidad normal en el siguiente fotograma. Sin
+    // esto la tabla se sustituía de golpe y se percibía como un salto.
+    const contenedores = [
+      document.querySelector("#cardPadronBeneficiarios .table-container"),
+      document.getElementById("mobileCardsBeneficiarios"),
+    ].filter(Boolean);
+    contenedores.forEach((c) => c.classList.add("padron-cambio-vista"));
     this._vista = destino;
     this._currentPage = 1;
     this._persistirFiltros();
     this.applyFilters();
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        contenedores.forEach((c) => c.classList.remove("padron-cambio-vista"));
+      });
+    });
   },
 
   /**

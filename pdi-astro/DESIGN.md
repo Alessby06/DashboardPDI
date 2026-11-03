@@ -409,6 +409,10 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Curvas:** todas salen de `variables.css` (`--ease-out`, `--ease-spring`, `--ease-smooth`, `--ease-drawer`, `--sheet-*`). No hay curvas con sobrepaso ni duraciones escritas a mano en las transiciones: `--dur-press`, `--dur-fast`, `--dur-popover`, `--dur-norm`, `--dur-panel`, `--dur-nav`, `--dur-rail`, `--dur-theme`, `--dur-bar` y `--dur-highlight`.
 - **Keyframes:** una sola definición por nombre, en `base.css`. Las hojas de vista no redeclaran animaciones compartidas; el test falla si aparece un duplicado. `slideUp` y `pulseHighlight` se retiraron por no usarse.
 - **`will-change`:** solo en elementos con movimiento real y continuo (sidebar, hojas, fantasma de arrastre). No se deja en tarjetas, botones o toasts por un hover puntual.
+- **Cascadas:** una lista escalona su entrada una sola vez por contenedor. En re-renders (cambiar de pestaña, resolver, filtrar) las filas o tarjetas cambian en el sitio. `.social-requests-grid` usa `.social-cards--entrada` solo en el primer montaje.
+- **Scroll:** sin scroll snap y sin GSAP. La barra de progreso y el parallax del showcase del login viven en `ScrollAnimations.js` con `ScrollManager`; el desplazamiento es un `translate3d` sobre el propio elemento.
+- **Estados vacíos y contadores:** el vacío entra con un fundido de `--dur-norm`; un badge que cambia de valor pulsa 260 ms con `contadorPulso`. El primer pintado no pulsa.
+- **Subpaneles:** el cambio de pestaña en Social lo anima solo la View Transition nativa. Donde no exista, un fundido de respaldo de `--dur-fast`; nunca las dos a la vez.
 - **Movimiento reducido:** el producto no consulta `prefers-reduced-motion`; las animaciones corren siempre. El test impide reintroducir la preferencia.
 
 ### Iconografía

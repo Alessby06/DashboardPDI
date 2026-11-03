@@ -1,4 +1,4 @@
----
+﻿---
 import AppLayout from '../layouts/AppLayout.astro';
 import '../styles/views-dashboard.css';
 import Icon from '../components/Icon.astro';
@@ -19,31 +19,31 @@ import Icon from '../components/Icon.astro';
     </div>
 
     <!-- Tira de Métricas Operativas Clave (Placas) -->
-    <div class="dash-kpi-strip" id="kpiDashboardContainer" data-snap>
+    <div class="dash-kpi-strip" id="kpiDashboardContainer">
       <div class="dash-kpi-plate">
         <span class="dash-kpi-label">Usuarios Activos</span>
-        <div class="dash-kpi-value" id="dashKpiBeneficiarios">—</div>
+        <div class="dash-kpi-value" id="dashKpiBeneficiarios">â€”</div>
         <div class="dash-kpi-context">100% inscritos en el programa</div>
       </div>
       <div class="dash-kpi-plate">
         <span class="dash-kpi-label">Atención CRED</span>
-        <div class="dash-kpi-value" id="dashKpiTamizados">—</div>
+        <div class="dash-kpi-value" id="dashKpiTamizados">â€”</div>
         <div class="dash-kpi-context">Control vigente con dosaje Hb</div>
       </div>
       <div class="dash-kpi-plate">
         <span class="dash-kpi-label">Asistencia en Casitas</span>
-        <div class="dash-kpi-value" id="dashKpiAsistencia">—</div>
+        <div class="dash-kpi-value" id="dashKpiAsistencia">â€”</div>
         <div class="dash-kpi-context">Promedio territorial consolidado</div>
       </div>
       <div class="dash-kpi-plate is-alert">
         <span class="dash-kpi-label">Casos en Alerta</span>
-        <div class="dash-kpi-value" id="dashKpiCasosSociales">—</div>
+        <div class="dash-kpi-value" id="dashKpiCasosSociales">â€”</div>
         <div class="dash-kpi-context">Seguimiento clínico o social activo</div>
       </div>
     </div>
 
     <!-- Rejilla Principal: Semáforo Clínico y Cobertura Territorial -->
-    <div class="dash-charts-grid" data-snap>
+    <div class="dash-charts-grid">
 
       <div class="panel dash-anemia-panel stagger-item" id="widgetAnemiaStatus">
         <div class="panel-head dash-anemia-panel-head">
@@ -60,10 +60,10 @@ import Icon from '../components/Icon.astro';
               <span class="dash-anemia-line-name">Normal</span>
               <span class="dash-anemia-line-note">Control vigente · dosaje anual</span>
             </div>
-            <span class="dash-anemia-line-range">≥ 11.0 g/dL</span>
+            <span class="dash-anemia-line-range">â‰¥ 11.0 g/dL</span>
             <div>
-              <span class="dash-anemia-line-pct" id="anemiaPctNormal">—</span>
-              <span class="dash-anemia-line-cases"><span id="anemiaLegendNormal">—</span> casos</span>
+              <span class="dash-anemia-line-pct" id="anemiaPctNormal">â€”</span>
+              <span class="dash-anemia-line-cases"><span id="anemiaLegendNormal">â€”</span> casos</span>
             </div>
             <span class="dash-anemia-line-track"><span class="dash-anemia-line-fill" id="segAnemiaNormal" style="width: 0%"></span></span>
           </div>
@@ -73,10 +73,10 @@ import Icon from '../components/Icon.astro';
               <span class="dash-anemia-line-name">Anemia Leve</span>
               <span class="dash-anemia-line-note">Seguimiento trimestral en casita</span>
             </div>
-            <span class="dash-anemia-line-range">10.0 – 10.9 g/dL</span>
+            <span class="dash-anemia-line-range">10.0 â€“ 10.9 g/dL</span>
             <div>
-              <span class="dash-anemia-line-pct" id="anemiaPctLeve">—</span>
-              <span class="dash-anemia-line-cases"><span id="anemiaLegendLeve">—</span> casos</span>
+              <span class="dash-anemia-line-pct" id="anemiaPctLeve">â€”</span>
+              <span class="dash-anemia-line-cases"><span id="anemiaLegendLeve">â€”</span> casos</span>
             </div>
             <span class="dash-anemia-line-track"><span class="dash-anemia-line-fill" id="segAnemiaLeve" style="width: 0%"></span></span>
           </div>
@@ -88,8 +88,8 @@ import Icon from '../components/Icon.astro';
             </div>
             <span class="dash-anemia-line-range">&lt; 10.0 g/dL</span>
             <div>
-              <span class="dash-anemia-line-pct" id="anemiaPctMod">—</span>
-              <span class="dash-anemia-line-cases"><span id="anemiaLegendMod">—</span> casos</span>
+              <span class="dash-anemia-line-pct" id="anemiaPctMod">â€”</span>
+              <span class="dash-anemia-line-cases"><span id="anemiaLegendMod">â€”</span> casos</span>
             </div>
             <span class="dash-anemia-line-track"><span class="dash-anemia-line-fill" id="segAnemiaMod" style="width: 0%"></span></span>
           </div>
@@ -112,8 +112,8 @@ import Icon from '../components/Icon.astro';
               <span class="dash-territory-share-sub">Año Nuevo, La Libertad, Carmen Alto</span>
             </div>
             <div class="dash-territory-share">
-              <span class="dash-territory-share-pct" id="pctDistrict_comas">—</span>
-              <span class="dash-territory-share-badge" id="badgeDistrict_comas">—</span>
+              <span class="dash-territory-share-pct" id="pctDistrict_comas">â€”</span>
+              <span class="dash-territory-share-badge" id="badgeDistrict_comas">â€”</span>
             </div>
             <div class="dash-territory-track"><div class="dash-territory-bar green" style="width: 0%;" data-target-width="0%" id="barDistrict_comas"></div></div>
           </div>
@@ -123,8 +123,8 @@ import Icon from '../components/Icon.astro';
               <span class="dash-territory-share-sub">El Progreso, San Pedro, Los Bendecidos, Santa Rosa</span>
             </div>
             <div class="dash-territory-share">
-              <span class="dash-territory-share-pct" id="pctDistrict_carabayllo">—</span>
-              <span class="dash-territory-share-badge" id="badgeDistrict_carabayllo">—</span>
+              <span class="dash-territory-share-pct" id="pctDistrict_carabayllo">â€”</span>
+              <span class="dash-territory-share-badge" id="badgeDistrict_carabayllo">â€”</span>
             </div>
             <div class="dash-territory-track"><div class="dash-territory-bar blue" style="width: 0%;" data-target-width="0%" id="barDistrict_carabayllo"></div></div>
           </div>
@@ -146,7 +146,7 @@ import Icon from '../components/Icon.astro';
     </div>
 
     <!-- Foco Operativo Inferior: Casos Prioritarios y Bitácora -->
-    <div class="dash-operational-grid" data-snap>
+    <div class="dash-operational-grid">
       <!-- Casos Prioritarios -->
       <div class="card" id="widgetPriorityCases">
         <div class="card-header">
@@ -188,3 +188,4 @@ import Icon from '../components/Icon.astro';
     import '../scripts/pages/dashboard.js';
   </script>
 </AppLayout>
+

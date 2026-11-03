@@ -793,7 +793,15 @@
     .social-subview-panel.active {
       display: block;
       view-transition-name: social-subview-panel;
-      animation: subpanelFadeIn var(--dur-norm) cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Navegadores sin View Transitions: un fundido corto como respaldo. Con
+       soporte, la transición nativa es la única animación del cambio; antes
+       competían las dos y el panel se reiniciaba al cambiar rápido. */
+    @supports not (view-transition-name: none) {
+      .social-subview-panel.active {
+        animation: subpanelFadeIn var(--dur-fast) var(--ease-out);
+      }
     }
 
     body.filter-sheet-open .social-subview-panel.active {
@@ -948,7 +956,13 @@
       flex-direction: column;
       gap: 10px;
       transition: border-color var(--dur-fast) var(--ease-smooth);
-      animation: cardStaggerIn var(--dur-norm) cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    /* La cascada se ve al montar la vista. En cada re-render (cambiar de
+       pestaña, resolver una solicitud) las tarjetas cambian en el sitio: el
+       desfase de 45 ms por tarjeta volvía a retrasar hasta la última. */
+    .social-cards--entrada .social-request-card {
+      animation: cardStaggerIn var(--dur-norm) var(--ease-spring) both;
       animation-delay: calc(var(--item-index, 0) * 45ms);
     }
 
