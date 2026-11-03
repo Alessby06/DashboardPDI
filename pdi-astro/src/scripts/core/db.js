@@ -1,19 +1,19 @@
 // ===========================================================================
-//  DB - Capa de datos con SurrealDB Cloud (fuente �aNICA de verdad)
+//  DB - Capa de datos con SurrealDB Cloud (fuente única de verdad)
 // ===========================================================================
 //  El proyecto depende por completo de la instancia de SurrealDB Cloud:
 //
-//    - SIN CONEXI�N: no se muestra ning�n dato (los modelos inician vac�os);
+//    - SIN CONEXIÓN: no se muestra ningún dato (los modelos inician vacíos);
 //      no hay fixtures ni espejo en localStorage. db.js reintenta sola con
-//      backoff y rehidrata apenas vuelve la conexi�n.
+//      backoff y rehidrata apenas vuelve la conexión.
 //    - CRUD: toda mutación va SIEMPRE a la nube. Los modelos actualizan la
 //      memoria en forma optimista y esta capa confirma escribiendo en las
 //      tablas reales: persona, inscripcion, tamizaje_hemoglobina,
 //      usuario_vinculado, sede, caso_social, solicitud_caso, voluntario,
 //      asistencia_diaria y bitacora_auditoria.
-//    - SINCRONIZACI�N: suscripciones LIVE SELECT a las diez tablas; cualquier
-//      cambio de otro usuario dispara una re-hidrataci�n con debounce y
-//      refresco de la vista activa. Si la conexi�n cae, hay reintentos con
+//    - SINCRONIZACIÓN: suscripciones LIVE SELECT a las diez tablas; cualquier
+//      cambio de otro usuario dispara una re-hidratación con debounce y
+//      refresco de la vista activa. Si la conexión cae, hay reintentos con
 //      backoff hasta recuperarse.
 //
 //  Ya no hay valores fabricados: los campos que la nube no tiene se presentan
@@ -104,7 +104,7 @@ const F_CASO = 'usuario_id';
 //  Estado de conexión y eventos
 // ---------------------------------------------------------------------------
 //  'conectando' | 'cargando' | 'ok' | 'sin_conexion' (solo internos; la
-//  conexi�n es silenciosa: ninguna pantalla de espera ni de bloqueo).
+//  conexión es silenciosa: ninguna pantalla de espera ni de bloqueo).
 let _estado = 'conectando';
 const _oyentes = new Set();
 let _db = null;
@@ -350,7 +350,7 @@ function agendarReintento() {
   _jsonDeReintento = Math.min(_jsonDeReintento * 2, MAXIMO_REINTENTO_MS);
 }
 
-/** Reintento inmediato de conexi�n (queda expuesto en window.PDI.DB). */
+/** Reintento inmediato de conexión (queda expuesto en window.PDI.DB). */
 export async function reintentarAhora() {
   clearTimeout(_temporizadorReintento);
   _jsonDeReintento = 5000;

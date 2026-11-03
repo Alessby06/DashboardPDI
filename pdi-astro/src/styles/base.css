@@ -6,7 +6,7 @@
     }
 
     /* Los controles nativos no heredan la fuente por defecto del navegador
-       (en Chrome/Windows caÃ­an a Arial). Forzamos que hereden Manrope. */
+       (en Chrome/Windows caían a Arial). Forzamos que hereden Manrope. */
     input, select, textarea, button {
       font-family: inherit;
     }
@@ -46,7 +46,7 @@
         radial-gradient(circle at 85% 85%, rgba(56, 189, 248, 0.03) 0%, transparent 55%);
     }
 
-    /* TransiciÃ³n Suave y Fluida al Cambiar entre Modo Claro y Oscuro */
+    /* Transición Suave y Fluida al Cambiar entre Modo Claro y Oscuro */
     body,
     .app-shell,
     .topbar,
@@ -74,7 +74,7 @@
                   box-shadow var(--dur-theme) var(--ease-spring);
     }
 
-    /* Vistas Activas - VisualizaciÃ³n Inmediata y Fluida */
+    /* Vistas Activas - Visualización Inmediata y Fluida */
     .app-view, .content-view {
       display: none;
     }
@@ -83,7 +83,7 @@
       display: block;
     }
 
-    /* Carga en Cascada Viva (Stagger Assembly con FÃ­sica OrgÃ¡nica).
+    /* Carga en Cascada Viva (Stagger Assembly con Física Orgánica).
 
        El estado inicial oculto lo revela .stagger-animate al entrar; si esa
        clase no llega a anadirse, AnimationEngine deja el contenido visible. */
@@ -107,8 +107,8 @@
       }
     }
 
-    /* El movimiento de los botones vive en button-motion.css. AquÃ­ solo queda
-       el tinte de la pulsaciÃ³n; el lift y la compresiÃ³n usan las propiedades
+    /* El movimiento de los botones vive en button-motion.css. Aquí solo queda
+       el tinte de la pulsación; el lift y la compresión usan las propiedades
        translate/scale para no pisar los transform de chevrons ni drawers. */
     .btn-action:active:not(:disabled):not(.primary),
     .btn-action-icon:active:not(:disabled),
@@ -176,7 +176,7 @@
        1. MODO PC (Pantallas anchas > 900px)
        - Por defecto SIEMPRE DESPLEGADA (280px)
        - SIN fondo azul/oscurecido (backdrop desactivado)
-       - Permite abrir y cerrar suavemente con animaciÃ³n
+       - Permite abrir y cerrar suavemente con animación
        ================================================================== */
     @media (min-width: 901px) {
       .sidebar-backdrop {
@@ -254,8 +254,8 @@
     }
 
     /* ==================================================================
-       2. MODO MÃ“VIL Y PANTALLA A LA MITAD (<= 900px)
-       - CajÃ³n fuera de pantalla por defecto (-100%)
+       2. MODO MÓVIL Y PANTALLA A LA MITAD (<= 900px)
+       - Cajón fuera de pantalla por defecto (-100%)
        - Fondo oscurecido cuando se abre (.sidebar.open)
        ================================================================== */
     @media (max-width: 900px) {
@@ -433,7 +433,7 @@
     }
 
     /* El padding vive en el inner, no en el contenedor que scrollea: si
-       estuviera aquÃ­, el primer elemento se recortarÃ­a al desplazar el
+       estuviera aquí, el primer elemento se recortaría al desplazar el
        contenido con Lenis. */
     .nav-sections {
       flex: 1;
@@ -447,7 +447,7 @@
       overscroll-behavior: contain;
     }
 
-    /* Lenis necesita un content Ãºnico: el nav scrollea y este div se mueve. */
+    /* Lenis necesita un content único: el nav scrollea y este div se mueve. */
     .nav-sections-inner {
       display: flex;
       flex-direction: column;
@@ -547,7 +547,7 @@
       stroke: var(--brand-primary);
     }
 
-    /* Role Restricted Tab Styles (GrisÃ¡ceo / Deshabilitado tanto en PC como en MÃ³vil) */
+    /* Role Restricted Tab Styles (Grisáceo / Deshabilitado tanto en PC como en Móvil) */
     .nav-btn.role-restricted,
     .sidebar .nav-btn.role-restricted,
     .sidebar.open .nav-btn.role-restricted {
@@ -558,7 +558,7 @@
       color: var(--text-muted) !important;
     }
 
-    /* Antiflash CSS InstantÃ¡neo: Reglas nativas basadas en html[data-user-role]
+    /* Antiflash CSS Instantáneo: Reglas nativas basadas en html[data-user-role]
        Evitan que durante el renderizado inicial los botones no permitidos se muestren activos o clickeables. */
     html[data-user-role="social"] .nav-btn[data-roles]:not([data-roles*="social"]),
     html[data-user-role="facilitadora"] .nav-btn[data-roles]:not([data-roles*="facilitadora"]),
@@ -574,7 +574,7 @@
       display: none !important;
     }
 
-    /* Ocultamiento absoluto para Ã­tems de workflow exclusivos (sin grisÃ¡ceo, no existen para roles no autorizados) */
+    /* Ocultamiento absoluto para ítems de workflow exclusivos (sin grisáceo, no existen para roles no autorizados) */
     html[data-user-role="social"] .nav-btn[data-hide-unauthorized]:not([data-roles*="social"]),
     html[data-user-role="coord"] .nav-btn[data-hide-unauthorized]:not([data-roles*="coord"]),
     html[data-user-role="admin"] .nav-btn[data-hide-unauthorized]:not([data-roles*="admin"]),
@@ -682,8 +682,8 @@
       stroke: currentColor;
     }
 
-    /* El hover solo existe donde hay puntero fino: en tÃ¡ctil se queda pegado
-       despuÃ©s del toque y el botÃ³n parece activo cuando ya no lo estÃ¡. */
+    /* El hover solo existe donde hay puntero fino: en táctil se queda pegado
+       después del toque y el botón parece activo cuando ya no lo está. */
     @media (hover: hover) and (pointer: fine) {
       .btn-action:hover {
         background: var(--surface-hover);
@@ -705,9 +705,9 @@
       font-weight: 700;
     }
 
-    /* Rojo reservado a acciones destructivas (Â«Desactivar usuarioÂ»). Vive solo
-       en el borde y la tinta: rellenar el botÃ³n de rojo lo convierte en una
-       alarma que compite con todo lo demÃ¡s de la vista. Â«Cancelar EdiciÃ³nÂ» no
+    /* Rojo reservado a acciones destructivas («Desactivar usuario»). Vive solo
+       en el borde y la tinta: rellenar el botón de rojo lo convierte en una
+       alarma que compite con todo lo demás de la vista. «Cancelar Edición» no
        lo usa: cancelar no destruye nada. */
     .btn-action.danger,
     .btn-action.btn-danger {
@@ -784,8 +784,8 @@
 
     /* Lenis aplica `overflow: clip` cuando se detiene (.lenis-stopped). En este
        layout el propio contenedor es el scroller: recortarlo resetea su
-       scrollTop a 0 y el contenido de atrÃ¡s salta al inicio al abrir una hoja.
-       Se conserva el eje vertical mientras la hoja estÃ¡ abierta; el gesto y el
+       scrollTop a 0 y el contenido de atrás salta al inicio al abrir una hoja.
+       Se conserva el eje vertical mientras la hoja está abierta; el gesto y el
        foco siguen bloqueados por las clases de la hoja. */
     #mainContent.content-viewport.lenis-stopped {
       overflow-y: auto;
@@ -793,15 +793,15 @@
 
     /* Con una hoja abierta el fondo no acepta gestos. Se aplica al viewport y
        no al body para no tocar scrollbar ni layout (eso repintaba la tabla).
-       El cuerpo de la hoja conserva su scroll: es su contenedor mÃ¡s cercano. */
+       El cuerpo de la hoja conserva su scroll: es su contenedor más cercano. */
     body.filter-sheet-open #mainContent,
     body.pdi-drawer-open #mainContent,
     body.sedes-sheet-open #mainContent {
       touch-action: none;
     }
 
-    /* Al cerrar por arrastre la hoja ya estÃ¡ fuera de pantalla; el paso al
-       estado cerrado inclinado se hace sin transiciÃ³n para que no reaparezca
+    /* Al cerrar por arrastre la hoja ya está fuera de pantalla; el paso al
+       estado cerrado inclinado se hace sin transición para que no reaparezca
        un instante. */
     .pdi-sin-transicion {
       transition: none !important;
@@ -1011,9 +1011,9 @@
 
 /* ===========================================================================
    KEYFRAMES COMPARTIDOS
-   Una sola definiciÃ³n para todo el producto. Antes estaban copiados en las
+   Una sola definición para todo el producto. Antes estaban copiados en las
    nueve hojas de vista (142 definiciones para 31 nombres); cualquier ajuste
-   en una copia divergÃ­a de las demÃ¡s.
+   en una copia divergía de las demás.
    =========================================================================== */
 
 @keyframes antennaPulse {

@@ -13,7 +13,7 @@ await db.connect(env.PUBLIC_SURREAL_URL);
 await db.signin({ username: env.PUBLIC_SURREAL_USER, password: env.PUBLIC_SURREAL_PASS, namespace: env.PUBLIC_SURREAL_NS, database: env.PUBLIC_SURREAL_DB });
 await db.use({ namespace: env.PUBLIC_SURREAL_NS, database: env.PUBLIC_SURREAL_DB });
 const id = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '_');
-const rolMap = { 'Voluntaria Responsable': 'Voluntaria Responsable', 'Voluntaria de Apoyo': 'Voluntaria de Apoyo', 'Mediadora Lectora': 'Mediadora Lectora', 'AcompaÃ±ante Pedagogica': 'Acompanante Pedagogica', 'Pastoral Comunitario': 'Pastoral Comunitario', 'Facilitadora': 'Facilitadora', 'Promotora Educativa': 'Promotora Educativa', 'Trabajadora Social ASP': 'Trabajadora Social ASP', 'Coordinadora General': 'Coordinacion General' };
+const rolMap = { 'Voluntaria Responsable': 'Voluntaria Responsable', 'Voluntaria de Apoyo': 'Voluntaria de Apoyo', 'Mediadora Lectora': 'Mediadora Lectora', 'Acompañante Pedagogica': 'Acompanante Pedagogica', 'Pastoral Comunitario': 'Pastoral Comunitario', 'Facilitadora': 'Facilitadora', 'Promotora Educativa': 'Promotora Educativa', 'Trabajadora Social ASP': 'Trabajadora Social ASP', 'Coordinadora General': 'Coordinacion General' };
 for (const v of defaultVoluntarios) {
   const rows = await db.query('SELECT id FROM persona WHERE numero_documento = $d', { d: v.dni });
   const arr = rows[0]?.map ? rows[0] : (rows[0]?.result || []);

@@ -154,8 +154,8 @@
       stroke: currentColor;
     }
 
-    /* Tables â€” estÃ¡ndar Ãºnico para TODAS las tablas de escritorio (padrÃ³n,
-       salud, educativo, auditorÃ­a y voluntariados). Misma cabecera, misma
+    /* Tables — estándar único para TODAS las tablas de escritorio (padrón,
+       salud, educativo, auditoría y voluntariados). Misma cabecera, misma
        densidad de fila y mismo ritmo, para que se lean como hermanas.
        Las acciones de fila viven en .row-action (views-comun.css). */
     .table-container {
@@ -213,7 +213,7 @@
       }
     }
 
-    /* Mobile Cards Accordion (Modo MÃ³vil/Celulares) */
+    /* Mobile Cards Accordion (Modo Móvil/Celulares) */
     .mobile-accordion-list {
       display: none;
       flex-direction: column;
@@ -302,8 +302,8 @@
       width: 100%;
     }
 
-    /* En la tarjeta mÃ³vil las estrategias se leen como el resto de valores:
-       alineadas a la derecha y con el mismo tamaÃ±o y tinta. */
+    /* En la tarjeta móvil las estrategias se leen como el resto de valores:
+       alineadas a la derecha y con el mismo tamaño y tinta. */
     .datacard-row .servicios-badge-group {
       align-items: flex-end;
       text-align: right;
@@ -334,7 +334,7 @@
       word-break: break-word;
     }
 
-    /* Bloque expandible para "Ver mÃ¡s" / "View more" */
+    /* Bloque expandible para "Ver más" / "View more" */
     .datacard-extra {
       display: none;
       flex-direction: column;
@@ -392,7 +392,7 @@
       background: var(--surface-2);
     }
 
-    /* DetecciÃ³n Responsiva para Celulares / Pantallas Menores a 768px (Android / Tablets) */
+    /* Detección Responsiva para Celulares / Pantallas Menores a 768px (Android / Tablets) */
     @media (max-width: 768px) {
       .card {
         padding: 14px 14px !important;
@@ -535,7 +535,7 @@
     .badge-red { background: var(--gt-red-bg); color: var(--text-danger); border: 1px solid var(--gt-red-border); }
     .badge-orange { background: rgba(249, 115, 22, 0.14); color: var(--gt-orange); border: 1px solid rgba(249, 115, 22, 0.35); }
 
-    /* Botones de Asistencia Reactivos (PC y MÃ³vil) */
+    /* Botones de Asistencia Reactivos (PC y Móvil) */
     .btn-asist {
       padding: 6px 10px;
       font-size: 12px;
@@ -641,7 +641,7 @@
       color: var(--text-muted);
     }
 
-    /* Texto de apoyo bajo un campo: explica el rango vÃ¡lido sin competir con
+    /* Texto de apoyo bajo un campo: explica el rango válido sin competir con
        el valor ni con el estado de error. */
     .form-help {
       font-size: 11px;
@@ -890,7 +890,7 @@
       display: flex;
     }
 
-    /* Toast Notifications Container (Bottom-Right en PC, Bottom-Center en MÃ³viles) */
+    /* Toast Notifications Container (Bottom-Right en PC, Bottom-Center en Móviles) */
     .toast-container {
       position: fixed;
       bottom: max(20px, env(safe-area-inset-bottom));
@@ -927,8 +927,8 @@
         border-color var(--dur-fast) var(--ease-smooth);
     }
 
-    /* ConfirmaciÃ³n con acciones (descarga en Android y descarte de cambios):
-       mismo cartÃ³n que un toast, con dos botones y sin autodestrucciÃ³n. */
+    /* Confirmación con acciones (descarga en Android y descarte de cambios):
+       mismo cartón que un toast, con dos botones y sin autodestrucción. */
     .toast-msg.download-toast,
     .toast-msg.toast-confirmacion {
       flex-direction: column;
@@ -966,7 +966,7 @@
         var(--shadow-overlay);
     }
 
-    /* Marca de tipo: chip con icono sobre fondo teÃ±ido y anillo interior del
+    /* Marca de tipo: chip con icono sobre fondo teñido y anillo interior del
        mismo tono. El titulo queda neutro para que el color no compita con la
        lectura; el tipo lo dice el chip. */
     .toast-icono {
@@ -1076,8 +1076,8 @@
       }
     }
 
-    /* Android: el aviso de descarga ocupa el ancho Ãºtil y queda centrado
-       abajo, tambiÃ©n en tablets donde el corte de 768 px no aplica. */
+    /* Android: el aviso de descarga ocupa el ancho útil y queda centrado
+       abajo, también en tablets donde el corte de 768 px no aplica. */
     .toast-container.toast-container--android {
       left: 12px;
       right: 12px;
@@ -1139,7 +1139,7 @@
     }
 
     /* ===========================================================================
-       ODÃ“METRO / CONTADOR DE KILOMETRAJE (SLOT ROLL METRICS)
+       ODÓMETRO / CONTADOR DE KILOMETRAJE (SLOT ROLL METRICS)
        =========================================================================== */
     .odometer-wrap {
       display: inline-flex;

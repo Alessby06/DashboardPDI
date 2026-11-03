@@ -32,7 +32,7 @@ const programaDesde = (b) => {
   const e = (b.estrategia || '').toLowerCase();
   if (e.includes('mixto')) return 'Mixto';
   if (e.includes('lonchera')) return 'Lonchera Infantil';
-  if (e.includes('casita') || e.includes('educat') || e.includes('acompaÃ±')) return 'Casita del Saber';
+  if (e.includes('casita') || e.includes('educat') || e.includes('acompañ')) return 'Casita del Saber';
   return 'Desayuno Infantil';
 };
 const tipoAtencionDesde = (b) => (b.estrategia || '').toLowerCase().includes('itinerante') ? 'Atencion itinerante' : 'Atencion fija';
@@ -120,7 +120,7 @@ for (const v of defaultVoluntarios) {
     { nom: v.nombres, ape: v.apellidos, dni: v.dni, fn: v.fechaNacimiento || null, dir: v.domicilio || '', dist: v.distrito || 'Otro', tel: v.celular || null, cod: v.codigo || '' });
   const sedeRef = defaultSedes.find(s => (v.sedeAsignada || '').toLowerCase().includes((s.nombre || '').toLowerCase()));
   const sedeId = sedeRef ? `sede:\`${id(sedeRef.nombre)}\`` : null;
-  const rolMap = { 'Voluntaria Responsable': 'Voluntaria Responsable', 'Voluntaria de Apoyo': 'Voluntaria de Apoyo', 'Mediadora Lectora': 'Mediadora Lectora', 'AcompaÃ±ante Pedagogica': 'Acompanante Pedagogica', 'Pastoral Comunitario': 'Pastoral Comunitario', 'Facilitadora': 'Facilitadora', 'Promotora Educativa': 'Promotora Educativa', 'Trabajadora Social ASP': 'Trabajadora Social ASP', 'Coordinadora General': 'Coordinacion General' };
+  const rolMap = { 'Voluntaria Responsable': 'Voluntaria Responsable', 'Voluntaria de Apoyo': 'Voluntaria de Apoyo', 'Mediadora Lectora': 'Mediadora Lectora', 'Acompañante Pedagogica': 'Acompanante Pedagogica', 'Pastoral Comunitario': 'Pastoral Comunitario', 'Facilitadora': 'Facilitadora', 'Promotora Educativa': 'Promotora Educativa', 'Trabajadora Social ASP': 'Trabajadora Social ASP', 'Coordinadora General': 'Coordinacion General' };
   await db.query(`
     CREATE persona_rol SET persona_id = ${vid}, rol = $rol, sede_id = ${sedeId || 'NONE'}, activo = true`,
     { rol: rolMap[v.rol] || 'Voluntaria de Apoyo' });
@@ -151,6 +151,6 @@ for (const c of defaultCasosSociales) {
   console.log('caso OK', c.codigo);
 }
 
-console.log('MigraciÃ³n completada.');
+console.log('Migración completada.');
 await db.close();
 

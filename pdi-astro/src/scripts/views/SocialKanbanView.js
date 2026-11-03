@@ -917,8 +917,8 @@ export const SocialKanbanView = {
     const rolActivo = localStorage.getItem("pdi_active_role") || "social";
     if (rolActivo !== "coord" && rolActivo !== "admin") {
       window.PDI?.ToastView?.show?.(
-        "Autorizaci��n restringida",
-        "Solo Coordinaci��n General o Administraci��n TI pueden resolver solicitudes de fase.",
+        "Autorización restringida",
+        "Solo Coordinación General o Administración TI pueden resolver solicitudes de fase.",
         "warning",
       );
       return;
@@ -976,8 +976,8 @@ export const SocialKanbanView = {
     const rolActivo = localStorage.getItem("pdi_active_role") || "social";
     if (rolActivo !== "coord" && rolActivo !== "admin") {
       window.PDI?.ToastView?.show?.(
-        "Autorizaci��n restringida",
-        "Solo Coordinaci��n General o Administraci��n TI pueden resolver solicitudes de fase.",
+        "Autorización restringida",
+        "Solo Coordinación General o Administración TI pueden resolver solicitudes de fase.",
         "warning",
       );
       return;

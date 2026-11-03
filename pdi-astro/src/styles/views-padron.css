@@ -85,7 +85,7 @@
         gap: 14px;
       }
 
-      /* Filtrado activo de columna segÃºn la pestaÃ±a seleccionada en mÃ³vil */
+      /* Filtrado activo de columna según la pestaña seleccionada en móvil */
       .kanban-board[data-mobile-active-stage="pendiente"] .kanban-col:not([data-col-stage="pendiente"]),
       .kanban-board[data-mobile-active-stage="evaluacion"] .kanban-col:not([data-col-stage="evaluacion"]),
       .kanban-board[data-mobile-active-stage="canalizado"] .kanban-col:not([data-col-stage="canalizado"]),
@@ -238,7 +238,7 @@
       }
     }
 
-    /* Barra de PaginaciÃ³n y Densidad */
+    /* Barra de Paginación y Densidad */
     .audit-pagination-bar,
     .padron-pagination-bar {
       display: flex;
@@ -362,7 +362,7 @@
 
     @media (max-width: 900px) {
 
-      /* AnimaciÃ³n de entrada viva y escalonada (Staggered Reveal) en mÃ³viles */
+      /* Animación de entrada viva y escalonada (Staggered Reveal) en móviles */
 
     }
 
@@ -418,7 +418,7 @@
        antes dimensionaba la caja del modal (82vh, 1080px) no hace falta:
        el marco de la pagina vive en css/expediente.css. === */
 
-    /* RediseÃ±o SecciÃ³n 5: Ley N.Â° 29733 (PC & MÃ³vil) */
+    /* Rediseño Sección 5: Ley N.° 29733 (PC & Móvil) */
 
     .ley-consent-card {
       background: var(--surface-1);
@@ -447,24 +447,24 @@
       align-self: flex-start;
     }
 
-    /* === OPTIMIZACIÃ“N RESPONSIVA PARA DISPOSITIVOS MÃ“VILES (ANDROID / TABLETS <= 768px) === */
+    /* === OPTIMIZACIÓN RESPONSIVA PARA DISPOSITIVOS MÓVILES (ANDROID / TABLETS <= 768px) === */
     @media (max-width: 768px) {
 
-      /* Barra de PestaÃ±as Deslizable Horizontal (Pill Tabs) */
+      /* Barra de Pestañas Deslizable Horizontal (Pill Tabs) */
 
       /* Carnet de Identidad en formato Horizontal Compacto */
 
-      /* Formularios en 1 Sola Columna para MÃ³viles (Expediente y Nuevo Usuario) */
+      /* Formularios en 1 Sola Columna para Móviles (Expediente y Nuevo Usuario) */
 
-      /* PadrÃ³n de Personas Autorizadas */
+      /* Padrón de Personas Autorizadas */
     }
 
-/* === OPTIMIZACIÃ“N MÃ“VIL TOTAL EXPEDIENTE (ALTA PRIORIDAD PARA ANDROID <= 768px) === */
+/* === OPTIMIZACIÓN MÓVIL TOTAL EXPEDIENTE (ALTA PRIORIDAD PARA ANDROID <= 768px) === */
 
 /* Photo Uploader Component */
 
 /* ==========================================================================
-   PADRÃ“N BENEFICIARIOS: BÃºsqueda Facetada, PÃ­ldoras de Chips y Slider de Edad
+   PADRÓN BENEFICIARIOS: Búsqueda Facetada, Píldoras de Chips y Slider de Edad
    ========================================================================== */
 
 .facet-edad-header {
@@ -714,7 +714,7 @@
   margin-left: 6px;
 }
 
-/* === CROQUIS Y GEORREFERENCIACIÃ“N DE VIVIENDA (GOOGLE MAPS & FACHADA) === */
+/* === CROQUIS Y GEORREFERENCIACIÓN DE VIVIENDA (GOOGLE MAPS & FACHADA) === */
 
 /* Estilo Linear / Raycast: Cross-Fade de Opacidad Pura (200ms) - Cero Lag y 120 FPS */
 
@@ -722,7 +722,7 @@
 
 /* Estado 3: Modo Auto (Sensor Inteligente) */
 
-/* 3. Sensor / Monitor SO: Latido rÃ­tmico de sincronizaciÃ³n inteligente */
+/* 3. Sensor / Monitor SO: Latido rítmico de sincronización inteligente */
 
 /* Adaptabilidad para Cajas de Carga de Foto y Secciones de Retiro en Modo Oscuro */
 
@@ -759,8 +759,8 @@
   box-shadow: var(--shadow-sm);
 }
 
-/* El hover solo existe con puntero fino: en tÃ¡ctil el navegador deja el
-   :hover pegado tras el toque y el botÃ³n parecÃ­a seguir pulsado. */
+/* El hover solo existe con puntero fino: en táctil el navegador deja el
+   :hover pegado tras el toque y el botón parecía seguir pulsado. */
 @media (hover: hover) and (pointer: fine) {
   .view-actions .btn-action:not(.primary):hover {
     background: var(--surface-hover);
@@ -786,7 +786,7 @@
   }
 }
 
-/* --- TABLA PRINCIPAL DEL PADRÃ“N: ESTABILIDAD Y ZERO LAYOUT SHIFT --- */
+/* --- TABLA PRINCIPAL DEL PADRÓN: ESTABILIDAD Y ZERO LAYOUT SHIFT --- */
 #cardPadronBeneficiarios .table-container {
   overflow-x: auto;
 }
@@ -810,15 +810,15 @@
   border-spacing: 0;
 }
 
-/* La tabla hereda de `.data-table` el padding, el borde y el hover. La Ãºnica
-   excepciÃ³n local es permitir que los encabezados largos partan en dos lÃ­neas
+/* La tabla hereda de `.data-table` el padding, el borde y el hover. La única
+   excepción local es permitir que los encabezados largos partan en dos líneas
    dentro de las siete columnas. */
 #tablaBeneficiarios thead th {
   white-space: normal;
 }
 
 /* Anchos para las 7 columnas actuales. La suma da 100 %; Estado y Acciones
-   conservan holgura para Â«InactivoÂ» y para el botÃ³n de la fila. */
+   conservan holgura para «Inactivo» y para el botón de la fila. */
 #tablaBeneficiarios thead th:nth-child(1) { width: 22%; text-align: left; }
 #tablaBeneficiarios thead th:nth-child(2) { width: 15%; text-align: left; }
 #tablaBeneficiarios thead th:nth-child(3) { width: 17%; text-align: left; }
@@ -833,8 +833,8 @@
   white-space: nowrap;
 }
 
-/* Selector de orden propio: mismo lenguaje que el botÃ³n de filtros, pero
-   como control secundario (sin el verde de acciÃ³n). */
+/* Selector de orden propio: mismo lenguaje que el botón de filtros, pero
+   como control secundario (sin el verde de acción). */
 .padron-sort-wrap {
   display: flex;
   align-items: center;
@@ -875,7 +875,7 @@
   box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--brand-primary);
 }
 
-/* El foco programÃ¡tico con puntero (cerrar el menÃº) no pinta anillo. */
+/* El foco programático con puntero (cerrar el menú) no pinta anillo. */
 .padron-sort-btn:focus:not(:focus-visible) {
   outline: none;
   box-shadow: none;
@@ -914,7 +914,7 @@
 }
 
 /* Misma entrada que el panel de filtros: aparece bajando 6 px desde el
-   disparador, con la curva y la duraciÃ³n del sistema. */
+   disparador, con la curva y la duración del sistema. */
 .padron-sort-wrap .padron-sort-dropdown.open .padron-sort-menu {
   display: flex;
   opacity: 1;
@@ -997,16 +997,16 @@
   }
 }
 
-/* AnimaciÃ³n de entrada suave sin translateY para filas de tabla */
+/* Animación de entrada suave sin translateY para filas de tabla */
 #tablaBeneficiarios tbody tr.ixd-entrada {
   animation: ixdEntradaRow var(--dur-norm) var(--ease-out) backwards;
   transform: none !important;
 }
 
 /* ===========================================================================
-   ESTÃNDAR DE BOTONES DE ACCIÃ“N EN CABECERA MÃ“VIL (IMPECCABLE / OPERATE NORM)
-   Garantiza simetrÃ­a exacta, distribuciÃ³n lateral de extremo a extremo y
-   touch targets ergonÃ³micos (40px/38px) idÃ©nticos a /voluntariados.
+   ESTÁNDAR DE BOTONES DE ACCIÓN EN CABECERA MÓVIL (IMPECCABLE / OPERATE NORM)
+   Garantiza simetría exacta, distribución lateral de extremo a extremo y
+   touch targets ergonómicos (40px/38px) idénticos a /voluntariados.
    =========================================================================== */
 @media (max-width: 768px) {
   #view-beneficiarios .view-header,
@@ -1104,8 +1104,8 @@
 }
 
 /* ===========================================================================
-   TABLA DEL PADRÃ“N Â· formato de usuario en dos lÃ­neas (estilo Voluntariados)
-   Avatar con iniciales + nombre + cÃ³digo en verde; sede/distrito, estrategia,
+   TABLA DEL PADRÓN · formato de usuario en dos líneas (estilo Voluntariados)
+   Avatar con iniciales + nombre + código en verde; sede/distrito, estrategia,
    contacto, tamizajes/apoderado y estado con el mismo lenguaje visual.
    =========================================================================== */
 #tablaBeneficiarios .padron-user-cell {

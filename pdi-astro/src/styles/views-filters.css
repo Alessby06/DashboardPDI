@@ -58,8 +58,8 @@
   border-radius: var(--radius-md);
   font-weight: 600;
   font-size: 13px;
-  /* Mismo borde que el botÃ³n de ordenar: el tono --filter-border era mÃ¡s
-     oscuro y hacÃ­a que Filtros pareciera tener un contorno aparte. */
+  /* Mismo borde que el botón de ordenar: el tono --filter-border era más
+     oscuro y hacía que Filtros pareciera tener un contorno aparte. */
   border: 1px solid var(--border-subtle);
   background: var(--surface-2);
   color: var(--text-main);
@@ -76,8 +76,8 @@
   position: relative;
 }
 
-/* El hover solo existe con puntero fino: en tÃ¡ctil se queda pegado tras el
-   toque y el disparador parecÃ­a activo con la hoja ya cerrada. */
+/* El hover solo existe con puntero fino: en táctil se queda pegado tras el
+   toque y el disparador parecía activo con la hoja ya cerrada. */
 @media (hover: hover) and (pointer: fine) {
   .audit-filter-btn:hover {
     background: var(--surface-hover);
@@ -87,7 +87,7 @@
 
 .audit-filter-btn.has-filters {
   /* El contador comunica que hay filtros. El texto y el fondo verdes eran
-     el mismo Â«encendidoÂ» que el resto de botones neutros ya no tiene. */
+     el mismo «encendido» que el resto de botones neutros ya no tiene. */
   background: var(--surface-hover);
   color: var(--text-main);
 }
@@ -185,11 +185,11 @@
   }
 }
 
-/* Variante de entrada Â«compÃ¡sÂ»: el recorte direccional y el descenso de 6 px
+/* Variante de entrada «compás»: el recorte direccional y el descenso de 6 px
    siguen siendo la firma del sistema; lo que cambia es el contenido, que se
    asienta en tres tiempos (cabecera, campos, pie) en vez de aparecer de golpe
    con la hoja. La suma queda en ~310 ms, dentro del techo de 400 ms que el
-   sistema reserva a capas. Al cerrar no hay compÃ¡s: el recorte ya es la
+   sistema reserva a capas. Al cerrar no hay compás: el recorte ya es la
    salida y no conviene hacer esperar. */
 @keyframes pdi-filtros-zona-in {
   from {
@@ -283,8 +283,8 @@
   }
 }
 
-/* El Â«Limpiar filtrosÂ» de la barra de chips necesita un contorno propio:
-   como texto suelto parecÃ­a flotar sobre la barra. */
+/* El «Limpiar filtros» de la barra de chips necesita un contorno propio:
+   como texto suelto parecía flotar sobre la barra. */
 .padron-active-chips-bar .btn-text-subtle {
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
@@ -340,7 +340,7 @@
   }
 }
 
-/* SeÃ±al de que hay mÃ¡s campos por debajo: sin ella, el Ãºltimo campo queda
+/* Señal de que hay más campos por debajo: sin ella, el último campo queda
    cortado por el borde y no se entiende que siga la lista. */
 .audit-filters-menu[data-scroll-abajo="si"] .audit-filters-body {
   box-shadow: inset 0 -18px 14px -14px color-mix(in srgb, var(--surface-1) 85%, transparent);
@@ -353,7 +353,7 @@
 }
 
 .audit-field-label {
-  /* RÃ³tulo (rol Label del sistema): 11/800, 0.1em. */
+  /* Rótulo (rol Label del sistema): 11/800, 0.1em. */
   font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
@@ -424,7 +424,7 @@
 }
 
 .padron-active-chips-label {
-  /* RÃ³tulo (rol Label): 11/800, 0.1em. */
+  /* Rótulo (rol Label): 11/800, 0.1em. */
   font-size: 11px;
   font-weight: 800;
   color: var(--text-dim);
@@ -433,7 +433,7 @@
 }
 
 @media (max-width: 768px) {
-  /* En mÃ³vil el rÃ³tulo y Â«Limpiar filtrosÂ» comparten la primera fila; los
+  /* En móvil el rótulo y «Limpiar filtros» comparten la primera fila; los
      chips bajan a la segunda y ocupan todo el ancho. */
   .padron-active-chips-bar {
     display: grid;
@@ -646,8 +646,8 @@
   width: 100%;
   max-height: none;
   overflow: hidden;
-  /* El submenÃº no scrollea solo: si conserva `contain`, se traga la rueda y
-     el cuerpo del panel deja de desplazarse mientras el cursor estÃ¡ encima. */
+  /* El submenú no scrollea solo: si conserva `contain`, se traga la rueda y
+     el cuerpo del panel deja de desplazarse mientras el cursor está encima. */
   overscroll-behavior: auto;
   display: flex;
   opacity: 0;
@@ -709,7 +709,7 @@
    4. FOCO VISIBLE Y CONTRASTE
    --------------------------------------------------------------------------- */
 
-/* El clic de ratÃ³n no debe dejar el contorno oscuro del foco. El teclado sÃ­. */
+/* El clic de ratón no debe dejar el contorno oscuro del foco. El teclado sí. */
 .audit-filter-btn:focus:not(:focus-visible) {
   outline: none;
   box-shadow: none;
@@ -851,9 +851,9 @@
 
 @media (max-width: 768px) {
   body.filter-sheet-open {
-    /* Solo se bloquea el gesto tÃ¡ctil. Sin `overflow: hidden` ni padding: el
-       cambio de ancho/scrollbar al cerrar repintaba la tabla y se veÃ­a un
-       parpadeo cuando el arrastre ya habÃ­a retirado el velo. */
+    /* Solo se bloquea el gesto táctil. Sin `overflow: hidden` ni padding: el
+       cambio de ancho/scrollbar al cerrar repintaba la tabla y se veía un
+       parpadeo cuando el arrastre ya había retirado el velo. */
     touch-action: none ;
   }
 
@@ -898,7 +898,7 @@
     visibility: hidden;
     pointer-events: none;
     /* El velo se apaga con la hoja y con su curva de salida: si se adelanta,
-       se ve la pÃ¡gina sin oscurecer mientras la hoja aÃºn baja. */
+       se ve la página sin oscurecer mientras la hoja aún baja. */
     transition: opacity var(--sheet-out) var(--sheet-exit-ease),
       visibility 0s linear var(--sheet-out);
   }
@@ -907,8 +907,8 @@
     opacity: var(--filtro-velo, 1);
     visibility: visible;
     pointer-events: auto;
-    transition: /* El velo entra antes que la hoja: primero se retira la pÃ¡gina, luego
-         sube el panel. La salida lo deja atrÃ¡s. */
+    transition: /* El velo entra antes que la hoja: primero se retira la página, luego
+         sube el panel. La salida lo deja atrás. */
       opacity var(--dur-fast) var(--ease-out),
       visibility 0s;
   }
@@ -942,7 +942,7 @@
     box-sizing: border-box;
     display: flex;
     /* Hoja inferior de filtros: sube desde el borde sin inclinarse ni
-       escalar. El texto viaja nÃ­tido y la animaciÃ³n se queda en el
+       escalar. El texto viaja nítido y la animación se queda en el
        compositor. `visibility` evita que la hoja descolocada capture toques. */
     visibility: hidden;
     transform-origin: 50% 100%;
@@ -961,7 +961,7 @@
       visibility 0s;
   }
 
-  /* El compÃ¡s de escritorio no viaja a la hoja mÃ³vil: el contenido entra
+  /* El compás de escritorio no viaja a la hoja móvil: el contenido entra
      con la hoja, sin capas de opacidad ni retardos. */
   .audit-filters-dropdown.open .audit-filters-menu > .audit-filters-header,
   .audit-filters-dropdown.open .audit-filters-menu > .audit-filters-body,
