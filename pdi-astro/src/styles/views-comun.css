@@ -493,9 +493,11 @@
       border-radius: var(--radius-sm);
     }
 
-    .btn-close-modal:hover {
-      color: var(--text-main);
-      background: var(--surface-hover);
+    @media (hover: hover) and (pointer: fine) {
+      .btn-close-modal:hover {
+        color: var(--text-main);
+        background: var(--surface-hover);
+      }
     }
 
     /* ===========================================================================
@@ -759,8 +761,10 @@
   cursor: pointer;
 }
 
-.padron-sort-menu [role="option"]:hover {
-  background: var(--surface-hover);
+@media (hover: hover) and (pointer: fine) {
+  .padron-sort-menu [role="option"]:hover {
+    background: var(--surface-hover);
+  }
 }
 
 .padron-sort-menu [role="option"][aria-selected="true"] {
@@ -866,10 +870,12 @@
   display: block;
 }
 
-.audit-search-clear:hover {
-  background: var(--surface-hover);
-  color: var(--text-main);
-  border-color: var(--border-bright);
+@media (hover: hover) and (pointer: fine) {
+  .audit-search-clear:hover {
+    background: var(--surface-hover);
+    color: var(--text-main);
+    border-color: var(--border-bright);
+  }
 }
 
 @media (max-width: 768px) {
@@ -1028,9 +1034,11 @@
               transform var(--dur-fast) var(--ease-spring);
 }
 
-.btn-page:hover:not(:disabled) {
-  background: var(--surface-hover);
-  border-color: var(--border-bright);
+@media (hover: hover) and (pointer: fine) {
+  .btn-page:hover:not(:disabled) {
+    background: var(--surface-hover);
+    border-color: var(--border-bright);
+  }
 }
 
 .btn-page:disabled {
@@ -1152,16 +1160,19 @@
     display: block;
   }
 
-  .row-action:hover {
-    background: var(--surface-hover);
-    border-color: var(--border-bright);
-    color: var(--text-main);
+  @media (hover: hover) and (pointer: fine) {
+    .row-action:hover {
+      background: var(--surface-hover);
+      border-color: var(--border-bright);
+      color: var(--text-main);
+    }
   }
 
-  /* El lápiz comparte el hover neutro del resto de acciones de fila. */
-  .row-action--edit:hover {
-    border-color: var(--border-bright);
-    color: var(--text-main);
+  @media (hover: hover) and (pointer: fine) {
+    .row-action--edit:hover {
+      border-color: var(--border-bright);
+      color: var(--text-main);
+    }
   }
 }
 
@@ -1184,7 +1195,7 @@
   padding: 0;
   flex-shrink: 0;
   box-sizing: border-box;
-  transition: all var(--dur-fast) var(--ease-smooth);
+  transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -1389,10 +1400,12 @@ input[type="range"] {
         cursor: not-allowed !important;
         pointer-events: none !important;
   }
-.btn-page:hover:not(:disabled) {
-        background: var(--surface-hover);
-        border-color: var(--border-bright);
-      }
+@media (hover: hover) and (pointer: fine) {
+  .btn-page:hover:not(:disabled) {
+    background: var(--surface-hover);
+    border-color: var(--border-bright);
+  }
+}
 .audit-meta-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -1554,18 +1567,20 @@ input[type="range"] {
         border-radius: 6px;
         background: var(--surface-1);
         border: 1px solid var(--border-subtle);
-        transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: background-color 0.18s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.18s cubic-bezier(0.4, 0, 0.2, 1), color 0.18s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.18s cubic-bezier(0.4, 0, 0.2, 1), transform 0.18s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.18s cubic-bezier(0.4, 0, 0.2, 1), filter 0.18s cubic-bezier(0.4, 0, 0.2, 1), outline-color 0.18s cubic-bezier(0.4, 0, 0.2, 1), translate 0.18s cubic-bezier(0.4, 0, 0.2, 1), scale 0.18s cubic-bezier(0.4, 0, 0.2, 1);
         cursor: default;
         user-select: none;
       }
 .programa-item.editable {
         cursor: pointer;
       }
-.programa-item.editable:hover {
-        border-color: var(--gt-green);
-        background: rgba(var(--brand-rgb), 0.04);
-        transform: translateY(-1px);
-      }
+@media (hover: hover) and (pointer: fine) {
+  .programa-item.editable:hover {
+    border-color: var(--gt-green);
+    background: rgba(var(--brand-rgb), 0.04);
+    transform: translateY(-1px);
+  }
+}
 .programa-item.active {
         border-color: var(--gt-green-border);
         background: rgba(var(--brand-rgb), 0.07);
@@ -1607,10 +1622,12 @@ input[type="range"] {
         gap: 12px;
         margin-bottom: 16px;
       }
-.ley-consent-card:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-ambient);
-      }
+@media (hover: hover) and (pointer: fine) {
+  .ley-consent-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-ambient);
+  }
+}
 .ley-card-header {
         display: flex;
         align-items: center;
@@ -1659,11 +1676,13 @@ input[type="range"] {
 .ley-cert-text strong {
         color: var(--text-brand);
       }
-.retiro-person-card:hover {
-        transform: translateY(-2px);
-        border-color: var(--gt-green-border);
-        box-shadow: var(--shadow-ambient);
-      }
+@media (hover: hover) and (pointer: fine) {
+  .retiro-person-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--gt-green-border);
+    box-shadow: var(--shadow-ambient);
+  }
+}
 .retiro-person-photo img, .retiro-person-photo svg {
         width: 100%;
         height: 100%;
@@ -1905,15 +1924,17 @@ input[type="range"] {
     border-radius: var(--radius-sm) !important;
     border: 1px solid var(--border-subtle) !important;
   }
-.check-apoderado-label:hover {
+@media (hover: hover) and (pointer: fine) {
+  .check-apoderado-label:hover {
     background: var(--surface-hover) !important;
     border-color: var(--brand-primary) !important;
   }
+}
 #menuVoluntariosFilterPanel [data-vol-distrito],
   #menuVoluntariosFilterPanel [data-vol-servicio],
   #menuVoluntariosFilterPanel [data-vol-rol],
   #menuVoluntariosFilterPanel [data-vol-estado] {
-    transition: all var(--dur-fast) var(--ease-smooth);
+    transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);
   }
 #menuVoluntariosFilterPanel [data-vol-distrito].selected,
   #menuVoluntariosFilterPanel [data-vol-servicio].selected,
@@ -2215,10 +2236,12 @@ input[type="range"] {
            la columna de contenido, al plegar el menu habia que rasterizar
            todas esas capas en cada fotograma. */
   }
-.photo-uploader-box:hover {
+@media (hover: hover) and (pointer: fine) {
+  .photo-uploader-box:hover {
     border-color: var(--gt-green) !important;
     background: var(--surface-hover) !important;
   }
+}
 .croquis-box-header {
     display: flex;
     align-items: center;
@@ -2245,9 +2268,11 @@ input[type="range"] {
     border-color: var(--gt-green-border) !important;
     background: rgba(var(--brand-rgb), 0.08) !important;
   }
-.btn-gps-capture:hover {
+@media (hover: hover) and (pointer: fine) {
+  .btn-gps-capture:hover {
     background: rgba(var(--brand-rgb), 0.16) !important;
   }
+}
 .croquis-embed-grid {
     display: grid;
     grid-template-columns: 1fr 140px;
@@ -2311,12 +2336,14 @@ input[type="range"] {
     cursor: pointer;
     overflow: hidden;
     position: relative;
-    transition: all var(--dur-fast) var(--ease-smooth);
+    transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);
   }
-.croquis-fachada-preview-box:hover {
+@media (hover: hover) and (pointer: fine) {
+  .croquis-fachada-preview-box:hover {
     border-color: var(--gt-green);
     background: var(--surface-hover);
   }
+}
 .croquis-fachada-placeholder {
     display: flex;
     flex-direction: column;
@@ -2353,10 +2380,12 @@ input[type="range"] {
     border-color: var(--border-subtle) !important;
     color: var(--text-main) !important;
   }
-.photo-uploader-box:hover {
+@media (hover: hover) and (pointer: fine) {
+  .photo-uploader-box:hover {
     background: var(--surface-hover) !important;
     border-color: var(--brand-primary) !important;
   }
+}
 .croquis-box-header {
     display: flex;
     justify-content: space-between;
@@ -2386,10 +2415,12 @@ input[type="range"] {
     border-radius: var(--radius-sm) !important;
     font-weight: 700 !important;
   }
-.btn-gps-capture:hover {
+@media (hover: hover) and (pointer: fine) {
+  .btn-gps-capture:hover {
     background: var(--gt-green) !important;
     color: var(--on-brand) !important;
   }
+}
 .croquis-embed-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -2470,10 +2501,12 @@ input[type="range"] {
     overflow: hidden;
     box-sizing: border-box;
   }
-.croquis-fachada-preview-box:hover {
+@media (hover: hover) and (pointer: fine) {
+  .croquis-fachada-preview-box:hover {
     border-color: var(--brand-primary);
     background: var(--surface-hover);
   }
+}
 .croquis-fachada-placeholder {
     display: flex;
     flex-direction: column;

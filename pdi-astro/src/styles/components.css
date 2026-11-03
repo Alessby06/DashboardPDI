@@ -78,10 +78,12 @@
       white-space: nowrap;
     }
 
-    .panel-link:hover {
-      color: var(--brand-hover);
-      text-decoration: underline;
-      text-underline-offset: 3px;
+    @media (hover: hover) and (pointer: fine) {
+      .panel-link:hover {
+        color: var(--brand-hover);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
     }
 
     /* KPI Grid */
@@ -206,8 +208,10 @@
       transition: background 0.15s ease;
     }
 
-    .data-table tbody tr:hover {
-      background: var(--surface-hover);
+    @media (hover: hover) and (pointer: fine) {
+      .data-table tbody tr:hover {
+        background: var(--surface-hover);
+      }
     }
 
     /* Mobile Cards Accordion (Modo Móvil/Celulares) */
@@ -366,8 +370,10 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    .datacard-toggle-btn:hover {
-      background: var(--surface-hover);
+    @media (hover: hover) and (pointer: fine) {
+      .datacard-toggle-btn:hover {
+        background: var(--surface-hover);
+      }
     }
 
     .datacard-toggle-btn svg {
@@ -545,9 +551,11 @@
       will-change: transform;
     }
 
-    .btn-asist:hover {
-      background: var(--surface-hover);
-      color: var(--text-main);
+    @media (hover: hover) and (pointer: fine) {
+      .btn-asist:hover {
+        background: var(--surface-hover);
+        color: var(--text-main);
+      }
     }
 
     .btn-asist.active-P {
@@ -715,9 +723,11 @@
       padding-right: 12px !important;
     }
 
-    select.form-control:hover {
-      border-color: var(--border-bright);
-      background-color: var(--surface-hover);
+    @media (hover: hover) and (pointer: fine) {
+      select.form-control:hover {
+        border-color: var(--border-bright);
+        background-color: var(--surface-hover);
+      }
     }
 
     select.form-control option {
@@ -758,9 +768,11 @@
       font-size: 13px;
     }
 
-    .custom-dropdown-btn:hover {
-      background: var(--surface-hover);
-      border-color: var(--border-bright);
+    @media (hover: hover) and (pointer: fine) {
+      .custom-dropdown-btn:hover {
+        background: var(--surface-hover);
+        border-color: var(--border-bright);
+      }
     }
 
     .custom-dropdown.open .custom-dropdown-btn {
@@ -868,9 +880,11 @@
       transition: opacity var(--dur-fast) var(--ease-smooth);
     }
 
-    .custom-dropdown-item:hover {
-      background: var(--surface-hover);
-      color: var(--text-main);
+    @media (hover: hover) and (pointer: fine) {
+      .custom-dropdown-item:hover {
+        background: var(--surface-hover);
+        color: var(--text-main);
+      }
     }
 
     .custom-dropdown-item.selected {
@@ -1038,9 +1052,11 @@
         color var(--dur-fast) var(--ease-smooth);
     }
 
-    .toast-cerrar:hover {
-      background: var(--surface-2);
-      color: var(--text-main);
+    @media (hover: hover) and (pointer: fine) {
+      .toast-cerrar:hover {
+        background: var(--surface-2);
+        color: var(--text-main);
+      }
     }
 
     /* Salida: la misma transition de la entrada, activada por clase. */

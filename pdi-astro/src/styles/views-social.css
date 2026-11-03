@@ -66,9 +66,11 @@
         box-sizing: border-box;
       }
 
-      .stage-seg-btn:hover {
-        color: var(--text-main);
-        background: rgba(255, 255, 255, 0.04);
+      @media (hover: hover) and (pointer: fine) {
+        .stage-seg-btn:hover {
+          color: var(--text-main);
+          background: rgba(255, 255, 255, 0.04);
+        }
       }
 
       .stage-seg-btn.active {
@@ -175,8 +177,10 @@
       background: var(--border-subtle);
       border-radius: 4px;
     }
-    .kanban-board::-webkit-scrollbar-thumb:hover {
-      background: var(--gt-green);
+    @media (hover: hover) and (pointer: fine) {
+      .kanban-board::-webkit-scrollbar-thumb:hover {
+        background: var(--gt-green);
+      }
     }
 
     .kanban-col {
@@ -296,8 +300,10 @@
       background: var(--border-subtle);
       border-radius: 4px;
     }
-    .kanban-col-body::-webkit-scrollbar-thumb:hover {
-      background: var(--gt-green);
+    @media (hover: hover) and (pointer: fine) {
+      .kanban-col-body::-webkit-scrollbar-thumb:hover {
+        background: var(--gt-green);
+      }
     }
 
     /* ---------------------------------------------------------------------
@@ -768,13 +774,15 @@
       background: var(--surface-1);
       color: var(--text-muted);
       cursor: pointer;
-      transition: all var(--dur-fast) var(--ease-smooth);
+      transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);
     }
 
-    .social-tab-btn:hover {
-      background: var(--surface-hover);
-      color: var(--text-main);
-      border-color: var(--border-bright);
+    @media (hover: hover) and (pointer: fine) {
+      .social-tab-btn:hover {
+        background: var(--surface-hover);
+        color: var(--text-main);
+        border-color: var(--border-bright);
+      }
     }
 
     .social-tab-btn.active {
@@ -962,8 +970,10 @@
       }
     }
 
-    .social-request-card:hover {
-      border-color: var(--border-bright);
+    @media (hover: hover) and (pointer: fine) {
+      .social-request-card:hover {
+        border-color: var(--border-bright);
+      }
     }
 
     .social-request-card-header {
@@ -1150,12 +1160,14 @@
       white-space: nowrap;
       line-height: 1.25;
       letter-spacing: 0.02em;
-      transition: all var(--dur-fast) var(--ease-smooth);
+      transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);
     }
-    .kanban-card-code-link:hover {
-      background: rgba(2, 132, 199, 0.24);
-      border-color: var(--gt-blue);
-      text-decoration: none;
+    @media (hover: hover) and (pointer: fine) {
+      .kanban-card-code-link:hover {
+        background: rgba(2, 132, 199, 0.24);
+        border-color: var(--gt-blue);
+        text-decoration: none;
+      }
     }
 
     .kanban-card-sede-badge {
@@ -1257,7 +1269,7 @@
       font-weight: 500;
       cursor: pointer;
       border: 1px solid transparent;
-      transition: all var(--dur-fast) var(--ease-smooth);
+      transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);
       user-select: none;
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
@@ -1278,11 +1290,13 @@
       color: var(--text-brand);
       border-color: var(--gt-green-border);
     }
-    .kanban-btn.primary:hover {
-      background: var(--brand-primary);
-      border-color: var(--brand-primary);
-      color: var(--on-brand) !important;
-      box-shadow: var(--shadow-sm);
+    @media (hover: hover) and (pointer: fine) {
+      .kanban-btn.primary:hover {
+        background: var(--brand-primary);
+        border-color: var(--brand-primary);
+        color: var(--on-brand) !important;
+        box-shadow: var(--shadow-sm);
+      }
     }
 
     /* Secondary */
@@ -1291,10 +1305,12 @@
       color: var(--text-muted);
       border-color: var(--border-subtle);
     }
-    .kanban-btn.secondary:hover {
-      background: var(--surface-hover);
-      border-color: var(--border-bright);
-      color: var(--text-main);
+    @media (hover: hover) and (pointer: fine) {
+      .kanban-btn.secondary:hover {
+        background: var(--surface-hover);
+        border-color: var(--border-bright);
+        color: var(--text-main);
+      }
     }
 
     /* Success / Cerrar Caso: Johannes Gutenberg Azul Institucional */
@@ -1303,11 +1319,13 @@
       color: var(--gt-blue);
       border-color: var(--gt-blue-border);
     }
-    .kanban-btn.success:hover {
-      background: var(--gt-blue);
-      color: var(--on-solid) !important;
-      border-color: var(--gt-blue);
-      box-shadow: var(--shadow-sm);
+    @media (hover: hover) and (pointer: fine) {
+      .kanban-btn.success:hover {
+        background: var(--gt-blue);
+        color: var(--on-solid) !important;
+        border-color: var(--gt-blue);
+        box-shadow: var(--shadow-sm);
+      }
     }
 
     /* Warning / Reabrir: Ámbar sobrio institucional */
@@ -1316,11 +1334,13 @@
       color: var(--text-warning);
       border-color: var(--gt-yellow-border);
     }
-    .kanban-btn.warning:hover {
-      background: #d97706;
-      color: var(--on-solid) !important;
-      border-color: #d97706;
-      box-shadow: var(--shadow-sm);
+    @media (hover: hover) and (pointer: fine) {
+      .kanban-btn.warning:hover {
+        background: #d97706;
+        color: var(--on-solid) !important;
+        border-color: #d97706;
+        box-shadow: var(--shadow-sm);
+      }
     }
 
     .kanban-btn.full-width {
@@ -1486,8 +1506,10 @@
       transition: border-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth);
     }
 
-    .cred-calc-accordion:hover {
-      border-color: var(--border-bright);
+    @media (hover: hover) and (pointer: fine) {
+      .cred-calc-accordion:hover {
+        border-color: var(--border-bright);
+      }
     }
 
     .cred-calc-accordion.open {
@@ -1511,8 +1533,10 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    .cred-calc-toggle-btn:hover {
-      background: var(--surface-hover);
+    @media (hover: hover) and (pointer: fine) {
+      .cred-calc-toggle-btn:hover {
+        background: var(--surface-hover);
+      }
     }
 
     .cred-calc-header-left {
@@ -1764,8 +1788,10 @@
   transition: border-color 0.2s;
 }
 
-.socio-dim-card:hover {
-  border-color: var(--border-medium);
+@media (hover: hover) and (pointer: fine) {
+  .socio-dim-card:hover {
+    border-color: var(--border-medium);
+  }
 }
 
 .socio-dim-header {
@@ -1942,8 +1968,10 @@
   transition: background-color var(--dur-fast) var(--ease-smooth);
 }
 
-.padron-dropdown-item:hover:not(.zero-facet) {
-  background: var(--surface-hover);
+@media (hover: hover) and (pointer: fine) {
+  .padron-dropdown-item:hover:not(.zero-facet) {
+    background: var(--surface-hover);
+  }
 }
 
 .padron-dropdown-item.selected {
@@ -1970,7 +1998,7 @@
   justify-content: center;
   flex-shrink: 0;
   background: var(--surface-2);
-  transition: all var(--dur-fast) var(--ease-smooth);
+  transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);
 }
 
 .padron-dropdown-item.selected .padron-item-checkbox {

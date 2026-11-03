@@ -279,11 +279,13 @@
     background-color var(--dur-fast) var(--ease-smooth);
 }
 
-.btn-text-subtle:hover {
-  /* Restablecer no es destructivo: el hover informa, no alarma. El rojo
-     queda para quitar un filtro concreto, que si borra algo. */
-  color: var(--text-main);
-  background: var(--surface-hover);
+@media (hover: hover) and (pointer: fine) {
+  .btn-text-subtle:hover {
+    /* Restablecer no es destructivo: el hover informa, no alarma. El rojo
+    queda para quitar un filtro concreto, que si borra algo. */
+    color: var(--text-main);
+    background: var(--surface-hover);
+  }
 }
 
 /* El «Limpiar filtros» de la barra de chips necesita un contorno propio:
@@ -296,9 +298,11 @@
   padding: 4px 10px;
 }
 
-.padron-active-chips-bar .btn-text-subtle:hover {
-  border-color: var(--border-bright);
-  background: var(--surface-hover);
+@media (hover: hover) and (pointer: fine) {
+  .padron-active-chips-bar .btn-text-subtle:hover {
+    border-color: var(--border-bright);
+    background: var(--surface-hover);
+  }
 }
 
 .audit-filters-body {
@@ -334,9 +338,11 @@
   background-clip: padding-box;
 }
 
-.audit-filters-body::-webkit-scrollbar-thumb:hover {
-  background: var(--text-dim);
-  background-clip: padding-box;
+@media (hover: hover) and (pointer: fine) {
+  .audit-filters-body::-webkit-scrollbar-thumb:hover {
+    background: var(--text-dim);
+    background-clip: padding-box;
+  }
 }
 
 /* Señal de que hay más campos por debajo: sin ella, el último campo queda
@@ -475,8 +481,10 @@
   box-shadow: var(--shadow-sm);
 }
 
-.padron-chip:hover {
-  border-color: var(--text-dim);
+@media (hover: hover) and (pointer: fine) {
+  .padron-chip:hover {
+    border-color: var(--text-dim);
+  }
 }
 
 /* El quitar vive en tinta apagada; el rojo aparece solo al interactuar, que
@@ -506,13 +514,17 @@
   height: 10px;
 }
 
-.padron-chip-remove:hover {
-  background: var(--gt-red-bg);
-  color: var(--text-danger);
+@media (hover: hover) and (pointer: fine) {
+  .padron-chip-remove:hover {
+    background: var(--gt-red-bg);
+    color: var(--text-danger);
+  }
 }
 
-[data-theme="dark"] .padron-chip-remove:hover {
-  color: var(--gt-red);
+@media (hover: hover) and (pointer: fine) {
+  [data-theme="dark"] .padron-chip-remove:hover {
+    color: var(--gt-red);
+  }
 }
 
 
@@ -542,9 +554,11 @@
     background-color var(--dur-fast) var(--ease-smooth);
 }
 
-.padron-inner-dropdown-btn:hover {
-  border-color: var(--text-dim);
-  background: var(--surface-hover);
+@media (hover: hover) and (pointer: fine) {
+  .padron-inner-dropdown-btn:hover {
+    border-color: var(--text-dim);
+    background: var(--surface-hover);
+  }
 }
 
 .padron-inner-dropdown.open .padron-inner-dropdown-btn {
@@ -752,9 +766,11 @@
     border-color var(--dur-fast) var(--ease-smooth);
 }
 
-.btn-clear-empty-filters:hover {
-  background: var(--surface-hover);
-  border-color: var(--text-dim);
+@media (hover: hover) and (pointer: fine) {
+  .btn-clear-empty-filters:hover {
+    background: var(--surface-hover);
+    border-color: var(--text-dim);
+  }
 }
 
 .btn-clear-empty-filters:focus-visible {

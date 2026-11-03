@@ -546,8 +546,10 @@ html:not([data-pdi-ready="1"]) .nav-badge {
     transform var(--dur-press) var(--ease-spring);
 }
 
-.pdi-sk-retry:hover {
-  background: var(--brand-hover);
+@media (hover: hover) and (pointer: fine) {
+  .pdi-sk-retry:hover {
+    background: var(--brand-hover);
+  }
 }
 
 .pdi-sk-retry:focus-visible {

@@ -280,8 +280,10 @@
   transition: background-color var(--dur-fast) var(--ease-smooth);
 }
 
-.padron-dropdown-item:hover:not(.zero-facet) {
-  background: var(--surface-hover);
+@media (hover: hover) and (pointer: fine) {
+  .padron-dropdown-item:hover:not(.zero-facet) {
+    background: var(--surface-hover);
+  }
 }
 
 .padron-dropdown-item.selected {
@@ -308,7 +310,7 @@
   justify-content: center;
   flex-shrink: 0;
   background: var(--surface-2);
-  transition: all var(--dur-fast) var(--ease-smooth);
+  transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);
 }
 
 .padron-dropdown-item.selected .padron-item-checkbox {
@@ -593,9 +595,11 @@
   white-space: nowrap;
 }
 
-.sedes-people-tel:hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
+@media (hover: hover) and (pointer: fine) {
+  .sedes-people-tel:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
 }
 
 /* === ADAPTACIÓN RESPONSIVA MÓVIL (MASTER-DETAIL Y BOTTOM SHEET) === */
@@ -1043,9 +1047,11 @@
   transition: background-color var(--dur-fast);
 }
 
-.sede-tel-link:hover {
-  text-decoration: underline;
-  background: rgba(var(--brand-rgb), 0.22);
+@media (hover: hover) and (pointer: fine) {
+  .sede-tel-link:hover {
+    text-decoration: underline;
+    background: rgba(var(--brand-rgb), 0.22);
+  }
 }
 
 .btn-sede-map {

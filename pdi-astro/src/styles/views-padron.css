@@ -66,8 +66,10 @@
         gap: 8px;
       }
 
-      .social-mobile-dropdown-item:hover {
-        background: var(--surface-hover);
+      @media (hover: hover) and (pointer: fine) {
+        .social-mobile-dropdown-item:hover {
+          background: var(--surface-hover);
+        }
       }
 
       .social-mobile-dropdown-item.selected {
@@ -512,12 +514,14 @@
   font-weight: 700;
   padding: 3px 10px;
   cursor: pointer;
-  transition: all var(--dur-fast) var(--ease-smooth);
+  transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);
 }
 
-.btn-facet-all-edad:hover {
-  border-color: var(--border-bright);
-  color: var(--text-main);
+@media (hover: hover) and (pointer: fine) {
+  .btn-facet-all-edad:hover {
+    border-color: var(--border-bright);
+    color: var(--text-main);
+  }
 }
 
 .btn-facet-all-edad.active {
@@ -645,8 +649,10 @@
   transition: transform 0.1s ease;
 }
 
-.facet-range-slider-input::-webkit-slider-thumb:hover {
-  transform: scale(1.15);
+@media (hover: hover) and (pointer: fine) {
+  .facet-range-slider-input::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+  }
 }
 
 .facet-range-slider-input::-moz-range-thumb {
@@ -673,8 +679,10 @@
   transition: background-color var(--dur-fast) var(--ease-smooth);
 }
 
-.padron-dropdown-item:hover:not(.zero-facet) {
-  background: var(--surface-hover);
+@media (hover: hover) and (pointer: fine) {
+  .padron-dropdown-item:hover:not(.zero-facet) {
+    background: var(--surface-hover);
+  }
 }
 
 .padron-dropdown-item.zero-facet {
@@ -707,7 +715,7 @@
   justify-content: center;
   flex-shrink: 0;
   background: var(--surface-2);
-  transition: all var(--dur-fast) var(--ease-smooth);
+  transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);
 }
 
 .padron-dropdown-item.selected .padron-item-checkbox {
@@ -823,7 +831,7 @@
   border-radius: var(--radius-md);
   box-sizing: border-box;
   cursor: pointer;
-  transition: all var(--dur-fast) var(--ease-smooth);
+  transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);
 }
 
 .view-actions .btn-action:not(.primary) {
@@ -1014,8 +1022,10 @@
   cursor: pointer;
 }
 
-.padron-sort-menu [role="option"]:hover {
-  background: var(--surface-hover);
+@media (hover: hover) and (pointer: fine) {
+  .padron-sort-menu [role="option"]:hover {
+    background: var(--surface-hover);
+  }
 }
 
 .padron-sort-menu [role="option"][aria-selected="true"] {

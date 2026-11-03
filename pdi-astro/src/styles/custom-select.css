@@ -62,8 +62,10 @@
     box-shadow var(--dur-fast) var(--ease-smooth);
 }
 
-.pdi-select-trigger:hover:not(:disabled) {
-  border-color: var(--border-bright, var(--text-dim));
+@media (hover: hover) and (pointer: fine) {
+  .pdi-select-trigger:hover:not(:disabled) {
+    border-color: var(--border-bright, var(--text-dim));
+  }
 }
 
 .pdi-select-trigger:focus-visible {
@@ -171,8 +173,10 @@
   cursor: pointer;
 }
 
-.pdi-select-option:hover:not(:disabled) {
-  background: var(--surface-hover);
+@media (hover: hover) and (pointer: fine) {
+  .pdi-select-option:hover:not(:disabled) {
+    background: var(--surface-hover);
+  }
 }
 
 .pdi-select-option[aria-selected="true"] {

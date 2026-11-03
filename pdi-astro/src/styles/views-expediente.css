@@ -31,8 +31,10 @@
       transition: color var(--dur-fast) var(--ease-smooth), border-bottom-color var(--dur-fast) var(--ease-smooth);
     }
 
-    .modal-tab-btn:hover {
-      color: var(--text-main);
+    @media (hover: hover) and (pointer: fine) {
+      .modal-tab-btn:hover {
+        color: var(--text-main);
+      }
     }
 
     .modal-tab-btn.active {
@@ -88,8 +90,10 @@
         gap: 8px;
       }
 
-      .social-mobile-dropdown-item:hover {
-        background: var(--surface-hover);
+      @media (hover: hover) and (pointer: fine) {
+        .social-mobile-dropdown-item:hover {
+          background: var(--surface-hover);
+        }
       }
 
       .social-mobile-dropdown-item.selected {
@@ -329,10 +333,12 @@
          boton no anima transform al plegarse, asi que la capa no servia. */
     }
 
-    .expediente-nav-item:hover {
-      background: var(--surface-2) !important;
-      color: var(--text-main) !important;
-      transform: translateX(2px);
+    @media (hover: hover) and (pointer: fine) {
+      .expediente-nav-item:hover {
+        background: var(--surface-2) !important;
+        color: var(--text-main) !important;
+        transform: translateX(2px);
+      }
     }
 
     .expediente-nav-item.active {
@@ -357,9 +363,11 @@
       color: var(--text-dim) !important;
     }
 
-    [data-theme="dark"] .expediente-nav-item:not(.active):hover {
-      background: var(--surface-hover) !important;
-      color: var(--text-main) !important;
+    @media (hover: hover) and (pointer: fine) {
+      [data-theme="dark"] .expediente-nav-item:not(.active):hover {
+        background: var(--surface-hover) !important;
+        color: var(--text-main) !important;
+      }
     }
 
     .expediente-nav-item svg {
@@ -470,10 +478,12 @@
          todas esas capas en cada fotograma. */
     }
 
-    .btn-exoneracion-info:hover {
-      background: var(--gt-green);
-      color: var(--on-brand);
-      transform: scale(1.08);
+    @media (hover: hover) and (pointer: fine) {
+      .btn-exoneracion-info:hover {
+        background: var(--gt-green);
+        color: var(--on-brand);
+        transform: scale(1.08);
+      }
     }
 
     .exoneracion-tooltip {
@@ -501,12 +511,20 @@
          todas esas capas en cada fotograma. */
     }
 
-    .exoneracion-info-wrap:hover .exoneracion-tooltip,
     .exoneracion-info-wrap:focus-within .exoneracion-tooltip {
       opacity: 1;
       visibility: visible;
       transform: translateY(0);
       pointer-events: auto;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .exoneracion-info-wrap:hover .exoneracion-tooltip {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
     }
 
     .exoneracion-tooltip .tooltip-title {
@@ -688,8 +706,10 @@
       align-items: flex-start;
     }
 
-    .retiro-person-card--editing:hover {
-      transform: none;
+    @media (hover: hover) and (pointer: fine) {
+      .retiro-person-card--editing:hover {
+        transform: none;
+      }
     }
 
     /* === OPTIMIZACIÓN RESPONSIVA PARA DISPOSITIVOS MÓVILES (ANDROID / TABLETS <= 768px) === */
@@ -759,9 +779,11 @@
   align-items: center !important;
 }
 
-.btn-maps-nav:hover {
-  background: #0369a1 !important;
-  opacity: 0.95;
+@media (hover: hover) and (pointer: fine) {
+  .btn-maps-nav:hover {
+    background: #0369a1 !important;
+    opacity: 0.95;
+  }
 }
 
 /* Estilo Linear / Raycast: Cross-Fade de Opacidad Pura (200ms) - Cero Lag y 120 FPS */

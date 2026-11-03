@@ -65,8 +65,10 @@
         gap: 8px;
       }
 
-      .social-mobile-dropdown-item:hover {
-        background: var(--surface-hover);
+      @media (hover: hover) and (pointer: fine) {
+        .social-mobile-dropdown-item:hover {
+          background: var(--surface-hover);
+        }
       }
 
       .social-mobile-dropdown-item.selected {
@@ -551,8 +553,10 @@
   user-select: none;
 }
 
-.foco-trigger-btn:hover {
-  transform: scale(1.08);
+@media (hover: hover) and (pointer: fine) {
+  .foco-trigger-btn:hover {
+    transform: scale(1.08);
+  }
 }
 
 .foco-trigger-btn:active {
@@ -581,9 +585,11 @@
   transition: color 0.2s ease, border-color 0.2s ease;
 }
 
-.foco-trigger-btn:hover .foco-touch-hint {
-  color: var(--text-brand);
-  border-color: var(--brand-primary);
+@media (hover: hover) and (pointer: fine) {
+  .foco-trigger-btn:hover .foco-touch-hint {
+    color: var(--text-brand);
+    border-color: var(--brand-primary);
+  }
 }
 
 /* Elementos del SVG por Defecto (Transparente / Reposo) */
@@ -779,9 +785,11 @@
   user-select: none;
 }
 
-.theme-option-btn:hover {
-  border-color: var(--text-dim);
-  background: var(--surface-hover);
+@media (hover: hover) and (pointer: fine) {
+  .theme-option-btn:hover {
+    border-color: var(--text-dim);
+    background: var(--surface-hover);
+  }
 }
 
 .theme-option-btn.active {
@@ -801,8 +809,10 @@
   transition: transform 0.4s var(--ease-out), color 0.3s ease, filter 0.3s ease;
 }
 
-.theme-option-btn:hover .theme-icon-box svg {
-  transform: scale(1.12);
+@media (hover: hover) and (pointer: fine) {
+  .theme-option-btn:hover .theme-icon-box svg {
+    transform: scale(1.12);
+  }
 }
 
 /* Micro-Animaciones Vivas para Cada Icono de Tema */

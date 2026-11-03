@@ -348,10 +348,12 @@
       transition: background-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth);
     }
 
-    .btn-close-sidebar:hover {
-      background: var(--surface-hover);
-      color: var(--text-main);
-      border-color: var(--border-bright);
+    @media (hover: hover) and (pointer: fine) {
+      .btn-close-sidebar:hover {
+        background: var(--surface-hover);
+        color: var(--text-main);
+        border-color: var(--border-bright);
+      }
     }
 
     .sidebar-header {
@@ -536,11 +538,13 @@
       transition: stroke var(--dur-fast) var(--ease-smooth);
     }
 
-    .nav-btn:hover {
-      background: var(--surface-hover);
-      color: var(--text-main);
-      border-color: var(--border-subtle);
-      transform: translateX(2px);
+    @media (hover: hover) and (pointer: fine) {
+      .nav-btn:hover {
+        background: var(--surface-hover);
+        color: var(--text-main);
+        border-color: var(--border-subtle);
+        transform: translateX(2px);
+      }
     }
 
     .nav-btn:active {
@@ -656,10 +660,12 @@
       transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth);
     }
 
-    .btn-menu-toggle:hover {
-      background: var(--surface-hover);
-      border-color: var(--border-bright);
-      color: var(--text-main);
+    @media (hover: hover) and (pointer: fine) {
+      .btn-menu-toggle:hover {
+        background: var(--surface-hover);
+        border-color: var(--border-bright);
+        color: var(--text-main);
+      }
     }
 
     .topbar-right {
@@ -748,9 +754,11 @@
       transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth);
     }
 
-    .theme-toggle-btn:hover {
-      border-color: var(--text-dim);
-      background: var(--surface-hover);
+    @media (hover: hover) and (pointer: fine) {
+      .theme-toggle-btn:hover {
+        border-color: var(--text-dim);
+        background: var(--surface-hover);
+      }
     }
 
     .theme-toggle-btn svg {
@@ -858,9 +866,11 @@
         background-clip: content-box;
       }
 
-      ::-webkit-scrollbar-thumb:hover {
-        background: var(--text-dim);
-        background-clip: content-box;
+      @media (hover: hover) and (pointer: fine) {
+        ::-webkit-scrollbar-thumb:hover {
+          background: var(--text-dim);
+          background-clip: content-box;
+        }
       }
     }
 

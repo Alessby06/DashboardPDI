@@ -65,8 +65,10 @@
         gap: 8px;
       }
 
-      .social-mobile-dropdown-item:hover {
-        background: var(--surface-hover);
+      @media (hover: hover) and (pointer: fine) {
+        .social-mobile-dropdown-item:hover {
+          background: var(--surface-hover);
+        }
       }
 
       .social-mobile-dropdown-item.selected {
@@ -351,8 +353,10 @@
   cursor: default;
 }
 
-.sedes-metric-item:hover {
-  transform: translateY(-2px);
+@media (hover: hover) and (pointer: fine) {
+  .sedes-metric-item:hover {
+    transform: translateY(-2px);
+  }
 }
 
 .sedes-metric-icon {
@@ -366,8 +370,10 @@
   transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.28s ease;
 }
 
-.sedes-metric-item:hover .sedes-metric-icon {
-  transform: scale(1.08);
+@media (hover: hover) and (pointer: fine) {
+  .sedes-metric-item:hover .sedes-metric-icon {
+    transform: scale(1.08);
+  }
 }
 
 .sedes-metric-icon svg {
@@ -579,9 +585,11 @@
   transition: background-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth);
 }
 
-.dash-card-action:hover {
-  background: var(--surface-hover);
-  color: var(--brand-hover);
+@media (hover: hover) and (pointer: fine) {
+  .dash-card-action:hover {
+    background: var(--surface-hover);
+    color: var(--brand-hover);
+  }
 }
 
 .dash-card-action svg {
@@ -631,9 +639,11 @@
               box-shadow var(--dur-fast) var(--ease-smooth);
 }
 
-.plq-card:hover {
-  border-color: var(--border-bright);
-  box-shadow: var(--shadow-ambient);
+@media (hover: hover) and (pointer: fine) {
+  .plq-card:hover {
+    border-color: var(--border-bright);
+    box-shadow: var(--shadow-ambient);
+  }
 }
 
 .plq-top {
@@ -1532,8 +1542,10 @@
   transition: background-color var(--dur-fast) var(--ease-smooth);
 }
 
-.dash-priority-item:hover {
-  background: var(--surface-2);
+@media (hover: hover) and (pointer: fine) {
+  .dash-priority-item:hover {
+    background: var(--surface-2);
+  }
 }
 
 .dash-priority-avatar {
@@ -1638,9 +1650,11 @@
   height: 16px;
 }
 
-.btn-micro-action:hover {
-  background: var(--brand-primary);
-  color: var(--on-brand);
+@media (hover: hover) and (pointer: fine) {
+  .btn-micro-action:hover {
+    background: var(--brand-primary);
+    color: var(--on-brand);
+  }
 }
 
 .btn-micro-action:focus-visible {
@@ -1671,8 +1685,10 @@
   background: var(--surface-2);
 }
 
-#widgetPriorityCases .dash-priority-item:hover {
-  background: var(--surface-hover);
+@media (hover: hover) and (pointer: fine) {
+  #widgetPriorityCases .dash-priority-item:hover {
+    background: var(--surface-hover);
+  }
 }
 
 #widgetPriorityCases .dash-priority-avatar {
@@ -1986,9 +2002,14 @@
   border-bottom: 0;
 }
 
-.dash-anemia-row:hover,
 .dash-anemia-row:focus-within {
   background: var(--surface-2);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .dash-anemia-row:hover {
+    background: var(--surface-2);
+  }
 }
 
 .dash-anemia-row-count {
@@ -2202,7 +2223,11 @@
   transition: transform var(--dur-fast) var(--ease-spring);
 }
 
-.dash-sede-pill:hover { transform: translateY(-2px); }
+@media (hover: hover) and (pointer: fine) {
+  .dash-sede-pill:hover {
+    transform: translateY(-2px);
+  }
+}
 
 .dash-sede-pill--comas { background: var(--gt-green); }
 .dash-sede-pill--carabayllo { background: var(--gt-blue, var(--gt-blue)); }
@@ -2228,9 +2253,11 @@
   transition: opacity var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
 }
 
-.dash-sede-pill:hover::after {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
+@media (hover: hover) and (pointer: fine) {
+  .dash-sede-pill:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
 /* ===========================================================================
@@ -2654,8 +2681,7 @@
   background: rgba(2, 132, 199, 0.09);
 }
 
-.dash-coverage-panel .dash-sede-pill::after,
-.dash-coverage-panel .dash-sede-pill:hover::after {
+.dash-coverage-panel .dash-sede-pill::after {
   content: attr(data-count);
   position: static;
   left: auto;

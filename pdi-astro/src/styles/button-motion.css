@@ -53,9 +53,15 @@
       opacity var(--dur-fast) var(--ease-smooth);
   }
 
-  .pdi-motion.pdi-motion.pdi-motion.pdi-motion:hover,
   .pdi-motion.pdi-motion.pdi-motion.pdi-motion:active {
     translate: 0 0;
     scale: 1;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .pdi-motion.pdi-motion.pdi-motion.pdi-motion:hover {
+      translate: 0 0;
+      scale: 1;
+    }
   }
 }

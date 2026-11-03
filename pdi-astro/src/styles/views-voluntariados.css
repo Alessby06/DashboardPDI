@@ -65,8 +65,10 @@
         gap: 8px;
       }
 
-      .social-mobile-dropdown-item:hover {
-        background: var(--surface-hover);
+      @media (hover: hover) and (pointer: fine) {
+        .social-mobile-dropdown-item:hover {
+          background: var(--surface-hover);
+        }
       }
 
       .social-mobile-dropdown-item.selected {
@@ -381,8 +383,10 @@
   transition: background-color var(--dur-fast) var(--ease-smooth);
 }
 
-.padron-dropdown-item:hover:not(.zero-facet) {
-  background: var(--surface-hover);
+@media (hover: hover) and (pointer: fine) {
+  .padron-dropdown-item:hover:not(.zero-facet) {
+    background: var(--surface-hover);
+  }
 }
 
 .padron-dropdown-item.selected {
@@ -409,7 +413,7 @@
   justify-content: center;
   flex-shrink: 0;
   background: var(--surface-2);
-  transition: all var(--dur-fast) var(--ease-smooth);
+  transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);
 }
 
 .padron-dropdown-item.selected .padron-item-checkbox {
@@ -994,7 +998,7 @@
   border-radius: var(--radius-md);
   box-sizing: border-box;
   cursor: pointer;
-  transition: all var(--dur-fast) var(--ease-smooth);
+  transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);
 }
 
 .view-actions .btn-action:not(.primary) {
@@ -1150,8 +1154,10 @@
   transition: background-color var(--dur-fast) var(--ease-smooth);
 }
 
-.padron-tr:hover {
-  background-color: var(--surface-hover);
+@media (hover: hover) and (pointer: fine) {
+  .padron-tr:hover {
+    background-color: var(--surface-hover);
+  }
 }
 
 .padron-user-cell {
@@ -1349,7 +1355,7 @@
   color: var(--text-main);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all var(--dur-fast) var(--ease-smooth);
+  transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -1371,14 +1377,16 @@
   color: var(--gt-green);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all var(--dur-fast) var(--ease-smooth);
+  transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);
 }
 
-.padron-btn-edit:hover {
-  background: rgba(var(--brand-rgb), 0.2);
-  border-color: rgba(var(--brand-rgb), 0.55);
-  color: var(--on-solid);
-  box-shadow: var(--shadow-sm);
+@media (hover: hover) and (pointer: fine) {
+  .padron-btn-edit:hover {
+    background: rgba(var(--brand-rgb), 0.2);
+    border-color: rgba(var(--brand-rgb), 0.55);
+    color: var(--on-solid);
+    box-shadow: var(--shadow-sm);
+  }
 }
 
 /* --- TARJETAS MÓVILES REFINADAS --- */
@@ -1394,9 +1402,11 @@
   transition: border-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth);
 }
 
-.padron-mobile-card:hover {
-  border-color: var(--border-bright);
-  box-shadow: var(--shadow-ambient);
+@media (hover: hover) and (pointer: fine) {
+  .padron-mobile-card:hover {
+    border-color: var(--border-bright);
+    box-shadow: var(--shadow-ambient);
+  }
 }
 
 .padron-mcard-header {
@@ -1527,10 +1537,12 @@
     color var(--dur-fast) var(--ease-smooth);
 }
 
-.padron-role-pill:hover {
-  background: var(--surface-hover);
-  border-color: var(--border-bright);
-  color: var(--text-main);
+@media (hover: hover) and (pointer: fine) {
+  .padron-role-pill:hover {
+    background: var(--surface-hover);
+    border-color: var(--border-bright);
+    color: var(--text-main);
+  }
 }
 
 .padron-role-pill:focus-visible {
@@ -1557,8 +1569,10 @@
   min-height: 32px;
 }
 
-.padron-mcard-phone-link:hover {
-  text-decoration: underline;
+@media (hover: hover) and (pointer: fine) {
+  .padron-mcard-phone-link:hover {
+    text-decoration: underline;
+  }
 }
 
 .padron-mcard-footer {
@@ -1604,8 +1618,10 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
 }
 
-[data-theme="dark"] #cardVoluntariosPadron .data-table tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.035) !important;
+@media (hover: hover) and (pointer: fine) {
+  [data-theme="dark"] #cardVoluntariosPadron .data-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.035) !important;
+  }
 }
 
 [data-theme="dark"] .padron-mobile-card {
@@ -1634,11 +1650,13 @@
   color: var(--text-brand) !important;
 }
 
-[data-theme="dark"] .padron-btn-edit:hover {
-  background: rgba(var(--brand-rgb), 0.22) !important;
-  border-color: rgba(var(--brand-rgb), 0.55) !important;
-  color: var(--on-solid) !important;
-  box-shadow: var(--shadow-sm);
+@media (hover: hover) and (pointer: fine) {
+  [data-theme="dark"] .padron-btn-edit:hover {
+    background: rgba(var(--brand-rgb), 0.22) !important;
+    border-color: rgba(var(--brand-rgb), 0.55) !important;
+    color: var(--on-solid) !important;
+    box-shadow: var(--shadow-sm);
+  }
 }
 
 /* ===========================================================================
@@ -1828,13 +1846,15 @@ Oscuro (ya cumplía 5.77–8.28): #2dd4bf 9.88 · #fcd34d 12.76 · #7dd3fc 11.03
   align-items: center;
   gap: 5px;
   cursor: pointer;
-  transition: all var(--dur-fast) var(--ease-smooth);
+  transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);
 }
 
-#cardVoluntariosPadron .padron-btn-edit:hover {
-  background: var(--v-teal);
-  border-color: var(--v-teal);
-  color: var(--on-solid);
+@media (hover: hover) and (pointer: fine) {
+  #cardVoluntariosPadron .padron-btn-edit:hover {
+    background: var(--v-teal);
+    border-color: var(--v-teal);
+    color: var(--on-solid);
+  }
 }
 
 #cardVoluntariosPadron .padron-btn-ficha {
@@ -1848,7 +1868,7 @@ Oscuro (ya cumplía 5.77–8.28): #2dd4bf 9.88 · #fcd34d 12.76 · #7dd3fc 11.03
   align-items: center;
   gap: 5px;
   cursor: pointer;
-  transition: all var(--dur-fast) var(--ease-smooth);
+  transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);
 }
 
 @media (hover: hover) and (pointer: fine) {

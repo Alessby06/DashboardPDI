@@ -65,8 +65,10 @@
         gap: 8px;
       }
 
-      .social-mobile-dropdown-item:hover {
-        background: var(--surface-hover);
+      @media (hover: hover) and (pointer: fine) {
+        .social-mobile-dropdown-item:hover {
+          background: var(--surface-hover);
+        }
       }
 
       .social-mobile-dropdown-item.selected {
@@ -214,9 +216,11 @@
       transition: color var(--dur-fast) var(--ease-smooth), background-color var(--dur-fast) var(--ease-smooth);
     }
 
-    .audit-calendar-icon-btn:hover {
-      color: var(--text-main);
-      background: var(--surface-hover);
+    @media (hover: hover) and (pointer: fine) {
+      .audit-calendar-icon-btn:hover {
+        color: var(--text-main);
+        background: var(--surface-hover);
+      }
     }
 
     .audit-range-grid {
@@ -272,13 +276,15 @@
       justify-content: center;
       cursor: pointer;
       padding: 0;
-      transition: all var(--dur-fast) var(--ease-smooth);
+      transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);
       -webkit-tap-highlight-color: transparent;
     }
 
-    .audit-legal-icon-btn:hover {
-      background: var(--surface-hover);
-      border-color: var(--text-dim);
+    @media (hover: hover) and (pointer: fine) {
+      .audit-legal-icon-btn:hover {
+        background: var(--surface-hover);
+        border-color: var(--text-dim);
+      }
     }
 
     /* Popover Flotante de Ley N.° 29733 */
@@ -300,12 +306,13 @@
       pointer-events: none;
     }
 
-    /* Mostrar al pasar el mouse en PC */
-    .audit-legal-popover-wrapper:hover .audit-legal-popover {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
-      pointer-events: auto;
+    @media (hover: hover) and (pointer: fine) {
+      .audit-legal-popover-wrapper:hover .audit-legal-popover {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
     }
 
     /* Mostrar al activar en móvil (tap) */
@@ -354,7 +361,7 @@
       justify-content: center;
       cursor: pointer;
       padding: 0;
-      transition: all var(--dur-fast) var(--ease-smooth);
+      transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -386,12 +393,14 @@
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
       box-shadow: var(--shadow-sm);
-      transition: all var(--dur-fast) var(--ease-smooth);
+      transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);
     }
 
-    .audit-kpi-chip:hover {
-      border-color: var(--border-bright);
-      transform: translateY(-1px);
+    @media (hover: hover) and (pointer: fine) {
+      .audit-kpi-chip:hover {
+        border-color: var(--border-bright);
+        transform: translateY(-1px);
+      }
     }
 
     .audit-kpi-icon-box {
@@ -584,8 +593,10 @@
       transition: background 0.15s ease;
     }
 
-    .audit-row-interactive:hover {
-      background: var(--surface-hover) !important;
+    @media (hover: hover) and (pointer: fine) {
+      .audit-row-interactive:hover {
+        background: var(--surface-hover) !important;
+      }
     }
 
     .audit-entity-link {
@@ -595,8 +606,10 @@
       gap: 3px;
     }
 
-    .audit-entity-link:hover code {
-      color: var(--text-brand) !important;
+    @media (hover: hover) and (pointer: fine) {
+      .audit-entity-link:hover code {
+        color: var(--text-brand) !important;
+      }
     }
 
     .btn-action-sm {
@@ -631,8 +644,10 @@
       border-color: var(--gt-green);
     }
 
-    .btn-action-sm.primary:hover {
-      background: var(--brand-dark);
+    @media (hover: hover) and (pointer: fine) {
+      .btn-action-sm.primary:hover {
+        background: var(--brand-dark);
+      }
     }
 
     /* Barra de Paginación y Densidad */
@@ -902,8 +917,10 @@
   transition: background-color var(--dur-fast) var(--ease-smooth);
 }
 
-.padron-dropdown-item:hover:not(.zero-facet) {
-  background: var(--surface-hover);
+@media (hover: hover) and (pointer: fine) {
+  .padron-dropdown-item:hover:not(.zero-facet) {
+    background: var(--surface-hover);
+  }
 }
 
 .padron-dropdown-item.zero-facet {
@@ -936,7 +953,7 @@
   justify-content: center;
   flex-shrink: 0;
   background: var(--surface-2);
-  transition: all var(--dur-fast) var(--ease-smooth);
+  transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);
 }
 
 .padron-dropdown-item.selected .padron-item-checkbox {

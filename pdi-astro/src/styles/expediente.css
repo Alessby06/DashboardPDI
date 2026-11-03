@@ -144,7 +144,6 @@
 
 /* Retorno al padrón: sin subrayado */
 #expBackToPadron,
-#expBackToPadron:hover,
 #expBackToPadron:focus,
 #expBackToPadron:active,
 .expediente-nav-group-actions a.btn-action {
@@ -312,8 +311,10 @@ body.pdi-editando #view-expediente select:not(:disabled) {
        white-space: nowrap !important;
      }
 
-     #view-expediente .expediente-nav-item:hover {
-       transform: none;
+     @media (hover: hover) and (pointer: fine) {
+       #view-expediente .expediente-nav-item:hover {
+         transform: none;
+       }
      }
 
      #view-expediente .expediente-content-area {
