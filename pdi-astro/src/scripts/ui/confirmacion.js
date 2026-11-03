@@ -9,9 +9,9 @@
 //  por accidente. Escape y el clic en el fondo también cancelan.
 // ===========================================================================
 
-let inicializado = false;
 let resolverActual = null;
 let focoAntes = null;
+let tecladoListo = false;
 
 function referencias() {
   return {
@@ -93,20 +93,28 @@ function alTeclear(evento) {
   }
 }
 
-/** Conecta los listeners una sola vez (el modal persiste entre páginas). */
+/** Conecta los listeners del modal actual. El ClientRouter reemplaza el
+ *  marcado en cada navegación: una bandera de módulo dejaba los botones
+ *  nuevos sin listeners y Cancelar/X no cerraban hasta recargar.
+ *  Se marca el elemento, no el módulo, para reenganchar el modal nuevo. */
 export function iniciarConfirmacion() {
-  if (inicializado) return;
   const { modal, aceptar, cancelar, cerrar } = referencias();
   if (!modal || !aceptar || !cancelar || !cerrar) return;
 
-  inicializado = true;
-  aceptar.addEventListener("click", () => terminar(true));
-  cancelar.addEventListener("click", () => terminar(false));
-  cerrar.addEventListener("click", () => terminar(false));
-  modal.addEventListener("click", (evento) => {
-    if (evento.target === modal) terminar(false);
-  });
-  document.addEventListener("keydown", alTeclear);
+  if (modal.dataset.confirmacionListo !== "1") {
+    modal.dataset.confirmacionListo = "1";
+    aceptar.addEventListener("click", () => terminar(true));
+    cancelar.addEventListener("click", () => terminar(false));
+    cerrar.addEventListener("click", () => terminar(false));
+    modal.addEventListener("click", (evento) => {
+      if (evento.target === modal) terminar(false);
+    });
+  }
+
+  if (!tecladoListo) {
+    tecladoListo = true;
+    document.addEventListener("keydown", alTeclear);
+  }
 
   if (typeof window !== "undefined") {
     window.PDI = window.PDI || {};
@@ -170,4 +178,11 @@ export function confirmar({
   return new Promise((resolver) => {
     resolverActual = resolver;
   });
+}
+
+// El modal viaja con el layout y se reemplaza en cada navegación interna.
+// Se reengancha en los dos eventos para cubrir cualquier orden de swap.
+if (typeof document !== "undefined") {
+  document.addEventListener("astro:page-load", iniciarConfirmacion);
+  document.addEventListener("astro:after-swap", iniciarConfirmacion);
 }

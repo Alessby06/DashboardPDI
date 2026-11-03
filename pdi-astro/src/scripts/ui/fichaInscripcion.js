@@ -145,7 +145,19 @@ function refrescarDocumento() {
   if (!dni) return;
 
   const esSinDoc = tipoDoc === "Sin Documento";
+  const esDni = tipoDoc === "DNI";
   dni.disabled = esSinDoc;
+  dni.maxLength = esDni ? 8 : 20;
+  if (esDni) {
+    dni.setAttribute("pattern", "[0-9]{8}");
+    dni.setAttribute("inputmode", "numeric");
+    dni.setAttribute("data-tipo", "dni");
+    dni.value = dni.value.replace(/\D/g, "").slice(0, 8);
+  } else {
+    dni.removeAttribute("pattern");
+    dni.removeAttribute("data-tipo");
+    if (!esSinDoc) dni.setAttribute("inputmode", "text");
+  }
   if (reqSpan) reqSpan.style.display = esSinDoc ? "none" : "";
 
   if (esSinDoc) {

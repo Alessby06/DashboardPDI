@@ -1133,7 +1133,16 @@ async function correlativoUsuario() {
     const numero = parseInt(String(codigo).slice(0, 4), 10);
     return Number.isFinite(numero) && numero > max ? numero : max;
   }, 0);
-  return `${String(mayor + 1).padStart(4, '0')}${sufijo}`;
+  // Se salta cualquier código ya ocupado (incluidos los retirados): la base no
+  // declara `persona.codigo` como único, así que el cálculo debe ser defensivo.
+  const usados = new Set(existentes.map((codigo) => String(codigo).trim()));
+  let siguiente = mayor + 1;
+  let codigo = `${String(siguiente).padStart(4, '0')}${sufijo}`;
+  while (usados.has(codigo)) {
+    siguiente++;
+    codigo = `${String(siguiente).padStart(4, '0')}${sufijo}`;
+  }
+  return codigo;
 }
 
 /**
@@ -1674,15 +1683,32 @@ export async function actualizarBeneficiario(b) {
           UPDATE inscripcion SET sede_id = $nuevaSede WHERE ${F_USUARIO} = $usuario AND activo = true;
         };
       };
-      // La escala de exoneracion vive en el ultimo aporte del usuario, igual que
-      // la lee el padron: se replica ahi para que la vista y la nube coincidan.
+      // La escala de exoneración vive en el último aporte del usuario, igual
+      // que la lee el padrón. Si el usuario no tiene ningún aporte (importados
+      // o registros antiguos), se crea uno: antes el UPDATE no encontraba fila
+      // y el cambio se perdía en silencio.
       IF string::len($exon) > 0 {
-        LET $aporteUltimo = (SELECT VALUE id FROM aporte WHERE inscripcion_id.${F_USUARIO} = $usuario ORDER BY periodo DESC, mes DESC LIMIT 1)[0];
+        LET $ins = (SELECT VALUE id FROM inscripcion WHERE ${F_USUARIO} = $usuario AND activo = true LIMIT 1)[0];
+        LET $aporteUltimo = (SELECT VALUE id FROM aporte WHERE inscripcion_id = $ins ORDER BY periodo DESC, mes DESC LIMIT 1)[0];
         IF $aporteUltimo != NONE {
-          UPDATE $aporteUltimo SET pct_exoneracion = $pctAporte;
+          UPDATE $aporteUltimo SET
+            pct_exoneracion = $pctAporte,
+            exonerado = IF $pctAporte = 100 { true } ELSE { false };
+        } ELSE IF $ins != NONE {
+          CREATE aporte CONTENT {
+            inscripcion_id: $ins,
+            periodo: $periodoAporte,
+            mes: $mesAporte,
+            pct_exoneracion: $pctAporte,
+            exonerado: IF $pctAporte = 100 { true } ELSE { false },
+            monto_simbolico: 0f,
+            fecha_pago: NONE
+          };
         };
       };`, {
       pid, cuiId,
+      periodoAporte: new Date().getFullYear(),
+      mesAporte: new Date().getMonth() + 1,
       nom: b.nombres, ape: b.apellidos,
       sexo: (b.sexo || 'M').toUpperCase().includes('F') ? 'F' : 'M',
       tipoDoc: tipoDocumentoCanonico(b.tipoDocumento, Boolean(b.dni)),
@@ -1729,20 +1755,34 @@ export async function actualizarBeneficiario(b) {
 
 /** Baja del padrón: la Ley 29733 prohibe borrado físico; se retira con baja lógica. */
 export async function darBajaBeneficiario(b, motivo = 'Baja administrativa') {
-  // Se opera por `codigo`, no por type::record('persona', id): los ids que
-  // empiezan por dígito se muestran entre ⟨⟩ y al reconstruirlos desde texto
-  // SurrealDB puede resolver otra persona. El código es único y estable.
-  const codigo = String(b?.codigo || '').trim();
-  if (!codigo) return false;
+  if (!b) return false;
+
+  // Se opera por el id de la persona, no por `codigo`: el código no es único en
+  // la base y una baja por código desactivaba también a cualquier otra persona
+  // que lo compartiera (12 → 10 registros en el Informe 13).
+  let pid = claveRegistro(b._personaId);
+  if (!pid) {
+    const codigo = String(b.codigo || '').trim();
+    if (!codigo) return false;
+    try {
+      const fila = comoLista(await ejecutar(
+        'SELECT VALUE id FROM persona WHERE codigo = $codigo LIMIT 1;', { codigo }))[0];
+      pid = claveRegistro(fila);
+    } catch (err) {
+      return avisarFallo('Baja del usuario', err) !== null ? false : false;
+    }
+  }
+  if (!pid) return false;
+
   try {
     await ejecutar(`
+      LET $usuario = type::record('persona', $pid);
       UPDATE inscripcion SET
         activo = false, estado = 'Inactivo',
         motivo_baja = $motivo
-      WHERE ${F_USUARIO} = (SELECT VALUE id FROM persona WHERE codigo = $codigo LIMIT 1)[0]
-        AND activo = true;
-      UPDATE persona SET activo = false WHERE codigo = $codigo;`, {
-      codigo, motivo,
+      WHERE ${F_USUARIO} = $usuario AND activo = true;
+      UPDATE $usuario SET activo = false;`, {
+      pid, motivo,
     });
     return true;
   } catch (err) {
