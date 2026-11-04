@@ -592,6 +592,12 @@
 
   .sedes-master-list {
     max-height: none;
+    /* En móvil la lista no tiene scroll propio: crece y desplaza la página.
+       Dejarla como caja con scroll (overflow) y con `overscroll-behavior:
+       contain` cortaba la cadena del gesto: deslizar sobre una sede no movía
+       nada. Sin caja propia, el toque pasa al contenedor de la vista. */
+    overflow: visible;
+    overscroll-behavior-y: auto;
   }
 
   .sedes-master-item {
