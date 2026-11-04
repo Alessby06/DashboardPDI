@@ -93,6 +93,13 @@ export function arrancarComun() {
 }
 
 /**
+ * Ultimo valor canonico de cada badge. Se compara contra este mapa y no
+ * contra el texto del DOM: al navegar, el marcado puede reaparecer con su
+ * valor de servidor y no queremos que eso cuente como un cambio real.
+ */
+const ultimosBadges = new Map();
+
+/**
  * Escribe en los badges del sidebar los conteos reales de los modelos.
  * Llamar tambien tras cualquier alta/baja/cambio de etapa que altere un total.
  */
@@ -101,15 +108,35 @@ export function actualizarBadgesSidebar() {
     const el = document.getElementById(id);
     if (!el) return;
     const texto = String(valor);
-    // Solo pulsa cuando el número cambia de verdad y ya tenía un valor: el
-    // primer pintado no debe celebrar nada.
-    if (el.textContent && el.textContent !== texto) {
-      el.classList.remove("contador-pulso");
-      void el.offsetWidth;
-      el.classList.add("contador-pulso");
-      window.setTimeout(() => el.classList.remove("contador-pulso"), 320);
+    const anterior = ultimosBadges.get(id);
+    ultimosBadges.set(id, texto);
+
+    // El numero vive en su propio span: asi la animacion no mueve la pastilla.
+    let num = el.querySelector(".nav-badge-num");
+    if (!num) {
+      num = document.createElement("span");
+      num.className = "nav-badge-num";
+      num.textContent = (el.textContent || "").trim();
+      el.textContent = "";
+      el.appendChild(num);
     }
-    el.textContent = texto;
+
+    if (num.textContent === texto) return;
+    num.textContent = texto;
+
+    // Solo celebra un cambio real de cifra. El primer pintado (sin anterior) y
+    // el paso por 0 de la hidratacion no cuentan: ahi el badge se limita a
+    // aparecer con su valor.
+    if (anterior === undefined || anterior === "0" || texto === "0") return;
+
+    const sube = Number(texto) > Number(anterior);
+    num.classList.remove("contador-pulso", "is-up", "is-down");
+    void num.offsetWidth;
+    num.classList.add("contador-pulso", sube ? "is-up" : "is-down");
+    window.clearTimeout(el._pulsoTimer);
+    el._pulsoTimer = window.setTimeout(() => {
+      num.classList.remove("contador-pulso", "is-up", "is-down");
+    }, 260);
   };
 
   try {

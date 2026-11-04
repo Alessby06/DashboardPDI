@@ -28,16 +28,16 @@ const navItems = [
   { section: 'General' },
   { href: '/dashboard', page: 'dashboard', view: 'view-dashboard', label: 'Dashboard General', roles: 'coord,facilitadora,promotora,social,admin', icon: 'dashboard' },
   { section: 'Infancia Saludable' },
-  { href: '/padron', page: 'padron', view: 'view-beneficiarios', label: 'Padrón de Usuarios', roles: 'coord,facilitadora,promotora,social,admin', icon: 'padron', badgeId: 'badgeTotalBeneficiarios', badgeVal: '28' },
+  { href: '/padron', page: 'padron', view: 'view-beneficiarios', label: 'Padrón de Usuarios', roles: 'coord,facilitadora,promotora,social,admin', icon: 'padron', badgeId: 'badgeTotalBeneficiarios', badgeVal: '' },
   // Modulo pedido en el menu, pero sin implementacion todavia: se deja en su
   // lugar para fijar el orden. No navega a ninguna parte.
   { placeholder: true, label: 'Padrón de Colaboradores', icon: 'colaboradores', roles: 'coord,facilitadora,promotora,social,admin' },
-  { href: '/voluntariados', page: 'voluntariados', view: 'view-voluntarios', label: 'Padrón de Voluntarios', roles: 'coord,facilitadora,promotora,social,admin', icon: 'voluntariados', badgeId: 'badgeTotalVoluntarios', badgeVal: '8' },
+  { href: '/voluntariados', page: 'voluntariados', view: 'view-voluntarios', label: 'Padrón de Voluntarios', roles: 'coord,facilitadora,promotora,social,admin', icon: 'voluntariados', badgeId: 'badgeTotalVoluntarios', badgeVal: '' },
   { href: '/salud', page: 'salud', view: 'view-salud', label: 'Servicio Alimentario y Nutricional', roles: 'coord,facilitadora,admin', icon: 'salud' },
   { href: '/educativo', page: 'educativo', view: 'view-educativo', label: 'Servicio de Acompañamiento Educativo', roles: 'coord,promotora,admin', icon: 'educativo' },
-  { href: '/social', page: 'social', view: 'view-social', label: 'Servicio Social Pastoral (ASP)', roles: 'coord,social,admin', icon: 'social', badgeId: 'badgeCasosCriticos', badgeVal: '4', badgeDanger: true },
-  { href: '/social?tab=autorizaciones', page: 'social-autorizaciones', view: 'view-social-autorizaciones', label: 'Autorizaciones ASP', roles: 'coord,admin', icon: 'autorizaciones', badgeId: 'badgeSolicitudesPendientes', badgeVal: '0', badgeAmber: true, hideUnauthorized: true, subview: 'autorizaciones' },
-  { href: '/social?tab=mis-solicitudes', page: 'social-solicitudes', view: 'view-social-solicitudes', label: 'Mis Solicitudes ASP', roles: 'social', icon: 'solicitudes', badgeId: 'badgeMisSolicitudesTotal', badgeVal: '0', hideUnauthorized: true, subview: 'mis-solicitudes' },
+  { href: '/social', page: 'social', view: 'view-social', label: 'Servicio Social Pastoral (ASP)', roles: 'coord,social,admin', icon: 'social', badgeId: 'badgeCasosCriticos', badgeVal: '', badgeDanger: true },
+  { href: '/social?tab=autorizaciones', page: 'social-autorizaciones', view: 'view-social-autorizaciones', label: 'Autorizaciones ASP', roles: 'coord,admin', icon: 'autorizaciones', badgeId: 'badgeSolicitudesPendientes', badgeVal: '', badgeAmber: true, hideUnauthorized: true, subview: 'autorizaciones' },
+  { href: '/social?tab=mis-solicitudes', page: 'social-solicitudes', view: 'view-social-solicitudes', label: 'Mis Solicitudes ASP', roles: 'social', icon: 'solicitudes', badgeId: 'badgeMisSolicitudesTotal', badgeVal: '', hideUnauthorized: true, subview: 'mis-solicitudes' },
   { href: '/sedes', page: 'sedes', view: 'view-sedes', label: 'Sedes e Iglesias Aliadas', roles: 'coord,facilitadora,promotora,admin', icon: 'sedes' },
   { section: 'Auditoría' },
   { href: '/auditoria', page: 'auditoria', view: 'view-auditoria', label: 'Historial de Cambios', roles: 'coord,admin', icon: 'auditoria' },
@@ -263,6 +263,12 @@ const navItems = [
 
   .nav-btn.active {
     border-color: transparent;
+  }
+
+  /* Sin cifra no hay pastilla: evita que un badge vacio parpadee mientras
+     llegan los datos o al cambiar de pagina. */
+  .nav-badge:empty {
+    display: none;
   }
 </style>
 
