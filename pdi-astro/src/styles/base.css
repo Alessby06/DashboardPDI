@@ -27,6 +27,7 @@
       font-size: 15px;
       line-height: 1.5;
       min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       flex-direction: column;
       overflow-x: hidden;
@@ -138,6 +139,7 @@
     .app-shell {
       display: flex;
       height: 100vh;
+      height: 100dvh;
       overflow: hidden;
     }
 

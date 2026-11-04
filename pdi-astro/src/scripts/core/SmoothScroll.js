@@ -101,4 +101,9 @@ if (!window.__pdiSmoothScrollBound) {
   document.addEventListener('astro:page-load', () => ScrollManager.refresh());
 
   enlazarAnclas();
+
+  // En móvil el navegador puede restaurar un desplazamiento de ventana que
+  // deja el topbar bajo la barra de direcciones. El layout ya mide 100dvh;
+  // este reset asegura además que la primera pintura empiece arriba.
+  requestAnimationFrame(() => resetScroll());
 }
