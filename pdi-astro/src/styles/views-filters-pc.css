@@ -80,11 +80,8 @@
     box-shadow: var(--shadow-overlay);
   }
 
-  /* Campo con focus: el rotulo pasa a tinta principal. Antes iba a
-     --text-brand (#00876f), que da 4,42:1 a 11,5px. */
-  .audit-filter-field:focus-within .audit-field-label {
-    color: var(--text-main);
-  }
+  /* Campo con focus: el rotulo conserva su tono secundario. Antes cambiaba a
+     tinta principal y se leia como un salto al abrir el filtro. */
 
   /* Restablecer: accion secundaria del encabezado. Sin borde ni pastilla
      llamativa, para que el titulo siga mandando y no choque con el a 0-2px. */

@@ -188,7 +188,7 @@
 /* Variante de entrada «compás»: el recorte direccional y el descenso de 6 px
    siguen siendo la firma del sistema; lo que cambia es el contenido, que se
    asienta en tres tiempos (cabecera, campos, pie) en vez de aparecer de golpe
-   con la hoja. La suma queda en ~310 ms, dentro de los 340 ms de la hoja
+   con la hoja. La suma queda en 240 ms, dentro de los 250 ms de la hoja
    inferior. Al cerrar no hay compás: el recorte ya es la salida y no conviene
    hacer esperar. */
 @keyframes pdi-filtros-zona-in {
@@ -203,15 +203,15 @@
 }
 
 .audit-filters-dropdown.open .audit-filters-menu > .audit-filters-header {
-  animation: pdi-filtros-zona-in var(--dur-norm) var(--ease-out) both;
+  animation: pdi-filtros-zona-in var(--dur-fast) var(--ease-drawer) both;
 }
 
 .audit-filters-dropdown.open .audit-filters-menu > .audit-filters-body {
-  animation: pdi-filtros-zona-in var(--dur-norm) var(--ease-out) var(--dur-press) both;
+  animation: pdi-filtros-zona-in var(--dur-fast) var(--ease-drawer) calc(var(--dur-press) / 3) both;
 }
 
 .audit-filters-dropdown.open .audit-filters-menu > .audit-filters-footer {
-  animation: pdi-filtros-zona-in var(--dur-norm) var(--ease-out) var(--dur-press) both;
+  animation: pdi-filtros-zona-in var(--dur-fast) var(--ease-drawer) calc(var(--dur-press) * 2 / 3) both;
 }
 
 .audit-filters-header {
@@ -531,9 +531,9 @@
   width: 100%;
   height: 36px;
   padding: 0 10px;
-  border: 1px solid var(--filter-border);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
-  background: var(--surface-2);
+  background: var(--surface-1);
   color: var(--text-main);
   font-size: 12.5px;
   font-weight: 600;
@@ -545,13 +545,16 @@
 
 @media (hover: hover) and (pointer: fine) {
   .padron-inner-dropdown-btn:hover {
-    border-color: var(--text-dim);
+    /* El borde no se endurece al pasar el cursor: el realce va en el fondo. */
+    border-color: var(--border-subtle);
     background: var(--surface-hover);
   }
 }
 
 .padron-inner-dropdown.open .padron-inner-dropdown-btn {
-  border-color: var(--text-dim);
+  /* Abierto conserva el mismo borde suave del campo en reposo: el estado se
+     lee por la lista desplegada, no por un contorno que se oscurece. */
+  border-color: var(--border-subtle);
 }
 
 .padron-inner-dropdown-btn svg.caret {
@@ -581,7 +584,7 @@
   overscroll-behavior: contain;
   padding: 6px;
   background: var(--surface-1);
-  border: 1px solid var(--border-bright);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-overlay);
   /* Entrada y salida por transicion (interrumpible). Sin `scale`: escalaba el
@@ -654,11 +657,11 @@
   transform: translateY(-4px);
   margin-top: 0;
   padding: 0 4px;
-  background: var(--surface-2);
+  background: var(--surface-1);
   border: 0;
   /* Mismo borde y mismo radio que el campo que lo abre: la lista se lee como
      ese control desplegado, no como una tarjeta dentro de otra tarjeta. */
-  outline: 1px solid var(--filter-border);
+  outline: 1px solid var(--border-subtle);
   outline-offset: -1px;
   border-radius: var(--radius-sm);
   box-shadow: none;
@@ -891,22 +894,21 @@
     visibility: hidden;
     pointer-events: none;
     /* Captura el gesto fuera de la hoja; la hoja es un hermano del velo y
-       conserva su scroll nativo. */
+       conserva su scroll nativo. El ocultado final va por animación para no
+       cambiar la transición de opacidad al alternar rápido. */
     touch-action: none;
-    /* El velo se apaga con la hoja y con su curva de salida: si se adelanta,
-       se ve la página sin oscurecer mientras la hoja aún baja. */
-    transition: opacity var(--sheet-out) var(--sheet-exit-ease),
-      visibility 0s linear var(--sheet-out);
+    animation: pdi-sheet-hide 0s linear var(--dur-norm) forwards;
+    transition: opacity var(--dur-norm) var(--ease-drawer);
   }
 
   .audit-filters-dropdown.open::before {
     opacity: var(--filtro-velo, 1);
     visibility: visible;
     pointer-events: auto;
+    animation: none;
     transition: /* El velo entra antes que la hoja, con la misma curva y en
-         220 ms; la hoja tarda 340 ms. La salida lo deja atrás. */
-      opacity var(--dur-norm) var(--ease-drawer),
-      visibility 0s;
+         220 ms; la hoja tarda 250 ms. La salida lo deja atrás. */
+      opacity var(--dur-norm) var(--ease-drawer);
   }
 
   /* Durante el arrastre del asa el velo sigue la mano 1:1, sin su easing. */
@@ -928,7 +930,7 @@
     max-height: 85dvh;
     background: var(--surface-1);
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    border: 1px solid var(--border-bright);
+    border: 1px solid var(--border-subtle);
     border-bottom: none;
     box-shadow: var(--shadow-overlay);
     z-index: 9999;
@@ -937,24 +939,23 @@
     margin: 0;
     box-sizing: border-box;
     display: flex;
-    /* Hoja inferior de filtros: sube desde el borde sin inclinarse ni
-       escalar. El texto viaja nítido y la animación se queda en el
-       compositor. `visibility` evita que la hoja descolocada capture toques. */
+    /* `visibility` se retira al terminar mediante animación; la transición
+       de transform no cambia entre abierto y cerrado. */
     visibility: hidden;
     transform-origin: 50% 100%;
     transform: var(--sheet-closed);
     backface-visibility: hidden;
     will-change: transform;
-    transition: transform var(--sheet-out) var(--sheet-exit-ease),
-      visibility 0s linear var(--sheet-out);
+    animation: pdi-sheet-hide 0s linear var(--sheet-out) forwards;
+    transition: transform var(--sheet-in) var(--ease-drawer);
     overflow: hidden;
   }
 
   .audit-filter-panel-wrap .audit-filters-dropdown.open .audit-filters-menu {
     visibility: visible;
     transform: var(--sheet-open);
-    transition: transform var(--sheet-in) var(--sheet-lift-ease),
-      visibility 0s;
+    animation: none;
+    transition: transform var(--sheet-in) var(--ease-drawer);
   }
 
   /* El compás de escritorio no viaja a la hoja móvil: el contenido entra
@@ -1117,8 +1118,8 @@
   }
 
   .padron-inner-dropdown-menu {
-    background: var(--surface-2);
-    border: 1px solid var(--filter-border);
+    background: var(--surface-1);
+    border: 1px solid var(--border-subtle);
     box-shadow: var(--shadow-overlay);
     border-radius: var(--radius-sm);
     z-index: 200;

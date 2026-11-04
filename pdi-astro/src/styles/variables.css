@@ -146,8 +146,8 @@
      usa la curva del cajón lateral y dura más porque recorre casi toda la
      pantalla; la salida es más corta y no frena en seco al desaparecer.
      El velo se apaga con la misma duración que la salida. */
-  --sheet-in: 340ms;
-  --sheet-out: 260ms;
+  --sheet-in: 250ms;
+  --sheet-out: 250ms;
   --sheet-ease: var(--ease-drawer); /* gesto de arrastre */
   /* La entrada usa la misma curva con la que la hoja termina un arrastre:
      el gesto y la apertura por toque acaban igual. */

@@ -636,11 +636,12 @@
     transform-origin: 50% 100%;
     transform: var(--sheet-closed);
     backface-visibility: hidden;
+    /* Misma receta que las fichas y los filtros: sube sin inclinarse y el
+       velo se apaga con ella. La transición de transform no cambia entre
+       abierto y cerrado; `visibility` se retira con una animación. */
     visibility: hidden;
-    /* Misma receta y mismo ritmo que las fichas y los filtros: sube sin
-       inclinarse y el velo se apaga con ella. */
-    transition: transform var(--sheet-out) var(--sheet-exit-ease),
-      visibility 0s linear var(--sheet-out);
+    animation: pdi-sheet-hide 0s linear var(--sheet-out) forwards;
+    transition: transform var(--sheet-in) var(--ease-drawer);
     will-change: transform;
     z-index: 1200 !important;
     padding-bottom: max(24px, env(safe-area-inset-bottom, 24px)) !important;
@@ -649,8 +650,8 @@
   .sedes-detail-column.open {
     transform: var(--sheet-open);
     visibility: visible;
-    transition: transform var(--sheet-in) var(--sheet-lift-ease),
-      visibility 0s;
+    animation: none;
+    transition: transform var(--sheet-in) var(--ease-drawer);
   }
 
   /* Cabecera movil: el asa es la zona de agarre de toda la hoja. Se comporta
@@ -844,7 +845,7 @@
     /* Captura el gesto fuera de la hoja. La ficha es un hermano del velo y
        conserva su scroll nativo. */
     touch-action: none;
-    transition: opacity var(--sheet-out) var(--sheet-exit-ease) !important;
+    transition: opacity var(--dur-norm) var(--ease-drawer) !important;
   }
 
   .sedes-sheet-backdrop.open {
