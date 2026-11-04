@@ -226,25 +226,30 @@ export const CasitasView = {
     return [...ordenadas, ...fueraDelCatalogo.sort((a, b) => a.localeCompare(b, "es"))];
   },
 
-  /** Sede inicial: la de la URL si es válida o la primera con alumnos. */
+  /** Sede inicial: solo la que venga elegida (enlace con `sede`). Sin
+   *  elección previa se queda vacía y la jornada espera a que se elija una:
+   *  no se impone la primera sede con alumnos. */
   _sedePorDefecto() {
-    const disponibles = this._sedesDisponibles();
     if (this._jornadaSede && SEDES_NOMBRES.includes(this._jornadaSede)) {
       return this._jornadaSede;
     }
-    return disponibles[0] || "";
+    return "";
   },
 
   /** Inicia la jornada una sola vez, cuando ya hay beneficiarios cargados. */
   _prepararJornada() {
     if (!this._jornadaDia) this._jornadaDia = hoyLocal();
     this._jornadaSede = this._sedePorDefecto();
-    // Solo se marca como inicializada cuando hay una sede elegida. Si el
-    // padrón aún no llegó, la siguiente hidratación vuelve a intentarlo; si
-    // el usuario vació el selector a propósito, no se le impone otra sede.
-    if (this._jornadaSede) this._jornadaInicializada = true;
+    // Sin sede elegida el estado inicial es «Elige una sede»: no hay nada que
+    // consultar ni que imponer. Se marca como preparada para no repetir el
+    // intento en cada hidratación.
+    this._jornadaInicializada = true;
     this._sincronizarBarra();
-    this._cargarJornada();
+    if (this._jornadaSede) {
+      this._cargarJornada();
+      return;
+    }
+    this.renderJornada();
   },
 
   /** La fecha de la URL no puede saltarse el límite del rol. */
