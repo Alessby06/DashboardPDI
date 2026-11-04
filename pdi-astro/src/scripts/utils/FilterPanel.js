@@ -475,8 +475,12 @@ function enlazarArrastreHoja(panel) {
   const UMBRAL_PX = 75;
   const UMBRAL_VEL = 0.35;
   const VELO_RANGO = 280;
-  const EASE_CIERRE = 'cubic-bezier(0.22, 0.61, 0.36, 1)';
-  const EASE_VUELTA = 'cubic-bezier(0.32, 0.72, 0, 1)';
+  const estiloHoja = getComputedStyle(document.documentElement);
+  const EASE_CIERRE = estiloHoja.getPropertyValue('--sheet-exit-ease').trim()
+    || 'cubic-bezier(0.32, 0.72, 0, 1)';
+  const EASE_VUELTA = estiloHoja.getPropertyValue('--sheet-ease').trim()
+    || 'cubic-bezier(0.32, 0.72, 0, 1)';
+  const DURACION_MAX = parseInt(estiloHoja.getPropertyValue('--sheet-out'), 10) || 260;
 
   let startY = 0;
   let baseY = 0;
@@ -575,7 +579,7 @@ function enlazarArrastreHoja(panel) {
     const destino = cerrar ? alto : 0;
     const distancia = Math.abs(destino - total);
     const rapidez = Math.max(0.35, Math.abs(velocidad));
-    const duracion = Math.round(Math.min(cerrar ? 320 : 260, Math.max(140, distancia / rapidez)));
+    const duracion = Math.round(Math.min(DURACION_MAX, Math.max(140, distancia / rapidez)));
 
     // El velo se queda opaco durante el gesto y el cierre: el desbloqueo de la
     // página (y su repintado) ocurre debajo, y luego el velo se apaga solo.

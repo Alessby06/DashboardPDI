@@ -45,8 +45,8 @@
       z-index: 1000;
       opacity: 0;
       pointer-events: none;
-      transition: opacity var(--dur-norm) var(--ease-out),
-                  background-color var(--dur-norm) var(--ease-out);
+      transition: opacity var(--dur-norm) var(--ease-drawer),
+                  background-color var(--dur-norm) var(--ease-drawer);
       padding: 20px;
     }
 
@@ -54,10 +54,11 @@
     .modal-backdrop.active {
       opacity: 1;
       pointer-events: auto;
-      /* El velo entra antes que la hoja: retira la página en 160 ms y la hoja
-         arranca cuando el fondo ya está atenuado. */
-      transition: opacity var(--dur-fast) var(--ease-out),
-                  background-color var(--dur-fast) var(--ease-out);
+      /* El velo entra antes que la hoja: atenúa el fondo en 220 ms y la hoja
+         sube en 340 ms. La misma curva en ambos evita que uno se sienta más
+         brusco que el otro. */
+      transition: opacity var(--dur-norm) var(--ease-drawer),
+                  background-color var(--dur-norm) var(--ease-drawer);
       /* Velo de modal: mismo de las hojas, sin desenfoque, con foco radial
          detras de la ventana. Longhands a proposito: un shorthand con capas
          y var() es fragil y, si el parser lo descarta, el telon desaparece. */
@@ -132,8 +133,8 @@
     }
 
     .modal-backdrop.drawer.open {
-      transition: opacity var(--dur-fast) var(--ease-out),
-                  background-color var(--dur-fast) var(--ease-out);
+      transition: opacity var(--dur-norm) var(--ease-drawer),
+                  background-color var(--dur-norm) var(--ease-drawer);
     }
 
     .modal-box.drawer-box {
@@ -247,7 +248,7 @@
         visibility: visible;
         /* Entrada: la misma curva del cajón lateral. La duración es mayor
            porque la hoja recorre casi toda la pantalla; a igual velocidad
-           percibida, 380 ms no se sienten lentos. */
+           percibida, 340 ms no se sienten lentos. */
         transition: transform var(--sheet-in) var(--sheet-lift-ease),
           visibility 0s;
       }

@@ -281,9 +281,9 @@
         touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
         contain: layout style;
-        transition: transform var(--dur-nav) var(--ease-spring),
-                    background-color var(--dur-theme) var(--ease-spring),
-                    border-color var(--dur-theme) var(--ease-spring) !important;
+        transition: transform var(--dur-nav) var(--ease-drawer),
+                    background-color var(--dur-theme) var(--ease-drawer),
+                    border-color var(--dur-theme) var(--ease-drawer) !important;
       }
 
       .sidebar.open {
@@ -307,8 +307,8 @@
         pointer-events: none;
         touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
-        transition: opacity var(--dur-norm) var(--ease-spring),
-                    visibility var(--dur-norm) var(--ease-spring);
+        transition: opacity var(--dur-norm) var(--ease-drawer),
+                    visibility var(--dur-norm) var(--ease-drawer);
         will-change: opacity, visibility;
       }
 

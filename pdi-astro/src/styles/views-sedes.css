@@ -850,8 +850,8 @@
   .sedes-sheet-backdrop.open {
     opacity: var(--sedes-velo, 1) !important;
     pointer-events: auto !important;
-    /* Entra antes que la hoja, como el resto de velos. */
-    transition: opacity var(--dur-popover) var(--ease-out) !important;
+    /* Entra con el mismo tiempo y curva que el resto de velos. */
+    transition: opacity var(--dur-norm) var(--ease-drawer) !important;
   }
 
   /* Durante el arrastre el velo sigue la mano, sin su easing. */

@@ -188,9 +188,9 @@
 /* Variante de entrada «compás»: el recorte direccional y el descenso de 6 px
    siguen siendo la firma del sistema; lo que cambia es el contenido, que se
    asienta en tres tiempos (cabecera, campos, pie) en vez de aparecer de golpe
-   con la hoja. La suma queda en ~310 ms, dentro del techo de 400 ms que el
-   sistema reserva a capas. Al cerrar no hay compás: el recorte ya es la
-   salida y no conviene hacer esperar. */
+   con la hoja. La suma queda en ~310 ms, dentro de los 340 ms de la hoja
+   inferior. Al cerrar no hay compás: el recorte ya es la salida y no conviene
+   hacer esperar. */
 @keyframes pdi-filtros-zona-in {
   from {
     opacity: 0;
@@ -903,9 +903,9 @@
     opacity: var(--filtro-velo, 1);
     visibility: visible;
     pointer-events: auto;
-    transition: /* El velo entra antes que la hoja: primero se retira la página, luego
-         sube el panel. La salida lo deja atrás. */
-      opacity var(--dur-fast) var(--ease-out),
+    transition: /* El velo entra antes que la hoja, con la misma curva y en
+         220 ms; la hoja tarda 340 ms. La salida lo deja atrás. */
+      opacity var(--dur-norm) var(--ease-drawer),
       visibility 0s;
   }
 

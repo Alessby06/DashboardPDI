@@ -64,10 +64,12 @@ export function conectarHoja({
   let animacion = null;
 
   const raiz = document.documentElement;
-  const easeCierre = getComputedStyle(raiz).getPropertyValue("--sheet-ease").trim()
-    || "cubic-bezier(0.22, 0.61, 0.36, 1)";
-  const easeVuelta = getComputedStyle(raiz).getPropertyValue("--ease-drawer").trim()
+  const estiloRaiz = getComputedStyle(raiz);
+  const easeCierre = estiloRaiz.getPropertyValue("--sheet-exit-ease").trim()
     || "cubic-bezier(0.32, 0.72, 0, 1)";
+  const easeVuelta = estiloRaiz.getPropertyValue("--sheet-ease").trim()
+    || "cubic-bezier(0.32, 0.72, 0, 1)";
+  const duracionMax = parseInt(estiloRaiz.getPropertyValue("--sheet-out"), 10) || 260;
 
   const pintarVelo = (valor) => {
     if (velo && telon) telon.style.setProperty(velo.variable, String(valor));
@@ -102,7 +104,7 @@ export function conectarHoja({
     const distancia = Math.abs(destino - total);
     const rapidez = Math.max(0.35, Math.abs(velocidad));
     const duracion = Math.round(
-      Math.min(cerrarPorGesto ? 320 : 260, Math.max(140, distancia / rapidez))
+      Math.min(duracionMax, Math.max(140, distancia / rapidez))
     );
 
     detenerAnimacion();
