@@ -24,6 +24,9 @@
 export const Theme = {
   _currentTheme: (typeof localStorage !== 'undefined' && localStorage.getItem('pdi_theme')) || 'light',
   _mediaListenerBound: false,
+  // View Transition del cambio de tema en curso, para poder cortarla si la
+  // persona interactúa antes de que termine el fundido.
+  _transicion: null,
 
   /** Tema elegido, tal cual se guardo: light, dark o system. */
   estado() {
@@ -134,6 +137,7 @@ export const Theme = {
       const transition = document.startViewTransition(() => {
         applyThemeChange();
       });
+      this._transicion = transition;
 
       // 3. Restaurar transiciones al concluir el desvanecimiento
       transition.finished
@@ -143,6 +147,7 @@ export const Theme = {
           // que quitar igualmente la clase de congelacion.
         })
         .finally(() => {
+          if (this._transicion === transition) this._transicion = null;
           root.classList.remove('disable-theme-transitions');
         });
     } else {
@@ -174,4 +179,24 @@ export const Theme = {
 if (typeof window !== 'undefined') {
   window.PDI = window.PDI || {};
   window.PDI.Theme = Theme;
+}
+
+// El congelado de transiciones del cambio de tema (`disable-theme-transitions`)
+// existe para que el fundido lo haga la View Transition y no cientos de
+// transiciones de color a la vez. Pero dura lo que dura ese fundido: si en ese
+// margen se abre el menu lateral o una hoja, su transform tambien quedaba
+// congelado y aparecian de golpe, sin deslizarse. El primer gesto de la persona
+// libera el congelado antes de que su accion cambie la clase `.open`.
+if (typeof document !== 'undefined') {
+  const liberarCongelado = () => {
+    document.documentElement.classList.remove('disable-theme-transitions');
+    // El fundido de tema tapa la pagina mientras dura. Si la persona ya esta
+    // interactuando (abrir el menu, una hoja), se corta para que su animacion
+    // se vea en el acto en vez de aparecer al terminar el fundido.
+    try {
+      Theme._transicion?.skipTransition?.();
+    } catch (e) { /* ya termino o el navegador no lo admite */ }
+  };
+  document.addEventListener('pointerdown', liberarCongelado, { capture: true, passive: true });
+  document.addEventListener('keydown', liberarCongelado, { capture: true });
 }
