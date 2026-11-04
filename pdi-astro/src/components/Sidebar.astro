@@ -199,8 +199,8 @@ const navItems = [
 
   /* --- Refinamiento del menú -------------------------------------------
      Menos ruido y más jerarquía: el bloque de proyecto se lee como un
-     segmentado, las secciones susurran y la entrada activa se marca con una
-     barra fina a la izquierda en vez de con un contorno completo. */
+     segmentado y las secciones susurran. La entrada activa se distingue por
+     el tinte y la tinta del texto, sin contorno ni barra lateral. */
   .sidebar-header {
     padding: 18px 16px 12px;
   }
@@ -263,17 +263,6 @@ const navItems = [
 
   .nav-btn.active {
     border-color: transparent;
-  }
-
-  .nav-btn.active::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 9px;
-    bottom: 9px;
-    width: 2px;
-    border-radius: 2px;
-    background: var(--gt-green);
   }
 </style>
 
