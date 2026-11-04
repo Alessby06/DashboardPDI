@@ -124,24 +124,26 @@ export const DashboardView = {
     const statEl = document.getElementById("statTotalNinos");
     if (statEl) rollNum(statEl, stats.total);
 
+    // Las cifras del hero se escriben directas: el odometro necesita frames y
+    // en una pestana en segundo plano se queda a medio rodar, mostrando un
+    // digito partido. Con numeros tabulares se leen igual y nunca mienten.
     const dashBenEl = document.getElementById("dashKpiBeneficiarios");
-    if (dashBenEl) rollNum(dashBenEl, stats.total);
+    if (dashBenEl) dashBenEl.textContent = String(stats.total);
 
     const dashTamEl = document.getElementById("dashKpiTamizados");
-    if (dashTamEl) rollNum(dashTamEl, `${stats.tamizados}/${stats.total}`);
+    if (dashTamEl) dashTamEl.textContent = `${stats.tamizados}/${stats.total}`;
 
     // Asistencia en Casitas con fuente real: el pase persistido por
     // CasitasController en pdi_asistencia_casita. Contrato compartido con su
     // filtro y su CSV: sin registro previo el estado efectivo es "P".
     const dashAsisEl = document.getElementById("dashKpiAsistencia");
-    if (dashAsisEl) rollNum(dashAsisEl, this._pctAsistenciaCasitas(), true);
+    if (dashAsisEl) dashAsisEl.textContent = `${this._pctAsistenciaCasitas()}%`;
 
     const dashCasosEl = document.getElementById("dashKpiCasosSociales");
     if (dashCasosEl) {
-      const criticos = window.PDI?.CasoSocialModel?.contarCriticos
-        ? window.PDI.CasoSocialModel.contarCriticos()
-        : 0;
-      rollNum(dashCasosEl, criticos);
+      const casos = window.PDI?.CasoSocialModel?.getAll?.() || [];
+      const activos = casos.filter(c => c && c.etapa !== "cerrado").length;
+      dashCasosEl.textContent = String(activos);
     }
 
     const coverageContainer = document.getElementById("dashDistrictCoverage");
@@ -358,6 +360,7 @@ export const DashboardView = {
       if (totalEval) rollNum(totalEval, stats.total);
     }
 
+    this._renderServicios(stats);
     this.renderPriorityCases(esPrimeraEntrada);
     this.renderRecentActivity(auditLogs, esPrimeraEntrada);
     this.renderAuditLogs(auditLogs);
@@ -424,6 +427,189 @@ export const DashboardView = {
     }
     if (estado !== "ok") return "Cargando datos…";
     return textoVacio;
+  },
+
+  /** Claves de servicio de un usuario, a partir de estrategias y servicios. */
+  _clavesServicio(b) {
+    const claves = new Set();
+    const fuentes = [].concat(
+      Array.isArray(b?.estrategias) ? b.estrategias : [],
+      Array.isArray(b?.servicios) ? b.servicios : [],
+      [b?.estrategia || ""],
+    );
+    fuentes.forEach((valor) => {
+      const low = String(valor || "").toLowerCase();
+      if (!low) return;
+      if (low.includes("desayuno")) claves.add("desayuno");
+      if (low.includes("lonchera")) claves.add("lonchera");
+      if (low.includes("casita")) claves.add("casita");
+      if (low.includes("biblioteca")) claves.add("biblioteca");
+      if (/(^|\s)jac(\s|$)/.test(low)) claves.add("jac");
+      if (low.includes("btf") || low.includes("buen trato")) claves.add("btf");
+      if (low.includes("reposter")) claves.add("reposteria");
+      if (low.includes("pastoral") || low.includes("asp")) claves.add("asp");
+    });
+    return claves;
+  },
+
+  /**
+   * Paneles de servicios, voluntariado y cobertura por servicio. Lee los
+   * modelos ya hidratados; no consulta la nube. El render es idempotente:
+   * se puede llamar en cada refresco sin duplicar nodos.
+   */
+  _renderServicios(stats) {
+    const usuarios = window.PDI?.BeneficiarioModel?.getAll?.() || [];
+    const voluntarios = window.PDI?.VoluntarioModel?.getAll?.() || [];
+    const casos = window.PDI?.CasoSocialModel?.getAll?.() || [];
+    const claves = new Map(usuarios.map(b => [b, this._clavesServicio(b)]));
+    const contar = (clave) => usuarios.filter(b => claves.get(b).has(clave)).length;
+
+    const desayuno = contar("desayuno");
+    const lonchera = contar("lonchera");
+    const casita = contar("casita");
+    const biblioteca = contar("biblioteca");
+    const alimentario = usuarios.filter(b => {
+      const c = claves.get(b);
+      return c.has("desayuno") || c.has("lonchera");
+    }).length;
+    const educativo = usuarios.filter(b => {
+      const c = claves.get(b);
+      return c.has("casita") || c.has("biblioteca");
+    }).length;
+    const casosActivos = casos.filter(c => c && c.etapa !== "cerrado").length;
+    const casosCriticos = casos.filter(c => c && c.etapa !== "cerrado" && c.urgencia === "Alta").length;
+    const voluntariosActivos = voluntarios.filter(v => String(v?.estado || "").toLowerCase() === "activo").length;
+
+    const poner = (id, valor) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = String(valor);
+    };
+
+    // Tarjetas de servicio
+    poner("dashAlimUsuarios", alimentario);
+    poner("dashAlimDesayuno", desayuno);
+    poner("dashAlimLonchera", lonchera);
+    poner("dashAlimCred", stats.tamizados ?? 0);
+    poner("dashEduActivos", educativo);
+    poner("dashEduCasita", casita);
+    poner("dashEduBiblioteca", biblioteca);
+    poner("dashAspCasos", casosActivos);
+    poner("dashAspDesayuno", desayuno);
+    poner("dashAspLonchera", lonchera);
+    poner("dashAspCasita", casita);
+
+    // Indicadores secundarios del hero
+    poner("dashFocusSedes", new Set(usuarios.map(b => String(b.sede || "").trim()).filter(Boolean)).size);
+    poner("dashFocusDistritos", new Set(usuarios.map(b => String(b.distrito || "").trim()).filter(Boolean)).size);
+    poner("dashFocusVoluntarios", voluntariosActivos);
+    poner("dashKpiVoluntarios", voluntariosActivos);
+    poner("dashKpiCasosSociales", casosActivos);
+
+    const contextCasos = document.getElementById("dashKpiCasosContext");
+    if (contextCasos) {
+      contextCasos.textContent = casosCriticos > 0
+        ? `${casosCriticos} en alerta alta`
+        : "Seguimiento social abierto";
+    }
+    const contextVol = document.getElementById("dashKpiVoluntariosContext");
+    if (contextVol) {
+      contextVol.textContent = voluntariosActivos > 0
+        ? "Acompañan los servicios del programa"
+        : this._mensajeSinDatos("Aún no hay voluntarios activos");
+    }
+
+    // Barra de atención CRED sobre el total de usuarios
+    const credBar = document.getElementById("barKpiCred");
+    if (credBar) {
+      const pct = usuarios.length > 0 ? Math.round(((stats.tamizados || 0) / usuarios.length) * 100) : 0;
+      credBar.dataset.targetWidth = `${pct}%`;
+      credBar.style.width = `${pct}%`;
+    }
+
+    // Voluntarios por servicio
+    const listaVol = document.getElementById("dashVoluntariosList");
+    if (listaVol) {
+      const claveVol = (servicio) => {
+        const low = String(servicio || "").toLowerCase();
+        if (low.includes("desayuno")) return "desayuno";
+        if (low.includes("lonchera")) return "lonchera";
+        if (low.includes("casita")) return "casita";
+        if (low.includes("biblioteca")) return "biblioteca";
+        if (low.includes("pastoral") || low.includes("asp")) return "asp";
+        if (low.includes("reposter")) return "reposteria";
+        return "otros";
+      };
+      const grupos = {};
+      voluntarios.forEach(v => {
+        const k = claveVol(v?.servicio);
+        grupos[k] = (grupos[k] || 0) + 1;
+      });
+      const filas = [
+        { clave: "desayuno", nombre: "Desayuno infantil" },
+        { clave: "lonchera", nombre: "Lonchera infantil" },
+        { clave: "casita", nombre: "Casita del Saber" },
+        { clave: "biblioteca", nombre: "Biblioteca comunitaria" },
+        { clave: "asp", nombre: "Social pastoral (ASP)" },
+        { clave: "reposteria", nombre: "Talleres de repostería" },
+        { clave: "otros", nombre: "Otros servicios" },
+      ].filter(f => (grupos[f.clave] || 0) > 0 || f.clave !== "otros");
+      const total = filas.reduce((suma, f) => suma + (grupos[f.clave] || 0), 0) || 1;
+      listaVol.innerHTML = filas.map(f => {
+        const n = grupos[f.clave] || 0;
+        const pct = Math.round((n / total) * 100);
+        return `
+          <div class="dash-vol-row">
+            <span class="dash-vol-name">${escapar(f.nombre)}</span>
+            <strong class="dash-vol-count">${n}</strong>
+            <span class="dash-vol-track"><span class="dash-vol-fill" style="width:${pct}%"></span></span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // Cobertura por servicio y distrito
+    const cobertura = document.getElementById("dashCoverageServicios");
+    if (cobertura) {
+      const programas = [
+        { clave: "desayuno", nombre: "Desayuno" },
+        { clave: "lonchera", nombre: "Lonchera" },
+        { clave: "casita", nombre: "Casita" },
+        { clave: "biblioteca", nombre: "Biblioteca" },
+        { clave: "jac", nombre: "JAC" },
+        { clave: "btf", nombre: "BTF" },
+        { clave: "reposteria", nombre: "Repostería" },
+      ];
+      const distritos = new Map();
+      usuarios.forEach(b => {
+        const distrito = String(b.distrito || "Sin distrito").trim() || "Sin distrito";
+        if (!distritos.has(distrito)) distritos.set(distrito, Object.fromEntries(programas.map(p => [p.clave, 0])));
+        const fila = distritos.get(distrito);
+        const c = claves.get(b);
+        programas.forEach(p => { if (c.has(p.clave)) fila[p.clave] += 1; });
+      });
+      const orden = ["Comas", "Carabayllo"];
+      const nombres = [...distritos.keys()].sort((a, b) => {
+        const ia = orden.indexOf(a);
+        const ib = orden.indexOf(b);
+        return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib) || a.localeCompare(b, "es");
+      });
+      cobertura.innerHTML = nombres.map(distrito => {
+        const fila = distritos.get(distrito);
+        const chips = programas.map(p => {
+          const n = fila[p.clave] || 0;
+          const vacio = n === 0 ? " is-empty" : "";
+          return `<span class="dash-cov-chip${vacio}" title="${escapar(distrito)} · ${escapar(p.nombre)}: ${n} usuarios">
+            <span>${escapar(p.nombre)}</span><strong>${n}</strong>
+          </span>`;
+        }).join("");
+        return `
+          <div class="dash-cov-district">
+            <span class="dash-cov-district-name">${escapar(distrito)}</span>
+            <div class="dash-cov-chips">${chips}</div>
+          </div>
+        `;
+      }).join("");
+    }
   },
 
   renderPriorityCases(animar = false) {

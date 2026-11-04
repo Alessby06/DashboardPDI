@@ -2656,3 +2656,577 @@
 
 
 
+
+
+/* ===========================================================================
+   REDISEÑO DEL PANEL (INFANCIA SALUDABLE)
+   ===========================================================================
+   Lectura en cuatro tiempos: foco de usuarios activos, servicios, estado
+   nutricional con voluntariado y cobertura territorial. La jerarquía se
+   sostiene con peso y tinta, no con bordes fuertes: las tarjetas comparten el
+   mismo contorno suave del resto del sistema y el color solo marca servicio o
+   alerta. Todas las cifras son tabulares para que no bailen al hidratar.
+   =========================================================================== */
+
+.dash-header-clean {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.dash-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.dash-meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-1);
+  color: var(--text-muted);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.dash-meta-chip svg {
+  color: var(--gt-green);
+}
+
+.dash-meta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: var(--radius-full);
+  background: var(--brand-soft);
+  border: 1px solid var(--gt-green-border);
+  color: var(--text-brand);
+  font-size: 11.5px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color var(--dur-fast) var(--ease-smooth),
+    border-color var(--dur-fast) var(--ease-smooth);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .dash-meta-link:hover {
+    background: var(--gt-green-bg);
+    border-color: var(--gt-green);
+  }
+}
+
+/* --- Foco y secundarios ------------------------------------------------- */
+
+.dash-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.95fr);
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.dash-focus-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 22px 22px 18px;
+  background:
+    radial-gradient(120% 90% at 0% 0%, var(--gt-green-bg), transparent 58%),
+    var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  min-height: 200px;
+  box-sizing: border-box;
+}
+
+.dash-focus-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.dash-focus-value {
+  font-size: clamp(40px, 5vw, 56px);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  color: var(--text-main);
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-focus-context {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--text-muted);
+  max-width: 34ch;
+  text-wrap: pretty;
+}
+
+.dash-focus-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.dash-focus-foot-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.dash-focus-foot-item strong {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-main);
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-secondary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.dash-secondary-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px;
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  min-height: 200px;
+  box-sizing: border-box;
+}
+
+.dash-secondary-label {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.dash-secondary-value {
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--text-main);
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-secondary-context {
+  margin-top: auto;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+.dash-secondary-track {
+  height: 5px;
+  margin: 2px 0 4px;
+  border-radius: var(--radius-full);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.dash-secondary-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--gt-green);
+  transition: width var(--dur-panel) var(--ease-drawer);
+}
+
+.dash-secondary-card.is-alert .dash-secondary-value {
+  color: var(--text-danger, #dc2626);
+}
+
+.dash-secondary-card.is-alert .dash-secondary-label {
+  color: var(--text-danger, #dc2626);
+}
+
+/* --- Sección de servicios ----------------------------------------------- */
+
+.dash-section {
+  margin-bottom: 22px;
+}
+
+.dash-section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.dash-section-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text-main);
+}
+
+.dash-section-note {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.dash-service-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.dash-service-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-sizing: border-box;
+}
+
+.dash-service-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+}
+
+.dash-service-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.dash-service-icon.is-green {
+  background: var(--gt-green-bg);
+  color: var(--text-brand);
+  border-color: var(--gt-green-border);
+}
+
+.dash-service-icon.is-blue {
+  background: var(--gt-blue-bg);
+  color: var(--gt-blue);
+  border-color: var(--gt-blue-border);
+}
+
+.dash-service-icon.is-amber {
+  background: rgba(245, 158, 11, 0.14);
+  color: var(--text-warning, #b45309);
+  border-color: rgba(245, 158, 11, 0.32);
+}
+
+.dash-service-title-group {
+  min-width: 0;
+}
+
+.dash-service-title-group h4 {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text-main);
+}
+
+.dash-service-note {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--text-muted);
+}
+
+.dash-service-lead {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.dash-service-lead-value {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.025em;
+  color: var(--text-main);
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-service-lead-label {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.dash-service-rows {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.dash-service-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.dash-service-row dt {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  min-width: 0;
+}
+
+.dash-service-row dd {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.dash-service-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 2px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-brand);
+  text-decoration: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .dash-service-link:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+/* --- Anemia + voluntariado ---------------------------------------------- */
+
+.dash-two-col {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 14px;
+  margin-bottom: 22px;
+  align-items: stretch;
+}
+
+.dash-volunteer-panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.dash-vol-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.dash-vol-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px 10px;
+}
+
+.dash-vol-name {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  min-width: 0;
+}
+
+.dash-vol-count {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-main);
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-vol-track {
+  grid-column: 1 / -1;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.dash-vol-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--gt-green);
+  transition: width var(--dur-panel) var(--ease-drawer);
+}
+
+/* --- Cobertura por servicio --------------------------------------------- */
+
+.dash-coverage-services {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.dash-cov-district {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.dash-cov-district-name {
+  min-width: 92px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.dash-cov-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.dash-cov-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-1);
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.dash-cov-chip strong {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-main);
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-cov-chip.is-empty {
+  opacity: 0.45;
+}
+
+/* --- Adaptación --------------------------------------------------------- */
+
+@media (max-width: 1180px) {
+  .dash-hero-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dash-focus-card {
+    min-height: 0;
+  }
+
+  .dash-secondary-card {
+    min-height: 150px;
+  }
+}
+
+@media (max-width: 940px) {
+  .dash-two-col {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dash-service-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .dash-header-clean {
+    align-items: flex-start;
+  }
+
+  .dash-secondary-grid,
+  .dash-service-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dash-focus-value {
+    font-size: 44px;
+  }
+
+  .dash-secondary-card {
+    min-height: 0;
+  }
+
+  .dash-cov-district {
+    align-items: flex-start;
+  }
+
+  .dash-cov-district-name {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+/* Ajustes de composición del rediseño */
+.dash-coverage-panel {
+  align-self: stretch;
+  width: 100%;
+}
+
+.dash-service-link {
+  margin-top: auto;
+}
+
+.dash-secondary-context {
+  margin-top: 0;
+}
+
+.dash-secondary-track {
+  margin: auto 0 6px;
+}
+
+.dash-secondary-context {
+  margin-top: auto;
+}
+
+.dash-secondary-track {
+  margin: 2px 0 4px;
+}

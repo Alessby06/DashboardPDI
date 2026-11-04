@@ -27,13 +27,13 @@ const ICONO_DE_NAV = {
 const navItems = [
   { section: 'General' },
   { href: '/dashboard', page: 'dashboard', view: 'view-dashboard', label: 'Dashboard General', roles: 'coord,facilitadora,promotora,social,admin', icon: 'dashboard' },
-  { section: 'Módulos Operativos (PDI)' },
+  { section: 'Infancia Saludable' },
   { href: '/padron', page: 'padron', view: 'view-beneficiarios', label: 'Padrón de Usuarios', roles: 'coord,facilitadora,promotora,social,admin', icon: 'padron', badgeId: 'badgeTotalBeneficiarios', badgeVal: '28' },
   // Modulo pedido en el menu, pero sin implementacion todavia: se deja en su
   // lugar para fijar el orden. No navega a ninguna parte.
   { placeholder: true, label: 'Padrón de Colaboradores', icon: 'colaboradores', roles: 'coord,facilitadora,promotora,social,admin' },
   { href: '/voluntariados', page: 'voluntariados', view: 'view-voluntarios', label: 'Padrón de Voluntarios', roles: 'coord,facilitadora,promotora,social,admin', icon: 'voluntariados', badgeId: 'badgeTotalVoluntarios', badgeVal: '8' },
-  { href: '/salud', page: 'salud', view: 'view-salud', label: 'Servicio Alimentario Nutricional', roles: 'coord,facilitadora,admin', icon: 'salud' },
+  { href: '/salud', page: 'salud', view: 'view-salud', label: 'Servicio Alimentario y Nutricional', roles: 'coord,facilitadora,admin', icon: 'salud' },
   { href: '/educativo', page: 'educativo', view: 'view-educativo', label: 'Servicio de Acompañamiento Educativo', roles: 'coord,promotora,admin', icon: 'educativo' },
   { href: '/social', page: 'social', view: 'view-social', label: 'Servicio Social Pastoral (ASP)', roles: 'coord,social,admin', icon: 'social', badgeId: 'badgeCasosCriticos', badgeVal: '4', badgeDanger: true },
   { href: '/social?tab=autorizaciones', page: 'social-autorizaciones', view: 'view-social-autorizaciones', label: 'Autorizaciones ASP', roles: 'coord,admin', icon: 'autorizaciones', badgeId: 'badgeSolicitudesPendientes', badgeVal: '0', badgeAmber: true, hideUnauthorized: true, subview: 'autorizaciones' },
@@ -195,6 +195,85 @@ const navItems = [
     color: var(--text-muted);
     border-color: transparent;
     transform: none;
+  }
+
+  /* --- Refinamiento del menú -------------------------------------------
+     Menos ruido y más jerarquía: el bloque de proyecto se lee como un
+     segmentado, las secciones susurran y la entrada activa se marca con una
+     barra fina a la izquierda en vez de con un contorno completo. */
+  .sidebar-header {
+    padding: 18px 16px 12px;
+  }
+
+  .logo-text h1 {
+    font-size: 13.5px;
+    letter-spacing: -0.01em;
+  }
+
+  .logo-text span {
+    font-size: 11.5px;
+  }
+
+  .project-switcher {
+    margin: 0 12px 6px;
+    padding: 3px;
+    gap: 2px;
+    border-radius: var(--radius-md);
+  }
+
+  .project-option {
+    padding: 7px 10px;
+    border-radius: 7px;
+  }
+
+  .project-name {
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .project-state {
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .nav-sections-inner {
+    padding: 8px 10px 14px;
+    gap: 2px;
+  }
+
+  .nav-label {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    padding: 14px 12px 6px;
+  }
+
+  .nav-btn {
+    padding: 9px 12px;
+    gap: 9px;
+    font-size: 13.5px;
+    border-radius: 8px;
+  }
+
+  .nav-btn > svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .nav-btn.active {
+    border-color: transparent;
+  }
+
+  .nav-btn.active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 9px;
+    bottom: 9px;
+    width: 2px;
+    border-radius: 2px;
+    background: var(--gt-green);
   }
 </style>
 
