@@ -265,18 +265,21 @@ window.openModalExportSalud = () => {
 };
 
 window.openModalExportEducativo = () => {
-  const cv = window.PDI?.CasitasView;
-  const list = cv?._filteredBeneficiarios || (window.PDI?.BeneficiarioModel?.getAll ? window.PDI.BeneficiarioModel.getAll() : []);
-  const asistenciaMap = window.PDI?.CasitasController?._cargar ? window.PDI.CasitasController._cargar() : {};
+  const datos = window.PDI?.CasitasView?.getDatosExportacion?.() || {};
+  const list = datos.list || [];
+  const meta = datos.meta || {};
+  const mapa = datos.mapa || {};
+  const sedeTexto = meta.sede ? ` · ${meta.sede}` : "";
+  const diaTexto = meta.dia ? ` · ${meta.dia}` : "";
   window.openModalExportGeneric({
-    title: "Descarga del Pase de Asistencia",
+    title: "Descarga de la Jornada de Asistencia",
     subtitle: "Consolidado de la Casita del Saber",
-    description: `Se generará un archivo consolidado en formato <strong style="font-family: var(--mono-font); color: var(--text-brand);">.CSV</strong> con el grado escolar, el colegio de origen, el apoderado acreditado y la asistencia registrada de cada usuario.`,
+    description: `Se generará un archivo consolidado en formato <strong style="font-family: var(--mono-font); color: var(--text-brand);">.CSV</strong> con la asistencia marcada, el motivo de las faltas justificadas y la ración de la jornada seleccionada${sedeTexto}${diaTexto}.`,
     count: list.length,
     unit: "usuarios",
     legal: "Ley N.° 29733 (Datos Personales)",
     onConfirm: () => {
-      window.PDI?.AppController?.exportCasitasCSV?.(list, asistenciaMap);
+      window.PDI?.AppController?.exportCasitasCSV?.(list, mapa, meta);
     }
   });
 };
@@ -586,7 +589,10 @@ document.addEventListener("click", (e) => {
   if (!e.target.closest(".audit-legal-popover-wrapper")) {
     document.getElementById("wrapAuditLegalPopover")?.classList.remove("open");
   }
-  if (e.target && e.target.id === "modalConfirmExportAudit") {
+  // El velo de los modales añade un ::before que puede recibir el clic. Se
+  // comprueba el backdrop y se excluye la caja para no cerrar al pulsar dentro.
+  const backdropExport = e.target?.closest?.("#modalConfirmExportAudit");
+  if (backdropExport && !e.target.closest?.(".modal-box")) {
     window.closeModalExportAudit();
   }
 });

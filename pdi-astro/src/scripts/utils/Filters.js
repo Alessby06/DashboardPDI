@@ -205,7 +205,7 @@ export function crear(esquema) {
     const actual = window.location.pathname + window.location.search + window.location.hash;
     if (completa === actual) return;
 
-    window.history.replaceState(null, "", completa);
+    window.history.replaceState(window.history.state, "", completa);
   }
 
   /**
@@ -255,7 +255,7 @@ export function crear(esquema) {
   function anadir(cambios, alCambiar) {
     if (!cambios || !Object.keys(cambios).length) return;
     const url = componer(cambios);
-    window.history.pushState(null, "", url);
+    window.history.pushState(window.history.state, "", url);
     if (typeof alCambiar !== "function") return;
 
     if (ventanaConOyente !== window) {
@@ -274,7 +274,7 @@ export function crear(esquema) {
     for (const clave of claves) params.delete(clave);
     const cadena = params.toString();
     window.history.replaceState(
-      null, "",
+      window.history.state, "",
       window.location.pathname + (cadena ? "?" + cadena : "") + window.location.hash
     );
   }

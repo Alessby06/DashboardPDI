@@ -65,7 +65,7 @@ function enlazarAnclas() {
     ev.preventDefault();
     ev.stopPropagation();
     scrollToHash(href);
-    if (history.pushState) history.pushState(null, '', href);
+    if (history.pushState) history.pushState(history.state, '', href);
     if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
     target.focus({ preventScroll: true });
   }, { capture: true });

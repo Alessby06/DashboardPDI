@@ -1,11 +1,13 @@
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 import { ScrollPane } from './ScrollPane.js';
+import { esScrollNativo } from './scrollMode.js';
 
 /**
  * Lenis en el viewport principal y en cada panel con scroll vertical. Los
- * paneles usan ScrollPane: wrapper sin barra nativa, contenido transformado y
- * barra propia arrastrable. Un solo requestAnimationFrame para todos.
+ * paneles usan ScrollPane. En móvil (puntero grueso o ventana <= 900 px) no
+ * se monta nada: el navegador lleva el scroll de forma nativa. El opt-in
+ * `?smoothTouch=1` / `data-smooth-touch` / localStorage recupera Lenis.
  */
 const PANE_SELECTOR = [
   '[data-smooth-scroll]',
@@ -40,6 +42,7 @@ export const ScrollManager = {
   modalObserver: null,
   locked: false,
   enabled: false,
+  native: false,
   touch: false,
   _bound: false,
 
@@ -47,11 +50,21 @@ export const ScrollManager = {
     if (this._bound) return;
     this._bound = true;
 
-    const touchOptIn = document.documentElement.hasAttribute('data-smooth-touch')
+    const optIn = document.documentElement.hasAttribute('data-smooth-touch')
       || new URLSearchParams(location.search).get('smoothTouch') === '1'
       || localStorage.getItem('pdi:smooth-touch') === '1';
-    this.touch = !esFino() || touchOptIn;
-    this.enabled = true;
+    const punteroFino = esFino();
+
+    // En móvil el navegador es el que scrollea. El opt-in permite comparar y
+    // volver a Lenis sin desplegar. `touch` conserva el significado anterior
+    // para el caso en que Lenis sí se monte (tablet con ratón, opt-in).
+    this.native = esScrollNativo({
+      punteroFino,
+      ancho: window.innerWidth,
+      optIn,
+    });
+    this.touch = !punteroFino || optIn;
+    this.enabled = !this.native;
 
     if (!this.enabled) {
       window.__pdiScroll = this;
@@ -77,6 +90,7 @@ export const ScrollManager = {
   },
 
   _createMain() {
+    if (!this.enabled) return;
     const wrapper = document.querySelector('.content-viewport');
 
     // Login e index no usan AppLayout: Lenis va sobre la ventana.
@@ -85,7 +99,6 @@ export const ScrollManager = {
       this.main = new Lenis({
         lerp: 0.1,
         smoothWheel: true,
-        smoothTouch: this.touch,
         syncTouch: this.touch,
         wheelMultiplier: 1,
         touchMultiplier: 1.6,
@@ -108,7 +121,6 @@ export const ScrollManager = {
       ...(content ? { content } : {}),
       lerp: 0.1,
       smoothWheel: true,
-      smoothTouch: this.touch,
       syncTouch: this.touch,
       wheelMultiplier: 1,
       touchMultiplier: 1.6,
@@ -264,6 +276,7 @@ export const ScrollManager = {
   },
 
   rebind() {
+    if (!this.enabled) return;
     const wrapper = document.querySelector('.content-viewport');
     if (!wrapper) return;
     if (this.main && this.mainWrapper === wrapper) return;

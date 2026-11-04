@@ -39,9 +39,9 @@ export const AppController = {
   },
 
   /** Descarga el pase de asistencia de la Casita del Saber en CSV. */
-  exportCasitasCSV(customList, asistenciaMap) {
+  exportCasitasCSV(customList, asistenciaMap, meta) {
     const list = customList || BeneficiarioModel.getAll();
-    CsvExporter.exportCasitas(list, asistenciaMap);
+    CsvExporter.exportCasitas(list, asistenciaMap, meta);
   },
 
   /** Descarga las derivaciones del Area Social Pastoral en CSV. */

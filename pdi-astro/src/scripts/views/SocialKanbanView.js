@@ -1139,7 +1139,7 @@ export const SocialKanbanView = {
       } else {
         url.searchParams.set("tab", tabKey);
       }
-      window.history.replaceState({}, "", url.toString());
+      window.history.replaceState(window.history.state, "", url.toString());
     }
 
     // View Transitions API nativa: animación fluida si el navegador lo soporta

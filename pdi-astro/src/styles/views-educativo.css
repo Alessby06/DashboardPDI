@@ -417,3 +417,358 @@
 /* ==========================================
    ESTILOS: CROQUIS Y MAPA GOOGLE EMBED
    ========================================== */
+
+/* ===========================================================================
+   JORNADA DE ASISTENCIA (EDUCATIVO)
+   ===========================================================================
+   La barra fija el dia y la sede; la tabla marca el borrador; el resumen y
+   los avisos viven entre ambos.
+   =========================================================================== */
+
+.jornada-bar {
+  display: grid;
+  grid-template-columns: minmax(160px, 0.9fr) minmax(220px, 1.3fr) minmax(280px, 2fr) auto;
+  gap: 14px;
+  align-items: end;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.jornada-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.jornada-label {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.jornada-input {
+  width: 100%;
+  height: 36px;
+  padding: 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+  background: var(--surface-1);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+}
+
+.jornada-input:focus-visible {
+  outline: 2px solid var(--text-brand);
+  outline-offset: 1px;
+}
+
+.jornada-resumen {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-height: 36px;
+}
+
+.jornada-resumen-vacio {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.jornada-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  background: var(--surface-1);
+  font-size: 11.5px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.jornada-chip strong {
+  color: var(--text-main);
+  font-size: 12.5px;
+}
+
+.jornada-chip-punto {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--border-medium);
+}
+
+.jornada-chip.is-total .jornada-chip-punto { background: var(--text-dim); }
+.jornada-chip.is-p .jornada-chip-punto { background: var(--gt-green); }
+.jornada-chip.is-t .jornada-chip-punto { background: var(--text-warning); }
+.jornada-chip.is-fj .jornada-chip-punto { background: #f97316; }
+.jornada-chip.is-fi .jornada-chip-punto { background: var(--text-danger); }
+.jornada-chip.is-sin .jornada-chip-punto { background: var(--border-medium); }
+.jornada-chip.is-motivo { border-style: dashed; }
+
+.jornada-acciones {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.jornada-estado {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.jornada-estado.is-dirty { color: var(--text-warning); }
+.jornada-estado.is-ok { color: var(--text-brand); }
+.jornada-estado.is-saving,
+.jornada-estado.is-loading { color: var(--text-info); }
+
+.jornada-solo-lectura {
+  margin: -4px 0 14px;
+  padding: 9px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-warning);
+  background: var(--gt-yellow-bg);
+  border: 1px solid var(--gt-yellow-border, rgba(245, 158, 11, 0.35));
+  border-radius: var(--radius-sm);
+}
+
+.jornada-avisos {
+  margin-bottom: 14px;
+}
+
+.jornada-aviso {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-2);
+}
+
+.jornada-aviso.is-conflicto {
+  border-color: var(--gt-yellow-border, rgba(245, 158, 11, 0.4));
+  background: var(--gt-yellow-bg);
+}
+
+.jornada-aviso.is-remoto {
+  border-color: var(--gt-blue-border, rgba(2, 132, 199, 0.35));
+  background: var(--gt-blue-bg);
+}
+
+.jornada-aviso-texto { min-width: 0; }
+.jornada-aviso-texto strong { display: block; color: var(--text-main); font-size: 13px; }
+.jornada-aviso-texto p { margin: 3px 0 0; color: var(--text-muted); font-size: 12.5px; }
+
+.jornada-aviso-acciones {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.jornada-conflicto-lista {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.jornada-conflicto-lista li { margin-bottom: 3px; }
+.jornada-conflicto-codigo { margin-left: 6px; color: var(--text-dim); font-size: 11px; }
+.jornada-conflicto-cambio { display: block; color: var(--text-main); font-weight: 600; }
+.jornada-conflicto-propio { margin-left: 6px; color: var(--text-warning); font-weight: 700; }
+.jornada-conflicto-resto { list-style: none; margin-left: -18px; font-style: italic; }
+
+.asist-botones {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.btn-asist:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn-asist-clear {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-dim);
+  border-color: transparent;
+  background: transparent;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn-asist-clear:hover:not(:disabled) {
+    color: var(--text-danger);
+    border-color: var(--gt-red-border, rgba(239, 68, 68, 0.35));
+  }
+}
+
+.asist-motivo {
+  max-width: 220px;
+  margin-top: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-warning);
+}
+
+.asist-bloque-movil {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--surface-2);
+}
+
+.asist-bloque-titulo {
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.asist-botones-movil {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
+  gap: 6px;
+}
+
+.celda-subtexto {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.celda-fuerte {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.jornada-empty-icon {
+  width: 44px;
+  height: 44px;
+  margin: 0 auto 10px;
+  border-radius: 50%;
+  background: var(--gt-yellow-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-warning);
+}
+
+.jornada-empty-title {
+  font-weight: 700;
+  color: var(--text-main);
+  font-size: 14.5px;
+}
+
+.jornada-empty-text {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+.jornada-empty-mobile {
+  padding: 36px 16px;
+  margin-top: 8px;
+  text-align: center;
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+/* Modal del motivo FJ: <dialog> nativo en la capa superior */
+.jornada-dialog {
+  width: min(520px, calc(100vw - 32px));
+  max-width: min(520px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: visible;
+}
+
+.jornada-dialog::backdrop {
+  background: var(--sheet-veil-margen, rgba(0, 0, 0, 0.6));
+  touch-action: none;
+}
+
+.jornada-dialog .modal-box {
+  width: 100%;
+  max-width: 100%;
+  opacity: 1;
+  transform: none;
+}
+
+.motivo-box {
+  max-width: 520px;
+}
+
+.motivo-alumno {
+  margin: 0 0 12px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.motivo-contador {
+  margin-top: 4px;
+  text-align: right;
+  font-size: 11.5px;
+  color: var(--text-dim);
+}
+
+.motivo-error {
+  margin: 10px 0 0;
+  padding: 8px 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-danger);
+  background: var(--gt-red-bg);
+  border: 1px solid var(--gt-red-border, rgba(239, 68, 68, 0.35));
+  border-radius: var(--radius-sm);
+}
+
+@media (max-width: 1100px) {
+  .jornada-bar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .jornada-resumen { grid-column: 1 / -1; }
+  .jornada-acciones { grid-column: 1 / -1; justify-content: flex-start; }
+}
+
+@media (max-width: 768px) {
+  .jornada-bar {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 12px;
+  }
+  .jornada-resumen { min-height: 0; }
+  .jornada-chip { font-size: 10.5px; padding: 3px 8px; }
+  .jornada-aviso { flex-direction: column; }
+  .jornada-aviso-acciones { width: 100%; }
+  .jornada-aviso-acciones .btn-action { flex: 1 1 auto; justify-content: center; }
+  .jornada-acciones .btn-action { flex: 1 1 auto; justify-content: center; }
+  .asist-motivo { max-width: 100%; white-space: normal; }
+}

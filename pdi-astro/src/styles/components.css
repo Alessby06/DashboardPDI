@@ -1,4 +1,4 @@
-﻿/* Cards & Glass Containers */
+/* Cards & Glass Containers */
     .card {
       background: var(--surface-1);
       /* Sin backdrop-filter: iba sobre --surface-1, que es opaco (#ffffff en
@@ -534,6 +534,7 @@
     .badge-blue { background: var(--gt-blue-bg); color: var(--text-info); border: 1px solid var(--gt-blue-border); }
     .badge-red { background: var(--gt-red-bg); color: var(--text-danger); border: 1px solid var(--gt-red-border); }
     .badge-orange { background: rgba(249, 115, 22, 0.14); color: var(--gt-orange); border: 1px solid rgba(249, 115, 22, 0.35); }
+    .badge-neutral { background: var(--surface-2); color: var(--text-dim); border: 1px dashed var(--border-medium); }
 
     /* Botones de Asistencia Reactivos (PC y Móvil) */
     .btn-asist {

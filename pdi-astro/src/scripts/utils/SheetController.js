@@ -289,8 +289,8 @@ function actualizarBloqueoFondo() {
   // Solo la clase: el telón cubre la pantalla y el body no necesita overflow
   // oculto. Cambiarlo al cerrar repintaba la tabla y se veía un parpadeo.
   document.body.classList.toggle("pdi-drawer-open", abierta);
-  if (abierta) window.__pdiLenis?.stop?.();
-  else window.__pdiLenis?.start?.();
+  if (abierta) window.__pdiScroll?.main?.stop?.();
+  else window.__pdiScroll?.main?.start?.();
 }
 
 function observarFondo() {
@@ -304,10 +304,57 @@ function observarFondo() {
   actualizarBloqueoFondo();
 }
 
+let tecladoListo = false;
+let temporizadorTeclado = null;
+
+/**
+ * Cuando el teclado reduce el viewport, el campo enfocado puede quedar por
+ * debajo. Se ajusta el scroll del contenedor más cercano (cuerpo de la hoja,
+ * filtros o contenido) en vez de mover la página entera.
+ */
+function ajustarCampoVisible() {
+  const activo = document.activeElement;
+  if (!(activo instanceof HTMLElement)) return;
+  if (!activo.matches("input, textarea, select, [contenteditable='true']")) return;
+
+  const vv = window.visualViewport;
+  const limite = vv ? vv.height : window.innerHeight;
+  const r = activo.getBoundingClientRect();
+  if (r.bottom <= limite - 12 && r.top >= 12) return;
+
+  const scroller = activo.closest(".modal-body, .audit-filters-body, .sedes-detail-column, .content-viewport");
+  if (!scroller) {
+    activo.scrollIntoView({ block: "center", behavior: "smooth" });
+    return;
+  }
+
+  const sr = scroller.getBoundingClientRect();
+  const bordeInferior = Math.min(limite, sr.bottom) - 16;
+  const delta = r.bottom - bordeInferior;
+  if (delta > 0) scroller.scrollTop += delta;
+}
+
+function programarAjusteTeclado() {
+  clearTimeout(temporizadorTeclado);
+  temporizadorTeclado = setTimeout(ajustarCampoVisible, 120);
+}
+
+function conectarTeclado() {
+  if (tecladoListo) return;
+  tecladoListo = true;
+  document.addEventListener("focusin", programarAjusteTeclado);
+  window.addEventListener("resize", programarAjusteTeclado);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", programarAjusteTeclado);
+    window.visualViewport.addEventListener("scroll", programarAjusteTeclado);
+  }
+}
+
 export function iniciarSheets() {
   document.querySelectorAll(".modal-backdrop.drawer .sheet-grab").forEach(engancharAsaDeModal);
   conectarEscape();
   observarFondo();
+  conectarTeclado();
 }
 
 // Los modales globales viajan con transition:persist: persisten entre

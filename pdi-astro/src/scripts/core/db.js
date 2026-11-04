@@ -46,6 +46,7 @@ import {
 import { campoUsuario, campoViveCon } from './esquemaCampos.js';
 import { consultaCapacitacion } from './consultasVoluntario.js';
 import { conReintentos } from '../utils/reintento.js';
+import { diaEnZona, construirGuardadoJornada } from './jornadaAsistencia.js';
 
 const URL = import.meta.env.PUBLIC_SURREAL_URL;
 const NS = import.meta.env.PUBLIC_SURREAL_NS;
@@ -491,9 +492,11 @@ const SQL_LOTE_HIDRATACION = [
   'SELECT * FROM voluntario WHERE activo = true ORDER BY fecha_ingreso DESC;',
   // 5 · bitácora (últimos 500)
   'SELECT * FROM bitacora_auditoria ORDER BY timestamp DESC LIMIT 500;',
-  // 6 · asistencia de hoy
+  // 6 · asistencia de hoy para el panel general. Se calcula el día en hora de
+  //     Perú con el desfase fijo (UTC-5, sin horario de verano). No alimenta
+  //     la jornada de educativo: esa se consulta por día y sede.
   `SELECT inscripcion_id AS iid, estado FROM asistencia_diaria
-  WHERE fecha >= time::floor(time::now(), 1d) AND fecha < time::floor(time::now(), 1d) + 1d;`,
+   WHERE dia = time::format(time::now() - 5h, '%Y-%m-%d');`,
   // 7 · todas las sedes, incluidas las inactivas: el archivo de retirados
   //     necesita saber si la sede de la que se fue sigue operativa.
   'SELECT * FROM sede ORDER BY creado_el;',
@@ -523,6 +526,8 @@ export async function hidratar(promedioSilencioso = false) {
       const casos = mapearCasos(casosRaw, solicitudesRaw);
       const voluntarios = mapearVoluntarios(voluntariosRaw);
       const logs = mapearBitacora(logsRaw);
+      // Solo para el KPI del panel general. La jornada de educativo tiene su
+      // propia consulta por día y sede y no se sobrescribe con esta.
       const asistencia = mapearAsistencia(asistenciaRaw, beneficiarios);
 
       // Segunda comprobacion: la escritura pudo empezar (o terminar) durante
@@ -576,7 +581,12 @@ function aplicarDatasets(beneficiarios, sedes, casos, voluntarios, logs, asisten
   pdi.CasoSocialModel?.aplicarDatos?.(casos);
   pdi.VoluntarioModel?.aplicarDatos?.(voluntarios);
   pdi.AuditModel?.aplicarDatos?.(logs);
+  // Solo alimenta el KPI del panel general. CasitasController guarda este
+  // mapa aparte de la jornada: no puede pisar el borrador de educativo.
   pdi.CasitasController?.aplicarDatosAsistencia?.(asistencia);
+  // El panel general no carga el controlador educativo; este mapa compartido
+  // le permite calcular el KPI sin arrastrar toda la vista.
+  pdi.asistenciaHoy = asistencia || {};
   // AjustesView y las páginas leen Restaurar desde aqui.
   pdi.recopilacionNube = { beneficiarios, sedes, casos, voluntarios, logs, asistencia };
 }
@@ -1090,13 +1100,126 @@ function mapearBitacora(raw) {
   }));
 }
 
-/** Asistencia de hoy para la Casita del Saber: { [beneficiarioId]: 'P'|'T'|'FJ'|'FI' } */
-export async function fetchAsistencia() {
+/** Asistencia de un día para la Casita del Saber: { [beneficiarioId]: 'P'|'T'|'FJ'|'FI' } */
+export async function fetchAsistencia(dia = diaEnZona()) {
   return mapearAsistencia(
-    comoLista(await ejecutar(`SELECT inscripcion_id AS iid, estado FROM asistencia_diaria
-      WHERE fecha >= time::floor(time::now(), 1d) AND fecha < time::floor(time::now(), 1d) + 1d;`)),
+    comoLista(await ejecutar(
+      'SELECT inscripcion_id AS iid, estado FROM asistencia_diaria WHERE dia = $dia;',
+      { dia },
+    )),
     (window.PDI?.BeneficiarioModel?.getAll?.() || []),
   );
+}
+
+/**
+ * Filas de la jornada de una sede, con lo necesario para pintar el estado y
+ * detectar conflictos. Se consulta por el nombre de la sede y no por un id
+ * fijo: la jornada se elige por nombre y la relación con `sede` es la que
+ * conserva el registro.
+ */
+export async function fetchAsistenciaJornada(dia, sedeNombre) {
+  if (!dia || !sedeNombre) return [];
+  const filas = comoLista(await ejecutar(
+    `SELECT inscripcion_id, sede_id, estado, observacion, racion_entregada,
+            actualizado_el, registrado_por_nombre
+     FROM asistencia_diaria
+     WHERE dia = $dia AND sede_id.nombre = $sede;`,
+    { dia, sede: sedeNombre },
+  ));
+  return filas.map(fila => ({
+    inscripcionId: String(fila.inscripcion_id || ''),
+    sedeId: String(fila.sede_id || ''),
+    estado: fila.estado || '',
+    observacion: fila.observacion || '',
+    racionEntregada: Boolean(fila.racion_entregada),
+    actualizadoEl: fila.actualizado_el ? String(fila.actualizado_el) : '',
+    registradoPorNombre: fila.registrado_por_nombre || '',
+  })).filter(fila => fila.inscripcionId);
+}
+
+/** Convierte las filas de una jornada en un mapa por inscripción. */
+export function mapaJornada(filas) {
+  const mapa = {};
+  for (const fila of filas || []) {
+    const marca = {
+      estado: fila.estado || '',
+      observacion: fila.observacion || '',
+      actualizadoEl: fila.actualizadoEl || '',
+      registradoPorNombre: fila.registradoPorNombre || '',
+    };
+    mapa[fila.inscripcionId] = marca;
+  }
+  return mapa;
+}
+
+/**
+ * Guarda una jornada completa en UNA transacción.
+ *
+ * `cambios` es un mapa { [inscripcionId]: { estado, observacion, sedeId } }.
+ * Un estado vacío borra la marca: la jornada vacía no se representa con una
+ * fila "fantasma". Antes de escribir se compara lo que había al cargar con lo
+ * que hay ahora; si otro dispositivo tocó a alguno de los alumnos que vamos a
+ * escribir, no se guarda nada y se devuelven las diferencias.
+ */
+export async function guardarAsistenciaJornada({
+  dia,
+  sede,
+  cambios,
+  lineaBase = {},
+  registradoPorNombre = '',
+  forzar = false,
+}) {
+  const entradas = Object.entries(cambios || {});
+  if (!dia || !sede || !entradas.length) {
+    return { ok: false, error: 'No hay cambios que guardar.' };
+  }
+
+  try {
+    // 1. Estado actual de la sede/día. Es la referencia del conflicto.
+    const actuales = mapaJornada(await fetchAsistenciaJornada(dia, sede));
+
+    if (!forzar) {
+      const conflictos = [];
+      for (const [inscripcionId, nuevo] of entradas) {
+        const antes = lineaBase[inscripcionId] || {};
+        const ahora = actuales[inscripcionId] || {};
+        const mismoEstado = (antes.estado || '') === (ahora.estado || '');
+        const mismoMotivo = (antes.observacion || '') === (ahora.observacion || '');
+        if (!mismoEstado || !mismoMotivo) {
+          conflictos.push({
+            inscripcionId,
+            antes: { estado: antes.estado || '', observacion: antes.observacion || '' },
+            ahora: { estado: ahora.estado || '', observacion: ahora.observacion || '' },
+            nuevo: { estado: nuevo.estado || '', observacion: nuevo.observacion || '' },
+          });
+        }
+      }
+      if (conflictos.length) return { ok: false, conflictos };
+    }
+
+    // 2. Una sola transacción: o se guarda la jornada entera o nada.
+    const { ql, params } = construirGuardadoJornada({
+      dia,
+      cambios: Object.fromEntries(entradas),
+      registradoPorNombre,
+    });
+    await ejecutar(ql, params);
+
+    // 3. La línea base pasa a ser lo recién guardado.
+    return {
+      ok: true,
+      guardados: entradas.map(([inscripcionId, cambio]) => ({
+        inscripcionId,
+        estado: cambio.estado || '',
+        observacion: cambio.estado === 'FJ' ? String(cambio.observacion || '').trim() : '',
+      })),
+    };
+  } catch (err) {
+    // El llamador muestra el aviso contextual; aquí solo se registra el
+    // detalle técnico para no duplicar tostadas.
+    console.error('[PDI] Fallo al guardar la jornada:', err?.message || err);
+    return { ok: false, error: err?.message || 'No se pudo guardar la jornada.' };
+  }
 }
 
 /** Convierte los registros crudos de asistencia en { [beneficiarioId]: estado }. */
@@ -2203,36 +2326,37 @@ export async function incrementarCanastaVoluntario(vol) {
 // ---------------------------------------------------------------------------
 //  CRUD · Asistencia diaria (Casita del Saber)
 // ---------------------------------------------------------------------------
-export async function registrarAsistencia(beneficiario, estadoClave) {
-  const inscripcionId = claveRegistro(beneficiario._inscripcionId);
+export async function registrarAsistencia(beneficiario, estadoClave, observacion = '') {
+  const inscripcionId = String(beneficiario?._inscripcionId || '');
   if (!inscripcionId) {
     avisarFallo('Asistencia', 'El usuario no tiene inscripción activa en la nube.');
     return false;
   }
+  const estado = ['P', 'T', 'FJ', 'FI'].includes(estadoClave) ? estadoClave : 'P';
+  const motivo = estado === 'FJ' ? String(observacion || '').trim().slice(0, 120) : '';
+  if (estado === 'FJ' && !motivo) {
+    avisarFallo('Asistencia', 'La falta justificada necesita un motivo.');
+    return false;
+  }
   try {
-    await ejecutar(`INSERT INTO asistencia_diaria {
-      inscripcion_id: type::record('inscripcion', $iid),
-      sede_id: type::record('sede', $sid),
-      fecha: type::datetime($fecha),
-      estado: $estado,
-      racion_entregada: $racion,
-      observacion: $obs ?? NONE
-    } ON DUPLICATE KEY UPDATE
-      estado = $data.estado, racion_entregada = $data.racion_entregada;`, {
-      iid: inscripcionId,
-      sid: claveRegistro(beneficiario._sedeRawId || 'sede:sin_sede'),
-      fecha: new Date().toISOString().slice(0, 10),
-      estado: ['P', 'T', 'FJ', 'FI'].includes(estadoClave) ? estadoClave : 'P',
-      racion: estadoClave === 'P' || estadoClave === 'T',
-      obs: null,
-      data: {
-        estado: ['P', 'T', 'FJ', 'FI'].includes(estadoClave) ? estadoClave : 'P',
-        racion_entregada: estadoClave === 'P' || estadoClave === 'T',
+    // La misma transacción que usa la jornada, con un solo alumno. Así esta
+    // vieja entrada no puede quedar con un SQL distinto al del guardado real.
+    const { ql, params } = construirGuardadoJornada({
+      dia: diaEnZona(),
+      registradoPorNombre: (typeof window !== 'undefined' && localStorage.getItem('pdi_usuario_nombre')) || '',
+      cambios: {
+        [inscripcionId]: {
+          estado,
+          observacion: motivo,
+          sedeId: beneficiario._sedeRawId || '',
+        },
       },
     });
+    await ejecutar(ql, params);
     return true;
   } catch (err) {
-    return avisarFallo('Registro de asistencia', err) !== null;
+    avisarFallo('Registro de asistencia', err);
+    return false;
   }
 }
 

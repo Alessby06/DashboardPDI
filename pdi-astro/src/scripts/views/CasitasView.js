@@ -1,25 +1,30 @@
 // Vista: Acompañamiento Educativo (Casita del Saber)
+//
+// La página ya no es "el pase de hoy": es una jornada de un día y una sede.
+// El estado de cada alumno vive en CasitasController hasta que se pulsa
+// "Guardar jornada"; esta vista solo dibuja ese estado, los filtros que
+// estrechan la lista (grado y búsqueda) y el resumen.
 import { crear as crearFiltros } from '../utils/Filters.js';
 import { crearStore } from '../utils/FilterStore.js';
 import { Responsive } from '../utils/Responsive.js';
 
-import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
+import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";
 import { SEDES_NOMBRES, etiquetaSede } from "../core/catalogos.js";
 import { contarOpciones } from "../utils/FacetCounts.js";
 import { initSortMenu } from "../ui/SortMenu.js";
 import { iconHtml } from '../../data/iconos.js';
-// Filtros del módulo educativo que viajan en la URL. Valores tomados de los
-// desplegables de educativo.html.
+import { ESTADOS_ASISTENCIA } from '../core/jornadaAsistencia.js';
+
+// Filtros que viajan en la URL. El día y la sede definen la jornada; grado y
+// búsqueda solo estrechan la lista.
 const FILTROS_CASITAS = {
-  q:          { valor: "" },
-  asistencia: { valor: "all", valores: ["all", "P", "T", "FJ", "FI"] },
-  sede:       { valor: [], valores: [...SEDES_NOMBRES], multiple: true },
-  grado:      { valor: "all", valores: ["all", "inicial", "primaria", "secundaria"] },
+  q:     { valor: "" },
+  grado: { valor: "all", valores: ["all", "inicial", "primaria", "secundaria"] },
+  fecha: { valor: "" },
+  sede:  { valor: "", valores: [...SEDES_NOMBRES] },
 };
 
 const FACETAS_CASITAS = {
-  asistencia: { tipo: "single", opciones: FILTROS_CASITAS.asistencia.valores, defecto: "all" },
-  sede: { tipo: "multi", opciones: FILTROS_CASITAS.sede.valores, defecto: [] },
   grado: { tipo: "single", opciones: FILTROS_CASITAS.grado.valores, defecto: "all" },
 };
 
@@ -28,13 +33,26 @@ function colegioOrigenVisible(beneficiario) {
   return colegio && colegio !== '-' ? colegio : 'Sin registrar';
 }
 
+function gradoVisible(beneficiario) {
+  const grado = String(beneficiario?.grado ?? '').trim();
+  return grado || 'Sin registrar';
+}
+
+function hoyLocal() {
+  const ctrl = window.PDI?.CasitasController;
+  return ctrl?.diaHoy ? ctrl.diaHoy() : new Date().toISOString().slice(0, 10);
+}
+
 export const CasitasView = {
   _allBeneficiarios: [],
   _filteredBeneficiarios: [],
   _searchQuery: "",
-  _filterAsistencia: "all",
-  _filterSede: [],
   _filterGrado: "all",
+  _jornadaDia: "",
+  _jornadaSede: "",
+  _jornadaInicializada: false,
+  _jornadaCargando: false,
+  _guardando: false,
   _asistenciaDelegada: false,
   _currentPage: 1,
   _pageSize: 20,
@@ -46,6 +64,8 @@ export const CasitasView = {
 
   _store: null,
 
+  _fjPendiente: null,
+
   _obtenerStore() {
     if (!this._store) this._store = crearStore(FACETAS_CASITAS);
     return this._store;
@@ -53,8 +73,6 @@ export const CasitasView = {
 
   _espejarStore() {
     const s = this._obtenerStore().instantanea();
-    this._filterAsistencia = s.asistencia;
-    this._filterSede = s.sede;
     this._filterGrado = s.grado;
   },
 
@@ -63,6 +81,10 @@ export const CasitasView = {
       this._filtros = crearFiltros(FILTROS_CASITAS);
     }
     return this._filtros;
+  },
+
+  _controlador() {
+    return window.PDI?.CasitasController || null;
   },
 
   _getEffectivePageSize() {
@@ -106,17 +128,13 @@ export const CasitasView = {
   },
 
   prevPage() {
-    if (this._currentPage > 1) {
-      this.goToPage(this._currentPage - 1);
-    }
+    if (this._currentPage > 1) this.goToPage(this._currentPage - 1);
   },
 
   nextPage() {
     const pageSize = this._getEffectivePageSize();
     const totalPages = Math.max(1, Math.ceil(this._filteredBeneficiarios.length / pageSize));
-    if (this._currentPage < totalPages) {
-      this.goToPage(this._currentPage + 1);
-    }
+    if (this._currentPage < totalPages) this.goToPage(this._currentPage + 1);
   },
 
   _renderPagination(totalCount) {
@@ -138,14 +156,10 @@ export const CasitasView = {
     }
 
     const btnPrev = document.getElementById("btnCasitasPagePrev");
-    if (btnPrev) {
-      btnPrev.disabled = this._currentPage <= 1 || totalCount === 0;
-    }
+    if (btnPrev) btnPrev.disabled = this._currentPage <= 1 || totalCount === 0;
 
     const btnNext = document.getElementById("btnCasitasPageNext");
-    if (btnNext) {
-      btnNext.disabled = this._currentPage >= totalPages || totalCount === 0;
-    }
+    if (btnNext) btnNext.disabled = this._currentPage >= totalPages || totalCount === 0;
 
     this._syncPageSizeSelectUI();
   },
@@ -153,9 +167,9 @@ export const CasitasView = {
   _persistirFiltros(extra) {
     this._obtenerFiltros().escribir({
       q: this._searchQuery,
-      asistencia: this._filterAsistencia,
-      sede: this._filterSede,
       grado: this._filterGrado,
+      fecha: this._jornadaDia,
+      sede: this._jornadaSede,
       ...(extra || {}),
     });
   },
@@ -166,28 +180,22 @@ export const CasitasView = {
 
     const f = this._obtenerFiltros().leer();
     this._searchQuery = (f.q || "").toLowerCase();
-    this._obtenerStore().cargar({ asistencia: f.asistencia, sede: f.sede, grado: f.grado });
+    this._obtenerStore().cargar({ grado: f.grado });
     this._espejarStore();
+    const fechaValida = /^\d{4}-\d{2}-\d{2}$/.test(f.fecha || "");
+    this._jornadaDia = fechaValida ? f.fecha : hoyLocal();
+    this._jornadaSede = f.sede || "";
 
     const input = document.getElementById("inputCasitasSearch");
     if (input) input.value = f.q;
     const clearBtn = document.getElementById("btnCasitasSearchClear");
     if (clearBtn) clearBtn.style.display = f.q ? "flex" : "none";
 
-    this._updateAsistenciaUI();
-    this._updateSedeDropdownUI();
     this._updateGradoUI();
   },
 
-  /**
-   * Pinta un desplegable de opcion única leyendo la etiqueta del propio HTML.
-   *
-   * Los tres menus de esta pagina (asistencia, sede, grado) tienen el mismo
-   * patron: un .padron-item-label por opcion. Leerlo de ahi evita mantener el
-   * mismo texto en el onclick y en el marcado, que es como acaban apareciendo
-   * etiquetas que no coinciden con lo que se ve.
-   */
-  _pintarOpcionUnica(idMenu, idBoton, idEtiqueta, valor, alternativa) {
+  /** Pinta un desplegable de opción única leyendo la etiqueta del propio HTML. */
+  _pintarOpcionUnica(idMenu, idEtiqueta, valor, alternativa) {
     const items = document.querySelectorAll("#" + idMenu + " .padron-dropdown-item");
     let texto = null;
     items.forEach(item => {
@@ -204,62 +212,580 @@ export const CasitasView = {
     return texto;
   },
 
+  // -------------------------------------------------------------------------
+  //  Jornada: día y sede
+  // -------------------------------------------------------------------------
+
+  /** Sedes con al menos un alumno de Casita, en el orden del catálogo. */
+  _sedesDisponibles() {
+    const presentes = new Set(
+      this._baseCasitas().map(b => String(b.sede || "").trim()).filter(Boolean),
+    );
+    const ordenadas = SEDES_NOMBRES.filter(sede => presentes.has(sede));
+    const fueraDelCatalogo = [...presentes].filter(sede => !SEDES_NOMBRES.includes(sede));
+    return [...ordenadas, ...fueraDelCatalogo.sort((a, b) => a.localeCompare(b, "es"))];
+  },
+
+  /** Sede inicial: la de la URL si es válida o la primera con alumnos. */
+  _sedePorDefecto() {
+    const disponibles = this._sedesDisponibles();
+    if (this._jornadaSede && SEDES_NOMBRES.includes(this._jornadaSede)) {
+      return this._jornadaSede;
+    }
+    return disponibles[0] || "";
+  },
+
+  /** Inicia la jornada una sola vez, cuando ya hay beneficiarios cargados. */
+  _prepararJornada() {
+    if (!this._jornadaDia) this._jornadaDia = hoyLocal();
+    this._jornadaSede = this._sedePorDefecto();
+    // Solo se marca como inicializada cuando hay una sede elegida. Si el
+    // padrón aún no llegó, la siguiente hidratación vuelve a intentarlo; si
+    // el usuario vació el selector a propósito, no se le impone otra sede.
+    if (this._jornadaSede) this._jornadaInicializada = true;
+    this._sincronizarBarra();
+    this._cargarJornada();
+  },
+
+  /** La fecha de la URL no puede saltarse el límite del rol. */
+  _normalizarJornadaPorRol() {
+    const hoy = hoyLocal();
+    const rol = this._controlador()?.rolActual?.();
+    if (!this._jornadaDia || this._jornadaDia > hoy) this._jornadaDia = hoy;
+    if (rol === "promotora") this._jornadaDia = hoy;
+  },
+
+  async _cargarJornada() {
+    const ctrl = this._controlador();
+    if (!ctrl || this._jornadaCargando) return;
+
+    this._jornadaCargando = true;
+    this._sincronizarBarra();
+    this.applyFilters();
+
+    const ok = await ctrl.cargarJornada(this._jornadaDia, this._jornadaSede);
+
+    this._jornadaCargando = false;
+    if (ok) {
+      this._persistirFiltros();
+      this.renderJornada();
+    } else {
+      this._renderAvisos();
+      this._sincronizarBarra();
+      this.applyFilters();
+    }
+  },
+
+  cambiarDia(valor) {
+    const input = document.getElementById("inputJornadaFecha");
+    const ctrl = this._controlador();
+    const hoy = hoyLocal();
+
+    // La promotora solo registra hoy; el selector no debe permitirle abrir
+    // otro día ni siquiera escribiendo la fecha a mano.
+    if (valor && ctrl?.rolActual?.() === "promotora" && valor !== hoy) {
+      if (input) input.value = this._jornadaDia || hoy;
+      window.PDI?.ToastView?.show?.(
+        "Solo la jornada de hoy",
+        "La promotora no puede abrir una jornada de otra fecha.",
+        "warning",
+      );
+      return;
+    }
+    if (valor && valor > hoy) {
+      if (input) input.value = this._jornadaDia || hoy;
+      return;
+    }
+    if (!valor) {
+      if (input) input.value = this._jornadaDia;
+      return;
+    }
+    if (ctrl?.hayCambios?.()) {
+      const seguir = window.confirm(
+        'Hay cambios sin guardar. Si cambias de día se perderán. ¿Continuar?',
+      );
+      if (!seguir) {
+        if (input) input.value = this._jornadaDia;
+        return;
+      }
+    }
+    this._jornadaDia = valor;
+    this._currentPage = 1;
+    this._persistirFiltros();
+    this._cargarJornada();
+  },
+
+  cambiarSede(valor) {
+    const ctrl = this._controlador();
+    if (ctrl?.hayCambios?.()) {
+      const seguir = window.confirm(
+        'Hay cambios sin guardar. Si cambias de sede se perderán. ¿Continuar?',
+      );
+      if (!seguir) {
+        const select = document.getElementById("selectJornadaSede");
+        if (select) select.value = this._jornadaSede;
+        return;
+      }
+    }
+    this._jornadaSede = valor || "";
+    this._currentPage = 1;
+    this._persistirFiltros();
+    this._cargarJornada();
+  },
+
+  async recargarJornada() {
+    const ctrl = this._controlador();
+    if (!ctrl) return;
+    this._jornadaCargando = true;
+    this._sincronizarBarra();
+    this.applyFilters();
+    const ok = await ctrl.recargarJornada();
+    this._jornadaCargando = false;
+    if (ok) this.renderJornada();
+    else {
+      this._sincronizarBarra();
+      this.applyFilters();
+    }
+  },
+
+  /** Barra de jornada: valores, permisos, estado y botones. */
+  _sincronizarBarra() {
+    const ctrl = this._controlador();
+    const hoy = hoyLocal();
+
+    const inputFecha = document.getElementById("inputJornadaFecha");
+    if (inputFecha) {
+      inputFecha.value = this._jornadaDia || hoy;
+      inputFecha.max = hoy;
+      const rol = ctrl?.rolActual?.() || "coord";
+      if (rol === "promotora") {
+        inputFecha.min = hoy;
+      } else {
+        inputFecha.removeAttribute("min");
+      }
+    }
+
+    const selectSede = document.getElementById("selectJornadaSede");
+    if (selectSede) {
+      // Las sedes del catálogo ya vienen en el marcado. Se añaden las que
+      // existan solo en la base (inscripciones heredadas) y la sede de la URL
+      // aunque todavía no tenga alumnos, para no dejar el selector en blanco.
+      const valores = new Set(this._sedesDisponibles());
+      if (this._jornadaSede) valores.add(this._jornadaSede);
+      for (const sede of valores) {
+        if (sede && ![...selectSede.options].some(o => o.value === sede)) {
+          selectSede.add(new Option(etiquetaSede(sede), sede));
+        }
+      }
+      selectSede.value = this._jornadaSede || "";
+    }
+
+    const tituloSede = document.getElementById("jornadaSubtituloSede");
+    if (tituloSede) {
+      tituloSede.textContent = this._jornadaSede
+        ? `Casita del Saber: ${etiquetaSede(this._jornadaSede)}`
+        : "Elige una sede para abrir la jornada";
+    }
+
+    const puedeEditar = Boolean(ctrl?.puedeEditar?.());
+    const hayCambios = Boolean(ctrl?.hayCambios?.());
+    const cambios = ctrl?.numeroCambios?.() || 0;
+
+    const btnGuardar = document.getElementById("btnGuardarJornada");
+    if (btnGuardar) {
+      btnGuardar.disabled = this._jornadaCargando || this._guardando || !puedeEditar || !hayCambios;
+      const label = btnGuardar.querySelector(".btn-label");
+      if (label) {
+        label.textContent = this._guardando
+          ? "Guardando…"
+          : (hayCambios ? `Guardar jornada (${cambios})` : "Guardar jornada");
+      }
+    }
+
+    const btnRecargar = document.getElementById("btnRecargarJornada");
+    if (btnRecargar) btnRecargar.disabled = this._jornadaCargando || this._guardando;
+
+    const estado = document.getElementById("jornadaEstadoGuardado");
+    if (estado) {
+      let texto = "Jornada sin iniciar";
+      let clase = "jornada-estado";
+      if (this._jornadaCargando) {
+        texto = "Cargando jornada…";
+        clase += " is-loading";
+      } else if (this._guardando) {
+        texto = "Guardando…";
+        clase += " is-saving";
+      } else if (hayCambios) {
+        texto = `${cambios} cambio${cambios === 1 ? "" : "s"} sin guardar`;
+        clase += " is-dirty";
+      } else if (ctrl?.esJornadaIniciada?.()) {
+        texto = "Sin cambios pendientes";
+        clase += " is-ok";
+      }
+      estado.textContent = texto;
+      estado.className = clase;
+    }
+
+    const soloLectura = document.getElementById("jornadaSoloLectura");
+    if (soloLectura) {
+      if (ctrl?.esJornadaIniciada?.() && !puedeEditar) {
+        soloLectura.textContent = ctrl.motivoSoloLectura?.() || "Jornada de solo lectura.";
+        soloLectura.hidden = false;
+      } else {
+        soloLectura.hidden = true;
+      }
+    }
+  },
+
+  _idsJornada() {
+    return this._baseJornada().map(b => b.id);
+  },
+
+  _renderResumen() {
+    const contenedor = document.getElementById("jornadaResumen");
+    if (!contenedor) return;
+    const ctrl = this._controlador();
+
+    if (!this._jornadaSede) {
+      contenedor.innerHTML = `<span class="jornada-resumen-vacio">Sin sede seleccionada</span>`;
+      return;
+    }
+    if (!ctrl?.esJornadaIniciada?.()) {
+      contenedor.innerHTML = `<span class="jornada-resumen-vacio">Cargando la jornada…</span>`;
+      return;
+    }
+
+    const r = ctrl.getResumen(this._idsJornada());
+    const chips = [
+      { clave: "total", etiqueta: "Alumnos", valor: r.total, clase: "is-total" },
+      { clave: "P", etiqueta: "Presentes", valor: r.P, clase: "is-p" },
+      { clave: "T", etiqueta: "Tardanzas", valor: r.T, clase: "is-t" },
+      { clave: "FJ", etiqueta: "Faltas just.", valor: r.FJ, clase: "is-fj" },
+      { clave: "FI", etiqueta: "Faltas injust.", valor: r.FI, clase: "is-fi" },
+      { clave: "sin", etiqueta: "Sin marcar", valor: r.sinMarcar, clase: "is-sin" },
+    ];
+
+    contenedor.innerHTML = chips.map(chip => `
+      <span class="jornada-chip ${chip.clase}" title="${escapar(chip.etiqueta)}">
+        <span class="jornada-chip-punto"></span>
+        <span class="jornada-chip-label">${escapar(chip.etiqueta)}</span>
+        <strong>${chip.valor}</strong>
+      </span>
+    `).join("") + (r.FJ > 0
+      ? `<span class="jornada-chip is-motivo" title="Faltas justificadas con motivo escrito">
+           <span class="jornada-chip-label">Con motivo</span>
+           <strong>${r.conMotivo}/${r.FJ}</strong>
+         </span>`
+      : "");
+  },
+
   /**
-   * Botonera de asistencia. Antes cada boton llevaba un onclick que buscaba el
-   * controlador en window.app o window.PDI: un acoplamiento invisible que se
-   * rompio en cuanto el punto de entrada cambio. Ahora el boton solo lleva los
-   * datos, y un unico listener delegado los resuelve.
+   * Avisos de la jornada: conflicto con otro dispositivo y cambios remotos.
+   * No se abre un modal para no interrumpir el marcado; el aviso queda sobre
+   * la tabla y ofrece recargar o sobrescribir con conocimiento de causa.
    */
-  _botonesAsistencia(id) {
-    const actual = this._estadoAsistenciaInfo(id).clave;
-    return ["P", "T", "FJ", "FI"].map(clave => `
-      <button type="button" class="btn-asist${clave === actual ? " active-" + clave : ""}" data-asist-btn="${clave}" data-asist-id="${id}">${clave}</button>
-    `).join("");
+  _renderAvisos() {
+    const caja = document.getElementById("jornadaAvisos");
+    if (!caja) return;
+
+    const ctrl = this._controlador();
+    const bloques = [];
+
+    if (ctrl?.tieneConflicto?.()) {
+      const detalles = ctrl.getConflictosDetalle();
+      const filas = detalles.slice(0, 6).map(d => `
+        <li>
+          <strong>${escapar(d.nombre)}</strong>
+          ${d.codigo ? `<span class="jornada-conflicto-codigo">${escapar(d.codigo)}</span>` : ""}
+          <span class="jornada-conflicto-cambio">
+            ${this._textoMarca(d.antes)} → ${this._textoMarca(d.ahora)}
+            <span class="jornada-conflicto-propio">Tu marca: ${this._textoMarca(d.nuevo)}</span>
+          </span>
+        </li>
+      `).join("");
+      const resto = detalles.length > 6
+        ? `<li class="jornada-conflicto-resto">y ${detalles.length - 6} más…</li>`
+        : "";
+
+      bloques.push(`
+        <div class="jornada-aviso is-conflicto" role="alert">
+          <div class="jornada-aviso-texto">
+            <strong>La jornada cambió en otro dispositivo.</strong>
+            <p>Estos alumnos tienen otro estado en la nube desde que abriste la jornada:</p>
+            <ul class="jornada-conflicto-lista">${filas}${resto}</ul>
+          </div>
+          <div class="jornada-aviso-acciones">
+            <button type="button" class="btn-action btn-secondary" onclick="window.casitasRecargarJornada ? window.casitasRecargarJornada() : null">
+              Recargar jornada
+            </button>
+            <button type="button" class="btn-action primary" onclick="window.casitasSobrescribirJornada ? window.casitasSobrescribirJornada() : null">
+              Sobrescribir con mis cambios
+            </button>
+          </div>
+        </div>
+      `);
+    } else if (ctrl?.tieneAvisoRemoto?.()) {
+      bloques.push(`
+        <div class="jornada-aviso is-remoto" role="status">
+          <div class="jornada-aviso-texto">
+            <strong>Hay cambios sin guardar y la jornada se actualizó en otro dispositivo.</strong>
+            <p>Puedes seguir marcando: al guardar se comprobarán las diferencias antes de sobrescribir.</p>
+          </div>
+          <div class="jornada-aviso-acciones">
+            <button type="button" class="btn-action btn-secondary" onclick="window.casitasDescartarAviso ? window.casitasDescartarAviso() : null">
+              Entendido
+            </button>
+          </div>
+        </div>
+      `);
+    }
+
+    caja.innerHTML = bloques.join("");
+    caja.hidden = bloques.length === 0;
   },
 
-  /** Etiqueta y clase del badge de asistencia segun el estado guardado. */
+  _textoMarca(marca) {
+    if (!marca?.estado) return "Sin marcar";
+    const etiqueta = ESTADOS_ASISTENCIA[marca.estado]?.label || marca.estado;
+    return marca.estado === "FJ" && marca.observacion
+      ? `${etiqueta} (${marca.observacion})`
+      : etiqueta;
+  },
+
+  // -------------------------------------------------------------------------
+  //  Asistencia: botones y modal de motivo
+  // -------------------------------------------------------------------------
+
   _estadoAsistenciaInfo(id) {
-    const ctrl = window.PDI?.CasitasController;
+    const ctrl = this._controlador();
     if (ctrl && typeof ctrl.getEstadoInfo === "function") return ctrl.getEstadoInfo(id);
-    return { clave: "P", label: "Presente", badgeClass: "badge badge-green" };
+    return { clave: "", label: "Sin marcar", badgeClass: "badge badge-neutral" };
   },
 
-  /** Badge de asistencia ya resuelto con el estado guardado del usuario. */
+  _botonesAsistencia(id) {
+    const info = this._estadoAsistenciaInfo(id);
+    const ctrl = this._controlador();
+    const bloqueado = !ctrl?.puedeEditar?.() || this._jornadaCargando || this._guardando;
+    return ["P", "T", "FJ", "FI"].map(clave => `
+      <button type="button"
+        class="btn-asist${clave === info.clave ? " active-" + clave : ""}"
+        data-asist-btn="${clave}" data-asist-id="${escapar(id)}"
+        ${bloqueado ? "disabled" : ""}
+        aria-pressed="${clave === info.clave ? "true" : "false"}"
+        aria-label="${escapar(ESTADOS_ASISTENCIA[clave].label)}"
+        title="${bloqueado ? "Jornada de solo lectura" : ESTADOS_ASISTENCIA[clave].label}">${clave}</button>
+    `).join("") + (info.clave ? `
+      <button type="button" class="btn-asist btn-asist-clear"
+        data-asist-clear="${escapar(id)}"
+        ${bloqueado ? "disabled" : ""}
+        aria-label="Quitar la marca"
+        title="Quitar la marca">×</button>
+    ` : "");
+  },
+
   _badgeAsistencia(id, prefijo) {
     const info = this._estadoAsistenciaInfo(id);
     return `<span class="${info.badgeClass}" id="${prefijo}${escapar(id)}">${info.label}</span>`;
   },
 
-  /**
-   * Delega la pulsacion de la botonera de asistencia. Se engancha una sola vez
-   * por carga: los botones se recrean en cada render, pero el contenedor no, y
-   * por eso conviene delegar en el y no enganchar a cada boton.
-   */
+  _motivoAsistencia(id) {
+    const marca = this._controlador()?.getMarca?.(id);
+    if (marca?.estado !== "FJ" || !marca.observacion) return "";
+    return `<div class="asist-motivo" title="${escapar(marca.observacion)}">${escapar(marca.observacion)}</div>`;
+  },
+
   _delegarAsistencia() {
     if (this._asistenciaDelegada) return;
     this._asistenciaDelegada = true;
 
     const alPulsar = (e) => {
-      const boton = e.target.closest(".btn-asist[data-asist-btn]");
-      if (!boton) return;
-
-      // En la vista de tarjeta, la pulsacion no debe desplegarla.
+      const id = e.target.getAttribute("data-asist-id") || e.target.getAttribute("data-asist-clear");
+      if (!id) return;
       e.stopPropagation();
 
-      const id = boton.getAttribute("data-asist-id");
-      const estado = boton.getAttribute("data-asist-btn");
-      if (!id || !estado) return;
+      const ctrl = this._controlador();
+      if (!ctrl) return;
 
-      const controlador = window.PDI?.CasitasController;
-      if (controlador && typeof controlador.toggleAsistencia === "function") {
-        controlador.toggleAsistencia(id, estado);
-      } else {
-        console.error("[CasitasView] CasitasController no esta disponible:", id, estado);
+      if (e.target.hasAttribute("data-asist-clear")) {
+        const res = ctrl.limpiarMarca(id);
+        if (!res.ok) return this._avisarError(res.error);
+        this.renderJornada();
+        return;
       }
+
+      const estado = e.target.getAttribute("data-asist-btn");
+      if (!estado) return;
+
+      if (estado === "FJ") {
+        this.abrirMotivoFJ(id);
+        return;
+      }
+
+      const res = ctrl.marcar(id, estado);
+      if (!res.ok) return this._avisarError(res.error);
+      this.renderJornada();
     };
 
     document.addEventListener("click", alPulsar);
   },
+
+  _avisarError(mensaje) {
+    const toast = window.PDI?.ToastView;
+    toast?.show?.("No se pudo marcar la asistencia", mensaje || "Intenta de nuevo.", "warning");
+  },
+
+  abrirMotivoFJ(id) {
+    const ctrl = this._controlador();
+    if (!ctrl?.puedeEditar?.()) {
+      this._avisarError(ctrl?.motivoSoloLectura?.() || "Jornada de solo lectura.");
+      return;
+    }
+    const beneficiario = window.PDI?.BeneficiarioModel?.getById?.(id);
+    const marca = ctrl.getMarca(id);
+    this._fjPendiente = { id, nombre: beneficiario ? `${beneficiario.nombres} ${beneficiario.apellidos}` : `Usuario ${id}` };
+
+    const alumno = document.getElementById("motivoFJAlumno");
+    if (alumno) alumno.textContent = this._fjPendiente.nombre;
+    const input = document.getElementById("inputMotivoFJ");
+    if (input) input.value = marca?.estado === "FJ" ? (marca.observacion || "") : "";
+    const error = document.getElementById("motivoFJError");
+    if (error) error.hidden = true;
+    this._actualizarContadorMotivo();
+
+    const modal = document.getElementById("modalMotivoFJ");
+    if (!modal) return;
+    if (!modal._fjCierre) {
+      modal._fjCierre = true;
+      modal.addEventListener("close", () => { this._fjPendiente = null; });
+    }
+    if (typeof modal.showModal === "function") {
+      if (!modal.open) modal.showModal();
+    } else {
+      modal.setAttribute("open", "");
+    }
+    setTimeout(() => input?.focus(), 40);
+  },
+
+  cerrarMotivoFJ() {
+    const modal = document.getElementById("modalMotivoFJ");
+    if (!modal) return;
+    if (typeof modal.close === "function") {
+      if (modal.open) modal.close();
+    } else {
+      modal.removeAttribute("open");
+    }
+    this._fjPendiente = null;
+  },
+
+  _actualizarContadorMotivo() {
+    const input = document.getElementById("inputMotivoFJ");
+    const contador = document.getElementById("motivoFJContador");
+    if (input && contador) contador.textContent = String(input.value.length);
+  },
+
+  confirmarMotivoFJ() {
+    if (!this._fjPendiente) return;
+    const ctrl = this._controlador();
+    const input = document.getElementById("inputMotivoFJ");
+    const error = document.getElementById("motivoFJError");
+    const res = ctrl?.marcarFJ?.(this._fjPendiente.id, input?.value || "");
+
+    if (!res?.ok) {
+      if (error) {
+        error.textContent = res?.error || "Escribe el motivo de la falta.";
+        error.hidden = false;
+      }
+      return;
+    }
+
+    this.cerrarMotivoFJ();
+    this.renderJornada();
+  },
+
+  // -------------------------------------------------------------------------
+  //  Guardado
+  // -------------------------------------------------------------------------
+
+  async guardarJornada() {
+    if (this._guardando) return;
+    const ctrl = this._controlador();
+    if (!ctrl) return;
+
+    this._guardando = true;
+    this._sincronizarBarra();
+    this.applyFilters();
+
+    const resultado = await ctrl.guardarJornada();
+
+    this._guardando = false;
+
+    if (resultado.ok) {
+      const n = resultado.guardados || 0;
+      window.PDI?.ToastView?.show?.(
+        "Jornada guardada",
+        `${n} marca${n === 1 ? "" : "s"} sincronizada${n === 1 ? "" : "s"} con SurrealDB.`,
+        "success",
+      );
+      this.renderJornada();
+      return;
+    }
+
+    if (resultado.conflictos) {
+      window.PDI?.ToastView?.show?.(
+        "La jornada cambió en otro dispositivo",
+        "Revisa las diferencias antes de sobrescribir.",
+        "warning",
+      );
+      this.renderJornada();
+      return;
+    }
+
+    window.PDI?.ToastView?.show?.(
+      "No se pudo guardar la jornada",
+      resultado.error || "Revisa la conexión e intenta de nuevo.",
+      "danger",
+    );
+    this._sincronizarBarra();
+    this.applyFilters();
+  },
+
+  async sobrescribirJornada() {
+    const ctrl = this._controlador();
+    if (!ctrl) return;
+    const seguir = window.confirm(
+      "Se sobrescribirán los estados que otro dispositivo guardó para los alumnos que has marcado. ¿Continuar?",
+    );
+    if (!seguir) return;
+
+    this._guardando = true;
+    this._sincronizarBarra();
+    this.applyFilters();
+    const resultado = await ctrl.guardarJornada({ forzar: true });
+    this._guardando = false;
+
+    if (resultado.ok) {
+      window.PDI?.ToastView?.show?.("Jornada sobrescrita", "Tus cambios quedaron guardados.", "success");
+      this.renderJornada();
+    } else {
+      window.PDI?.ToastView?.show?.(
+        "No se pudo sobrescribir",
+        resultado.error || "Intenta de nuevo.",
+        "danger",
+      );
+      this._sincronizarBarra();
+      this.applyFilters();
+    }
+  },
+
+  descartarAvisoRemoto() {
+    this._controlador()?.descartarAvisoRemoto?.();
+    this._renderAvisos();
+    this._sincronizarBarra();
+  },
+
+  // -------------------------------------------------------------------------
+  //  Filtros
+  // -------------------------------------------------------------------------
 
   _initSort() {
     this._sortMenu = initSortMenu({
@@ -312,6 +838,8 @@ export const CasitasView = {
   renderTable(beneficiarios) {
     this._delegarAsistencia();
     this._leerFiltrosDeURL();
+    this._normalizarJornadaPorRol();
+    if (this._jornadaSede) this._jornadaInicializada = true;
     this._initSort();
     if (beneficiarios && Array.isArray(beneficiarios)) {
       this._allBeneficiarios = beneficiarios;
@@ -319,14 +847,39 @@ export const CasitasView = {
       this._allBeneficiarios = window.PDI.BeneficiarioModel.getAll();
     }
     this._vigilarVariante();
+
+    // Si nadie eligió sede todavía, se abre la primera con alumnos. Si ya hay
+    // una jornada cargada para el mismo día/sede, no se vuelve a consultar:
+    // las hidrataciones no deben borrar el estado ni multiplicar lecturas.
+    const ctrl = this._controlador();
+    const actual = ctrl?.getJornada?.();
+    const misma = actual && actual.dia === this._jornadaDia && actual.sede === this._jornadaSede;
+
+    if (!this._jornadaSede && !misma) {
+      if (!this._jornadaInicializada) {
+        this._prepararJornada();
+      } else {
+        this.renderJornada();
+      }
+      return;
+    }
+    if (!misma) {
+      this._cargarJornada();
+      return;
+    }
+
+    this._sincronizarBarra();
+    this.renderJornada();
+  },
+
+  /** Redibuja solo lo que depende de la jornada, sin volver a consultar. */
+  renderJornada() {
+    this._sincronizarBarra();
+    this._renderResumen();
+    this._renderAvisos();
     this.applyFilters();
   },
 
-  /**
-   * Se suscribe una sola vez por carga al cruce del corte de 768 px. Cuando se
-   * cruza hay que repintar, porque la variante que estaba vacia es la que pasa
-   * a verse: solo se dibuja la que se ve, y no las dos.
-   */
   _vigilarVariante() {
     if (this._vigilaVariante) return;
     this._vigilaVariante = true;
@@ -336,9 +889,7 @@ export const CasitasView = {
   filterBySearch(query) {
     this._searchQuery = (query || "").trim().toLowerCase();
     const clearBtn = document.getElementById("btnCasitasSearchClear");
-    if (clearBtn) {
-      clearBtn.style.display = this._searchQuery.length > 0 ? "flex" : "none";
-    }
+    if (clearBtn) clearBtn.style.display = this._searchQuery.length > 0 ? "flex" : "none";
     this.applyFilters();
     this._persistirFiltros({ q: query || "" });
   },
@@ -347,59 +898,6 @@ export const CasitasView = {
     const input = document.getElementById("inputCasitasSearch");
     if (input) input.value = "";
     this.filterBySearch("");
-  },
-
-  selectAsistencia(val, label) {
-    this._obtenerStore().fijar("asistencia", val || "all");
-    this._espejarStore();
-    this._updateAsistenciaUI(label);
-
-    const drop = document.getElementById("dropdownCasitasAsistencia");
-    if (drop) drop.classList.remove("open");
-
-    this.applyFilters();
-    this._persistirFiltros();
-  },
-
-  _updateAsistenciaUI(alternativa) {
-    this._pintarOpcionUnica(
-      "menuCasitasAsistencia", "btnDropdownCasitasAsistencia",
-      "labelCasitasAsistenciaSelect", this._filterAsistencia,
-      alternativa || "Todos los Estados"
-    );
-  },
-
-  toggleSede(val) {
-    this._obtenerStore().alternar("sede", val);
-    this._espejarStore();
-    this._updateSedeDropdownUI();
-    this.applyFilters();
-    this._persistirFiltros();
-  },
-
-  _updateSedeDropdownUI() {
-    const isAll = this._filterSede.length === 0;
-    const items = document.querySelectorAll("#menuCasitasSede .padron-dropdown-item");
-    items.forEach(item => {
-      const v = item.getAttribute("data-value");
-      if (v === "all") {
-        item.classList.toggle("selected", isAll);
-      } else {
-        item.classList.toggle("selected", !isAll && this._filterSede.includes(v));
-      }
-    });
-
-    const labelEl = document.getElementById("labelCasitasSedeSelect");
-    if (labelEl) {
-      if (isAll) {
-        labelEl.textContent = "Todas las Sedes";
-      } else if (this._filterSede.length === 1) {
-        const s = this._filterSede[0];
-        labelEl.textContent = etiquetaSede(s);
-      } else {
-        labelEl.textContent = `${this._filterSede.length} seleccionadas`;
-      }
-    }
   },
 
   selectGrado(val, label) {
@@ -416,24 +914,14 @@ export const CasitasView = {
 
   _updateGradoUI(alternativa) {
     this._pintarOpcionUnica(
-      "menuCasitasGrado", "btnDropdownCasitasGrado",
-      "labelCasitasGradoSelect", this._filterGrado,
-      alternativa || "Todos los Grados"
+      "menuCasitasGrado", "labelCasitasGradoSelect",
+      this._filterGrado, alternativa || "Todos los Grados",
     );
   },
 
-  removeFilter(filterKey, specificVal) {
+  removeFilter(filterKey) {
     if (filterKey === "search") this.clearSearch();
-    if (filterKey === "asistencia") {
-      this.selectAsistencia("all", "Todos los Estados");
-    }
-    if (filterKey === "sede") {
-      if (specificVal) this.toggleSede(specificVal);
-      else this.toggleSede("all");
-    }
-    if (filterKey === "grado") {
-      this.selectGrado("all", "Todos los Grados");
-    }
+    if (filterKey === "grado") this.selectGrado("all", "Todos los Grados");
   },
 
   resetFilters() {
@@ -446,10 +934,7 @@ export const CasitasView = {
     const clearBtn = document.getElementById("btnCasitasSearchClear");
     if (clearBtn) clearBtn.style.display = "none";
 
-    this._updateAsistenciaUI();
-    this._updateSedeDropdownUI();
     this._updateGradoUI();
-
     document.querySelectorAll(".padron-inner-dropdown.open").forEach(d => d.classList.remove("open"));
 
     this.applyFilters();
@@ -460,24 +945,33 @@ export const CasitasView = {
     if (!gradoKey || gradoKey === "all") return true;
     const g = (b.grado || "").toLowerCase();
     if (gradoKey === "inicial") return g.includes("inicial") || g.includes("kinder") || g.includes("pre");
-    if (gradoKey === "primaria") return g.includes("prim") || g.includes("1°") || g.includes("2°") || g.includes("3°") || g.includes("4°") || g.includes("5°") || g.includes("6°");
+    if (gradoKey === "primaria") return g.includes("prim") || /^[1-6]/.test(g);
     if (gradoKey === "secundaria") return g.includes("sec") || g.includes("secundaria");
     return true;
   },
 
   /** Base fija de la vista: solo usuarios con servicio de Casita del Saber. */
   _baseCasitas() {
-    return (this._allBeneficiarios || []).filter(b =>
-      Array.isArray(b.servicios) && b.servicios.some(s =>
-        s === "Casita del Saber" ||
-        (s || "").toLowerCase().includes("educat") ||
-        (s || "").toLowerCase().includes("casita") ||
-        (s || "").toLowerCase().includes("acompañ")
-      )
-    );
+    return (this._allBeneficiarios || []).filter(b => {
+      const servicios = Array.isArray(b.servicios) ? b.servicios : [];
+      const estrategias = Array.isArray(b.estrategias) ? b.estrategias : [];
+      return [...servicios, ...estrategias].some(s => {
+        const texto = String(s || "").toLowerCase();
+        return texto === "casita del saber" ||
+          texto.includes("casita") ||
+          texto.includes("educat") ||
+          texto.includes("acompa");
+      });
+    });
   },
 
-  /** Busqueda comun a la lista y a los contadores de faceta. */
+  /** Alumnos de la sede elegida. Es el universo de la jornada. */
+  _baseJornada() {
+    if (!this._jornadaSede) return [];
+    return this._baseCasitas().filter(b => String(b.sede || "") === this._jornadaSede);
+  },
+
+  /** Búsqueda común a la lista y a los contadores de faceta. */
   _aplicaBusqueda(lista) {
     if (!this._searchQuery) return lista;
     const q = this._searchQuery;
@@ -487,75 +981,34 @@ export const CasitasView = {
     });
   },
 
-  /**
-   * Contadores de asistencia, sede y grado. Cada faceta se cuenta con las
-   * otras dos y la busqueda aplicadas, sin su propia seleccion.
-   */
   _updateFacetCounts() {
-    const base = this._aplicaBusqueda(this._baseCasitas());
-
-    const sedeOk = (b) => this._filterSede.length === 0 ||
-      (b.sede && this._filterSede.some(s => b.sede.toLowerCase().includes(s.toLowerCase())));
-    const gradoOk = (b) => this._filterGrado === "all" || this._matchesGrado(b, this._filterGrado);
-    const asistOk = (b) => this._filterAsistencia === "all" ||
-      this._estadoAsistenciaInfo(b.id).clave === this._filterAsistencia;
-
-    const sinAsistencia = base.filter(b => sedeOk(b) && gradoOk(b));
-    const sinSede = base.filter(b => gradoOk(b) && asistOk(b));
-    const sinGrado = base.filter(b => sedeOk(b) && asistOk(b));
-
-    contarOpciones("menuCasitasAsistencia", sinAsistencia,
-      (b, valor) => this._estadoAsistenciaInfo(b.id).clave === valor);
-    contarOpciones("menuCasitasSede", sinSede,
-      (b, valor) => !!b.sede && b.sede.toLowerCase().includes(valor.toLowerCase()));
-    contarOpciones("menuCasitasGrado", sinGrado,
-      (b, valor) => this._matchesGrado(b, valor));
+    const base = this._aplicaBusqueda(this._baseJornada());
+    contarOpciones("menuCasitasGrado", base, (b, valor) => this._matchesGrado(b, valor));
   },
 
   applyFilters() {
-    // Filtrar base casita (Casita del Saber)
-    let casitaList = this._aplicaBusqueda(this._baseCasitas());
+    let lista = this._aplicaBusqueda(this._baseJornada());
 
-    // 2. Sede
-    if (this._filterSede.length > 0) {
-      casitaList = casitaList.filter(b => b.sede && this._filterSede.some(s => b.sede.toLowerCase().includes(s.toLowerCase())));
-    }
-
-    // 3. Grado / Nivel
     if (this._filterGrado !== "all") {
-      casitaList = casitaList.filter(b => this._matchesGrado(b, this._filterGrado));
+      lista = lista.filter(b => this._matchesGrado(b, this._filterGrado));
     }
 
-    // 4. Asistencia
-    if (this._filterAsistencia !== "all") {
-      // Estado Asistencia actual simulado (por defecto 'P')
-      const targetAsist = this._filterAsistencia;
-      casitaList = casitaList.filter(b => {
-        const currentAsist = this._estadoAsistenciaInfo(b.id).clave;
-        return currentAsist === targetAsist;
-      });
-    }
-
-    casitaList = this._ordenarLista(casitaList);
-    this._filteredBeneficiarios = casitaList;
+    lista = this._ordenarLista(lista);
+    this._filteredBeneficiarios = lista;
 
     this._updateFacetCounts();
 
-    // Badge desde el store.
     const count = this._obtenerStore().contarActivos();
-
     const badgeEl = document.getElementById("casitasActiveFiltersCount");
     const btnFilterEl = document.getElementById("btnDropdownCasitasFilterPanel");
     if (badgeEl) {
       badgeEl.textContent = count;
       badgeEl.style.display = count > 0 ? "inline-flex" : "none";
     }
-    if (btnFilterEl) {
-      btnFilterEl.classList.toggle("has-filters", count > 0);
-    }
+    if (btnFilterEl) btnFilterEl.classList.toggle("has-filters", count > 0);
 
     this._renderActiveChips();
-    this._renderTableAndCards(casitaList);
+    this._renderTableAndCards(lista);
   },
 
   _renderActiveChips() {
@@ -564,39 +1017,15 @@ export const CasitasView = {
     if (!bar || !list) return;
 
     const chips = [];
-
-    if (this._filterAsistencia !== "all") {
-      const asistNames = {
-        "P": "Presente",
-        "T": "Tardanza",
-        "FJ": "Falta Justificada",
-        "FI": "Falta Injustificada"
-      };
-      chips.push({
-        id: "asistencia",
-        label: `Asistencia: ${asistNames[this._filterAsistencia] || this._filterAsistencia}`
-      });
-    }
-
-    if (this._filterSede.length > 0) {
-      this._filterSede.forEach(s => {
-        chips.push({
-          id: "sede",
-          val: s,
-          label: `Sede: ${etiquetaSede(s)}`
-        });
-      });
-    }
-
     if (this._filterGrado !== "all") {
       const gradoNames = {
-        "inicial": "Inicial / Pre-escolar",
-        "primaria": "Primaria (1° a 6°)",
-        "secundaria": "Secundaria (1° a 5°)"
+        inicial: "Inicial / Pre-escolar",
+        primaria: "Primaria (1° a 6°)",
+        secundaria: "Secundaria (1° a 5°)",
       };
       chips.push({
         id: "grado",
-        label: `Nivel: ${gradoNames[this._filterGrado] || this._filterGrado}`
+        label: `Nivel: ${gradoNames[this._filterGrado] || this._filterGrado}`,
       });
     }
 
@@ -605,7 +1034,9 @@ export const CasitasView = {
       list.innerHTML = chips.map(chip => `
         <span class="padron-chip">
           <span>${escapar(chip.label)}</span>
-          <button type="button" class="padron-chip-remove" onclick="window.removeCasitasChip ? window.removeCasitasChip('${escaparEnManejador(chip.id)}', '${escaparEnManejador(chip.val || '')}') : null" title="Eliminar filtro">
+          <button type="button" class="padron-chip-remove"
+            onclick="window.removeCasitasChip ? window.removeCasitasChip('${escaparEnManejador(chip.id)}') : null"
+            title="Eliminar filtro">
             ${iconHtml("accion.cerrar", { size: 10 })}
           </button>
         </span>
@@ -631,39 +1062,37 @@ export const CasitasView = {
     const pageItems = casitaList.slice(startIndex, startIndex + pageSize);
 
     this._renderPagination(totalCount);
-    if (paginationBar) {
-      paginationBar.style.display = totalCount === 0 ? "none" : "flex";
-    }
+    if (paginationBar) paginationBar.style.display = totalCount === 0 ? "none" : "flex";
 
     const enMovil = Responsive.esMovil();
 
-    // La que no se dibuja se vacia, y no se deja con lo que hubiera de antes:
-    // si no, girar el movil con la ventana sola dejaria las dos pintadas.
     if (enMovil) { if (tbody) tbody.innerHTML = ""; }
     else { if (mobileContainer) mobileContainer.innerHTML = ""; }
 
     if (casitaList.length === 0) {
-      const emptyHtml = `
+      const mensaje = !this._jornadaSede
+        ? { titulo: "Elige una sede", detalle: "La jornada se abre con un día y una sede." }
+        : (this._baseJornada().length === 0
+          ? { titulo: "No hay alumnos de Casita en esta sede", detalle: "Solo aparecen inscripciones activas con la estrategia Casita del Saber." }
+          : { titulo: "No se encontraron registros", detalle: "Prueba con otro término de búsqueda o restablece los filtros." });
+
+      const vacioHtml = `
         <tr>
           <td colspan="6" style="text-align: center; padding: 36px 16px;">
-            <div style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; background: var(--gt-yellow-bg, rgba(254, 215, 102, 0.12)); display: flex; align-items: center; justify-content: center; color: var(--text-warning, #fed766);">
-              ${iconHtml("archivo.libro", { size: 24 })}
-            </div>
-            <div style="font-weight: 700; color: var(--text-main); font-size: 14.5px;">No se encontraron registros de asistencia</div>
-            <div style="color: var(--text-muted); font-size: 12.5px; margin-top: 4px;">Prueba con otro término de búsqueda o restablece los filtros.</div>
+            <div class="jornada-empty-icon">${iconHtml("archivo.libro", { size: 24 })}</div>
+            <div class="jornada-empty-title">${escapar(mensaje.titulo)}</div>
+            <div class="jornada-empty-text">${escapar(mensaje.detalle)}</div>
           </td>
         </tr>
       `;
-      if (tbody && !enMovil) tbody.innerHTML = emptyHtml;
+      if (tbody && !enMovil) tbody.innerHTML = vacioHtml;
 
       if (mobileContainer && enMovil) {
         mobileContainer.innerHTML = `
-          <div style="text-align: center; padding: 36px 16px; background: var(--surface-1); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-top: 8px;">
-            <div style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; background: var(--gt-yellow-bg, rgba(254, 215, 102, 0.12)); display: flex; align-items: center; justify-content: center; color: var(--text-warning, #fed766);">
-              ${iconHtml("archivo.libro", { size: 24 })}
-            </div>
-            <div style="font-weight: 700; color: var(--text-main); font-size: 14px;">No se encontraron usuarios</div>
-            <div style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">No hay usuarios que coincidan con la búsqueda o filtros.</div>
+          <div class="jornada-empty-mobile">
+            <div class="jornada-empty-icon">${iconHtml("archivo.libro", { size: 24 })}</div>
+            <div class="jornada-empty-title">${escapar(mensaje.titulo)}</div>
+            <div class="jornada-empty-text">${escapar(mensaje.detalle)}</div>
           </div>
         `;
       }
@@ -675,18 +1104,19 @@ export const CasitasView = {
         const colegio = colegioOrigenVisible(b);
         return `
         <tr>
-          <td><strong>${escapar(b.nombres)} ${escapar(b.apellidos)}</strong><div style="font-size:11px; color:var(--text-dim);">${escapar(b.codigo)}</div></td>
-          <td>${escapar(b.grado)}</td>
+          <td><strong>${escapar(b.nombres)} ${escapar(b.apellidos)}</strong><div class="celda-subtexto">${escapar(b.codigo)}</div></td>
+          <td>${escapar(gradoVisible(b))}</td>
           <td><span class="celda-recortada" title="${escapar(colegio)}">${escapar(colegio)}</span></td>
           <td>
-            <div style="font-weight:600; color:var(--text-main);">${escapar(b.apoderado)}</div>
-            <div style="font-size:11.5px; color:var(--text-muted);">${escapar(b.parentesco)} &bull; ${escapar(b.telefono || 'Sin tel')}</div>
+            <div class="celda-fuerte">${escapar(b.apoderado)}</div>
+            <div class="celda-subtexto">${escapar(b.parentesco)} &bull; ${escapar(b.telefono || 'Sin tel')}</div>
           </td>
           <td>
             ${this._badgeAsistencia(b.id, "badgeAsist_")}
+            ${this._motivoAsistencia(b.id)}
           </td>
           <td>
-            <div style="display: inline-flex; gap: 4px;" id="btnGroupAsist_${escapar(b.id)}">
+            <div class="asist-botones" id="btnGroupAsist_${escapar(b.id)}">
               ${this._botonesAsistencia(b.id)}
             </div>
           </td>
@@ -698,17 +1128,11 @@ export const CasitasView = {
     if (mobileContainer && enMovil) {
       mobileContainer.innerHTML = pageItems.map(b => `
         <div class="mobile-card-item" id="mobile-casita-${escapar(b.id)}">
-          <!-- Cabecera: ID + Badge Asistencia -->
           <div class="datacard-header">
-            <div class="datacard-id">
-              <span>ID:</span> ${escapar(b.codigo)}
-            </div>
-            <div class="datacard-header-right">
-              ${this._badgeAsistencia(b.id, "badgeAsistMob_")}
-            </div>
+            <div class="datacard-id"><span>ID:</span> ${escapar(b.codigo)}</div>
+            <div class="datacard-header-right">${this._badgeAsistencia(b.id, "badgeAsistMob_")}</div>
           </div>
 
-          <!-- Cuerpo: Datos principales y Botonera Rápida -->
           <div class="datacard-body">
             <div class="datacard-row">
               <span class="datacard-label">Usuario</span>
@@ -716,24 +1140,21 @@ export const CasitasView = {
             </div>
             <div class="datacard-row">
               <span class="datacard-label">Apoderado Autorizado</span>
-              <span class="datacard-value">${escapar(b.apoderado)} <span style="color:var(--text-muted); font-size:11.5px;">(${escapar(b.parentesco)})</span></span>
+              <span class="datacard-value">${escapar(b.apoderado)} <span class="celda-subtexto">(${escapar(b.parentesco)})</span></span>
             </div>
 
-            <!-- Botonera de Asistencia Rápida -->
-            <div style="padding: 10px 16px; border-bottom: 1px solid var(--border-subtle); background: var(--surface-2);">
-              <div style="font-size: 11px; font-weight: 800; color: var(--text-dim); text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.04em;">
-                Marcar Asistencia Hoy:
-              </div>
-              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;" id="btnGroupMobAsist_${escapar(b.id)}">
+            <div class="asist-bloque-movil">
+              <div class="asist-bloque-titulo">Asistencia del día</div>
+              <div class="asist-botones asist-botones-movil" id="btnGroupMobAsist_${escapar(b.id)}">
                 ${this._botonesAsistencia(b.id)}
               </div>
+              ${this._motivoAsistencia(b.id)}
             </div>
 
-            <!-- Bloque Desplegable "Ver más" -->
             <div class="datacard-extra" id="extra-casita-${escapar(b.id)}">
               <div class="datacard-row">
                 <span class="datacard-label">Grado Escolar</span>
-                <span class="datacard-value">${escapar(b.grado)}</span>
+                <span class="datacard-value">${escapar(gradoVisible(b))}</span>
               </div>
               <div class="datacard-row">
                 <span class="datacard-label">Colegio de Origen</span>
@@ -749,8 +1170,8 @@ export const CasitasView = {
               </div>
             </div>
 
-            <!-- Botón Ver más / Ver menos -->
-            <button type="button" class="datacard-toggle-btn" id="btnToggleCasita-${escapar(b.id)}" onclick="window.PDI ? window.PDI.CasitasView.toggleCard(${escaparEnManejador(b.id)}) : CasitasView.toggleCard(${escaparEnManejador(b.id)})">
+            <button type="button" class="datacard-toggle-btn" id="btnToggleCasita-${escapar(b.id)}"
+              onclick="window.PDI ? window.PDI.CasitasView.toggleCard(${escaparEnManejador(b.id)}) : null">
               <span class="btn-text">Ver más</span>
               ${iconHtml("nav.desplegar", { size: null })}
             </button>
@@ -770,7 +1191,16 @@ export const CasitasView = {
         if (textSpan) textSpan.textContent = isExp ? "Ver menos" : "Ver más";
       }
     }
-  }
+  },
+
+  /** Datos que consume el modal de exportación. */
+  getDatosExportacion() {
+    return {
+      list: this._filteredBeneficiarios || [],
+      mapa: this._controlador()?.getMapaExport?.() || {},
+      meta: this._controlador()?.getJornada?.() || null,
+    };
+  },
 };
 
 if (typeof window !== "undefined") {
@@ -778,12 +1208,18 @@ if (typeof window !== "undefined") {
   window.PDI.CasitasView = CasitasView;
   window.filterCasitasSearch = (val) => CasitasView.filterBySearch(val);
   window.clearCasitasSearch = () => CasitasView.clearSearch();
-  window.selectCasitasAsistencia = (val, label) => CasitasView.selectAsistencia(val, label);
-  window.toggleCasitasSede = (val) => CasitasView.toggleSede(val);
   window.selectCasitasGrado = (val, label) => CasitasView.selectGrado(val, label);
-  window.removeCasitasChip = (key, val) => CasitasView.removeFilter(key, val);
+  window.removeCasitasChip = (key) => CasitasView.removeFilter(key);
   window.resetCasitasFilters = () => CasitasView.resetFilters();
   window.casitasSetPageSize = (size) => CasitasView.setPageSize(size);
   window.casitasPrevPage = () => CasitasView.prevPage();
   window.casitasNextPage = () => CasitasView.nextPage();
+  window.casitasCambiarDia = (dia) => CasitasView.cambiarDia(dia);
+  window.casitasCambiarSede = (sede) => CasitasView.cambiarSede(sede);
+  window.casitasGuardarJornada = () => CasitasView.guardarJornada();
+  window.casitasSobrescribirJornada = () => CasitasView.sobrescribirJornada();
+  window.casitasRecargarJornada = () => CasitasView.recargarJornada();
+  window.casitasDescartarAviso = () => CasitasView.descartarAvisoRemoto();
+  window.casitasConfirmarMotivoFJ = () => CasitasView.confirmarMotivoFJ();
+  window.casitasCerrarMotivoFJ = () => CasitasView.cerrarMotivoFJ();
 }

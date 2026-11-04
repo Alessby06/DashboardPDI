@@ -63,22 +63,45 @@ export const CsvExporter = {
     this._descargar("padron_salud_cred_pdi.csv", encabezados, filas);
   },
 
-  /** Asistencia de la Casita del Saber (Educativo).
-   *  El estado de asistencia vive en CasitasController, no en el padron; por eso
-   *  entra como segundo argumento y no se deduce del beneficiario. */
-  exportCasitas(list, asistenciaMap) {
+  /** Asistencia de una jornada de la Casita del Saber (Educativo).
+   *  El estado vive en CasitasController; `mapa` llega como
+   *  { [beneficiarioId]: { estado, observacion } } o como la forma antigua
+   *  { [beneficiarioId]: 'P' }. `meta` es { dia, sede } de la jornada. */
+  exportCasitas(list, mapa, meta = {}) {
     const etiquetas = { P: "Presente", T: "Tardanza", FJ: "Falta Justificada", FI: "Falta Injustificada" };
-    const mapa = asistenciaMap || {};
-    const encabezados = ["Codigo", "Nombres", "Apellidos", "DNI", "Edad", "Grado", "Colegio de Origen", "Apoderado", "Parentesco", "Telefono", "Distrito", "Sede", "Asistencia de Hoy"];
+    const marcas = mapa || {};
+    const encabezados = [
+      "Codigo", "Nombres", "Apellidos", "DNI", "Edad", "Grado", "Colegio de Origen",
+      "Apoderado", "Parentesco", "Telefono", "Distrito", "Sede", "Fecha",
+      "Asistencia", "Motivo de Falta Justificada", "Racion Entregada", "Registrado por",
+    ];
     const filas = (list || []).map(b => {
-      const clave = mapa[b.id] || "P";
+      const bruto = marcas[b.id];
+      const marca = (bruto && typeof bruto === "object")
+        ? bruto
+        : { estado: bruto || "", observacion: "" };
+      const estado = marca.estado || "";
+      const grado = String(b.grado || "").trim() || "Sin registrar";
+      const colegio = String(b.colegio || "").trim();
       return [
-        b.codigo, b.nombres, b.apellidos, b.dni, b.edad, b.grado, b.colegio,
+        b.codigo, b.nombres, b.apellidos, b.dni, b.edad, grado,
+        (colegio && colegio !== "-") ? colegio : "Sin registrar",
         b.apoderado, b.parentesco, b.telefono, b.distrito, b.sede,
-        etiquetas[clave] || clave
+        meta.dia || "",
+        estado ? (etiquetas[estado] || estado) : "Sin marcar",
+        estado === "FJ" ? (marca.observacion || "") : "",
+        estado === "P" || estado === "T" ? "Sí" : "No",
+        marca.registradoPorNombre || "",
       ];
     });
-    this._descargar("asistencia_casita_del_saber_pdi.csv", encabezados, filas);
+
+    const slug = texto => String(texto || "")
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9]+/g, "_").replace(/^_+|_+$/g, "").toLowerCase();
+    const partes = ["asistencia_casita"];
+    if (meta.sede) partes.push(slug(meta.sede));
+    if (meta.dia) partes.push(meta.dia);
+    this._descargar(`${partes.join("_")}.csv`, encabezados, filas);
   },
 
   /** Bandeja de derivaciones del Area Social Pastoral (Social). */

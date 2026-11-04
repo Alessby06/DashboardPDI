@@ -1,4 +1,4 @@
-﻿/* ===========================================================================
+/* ===========================================================================
    VISTAS - PARTE COMUN A LAS DIEZ PAGINAS
    ===========================================================================
    Este archivo y los views-<pagina>.css salieron de views.css, que era uno
@@ -63,6 +63,22 @@
          y var() es fragil y, si el parser lo descarta, el telon desaparece. */
       background-color: var(--sheet-veil-margen);
       background-image: radial-gradient(ellipse 70% 60% at 50% 42%, var(--sheet-veil-borde), transparent 70%);
+    }
+
+    /* Capa transparente que captura el gesto fuera de la caja. No es un velo
+       visual: el velo sigue siendo el fondo del backdrop. La caja queda por
+       encima y conserva su scroll nativo en móvil. */
+    .modal-backdrop::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      touch-action: none;
+    }
+
+    .modal-backdrop > .modal-box {
+      position: relative;
+      z-index: 1;
     }
 
     /* El pie pinta fondo solido: sin heredar el redondeo, las dos esquinas
@@ -912,12 +928,6 @@
 }
 }
 @media (max-width: 768px) {
-  body.filter-sheet-open {
-    /* Sin overflow: el bloqueo del body al cerrar repintaba la tabla. El gesto
-       sigue bloqueado con touch-action. */
-    touch-action: none !important;
-  }
-
   .padron-dropdown-item {
     min-height: 40px !important;
     padding: 8px 12px !important;
@@ -1743,7 +1753,7 @@ input[type="range"] {
       align-items: stretch !important;
       justify-content: stretch !important;
     }
-.modal-box:not(.drawer-box),
+.modal-backdrop .modal-box:not(.drawer-box),
     .modal-backdrop.open:not(.drawer) .modal-box {
       position: absolute !important;
       top: 0 !important;

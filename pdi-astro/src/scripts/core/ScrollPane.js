@@ -48,7 +48,6 @@ function attach(wrapper) {
     content,
     lerp: 0.12,
     smoothWheel: true,
-    smoothTouch: true,
     syncTouch: true,
     allowNestedScroll: true,
     autoRaf: false

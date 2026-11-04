@@ -376,22 +376,38 @@ export const DashboardView = {
     AnimationEngine.odometerRoll(el, valor, { suffix, mergeGlyphs: true });
   },
 
-  /** % efectivo de asistencia en Casita: P y Tardanza cuentan como atendido. */
+  /** % efectivo de asistencia en Casita: P y Tardanza cuentan como atendido.
+   *  Un alumno sin marcar NO cuenta: el estado vacío es ausencia de dato, no
+   *  un presente. El denominador son solo los alumnos de Casita, no todo el
+   *  padrón. */
   _pctAsistenciaCasitas() {
     const bModel = window.PDI?.BeneficiarioModel || (typeof BeneficiarioModel !== "undefined" ? BeneficiarioModel : null);
-    const list = bModel && bModel.getAll ? bModel.getAll() : [];
+    const todos = bModel && bModel.getAll ? bModel.getAll() : [];
+    const list = todos.filter(b => {
+      const marcas = [
+        ...(Array.isArray(b.servicios) ? b.servicios : []),
+        ...(Array.isArray(b.estrategias) ? b.estrategias : []),
+      ];
+      return marcas.some(s => {
+        const texto = String(s || "").toLowerCase();
+        return texto.includes("casita") || texto.includes("educat") || texto.includes("acompa");
+      });
+    });
     if (!list.length) return 0;
     let atendidos = 0;
     try {
-      // La asistencia vive en la nube (asistencia_diaria) y llega via CasitasController.
-      const map = window.PDI?.CasitasController?._cargar?.() || {};
+      // La asistencia de hoy llega con la hidratación. Se publica en
+      // window.PDI.asistenciaHoy para que el panel general la lea sin cargar
+      // el controlador educativo. La jornada editable vive aparte.
+      const map = window.PDI?.asistenciaHoy
+        || window.PDI?.CasitasController?._cargar?.()
+        || {};
       list.forEach(b => {
         const estado = map[b.id] !== undefined ? map[b.id] : map[String(b.id)];
-        if (estado === "T" || estado === "P" || estado === undefined) atendidos++;
+        if (estado === "T" || estado === "P") atendidos++;
       });
     } catch (e) {
-      // Mapa ilegible: mismo contrato que CasitasController _cargar()
-      atendidos = list.length;
+      atendidos = 0;
     }
     return Math.round((atendidos / list.length) * 1000) / 10;
   },

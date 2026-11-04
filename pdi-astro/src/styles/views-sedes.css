@@ -841,6 +841,9 @@
     z-index: 1100 !important;
     opacity: 0 !important;
     pointer-events: none !important;
+    /* Captura el gesto fuera de la hoja. La ficha es un hermano del velo y
+       conserva su scroll nativo. */
+    touch-action: none;
     transition: opacity var(--sheet-out) var(--sheet-exit-ease) !important;
   }
 
@@ -854,15 +857,6 @@
   /* Durante el arrastre el velo sigue la mano, sin su easing. */
   .sedes-sheet-backdrop.is-dragging {
     transition: none !important;
-  }
-
-  /* Bloqueo de scroll cuando el bottom sheet está abierto en móvil.
-     El scroll tactil de la hoja sigue funcionando: su contenedor interno
-     conserva su propio scroll. */
-  body.sedes-sheet-open {
-    /* Sin overflow: bloquear la scrollbar al cerrar repintaba la tabla. El
-       gesto se bloquea en #mainContent (base.css). */
-    touch-action: none;
   }
 }
 

@@ -1,4 +1,4 @@
-﻿/* ===========================================================================
+/* ===========================================================================
    FILTROS DE DATOS - FUENTE UNICA
    ===========================================================================
    Un solo sitio para el panel de filtros que comparten auditoria, padron,
@@ -850,13 +850,6 @@
 }
 
 @media (max-width: 768px) {
-  body.filter-sheet-open {
-    /* Solo se bloquea el gesto táctil. Sin `overflow: hidden` ni padding: el
-       cambio de ancho/scrollbar al cerrar repintaba la tabla y se veía un
-       parpadeo cuando el arrastre ya había retirado el velo. */
-    touch-action: none ;
-  }
-
   /* El topbar es un flex item con z-index 40. El velo vive dentro de main y no
      podia taparlo: el menu hamburguesa seguia activo detras de la hoja. Mientras
      la hoja esta abierta, main sube por encima. */
@@ -897,6 +890,9 @@
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
+    /* Captura el gesto fuera de la hoja; la hoja es un hermano del velo y
+       conserva su scroll nativo. */
+    touch-action: none;
     /* El velo se apaga con la hoja y con su curva de salida: si se adelanta,
        se ve la página sin oscurecer mientras la hoja aún baja. */
     transition: opacity var(--sheet-out) var(--sheet-exit-ease),

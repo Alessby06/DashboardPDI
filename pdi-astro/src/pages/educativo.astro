@@ -7,12 +7,6 @@ import { SEDES_OPERATIVAS } from '../data/opcionesBeneficiario.js';
 import '../styles/views-educativo.css';
 import Icon from '../components/Icon.astro';
 
-const OPCIONES_ASISTENCIA = [
-  { valor: 'P', etiqueta: 'Presente (P)' },
-  { valor: 'T', etiqueta: 'Tardanza (T)' },
-  { valor: 'FJ', etiqueta: 'Falta Justificada (FJ)' },
-  { valor: 'FI', etiqueta: 'Falta Injustificada (FI)' },
-];
 const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiqueta: sede.etiqueta }));
 const OPCIONES_GRADO = [
   { valor: 'inicial', etiqueta: 'Inicial / Pre-escolar' },
@@ -42,10 +36,54 @@ const OPCIONES_ORDEN_CASITAS = [
           <div class="card" id="cardAsistenciaCasita">
             <div class="card-header">
               <div>
-                <div class="card-title">Pase de Asistencia Rápida y Verificación de Salida</div>
-                <div style="font-size: 13px; color: var(--text-muted);">Sede: Casita del Saber: Año Nuevo (Comas)</div>
+                <div class="card-title">Jornada de Asistencia · Casita del Saber</div>
+                <div style="font-size: 13px; color: var(--text-muted);" id="jornadaSubtituloSede">
+                  Elige una sede para abrir la jornada
+                </div>
               </div>
             </div>
+
+            <!-- Barra de Jornada: un día y una sede por pase. -->
+            <div class="jornada-bar" id="jornadaBar">
+              <div class="jornada-campo">
+                <label class="jornada-label" for="inputJornadaFecha">Día de la jornada</label>
+                <input type="date" id="inputJornadaFecha" class="jornada-input"
+                  onchange="window.casitasCambiarDia ? window.casitasCambiarDia(this.value) : null">
+              </div>
+
+              <div class="jornada-campo jornada-campo-sede">
+                <label class="jornada-label" for="selectJornadaSede">Casita / Sede</label>
+                <select id="selectJornadaSede" class="jornada-input"
+                  onchange="window.casitasCambiarSede ? window.casitasCambiarSede(this.value) : null">
+                  <option value="">Elige una sede…</option>
+                  {OPCIONES_SEDE.map((sede) => (
+                    <option value={sede.valor}>{sede.etiqueta}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div class="jornada-resumen" id="jornadaResumen" aria-live="polite">
+                <span class="jornada-resumen-vacio">Sin sede seleccionada</span>
+              </div>
+
+              <div class="jornada-acciones">
+                <span class="jornada-estado" id="jornadaEstadoGuardado">Jornada sin iniciar</span>
+                <button type="button" class="btn-action" id="btnRecargarJornada"
+                  onclick="window.casitasRecargarJornada ? window.casitasRecargarJornada() : null"
+                  title="Volver a leer la jornada desde SurrealDB">
+                  <Icon name="accion.actualizar" size={15} />
+                  <span>Recargar</span>
+                </button>
+                <button type="button" class="btn-action primary" id="btnGuardarJornada" disabled
+                  onclick="window.casitasGuardarJornada ? window.casitasGuardarJornada() : null">
+                  <Icon name="accion.confirmar" size={15} />
+                  <span class="btn-label">Guardar jornada</span>
+                </button>
+              </div>
+            </div>
+
+            <p class="jornada-solo-lectura" id="jornadaSoloLectura" hidden></p>
+            <div class="jornada-avisos" id="jornadaAvisos" hidden></div>
 
             <!-- Barra de Filtros y Búsqueda Rápida de Casitas (Estandarizada con padron.astro) -->
             <div class="audit-toolbar table-toolbar" style="margin-bottom: 16px;">
@@ -63,7 +101,7 @@ const OPCIONES_ORDEN_CASITAS = [
 
               <button type="button" class="btn-action-icon btn-audit-export-icon table-export-btn" id="btnExportEducativoCSV"
                 onclick="window.openModalExportEducativo ? window.openModalExportEducativo() : null"
-                aria-label="Descargar el pase de asistencia filtrado" title="Descargar el pase filtrado">
+                aria-label="Descargar la jornada de asistencia" title="Descargar la jornada">
                 <Icon name="accion.descargar" size={18} />
               </button>
 
@@ -78,37 +116,7 @@ const OPCIONES_ORDEN_CASITAS = [
                 title="Filtros Casita del Saber"
                 reset="window.resetCasitasFilters ? window.resetCasitasFilters() : null"
               >
-                      <!-- Filtro 1: Asistencia de hoy (seleccion unica con radio) -->
-                      <FilterField
-                        id="dropdownCasitasAsistencia"
-                        menuId="menuCasitasAsistencia"
-                        labelId="labelCasitasAsistenciaSelect"
-                        label="Estado de Asistencia Hoy"
-                        labelTodos="Todos los Estados"
-                        todosEtiqueta="Todos los Estados"
-                        opciones={OPCIONES_ASISTENCIA}
-                        tipo="single"
-                        countPrefix="countFacetCasitasAsistencia"
-                        conEtiqueta={true}
-                        onSelect="window.selectCasitasAsistencia"
-                        abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownCasitasAsistencia') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownCasitasAsistencia') : null)"
-                      />
-                      
-                      <!-- Filtro 2: Sede / Casita (multiseleccion) -->
-                      <FilterField
-                        id="dropdownCasitasSede"
-                        menuId="menuCasitasSede"
-                        labelId="labelCasitasSedeSelect"
-                        label="Sede / Casita"
-                        labelTodos="Todas las Sedes"
-                        todosEtiqueta="Todas las Sedes"
-                        opciones={OPCIONES_SEDE}
-                        countPrefix="countFacetCasitasSede"
-                        onSelect="window.toggleCasitasSede"
-                        abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownCasitasSede') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownCasitasSede') : null)"
-                      />
-                      
-                      <!-- Filtro 3: Nivel / Grado escolar (seleccion unica con radio) -->
+                      <!-- Filtro único: Nivel / Grado escolar. La sede y el día viven en la barra de jornada. -->
                       <FilterField
                         id="dropdownCasitasGrado"
                         menuId="menuCasitasGrado"
@@ -143,7 +151,7 @@ const OPCIONES_ORDEN_CASITAS = [
                     <th>Grado Escolar</th>
                     <th>Colegio de Origen</th>
                     <th>Personas Acreditadas de Salida</th>
-                    <th>Estado Hoy</th>
+                    <th>Estado del Día</th>
                     <th>Marcar Asistencia</th>
                   </tr>
                 </thead>
@@ -188,6 +196,46 @@ const OPCIONES_ORDEN_CASITAS = [
               </div>
             </div>
           </div>
+
+          <!-- Motivo obligatorio de la falta justificada. Un <dialog> nativo
+               se dibuja en la capa superior: no lo recorta el contenedor con
+               scroll ni queda debajo de la barra lateral. -->
+          <dialog class="jornada-dialog" id="modalMotivoFJ" aria-labelledby="motivoFJTitulo">
+            <div class="modal-box motivo-box" role="document" tabindex="-1">
+              <div class="modal-header">
+                <div class="modal-title-stack">
+                  <h3 id="motivoFJTitulo">Motivo de la falta justificada</h3>
+                  <p class="modal-title-desc">El motivo queda en el registro de la jornada y en el CSV.</p>
+                </div>
+                <button type="button" class="btn-close-modal"
+                  onclick="window.casitasCerrarMotivoFJ ? window.casitasCerrarMotivoFJ() : null"
+                  aria-label="Cerrar el motivo de la falta justificada">
+                  <Icon name="accion.cerrar" size={18} />
+                </button>
+              </div>
+              <div class="modal-body">
+                <p class="motivo-alumno" id="motivoFJAlumno"></p>
+                <div class="form-group">
+                  <label for="inputMotivoFJ">Motivo <span class="req">*</span></label>
+                  <textarea id="inputMotivoFJ" class="form-control" rows="3" maxlength="120"
+                    placeholder="Ej. Cita médica, trámite familiar, enfermedad…"
+                    oninput="window.PDI?.CasitasView?._actualizarContadorMotivo?.()"></textarea>
+                  <div class="motivo-contador"><span id="motivoFJContador">0</span>/120</div>
+                </div>
+                <p class="motivo-error" id="motivoFJError" hidden></p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn-action"
+                  onclick="window.casitasCerrarMotivoFJ ? window.casitasCerrarMotivoFJ() : null">
+                  Cancelar
+                </button>
+                <button type="button" class="btn-action primary"
+                  onclick="window.casitasConfirmarMotivoFJ ? window.casitasConfirmarMotivoFJ() : null">
+                  Marcar falta justificada
+                </button>
+              </div>
+            </div>
+          </dialog>
         </section>
 
   <script>

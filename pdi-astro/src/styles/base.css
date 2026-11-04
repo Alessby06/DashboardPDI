@@ -1,4 +1,4 @@
-﻿/* Reset & Base */
+/* Reset & Base */
     *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
@@ -818,12 +818,11 @@
       overflow-y: auto;
     }
 
-    /* Con una hoja abierta el fondo no acepta gestos. Se aplica al viewport y
-       no al body para no tocar scrollbar ni layout (eso repintaba la tabla).
-       El cuerpo de la hoja conserva su scroll: es su contenedor más cercano. */
-    body.filter-sheet-open #mainContent,
-    body.pdi-drawer-open #mainContent,
-    body.sedes-sheet-open #mainContent {
+    /* Con un drawer abierto el fondo no acepta gestos. El drawer vive fuera
+       de #mainContent; su propio velo bloquea el resto. Las hojas de filtros
+       y sedes NO usan esta regla: viven dentro del contenido y su scroll
+       nativo quedaría bloqueado. */
+    body.pdi-drawer-open #mainContent {
       touch-action: none;
     }
 
@@ -1138,4 +1137,42 @@
 @keyframes estadoVacioEntra {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+/* ===========================================================================
+   SCROLL NATIVO EN MÓVIL
+   ===========================================================================
+   En móvil ScrollManager no monta Lenis: el navegador lleva el gesto. Aquí
+   se ajusta la barra, el encadenamiento del scroll y el rebote. El criterio
+   coincide con scrollMode.js: puntero no fino o ventana <= 900 px.
+   =========================================================================== */
+@media (max-width: 900px), (hover: none) and (pointer: coarse) {
+  /* Barras ocultas. `html body *` gana a las barras personalizadas de las
+     vistas (que declaran ::-webkit-scrollbar con más especificidad). */
+  html body,
+  html body * {
+    scrollbar-width: none;
+  }
+
+  html body *::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+
+  /* El gesto no se encadena al documento ni dispara la recarga al llegar al
+     borde. `-webkit-overflow-scrolling` mantiene la inercia en iOS antiguo. */
+  .content-viewport,
+  .nav-sections,
+  .modal-body,
+  .modal-box,
+  .audit-filters-body,
+  .padron-inner-dropdown-menu,
+  .sedes-master-list,
+  .sedes-detail-column,
+  .expediente-content-area,
+  .kanban-col-body {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
 }

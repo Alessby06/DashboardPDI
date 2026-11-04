@@ -32,6 +32,20 @@ let enlazado = false;
 function enlazar() {
   if (enlazado) return;
   enlazado = true;
+
+  // La capa de datos avisa cuando terminó una hidratación (propia o de otro
+  // dispositivo). Si no hay borrador, la jornada se relee; si lo hay, el
+  // controlador avisa en pantalla en vez de pisar lo que se está marcando.
+  document.addEventListener("pdi:datos-actualizados", () => {
+    window.PDI?.CasitasController?.sincronizarJornada?.();
+  });
+
+  // Un cambio sin guardar no debe perderse por cerrar o recargar la pestaña.
+  window.addEventListener("beforeunload", (evento) => {
+    if (!window.PDI?.CasitasController?.hayCambios?.()) return;
+    evento.preventDefault();
+    evento.returnValue = "";
+  });
 }
 
 /** Dibuja lo propio de esta pagina. Es idempotente. */
