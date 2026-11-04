@@ -640,7 +640,7 @@
        velo se apaga con ella. La transición de transform no cambia entre
        abierto y cerrado; `visibility` se retira con una animación. */
     visibility: hidden;
-    animation: pdi-sheet-hide 0s linear var(--sheet-out) forwards;
+    animation: pdi-sheet-hide 0s linear var(--sheet-out) both;
     transition: transform var(--sheet-in) var(--ease-drawer);
     will-change: transform;
     z-index: 1200 !important;

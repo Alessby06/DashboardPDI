@@ -897,7 +897,7 @@
        conserva su scroll nativo. El ocultado final va por animación para no
        cambiar la transición de opacidad al alternar rápido. */
     touch-action: none;
-    animation: pdi-sheet-hide 0s linear var(--dur-norm) forwards;
+    animation: pdi-sheet-hide 0s linear var(--dur-norm) both;
     transition: opacity var(--dur-norm) var(--ease-drawer);
   }
 
@@ -946,7 +946,7 @@
     transform: var(--sheet-closed);
     backface-visibility: hidden;
     will-change: transform;
-    animation: pdi-sheet-hide 0s linear var(--sheet-out) forwards;
+    animation: pdi-sheet-hide 0s linear var(--sheet-out) both;
     transition: transform var(--sheet-in) var(--ease-drawer);
     overflow: hidden;
   }

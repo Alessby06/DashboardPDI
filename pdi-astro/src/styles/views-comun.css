@@ -117,6 +117,7 @@
        propiedad `transition` entre abierto y cerrado cancelaba la animación
        de la hoja al alternar rápido; esto la mantiene constante. */
     @keyframes pdi-sheet-hide {
+      from { visibility: visible; }
       to { visibility: hidden; }
     }
 
@@ -247,7 +248,7 @@
            transición de transform no cambia entre estados; `visibility` se
            retira al terminar mediante la animación, no con otra transición. */
         visibility: hidden;
-        animation: pdi-sheet-hide 0s linear var(--sheet-out) forwards;
+        animation: pdi-sheet-hide 0s linear var(--sheet-out) both;
         transition: transform var(--sheet-in) var(--ease-drawer);
       }
 
