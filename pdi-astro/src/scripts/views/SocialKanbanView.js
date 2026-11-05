@@ -1197,11 +1197,20 @@ export const SocialKanbanView = {
       window.history.replaceState(window.history.state, "", url.toString());
     }
 
-    // View Transitions API nativa: animación fluida si el navegador lo soporta
-    if (typeof document !== "undefined" && typeof document.startViewTransition === "function") {
-      document.startViewTransition(() => {
+    // View Transitions API nativa: animación fluida si el navegador lo soporta.
+    // Si la pestaña está oculta, Chromium aborta la transición con
+    // InvalidStateError; en ese caso se aplica el cambio sin animación.
+    if (typeof document !== "undefined"
+      && document.visibilityState === "visible"
+      && typeof document.startViewTransition === "function") {
+      try {
+        const transicion = document.startViewTransition(() => {
+          aplicarCambioDeVista();
+        });
+        transicion?.finished?.catch(() => {});
+      } catch {
         aplicarCambioDeVista();
-      });
+      }
     } else {
       aplicarCambioDeVista();
     }

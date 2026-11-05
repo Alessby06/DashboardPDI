@@ -184,6 +184,21 @@ export function publicarRefresco(fn) {
 }
 
 if (typeof window !== "undefined") {
+  // Chromium aborta una View Transition si la pestaña pasa a segundo plano
+  // mientras se prepara. Es un aborto benigno del navegador, no un fallo de la
+  // aplicación: se evita que ensucie la consola cuando Astro intenta navegar
+  // desde una pestaña oculta.
+  if (!window.__pdiTransitionAbortGuard) {
+    window.__pdiTransitionAbortGuard = true;
+    window.addEventListener("unhandledrejection", (evento) => {
+      const mensaje = String(evento.reason?.message || evento.reason || "");
+      if (/Transition was aborted because of invalid state/i.test(mensaje)
+        && /Document hidden/i.test(mensaje)) {
+        evento.preventDefault();
+      }
+    });
+  }
+
   window.PDI = window.PDI || {};
   window.PDI.Bootstrap = { arrancarComun, publicarRefresco, restaurarDatosLocales, actualizarBadgesSidebar, hidratarDesdeSurreal };
   window.PDI.restaurarDatosLocales = restaurarDatosLocales;

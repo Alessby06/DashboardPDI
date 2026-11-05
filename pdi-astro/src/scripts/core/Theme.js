@@ -129,7 +129,9 @@ export const Theme = {
     // por hardware. Solo cuando hay un cambio real pedido por la persona: ver
     // el comentario del parametro animar.
     const root = document.documentElement;
-    if (animar && typeof document !== 'undefined' && document.startViewTransition) {
+    if (animar && typeof document !== 'undefined'
+      && document.visibilityState === 'visible'
+      && document.startViewTransition) {
       // 1. Congelar temporalmente transiciones individuales para evitar sobrecarga GPU
       root.classList.add('disable-theme-transitions');
 
