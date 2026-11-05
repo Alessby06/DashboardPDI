@@ -141,7 +141,7 @@ const navItems = [
       class="nav-btn nav-btn-logout"
       data-tooltip="Cerrar sesión"
       aria-label="Cerrar sesión"
-      onclick="try { localStorage.removeItem('pdi_sesion_activa'); localStorage.removeItem('pdi_active_role'); localStorage.removeItem('pdi_usuario_nombre'); localStorage.removeItem('pdi_session_token'); localStorage.removeItem('pdi_session_exp'); sessionStorage.clear(); } catch(e){} window.location.replace('/login');"
+      onclick="try { if (window.PDI?.Auth?.cerrarSesion) { window.PDI.Auth.cerrarSesion(); } else { ['pdi_sesion_activa','pdi_active_role','pdi_usuario_nombre','pdi_usuario_login','pdi_usuario_foto','pdi_session_exp'].forEach(function(k){ localStorage.removeItem(k); }); sessionStorage.clear(); } } catch(e){} window.location.replace('/login');"
     >
       <Icon name="nav.salir" />
       <span>Cerrar sesión</span>

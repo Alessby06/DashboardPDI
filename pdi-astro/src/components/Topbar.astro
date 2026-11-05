@@ -1,6 +1,8 @@
 ---
 import Icon from './Icon.astro';
-// Topbar component
+// Topbar: navegación y acceso al perfil. El logo institucional vive en el
+// sidebar; aquí no se duplica. El nombre tampoco se escribe: la identidad se
+// lee en el avatar y en la página de perfil.
 ---
 
 <header class="topbar">
@@ -13,56 +15,337 @@ import Icon from './Icon.astro';
     >
       <Icon name="nav.menu" size={20} />
     </button>
-
-    <div class="topbar-brand-wrap" style="display:flex; align-items:center; gap:12px; margin-right:8px;">
-      <img
-        src="/assets/logo-light-acjg.png"
-        alt="Asociacion Cultural Johannes Gutenberg"
-        class="brand-logo-dark"
-        width="152"
-        height="32"
-        fetchpriority="high"
-        decoding="async"
-        style="height:32px; width:auto; object-fit:contain;"
-      />
-      <img
-        src="/assets/logo-asociacion.png"
-        alt="Asociacion Cultural Johannes Gutenberg"
-        class="brand-logo-light"
-        width="152"
-        height="32"
-        fetchpriority="high"
-        decoding="async"
-        style="height:32px; width:auto; object-fit:contain; display:none;"
-      />
-    </div>
   </div>
 
   <div class="topbar-right" id="topbarRight">
-    <span id="topbarUsuarioNombre" style="font-size:13px;font-weight:600;color:var(--text-dim);white-space:nowrap;"></span>
+    <div class="topbar-perfil" id="topbarPerfil">
+      <button
+        type="button"
+        class="topbar-avatar"
+        id="btnPerfilMenu"
+        aria-haspopup="menu"
+        aria-expanded="false"
+        aria-controls="perfilMenu"
+        aria-label="Abrir mi perfil"
+        title="Mi perfil"
+      >
+        <img id="topbarAvatarFoto" alt="" hidden />
+        <span id="topbarAvatarIniciales" aria-hidden="true">?</span>
+      </button>
+
+      <div class="topbar-menu" id="perfilMenu" role="menu" hidden>
+        <div class="topbar-menu-head">
+          <strong id="topbarMenuNombre">Mi perfil</strong>
+          <span id="topbarMenuRol"></span>
+        </div>
+        <a href="/perfil" class="topbar-menu-item" role="menuitem">
+          <Icon name="nav.usuarios" size={16} />
+          <span>Mi perfil</span>
+        </a>
+        <a href="/ajustes" class="topbar-menu-item" role="menuitem">
+          <Icon name="nav.ajustes" size={16} />
+          <span>Ajustes</span>
+        </a>
+        <button type="button" class="topbar-menu-item topbar-menu-salir" id="btnPerfilSalir" role="menuitem">
+          <Icon name="nav.salir" size={16} />
+          <span>Cerrar sesión</span>
+        </button>
+      </div>
+    </div>
   </div>
 </header>
 
 <script is:inline>
   (function () {
     try {
-      var nombreGuardado = localStorage.getItem("pdi_usuario_nombre");
-      var spanNombre = document.getElementById("topbarUsuarioNombre");
-      if (spanNombre && nombreGuardado) {
-        spanNombre.textContent = nombreGuardado;
+      var nombre = localStorage.getItem("pdi_usuario_nombre") || "";
+      var foto = localStorage.getItem("pdi_usuario_foto") || "";
+      var rol = localStorage.getItem("pdi_active_role") || "";
+      var roles = {
+        coord: "Coordinación",
+        facilitadora: "Facilitadora",
+        promotora: "Promotora",
+        social: "Trabajo Social",
+        admin: "Administración TI"
+      };
+      var iniciales = nombre
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map(function (parte) { return parte.charAt(0).toUpperCase(); })
+        .join("") || "?";
+      var inicialesEl = document.getElementById("topbarAvatarIniciales");
+      var fotoEl = document.getElementById("topbarAvatarFoto");
+      var nombreEl = document.getElementById("topbarMenuNombre");
+      var rolEl = document.getElementById("topbarMenuRol");
+      if (inicialesEl) inicialesEl.textContent = iniciales;
+      if (nombreEl && nombre) nombreEl.textContent = nombre;
+      if (rolEl) rolEl.textContent = roles[rol] || "Perfil";
+      if (fotoEl && foto) {
+        fotoEl.src = foto;
+        fotoEl.hidden = false;
+        if (inicialesEl) inicialesEl.style.display = "none";
       }
     } catch (e) {}
   })();
 </script>
 
 <script>
-  document.addEventListener('astro:page-load', () => {
-    try {
-      var nombreGuardado = localStorage.getItem("pdi_usuario_nombre");
-      var spanNombre = document.getElementById("topbarUsuarioNombre");
-      if (spanNombre && nombreGuardado) {
-        spanNombre.textContent = nombreGuardado;
+  import { sincronizarSesion } from '../scripts/auth/usuarios.js';
+
+  const ROLES = {
+    coord: 'Coordinación',
+    facilitadora: 'Facilitadora',
+    promotora: 'Promotora',
+    social: 'Trabajo Social',
+    admin: 'Administración TI',
+  };
+
+  function inicialesDe(nombre) {
+    return String(nombre || '')
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((parte) => parte.charAt(0).toUpperCase())
+      .join('') || '?';
+  }
+
+  function pintar(cuenta) {
+    const iniciales = document.getElementById('topbarAvatarIniciales');
+    const foto = document.getElementById('topbarAvatarFoto');
+    const nombre = document.getElementById('topbarMenuNombre');
+    const rol = document.getElementById('topbarMenuRol');
+    const nombreTexto = cuenta?.nombre || localStorage.getItem('pdi_usuario_nombre') || '';
+    const fotoTexto = cuenta?.foto || localStorage.getItem('pdi_usuario_foto') || '';
+    const rolTexto = cuenta?.rol || localStorage.getItem('pdi_active_role') || '';
+
+    if (iniciales) {
+      iniciales.textContent = inicialesDe(nombreTexto);
+      iniciales.style.display = fotoTexto ? 'none' : '';
+    }
+    if (foto) {
+      if (fotoTexto) {
+        foto.src = fotoTexto;
+        foto.hidden = false;
+      } else {
+        foto.removeAttribute('src');
+        foto.hidden = true;
       }
-    } catch (e) {}
-  });
+    }
+    if (nombre) nombre.textContent = nombreTexto || 'Mi perfil';
+    if (rol) rol.textContent = ROLES[rolTexto] || 'Perfil';
+  }
+
+  function cerrarMenu() {
+    const menu = document.getElementById('perfilMenu');
+    const boton = document.getElementById('btnPerfilMenu');
+    if (menu) menu.hidden = true;
+    if (boton) boton.setAttribute('aria-expanded', 'false');
+  }
+
+  function alternarMenu() {
+    const menu = document.getElementById('perfilMenu');
+    const boton = document.getElementById('btnPerfilMenu');
+    if (!menu || !boton) return;
+    const abrir = menu.hidden;
+    menu.hidden = !abrir;
+    boton.setAttribute('aria-expanded', abrir ? 'true' : 'false');
+    if (abrir) {
+      const primero = menu.querySelector('[role="menuitem"]');
+      primero?.focus?.({ preventScroll: true });
+    }
+  }
+
+  function conectar() {
+    const boton = document.getElementById('btnPerfilMenu');
+    const salir = document.getElementById('btnPerfilSalir');
+    if (boton && !boton.dataset.listener) {
+      boton.dataset.listener = '1';
+      boton.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        alternarMenu();
+      });
+    }
+    if (salir && !salir.dataset.listener) {
+      salir.dataset.listener = '1';
+      salir.addEventListener('click', () => {
+        window.PDI?.Auth?.cerrarSesion?.();
+        window.location.replace('/login');
+      });
+    }
+    if (!window.__pdiPerfilMenuGlobal) {
+      window.__pdiPerfilMenuGlobal = true;
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest?.('#topbarPerfil')) cerrarMenu();
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') cerrarMenu();
+      });
+    }
+  }
+
+  async function actualizar() {
+    conectar();
+    const cuenta = await sincronizarSesion();
+    if (cuenta) pintar(cuenta);
+  }
+
+  document.addEventListener('astro:page-load', actualizar);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', actualizar, { once: true });
+  } else {
+    actualizar();
+  }
 </script>
+
+<style>
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .topbar-perfil {
+    position: relative;
+  }
+
+  .topbar-avatar {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid var(--border-subtle);
+    background: var(--surface-2);
+    color: var(--text-muted);
+    font-size: 12.5px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color var(--dur-fast) var(--ease-smooth),
+      background-color var(--dur-fast) var(--ease-smooth);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .topbar-avatar:hover {
+      border-color: var(--border-bright);
+      background: var(--surface-hover);
+    }
+  }
+
+  .topbar-avatar:active {
+    transform: scale(0.97);
+  }
+
+  .topbar-avatar:focus-visible {
+    outline: 2px solid var(--gt-green);
+    outline-offset: 2px;
+  }
+
+  .topbar-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .topbar-avatar img[hidden] {
+    display: none;
+  }
+
+  .topbar-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 232px;
+    padding: 6px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-subtle);
+    background: var(--surface-1);
+    box-shadow: var(--shadow-overlay);
+    z-index: 1200;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .topbar-menu[hidden] {
+    display: none;
+  }
+
+  .topbar-menu-head {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 10px 10px;
+    border-bottom: 1px solid var(--border-subtle);
+    margin-bottom: 4px;
+  }
+
+  .topbar-menu-head strong {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .topbar-menu-head span {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .topbar-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    padding: 9px 10px;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: var(--ui-font);
+    font-size: 12.5px;
+    font-weight: 600;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .topbar-menu-item:hover {
+      background: var(--surface-hover);
+      color: var(--text-main);
+    }
+  }
+
+  .topbar-menu-item:active {
+    transform: scale(0.98);
+  }
+
+  .topbar-menu-item svg {
+    flex-shrink: 0;
+    stroke: currentColor;
+  }
+
+  .topbar-menu-salir {
+    color: var(--text-danger, #dc2626);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .topbar-menu-salir:hover {
+      background: var(--gt-red-bg, rgba(239, 68, 68, 0.1));
+      color: var(--text-danger, #dc2626);
+    }
+  }
+</style>

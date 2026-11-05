@@ -230,29 +230,6 @@
         flex: 1 1 0% !important;
         min-width: 0 !important;
       }
-
-      /* En PC con sidebar desplegado se oculta el logo del topbar para evitar
-         duplicarlo. No se usa display:none: el bloque reserva su espacio y el
-         logo entra con un fundido corto cuando el riel se pliega. */
-      .topbar-brand-wrap {
-        opacity: 0;
-        visibility: hidden;
-        transform: translate3d(-6px, 0, 0);
-        pointer-events: none;
-        transition: opacity var(--dur-norm) var(--ease-out),
-                    transform var(--dur-rail) var(--ease-drawer),
-                    visibility 0s linear var(--dur-norm);
-      }
-
-      html[data-sidebar-pc="closed"] .topbar-brand-wrap {
-        opacity: 1;
-        visibility: visible;
-        transform: translate3d(0, 0, 0);
-        pointer-events: auto;
-        transition: opacity var(--dur-norm) var(--ease-out),
-                    transform var(--dur-rail) var(--ease-drawer),
-                    visibility 0s linear 0s;
-      }
     }
 
     /* ==================================================================

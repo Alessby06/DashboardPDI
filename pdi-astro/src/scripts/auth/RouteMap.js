@@ -31,6 +31,15 @@ export const PAGINAS = {
     allowedRoles: ["coord", "facilitadora", "promotora", "social", "admin"],
   },
 
+  perfil: {
+    ruta: "/perfil",
+    etiqueta: "Mi perfil",
+    view: "view-perfil",
+    grupo: "Cuenta",
+    enMenu: false,
+    allowedRoles: ["coord", "facilitadora", "promotora", "social", "admin"],
+  },
+
   padron: {
     ruta: "/padron",
     etiqueta: "Padrón de Usuarios",

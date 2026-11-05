@@ -42,9 +42,8 @@ const impeccableLive =
     (function () {
       try {
         var sesionActiva = localStorage.getItem("pdi_sesion_activa");
-        var token = localStorage.getItem("pdi_session_token");
         var exp = parseInt(localStorage.getItem("pdi_session_exp"), 10);
-        if (sesionActiva === "1" && token && exp && Date.now() < exp) {
+        if (sesionActiva === "1" && exp && Date.now() < exp) {
           window.location.replace("/dashboard");
           return;
         }
@@ -1798,23 +1797,23 @@ const impeccableLive =
         </div>
 
         <div class="profiles-grid" id="profilesGrid">
-          <button type="button" class="profile-card-btn" data-user="coordinacion" data-clave="coord2024">
+          <button type="button" class="profile-card-btn" data-user="coordinacion">
             <span class="profile-role-name">Coordinación</span>
             <span class="profile-user-id">coordinacion</span>
           </button>
-          <button type="button" class="profile-card-btn" data-user="facilitadora" data-clave="facil2024">
+          <button type="button" class="profile-card-btn" data-user="facilitadora">
             <span class="profile-role-name">Nutrición</span>
             <span class="profile-user-id">facilitadora</span>
           </button>
-          <button type="button" class="profile-card-btn" data-user="promotora" data-clave="promo2024">
+          <button type="button" class="profile-card-btn" data-user="promotora">
             <span class="profile-role-name">Educación</span>
             <span class="profile-user-id">promotora</span>
           </button>
-          <button type="button" class="profile-card-btn" data-user="social" data-clave="social2024">
+          <button type="button" class="profile-card-btn" data-user="social">
             <span class="profile-role-name">Trabajo Social</span>
             <span class="profile-user-id">social</span>
           </button>
-          <button type="button" class="profile-card-btn" data-user="admin" data-clave="admin2024">
+          <button type="button" class="profile-card-btn" data-user="admin">
             <span class="profile-role-name">Administración TI</span>
             <span class="profile-user-id">admin</span>
           </button>
@@ -1879,10 +1878,8 @@ const impeccableLive =
     });
 
     // 4. Selector de Perfiles (Directorio Rápido)
-    // RELLENO_CONTRASEÑAS: en producción se pone en false y las pastillas solo
-    // rellenan el usuario (la contraseña se escribe a mano).
-    const RELLENO_CONTRASEÑAS = true;
-
+    // Las pastillas solo rellenan el usuario: las contraseñas ya no viven en
+    // el HTML ni en el bundle.
     const profilesGrid = document.getElementById('profilesGrid');
     const inputUsuario = document.getElementById('inputUsuario');
 
@@ -1895,16 +1892,8 @@ const impeccableLive =
 
       if (inputUsuario) inputUsuario.value = card.dataset.user || '';
 
-      if (RELLENO_CONTRASEÑAS && inputClave) {
-        inputClave.value = card.dataset.clave || '';
-      }
-
       ocultarError();
-      if (RELLENO_CONTRASEÑAS) {
-        btnLogin?.focus();
-      } else {
-        inputClave?.focus();
-      }
+      inputClave?.focus();
     });
 
     // 4b. Acordeón de Módulos Operativos (Permite desplegar y plegar al hacer clic)
@@ -1968,9 +1957,10 @@ const impeccableLive =
         btnLogin.classList.add('loading');
       }
 
-      // Timeout race: 8s max para la conexión con SurrealDB
+      // Timeout amplio: el login ahora pasa por Argon2 y SurrealDB en el
+      // servidor; en un arranque en frío 8 s se quedaban cortos.
       const timeout = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('timeout')), 8000)
+        setTimeout(() => reject(new Error('timeout')), 20000)
       );
 
       let res;
@@ -1994,7 +1984,7 @@ const impeccableLive =
       }
 
       if (res.ok) {
-        window.location.replace('/dashboard');
+        window.location.replace(res.debeCambiarClave ? '/perfil' : '/dashboard');
       } else {
         if (btnLogin) {
           btnLogin.disabled = false;

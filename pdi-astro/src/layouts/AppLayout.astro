@@ -83,15 +83,15 @@ const impeccableLive =
       try {
         var sesionActiva = localStorage.getItem("pdi_sesion_activa");
         var expStr = localStorage.getItem("pdi_session_exp");
-        var token = localStorage.getItem("pdi_session_token");
         var exp = expStr ? parseInt(expStr, 10) : 0;
         var ahora = Date.now();
 
-        if (sesionActiva !== "1" || !token || !exp || ahora > exp) {
+        if (sesionActiva !== "1" || !exp || ahora > exp) {
           localStorage.removeItem("pdi_sesion_activa");
           localStorage.removeItem("pdi_active_role");
           localStorage.removeItem("pdi_usuario_nombre");
-          localStorage.removeItem("pdi_session_token");
+          localStorage.removeItem("pdi_usuario_login");
+          localStorage.removeItem("pdi_usuario_foto");
           localStorage.removeItem("pdi_session_exp");
           window.location.replace("/login");
           return;

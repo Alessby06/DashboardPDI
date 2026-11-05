@@ -16,6 +16,21 @@ export const onRequest = async (context, next) => {
   if (!import.meta.env.DEV) return next();
 
   const url = new URL(context.request.url);
+
+  // Cuentas y perfil: misma lógica que la Function de Vercel.
+  if (url.pathname.startsWith('/api/cuenta/')) {
+    try {
+      const { handleCuenta } = await import('../../api/_cuentaBase.mjs');
+      return await handleCuenta(context.request, import.meta.env);
+    } catch (err) {
+      console.error('[api/cuenta] fallo en desarrollo:', err?.message || err);
+      return new Response(
+        JSON.stringify({ ok: false, error: 'No se pudo procesar la cuenta.' }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } },
+      );
+    }
+  }
+
   // La Function de Vercel (api/pdi.mjs) se sirve en /api/pdi. Se acepta
   // tambien /api/pdi/token por si alguien usa esa ruta.
   const rutaOk = url.pathname === '/api/pdi' || url.pathname === '/api/pdi/token';

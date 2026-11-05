@@ -1,0 +1,163 @@
+---
+import AppLayout from '../layouts/AppLayout.astro';
+import Icon from '../components/Icon.astro';
+import '../styles/views-perfil.css';
+---
+
+<AppLayout title="Mi perfil" currentPage="perfil">
+  <section class="app-view active" id="view-perfil">
+    <div class="perfil-shell">
+      <header class="perfil-credential">
+        <div class="perfil-avatar" id="perfilAvatar" aria-hidden="true">
+          <span id="perfilIniciales">?</span>
+          <img id="perfilFoto" alt="" hidden />
+        </div>
+        <div class="perfil-identity">
+          <span class="perfil-eyebrow">Credencial del programa</span>
+          <h2 id="perfilNombre">Mi perfil</h2>
+          <div class="perfil-meta">
+            <span class="perfil-rol" id="perfilRol">—</span>
+            <span class="perfil-usuario" id="perfilUsuario">@—</span>
+          </div>
+          <span class="perfil-desde" id="perfilDesde"></span>
+        </div>
+        <span class="perfil-estado"><i aria-hidden="true"></i> Cuenta activa</span>
+      </header>
+
+      <div class="perfil-banner" id="perfilAvisoTemporal" hidden>
+        <Icon name="seguridad.candado" size={16} />
+        <div>
+          <strong>Tu contraseña es temporal</strong>
+          <span>Cámbiala ahora, en la sección Seguridad, antes de seguir usando la cuenta.</span>
+        </div>
+      </div>
+
+      <div class="perfil-grid">
+        <section class="perfil-card" aria-labelledby="perfilDatosTitle">
+          <header class="perfil-card-head">
+            <span class="perfil-card-icon"><Icon name="nav.usuarios" size={16} /></span>
+            <div>
+              <h3 id="perfilDatosTitle">Datos personales</h3>
+              <p>Cómo te ven y cómo te contactamos.</p>
+            </div>
+          </header>
+
+          <form class="perfil-form" id="formPerfil" novalidate>
+            <div class="perfil-field">
+              <label for="perfilInputNombre">Nombre visible</label>
+              <input type="text" id="perfilInputNombre" name="nombre" maxlength="80" autocomplete="name" required />
+            </div>
+            <div class="perfil-field">
+              <label for="perfilInputCorreo">Correo</label>
+              <input type="email" id="perfilInputCorreo" name="correo" maxlength="120" autocomplete="email" placeholder="nombre@dominio.org" />
+            </div>
+            <div class="perfil-field">
+              <label for="perfilInputTelefono">Teléfono</label>
+              <input type="tel" id="perfilInputTelefono" name="telefono" maxlength="20" autocomplete="tel" placeholder="Opcional" />
+            </div>
+            <div class="perfil-form-foot">
+              <p class="perfil-feedback" id="perfilDatosFeedback" role="status"></p>
+              <button type="submit" class="perfil-btn perfil-btn--primary" id="btnGuardarPerfil">Guardar cambios</button>
+            </div>
+          </form>
+
+          <dl class="perfil-readonly">
+            <div>
+              <dt>Usuario de acceso</dt>
+              <dd id="perfilUsuarioActual">@—</dd>
+            </div>
+            <div>
+              <dt>Rol</dt>
+              <dd id="perfilRolActual">—</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="perfil-card" aria-labelledby="perfilFotoTitle">
+          <header class="perfil-card-head">
+            <span class="perfil-card-icon"><Icon name="accion.foto" size={16} /></span>
+            <div>
+              <h3 id="perfilFotoTitle">Foto de perfil</h3>
+              <p>Se recorta y comprime antes de guardarse.</p>
+            </div>
+          </header>
+
+          <div class="perfil-photo">
+            <div class="perfil-photo-preview" id="perfilFotoPreview">
+              <span id="perfilFotoIniciales">?</span>
+              <img id="perfilFotoPreviewImg" alt="" hidden />
+            </div>
+            <div class="perfil-photo-actions">
+              <input type="file" id="perfilFotoInput" accept="image/png,image/jpeg,image/webp" hidden />
+              <button type="button" class="perfil-btn perfil-btn--soft" id="btnElegirFoto">
+                <Icon name="accion.subir" size={14} />
+                <span>Elegir foto</span>
+              </button>
+              <button type="button" class="perfil-btn perfil-btn--ghost" id="btnQuitarFoto">Quitar</button>
+            </div>
+            <p class="perfil-hint">PNG, JPG o WebP · hasta 160 KB después del recorte.</p>
+            <p class="perfil-feedback" id="perfilFotoFeedback" role="status"></p>
+          </div>
+        </section>
+
+        <section class="perfil-card perfil-card--wide" aria-labelledby="perfilSeguridadTitle">
+          <header class="perfil-card-head">
+            <span class="perfil-card-icon"><Icon name="seguridad.candado" size={16} /></span>
+            <div>
+              <h3 id="perfilSeguridadTitle">Seguridad</h3>
+              <p>Tu usuario de acceso y tu contraseña.</p>
+            </div>
+          </header>
+
+          <div class="perfil-security-grid">
+            <form class="perfil-form" id="formUsuario" novalidate>
+              <h4 class="perfil-subtitle">Usuario de acceso</h4>
+              <div class="perfil-field">
+                <label for="perfilInputUsuario">Nuevo usuario</label>
+                <input type="text" id="perfilInputUsuario" name="usuario" maxlength="32" autocomplete="username" spellcheck="false" />
+                <span class="perfil-field-hint">3 a 32 caracteres: minúsculas, números, punto, guion o guion bajo.</span>
+              </div>
+              <div class="perfil-field">
+                <label for="perfilInputUsuarioClave">Contraseña actual</label>
+                <input type="password" id="perfilInputUsuarioClave" name="clave" autocomplete="current-password" />
+              </div>
+              <div class="perfil-form-foot">
+                <p class="perfil-feedback" id="perfilUsuarioFeedback" role="status"></p>
+                <button type="submit" class="perfil-btn perfil-btn--soft" id="btnGuardarUsuario">Cambiar usuario</button>
+              </div>
+            </form>
+
+            <form class="perfil-form" id="formClave" novalidate>
+              <h4 class="perfil-subtitle">Contraseña</h4>
+              <div class="perfil-field">
+                <label for="perfilInputClaveActual">Contraseña actual</label>
+                <input type="password" id="perfilInputClaveActual" name="actual" autocomplete="current-password" />
+              </div>
+              <div class="perfil-field">
+                <label for="perfilInputClaveNueva">Nueva contraseña</label>
+                <input type="password" id="perfilInputClaveNueva" name="nueva" autocomplete="new-password" />
+                <span class="perfil-field-hint">Mínimo 10 caracteres. Se recomienda una frase larga.</span>
+              </div>
+              <div class="perfil-field">
+                <label for="perfilInputClaveRepetir">Repetir la nueva</label>
+                <input type="password" id="perfilInputClaveRepetir" name="repetir" autocomplete="new-password" />
+              </div>
+              <div class="perfil-form-foot">
+                <p class="perfil-feedback" id="perfilClaveFeedback" role="status"></p>
+                <button type="submit" class="perfil-btn perfil-btn--primary" id="btnGuardarClave">Cambiar contraseña</button>
+              </div>
+            </form>
+          </div>
+
+          <p class="perfil-note">
+            Si olvidas tu contraseña, administración puede generarte una temporal. El enlace por correo se activará cuando el programa tenga dominio de envío.
+          </p>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    import '../scripts/pages/perfil.js';
+  </script>
+</AppLayout>

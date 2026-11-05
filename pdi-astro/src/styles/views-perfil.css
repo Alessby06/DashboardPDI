@@ -1,0 +1,551 @@
+/* ===========================================================================
+   MI PERFIL
+   ===========================================================================
+   Una credencial del programa, no una página de ajustes: la identidad manda y
+   los formularios se ordenan debajo. Profundidad solo con bordes suaves y un
+   único acento verde; las cifras y metadatos usan tinta secundaria.
+   =========================================================================== */
+
+.perfil-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding-bottom: 8px;
+}
+
+/* --- Credencial --------------------------------------------------------- */
+
+.perfil-credential {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 22px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(120% 100% at 0% 0%, var(--gt-green-bg), transparent 55%),
+    var(--surface-1);
+}
+
+.perfil-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  border-radius: 18px;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.perfil-avatar span {
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-main);
+}
+
+.perfil-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.perfil-avatar img[hidden],
+.perfil-photo-preview img[hidden] {
+  display: none;
+}
+
+.perfil-identity {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1 1 260px;
+}
+
+.perfil-eyebrow {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.perfil-identity h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--text-main);
+  text-wrap: balance;
+}
+
+.perfil-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.perfil-rol {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--gt-green-border);
+  background: var(--gt-green-bg);
+  color: var(--text-brand);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.perfil-usuario {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.perfil-desde {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.perfil-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-1);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.perfil-estado i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gt-green);
+}
+
+.perfil-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  background: rgba(245, 158, 11, 0.10);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+}
+
+.perfil-banner[hidden] {
+  display: none;
+}
+
+.perfil-banner svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--text-warning, #b45309);
+}
+
+.perfil-banner div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.perfil-banner strong {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.perfil-banner span {
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+/* --- Rejilla ------------------------------------------------------------ */
+
+.perfil-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.perfil-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.perfil-card--wide {
+  grid-column: 1 / -1;
+}
+
+.perfil-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.perfil-card-head > div {
+  min-width: 0;
+}
+
+.perfil-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+
+.perfil-card-head h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text-main);
+}
+
+.perfil-card-head p {
+  margin: 2px 0 0;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+/* --- Formularios -------------------------------------------------------- */
+
+.perfil-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.perfil-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.perfil-field label {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.perfil-field input {
+  width: 100%;
+  height: 38px;
+  padding: 0 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-1);
+  color: var(--text-main);
+  font-family: var(--ui-font);
+  font-size: 13px;
+  box-sizing: border-box;
+  transition: border-color var(--dur-fast) var(--ease-smooth),
+    box-shadow var(--dur-fast) var(--ease-smooth);
+}
+
+.perfil-field input:focus {
+  outline: none;
+  border-color: var(--gt-green);
+  box-shadow: 0 0 0 3px var(--gt-green-bg);
+}
+
+.perfil-field input::placeholder {
+  color: var(--text-dim);
+}
+
+.perfil-field-hint {
+  font-size: 10.5px;
+  line-height: 1.35;
+  color: var(--text-dim);
+}
+
+.perfil-form-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.perfil-feedback {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: var(--text-muted);
+  min-height: 1em;
+}
+
+.perfil-feedback.is-ok {
+  color: var(--text-brand);
+}
+
+.perfil-feedback.is-error {
+  color: var(--text-danger, #dc2626);
+}
+
+/* --- Botones ------------------------------------------------------------ */
+
+.perfil-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font-family: var(--ui-font);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color var(--dur-fast) var(--ease-smooth),
+    border-color var(--dur-fast) var(--ease-smooth),
+    transform var(--dur-fast) var(--ease-smooth);
+}
+
+.perfil-btn:active {
+  transform: scale(0.98);
+}
+
+.perfil-btn:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.perfil-btn--primary {
+  background: var(--gt-green);
+  border-color: var(--gt-green);
+  color: var(--on-brand, #fff);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .perfil-btn--primary:hover {
+    background: var(--brand-primary);
+  }
+}
+
+.perfil-btn--soft {
+  background: var(--surface-2);
+  border-color: var(--border-subtle);
+  color: var(--text-main);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .perfil-btn--soft:hover {
+    background: var(--surface-hover);
+    border-color: var(--border-bright);
+  }
+}
+
+.perfil-btn--ghost {
+  background: transparent;
+  color: var(--text-muted);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .perfil-btn--ghost:hover {
+    background: var(--surface-hover);
+    color: var(--text-main);
+  }
+}
+
+/* --- Solo lectura ------------------------------------------------------- */
+
+.perfil-readonly {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.perfil-readonly div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.perfil-readonly dt {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.perfil-readonly dd {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-main);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- Foto --------------------------------------------------------------- */
+
+.perfil-photo {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.perfil-photo-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 96px;
+  border-radius: 20px;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.perfil-photo-preview span {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-main);
+}
+
+.perfil-photo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.perfil-photo-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.perfil-hint {
+  margin: 0;
+  font-size: 10.5px;
+  line-height: 1.4;
+  color: var(--text-dim);
+}
+
+/* --- Seguridad ---------------------------------------------------------- */
+
+.perfil-security-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.perfil-subtitle {
+  margin: 0 0 2px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text-main);
+}
+
+.perfil-note {
+  margin: 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--text-muted);
+  text-wrap: pretty;
+}
+
+/* --- Adaptación --------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .perfil-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .perfil-security-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+}
+
+@media (max-width: 640px) {
+  .perfil-credential {
+    padding: 18px;
+    gap: 14px;
+  }
+
+  .perfil-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+  }
+
+  .perfil-identity h2 {
+    font-size: 21px;
+  }
+
+  .perfil-estado {
+    order: 3;
+  }
+
+  .perfil-card {
+    padding: 16px;
+  }
+
+  .perfil-form-foot {
+    align-items: stretch;
+  }
+
+  .perfil-form-foot .perfil-btn {
+    width: 100%;
+  }
+
+  .perfil-readonly {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
