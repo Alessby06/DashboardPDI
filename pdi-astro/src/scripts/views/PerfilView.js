@@ -226,6 +226,7 @@ export const PerfilView = {
   _deshacerFoto: null,
   _temporizadorFoto: null,
   _beforeUnload: null,
+  _guardiaEnlaces: null,
 
   init() {
     const form = porId('formPerfil');
@@ -386,12 +387,32 @@ export const PerfilView = {
   /** Aviso del navegador si se sale con datos sin guardar. */
   _conectarSalida() {
     if (this._beforeUnload) window.removeEventListener('beforeunload', this._beforeUnload);
+    if (this._guardiaEnlaces) document.removeEventListener('click', this._guardiaEnlaces, true);
     this._beforeUnload = (e) => {
       if (!this.hayCambios()) return;
       e.preventDefault();
       e.returnValue = '';
     };
     window.addEventListener('beforeunload', this._beforeUnload);
+
+    // El ClientRouter navega sin recargar, así que beforeunload no llega a
+    // dispararse. Se interceptan los enlaces internos en captura para
+    // preguntar antes de descartar los cambios.
+    this._guardiaEnlaces = (e) => {
+      if (!this.hayCambios() || e.defaultPrevented) return;
+      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const enlace = e.target?.closest?.('a[href]');
+      if (!enlace || enlace.target === '_blank' || enlace.hasAttribute('download')) return;
+      let url;
+      try { url = new URL(enlace.href, location.href); } catch { return; }
+      if (url.origin !== location.origin) return;
+      // Misma página con solo un ancla: no se pierde nada.
+      if (url.pathname === location.pathname && url.search === location.search) return;
+      if (window.confirm('Tienes cambios sin guardar en tu perfil. ¿Salir y descartarlos?')) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+    };
+    document.addEventListener('click', this._guardiaEnlaces, true);
   },
 
   _valor(clave) {
