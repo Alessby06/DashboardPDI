@@ -99,6 +99,41 @@ export function arrancarComun() {
  */
 const ultimosBadges = new Map();
 
+/** Últimos conteos conocidos de los badges, para pintarlos sin parpadeo. */
+const CLAVE_BADGES = "pdi_badges_sidebar";
+const IDS_BADGES = [
+  "badgeTotalBeneficiarios",
+  "badgeTotalVoluntarios",
+  "badgeCasosCriticos",
+  "badgeSolicitudesPendientes",
+  "badgeMisSolicitudesTotal",
+];
+
+/**
+ * Guarda los conteos para que el script en línea del sidebar los pinte en la
+ * primera pintura, antes de que arranque la hidratación. Sin esto, al navegar
+ * el marcado nuevo llega con los badges vacíos y las pastillas aparecen un
+ * instante después de que la página ya se ve.
+ *
+ * No se guarda mientras los modelos aún están vacíos: en una recarga dura eso
+ * sustituiría los conteos buenos por ceros.
+ */
+function guardarBadgesEnCache() {
+  try {
+    const datos = {};
+    for (const id of IDS_BADGES) {
+      const el = document.getElementById(id);
+      if (!el) continue;
+      const num = el.querySelector(".nav-badge-num");
+      datos[id] = Number((num ? num.textContent : el.textContent) || 0);
+    }
+    const listo = window.PDI?.__pdiDatosListos
+      || Number(datos.badgeTotalBeneficiarios) > 0
+      || Number(datos.badgeTotalVoluntarios) > 0;
+    if (listo) localStorage.setItem(CLAVE_BADGES, JSON.stringify(datos));
+  } catch (e) { /* sin almacenamiento disponible: se pinta al hidratar */ }
+}
+
 /**
  * Escribe en los badges del sidebar los conteos reales de los modelos.
  * Llamar tambien tras cualquier alta/baja/cambio de etapa que altere un total.
@@ -167,6 +202,8 @@ export function actualizarBadgesSidebar() {
       misSolBadgeEl.style.display = totalSol > 0 ? "inline-flex" : "none";
     }
   } catch (e) {}
+
+  guardarBadgesEnCache();
 }
 
 /**

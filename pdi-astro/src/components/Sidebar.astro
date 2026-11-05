@@ -46,7 +46,7 @@ const navItems = [
 ];
 ---
 
-<aside class="sidebar" id="appSidebar">
+<aside class="sidebar" id="appSidebar" transition:persist="appSidebar">
   <div class="sidebar-main">
     <div class="sidebar-header">
       <div style="display:flex; align-items:center; gap:12px; flex:1; min-width:0;">
@@ -275,6 +275,23 @@ const navItems = [
 <script is:inline>
   (function () {
     try {
+      // Últimos conteos conocidos: se pintan en la primera pintura, antes de
+      // que la hidratación vuelva a consultarlos. Así las pastillas no
+      // desaparecen y reaparecen al cambiar de sección.
+      try {
+        var cacheBadges = JSON.parse(localStorage.getItem("pdi_badges_sidebar") || "null");
+        if (cacheBadges) {
+          Object.keys(cacheBadges).forEach(function (id) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = String(cacheBadges[id]);
+            if (id === "badgeSolicitudesPendientes" || id === "badgeMisSolicitudesTotal") {
+              el.style.display = Number(cacheBadges[id]) > 0 ? "inline-flex" : "none";
+            }
+          });
+        }
+      } catch (e) { /* caché corrupta: se pinta al hidratar */ }
+
       var rol = localStorage.getItem("pdi_active_role") || "coord";
       var btns = document.querySelectorAll("#sidebarNav [data-roles]");
 

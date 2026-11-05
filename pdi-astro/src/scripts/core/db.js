@@ -503,10 +503,6 @@ const SQL_LOTE_HIDRATACION = [
   'SELECT * FROM sede ORDER BY creado_el;',
   // 8 · archivo de retirados
   SQL_RETIRADOS,
-  // 9 · evaluaciones socioeconómicas aprobadas (la más reciente primero).
-  'SELECT * FROM evaluacion_socioeconomica WHERE activo = true AND estado = \'aprobada\' ORDER BY fecha_evaluacion DESC;',
-  // 10 · atenciones del caso social (evento_caso es la tabla de seguimiento ASP).
-  'SELECT * FROM evento_caso ORDER BY fecha DESC;',
 ].join('\n');
 
 export async function hidratar(promedioSilencioso = false) {
@@ -522,13 +518,13 @@ export async function hidratar(promedioSilencioso = false) {
     cambiarEstado('cargando');
     try {
       // Un solo viaje: el lote completo cuesta 1 RTT en lugar de 6-8.
-      const [sedesRaw, personasRaw, casosRaw, solicitudesRaw, voluntariosRaw, logsRaw, asistenciaRaw, sedesTodasRaw, retiradosRaw, evaluacionesRaw, eventosRaw] =
+      const [sedesRaw, personasRaw, casosRaw, solicitudesRaw, voluntariosRaw, logsRaw, asistenciaRaw, sedesTodasRaw, retiradosRaw] =
         await ejecutarLote(SQL_LOTE_HIDRATACION);
 
       const sedes = mapearSedes(sedesRaw);
       const beneficiarios = mapearBeneficiarios(personasRaw, sedes);
       const retirados = mapearRetirados(retiradosRaw, mapearSedes(sedesTodasRaw));
-      const casos = mapearCasos(casosRaw, solicitudesRaw, evaluacionesRaw, eventosRaw);
+      const casos = mapearCasos(casosRaw, solicitudesRaw);
       const voluntarios = mapearVoluntarios(voluntariosRaw);
       const logs = mapearBitacora(logsRaw);
       // Solo para el KPI del panel general. La jornada de educativo tiene su

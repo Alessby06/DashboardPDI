@@ -215,8 +215,10 @@ const impeccableLive =
       transition:persist
     ></div>
 
-    <!-- Sidebar Navigation persistente (evita el tirón de re-renderizado de GPU) -->
-    <Sidebar currentPage={currentPage} transition:persist />
+    <!-- Sidebar Navigation persistente (evita el tirón de re-renderizado de GPU).
+         La persistencia va en el <aside>: en la invocación del componente Astro
+         la ignora y el menú se recreaba con los badges vacíos en cada cambio. -->
+    <Sidebar currentPage={currentPage} />
 
     <!-- Main Content Container -->
     <div class="main-wrapper">

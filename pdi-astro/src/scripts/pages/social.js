@@ -19,6 +19,7 @@
 //  falla por un elemento que todavia no existe.
 import "../core/legacy-globals.js";
 import { arrancarComun, publicarRefresco } from "../core/Bootstrap.js";
+import { fetchCasosSociales } from '../core/db.js';
 import { CasoSocialModel } from '../models/CasoSocialModel.js';
 import { SocialKanbanView } from '../views/SocialKanbanView.js';
 import { SocialController } from '../controllers/SocialController.js';
@@ -28,11 +29,39 @@ import { DerivacionView } from '../views/DerivacionView.js';
 import { AppController } from '../controllers/AppController.js';
 
 let enlazado = false;
+let cargandoCasos = false;
+
+/**
+ * El lote global ya no trae evaluaciones ni atenciones: esas consultas solo
+ * las necesita Social. Se piden aparte, después de la hidratación base, para
+ * que las demás secciones no esperen por ellas.
+ *
+ * El módulo de datos sobrevive a las navegaciones de Astro, así que la
+ * hidratación global solo ocurre una vez por documento y su evento no vuelve a
+ * dispararse. Por eso esta carga también se lanza al entrar en Social.
+ */
+async function cargarCasosCompletos() {
+  // El módulo sobrevive a las navegaciones: si ya se salió de Social, el
+  // evento de otra sección no debe intentar repintar un tablero que no existe.
+  if (document.body?.getAttribute("data-page") !== "social") return;
+  if (cargandoCasos) return;
+  cargandoCasos = true;
+  try {
+    const casos = await fetchCasosSociales();
+    CasoSocialModel.aplicarDatos(casos);
+    SocialKanbanView.renderKanban(casos);
+  } catch {
+    // La capa base ya reintenta y avisa; aquí se conserva lo que haya.
+  } finally {
+    cargandoCasos = false;
+  }
+}
 
 /** Engancha lo que debe ocurrir una sola vez por carga. */
 function enlazar() {
   if (enlazado) return;
   enlazado = true;
+  document.addEventListener("pdi:datos-actualizados", cargarCasosCompletos);
 }
 
 /** Dibuja lo propio de esta pagina. Es idempotente. */
@@ -67,6 +96,10 @@ function iniciar() {
   SocialKanbanView.reiniciarEntrada();
   enlazar();
   montar();
+
+  // Navegación interna: la capa de datos ya está hidratada y no volverá a
+  // emitir pdi:datos-actualizados. En la primera carga espera ese evento.
+  if (window.PDI?.__pdiDatosListos) cargarCasosCompletos();
 
   // Que redibujar cuando algo guarde en esta pagina, por ejemplo al dar de
   // alta a un usuario: antes era refreshAllViews(), que refrescaba las ocho
