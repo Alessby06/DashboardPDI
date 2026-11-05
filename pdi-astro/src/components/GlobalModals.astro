@@ -1603,6 +1603,204 @@ import Icon from './Icon.astro';
     </div>
   </div>
 
+<!-- ======================================================
+             MODAL: NUEVA DERIVACIÓN (FICHA DE DERIVACIÓN ASP)
+             ====================================================== -->
+        <div class="modal-backdrop drawer" id="modalNuevaDerivacion" inert aria-hidden="true">
+          <div class="modal-box drawer-box deriv-modal">
+            <div class="sheet-grab" aria-hidden="true"><span class="sheet-pill"></span></div>
+            <div class="modal-header">
+              <div class="deriv-modal-title">
+                <div class="deriv-modal-icon"><Icon name="persona.grupo" size={20} /></div>
+                <div>
+                  <h3>Nueva derivación</h3>
+                  <p>Ficha de derivación de caso social · Área Social Pastoral</p>
+                </div>
+              </div>
+              <button type="button" class="btn-close-modal" id="btnCerrarNuevaDerivacion"
+                aria-label="Cerrar nueva derivación">
+                <Icon name="accion.cerrar" size={18} />
+              </button>
+            </div>
+
+            <div class="modal-body deriv-body">
+              <section class="deriv-step">
+                <div class="deriv-step-head">
+                  <span class="deriv-step-num">1</span>
+                  <div>
+                    <h4>Usuario</h4>
+                    <p>Busca por nombre, código o DNI. Los datos salen del padrón y se guardan como instantánea.</p>
+                  </div>
+                </div>
+                <div class="deriv-search">
+                  <Icon name="accion.buscar" size={16} />
+                  <input type="search" id="derivBuscarUsuario" placeholder="Buscar usuario por nombre, código o DNI..."
+                    autocomplete="off" aria-label="Buscar usuario para derivar" />
+                </div>
+                <div class="deriv-results" id="derivResultadosUsuarios" hidden></div>
+                <div class="deriv-selected" id="derivUsuarioSeleccionado" hidden></div>
+              </section>
+
+              <form id="formNuevaDerivacion" novalidate>
+                <section class="deriv-step" id="derivPasoDatos" hidden>
+                  <div class="deriv-step-head">
+                    <span class="deriv-step-num">2</span>
+                    <div>
+                      <h4>Datos de la ficha</h4>
+                      <p>Completa el motivo y los datos de quien deriva. La ficha se imprimirá con esta información.</p>
+                    </div>
+                  </div>
+
+                  <input type="hidden" id="derivUsuarioId" />
+
+                  <div class="deriv-grid">
+                    <label>Ámbito de la problemática
+                      <select id="derivAmbito" required>
+                        <option value="Familiar">Familiar</option>
+                        <option value="Educativo">Educativo</option>
+                        <option value="Salud">Salud</option>
+                      </select>
+                    </label>
+                    <label>Urgencia
+                      <select id="derivUrgencia" required>
+                        <option value="Alta">Alta</option>
+                        <option value="Media" selected>Media</option>
+                        <option value="Baja">Baja</option>
+                      </select>
+                    </label>
+                    <label>Fecha de derivación
+                      <input type="date" id="derivFecha" required />
+                    </label>
+                    <label>Fecha aproximada del suceso
+                      <input type="date" id="derivFechaSuceso" />
+                    </label>
+                  </div>
+
+                  <fieldset class="deriv-tags">
+                    <legend>Etiquetas secundarias</legend>
+                    <label><input type="checkbox" name="derivEtiqueta" value="Violencia" /> Violencia</label>
+                    <label><input type="checkbox" name="derivEtiqueta" value="Abandono" /> Abandono</label>
+                    <label><input type="checkbox" name="derivEtiqueta" value="Nutricional" /> Nutricional</label>
+                  </fieldset>
+
+                  <label class="deriv-full">Breve situación encontrada
+                    <textarea id="derivSituacion" rows="3" minlength="10" required
+                      placeholder="Describe qué se encontró y desde cuándo..."></textarea>
+                  </label>
+                  <label class="deriv-full">Acciones realizadas por la usuaria / familia
+                    <textarea id="derivAcciones" rows="2"
+                      placeholder="Visitas, orientaciones, coordinaciones previas..."></textarea>
+                  </label>
+
+                  <div class="deriv-check">
+                    <input type="checkbox" id="derivSoporteTiene" />
+                    <label for="derivSoporteTiene">Cuenta con soporte familiar</label>
+                  </div>
+                  <div class="deriv-grid" id="derivSoporteCampos" hidden>
+                    <label>Nombre del familiar
+                      <input type="text" id="derivSoporteNombre" maxlength="120" />
+                    </label>
+                    <label>Parentesco
+                      <input type="text" id="derivSoporteParentesco" maxlength="60" />
+                    </label>
+                    <label class="deriv-full">Detalle del soporte
+                      <input type="text" id="derivSoporteDetalle" maxlength="240" />
+                    </label>
+                  </div>
+
+                  <div class="deriv-subhead">
+                    <h4>Quien deriva</h4>
+                    <p>Puede ser personal, voluntariado o una persona externa. Los tres datos son obligatorios.</p>
+                  </div>
+                  <label class="deriv-full">Cargar desde voluntariado
+                    <select id="derivReferenteSelect"></select>
+                  </label>
+                  <div class="deriv-grid">
+                    <label>Nombres y apellidos
+                      <input type="text" id="derivReferenteNombre" maxlength="120" required />
+                    </label>
+                    <label>Cargo
+                      <input type="text" id="derivReferenteCargo" maxlength="80" required />
+                    </label>
+                    <label>Teléfono
+                      <input type="tel" id="derivReferenteTel" maxlength="20" />
+                    </label>
+                  </div>
+                </section>
+              </form>
+            </div>
+
+            <div class="modal-footer deriv-footer">
+              <p class="deriv-feedback" id="derivFeedback" role="status"></p>
+              <div class="deriv-footer-actions">
+                <button type="button" class="btn-action btn-secondary" id="btnCancelarNuevaDerivacion">Cancelar</button>
+                <button type="submit" form="formNuevaDerivacion" class="btn-action primary" id="btnGuardarDerivacion"
+                  disabled>Guardar y generar ficha</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================================
+             MODAL: ATENCIÓN DEL CASO (evento_caso)
+             ====================================================== -->
+        <div class="modal-backdrop" id="modalAtencionCaso" inert aria-hidden="true">
+          <div class="modal-box deriv-atencion">
+            <div class="modal-header">
+              <div class="deriv-modal-title">
+                <div class="deriv-modal-icon"><Icon name="estado.ok" size={20} /></div>
+                <div>
+                  <h3>Registrar atención</h3>
+                  <p>Quedará en el historial del caso y en la auditoría.</p>
+                </div>
+              </div>
+              <button type="button" class="btn-close-modal" id="btnCerrarAtencionCaso"
+                aria-label="Cerrar registro de atención">
+                <Icon name="accion.cerrar" size={18} />
+              </button>
+            </div>
+            <div class="modal-body">
+              <form id="formAtencionCaso" novalidate>
+                <div class="deriv-grid">
+                  <label>Tipo de atención
+                    <select id="atencionTipo" required>
+                      <option value="Visita Domiciliaria">Visita domiciliaria</option>
+                      <option value="Entrega BTF">Entrega BTF</option>
+                      <option value="Derivacion DEMUNA">Derivación DEMUNA</option>
+                      <option value="Derivacion MINSA">Derivación MINSA</option>
+                      <option value="Derivacion Iglesia">Derivación a iglesia aliada</option>
+                      <option value="Consejería Pastoral">Consejería pastoral / iglesia</option>
+                      <option value="Entrega de Canasta">Entrega de canasta</option>
+                      <option value="Cierre de Caso">Cierre de caso</option>
+                      <option value="Otra Atencion">Otra atención</option>
+                    </select>
+                  </label>
+                  <label>Fecha
+                    <input type="date" id="atencionFecha" required />
+                  </label>
+                  <label>Responsable
+                    <input type="text" id="atencionResponsable" maxlength="120" required />
+                  </label>
+                  <label>Oficio / referencia
+                    <input type="text" id="atencionOficio" maxlength="80" placeholder="Opcional" />
+                  </label>
+                  <label class="deriv-full">Descripción de la atención
+                    <textarea id="atencionDescripcion" rows="3" required
+                      placeholder="Qué se hizo, con quién y cuál fue el resultado..."></textarea>
+                  </label>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer deriv-footer">
+              <p class="deriv-feedback" id="atencionFeedback" role="status"></p>
+              <div class="deriv-footer-actions">
+                <button type="button" class="btn-action btn-secondary" id="btnCancelarAtencionCaso">Cancelar</button>
+                <button type="submit" form="formAtencionCaso" class="btn-action primary" id="btnGuardarAtencion">Registrar atención</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
 <style>
   /* Encabezado del Modal */
   .modal-title-stack {

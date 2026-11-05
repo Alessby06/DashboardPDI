@@ -149,6 +149,7 @@ export const DerivacionView = {
     modal.classList.add('open');
     modal.removeAttribute('inert');
     modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('pdi-derivacion-open');
     setTimeout(() => porId('derivBuscarUsuario')?.focus(), 60);
   },
 
@@ -158,6 +159,7 @@ export const DerivacionView = {
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden', 'true');
     modal.setAttribute('inert', '');
+    document.body.classList.remove('pdi-derivacion-open');
     this._seleccionado = null;
     this._casoActivo = null;
     setTimeout(() => porId('btnNuevaDerivacion')?.focus(), 30);
@@ -596,6 +598,7 @@ export const DerivacionView = {
     modal.classList.add('open');
     modal.removeAttribute('inert');
     modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('pdi-derivacion-open');
     setTimeout(() => porId('atencionDescripcion')?.focus(), 60);
   },
 
@@ -606,6 +609,7 @@ export const DerivacionView = {
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden', 'true');
     modal.setAttribute('inert', '');
+    document.body.classList.remove('pdi-derivacion-open');
     this._casoAtencion = null;
     if (reabrirDetalle && caso) {
       window.PDI?.SocialKanbanView?.openDetalleCaso?.(caso._casoId || caso.id);
