@@ -2093,7 +2093,8 @@ const TIPOS_DERIVACION = ['Familiar', 'Educativo', 'Salud'];
 const ETIQUETAS_DERIVACION = ['Violencia', 'Abandono', 'Nutricional'];
 const TIPOS_EVENTO_CASO = [
   'Visita Domiciliaria', 'Entrega BTF', 'Derivacion DEMUNA',
-  'Derivacion MINSA', 'Consejería Pastoral', 'Cierre de Caso',
+  'Derivacion MINSA', 'Derivacion Iglesia', 'Consejería Pastoral',
+  'Entrega de Canasta', 'Cierre de Caso', 'Otra Atencion',
 ];
 
 // El esquema V2 de caso_social (snapshot, etiquetas, fecha_suceso, soporte
