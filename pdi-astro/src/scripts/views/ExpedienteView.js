@@ -812,11 +812,15 @@ export const ExpedienteView = {
     const cont = document.getElementById("expCasoSocialDetail");
     if (!cont) return;
 
+    const urlEval = `/evaluacion?persona=${encodeURIComponent(b._personaId || b.codigo || "")}&codigo=${encodeURIComponent(b.codigo || "")}${caso?._casoId ? `&caso=${encodeURIComponent(caso._casoId)}` : ""}`;
+    const botonEval = `<a class="btn-action btn-secondary" style="margin-top:10px; display:inline-flex; text-decoration:none;" href="${urlEval}">Evaluación socioeconómica</a>`;
+
     if (!caso) {
       cont.innerHTML = `
         <div style="background:var(--surface-hover); padding:12px; border-radius:var(--radius-sm); font-size:12px; color:var(--text-muted);">
           El usuario no registra derivaciones activas a DEMUNA ni alertas de vulnerabilidad extrema. Monitoreo regular activo.
-        </div>`;
+        </div>
+        ${botonEval}`;
       return;
     }
 
@@ -825,7 +829,7 @@ export const ExpedienteView = {
       : "Personal Operativo";
     const telefono = caso.quienDeriva ? caso.quienDeriva.telefono : "-";
     const tipo = caso.tipoProblematica ? caso.tipoProblematica.toUpperCase() : "SOCIAL";
-    const soporte = caso.sorteFamiliar
+    const soporte = caso.soporteFamiliar
       ? (caso.soporteFamiliar.tiene ? "Si cuenta con soporte familiar" : "No cuenta con soporte: " + caso.soporteFamiliar.detalle)
       : "En evaluacion";
 
@@ -841,6 +845,7 @@ export const ExpedienteView = {
         <div style="font-size:12.5px; color:var(--text-main); margin-bottom:6px;"><strong>Situacion Encontrada:</strong> ${escapar(caso.situacionEncontrada || caso.detalle)}</div>
         <div style="font-size:12px; color:var(--text-dim); margin-bottom:4px;"><strong>Acciones Realizadas:</strong> ${escapar(caso.accionesPrevias || "Seguimiento domiciliario programado.")}</div>
         <div style="font-size:12px; color:var(--text-dim);"><strong>Soporte Familiar:</strong> ${escapar(soporte)}</div>
+        ${botonEval}
       </div>`;
   },
 

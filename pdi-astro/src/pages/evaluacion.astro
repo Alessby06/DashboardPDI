@@ -1,0 +1,71 @@
+---
+import AppLayout from '../layouts/AppLayout.astro';
+import '../styles/views-evaluacion.css';
+---
+
+<AppLayout title="Evaluación socioeconómica" currentPage="evaluacion">
+  <section class="app-view active" id="view-evaluacion">
+    <div class="eval-shell">
+      <header class="eval-head">
+        <div class="eval-head-main">
+          <span class="eval-eyebrow">Área Social Pastoral</span>
+          <h2 id="evalUsuario">Evaluación socioeconómica</h2>
+          <p id="evalMeta">Cargando expediente…</p>
+          <a class="eval-back" id="evalVolver" href="/social">← Volver al caso</a>
+        </div>
+        <div class="eval-score" id="evalScore" aria-live="polite">
+          <span class="eval-score-label">Puntaje</span>
+          <strong id="evalScoreValor">—</strong>
+          <span id="evalScoreClase">Sin evaluar</span>
+          <span id="evalScoreExoneracion" class="eval-score-exo"></span>
+        </div>
+      </header>
+
+      <div class="eval-banner" id="evalBanner" hidden></div>
+
+      <div class="eval-layout">
+        <aside class="eval-steps" id="evalSteps" aria-label="Secciones de la evaluación"></aside>
+
+        <main class="eval-main">
+          <section class="eval-card">
+            <header class="eval-card-head">
+              <span class="eval-step-count" id="evalStepNum">1 / 7</span>
+              <h3 id="evalStepTitle">Padres</h3>
+              <p id="evalStepDesc">Datos de la madre y el padre.</p>
+            </header>
+
+            <div id="evalStepBody" class="eval-step-body"></div>
+
+            <footer class="eval-card-foot">
+              <p class="eval-feedback" id="evalFeedback" role="status"></p>
+              <div class="eval-foot-actions">
+                <button type="button" class="btn-action btn-secondary" id="evalPrev">Anterior</button>
+                <button type="button" class="btn-action btn-secondary" id="evalNext">Siguiente</button>
+                <button type="button" class="btn-action btn-secondary" id="evalSave">Guardar borrador</button>
+                <button type="button" class="btn-action primary" id="evalSend">Enviar a Coordinación</button>
+              </div>
+            </footer>
+          </section>
+
+          <section class="eval-card eval-history" id="evalHistoryCard">
+            <header class="eval-card-head">
+              <span class="eval-step-count">Historial</span>
+              <h3>Versiones de la evaluación</h3>
+              <p>Cada evaluación conserva su fecha, estado y puntaje.</p>
+            </header>
+            <div id="evalHistory" class="eval-history-list"></div>
+          </section>
+        </main>
+
+        <aside class="eval-summary" id="evalSummary" aria-label="Resumen del puntaje">
+          <h3>Dimensiones</h3>
+          <div id="evalDimensions" class="eval-dimensions"></div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    import '../scripts/pages/evaluacion.js';
+  </script>
+</AppLayout>

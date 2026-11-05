@@ -47,6 +47,7 @@ import { campoUsuario, campoViveCon } from './esquemaCampos.js';
 import { consultaCapacitacion } from './consultasVoluntario.js';
 import { conReintentos } from '../utils/reintento.js';
 import { diaEnZona, construirGuardadoJornada } from './jornadaAsistencia.js';
+import { calcularEvaluacion, VERSION_INSTRUMENTO } from '../utils/EvaluacionSocioeconomica.js';
 
 const URL = import.meta.env.PUBLIC_SURREAL_URL;
 const NS = import.meta.env.PUBLIC_SURREAL_NS;
@@ -502,8 +503,8 @@ const SQL_LOTE_HIDRATACION = [
   'SELECT * FROM sede ORDER BY creado_el;',
   // 8 · archivo de retirados
   SQL_RETIRADOS,
-  // 9 · evaluaciones socioeconómicas activas (la más reciente primero).
-  'SELECT * FROM evaluacion_socioeconomica WHERE activo = true ORDER BY fecha_evaluacion DESC;',
+  // 9 · evaluaciones socioeconómicas aprobadas (la más reciente primero).
+  'SELECT * FROM evaluacion_socioeconomica WHERE activo = true AND estado = \'aprobada\' ORDER BY fecha_evaluacion DESC;',
   // 10 · atenciones del caso social (evento_caso es la tabla de seguimiento ASP).
   'SELECT * FROM evento_caso ORDER BY fecha DESC;',
 ].join('\n');
@@ -943,7 +944,7 @@ export async function fetchCasosSociales() {
   const [casos, solicitudes, evaluaciones, eventos] = await ejecutarLote([
     `SELECT *, ${F_CASO}.nombres AS p_nom, ${F_CASO}.apellidos AS p_ape, ${F_CASO}.codigo AS p_cod, sede_id.nombre AS s_nom FROM caso_social WHERE activo = true ORDER BY creado_el DESC;`,
     'SELECT * FROM solicitud_caso WHERE activo = true ORDER BY fecha_solicitud DESC;',
-    'SELECT * FROM evaluacion_socioeconomica WHERE activo = true ORDER BY fecha_evaluacion DESC;',
+    'SELECT * FROM evaluacion_socioeconomica WHERE activo = true AND estado = \'aprobada\' ORDER BY fecha_evaluacion DESC;',
     'SELECT * FROM evento_caso ORDER BY fecha DESC;',
   ].join('\n'));
   return mapearCasos(casos, solicitudes, evaluaciones, eventos);
@@ -2408,6 +2409,207 @@ export async function crearCasoSocial(ui = {}) {
 
 function avisarElUsuarioNoEsta() {
   avisarFallo('Registro de caso social', 'El usuario no tiene expediente en la nube todavía.');
+}
+
+// ---------------------------------------------------------------------------
+//  EVALUACIÓN SOCIOECONÓMICA
+// ---------------------------------------------------------------------------
+
+function mapearEvaluacion(e) {
+  if (!e) return null;
+  return {
+    _evalId: String(e.id),
+    id: String(e.id),
+    personaId: e.persona_id ? String(e.persona_id) : '',
+    casoId: e.caso_id ? String(e.caso_id) : '',
+    usuario: e.p_nom && e.p_ape ? `${e.p_nom} ${e.p_ape}` : '',
+    codigo: e.p_cod || '',
+    periodo: e.periodo ?? null,
+    version: e.version ?? 1,
+    instrumentoVersion: e.instrumento_version || VERSION_INSTRUMENTO,
+    estado: e.estado || 'borrador',
+    datos: e.datos || {},
+    puntajeTotal: e.puntaje_total != null ? Number(e.puntaje_total) : null,
+    clasificacion: e.clasificacion || '',
+    exoneracionSugerida: e.exoneracion_sugerida || '',
+    evaluador: e.evaluador_nombre || '',
+    fecha: isoFecha(e.fecha_evaluacion),
+    enviadoEl: isoFecha(e.enviado_el),
+    aprobadoEl: isoFecha(e.aprobado_el),
+    aprobadoPor: e.aprobado_por || '',
+    comentario: e.comentario_resolucion || '',
+    activo: e.activo !== false,
+  };
+}
+
+/** Evaluaciones de una persona (o todas si no se indica persona). */
+export async function fetchEvaluaciones(personaId = '') {
+  const pid = personaId ? claveRegistro(personaId) : '';
+  const filtro = pid ? 'WHERE persona_id = type::record(\'persona\', $pid)' : '';
+  const filas = comoLista(await ejecutar(
+    `SELECT *, persona_id.nombres AS p_nom, persona_id.apellidos AS p_ape,
+       persona_id.codigo AS p_cod
+     FROM evaluacion_socioeconomica ${filtro}
+     ORDER BY fecha_evaluacion DESC;`,
+    pid ? { pid } : undefined,
+  ));
+  return filas.map(mapearEvaluacion);
+}
+
+export async function crearEvaluacionSocioeconomica(ui = {}) {
+  const pid = claveRegistro(ui.personaId || ui.persona?._personaId || '');
+  if (!pid) {
+    ToastView.show('Falta el usuario', 'Selecciona un usuario antes de evaluar.', 'warning');
+    return { ok: false, error: 'Falta el usuario.' };
+  }
+  const casoId = ui.casoId ? claveRegistro(ui.casoId) : '';
+  const periodo = Number(ui.periodo) || new Date().getFullYear();
+  const datos = ui.datos || {};
+  const calculo = ui.calculo || calcularEvaluacion(datos);
+  const evaluador = String(ui.evaluador || nombreActivo()).trim();
+
+  try {
+    const previas = comoLista(await ejecutar(
+      `SELECT version FROM evaluacion_socioeconomica
+       WHERE persona_id = type::record('persona', $pid) AND periodo = $periodo
+       ORDER BY version DESC LIMIT 1;`,
+      { pid, periodo },
+    ));
+    const version = Number(previas[0]?.version || 0) + 1;
+
+    const res = await ejecutar(`CREATE evaluacion_socioeconomica CONTENT {
+      persona_id: type::record('persona', $pid),
+      caso_id: IF string::len($casoId) > 0 { type::record('caso_social', $casoId) } ELSE { NONE },
+      periodo: $periodo,
+      version: $version,
+      instrumento_version: $instrumento,
+      estado: 'borrador',
+      datos: $datos,
+      puntaje_total: type::decimal($puntaje),
+      clasificacion: $clasificacion,
+      exoneracion_sugerida: $exoneracion,
+      evaluador_nombre: $evaluador,
+      fecha_evaluacion: time::now(),
+      activo: true
+    };`, {
+      pid, casoId, periodo, version,
+      instrumento: VERSION_INSTRUMENTO,
+      datos,
+      puntaje: calculo.puntaje,
+      clasificacion: calculo.clasificacion,
+      exoneracion: calculo.exoneracionSugerida,
+      evaluador,
+    });
+
+    const creada = comoLista(res)[0];
+    if (!creada) return { ok: false, error: 'No se pudo guardar la evaluación.' };
+    await auditarDerivacion('Evaluación creada', String(creada.id),
+      `Evaluación socioeconómica de ${periodo}, versión ${version}.`);
+    return { ok: true, evaluacion: mapearEvaluacion({ ...creada, p_nom: ui.nombres, p_ape: ui.apellidos, p_cod: ui.codigo }), calculo };
+  } catch (err) {
+    const mensaje = String(err?.message || 'No se pudo crear la evaluación.');
+    console.error('[PDI] Fallo al crear la evaluación:', mensaje);
+    ToastView.show('No se pudo crear la evaluación', mensaje.slice(0, 160), 'danger');
+    return { ok: false, error: mensaje };
+  }
+}
+
+export async function actualizarEvaluacionSocioeconomica(id, ui = {}) {
+  const eid = claveRegistro(id);
+  if (!eid) return { ok: false, error: 'Evaluación no válida.' };
+  try {
+    const actual = comoLista(await ejecutar(
+      `SELECT * FROM evaluacion_socioeconomica WHERE id = type::record('evaluacion_socioeconomica', $eid) LIMIT 1;`,
+      { eid },
+    ))[0];
+    if (!actual) return { ok: false, error: 'La evaluación no existe.' };
+    if (actual.estado === 'aprobada') {
+      return { ok: false, error: 'Una evaluación aprobada no se edita; crea una nueva versión.' };
+    }
+    const datos = ui.datos || actual.datos || {};
+    const calculo = ui.calculo || calcularEvaluacion(datos);
+    const evaluador = String(ui.evaluador || actual.evaluador_nombre || nombreActivo()).trim();
+
+    const res = await ejecutar(`UPDATE type::record('evaluacion_socioeconomica', $eid) SET
+      datos = $datos,
+      puntaje_total = type::decimal($puntaje),
+      clasificacion = $clasificacion,
+      exoneracion_sugerida = $exoneracion,
+      evaluador_nombre = $evaluador,
+      fecha_evaluacion = time::now(),
+      estado = 'borrador',
+      enviado_el = NONE,
+      aprobado_el = NONE,
+      aprobado_por = NONE,
+      comentario_resolucion = NONE
+    RETURN AFTER;`, {
+      eid, datos,
+      puntaje: calculo.puntaje,
+      clasificacion: calculo.clasificacion,
+      exoneracion: calculo.exoneracionSugerida,
+      evaluador,
+    });
+    const fila = comoLista(res)[0];
+    if (!fila) return { ok: false, error: 'No se pudo actualizar la evaluación.' };
+    await auditarDerivacion('Evaluación actualizada', String(fila.id),
+      `Evaluación socioeconómica actualizada (${calculo.puntaje}/100).`);
+    return { ok: true, evaluacion: mapearEvaluacion(fila), calculo };
+  } catch (err) {
+    const mensaje = String(err?.message || 'No se pudo actualizar la evaluación.');
+    ToastView.show('No se pudo actualizar la evaluación', mensaje.slice(0, 160), 'danger');
+    return { ok: false, error: mensaje };
+  }
+}
+
+export async function enviarEvaluacion(id) {
+  const eid = claveRegistro(id);
+  if (!eid) return { ok: false, error: 'Evaluación no válida.' };
+  try {
+    const res = await ejecutar(`UPDATE type::record('evaluacion_socioeconomica', $eid) SET
+      estado = 'enviada',
+      enviado_el = time::now()
+      WHERE estado IN ['borrador', 'rechazada']
+      RETURN AFTER;`, { eid });
+    const fila = comoLista(res)[0];
+    if (!fila) return { ok: false, error: 'La evaluación no está en borrador o ya fue enviada.' };
+    await auditarDerivacion('Evaluación enviada', String(fila.id), 'Evaluación enviada a Coordinación.');
+    return { ok: true, evaluacion: mapearEvaluacion(fila) };
+  } catch (err) {
+    return { ok: false, error: String(err?.message || 'No se pudo enviar la evaluación.') };
+  }
+}
+
+export async function resolverEvaluacion(id, decision, comentario = '', autorizador = '') {
+  const eid = claveRegistro(id);
+  if (!eid) return { ok: false, error: 'Evaluación no válida.' };
+  const estado = decision === 'aprobada' ? 'aprobada' : 'rechazada';
+  const por = String(autorizador || nombreActivo()).trim();
+  try {
+    const res = await ejecutar(`UPDATE type::record('evaluacion_socioeconomica', $eid) SET
+      estado = $estado,
+      aprobado_el = time::now(),
+      aprobado_por = $por,
+      comentario_resolucion = IF $comentario = NONE OR $comentario = NULL OR $comentario = '' { NONE } ELSE { $comentario }
+      WHERE estado = 'enviada'
+      RETURN AFTER;`, { eid, estado, por, comentario: comentario || null });
+    const fila = comoLista(res)[0];
+    if (!fila) return { ok: false, error: 'La evaluación no está pendiente de revisión.' };
+
+    if (estado === 'aprobada' && fila.caso_id) {
+      await ejecutar(`UPDATE type::record('caso_social', $cid) SET
+        evaluacion_id = type::record('evaluacion_socioeconomica', $eid),
+        puntaje_origen = 'evaluacion'
+        RETURN AFTER;`, { cid: claveRegistro(fila.caso_id), eid });
+    }
+    await auditarDerivacion(
+      estado === 'aprobada' ? 'Evaluación aprobada' : 'Evaluación rechazada',
+      String(fila.id),
+      `${estado === 'aprobada' ? 'Aprobada' : 'Rechazada'} por ${por}. ${comentario || ''}`.slice(0, 500),
+    );
+    return { ok: true, evaluacion: mapearEvaluacion(fila) };
+  } catch (err) {
+    return { ok: false, error: String(err?.message || 'No se pudo resolver la evaluación.') };
+  }
 }
 
 /** Movimiento directo de etapa desde el kanban (sin flujo de autorización). */

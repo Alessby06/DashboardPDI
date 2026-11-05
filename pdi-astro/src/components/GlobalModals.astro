@@ -959,6 +959,11 @@ import Icon from './Icon.astro';
             <Icon name="persona.grupo" size={15} />
             <span>Ver en Padrón</span>
           </button>
+          <button type="button" class="btn-action btn-secondary" id="btnModalCasoEvaluacion"
+            onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.abrirEvaluacionCaso() : null">
+            <Icon name="grafico.torta" size={15} />
+            <span>Evaluación</span>
+          </button>
           <button type="button" class="btn-action btn-secondary" id="btnModalCasoImprimir"
             onclick="window.PDI?.DerivacionView ? window.PDI.DerivacionView.imprimir(window.PDI?.SocialKanbanView?._activeCaso) : null">
             <Icon name="accion.descargar" size={15} />

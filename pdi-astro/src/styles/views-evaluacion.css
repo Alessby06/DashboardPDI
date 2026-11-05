@@ -1,0 +1,658 @@
+/* ===========================================================================
+   EVALUACIÓN SOCIOECONÓMICA
+   ===========================================================================
+   Asistente de 7 secciones, resumen de puntaje e historial. Reutiliza los
+   tokens del sistema; no introduce una paleta nueva.
+   =========================================================================== */
+
+.eval-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.eval-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 18px 20px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(120% 100% at 0% 0%, var(--gt-green-bg), transparent 55%),
+    var(--surface-1);
+}
+
+.eval-head-main {
+  min-width: 0;
+}
+
+.eval-eyebrow {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.eval-head h2 {
+  margin: 2px 0 0;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text-main);
+}
+
+.eval-head p {
+  margin: 3px 0 0;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.eval-back {
+  display: inline-flex;
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-brand);
+  text-decoration: none;
+}
+
+.eval-back:focus-visible {
+  outline: 2px solid var(--gt-green);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .eval-back:hover {
+    text-decoration: underline;
+  }
+}
+
+.eval-score {
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-rows: auto auto auto;
+  gap: 0 10px;
+  align-items: baseline;
+  min-width: 190px;
+  padding: 10px 14px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-1);
+}
+
+.eval-score-label {
+  grid-column: 1 / -1;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.eval-score strong {
+  font-size: 28px;
+  line-height: 1;
+  color: var(--text-main);
+  font-variant-numeric: tabular-nums;
+}
+
+.eval-score > span:not(.eval-score-label):not(.eval-score-exo) {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.eval-score-exo {
+  grid-column: 1 / -1;
+  font-size: 11px;
+  color: var(--text-brand);
+  font-weight: 700;
+}
+
+.eval-layout {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr) 240px;
+  gap: 14px;
+  align-items: start;
+}
+
+.eval-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--surface-1);
+  position: sticky;
+  top: 16px;
+}
+
+.eval-step {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--ui-font);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.eval-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-2);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.eval-step.is-active {
+  background: var(--gt-green-bg);
+  color: var(--text-main);
+}
+
+.eval-step.is-active .eval-step-num {
+  background: var(--gt-green);
+  border-color: var(--gt-green);
+  color: var(--on-brand);
+}
+
+.eval-step.is-done .eval-step-num {
+  border-color: var(--gt-green);
+  color: var(--text-brand);
+}
+
+.eval-step:focus-visible {
+  outline: 2px solid var(--gt-green);
+  outline-offset: 1px;
+}
+
+.eval-main {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.eval-card {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--surface-1);
+  overflow: hidden;
+}
+
+.eval-card-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 16px 18px 0;
+}
+
+.eval-step-count {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-brand);
+}
+
+.eval-card-head h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-main);
+}
+
+.eval-card-head p {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+.eval-step-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 18px;
+}
+
+.eval-section-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+}
+
+.eval-section-block h4 {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.eval-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.eval-grid--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.eval-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.eval-field--full {
+  grid-column: 1 / -1;
+}
+
+.eval-field label,
+.eval-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.eval-field input,
+.eval-field select,
+.eval-field textarea {
+  width: 100%;
+  min-height: 38px;
+  padding: 7px 9px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-1);
+  color: var(--text-main);
+  font-family: var(--ui-font);
+  font-size: 12.5px;
+  box-sizing: border-box;
+}
+
+.eval-field textarea {
+  resize: vertical;
+  min-height: 68px;
+  line-height: 1.45;
+}
+
+.eval-field input:focus,
+.eval-field select:focus,
+.eval-field textarea:focus {
+  outline: none;
+  border-color: var(--gt-green);
+  box-shadow: 0 0 0 3px var(--gt-green-bg);
+}
+
+.eval-field input:disabled,
+.eval-field select:disabled,
+.eval-field textarea:disabled {
+  opacity: 0.7;
+  background: var(--surface-2);
+}
+
+.eval-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: var(--text-main);
+}
+
+.eval-check input {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--gt-green);
+}
+
+.eval-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-1);
+}
+
+.eval-checks label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  color: var(--text-main);
+}
+
+.eval-checks input {
+  accent-color: var(--gt-green);
+  width: 14px;
+  height: 14px;
+}
+
+.eval-member {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-1);
+}
+
+.eval-member-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.eval-member-head strong {
+  font-size: 12px;
+  color: var(--text-main);
+}
+
+.eval-mini {
+  border: 0;
+  background: transparent;
+  color: var(--text-danger, #dc2626);
+  font-family: var(--ui-font);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+.eval-add {
+  align-self: flex-start;
+  border: 1px dashed var(--border-bright);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-brand);
+  font-family: var(--ui-font);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 7px 10px;
+  cursor: pointer;
+}
+
+.eval-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 18px;
+  border-top: 1px solid var(--border-subtle);
+  background: var(--surface-1);
+}
+
+.eval-feedback {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  min-height: 1em;
+}
+
+.eval-feedback.is-error {
+  color: var(--text-danger, #dc2626);
+}
+
+.eval-feedback.is-ok {
+  color: var(--text-brand);
+}
+
+.eval-foot-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.eval-summary {
+  position: sticky;
+  top: 16px;
+  padding: 14px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--surface-1);
+}
+
+.eval-summary h3 {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.eval-dimensions {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.eval-dim {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.eval-dim-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.eval-dim-row strong {
+  color: var(--text-main);
+  font-variant-numeric: tabular-nums;
+}
+
+.eval-dim-bar {
+  height: 3px;
+  border-radius: var(--radius-full);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.eval-dim-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--gt-green);
+}
+
+.eval-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.eval-banner[hidden] {
+  display: none;
+}
+
+.eval-banner.is-warning {
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  background: rgba(245, 158, 11, 0.10);
+  color: var(--text-main);
+}
+
+.eval-banner.is-ok {
+  border: 1px solid var(--gt-green-border);
+  background: var(--gt-green-bg);
+  color: var(--text-main);
+}
+
+.eval-banner.is-danger {
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  background: rgba(220, 38, 38, 0.08);
+  color: var(--text-main);
+}
+
+.eval-history {
+  margin-top: 0;
+}
+
+.eval-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 18px 16px;
+}
+
+.eval-history-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  font-size: 11.5px;
+}
+
+.eval-history-row strong {
+  color: var(--text-main);
+}
+
+.eval-history-row span {
+  color: var(--text-muted);
+}
+
+.eval-history-row button {
+  border: 0;
+  background: transparent;
+  color: var(--text-brand);
+  font-family: var(--ui-font);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.eval-empty {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+@media (max-width: 1100px) {
+  .eval-layout {
+    grid-template-columns: 190px minmax(0, 1fr);
+  }
+
+  .eval-summary {
+    grid-column: 1 / -1;
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 20px;
+  }
+
+  .eval-summary h3 {
+    grid-column: 1 / -1;
+    margin-bottom: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .eval-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .eval-steps {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .eval-step {
+    padding: 8px;
+    font-size: 11px;
+  }
+
+  .eval-grid,
+  .eval-grid--3 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .eval-field--full {
+    grid-column: auto;
+  }
+
+  .eval-head {
+    padding: 16px;
+  }
+
+  .eval-head h2 {
+    font-size: 21px;
+  }
+
+  .eval-score {
+    width: 100%;
+  }
+
+  .eval-step-body {
+    padding: 14px;
+  }
+
+  .eval-card-head {
+    padding: 14px 14px 0;
+  }
+
+  .eval-card-foot {
+    padding: 12px 14px;
+  }
+
+  .eval-foot-actions {
+    width: 100%;
+  }
+
+  .eval-foot-actions .btn-action {
+    flex: 1;
+    min-height: 42px;
+  }
+
+  .eval-history-row {
+    grid-template-columns: 1fr auto;
+  }
+}

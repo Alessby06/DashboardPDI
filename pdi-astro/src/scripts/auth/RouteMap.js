@@ -40,6 +40,15 @@ export const PAGINAS = {
     allowedRoles: ["coord", "facilitadora", "promotora", "social", "admin"],
   },
 
+  evaluacion: {
+    ruta: "/evaluacion",
+    etiqueta: "Evaluación socioeconómica",
+    view: "view-evaluacion",
+    grupo: "Operación",
+    enMenu: false,
+    allowedRoles: ["coord", "social", "admin"],
+  },
+
   padron: {
     ruta: "/padron",
     etiqueta: "Padrón de Usuarios",

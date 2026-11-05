@@ -1051,6 +1051,20 @@ export const SocialKanbanView = {
     window.openExpedienteByCodigo(codigo);
   },
 
+  /** Abre la evaluación socioeconómica del caso activo. */
+  abrirEvaluacionCaso() {
+    if (!this._activeCaso) return;
+    const caso = this._activeCaso;
+    const params = new URLSearchParams();
+    params.set('persona', caso._personaId || caso.codigo || '');
+    if (caso._casoId) params.set('caso', caso._casoId);
+    if (caso.codigo) params.set('codigo', caso.codigo);
+    const url = '/evaluacion?' + params.toString();
+    this.closeModalDetalleCaso();
+    if (window.PDI?.navigate) window.PDI.navigate(url);
+    else window.location.href = url;
+  },
+
   openInSimuladorFromModal() {
     if (!this._activeCaso) return;
     // El código del caso y el del beneficiario comparten el formato
