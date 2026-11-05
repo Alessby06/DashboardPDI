@@ -82,11 +82,12 @@ const impeccableLive =
       // 0. Seguridad inmediata: si no hay sesión activa o expiró, redirigir al login antes de renderizar
       try {
         var sesionActiva = localStorage.getItem("pdi_sesion_activa");
+        var login = localStorage.getItem("pdi_usuario_login");
         var expStr = localStorage.getItem("pdi_session_exp");
         var exp = expStr ? parseInt(expStr, 10) : 0;
         var ahora = Date.now();
 
-        if (sesionActiva !== "1" || !exp || ahora > exp) {
+        if (sesionActiva !== "1" || !login || !exp || ahora > exp) {
           localStorage.removeItem("pdi_sesion_activa");
           localStorage.removeItem("pdi_active_role");
           localStorage.removeItem("pdi_usuario_nombre");

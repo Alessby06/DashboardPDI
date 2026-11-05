@@ -18,8 +18,9 @@ const impeccableLive =
       (function () {
         try {
           var sesionActiva = localStorage.getItem("pdi_sesion_activa");
+          var login = localStorage.getItem("pdi_usuario_login");
           var exp = parseInt(localStorage.getItem("pdi_session_exp"), 10);
-          if (sesionActiva === "1" && exp && Date.now() < exp) {
+          if (sesionActiva === "1" && login && exp && Date.now() < exp) {
             window.location.replace("/dashboard");
             return;
           }
