@@ -9,6 +9,12 @@ import { KanbanDrag } from '../utils/KanbanDrag.js';
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
 import { SEDES_NOMBRES } from "../core/catalogos.js";
 import { iconHtml } from '../../data/iconos.js';
+
+/** Clave única del caso. El id numérico es heredado del código de usuario y
+ *  puede repetirse entre un caso cerrado y uno nuevo de la misma persona. */
+function claveCaso(caso) {
+  return String(caso?._casoId || caso?.id || '');
+}
 // Filtros del tablero que viajan en la URL. Los valores son los de los
 // desplegables de social.html.
 const FILTROS_SOCIAL = {
@@ -278,7 +284,7 @@ export const SocialKanbanView = {
 
     // Si no es primera entrada y los datos no cambiaron, evitar parpadeo y no reconstruir el DOM
     const serial = `${this._searchQuery}_${this._filterUrgencia}_${this._filterSede}_` + 
-      filtered.map(c => `${c.id}_${c.etapa}_${c.urgencia}_${c.solicitudCambio ? c.solicitudCambio.estado : 'none'}`).join("|");
+      filtered.map(c => `${c._casoId || c.id}_${c.etapa}_${c.urgencia}_${c.solicitudCambio ? c.solicitudCambio.estado : 'none'}`).join("|");
 
     if (!esPrimeraEntrada && this._lastRenderSerial === serial && (pCol.children.length > 0 || eCol.children.length > 0 || cCol.children.length > 0 || zCol.children.length > 0)) {
       return;
@@ -298,7 +304,7 @@ export const SocialKanbanView = {
     filtered.forEach(c => {
       const card = document.createElement("div");
       card.className = "kanban-card";
-      card.dataset.casoId = String(c.id);
+      card.dataset.casoId = claveCaso(c);
       card.dataset.etapa = c.etapa;
       const tieneSolicitud = !!(c.solicitudCambio && c.solicitudCambio.estado === "pendiente");
       if (tieneSolicitud) {
@@ -308,7 +314,7 @@ export const SocialKanbanView = {
         card.dataset.bloqueada = "1";
       }
       card.setAttribute("data-urgencia", c.urgencia || "Media");
-      card.setAttribute("onclick", `window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.openDetalleCaso(${c.id}) : null`);
+      card.setAttribute("onclick", `window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.openDetalleCaso('${escaparEnManejador(claveCaso(c))}') : null`);
       card.title = tieneSolicitud ? "Solicitud en proceso de revisión por Coordinación. Clic para ver detalles." : "Haz clic para ver la ficha completa del caso";
 
       let actionsHtml = "";
@@ -330,7 +336,7 @@ export const SocialKanbanView = {
         actionsHtml = `
           <div class="kanban-actions-row">
             <button type="button" class="kanban-btn primary full-width"
-              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso(${escaparEnManejador(c.id)}, 'evaluacion') : (window.app?.socialController?.moverCaso(${escaparEnManejador(c.id)}, 'evaluacion'))">
+              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso('${escaparEnManejador(claveCaso(c))}', 'evaluacion') : (window.app?.socialController?.moverCaso('${escaparEnManejador(claveCaso(c))}', 'evaluacion'))">
               ${iconHtml("accion.editar", { size: 13 })}
               <span>Iniciar Evaluación</span>
             </button>
@@ -340,12 +346,12 @@ export const SocialKanbanView = {
         actionsHtml = `
           <div class="kanban-actions-row">
             <button type="button" class="kanban-btn secondary flex-1"
-              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso(${escaparEnManejador(c.id)}, 'pendiente') : (window.app?.socialController?.moverCaso(${escaparEnManejador(c.id)}, 'pendiente'))">
+              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso('${escaparEnManejador(claveCaso(c))}', 'pendiente') : (window.app?.socialController?.moverCaso('${escaparEnManejador(claveCaso(c))}', 'pendiente'))">
               ${iconHtml("accion.volver", { size: null })}
               <span>Alerta</span>
             </button>
             <button type="button" class="kanban-btn primary flex-1"
-              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso(${escaparEnManejador(c.id)}, 'canalizado') : (window.app?.socialController?.moverCaso(${escaparEnManejador(c.id)}, 'canalizado'))">
+              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso('${escaparEnManejador(claveCaso(c))}', 'canalizado') : (window.app?.socialController?.moverCaso('${escaparEnManejador(claveCaso(c))}', 'canalizado'))">
               ${iconHtml("comunicacion.enviar", { size: null })}
               <span>Canalizar</span>
             </button>
@@ -355,12 +361,12 @@ export const SocialKanbanView = {
         actionsHtml = `
           <div class="kanban-actions-row">
             <button type="button" class="kanban-btn secondary flex-1"
-              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso(${escaparEnManejador(c.id)}, 'evaluacion') : (window.app?.socialController?.moverCaso(${escaparEnManejador(c.id)}, 'evaluacion'))">
+              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso('${escaparEnManejador(claveCaso(c))}', 'evaluacion') : (window.app?.socialController?.moverCaso('${escaparEnManejador(claveCaso(c))}', 'evaluacion'))">
               ${iconHtml("accion.volver", { size: null })}
               <span>Evaluar</span>
             </button>
             <button type="button" class="kanban-btn success flex-1"
-              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso(${escaparEnManejador(c.id)}, 'cerrado') : (window.app?.socialController?.moverCaso(${escaparEnManejador(c.id)}, 'cerrado'))">
+              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso('${escaparEnManejador(claveCaso(c))}', 'cerrado') : (window.app?.socialController?.moverCaso('${escaparEnManejador(claveCaso(c))}', 'cerrado'))">
               ${iconHtml("accion.confirmar", { size: null })}
               <span>Cerrar</span>
             </button>
@@ -370,7 +376,7 @@ export const SocialKanbanView = {
         actionsHtml = `
           <div class="kanban-actions-row">
             <button type="button" class="kanban-btn warning full-width"
-              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso(${escaparEnManejador(c.id)}, 'canalizado') : (window.app?.socialController?.moverCaso(${escaparEnManejador(c.id)}, 'canalizado'))">
+              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso('${escaparEnManejador(claveCaso(c))}', 'canalizado') : (window.app?.socialController?.moverCaso('${escaparEnManejador(claveCaso(c))}', 'canalizado'))">
               ${iconHtml("accion.actualizar", { size: null })}
               <span>Reabrir Caso</span>
             </button>
@@ -629,7 +635,7 @@ export const SocialKanbanView = {
   openDetalleCaso(id) {
     const model = window.PDI?.CasoSocialModel || CasoSocialModel;
     const all = model.getAll ? model.getAll() : [];
-    const caso = all.find(c => c.id === Number(id));
+    const caso = all.find(c => String(c._casoId) === String(id) || String(c.id) === String(id));
     if (!caso) return;
 
     this._activeCaso = caso;
@@ -642,10 +648,23 @@ export const SocialKanbanView = {
     setTxt("modalCasoUsuarioNombre", caso.usuario);
     setTxt("modalCasoCodigo", caso.codigo);
     setTxt("modalCasoSede", caso.sede);
-    setTxt("modalCasoProblematica", caso.tipoProblematica || "Evaluación Social General");
+    const ambito = caso.ambito || caso.tipoProblematica || "Evaluación Social General";
+    setTxt("modalCasoProblematica", ambito);
     setTxt("modalCasoSituacion", caso.situacionEncontrada || caso.detalle);
     setTxt("modalCasoFecha", caso.fechaDerivacion);
-    setTxt("modalCasoVulnerabilidadScore", `${caso.vulnerabilidadPuntaje || 75} / 100`);
+    setTxt("modalCasoFechaSuceso", caso.fechaSuceso || "No registrada");
+
+    const etiquetas = Array.isArray(caso.etiquetas) ? caso.etiquetas : [];
+    const etiquetasEl = document.getElementById("modalCasoEtiquetas");
+    if (etiquetasEl) {
+      etiquetasEl.innerHTML = etiquetas.length
+        ? etiquetas.map(t => `<span class="badge badge-gray">${escapar(t)}</span>`).join("")
+        : "";
+    }
+
+    const puntaje = caso.evaluacion?.puntajeTotal;
+    setTxt("modalCasoVulnerabilidadScore",
+      puntaje != null ? `${puntaje} / 100` : "Sin evaluación");
 
     if (caso.quienDeriva) {
       setTxt("modalCasoDerivadorNombre", caso.quienDeriva.nombre);
@@ -657,13 +676,35 @@ export const SocialKanbanView = {
       setTxt("modalCasoDerivadorTel", "Tel: S/N");
     }
 
-    if (caso.soporteFamiliar) {
-      setTxt("modalCasoSoporteFamiliar", caso.soporteFamiliar.detalle || (caso.soporteFamiliar.tiene ? "Cuenta con soporte familiar" : "Sin red de soporte familiar"));
-    } else {
-      setTxt("modalCasoSoporteFamiliar", "No especificado");
-    }
+    const soporteNombre = caso.soporteNombre || caso.soporteFamiliar?.nombre || "";
+    const soporteParentesco = caso.soporteParentesco || caso.soporteFamiliar?.parentesco || "";
+    const soporteDetalle = caso.soporteFamiliar?.detalle || "";
+    const soporteTexto = [
+      soporteNombre ? `${soporteNombre}${soporteParentesco ? ` (${soporteParentesco})` : ""}` : "",
+      soporteDetalle,
+    ].filter(Boolean).join(" · ");
+    setTxt("modalCasoSoporteFamiliar", soporteTexto || (caso.soporteFamiliar?.tiene ? "Cuenta con soporte familiar" : "Sin red de soporte familiar"));
 
     setTxt("modalCasoAccionesPrevias", caso.accionesPrevias || "Sin acciones previas registradas.");
+
+    const atencionesEl = document.getElementById("modalCasoAtencionesLista");
+    if (atencionesEl) {
+      const eventos = Array.isArray(caso.eventos) ? caso.eventos : [];
+      atencionesEl.innerHTML = eventos.length
+        ? eventos.map(ev => `
+            <div style="padding:7px 0; border-bottom:1px solid var(--border-subtle);">
+              <div style="display:flex; justify-content:space-between; gap:8px;">
+                <strong style="color:var(--text-main); font-size:12px;">${escapar(ev.tipo)}</strong>
+                <span style="font-family:var(--mono-font); font-size:11px; color:var(--text-dim);">${escapar(ev.fecha || '')}</span>
+              </div>
+              <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">${escapar(ev.descripcion || '')}</div>
+              <div style="font-size:11px; color:var(--text-dim); margin-top:2px;">
+                ${escapar(ev.responsable || '')}${ev.oficio ? ` · Oficio ${escapar(ev.oficio)}` : ''}
+              </div>
+            </div>
+          `).join("")
+        : "Sin atenciones registradas.";
+    }
 
     // Badges de urgencia y etapa
     const urgBadge = document.getElementById("modalCasoUrgenciaBadge");
@@ -755,7 +796,7 @@ export const SocialKanbanView = {
       if (tieneSolicitud) {
         if (puedeResolver) {
           dynamicBox.innerHTML = `
-            <button type="button" class="btn-action warning" onclick="window.PDI?.SocialKanbanView?.abrirModalResolverSolicitud(${caso.id})">
+            <button type="button" class="btn-action warning" onclick="window.PDI?.SocialKanbanView?.abrirModalResolverSolicitud('${escaparEnManejador(claveCaso(caso))}')">
               ${iconHtml("estado.ok", { size: 15 })}
               <span>Gestionar Autorización (Coordinación)</span>
             </button>
@@ -823,7 +864,7 @@ export const SocialKanbanView = {
 
   moverCasoFromModal(nuevaEtapa) {
     if (!this._activeCaso) return;
-    const casoId = this._activeCaso.id;
+    const casoId = this._activeCaso._casoId || this._activeCaso.id;
     this.closeModalDetalleCaso();
     this.abrirModalSolicitarCambio(casoId, nuevaEtapa);
   },
@@ -833,7 +874,7 @@ export const SocialKanbanView = {
    */
   abrirModalSolicitarCambio(id, nuevaEtapa) {
     const model = window.PDI?.CasoSocialModel || CasoSocialModel;
-    const caso = model.getAll().find(c => String(c.id) === String(id) || c.id === Number(id));
+    const caso = model.getAll().find(c => String(c._casoId) === String(id) || String(c.id) === String(id) || c.id === Number(id));
     if (!caso) return;
 
     const modal = document.getElementById("modalSolicitarCambioEtapa");
@@ -853,7 +894,7 @@ export const SocialKanbanView = {
     const nEt = document.getElementById("solicitudNuevaEtapa");
     const mot = document.getElementById("solicitudMotivoInput");
 
-    if (cId) cId.value = caso.id;
+    if (cId) cId.value = caso._casoId || caso.id;
     if (nEt) nEt.value = nuevaEtapa;
     if (mot) mot.value = "";
 
@@ -924,7 +965,7 @@ export const SocialKanbanView = {
       return;
     }
     const model = window.PDI?.CasoSocialModel || CasoSocialModel;
-    const caso = model.getAll().find(c => String(c.id) === String(id) || c.id === Number(id));
+    const caso = model.getAll().find(c => String(c._casoId) === String(id) || String(c.id) === String(id) || c.id === Number(id));
     if (!caso || !caso.solicitudCambio) return;
 
     this.closeModalDetalleCaso();
@@ -940,7 +981,7 @@ export const SocialKanbanView = {
     const rId = document.getElementById("resolverCasoId");
     const com = document.getElementById("resolverComentarioInput");
 
-    if (rId) rId.value = caso.id;
+    if (rId) rId.value = caso._casoId || caso.id;
     if (com) com.value = "";
 
     setTxt("resolverUsuarioNombre", caso.usuario);
@@ -1220,16 +1261,16 @@ export const SocialKanbanView = {
         ${pendientes.map((caso, idx) => {
           const sol = caso.solicitudCambio || {};
           return `
-            <div class="social-request-card" id="authCard-${caso.id}" style="--item-index: ${idx};">
+            <div class="social-request-card" id="authCard-${escaparEnManejador(claveCaso(caso))}" style="--item-index: ${idx};">
               <div class="social-request-card-header">
                 <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                   <strong style="font-size: 14.5px; color: var(--text-main); cursor: pointer;"
-                    onclick="window.PDI?.SocialKanbanView?.openDetalleCaso(${escaparEnManejador(caso.id)})"
+                    onclick="window.PDI?.SocialKanbanView?.openDetalleCaso(${escaparEnManejador(claveCaso(caso))})"
                     title="Clic para ver expediente completo">
                     ${escapar(caso.usuario)}
                   </strong>
                   <span class="kanban-card-code-link" style="cursor: pointer;"
-                    onclick="window.PDI?.SocialKanbanView?.openDetalleCaso(${escaparEnManejador(caso.id)})">
+                    onclick="window.PDI?.SocialKanbanView?.openDetalleCaso(${escaparEnManejador(claveCaso(caso))})">
                     ${escapar(caso.codigo)}
                   </span>
                   <span class="badge ${urgenciaBadgeClass[caso.urgencia] || 'badge-gray'}">
@@ -1271,12 +1312,12 @@ export const SocialKanbanView = {
               <!-- Botones de Acción de Coordinación -->
               <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 6px; padding-top: 8px; border-top: 1px solid var(--border-subtle);">
                 <button type="button" class="btn-action" style="font-size: 12px; padding: 6px 12px;"
-                  onclick="window.PDI?.SocialKanbanView?.openDetalleCaso(${escaparEnManejador(caso.id)})">
+                  onclick="window.PDI?.SocialKanbanView?.openDetalleCaso(${escaparEnManejador(claveCaso(caso))})">
                   ${iconHtml("accion.ver", { size: 13 })}
                   <span>Ver Ficha</span>
                 </button>
                 <button type="button" class="btn-action primary" style="font-size: 12px; padding: 6px 16px; font-weight: 700;"
-                  onclick="window.PDI?.SocialKanbanView?.abrirModalResolverSolicitud(${escaparEnManejador(caso.id)})">
+                  onclick="window.PDI?.SocialKanbanView?.abrirModalResolverSolicitud(${escaparEnManejador(claveCaso(caso))})">
                   ${iconHtml("estado.ok", { size: 14 })}
                   <span>Revisar y Resolver</span>
                 </button>

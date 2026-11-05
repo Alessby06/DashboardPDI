@@ -22,6 +22,7 @@ import { arrancarComun, publicarRefresco } from "../core/Bootstrap.js";
 import { CasoSocialModel } from '../models/CasoSocialModel.js';
 import { SocialKanbanView } from '../views/SocialKanbanView.js';
 import { SocialController } from '../controllers/SocialController.js';
+import { DerivacionView } from '../views/DerivacionView.js';
 // El boton de exportar la bandeja ASP abre el modal de confirmacion, y su
 // handler resuelve la descarga por window.PDI.AppController.
 import { AppController } from '../controllers/AppController.js';
@@ -52,6 +53,10 @@ function montar() {
     // El simulador socioeconomico se calcula con los valores iniciales del formulario.
     SocialController.handleVulnerabilidadChange();
   }
+
+  // El selector de quien deriva se llena con el voluntariado ya hidratado.
+  // init() es idempotente: enlaza una vez y vuelve a poblar la lista.
+  DerivacionView.init();
 }
 
 function iniciar() {

@@ -42,7 +42,7 @@ export const SocialController = {
     const userName = localStorage.getItem("pdi_usuario_nombre") || "Coordinación General";
     const cargo = (activeRole === "admin") ? "Administrador de Sistemas TI" : "Dirección y Coordinación General";
 
-    const previa = model.getAll().find(c => String(c.id) === String(id))?.etapa;
+    const previa = model.getAll().find(c => String(c._casoId) === String(id) || String(c.id) === String(id))?.etapa;
     const caso = model.updateStage(id, nuevaEtapa);
     if (!caso) return;
 

@@ -502,6 +502,10 @@ const SQL_LOTE_HIDRATACION = [
   'SELECT * FROM sede ORDER BY creado_el;',
   // 8 · archivo de retirados
   SQL_RETIRADOS,
+  // 9 · evaluaciones socioeconómicas activas (la más reciente primero).
+  'SELECT * FROM evaluacion_socioeconomica WHERE activo = true ORDER BY fecha_evaluacion DESC;',
+  // 10 · atenciones del caso social (evento_caso es la tabla de seguimiento ASP).
+  'SELECT * FROM evento_caso ORDER BY fecha DESC;',
 ].join('\n');
 
 export async function hidratar(promedioSilencioso = false) {
@@ -517,13 +521,13 @@ export async function hidratar(promedioSilencioso = false) {
     cambiarEstado('cargando');
     try {
       // Un solo viaje: el lote completo cuesta 1 RTT en lugar de 6-8.
-      const [sedesRaw, personasRaw, casosRaw, solicitudesRaw, voluntariosRaw, logsRaw, asistenciaRaw, sedesTodasRaw, retiradosRaw] =
+      const [sedesRaw, personasRaw, casosRaw, solicitudesRaw, voluntariosRaw, logsRaw, asistenciaRaw, sedesTodasRaw, retiradosRaw, evaluacionesRaw, eventosRaw] =
         await ejecutarLote(SQL_LOTE_HIDRATACION);
 
       const sedes = mapearSedes(sedesRaw);
       const beneficiarios = mapearBeneficiarios(personasRaw, sedes);
       const retirados = mapearRetirados(retiradosRaw, mapearSedes(sedesTodasRaw));
-      const casos = mapearCasos(casosRaw, solicitudesRaw);
+      const casos = mapearCasos(casosRaw, solicitudesRaw, evaluacionesRaw, eventosRaw);
       const voluntarios = mapearVoluntarios(voluntariosRaw);
       const logs = mapearBitacora(logsRaw);
       // Solo para el KPI del panel general. La jornada de educativo tiene su
@@ -936,14 +940,65 @@ function mapearRetirados(personasRes, sedesTodas) {
 
 /** Obtiene los Casos Sociales (ASP) y sus solicitudes de cambio de etapa. */
 export async function fetchCasosSociales() {
-  return mapearCasos(
-    comoLista(await ejecutar(`SELECT *, ${F_CASO}.nombres AS p_nom, ${F_CASO}.apellidos AS p_ape, ${F_CASO}.codigo AS p_cod, sede_id.nombre AS s_nom FROM caso_social WHERE activo = true ORDER BY creado_el DESC;`)),
-    comoLista(await ejecutar('SELECT * FROM solicitud_caso WHERE activo = true ORDER BY fecha_solicitud DESC;')),
-  );
+  const [casos, solicitudes, evaluaciones, eventos] = await ejecutarLote([
+    `SELECT *, ${F_CASO}.nombres AS p_nom, ${F_CASO}.apellidos AS p_ape, ${F_CASO}.codigo AS p_cod, sede_id.nombre AS s_nom FROM caso_social WHERE activo = true ORDER BY creado_el DESC;`,
+    'SELECT * FROM solicitud_caso WHERE activo = true ORDER BY fecha_solicitud DESC;',
+    'SELECT * FROM evaluacion_socioeconomica WHERE activo = true ORDER BY fecha_evaluacion DESC;',
+    'SELECT * FROM evento_caso ORDER BY fecha DESC;',
+  ].join('\n'));
+  return mapearCasos(casos, solicitudes, evaluaciones, eventos);
+}
+
+/** Marca del bloque JSON que guarda la ficha mientras el esquema V2 no esté
+ *  aplicado en la nube. Se retira al leer para que la vista no muestre JSON. */
+const MARCA_FICHA = '\n[[FICHA_V2]]';
+
+/** Lee el detalle de soporte y, si existe, el paquete de la ficha V2. */
+function leerFichaEmpaquetada(texto) {
+  const bruto = String(texto || '');
+  const corte = bruto.indexOf(MARCA_FICHA);
+  if (corte < 0) return { soporteDetalle: bruto.trim() };
+  let datos = {};
+  try {
+    datos = JSON.parse(bruto.slice(corte + MARCA_FICHA.length).trim()) || {};
+  } catch {
+    datos = {};
+  }
+  return { ...datos, soporteDetalle: bruto.slice(0, corte).trim() };
+}
+
+function evaluacionPublica(e) {
+  if (!e) return null;
+  return {
+    id: String(e.id),
+    personaId: e.persona_id ? String(e.persona_id) : '',
+    puntajeTotal: e.puntaje_total != null ? Number(e.puntaje_total) : null,
+    clasificacion: e.clasificacion || '',
+    exoneracionSugerida: e.exoneracion_sugerida || '',
+    evaluador: e.evaluador_nombre || '',
+    fecha: isoFecha(e.fecha_evaluacion),
+    periodo: e.periodo ?? null,
+    casoId: e.caso_id ? String(e.caso_id) : '',
+  };
+}
+
+function eventoPublico(ev) {
+  return {
+    id: String(ev.id),
+    casoId: ev.caso_id ? String(ev.caso_id) : '',
+    tipo: ev.tipo_evento || 'Atención',
+    fecha: isoFecha(ev.fecha),
+    descripcion: ev.descripcion || '',
+    institucion: ev.institucion_destino ? String(ev.institucion_destino) : '',
+    oficio: ev.oficio_numero || '',
+    responsable: ev.responsable_nombre || '',
+    naturaleza: ev.naturaleza_visita || '',
+    resultado: ev.resultado || '',
+  };
 }
 
 /** Convierte los registros crudos de caso social en objetos del modelo. */
-function mapearCasos(casosRaw, solicitudesRaw) {
+function mapearCasos(casosRaw, solicitudesRaw, evaluacionesRaw = [], eventosRaw = []) {
   const porCaso = new Map();
   solicitudesRaw.forEach(s => {
     const clave = String(s.caso_id);
@@ -951,10 +1006,29 @@ function mapearCasos(casosRaw, solicitudesRaw) {
     porCaso.get(clave).push(s);
   });
 
+  // La evaluación vigente es la más reciente por persona. La consulta ya viene
+  // ordenada de la nube; el Map conserva la primera aparición.
+  const evaluacionPorPersona = new Map();
+  (evaluacionesRaw || []).forEach(e => {
+    const clave = String(e.persona_id || '');
+    if (clave && !evaluacionPorPersona.has(clave)) evaluacionPorPersona.set(clave, e);
+  });
+
+  const eventosPorCaso = new Map();
+  (eventosRaw || []).forEach(ev => {
+    const clave = String(ev.caso_id || '');
+    if (!clave) return;
+    if (!eventosPorCaso.has(clave)) eventosPorCaso.set(clave, []);
+    eventosPorCaso.get(clave).push(eventoPublico(ev));
+  });
+
   return casosRaw.map((c, idx) => {
     const idNum = c.id_numerico || extraerNumeroId(c.codigo_caso, String(c.id), 101 + idx);
     const usuarioNom = c.p_nom && c.p_ape ? `${c.p_nom} ${c.p_ape}` : '';
     const listaSol = porCaso.get(String(c.id)) || [];
+    const ficha = leerFichaEmpaquetada(c.detalle_soporte_familiar);
+    const evaluacion = evaluacionPublica(evaluacionPorPersona.get(String(c[F_CASO] || '')));
+    const ambito = c.ambito || c.tipo_problematica || ficha.ambito || '';
 
     const historial = listaSol.map(s => ({
       id: s.codigo_solicitud || String(s.id),
@@ -988,10 +1062,14 @@ function mapearCasos(casosRaw, solicitudesRaw) {
       beneficiarioId: idNum,
       usuario: usuarioNom,
       codigo: c.p_cod || c.codigo_caso || '',
+      folio: c.codigo_caso || '',
       etapa: etapaUi(c.etapa),
       urgencia: c.urgencia || 'Media',
-      tipoProblematica: c.tipo_problematica || '',
+      tipoProblematica: ambito,
+      ambito,
+      etiquetas: Array.isArray(c.etiquetas) ? c.etiquetas : (Array.isArray(ficha.etiquetas) ? ficha.etiquetas : []),
       fechaDerivacion: isoFecha(c.fecha_derivacion),
+      fechaSuceso: isoFecha(c.fecha_suceso || ficha.fechaSuceso),
       quienDeriva: {
         nombre: c.quien_deriva_nombre || '',
         cargo: c.quien_deriva_cargo || '',
@@ -1001,11 +1079,23 @@ function mapearCasos(casosRaw, solicitudesRaw) {
       accionesPrevias: c.acciones_previas || '',
       soporteFamiliar: {
         tiene: c.tiene_soporte_familiar ?? false,
-        detalle: c.detalle_soporte_familiar || '',
+        detalle: ficha.soporteDetalle || '',
+        nombre: c.soporte_nombre || ficha.soporteNombre || '',
+        parentesco: c.soporte_parentesco || ficha.soporteParentesco || '',
       },
+      soporteNombre: c.soporte_nombre || ficha.soporteNombre || '',
+      soporteParentesco: c.soporte_parentesco || ficha.soporteParentesco || '',
+      snapshot: c.snapshot || ficha.snapshot || null,
+      origen: c.origen || ficha.origen || 'social',
+      creadoPor: c.creado_por || ficha.creadoPor || '',
+      faseDocumental: c.fase_documental || ficha.faseDocumental || 'derivacion',
+      servicioOrigen: c.servicio_origen || ficha.servicioOrigen || '',
       detalle: c.situacion_encontrada || '',
       sede: c.s_nom || '',
-      vulnerabilidadPuntaje: c.urgencia === 'Alta' ? 90 : (c.urgencia === 'Media' ? 70 : 45),
+      evaluacion,
+      vulnerabilidadPuntaje: evaluacion?.puntajeTotal ?? null,
+      puntajeOrigen: evaluacion ? 'evaluacion' : (c.puntaje_origen || ficha.puntajeOrigen || 'sin_evaluacion'),
+      eventos: eventosPorCaso.get(String(c.id)) || [],
     };
     if (pendiente) {
       retorna.solicitudCambio = {
@@ -1996,22 +2086,241 @@ export async function actualizarSede(s) {
 // ---------------------------------------------------------------------------
 //  CRUD · Casos sociales (ASP)
 // ---------------------------------------------------------------------------
-/** Alta de caso social: localiza a la persona del usuario por código. */
-export async function crearCasoSocial(ui) {
+//  La ficha de derivación se guarda en caso_social. La atención posterior vive
+//  en evento_caso y la evaluación socioeconómica en evaluacion_socioeconomica;
+//  no se mezclan en el caso.
+const TIPOS_DERIVACION = ['Familiar', 'Educativo', 'Salud'];
+const ETIQUETAS_DERIVACION = ['Violencia', 'Abandono', 'Nutricional'];
+const TIPOS_EVENTO_CASO = [
+  'Visita Domiciliaria', 'Entrega BTF', 'Derivacion DEMUNA',
+  'Derivacion MINSA', 'Consejería Pastoral', 'Cierre de Caso',
+];
+
+// El esquema V2 de caso_social (snapshot, etiquetas, fecha_suceso, soporte
+// estructurado) se aplica con scripts/migrar-esquema-derivacion.mjs. Mientras
+// no esté aplicado, la escritura completa falla y se usa el modo compatible:
+// el paquete de la ficha viaja como JSON al final de detalle_soporte_familiar.
+let _esquemaDerivacionV2 = true;
+
+function esErrorEsquemaDerivacion(err) {
+  const m = String(err?.message || err || '').toLowerCase();
+  return m.includes('field') && (
+    m.includes('not defined') || m.includes('does not exist')
+    || m.includes('no such field') || m.includes('found field')
+  );
+}
+
+function codigoFicha(fecha) {
+  const d = fecha ? new Date(fecha) : new Date();
+  const anio = Number.isNaN(d.getTime()) ? new Date().getFullYear() : d.getFullYear();
+  return `DER-${anio}-${String(Date.now()).slice(-6)}`;
+}
+
+function nombreActivo() {
   try {
-    const hayBeneficiario = window.PDI?.BeneficiarioModel?.getAll?.() || [];
-    const usuario = hayBeneficiario.find(b => String(b.id) === String(ui.beneficiarioId) ||
-      (ui.codigo && b.codigo && b.codigo.toLowerCase() === ui.codigo.toLowerCase()));
-    if (!usuario || !usuario._personaId) {
-      avisarElUsuarioNoEsta();
-      return null;
+    return localStorage.getItem('pdi_usuario_nombre') || 'Equipo PDI';
+  } catch {
+    return 'Equipo PDI';
+  }
+}
+
+async function auditarDerivacion(accion, entidad, detalle) {
+  try {
+    await window.PDI?.AuditModel?.addLog?.({
+      user: nombreActivo(),
+      role: 'Social',
+      action: accion,
+      entity: entidad,
+      detail: detalle,
+    });
+  } catch (err) {
+    console.warn('[PDI] No se pudo auditar la derivación:', err?.message || err);
+  }
+}
+
+/** Construye la instantánea que se imprime en la ficha. */
+function snapshotFicha(beneficiario, ui, ambito, etiquetas) {
+  return {
+    proyecto: 'Infancia Saludable',
+    fecha: ui.fecha || new Date().toISOString().slice(0, 10),
+    usuario: {
+      codigo: beneficiario.codigo || '',
+      nombres: beneficiario.nombres || '',
+      apellidos: beneficiario.apellidos || '',
+      tipoDocumento: beneficiario.tipoDocumento || 'DNI',
+      documento: beneficiario.dni || '',
+      edad: beneficiario.edad || '',
+      fechaNacimiento: beneficiario.fechaNacimiento || '',
+      direccion: beneficiario.direccion || '',
+      distrito: beneficiario.distrito || '',
+      referencia: beneficiario.referencia || '',
+      telefono: beneficiario.telefono || '',
+      sede: beneficiario.sede || '',
+    },
+    apoderado: {
+      nombre: beneficiario.apoderado || '',
+      parentesco: beneficiario.parentesco || '',
+      documento: beneficiario.apoderadoDni || '',
+      telefono: beneficiario.telefono || '',
+    },
+    ficha: {
+      ambito,
+      etiquetas,
+      fechaSuceso: ui.fechaSuceso || '',
+      situacion: ui.situacionEncontrada || '',
+      acciones: ui.accionesPrevias || '',
+      urgencia: ui.urgencia || 'Media',
+      soporte: {
+        tiene: Boolean(ui.soporteFamiliar?.tiene),
+        nombre: ui.soporteFamiliar?.nombre || '',
+        parentesco: ui.soporteFamiliar?.parentesco || '',
+        detalle: ui.soporteFamiliar?.detalle || '',
+      },
+      quienDeriva: {
+        nombre: ui.quienDeriva?.nombre || '',
+        cargo: ui.quienDeriva?.cargo || '',
+        telefono: ui.quienDeriva?.telefono || '',
+      },
+      servicioOrigen: ui.servicioOrigen || '',
+    },
+  };
+}
+
+/**
+ * Alta de una ficha de derivación. Valida el usuario, la sede, los campos
+ * mínimos y la regla de un caso abierto por persona. Devuelve un objeto
+ * { ok, folio, caso } o { ok:false, code, error }.
+ */
+export async function crearDerivacion(ui = {}) {
+  const beneficiarios = window.PDI?.BeneficiarioModel?.getAll?.() || [];
+  const usuario = beneficiarios.find(b => String(b.id) === String(ui.beneficiarioId)
+    || (ui.codigo && b.codigo && b.codigo.toLowerCase() === String(ui.codigo).toLowerCase()));
+
+  if (!usuario || !usuario._personaId) {
+    avisarElUsuarioNoEsta();
+    return { ok: false, error: 'El usuario no tiene expediente en la nube todavía.' };
+  }
+  if (!usuario._sedeRawId) {
+    return { ok: false, error: 'El usuario no tiene sede asignada en la nube.' };
+  }
+
+  const ambito = TIPOS_DERIVACION.includes(ui.ambito) ? ui.ambito : 'Familiar';
+  const urgencia = ['Alta', 'Media', 'Baja'].includes(ui.urgencia) ? ui.urgencia : 'Media';
+  const etiquetas = (Array.isArray(ui.etiquetas) ? ui.etiquetas : [])
+    .filter(e => ETIQUETAS_DERIVACION.includes(e));
+  const situacion = String(ui.situacionEncontrada || '').trim();
+  const nombreDeriva = String(ui.quienDeriva?.nombre || '').trim();
+  const cargoDeriva = String(ui.quienDeriva?.cargo || '').trim();
+
+  if (situacion.length < 10) {
+    return { ok: false, error: 'Describe la situación encontrada (mínimo 10 caracteres).' };
+  }
+  if (!nombreDeriva || !cargoDeriva) {
+    return { ok: false, error: 'Completa el nombre y el cargo de quien deriva.' };
+  }
+
+  const fecha = ui.fecha || new Date().toISOString().slice(0, 10);
+  const folio = codigoFicha(fecha);
+  const pid = claveRegistro(usuario._personaId);
+  const sid = claveRegistro(usuario._sedeRawId);
+  const snapshot = snapshotFicha(usuario, ui, ambito, etiquetas);
+
+  try {
+    // Regla de negocio: una persona solo puede tener un caso abierto. La
+    // comprobación se hace contra la nube, no contra la lista en memoria.
+    const abiertos = comoLista(await ejecutar(
+      `SELECT id, codigo_caso FROM caso_social
+       WHERE usuario_id = type::record('persona', $pid)
+         AND activo = true
+         AND etapa != 'resuelto'
+       LIMIT 1;`,
+      { pid },
+    ));
+    if (abiertos.length) {
+      return {
+        ok: false,
+        code: 'CASO_ACTIVO',
+        error: 'La persona ya tiene una derivación abierta.',
+        caso: {
+          id: String(abiertos[0].id),
+          folio: abiertos[0].codigo_caso || '',
+        },
+      };
     }
-    if (!usuario._sedeRawId) {
-      avisarFallo('Registro de caso social', 'El usuario no tiene sede asignada en la nube.');
-      return null;
+
+    const datos = {
+      pid, sid, cod: folio, urg: urgencia, tipo: ambito,
+      fecha, fechaSuceso: ui.fechaSuceso || '',
+      derNom: nombreDeriva, derCargo: cargoDeriva,
+      derTel: ui.quienDeriva?.telefono || null,
+      situacion,
+      previas: ui.accionesPrevias || '',
+      soporte: Boolean(ui.soporteFamiliar?.tiene),
+      soporteDet: ui.soporteFamiliar?.detalle || null,
+      soporteNom: ui.soporteFamiliar?.nombre || null,
+      soportePar: ui.soporteFamiliar?.parentesco || null,
+      etiquetas,
+      origen: ui.origen || 'social',
+      creadoPor: ui.creadoPor || nombreActivo(),
+      servicio: ui.servicioOrigen || null,
+      snapshot,
+    };
+
+    if (_esquemaDerivacionV2) {
+      try {
+        await ejecutar(`CREATE caso_social CONTENT {
+          usuario_id: type::record('persona', $pid),
+          sede_id: type::record('sede', $sid),
+          codigo_caso: $cod,
+          etapa: 'pendiente',
+          urgencia: $urg,
+          tipo_problematica: $tipo,
+          ambito: $tipo,
+          etiquetas: $etiquetas,
+          fecha_derivacion: type::datetime($fecha),
+          fecha_suceso: IF string::len($fechaSuceso) > 0 { type::datetime($fechaSuceso) } ELSE { NONE },
+          quien_deriva_nombre: $derNom,
+          quien_deriva_cargo: $derCargo,
+          quien_deriva_tel: $derTel ?? NONE,
+          situacion_encontrada: $situacion,
+          acciones_previas: $previas,
+          tiene_soporte_familiar: $soporte,
+          detalle_soporte_familiar: $soporteDet ?? NONE,
+          soporte_nombre: $soporteNom ?? NONE,
+          soporte_parentesco: $soportePar ?? NONE,
+          snapshot: $snapshot,
+          origen: $origen,
+          creado_por: $creadoPor,
+          servicio_origen: $servicio ?? NONE,
+          fase_documental: 'derivacion',
+          puntaje_origen: 'sin_evaluacion',
+          activo: true
+        };`, datos);
+        await auditarDerivacion('Derivación creada', folio, `Ficha de derivación de ${usuario.nombres} ${usuario.apellidos} (${ambito}).`);
+        return { ok: true, folio, caso: { folio, usuario: `${usuario.nombres} ${usuario.apellidos}`, sede: usuario.sede, ambito, urgencia, fecha, snapshot } };
+      } catch (err) {
+        if (!esErrorEsquemaDerivacion(err)) throw err;
+        _esquemaDerivacionV2 = false;
+        console.warn('[PDI] Esquema V2 de derivación no disponible; se usa el modo compatible. '
+          + 'Aplica scripts/migrar-esquema-derivacion.mjs --apply para habilitar los campos estructurados.');
+      }
     }
+
+    // Modo compatible: los campos que aún no existen viajan como JSON al final
+    // de detalle_soporte_familiar. El lector los separa antes de mostrarlos.
+    const paquete = {
+      ambito, etiquetas, fechaSuceso: ui.fechaSuceso || '',
+      soporteNombre: ui.soporteFamiliar?.nombre || '',
+      soporteParentesco: ui.soporteFamiliar?.parentesco || '',
+      origen: datos.origen, creadoPor: datos.creadoPor,
+      faseDocumental: 'derivacion', puntajeOrigen: 'sin_evaluacion',
+      servicioOrigen: datos.servicio || '', snapshot,
+    };
+    const detalle = [ui.soporteFamiliar?.detalle || '', MARCA_FICHA + JSON.stringify(paquete)]
+      .filter(Boolean).join('');
+
     await ejecutar(`CREATE caso_social CONTENT {
-      ${F_CASO}: type::record('persona', $pid),
+      usuario_id: type::record('persona', $pid),
       sede_id: type::record('sede', $sid),
       codigo_caso: $cod,
       etapa: 'pendiente',
@@ -2024,30 +2333,77 @@ export async function crearCasoSocial(ui) {
       situacion_encontrada: $situacion,
       acciones_previas: $previas,
       tiene_soporte_familiar: $soporte,
-      detalle_soporte_familiar: $soporteDet ?? NONE,
+      detalle_soporte_familiar: $detalle,
       activo: true
-    };`, {
-      pid: claveRegistro(usuario._personaId),
-      sid: usuario._sedeRawId ? claveRegistro(usuario._sedeRawId) : null,
-      cod: 'CAS-' + new Date().getFullYear() + '-' + String(Date.now()).slice(-5),
-      urg: ['Alta', 'Media', 'Baja'].includes(ui.prioridad || ui.urgencia) ? (ui.prioridad || ui.urgencia) : 'Media',
-      tipo: TIPO_PROBLEMATICA.includes(ui.tipoProblematica) ? ui.tipoProblematica : 'Nutricional / Abandono',
-      fecha: (ui.fecha || new Date().toISOString().slice(0, 10)),
-      derNom: ui.quienDeriva?.nombre || window.PDI?.Navigation?.usuarioActivo?.() || 'Trabajadora Social ASP',
-      derCargo: ui.quienDeriva?.cargo || 'Trabajadora Social ASP',
-      derTel: ui.quienDeriva?.telefono || null,
-      situacion: ui.situacionEncontrada || ui.motivo || 'Derivación registrada',
-      previas: ui.accionesPrevias || 'Visita preliminar realizada',
-      soporte: ui.soporteFamiliar?.tiene ?? false,
-      soporteDet: ui.soporteFamiliar?.detalle || null,
-    });
-    return true;
+    };`, { ...datos, detalle });
+    await auditarDerivacion('Derivación creada', folio, `Ficha de derivación de ${usuario.nombres} ${usuario.apellidos} (${ambito}).`);
+    return { ok: true, folio, caso: { folio, usuario: `${usuario.nombres} ${usuario.apellidos}`, sede: usuario.sede, ambito, urgencia, fecha, snapshot } };
   } catch (err) {
-    return avisarFallo('Registro de caso social', err);
+    const mensaje = String(err?.message || 'No se pudo crear la derivación.');
+    console.error('[PDI] Fallo al crear la derivación:', mensaje);
+    try {
+      ToastView.show('No se pudo crear la derivación', mensaje.slice(0, 160), 'danger');
+    } catch { /* sin toast disponible */ }
+    return { ok: false, error: mensaje };
   }
 }
 
-const TIPO_PROBLEMATICA = ['Familiar', 'Educativo', 'Salud', 'Nutricional / Abandono', 'Violencia'];
+/** Registra una atención del caso en evento_caso. */
+export async function crearEventoCaso(caso, datos = {}) {
+  const cid = claveRegistro(caso?._casoId);
+  if (!cid) return false;
+  const tipo = TIPOS_EVENTO_CASO.includes(datos.tipo) ? datos.tipo : 'Visita Domiciliaria';
+  const descripcion = String(datos.descripcion || '').trim();
+  if (!descripcion) {
+    ToastView.show('Falta la descripción', 'Describe qué se hizo en la atención.', 'warning');
+    return false;
+  }
+  const fecha = datos.fecha || new Date().toISOString().slice(0, 10);
+  const responsable = String(datos.responsable || nombreActivo()).trim();
+  try {
+    await ejecutar(`CREATE evento_caso CONTENT {
+      caso_id: type::record('caso_social', $cid),
+      tipo_evento: $tipo,
+      fecha: type::datetime($fecha),
+      descripcion: $desc,
+      institucion_destino: NONE,
+      oficio_numero: $oficio ?? NONE,
+      responsable_nombre: $responsable
+    };`, {
+      cid, tipo, fecha, desc: descripcion,
+      oficio: datos.oficio || null, responsable,
+    });
+    await auditarDerivacion('Atención registrada', caso.folio || caso.codigo || cid,
+      `${tipo}: ${descripcion}`.slice(0, 500));
+    return true;
+  } catch (err) {
+    return avisarFallo('Registro de atención', err) !== null;
+  }
+}
+
+/** Compatibilidad con los llamadores que creaban un caso desde el expediente. */
+export async function crearCasoSocial(ui = {}) {
+  const resultado = await crearDerivacion({
+    beneficiarioId: ui.beneficiarioId,
+    codigo: ui.codigo,
+    ambito: TIPOS_DERIVACION.includes(ui.tipoProblematica) ? ui.tipoProblematica : 'Familiar',
+    urgencia: ui.prioridad || ui.urgencia,
+    fecha: ui.fecha,
+    situacionEncontrada: ui.situacionEncontrada || ui.motivo || 'Derivación registrada desde el expediente.',
+    accionesPrevias: ui.accionesPrevias || 'Activación del Área Social Pastoral.',
+    quienDeriva: ui.quienDeriva || {
+      nombre: nombreActivo(),
+      cargo: 'Equipo PDI',
+      telefono: '',
+    },
+    soporteFamiliar: ui.soporteFamiliar || { tiene: false, detalle: '' },
+    origen: ui.origen || 'sistema',
+    creadoPor: ui.creadoPor || nombreActivo(),
+    etiquetas: [],
+    fechaSuceso: '',
+  });
+  return Boolean(resultado?.ok);
+}
 
 function avisarElUsuarioNoEsta() {
   avisarFallo('Registro de caso social', 'El usuario no tiene expediente en la nube todavía.');

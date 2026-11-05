@@ -99,7 +99,7 @@ export const CasoSocialModel = {
       if (c.solicitudCambio) {
         map.set(c.solicitudCambio.id, {
           ...c.solicitudCambio,
-          casoId: c.id,
+          casoId: c._casoId || c.id,
           codigo: c.codigo,
           usuario: c.usuario,
           sede: c.sede,
@@ -112,7 +112,7 @@ export const CasoSocialModel = {
         if (!map.has(c.ultimaResolucion.id)) {
           map.set(c.ultimaResolucion.id, {
             ...c.ultimaResolucion,
-            casoId: c.id,
+            casoId: c._casoId || c.id,
             codigo: c.codigo,
             usuario: c.usuario,
             sede: c.sede,
@@ -127,7 +127,7 @@ export const CasoSocialModel = {
           if (!map.has(h.id)) {
             map.set(h.id, {
               id: h.id,
-              casoId: c.id,
+              casoId: c._casoId || c.id,
               codigo: c.codigo,
               usuario: c.usuario,
               sede: c.sede,
@@ -170,7 +170,7 @@ export const CasoSocialModel = {
    */
   solicitarCambioEtapa(id, nuevaEtapa, motivo = "", solicitante = null) {
     const list = this.getAll();
-    const caso = list.find(c => String(c.id) === String(id) || c.id === Number(id));
+    const caso = list.find(c => String(c._casoId) === String(id) || String(c.id) === String(id) || c.id === Number(id));
     if (!caso) return null;
 
     const fechaAhora = new Date().toISOString().replace('T', ' ').substring(0, 16);
@@ -213,7 +213,7 @@ export const CasoSocialModel = {
    */
   resolverSolicitudCambio(id, decision, comentario = "", autorizador = null) {
     const list = this.getAll();
-    const caso = list.find(c => String(c.id) === String(id) || c.id === Number(id));
+    const caso = list.find(c => String(c._casoId) === String(id) || String(c.id) === String(id) || c.id === Number(id));
     if (!caso || !caso.solicitudCambio || caso.solicitudCambio.estado !== "pendiente") return null;
 
     const fechaAhora = new Date().toISOString().replace('T', ' ').substring(0, 16);
@@ -262,7 +262,7 @@ export const CasoSocialModel = {
   /** Movimiento directo de etapa desde el kanban. */
   updateStage(id, nuevaEtapa) {
     const list = this.getAll();
-    const caso = list.find(c => String(c.id) === String(id) || c.id === Number(id));
+    const caso = list.find(c => String(c._casoId) === String(id) || String(c.id) === String(id) || c.id === Number(id));
     if (caso) {
       caso.etapa = nuevaEtapa;
       this.recordarEtapaPendiente(caso, nuevaEtapa);
