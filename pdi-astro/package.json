@@ -11,7 +11,9 @@
     "preview": "astro preview",
     "astro": "astro",
     "test": "node --test \"tests/**/*.test.js\"",
-    "test:filtros": "node tests/filtros-smoke.mjs"
+    "test:filtros": "node tests/filtros-smoke.mjs",
+    "piloto": "node scripts/piloto-evaluacion.mjs",
+    "piloto:auditar": "node scripts/piloto-evaluacion.mjs --auditar"
   },
   "dependencies": {
     "astro": "^7.3.5",
