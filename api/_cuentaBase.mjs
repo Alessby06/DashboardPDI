@@ -413,15 +413,23 @@ async function perfil(request, cfg) {
   if (!t.ok) return json({ ok: false, error: t.error }, 400);
 
   const antes = actual.cuenta;
+  const diff = [];
+  if ((antes.nombre || '') !== n.nombre) diff.push({ campo: 'nombre', antes: antes.nombre, despues: n.nombre });
+  if ((antes.correo || '') !== c.correo) diff.push({ campo: 'correo', antes: antes.correo || '', despues: c.correo });
+  if ((antes.telefono || '') !== t.telefono) diff.push({ campo: 'telefono', antes: antes.telefono || '', despues: t.telefono });
+
+  // Sin cambios reales no se escribe ni se audita: un guardado vacío no debe
+  // dejar rastro en la bitácora ni tocar la fecha de modificación.
+  if (!diff.length) {
+    const nueva = datosSesion(antes);
+    return json({ ok: true, cuenta: publica(antes), exp: nueva.exp }, 200, [cookieSesion(request, nueva, cfg)]);
+  }
+
   await consulta(cfg, `UPDATE ${idRegistro(antes.id)} SET
     nombre = ${lit(n.nombre)},
     correo = ${lit(c.correo)},
     telefono = ${lit(t.telefono)};`);
 
-  const diff = [];
-  if (antes.nombre !== n.nombre) diff.push({ campo: 'nombre', antes: antes.nombre, despues: n.nombre });
-  if ((antes.correo || '') !== c.correo) diff.push({ campo: 'correo', antes: antes.correo || '', despues: c.correo });
-  if ((antes.telefono || '') !== t.telefono) diff.push({ campo: 'telefono', antes: antes.telefono || '', despues: t.telefono });
   await auditar(cfg, antes, 'Perfil actualizado', 'Datos personales del perfil.', diff, ipDe(request));
 
   const cuenta = await cuentaPorId(cfg, String(antes.id));
@@ -490,6 +498,7 @@ async function foto(request, cfg) {
   const cuenta = actual.cuenta;
 
   if (valor === null || valor === undefined || valor === '') {
+    if (!cuenta.foto) return json({ ok: true, foto: '' });
     await consulta(cfg, `UPDATE ${idRegistro(cuenta.id)} SET foto = NONE;`);
     await auditar(cfg, cuenta, 'Foto actualizada', 'Foto de perfil retirada.', [{ campo: 'foto', antes: '(anterior)', despues: '' }], ipDe(request));
     return json({ ok: true, foto: '' });
@@ -500,6 +509,9 @@ async function foto(request, cfg) {
   if (!m) return json({ ok: false, error: 'La imagen debe ser PNG, JPG o WebP.' }, 400);
   const bytes = Math.floor((m[2].length * 3) / 4);
   if (bytes > MAX_FOTO_BYTES) return json({ ok: false, error: 'La foto supera los 160 KB. Prueba con una imagen más pequeña.' }, 413);
+
+  // Reenviar la misma foto (por ejemplo al deshacer dos veces) no es un cambio.
+  if (cuenta.foto === texto) return json({ ok: true, foto: texto });
 
   await consulta(cfg, `UPDATE ${idRegistro(cuenta.id)} SET foto = ${lit(texto)};`);
   await auditar(cfg, cuenta, 'Foto actualizada', 'Foto de perfil actualizada.', [{ campo: 'foto', antes: '(anterior)', despues: '(actualizada)' }], ipDe(request));

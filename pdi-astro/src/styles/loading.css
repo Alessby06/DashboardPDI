@@ -480,6 +480,87 @@ html:not([data-pdi-ready="1"]) .nav-badge {
   border-radius: var(--radius-md);
 }
 
+/* Perfil: credencial + datos + ficha de identidad + seguridad */
+.pdi-sk-perfil {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pdi-sk-credential {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 22px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--surface-1);
+}
+
+.pdi-sk-cred-avatar {
+  width: 72px;
+  height: 72px;
+  flex: none;
+  border-radius: 20px;
+}
+
+.pdi-sk-cred-lines {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.pdi-sk-grid--perfil {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.pdi-sk-panel--perfil {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+}
+
+.pdi-sk-panel--wide {
+  grid-column: 1 / -1;
+}
+
+.pdi-sk-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pdi-sk-fields--2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 12px;
+}
+
+.pdi-sk-button {
+  width: 130px;
+  height: 36px;
+  margin-top: 2px;
+  border-radius: var(--radius-md);
+}
+
+.pdi-sk-identity-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.pdi-sk-identity-row:last-child {
+  border-bottom: 0;
+}
+
 /* ---------------------------------------------------------------------------
    Error de carga: sustituye al esqueleto cuando la conexion no llega.
    --------------------------------------------------------------------------- */
@@ -589,6 +670,14 @@ html:not([data-pdi-ready="1"]) .nav-badge {
 
   .pdi-sk-grid--2 {
     grid-template-columns: 1fr;
+  }
+
+  .pdi-sk-grid--perfil {
+    grid-template-columns: 1fr;
+  }
+
+  .pdi-sk-panel--wide {
+    grid-column: auto;
   }
 
   .pdi-sk-cards {

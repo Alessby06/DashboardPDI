@@ -16,6 +16,7 @@ const esTablero = variant === "social";
 const esTarjetas = variant === "sedes";
 const esDetalle = variant === "expediente";
 const esFormulario = variant === "ajustes";
+const esPerfil = variant === "perfil";
 
 const filas = Array.from({ length: 8 });
 const tarjetas = Array.from({ length: 6 });
@@ -205,7 +206,52 @@ const listas = Array.from({ length: 3 });
       </div>
     )}
 
-    {!esDashboard && !esTabla && !esTablero && !esTarjetas && !esDetalle && !esFormulario && (
+    {esPerfil && (
+      <div class="pdi-sk-perfil">
+        <div class="pdi-sk-credential">
+          <span class="pdi-sk-block pdi-sk-cred-avatar"></span>
+          <div class="pdi-sk-cred-lines">
+            <span class="pdi-sk-block pdi-sk-line pdi-sk-line--xs"></span>
+            <span class="pdi-sk-block pdi-sk-line pdi-sk-line--lg"></span>
+            <span class="pdi-sk-block pdi-sk-line pdi-sk-line--sm"></span>
+          </div>
+        </div>
+
+        <div class="pdi-sk-grid pdi-sk-grid--perfil">
+          <div class="pdi-sk-panel pdi-sk-panel--perfil">
+            <span class="pdi-sk-block pdi-sk-line pdi-sk-line--md"></span>
+            <div class="pdi-sk-fields">
+              <span class="pdi-sk-block pdi-sk-input"></span>
+              <span class="pdi-sk-block pdi-sk-input"></span>
+              <span class="pdi-sk-block pdi-sk-input"></span>
+            </div>
+            <span class="pdi-sk-block pdi-sk-button"></span>
+          </div>
+
+          <div class="pdi-sk-panel pdi-sk-panel--perfil">
+            <span class="pdi-sk-block pdi-sk-line pdi-sk-line--md"></span>
+            {Array.from({ length: 4 }).map(() => (
+              <div class="pdi-sk-identity-row">
+                <span class="pdi-sk-block pdi-sk-line pdi-sk-line--xs"></span>
+                <span class="pdi-sk-block pdi-sk-line pdi-sk-line--sm"></span>
+              </div>
+            ))}
+          </div>
+
+          <div class="pdi-sk-panel pdi-sk-panel--perfil pdi-sk-panel--wide">
+            <span class="pdi-sk-block pdi-sk-line pdi-sk-line--md"></span>
+            <div class="pdi-sk-fields pdi-sk-fields--2">
+              <span class="pdi-sk-block pdi-sk-input"></span>
+              <span class="pdi-sk-block pdi-sk-input"></span>
+              <span class="pdi-sk-block pdi-sk-input"></span>
+              <span class="pdi-sk-block pdi-sk-input"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {!esDashboard && !esTabla && !esTablero && !esTarjetas && !esDetalle && !esFormulario && !esPerfil && (
       <div class="pdi-sk-grid pdi-sk-grid--2">
         {[0, 1].map(() => (
           <div class="pdi-sk-panel pdi-sk-panel--list">

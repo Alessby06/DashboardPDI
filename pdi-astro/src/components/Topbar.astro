@@ -23,7 +23,6 @@ import Icon from './Icon.astro';
         type="button"
         class="topbar-avatar"
         id="btnPerfilMenu"
-        aria-haspopup="menu"
         aria-expanded="false"
         aria-controls="perfilMenu"
         aria-label="Abrir mi perfil"
@@ -33,20 +32,22 @@ import Icon from './Icon.astro';
         <span id="topbarAvatarIniciales" aria-hidden="true">?</span>
       </button>
 
-      <div class="topbar-menu" id="perfilMenu" role="menu" hidden>
+      <!-- Popover de enlaces: se recorre con Tab y se cierra con Escape o al
+           salir del foco. El foco vuelve al avatar al cerrar con Escape. -->
+      <div class="topbar-menu" id="perfilMenu" aria-labelledby="btnPerfilMenu" hidden>
         <div class="topbar-menu-head">
           <strong id="topbarMenuNombre">Mi perfil</strong>
           <span id="topbarMenuRol"></span>
         </div>
-        <a href="/perfil" class="topbar-menu-item" role="menuitem">
+        <a href="/perfil" class="topbar-menu-item">
           <Icon name="nav.usuarios" size={16} />
           <span>Mi perfil</span>
         </a>
-        <a href="/ajustes" class="topbar-menu-item" role="menuitem">
+        <a href="/ajustes" class="topbar-menu-item">
           <Icon name="nav.ajustes" size={16} />
           <span>Ajustes</span>
         </a>
-        <button type="button" class="topbar-menu-item topbar-menu-salir" id="btnPerfilSalir" role="menuitem">
+        <button type="button" class="topbar-menu-item topbar-menu-salir" id="btnPerfilSalir">
           <Icon name="nav.salir" size={16} />
           <span>Cerrar sesión</span>
         </button>
@@ -136,24 +137,27 @@ import Icon from './Icon.astro';
     if (rol) rol.textContent = ROLES[rolTexto] || 'Perfil';
   }
 
-  function cerrarMenu() {
+  function cerrarMenu(devolverFoco = false) {
     const menu = document.getElementById('perfilMenu');
     const boton = document.getElementById('btnPerfilMenu');
-    if (menu) menu.hidden = true;
+    if (!menu || menu.hidden) return;
+    menu.hidden = true;
     if (boton) boton.setAttribute('aria-expanded', 'false');
+    if (devolverFoco) boton?.focus?.({ preventScroll: true });
   }
 
   function alternarMenu() {
     const menu = document.getElementById('perfilMenu');
     const boton = document.getElementById('btnPerfilMenu');
     if (!menu || !boton) return;
-    const abrir = menu.hidden;
-    menu.hidden = !abrir;
-    boton.setAttribute('aria-expanded', abrir ? 'true' : 'false');
-    if (abrir) {
-      const primero = menu.querySelector('[role="menuitem"]');
-      primero?.focus?.({ preventScroll: true });
+    if (!menu.hidden) {
+      cerrarMenu(true);
+      return;
     }
+    menu.hidden = false;
+    boton.setAttribute('aria-expanded', 'true');
+    const primero = menu.querySelector('.topbar-menu-item');
+    primero?.focus?.({ preventScroll: true });
   }
 
   function conectar() {
@@ -174,13 +178,26 @@ import Icon from './Icon.astro';
         window.location.replace('/login');
       });
     }
+    const contenedor = document.getElementById('topbarPerfil');
+    if (contenedor && !contenedor.dataset.listener) {
+      contenedor.dataset.listener = '1';
+      // Tab fuera del popover: se cierra y el foco sigue su camino natural.
+      contenedor.addEventListener('focusout', (e) => {
+        if (!contenedor.contains(e.relatedTarget)) cerrarMenu(false);
+      });
+    }
     if (!window.__pdiPerfilMenuGlobal) {
       window.__pdiPerfilMenuGlobal = true;
       document.addEventListener('click', (e) => {
-        if (!e.target.closest?.('#topbarPerfil')) cerrarMenu();
+        if (!e.target.closest?.('#topbarPerfil')) cerrarMenu(false);
       });
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') cerrarMenu();
+        if (e.key !== 'Escape') return;
+        const menu = document.getElementById('perfilMenu');
+        if (menu && !menu.hidden) {
+          e.preventDefault();
+          cerrarMenu(true);
+        }
       });
     }
   }
