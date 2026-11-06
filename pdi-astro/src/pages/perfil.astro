@@ -8,21 +8,40 @@ import '../styles/views-perfil.css';
   <section class="app-view active" id="view-perfil">
     <div class="perfil-shell">
       <header class="perfil-head">
+      <div class="perfil-photo">
         <button
           type="button"
           class="perfil-avatar"
           id="btnCambiarFoto"
-          aria-label="Cambiar foto de perfil"
-          title="Cambiar foto"
+          aria-label="Foto de perfil"
+          aria-haspopup="menu"
+          aria-expanded="false"
+          aria-controls="perfilFotoMenu"
+          title="Opciones de la foto"
         >
           <span id="perfilIniciales">?</span>
           <img id="perfilFoto" alt="" hidden />
           <span class="perfil-avatar-overlay" aria-hidden="true">
             <Icon name="accion.foto" size={14} />
-            <span>Cambiar</span>
           </span>
         </button>
         <input type="file" id="perfilFotoInput" accept="image/png,image/jpeg,image/webp" hidden />
+
+        <div class="perfil-photo-menu" id="perfilFotoMenu" role="menu" aria-label="Opciones de la foto de perfil" hidden>
+          <button type="button" role="menuitem" class="perfil-photo-item" id="btnVerFoto" disabled>
+            <Icon name="accion.ver" size={16} />
+            <span>Ver foto</span>
+          </button>
+          <button type="button" role="menuitem" class="perfil-photo-item" id="btnActualizarFoto">
+            <Icon name="accion.subir" size={16} />
+            <span>Actualizar foto</span>
+          </button>
+          <button type="button" role="menuitem" class="perfil-photo-item perfil-photo-item--danger" id="btnEliminarFoto" disabled>
+            <Icon name="accion.eliminar" size={16} />
+            <span>Eliminar foto</span>
+          </button>
+        </div>
+      </div>
 
         <div class="perfil-head-text">
           <h1 class="perfil-title">Mi perfil</h1>
@@ -36,10 +55,6 @@ import '../styles/views-perfil.css';
             <span class="perfil-estado"><i aria-hidden="true"></i><span id="perfilIdentidadEstado">Activa</span></span>
           </p>
           <p class="perfil-meta perfil-meta--dim">Alta <span id="perfilIdentidadDesde">—</span></p>
-          <div class="perfil-foto-row" id="perfilFotoFila" hidden>
-            <span>Foto de perfil</span>
-            <button type="button" class="perfil-link" id="btnQuitarFoto" hidden>Quitar</button>
-          </div>
         </div>
 
         <div class="perfil-head-actions">
@@ -48,11 +63,6 @@ import '../styles/views-perfil.css';
           </button>
         </div>
       </header>
-
-      <div class="perfil-undo" id="perfilUndoFoto" role="status" hidden>
-        <span>Foto retirada. Vuelven las iniciales.</span>
-        <button type="button" id="btnDeshacerFoto">Deshacer</button>
-      </div>
 
       <div class="perfil-banner" id="perfilAvisoTemporal" hidden>
         <Icon name="seguridad.candado" size={16} />
@@ -213,6 +223,45 @@ import '../styles/views-perfil.css';
           <button type="button" class="perfil-btn perfil-btn--primary" id="btnGuardarPerfilBar">Guardar</button>
         </div>
       </div>
+
+      <dialog class="perfil-dialog" id="perfilFotoDialog" aria-labelledby="perfilFotoDialogTitulo">
+        <div class="perfil-dialog-box">
+          <header class="perfil-dialog-head">
+            <h2 id="perfilFotoDialogTitulo">Foto de perfil</h2>
+            <button type="button" class="perfil-dialog-close" id="btnCerrarFotoDialog" aria-label="Cerrar">
+              <Icon name="accion.cerrar" size={16} />
+            </button>
+          </header>
+          <div class="perfil-dialog-media">
+            <img id="perfilFotoGrande" alt="Tu foto de perfil" />
+          </div>
+          <footer class="perfil-dialog-foot">
+            <p class="perfil-dialog-nota">Así te ve el resto del equipo.</p>
+            <button type="button" class="perfil-btn perfil-btn--soft" id="btnActualizarFotoDialog">Actualizar foto</button>
+          </footer>
+        </div>
+      </dialog>
+
+      <dialog
+        class="perfil-dialog"
+        id="perfilEliminarDialog"
+        aria-labelledby="perfilEliminarTitulo"
+        aria-describedby="perfilEliminarTexto"
+      >
+        <div class="perfil-dialog-box">
+          <header class="perfil-dialog-head">
+            <h2 id="perfilEliminarTitulo">Eliminar foto</h2>
+          </header>
+          <p class="perfil-dialog-text" id="perfilEliminarTexto">
+            Se quitará tu foto y volverán tus iniciales.
+            <strong>Esta acción no se puede deshacer:</strong> si quieres recuperarla, tendrás que subirla de nuevo.
+          </p>
+          <footer class="perfil-dialog-foot perfil-dialog-foot--end">
+            <button type="button" class="perfil-btn perfil-btn--soft" id="btnCancelarEliminar">Cancelar</button>
+            <button type="button" class="perfil-btn perfil-btn--danger" id="btnConfirmarEliminar">Eliminar foto</button>
+          </footer>
+        </div>
+      </dialog>
     </div>
   </section>
 

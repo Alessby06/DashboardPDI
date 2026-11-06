@@ -27,6 +27,11 @@
   border-bottom: 1px solid var(--border-subtle);
 }
 
+.perfil-photo {
+  position: relative;
+  flex-shrink: 0;
+}
+
 .perfil-avatar {
   position: relative;
   display: inline-flex;
@@ -63,18 +68,11 @@
 
 .perfil-avatar-overlay {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 4px 2px;
-  background: rgba(2, 6, 23, 0.72);
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(2, 6, 23, 0.5);
   color: #fff;
-  font-size: 11px;
-  font-weight: 700;
   opacity: 0;
   transition: opacity var(--dur-fast) var(--ease-smooth);
 }
@@ -92,6 +90,96 @@
 .perfil-avatar:focus-visible {
   outline: 2px solid var(--gt-green);
   outline-offset: 3px;
+}
+
+/* Sin hover (táctil) el velo quedaría oculto para siempre: se cambia por una
+   insignia de cámara en la esquina, que no tapa la foto. */
+@media (hover: none) {
+  .perfil-avatar-overlay {
+    inset: auto 3px 3px auto;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(2, 6, 23, 0.72);
+    opacity: 1;
+  }
+}
+
+/* Menú de la foto: mismo patrón que el menú del avatar de la topbar. */
+
+.perfil-photo-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 214px;
+  padding: 6px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-1);
+  box-shadow: var(--shadow-overlay);
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  opacity: 0;
+  transform: translateY(-6px) scale(0.98);
+  transform-origin: top left;
+  pointer-events: none;
+  transition: opacity var(--dur-fast) var(--ease-smooth),
+    transform var(--dur-norm) var(--ease-drawer);
+}
+
+.perfil-photo-menu.is-open {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.perfil-photo-menu[hidden] {
+  display: none;
+}
+
+.perfil-photo-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--ui-font);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.perfil-photo-item:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.perfil-photo-item:focus-visible {
+  outline: 2px solid var(--gt-green);
+  outline-offset: -2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .perfil-photo-item:not(:disabled):hover {
+    background: var(--surface-hover);
+    color: var(--text-main);
+  }
+
+  .perfil-photo-item--danger:not(:disabled):hover {
+    background: var(--gt-red-bg, rgba(239, 68, 68, 0.1));
+    color: var(--text-danger, #dc2626);
+  }
+}
+
+.perfil-photo-item--danger {
+  color: var(--text-danger, #dc2626);
 }
 
 .perfil-head-text {
@@ -152,19 +240,6 @@
   background: var(--gt-green);
 }
 
-.perfil-foto-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 4px;
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.perfil-foto-row[hidden] {
-  display: none;
-}
-
 .perfil-head-actions {
   margin-left: auto;
   display: flex;
@@ -174,7 +249,6 @@
 
 /* --- Avisos ------------------------------------------------------------- */
 
-.perfil-undo,
 .perfil-banner {
   display: flex;
   align-items: flex-start;
@@ -182,41 +256,13 @@
   padding: 11px 14px;
   border-radius: var(--radius-md);
   font-size: 12px;
-}
-
-.perfil-undo {
-  align-items: center;
-  justify-content: space-between;
-  border: 1px solid var(--border-subtle);
-  background: var(--surface-2);
-  color: var(--text-muted);
-}
-
-.perfil-undo[hidden],
-.perfil-banner[hidden] {
-  display: none;
-}
-
-.perfil-undo button {
-  border: 0;
-  background: transparent;
-  color: var(--text-brand);
-  font-family: var(--ui-font);
-  font-size: 12px;
-  font-weight: 800;
-  cursor: pointer;
-  padding: 4px 2px;
-}
-
-.perfil-undo button:focus-visible {
-  outline: 2px solid var(--gt-green);
-  outline-offset: 2px;
-}
-
-.perfil-banner {
   border: 1px solid rgba(245, 158, 11, 0.35);
   background: rgba(245, 158, 11, 0.1);
   color: var(--text-main);
+}
+
+.perfil-banner[hidden] {
+  display: none;
 }
 
 .perfil-banner svg {
@@ -469,6 +515,15 @@ html[data-theme="dark"] .perfil-btn--primary {
   color: var(--text-muted);
 }
 
+.perfil-btn--danger {
+  background: var(--text-danger, #dc2626);
+  color: #fff;
+}
+
+html[data-theme="dark"] .perfil-btn--danger {
+  color: var(--on-brand);
+}
+
 @media (hover: hover) and (pointer: fine) {
   .perfil-btn--primary:hover {
     background: color-mix(in srgb, var(--text-brand) 76%, #000);
@@ -486,6 +541,14 @@ html[data-theme="dark"] .perfil-btn--primary {
   .perfil-btn--ghost:hover {
     background: var(--surface-hover);
     color: var(--text-main);
+  }
+
+  .perfil-btn--danger:hover {
+    background: color-mix(in srgb, var(--text-danger, #dc2626) 82%, #000);
+  }
+
+  html[data-theme="dark"] .perfil-btn--danger:hover {
+    background: color-mix(in srgb, var(--text-danger, #ff7a7a) 86%, #fff);
   }
 }
 
@@ -622,6 +685,133 @@ html[data-theme="dark"] .perfil-btn--primary {
 .perfil-strength[data-nivel="3"] .perfil-strength-seg:nth-child(-n + 3),
 .perfil-strength[data-nivel="4"] .perfil-strength-seg:nth-child(-n + 4) {
   background: var(--gt-green);
+}
+
+/* --- Diálogos de la foto ------------------------------------------------ */
+
+.perfil-dialog {
+  width: min(460px, calc(100vw - 28px));
+  max-width: min(460px, calc(100vw - 28px));
+  max-height: calc(100dvh - 28px);
+  margin: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: visible;
+  color: var(--text-main);
+}
+
+#perfilFotoDialog {
+  width: min(540px, calc(100vw - 28px));
+  max-width: min(540px, calc(100vw - 28px));
+}
+
+.perfil-dialog::backdrop {
+  background: rgba(2, 6, 23, 0.62);
+}
+
+.perfil-dialog-box {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--surface-1);
+  box-shadow: var(--shadow-overlay);
+}
+
+.perfil-dialog[open] .perfil-dialog-box {
+  animation: perfil-dialog-in 180ms var(--ease-drawer) both;
+}
+
+@keyframes perfil-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.99);
+  }
+}
+
+.perfil-dialog-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.perfil-dialog-head h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.perfil-dialog-close {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.perfil-dialog-close:focus-visible {
+  outline: 2px solid var(--gt-green);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .perfil-dialog-close:hover {
+    background: var(--surface-hover);
+    color: var(--text-main);
+  }
+}
+
+.perfil-dialog-media {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+}
+
+.perfil-dialog-media img {
+  display: block;
+  width: 100%;
+  max-height: min(60dvh, 460px);
+  object-fit: contain;
+}
+
+.perfil-dialog-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.perfil-dialog-text strong {
+  color: var(--text-main);
+}
+
+.perfil-dialog-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.perfil-dialog-foot--end {
+  justify-content: flex-end;
+}
+
+.perfil-dialog-nota {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--text-muted);
 }
 
 /* --- Barra fija de guardado -------------------------------------------- */

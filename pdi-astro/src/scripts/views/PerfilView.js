@@ -7,8 +7,8 @@
 //
 //  Los datos personales tienen estado sucio: el guardado se habilita cuando
 //  hay cambios válidos, la barra fija de móvil aparece con ellos y salir de la
-//  página avisa antes de perderlos. La foto se guarda al instante y su retirada
-//  se puede deshacer durante unos segundos.
+//  página avisa antes de perderlos. La foto vive en un menú (ver, actualizar,
+//  eliminar) y se guarda al instante.
 // ===========================================================================
 import { sincronizarSesion } from '../auth/usuarios.js';
 
@@ -20,9 +20,8 @@ const ROLES = {
   admin: 'Administración TI',
 };
 
-const LADO_FOTO = 320;
+const LADO_FOTO = 480;
 const MAX_FOTO_BYTES = 120 * 1024;
-const MS_DESHACER_FOTO = 8000;
 
 const CAMPOS = {
   nombre: 'perfilInputNombre',
@@ -137,15 +136,20 @@ function archivoAImagen(file) {
       const img = new Image();
       img.onerror = () => reject(new Error('La imagen no se pudo abrir.'));
       img.onload = () => {
-        const escala = Math.min(1, LADO_FOTO / Math.max(img.width, img.height));
-        const ancho = Math.max(1, Math.round(img.width * escala));
-        const alto = Math.max(1, Math.round(img.height * escala));
+        // Encuadre automático: recorte cuadrado centrado. El sesgo vertical
+        // leve (0,42) evita cortar la frente en retratos verticales.
+        const lado = Math.min(img.width, img.height);
+        const sx = (img.width - lado) / 2;
+        const sy = (img.height - lado) * 0.42;
+        const escala = Math.min(1, LADO_FOTO / lado);
+        const destino = Math.max(1, Math.round(lado * escala));
         const canvas = document.createElement('canvas');
-        canvas.width = ancho;
-        canvas.height = alto;
+        canvas.width = destino;
+        canvas.height = destino;
         const ctx = canvas.getContext('2d');
         if (!ctx) return reject(new Error('El navegador no pudo procesar la imagen.'));
-        ctx.drawImage(img, 0, 0, ancho, alto);
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, sx, sy, lado, lado, 0, 0, destino, destino);
 
         let calidad = 0.86;
         let data = canvas.toDataURL('image/jpeg', calidad);
@@ -223,8 +227,7 @@ export const PerfilView = {
   _formulario: null,
   _base: { nombre: '', correo: '', telefono: '' },
   _tocados: new Set(),
-  _deshacerFoto: null,
-  _temporizadorFoto: null,
+  _temporizadorMenuFoto: null,
   _beforeUnload: null,
   _guardiaEnlaces: null,
 
@@ -301,10 +304,18 @@ export const PerfilView = {
         fotoEl.hidden = true;
       }
     }
-    const quitar = porId('btnQuitarFoto');
-    if (quitar) quitar.hidden = !foto;
-    const fila = porId('perfilFotoFila');
-    if (fila) fila.hidden = !foto;
+    // Sin foto no hay nada que ver ni que eliminar.
+    const ver = porId('btnVerFoto');
+    if (ver) ver.disabled = !foto;
+    const eliminar = porId('btnEliminarFoto');
+    if (eliminar) eliminar.disabled = !foto;
+    const grande = porId('perfilFotoGrande');
+    if (grande) {
+      if (foto) grande.src = foto;
+      else grande.removeAttribute('src');
+    }
+    const visor = porId('perfilFotoDialog');
+    if (visor?.open && !foto) visor.close();
     if (this.cuenta) pintarTopbar(this.cuenta);
   },
 
@@ -492,14 +503,83 @@ export const PerfilView = {
       });
     });
 
-    porId('btnCambiarFoto')?.addEventListener('click', () => porId('perfilFotoInput')?.click());
+    porId('btnCambiarFoto')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.alternarMenuFoto();
+    });
+    porId('btnVerFoto')?.addEventListener('click', () => {
+      this.cerrarMenuFoto();
+      this.abrirFotoGrande();
+    });
+    porId('btnActualizarFoto')?.addEventListener('click', () => {
+      this.cerrarMenuFoto();
+      porId('perfilFotoInput')?.click();
+    });
+    porId('btnEliminarFoto')?.addEventListener('click', () => {
+      this.cerrarMenuFoto();
+      const dialogo = porId('perfilEliminarDialog');
+      if (dialogo && !dialogo.open) dialogo.showModal();
+    });
     porId('perfilFotoInput')?.addEventListener('change', (e) => {
       const archivo = e.target.files?.[0];
       e.target.value = '';
       if (archivo) this.subirFoto(archivo);
     });
-    porId('btnQuitarFoto')?.addEventListener('click', () => this.quitarFoto());
-    porId('btnDeshacerFoto')?.addEventListener('click', () => this.deshacerQuitarFoto());
+
+    const menuFoto = porId('perfilFotoMenu');
+    menuFoto?.addEventListener('keydown', (e) => {
+      const items = [...menuFoto.querySelectorAll('.perfil-photo-item:not(:disabled)')];
+      if (!items.length) return;
+      const actual = items.indexOf(document.activeElement);
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        const paso = e.key === 'ArrowDown' ? 1 : -1;
+        items[(Math.max(0, actual) + paso + items.length) % items.length].focus();
+      } else if (e.key === 'Home' || e.key === 'End') {
+        e.preventDefault();
+        items[e.key === 'Home' ? 0 : items.length - 1].focus();
+      } else if (e.key === 'Tab') {
+        this.cerrarMenuFoto();
+      }
+    });
+
+    porId('btnCerrarFotoDialog')?.addEventListener('click', () => porId('perfilFotoDialog')?.close());
+    porId('btnActualizarFotoDialog')?.addEventListener('click', () => {
+      porId('perfilFotoDialog')?.close();
+      porId('perfilFotoInput')?.click();
+    });
+    porId('btnCancelarEliminar')?.addEventListener('click', () => porId('perfilEliminarDialog')?.close());
+    porId('btnConfirmarEliminar')?.addEventListener('click', () => this.quitarFoto());
+    ['perfilFotoDialog', 'perfilEliminarDialog'].forEach((id) => {
+      const dialogo = porId(id);
+      if (!dialogo) return;
+      // El clic en el fondo (fuera de la caja) cierra; el de dentro no.
+      dialogo.addEventListener('click', (e) => {
+        if (e.target === dialogo) dialogo.close();
+      });
+    });
+    porId('perfilFotoDialog')?.addEventListener('close', () => {
+      porId('btnCambiarFoto')?.focus({ preventScroll: true });
+    });
+    porId('perfilEliminarDialog')?.addEventListener('close', () => {
+      porId('btnCambiarFoto')?.focus({ preventScroll: true });
+    });
+
+    // Una sola escucha global por carga de página: clic fuera y Escape.
+    if (!window.__pdiFotoMenuGlobal) {
+      window.__pdiFotoMenuGlobal = true;
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest?.('.perfil-photo')) this.cerrarMenuFoto();
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        const menu = porId('perfilFotoMenu');
+        if (menu && !menu.hidden) {
+          e.preventDefault();
+          this.cerrarMenuFoto(true);
+        }
+      });
+    }
     porId('btnTotpActivar')?.addEventListener('click', () => this.iniciarTotp());
     porId('btnTotpConfirmar')?.addEventListener('click', () => this.confirmarTotp());
     porId('btnTotpDesactivar')?.addEventListener('click', () => this.mostrarBajaTotp());
@@ -807,22 +887,49 @@ export const PerfilView = {
     }
   },
 
-  _limpiarDeshacer() {
-    if (this._temporizadorFoto) {
-      clearTimeout(this._temporizadorFoto);
-      this._temporizadorFoto = null;
+  /** Abre o cierra el menú de la foto, con el mismo patrón que la topbar. */
+  alternarMenuFoto() {
+    const menu = porId('perfilFotoMenu');
+    if (!menu) return;
+    if (!menu.hidden && menu.classList.contains('is-open')) {
+      this.cerrarMenuFoto(true);
+      return;
     }
-    const barra = porId('perfilUndoFoto');
-    if (barra) barra.hidden = true;
-    this._deshacerFoto = null;
+    this.abrirMenuFoto();
   },
 
-  _mostrarDeshacer(foto) {
-    this._limpiarDeshacer();
-    this._deshacerFoto = foto;
-    const barra = porId('perfilUndoFoto');
-    if (barra) barra.hidden = false;
-    this._temporizadorFoto = setTimeout(() => this._limpiarDeshacer(), MS_DESHACER_FOTO);
+  abrirMenuFoto() {
+    const menu = porId('perfilFotoMenu');
+    const boton = porId('btnCambiarFoto');
+    if (!menu || !boton) return;
+    clearTimeout(this._temporizadorMenuFoto);
+    menu.hidden = false;
+    void menu.offsetWidth;
+    menu.classList.add('is-open');
+    boton.setAttribute('aria-expanded', 'true');
+    menu.querySelector('.perfil-photo-item:not(:disabled)')?.focus?.({ preventScroll: true });
+  },
+
+  cerrarMenuFoto(devolverFoco = false) {
+    const menu = porId('perfilFotoMenu');
+    const boton = porId('btnCambiarFoto');
+    if (!menu || menu.hidden) return;
+    menu.classList.remove('is-open');
+    boton?.setAttribute('aria-expanded', 'false');
+    clearTimeout(this._temporizadorMenuFoto);
+    this._temporizadorMenuFoto = setTimeout(() => {
+      if (!menu.classList.contains('is-open')) menu.hidden = true;
+    }, 200);
+    if (devolverFoco) boton?.focus?.({ preventScroll: true });
+  },
+
+  abrirFotoGrande() {
+    const foto = this.cuenta?.foto || '';
+    if (!foto) return;
+    const grande = porId('perfilFotoGrande');
+    if (grande) grande.src = foto;
+    const dialogo = porId('perfilFotoDialog');
+    if (dialogo && !dialogo.open) dialogo.showModal();
   },
 
   async subirFoto(archivo) {
@@ -834,7 +941,6 @@ export const PerfilView = {
       return;
     }
 
-    this._limpiarDeshacer();
     const anterior = this.cuenta?.foto || '';
     // Vista previa inmediata; si el servidor la rechaza se restaura.
     if (this.cuenta) this.cuenta.foto = data;
@@ -856,7 +962,7 @@ export const PerfilView = {
         localStorage.setItem('pdi_usuario_foto', this.cuenta.foto);
         this._pintarAvatar();
       }
-      toast('Foto actualizada', 'Tu nueva foto ya aparece en el menú.');
+      toast('Foto actualizada', 'Tu nueva foto ya está activa.');
     } catch (err) {
       if (err?.message !== 'Sesión expirada') {
         if (this.cuenta) this.cuenta.foto = anterior;
@@ -866,9 +972,11 @@ export const PerfilView = {
     }
   },
 
+  /** Elimina la foto. La confirmación previa avisa de que no se puede deshacer. */
   async quitarFoto() {
     if (!this.cuenta?.foto) return;
-    const anterior = this.cuenta.foto;
+    const boton = porId('btnConfirmarEliminar');
+    const liberar = ocupado(boton, 'Eliminando…');
 
     try {
       const { res, datos } = await pedir('/api/cuenta/foto', {
@@ -882,46 +990,14 @@ export const PerfilView = {
       this.cuenta.foto = '';
       localStorage.removeItem('pdi_usuario_foto');
       this._pintarAvatar();
-      this._mostrarDeshacer(anterior);
-      toast('Foto retirada', 'Vuelven tus iniciales. Puedes deshacerlo unos segundos.');
+      porId('perfilEliminarDialog')?.close();
+      toast('Foto eliminada', 'Vuelven tus iniciales. Si la quieres de vuelta, tendrás que subirla otra vez.');
     } catch (err) {
       if (err?.message !== 'Sesión expirada') {
         toast('No se pudo quitar la foto', 'Revisa la conexión e intenta de nuevo.', 'danger');
       }
-    }
-  },
-
-  async deshacerQuitarFoto() {
-    const foto = this._deshacerFoto;
-    if (!foto) return;
-    this._limpiarDeshacer();
-
-    if (this.cuenta) this.cuenta.foto = foto;
-    this._pintarAvatar();
-
-    try {
-      const { res, datos } = await pedir('/api/cuenta/foto', {
-        method: 'POST',
-        body: JSON.stringify({ foto }),
-      });
-      if (!res.ok || !datos.ok) {
-        if (this.cuenta) this.cuenta.foto = '';
-        this._pintarAvatar();
-        toast('No se pudo restaurar la foto', datos.error || 'Intenta de nuevo.', 'danger');
-        return;
-      }
-      if (this.cuenta) {
-        this.cuenta.foto = datos.foto || foto;
-        localStorage.setItem('pdi_usuario_foto', this.cuenta.foto);
-      }
-      toast('Foto restaurada', 'Tu foto vuelve a estar activa.');
-      porId('btnCambiarFoto')?.focus({ preventScroll: true });
-    } catch (err) {
-      if (err?.message !== 'Sesión expirada') {
-        if (this.cuenta) this.cuenta.foto = '';
-        this._pintarAvatar();
-        toast('No se pudo restaurar la foto', 'Revisa la conexión e intenta de nuevo.', 'danger');
-      }
+    } finally {
+      liberar();
     }
   },
 };
