@@ -263,7 +263,7 @@ export const PerfilView = {
     const cuenta = this.cuenta;
     if (!cuenta) return;
 
-    const nombre = cuenta.nombre || 'Mi perfil';
+    const nombre = cuenta.nombre || '—';
     const rol = ROLES[cuenta.rol] || cuenta.rol || '—';
 
     const set = (id, valor) => {
@@ -317,6 +317,9 @@ export const PerfilView = {
     const bloque = porId('perfilTotp');
     if (!bloque) return;
     const permitido = Boolean(this.cuenta && ['coord', 'admin'].includes(this.cuenta.rol));
+    // La fila entera se oculta: sin permiso no debe quedar la etiqueta sola.
+    const fila = porId('perfilTotpFila');
+    if (fila) fila.hidden = !permitido;
     bloque.hidden = !permitido;
     if (!permitido) return;
 

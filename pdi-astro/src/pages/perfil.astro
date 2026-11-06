@@ -7,7 +7,7 @@ import '../styles/views-perfil.css';
 <AppLayout title="Mi perfil" currentPage="perfil">
   <section class="app-view active" id="view-perfil">
     <div class="perfil-shell">
-      <header class="perfil-credential">
+      <header class="perfil-head">
         <button
           type="button"
           class="perfil-avatar"
@@ -18,16 +18,34 @@ import '../styles/views-perfil.css';
           <span id="perfilIniciales">?</span>
           <img id="perfilFoto" alt="" hidden />
           <span class="perfil-avatar-overlay" aria-hidden="true">
-            <Icon name="accion.foto" size={15} />
+            <Icon name="accion.foto" size={14} />
             <span>Cambiar</span>
           </span>
         </button>
         <input type="file" id="perfilFotoInput" accept="image/png,image/jpeg,image/webp" hidden />
 
-        <div class="perfil-identity">
-          <span class="perfil-eyebrow">Credencial del programa</span>
-          <h2 id="perfilNombre">Mi perfil</h2>
-          <span class="perfil-subtitle">Cuenta personal</span>
+        <div class="perfil-head-text">
+          <h1 class="perfil-title">Mi perfil</h1>
+          <p class="perfil-meta">
+            <strong id="perfilNombre">—</strong>
+            <span class="perfil-dot" aria-hidden="true"></span>
+            <span id="perfilIdentidadRol">—</span>
+            <span class="perfil-dot" aria-hidden="true"></span>
+            <span id="perfilIdentidadUsuario">@—</span>
+            <span class="perfil-dot" aria-hidden="true"></span>
+            <span class="perfil-estado"><i aria-hidden="true"></i><span id="perfilIdentidadEstado">Activa</span></span>
+          </p>
+          <p class="perfil-meta perfil-meta--dim">Alta <span id="perfilIdentidadDesde">—</span></p>
+          <div class="perfil-foto-row" id="perfilFotoFila" hidden>
+            <span>Foto de perfil</span>
+            <button type="button" class="perfil-link" id="btnQuitarFoto" hidden>Quitar</button>
+          </div>
+        </div>
+
+        <div class="perfil-head-actions">
+          <button type="submit" class="perfil-btn perfil-btn--primary" id="btnGuardarPerfil" form="formPerfil" disabled>
+            Guardar cambios
+          </button>
         </div>
       </header>
 
@@ -44,17 +62,14 @@ import '../styles/views-perfil.css';
         </div>
       </div>
 
-      <div class="perfil-grid">
-        <section class="perfil-card perfil-card--datos" aria-labelledby="perfilDatosTitle">
-          <header class="perfil-card-head">
-            <span class="perfil-card-icon"><Icon name="nav.usuarios" size={16} /></span>
-            <div>
-              <h3 id="perfilDatosTitle">Datos personales</h3>
-              <p>Cómo te ven y cómo te contactamos.</p>
-            </div>
-          </header>
+      <div class="perfil-rows">
+        <section class="perfil-row" aria-labelledby="perfilDatosTitle">
+          <div class="perfil-row-label">
+            <h2 id="perfilDatosTitle">Datos personales</h2>
+            <p>Cómo te ven y cómo te contactamos.</p>
+          </div>
 
-          <form class="perfil-form" id="formPerfil" novalidate>
+          <form class="perfil-panel perfil-form" id="formPerfil" novalidate>
             <div class="perfil-fields">
               <div class="perfil-field perfil-field--full">
                 <label for="perfilInputNombre">Nombre visible</label>
@@ -72,81 +87,45 @@ import '../styles/views-perfil.css';
                 <span class="perfil-field-error" id="perfilErrorTelefono" role="alert"></span>
               </div>
             </div>
+            <p class="perfil-feedback" id="perfilDatosFeedback" role="status"></p>
+          </form>
+        </section>
 
+        <section class="perfil-row" aria-labelledby="perfilAccesoTitle">
+          <div class="perfil-row-label">
+            <h2 id="perfilAccesoTitle">Acceso</h2>
+            <p>El identificador con el que entras al sistema y la clave que lo protege.</p>
+          </div>
+
+          <form class="perfil-panel perfil-form" id="formUsuario" novalidate>
+            <div class="perfil-field">
+              <label for="perfilInputUsuario">Usuario</label>
+              <input type="text" id="perfilInputUsuario" name="usuario" maxlength="32" autocomplete="username" spellcheck="false" />
+              <span class="perfil-field-hint">Con este usuario iniciarás sesión. 3 a 32 caracteres: minúsculas, números, punto, guion o guion bajo.</span>
+            </div>
+            <div class="perfil-field">
+              <label for="perfilInputUsuarioClave">Contraseña actual</label>
+              <div class="perfil-clave-wrap">
+                <input type="password" id="perfilInputUsuarioClave" name="clave" autocomplete="current-password" />
+                <button type="button" class="perfil-clave-toggle" data-toggle-clave="perfilInputUsuarioClave" aria-label="Mostrar contraseña actual" aria-pressed="false">Ver</button>
+              </div>
+            </div>
             <div class="perfil-form-foot">
-              <p class="perfil-feedback" id="perfilDatosFeedback" role="status"></p>
-              <button type="submit" class="perfil-btn perfil-btn--primary" id="btnGuardarPerfil" disabled>Guardar cambios</button>
+              <p class="perfil-feedback" id="perfilUsuarioFeedback" role="status"></p>
+              <button type="submit" class="perfil-btn perfil-btn--soft" id="btnGuardarUsuario">Cambiar usuario</button>
             </div>
           </form>
         </section>
 
-        <aside class="perfil-card perfil-card--identidad" aria-labelledby="perfilIdentidadTitle">
-          <header class="perfil-card-head">
-            <span class="perfil-card-icon"><Icon name="estado.ok" size={16} /></span>
-            <div>
-              <h3 id="perfilIdentidadTitle">Identidad</h3>
-              <p>Datos de tu cuenta en el programa.</p>
-            </div>
-          </header>
-
-          <dl class="perfil-identity-list">
-            <div>
-              <dt>Usuario</dt>
-              <dd id="perfilIdentidadUsuario">@—</dd>
-            </div>
-            <div>
-              <dt>Rol</dt>
-              <dd id="perfilIdentidadRol">—</dd>
-            </div>
-            <div>
-              <dt>Alta</dt>
-              <dd id="perfilIdentidadDesde">—</dd>
-            </div>
-            <div>
-              <dt>Estado</dt>
-              <dd class="perfil-identity-status"><i aria-hidden="true"></i><span id="perfilIdentidadEstado">Activa</span></dd>
-            </div>
-          </dl>
-
-          <div class="perfil-identity-foot" id="perfilFotoFila" hidden>
-            <span>Foto de perfil</span>
-            <button type="button" class="perfil-link" id="btnQuitarFoto" hidden>Quitar</button>
+        <section class="perfil-row" id="seguridad" aria-labelledby="perfilClaveTitle">
+          <div class="perfil-row-label">
+            <h2 id="perfilClaveTitle">Contraseña</h2>
+            <p>Se recomienda una frase larga, distinta de la anterior.</p>
           </div>
-        </aside>
 
-        <section class="perfil-card perfil-card--wide" id="seguridad" aria-labelledby="perfilSeguridadTitle">
-          <header class="perfil-card-head">
-            <span class="perfil-card-icon"><Icon name="seguridad.candado" size={16} /></span>
-            <div>
-              <h3 id="perfilSeguridadTitle">Seguridad</h3>
-              <p>Tu usuario de acceso y tu contraseña.</p>
-            </div>
-          </header>
-
-          <div class="perfil-security-grid">
-            <form class="perfil-form" id="formUsuario" novalidate>
-              <h4 class="perfil-subtitle">Acceso</h4>
-              <div class="perfil-field">
-                <label for="perfilInputUsuario">Usuario</label>
-                <input type="text" id="perfilInputUsuario" name="usuario" maxlength="32" autocomplete="username" spellcheck="false" />
-                <span class="perfil-field-hint">Con este usuario iniciarás sesión. 3 a 32 caracteres: minúsculas, números, punto, guion o guion bajo.</span>
-              </div>
-              <div class="perfil-field">
-                <label for="perfilInputUsuarioClave">Contraseña actual</label>
-                <div class="perfil-clave-wrap">
-                  <input type="password" id="perfilInputUsuarioClave" name="clave" autocomplete="current-password" />
-                  <button type="button" class="perfil-clave-toggle" data-toggle-clave="perfilInputUsuarioClave" aria-label="Mostrar contraseña actual" aria-pressed="false">Ver</button>
-                </div>
-              </div>
-              <div class="perfil-form-foot">
-                <p class="perfil-feedback" id="perfilUsuarioFeedback" role="status"></p>
-                <button type="submit" class="perfil-btn perfil-btn--soft" id="btnGuardarUsuario">Cambiar usuario</button>
-              </div>
-            </form>
-
-            <form class="perfil-form" id="formClave" novalidate>
-              <h4 class="perfil-subtitle">Contraseña</h4>
-              <div class="perfil-field">
+          <form class="perfil-panel perfil-form" id="formClave" novalidate>
+            <div class="perfil-fields">
+              <div class="perfil-field perfil-field--full">
                 <label for="perfilInputClaveActual">Contraseña actual</label>
                 <div class="perfil-clave-wrap">
                   <input type="password" id="perfilInputClaveActual" name="actual" autocomplete="current-password" />
@@ -174,19 +153,27 @@ import '../styles/views-perfil.css';
                   <button type="button" class="perfil-clave-toggle" data-toggle-clave="perfilInputClaveRepetir" aria-label="Mostrar repetición de la contraseña" aria-pressed="false">Ver</button>
                 </div>
               </div>
-              <div class="perfil-form-foot">
-                <p class="perfil-feedback" id="perfilClaveFeedback" role="status"></p>
-                <button type="submit" class="perfil-btn perfil-btn--soft" id="btnGuardarClave">Cambiar contraseña</button>
-              </div>
-            </form>
+            </div>
+            <div class="perfil-form-foot">
+              <p class="perfil-feedback" id="perfilClaveFeedback" role="status"></p>
+              <button type="submit" class="perfil-btn perfil-btn--soft" id="btnGuardarClave">Cambiar contraseña</button>
+            </div>
+            <p class="perfil-note">
+              Si olvidas tu contraseña, administración puede generarte una temporal. El enlace por correo se
+              activará cuando el programa tenga dominio de envío.
+            </p>
+          </form>
+        </section>
+
+        <section class="perfil-row" id="perfilTotpFila" aria-labelledby="perfilTotpTitulo" hidden>
+          <div class="perfil-row-label">
+            <h2 id="perfilTotpTitulo">Verificación en dos pasos</h2>
+            <p>Una segunda prueba además de la contraseña. Disponible para coordinación y administración.</p>
           </div>
 
-          <div class="perfil-totp" id="perfilTotp" hidden>
+          <div class="perfil-totp perfil-panel" id="perfilTotp" hidden>
             <div class="perfil-totp-head">
-              <div>
-                <h4 class="perfil-subtitle">Verificación en dos pasos</h4>
-                <p class="perfil-field-hint">Protege tu cuenta con una aplicación de autenticación. Disponible para coordinación y administración.</p>
-              </div>
+              <p class="perfil-field-hint">Protege tu cuenta con una aplicación de autenticación.</p>
               <span class="perfil-totp-state" id="perfilTotpEstado">Desactivada</span>
             </div>
             <div class="perfil-totp-actions">
@@ -216,10 +203,6 @@ import '../styles/views-perfil.css';
               </div>
             </div>
           </div>
-
-          <p class="perfil-note">
-            Si olvidas tu contraseña, administración puede generarte una temporal. El enlace por correo se activará cuando el programa tenga dominio de envío.
-          </p>
         </section>
       </div>
 
