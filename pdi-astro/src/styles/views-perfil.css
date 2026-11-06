@@ -232,8 +232,10 @@
 }
 
 .perfil-card--identidad {
-  position: sticky;
-  top: 16px;
+  /* Sin sticky: al hacer scroll se montaba encima de la tarjeta de Seguridad,
+     que ocupa las dos columnas. En una rejilla de dos filas no aporta nada y
+     tapa el segundo formulario. */
+  align-self: start;
 }
 
 .perfil-card-head {
