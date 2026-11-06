@@ -19,9 +19,13 @@
 import crypto from 'node:crypto';
 
 const DURACION_SESION_MS = 8 * 60 * 60 * 1000;
+// La cookie se renueva con la actividad, pero ninguna sesión puede superar
+// este tope absoluto desde el login. Evita que una cookie robada viva para
+// siempre mientras la víctima siga navegando.
+const DURACION_MAXIMA_SESION_MS = 12 * 60 * 60 * 1000;
 const NOMBRE_COOKIE = 'pdi_cuenta';
-const MAX_INTENTOS = 10;
-const VENTANA_INTENTOS_MS = 10 * 60 * 1000;
+const MAX_INTENTOS = 8;
+const BLOQUEO_INTENTOS_MS = 15 * 60 * 1000;
 const MAX_FOTO_BYTES = 160 * 1024;
 
 /** Secreto de firma/cifrado. Nunca sale del servidor. */
@@ -269,28 +273,71 @@ function cookieBorrada() {
   return `${NOMBRE_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`;
 }
 
-const intentos = new Map();
-
 function ipDe(request) {
   return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
     || request.headers.get('x-real-ip')
     || 'local';
 }
 
-function loginPermitido(ip) {
-  const ahora = Date.now();
-  const lista = (intentos.get(ip) || []).filter((t) => t > ahora - VENTANA_INTENTOS_MS);
-  if (lista.length >= MAX_INTENTOS) {
-    intentos.set(ip, lista);
-    return false;
-  }
-  lista.push(ahora);
-  intentos.set(ip, lista);
-  return true;
+/** Identificador estable de la IP, sin guardar la dirección en claro. */
+function ipHash(ip) {
+  return crypto.createHash('sha256').update(String(ip || 'local')).digest('hex').slice(0, 32);
 }
 
-function limpiarIntentos(ip) {
-  intentos.delete(ip);
+/** Minutos que quedan de bloqueo; 0 si no hay bloqueo vigente. */
+function minutosDeBloqueo(valor) {
+  if (!valor) return 0;
+  const instante = new Date(valor).getTime();
+  if (!Number.isFinite(instante)) return 0;
+  return instante > Date.now() ? Math.ceil((instante - Date.now()) / 60000) : 0;
+}
+
+/** Cuenta los intentos de una IP; al llegar al límite la bloquea 15 min. */
+async function registrarIntentoIp(cfg, ip, exito) {
+  const hash = ipHash(ip);
+  const filas = await consulta(cfg, `SELECT id, intentos FROM intento_login WHERE ip_hash = ${lit(hash)} LIMIT 1;`);
+  const fila = Array.isArray(filas) && filas.length ? filas[0] : null;
+
+  if (exito) {
+    if (fila) {
+      await consulta(cfg, `UPDATE ${idRegistro(String(fila.id))} SET intentos = 0, bloqueado_hasta = NONE;`);
+    }
+    return;
+  }
+
+  const intentos = (Number(fila?.intentos) || 0) + 1;
+  const bloqueo = intentos >= MAX_INTENTOS
+    ? `time::now() + ${Math.floor(BLOQUEO_INTENTOS_MS / 1000)}s`
+    : 'NONE';
+  if (fila) {
+    await consulta(cfg, `UPDATE ${idRegistro(String(fila.id))} SET intentos = ${intentos}, bloqueado_hasta = ${bloqueo};`);
+  } else {
+    await consulta(cfg, `CREATE intento_login CONTENT {
+      ip_hash: ${lit(hash)},
+      intentos: ${intentos},
+      bloqueado_hasta: ${bloqueo},
+      actualizado_el: time::now()
+    };`);
+  }
+}
+
+/** Cuenta los fallos de una cuenta concreta; bloquea al llegar al límite. */
+async function registrarIntentoCuenta(cfg, cuenta, exito) {
+  if (exito) {
+    await consulta(cfg, `UPDATE ${idRegistro(cuenta.id)} SET intentos_fallidos = 0, bloqueado_hasta = NONE;`);
+    return;
+  }
+  const intentos = (Number(cuenta.intentos_fallidos) || 0) + 1;
+  const bloqueo = intentos >= MAX_INTENTOS
+    ? `time::now() + ${Math.floor(BLOQUEO_INTENTOS_MS / 1000)}s`
+    : 'NONE';
+  await consulta(cfg, `UPDATE ${idRegistro(cuenta.id)} SET intentos_fallidos = ${intentos}, bloqueado_hasta = ${bloqueo};`);
+}
+
+async function ipBloqueada(cfg, ip) {
+  const hash = ipHash(ip);
+  const filas = await consulta(cfg, `SELECT bloqueado_hasta FROM intento_login WHERE ip_hash = ${lit(hash)} LIMIT 1;`);
+  return Array.isArray(filas) && filas.length ? minutosDeBloqueo(filas[0].bloqueado_hasta) : 0;
 }
 
 function origenValido(request) {
@@ -339,7 +386,7 @@ function publica(cuenta) {
   };
 }
 
-function datosSesion(cuenta) {
+function datosSesion(cuenta, emitida = Date.now()) {
   return {
     sub: String(cuenta.id),
     usuario: cuenta.usuario,
@@ -348,6 +395,9 @@ function datosSesion(cuenta) {
     // Versión de sesión: se incrementa al cambiar o restablecer la contraseña.
     // Las cookies anteriores dejan de valer en cuanto el número no coincide.
     sv: Number(cuenta.session_version || 0),
+    // Instante del login. No se renueva con la actividad: marca el tope
+    // absoluto de 12 horas.
+    iat: Number(emitida) || Date.now(),
     exp: Date.now() + DURACION_SESION_MS,
   };
 }
@@ -387,6 +437,11 @@ async function sesionDe(request, cfg) {
   // Un fallo de base NO es una sesión inválida: debe propagarse para que el
   // llamador responda 5xx sin borrar la cookie. Si se confundieran, una caída
   // transitoria de SurrealDB cerraría la sesión de todos los usuarios.
+  // Las cookies anteriores no llevaban `iat`. Se les da una ventana nueva
+  // cuando el servidor las reemite; no se pueden prolongar más de 12 h.
+  const emitida = Number(datos.iat) || 0;
+  if (emitida && Date.now() - emitida > DURACION_MAXIMA_SESION_MS) return null;
+
   const cuenta = await cuentaPorId(cfg, datos.sub);
   if (!cuenta || cuenta.activo === false) return null;
   if (Number(datos.sv || 0) !== Number(cuenta.session_version || 0)) return null;
@@ -417,24 +472,38 @@ function bloqueoClaveTemporal(cuenta) {
 async function login(request, cfg) {
   if (!origenValido(request)) return json({ ok: false, error: 'Origen no permitido.' }, 403);
   const ip = ipDe(request);
-  if (!loginPermitido(ip)) {
-    return json({ ok: false, error: 'Demasiados intentos. Espera unos minutos antes de volver a probar.' }, 429);
+
+  // El bloqueo por IP y por cuenta vive en la base de cuentas: sobrevive a
+  // reinicios y se comparte entre instancias. El mensaje no revela si el
+  // usuario existe.
+  if (await ipBloqueada(cfg, ip)) {
+    return json({ ok: false, error: 'Demasiados intentos. Espera 15 minutos antes de volver a probar.' }, 429);
   }
+
   const { usuario, clave } = await cuerpo(request);
   const limpio = String(usuario || '').trim().toLowerCase();
   if (!limpio || !clave) return json({ ok: false, error: 'Escribe tu usuario y tu contraseña.' }, 400);
 
   const cuenta = await cuentaPorUsuario(cfg, limpio);
   const generico = 'Usuario o contraseña incorrectos.';
-  if (!cuenta || cuenta.activo === false) return json({ ok: false, error: generico }, 401);
+  if (!cuenta || cuenta.activo === false) {
+    await registrarIntentoIp(cfg, ip, false);
+    return json({ ok: false, error: generico }, 401);
+  }
+  if (minutosDeBloqueo(cuenta.bloqueado_hasta)) {
+    return json({ ok: false, error: 'Demasiados intentos. Espera 15 minutos o pide a administración que desbloquee la cuenta.' }, 429);
+  }
 
   let hash;
   try { hash = descifrar(cuenta.hash_cifrado, cfg.secreto); } catch { return json({ ok: false, error: generico }, 401); }
   if (!(await compararClave(cfg, hash, String(clave)))) {
+    await registrarIntentoCuenta(cfg, cuenta, false);
+    await registrarIntentoIp(cfg, ip, false);
     return json({ ok: false, error: generico }, 401);
   }
 
-  limpiarIntentos(ip);
+  await registrarIntentoCuenta(cfg, cuenta, true);
+  await registrarIntentoIp(cfg, ip, true);
   const sesion = datosSesion(cuenta);
   return json({
     ok: true,
@@ -450,7 +519,7 @@ async function login(request, cfg) {
 async function sesion(request, cfg) {
   const actual = await sesionDe(request, cfg);
   if (!actual) return json({ ok: false }, 401, [cookieBorrada()]);
-  const nueva = datosSesion(actual.cuenta);
+  const nueva = datosSesion(actual.cuenta, actual.datos.iat);
   return json({ ok: true, cuenta: publica(actual.cuenta), exp: nueva.exp }, 200, [cookieSesion(request, nueva, cfg)]);
 }
 
@@ -476,7 +545,7 @@ async function perfil(request, cfg) {
   // Sin cambios reales no se escribe ni se audita: un guardado vacío no debe
   // dejar rastro en la bitácora ni tocar la fecha de modificación.
   if (!diff.length) {
-    const nueva = datosSesion(antes);
+    const nueva = datosSesion(antes, actual.datos.iat);
     return json({ ok: true, cuenta: publica(antes), exp: nueva.exp }, 200, [cookieSesion(request, nueva, cfg)]);
   }
 
@@ -488,7 +557,7 @@ async function perfil(request, cfg) {
   await auditar(cfg.auditoria || cfg, antes, 'Perfil actualizado', 'Datos personales del perfil.', diff, ipDe(request));
 
   const cuenta = await cuentaPorId(cfg, String(antes.id));
-  const nueva = datosSesion(cuenta);
+  const nueva = datosSesion(cuenta, actual.datos.iat);
   return json({ ok: true, cuenta: publica(cuenta), exp: nueva.exp }, 200, [cookieSesion(request, nueva, cfg)]);
 }
 
@@ -511,7 +580,7 @@ async function usuario(request, cfg) {
     return json({ ok: false, error: 'La contraseña actual no coincide.' }, 403);
   }
   if (v.usuario === cuenta.usuario) {
-    return json({ ok: true, cuenta: publica(cuenta) }, 200, [cookieSesion(request, datosSesion(cuenta), cfg)]);
+    return json({ ok: true, cuenta: publica(cuenta) }, 200, [cookieSesion(request, datosSesion(cuenta, actual.datos.iat), cfg)]);
   }
   const ocupado = await cuentaPorUsuario(cfg, v.usuario);
   if (ocupado) return json({ ok: false, error: 'Ese usuario ya está en uso.' }, 409);
@@ -522,7 +591,7 @@ async function usuario(request, cfg) {
   ], ipDe(request));
 
   const fresca = await cuentaPorId(cfg, String(cuenta.id));
-  return json({ ok: true, cuenta: publica(fresca) }, 200, [cookieSesion(request, datosSesion(fresca), cfg)]);
+  return json({ ok: true, cuenta: publica(fresca) }, 200, [cookieSesion(request, datosSesion(fresca, actual.datos.iat), cfg)]);
 }
 
 async function clave(request, cfg) {

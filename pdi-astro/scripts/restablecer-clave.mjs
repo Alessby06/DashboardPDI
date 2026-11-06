@@ -77,7 +77,9 @@ async function main() {
   await consulta(cfg, `UPDATE ${id} SET
     hash_cifrado = ${lit(hash)},
     debe_cambiar_clave = ${forzar ? 'true' : 'false'},
-    session_version = ${versionSesion};`);
+    session_version = ${versionSesion},
+    intentos_fallidos = 0,
+    bloqueado_hasta = NONE;`);
 
   try {
     await consulta(cfgAudit, `CREATE bitacora_auditoria CONTENT {
