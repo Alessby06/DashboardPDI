@@ -137,12 +137,36 @@ import Icon from './Icon.astro';
     if (rol) rol.textContent = ROLES[rolTexto] || 'Perfil';
   }
 
+  let temporizadorMenu = null;
+
+  function abrirMenu() {
+    const menu = document.getElementById('perfilMenu');
+    const boton = document.getElementById('btnPerfilMenu');
+    if (!menu || !boton) return;
+    clearTimeout(temporizadorMenu);
+    menu.hidden = false;
+    // Forzar el estilo inicial antes de añadir la clase: así la transición
+    // se ve incluso si la pestaña no está pintando frames (headless/segundo
+    // plano), donde requestAnimationFrame puede no ejecutarse.
+    void menu.offsetWidth;
+    menu.classList.add('is-open');
+    boton.setAttribute('aria-expanded', 'true');
+    const primero = menu.querySelector('.topbar-menu-item');
+    primero?.focus?.({ preventScroll: true });
+  }
+
   function cerrarMenu(devolverFoco = false) {
     const menu = document.getElementById('perfilMenu');
     const boton = document.getElementById('btnPerfilMenu');
     if (!menu || menu.hidden) return;
-    menu.hidden = true;
+    menu.classList.remove('is-open');
     if (boton) boton.setAttribute('aria-expanded', 'false');
+    clearTimeout(temporizadorMenu);
+    // Se oculta después de la transición; si se reabre antes, el timer se
+    // cancela y el menú no parpadea.
+    temporizadorMenu = setTimeout(() => {
+      if (!menu.classList.contains('is-open')) menu.hidden = true;
+    }, 230);
     if (devolverFoco) boton?.focus?.({ preventScroll: true });
   }
 
@@ -150,14 +174,11 @@ import Icon from './Icon.astro';
     const menu = document.getElementById('perfilMenu');
     const boton = document.getElementById('btnPerfilMenu');
     if (!menu || !boton) return;
-    if (!menu.hidden) {
+    if (!menu.hidden && menu.classList.contains('is-open')) {
       cerrarMenu(true);
       return;
     }
-    menu.hidden = false;
-    boton.setAttribute('aria-expanded', 'true');
-    const primero = menu.querySelector('.topbar-menu-item');
-    primero?.focus?.({ preventScroll: true });
+    abrirMenu();
   }
 
   function conectar() {
@@ -204,6 +225,9 @@ import Icon from './Icon.astro';
 
   async function actualizar() {
     conectar();
+    // Al cambiar de documento el avatar persiste; el menú no debe quedarse
+    // abierto sobre la página nueva.
+    cerrarMenu(false);
     try {
       const cuenta = await sincronizarSesion();
       if (cuenta) pintar(cuenta);
@@ -294,6 +318,18 @@ import Icon from './Icon.astro';
     display: flex;
     flex-direction: column;
     gap: 2px;
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+    transform-origin: top right;
+    pointer-events: none;
+    transition: opacity var(--dur-fast) var(--ease-smooth),
+      transform var(--dur-norm) var(--ease-drawer);
+  }
+
+  .topbar-menu.is-open {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
   }
 
   .topbar-menu[hidden] {
