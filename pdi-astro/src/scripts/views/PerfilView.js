@@ -8,7 +8,7 @@
 //  Los datos personales tienen estado sucio: el guardado se habilita cuando
 //  hay cambios válidos, la barra fija de móvil aparece con ellos y salir de la
 //  página avisa antes de perderlos. La foto vive en un menú (ver, actualizar,
-//  eliminar) y se guarda al instante.
+//  eliminar) y se guarda al instante; al eliminarla queda un deshacer breve.
 // ===========================================================================
 import { sincronizarSesion } from '../auth/usuarios.js';
 
@@ -22,6 +22,7 @@ const ROLES = {
 
 const LADO_FOTO = 480;
 const MAX_FOTO_BYTES = 120 * 1024;
+const MS_DESHACER_FOTO = 8000;
 
 const CAMPOS = {
   nombre: 'perfilInputNombre',
@@ -228,6 +229,8 @@ export const PerfilView = {
   _base: { nombre: '', correo: '', telefono: '' },
   _tocados: new Set(),
   _temporizadorMenuFoto: null,
+  _deshacerFoto: null,
+  _temporizadorFoto: null,
   _beforeUnload: null,
   _guardiaEnlaces: null,
 
@@ -525,6 +528,7 @@ export const PerfilView = {
       e.target.value = '';
       if (archivo) this.subirFoto(archivo);
     });
+    porId('btnDeshacerFoto')?.addEventListener('click', () => this.deshacerQuitarFoto());
 
     const menuFoto = porId('perfilFotoMenu');
     menuFoto?.addEventListener('keydown', (e) => {
@@ -932,6 +936,24 @@ export const PerfilView = {
     if (dialogo && !dialogo.open) dialogo.showModal();
   },
 
+  _limpiarDeshacer() {
+    if (this._temporizadorFoto) {
+      clearTimeout(this._temporizadorFoto);
+      this._temporizadorFoto = null;
+    }
+    const barra = porId('perfilUndoFoto');
+    if (barra) barra.hidden = true;
+    this._deshacerFoto = null;
+  },
+
+  _mostrarDeshacer(foto) {
+    this._limpiarDeshacer();
+    this._deshacerFoto = foto;
+    const barra = porId('perfilUndoFoto');
+    if (barra) barra.hidden = false;
+    this._temporizadorFoto = setTimeout(() => this._limpiarDeshacer(), MS_DESHACER_FOTO);
+  },
+
   async subirFoto(archivo) {
     let data;
     try {
@@ -941,6 +963,7 @@ export const PerfilView = {
       return;
     }
 
+    this._limpiarDeshacer();
     const anterior = this.cuenta?.foto || '';
     // Vista previa inmediata; si el servidor la rechaza se restaura.
     if (this.cuenta) this.cuenta.foto = data;
@@ -972,9 +995,10 @@ export const PerfilView = {
     }
   },
 
-  /** Elimina la foto. La confirmación previa avisa de que no se puede deshacer. */
+  /** Elimina la foto. La confirmación avisa y queda un deshacer de 8 segundos. */
   async quitarFoto() {
     if (!this.cuenta?.foto) return;
+    const anterior = this.cuenta.foto;
     const boton = porId('btnConfirmarEliminar');
     const liberar = ocupado(boton, 'Eliminando…');
 
@@ -991,13 +1015,48 @@ export const PerfilView = {
       localStorage.removeItem('pdi_usuario_foto');
       this._pintarAvatar();
       porId('perfilEliminarDialog')?.close();
-      toast('Foto eliminada', 'Vuelven tus iniciales. Si la quieres de vuelta, tendrás que subirla otra vez.');
+      this._mostrarDeshacer(anterior);
+      toast('Foto eliminada', 'Vuelven tus iniciales. Puedes deshacerlo unos segundos.');
     } catch (err) {
       if (err?.message !== 'Sesión expirada') {
         toast('No se pudo quitar la foto', 'Revisa la conexión e intenta de nuevo.', 'danger');
       }
     } finally {
       liberar();
+    }
+  },
+
+  async deshacerQuitarFoto() {
+    const foto = this._deshacerFoto;
+    if (!foto) return;
+    this._limpiarDeshacer();
+
+    if (this.cuenta) this.cuenta.foto = foto;
+    this._pintarAvatar();
+
+    try {
+      const { res, datos } = await pedir('/api/cuenta/foto', {
+        method: 'POST',
+        body: JSON.stringify({ foto }),
+      });
+      if (!res.ok || !datos.ok) {
+        if (this.cuenta) this.cuenta.foto = '';
+        this._pintarAvatar();
+        toast('No se pudo restaurar la foto', datos.error || 'Intenta de nuevo.', 'danger');
+        return;
+      }
+      if (this.cuenta) {
+        this.cuenta.foto = datos.foto || foto;
+        localStorage.setItem('pdi_usuario_foto', this.cuenta.foto);
+      }
+      toast('Foto restaurada', 'Tu foto vuelve a estar activa.');
+      porId('btnCambiarFoto')?.focus({ preventScroll: true });
+    } catch (err) {
+      if (err?.message !== 'Sesión expirada') {
+        if (this.cuenta) this.cuenta.foto = '';
+        this._pintarAvatar();
+        toast('No se pudo restaurar la foto', 'Revisa la conexión e intenta de nuevo.', 'danger');
+      }
     }
   },
 };

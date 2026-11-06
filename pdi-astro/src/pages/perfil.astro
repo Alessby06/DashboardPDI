@@ -64,6 +64,11 @@ import '../styles/views-perfil.css';
         </div>
       </header>
 
+      <div class="perfil-undo" id="perfilUndoFoto" role="status" hidden>
+        <span>Foto eliminada. Vuelven tus iniciales.</span>
+        <button type="button" id="btnDeshacerFoto">Deshacer</button>
+      </div>
+
       <div class="perfil-banner" id="perfilAvisoTemporal" hidden>
         <Icon name="seguridad.candado" size={16} />
         <div>
@@ -254,7 +259,7 @@ import '../styles/views-perfil.css';
           </header>
           <p class="perfil-dialog-text" id="perfilEliminarTexto">
             Se quitará tu foto y volverán tus iniciales.
-            <strong>Esta acción no se puede deshacer:</strong> si quieres recuperarla, tendrás que subirla de nuevo.
+            <strong>Tendrás unos segundos para deshacerlo;</strong> después ya no habrá forma de recuperarla.
           </p>
           <footer class="perfil-dialog-foot perfil-dialog-foot--end">
             <button type="button" class="perfil-btn perfil-btn--soft" id="btnCancelarEliminar">Cancelar</button>

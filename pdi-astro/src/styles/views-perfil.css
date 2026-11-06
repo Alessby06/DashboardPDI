@@ -249,6 +249,7 @@
 
 /* --- Avisos ------------------------------------------------------------- */
 
+.perfil-undo,
 .perfil-banner {
   display: flex;
   align-items: flex-start;
@@ -256,13 +257,41 @@
   padding: 11px 14px;
   border-radius: var(--radius-md);
   font-size: 12px;
+}
+
+.perfil-undo {
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+
+.perfil-undo[hidden],
+.perfil-banner[hidden] {
+  display: none;
+}
+
+.perfil-undo button {
+  border: 0;
+  background: transparent;
+  padding: 4px 2px;
+  color: var(--text-brand);
+  font-family: var(--ui-font);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.perfil-undo button:focus-visible {
+  outline: 2px solid var(--gt-green);
+  outline-offset: 2px;
+}
+
+.perfil-banner {
   border: 1px solid rgba(245, 158, 11, 0.35);
   background: rgba(245, 158, 11, 0.1);
   color: var(--text-main);
-}
-
-.perfil-banner[hidden] {
-  display: none;
 }
 
 .perfil-banner svg {
