@@ -509,6 +509,13 @@ const impeccableLive =
       gap: 6px;
     }
 
+    /* El atributo hidden no basta: la regla de clase de arriba le gana al
+       display:none del navegador y el campo del segundo factor se veía
+       siempre, aunque la cuenta no tuviera MFA. */
+    .form-row[hidden] {
+      display: none;
+    }
+
     .label-caption {
       font-size: 13px;
       font-weight: 700;
@@ -2018,6 +2025,11 @@ const impeccableLive =
         if (res.requiereTotp && filaCodigoTotp) {
           filaCodigoTotp.hidden = false;
           inputCodigoTotp?.focus();
+        } else if (filaCodigoTotp) {
+          // Si el fallo no es del segundo factor, se retira: un código viejo
+          // junto a una contraseña equivocada solo confunde.
+          filaCodigoTotp.hidden = true;
+          if (inputCodigoTotp) inputCodigoTotp.value = '';
         }
         mostrarError(res.error || 'Credenciales incorrectas. Verifica tu usuario y clave.');
         if (!res.requiereTotp) inputClave?.select();
