@@ -2,9 +2,9 @@
 // ===========================================================================
 //  MIGRACIÓN DE CUENTAS
 // ===========================================================================
-//  Crea la tabla `cuenta` y siembra las cinco cuentas actuales con su misma
-//  contraseña (marcha blanca). La contraseña no se guarda en claro: se genera
-//  un hash Argon2id en SurrealDB y se cifra antes de escribir.
+//  Crea la tabla `cuenta` y siembra las cinco cuentas iniciales. La contraseña
+//  no se guarda en claro: se genera un hash Argon2id en SurrealDB y se cifra
+//  antes de escribir.
 //
 //  Uso:
 //    node scripts/migrar-cuentas.mjs
@@ -14,21 +14,30 @@
 //  hashes deriva de SURREAL_PASS: si esa contraseña cambia, hay que volver a
 //  ejecutar esta migración con --forzar para re-cifrar las cuentas.
 //
-//  Las claves de demostración viven aquí solo para la marcha blanca. Al pasar
-//  a producción hay que retirar este archivo (o vaciar CUENTAS) y rotar las
-//  contraseñas desde administración.
+//  No hay contraseñas fijas en el repositorio: cada cuenta recibe una clave
+//  temporal aleatoria que se imprime una sola vez y obliga a cambiarla al
+//  entrar. Así una copia pública del código no entrega credenciales.
 // ===========================================================================
 import fs from 'node:fs';
+import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { configDe, consulta, hashClave, cifrar } from '../../api/_cuentaBase.mjs';
 
 const CUENTAS = [
-  { usuario: 'coordinacion', clave: 'coord2024', rol: 'coord', nombre: 'Coordinación General' },
-  { usuario: 'facilitadora', clave: 'facil2024', rol: 'facilitadora', nombre: 'Facilitadora Nutricional' },
-  { usuario: 'promotora', clave: 'promo2024', rol: 'promotora', nombre: 'Promotora Educativa' },
-  { usuario: 'social', clave: 'social2024', rol: 'social', nombre: 'Trabajadora Social' },
-  { usuario: 'admin', clave: 'admin2024', rol: 'admin', nombre: 'Administrador TI' },
+  { usuario: 'coordinacion', rol: 'coord', nombre: 'Coordinación General' },
+  { usuario: 'facilitadora', rol: 'facilitadora', nombre: 'Facilitadora Nutricional' },
+  { usuario: 'promotora', rol: 'promotora', nombre: 'Promotora Educativa' },
+  { usuario: 'social', rol: 'social', nombre: 'Trabajadora Social' },
+  { usuario: 'admin', rol: 'admin', nombre: 'Administrador TI' },
 ];
+
+/** Clave temporal legible, sin caracteres ambiguos. */
+function claveTemporal() {
+  const alfabeto = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let salida = '';
+  for (let i = 0; i < 16; i += 1) salida += alfabeto[crypto.randomInt(0, alfabeto.length)];
+  return salida;
+}
 
 function cargarEnv() {
   const ruta = fileURLToPath(new URL('../.env', import.meta.url));
@@ -54,6 +63,7 @@ const ESQUEMA = [
   'DEFINE FIELD IF NOT EXISTS hash_cifrado ON cuenta TYPE string;',
   'DEFINE FIELD IF NOT EXISTS foto ON cuenta TYPE option<string>;',
   'DEFINE FIELD IF NOT EXISTS debe_cambiar_clave ON cuenta TYPE bool DEFAULT false;',
+  'DEFINE FIELD IF NOT EXISTS session_version ON cuenta TYPE int DEFAULT 0;',
   'DEFINE FIELD IF NOT EXISTS creado_el ON cuenta TYPE datetime DEFAULT time::now();',
   'DEFINE FIELD IF NOT EXISTS actualizado_el ON cuenta TYPE datetime VALUE time::now();',
   'DEFINE INDEX IF NOT EXISTS cuenta_usuario_unico ON cuenta FIELDS usuario UNIQUE;',
@@ -75,8 +85,10 @@ async function main() {
   }
   console.log('[cuentas] esquema listo.');
 
+  const temporales = [];
+
   for (const cuenta of CUENTAS) {
-    const existentes = await consulta(cfg, `SELECT id, usuario FROM cuenta WHERE usuario = ${lit(cuenta.usuario)} LIMIT 1;`);
+    const existentes = await consulta(cfg, `SELECT id, usuario, session_version FROM cuenta WHERE usuario = ${lit(cuenta.usuario)} LIMIT 1;`);
     const yaExiste = Array.isArray(existentes) && existentes.length > 0;
 
     if (yaExiste && !forzar) {
@@ -84,16 +96,19 @@ async function main() {
       continue;
     }
 
-    const hash = await hashClave(cfg, cuenta.clave);
+    const clave = claveTemporal();
+    const hash = await hashClave(cfg, clave);
     const cifrado = cifrar(hash, cfg.secreto);
     if (yaExiste) {
       const id = String(existentes[0].id);
+      const versionSesion = (Number(existentes[0].session_version) || 0) + 1;
       await consulta(cfg, `UPDATE type::thing(${lit(id)}) SET
         nombre = ${lit(cuenta.nombre)},
         rol = ${lit(cuenta.rol)},
         activo = true,
         hash_cifrado = ${lit(cifrado)},
-        debe_cambiar_clave = false;`);
+        debe_cambiar_clave = true,
+        session_version = ${versionSesion};`);
       console.log(`[cuentas] ${cuenta.usuario}: actualizada (--forzar).`);
     } else {
       await consulta(cfg, `CREATE cuenta CONTENT {
@@ -105,10 +120,18 @@ async function main() {
         activo: true,
         hash_cifrado: ${lit(cifrado)},
         foto: NONE,
-        debe_cambiar_clave: false
+        debe_cambiar_clave: true,
+        session_version: 0
       };`);
       console.log(`[cuentas] ${cuenta.usuario}: creada.`);
     }
+    temporales.push({ usuario: cuenta.usuario, clave });
+  }
+
+  if (temporales.length) {
+    console.log('\n[cuentas] Claves temporales (se muestran una sola vez):');
+    for (const t of temporales) console.log(`  ${t.usuario}: ${t.clave}`);
+    console.log('[cuentas] Cada cuenta deberá cambiar la clave al entrar.\n');
   }
 
   const total = await consulta(cfg, 'SELECT count() AS total FROM cuenta GROUP ALL;');

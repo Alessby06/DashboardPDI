@@ -67,9 +67,31 @@ const RUTA_TOKEN = '/api/pdi';
 async function pedirToken() {
   const res = await fetch(RUTA_TOKEN, {
     method: 'POST',
+    credentials: 'same-origin',
     headers: { 'Content-Type': 'application/json' },
     body: '{}',
   });
+
+  // El endpoint del token exige sesión. Un 401 aquí significa que la cookie
+  // ya no vale: se limpian las marcas locales y se vuelve al acceso.
+  if (res.status === 401) {
+    try {
+      ['pdi_sesion_activa', 'pdi_active_role', 'pdi_usuario_nombre',
+        'pdi_usuario_login', 'pdi_usuario_foto', 'pdi_session_exp']
+        .forEach((clave) => localStorage.removeItem(clave));
+    } catch (e) { /* sin almacenamiento */ }
+    if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+      window.location.replace('/login');
+    }
+    throw new Error('La sesión expiró. Vuelve a iniciar sesión.');
+  }
+
+  // Una caída o un fallo de configuración no debe confundirse con una sesión
+  // expirada: se reintenta sin borrar nada.
+  if (res.status === 503) {
+    throw new Error('El servidor no pudo verificar la sesión. Reintentando…');
+  }
+
   if (!res.ok) {
     throw new Error('El servidor no concedio acceso a la base de datos (' + res.status + ')');
   }

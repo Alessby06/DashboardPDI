@@ -204,8 +204,13 @@ import Icon from './Icon.astro';
 
   async function actualizar() {
     conectar();
-    const cuenta = await sincronizarSesion();
-    if (cuenta) pintar(cuenta);
+    try {
+      const cuenta = await sincronizarSesion();
+      if (cuenta) pintar(cuenta);
+    } catch (e) {
+      // Caída o error del servidor: se conserva lo último pintado. La sesión
+      // no se cierra; el perfil muestra el aviso y permite reintentar.
+    }
   }
 
   document.addEventListener('astro:page-load', actualizar);

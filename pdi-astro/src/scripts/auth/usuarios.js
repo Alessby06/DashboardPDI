@@ -114,7 +114,17 @@ export function cerrarSesion() {
 export async function sincronizarSesion() {
   try {
     const res = await fetch("/api/cuenta/sesion", { credentials: "same-origin" });
-    if (!res.ok) return null;
+
+    // 401 sí es "no hay sesión": se limpian las marcas. Un 5xx es un fallo del
+    // servidor o de la base y NO debe cerrar la sesión del usuario.
+    if (res.status === 401) {
+      cerrarSesion();
+      return null;
+    }
+    if (!res.ok) {
+      throw new Error("No se pudo verificar la sesión (" + res.status + ").");
+    }
+
     const datos = await res.json().catch(() => null);
     if (!datos?.ok || !datos.cuenta) return null;
 
@@ -129,7 +139,9 @@ export async function sincronizarSesion() {
 
     return cuenta;
   } catch (e) {
-    return null;
+    // Se propaga: el llamador decide si muestra un reintento. Nunca se debe
+    // confundir una caída del servidor con una sesión inexistente.
+    throw e;
   }
 }
 

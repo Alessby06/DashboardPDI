@@ -17,9 +17,11 @@
 //  con "type": "module" y Vercel compila los .js como CommonJS.
 // ===========================================================================
 import { emitirToken, DURACION_TOKEN_SEGUNDOS } from './_tokenBase.mjs';
+import { sesionValida } from './_cuentaBase.mjs';
 
-// El token se reutiliza un minuto: así un正常使用 de la app no golpea el
-// signin en cada petición, y el token de todos modos caduca a los 30 min.
+// El token se reutiliza un minuto: así el uso normal de la app no golpea el
+// signin en cada petición. La duración real la fija el usuario pdi_web en la
+// base (DURATION FOR TOKEN); este valor solo debe mantenerse alineado.
 const TTL_CACHE_MS = 60 * 1000;
 
 // Freno básico de abuso. La Function no tiene memoria compartida entre
@@ -55,6 +57,23 @@ export default {
     }
     if (request.method !== 'POST') {
       return Response.json({ error: 'Se espera POST' }, { status: 405 });
+    }
+
+    // Sin cookie de sesión no hay token. Antes este endpoint era anónimo y
+    // entregaba una credencial EDITOR de toda la base a cualquiera.
+    try {
+      if (!(await sesionValida(request, process.env))) {
+        return new Response(JSON.stringify({ error: 'Sesión requerida.' }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' },
+        });
+      }
+    } catch (err) {
+      console.error('[pdi/token] no se pudo verificar la sesión:', err?.message || err);
+      return new Response(JSON.stringify({ error: 'No se pudo verificar la sesión.' }), {
+        status: 503,
+        headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' },
+      });
     }
 
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'desconocida';

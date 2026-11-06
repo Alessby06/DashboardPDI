@@ -41,6 +41,23 @@ export const onRequest = async (context, next) => {
     });
   }
 
+  // Misma regla que la Function de Vercel: sin sesión no hay token.
+  try {
+    const { sesionValida } = await import('../../api/_cuentaBase.mjs');
+    if (!(await sesionValida(context.request, import.meta.env))) {
+      return new Response(JSON.stringify({ error: 'Sesión requerida.' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+      });
+    }
+  } catch (err) {
+    console.error('[pdi/token] no se pudo verificar la sesión (dev):', err?.message || err);
+    return new Response(JSON.stringify({ error: 'No se pudo verificar la sesión.' }), {
+      status: 503,
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+    });
+  }
+
   try {
     const token = await emitirToken({
       url: import.meta.env.SURREAL_URL || import.meta.env.PUBLIC_SURREAL_URL,

@@ -239,7 +239,16 @@ export const PerfilView = {
   },
 
   async cargar() {
-    const cuenta = await sincronizarSesion();
+    let cuenta;
+    try {
+      cuenta = await sincronizarSesion();
+    } catch (err) {
+      // Fallo del servidor o de la base: la cookie sigue siendo válida. No se
+      // expulsa al usuario; se le pide reintentar.
+      aviso('perfilDatosFeedback', 'No se pudo verificar la sesión. Revisa la conexión e intenta de nuevo.', 'error');
+      toast('No se pudo cargar el perfil', 'El servidor no respondió. Recarga la página para reintentar.', 'danger');
+      return;
+    }
     if (!cuenta) {
       window.location.replace('/login');
       return;

@@ -56,7 +56,7 @@ async function main() {
   const forzar = !process.argv.includes('--sin-forzar');
 
   const cfg = configDe(cargarEnv());
-  const filas = await consulta(cfg, `SELECT id, usuario, nombre FROM cuenta WHERE usuario = ${lit(usuario)} LIMIT 1;`);
+  const filas = await consulta(cfg, `SELECT id, usuario, nombre, session_version FROM cuenta WHERE usuario = ${lit(usuario)} LIMIT 1;`);
   if (!Array.isArray(filas) || !filas.length) {
     console.error(`No existe la cuenta "${usuario}".`);
     process.exit(1);
@@ -69,9 +69,12 @@ async function main() {
   }
 
   const hash = cifrar(await hashClave(cfg, clave), cfg.secreto);
+  // Un restablecimiento invalida cualquier sesión abierta de esa cuenta.
+  const versionSesion = (Number(cuenta.session_version) || 0) + 1;
   await consulta(cfg, `UPDATE ${id} SET
     hash_cifrado = ${lit(hash)},
-    debe_cambiar_clave = ${forzar ? 'true' : 'false'};`);
+    debe_cambiar_clave = ${forzar ? 'true' : 'false'},
+    session_version = ${versionSesion};`);
 
   try {
     await consulta(cfg, `CREATE bitacora_auditoria CONTENT {

@@ -9,8 +9,9 @@
 //    - La contraseña se guarda como hash Argon2id generado por SurrealDB.
 //    - Ese hash se cifra con AES-256-GCM usando un secreto derivado de la
 //      contraseña del servidor de base de datos, que nunca llega al navegador.
-//      El navegador puede leer la tabla por la arquitectura actual de datos,
-//      pero sin la clave solo ve texto cifrado.
+//      OJO: el navegador comparte hoy el usuario de base con los datos
+//      clínicos; por eso puede leer y escribir `cuenta` aunque la tabla esté
+//      en PERMISSIONS NONE. Aislar `cuenta` en otra base es el paso pendiente.
 //    - La sesión es una cookie HttpOnly firmada con HMAC-SHA256, de 8 horas
 //      deslizantes. El navegador no puede leerla ni modificarla.
 //    - La recuperación es una clave temporal generada desde administración.
@@ -315,6 +316,9 @@ function datosSesion(cuenta) {
     usuario: cuenta.usuario,
     rol: cuenta.rol,
     nombre: cuenta.nombre,
+    // Versión de sesión: se incrementa al cambiar o restablecer la contraseña.
+    // Las cookies anteriores dejan de valer en cuanto el número no coincide.
+    sv: Number(cuenta.session_version || 0),
     exp: Date.now() + DURACION_SESION_MS,
   };
 }
@@ -350,13 +354,33 @@ async function sesionDe(request, cfg) {
   const token = leerCookie(request, NOMBRE_COOKIE);
   const datos = verificarSesion(token, cfg.secreto);
   if (!datos) return null;
-  try {
-    const cuenta = await cuentaPorId(cfg, datos.sub);
-    if (!cuenta || cuenta.activo === false) return null;
-    return { cuenta, datos };
-  } catch {
-    return null;
-  }
+
+  // Un fallo de base NO es una sesión inválida: debe propagarse para que el
+  // llamador responda 5xx sin borrar la cookie. Si se confundieran, una caída
+  // transitoria de SurrealDB cerraría la sesión de todos los usuarios.
+  const cuenta = await cuentaPorId(cfg, datos.sub);
+  if (!cuenta || cuenta.activo === false) return null;
+  if (Number(datos.sv || 0) !== Number(cuenta.session_version || 0)) return null;
+  return { cuenta, datos };
+}
+
+/**
+ * Comprueba la cookie de sesión sin devolver datos de la cuenta. La usa el
+ * endpoint que entrega el token de base de datos: sin sesión no hay token.
+ */
+export async function sesionValida(request, env = {}) {
+  const cfg = configDe(env);
+  return Boolean(await sesionDe(request, cfg));
+}
+
+/** Una clave temporal solo permite iniciar sesión y cambiarla. */
+function bloqueoClaveTemporal(cuenta) {
+  if (!cuenta?.debe_cambiar_clave) return null;
+  return json({
+    ok: false,
+    error: 'Debes cambiar la contraseña temporal antes de continuar.',
+    cambioClaveRequerido: true,
+  }, 403);
 }
 
 // --- Acciones ---------------------------------------------------------------
@@ -404,6 +428,8 @@ async function sesion(request, cfg) {
 async function perfil(request, cfg) {
   const actual = await sesionDe(request, cfg);
   if (!actual) return json({ ok: false, error: 'La sesión expiró.' }, 401, [cookieBorrada()]);
+  const bloqueo = bloqueoClaveTemporal(actual.cuenta);
+  if (bloqueo) return bloqueo;
   const { nombre, correo, telefono } = await cuerpo(request);
   const n = validarNombre(nombre);
   if (!n.ok) return json({ ok: false, error: n.error }, 400);
@@ -440,6 +466,8 @@ async function perfil(request, cfg) {
 async function usuario(request, cfg) {
   const actual = await sesionDe(request, cfg);
   if (!actual) return json({ ok: false, error: 'La sesión expiró.' }, 401, [cookieBorrada()]);
+  const bloqueo = bloqueoClaveTemporal(actual.cuenta);
+  if (bloqueo) return bloqueo;
   const { usuario, clave } = await cuerpo(request);
   const v = validarUsuario(usuario);
   if (!v.ok) return json({ ok: false, error: v.error }, 400);
@@ -449,7 +477,9 @@ async function usuario(request, cfg) {
   let hash;
   try { hash = descifrar(cuenta.hash_cifrado, cfg.secreto); } catch { return json({ ok: false, error: 'No se pudo verificar la cuenta.' }, 500); }
   if (!(await compararClave(cfg, hash, String(clave)))) {
-    return json({ ok: false, error: 'La contraseña actual no coincide.' }, 401);
+    // 403, no 401: la sesión es válida; lo que falla es la confirmación.
+    // Un 401 haría que el cliente creyera que la sesión expiró y lo expulsara.
+    return json({ ok: false, error: 'La contraseña actual no coincide.' }, 403);
   }
   if (v.usuario === cuenta.usuario) {
     return json({ ok: true, cuenta: publica(cuenta) }, 200, [cookieSesion(request, datosSesion(cuenta), cfg)]);
@@ -479,21 +509,34 @@ async function clave(request, cfg) {
   let hash;
   try { hash = descifrar(cuenta.hash_cifrado, cfg.secreto); } catch { return json({ ok: false, error: 'No se pudo verificar la cuenta.' }, 500); }
   if (!(await compararClave(cfg, hash, String(claveActual)))) {
-    return json({ ok: false, error: 'La contraseña actual no coincide.' }, 401);
+    // 403, no 401: la sesión sigue siendo válida. El 401 está reservado para
+    // una sesión ausente o caducada.
+    return json({ ok: false, error: 'La contraseña actual no coincide.' }, 403);
   }
 
   const nuevoHash = cifrar(await hashClave(cfg, String(nueva)), cfg.secreto);
+  const versionSesion = (Number(cuenta.session_version) || 0) + 1;
   await consulta(cfg, `UPDATE ${idRegistro(cuenta.id)} SET
     hash_cifrado = ${lit(nuevoHash)},
-    debe_cambiar_clave = false;`);
+    debe_cambiar_clave = false,
+    session_version = ${versionSesion};`);
   await auditar(cfg, cuenta, 'Contraseña actualizada', 'Cambio de contraseña del perfil.', null, ipDe(request));
 
-  return json({ ok: true }, 200, [cookieSesion(request, datosSesion(cuenta), cfg)]);
+  // Las demás sesiones de esta cuenta quedan invalidadas al cambiar el número
+  // de versión. La sesión actual recibe una cookie nueva con el número nuevo.
+  const fresca = (await cuentaPorId(cfg, String(cuenta.id))) || {
+    ...cuenta,
+    session_version: versionSesion,
+    debe_cambiar_clave: false,
+  };
+  return json({ ok: true }, 200, [cookieSesion(request, datosSesion(fresca), cfg)]);
 }
 
 async function foto(request, cfg) {
   const actual = await sesionDe(request, cfg);
   if (!actual) return json({ ok: false, error: 'La sesión expiró.' }, 401, [cookieBorrada()]);
+  const bloqueo = bloqueoClaveTemporal(actual.cuenta);
+  if (bloqueo) return bloqueo;
   const { foto: valor } = await cuerpo(request);
   const cuenta = actual.cuenta;
 

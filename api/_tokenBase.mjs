@@ -24,8 +24,10 @@
 //  administración ('pdi_app') no sale de este servidor en ningún momento.
 // ===========================================================================
 
-// La duración la fija el usuario de la base (DURATION FOR SESSION). Este valor
-// es solo la referencia que el cliente usa para saber cuándo renovar.
+// La duración real la fija el usuario de la base (DURATION FOR TOKEN). Este
+// valor es solo la referencia que se devuelve al cliente. Debe coincidir con
+// la configuración del usuario: si el token vive más, sigue siendo válido
+// aunque el cliente crea que ya expiró.
 export const DURACION_TOKEN_SEGUNDOS = 1800;
 
 /** Convierte la URL de la base a su forma HTTP: el WebSocket es wss://. */
