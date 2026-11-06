@@ -77,7 +77,9 @@ async function main() {
     debe_cambiar_clave = ${forzar ? 'true' : 'false'},
     session_version = ${versionSesion},
     intentos_fallidos = 0,
-    bloqueado_hasta = NONE;`);
+    bloqueado_hasta = NONE,
+    totp_secret = NONE,
+    totp_activo = false;`);
 
   try {
     await consulta(cfg, `CREATE bitacora_auditoria CONTENT {

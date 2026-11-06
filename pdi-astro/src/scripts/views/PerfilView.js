@@ -280,6 +280,7 @@ export const PerfilView = {
     this._pintarAvatar();
     this._cargarCampos();
     this._pintarAvisoTemporal();
+    this._pintarTotp();
   },
 
   /** Repinta solo la foto: cambiar de avatar no debe pisar lo que se escribe. */
@@ -310,6 +311,132 @@ export const PerfilView = {
   _pintarAvisoTemporal() {
     const el = porId('perfilAvisoTemporal');
     if (el) el.hidden = !this.cuenta?.debeCambiarClave;
+  },
+
+  _pintarTotp() {
+    const bloque = porId('perfilTotp');
+    if (!bloque) return;
+    const permitido = Boolean(this.cuenta && ['coord', 'admin'].includes(this.cuenta.rol));
+    bloque.hidden = !permitido;
+    if (!permitido) return;
+
+    const activo = Boolean(this.cuenta.totpActivo);
+    const estado = porId('perfilTotpEstado');
+    if (estado) estado.textContent = activo ? 'Activada' : 'Desactivada';
+    const activar = porId('btnTotpActivar');
+    if (activar) activar.hidden = activo;
+    const desactivar = porId('btnTotpDesactivar');
+    if (desactivar) desactivar.hidden = !activo;
+    const panel = porId('perfilTotpPanel');
+    if (panel) panel.hidden = true;
+    const panelBaja = porId('perfilTotpDesactivarPanel');
+    if (panelBaja) panelBaja.hidden = true;
+    const secreto = porId('perfilTotpSecreto');
+    if (secreto) secreto.textContent = '';
+    aviso('perfilTotpFeedback', '');
+    aviso('perfilTotpDesactivarFeedback', '');
+  },
+
+  async iniciarTotp() {
+    const boton = porId('btnTotpActivar');
+    const liberar = ocupado(boton, 'Generando…');
+    aviso('perfilTotpFeedback', '');
+    try {
+      const { res, datos } = await pedir('/api/cuenta/totp', {
+        method: 'POST',
+        body: JSON.stringify({ accion: 'iniciar' }),
+      });
+      if (!res.ok || !datos.ok) {
+        aviso('perfilTotpFeedback', datos.error || 'No se pudo iniciar la verificación.', 'error');
+        return;
+      }
+      const secreto = porId('perfilTotpSecreto');
+      if (secreto) secreto.textContent = datos.secreto || '';
+      const panel = porId('perfilTotpPanel');
+      if (panel) panel.hidden = false;
+      if (boton) boton.hidden = true;
+      const desactivar = porId('btnTotpDesactivar');
+      if (desactivar) desactivar.hidden = true;
+      const codigo = porId('perfilTotpCodigo');
+      if (codigo) { codigo.value = ''; codigo.focus({ preventScroll: true }); }
+    } catch (err) {
+      if (err?.message !== 'Sesión expirada') {
+        aviso('perfilTotpFeedback', 'No se pudo conectar. Intenta de nuevo.', 'error');
+      }
+    } finally {
+      liberar();
+    }
+  },
+
+  async confirmarTotp() {
+    const boton = porId('btnTotpConfirmar');
+    const codigo = (porId('perfilTotpCodigo')?.value || '').replace(/\D/g, '');
+    aviso('perfilTotpFeedback', '');
+    if (codigo.length !== 6) {
+      aviso('perfilTotpFeedback', 'Escribe el código de 6 dígitos.', 'error');
+      porId('perfilTotpCodigo')?.focus();
+      return;
+    }
+    const liberar = ocupado(boton, 'Confirmando…');
+    try {
+      const { res, datos } = await pedir('/api/cuenta/totp', {
+        method: 'POST',
+        body: JSON.stringify({ accion: 'confirmar', codigo }),
+      });
+      if (!res.ok || !datos.ok) {
+        aviso('perfilTotpFeedback', datos.error || 'El código no es correcto.', 'error');
+        return;
+      }
+      this.cuenta.totpActivo = true;
+      this._pintarTotp();
+      toast('Verificación activada', 'La próxima vez se pedirá el código de tu aplicación.');
+    } catch (err) {
+      if (err?.message !== 'Sesión expirada') {
+        aviso('perfilTotpFeedback', 'No se pudo conectar. Intenta de nuevo.', 'error');
+      }
+    } finally {
+      liberar();
+    }
+  },
+
+  mostrarBajaTotp() {
+    const panel = porId('perfilTotpDesactivarPanel');
+    if (panel) panel.hidden = false;
+    aviso('perfilTotpDesactivarFeedback', '');
+    porId('perfilTotpClave')?.focus({ preventScroll: true });
+  },
+
+  async desactivarTotp() {
+    const boton = porId('btnTotpDesactivarConfirmar');
+    const clave = porId('perfilTotpClave')?.value || '';
+    aviso('perfilTotpDesactivarFeedback', '');
+    if (!clave) {
+      aviso('perfilTotpDesactivarFeedback', 'Escribe tu contraseña actual.', 'error');
+      porId('perfilTotpClave')?.focus();
+      return;
+    }
+    const liberar = ocupado(boton, 'Desactivando…');
+    try {
+      const { res, datos } = await pedir('/api/cuenta/totp', {
+        method: 'POST',
+        body: JSON.stringify({ accion: 'desactivar', clave }),
+      });
+      if (!res.ok || !datos.ok) {
+        aviso('perfilTotpDesactivarFeedback', datos.error || 'No se pudo desactivar.', 'error');
+        return;
+      }
+      this.cuenta.totpActivo = false;
+      const input = porId('perfilTotpClave');
+      if (input) input.value = '';
+      this._pintarTotp();
+      toast('Verificación desactivada', 'Tu cuenta vuelve a usar solo contraseña.');
+    } catch (err) {
+      if (err?.message !== 'Sesión expirada') {
+        aviso('perfilTotpDesactivarFeedback', 'No se pudo conectar. Intenta de nuevo.', 'error');
+      }
+    } finally {
+      liberar();
+    }
   },
 
   _cargarCampos() {
@@ -370,6 +497,10 @@ export const PerfilView = {
     });
     porId('btnQuitarFoto')?.addEventListener('click', () => this.quitarFoto());
     porId('btnDeshacerFoto')?.addEventListener('click', () => this.deshacerQuitarFoto());
+    porId('btnTotpActivar')?.addEventListener('click', () => this.iniciarTotp());
+    porId('btnTotpConfirmar')?.addEventListener('click', () => this.confirmarTotp());
+    porId('btnTotpDesactivar')?.addEventListener('click', () => this.mostrarBajaTotp());
+    porId('btnTotpDesactivarConfirmar')?.addEventListener('click', () => this.desactivarTotp());
 
     porId('btnGuardarPerfilBar')?.addEventListener('click', () => this.guardarDatos());
     porId('btnDescartarPerfil')?.addEventListener('click', () => this.descartar());

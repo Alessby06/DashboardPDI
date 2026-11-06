@@ -66,6 +66,8 @@ const ESQUEMA = [
   'DEFINE FIELD IF NOT EXISTS session_version ON cuenta TYPE int DEFAULT 0;',
   'DEFINE FIELD IF NOT EXISTS intentos_fallidos ON cuenta TYPE int DEFAULT 0;',
   'DEFINE FIELD IF NOT EXISTS bloqueado_hasta ON cuenta TYPE option<datetime>;',
+  'DEFINE FIELD IF NOT EXISTS totp_secret ON cuenta TYPE option<string>;',
+  'DEFINE FIELD IF NOT EXISTS totp_activo ON cuenta TYPE bool DEFAULT false;',
   'DEFINE TABLE IF NOT EXISTS intento_login SCHEMAFULL PERMISSIONS NONE;',
   'DEFINE FIELD IF NOT EXISTS ip_hash ON intento_login TYPE string;',
   'DEFINE FIELD IF NOT EXISTS intentos ON intento_login TYPE int DEFAULT 0;',
@@ -96,6 +98,7 @@ async function main() {
   try {
     await consulta(cfg, 'UPDATE cuenta SET intentos_fallidos = 0 WHERE intentos_fallidos = NONE;');
     await consulta(cfg, 'UPDATE cuenta SET session_version = 0 WHERE session_version = NONE;');
+    await consulta(cfg, 'UPDATE cuenta SET totp_activo = false WHERE totp_activo = NONE;');
   } catch (err) {
     console.warn('[cuentas] no se pudieron normalizar los contadores:', err?.message || err);
   }

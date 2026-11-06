@@ -91,6 +91,66 @@ export function descifrar(paquete, secreto) {
   return Buffer.concat([decipher.update(datos), decipher.final()]).toString('utf8');
 }
 
+// --- TOTP (segundo factor) --------------------------------------------------
+
+const ALFABETO_BASE32 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+
+function base32Codificar(buffer) {
+  let bits = 0;
+  let valor = 0;
+  let salida = '';
+  for (const byte of buffer) {
+    valor = (valor << 8) | byte;
+    bits += 8;
+    while (bits >= 5) {
+      salida += ALFABETO_BASE32[(valor >>> (bits - 5)) & 31];
+      bits -= 5;
+    }
+  }
+  if (bits > 0) salida += ALFABETO_BASE32[(valor << (5 - bits)) & 31];
+  return salida;
+}
+
+function base32Decodificar(texto) {
+  const limpio = String(texto || '').toUpperCase().replace(/[^A-Z2-7]/g, '');
+  let bits = 0;
+  let valor = 0;
+  const bytes = [];
+  for (const caracter of limpio) {
+    const indice = ALFABETO_BASE32.indexOf(caracter);
+    if (indice < 0) continue;
+    valor = (valor << 5) | indice;
+    bits += 5;
+    if (bits >= 8) {
+      bytes.push((valor >>> (bits - 8)) & 0xff);
+      bits -= 8;
+    }
+  }
+  return Buffer.from(bytes);
+}
+
+export function generarSecretoTotp() {
+  return base32Codificar(crypto.randomBytes(20));
+}
+
+export function codigoTotp(secreto, instante = Date.now()) {
+  const contador = Math.floor(instante / 30000);
+  const buffer = Buffer.alloc(8);
+  buffer.writeBigUInt64BE(BigInt(contador));
+  const hmac = crypto.createHmac('sha1', base32Decodificar(secreto)).update(buffer).digest();
+  const offset = hmac[hmac.length - 1] & 0x0f;
+  const valor = (hmac.readUInt32BE(offset) & 0x7fffffff) % 1000000;
+  return String(valor).padStart(6, '0');
+}
+
+export function verificarTotp(secreto, codigo) {
+  const limpio = String(codigo || '').replace(/\D/g, '');
+  if (limpio.length !== 6) return false;
+  const ahora = Date.now();
+  // Ventana de ±30 s: tolera el desfase de reloj de un teléfono.
+  return [-1, 0, 1].some((delta) => codigoTotp(secreto, ahora + delta * 30000) === limpio);
+}
+
 // --- Sesión -----------------------------------------------------------------
 
 function firma(payload, secreto) {
@@ -362,6 +422,7 @@ function publica(cuenta) {
     rol: cuenta.rol,
     foto: cuenta.foto || '',
     debeCambiarClave: Boolean(cuenta.debe_cambiar_clave),
+    totpActivo: Boolean(cuenta.totp_activo),
     creadoEl: cuenta.creado_el || null,
   };
 }
@@ -460,7 +521,7 @@ async function login(request, cfg) {
     return json({ ok: false, error: 'Demasiados intentos. Espera 15 minutos antes de volver a probar.' }, 429);
   }
 
-  const { usuario, clave } = await cuerpo(request);
+  const { usuario, clave, codigo } = await cuerpo(request);
   const limpio = String(usuario || '').trim().toLowerCase();
   if (!limpio || !clave) return json({ ok: false, error: 'Escribe tu usuario y tu contraseña.' }, 400);
 
@@ -480,6 +541,29 @@ async function login(request, cfg) {
     await registrarIntentoCuenta(cfg, cuenta, false);
     await registrarIntentoIp(cfg, ip, false);
     return json({ ok: false, error: generico }, 401);
+  }
+
+  if (cuenta.totp_activo) {
+    if (!codigo) {
+      // Primera etapa: la contraseña es correcta, falta el segundo factor.
+      // No cuenta como intento fallido ni entrega cookie.
+      return json({
+        ok: false,
+        requiereTotp: true,
+        error: 'Escribe el código de 6 dígitos de tu aplicación de autenticación.',
+      }, 401);
+    }
+    let secreto;
+    try { secreto = descifrar(cuenta.totp_secret, cfg.secreto); } catch { secreto = ''; }
+    if (!verificarTotp(secreto, codigo)) {
+      await registrarIntentoCuenta(cfg, cuenta, false);
+      await registrarIntentoIp(cfg, ip, false);
+      return json({
+        ok: false,
+        requiereTotp: true,
+        error: 'El código de verificación no es correcto o ya expiró.',
+      }, 401);
+    }
   }
 
   await registrarIntentoCuenta(cfg, cuenta, true);
@@ -639,6 +723,59 @@ async function foto(request, cfg) {
   return json({ ok: true, foto: texto });
 }
 
+async function totp(request, cfg) {
+  const actual = await sesionDe(request, cfg);
+  if (!actual) return json({ ok: false, error: 'La sesión expiró.' }, 401, [cookieBorrada()]);
+  const cuenta = actual.cuenta;
+  if (!['coord', 'admin'].includes(cuenta.rol)) {
+    return json({ ok: false, error: 'La verificación en dos pasos solo está disponible para coordinación y administración.' }, 403);
+  }
+
+  const { accion, codigo, clave } = await cuerpo(request);
+
+  if (accion === 'iniciar') {
+    const secreto = generarSecretoTotp();
+    const cifrado = cifrar(secreto, cfg.secreto);
+    await consulta(cfg, `UPDATE ${idRegistro(cuenta.id)} SET
+      totp_secret = ${lit(cifrado)},
+      totp_activo = false;`);
+    const uri = `otpauth://totp/PDI:${encodeURIComponent(cuenta.usuario)}?secret=${secreto}&issuer=PDI&algorithm=SHA1&digits=6&period=30`;
+    return json({ ok: true, secreto, uri });
+  }
+
+  if (accion === 'confirmar') {
+    if (!cuenta.totp_secret) return json({ ok: false, error: 'Primero inicia la activación.' }, 400);
+    let secreto;
+    try { secreto = descifrar(cuenta.totp_secret, cfg.secreto); } catch {
+      return json({ ok: false, error: 'No se pudo leer el secreto de verificación.' }, 500);
+    }
+    if (!verificarTotp(secreto, codigo)) {
+      return json({ ok: false, error: 'El código no es correcto o ya expiró.' }, 400);
+    }
+    await consulta(cfg, `UPDATE ${idRegistro(cuenta.id)} SET totp_activo = true;`);
+    await auditar(cfg.auditoria || cfg, cuenta, 'MFA activado', 'Verificación en dos pasos activada.', null, ipDe(request));
+    return json({ ok: true, totpActivo: true });
+  }
+
+  if (accion === 'desactivar') {
+    if (!clave) return json({ ok: false, error: 'Escribe tu contraseña actual para confirmar.' }, 400);
+    let hash;
+    try { hash = descifrar(cuenta.hash_cifrado, cfg.secreto); } catch {
+      return json({ ok: false, error: 'No se pudo verificar la cuenta.' }, 500);
+    }
+    if (!(await compararClave(cfg, hash, String(clave)))) {
+      return json({ ok: false, error: 'La contraseña actual no coincide.' }, 403);
+    }
+    await consulta(cfg, `UPDATE ${idRegistro(cuenta.id)} SET
+      totp_secret = NONE,
+      totp_activo = false;`);
+    await auditar(cfg.auditoria || cfg, cuenta, 'MFA desactivado', 'Verificación en dos pasos desactivada.', null, ipDe(request));
+    return json({ ok: true, totpActivo: false });
+  }
+
+  return json({ ok: false, error: 'Acción no válida.' }, 400);
+}
+
 async function logout(request) {
   return json({ ok: true }, 200, [cookieBorrada()]);
 }
@@ -736,6 +873,11 @@ export async function handleCuenta(request, env = {}) {
       if (request.method !== 'POST') return json({ ok: false, error: 'Se espera POST.' }, 405);
       if (!origenValido(request)) return json({ ok: false, error: 'Origen no permitido.' }, 403);
       return await foto(request, cfg);
+    }
+    if (ruta === '/api/cuenta/totp') {
+      if (request.method !== 'POST') return json({ ok: false, error: 'Se espera POST.' }, 405);
+      if (!origenValido(request)) return json({ ok: false, error: 'Origen no permitido.' }, 403);
+      return await totp(request, cfg);
     }
 
     return json({ ok: false, error: 'Ruta no encontrada.' }, 404);

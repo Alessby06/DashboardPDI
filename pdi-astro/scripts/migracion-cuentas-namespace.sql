@@ -30,6 +30,8 @@ DEFINE FIELD IF NOT EXISTS debe_cambiar_clave ON cuenta TYPE bool DEFAULT false;
 DEFINE FIELD IF NOT EXISTS session_version ON cuenta TYPE int DEFAULT 0;
 DEFINE FIELD IF NOT EXISTS intentos_fallidos ON cuenta TYPE int DEFAULT 0;
 DEFINE FIELD IF NOT EXISTS bloqueado_hasta ON cuenta TYPE option<datetime>;
+DEFINE FIELD IF NOT EXISTS totp_secret ON cuenta TYPE option<string>;
+DEFINE FIELD IF NOT EXISTS totp_activo ON cuenta TYPE bool DEFAULT false;
 DEFINE FIELD IF NOT EXISTS creado_el ON cuenta TYPE datetime DEFAULT time::now();
 DEFINE FIELD IF NOT EXISTS actualizado_el ON cuenta TYPE datetime VALUE time::now();
 DEFINE INDEX IF NOT EXISTS cuenta_usuario_unico ON cuenta FIELDS usuario UNIQUE;
@@ -46,6 +48,7 @@ DEFINE INDEX IF NOT EXISTS intento_login_ip_unico ON intento_login FIELDS ip_has
 -- cualquier UPDATE posterior con "Expected int but found NONE".
 UPDATE cuenta SET intentos_fallidos = 0 WHERE intentos_fallidos = NONE;
 UPDATE cuenta SET session_version = 0 WHERE session_version = NONE;
+UPDATE cuenta SET totp_activo = false WHERE totp_activo = NONE;
 
 -- La bitácora también vive aquí: el token clínico del navegador no puede
 -- abrir este namespace. Solo el servidor lee y escribe.

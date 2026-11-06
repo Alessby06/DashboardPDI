@@ -1776,6 +1776,27 @@ const impeccableLive =
           </div>
         </div>
 
+        <!-- Segundo factor (solo si la cuenta lo tiene activo) -->
+        <div class="form-row" id="filaCodigoTotp" hidden>
+          <label class="label-caption" for="inputCodigoTotp">Código de verificación</label>
+          <div class="input-wrapper">
+            <span class="input-icon-glyph" aria-hidden="true">
+              <Icon name="seguridad.candado" size={17} />
+            </span>
+            <input
+              type="text"
+              id="inputCodigoTotp"
+              name="codigo"
+              class="text-input"
+              placeholder="123456"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              maxlength="6"
+              pattern="[0-9]{6}"
+            />
+          </div>
+        </div>
+
         <!-- Mensaje de Error -->
         <div class="status-error-callout" id="loginError" role="alert" aria-live="polite">
           <Icon name="estado.alerta" size={17} />
@@ -1863,6 +1884,8 @@ const impeccableLive =
     // 3. Toggle de Visibilidad de Contraseña
     const btnTogglePass = document.getElementById('btnTogglePass');
     const inputClave = document.getElementById('inputClave');
+    const filaCodigoTotp = document.getElementById('filaCodigoTotp');
+    const inputCodigoTotp = document.getElementById('inputCodigoTotp');
     const iconPassEye = document.getElementById('iconPassEye');
 
     const EYE_OPEN = iconBody('accion.ver');
@@ -1945,6 +1968,7 @@ const impeccableLive =
 
       const usuario = inputUsuario?.value?.trim() ?? '';
       const clave = inputClave?.value ?? '';
+      const codigo = inputCodigoTotp?.value?.trim() ?? '';
 
       if (!usuario || !clave) {
         mostrarError('Por favor completa tanto tu usuario como tu contraseña.');
@@ -1967,7 +1991,7 @@ const impeccableLive =
       let res;
       try {
         res = await Promise.race([
-          autenticar(usuario, clave),
+          autenticar(usuario, clave, codigo),
           timeout
         ]);
       } catch (err) {
@@ -1991,8 +2015,12 @@ const impeccableLive =
           btnLogin.disabled = false;
           btnLogin.classList.remove('loading');
         }
+        if (res.requiereTotp && filaCodigoTotp) {
+          filaCodigoTotp.hidden = false;
+          inputCodigoTotp?.focus();
+        }
         mostrarError(res.error || 'Credenciales incorrectas. Verifica tu usuario y clave.');
-        inputClave?.select();
+        if (!res.requiereTotp) inputClave?.select();
       }
     });
   </script>

@@ -52,17 +52,21 @@ export function haySesion() {
  * @param {string} clave
  * @returns {Promise<{ ok: boolean, error?: string, rol?: string, nombre?: string }>}
  */
-export async function autenticar(usuario, clave) {
+export async function autenticar(usuario, clave, codigo = "") {
   try {
     const res = await fetch("/api/cuenta/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "same-origin",
-      body: JSON.stringify({ usuario, clave }),
+      body: JSON.stringify({ usuario, clave, codigo }),
     });
     const datos = await res.json().catch(() => ({}));
     if (!res.ok || !datos.ok) {
-      return { ok: false, error: datos.error || "Usuario o contraseña incorrectos." };
+      return {
+        ok: false,
+        error: datos.error || "Usuario o contraseña incorrectos.",
+        requiereTotp: Boolean(datos.requiereTotp),
+      };
     }
 
     const expiracion = Number(datos.exp) || (Date.now() + DURACION_SESION_MS);
