@@ -16,7 +16,7 @@
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { configDe, consulta, hashClave, cifrar } from '../../api/_cuentaBase.mjs';
+import { configDe, configAuditoria, consulta, hashClave, cifrar } from '../../api/_cuentaBase.mjs';
 
 function cargarEnv() {
   const ruta = fileURLToPath(new URL('../.env', import.meta.url));
@@ -55,7 +55,10 @@ async function main() {
   }
   const forzar = !process.argv.includes('--sin-forzar');
 
-  const cfg = configDe(cargarEnv());
+  const env = cargarEnv();
+  const cfg = configDe(env);
+  let cfgAudit;
+  try { cfgAudit = configAuditoria(env); } catch { cfgAudit = cfg; }
   const filas = await consulta(cfg, `SELECT id, usuario, nombre, session_version FROM cuenta WHERE usuario = ${lit(usuario)} LIMIT 1;`);
   if (!Array.isArray(filas) || !filas.length) {
     console.error(`No existe la cuenta "${usuario}".`);
@@ -77,7 +80,7 @@ async function main() {
     session_version = ${versionSesion};`);
 
   try {
-    await consulta(cfg, `CREATE bitacora_auditoria CONTENT {
+    await consulta(cfgAudit, `CREATE bitacora_auditoria CONTENT {
       usuario_nombre: 'Administración',
       rol: 'Sistema',
       accion: 'Clave restablecida',

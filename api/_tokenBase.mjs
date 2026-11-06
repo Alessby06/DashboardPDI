@@ -28,7 +28,7 @@
 // valor es solo la referencia que se devuelve al cliente. Debe coincidir con
 // la configuración del usuario: si el token vive más, sigue siendo válido
 // aunque el cliente crea que ya expiró.
-export const DURACION_TOKEN_SEGUNDOS = 1800;
+export const DURACION_TOKEN_SEGUNDOS = 900;
 
 /** Convierte la URL de la base a su forma HTTP: el WebSocket es wss://. */
 export function urlHttp(url) {

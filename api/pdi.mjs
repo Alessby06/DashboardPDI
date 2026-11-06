@@ -86,7 +86,10 @@ export default {
 
     try {
       const ahora = Date.now();
-      if (!cache || cache.exp <= ahora) {
+      // El token vive 15 min; se reutiliza solo 1 min. Antes se comparaba
+      // contra `cache.exp` (30 min), así que un token viejo seguía saliendo
+      // mucho después de su duración real.
+      if (!cache || cache.cacheadoHasta <= ahora) {
         cache = await emitirToken({
           url: process.env.SURREAL_URL || process.env.PUBLIC_SURREAL_URL,
           ns: process.env.SURREAL_NS || process.env.PUBLIC_SURREAL_NS,
