@@ -32,6 +32,7 @@ DEFINE FIELD IF NOT EXISTS intentos_fallidos ON cuenta TYPE int DEFAULT 0;
 DEFINE FIELD IF NOT EXISTS bloqueado_hasta ON cuenta TYPE option<datetime>;
 DEFINE FIELD IF NOT EXISTS totp_secret ON cuenta TYPE option<string>;
 DEFINE FIELD IF NOT EXISTS totp_activo ON cuenta TYPE bool DEFAULT false;
+DEFINE FIELD IF NOT EXISTS totp_ultimo_contador ON cuenta TYPE option<int>;
 DEFINE FIELD IF NOT EXISTS creado_el ON cuenta TYPE datetime DEFAULT time::now();
 DEFINE FIELD IF NOT EXISTS actualizado_el ON cuenta TYPE datetime VALUE time::now();
 DEFINE INDEX IF NOT EXISTS cuenta_usuario_unico ON cuenta FIELDS usuario UNIQUE;

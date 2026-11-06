@@ -133,6 +133,14 @@ export function generarSecretoTotp() {
   return base32Codificar(crypto.randomBytes(20));
 }
 
+/** Comparación en tiempo constante: un `===` filtra por el primer dígito. */
+function compararCodigos(a, b) {
+  const ba = Buffer.from(String(a), 'utf8');
+  const bb = Buffer.from(String(b), 'utf8');
+  if (ba.length !== bb.length) return false;
+  return crypto.timingSafeEqual(ba, bb);
+}
+
 export function codigoTotp(secreto, instante = Date.now()) {
   const contador = Math.floor(instante / 30000);
   const buffer = Buffer.alloc(8);
@@ -143,12 +151,22 @@ export function codigoTotp(secreto, instante = Date.now()) {
   return String(valor).padStart(6, '0');
 }
 
-export function verificarTotp(secreto, codigo) {
+/**
+ * Verifica un código y devuelve el paso usado, o null.
+ * - Acepta solo el paso actual y el anterior (tolera relojes atrasados).
+ * - Nunca acepta un paso ya consumido: el llamador guarda el contador.
+ */
+export function verificarTotp(secreto, codigo, ultimoContador = 0, instante = Date.now()) {
   const limpio = String(codigo || '').replace(/\D/g, '');
-  if (limpio.length !== 6) return false;
-  const ahora = Date.now();
-  // Ventana de ±30 s: tolera el desfase de reloj de un teléfono.
-  return [-1, 0, 1].some((delta) => codigoTotp(secreto, ahora + delta * 30000) === limpio);
+  if (limpio.length !== 6) return null;
+  const actual = Math.floor(instante / 30000);
+  const usados = Number(ultimoContador) || 0;
+  for (const delta of [0, -1]) {
+    const contador = actual + delta;
+    if (contador <= usados) continue;
+    if (compararCodigos(codigoTotp(secreto, contador * 30000), limpio)) return contador;
+  }
+  return null;
 }
 
 // --- Sesión -----------------------------------------------------------------
@@ -554,14 +572,35 @@ async function login(request, cfg) {
       }, 401);
     }
     let secreto;
-    try { secreto = descifrar(cuenta.totp_secret, cfg.secreto); } catch { secreto = ''; }
-    if (!verificarTotp(secreto, codigo)) {
+    try {
+      secreto = descifrar(cuenta.totp_secret, cfg.secreto);
+    } catch {
+      // Fallo cerrado: un secreto ilegible no puede convertirse en una clave
+      // vacía y predecible. Sin secreto no hay forma de verificar.
+      await auditar(cfg.auditoria || cfg, cuenta, 'MFA ilegible', 'No se pudo descifrar el secreto de verificación.', null, ip);
+      return json({ ok: false, error: 'No se pudo verificar el segundo factor. Avisa a administración.' }, 500);
+    }
+    const contador = verificarTotp(secreto, codigo, cuenta.totp_ultimo_contador);
+    if (!contador) {
       await registrarIntentoCuenta(cfg, cuenta, false);
       await registrarIntentoIp(cfg, ip, false);
       return json({
         ok: false,
         requiereTotp: true,
-        error: 'El código de verificación no es correcto o ya expiró.',
+        error: 'El código no es correcto, ya se usó o expiró.',
+      }, 401);
+    }
+    // Consumo atómico: dos inicios simultáneos con el mismo código no pueden
+    // pasar los dos. La condición se evalúa dentro del propio UPDATE.
+    const reclamado = await consulta(cfg, `UPDATE ${idRegistro(cuenta.id)} SET
+      totp_ultimo_contador = ${contador}
+      WHERE (totp_ultimo_contador IS NONE OR totp_ultimo_contador < ${contador})
+      RETURN AFTER;`);
+    if (!Array.isArray(reclamado) || !reclamado.length) {
+      return json({
+        ok: false,
+        requiereTotp: true,
+        error: 'Ese código ya se usó. Espera al siguiente.',
       }, 401);
     }
   }
@@ -738,7 +777,8 @@ async function totp(request, cfg) {
     const cifrado = cifrar(secreto, cfg.secreto);
     await consulta(cfg, `UPDATE ${idRegistro(cuenta.id)} SET
       totp_secret = ${lit(cifrado)},
-      totp_activo = false;`);
+      totp_activo = false,
+      totp_ultimo_contador = NONE;`);
     const uri = `otpauth://totp/PDI:${encodeURIComponent(cuenta.usuario)}?secret=${secreto}&issuer=PDI&algorithm=SHA1&digits=6&period=30`;
     return json({ ok: true, secreto, uri });
   }
@@ -768,7 +808,8 @@ async function totp(request, cfg) {
     }
     await consulta(cfg, `UPDATE ${idRegistro(cuenta.id)} SET
       totp_secret = NONE,
-      totp_activo = false;`);
+      totp_activo = false,
+      totp_ultimo_contador = NONE;`);
     await auditar(cfg.auditoria || cfg, cuenta, 'MFA desactivado', 'Verificación en dos pasos desactivada.', null, ipDe(request));
     return json({ ok: true, totpActivo: false });
   }

@@ -9,6 +9,9 @@ import {
   validarUsuario,
   validarNombre,
   validarCorreo,
+  codigoTotp,
+  generarSecretoTotp,
+  verificarTotp,
 } from '../../api/_cuentaBase.mjs';
 
 const SECRETO = 'secreto-de-prueba-para-el-perfil';
@@ -72,4 +75,57 @@ test('la cookie de sesión se firma, caduca y detecta manipulación', () => {
   const vencido = firmarSesion({ ...datos, exp: Date.now() - 1000 }, SECRETO);
   assert.equal(verificarSesion(vencido, SECRETO), null);
   assert.equal(verificarSesion(payload, SECRETO), null);
+});
+
+// --- Segundo factor ---------------------------------------------------------
+
+test('el TOTP coincide con los vectores del RFC 6238', () => {
+  // Secreto de prueba del RFC: ASCII "12345678901234567890" en Base32.
+  const secreto = 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ';
+  const casos = [
+    [59, '287082'],
+    [1111111109, '081804'],
+    [1111111111, '050471'],
+    [1234567890, '005924'],
+    [2000000000, '279037'],
+  ];
+  for (const [segundos, esperado] of casos) {
+    assert.equal(codigoTotp(secreto, segundos * 1000), esperado, `paso ${segundos}`);
+  }
+});
+
+test('el secreto nuevo es Base32 de 160 bits', () => {
+  const secreto = generarSecretoTotp();
+  assert.match(secreto, /^[A-Z2-7]{32}$/);
+  assert.notEqual(secreto, generarSecretoTotp());
+});
+
+test('se acepta el paso actual y el anterior, nunca el futuro', () => {
+  const secreto = generarSecretoTotp();
+  const instante = Math.floor(1_700_000_000_000 / 30000) * 30000;
+  const actual = instante / 30000;
+
+  assert.equal(verificarTotp(secreto, codigoTotp(secreto, instante), 0, instante), actual);
+  assert.equal(
+    verificarTotp(secreto, codigoTotp(secreto, instante - 30000), 0, instante),
+    actual - 1,
+  );
+  assert.equal(verificarTotp(secreto, codigoTotp(secreto, instante + 30000), 0, instante), null);
+  assert.equal(verificarTotp(secreto, '12345', 0, instante), null);
+  assert.equal(verificarTotp(secreto, '000000', 0, instante), null);
+});
+
+test('un código ya consumido no se vuelve a aceptar', () => {
+  const secreto = generarSecretoTotp();
+  const instante = Math.floor(1_700_000_000_000 / 30000) * 30000;
+  const actual = instante / 30000;
+  const codigo = codigoTotp(secreto, instante);
+
+  assert.equal(verificarTotp(secreto, codigo, 0, instante), actual);
+  assert.equal(verificarTotp(secreto, codigo, actual, instante), null);
+  // Tampoco vale retroceder al paso anterior una vez consumido el actual.
+  assert.equal(
+    verificarTotp(secreto, codigoTotp(secreto, instante - 30000), actual, instante),
+    null,
+  );
 });

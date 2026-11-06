@@ -68,6 +68,7 @@ const ESQUEMA = [
   'DEFINE FIELD IF NOT EXISTS bloqueado_hasta ON cuenta TYPE option<datetime>;',
   'DEFINE FIELD IF NOT EXISTS totp_secret ON cuenta TYPE option<string>;',
   'DEFINE FIELD IF NOT EXISTS totp_activo ON cuenta TYPE bool DEFAULT false;',
+  'DEFINE FIELD IF NOT EXISTS totp_ultimo_contador ON cuenta TYPE option<int>;',
   'DEFINE TABLE IF NOT EXISTS intento_login SCHEMAFULL PERMISSIONS NONE;',
   'DEFINE FIELD IF NOT EXISTS ip_hash ON intento_login TYPE string;',
   'DEFINE FIELD IF NOT EXISTS intentos ON intento_login TYPE int DEFAULT 0;',

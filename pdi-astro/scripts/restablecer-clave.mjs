@@ -79,7 +79,8 @@ async function main() {
     intentos_fallidos = 0,
     bloqueado_hasta = NONE,
     totp_secret = NONE,
-    totp_activo = false;`);
+    totp_activo = false,
+    totp_ultimo_contador = NONE;`);
 
   try {
     await consulta(cfg, `CREATE bitacora_auditoria CONTENT {
