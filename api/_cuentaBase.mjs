@@ -26,15 +26,44 @@ const MAX_FOTO_BYTES = 160 * 1024;
 
 /** Secreto de firma/cifrado. Nunca sale del servidor. */
 export function secretoDe(env = {}) {
+  // Secreto propio de las cuentas. No depende de la contraseña de la base:
+  // rotar `pdi_web` no debe dejar ilegibles los hashes.
+  const dedicado = String(env.CUENTAS_SECRETO || '').trim();
+  if (dedicado) return 'pdi-cuentas-v1:' + dedicado;
+
+  // Compatibilidad con el esquema anterior mientras se ejecuta la migración.
   const base = String(env.SURREAL_PASS || '').trim();
   if (!base) {
-    throw new Error('Falta SURREAL_PASS para proteger las cuentas.');
+    throw new Error('Falta CUENTAS_SECRETO (o SURREAL_PASS en el esquema anterior).');
   }
   return 'pdi-auth-v1:' + base;
 }
 
-/** Configuración de SurrealDB a partir del entorno del servidor. */
+/** Configuración de la base de cuentas. */
 export function configDe(env = {}) {
+  const url = String(
+    env.SURREAL_AUTH_URL || env.SURREAL_URL || env.PUBLIC_SURREAL_URL || '',
+  )
+    .trim()
+    .replace(/^ws:/, 'http:')
+    .replace(/^wss:/, 'https:')
+    .replace(/\/+$/, '');
+  const cfg = {
+    url,
+    ns: env.SURREAL_AUTH_NS || env.SURREAL_NS || env.PUBLIC_SURREAL_NS,
+    db: env.SURREAL_AUTH_DB || env.SURREAL_DB || env.PUBLIC_SURREAL_DB,
+    user: env.SURREAL_AUTH_USER || env.SURREAL_USER,
+    pass: env.SURREAL_AUTH_PASS || env.SURREAL_PASS,
+    secreto: secretoDe(env),
+  };
+  if (!cfg.url || !cfg.ns || !cfg.db || !cfg.user || !cfg.pass) {
+    throw new Error('Faltan credenciales de la base de cuentas en el servidor.');
+  }
+  return cfg;
+}
+
+/** Configuración de la base clínica, donde vive la bitácora de auditoría. */
+export function configAuditoria(env = {}) {
   const url = String(env.SURREAL_URL || env.PUBLIC_SURREAL_URL || '')
     .trim()
     .replace(/^ws:/, 'http:')
@@ -46,10 +75,9 @@ export function configDe(env = {}) {
     db: env.SURREAL_DB || env.PUBLIC_SURREAL_DB,
     user: env.SURREAL_USER,
     pass: env.SURREAL_PASS,
-    secreto: secretoDe(env),
   };
   if (!cfg.url || !cfg.ns || !cfg.db || !cfg.user || !cfg.pass) {
-    throw new Error('Faltan credenciales de SurrealDB en el servidor.');
+    throw new Error('Faltan credenciales de la base clínica para la auditoría.');
   }
   return cfg;
 }
@@ -166,7 +194,8 @@ async function tokenDe(cfg) {
   if (!res.ok) throw new Error('El servidor no pudo autenticarse contra la base (' + res.status + ').');
   const datos = await res.json();
   if (!datos?.token) throw new Error('La base no devolvió un token de servicio.');
-  cacheToken = { token: datos.token, exp: Date.now() + 20 * 60 * 1000, clave: claveCache };
+  // El token de `pdi_auth` vive 15 minutos: se renueva a los 10, no a los 20.
+  cacheToken = { token: datos.token, exp: Date.now() + 10 * 60 * 1000, clave: claveCache };
   return datos.token;
 }
 
@@ -456,7 +485,7 @@ async function perfil(request, cfg) {
     correo = ${lit(c.correo)},
     telefono = ${lit(t.telefono)};`);
 
-  await auditar(cfg, antes, 'Perfil actualizado', 'Datos personales del perfil.', diff, ipDe(request));
+  await auditar(cfg.auditoria || cfg, antes, 'Perfil actualizado', 'Datos personales del perfil.', diff, ipDe(request));
 
   const cuenta = await cuentaPorId(cfg, String(antes.id));
   const nueva = datosSesion(cuenta);
@@ -488,7 +517,7 @@ async function usuario(request, cfg) {
   if (ocupado) return json({ ok: false, error: 'Ese usuario ya está en uso.' }, 409);
 
   await consulta(cfg, `UPDATE ${idRegistro(cuenta.id)} SET usuario = ${lit(v.usuario)};`);
-  await auditar(cfg, cuenta, 'Usuario actualizado', 'Cambio del usuario de acceso.', [
+  await auditar(cfg.auditoria || cfg, cuenta, 'Usuario actualizado', 'Cambio del usuario de acceso.', [
     { campo: 'usuario', antes: cuenta.usuario, despues: v.usuario },
   ], ipDe(request));
 
@@ -520,7 +549,7 @@ async function clave(request, cfg) {
     hash_cifrado = ${lit(nuevoHash)},
     debe_cambiar_clave = false,
     session_version = ${versionSesion};`);
-  await auditar(cfg, cuenta, 'Contraseña actualizada', 'Cambio de contraseña del perfil.', null, ipDe(request));
+  await auditar(cfg.auditoria || cfg, cuenta, 'Contraseña actualizada', 'Cambio de contraseña del perfil.', null, ipDe(request));
 
   // Las demás sesiones de esta cuenta quedan invalidadas al cambiar el número
   // de versión. La sesión actual recibe una cookie nueva con el número nuevo.
@@ -543,7 +572,7 @@ async function foto(request, cfg) {
   if (valor === null || valor === undefined || valor === '') {
     if (!cuenta.foto) return json({ ok: true, foto: '' });
     await consulta(cfg, `UPDATE ${idRegistro(cuenta.id)} SET foto = NONE;`);
-    await auditar(cfg, cuenta, 'Foto actualizada', 'Foto de perfil retirada.', [{ campo: 'foto', antes: '(anterior)', despues: '' }], ipDe(request));
+    await auditar(cfg.auditoria || cfg, cuenta, 'Foto actualizada', 'Foto de perfil retirada.', [{ campo: 'foto', antes: '(anterior)', despues: '' }], ipDe(request));
     return json({ ok: true, foto: '' });
   }
 
@@ -557,7 +586,7 @@ async function foto(request, cfg) {
   if (cuenta.foto === texto) return json({ ok: true, foto: texto });
 
   await consulta(cfg, `UPDATE ${idRegistro(cuenta.id)} SET foto = ${lit(texto)};`);
-  await auditar(cfg, cuenta, 'Foto actualizada', 'Foto de perfil actualizada.', [{ campo: 'foto', antes: '(anterior)', despues: '(actualizada)' }], ipDe(request));
+  await auditar(cfg.auditoria || cfg, cuenta, 'Foto actualizada', 'Foto de perfil actualizada.', [{ campo: 'foto', antes: '(anterior)', despues: '(actualizada)' }], ipDe(request));
   return json({ ok: true, foto: texto });
 }
 
@@ -572,6 +601,14 @@ export async function handleCuenta(request, env = {}) {
     const url = new URL(request.url);
     const ruta = url.pathname.replace(/\/+$/, '');
     const cfg = configDe(env);
+    // La auditoría vive en la base clínica, no en la de cuentas. Si faltara
+    // configuración, se degrada a la base de cuentas y `auditar` solo avisa.
+    try {
+      cfg.auditoria = configAuditoria(env);
+    } catch (err) {
+      console.warn('[cuenta] auditoría sin base clínica:', err?.message || err);
+      cfg.auditoria = cfg;
+    }
 
     if (ruta === '/api/cuenta/login') {
       if (request.method !== 'POST') return json({ ok: false, error: 'Se espera POST.' }, 405);
