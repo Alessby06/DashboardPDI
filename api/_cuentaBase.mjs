@@ -66,26 +66,6 @@ export function configDe(env = {}) {
   return cfg;
 }
 
-/** Configuración de la base clínica, donde vive la bitácora de auditoría. */
-export function configAuditoria(env = {}) {
-  const url = String(env.SURREAL_URL || env.PUBLIC_SURREAL_URL || '')
-    .trim()
-    .replace(/^ws:/, 'http:')
-    .replace(/^wss:/, 'https:')
-    .replace(/\/+$/, '');
-  const cfg = {
-    url,
-    ns: env.SURREAL_NS || env.PUBLIC_SURREAL_NS,
-    db: env.SURREAL_DB || env.PUBLIC_SURREAL_DB,
-    user: env.SURREAL_USER,
-    pass: env.SURREAL_PASS,
-  };
-  if (!cfg.url || !cfg.ns || !cfg.db || !cfg.user || !cfg.pass) {
-    throw new Error('Faltan credenciales de la base clínica para la auditoría.');
-  }
-  return cfg;
-}
-
 // --- Cifrado del hash -------------------------------------------------------
 
 function claveAes(secreto) {
@@ -663,6 +643,57 @@ async function logout(request) {
   return json({ ok: true }, 200, [cookieBorrada()]);
 }
 
+// --- Auditoría --------------------------------------------------------------
+
+/**
+ * La bitácora vive en el namespace de cuentas. El navegador no puede abrir ese
+ * namespace, así que toda lectura y escritura pasa por aquí, con cookie de
+ * sesión. No hay ruta de actualización ni borrado: solo alta y consulta.
+ */
+export async function handleAuditoria(request, env = {}) {
+  try {
+    const cfg = configDe(env);
+    const actual = await sesionDe(request, cfg);
+    if (!actual) return json({ ok: false, error: 'La sesión expiró.' }, 401);
+
+    if (request.method === 'GET') {
+      const url = new URL(request.url);
+      const limite = Math.min(Math.max(Number(url.searchParams.get('limit')) || 500, 1), 1000);
+      const filas = await consulta(cfg, `SELECT * FROM bitacora_auditoria ORDER BY timestamp DESC LIMIT ${limite};`);
+      return json({ ok: true, logs: Array.isArray(filas) ? filas : [] });
+    }
+
+    if (request.method === 'POST') {
+      if (!origenValido(request)) return json({ ok: false, error: 'Origen no permitido.' }, 403);
+      const entrada = await cuerpo(request);
+      const accion = String(entrada.action || entrada.accion || '').trim().slice(0, 160);
+      if (!accion) return json({ ok: false, error: 'La acción es obligatoria.' }, 400);
+      const entidad = String(entrada.entidad || 'PDI · Sistema').slice(0, 80);
+      const detalle = String(entrada.detalle || entrada.detail || '').slice(0, 1000);
+      const sede = String(entrada.sede || 'Central').slice(0, 80);
+      const registro = String(entrada.entity || entrada.registro || '').slice(0, 120);
+      await consulta(cfg, `CREATE bitacora_auditoria CONTENT {
+        usuario_nombre: ${lit(actual.cuenta.nombre || 'Sistema')},
+        rol: ${lit(actual.cuenta.rol || 'Sistema')},
+        accion: ${lit(accion)},
+        entidad: ${lit(entidad)},
+        registro_id: ${lit(registro)},
+        detalle: ${lit(detalle)},
+        ip_origen: ${lit(ipDe(request))},
+        sede_nombre: ${lit(sede)},
+        timestamp: time::now(),
+        diff: NONE
+      };`);
+      return json({ ok: true });
+    }
+
+    return json({ ok: false, error: 'Método no permitido.' }, 405);
+  } catch (err) {
+    console.error('[auditoria]', err?.message || err);
+    return json({ ok: false, error: 'No se pudo acceder a la auditoría.' }, 500);
+  }
+}
+
 // --- Entrada ----------------------------------------------------------------
 
 export async function handleCuenta(request, env = {}) {
@@ -670,14 +701,9 @@ export async function handleCuenta(request, env = {}) {
     const url = new URL(request.url);
     const ruta = url.pathname.replace(/\/+$/, '');
     const cfg = configDe(env);
-    // La auditoría vive en la base clínica, no en la de cuentas. Si faltara
-    // configuración, se degrada a la base de cuentas y `auditar` solo avisa.
-    try {
-      cfg.auditoria = configAuditoria(env);
-    } catch (err) {
-      console.warn('[cuenta] auditoría sin base clínica:', err?.message || err);
-      cfg.auditoria = cfg;
-    }
+    // La auditoría vive en el mismo namespace de cuentas, fuera del alcance
+    // del token clínico que usa el navegador.
+    cfg.auditoria = cfg;
 
     if (ruta === '/api/cuenta/login') {
       if (request.method !== 'POST') return json({ ok: false, error: 'Se espera POST.' }, 405);

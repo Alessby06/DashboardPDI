@@ -46,3 +46,25 @@ DEFINE INDEX IF NOT EXISTS intento_login_ip_unico ON intento_login FIELDS ip_has
 -- cualquier UPDATE posterior con "Expected int but found NONE".
 UPDATE cuenta SET intentos_fallidos = 0 WHERE intentos_fallidos = NONE;
 UPDATE cuenta SET session_version = 0 WHERE session_version = NONE;
+
+-- La bitácora también vive aquí: el token clínico del navegador no puede
+-- abrir este namespace. Solo el servidor lee y escribe.
+DEFINE TABLE IF NOT EXISTS bitacora_auditoria SCHEMAFULL PERMISSIONS NONE;
+DEFINE FIELD IF NOT EXISTS usuario_nombre ON bitacora_auditoria TYPE string;
+DEFINE FIELD IF NOT EXISTS rol ON bitacora_auditoria TYPE string;
+DEFINE FIELD IF NOT EXISTS accion ON bitacora_auditoria TYPE string;
+DEFINE FIELD IF NOT EXISTS entidad ON bitacora_auditoria TYPE string;
+DEFINE FIELD IF NOT EXISTS registro_id ON bitacora_auditoria TYPE string;
+DEFINE FIELD IF NOT EXISTS detalle ON bitacora_auditoria TYPE string;
+DEFINE FIELD IF NOT EXISTS ip_origen ON bitacora_auditoria TYPE string;
+DEFINE FIELD IF NOT EXISTS sede_nombre ON bitacora_auditoria TYPE string;
+DEFINE FIELD IF NOT EXISTS timestamp ON bitacora_auditoria TYPE datetime DEFAULT time::now();
+DEFINE FIELD IF NOT EXISTS diff ON bitacora_auditoria TYPE option<array<object>>;
+DEFINE FIELD IF NOT EXISTS `diff`.* ON bitacora_auditoria TYPE object;
+DEFINE FIELD IF NOT EXISTS accion_original ON bitacora_auditoria TYPE option<string>;
+DEFINE FIELD IF NOT EXISTS detalle_original ON bitacora_auditoria TYPE option<string>;
+DEFINE FIELD IF NOT EXISTS motivo_normalizacion ON bitacora_auditoria TYPE option<string>;
+DEFINE FIELD IF NOT EXISTS normalizado_el ON bitacora_auditoria TYPE option<datetime>;
+DEFINE FIELD IF NOT EXISTS normalizado_por ON bitacora_auditoria TYPE option<string>;
+DEFINE FIELD IF NOT EXISTS usuario_id ON bitacora_auditoria TYPE option<record<persona>>;
+DEFINE INDEX IF NOT EXISTS idx_bitacora_marca ON bitacora_auditoria FIELDS timestamp;

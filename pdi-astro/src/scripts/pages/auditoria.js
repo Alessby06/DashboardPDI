@@ -19,6 +19,7 @@
 //  falla por un elemento que todavia no existe.
 import "../core/legacy-globals.js";
 import { arrancarComun, publicarRefresco } from "../core/Bootstrap.js";
+import { fetchBitacora } from '../core/db.js';
 import { AuditModel } from '../models/AuditModel.js';
 import { DashboardView } from '../views/DashboardView.js';
 // El boton de confirmar la exportacion vive en el chrome comun
@@ -37,7 +38,10 @@ function enlazar() {
 }
 
 /** Dibuja lo propio de esta pagina. Es idempotente. */
-function montar() {
+async function montar() {
+  // La bitácora ya no viaja en la hidratación clínica: se pide al servidor,
+  // que es el único que puede abrir el namespace de auditoría.
+  try { AuditModel.aplicarDatos(await fetchBitacora()); } catch (e) { /* sin bitácora */ }
   // No se llama DashboardView.render(): ademas de la bitacora, esa funcion
   // dibujaba las tarjetas del dashboard, que en esta pagina no existen. Se
   // invoca directamente la parte que le corresponde a la bitacora.

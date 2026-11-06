@@ -17,6 +17,20 @@ export const onRequest = async (context, next) => {
 
   const url = new URL(context.request.url);
 
+  // Auditoría: misma lógica que la Function de Vercel.
+  if (url.pathname === '/api/auditoria') {
+    try {
+      const { handleAuditoria } = await import('../../api/_cuentaBase.mjs');
+      return await handleAuditoria(context.request, import.meta.env);
+    } catch (err) {
+      console.error('[api/auditoria] fallo en desarrollo:', err?.message || err);
+      return new Response(
+        JSON.stringify({ ok: false, error: 'No se pudo acceder a la auditoría.' }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } },
+      );
+    }
+  }
+
   // Cuentas y perfil: misma lógica que la Function de Vercel.
   if (url.pathname.startsWith('/api/cuenta/')) {
     try {

@@ -23,6 +23,7 @@ import { BeneficiarioModel } from '../models/BeneficiarioModel.js';
 import { CasoSocialModel } from '../models/CasoSocialModel.js';
 import { SedeModel } from '../models/SedeModel.js';
 import { AuditModel } from '../models/AuditModel.js';
+import { fetchBitacora } from '../core/db.js';
 import { DashboardView } from '../views/DashboardView.js';
 // El boton de exportar del panel invoca window.exportDataCSV, y ese puente
 // resuelve por window.PDI. Antes AppController lo traia legacy-globals a las
@@ -51,7 +52,8 @@ function enlazar() {
 }
 
 /** Dibuja lo propio de esta pagina. Es idempotente. */
-function montar() {
+async function montar() {
+  try { AuditModel.aplicarDatos(await fetchBitacora()); } catch (e) { /* sin bitácora */ }
   DashboardView.render(BeneficiarioModel.getStats(), AuditModel.getAll());
 }
 

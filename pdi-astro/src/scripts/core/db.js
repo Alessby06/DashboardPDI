@@ -310,7 +310,7 @@ async function ejecutarLote(ql) {
 const TABLAS_LIVE = [
   'persona', 'inscripcion', 'tamizaje_hemoglobina', T_VINCULO,
   'sede', 'caso_social', 'solicitud_caso', 'voluntario',
-  'asistencia_diaria', 'bitacora_auditoria'
+  'asistencia_diaria'
 ];
 
 /** Punto de arranque de la capa: lo invoca Bootstrap en todas las páginas. */
@@ -513,17 +513,15 @@ const SQL_LOTE_HIDRATACION = [
   'SELECT * FROM solicitud_caso WHERE activo = true ORDER BY fecha_solicitud DESC;',
   // 4 · voluntariados activos
   'SELECT * FROM voluntario WHERE activo = true ORDER BY fecha_ingreso DESC;',
-  // 5 · bitácora (últimos 500)
-  'SELECT * FROM bitacora_auditoria ORDER BY timestamp DESC LIMIT 500;',
-  // 6 · asistencia de hoy para el panel general. Se calcula el día en hora de
+  // 5 · asistencia de hoy para el panel general. Se calcula el día en hora de
   //     Perú con el desfase fijo (UTC-5, sin horario de verano). No alimenta
   //     la jornada de educativo: esa se consulta por día y sede.
   `SELECT inscripcion_id AS iid, estado FROM asistencia_diaria
    WHERE dia = time::format(time::now() - 5h, '%Y-%m-%d');`,
-  // 7 · todas las sedes, incluidas las inactivas: el archivo de retirados
+  // 6 · todas las sedes, incluidas las inactivas: el archivo de retirados
   //     necesita saber si la sede de la que se fue sigue operativa.
   'SELECT * FROM sede ORDER BY creado_el;',
-  // 8 · archivo de retirados
+  // 7 · archivo de retirados
   SQL_RETIRADOS,
 ].join('\n');
 
@@ -540,7 +538,7 @@ export async function hidratar(promedioSilencioso = false) {
     cambiarEstado('cargando');
     try {
       // Un solo viaje: el lote completo cuesta 1 RTT en lugar de 6-8.
-      const [sedesRaw, personasRaw, casosRaw, solicitudesRaw, voluntariosRaw, logsRaw, asistenciaRaw, sedesTodasRaw, retiradosRaw] =
+      const [sedesRaw, personasRaw, casosRaw, solicitudesRaw, voluntariosRaw, asistenciaRaw, sedesTodasRaw, retiradosRaw] =
         await ejecutarLote(SQL_LOTE_HIDRATACION);
 
       const sedes = mapearSedes(sedesRaw);
@@ -548,7 +546,6 @@ export async function hidratar(promedioSilencioso = false) {
       const retirados = mapearRetirados(retiradosRaw, mapearSedes(sedesTodasRaw));
       const casos = mapearCasos(casosRaw, solicitudesRaw);
       const voluntarios = mapearVoluntarios(voluntariosRaw);
-      const logs = mapearBitacora(logsRaw);
       // Solo para el KPI del panel general. La jornada de educativo tiene su
       // propia consulta por día y sede y no se sobrescribe con esta.
       const asistencia = mapearAsistencia(asistenciaRaw, beneficiarios);
@@ -560,7 +557,7 @@ export async function hidratar(promedioSilencioso = false) {
         return;
       }
 
-      aplicarDatasets(beneficiarios, sedes, casos, voluntarios, logs, asistencia, retirados);
+      aplicarDatasets(beneficiarios, sedes, casos, voluntarios, asistencia, retirados);
       _hidratado = true;
       _jsonDeReintento = 5000;
       // La nube volvió: el próximo corte puede avisar de nuevo.
@@ -572,7 +569,7 @@ export async function hidratar(promedioSilencioso = false) {
       if (!promedioSilencioso) {
         console.log('[PDI] Sincronización completa con SurrealDB Cloud.',
           beneficiarios.length, 'usuarios ·', sedes.length, 'sedes ·',
-          casos.length, 'casos ·', voluntarios.length, 'voluntarios ·', logs.length, 'eventos.');
+          casos.length, 'casos ·', voluntarios.length, 'voluntarios.');
       }
     } catch (err) {
       _ultimoError = {
@@ -596,14 +593,13 @@ export async function hidratarDesdeSurreal() {
   await hidratar();
 }
 
-function aplicarDatasets(beneficiarios, sedes, casos, voluntarios, logs, asistencia, retirados) {
+function aplicarDatasets(beneficiarios, sedes, casos, voluntarios, asistencia, retirados) {
   const pdi = (typeof window !== 'undefined' && window.PDI) || {};
   pdi.BeneficiarioModel?.aplicarDatos?.(beneficiarios);
   pdi.BeneficiarioModel?.aplicarRetirados?.(retirados || []);
   pdi.SedeModel?.aplicarDatos?.(sedes);
   pdi.CasoSocialModel?.aplicarDatos?.(casos);
   pdi.VoluntarioModel?.aplicarDatos?.(voluntarios);
-  pdi.AuditModel?.aplicarDatos?.(logs);
   // Solo alimenta el KPI del panel general. CasitasController guarda este
   // mapa aparte de la jornada: no puede pisar el borrador de educativo.
   pdi.CasitasController?.aplicarDatosAsistencia?.(asistencia);
@@ -611,7 +607,7 @@ function aplicarDatasets(beneficiarios, sedes, casos, voluntarios, logs, asisten
   // le permite calcular el KPI sin arrastrar toda la vista.
   pdi.asistenciaHoy = asistencia || {};
   // AjustesView y las páginas leen Restaurar desde aqui.
-  pdi.recopilacionNube = { beneficiarios, sedes, casos, voluntarios, logs, asistencia };
+  pdi.recopilacionNube = { beneficiarios, sedes, casos, voluntarios, asistencia };
 }
 
 function refrescarVistaActual() {
@@ -1187,9 +1183,16 @@ function mapearVoluntarios(volRaw) {
   });
 }
 
-/** Bitácora de auditoría. */
+/** Bitácora de auditoría. Vive fuera del namespace clínico: se pide al servidor. */
 export async function fetchBitacora() {
-  return mapearBitacora(comoLista(await ejecutar('SELECT * FROM bitacora_auditoria ORDER BY timestamp DESC LIMIT 500;')));
+  try {
+    const res = await fetch('/api/auditoria?limit=500', { credentials: 'same-origin' });
+    if (!res.ok) return [];
+    const datos = await res.json().catch(() => ({}));
+    return mapearBitacora(Array.isArray(datos.logs) ? datos.logs : []);
+  } catch {
+    return [];
+  }
 }
 
 /** Convierte los registros crudos de bitácora en objetos del modelo. */
@@ -2942,26 +2945,27 @@ export async function registrarAsistencia(beneficiario, estadoClave, observacion
 // ---------------------------------------------------------------------------
 export async function crearBitacora(entry) {
   try {
-    // El campo diff de la nube es none|array<object>: strings (como el status
-    // que la firma antigua enviaba en esa posición) no son diff y se omiten.
+    // El servidor deriva usuario, rol e IP de la cookie de sesión: el cliente
+    // no puede falsificar la autoría. Solo envía la acción y su contexto.
     const diffValido = entry.diff && typeof entry.diff === 'object' && !Array.isArray(entry.diff)
-      ? [entry.diff] : null;
-    await ejecutar(`CREATE bitacora_auditoria CONTENT {
-      usuario_nombre: $user, rol: $role,
-      accion: $accion, entidad: $entidad, registro_id: $registro,
-      detalle: $detalle, ip_origen: $ip, sede_nombre: $sede,
-      diff: $diff ?? NONE
-    };`, {
-      user: entry.user || 'Sistema',
-      role: entry.role || 'Sistema',
-      accion: entry.action || '',
-      entidad: 'PDI · Sistema',
-      registro: entry.entity || '',
-      detalle: entry.detail || '',
-      ip: entry.ip || '192.168.1.x',
-      sede: entry.sede || 'Central',
-      diff: diffValido,
+      ? [entry.diff]
+      : (Array.isArray(entry.diff) ? entry.diff : null);
+    const res = await fetch('/api/auditoria', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: entry.action || '',
+        entity: entry.entity || '',
+        detail: entry.detail || '',
+        sede: entry.sede || 'Central',
+        diff: diffValido,
+      }),
     });
+    if (!res.ok) {
+      const datos = await res.json().catch(() => ({}));
+      return avisarFallo('Bitácora de auditoría', datos.error || 'No se pudo registrar.') !== null;
+    }
     return true;
   } catch (err) {
     return avisarFallo('Bitácora de auditoría', err) !== null;
