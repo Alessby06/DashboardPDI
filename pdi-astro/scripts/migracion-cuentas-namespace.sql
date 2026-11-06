@@ -41,3 +41,8 @@ DEFINE FIELD IF NOT EXISTS intentos ON intento_login TYPE int DEFAULT 0;
 DEFINE FIELD IF NOT EXISTS bloqueado_hasta ON intento_login TYPE option<datetime>;
 DEFINE FIELD IF NOT EXISTS actualizado_el ON intento_login TYPE datetime VALUE time::now();
 DEFINE INDEX IF NOT EXISTS intento_login_ip_unico ON intento_login FIELDS ip_hash UNIQUE;
+
+-- Las filas creadas antes de definir el campo quedan con NONE. Eso rompe
+-- cualquier UPDATE posterior con "Expected int but found NONE".
+UPDATE cuenta SET intentos_fallidos = 0 WHERE intentos_fallidos = NONE;
+UPDATE cuenta SET session_version = 0 WHERE session_version = NONE;

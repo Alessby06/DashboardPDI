@@ -91,6 +91,14 @@ async function main() {
       throw err;
     }
   }
+  // Las cuentas creadas antes de estos campos quedaron con NONE. Un UPDATE
+  // posterior falla al coercionar NONE a int; se normalizan una vez.
+  try {
+    await consulta(cfg, 'UPDATE cuenta SET intentos_fallidos = 0 WHERE intentos_fallidos = NONE;');
+    await consulta(cfg, 'UPDATE cuenta SET session_version = 0 WHERE session_version = NONE;');
+  } catch (err) {
+    console.warn('[cuentas] no se pudieron normalizar los contadores:', err?.message || err);
+  }
   console.log('[cuentas] esquema listo.');
 
   const temporales = [];
