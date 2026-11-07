@@ -371,6 +371,9 @@ export const PerfilView = {
       if (secreto) secreto.textContent = datos.secreto || '';
       const panel = porId('perfilTotpPanel');
       if (panel) panel.hidden = false;
+      const panelBaja = porId('perfilTotpDesactivarPanel');
+      if (panelBaja) panelBaja.hidden = true;
+      aviso('perfilTotpDesactivarFeedback', '');
       if (boton) boton.hidden = true;
       const desactivar = porId('btnTotpDesactivar');
       if (desactivar) desactivar.hidden = true;
@@ -417,10 +420,36 @@ export const PerfilView = {
   },
 
   mostrarBajaTotp() {
+    // Los dos formularios nunca conviven: abrir uno cierra el otro.
+    const activacion = porId('perfilTotpPanel');
+    if (activacion) activacion.hidden = true;
+    aviso('perfilTotpFeedback', '');
     const panel = porId('perfilTotpDesactivarPanel');
     if (panel) panel.hidden = false;
     aviso('perfilTotpDesactivarFeedback', '');
     porId('perfilTotpClave')?.focus({ preventScroll: true });
+  },
+
+  cancelarTotp() {
+    const panel = porId('perfilTotpPanel');
+    if (panel) panel.hidden = true;
+    const secreto = porId('perfilTotpSecreto');
+    if (secreto) secreto.textContent = '';
+    const codigo = porId('perfilTotpCodigo');
+    if (codigo) codigo.value = '';
+    aviso('perfilTotpFeedback', '');
+    const activar = porId('btnTotpActivar');
+    if (activar) activar.hidden = false;
+    porId('btnTotpActivar')?.focus({ preventScroll: true });
+  },
+
+  cancelarBajaTotp() {
+    const panel = porId('perfilTotpDesactivarPanel');
+    if (panel) panel.hidden = true;
+    const clave = porId('perfilTotpClave');
+    if (clave) clave.value = '';
+    aviso('perfilTotpDesactivarFeedback', '');
+    porId('btnTotpDesactivar')?.focus({ preventScroll: true });
   },
 
   async desactivarTotp() {
@@ -585,6 +614,8 @@ export const PerfilView = {
       });
     }
     porId('btnTotpActivar')?.addEventListener('click', () => this.iniciarTotp());
+    porId('btnTotpCancelar')?.addEventListener('click', () => this.cancelarTotp());
+    porId('btnTotpCancelarBaja')?.addEventListener('click', () => this.cancelarBajaTotp());
     porId('btnTotpConfirmar')?.addEventListener('click', () => this.confirmarTotp());
     porId('btnTotpDesactivar')?.addEventListener('click', () => this.mostrarBajaTotp());
     porId('btnTotpDesactivarConfirmar')?.addEventListener('click', () => this.desactivarTotp());

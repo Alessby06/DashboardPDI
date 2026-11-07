@@ -204,7 +204,10 @@ import '../styles/views-perfil.css';
               </div>
               <div class="perfil-form-foot">
                 <p class="perfil-feedback" id="perfilTotpFeedback" role="status"></p>
-                <button type="button" class="perfil-btn perfil-btn--primary" id="btnTotpConfirmar">Confirmar y activar</button>
+                <div class="perfil-form-actions">
+                  <button type="button" class="perfil-btn perfil-btn--ghost" id="btnTotpCancelar">Cancelar</button>
+                  <button type="button" class="perfil-btn perfil-btn--primary" id="btnTotpConfirmar">Confirmar y activar</button>
+                </div>
               </div>
             </div>
             <div class="perfil-totp-panel" id="perfilTotpDesactivarPanel" hidden>
@@ -214,7 +217,10 @@ import '../styles/views-perfil.css';
               </div>
               <div class="perfil-form-foot">
                 <p class="perfil-feedback" id="perfilTotpDesactivarFeedback" role="status"></p>
-                <button type="button" class="perfil-btn perfil-btn--soft" id="btnTotpDesactivarConfirmar">Desactivar</button>
+                <div class="perfil-form-actions">
+                  <button type="button" class="perfil-btn perfil-btn--ghost" id="btnTotpCancelarBaja">Cancelar</button>
+                  <button type="button" class="perfil-btn perfil-btn--soft" id="btnTotpDesactivarConfirmar">Desactivar</button>
+                </div>
               </div>
             </div>
           </div>

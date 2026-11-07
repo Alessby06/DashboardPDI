@@ -5,6 +5,13 @@
       padding: 0;
     }
 
+    /* El atributo hidden debe ganar al display de las clases. Sin esto, un
+       panel con display:flex y hidden puesto se seguía viendo (pasó con el
+       segundo factor del login y con los paneles de MFA del perfil). */
+    [hidden] {
+      display: none !important;
+    }
+
     /* Los controles nativos no heredan la fuente por defecto del navegador
        (en Chrome/Windows caían a Arial). Forzamos que hereden Manrope. */
     input, select, textarea, button {
