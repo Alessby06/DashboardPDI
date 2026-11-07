@@ -56,7 +56,7 @@ const DB = import.meta.env.PUBLIC_SURREAL_DB;
 // La contraseña de la base NO está aquí. El servidor (api/pdi.mjs) la usa
 // para emitir tokens de sesión de corta duración y el navegador se
 // autentica con ese token. En el bundle publicado no queda ninguna
-// credencial de la base: solo un token que caduca en 30 minutos.
+// credencial de la base: solo un token que caduca en 15 minutos.
 const RUTA_TOKEN = '/api/pdi';
 
 /**

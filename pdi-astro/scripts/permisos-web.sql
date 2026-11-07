@@ -3,10 +3,10 @@
 -- ===========================================================================
 --  Qué resuelve esto
 --  ----------------
---  El sitio público se autenticaba contra la base con la cuenta 'pdi_app',
---  que es OWNER (root): con su contraseña se podía redefinir el esquema,
---  crear usuarios y ver el resto de la base. Y esa contraseña viajaba dentro
---  del bundle JavaScript, o sea, pública.
+--  ESTADO: este script NO está aplicado. La base usa hoy `pdi_web` con
+--  ROLES EDITOR (verificado con INFO FOR USER), no VIEWER. El modelo de
+--  abajo es una propuesta de endurecimiento que hay que revisar antes de
+--  ejecutar: cambia el rol y los permisos de todas las tablas.
 --
 --  'pdi_web' es un usuario de nivel DATABASE con el rol integrado VIEWER:
 --
@@ -15,7 +15,7 @@
 --    - NO puede salir de esta base de datos.
 --    - Solo puede escribir en las tablas que el sistema usa; en las demás
 --      no puede ni crear, ni modificar, ni borrar.
---    - Su sesión y sus tokens caducan a los 30 minutos.
+--    - Su sesión y sus tokens caducan a los 15 minutos.
 --
 --  Un aviso honesto sobre lo que NO se puede cerrar aquí
 --  ---------------------------------------------------
@@ -43,13 +43,13 @@ USE DB infancia_saludable;
 -- ---------------------------------------------------------------------------
 --  1. El usuario de la web
 -- ---------------------------------------------------------------------------
---  ROLES VIEWER: no es root. La contraseña va en el servidor (variable de
---  entorno SURREAL_PASS), nunca en el bundle del navegador. Si se cambia la
---  contraseña, los tokens emitidos hasta ese momento dejan de valer.
+--  ROLES VIEWER: no es root. La contraseña NO se versiona: se define en el
+--  servidor (SURREAL_PASS) y se escribe aquí solo en el momento de aplicar el
+--  script. Si se cambia, los tokens emitidos hasta ese momento dejan de valer.
 DEFINE USER OVERWRITE pdi_web ON DATABASE
-  PASSWORD 'M4VXid^3vo*#9Ky^H@4bReqXA%JMxVmWvMizaqZW'
+  PASSWORD 'CAMBIAR_ANTES_DE_APLICAR'
   ROLES VIEWER
-  DURATION FOR TOKEN 30m, FOR SESSION 30m;
+  DURATION FOR TOKEN 15m, FOR SESSION 15m;
 
 -- ---------------------------------------------------------------------------
 --  2. Tablas que el sistema usa: lectura y escritura

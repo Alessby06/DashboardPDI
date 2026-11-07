@@ -26,6 +26,17 @@ __pycache__/
 # Temporales de herramientas
 .freebuff/
 
+# Historiales de CLI, listados locales y material interno
+# (pueden contener credenciales, rutas o datos; no se versionan)
+history.txt
+filelist.txt
+plans/
+.agents/
+.kiro/
+.taste-skill/
+skills-lock.json
+Proyecto Infancia Saludable/
+
 # Dumps de base de datos SurrealDB: contienen datos personales de usuarios
 # (nombres, DNI, telefono, direccion) y hashes de credenciales. Este repositorio
 # es publico: los backups NUNCA deben subirse. Guardarlos fuera del arbol del repo.

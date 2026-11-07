@@ -11,7 +11,7 @@
 //  Lo que el token NO puede hacer:
 //    - el usuario de la base es 'pdi_web', sin rol OWNER: no puede tocar el
 //      esquema, crear usuarios ni salir de esta base de datos;
-//    - el token caduca a los 30 minutos y se renueva solo.
+//    - el token caduca a los 15 minutos y se renueva solo.
 //
 //  Formato de archivo .mjs porque la raíz del proyecto no tiene package.json
 //  con "type": "module" y Vercel compila los .js como CommonJS.

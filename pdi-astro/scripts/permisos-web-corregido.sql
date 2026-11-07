@@ -3,6 +3,10 @@
 -- ===========================================================================
 --  Schema: persona_vinculada (schema viejo, producción actual)
 --  Removed: referencias a usuario_vinculado (no existe en esta BD)
+--
+--  ESTADO: no aplicado. La base usa hoy pdi_web con ROLES EDITOR. Este script
+--  propone VIEWER y cambia permisos de todas las tablas; revisar antes de
+--  ejecutarlo. La contraseña se escribe solo al aplicar, nunca se versiona.
 -- ===========================================================================
 
 USE NS johannes_gutenberg;
@@ -12,9 +16,9 @@ USE DB infancia_saludable;
 --  1. El usuario de la web
 -- ---------------------------------------------------------------------------
 DEFINE USER OVERWRITE pdi_web ON DATABASE
-  PASSWORD 'M4VXid^3vo*#9Ky^H@4bReqXA%JMxVmWvMizaqZW'
+  PASSWORD 'CAMBIAR_ANTES_DE_APLICAR'
   ROLES VIEWER
-  DURATION FOR TOKEN 30m, FOR SESSION 30m;
+  DURATION FOR TOKEN 15m, FOR SESSION 15m;
 
 -- ---------------------------------------------------------------------------
 --  2. Tablas que el sistema usa: lectura y escritura (SCHEMA VIEJO)

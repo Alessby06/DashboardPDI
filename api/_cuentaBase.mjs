@@ -847,6 +847,10 @@ export async function handleAuditoria(request, env = {}) {
     if (!actual) return json({ ok: false, error: 'La sesión expiró.' }, 401);
 
     if (request.method === 'GET') {
+      // La bitácora es de coordinación y administración, igual que la vista.
+      if (!['coord', 'admin'].includes(actual.cuenta.rol)) {
+        return json({ ok: false, error: 'No tienes permiso para ver la bitácora.' }, 403);
+      }
       const url = new URL(request.url);
       const limite = Math.min(Math.max(Number(url.searchParams.get('limit')) || 500, 1), 1000);
       const filas = await consulta(cfg, `SELECT * FROM bitacora_auditoria ORDER BY timestamp DESC LIMIT ${limite};`);

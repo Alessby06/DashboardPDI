@@ -3,6 +3,7 @@
 // exista. No usa AppLayout: una URL rota puede llegar sin sesión y el layout
 // redirigiría a /login, que es justo lo que hay que evitar aquí.
 import '../styles/variables.css';
+import '../styles/fonts.css';
 ---
 
 <!doctype html>
@@ -14,12 +15,6 @@ import '../styles/variables.css';
     <meta name="robots" content="noindex" />
     <meta name="theme-color" content="#ffffff" id="metaThemeColor" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@300..800&display=swap"
-      rel="stylesheet"
-    />
     <script is:inline>
       // Tema antes del primer pintado: evita el destello claro al recargar en oscuro.
       (function () {
