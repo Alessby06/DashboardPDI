@@ -72,9 +72,9 @@
 }
 
 .cuentas-btn--primary {
-  border-color: var(--gt-green-border);
-  background: var(--gt-green-bg);
-  color: var(--text-brand);
+  border-color: var(--text-main);
+  background: var(--text-main);
+  color: var(--surface-1);
 }
 
 .cuentas-btn--peligro {
@@ -114,7 +114,8 @@
 
 .cuentas-search:focus-within {
   border-color: var(--border-focus);
-  box-shadow: 0 0 0 3px var(--gt-green-bg); /* taste-skill-ignore: anillo de foco */
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
 }
 
 .cuentas-search input {
@@ -368,7 +369,7 @@
   max-height: 98dvh;
   overflow: auto;
   overscroll-behavior: contain;
-  padding: 16px;
+  padding: 20px;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   background: var(--surface-1);
@@ -386,12 +387,12 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 14px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .cuentas-modal-head h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: 20px;
   letter-spacing: -0.01em;
 }
 
@@ -424,13 +425,13 @@
 .cuentas-form {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 16px;
 }
 
 .cuentas-field {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 8px;
   min-width: 0;
 }
 
@@ -438,15 +439,21 @@
   grid-column: 1 / -1;
 }
 
-.cuentas-field label {
-  font-size: 11.5px;
+.cuentas-field label,
+.cuentas-field-label {
+  font-size: 12.5px;
   font-weight: 700;
   color: var(--text-muted);
 }
 
+.cuentas-field input::placeholder {
+  color: var(--text-dim);
+  opacity: 1;
+}
+
 .cuentas-field input,
 .cuentas-field select {
-  height: 34px;
+  height: 38px;
   padding: 0 11px;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
@@ -467,9 +474,9 @@
 
 .cuentas-field input:focus,
 .cuentas-field select:focus {
-  outline: none;
   border-color: var(--border-focus);
-  box-shadow: 0 0 0 3px var(--gt-green-bg); /* taste-skill-ignore: anillo de foco */
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
 }
 
 .cuentas-field.is-invalid input,
@@ -497,9 +504,9 @@
 
 .cuentas-sede-pick {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 6px;
-  padding: 8px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 10px;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   background: var(--surface-2);
@@ -508,9 +515,9 @@
 .cuentas-sede-pick label {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 6px;
-  min-height: 32px;
+  gap: 8px;
+  padding: 6px 8px;
+  min-height: 36px;
   border-radius: var(--radius-sm);
   font-size: 12.5px;
   font-weight: 600;
@@ -519,8 +526,8 @@
 }
 
 .cuentas-sede-pick input {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   accent-color: var(--gt-green);
   flex-shrink: 0;
 }
@@ -530,7 +537,7 @@
   display: flex;
   justify-content: flex-end;
   gap: 9px;
-  margin-top: 4px;
+  margin-top: 16px;
 }
 
 /* --- Clave temporal ------------------------------------------------------- */
@@ -577,8 +584,7 @@
   }
 
   .cuentas-modal-box {
-    max-height: 96dvh;
-    padding: 14px;
+    max-height: 98dvh;
   }
 
   .cuentas-cerrar {
@@ -592,12 +598,8 @@
     height: 44px;
   }
 
-  .cuentas-sede-pick {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .cuentas-sede-pick label {
-    min-height: 40px;
+    min-height: 44px;
   }
 
   .cuentas-btn {
@@ -626,6 +628,10 @@
   .cuentas-form {
     grid-template-columns: 1fr;
   }
+
+  .cuentas-sede-pick {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 520px) {
@@ -643,6 +649,10 @@
   .cuentas-btn--primary {
     width: 100%;
   }
+
+  .cuentas-sede-pick {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* El hover solo existe donde hay puntero fino: en una pantalla táctil se
@@ -653,7 +663,8 @@
   }
 
   .cuentas-btn--primary:hover {
-    background: var(--gt-green-border);
+    background: var(--text-main);
+    filter: brightness(1.15);
   }
 
   .cuentas-btn--peligro:hover {
