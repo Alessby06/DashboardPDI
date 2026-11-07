@@ -994,7 +994,7 @@
   #view-auditoria .card .data-table th:nth-child(1) { width: 130px; }
   #view-auditoria .card .data-table th:nth-child(2) { width: 170px; }
   #view-auditoria .card .data-table th:nth-child(3) { width: 196px; }
-  #view-auditoria .card .data-table th:nth-child(4) { width: 112px; }
+  #view-auditoria .card .data-table th:nth-child(4) { width: 148px; }
   #view-auditoria .card .data-table th:nth-child(6) { width: 120px; }
   #view-auditoria .card .data-table th:nth-child(7) { width: 112px; }
 
@@ -1032,9 +1032,25 @@
     overflow-wrap: anywhere;
   }
 
-  /* La entidad es un código: no se parte y no abre la columna. */
+  /* La entidad es un código largo (p. ej. cuenta:vc9n...): debe partirse en
+     varias líneas dentro de su columna. Forzarlo a una sola línea (nowrap)
+     hacía que desbordara sobre el detalle. */
+  #view-auditoria .card .data-table td:nth-child(4) {
+    overflow-wrap: anywhere;
+    word-break: break-all;
+  }
+
   #view-auditoria .card .data-table td:nth-child(4) code {
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-all;
+    font-size: 11.5px;
+    line-height: 1.3;
+  }
+
+  #view-auditoria .card .data-table td:nth-child(4) .audit-entity-link {
+    min-width: 0;
+    max-width: 100%;
   }
 
   /* "Detalle" se apilaba letra a letra por el overflow-wrap heredado. */
