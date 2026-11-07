@@ -1,0 +1,203 @@
+---
+import AppLayout from '../layouts/AppLayout.astro';
+import Icon from '../components/Icon.astro';
+import '../styles/views-cuentas.css';
+
+const ROLES = [
+  { valor: 'coord', etiqueta: 'Coordinación' },
+  { valor: 'facilitadora', etiqueta: 'Facilitadora' },
+  { valor: 'promotora', etiqueta: 'Promotora' },
+  { valor: 'social', etiqueta: 'Trabajo Social' },
+  { valor: 'admin', etiqueta: 'Administración TI' },
+];
+---
+
+<AppLayout title="Cuentas y acceso" currentPage="cuentas">
+  <section class="app-view active" id="view-cuentas">
+    <div class="cuentas-shell">
+      <header class="cuentas-header">
+        <div class="view-title-group">
+          <h2>Cuentas y acceso</h2>
+          <p>
+            Altas, roles, sedes y contraseñas del personal del programa. Cada acción queda
+            registrada en la bitácora de auditoría.
+          </p>
+        </div>
+        <button type="button" class="cuentas-btn cuentas-btn--primary" id="btnNuevaCuenta">
+          <Icon name="persona.agregar" size={16} />
+          Nueva cuenta
+        </button>
+      </header>
+
+      <div class="cuentas-toolbar">
+        <label class="cuentas-search" for="cuentasBuscar">
+          <Icon name="accion.buscar" size={16} />
+          <input
+            id="cuentasBuscar"
+            type="search"
+            placeholder="Buscar por nombre o usuario"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </label>
+        <select id="cuentasRol" class="cuentas-select" aria-label="Filtrar por rol">
+          <option value="">Todos los roles</option>
+          {ROLES.map((rol) => <option value={rol.valor}>{rol.etiqueta}</option>)}
+        </select>
+        <select id="cuentasEstado" class="cuentas-select" aria-label="Filtrar por estado">
+          <option value="">Todas las cuentas</option>
+          <option value="activas">Solo activas</option>
+          <option value="inactivas">Solo desactivadas</option>
+        </select>
+      </div>
+
+      <p class="cuentas-resumen" id="cuentasResumen" aria-live="polite"></p>
+
+      <div class="cuentas-lista" id="cuentasLista" aria-live="polite">
+        <div class="cuentas-vacio">
+          <strong>Cargando cuentas…</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Alta de cuenta -->
+  <div class="cuentas-modal" id="cuentasModal" inert aria-hidden="true">
+    <div class="cuentas-modal-box" role="dialog" aria-modal="true" aria-labelledby="cuentasModalTitulo">
+      <div class="cuentas-modal-head">
+        <div>
+          <h3 id="cuentasModalTitulo">Nueva cuenta</h3>
+          <p>La persona recibirá una contraseña temporal y deberá cambiarla al entrar.</p>
+        </div>
+        <button type="button" class="cuentas-cerrar" data-cerrar="cuentasModal" aria-label="Cerrar">
+          <Icon name="accion.cerrar" size={15} />
+        </button>
+      </div>
+
+      <form class="cuentas-form" id="formNuevaCuenta" novalidate>
+        <div class="cuentas-field cuentas-field--full" id="campoNombre">
+          <label for="ctaNombre">Nombre completo</label>
+          <input id="ctaNombre" name="nombre" type="text" maxlength="80" autocomplete="off" required data-autofocus />
+        </div>
+
+        <div class="cuentas-field" id="campoUsuario">
+          <label for="ctaUsuario">Usuario</label>
+          <input
+            id="ctaUsuario"
+            name="usuario"
+            type="text"
+            maxlength="32"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="nombre.apellido"
+            required
+          />
+          <span class="cuentas-hint">Minúsculas, sin tildes. Se rellena solo con el nombre.</span>
+        </div>
+
+        <div class="cuentas-field" id="campoRol">
+          <label for="ctaRol">Rol</label>
+          <select id="ctaRol" name="rol" required>
+            {ROLES.map((rol) => (
+              <option value={rol.valor} selected={rol.valor === 'promotora'}>{rol.etiqueta}</option>
+            ))}
+          </select>
+        </div>
+
+        <div class="cuentas-field">
+          <label for="ctaCorreo">Correo <span class="cuentas-hint">(opcional)</span></label>
+          <input id="ctaCorreo" name="correo" type="email" maxlength="120" autocomplete="off" />
+        </div>
+
+        <div class="cuentas-field">
+          <label for="ctaTelefono">Teléfono <span class="cuentas-hint">(opcional)</span></label>
+          <input id="ctaTelefono" name="telefono" type="tel" maxlength="12" autocomplete="off" placeholder="9XXXXXXXX" />
+        </div>
+
+        <div class="cuentas-field cuentas-field--full">
+          <label id="etiquetaSedes">Sedes asignadas</label>
+          <div class="cuentas-sede-pick" id="ctaSedes" role="group" aria-labelledby="etiquetaSedes">
+            <span class="cuentas-hint">Cargando sedes…</span>
+          </div>
+          <span class="cuentas-hint">Sin sede asignada, la cuenta no verá el padrón de ninguna sede.</span>
+        </div>
+
+        <p class="cuentas-error" id="ctaError" role="alert"></p>
+
+        <div class="cuentas-acciones-modal">
+          <button type="button" class="cuentas-btn" data-cerrar="cuentasModal">Cancelar</button>
+          <button type="submit" class="cuentas-btn cuentas-btn--primary" id="btnCrearCuenta">
+            Crear cuenta
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Contraseña temporal (alta y reinicio) -->
+  <div class="cuentas-modal" id="cuentasClaveModal" inert aria-hidden="true">
+    <div class="cuentas-modal-box" role="dialog" aria-modal="true" aria-labelledby="claveModalTitulo">
+      <div class="cuentas-modal-head">
+        <div>
+          <h3 id="claveModalTitulo">Contraseña temporal</h3>
+          <p id="claveModalTexto">Se muestra una sola vez.</p>
+        </div>
+        <button type="button" class="cuentas-cerrar" data-cerrar="cuentasClaveModal" aria-label="Cerrar">
+          <Icon name="accion.cerrar" size={15} />
+        </button>
+      </div>
+
+      <div class="cuentas-clave">
+        <code id="claveModalValor"></code>
+        <button type="button" class="cuentas-btn" id="btnCopiarClave" data-autofocus>
+          <Icon name="archivo.documento" size={15} />
+          Copiar
+        </button>
+      </div>
+
+      <p class="cuentas-aviso">
+        Entrégala por un canal privado. <strong>No se volverá a mostrar</strong> y la persona
+        deberá cambiarla en su primer ingreso.
+      </p>
+
+      <div class="cuentas-acciones-modal">
+        <button type="button" class="cuentas-btn cuentas-btn--primary" data-cerrar="cuentasClaveModal">
+          Entendido
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sedes de una cuenta -->
+  <div class="cuentas-modal" id="cuentasSedesModal" inert aria-hidden="true">
+    <div class="cuentas-modal-box" role="dialog" aria-modal="true" aria-labelledby="sedesModalTitulo">
+      <div class="cuentas-modal-head">
+        <div>
+          <h3 id="sedesModalTitulo">Sedes de la cuenta</h3>
+          <p id="sedesModalTexto"></p>
+        </div>
+        <button type="button" class="cuentas-cerrar" data-cerrar="cuentasSedesModal" aria-label="Cerrar">
+          <Icon name="accion.cerrar" size={15} />
+        </button>
+      </div>
+
+      <div class="cuentas-field">
+        <label id="etiquetaSedesModal">Sedes asignadas</label>
+        <div class="cuentas-sede-pick" id="sedesModalLista" role="group" aria-labelledby="etiquetaSedesModal"></div>
+      </div>
+
+      <p class="cuentas-error" id="sedesModalError" role="alert"></p>
+
+      <div class="cuentas-acciones-modal">
+        <button type="button" class="cuentas-btn" data-cerrar="cuentasSedesModal">Cancelar</button>
+        <button type="button" class="cuentas-btn cuentas-btn--primary" id="btnGuardarSedes">
+          Guardar sedes
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    import '../scripts/pages/cuentas.js';
+  </script>
+</AppLayout>

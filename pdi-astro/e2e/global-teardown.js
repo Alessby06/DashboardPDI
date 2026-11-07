@@ -19,6 +19,7 @@ export default async function globalTeardown() {
     if (datos) {
       await borrar(cfg, datos.coord.id);
       await borrar(cfg, datos.promo.id);
+      if (datos.admin) await borrar(cfg, datos.admin.id);
     }
     // Restos de ejecuciones interrumpidas.
     const filas = await consulta(cfg, "SELECT id FROM cuenta WHERE string::starts_with(usuario, 'e2e-');");

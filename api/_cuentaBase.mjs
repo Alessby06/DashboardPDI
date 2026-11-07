@@ -215,6 +215,23 @@ export function validarClave(valor) {
   return '';
 }
 
+/**
+ * Contraseña temporal de alta o de reinicio. Se muestra una sola vez y la
+ * persona debe cambiarla al entrar. Sin caracteres ambiguos (O/0, I/l/1) para
+ * que se pueda dictar por teléfono sin errores.
+ */
+export function generarClaveTemporal(largo = 16) {
+  const alfabeto = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+  let clave = '';
+  for (let i = 0; i < largo; i += 1) {
+    clave += alfabeto[crypto.randomInt(0, alfabeto.length)];
+  }
+  return clave;
+}
+
+/** Roles que la aplicación reconoce. Un rol desconocido no da acceso a nada. */
+export const ROLES_VALIDOS = ['coord', 'facilitadora', 'promotora', 'social', 'admin'];
+
 export function validarNombre(valor) {
   const nombre = String(valor || '').trim().replace(/\s+/g, ' ');
   if (nombre.length < 2 || nombre.length > 80) return { ok: false, nombre, error: 'El nombre debe tener entre 2 y 80 caracteres.' };
@@ -294,6 +311,12 @@ function lit(valor) {
   if (typeof valor === 'number') return Number.isFinite(valor) ? String(valor) : 'NONE';
   if (typeof valor === 'boolean') return valor ? 'true' : 'false';
   return JSON.stringify(String(valor));
+}
+
+/** Literal seguro para una lista de cadenas. */
+function litLista(valores) {
+  if (!Array.isArray(valores) || !valores.length) return '[]';
+  return '[' + valores.map((v) => lit(v)).join(', ') + ']';
 }
 
 export async function hashClave(cfg, clave) {
@@ -439,10 +462,13 @@ function publica(cuenta) {
     correo: cuenta.correo || '',
     telefono: cuenta.telefono || '',
     rol: cuenta.rol,
+    activo: cuenta.activo !== false,
+    sedes: Array.isArray(cuenta.sedes) ? cuenta.sedes : [],
     foto: cuenta.foto || '',
     debeCambiarClave: Boolean(cuenta.debe_cambiar_clave),
     totpActivo: Boolean(cuenta.totp_activo),
     creadoEl: cuenta.creado_el || null,
+    actualizadoEl: cuenta.actualizado_el || null,
   };
 }
 
@@ -462,7 +488,7 @@ function datosSesion(cuenta, emitida = Date.now()) {
   };
 }
 
-async function auditar(cfg, cuenta, accion, detalle, diff = null, ip = '') {
+async function auditar(cfg, cuenta, accion, detalle, diff = null, ip = '', entidad = 'PDI - Perfil', objetivoId = null) {
   try {
     // El esquema de bitacora_auditoria no admite claves libres dentro de
     // `diff`; el resumen legible va en `detalle` y el diff se deja vacío.
@@ -477,8 +503,8 @@ async function auditar(cfg, cuenta, accion, detalle, diff = null, ip = '') {
       usuario_nombre: ${lit(cuenta.nombre)},
       rol: ${lit(cuenta.rol)},
       accion: ${lit(accion)},
-      entidad: 'PDI - Perfil',
-      registro_id: ${lit(String(cuenta.id))},
+      entidad: ${lit(entidad)},
+      registro_id: ${lit(String(objetivoId || cuenta.id))},
       detalle: ${lit(detalle + cambios)},
       ip_origen: ${lit(ip)},
       sede_nombre: 'Central',
@@ -888,6 +914,203 @@ export async function handleAuditoria(request, env = {}) {
   }
 }
 
+// --- Administración de cuentas ----------------------------------------------
+
+const ENTIDAD_CUENTAS = 'PDI - Cuentas';
+
+function normalizarRol(valor) {
+  const rol = String(valor || '').trim().toLowerCase();
+  return ROLES_VALIDOS.includes(rol) ? rol : null;
+}
+
+/**
+ * Lista de sedes de una cuenta. Devuelve `null` si el valor no es una lista
+ * válida; una lista vacía es válida y significa «sin sede asignada».
+ */
+function normalizarSedes(valor) {
+  if (valor === null || valor === undefined) return [];
+  if (!Array.isArray(valor)) return null;
+  const vistos = new Set();
+  for (const item of valor) {
+    const id = String(item || '').trim();
+    if (!/^[a-z_]+:[A-Za-z0-9_]{1,60}$/.test(id)) return null;
+    vistos.add(id);
+    if (vistos.size > 20) return null;
+  }
+  return [...vistos];
+}
+
+async function otrosAdminsActivos(cfg, excluirId) {
+  const filas = await consulta(cfg, `SELECT id FROM cuenta WHERE rol = 'admin' AND activo = true;`);
+  return (Array.isArray(filas) ? filas : []).filter((f) => String(f.id) !== String(excluirId));
+}
+
+async function objetivoDe(cfg, id) {
+  const texto = String(id || '');
+  if (!/^cuenta:[A-Za-z0-9]+$/.test(texto)) return null;
+  return cuentaPorId(cfg, texto);
+}
+
+async function admin(request, cfg) {
+  const actual = await sesionDe(request, cfg);
+  if (!actual) return json({ ok: false, error: 'La sesión expiró.' }, 401, [cookieBorrada()]);
+  if (actual.cuenta.rol !== 'admin') {
+    return json({ ok: false, error: 'Solo administración puede gestionar cuentas.' }, 403);
+  }
+
+  if (request.method === 'GET') {
+    const filas = await consulta(cfg, `SELECT * FROM cuenta ORDER BY nombre ASC;`);
+    return json({ ok: true, cuentas: (Array.isArray(filas) ? filas : []).map(publica) });
+  }
+
+  if (request.method !== 'POST') return json({ ok: false, error: 'Método no permitido.' }, 405);
+  if (!origenValido(request)) return json({ ok: false, error: 'Origen no permitido.' }, 403);
+
+  const entrada = await cuerpo(request);
+  const accion = String(entrada.accion || '').trim();
+  const ip = ipDe(request);
+
+  // --- Alta ----------------------------------------------------------------
+  if (accion === 'crear') {
+    const nombre = validarNombre(entrada.nombre);
+    if (!nombre.ok) return json({ ok: false, error: nombre.error }, 400);
+    const usuario = validarUsuario(entrada.usuario);
+    if (!usuario.ok) return json({ ok: false, error: usuario.error }, 400);
+    const rol = normalizarRol(entrada.rol);
+    if (!rol) return json({ ok: false, error: 'Elige un rol válido.' }, 400);
+    const sedes = normalizarSedes(entrada.sedes);
+    if (!sedes) return json({ ok: false, error: 'La lista de sedes no es válida.' }, 400);
+    const correo = validarCorreo(entrada.correo);
+    if (!correo.ok) return json({ ok: false, error: correo.error }, 400);
+    const telefono = validarTelefono(entrada.telefono);
+    if (!telefono.ok) return json({ ok: false, error: telefono.error }, 400);
+
+    if (await cuentaPorUsuario(cfg, usuario.usuario)) {
+      return json({ ok: false, error: 'Ese nombre de usuario ya existe.' }, 409);
+    }
+
+    const claveTemporal = generarClaveTemporal();
+    const hash = await hashClave(cfg, claveTemporal);
+    const filas = await consulta(cfg, `CREATE cuenta CONTENT {
+      usuario: ${lit(usuario.usuario)},
+      nombre: ${lit(nombre.nombre)},
+      correo: ${lit(correo.correo)},
+      telefono: ${lit(telefono.telefono)},
+      rol: ${lit(rol)},
+      activo: true,
+      hash_cifrado: ${lit(cifrar(hash, cfg.secreto))},
+      debe_cambiar_clave: true,
+      session_version: 1,
+      intentos_fallidos: 0,
+      totp_activo: false,
+      sedes: ${litLista(sedes)}
+    };`);
+    const creada = Array.isArray(filas) ? filas[0] : null;
+    if (!creada) return json({ ok: false, error: 'No se pudo crear la cuenta.' }, 500);
+
+    await auditar(
+      cfg, actual.cuenta, 'Cuenta creada',
+      `Alta de la cuenta ${usuario.usuario} con rol ${rol}.`,
+      [
+        { campo: 'rol', antes: '', despues: rol },
+        { campo: 'sedes', antes: '', despues: sedes.join(', ') },
+      ],
+      ip, ENTIDAD_CUENTAS, creada.id,
+    );
+    return json({ ok: true, cuenta: publica(creada), claveTemporal }, 201);
+  }
+
+  // Las demás acciones siempre actúan sobre una cuenta concreta.
+  const objetivo = await objetivoDe(cfg, entrada.id);
+  if (!objetivo) return json({ ok: false, error: 'La cuenta indicada no existe.' }, 404);
+
+  // --- Cambio de rol -------------------------------------------------------
+  if (accion === 'rol') {
+    const rol = normalizarRol(entrada.rol);
+    if (!rol) return json({ ok: false, error: 'Elige un rol válido.' }, 400);
+    if (objetivo.rol === rol) return json({ ok: true, cuenta: publica(objetivo) });
+
+    if (objetivo.rol === 'admin' && objetivo.activo !== false && rol !== 'admin') {
+      const otros = await otrosAdminsActivos(cfg, objetivo.id);
+      if (!otros.length) {
+        return json({ ok: false, error: 'Debe quedar al menos una cuenta de administración activa.' }, 400);
+      }
+    }
+
+    await consulta(cfg, `UPDATE ${idRegistro(objetivo.id)} SET rol = ${lit(rol)}, session_version += 1;`);
+    await auditar(
+      cfg, actual.cuenta, 'Cuenta: cambio de rol',
+      `Cambio de rol de ${objetivo.usuario}.`,
+      [{ campo: 'rol', antes: objetivo.rol, despues: rol }],
+      ip, ENTIDAD_CUENTAS, objetivo.id,
+    );
+    return json({ ok: true });
+  }
+
+  // --- Reinicio de contraseña ---------------------------------------------
+  if (accion === 'clave') {
+    const claveTemporal = generarClaveTemporal();
+    const hash = await hashClave(cfg, claveTemporal);
+    await consulta(cfg, `UPDATE ${idRegistro(objetivo.id)} SET
+      hash_cifrado = ${lit(cifrar(hash, cfg.secreto))},
+      debe_cambiar_clave = true,
+      session_version += 1,
+      intentos_fallidos = 0,
+      bloqueado_hasta = NONE;`);
+    await auditar(
+      cfg, actual.cuenta, 'Cuenta: contraseña reiniciada',
+      `Se reinició la contraseña de ${objetivo.usuario}; deberá cambiarla al entrar.`,
+      null, ip, ENTIDAD_CUENTAS, objetivo.id,
+    );
+    return json({ ok: true, claveTemporal });
+  }
+
+  // --- Alta y baja ---------------------------------------------------------
+  if (accion === 'estado') {
+    const activo = entrada.activo === true || entrada.activo === 'true';
+    const yaEsta = (objetivo.activo !== false) === activo;
+    if (yaEsta) return json({ ok: true, cuenta: publica(objetivo) });
+
+    if (!activo && String(objetivo.id) === String(actual.cuenta.id)) {
+      return json({ ok: false, error: 'No puedes desactivar tu propia cuenta.' }, 400);
+    }
+    if (!activo && objetivo.rol === 'admin' && objetivo.activo !== false) {
+      const otros = await otrosAdminsActivos(cfg, objetivo.id);
+      if (!otros.length) {
+        return json({ ok: false, error: 'Debe quedar al menos una cuenta de administración activa.' }, 400);
+      }
+    }
+
+    await consulta(cfg, activo
+      ? `UPDATE ${idRegistro(objetivo.id)} SET activo = true;`
+      : `UPDATE ${idRegistro(objetivo.id)} SET activo = false, session_version += 1;`);
+    await auditar(
+      cfg, actual.cuenta, activo ? 'Cuenta reactivada' : 'Cuenta desactivada',
+      `${activo ? 'Reactivación' : 'Baja'} de la cuenta ${objetivo.usuario}.${activo ? '' : ' Sus sesiones abiertas quedaron invalidadas.'}`,
+      [{ campo: 'activo', antes: objetivo.activo === false ? 'no' : 'sí', despues: activo ? 'sí' : 'no' }],
+      ip, ENTIDAD_CUENTAS, objetivo.id,
+    );
+    return json({ ok: true });
+  }
+
+  // --- Sedes ---------------------------------------------------------------
+  if (accion === 'sedes') {
+    const sedes = normalizarSedes(entrada.sedes);
+    if (!sedes) return json({ ok: false, error: 'La lista de sedes no es válida.' }, 400);
+    const antes = Array.isArray(objetivo.sedes) ? objetivo.sedes : [];
+    await consulta(cfg, `UPDATE ${idRegistro(objetivo.id)} SET sedes = ${litLista(sedes)};`);
+    await auditar(
+      cfg, actual.cuenta, 'Cuenta: sedes actualizadas',
+      `Se actualizaron las sedes de ${objetivo.usuario}.`,
+      [{ campo: 'sedes', antes: antes.join(', '), despues: sedes.join(', ') }],
+      ip, ENTIDAD_CUENTAS, objetivo.id,
+    );
+    return json({ ok: true, cuenta: publica({ ...objetivo, sedes }) });
+  }
+
+  return json({ ok: false, error: 'Acción no reconocida.' }, 400);
+}
+
 // --- Entrada ----------------------------------------------------------------
 
 export async function handleCuenta(request, env = {}) {
@@ -935,6 +1158,9 @@ export async function handleCuenta(request, env = {}) {
       if (request.method !== 'POST') return json({ ok: false, error: 'Se espera POST.' }, 405);
       if (!origenValido(request)) return json({ ok: false, error: 'Origen no permitido.' }, 403);
       return await totp(request, cfg);
+    }
+    if (ruta === '/api/cuenta/admin') {
+      return await admin(request, cfg);
     }
 
     return json({ ok: false, error: 'Ruta no encontrada.' }, 404);

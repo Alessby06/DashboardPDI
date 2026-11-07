@@ -135,6 +135,16 @@ export const PAGINAS = {
     allowedRoles: ["coord", "admin"],
   },
 
+  cuentas: {
+    ruta: "/cuentas",
+    etiqueta: "Cuentas y acceso",
+    view: "view-cuentas",
+    grupo: "Sistema",
+    enMenu: true,
+    // Solo administracion crea, cambia roles y da de baja identidades.
+    allowedRoles: ["admin"],
+  },
+
   ajustes: {
     ruta: "/ajustes",
     etiqueta: "Ajustes",
@@ -171,6 +181,7 @@ export const ORDEN_MENU = [
   "sedes",
   "voluntariados",
   "auditoria",
+  "cuentas",
   "ajustes",
 ];
 

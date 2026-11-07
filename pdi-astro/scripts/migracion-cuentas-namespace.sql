@@ -28,6 +28,9 @@ DEFINE FIELD IF NOT EXISTS hash_cifrado ON cuenta TYPE string;
 DEFINE FIELD IF NOT EXISTS foto ON cuenta TYPE option<string>;
 DEFINE FIELD IF NOT EXISTS debe_cambiar_clave ON cuenta TYPE bool DEFAULT false;
 DEFINE FIELD IF NOT EXISTS session_version ON cuenta TYPE int DEFAULT 0;
+-- Sedes asignadas a la cuenta (alcance de lectura). Se guardan como ids de la
+-- tabla clínica `sede`; una cuenta puede cubrir varias.
+DEFINE FIELD IF NOT EXISTS sedes ON cuenta TYPE option<array<string>>;
 DEFINE FIELD IF NOT EXISTS intentos_fallidos ON cuenta TYPE int DEFAULT 0;
 DEFINE FIELD IF NOT EXISTS bloqueado_hasta ON cuenta TYPE option<datetime>;
 DEFINE FIELD IF NOT EXISTS totp_secret ON cuenta TYPE option<string>;

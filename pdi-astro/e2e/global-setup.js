@@ -33,6 +33,7 @@ export default async function globalSetup() {
   await limpiarCuentasE2E(cfg);
   const coord = await crearCuenta(cfg, 'coord', 'coord');
   const promo = await crearCuenta(cfg, 'promotora', 'promo');
-  fs.writeFileSync(RUTA_CUENTAS, JSON.stringify({ coord, promo }, null, 2));
-  console.log('[e2e] cuentas temporales creadas:', coord.usuario, '/', promo.usuario);
+  const admin = await crearCuenta(cfg, 'admin', 'admin');
+  fs.writeFileSync(RUTA_CUENTAS, JSON.stringify({ coord, promo, admin }, null, 2));
+  console.log('[e2e] cuentas temporales creadas:', coord.usuario, '/', promo.usuario, '/', admin.usuario);
 }

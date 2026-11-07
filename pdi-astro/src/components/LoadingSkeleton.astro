@@ -11,7 +11,7 @@ import Icon from './Icon.astro';
 const { variant = "default" } = Astro.props;
 
 const esDashboard = variant === "dashboard";
-const esTabla = ["padron", "salud", "educativo", "auditoria", "voluntariados"].includes(variant);
+const esTabla = ["padron", "salud", "educativo", "auditoria", "voluntariados", "cuentas"].includes(variant);
 const esTablero = variant === "social";
 const esTarjetas = variant === "sedes";
 const esDetalle = variant === "expediente";

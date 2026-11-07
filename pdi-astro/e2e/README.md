@@ -6,8 +6,9 @@ auditoría, token clínico, validaciones del perfil y la página 404.
 ## Requisitos
 
 - `pdi-astro/.env` con las credenciales de la base de cuentas (`CUENTAS_SECRETO`,
-  `SURREAL_AUTH_*`). Las pruebas crean y borran dos cuentas temporales con
-  prefijo `e2e-`; no tocan las cuentas reales.
+  `SURREAL_AUTH_*`). Las pruebas crean y borran tres cuentas temporales con
+  prefijo `e2e-` (coordinación, promotora y administración); no tocan las
+  cuentas reales.
 - Microsoft Edge instalado. El proyecto usa `channel: 'msedge'` para no
   descargar un navegador aparte. Si no está, cambia el canal o ejecuta
   `npx playwright install chromium`.
@@ -41,5 +42,6 @@ que Astro lo consuma.
 - `login.spec.js`: tipografía local, ojo de contraseña, login correcto e incorrecto.
 - `security.spec.js`: 401 sin sesión, 403 de auditoría para promotora, token clínico.
 - `perfil.spec.js`: filtro de teléfono, correo, botones condicionados, MFA por rol.
+- `cuentas.spec.js`: alta con clave temporal, primer ingreso, reinicio de clave, baja y acceso denegado por rol.
 - `404.spec.js`: página propia con la ruta solicitada.
 - `global-setup.js` / `global-teardown.js`: cuentas temporales y limpieza.
