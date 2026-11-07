@@ -20,7 +20,8 @@ const ROLES = [
           <h2>Cuentas y acceso</h2>
           <p>
             Altas, roles, sedes y contraseñas del personal del programa. Cada acción queda
-            registrada en la bitácora de auditoría.
+            registrada en la bitácora de auditoría. El segundo factor es opcional durante el
+            desarrollo.
           </p>
         </div>
         <button type="button" class="cuentas-btn cuentas-btn--primary" id="btnNuevaCuenta">
@@ -53,8 +54,8 @@ const ROLES = [
 
       <p class="cuentas-resumen" id="cuentasResumen" aria-live="polite"></p>
 
-      <div class="cuentas-lista" id="cuentasLista" aria-live="polite">
-        <div class="cuentas-vacio">
+      <div class="cuentas-lista" id="cuentasLista" role="list" aria-label="Cuentas del personal" aria-live="polite">
+        <div class="cuentas-vacio" role="status">
           <strong>Cargando cuentas…</strong>
         </div>
       </div>

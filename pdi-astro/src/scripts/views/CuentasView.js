@@ -159,12 +159,14 @@ function filaHtml(cuenta) {
     ([valor, etiqueta]) => `<option value="${valor}"${valor === cuenta.rol ? ' selected' : ''}>${etiqueta}</option>`,
   ).join('');
 
-  // El segundo factor es opcional para todos mientras dure el desarrollo; se
-  // muestra solo su estado, sin insinuar una obligación que no existe.
-  const mfa = cuenta.totpActivo ? 'MFA activo' : 'MFA opcional';
+  // El segundo factor es opcional para todos durante el desarrollo; solo se
+  // destaca cuando ya está activo, para no repetir la misma nota en cada fila.
+  const mfa = cuenta.totpActivo
+    ? '<span class="cuenta-mfa">MFA activo</span>'
+    : '';
 
   return `
-    <div class="cuenta-fila${cuenta.activo ? '' : ' is-inactiva'}" data-id="${escapar(cuenta.id)}">
+    <div class="cuenta-fila${cuenta.activo ? '' : ' is-inactiva'}" role="listitem" data-id="${escapar(cuenta.id)}">
       <div class="cuenta-identidad">
         <span class="cuenta-avatar" aria-hidden="true">${escapar(inicialesDe(cuenta.nombre))}</span>
         <span class="cuenta-texto">
@@ -180,21 +182,21 @@ function filaHtml(cuenta) {
         </select>
       </div>
 
-      <div class="cuenta-sedes">${chips}</div>
+      <div class="cuenta-sedes" aria-label="Sedes asignadas">${chips}</div>
 
       <div class="cuenta-acciones">
         <span class="cuenta-estado-bloque">
           <span class="cuenta-estado${cuenta.activo ? '' : ' is-inactiva'}">${cuenta.activo ? 'Activa' : 'Desactivada'}</span>
-          <span class="cuenta-mfa">${escapar(mfa)}</span>
+          ${mfa}
         </span>
-        <button type="button" class="cuentas-btn" data-accion="sedes" title="Editar sedes">
+        <button type="button" class="cuentas-btn" data-accion="sedes" aria-label="Editar sedes de ${escapar(cuenta.nombre)}">
           Sedes
         </button>
-        <button type="button" class="cuentas-btn" data-accion="clave" title="Reiniciar contraseña">
+        <button type="button" class="cuentas-btn" data-accion="clave" aria-label="Reiniciar contraseña de ${escapar(cuenta.nombre)}">
           Clave
         </button>
         <button type="button" class="cuentas-btn${cuenta.activo ? ' cuentas-btn--peligro' : ''}"
-          data-accion="estado" data-activo="${cuenta.activo ? '1' : '0'}" title="${cuenta.activo ? 'Desactivar cuenta' : 'Reactivar cuenta'}">
+          data-accion="estado" data-activo="${cuenta.activo ? '1' : '0'}" aria-label="${cuenta.activo ? 'Desactivar' : 'Activar'} cuenta de ${escapar(cuenta.nombre)}">
           ${cuenta.activo ? 'Desactivar' : 'Activar'}
         </button>
       </div>
@@ -628,8 +630,13 @@ async function iniciar() {
   } catch (err) {
     lista.innerHTML = `<div class="cuentas-vacio">
       <strong>No se pudieron cargar las cuentas</strong>
-      ${escapar(err?.message || 'Revisa la conexión y recarga la página.')}
+      <p>${escapar(err?.message || 'Revisa la conexión y recarga la página.')}</p>
+      <button type="button" class="cuentas-btn" id="btnReintentarCuentas">Reintentar</button>
     </div>`;
+    porId('btnReintentarCuentas')?.addEventListener('click', () => {
+      lista.innerHTML = `<div class="cuentas-vacio"><strong>Cargando cuentas…</strong></div>`;
+      iniciar();
+    });
   }
 }
 
