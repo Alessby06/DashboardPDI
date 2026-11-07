@@ -360,7 +360,7 @@
   max-height: 92dvh;
   overflow: auto;
   overscroll-behavior: contain;
-  padding: 20px;
+  padding: 16px;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   background: var(--surface-1);
@@ -378,7 +378,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 14px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .cuentas-modal-head h3 {
@@ -416,7 +416,7 @@
 .cuentas-form {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 13px;
+  gap: 10px;
 }
 
 .cuentas-field {
@@ -491,7 +491,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 7px;
-  max-height: 210px;
+  max-height: 160px;
   overflow: auto;
   padding: 9px;
   border: 1px solid var(--border-subtle);
