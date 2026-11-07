@@ -557,6 +557,14 @@ function enlazar() {
   if (cuerpoEnlazado !== document.body) {
     cuerpoEnlazado = document.body;
 
+    // Los modales viven dentro de #pdiViewContent, cuya opacidad la controla
+    // el estado de carga. Mientras dure ese estado (o si se reactiva), los
+    // modales quedan invisibles aunque tengan .open. Se sacan al <body> para
+    // que no hereden esa opacidad.
+    document.querySelectorAll('.cuentas-modal').forEach((modal) => {
+      if (modal.parentElement !== document.body) document.body.appendChild(modal);
+    });
+
     porId('btnNuevaCuenta')?.addEventListener('click', () => {
       reiniciarFormulario();
       abrirModal('cuentasModal');
