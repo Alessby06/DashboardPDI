@@ -159,8 +159,9 @@ function filaHtml(cuenta) {
     ([valor, etiqueta]) => `<option value="${valor}"${valor === cuenta.rol ? ' selected' : ''}>${etiqueta}</option>`,
   ).join('');
 
-  const esAdmin = cuenta.rol === 'admin';
-  const mfa = cuenta.totpActivo ? 'MFA activo' : (esAdmin ? 'MFA pendiente' : 'MFA opcional');
+  // El segundo factor es opcional para todos mientras dure el desarrollo; se
+  // muestra solo su estado, sin insinuar una obligación que no existe.
+  const mfa = cuenta.totpActivo ? 'MFA activo' : 'MFA opcional';
 
   return `
     <div class="cuenta-fila${cuenta.activo ? '' : ' is-inactiva'}" data-id="${escapar(cuenta.id)}">
