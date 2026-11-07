@@ -72,9 +72,9 @@
 }
 
 .cuentas-btn--primary {
-  border-color: var(--text-main);
-  background: var(--text-main);
-  color: var(--surface-1);
+  border-color: var(--brand-dark);
+  background: var(--brand-dark);
+  color: var(--on-brand);
 }
 
 .cuentas-btn--peligro {
@@ -392,7 +392,7 @@
 
 .cuentas-modal-head h3 {
   margin: 0;
-  font-size: 20px;
+  font-size: 16.5px;
   letter-spacing: -0.01em;
 }
 
@@ -441,9 +441,22 @@
 
 .cuentas-field label,
 .cuentas-field-label {
-  font-size: 12.5px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--text-muted);
+}
+
+.cuentas-fieldset {
+  border: 0;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+}
+
+legend.cuentas-field-label {
+  padding: 0;
 }
 
 .cuentas-field input::placeholder {
@@ -457,7 +470,7 @@
   padding: 0 11px;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  background: var(--surface-1);
+  background: var(--bg-base);
   color: var(--text-main);
   font-family: inherit;
   font-size: 13.5px;
@@ -502,14 +515,49 @@
   display: none;
 }
 
+.cuentas-error-field {
+  margin: 0;
+  color: var(--text-danger);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.cuentas-error-field[hidden] {
+  display: none;
+}
+
+.cuentas-leyenda {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 11px;
+}
+
 .cuentas-sede-pick {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
-  padding: 10px;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  background: var(--surface-2);
+}
+
+.cuentas-sedes-resumen-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.cuentas-sedes-resumen {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.cuentas-btn--mini {
+  padding: 6px 10px;
+  font-size: 12px;
 }
 
 .cuentas-sede-pick label {
@@ -646,12 +694,17 @@
     align-items: flex-start;
   }
 
-  .cuentas-btn--primary {
-    width: 100%;
+  .cuentas-acciones-modal {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .cuentas-sede-pick {
     grid-template-columns: 1fr;
+  }
+
+  .cuentas-sedes-resumen-row {
+    align-items: stretch;
   }
 }
 
@@ -663,8 +716,8 @@
   }
 
   .cuentas-btn--primary:hover {
-    background: var(--text-main);
-    filter: brightness(1.15);
+    background: var(--brand-dark);
+    filter: brightness(1.08);
   }
 
   .cuentas-btn--peligro:hover {

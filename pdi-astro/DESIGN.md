@@ -152,7 +152,7 @@ components:
     rounded: "{rounded.md}"
     padding: "8px 16px"
   button-primary:
-    backgroundColor: "{colors.brand-green}"
+    backgroundColor: "{colors.brand-green-deep}"
     textColor: "{colors.on-brand}"
     rounded: "{rounded.md}"
     padding: "8px 16px"
@@ -273,6 +273,8 @@ No es una paleta nueva: son los mismos roles con otros valores. El fondo es negr
 
 **The Panel vs Card Rule.** El título de un panel de datos es más pequeño que el de una tarjeta de contenido: 14/800 frente a 16.5/700. El panel gana densidad; la tarjeta gana lectura.
 
+**The Code Exception.** El texto de código (p. ej. la clave temporal) usa pila monoespaciada para distinguir caracteres; no es texto corrido y no sustituye a Manrope en la prosa.
+
 ## Layout
 
 Área de contenido con 24 px de padding en escritorio, 16/14 px por debajo de 900 px y 12/10 px por debajo de 640 px. Las vistas apilan bloques cada 24 px.
@@ -340,12 +342,12 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 
 ### Buttons
 - **Neutral:** fondo Paper, borde Rule, Ink, 13.5/600, radio 10, padding 8/16.
-- **Primary:** fondo Brand Green, tinta On Brand; solo la acción que cierra la tarea.
+- **Primary:** fondo Brand Deep, tinta On Brand; solo la acción que cierra la tarea. El verde vivo con blanco da ~2,6:1 y no aprueba AA; el verde profundo con blanco aprueba en ambos temas.
 - **Micro action:** 30×30 con icono; en móvil, botón cuadrado de 34 con borde.
 - **Hover / Focus:** fondo Hover, borde Rule Strong; foco visible con anillo de 2 px del color de marca.
 
 ### Inputs / Fields
-- **Style:** fondo Paper, borde Rule, radio 10, padding 10/14, 14 px.
+- **Style:** fondo Paper, borde Rule, radio 10, padding 10/14, 14 px. En los modales los campos van sobre Paper para dar un paso de tono frente a la Surface del diálogo.
 - **Focus:** borde Rule Strong, sin glow ni sombra.
 - **Error / Disabled:** error con texto y borde Alert; deshabilitado en Ink Dim.
 - **Selects:** ningún `<select>` nativo se muestra sin mejorar. `src/scripts/ui/customSelect.js` los convierte al dropdown propio (`pdi-select` + `pdi-select-trigger` + `pdi-select-menu`, hoja `custom-select.css`): mismo `<select>` vivo para `id`, `name`, `value`, `required`, `disabled` y `onchange`; menú en `<body>` con `position: fixed` para que ningún modal lo recorte; entrada de 6 px + fundido en `--dur-norm` y salida en `--dur-fast`. Un `<select>` nuevo se mejora solo; si no se puede, se marca `data-pdi-select="native"` y se documenta la excepción.

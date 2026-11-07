@@ -239,7 +239,24 @@ async function cargar() {
   render();
 }
 
+function actualizarResumenSedes() {
+  const resumen = porId('ctaSedesResumen');
+  const caja = porId('ctaSedes');
+  if (!resumen || !caja) return;
+  const casillas = caja.querySelectorAll('input[type="checkbox"]');
+  if (!sedes.length) {
+    resumen.textContent = 'Las sedes estarán disponibles en un momento.';
+    return;
+  }
+  const marcadas = caja.querySelectorAll('input[type="checkbox"]:checked').length;
+  resumen.textContent = marcadas === 0
+    ? 'Verá: todas las sedes'
+    : `Verá: ${marcadas} de ${casillas.length} sedes`;
+}
+
 async function cargarSedes() {
+  const boton = porId('btnCrearCuenta');
+  if (boton) boton.disabled = true;
   try {
     const lista = await fetchSedes();
     sedes = Array.isArray(lista) ? lista : [];
@@ -247,6 +264,8 @@ async function cargarSedes() {
     sedes = [];
   }
   pintarSedes('ctaSedes', []);
+  actualizarResumenSedes();
+  if (boton) boton.disabled = false;
 }
 
 function pintarSedes(contenedorId, seleccionadas) {
@@ -272,6 +291,9 @@ async function crearCuenta(evento) {
   const error = porId('ctaError');
   if (error) error.textContent = '';
 
+  limpiarErrorCampo('ctaNombre', 'ctaNombreError');
+  limpiarErrorCampo('ctaUsuario', 'ctaUsuarioError');
+
   const nombre = porId('ctaNombre')?.value.trim() || '';
   const usuario = porId('ctaUsuario')?.value.trim() || '';
   const rol = porId('ctaRol')?.value || 'promotora';
@@ -282,14 +304,12 @@ async function crearCuenta(evento) {
   );
 
   if (!nombre) {
-    if (error) error.textContent = 'Escribe el nombre completo.';
-    porId('campoNombre')?.classList.add('is-invalid');
+    mostrarErrorCampo('ctaNombre', 'ctaNombreError', 'Escribe el nombre completo.');
     porId('ctaNombre')?.focus();
     return;
   }
   if (!usuario) {
-    if (error) error.textContent = 'Escribe el nombre de usuario.';
-    porId('campoUsuario')?.classList.add('is-invalid');
+    mostrarErrorCampo('ctaUsuario', 'ctaUsuarioError', 'Escribe el nombre de usuario.');
     porId('ctaUsuario')?.focus();
     return;
   }
@@ -308,7 +328,7 @@ async function crearCuenta(evento) {
 
     if (!res.ok || !datos.ok) {
       if (error) error.textContent = datos.error || 'No se pudo crear la cuenta.';
-      porId('campoUsuario')?.classList.add('is-invalid');
+      mostrarErrorCampo('ctaUsuario', 'ctaUsuarioError', datos.error || 'No se pudo crear la cuenta.');
       return;
     }
 
@@ -331,6 +351,26 @@ async function crearCuenta(evento) {
   }
 }
 
+function mostrarErrorCampo(campoId, errorId, mensaje) {
+  const campo = porId(campoId);
+  const errorCampo = porId(errorId);
+  if (campo) campo.setAttribute('aria-invalid', 'true');
+  if (errorCampo) {
+    errorCampo.textContent = mensaje || '';
+    errorCampo.hidden = !mensaje;
+  }
+}
+
+function limpiarErrorCampo(campoId, errorId) {
+  const campo = porId(campoId);
+  const errorCampo = porId(errorId);
+  if (campo) campo.removeAttribute('aria-invalid');
+  if (errorCampo) {
+    errorCampo.textContent = '';
+    errorCampo.hidden = true;
+  }
+}
+
 function reiniciarFormulario() {
   const form = porId('formNuevaCuenta');
   if (!form) return;
@@ -346,9 +386,12 @@ function reiniciarFormulario() {
   for (const id of ['campoNombre', 'campoUsuario']) {
     porId(id)?.classList.remove('is-invalid');
   }
+  limpiarErrorCampo('ctaNombre', 'ctaNombreError');
+  limpiarErrorCampo('ctaUsuario', 'ctaUsuarioError');
   const error = porId('ctaError');
   if (error) error.textContent = '';
   pintarSedes('ctaSedes', []);
+  actualizarResumenSedes();
 }
 
 function mostrarClave(titulo, texto, clave) {
@@ -575,16 +618,27 @@ function enlazar() {
     porId('formNuevaCuenta')?.addEventListener('submit', crearCuenta);
 
     porId('ctaNombre')?.addEventListener('input', (evento) => {
+      porId('campoNombre')?.classList.remove('is-invalid');
+      limpiarErrorCampo('ctaNombre', 'ctaNombreError');
       if (usuarioTocado) return;
       const campo = porId('ctaUsuario');
       if (campo) campo.value = usuarioSugerido(evento.target.value);
-      porId('campoNombre')?.classList.remove('is-invalid');
       porId('campoUsuario')?.classList.remove('is-invalid');
     });
 
     porId('ctaUsuario')?.addEventListener('input', () => {
       usuarioTocado = true;
       porId('campoUsuario')?.classList.remove('is-invalid');
+      limpiarErrorCampo('ctaUsuario', 'ctaUsuarioError');
+    });
+
+    porId('ctaSedes')?.addEventListener('change', actualizarResumenSedes);
+
+    porId('btnMarcarTodasSedes')?.addEventListener('click', () => {
+      porId('ctaSedes')?.querySelectorAll('input[type="checkbox"]').forEach((casilla) => {
+        casilla.checked = true;
+      });
+      actualizarResumenSedes();
     });
 
     porId('btnGuardarSedes')?.addEventListener('click', guardarSedes);

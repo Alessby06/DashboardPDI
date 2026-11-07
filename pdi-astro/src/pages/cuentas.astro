@@ -76,13 +76,16 @@ const ROLES = [
       </div>
 
       <form class="cuentas-form" id="formNuevaCuenta" novalidate>
+        <p class="cuentas-leyenda">* Campo obligatorio · los demás son opcionales.</p>
+
         <div class="cuentas-field cuentas-field--full" id="campoNombre">
-          <label for="ctaNombre">Nombre completo</label>
-          <input id="ctaNombre" name="nombre" type="text" maxlength="80" autocomplete="off" required data-autofocus />
+          <label for="ctaNombre">Nombre completo <span aria-hidden="true">*</span></label>
+          <input id="ctaNombre" name="nombre" type="text" maxlength="80" autocomplete="name" required aria-describedby="ctaNombreError" data-autofocus />
+          <p class="cuentas-error-field" id="ctaNombreError" role="alert" hidden></p>
         </div>
 
         <div class="cuentas-field" id="campoUsuario">
-          <label for="ctaUsuario">Usuario</label>
+          <label for="ctaUsuario">Usuario <span aria-hidden="true">*</span></label>
           <input
             id="ctaUsuario"
             name="usuario"
@@ -92,43 +95,50 @@ const ROLES = [
             spellcheck="false"
             placeholder="nombre.apellido"
             required
-            aria-describedby="ctaUsuarioAyuda"
+            aria-describedby="ctaUsuarioAyuda ctaUsuarioError"
           />
           <span class="cuentas-hint" id="ctaUsuarioAyuda">Minúsculas, sin tildes. Se rellena solo con el nombre.</span>
+          <p class="cuentas-error-field" id="ctaUsuarioError" role="alert" hidden></p>
         </div>
 
         <div class="cuentas-field" id="campoRol">
-          <label for="ctaRol">Rol</label>
+          <label for="ctaRol">Rol <span aria-hidden="true">*</span></label>
           <select id="ctaRol" name="rol" required>
             {ROLES.map((rol) => (
               <option value={rol.valor} selected={rol.valor === 'promotora'}>{rol.etiqueta}</option>
             ))}
           </select>
+          <span class="cuentas-hint">Administración TI gestiona cuentas; Trabajo Social ve todas las sedes; el resto, sus sedes asignadas.</span>
         </div>
 
         <div class="cuentas-field">
-          <label for="ctaCorreo">Correo <span class="cuentas-hint">(opcional)</span></label>
-          <input id="ctaCorreo" name="correo" type="email" maxlength="120" autocomplete="off" />
+          <label for="ctaCorreo">Correo (opcional)</label>
+          <input id="ctaCorreo" name="correo" type="email" maxlength="120" autocomplete="email" />
         </div>
 
         <div class="cuentas-field">
-          <label for="ctaTelefono">Teléfono <span class="cuentas-hint">(opcional)</span></label>
-          <input id="ctaTelefono" name="telefono" type="tel" maxlength="12" autocomplete="off" placeholder="9XXXXXXXX" />
+          <label for="ctaTelefono">Teléfono (opcional)</label>
+          <input id="ctaTelefono" name="telefono" type="tel" maxlength="15" autocomplete="tel" placeholder="9XXXXXXXX" aria-describedby="ctaTelefonoAyuda" />
+          <span class="cuentas-hint" id="ctaTelefonoAyuda">9 dígitos. Admite formato +51….</span>
         </div>
 
-        <div class="cuentas-field cuentas-field--full">
-          <span class="cuentas-field-label" id="etiquetaSedes">Sedes asignadas</span>
-          <div class="cuentas-sede-pick" id="ctaSedes" role="group" aria-labelledby="etiquetaSedes" aria-describedby="ctaSedesAyuda">
+        <fieldset class="cuentas-field cuentas-field--full cuentas-fieldset">
+          <legend class="cuentas-field-label" id="etiquetaSedes">Sedes asignadas</legend>
+          <div class="cuentas-sede-pick" id="ctaSedes" aria-describedby="ctaSedesAyuda">
             <span class="cuentas-hint">Cargando sedes…</span>
           </div>
+          <div class="cuentas-sedes-resumen-row">
+            <p class="cuentas-sedes-resumen" id="ctaSedesResumen" aria-live="polite">Cargando sedes…</p>
+            <button type="button" class="cuentas-btn cuentas-btn--mini" id="btnMarcarTodasSedes">Marcar todas</button>
+          </div>
           <span class="cuentas-hint" id="ctaSedesAyuda">Sin sedes marcadas, la cuenta ve todas. Marca una o varias para limitar su padrón.</span>
-        </div>
+        </fieldset>
 
         <p class="cuentas-error" id="ctaError" role="alert"></p>
 
         <div class="cuentas-acciones-modal">
           <button type="button" class="cuentas-btn" data-cerrar="cuentasModal">Cancelar</button>
-          <button type="submit" class="cuentas-btn cuentas-btn--primary" id="btnCrearCuenta">
+          <button type="submit" class="cuentas-btn cuentas-btn--primary" id="btnCrearCuenta" disabled>
             Crear cuenta
           </button>
         </div>
