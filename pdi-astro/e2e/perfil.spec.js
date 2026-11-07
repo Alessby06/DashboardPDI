@@ -87,9 +87,10 @@ test.describe('perfil con coordinación', () => {
   });
 });
 
-test('la promotora no ve la verificación en dos pasos', async ({ page }) => {
+test('la promotora también puede activar la verificación en dos pasos', async ({ page }) => {
   await entrar(page, cuentas().promo);
   await page.goto('/perfil');
   await expect(page.locator('#formPerfil')).toBeVisible();
-  await expect(page.locator('#perfilTotpFila')).toBeHidden();
+  await expect(page.locator('#perfilTotpFila')).toBeVisible();
+  await expect(page.locator('#btnTotpActivar')).toBeVisible();
 });

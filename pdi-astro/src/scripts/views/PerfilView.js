@@ -342,8 +342,8 @@ export const PerfilView = {
   _pintarTotp() {
     const bloque = porId('perfilTotp');
     if (!bloque) return;
-    const permitido = Boolean(this.cuenta && ['coord', 'admin'].includes(this.cuenta.rol));
-    // La fila entera se oculta: sin permiso no debe quedar la etiqueta sola.
+    const permitido = Boolean(this.cuenta);
+    // La fila entera se oculta: sin cuenta no debe quedar la etiqueta sola.
     const fila = porId('perfilTotpFila');
     if (fila) fila.hidden = !permitido;
     bloque.hidden = !permitido;

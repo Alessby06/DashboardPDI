@@ -41,7 +41,7 @@ que Astro lo consuma.
 
 - `login.spec.js`: tipografía local, ojo de contraseña, login correcto e incorrecto.
 - `security.spec.js`: 401 sin sesión, 403 de auditoría para promotora, token clínico.
-- `perfil.spec.js`: filtro de teléfono, correo, botones condicionados, MFA por rol.
+- `perfil.spec.js`: filtro de teléfono, correo, botones condicionados y verificación en dos pasos.
 - `cuentas.spec.js`: alta con clave temporal, primer ingreso, reinicio de clave, baja y acceso denegado por rol.
 - `404.spec.js`: página propia con la ruta solicitada.
 - `global-setup.js` / `global-teardown.js`: cuentas temporales y limpieza.

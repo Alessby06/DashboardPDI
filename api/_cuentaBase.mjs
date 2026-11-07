@@ -793,9 +793,6 @@ async function totp(request, cfg) {
   const actual = await sesionDe(request, cfg);
   if (!actual) return json({ ok: false, error: 'La sesión expiró.' }, 401, [cookieBorrada()]);
   const cuenta = actual.cuenta;
-  if (!['coord', 'admin'].includes(cuenta.rol)) {
-    return json({ ok: false, error: 'La verificación en dos pasos solo está disponible para coordinación y administración.' }, 403);
-  }
 
   const { accion, codigo, clave } = await cuerpo(request);
 
