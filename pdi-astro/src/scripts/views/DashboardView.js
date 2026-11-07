@@ -1458,19 +1458,19 @@ export const DashboardView = {
         tbody.innerHTML = logs.map(l => {
           const isUsuario = (l.entity && l.entity.startsWith("PDI-"));
           const entityHtml = isUsuario 
-            ? `<a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(l.entity)}')" class="audit-entity-link" title="Abrir expediente del usuario"><code style="font-family:var(--mono-font); font-weight:700; color:var(--text-brand); text-decoration:underline;">${escapar(l.entity)}</code></a>`
-            : `<code style="font-family:var(--mono-font); font-weight:700; color:var(--text-main);">${escapar(l.entity)}</code>`;
+            ? `<a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(l.entity)}')" class="audit-entity-link audit-entity-link--usuario" title="Abrir expediente del usuario"><code class="audit-entity-code audit-entity-code--usuario">${escapar(l.entity)}</code></a>`
+            : `<code class="audit-entity-code" title="${escapar(l.entity)}">${escapar(l.entity)}</code>`;
 
           const logIdStr = l.id || "";
           return `
-            <tr class="audit-row-interactive" onclick="window.openAuditDetail ? window.openAuditDetail('${escaparEnManejador(logIdStr)}') : (window.PDI?.DashboardView?.openLogDetail ? window.PDI.DashboardView.openLogDetail('${escaparEnManejador(logIdStr)}') : null)" title="Clic para ver detalle de auditoría y cambios">
-              <td style="font-family:var(--mono-font); font-size:12px; color:var(--text-dim); white-space:nowrap;">${escapar(l.timestamp)}</td>
+            <tr class="audit-row-interactive">
+              <td class="audit-timestamp">${escapar(l.timestamp)}</td>
               <td>
                 <div class="audit-user-cell">
-                  <div class="audit-user-avatar">${getInitials(l.user)}</div>
+                  <div class="audit-user-avatar" aria-hidden="true">${getInitials(l.user)}</div>
                   <div>
                     <strong>${escapar(l.user)}</strong>
-                    <div style="font-size:11px; color:var(--text-muted);">${escapar(l.role)}</div>
+                    <div class="audit-user-role">${escapar(l.role)}</div>
                   </div>
                 </div>
               </td>
@@ -1501,8 +1501,8 @@ export const DashboardView = {
         mobileContainer.innerHTML = logs.map((l, index) => {
           const isUsuario = (l.entity && l.entity.startsWith("PDI-"));
           const entityHtml = isUsuario 
-            ? `<a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(l.entity)}')" class="audit-entity-link" title="Abrir expediente del usuario"><code style="font-family:var(--mono-font); font-weight:700; color:var(--text-brand); text-decoration:underline;">${escapar(l.entity)}</code></a>`
-            : `<code style="font-family:var(--mono-font); font-weight:700; color:var(--text-main);">${escapar(l.entity)}</code>`;
+            ? `<a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(l.entity)}')" class="audit-entity-link audit-entity-link--usuario" title="Abrir expediente del usuario"><code class="audit-entity-code audit-entity-code--usuario">${escapar(l.entity)}</code></a>`
+            : `<code class="audit-entity-code" title="${escapar(l.entity)}">${escapar(l.entity)}</code>`;
 
           const logIdStr = l.id || "";
           return `

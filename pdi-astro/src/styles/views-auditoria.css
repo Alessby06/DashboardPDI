@@ -197,8 +197,8 @@
     .audit-calendar-icon-btn {
       position: absolute;
       right: 6px;
-      width: 24px;
-      height: 24px;
+      width: 32px;
+      height: 32px;
       background: transparent;
       border: none;
       color: var(--text-dim);
@@ -593,6 +593,30 @@
       }
     }
 
+    .audit-entity-link--usuario code,
+    .audit-entity-code--usuario {
+      color: var(--text-brand);
+      text-decoration: underline;
+    }
+
+    .audit-entity-code {
+      font-family: var(--mono-font);
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .audit-timestamp {
+      font-family: var(--mono-font);
+      font-size: 12px;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+
+    .audit-user-role {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
     .audit-entity-link {
       text-decoration: none;
       display: inline-flex;
@@ -607,7 +631,8 @@
     }
 
     .btn-action-sm {
-      padding: 4px 10px;
+      padding: 6px 12px;
+      min-height: 36px;
       border-radius: var(--radius-sm);
       font-size: 12px;
       font-weight: 600;
@@ -732,7 +757,8 @@
     }
 
     .btn-page {
-      padding: 5px 10px;
+      padding: 6px 12px;
+      min-height: 36px;
       border-radius: var(--radius-sm);
       font-size: 12px;
       font-weight: 600;
@@ -849,7 +875,7 @@
       color: var(--text-dim);
       background: var(--surface-2);
       padding: 2px 6px;
-      border-radius: 4px;
+      border-radius: var(--radius-sm);
       align-self: flex-start;
     }
 
@@ -916,7 +942,7 @@
   width: 15px;
   height: 15px;
   border: 1.5px solid var(--border-medium);
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -981,22 +1007,30 @@
    =========================================================================== */
 @media (min-width: 769px) {
   #view-auditoria .card .data-table {
-    min-width: 1020px;
+    min-width: 1080px;
     table-layout: fixed;
   }
 
-  /* Las cabeceras envuelven en lugar de empujar a la columna vecina. */
+  /* Anchos explícitos por columna: suman 820px y el detalle ocupa el resto
+     (~260px a 1080px). `table-layout: fixed` usa estas cabeceras. */
   #view-auditoria .card .data-table th {
     white-space: normal;
     line-height: 1.25;
+    overflow-wrap: anywhere;
   }
 
-  #view-auditoria .card .data-table th:nth-child(1) { width: 130px; }
-  #view-auditoria .card .data-table th:nth-child(2) { width: 170px; }
-  #view-auditoria .card .data-table th:nth-child(3) { width: 196px; }
-  #view-auditoria .card .data-table th:nth-child(4) { width: 148px; }
-  #view-auditoria .card .data-table th:nth-child(6) { width: 120px; }
-  #view-auditoria .card .data-table th:nth-child(7) { width: 112px; }
+  #view-auditoria .card .data-table th:nth-child(1) { width: 120px; }
+  #view-auditoria .card .data-table th:nth-child(2) { width: 160px; }
+  #view-auditoria .card .data-table th:nth-child(3) { width: 165px; }
+  #view-auditoria .card .data-table th:nth-child(4) { width: 175px; }
+  #view-auditoria .card .data-table th:nth-child(5) { width: 260px; }
+  #view-auditoria .card .data-table th:nth-child(6) { width: 110px; }
+  #view-auditoria .card .data-table th:nth-child(7) { width: 90px; }
+
+  #view-auditoria .card .data-table td {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
 
   /* Usuario / perfil: el nombre y el cargo envuelven entre palabras, nunca
      dentro de una. El avatar no se comprime. */
@@ -1019,6 +1053,34 @@
     max-width: 100%;
     white-space: normal;
     text-align: left;
+    overflow-wrap: break-word;
+    line-height: 1.25;
+  }
+
+  /* La entidad es un código largo (p. ej. cuenta:vc9n...): debe partirse en
+     varias líneas dentro de su columna. Forzarlo a una sola línea (nowrap)
+     hacía que desbordara sobre el detalle. El enlace flex necesita
+     min-width: 0; si no, el código empuja la columna. */
+  #view-auditoria .card .data-table td:nth-child(4) {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  #view-auditoria .card .data-table td:nth-child(4) code {
+    display: block;
+    max-width: 100%;
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    font-size: 11.5px;
+    line-height: 1.3;
+  }
+
+  #view-auditoria .card .data-table td:nth-child(4) .audit-entity-link {
+    display: block;
+    min-width: 0;
+    max-width: 100%;
   }
 
   #view-auditoria .card .audit-detail-cell {
@@ -1027,35 +1089,13 @@
     -webkit-line-clamp: 2;
     line-clamp: 2;
     overflow: hidden;
-    font-size: 12.5px;
-    color: var(--text-muted);
-    overflow-wrap: anywhere;
-  }
-
-  /* La entidad es un código largo (p. ej. cuenta:vc9n...): debe partirse en
-     varias líneas dentro de su columna. Forzarlo a una sola línea (nowrap)
-     hacía que desbordara sobre el detalle. */
-  #view-auditoria .card .data-table td:nth-child(4) {
-    overflow-wrap: anywhere;
-    word-break: break-all;
-  }
-
-  #view-auditoria .card .data-table td:nth-child(4) code {
-    white-space: normal;
-    overflow-wrap: anywhere;
-    word-break: break-all;
-    font-size: 11.5px;
-    line-height: 1.3;
-  }
-
-  #view-auditoria .card .data-table td:nth-child(4) .audit-entity-link {
-    min-width: 0;
-    max-width: 100%;
+    overflow-wrap: break-word;
   }
 
   /* "Detalle" se apilaba letra a letra por el overflow-wrap heredado. */
   #view-auditoria .card .data-table .btn-action-sm {
     white-space: nowrap;
+    min-height: 32px;
   }
 }
 
@@ -1063,6 +1103,17 @@
   #mobileCardsAuditoria .datacard-value {
     min-width: 0;
     overflow-wrap: anywhere;
+  }
+
+  /* Objetivos táctiles: 44 px en móvil para paginar, exportar y buscar. */
+  #view-auditoria .btn-action-sm,
+  #view-auditoria .btn-page {
+    min-height: 44px;
+  }
+
+  #view-auditoria .audit-calendar-icon-btn {
+    width: 44px;
+    height: 44px;
   }
 
   #mobileCardsAuditoria .badge {

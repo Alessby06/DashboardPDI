@@ -98,8 +98,9 @@ const OPCIONES_ORDEN_AUDIT = [
             <div class="audit-toolbar table-toolbar">
               <!-- Buscador Rápido de Auditoría (Lado Izquierdo) -->
               <div class="audit-search-wrap">
-                <Icon name="accion.buscar" size={2} class="audit-search-icon" />
-                <input type="text" id="inputAuditSearch" class="audit-search-input"
+                <Icon name="accion.buscar" size={16} class="audit-search-icon" />
+                <label for="inputAuditSearch" class="pdi-sr-only">Buscar en auditoría por DNI, código, usuario o acción</label>
+                <input type="search" id="inputAuditSearch" class="audit-search-input" aria-label="Buscar en auditoría por DNI, código, usuario o acción"
                   placeholder="Buscar por DNI, código, usuario o acción..."
                   oninput="window.filterAuditSearch ? window.filterAuditSearch(this.value) : (window.PDI?.DashboardView?.filterBySearch ? window.PDI.DashboardView.filterBySearch(this.value) : null)">
                 <button type="button" class="audit-search-clear" id="btnAuditSearchClear" style="display:none;"
@@ -256,15 +257,16 @@ const OPCIONES_ORDEN_AUDIT = [
 
             <div class="table-container desktop-table-view">
               <table class="data-table">
+                <caption class="pdi-sr-only">Bitácora de auditoría. Cada registro describe una operación con su usuario, acción, entidad afectada y detalle.</caption>
                 <thead>
                   <tr>
-                    <th>Timestamp</th>
-                    <th>Usuario / Perfil</th>
-                    <th>Acción</th>
-                    <th>Entidad Afectada</th>
-                    <th>Detalle de la Operación</th>
-                    <th>Estado de Registro</th>
-                    <th>Acción</th>
+                    <th scope="col">Timestamp</th>
+                    <th scope="col">Usuario / Perfil</th>
+                    <th scope="col">Acción</th>
+                    <th scope="col">Entidad Afectada</th>
+                    <th scope="col">Detalle de la Operación</th>
+                    <th scope="col">Estado de Registro</th>
+                    <th scope="col"><span class="pdi-sr-only">Acción de detalle</span></th>
                   </tr>
                 </thead>
                 <tbody id="tbodyAuditLogs">
