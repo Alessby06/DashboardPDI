@@ -91,8 +91,9 @@ const ROLES = [
             spellcheck="false"
             placeholder="nombre.apellido"
             required
+            aria-describedby="ctaUsuarioAyuda"
           />
-          <span class="cuentas-hint">Minúsculas, sin tildes. Se rellena solo con el nombre.</span>
+          <span class="cuentas-hint" id="ctaUsuarioAyuda">Minúsculas, sin tildes. Se rellena solo con el nombre.</span>
         </div>
 
         <div class="cuentas-field" id="campoRol">
@@ -116,10 +117,10 @@ const ROLES = [
 
         <div class="cuentas-field cuentas-field--full">
           <label id="etiquetaSedes">Sedes asignadas</label>
-          <div class="cuentas-sede-pick" id="ctaSedes" role="group" aria-labelledby="etiquetaSedes">
+          <div class="cuentas-sede-pick" id="ctaSedes" role="group" aria-labelledby="etiquetaSedes" aria-describedby="ctaSedesAyuda">
             <span class="cuentas-hint">Cargando sedes…</span>
           </div>
-          <span class="cuentas-hint">Sin sedes marcadas, la cuenta ve todas. Marca una o varias para limitar su padrón.</span>
+          <span class="cuentas-hint" id="ctaSedesAyuda">Sin sedes marcadas, la cuenta ve todas. Marca una o varias para limitar su padrón.</span>
         </div>
 
         <p class="cuentas-error" id="ctaError" role="alert"></p>
