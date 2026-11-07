@@ -69,6 +69,21 @@ test.describe('perfil con coordinación', () => {
   test('coordinación ve la verificación en dos pasos', async ({ page }) => {
     await expect(page.locator('#perfilTotpFila')).toBeVisible();
   });
+
+  test('la guarda de cambios no se queda en otras páginas', async ({ page }) => {
+    const nombre = page.locator('#perfilInputNombre');
+    const original = await nombre.inputValue();
+    await nombre.fill(`${original} X`);
+
+    await page.locator('#sidebarNav a[href="/dashboard"]').click();
+    await expect(page.locator('#modalConfirmacion')).toBeVisible();
+    await page.locator('#btnConfirmacionAceptar').click();
+    await page.waitForURL(/\/dashboard/);
+
+    await page.locator('#sidebarNav a[href="/padron"]').click();
+    await page.waitForURL(/\/padron/);
+    await expect(page.locator('#modalConfirmacion')).toBeHidden();
+  });
 });
 
 test('la promotora no ve la verificación en dos pasos', async ({ page }) => {

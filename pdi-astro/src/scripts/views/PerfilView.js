@@ -241,6 +241,7 @@ export const PerfilView = {
   _totpUri: '',
   _salidaPermitida: false,
   _guardiaEnlaces: null,
+  _swapSalida: null,
 
   init() {
     const form = porId('formPerfil');
@@ -739,11 +740,16 @@ export const PerfilView = {
 
   /** Confirmación propia al salir con datos sin guardar. */
   _conectarSalida() {
-    if (this._guardiaEnlaces) document.removeEventListener('click', this._guardiaEnlaces, true);
+    this._soltarGuardiaSalida();
 
     // El ClientRouter navega sin recargar: se interceptan los enlaces internos
     // en captura para preguntar antes de descartar los cambios.
     this._guardiaEnlaces = (e) => {
+      // Si el formulario ya no está (otra página), no hay nada que perder.
+      if (!porId('formPerfil')) {
+        this._soltarGuardiaSalida();
+        return;
+      }
       if (this._salidaPermitida) return;
       if (!this.hayCambios() || e.defaultPrevented) return;
       if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
@@ -761,6 +767,19 @@ export const PerfilView = {
       this._preguntarSalida(enlace);
     };
     document.addEventListener('click', this._guardiaEnlaces, true);
+
+    // Al cambiar de página, la guarda se retira: no debe seguir viva en /ajustes
+    // ni en ninguna otra vista.
+    if (!this._swapSalida) {
+      this._swapSalida = () => this._soltarGuardiaSalida();
+      document.addEventListener('astro:before-swap', this._swapSalida);
+    }
+  },
+
+  _soltarGuardiaSalida() {
+    if (!this._guardiaEnlaces) return;
+    document.removeEventListener('click', this._guardiaEnlaces, true);
+    this._guardiaEnlaces = null;
   },
 
   async _preguntarSalida(enlace) {
@@ -798,6 +817,8 @@ export const PerfilView = {
   },
 
   hayCambios() {
+    // Sin el formulario en el DOM (otra página) no hay nada que perder.
+    if (!porId('formPerfil')) return false;
     return Object.keys(CAMPOS).some((clave) => this._normalizado(clave) !== (this._base[clave] || ''));
   },
 
