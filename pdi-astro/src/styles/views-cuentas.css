@@ -368,7 +368,7 @@
   max-height: 98dvh;
   overflow: auto;
   overscroll-behavior: contain;
-  padding: 12px;
+  padding: 16px;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   background: var(--surface-1);
@@ -577,7 +577,8 @@
   }
 
   .cuentas-modal-box {
-    max-height: 98dvh;
+    max-height: 96dvh;
+    padding: 14px;
   }
 
   .cuentas-cerrar {
@@ -591,8 +592,12 @@
     height: 44px;
   }
 
+  .cuentas-sede-pick {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .cuentas-sede-pick label {
-    min-height: 44px;
+    min-height: 40px;
   }
 
   .cuentas-btn {
