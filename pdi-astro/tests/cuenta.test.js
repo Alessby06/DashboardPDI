@@ -9,6 +9,7 @@ import {
   validarUsuario,
   validarNombre,
   validarCorreo,
+  validarTelefono,
   codigoTotp,
   generarSecretoTotp,
   verificarTotp,
@@ -47,9 +48,24 @@ test('el nombre se recorta y se rechazan longitudes imposibles', () => {
 
 test('el correo es opcional y se valida cuando existe', () => {
   assert.equal(validarCorreo('').ok, true);
+  assert.equal(validarCorreo('persona@dominio.com').ok, true);
   assert.equal(validarCorreo('persona@dominio.org').ok, true);
+  assert.equal(validarCorreo('persona@dominio.pe').ok, true);
   assert.equal(validarCorreo('sin-arroba').ok, false);
   assert.equal(validarCorreo('a@b').ok, false);
+  assert.equal(validarCorreo('@dominio.com').ok, false);
+  assert.equal(validarCorreo('persona@dominio.net').ok, false);
+});
+
+test('el teléfono exige 9 dígitos y empieza con 9', () => {
+  assert.equal(validarTelefono('').ok, true);
+  assert.equal(validarTelefono('987654321').ok, true);
+  assert.equal(validarTelefono('987-654-321').ok, true);
+  assert.equal(validarTelefono('887654321').ok, false);
+  assert.equal(validarTelefono('98765432').ok, false);
+  assert.equal(validarTelefono('9876543210').ok, false);
+  assert.equal(validarTelefono('+51 987654321').ok, false);
+  assert.equal(validarTelefono('98765432a').ok, false);
 });
 
 test('el hash cifrado va y vuelve solo con el secreto correcto', () => {

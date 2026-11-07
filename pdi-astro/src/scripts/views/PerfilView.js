@@ -12,6 +12,7 @@
 // ===========================================================================
 import { sincronizarSesion } from '../auth/usuarios.js';
 import { iconBody } from '../../data/iconos.js';
+import { validarTipo, iniciarTiposCampo } from '../ui/tiposCampo.js';
 import { confirmar } from '../ui/confirmacion.js';
 import qrcode from 'qrcode-generator';
 
@@ -189,8 +190,8 @@ function validarNombre(valor) {
 function validarCorreo(valor) {
   const correo = String(valor || '').trim();
   if (!correo) return '';
-  if (correo.length > 120 || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(correo)) {
-    return 'El correo no tiene un formato válido.';
+  if (correo.length > 120 || !/^[^\s@]+@[^\s@]+\.(com|org|pe)$/i.test(correo)) {
+    return 'Escribe un correo con @ y terminación .com, .org o .pe.';
   }
   return '';
 }
@@ -198,8 +199,8 @@ function validarCorreo(valor) {
 function validarTelefono(valor) {
   const telefono = String(valor || '').trim();
   if (!telefono) return '';
-  if (!/^[+()\d\s-]{6,20}$/.test(telefono)) {
-    return 'Solo números, espacios, guiones, paréntesis y +.';
+  if (!validarTipo('telefono', telefono)) {
+    return 'El teléfono debe tener 9 dígitos y empezar con 9.';
   }
   return '';
 }
@@ -246,6 +247,7 @@ export const PerfilView = {
     if (!form || form === this._formulario) return;
     this._formulario = form;
     this._tocados = new Set();
+    iniciarTiposCampo();
     this._conectarFormularios();
     this._conectarSalida();
     this.cargar();

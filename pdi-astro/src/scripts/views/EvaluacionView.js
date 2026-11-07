@@ -14,6 +14,7 @@ import {
 } from '../core/db.js';
 import { calcularEvaluacion } from '../utils/EvaluacionSocioeconomica.js';
 import { escapar } from '../utils/HtmlHelper.js';
+import { validarTipo } from '../ui/tiposCampo.js';
 import { ToastView } from './ToastView.js';
 
 const INSTRUCCION = [
@@ -112,9 +113,10 @@ function campo(label, path, valor, opts = {}) {
   const id = 'ev_' + path.replace(/[^a-zA-Z0-9]+/g, '_');
   const full = opts.full ? ' eval-field--full' : '';
   const ph = opts.placeholder ? ` placeholder="${attr(opts.placeholder)}"` : '';
+  const tipo = opts.tipo ? ` data-tipo="${attr(opts.tipo)}"` : '';
   return `<div class="eval-field${full}">
     <label for="${id}">${escapar(label)}</label>
-    <input type="${opts.type || 'text'}" id="${id}" data-path="${attr(path)}" value="${attr(valor)}"${ph}${opts.min != null ? ` min="${opts.min}"` : ''}${opts.max != null ? ` max="${opts.max}"` : ''}${opts.step ? ` step="${opts.step}"` : ''}>
+    <input type="${opts.type || 'text'}" id="${id}" data-path="${attr(path)}" value="${attr(valor)}"${ph}${tipo}${opts.min != null ? ` min="${opts.min}"` : ''}${opts.max != null ? ` max="${opts.max}"` : ''}${opts.step ? ` step="${opts.step}"` : ''}>
   </div>`;
 }
 
@@ -240,7 +242,7 @@ const SECCIONES = [
             ${campo('Nombres', `padres.${clave}.nombres`, p.nombres)}
             ${campo('Apellidos', `padres.${clave}.apellidos`, p.apellidos)}
             ${campo('DNI', `padres.${clave}.dni`, p.dni)}
-            ${campo('Teléfono', `padres.${clave}.telefono`, p.telefono, { type: 'tel' })}
+            ${campo('Teléfono', `padres.${clave}.telefono`, p.telefono, { type: 'tel', tipo: 'telefono' })}
             ${campo('Fecha de nacimiento', `padres.${clave}.fechaNacimiento`, p.fechaNacimiento, { type: 'date' })}
             ${numero('Edad (años)', `padres.${clave}.edad`, p.edad, { max: 120 })}
             ${select('Estado civil', `padres.${clave}.estadoCivil`, p.estadoCivil, ESTADO_CIVIL)}
@@ -816,6 +818,15 @@ export const EvaluacionView = {
 
   async guardar() {
     if (!this.persona || this.soloLectura) return false;
+
+    const telefonos = Object.values(this.datos?.padres || {})
+      .map((padre) => String(padre?.telefono || '').trim())
+      .filter(Boolean);
+    if (telefonos.some((telefono) => !validarTipo('telefono', telefono))) {
+      this._feedback('El teléfono debe tener 9 dígitos y empezar con 9.', 'error');
+      return false;
+    }
+
     this._bloquear(true);
     try {
       const calculo = calcularEvaluacion(this.datos);

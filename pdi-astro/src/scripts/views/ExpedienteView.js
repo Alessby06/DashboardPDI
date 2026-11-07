@@ -39,6 +39,7 @@ import { pintarGrados, conectarGrado } from "../ui/gradoEscolar.js";
 import { escapar } from "../utils/HtmlHelper.js";
 import { marcarError } from "../utils/FieldError.js";
 import { avatarSeed, claseServicio, esFemenino, inicialesDe, retratoFemenino } from "../utils/Avatar.js";
+import { validarTipo } from "../ui/tiposCampo.js";
 
 /** Estado de anemia con las mismas etiquetas que usan los filtros y tableros. */
 function estadoAnemia(hb) {
@@ -738,7 +739,7 @@ export const ExpedienteView = {
               </div>
               <div class="form-group" style="grid-column: span 2; margin:0;">
                 <label>Teléfono</label>
-                <input type="text" class="form-control" data-retiro-campo="telefono" data-tipo="telefono" maxlength="15" inputmode="tel"
+                <input type="text" class="form-control" data-retiro-campo="telefono" data-tipo="telefono" maxlength="9" inputmode="numeric"
                   value="${escapar(p.telefono || "")}">
               </div>
             </div>
@@ -1378,6 +1379,8 @@ export const ExpedienteView = {
       const padronAnterior = Array.isArray(b.retiroPadron) ? b.retiroPadron : [];
       let dniRetiroIncompleto = false;
       let campoDniRetiroIncompleto = null;
+      let telefonoRetiroIncompleto = false;
+      let campoTelefonoRetiroIncompleto = null;
       const padronNuevo = Array.from(tarjetasRetiro).map((tarjeta, indice) => {
         const campo = (nombre) => {
           const el = tarjeta.querySelector(`[data-retiro-campo="${nombre}"]`);
@@ -1390,11 +1393,18 @@ export const ExpedienteView = {
           campoDniRetiroIncompleto = campoDniRetiroIncompleto || inputDni;
           dni = padronAnterior[indice]?.dni || "";
         }
+        const inputTelefono = tarjeta.querySelector('[data-retiro-campo="telefono"]');
+        let telefono = campo("telefono");
+        if (telefono && !validarTipo("telefono", telefono)) {
+          telefonoRetiroIncompleto = true;
+          campoTelefonoRetiroIncompleto = campoTelefonoRetiroIncompleto || inputTelefono;
+          telefono = padronAnterior[indice]?.telefono || "";
+        }
         return {
           nombre: campo("nombre"),
           dni: dni || "Por validar",
           parentesco: campo("parentesco") || b.parentesco || "Madre",
-          telefono: campo("telefono") || "-",
+          telefono: telefono || "-",
           fotoUrl: padronAnterior[indice]?.fotoUrl || null,
         };
       }).filter((persona) => persona.nombre);
@@ -1405,6 +1415,9 @@ export const ExpedienteView = {
       }
       if (dniRetiroIncompleto) {
         marcarError(campoDniRetiroIncompleto, "El DNI de una persona autorizada debe tener 8 digitos numericos. Se conservo el valor anterior.");
+      }
+      if (telefonoRetiroIncompleto) {
+        marcarError(campoTelefonoRetiroIncompleto, "El teléfono de una persona autorizada debe tener 9 dígitos y empezar con 9. Se conservó el valor anterior.");
       }
     }
 

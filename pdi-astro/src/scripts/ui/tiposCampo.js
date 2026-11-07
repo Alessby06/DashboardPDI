@@ -65,45 +65,63 @@ function limpiar(valor, regla) {
   return Array.from(valor).filter((caracter) => regla.permite.test(caracter)).join("");
 }
 
+/** Aplica inputmode y maxlength a un campo, aunque se haya dibujado después. */
+function aplicarAtributos(campo) {
+  const regla = REGLAS[campo.dataset.tipo];
+  if (!regla) return null;
+  if (!campo.getAttribute("inputmode")) campo.setAttribute("inputmode", regla.inputmode);
+  if (!campo.getAttribute("maxlength") && regla.max) {
+    campo.setAttribute("maxlength", String(regla.max));
+  }
+  return regla;
+}
+
+function limpiarCampo(campo, regla) {
+  const valor = campo.value;
+  const limpio = limpiar(valor, regla);
+  if (limpio === valor) return;
+
+  // El cursor se queda donde estaba, contando solo los caracteres validos.
+  const cursor = campo.selectionStart ?? valor.length;
+  const validosAntes = Array.from(valor.slice(0, cursor)).filter((c) => regla.permite.test(c)).length;
+  campo.value = limpio;
+  const nuevaPos = Math.min(validosAntes, limpio.length);
+  try {
+    campo.setSelectionRange(nuevaPos, nuevaPos);
+  } catch (e) {
+    // Algunos tipos de campo no admiten selección: no es grave.
+  }
+}
+
+let conectado = false;
+
+function conectar() {
+  if (conectado || typeof document === "undefined") return;
+  conectado = true;
+
+  // Delegación: cubre también los campos que se dibujan después (retiro del
+  // expediente, evaluación). El foco fija maxlength antes de la primera tecla.
+  document.addEventListener("input", (evento) => {
+    const campo = evento.target?.closest?.("[data-tipo]");
+    if (!campo) return;
+    const regla = aplicarAtributos(campo);
+    if (regla) limpiarCampo(campo, regla);
+  });
+
+  document.addEventListener("focusin", (evento) => {
+    const campo = evento.target?.closest?.("[data-tipo]");
+    if (campo) aplicarAtributos(campo);
+  });
+}
+
 /**
- * Conecta los campos con tipo. Se puede llamar mas de una vez: un campo ya
- * conectado no se conecta otra vez.
+ * Conecta los campos con tipo. Se puede llamar mas de una vez: la escucha es
+ * única y los atributos se reaplican a los campos presentes.
  */
 export function iniciarTiposCampo() {
-  document.querySelectorAll("input[data-tipo], textarea[data-tipo]").forEach((campo) => {
-    if (campo.dataset.tipoConectado === "1") return;
-    const regla = REGLAS[campo.dataset.tipo];
-    if (!regla) return;
-    campo.dataset.tipoConectado = "1";
-
-    if (!campo.getAttribute("inputmode")) campo.setAttribute("inputmode", regla.inputmode);
-    if (!campo.getAttribute("maxlength") && regla.max) campo.setAttribute("maxlength", String(regla.max));
-
-    campo.addEventListener("input", () => {
-      const valor = campo.value;
-      const limpio = limpiar(valor, regla);
-      if (limpio === valor) return;
-      // El cursor se queda donde estaba, contando solo los caracteres validos.
-      const cursor = campo.selectionStart ?? valor.length;
-      const validosAntes = Array.from(valor.slice(0, cursor)).filter((c) => regla.permite.test(c)).length;
-      campo.value = limpio;
-      const nuevaPos = Math.min(validosAntes, limpio.length);
-      try {
-        campo.setSelectionRange(nuevaPos, nuevaPos);
-      } catch (e) {
-        // Algunos tipos de campo no admiten selección: no es grave.
-      }
-    });
-
-    campo.addEventListener("blur", () => {
-      if (!regla.alSalir) return;
-      const limpio = regla.alSalir(campo.value);
-      if (limpio === campo.value) return;
-      campo.value = limpio;
-      // El cambio del formato tiene que volver a evaluarse en la ficha.
-      campo.dispatchEvent(new Event("input", { bubbles: true }));
-    });
-  });
+  conectar();
+  if (typeof document === "undefined") return;
+  document.querySelectorAll("input[data-tipo], textarea[data-tipo]").forEach(aplicarAtributos);
 }
 
 if (typeof window !== "undefined") {

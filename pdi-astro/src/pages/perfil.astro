@@ -87,12 +87,24 @@ import '../styles/views-perfil.css';
               </div>
               <div class="perfil-field">
                 <label for="perfilInputCorreo">Correo</label>
-                <input type="email" id="perfilInputCorreo" name="correo" maxlength="120" autocomplete="email" placeholder="nombre@dominio.org" aria-describedby="perfilErrorCorreo" />
+                <input type="email" id="perfilInputCorreo" name="correo" maxlength="120" autocomplete="email" placeholder="nombre@dominio.com" aria-describedby="perfilErrorCorreo" />
                 <span class="perfil-field-error" id="perfilErrorCorreo" role="alert"></span>
               </div>
               <div class="perfil-field">
                 <label for="perfilInputTelefono">Teléfono</label>
-                <input type="tel" id="perfilInputTelefono" name="telefono" maxlength="20" autocomplete="tel" placeholder="Opcional" aria-describedby="perfilErrorTelefono" />
+                <input
+                  type="tel"
+                  id="perfilInputTelefono"
+                  name="telefono"
+                  maxlength="9"
+                  inputmode="numeric"
+                  pattern="9[0-9]{8}"
+                  autocomplete="tel"
+                  placeholder="987654321"
+                  data-tipo="telefono"
+                  aria-describedby="perfilTelefonoAyuda perfilErrorTelefono"
+                />
+                <span class="perfil-field-hint" id="perfilTelefonoAyuda">9 dígitos, empieza con 9. Opcional.</span>
                 <span class="perfil-field-error" id="perfilErrorTelefono" role="alert"></span>
               </div>
             </div>

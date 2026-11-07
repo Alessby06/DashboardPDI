@@ -8,6 +8,7 @@
 import { crearDerivacion, crearEventoCaso } from '../core/db.js';
 import { ToastView } from './ToastView.js';
 import { escapar } from '../utils/HtmlHelper.js';
+import { validarTipo } from '../ui/tiposCampo.js';
 
 const ROLES = {
   coord: 'Coordinación',
@@ -382,6 +383,13 @@ export const DerivacionView = {
     }
     if (this._casoActivo) {
       this._feedback('Esta persona ya tiene un caso abierto.', 'error');
+      return;
+    }
+
+    const telefonoReferente = (porId('derivReferenteTel')?.value || '').trim();
+    if (telefonoReferente && !validarTipo('celular', telefonoReferente)) {
+      this._feedback('El teléfono del referente debe tener 9 dígitos y empezar con 9.', 'error');
+      porId('derivReferenteTel')?.focus();
       return;
     }
 

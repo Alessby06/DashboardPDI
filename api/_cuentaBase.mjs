@@ -224,17 +224,18 @@ export function validarNombre(valor) {
 export function validarCorreo(valor) {
   const correo = String(valor || '').trim().toLowerCase();
   if (!correo) return { ok: true, correo: '', error: '' };
-  if (correo.length > 120 || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(correo)) {
-    return { ok: false, correo, error: 'El correo no tiene un formato válido.' };
+  if (correo.length > 120 || !/^[^\s@]+@[^\s@]+\.(com|org|pe)$/.test(correo)) {
+    return { ok: false, correo, error: 'El correo debe tener @ y terminar en .com, .org o .pe.' };
   }
   return { ok: true, correo, error: '' };
 }
 
 export function validarTelefono(valor) {
-  const telefono = String(valor || '').trim();
-  if (!telefono) return { ok: true, telefono: '', error: '' };
-  if (!/^[+()\d\s-]{6,20}$/.test(telefono)) {
-    return { ok: false, telefono, error: 'El teléfono solo admite números, espacios, guiones, paréntesis y +.' };
+  const crudo = String(valor || '').trim();
+  if (!crudo) return { ok: true, telefono: '', error: '' };
+  const telefono = crudo.replace(/\D/g, '');
+  if (!/^9\d{8}$/.test(telefono)) {
+    return { ok: false, telefono: crudo, error: 'El teléfono debe tener 9 dígitos y empezar con 9.' };
   }
   return { ok: true, telefono, error: '' };
 }
