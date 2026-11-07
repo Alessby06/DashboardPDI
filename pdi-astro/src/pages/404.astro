@@ -1,0 +1,660 @@
+---
+// Página 404 estática. Vercel sirve este archivo para cualquier ruta que no
+// exista. No usa AppLayout: una URL rota puede llegar sin sesión y el layout
+// redirigiría a /login, que es justo lo que hay que evitar aquí.
+import '../styles/variables.css';
+---
+
+<!doctype html>
+<html lang="es" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>No encontramos esta página · PDI Johannes Gutenberg</title>
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#ffffff" id="metaThemeColor" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@300..800&display=swap"
+      rel="stylesheet"
+    />
+    <script is:inline>
+      // Tema antes del primer pintado: evita el destello claro al recargar en oscuro.
+      (function () {
+        try {
+          var guardado = localStorage.getItem('pdi_theme') || 'light';
+          var oscuro = guardado === 'system'
+            ? !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+            : guardado === 'dark';
+          document.documentElement.setAttribute('data-theme', oscuro ? 'dark' : 'light');
+          var meta = document.getElementById('metaThemeColor');
+          if (meta) meta.setAttribute('content', oscuro ? '#0d0d0f' : '#ffffff');
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      })();
+    </script>
+
+    <style>
+      /* 404 · Ruta y panel. Migas con el tramo roto, salida inmediata y un panel
+         de trabajo con el buscador de secciones. Los tokens vienen de
+         variables.css; aquí no se declara ningún color de núcleo. */
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        background: var(--bg-canvas);
+        color: var(--text-main);
+        font-family: var(--ui-font);
+        font-size: 15px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      :focus-visible {
+        outline: 2px solid var(--border-focus);
+        outline-offset: 2px;
+        border-radius: 6px;
+      }
+
+      /* --- Cabecera -------------------------------------------------------- */
+
+      .top {
+        width: 100%;
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 20px 32px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+      }
+
+      .marca {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+        text-decoration: none;
+      }
+
+      .marca img {
+        width: 34px;
+        height: 34px;
+        flex-shrink: 0;
+        object-fit: contain;
+        padding: 3px;
+        border: 1px solid var(--border-subtle);
+        border-radius: 7px;
+        background: var(--surface-1);
+      }
+
+      .marca-texto {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+
+      .marca-texto b {
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .marca-texto span {
+        margin-top: 1px;
+        font-size: 11.5px;
+        color: var(--text-dim);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .marca-codigo {
+        flex-shrink: 0;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-dim);
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* --- Contenido ------------------------------------------------------- */
+
+      .ruta-panel {
+        width: 100%;
+        max-width: 1040px;
+        margin: 0 auto;
+        padding: 26px 32px 64px;
+        flex: 1;
+      }
+
+      .migas {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 30px;
+        font-size: 12.5px;
+        color: var(--text-dim);
+      }
+
+      .migas a {
+        color: var(--text-muted);
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .migas a:hover {
+          color: var(--text-main);
+          text-decoration: underline;
+          text-underline-offset: 3px;
+        }
+      }
+
+      .migas .sep {
+        color: var(--border-bright);
+      }
+
+      .migas .roto {
+        color: var(--text-danger);
+        font-weight: 600;
+        font-size: 12px;
+        word-break: break-all;
+      }
+
+      .rejilla {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 380px;
+        gap: 56px;
+        align-items: start;
+      }
+
+      .columna-texto {
+        max-width: 40ch;
+      }
+
+      .titulo {
+        margin: 0;
+        font-size: clamp(30px, 3.6vw, 40px);
+        font-weight: 700;
+        line-height: 1.05;
+        letter-spacing: -0.035em;
+        max-width: 20ch;
+        text-wrap: balance;
+      }
+
+      .entrada {
+        margin: 14px 0 0;
+        max-width: 48ch;
+        font-size: 15px;
+        color: var(--text-muted);
+      }
+
+      .acciones {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 26px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        height: 40px;
+        padding: 0 16px;
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-md);
+        background: var(--surface-2);
+        color: var(--text-main);
+        font-family: var(--ui-font);
+        font-size: 13.5px;
+        font-weight: 600;
+        text-decoration: none;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: background-color var(--dur-fast) var(--ease-smooth),
+          border-color var(--dur-fast) var(--ease-smooth),
+          transform var(--dur-fast) var(--ease-smooth);
+      }
+
+      .btn:active {
+        transform: scale(0.97);
+      }
+
+      .btn-primario {
+        background: var(--brand-dark);
+        border-color: var(--brand-dark);
+        color: var(--on-brand);
+        font-weight: 700;
+      }
+
+      html[data-theme="dark"] .btn-primario {
+        background: var(--gt-green);
+        border-color: var(--gt-green);
+        color: var(--on-brand);
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .btn:hover {
+          background: var(--surface-hover);
+          border-color: var(--border-bright);
+        }
+
+        .btn-primario:hover {
+          background: var(--brand-dim);
+          border-color: var(--brand-dim);
+        }
+
+        html[data-theme="dark"] .btn-primario:hover {
+          background: color-mix(in srgb, var(--gt-green) 88%, var(--text-main));
+          border-color: color-mix(in srgb, var(--gt-green) 88%, var(--text-main));
+        }
+      }
+
+      .nota-pie {
+        margin: 20px 0 0;
+        font-size: 11.5px;
+        line-height: 1.5;
+        color: var(--text-dim);
+      }
+
+      /* --- Panel de secciones --------------------------------------------- */
+
+      .panel-buscador {
+        padding: 18px;
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        background: var(--surface-1);
+      }
+
+      .panel-titulo {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+      }
+
+      .campo {
+        width: 100%;
+        height: 42px;
+        margin-top: 12px;
+        padding: 0 14px;
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-md);
+        background: var(--surface-1);
+        color: var(--text-main);
+        font-family: var(--ui-font);
+        font-size: 14px;
+      }
+
+      .campo::placeholder {
+        color: var(--text-dim);
+      }
+
+      .campo:focus {
+        outline: none;
+        border-color: var(--border-bright);
+      }
+
+      .campo:focus-visible {
+        outline: 2px solid var(--border-focus);
+        outline-offset: 2px;
+      }
+
+      .buscador-ayuda {
+        margin: 8px 0 0;
+        font-size: 11.5px;
+        color: var(--text-dim);
+      }
+
+      .buscador-estado {
+        margin: 10px 0 0;
+        min-height: 1em;
+        font-size: 11.5px;
+        color: var(--text-dim);
+      }
+
+      .lista {
+        margin: 10px 0 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .lista li + li {
+        border-top: 1px solid var(--border-subtle);
+      }
+
+      .lista li[hidden] {
+        display: none;
+      }
+
+      .lista a {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 6px;
+        border-radius: var(--radius-sm);
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        color: var(--text-main);
+        transition: background-color var(--dur-fast) var(--ease-smooth);
+      }
+
+      .lista a span {
+        min-width: 0;
+      }
+
+      .lista a code {
+        flex-shrink: 0;
+        font-family: var(--mono-font);
+        font-size: 11px;
+        color: var(--text-dim);
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .lista a:hover {
+          background: var(--surface-hover);
+        }
+      }
+
+      .buscador-vacio {
+        margin: 14px 0 0;
+        padding: 14px 16px;
+        border: 1px dashed var(--border-medium);
+        border-radius: var(--radius-md);
+        background: var(--surface-2);
+        font-size: 12.5px;
+        color: var(--text-dim);
+      }
+
+      .buscador-vacio[hidden] {
+        display: none;
+      }
+
+      .buscador-vacio a {
+        color: var(--text-brand);
+        font-weight: 700;
+      }
+
+      /* --- Pie ------------------------------------------------------------- */
+
+      .pie {
+        width: 100%;
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 15px 32px 22px;
+        border-top: 1px solid var(--border-subtle);
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px 24px;
+        flex-wrap: wrap;
+        font-size: 11.5px;
+        color: var(--text-dim);
+      }
+
+      /* --- Adaptación ------------------------------------------------------ */
+
+      @media (max-width: 960px) {
+        .rejilla {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 30px;
+        }
+
+        .columna-texto {
+          max-width: none;
+        }
+      }
+
+      @media (max-width: 900px) {
+        .top {
+          padding: 16px 20px;
+        }
+
+        .ruta-panel {
+          padding: 18px 20px 48px;
+        }
+
+        .pie {
+          padding: 14px 20px 20px;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .lista a {
+          flex-direction: column;
+          gap: 2px;
+        }
+
+        .acciones .btn {
+          flex: 1 1 auto;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="top">
+      <a class="marca" href="/dashboard">
+        <img src="/assets/jg-icon.png" alt="" width="34" height="34" />
+        <span class="marca-texto">
+          <b>Johannes Gutenberg</b>
+          <span>Programa Infancia Saludable</span>
+        </span>
+      </a>
+      <span class="marca-codigo">Error 404</span>
+    </header>
+
+    <main class="ruta-panel">
+      <nav class="migas" aria-label="Ruta solicitada">
+        <a href="/dashboard">Inicio</a>
+        <span class="sep" aria-hidden="true">/</span>
+        <a href="/dashboard">Dashboard</a>
+        <span class="sep" aria-hidden="true">/</span>
+        <code class="roto" data-ruta>esta dirección</code>
+      </nav>
+
+      <div class="rejilla">
+        <div class="columna-texto">
+          <h1 class="titulo">No encontramos esta página</h1>
+          <p class="entrada">
+            La dirección no corresponde a ninguna sección del sistema. Revisa el enlace o vuelve a una de
+            las áreas de trabajo.
+          </p>
+
+          <div class="acciones">
+            <a class="btn btn-primario" href="/dashboard">Ir al dashboard</a>
+            <button class="btn" type="button" data-atras>Volver atrás</button>
+          </div>
+
+          <p class="nota-pie">
+            Si llegaste desde un enlace del sistema, avisa a Administración TI con la ruta que aparece arriba.
+          </p>
+        </div>
+
+        <section class="panel-buscador" data-buscador aria-labelledby="panel-titulo">
+          <h2 class="panel-titulo" id="panel-titulo">¿A dónde ibas?</h2>
+          <input
+            class="campo"
+            id="buscar"
+            type="search"
+            placeholder="Busca una sección"
+            autocomplete="off"
+            aria-controls="destinos"
+            aria-describedby="buscar-ayuda"
+            aria-label="Buscar una sección"
+            data-buscar
+          />
+          <p class="buscador-ayuda" id="buscar-ayuda">
+            Escribe para filtrar. Con la flecha abajo entras a la lista.
+          </p>
+          <p class="buscador-estado" role="status" data-estado></p>
+
+          <ul class="lista" id="destinos" data-destinos>
+            <li data-roles="coord,facilitadora,promotora,social,admin" data-buscar="dashboard general inicio panel">
+              <a href="/dashboard"><span>Dashboard General</span><code>/dashboard</code></a>
+            </li>
+            <li data-roles="coord,facilitadora,promotora,social,admin" data-buscar="padron usuarios beneficiarios ninos">
+              <a href="/padron"><span>Padrón de Usuarios</span><code>/padron</code></a>
+            </li>
+            <li data-roles="coord,facilitadora,admin" data-buscar="salud alimentario nutricional desayuno">
+              <a href="/salud"><span>Servicio Alimentario</span><code>/salud</code></a>
+            </li>
+            <li data-roles="coord,promotora,admin" data-buscar="educativo acompanamiento escolar talleres">
+              <a href="/educativo"><span>Acompañamiento Educativo</span><code>/educativo</code></a>
+            </li>
+            <li data-roles="coord,social,admin" data-buscar="social pastoral asp derivaciones casos">
+              <a href="/social"><span>Servicio Social Pastoral</span><code>/social</code></a>
+            </li>
+            <li data-roles="coord,facilitadora,promotora,social,admin" data-buscar="voluntarios voluntariados">
+              <a href="/voluntariados"><span>Padrón de Voluntarios</span><code>/voluntariados</code></a>
+            </li>
+            <li data-roles="coord,facilitadora,promotora,admin" data-buscar="sedes iglesias aliadas locales">
+              <a href="/sedes"><span>Sedes e Iglesias Aliadas</span><code>/sedes</code></a>
+            </li>
+            <li data-roles="coord,admin" data-buscar="auditoria historial cambios bitacora">
+              <a href="/auditoria"><span>Historial de Cambios</span><code>/auditoria</code></a>
+            </li>
+            <li data-roles="coord,facilitadora,promotora,social,admin" data-buscar="perfil cuenta usuario clave foto">
+              <a href="/perfil"><span>Mi perfil</span><code>/perfil</code></a>
+            </li>
+          </ul>
+
+          <p class="buscador-vacio" data-vacio hidden>
+            No hay una sección con ese nombre. <a href="/dashboard">Ir al dashboard</a>.
+          </p>
+        </section>
+      </div>
+    </main>
+
+    <footer class="pie">
+      <span>Asociación Cultural y Educativa Johannes Gutenberg</span>
+      <span>PDI · Infancia Saludable</span>
+    </footer>
+
+    <noscript>
+      <style>
+        .campo,
+        .buscador-ayuda,
+        .buscador-estado {
+          display: none;
+        }
+      </style>
+    </noscript>
+
+    <script is:inline>
+      (function () {
+        // Ruta solicitada. En estático el servidor no la conoce: se lee del
+        // navegador y, si el archivo se abre directamente, queda el texto base.
+        var ruta = null;
+        try {
+          ruta = decodeURIComponent(location.pathname);
+        } catch (e) {
+          ruta = location.pathname;
+        }
+        var esLaPropiaPagina = !ruta || ruta === '/' || /\/404(\.html)?$/.test(ruta) || /\.html?$/.test(ruta);
+        if (!esLaPropiaPagina) {
+          document.querySelectorAll('[data-ruta]').forEach(function (el) {
+            el.textContent = ruta;
+          });
+        }
+
+        // Rol activo: no se ofrecen secciones que el rol no puede abrir.
+        var ROLES = ['coord', 'facilitadora', 'promotora', 'social', 'admin'];
+        var rol = '';
+        try {
+          rol = localStorage.getItem('pdi_active_role') || '';
+        } catch (e) {
+          rol = '';
+        }
+        if (ROLES.indexOf(rol) === -1) rol = '';
+
+        var bloque = document.querySelector('[data-buscador]');
+        if (!bloque) return;
+
+        var input = bloque.querySelector('[data-buscar]');
+        var lista = bloque.querySelector('[data-destinos]');
+        var vacio = bloque.querySelector('[data-vacio]');
+        var estado = bloque.querySelector('[data-estado]');
+        if (!input || !lista) return;
+
+        var filas = Array.prototype.slice.call(lista.querySelectorAll('li'));
+        var permitidas = filas.filter(function (fila) {
+          var roles = (fila.getAttribute('data-roles') || '').split(',');
+          return !rol || roles.indexOf(rol) !== -1;
+        });
+
+        function normalizar(texto) {
+          return String(texto)
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
+        }
+
+        function filtrar() {
+          var q = normalizar(input.value.trim());
+          var visibles = 0;
+          filas.forEach(function (fila) {
+            var permitida = permitidas.indexOf(fila) !== -1;
+            var texto = normalizar((fila.getAttribute('data-buscar') || '') + ' ' + fila.textContent);
+            var coincide = permitida && (!q || texto.indexOf(q) !== -1);
+            fila.hidden = !coincide;
+            if (coincide) visibles += 1;
+          });
+          vacio.hidden = visibles > 0;
+          estado.textContent = q ? visibles + ' de ' + permitidas.length + ' secciones' : '';
+        }
+
+        input.addEventListener('input', filtrar);
+        input.addEventListener('keydown', function (e) {
+          if (e.key === 'ArrowDown') {
+            var primero = lista.querySelector('li:not([hidden]) a');
+            if (primero) {
+              e.preventDefault();
+              primero.focus();
+            }
+          }
+          if (e.key === 'Escape' && input.value) {
+            input.value = '';
+            filtrar();
+          }
+        });
+
+        filtrar();
+
+        document.querySelectorAll('[data-atras]').forEach(function (boton) {
+          boton.addEventListener('click', function () {
+            if (window.history.length > 1) window.history.back();
+            else window.location.assign('/dashboard');
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>
