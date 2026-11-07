@@ -12,6 +12,7 @@
 // ===========================================================================
 import { escapar } from "../utils/HtmlHelper.js";
 import { iconHtml } from '../../data/iconos.js';
+import { confirmar as confirmarModal } from "./confirmacion.js";
 
 const ID = "pdiToastConfirmacion";
 let abierto = null;
@@ -47,9 +48,14 @@ export function confirmarEnToast({
 } = {}) {
   const container = document.getElementById("toastContainer");
   if (!container) {
-    // Sin contenedor de toasts, la confirmación nativa es el último recurso.
-    if (window.confirm(`${titulo}\n\n${mensaje}`)) onConfirm?.();
-    else onCancel?.();
+    // Sin contenedor de toasts se usa el modal del sistema; nunca el nativo.
+    confirmarModal({
+      titulo,
+      mensaje,
+      confirmar: textoConfirmar,
+      cancelar: textoCancelar,
+      peligro,
+    }).then((ok) => (ok ? onConfirm?.() : onCancel?.()));
     return;
   }
 

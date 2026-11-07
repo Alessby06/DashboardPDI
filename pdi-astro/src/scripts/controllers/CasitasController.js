@@ -6,6 +6,7 @@
 // sobrevive a las rehidrataciones de la capa de datos, que antes volvían a
 // pintar "la asistencia de hoy" y pisaban lo que se estaba marcando.
 import { ToastView } from '../views/ToastView.js';
+import { confirmar } from '../ui/confirmacion.js';
 import {
   fetchAsistenciaJornada,
   guardarAsistenciaJornada,
@@ -401,9 +402,13 @@ export const CasitasController = {
   async recargarJornada() {
     if (!this.esJornadaIniciada()) return false;
     if (this.hayCambios()) {
-      const seguir = window.confirm(
-        'Hay cambios sin guardar. Si recargas la jornada se perderán. ¿Continuar?',
-      );
+      const seguir = await confirmar({
+        titulo: "Cambios sin guardar",
+        mensaje: "Si recargas la jornada se pierden los estados que marcaste y no guardaste.",
+        confirmar: "Recargar",
+        cancelar: "Seguir editando",
+        peligro: true,
+      });
       if (!seguir) return false;
     }
     const ok = await this.cargarJornada(this._jornada.dia, this._jornada.sede);

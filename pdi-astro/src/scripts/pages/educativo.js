@@ -39,13 +39,6 @@ function enlazar() {
   document.addEventListener("pdi:datos-actualizados", () => {
     window.PDI?.CasitasController?.sincronizarJornada?.();
   });
-
-  // Un cambio sin guardar no debe perderse por cerrar o recargar la pestaña.
-  window.addEventListener("beforeunload", (evento) => {
-    if (!window.PDI?.CasitasController?.hayCambios?.()) return;
-    evento.preventDefault();
-    evento.returnValue = "";
-  });
 }
 
 /** Dibuja lo propio de esta pagina. Es idempotente. */

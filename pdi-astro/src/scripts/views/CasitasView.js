@@ -14,6 +14,7 @@ import { contarOpciones } from "../utils/FacetCounts.js";
 import { initSortMenu } from "../ui/SortMenu.js";
 import { iconHtml } from '../../data/iconos.js';
 import { ESTADOS_ASISTENCIA } from '../core/jornadaAsistencia.js';
+import { confirmar } from '../ui/confirmacion.js';
 
 // Filtros que viajan en la URL. El día y la sede definen la jornada; grado y
 // búsqueda solo estrechan la lista.
@@ -53,6 +54,7 @@ export const CasitasView = {
   _jornadaInicializada: false,
   _jornadaCargando: false,
   _guardando: false,
+  _preguntando: false,
   _asistenciaDelegada: false,
   _currentPage: 1,
   _pageSize: 20,
@@ -281,7 +283,7 @@ export const CasitasView = {
     }
   },
 
-  cambiarDia(valor) {
+  async cambiarDia(valor) {
     const input = document.getElementById("inputJornadaFecha");
     const ctrl = this._controlador();
     const hoy = hoyLocal();
@@ -306,9 +308,20 @@ export const CasitasView = {
       return;
     }
     if (ctrl?.hayCambios?.()) {
-      const seguir = window.confirm(
-        'Hay cambios sin guardar. Si cambias de día se perderán. ¿Continuar?',
-      );
+      if (this._preguntando) {
+        if (input) input.value = this._jornadaDia || hoy;
+        return;
+      }
+      this._preguntando = true;
+      const seguir = await confirmar({
+        titulo: "Cambios sin guardar",
+        mensaje: "Si cambias de día se pierden los estados que marcaste y no guardaste.",
+        confirmar: "Cambiar de día",
+        cancelar: "Seguir editando",
+        peligro: true,
+        origen: input,
+      });
+      this._preguntando = false;
       if (!seguir) {
         if (input) input.value = this._jornadaDia;
         return;
@@ -320,12 +333,24 @@ export const CasitasView = {
     this._cargarJornada();
   },
 
-  cambiarSede(valor) {
+  async cambiarSede(valor) {
     const ctrl = this._controlador();
     if (ctrl?.hayCambios?.()) {
-      const seguir = window.confirm(
-        'Hay cambios sin guardar. Si cambias de sede se perderán. ¿Continuar?',
-      );
+      if (this._preguntando) {
+        const select = document.getElementById("selectJornadaSede");
+        if (select) select.value = this._jornadaSede;
+        return;
+      }
+      this._preguntando = true;
+      const seguir = await confirmar({
+        titulo: "Cambios sin guardar",
+        mensaje: "Si cambias de sede se pierden los estados que marcaste y no guardaste.",
+        confirmar: "Cambiar de sede",
+        cancelar: "Seguir editando",
+        peligro: true,
+        origen: document.getElementById("selectJornadaSede"),
+      });
+      this._preguntando = false;
       if (!seguir) {
         const select = document.getElementById("selectJornadaSede");
         if (select) select.value = this._jornadaSede;
@@ -757,9 +782,13 @@ export const CasitasView = {
   async sobrescribirJornada() {
     const ctrl = this._controlador();
     if (!ctrl) return;
-    const seguir = window.confirm(
-      "Se sobrescribirán los estados que otro dispositivo guardó para los alumnos que has marcado. ¿Continuar?",
-    );
+    const seguir = await confirmar({
+      titulo: "Sobrescribir la jornada",
+      mensaje: "Se sobrescribirán los estados que otro dispositivo guardó para los alumnos que has marcado.",
+      confirmar: "Sobrescribir",
+      cancelar: "Cancelar",
+      peligro: true,
+    });
     if (!seguir) return;
 
     this._guardando = true;

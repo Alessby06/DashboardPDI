@@ -124,7 +124,7 @@ export function iniciarConfirmacion() {
 
 /**
  * Abre el modal y resuelve `true` si se confirma, `false` si se cancela.
- * Si el marcado no está en la página, cae al confirm() nativo.
+ * Si el marcado no está en la página, la acción se cancela.
  */
 export function confirmar({
   titulo = "Confirmar acción",
@@ -140,7 +140,10 @@ export function confirmar({
   } = referencias();
 
   if (!modal || !elTitulo || !elMensaje || !aceptar || !cancelar || !cerrar) {
-    return Promise.resolve(window.confirm(mensaje || titulo));
+    // Sin el marcado del modal no hay diálogo propio. Se falla cerrado: es
+    // preferible no ejecutar la acción a abrir un diálogo del navegador.
+    console.warn("[confirmacion] Falta #modalConfirmacion; la acción se cancela.");
+    return Promise.resolve(false);
   }
 
   iniciarConfirmacion();

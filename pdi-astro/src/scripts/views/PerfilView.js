@@ -12,6 +12,7 @@
 // ===========================================================================
 import { sincronizarSesion } from '../auth/usuarios.js';
 import { iconBody } from '../../data/iconos.js';
+import { confirmar } from '../ui/confirmacion.js';
 import qrcode from 'qrcode-generator';
 
 const ICONO_CLAVE_VER = iconBody('password.ver');
@@ -237,7 +238,7 @@ export const PerfilView = {
   _deshacerFoto: null,
   _temporizadorFoto: null,
   _totpUri: '',
-  _beforeUnload: null,
+  _salidaPermitida: false,
   _guardiaEnlaces: null,
 
   init() {
@@ -734,21 +735,14 @@ export const PerfilView = {
     nueva?.addEventListener('input', () => this._pintarFuerza(nueva.value));
   },
 
-  /** Aviso del navegador si se sale con datos sin guardar. */
+  /** Confirmación propia al salir con datos sin guardar. */
   _conectarSalida() {
-    if (this._beforeUnload) window.removeEventListener('beforeunload', this._beforeUnload);
     if (this._guardiaEnlaces) document.removeEventListener('click', this._guardiaEnlaces, true);
-    this._beforeUnload = (e) => {
-      if (!this.hayCambios()) return;
-      e.preventDefault();
-      e.returnValue = '';
-    };
-    window.addEventListener('beforeunload', this._beforeUnload);
 
-    // El ClientRouter navega sin recargar, así que beforeunload no llega a
-    // dispararse. Se interceptan los enlaces internos en captura para
-    // preguntar antes de descartar los cambios.
+    // El ClientRouter navega sin recargar: se interceptan los enlaces internos
+    // en captura para preguntar antes de descartar los cambios.
     this._guardiaEnlaces = (e) => {
+      if (this._salidaPermitida) return;
       if (!this.hayCambios() || e.defaultPrevented) return;
       if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       const enlace = e.target?.closest?.('a[href]');
@@ -758,11 +752,36 @@ export const PerfilView = {
       if (url.origin !== location.origin) return;
       // Misma página con solo un ancla: no se pierde nada.
       if (url.pathname === location.pathname && url.search === location.search) return;
-      if (window.confirm('Tienes cambios sin guardar en tu perfil. ¿Salir y descartarlos?')) return;
+
+      // Se detiene ahora y se pregunta con el modal del sistema.
       e.preventDefault();
       e.stopImmediatePropagation();
+      this._preguntarSalida(enlace);
     };
     document.addEventListener('click', this._guardiaEnlaces, true);
+  },
+
+  async _preguntarSalida(enlace) {
+    const acepta = await confirmar({
+      titulo: 'Cambios sin guardar',
+      mensaje: 'Si sales ahora, los cambios que escribiste en tus datos se pierden.',
+      confirmar: 'Salir y descartar',
+      cancelar: 'Seguir editando',
+      peligro: true,
+      origen: enlace,
+    });
+    if (!acepta) return;
+
+    // Se autoriza esta salida y se re-dispara el enlace: el router navega sin
+    // recargar y la guardia no vuelve a preguntar.
+    this._salidaPermitida = true;
+    try {
+      enlace.click();
+    } finally {
+      setTimeout(() => {
+        this._salidaPermitida = false;
+      }, 0);
+    }
   },
 
   _valor(clave) {
