@@ -17,6 +17,14 @@ export const CLAVE_USUARIO_NOMBRE = "pdi_usuario_nombre";
 export const CLAVE_USUARIO_LOGIN = "pdi_usuario_login";
 export const CLAVE_USUARIO_FOTO = "pdi_usuario_foto";
 export const CLAVE_SESSION_EXP = "pdi_session_exp";
+// Sedes asignadas a la cuenta: alcance de lectura de las vistas clínicas.
+export const CLAVE_SEDES = "pdi_usuario_sedes";
+
+/** Guarda la lista de sedes de la cuenta, normalizada a cadenas. */
+function guardarSedes(sedes) {
+  const lista = Array.isArray(sedes) ? sedes.filter((s) => typeof s === "string" && s) : [];
+  localStorage.setItem(CLAVE_SEDES, JSON.stringify(lista));
+}
 
 // Expiración por inactividad: 8 horas (en ms), igual que la cookie.
 const DURACION_SESION_MS = 8 * 60 * 60 * 1000;
@@ -75,6 +83,7 @@ export async function autenticar(usuario, clave, codigo = "") {
     localStorage.setItem(CLAVE_USUARIO_NOMBRE, datos.nombre || "");
     localStorage.setItem(CLAVE_USUARIO_LOGIN, datos.usuario || "");
     localStorage.setItem(CLAVE_SESSION_EXP, String(expiracion));
+    guardarSedes(datos.sedes);
     if (datos.foto) localStorage.setItem(CLAVE_USUARIO_FOTO, datos.foto);
     else localStorage.removeItem(CLAVE_USUARIO_FOTO);
 
@@ -104,6 +113,7 @@ export function cerrarSesion() {
     localStorage.removeItem(CLAVE_USUARIO_LOGIN);
     localStorage.removeItem(CLAVE_USUARIO_FOTO);
     localStorage.removeItem(CLAVE_SESSION_EXP);
+    localStorage.removeItem(CLAVE_SEDES);
     sessionStorage.clear();
   } catch (e) {
     console.warn("[Auth] Error al cerrar sesión:", e);
@@ -138,6 +148,7 @@ export async function sincronizarSesion() {
     localStorage.setItem(CLAVE_USUARIO_NOMBRE, cuenta.nombre || "");
     localStorage.setItem(CLAVE_USUARIO_LOGIN, cuenta.usuario || "");
     if (datos.exp) localStorage.setItem(CLAVE_SESSION_EXP, String(datos.exp));
+    guardarSedes(cuenta.sedes);
     if (cuenta.foto) localStorage.setItem(CLAVE_USUARIO_FOTO, cuenta.foto);
     else localStorage.removeItem(CLAVE_USUARIO_FOTO);
 

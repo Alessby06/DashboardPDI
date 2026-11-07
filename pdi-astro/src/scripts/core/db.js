@@ -21,6 +21,7 @@
 //  viene de mezclar datos ficticios con reales; esa mezcla está eliminada.
 // ===========================================================================
 import { Surreal } from 'surrealdb';
+import { filtrarPorSede, filtrarCasos } from '../auth/alcance.js';
 import { AnemiaCalculator } from '../utils/AnemiaCalculator.js';
 import { ToastView } from '../views/ToastView.js';
 import { estrategiasDesdePrograma, SERVICIOS_VOLUNTARIADO, nombreServicioVisible } from '../../data/opcionesBeneficiario.js';
@@ -542,9 +543,12 @@ export async function hidratar(promedioSilencioso = false) {
         await ejecutarLote(SQL_LOTE_HIDRATACION);
 
       const sedes = mapearSedes(sedesRaw);
-      const beneficiarios = mapearBeneficiarios(personasRaw, sedes);
-      const retirados = mapearRetirados(retiradosRaw, mapearSedes(sedesTodasRaw));
-      const casos = mapearCasos(casosRaw, solicitudesRaw);
+      // El alcance por sede recorta después de mapear: los nombres de sede se
+      // resuelven con el directorio completo y solo se ocultan los registros
+      // de sedes ajenas. El equipo ASP conserva las derivaciones de todas.
+      const beneficiarios = filtrarPorSede(mapearBeneficiarios(personasRaw, sedes));
+      const retirados = filtrarPorSede(mapearRetirados(retiradosRaw, mapearSedes(sedesTodasRaw)));
+      const casos = filtrarCasos(mapearCasos(casosRaw, solicitudesRaw));
       const voluntarios = mapearVoluntarios(voluntariosRaw);
       // Solo para el KPI del panel general. La jornada de educativo tiene su
       // propia consulta por día y sede y no se sobrescribe con esta.
@@ -827,7 +831,7 @@ function slugDeSede(nombre) {
 /** Obtiene el Padrón de Usuarios Beneficiarios con inscripción, tamizaje y apoderado. */
 export async function fetchBeneficiarios() {
   const sedes = await fetchSedes();
-  return mapearBeneficiarios(comoLista(await ejecutar(SQL_PADRON)), sedes);
+  return filtrarPorSede(mapearBeneficiarios(comoLista(await ejecutar(SQL_PADRON)), sedes));
 }
 
 /** Convierte los registros crudos de persona en objetos del modelo (requiere sedes ya mapeadas). */
@@ -961,7 +965,7 @@ export async function fetchCasosSociales() {
     'SELECT * FROM evaluacion_socioeconomica WHERE activo = true AND estado = \'aprobada\' ORDER BY fecha_evaluacion DESC;',
     'SELECT * FROM evento_caso ORDER BY fecha DESC;',
   ].join('\n'));
-  return mapearCasos(casos, solicitudes, evaluaciones, eventos);
+  return filtrarCasos(mapearCasos(casos, solicitudes, evaluaciones, eventos));
 }
 
 /** Marca del bloque JSON que guarda la ficha mientras el esquema V2 no esté

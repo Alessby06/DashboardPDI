@@ -153,7 +153,7 @@ function filaHtml(cuenta) {
   const sedesCuenta = Array.isArray(cuenta.sedes) ? cuenta.sedes : [];
   const chips = sedesCuenta.length
     ? sedesCuenta.map((id) => `<span class="cuenta-sede">${escapar(nombreSede(id))}</span>`).join('')
-    : '<span class="cuenta-sede cuenta-sede--vacia">Sin sede</span>';
+    : '<span class="cuenta-sede cuenta-sede--vacia">Sin sede · ve todas</span>';
 
   const opcionesRol = ROL_OPCIONES.map(
     ([valor, etiqueta]) => `<option value="${valor}"${valor === cuenta.rol ? ' selected' : ''}>${etiqueta}</option>`,

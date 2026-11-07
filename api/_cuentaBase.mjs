@@ -641,6 +641,7 @@ async function login(request, cfg) {
     nombre: cuenta.nombre,
     rol: cuenta.rol,
     foto: cuenta.foto || '',
+    sedes: Array.isArray(cuenta.sedes) ? cuenta.sedes : [],
     exp: sesion.exp,
     debeCambiarClave: Boolean(cuenta.debe_cambiar_clave),
   }, 200, [cookieSesion(request, sesion, cfg)]);
