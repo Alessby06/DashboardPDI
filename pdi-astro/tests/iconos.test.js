@@ -7,6 +7,7 @@ import {
   HUGEICONS_VERSION,
   ICONOS,
   ICON_STROKE,
+  PERSONALIZADOS,
   iconBody,
   iconHtml,
 } from '../src/data/iconos.js';
@@ -32,8 +33,14 @@ test('los paths no llevan grosor ni color incrustados', () => {
 
 test('todos los alias apuntan a un icono existente', () => {
   for (const [alias, clave] of Object.entries(ALIAS)) {
-    assert.ok(ICONOS[clave], `${alias} → ${clave} no existe`);
+    assert.ok(ICONOS[clave] || PERSONALIZADOS[clave], `${alias} → ${clave} no existe`);
   }
+});
+
+test('el ojo de contraseña no es el ojo genérico de las tablas', () => {
+  assert.ok(PERSONALIZADOS['eye-password']);
+  assert.notEqual(iconBody('password.ver'), iconBody('accion.ver'));
+  assert.notEqual(iconBody('password.ocultar'), iconBody('password.ver'));
 });
 
 test('el SVG por defecto es decorativo, de 16 px y con el token de trazo', () => {

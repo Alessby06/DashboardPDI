@@ -56,12 +56,6 @@ import '../styles/views-perfil.css';
           </p>
           <p class="perfil-meta perfil-meta--dim">Alta <span id="perfilIdentidadDesde">—</span></p>
         </div>
-
-        <div class="perfil-head-actions">
-          <button type="submit" class="perfil-btn perfil-btn--primary" id="btnGuardarPerfil" form="formPerfil" disabled>
-            Guardar cambios
-          </button>
-        </div>
       </header>
 
       <div class="perfil-undo" id="perfilUndoFoto" role="status" hidden>
@@ -102,7 +96,12 @@ import '../styles/views-perfil.css';
                 <span class="perfil-field-error" id="perfilErrorTelefono" role="alert"></span>
               </div>
             </div>
-            <p class="perfil-feedback" id="perfilDatosFeedback" role="status"></p>
+            <div class="perfil-form-foot">
+              <p class="perfil-feedback" id="perfilDatosFeedback" role="status"></p>
+              <button type="submit" class="perfil-btn perfil-btn--primary" id="btnGuardarPerfil" disabled>
+                Guardar datos
+              </button>
+            </div>
           </form>
         </section>
 
@@ -115,19 +114,19 @@ import '../styles/views-perfil.css';
           <form class="perfil-panel perfil-form" id="formUsuario" novalidate>
             <div class="perfil-field">
               <label for="perfilInputUsuario">Usuario</label>
-              <input type="text" id="perfilInputUsuario" name="usuario" maxlength="32" autocomplete="username" spellcheck="false" />
-              <span class="perfil-field-hint">Con este usuario iniciarás sesión. 3 a 32 caracteres: minúsculas, números, punto, guion o guion bajo.</span>
+              <input type="text" id="perfilInputUsuario" name="usuario" maxlength="32" autocomplete="username" spellcheck="false" aria-describedby="perfilUsuarioAyuda" />
+              <span class="perfil-field-hint" id="perfilUsuarioAyuda">Este es tu usuario actual. Si lo cambias, entrarás con el nuevo. 3 a 32 caracteres: minúsculas, números, punto, guion o guion bajo.</span>
             </div>
             <div class="perfil-field">
               <label for="perfilInputUsuarioClave">Contraseña actual</label>
               <div class="perfil-clave-wrap">
                 <input type="password" id="perfilInputUsuarioClave" name="clave" autocomplete="current-password" />
-                <button type="button" class="perfil-clave-toggle" data-toggle-clave="perfilInputUsuarioClave" aria-label="Mostrar contraseña actual" aria-pressed="false">Ver</button>
+                <button type="button" class="perfil-clave-toggle" data-toggle-clave="perfilInputUsuarioClave" aria-label="Mostrar contraseña actual" aria-pressed="false"><Icon name="password.ver" size={17} /></button>
               </div>
             </div>
             <div class="perfil-form-foot">
               <p class="perfil-feedback" id="perfilUsuarioFeedback" role="status"></p>
-              <button type="submit" class="perfil-btn perfil-btn--soft" id="btnGuardarUsuario">Cambiar usuario</button>
+              <button type="submit" class="perfil-btn perfil-btn--soft" id="btnGuardarUsuario" disabled>Cambiar usuario</button>
             </div>
           </form>
         </section>
@@ -144,14 +143,14 @@ import '../styles/views-perfil.css';
                 <label for="perfilInputClaveActual">Contraseña actual</label>
                 <div class="perfil-clave-wrap">
                   <input type="password" id="perfilInputClaveActual" name="actual" autocomplete="current-password" />
-                  <button type="button" class="perfil-clave-toggle" data-toggle-clave="perfilInputClaveActual" aria-label="Mostrar contraseña actual" aria-pressed="false">Ver</button>
+                  <button type="button" class="perfil-clave-toggle" data-toggle-clave="perfilInputClaveActual" aria-label="Mostrar contraseña actual" aria-pressed="false"><Icon name="password.ver" size={17} /></button>
                 </div>
               </div>
               <div class="perfil-field">
                 <label for="perfilInputClaveNueva">Nueva contraseña</label>
                 <div class="perfil-clave-wrap">
                   <input type="password" id="perfilInputClaveNueva" name="nueva" autocomplete="new-password" aria-describedby="perfilFuerzaTexto" />
-                  <button type="button" class="perfil-clave-toggle" data-toggle-clave="perfilInputClaveNueva" aria-label="Mostrar nueva contraseña" aria-pressed="false">Ver</button>
+                  <button type="button" class="perfil-clave-toggle" data-toggle-clave="perfilInputClaveNueva" aria-label="Mostrar nueva contraseña" aria-pressed="false"><Icon name="password.ver" size={17} /></button>
                 </div>
                 <div class="perfil-strength" aria-hidden="true">
                   <span class="perfil-strength-seg"></span>
@@ -159,19 +158,19 @@ import '../styles/views-perfil.css';
                   <span class="perfil-strength-seg"></span>
                   <span class="perfil-strength-seg"></span>
                 </div>
-                <span class="perfil-field-hint" id="perfilFuerzaTexto">Mínimo 10 caracteres. Se recomienda una frase larga.</span>
+                <span class="perfil-field-hint" id="perfilFuerzaTexto" aria-live="polite">Mínimo 10 caracteres. Se recomienda una frase larga.</span>
               </div>
               <div class="perfil-field">
                 <label for="perfilInputClaveRepetir">Repetir la nueva</label>
                 <div class="perfil-clave-wrap">
                   <input type="password" id="perfilInputClaveRepetir" name="repetir" autocomplete="new-password" />
-                  <button type="button" class="perfil-clave-toggle" data-toggle-clave="perfilInputClaveRepetir" aria-label="Mostrar repetición de la contraseña" aria-pressed="false">Ver</button>
+                  <button type="button" class="perfil-clave-toggle" data-toggle-clave="perfilInputClaveRepetir" aria-label="Mostrar repetición de la contraseña" aria-pressed="false"><Icon name="password.ver" size={17} /></button>
                 </div>
               </div>
             </div>
             <div class="perfil-form-foot">
               <p class="perfil-feedback" id="perfilClaveFeedback" role="status"></p>
-              <button type="submit" class="perfil-btn perfil-btn--soft" id="btnGuardarClave">Cambiar contraseña</button>
+              <button type="submit" class="perfil-btn perfil-btn--soft" id="btnGuardarClave" disabled>Cambiar contraseña</button>
             </div>
             <p class="perfil-note">
               Si olvidas tu contraseña, administración puede generarte una temporal. El enlace por correo se
@@ -196,8 +195,12 @@ import '../styles/views-perfil.css';
               <button type="button" class="perfil-link" id="btnTotpDesactivar" hidden>Desactivar</button>
             </div>
             <div class="perfil-totp-panel" id="perfilTotpPanel" hidden>
-              <p class="perfil-field-hint">Copia este secreto en tu aplicación (Google Authenticator, Authy, 1Password) y escribe el código que genera.</p>
-              <code class="perfil-totp-secreto" id="perfilTotpSecreto"></code>
+              <p class="perfil-field-hint">Escanea el código con tu aplicación (Google Authenticator, Authy, 1Password) o copia el secreto, y escribe el código que genera.</p>
+              <div class="perfil-totp-qr" id="perfilTotpQr" hidden></div>
+              <div class="perfil-totp-secret-row">
+                <code class="perfil-totp-secreto" id="perfilTotpSecreto"></code>
+                <button type="button" class="perfil-btn perfil-btn--soft perfil-btn--mini" id="btnCopiarTotp">Copiar</button>
+              </div>
               <div class="perfil-field">
                 <label for="perfilTotpCodigo">Código de 6 dígitos</label>
                 <input type="text" id="perfilTotpCodigo" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="123456" autocomplete="one-time-code" />
@@ -214,6 +217,10 @@ import '../styles/views-perfil.css';
               <div class="perfil-field">
                 <label for="perfilTotpClave">Contraseña actual</label>
                 <input type="password" id="perfilTotpClave" autocomplete="current-password" />
+              </div>
+              <div class="perfil-field">
+                <label for="perfilTotpBajaCodigo">Código de 6 dígitos</label>
+                <input type="text" id="perfilTotpBajaCodigo" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="123456" autocomplete="one-time-code" />
               </div>
               <div class="perfil-form-foot">
                 <p class="perfil-feedback" id="perfilTotpDesactivarFeedback" role="status"></p>

@@ -40,6 +40,10 @@ export const ALIAS = {
   'accion.filtrar': 'filter',
   'accion.ver': 'eye',
   'accion.ocultar': 'eye-off',
+  // Iconos propios del campo de contraseña: distintos del ojo genérico que
+  // usan las tablas para "ver ficha", para que el control no se confunda.
+  'password.ver': 'eye-password',
+  'password.ocultar': 'eye-password-off',
   'accion.imprimir': 'printer',
   'accion.abrir': 'arrow-right-01',
   'accion.volver': 'arrow-left-01',
@@ -106,10 +110,24 @@ export const ALIAS = {
 //  conserva el nombre `eye` para que todos los alias y usos existentes
 //  (tablas, login, expediente, dashboard, salud, social y voluntariados)
 //  apunten a la nueva forma sin tocar las vistas.
-const PERSONALIZADOS = {
+export const PERSONALIZADOS = {
   eye: [
     ["path", { d: "M2.5 12.3C4.9 8 8.3 5.8 12 5.8s7.1 2.2 9.5 6.5" }],
     ["circle", { cx: "12", cy: "12.4", r: "2.4" }],
+  ],
+  // Ojo completo en almendra: lectura de "contraseña visible". Se diferencia
+  // del ojo de arriba, que solo dibuja el párpado superior.
+  "eye-password": [
+    ["path", { d: "M2.5 12C4.86 8.14 8.1 5.75 12 5.75s7.14 2.39 9.5 6.25c-2.36 3.86-5.6 6.25-9.5 6.25S4.86 15.86 2.5 12Z" }],
+    ["circle", { cx: "12", cy: "12", r: "2.7" }],
+  ],
+  // Ojo cerrado con pestañas: "contraseña oculta". No usa diagonal para no
+  // parecerse al eye-off genérico.
+  "eye-password-off": [
+    ["path", { d: "M3.2 10.9c2.3 2.9 5.4 4.4 8.8 4.4s6.5-1.5 8.8-4.4" }],
+    ["path", { d: "M5.7 13.7 4.3 15.8" }],
+    ["path", { d: "M12 15.3v2.5" }],
+    ["path", { d: "M18.3 13.7l1.4 2.1" }],
   ],
 };
 

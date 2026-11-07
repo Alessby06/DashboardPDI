@@ -11,6 +11,11 @@
 //  eliminar) y se guarda al instante; al eliminarla queda un deshacer breve.
 // ===========================================================================
 import { sincronizarSesion } from '../auth/usuarios.js';
+import { iconBody } from '../../data/iconos.js';
+import qrcode from 'qrcode-generator';
+
+const ICONO_CLAVE_VER = iconBody('password.ver');
+const ICONO_CLAVE_OCULTAR = iconBody('password.ocultar');
 
 const ROLES = {
   coord: 'Coordinación',
@@ -231,6 +236,7 @@ export const PerfilView = {
   _temporizadorMenuFoto: null,
   _deshacerFoto: null,
   _temporizadorFoto: null,
+  _totpUri: '',
   _beforeUnload: null,
   _guardiaEnlaces: null,
 
@@ -265,7 +271,7 @@ export const PerfilView = {
     this.actualizarEstado();
   },
 
-  render() {
+  render({ conservarTotp = false } = {}) {
     const cuenta = this.cuenta;
     if (!cuenta) return;
 
@@ -286,7 +292,9 @@ export const PerfilView = {
     this._pintarAvatar();
     this._cargarCampos();
     this._pintarAvisoTemporal();
-    this._pintarTotp();
+    this._actualizarBotonesSeguridad();
+    // Guardar los datos personales no debe cerrar una activación de MFA en curso.
+    if (!conservarTotp) this._pintarTotp();
   },
 
   /** Repinta solo la foto: cambiar de avatar no debe pisar lo que se escribe. */
@@ -350,8 +358,32 @@ export const PerfilView = {
     if (panelBaja) panelBaja.hidden = true;
     const secreto = porId('perfilTotpSecreto');
     if (secreto) secreto.textContent = '';
+    this._totpUri = '';
+    this._pintarQrTotp();
     aviso('perfilTotpFeedback', '');
     aviso('perfilTotpDesactivarFeedback', '');
+  },
+
+  /** QR local del otpauth: el secreto no sale del navegador. */
+  _pintarQrTotp() {
+    const contenedor = porId('perfilTotpQr');
+    if (!contenedor) return;
+    const uri = this._totpUri || '';
+    if (!uri) {
+      contenedor.hidden = true;
+      contenedor.innerHTML = '';
+      return;
+    }
+    try {
+      const qr = qrcode(0, 'M');
+      qr.addData(uri);
+      qr.make();
+      contenedor.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
+      contenedor.hidden = false;
+    } catch (err) {
+      contenedor.hidden = true;
+      contenedor.innerHTML = '';
+    }
   },
 
   async iniciarTotp() {
@@ -369,6 +401,8 @@ export const PerfilView = {
       }
       const secreto = porId('perfilTotpSecreto');
       if (secreto) secreto.textContent = datos.secreto || '';
+      this._totpUri = datos.uri || '';
+      this._pintarQrTotp();
       const panel = porId('perfilTotpPanel');
       if (panel) panel.hidden = false;
       const panelBaja = porId('perfilTotpDesactivarPanel');
@@ -419,6 +453,17 @@ export const PerfilView = {
     }
   },
 
+  async copiarSecretoTotp() {
+    const secreto = (porId('perfilTotpSecreto')?.textContent || '').trim();
+    if (!secreto) return;
+    try {
+      await navigator.clipboard.writeText(secreto);
+      toast('Secreto copiado', 'Pégalo en tu aplicación de autenticación.');
+    } catch (err) {
+      toast('No se pudo copiar', 'Selecciona el secreto y cópialo a mano.', 'danger');
+    }
+  },
+
   mostrarBajaTotp() {
     // Los dos formularios nunca conviven: abrir uno cierra el otro.
     const activacion = porId('perfilTotpPanel');
@@ -427,6 +472,8 @@ export const PerfilView = {
     const panel = porId('perfilTotpDesactivarPanel');
     if (panel) panel.hidden = false;
     aviso('perfilTotpDesactivarFeedback', '');
+    const codigo = porId('perfilTotpBajaCodigo');
+    if (codigo) codigo.value = '';
     porId('perfilTotpClave')?.focus({ preventScroll: true });
   },
 
@@ -437,6 +484,8 @@ export const PerfilView = {
     if (secreto) secreto.textContent = '';
     const codigo = porId('perfilTotpCodigo');
     if (codigo) codigo.value = '';
+    this._totpUri = '';
+    this._pintarQrTotp();
     aviso('perfilTotpFeedback', '');
     const activar = porId('btnTotpActivar');
     if (activar) activar.hidden = false;
@@ -448,6 +497,8 @@ export const PerfilView = {
     if (panel) panel.hidden = true;
     const clave = porId('perfilTotpClave');
     if (clave) clave.value = '';
+    const codigo = porId('perfilTotpBajaCodigo');
+    if (codigo) codigo.value = '';
     aviso('perfilTotpDesactivarFeedback', '');
     porId('btnTotpDesactivar')?.focus({ preventScroll: true });
   },
@@ -455,17 +506,23 @@ export const PerfilView = {
   async desactivarTotp() {
     const boton = porId('btnTotpDesactivarConfirmar');
     const clave = porId('perfilTotpClave')?.value || '';
+    const codigo = (porId('perfilTotpBajaCodigo')?.value || '').replace(/\D/g, '');
     aviso('perfilTotpDesactivarFeedback', '');
     if (!clave) {
       aviso('perfilTotpDesactivarFeedback', 'Escribe tu contraseña actual.', 'error');
       porId('perfilTotpClave')?.focus();
       return;
     }
+    if (codigo.length !== 6) {
+      aviso('perfilTotpDesactivarFeedback', 'Escribe el código de 6 dígitos de tu aplicación.', 'error');
+      porId('perfilTotpBajaCodigo')?.focus();
+      return;
+    }
     const liberar = ocupado(boton, 'Desactivando…');
     try {
       const { res, datos } = await pedir('/api/cuenta/totp', {
         method: 'POST',
-        body: JSON.stringify({ accion: 'desactivar', clave }),
+        body: JSON.stringify({ accion: 'desactivar', clave, codigo }),
       });
       if (!res.ok || !datos.ok) {
         aviso('perfilTotpDesactivarFeedback', datos.error || 'No se pudo desactivar.', 'error');
@@ -474,6 +531,8 @@ export const PerfilView = {
       this.cuenta.totpActivo = false;
       const input = porId('perfilTotpClave');
       if (input) input.value = '';
+      const inputCodigo = porId('perfilTotpBajaCodigo');
+      if (inputCodigo) inputCodigo.value = '';
       this._pintarTotp();
       toast('Verificación desactivada', 'Tu cuenta vuelve a usar solo contraseña.');
     } catch (err) {
@@ -505,6 +564,27 @@ export const PerfilView = {
   _cargarUsuario() {
     const usuario = porId('perfilInputUsuario');
     if (usuario) usuario.value = this.cuenta?.usuario || '';
+    this._actualizarBotonesSeguridad();
+  },
+
+  /** Gris hasta que el bloque de seguridad tenga todo lo que necesita. */
+  _actualizarBotonesSeguridad() {
+    const cuenta = this.cuenta;
+    const usuario = (porId('perfilInputUsuario')?.value || '').trim().toLowerCase();
+    const claveUsuario = porId('perfilInputUsuarioClave')?.value || '';
+    const usuarioListo = /^[a-z0-9._-]{3,32}$/.test(usuario)
+      && usuario !== (cuenta?.usuario || '')
+      && Boolean(claveUsuario);
+    const btnUsuario = porId('btnGuardarUsuario');
+    if (btnUsuario) btnUsuario.disabled = !usuarioListo;
+
+    const actual = porId('perfilInputClaveActual')?.value || '';
+    const nueva = porId('perfilInputClaveNueva')?.value || '';
+    const repetir = porId('perfilInputClaveRepetir')?.value || '';
+    const nuevaLista = nueva.length >= 10 && nueva.trim().length > 0;
+    const claveLista = Boolean(actual) && nuevaLista && nueva !== actual && nueva === repetir;
+    const btnClave = porId('btnGuardarClave');
+    if (btnClave) btnClave.disabled = !claveLista;
   },
 
   _conectarFormularios() {
@@ -533,6 +613,16 @@ export const PerfilView = {
         if (this._tocados.has(clave) || this._errorVisible(clave)) this._validarCampo(clave);
         this.actualizarEstado();
       });
+    });
+
+    [
+      'perfilInputUsuario',
+      'perfilInputUsuarioClave',
+      'perfilInputClaveActual',
+      'perfilInputClaveNueva',
+      'perfilInputClaveRepetir',
+    ].forEach((id) => {
+      porId(id)?.addEventListener('input', () => this._actualizarBotonesSeguridad());
     });
 
     porId('btnCambiarFoto')?.addEventListener('click', (e) => {
@@ -614,6 +704,7 @@ export const PerfilView = {
       });
     }
     porId('btnTotpActivar')?.addEventListener('click', () => this.iniciarTotp());
+    porId('btnCopiarTotp')?.addEventListener('click', () => this.copiarSecretoTotp());
     porId('btnTotpCancelar')?.addEventListener('click', () => this.cancelarTotp());
     porId('btnTotpCancelarBaja')?.addEventListener('click', () => this.cancelarBajaTotp());
     porId('btnTotpConfirmar')?.addEventListener('click', () => this.confirmarTotp());
@@ -629,7 +720,8 @@ export const PerfilView = {
         if (!input) return;
         const oculto = input.type === 'password';
         input.type = oculto ? 'text' : 'password';
-        boton.textContent = oculto ? 'Ocultar' : 'Ver';
+        const svg = boton.querySelector('svg');
+        if (svg) svg.innerHTML = oculto ? ICONO_CLAVE_OCULTAR : ICONO_CLAVE_VER;
         const etiqueta = boton.getAttribute('aria-label') || '';
         boton.setAttribute('aria-label', oculto
           ? etiqueta.replace(/^Mostrar/, 'Ocultar')
@@ -790,7 +882,7 @@ export const PerfilView = {
       }
       this.cuenta = datos.cuenta;
       localStorage.setItem('pdi_usuario_nombre', this.cuenta.nombre || '');
-      this.render();
+      this.render({ conservarTotp: true });
       aviso('perfilDatosFeedback', 'Datos guardados.', 'ok');
       toast('Perfil actualizado', 'Tus datos personales se guardaron.');
     } catch (err) {
@@ -852,6 +944,7 @@ export const PerfilView = {
       }
     } finally {
       liberar();
+      this._actualizarBotonesSeguridad();
     }
   },
 
@@ -912,13 +1005,14 @@ export const PerfilView = {
       this.cuenta.debeCambiarClave = false;
       this._pintarAvisoTemporal();
       aviso('perfilClaveFeedback', 'Contraseña actualizada.', 'ok');
-      toast('Contraseña actualizada', 'Tu nueva contraseña ya está activa.');
+      toast('Contraseña actualizada', 'Tu nueva contraseña ya está activa. Se cerraron las sesiones abiertas en otros dispositivos.');
     } catch (err) {
       if (err?.message !== 'Sesión expirada') {
         aviso('perfilClaveFeedback', 'No se pudo conectar. Intenta de nuevo.', 'error');
       }
     } finally {
       liberar();
+      this._actualizarBotonesSeguridad();
     }
   },
 

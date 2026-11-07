@@ -798,13 +798,24 @@ async function totp(request, cfg) {
   }
 
   if (accion === 'desactivar') {
+    if (!cuenta.totp_activo) {
+      return json({ ok: false, error: 'La verificación en dos pasos no está activa.' }, 400);
+    }
     if (!clave) return json({ ok: false, error: 'Escribe tu contraseña actual para confirmar.' }, 400);
+    if (!codigo) return json({ ok: false, error: 'Escribe el código de 6 dígitos de tu aplicación.' }, 400);
     let hash;
     try { hash = descifrar(cuenta.hash_cifrado, cfg.secreto); } catch {
       return json({ ok: false, error: 'No se pudo verificar la cuenta.' }, 500);
     }
     if (!(await compararClave(cfg, hash, String(clave)))) {
       return json({ ok: false, error: 'La contraseña actual no coincide.' }, 403);
+    }
+    let secreto;
+    try { secreto = descifrar(cuenta.totp_secret, cfg.secreto); } catch {
+      return json({ ok: false, error: 'No se pudo leer el secreto de verificación.' }, 500);
+    }
+    if (!verificarTotp(secreto, codigo, cuenta.totp_ultimo_contador)) {
+      return json({ ok: false, error: 'El código no es correcto, ya se usó o expiró.' }, 403);
     }
     await consulta(cfg, `UPDATE ${idRegistro(cuenta.id)} SET
       totp_secret = NONE,

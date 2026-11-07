@@ -240,13 +240,6 @@
   background: var(--gt-green);
 }
 
-.perfil-head-actions {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
 /* --- Avisos ------------------------------------------------------------- */
 
 .perfil-undo,
@@ -546,6 +539,12 @@ html[data-theme="dark"] .perfil-btn--primary {
   color: var(--text-main);
 }
 
+.perfil-btn--mini {
+  height: 34px;
+  padding: 0 12px;
+  font-size: 12px;
+}
+
 .perfil-btn--ghost {
   background: transparent;
   color: var(--text-muted);
@@ -667,6 +666,40 @@ html[data-theme="dark"] .perfil-btn--danger {
   word-break: break-all;
 }
 
+.perfil-totp-secret-row {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  min-width: 0;
+}
+
+.perfil-totp-secret-row .perfil-totp-secreto {
+  flex: 1;
+  min-width: 0;
+}
+
+.perfil-totp-qr {
+  align-self: flex-start;
+  padding: 8px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--on-scrim);
+}
+
+.perfil-totp-qr[hidden] {
+  display: none;
+}
+
+.perfil-totp-qr svg {
+  display: block;
+  width: 132px;
+  height: 132px;
+}
+
+.perfil-totp-qr path {
+  fill: var(--qr-ink);
+}
+
 @media (max-width: 640px) {
   .perfil-totp-head {
     flex-direction: column;
@@ -678,24 +711,37 @@ html[data-theme="dark"] .perfil-btn--danger {
 }
 
 .perfil-clave-wrap input {
-  padding-right: 56px;
+  padding-right: 46px;
 }
 
 .perfil-clave-toggle {
   position: absolute;
   top: 50%;
-  right: 4px;
+  right: 3px;
   transform: translateY(-50%);
-  height: 32px;
-  padding: 0 8px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
   border: 0;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   background: transparent;
-  color: var(--text-brand);
-  font-family: var(--ui-font);
-  font-size: 11px;
-  font-weight: 800;
+  color: var(--text-dim);
   cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-smooth),
+    background-color var(--dur-fast) var(--ease-smooth);
+}
+
+.perfil-clave-toggle svg {
+  display: block;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .perfil-clave-toggle:hover {
+    background: var(--surface-hover);
+    color: var(--text-main);
+  }
 }
 
 .perfil-clave-toggle:focus-visible {
@@ -953,6 +999,7 @@ html[data-theme="dark"] .perfil-btn--danger {
 
   .perfil-clave-toggle {
     height: 36px;
+    width: 36px;
   }
 
   .perfil-form-foot {

@@ -1778,7 +1778,7 @@ const impeccableLive =
               required
             />
             <button type="button" class="btn-eye-toggle" id="btnTogglePass" aria-label="Mostrar contraseña">
-              <Icon name="accion.ver" size={17} id="iconPassEye" />
+              <Icon name="password.ver" size={17} id="iconPassEye" />
             </button>
           </div>
         </div>
@@ -1895,8 +1895,8 @@ const impeccableLive =
     const inputCodigoTotp = document.getElementById('inputCodigoTotp');
     const iconPassEye = document.getElementById('iconPassEye');
 
-    const EYE_OPEN = iconBody('accion.ver');
-    const EYE_SLASH = iconBody('accion.ocultar');
+    const EYE_OPEN = iconBody('password.ver');
+    const EYE_SLASH = iconBody('password.ocultar');
 
     btnTogglePass?.addEventListener('click', () => {
       if (!inputClave) return;
