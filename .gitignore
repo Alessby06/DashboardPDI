@@ -36,6 +36,9 @@ plans/
 .taste-skill/
 skills-lock.json
 Proyecto Infancia Saludable/
+# Documentos institucionales de la raíz: respaldo local, no forman parte del
+# repositorio público (el Plan inicial ya versionado se queda como está).
+PROGRAMA*.docx
 
 # Dumps de base de datos SurrealDB: contienen datos personales de usuarios
 # (nombres, DNI, telefono, direccion) y hashes de credenciales. Este repositorio
