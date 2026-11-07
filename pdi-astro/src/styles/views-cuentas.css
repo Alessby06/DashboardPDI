@@ -357,7 +357,7 @@
 
 .cuentas-modal-box {
   width: min(580px, 100%);
-  max-height: 94dvh;
+  max-height: 96dvh;
   overflow: auto;
   overscroll-behavior: contain;
   padding: 12px;
@@ -491,7 +491,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 7px;
-  max-height: 80px;
+  max-height: 60px;
   overflow: auto;
   padding: 9px;
   border: 1px solid var(--border-subtle);
