@@ -357,10 +357,10 @@
 
 .cuentas-modal-box {
   width: min(520px, 100%);
-  max-height: 88dvh;
+  max-height: 92dvh;
   overflow: auto;
   overscroll-behavior: contain;
-  padding: 22px;
+  padding: 20px;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   background: var(--surface-1);
@@ -571,7 +571,7 @@
   }
 
   .cuentas-modal-box {
-    max-height: 92dvh;
+    max-height: 95dvh;
   }
 
   .cuentas-cerrar {
