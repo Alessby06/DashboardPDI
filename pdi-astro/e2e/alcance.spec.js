@@ -22,7 +22,7 @@ async function padronDe(page) {
 }
 
 async function esperarPadron(page) {
-  await expect(page.locator('#view-padron')).toBeVisible();
+  await expect(page.locator('#view-beneficiarios')).toBeVisible();
   await expect.poll(async () => (await padronDe(page)).length).toBeGreaterThan(0);
 }
 
