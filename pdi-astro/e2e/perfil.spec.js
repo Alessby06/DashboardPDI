@@ -76,13 +76,14 @@ test.describe('perfil con coordinación', () => {
     await nombre.fill(`${original} X`);
 
     await page.locator('#sidebarNav a[href="/dashboard"]').click();
-    await expect(page.locator('#modalConfirmacion')).toBeVisible();
+    await expect(page.locator('#modalConfirmacion')).toHaveClass(/open/);
     await page.locator('#btnConfirmacionAceptar').click();
     await page.waitForURL(/\/dashboard/);
 
     await page.locator('#sidebarNav a[href="/padron"]').click();
     await page.waitForURL(/\/padron/);
-    await expect(page.locator('#modalConfirmacion')).toBeHidden();
+    await expect(page.locator('#modalConfirmacion')).not.toHaveClass(/open/);
+    await expect(page.locator('#modalConfirmacion')).toHaveAttribute('aria-hidden', 'true');
   });
 });
 
