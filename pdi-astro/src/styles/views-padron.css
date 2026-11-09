@@ -786,6 +786,19 @@
   }
 }
 
+/* El botón de Archivo: contenido centrado y contador pegado a la etiqueta.
+   El badge trae 10px de padding propio y el gap del botón añade otros 8px,
+   así que el número quedaba muy separado del texto. */
+#btnPadronArchivo {
+  justify-content: center;
+  gap: 6px;
+}
+
+#btnPadronArchivo .badge {
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
 /* --- TABLA PRINCIPAL DEL PADRÓN: ESTABILIDAD Y ZERO LAYOUT SHIFT --- */
 #cardPadronBeneficiarios .table-container {
   overflow-x: auto;
