@@ -15,21 +15,21 @@ import Icon from '../components/Icon.astro';
             </p>
             <h1>Panel de Infancia Saludable</h1>
             <p class="dash-folio-sub">
-              Cobertura, servicios y estado clínico del programa.
+              Cobertura, servicios y hemoglobina infantil del programa.
             </p>
             <p class="dash-folio-meta">
               <span>Responsable: <strong id="dashFolioResponsable">…</strong></span>
               <span>Ámbito: todas las sedes</span>
-              <span>Corte: <strong id="dashFolioCorte">…</strong></span>
             </p>
           </div>
           <div class="dash-folio-actions">
-            <span class="dash-meta-chip" id="dashEstado">
+            <span class="dash-meta-chip is-loading" id="dashEstado" role="status">
               <span class="dash-estado-dot" aria-hidden="true"></span>
-              <span id="dashEstadoTexto">Datos al día</span>
+              <span id="dashEstadoTexto">Cargando…</span>
+              <span class="dash-meta-hace" id="dashEstadoHace" aria-hidden="true"></span>
             </span>
             <a class="dash-meta-link" href="/padron">
-              <span>Abrir padrón</span>
+              <span>Ver padrón completo</span>
               <Icon name="accion.abrir" size={12} />
             </a>
           </div>
@@ -55,7 +55,7 @@ import Icon from '../components/Icon.astro';
               <span class="dash-strip-cases" id="anemiaCasosNormal">…</span>
               <span class="dash-strip-range">≥ 11,0 g/dL</span>
               <span class="dash-strip-track" aria-hidden="true">
-                <span class="dash-strip-fill" id="segAnemiaNormal" style="width: 0%"></span>
+                <span class="dash-strip-fill" id="segAnemiaNormal"></span>
               </span>
             </li>
 
@@ -66,7 +66,7 @@ import Icon from '../components/Icon.astro';
               <span class="dash-strip-cases" id="anemiaCasosLeve">…</span>
               <span class="dash-strip-range">10,0 – 10,9 g/dL</span>
               <span class="dash-strip-track" aria-hidden="true">
-                <span class="dash-strip-fill" id="segAnemiaLeve" style="width: 0%"></span>
+                <span class="dash-strip-fill" id="segAnemiaLeve"></span>
               </span>
             </li>
 
@@ -77,24 +77,25 @@ import Icon from '../components/Icon.astro';
               <span class="dash-strip-cases" id="anemiaCasosMod">…</span>
               <span class="dash-strip-range">&lt; 10,0 g/dL</span>
               <span class="dash-strip-track" aria-hidden="true">
-                <span class="dash-strip-fill" id="segAnemiaMod" style="width: 0%"></span>
+                <span class="dash-strip-fill" id="segAnemiaMod"></span>
               </span>
             </li>
           </ul>
         </section>
 
         <!-- Hoja de servicios: el cuerpo del parte -->
-        <section class="dash-band" aria-label="Servicios del programa">
+        <section class="dash-band" aria-labelledby="dashServiciosTitle">
+          <div class="dash-band-head">
+            <h2 id="dashServiciosTitle">Programas del parte</h2>
+          </div>
           <div class="dash-ledger">
-            <article class="dash-service dash-service--lead">
+            <article class="dash-service">
               <header class="dash-service-head">
                 <div>
-                  <h2 class="dash-service-title">Servicio alimentario y nutricional</h2>
+                  <h3 class="dash-service-title">Alimentación y nutrición</h3>
                   <p class="dash-service-note">Desayuno, lonchera y control CRED</p>
                 </div>
-                <a class="dash-service-link" href="/salud" aria-label="Abrir servicio alimentario y nutricional">
-                  Abrir servicio
-                </a>
+                <a class="dash-service-link" href="/salud">Ver alimentación</a>
               </header>
               <dl class="dash-service-rows">
                 <div class="dash-service-row dash-service-row--lead">
@@ -119,12 +120,10 @@ import Icon from '../components/Icon.astro';
             <article class="dash-service">
               <header class="dash-service-head">
                 <div>
-                  <h2 class="dash-service-title">Servicio de acompañamiento educativo</h2>
+                  <h3 class="dash-service-title">Acompañamiento educativo</h3>
                   <p class="dash-service-note">Casita del Saber y biblioteca</p>
                 </div>
-                <a class="dash-service-link" href="/educativo" aria-label="Abrir servicio de acompañamiento educativo">
-                  Abrir servicio
-                </a>
+                <a class="dash-service-link" href="/educativo">Ver educativo</a>
               </header>
               <dl class="dash-service-rows">
                 <div class="dash-service-row dash-service-row--lead">
@@ -145,12 +144,10 @@ import Icon from '../components/Icon.astro';
             <article class="dash-service">
               <header class="dash-service-head">
                 <div>
-                  <h2 class="dash-service-title">Servicio social pastoral (ASP)</h2>
+                  <h3 class="dash-service-title">Servicio social pastoral (ASP)</h3>
                   <p class="dash-service-note">Solo usuarios con caso ASP activo</p>
                 </div>
-                <a class="dash-service-link" href="/social" aria-label="Abrir servicio social pastoral">
-                  Abrir servicio
-                </a>
+                <a class="dash-service-link" href="/social">Ver social</a>
               </header>
               <dl class="dash-service-rows">
                 <div class="dash-service-row dash-service-row--lead">
@@ -179,7 +176,7 @@ import Icon from '../components/Icon.astro';
         <!-- Cobertura territorial: la matriz -->
         <section class="dash-band" aria-labelledby="dashTerritorioTitle">
           <div class="dash-band-head">
-            <h2 id="dashTerritorioTitle">Cobertura territorial por distrito</h2>
+            <h2 id="dashTerritorioTitle">Cobertura territorial por servicio</h2>
             <a class="dash-band-link" href="/sedes">Ver sedes e iglesias</a>
           </div>
           <p class="dash-matrix-note" id="dashMatrixNote"></p>
@@ -191,7 +188,7 @@ import Icon from '../components/Icon.astro';
           <div class="dash-band-head">
             <h2 id="dashVolTitle">Voluntarios por servicio</h2>
             <span class="dash-band-total"><strong id="dashVolTotal">…</strong> voluntarios</span>
-            <a class="dash-band-link" href="/voluntariados">Ver padrón</a>
+            <a class="dash-band-link" href="/voluntariados">Ver voluntariado</a>
           </div>
           <ul class="dash-vol-list" id="dashVoluntariosList"></ul>
         </section>

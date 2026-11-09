@@ -41,6 +41,8 @@ export const DashboardView = {
   _haEntrado: false,
 
   _store: null,
+  _sello: null,
+  _selloTimer: null,
 
   _obtenerStore() {
     if (!this._store) this._store = crearStore(FACETAS_AUDITORIA);
@@ -115,32 +117,34 @@ export const DashboardView = {
     const esPrimeraEntrada = !this._haEntrado;
     this._haEntrado = true;
 
-    const hora = (ts) => {
-      try {
-        return new Intl.DateTimeFormat("es-PE", { hour: "2-digit", minute: "2-digit" }).format(new Date(ts));
-      } catch {
-        return "-";
-      }
-    };
     const estado = window.PDI?.DB?.estadoActual?.() || "ok";
     const ultima = window.PDI?.DB?.ultimaHidratacion?.() || 0;
     const datosOk = estado === "ok";
 
     const fechaEl = document.getElementById("dashFolioFecha");
     if (fechaEl) {
+      const ahora = new Date();
       try {
         fechaEl.textContent = new Intl.DateTimeFormat("es-PE", {
           day: "numeric",
           month: "long",
           year: "numeric",
-        }).format(new Date());
+        }).format(ahora);
       } catch {
         fechaEl.textContent = "hoy";
       }
+      try {
+        fechaEl.dateTime = new Intl.DateTimeFormat("en-CA", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        }).format(ahora);
+      } catch {
+        fechaEl.dateTime = "";
+      }
     }
 
-    // Folio firmado: responsable de la sesión y corte real de la última
-    // hidratación completa. No se inventa un firmante que no exista.
+    // Folio firmado: responsable de la sesión. No se inventa un firmante.
     const respEl = document.getElementById("dashFolioResponsable");
     if (respEl) {
       let nombre = "";
@@ -149,26 +153,14 @@ export const DashboardView = {
       } catch {
         nombre = "";
       }
-      respEl.textContent = nombre || "-";
+      respEl.textContent = nombre || "Sesión no identificada";
     }
-    const corteEl = document.getElementById("dashFolioCorte");
-    if (corteEl) corteEl.textContent = ultima ? hora(ultima) : "-";
 
-    // Sello de frescura: el chip dice el estado real, no una promesa fija.
-    const chip = document.getElementById("dashEstado");
-    const chipTexto = document.getElementById("dashEstadoTexto");
-    if (chip && chipTexto) {
-      chip.classList.remove("is-warn", "is-loading");
-      if (datosOk) {
-        chipTexto.textContent = ultima ? `Datos al día · ${hora(ultima)}` : "Datos al día";
-      } else if (estado === "sin_conexion") {
-        chip.classList.add("is-warn");
-        chipTexto.textContent = "Sin conexión · reintentando";
-      } else {
-        chip.classList.add("is-loading");
-        chipTexto.textContent = "Cargando datos…";
-      }
-    }
+    // Sello de frescura: una sola pieza con la hora del corte y su edad. Se
+    // repinta cada minuto sin volver a consultar la nube.
+    this._sello = { estado, ultima };
+    this._pintarSello();
+    this._iniciarSello();
 
     // Franja clínica: cifras directas y conteo con singular/plural. Si la base
     // no está disponible, se muestra "-" en vez de un 0 que miente.
@@ -183,21 +175,21 @@ export const DashboardView = {
       bandas.forEach(({ fillId, pctId, casosId, pct, casos }) => {
         const fill = document.getElementById(fillId);
         if (fill) {
-          const destino = datosOk ? `${pct}%` : "0%";
-          fill.dataset.targetWidth = destino;
+          const escala = datosOk ? Math.max(0, Math.min(100, Number(pct) || 0)) / 100 : 0;
+          fill.dataset.targetScale = String(escala);
           if (esPrimeraEntrada || !datosOk) {
-            fill.style.width = "0%";
+            fill.style.transform = "scaleX(0)";
             if (datosOk) {
               void fill.offsetWidth;
-              requestAnimationFrame(() => { fill.style.width = fill.dataset.targetWidth; });
+              requestAnimationFrame(() => { fill.style.transform = `scaleX(${fill.dataset.targetScale})`; });
             }
           } else {
-            fill.style.width = destino;
+            fill.style.transform = `scaleX(${escala})`;
           }
         }
 
         const pctEl = document.getElementById(pctId);
-        if (pctEl) pctEl.textContent = datosOk ? `${pct}%` : "-";
+        if (pctEl) pctEl.textContent = datosOk ? `${pct} %` : "-";
         const casosEl = document.getElementById(casosId);
         if (casosEl) {
           casosEl.textContent = datosOk
@@ -226,6 +218,90 @@ export const DashboardView = {
 
     this._renderServicios(stats);
     this.renderAuditLogs(auditLogs);
+  },
+
+  /** Edad legible del corte, sin depender de la zona horaria del lector. */
+  _hace(ms) {
+    const min = Math.floor(Math.max(0, ms) / 60000);
+    if (min < 1) return "(hace menos de 1 min)";
+    if (min < 60) return `(hace ${min} min)`;
+    const h = Math.floor(min / 60);
+    const resto = min % 60;
+    if (h < 24) return resto ? `(hace ${h} h ${resto} min)` : `(hace ${h} h)`;
+    const dias = Math.floor(h / 24);
+    return dias === 1 ? "(hace 1 día)" : `(hace ${dias} días)`;
+  },
+
+  /**
+   * Pinta el sello con la hora real de la última hidratación y su edad. Pasados
+   * 30 minutos vira a ámbar: un parte viejo no se disfraza de parte al día.
+   */
+  _pintarSello() {
+    const chip = document.getElementById("dashEstado");
+    const texto = document.getElementById("dashEstadoTexto");
+    const haceEl = document.getElementById("dashEstadoHace");
+    if (!chip || !texto) return;
+
+    const { estado = "ok", ultima = 0 } = this._sello || {};
+    chip.classList.remove("is-warn", "is-loading");
+    if (haceEl) haceEl.textContent = "";
+    // Solo se reescribe si el mensaje cambia: el reloj interno no debe
+    // anunciarse cada minuto a un lector de pantalla.
+    const poner = (mensaje) => {
+      if (texto.textContent !== mensaje) texto.textContent = mensaje;
+    };
+
+    if (estado === "sin_conexion") {
+      chip.classList.add("is-warn");
+      poner("Sin conexión · reintentando");
+      return;
+    }
+    if (estado !== "ok") {
+      chip.classList.add("is-loading");
+      poner("Cargando datos…");
+      return;
+    }
+    if (!ultima) {
+      poner("Datos disponibles");
+      return;
+    }
+
+    let fecha;
+    try {
+      fecha = new Date(ultima);
+    } catch {
+      fecha = null;
+    }
+    if (!fecha || Number.isNaN(fecha.getTime())) {
+      poner("Datos disponibles");
+      return;
+    }
+
+    const ahora = new Date();
+    const mismoDia = fecha.getFullYear() === ahora.getFullYear()
+      && fecha.getMonth() === ahora.getMonth()
+      && fecha.getDate() === ahora.getDate();
+
+    let horaTexto = "-";
+    let diaTexto = "";
+    try {
+      horaTexto = new Intl.DateTimeFormat("es-PE", { hour: "2-digit", minute: "2-digit" }).format(fecha);
+      diaTexto = new Intl.DateTimeFormat("es-PE", { day: "numeric", month: "short" }).format(fecha);
+    } catch {
+      // Sin Intl se conserva el guion: mejor una hora incompleta que inventada.
+    }
+
+    poner(mismoDia
+      ? `Actualizado hoy ${horaTexto}`
+      : `Actualizado ${diaTexto} · ${horaTexto}`);
+    const edad = Math.max(0, Date.now() - fecha.getTime());
+    if (haceEl) haceEl.textContent = this._hace(edad);
+    if (edad > 30 * 60 * 1000) chip.classList.add("is-warn");
+  },
+
+  _iniciarSello() {
+    if (this._selloTimer) return;
+    this._selloTimer = setInterval(() => this._pintarSello(), 60000);
   },
 
   _mensajeSinDatos(textoVacio) {
@@ -356,12 +432,29 @@ export const DashboardView = {
       }
       const total = filas.reduce((s, f) => s + (grupos[f.clave] || 0), 0);
       const base = total || 1;
+      const demanda = {
+        desayuno,
+        lonchera,
+        casita,
+        biblioteca,
+        asp: usuariosAsp.length,
+        reposteria: contar("reposteria"),
+      };
       listaVol.innerHTML = filas.map(f => {
         const n = grupos[f.clave] || 0;
         const pct = datosOk ? Math.round((n / base) * 100) : 0;
+        const usuariosServicio = demanda[f.clave] ?? 0;
+        const falta = datosOk && n === 0 && usuariosServicio > 0;
+        const sobra = datosOk && n > 0 && usuariosServicio === 0;
+        const bandera = falta
+          ? `<span class="dash-vol-flag">sin voluntarios</span>`
+          : sobra
+            ? `<span class="dash-vol-flag dash-vol-flag--dim">sin usuarios</span>`
+            : "";
+        const clase = falta ? " is-gap" : sobra ? " is-idle" : "";
         return `
-          <li class="dash-vol-row">
-            <span class="dash-vol-name">${escapar(f.nombre)}</span>
+          <li class="dash-vol-row${clase}">
+            <span class="dash-vol-name">${escapar(f.nombre)}${bandera}</span>
             <strong class="dash-vol-count">${valor(n)}</strong>
             <span class="dash-vol-track" aria-hidden="true"><span class="dash-vol-fill" style="width:${pct}%"></span></span>
           </li>

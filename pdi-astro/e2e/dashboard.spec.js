@@ -10,6 +10,11 @@ test.describe('dashboard — parte firmado', () => {
       page.getByRole('heading', { level: 1, name: 'Panel de Infancia Saludable' }),
     ).toBeVisible();
     await expect(page.locator('.dash-strip-cell')).toHaveCount(3);
+    await expect(
+      page.getByRole('heading', { level: 2, name: 'Programas del parte' }),
+    ).toBeVisible();
+    await expect(page.locator('#dashFolioFecha')).toHaveAttribute('datetime', /^\d{4}-\d{2}-\d{2}$/);
+    await expect(page.locator('#dashEstadoTexto')).toContainText('Actualizado');
     await expect(page.locator('.dash-service')).toHaveCount(3);
     await expect(page.locator('.dash-matrix tbody tr')).toHaveCount(7);
     await expect(page.locator('.dash-vol-row')).toHaveCount(6);

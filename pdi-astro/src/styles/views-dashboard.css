@@ -98,6 +98,12 @@
   color: var(--text-muted);
   font-size: 11.5px;
   font-weight: 600;
+  white-space: nowrap;
+}
+
+.dash-meta-hace {
+  color: var(--text-dim);
+  font-weight: 500;
 }
 
 .dash-estado-dot {
@@ -287,10 +293,13 @@
 
 .dash-strip-fill {
   display: block;
+  width: 100%;
   height: 100%;
+  transform: scaleX(0);
+  transform-origin: left center;
   border-radius: 2px;
   background: var(--gt-green);
-  transition: width var(--dur-bar) var(--ease-spring);
+  transition: transform var(--dur-bar) var(--ease-spring);
 }
 
 .dash-strip-cell[data-band="leve"] .dash-strip-dot,
@@ -408,10 +417,6 @@
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.035em;
-}
-
-.dash-service--lead .dash-service-row--lead dd {
-  font-size: 40px;
 }
 
 /* Los casos acompañan al recuento de usuarios sin competir con el lead. */
@@ -641,6 +646,28 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Una brecha operativa no se esconde en un cero negro. */
+.dash-vol-row.is-gap .dash-vol-count {
+  color: var(--text-warning);
+}
+
+.dash-vol-row.is-idle .dash-vol-count {
+  color: var(--text-dim);
+}
+
+.dash-vol-flag {
+  margin-left: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-warning);
+  white-space: nowrap;
+}
+
+.dash-vol-flag--dim {
+  font-weight: 500;
+  color: var(--text-dim);
+}
+
 .dash-vol-track {
   grid-column: 1 / -1;
   height: 4px;
@@ -719,10 +746,6 @@
     width: 100%;
   }
 
-  .dash-strip-cells {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
   .dash-vol-list {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -758,6 +781,11 @@
     font-size: 22px;
   }
 
+  /* A 768 caben las tres celdas; la franja solo se apila en el teléfono. */
+  .dash-strip-cells {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   /* La tabla se retira; en móvil mandan los bloques con etiquetas reales. */
   .dash-matrix {
     display: none;
@@ -766,10 +794,6 @@
   .dash-matrix-mobile {
     display: grid;
     gap: 14px;
-  }
-
-  .dash-service--lead .dash-service-row--lead dd {
-    font-size: 30px;
   }
 }
 
