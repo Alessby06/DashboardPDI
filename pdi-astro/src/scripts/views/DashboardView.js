@@ -1,4 +1,3 @@
-import { AnimationEngine } from '../utils/AnimationEngine.js';
 import { crear as crearFiltros } from '../utils/Filters.js';
 import { crearStore } from '../utils/FilterStore.js';
 import { Dropdown } from '../utils/Dropdown.js';
@@ -156,9 +155,9 @@ export const DashboardView = {
         }
 
         const pctEl = document.getElementById(pctId);
-        if (pctEl) this._rodarOdometro(pctEl, `clinica_pct_${pctId}`, pct, "%");
+        if (pctEl) pctEl.textContent = `${pct}%`;
         const legEl = document.getElementById(legId);
-        if (legEl) this._rodarOdometro(legEl, `clinica_casos_${legId}`, casos, "");
+        if (legEl) legEl.textContent = String(casos);
       });
     }
 
@@ -166,25 +165,6 @@ export const DashboardView = {
     this.renderAuditLogs(auditLogs);
   },
 
-  /** Odometro con memoria: no re-rueda si el valor renderizado no cambio. */
-  _rodarOdometro(el, claveMemoria, valor, suffix) {
-    if (!this._odometroMemoria) this._odometroMemoria = {};
-    const valorStr = String(valor) + (suffix || "");
-    if (this._odometroMemoria[claveMemoria] === valorStr) return;
-    this._odometroMemoria[claveMemoria] = valorStr;
-    // mergeGlyphs: en esta tarjeta el conteo lleva palabras ("8 usuarios"), y el
-    // span por letra del odometro rompia el kerning (~0.6px). Al hidratar y
-    // volver a texto plano la palabra se reacomodaba: un micro-movimiento. Como
-    // texto, el ancho coincide con el del render plano.
-    AnimationEngine.odometerRoll(el, valor, { suffix, mergeGlyphs: true });
-  },
-
-
-  /**
-   * Un panel vacío no siempre significa "no hay datos": al entrar, la
-   * hidratación todavía puede estar en curso o la conexión puede haberse
-   * caído. El mensaje lo dice en vez de afirmar que el padrón está vacío.
-   */
   _mensajeSinDatos(textoVacio) {
     const estado = window.PDI?.DB?.estadoActual?.() || "ok";
     if (estado === "sin_conexion") {
@@ -242,21 +222,17 @@ export const DashboardView = {
       return c.has("casita") || c.has("biblioteca");
     }).length;
     const casosActivos = casos.filter(c => c && c.etapa !== "cerrado").length;
-    const voluntariosActivos = voluntarios.filter(v => String(v?.estado || "").toLowerCase() === "activo").length;
 
     const poner = (id, valor) => {
       const el = document.getElementById(id);
       if (el) el.textContent = String(valor);
     };
-    const rodar = (id, clave, valor) => {
-      const el = document.getElementById(id);
-      if (el) this._rodarOdometro(el, clave, valor, "");
-    };
 
-    // Leads de servicio: ruedan una vez, no en cada refresco.
-    rodar("dashAlimUsuarios", "servicio_alim", alimentario);
-    rodar("dashEduActivos", "servicio_edu", educativo);
-    rodar("dashAspCasos", "servicio_asp", casosActivos);
+    // Cifras directas: el odómetro necesita frames y en una pestaña en segundo
+    // plano se queda a medio rodar. El movimiento vive en las barras.
+    poner("dashAlimUsuarios", alimentario);
+    poner("dashEduActivos", educativo);
+    poner("dashAspCasos", casosActivos);
 
     // Filas: texto directo para que la hidratación no deje odómetros a medias.
     poner("dashAlimDesayuno", desayuno);
@@ -294,10 +270,11 @@ export const DashboardView = {
         { clave: "asp", nombre: "Social pastoral (ASP)" },
         { clave: "reposteria", nombre: "Talleres de repostería" },
       ];
-      const total = voluntariosActivos || 1;
+      const total = filas.reduce((s, f) => s + (grupos[f.clave] || 0), 0);
+      const base = total || 1;
       listaVol.innerHTML = filas.map(f => {
         const n = grupos[f.clave] || 0;
-        const pct = Math.round((n / total) * 100);
+        const pct = Math.round((n / base) * 100);
         return `
           <li class="dash-vol-row">
             <span class="dash-vol-name">${escapar(f.nombre)}</span>
@@ -307,7 +284,7 @@ export const DashboardView = {
         `;
       }).join("");
       const totalEl = document.getElementById("dashVolTotal");
-      if (totalEl) totalEl.textContent = String(voluntariosActivos);
+      if (totalEl) totalEl.textContent = String(total);
     }
 
     this.renderTerritorio(usuarios, claves);

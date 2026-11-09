@@ -6,7 +6,9 @@ test.describe('dashboard — parte firmado', () => {
   test('muestra la franja clínica, los servicios, la matriz y los voluntarios', async ({ page }) => {
     await entrar(page, cuentas().coord);
     await expect(page).toHaveURL(/\/dashboard/);
-    await expect(page.locator('h1')).toHaveText('Panel de Infancia Saludable');
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Panel de Infancia Saludable' }),
+    ).toBeVisible();
     await expect(page.locator('.dash-strip-cell')).toHaveCount(3);
     await expect(page.locator('.dash-service')).toHaveCount(3);
     await expect(page.locator('.dash-matrix tbody tr')).toHaveCount(7);
