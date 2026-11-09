@@ -104,11 +104,11 @@ async function pedir(url, opciones = {}) {
 }
 
 function pintarTopbar(cuenta) {
-  const nombre = cuenta.nombre || 'Mi perfil';
+  const nombre = cuenta.nombre || 'Sesión';
   const foto = cuenta.foto || '';
   const rol = ROLES[cuenta.rol] || 'Perfil';
-  const nombreEl = porId('topbarMenuNombre');
-  const rolEl = porId('topbarMenuRol');
+  const nombreEl = porId('topbarUsuarioNombre');
+  const rolEl = porId('topbarUsuarioRol');
   const iniciales = porId('topbarAvatarIniciales');
   const fotoEl = porId('topbarAvatarFoto');
   if (nombreEl) nombreEl.textContent = nombre;
