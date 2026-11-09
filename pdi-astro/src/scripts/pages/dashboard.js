@@ -31,6 +31,7 @@ import { DashboardView } from '../views/DashboardView.js';
 import { AppController } from '../controllers/AppController.js';
 
 let enlazado = false;
+let listo = false;
 
 /** Engancha lo que debe ocurrir una sola vez por carga. */
 function enlazar() {
@@ -49,6 +50,20 @@ function enlazar() {
       window.PDI?.Bootstrap?.actualizarBadgesSidebar?.();
     }, 120);
   });
+
+  // El sello de frescura también cambia cuando la capa pierde o recupera la
+  // conexión, no solo cuando llegan datos. La suscripción se engancha una vez
+  // y espera a que la página esté lista para no pintar antes del acceso.
+  try {
+    window.PDI?.DB?.suscribirEstado?.((estado) => {
+      if (!listo) return;
+      if (document.body?.getAttribute("data-page") !== "dashboard") return;
+      montar();
+      if (estado === "ok") window.PDI?.Bootstrap?.actualizarBadgesSidebar?.();
+    });
+  } catch {
+    // Sin capa de datos no hay estado que suscribir.
+  }
 }
 
 /** Dibuja lo propio de esta pagina. Es idempotente. */
@@ -66,6 +81,7 @@ function iniciar() {
   // nada mas que hacer en este documento.
   if (!arrancarComun()) return;
 
+  listo = true;
   DashboardView.reiniciarEntrada();
   montar();
 

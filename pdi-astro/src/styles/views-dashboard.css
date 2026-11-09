@@ -64,6 +64,21 @@
   text-wrap: pretty;
 }
 
+.dash-folio-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 10px 0 0;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-dim);
+}
+
+.dash-folio-meta strong {
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
 .dash-folio-actions {
   display: flex;
   align-items: center;
@@ -85,8 +100,29 @@
   font-weight: 600;
 }
 
-.dash-meta-chip svg {
-  color: var(--gt-green);
+.dash-estado-dot {
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--gt-green);
+}
+
+.dash-meta-chip.is-warn {
+  border-color: var(--gt-yellow-border);
+  color: var(--text-warning);
+}
+
+.dash-meta-chip.is-warn .dash-estado-dot {
+  background: var(--gt-yellow);
+}
+
+.dash-meta-chip.is-loading {
+  color: var(--text-dim);
+}
+
+.dash-meta-chip.is-loading .dash-estado-dot {
+  background: var(--text-dim);
 }
 
 .dash-meta-link {
@@ -98,7 +134,7 @@
   border: 1px solid var(--gt-green-border);
   border-radius: var(--radius-full);
   background: var(--brand-soft);
-  color: var(--brand-dark);
+  color: var(--text-main);
   font-size: 11.5px;
   font-weight: 700;
   text-decoration: none;
@@ -131,11 +167,24 @@
   color: var(--text-main);
 }
 
+.dash-band-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.dash-band-note {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-dim);
+}
+
 .dash-band-link {
   padding: 4px 0;
   font-size: 11.5px;
   font-weight: 700;
-  color: var(--brand-dark);
+  color: var(--text-main);
   text-decoration: none;
 }
 
@@ -176,7 +225,7 @@
   row-gap: 2px;
   align-items: center;
   padding: 16px 18px;
-  background: var(--surface-2);
+  background: var(--surface-1);
 }
 
 .dash-strip-dot {
@@ -220,10 +269,8 @@
   grid-column: 1 / -1;
   grid-row: 3;
   margin-top: 8px;
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
   color: var(--text-dim);
   font-variant-numeric: tabular-nums;
 }
@@ -304,7 +351,7 @@
   padding: 4px 0;
   font-size: 11.5px;
   font-weight: 700;
-  color: var(--brand-dark);
+  color: var(--text-main);
   text-decoration: none;
   white-space: nowrap;
 }
@@ -357,10 +404,22 @@
 }
 
 .dash-service-row--lead dd {
-  font-size: 40px;
+  font-size: 30px;
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.035em;
+}
+
+.dash-service--lead .dash-service-row--lead dd {
+  font-size: 40px;
+}
+
+.dash-reconcile {
+  margin: 10px 0 0;
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--text-dim);
 }
 
 /* --- Matriz territorial --------------------------------------------------- */
@@ -415,7 +474,7 @@
 .dash-matrix-total {
   display: block;
   margin-top: 2px;
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--text-dim);
   font-variant-numeric: tabular-nums;
@@ -434,12 +493,72 @@
   font-variant-numeric: tabular-nums;
 }
 
-.dash-matrix tfoot th,
-.dash-matrix tfoot td {
-  border-top: 1px solid var(--border-bright);
-  font-weight: 800;
+/* La tabla es de escritorio; en móvil mandan los bloques con texto real. */
+.dash-matrix-mobile {
+  display: none;
+}
+
+.dash-matrix-mobile-district {
+  padding-top: 8px;
+  border-top: 2px solid var(--text-main);
+}
+
+.dash-matrix-mobile-district[data-dist="carabayllo"] {
+  border-top-color: var(--gt-blue);
+}
+
+.dash-matrix-mobile-district h3 {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.dash-matrix-mobile-total {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-dim);
+}
+
+.dash-matrix-mobile-list {
+  margin: 0;
+}
+
+.dash-matrix-mobile-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.dash-matrix-mobile-row:first-child {
+  border-top: 0;
+}
+
+.dash-matrix-mobile-row dt {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.dash-matrix-mobile-row dd {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
   color: var(--text-main);
   font-variant-numeric: tabular-nums;
+}
+
+.dash-empty {
+  margin: 0;
+  padding: 14px 0;
+  font-size: 12.5px;
+  color: var(--text-dim);
 }
 
 /* --- Voluntarios ---------------------------------------------------------- */
@@ -573,21 +692,6 @@
   .dash-vol-row:first-child {
     border-top: 0;
   }
-}
-
-@media (max-width: 640px) {
-  .dash-sheet {
-    padding: 18px 14px 16px;
-    border-radius: var(--radius-md);
-  }
-
-  .dash-folio h1 {
-    font-size: 22px;
-  }
-
-  .dash-service-row--lead dd {
-    font-size: 30px;
-  }
 
   .dash-meta-link,
   .dash-band-link,
@@ -600,57 +704,30 @@
     display: inline-flex;
     align-items: center;
   }
+}
 
-  /* La matriz pasa a dos bloques: servicio + Comas + Carabayllo. */
-  .dash-matrix thead {
+@media (max-width: 640px) {
+  .dash-sheet {
+    padding: 18px 14px 16px;
+    border-radius: var(--radius-md);
+  }
+
+  .dash-folio h1 {
+    font-size: 22px;
+  }
+
+  /* La tabla se retira; en móvil mandan los bloques con etiquetas reales. */
+  .dash-matrix {
     display: none;
   }
 
-  .dash-matrix,
-  .dash-matrix tbody,
-  .dash-matrix tfoot,
-  .dash-matrix tr,
-  .dash-matrix th,
-  .dash-matrix td {
-    display: block;
-  }
-
-  .dash-matrix tr {
+  .dash-matrix-mobile {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    gap: 8px;
-    padding: 8px 0;
-    border-top: 1px solid var(--border-subtle);
+    gap: 14px;
   }
 
-  .dash-matrix th,
-  .dash-matrix td {
-    padding: 0;
-    border: 0;
-    text-align: right;
-  }
-
-  .dash-matrix tbody th,
-  .dash-matrix tfoot th {
-    text-align: left;
-  }
-
-  .dash-matrix td::before {
-    content: attr(data-label);
-    display: block;
-    font-size: 9.5px;
-    font-weight: 600;
-    color: var(--text-dim);
-    text-align: right;
-  }
-
-  .dash-matrix tfoot {
-    margin-top: 6px;
-    border-top: 1px solid var(--border-bright);
-  }
-
-  .dash-matrix tfoot tr {
-    border-top: 0;
+  .dash-service--lead .dash-service-row--lead dd {
+    font-size: 30px;
   }
 }
 

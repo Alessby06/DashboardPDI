@@ -115,6 +115,17 @@ export const DashboardView = {
     const esPrimeraEntrada = !this._haEntrado;
     this._haEntrado = true;
 
+    const hora = (ts) => {
+      try {
+        return new Intl.DateTimeFormat("es-PE", { hour: "2-digit", minute: "2-digit" }).format(new Date(ts));
+      } catch {
+        return "-";
+      }
+    };
+    const estado = window.PDI?.DB?.estadoActual?.() || "ok";
+    const ultima = window.PDI?.DB?.ultimaHidratacion?.() || 0;
+    const datosOk = estado === "ok";
+
     const fechaEl = document.getElementById("dashFolioFecha");
     if (fechaEl) {
       try {
@@ -128,36 +139,71 @@ export const DashboardView = {
       }
     }
 
-    // Franja clínica: mismas bandas MINSA y mismos ids que antes. La barra
-    // arranca en 0% solo en la primera entrada; en refrescos transiciona.
+    // Folio firmado: responsable de la sesión y corte real de la última
+    // hidratación completa. No se inventa un firmante que no exista.
+    const respEl = document.getElementById("dashFolioResponsable");
+    if (respEl) {
+      let nombre = "";
+      try {
+        nombre = localStorage.getItem("pdi_usuario_nombre") || "";
+      } catch {
+        nombre = "";
+      }
+      respEl.textContent = nombre || "-";
+    }
+    const corteEl = document.getElementById("dashFolioCorte");
+    if (corteEl) corteEl.textContent = ultima ? hora(ultima) : "-";
+
+    // Sello de frescura: el chip dice el estado real, no una promesa fija.
+    const chip = document.getElementById("dashEstado");
+    const chipTexto = document.getElementById("dashEstadoTexto");
+    if (chip && chipTexto) {
+      chip.classList.remove("is-warn", "is-loading");
+      if (datosOk) {
+        chipTexto.textContent = ultima ? `Datos al día · ${hora(ultima)}` : "Datos al día";
+      } else if (estado === "sin_conexion") {
+        chip.classList.add("is-warn");
+        chipTexto.textContent = "Sin conexión · reintentando";
+      } else {
+        chip.classList.add("is-loading");
+        chipTexto.textContent = "Cargando datos…";
+      }
+    }
+
+    // Franja clínica: cifras directas y conteo con singular/plural. Si la base
+    // no está disponible, se muestra "-" en vez de un 0 que miente.
     const anemiaContainer = document.getElementById("dashAnemiaTable");
     if (anemiaContainer) {
       const bandas = [
-        { fillId: "segAnemiaNormal", pctId: "anemiaPctNormal", legId: "anemiaLegendNormal", pct: stats.pctNormal, casos: stats.normales },
-        { fillId: "segAnemiaLeve", pctId: "anemiaPctLeve", legId: "anemiaLegendLeve", pct: stats.pctLeve, casos: stats.leves },
-        { fillId: "segAnemiaMod", pctId: "anemiaPctMod", legId: "anemiaLegendMod", pct: stats.pctMod, casos: stats.moderadas },
+        { fillId: "segAnemiaNormal", pctId: "anemiaPctNormal", casosId: "anemiaCasosNormal", pct: stats.pctNormal, casos: stats.normales },
+        { fillId: "segAnemiaLeve", pctId: "anemiaPctLeve", casosId: "anemiaCasosLeve", pct: stats.pctLeve, casos: stats.leves },
+        { fillId: "segAnemiaMod", pctId: "anemiaPctMod", casosId: "anemiaCasosMod", pct: stats.pctMod, casos: stats.moderadas },
       ];
 
-      bandas.forEach(({ fillId, pctId, legId, pct, casos }) => {
+      bandas.forEach(({ fillId, pctId, casosId, pct, casos }) => {
         const fill = document.getElementById(fillId);
         if (fill) {
-          // El destino viaja en el nodo y se lee dentro del rAF, no en el
-          // closure: si la hidratación repinta antes del frame, el callback
-          // antiguo no devuelve la barra a 0%.
-          fill.dataset.targetWidth = `${pct}%`;
-          if (esPrimeraEntrada) {
+          const destino = datosOk ? `${pct}%` : "0%";
+          fill.dataset.targetWidth = destino;
+          if (esPrimeraEntrada || !datosOk) {
             fill.style.width = "0%";
-            void fill.offsetWidth;
-            requestAnimationFrame(() => { fill.style.width = fill.dataset.targetWidth; });
+            if (datosOk) {
+              void fill.offsetWidth;
+              requestAnimationFrame(() => { fill.style.width = fill.dataset.targetWidth; });
+            }
           } else {
-            fill.style.width = fill.dataset.targetWidth;
+            fill.style.width = destino;
           }
         }
 
         const pctEl = document.getElementById(pctId);
-        if (pctEl) pctEl.textContent = `${pct}%`;
-        const legEl = document.getElementById(legId);
-        if (legEl) legEl.textContent = String(casos);
+        if (pctEl) pctEl.textContent = datosOk ? `${pct}%` : "-";
+        const casosEl = document.getElementById(casosId);
+        if (casosEl) {
+          casosEl.textContent = datosOk
+            ? (casos === 1 ? "1 caso" : `${casos} casos`)
+            : "-";
+        }
       });
     }
 
@@ -207,6 +253,9 @@ export const DashboardView = {
     const voluntarios = window.PDI?.VoluntarioModel?.getAll?.() || [];
     const casos = window.PDI?.CasoSocialModel?.getAll?.() || [];
     const claves = new Map(usuarios.map(b => [b, this._clavesServicio(b)]));
+    const estado = window.PDI?.DB?.estadoActual?.() || "ok";
+    const datosOk = estado === "ok";
+    const valor = (n) => (datosOk ? String(n) : "-");
     const contar = (clave) => usuarios.filter(b => claves.get(b).has(clave)).length;
 
     const desayuno = contar("desayuno");
@@ -223,28 +272,37 @@ export const DashboardView = {
     }).length;
     const casosActivos = casos.filter(c => c && c.etapa !== "cerrado").length;
 
-    const poner = (id, valor) => {
+    // El bloque ASP no repite el padrón general: cuenta a los usuarios con un
+    // caso ASP activo en cada servicio. Así el lector ve el subconjunto.
+    const personasAsp = new Set(
+      casos
+        .filter(c => c && c.etapa !== "cerrado")
+        .map(c => String(c._personaId || c.beneficiarioId || ""))
+        .filter(Boolean),
+    );
+    const usuariosAsp = usuarios.filter(b => personasAsp.has(String(b._personaId || b.id)));
+    const aspDesayuno = usuariosAsp.filter(b => claves.get(b).has("desayuno")).length;
+    const aspLonchera = usuariosAsp.filter(b => claves.get(b).has("lonchera")).length;
+    const aspCasita = usuariosAsp.filter(b => claves.get(b).has("casita")).length;
+
+    const poner = (id, n) => {
       const el = document.getElementById(id);
-      if (el) el.textContent = String(valor);
+      if (el) el.textContent = valor(n);
     };
 
-    // Cifras directas: el odómetro necesita frames y en una pestaña en segundo
-    // plano se queda a medio rodar. El movimiento vive en las barras.
     poner("dashAlimUsuarios", alimentario);
     poner("dashEduActivos", educativo);
     poner("dashAspCasos", casosActivos);
-
-    // Filas: texto directo para que la hidratación no deje odómetros a medias.
     poner("dashAlimDesayuno", desayuno);
     poner("dashAlimLonchera", lonchera);
     poner("dashAlimCred", stats.tamizados ?? 0);
     poner("dashEduCasita", casita);
     poner("dashEduBiblioteca", biblioteca);
-    poner("dashAspDesayuno", desayuno);
-    poner("dashAspLonchera", lonchera);
-    poner("dashAspCasita", casita);
+    poner("dashAspDesayuno", aspDesayuno);
+    poner("dashAspLonchera", aspLonchera);
+    poner("dashAspCasita", aspCasita);
 
-    // Voluntarios por servicio: los seis del parte, sin "otros".
+    // Voluntarios por servicio: los seis del documento; "otros" solo si existe.
     const listaVol = document.getElementById("dashVoluntariosList");
     if (listaVol) {
       const claveVol = (servicio) => {
@@ -270,21 +328,32 @@ export const DashboardView = {
         { clave: "asp", nombre: "Social pastoral (ASP)" },
         { clave: "reposteria", nombre: "Talleres de repostería" },
       ];
+      if ((grupos.otros || 0) > 0) {
+        filas.push({ clave: "otros", nombre: "Otros servicios" });
+      }
       const total = filas.reduce((s, f) => s + (grupos[f.clave] || 0), 0);
       const base = total || 1;
       listaVol.innerHTML = filas.map(f => {
         const n = grupos[f.clave] || 0;
-        const pct = Math.round((n / base) * 100);
+        const pct = datosOk ? Math.round((n / base) * 100) : 0;
         return `
           <li class="dash-vol-row">
             <span class="dash-vol-name">${escapar(f.nombre)}</span>
-            <strong class="dash-vol-count">${n}</strong>
+            <strong class="dash-vol-count">${valor(n)}</strong>
             <span class="dash-vol-track" aria-hidden="true"><span class="dash-vol-fill" style="width:${pct}%"></span></span>
           </li>
         `;
       }).join("");
       const totalEl = document.getElementById("dashVolTotal");
-      if (totalEl) totalEl.textContent = String(total);
+      if (totalEl) totalEl.textContent = datosOk ? String(total) : "-";
+    }
+
+    // Línea de conciliación: una sola población y sus subconjuntos.
+    const recon = document.getElementById("dashReconcile");
+    if (recon) {
+      recon.textContent = datosOk
+        ? `Población: ${usuarios.length} usuarios · ${alimentario} con ración · ${educativo} con acompañamiento · ${casosActivos} casos ASP · ${voluntarios.length} voluntarios.`
+        : this._mensajeSinDatos("Sin datos para conciliar.");
     }
 
     this.renderTerritorio(usuarios, claves);
@@ -295,9 +364,24 @@ export const DashboardView = {
    * servicios. Es una tabla real en escritorio; en móvil el CSS la convierte
    * en dos bloques con la etiqueta del distrito en cada celda.
    */
+  /**
+   * Matriz territorial: los dos distritos del documento por los siete
+   * servicios. En escritorio es una tabla real; en móvil, dos bloques con
+   * etiquetas de texto reales (sin `display:block` sobre la tabla ni ::before).
+   */
   renderTerritorio(usuarios, claves) {
     const container = document.getElementById("dashTerritoryMatrix");
     if (!container) return;
+
+    const estado = window.PDI?.DB?.estadoActual?.() || "ok";
+    if (estado !== "ok" || !usuarios.length) {
+      const mensaje = this._mensajeSinDatos("Sin usuarios registrados en el padrón.");
+      const firmaVacia = `vacio:${mensaje}`;
+      if (container.dataset.firma === firmaVacia) return;
+      container.dataset.firma = firmaVacia;
+      container.innerHTML = `<p class="dash-empty">${escapar(mensaje)}</p>`;
+      return;
+    }
 
     const distritos = ["Comas", "Carabayllo"];
     const programas = [
@@ -325,6 +409,7 @@ export const DashboardView = {
     });
 
     const totalUsuarios = distritos.reduce((s, d) => s + resumen[d].total, 0) || 1;
+
     const cabeceras = distritos.map(d => {
       const info = resumen[d];
       const pct = Math.round((info.total / totalUsuarios) * 100);
@@ -335,15 +420,30 @@ export const DashboardView = {
     }).join("");
     const filas = programas.map(p => {
       const celdas = distritos
-        .map(d => `<td data-label="${escapar(d)}">${resumen[d].servicios[p.clave]}</td>`)
+        .map(d => `<td>${resumen[d].servicios[p.clave]}</td>`)
         .join("");
       return `<tr><th scope="row">${escapar(p.nombre)}</th>${celdas}</tr>`;
     }).join("");
-    const totales = distritos
-      .map(d => `<td data-label="${escapar(d)}">${resumen[d].total}</td>`)
-      .join("");
 
-    const firma = JSON.stringify({ cabeceras, filas, totales });
+    const bloques = distritos.map(d => {
+      const info = resumen[d];
+      const pct = Math.round((info.total / totalUsuarios) * 100);
+      const filasMovil = programas.map(p => `
+        <div class="dash-matrix-mobile-row">
+          <dt>${escapar(p.nombre)}</dt>
+          <dd>${info.servicios[p.clave]}</dd>
+        </div>`).join("");
+      return `
+        <section class="dash-matrix-mobile-district" data-dist="${d.toLowerCase()}" aria-label="Distrito de ${escapar(d)}">
+          <h3>
+            <span>${escapar(d)}</span>
+            <span class="dash-matrix-mobile-total">${info.total} usuarios · ${pct} %</span>
+          </h3>
+          <dl class="dash-matrix-mobile-list">${filasMovil}</dl>
+        </section>`;
+    }).join("");
+
+    const firma = JSON.stringify({ cabeceras, filas, bloques });
     if (container.dataset.firma === firma) return;
     container.dataset.firma = firma;
     container.innerHTML = `
@@ -351,8 +451,8 @@ export const DashboardView = {
         <caption class="dash-sr-only">Cobertura territorial por distrito y servicio</caption>
         <thead><tr><th scope="col">Servicio</th>${cabeceras}</tr></thead>
         <tbody>${filas}</tbody>
-        <tfoot><tr><th scope="row">Total</th>${totales}</tr></tfoot>
       </table>
+      <div class="dash-matrix-mobile">${bloques}</div>
     `;
   },
 

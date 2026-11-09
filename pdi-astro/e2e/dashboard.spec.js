@@ -13,6 +13,7 @@ test.describe('dashboard — parte firmado', () => {
     await expect(page.locator('.dash-service')).toHaveCount(3);
     await expect(page.locator('.dash-matrix tbody tr')).toHaveCount(7);
     await expect(page.locator('.dash-vol-row')).toHaveCount(6);
+    await expect(page.locator('#dashReconcile')).toContainText('Población:');
     await expect(page.locator('.dash-priority-item')).toHaveCount(0);
     await expect(page.locator('.dash-timeline-item')).toHaveCount(0);
   });
@@ -21,8 +22,9 @@ test.describe('dashboard — parte firmado', () => {
     await entrar(page, cuentas().coord);
     await page.setViewportSize({ width: 390, height: 844 });
     await page.reload();
-    await expect(page.locator('.dash-matrix tbody tr')).toHaveCount(7);
-    await expect(page.locator('.dash-matrix thead')).toBeHidden();
+    await expect(page.locator('.dash-matrix')).toBeHidden();
+    await expect(page.locator('.dash-matrix-mobile-district')).toHaveCount(2);
+    await expect(page.locator('.dash-matrix-mobile-row')).toHaveCount(14);
 
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,

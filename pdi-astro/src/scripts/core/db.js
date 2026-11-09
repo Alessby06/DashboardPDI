@@ -143,6 +143,7 @@ let _liveHandle = [];
 let _liveGeneracion = 0;
 let _tempDebounceLive = null;
 let _ultimoError = null;
+let _ultimaHidratacion = 0;
 
 export function estadoActual() {
   return _estado;
@@ -151,6 +152,11 @@ export function estadoActual() {
 /** Último fallo de hidratación, para que la UI no lo confunda con una caída. */
 export function ultimoError() {
   return _ultimoError;
+}
+
+/** Instante de la última hidratación completa, para el sello de frescura. */
+export function ultimaHidratacion() {
+  return _ultimaHidratacion;
 }
 
 /** Suscribe a cambios de estado de la capa. Devuelve función de des-suscripción. */
@@ -563,6 +569,7 @@ export async function hidratar(promedioSilencioso = false) {
 
       aplicarDatasets(beneficiarios, sedes, casos, voluntarios, asistencia, retirados);
       _hidratado = true;
+      _ultimaHidratacion = Date.now();
       _jsonDeReintento = 5000;
       // La nube volvió: el próximo corte puede avisar de nuevo.
       _avisoConexionMostrado = false;
@@ -2980,6 +2987,6 @@ if (typeof window !== 'undefined') {
   window.PDI = window.PDI || {};
   window.PDI.DB = {
     iniciarCapaDatos, suscribirEstado, estadoActual,
-    hidratarDesdeSurreal, refrescarDesdeNube, reintentarAhora, ultimoError,
+    hidratarDesdeSurreal, refrescarDesdeNube, reintentarAhora, ultimoError, ultimaHidratacion,
   };
 }

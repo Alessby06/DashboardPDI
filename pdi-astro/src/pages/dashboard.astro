@@ -11,17 +11,22 @@ import Icon from '../components/Icon.astro';
         <header class="dash-folio">
           <div class="dash-folio-main">
             <p class="dash-folio-line">
-              Jornada del <time id="dashFolioFecha">…</time> · Infancia Saludable
+              Jornada del <time id="dashFolioFecha">…</time>
             </p>
             <h1>Panel de Infancia Saludable</h1>
             <p class="dash-folio-sub">
               Cobertura, servicios y estado clínico de la jornada.
             </p>
+            <p class="dash-folio-meta">
+              <span>Responsable: <strong id="dashFolioResponsable">…</strong></span>
+              <span>Ámbito: todas las sedes</span>
+              <span>Corte: <strong id="dashFolioCorte">…</strong></span>
+            </p>
           </div>
           <div class="dash-folio-actions">
-            <span class="dash-meta-chip">
-              <Icon name="estado.ok" size={13} />
-              <span>Datos al día</span>
+            <span class="dash-meta-chip" id="dashEstado">
+              <span class="dash-estado-dot" aria-hidden="true"></span>
+              <span id="dashEstadoTexto">Datos al día</span>
             </span>
             <a class="dash-meta-link" href="/padron">
               <span>Abrir padrón</span>
@@ -34,7 +39,10 @@ import Icon from '../components/Icon.astro';
         <section class="dash-band dash-band--clinical" aria-labelledby="dashClinicaTitle">
           <div class="dash-band-head">
             <h2 id="dashClinicaTitle">Estado nutricional y anemia</h2>
-            <a class="dash-band-link" href="/salud">Ver salud</a>
+            <div class="dash-band-meta">
+              <span class="dash-band-note">Porcentajes redondeados</span>
+              <a class="dash-band-link" href="/salud">Ver salud</a>
+            </div>
           </div>
 
           <ul class="dash-strip-cells" id="dashAnemiaTable">
@@ -42,8 +50,8 @@ import Icon from '../components/Icon.astro';
               <span class="dash-strip-dot" aria-hidden="true"></span>
               <span class="dash-strip-name">Normal</span>
               <strong class="dash-strip-pct" id="anemiaPctNormal">…</strong>
-              <span class="dash-strip-cases"><span id="anemiaLegendNormal">…</span> casos</span>
-              <span class="dash-strip-range">= 11.0 g/dL</span>
+              <span class="dash-strip-cases" id="anemiaCasosNormal">…</span>
+              <span class="dash-strip-range">≥ 11,0 g/dL</span>
               <span class="dash-strip-track" aria-hidden="true">
                 <span class="dash-strip-fill" id="segAnemiaNormal" style="width: 0%"></span>
               </span>
@@ -53,8 +61,8 @@ import Icon from '../components/Icon.astro';
               <span class="dash-strip-dot" aria-hidden="true"></span>
               <span class="dash-strip-name">Anemia leve</span>
               <strong class="dash-strip-pct" id="anemiaPctLeve">…</strong>
-              <span class="dash-strip-cases"><span id="anemiaLegendLeve">…</span> casos</span>
-              <span class="dash-strip-range">10.0 - 10.9 g/dL</span>
+              <span class="dash-strip-cases" id="anemiaCasosLeve">…</span>
+              <span class="dash-strip-range">10,0 – 10,9 g/dL</span>
               <span class="dash-strip-track" aria-hidden="true">
                 <span class="dash-strip-fill" id="segAnemiaLeve" style="width: 0%"></span>
               </span>
@@ -64,8 +72,8 @@ import Icon from '../components/Icon.astro';
               <span class="dash-strip-dot" aria-hidden="true"></span>
               <span class="dash-strip-name">Anemia moderada / severa</span>
               <strong class="dash-strip-pct" id="anemiaPctMod">…</strong>
-              <span class="dash-strip-cases"><span id="anemiaLegendMod">…</span> casos</span>
-              <span class="dash-strip-range">&lt; 10.0 g/dL</span>
+              <span class="dash-strip-cases" id="anemiaCasosMod">…</span>
+              <span class="dash-strip-range">&lt; 10,0 g/dL</span>
               <span class="dash-strip-track" aria-hidden="true">
                 <span class="dash-strip-fill" id="segAnemiaMod" style="width: 0%"></span>
               </span>
@@ -74,16 +82,12 @@ import Icon from '../components/Icon.astro';
         </section>
 
         <!-- Hoja de servicios: el cuerpo del parte -->
-        <section class="dash-band" aria-labelledby="dashServiciosTitle">
-          <div class="dash-band-head">
-            <h2 id="dashServiciosTitle">Servicios del programa</h2>
-          </div>
-
+        <section class="dash-band" aria-label="Servicios del programa">
           <div class="dash-ledger">
-            <article class="dash-service">
+            <article class="dash-service dash-service--lead">
               <header class="dash-service-head">
                 <div>
-                  <h3 class="dash-service-title">Servicio alimentario y nutricional</h3>
+                  <h2 class="dash-service-title">Servicio alimentario y nutricional</h2>
                   <p class="dash-service-note">Desayuno, lonchera y control CRED</p>
                 </div>
                 <a class="dash-service-link" href="/salud" aria-label="Abrir servicio alimentario y nutricional">
@@ -92,7 +96,7 @@ import Icon from '../components/Icon.astro';
               </header>
               <dl class="dash-service-rows">
                 <div class="dash-service-row dash-service-row--lead">
-                  <dt>Usuarios activos</dt>
+                  <dt>Usuarios con ración</dt>
                   <dd id="dashAlimUsuarios">…</dd>
                 </div>
                 <div class="dash-service-row">
@@ -113,7 +117,7 @@ import Icon from '../components/Icon.astro';
             <article class="dash-service">
               <header class="dash-service-head">
                 <div>
-                  <h3 class="dash-service-title">Servicio de acompañamiento educativo</h3>
+                  <h2 class="dash-service-title">Servicio de acompañamiento educativo</h2>
                   <p class="dash-service-note">Casita del Saber y biblioteca</p>
                 </div>
                 <a class="dash-service-link" href="/educativo" aria-label="Abrir servicio de acompañamiento educativo">
@@ -122,7 +126,7 @@ import Icon from '../components/Icon.astro';
               </header>
               <dl class="dash-service-rows">
                 <div class="dash-service-row dash-service-row--lead">
-                  <dt>Usuarios activos</dt>
+                  <dt>Usuarios con acompañamiento</dt>
                   <dd id="dashEduActivos">…</dd>
                 </div>
                 <div class="dash-service-row">
@@ -139,8 +143,8 @@ import Icon from '../components/Icon.astro';
             <article class="dash-service">
               <header class="dash-service-head">
                 <div>
-                  <h3 class="dash-service-title">Servicio social pastoral (ASP)</h3>
-                  <p class="dash-service-note">Casos y usuarios acompañados</p>
+                  <h2 class="dash-service-title">Servicio social pastoral (ASP)</h2>
+                  <p class="dash-service-note">Usuarios con caso ASP en cada servicio</p>
                 </div>
                 <a class="dash-service-link" href="/social" aria-label="Abrir servicio social pastoral">
                   Abrir servicio
@@ -166,6 +170,8 @@ import Icon from '../components/Icon.astro';
               </dl>
             </article>
           </div>
+
+          <p class="dash-reconcile" id="dashReconcile" aria-live="polite"></p>
         </section>
 
         <!-- Cobertura territorial: la matriz -->
