@@ -43,6 +43,7 @@ export const DashboardView = {
   _store: null,
   _sello: null,
   _selloTimer: null,
+  _selloLimpieza: false,
 
   _obtenerStore() {
     if (!this._store) this._store = crearStore(FACETAS_AUDITORIA);
@@ -302,6 +303,13 @@ export const DashboardView = {
   _iniciarSello() {
     if (this._selloTimer) return;
     this._selloTimer = setInterval(() => this._pintarSello(), 60000);
+    if (!this._selloLimpieza) {
+      this._selloLimpieza = true;
+      document.addEventListener("astro:before-swap", () => {
+        clearInterval(this._selloTimer);
+        this._selloTimer = null;
+      });
+    }
   },
 
   _mensajeSinDatos(textoVacio) {
