@@ -1,0 +1,30 @@
+import { test, expect } from '@playwright/test';
+import { cuentas } from './env.js';
+import { entrar } from './helpers.js';
+
+test.describe('dashboard — parte firmado', () => {
+  test('muestra la franja clínica, los servicios, la matriz y los voluntarios', async ({ page }) => {
+    await entrar(page, cuentas().coord);
+    await expect(page).toHaveURL(/\/dashboard/);
+    await expect(page.locator('h1')).toHaveText('Panel de Infancia Saludable');
+    await expect(page.locator('.dash-strip-cell')).toHaveCount(3);
+    await expect(page.locator('.dash-service')).toHaveCount(3);
+    await expect(page.locator('.dash-matrix tbody tr')).toHaveCount(7);
+    await expect(page.locator('.dash-vol-row')).toHaveCount(6);
+    await expect(page.locator('.dash-priority-item')).toHaveCount(0);
+    await expect(page.locator('.dash-timeline-item')).toHaveCount(0);
+  });
+
+  test('en 390 px la matriz se pliega y no hay scroll horizontal', async ({ page }) => {
+    await entrar(page, cuentas().coord);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.reload();
+    await expect(page.locator('.dash-matrix tbody tr')).toHaveCount(7);
+    await expect(page.locator('.dash-matrix thead')).toBeHidden();
+
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(1);
+  });
+});

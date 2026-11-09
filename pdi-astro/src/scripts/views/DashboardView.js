@@ -6,46 +6,8 @@ import { Responsive } from '../utils/Responsive.js';
 import { initSortMenu } from '../ui/SortMenu.js';
 
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
-import { SEDES_POR_DISTRITO } from "../core/catalogos.js";
 import { iconHtml } from '../../data/iconos.js';
 
-// Nombres legibles de las sedes para el feed de actividad: el servidor guarda
-// IDs tipo `sede:carmen_alto` y la vista no debe mostrarlos crudos.
-const SEDES_NOMBRE = {
-  "sede:a_o_nuevo": "Año Nuevo",
-  "sede:carmen_alto": "Carmen Alto",
-  "sede:el_progreso": "El Progreso",
-  "sede:la_libertad": "La Libertad",
-  "sede:los_bendecidos": "Los Bendecidos",
-  "sede:san_pedro": "San Pedro",
-  "sede:santa_rosa": "Santa Rosa",
-};
-
-function nombreSede(valor) {
-  const limpio = String(valor || "").trim();
-  if (!limpio) return "";
-  const clave = limpio.toLowerCase();
-  if (SEDES_NOMBRE[clave]) return SEDES_NOMBRE[clave];
-  return limpio.replace(/^sede:/i, "").replace(/_/g, " ");
-}
-
-// Las cuentas de prueba (e2e, mfa.tmp*, prueba.temp*) no son actividad del
-// programa: se excluyen del feed para no mostrar altas y resetes internos.
-function esCuentaPrueba(log) {
-  const texto = `${log?.user || ""} ${log?.detail || ""}`.toLowerCase();
-  return /(mfa|prueba|e2e)[._-][a-z0-9]+/.test(texto)
-    || /\b(mfa|prueba|e2e)\b/.test(String(log?.user || "").toLowerCase());
-}
-
-// El detalle del servidor trae valores vacíos entre comillas y IDs de sede;
-// se traducen para que la bitácora se lea como actividad, no como un diff.
-function limpiarDetalle(txt) {
-  return String(txt || "")
-    .replace(/"?\(vacío\)"?/gi, "sin dato")
-    .replace(/sede:([a-z_]+)/gi, (_, id) => nombreSede(`sede:${id}`))
-    .replace(/\s{2,}/g, " ")
-    .trim();
-}
 // Filtros del historial de cambios que viajan en la URL. Los mismos sirven para
 // dashboard.html y para auditoria.html: es la misma vista en las dos paginas,
 // y el fragmento de auditoria es solo su version a pantalla completa.
@@ -154,211 +116,21 @@ export const DashboardView = {
     const esPrimeraEntrada = !this._haEntrado;
     this._haEntrado = true;
 
-    const rollNum = (el, val, isPct = false) => {
-      if (!el) return;
-      AnimationEngine.odometerRoll(el, val, { suffix: isPct ? "%" : "" });
-    };
-
-    const statEl = document.getElementById("statTotalNinos");
-    if (statEl) rollNum(statEl, stats.total);
-
-    // Las cifras del hero se escriben directas: el odometro necesita frames y
-    // en una pestana en segundo plano se queda a medio rodar, mostrando un
-    // digito partido. Con numeros tabulares se leen igual y nunca mienten.
-    const dashBenEl = document.getElementById("dashKpiBeneficiarios");
-    if (dashBenEl) dashBenEl.textContent = String(stats.total);
-
-    const dashTamEl = document.getElementById("dashKpiTamizados");
-    if (dashTamEl) dashTamEl.textContent = `${stats.tamizados}/${stats.total}`;
-
-    // Asistencia en Casitas con fuente real: el pase persistido por
-    // CasitasController en pdi_asistencia_casita. Contrato compartido con su
-    // filtro y su CSV: sin registro previo el estado efectivo es "P".
-    const dashAsisEl = document.getElementById("dashKpiAsistencia");
-    if (dashAsisEl) dashAsisEl.textContent = `${this._pctAsistenciaCasitas()}%`;
-
-    const dashCasosEl = document.getElementById("dashKpiCasosSociales");
-    if (dashCasosEl) {
-      const casos = window.PDI?.CasoSocialModel?.getAll?.() || [];
-      const activos = casos.filter(c => c && c.etapa !== "cerrado").length;
-      dashCasosEl.textContent = String(activos);
+    const fechaEl = document.getElementById("dashFolioFecha");
+    if (fechaEl) {
+      try {
+        fechaEl.textContent = new Intl.DateTimeFormat("es-PE", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        }).format(new Date());
+      } catch {
+        fechaEl.textContent = "hoy";
+      }
     }
 
-    const coverageContainer = document.getElementById("dashDistrictCoverage");
-    if (coverageContainer) {
-      // Obtener sedes actualizadas del modelo de Sedes e Iglesias
-      const sedesModel = window.PDI?.SedeModel || (typeof SedeModel !== "undefined" ? SedeModel : null);
-      const allSedes = sedesModel && sedesModel.getAll ? sedesModel.getAll() : [];
-      
-      const bModel = window.PDI?.BeneficiarioModel || (typeof BeneficiarioModel !== "undefined" ? BeneficiarioModel : null);
-      const allBeneficiarios = bModel && bModel.getAll ? bModel.getAll() : [];
-      const totalBeneficiarios = stats.total || allBeneficiarios.length || 1;
-
-      // Agrupación de sedes por distrito, derivada del catálogo único.
-      const distritosMap = Object.fromEntries(
-        Object.entries(SEDES_POR_DISTRITO).map(([distrito, sedes]) => {
-          const esComas = distrito.toLowerCase() === "comas";
-          const esCarabayllo = distrito.toLowerCase() === "carabayllo";
-          return [distrito, {
-            sedes: [...sedes],
-            color: esComas ? "var(--gt-green)" : (esCarabayllo ? "var(--gt-blue)" : "var(--gt-yellow)"),
-            badgeClass: esComas ? "badge-green" : (esCarabayllo ? "badge-blue" : "badge-yellow"),
-          }];
-        }),
-      );
-
-      if (allSedes.length > 0) {
-        allSedes.forEach(s => {
-          const dist = s.distrito || "Comas";
-          if (!distritosMap[dist]) {
-            distritosMap[dist] = {
-              sedes: [],
-              color: dist.toLowerCase() === "comas" ? "var(--gt-green)" : (dist.toLowerCase() === "carabayllo" ? "var(--gt-blue)" : "var(--gt-yellow)"),
-              badgeClass: dist.toLowerCase() === "comas" ? "badge-green" : (dist.toLowerCase() === "carabayllo" ? "badge-blue" : "badge-yellow")
-            };
-          }
-          if (!distritosMap[dist].sedes.includes(s.nombre)) {
-            distritosMap[dist].sedes.push(s.nombre);
-          }
-        });
-      }
-
-      const distritosKeys = Object.keys(distritosMap);
-      // Resumen por distrito para los odometros del detalle (pct y conteo).
-      const resumenDistritos = [];
-
-      const listaHTML = distritosKeys.map(dist => {
-        const dInfo = distritosMap[dist];
-        const distSlug = dist.toLowerCase().replace(/[^a-z0-9]/g, "");
-        const distCount = allBeneficiarios.length > 0
-          ? allBeneficiarios.filter(b => (b.distrito || "").toLowerCase() === dist.toLowerCase()).length
-          : (dist.toLowerCase() === "comas" ? stats.comasCount : (dist.toLowerCase() === "carabayllo" ? stats.carabaylloCount : 0));
-        const distPct = totalBeneficiarios > 0 ? Math.round((distCount / totalBeneficiarios) * 100) : 0;
-        const sedesText = dInfo.sedes.length > 0 ? dInfo.sedes.join(", ") : "Sedes activas";
-        const barColorClass = dist.toLowerCase() === "comas" ? "green" : (dist.toLowerCase() === "carabayllo" ? "blue" : "yellow");
-        const startWidth = esPrimeraEntrada ? "0%" : `${distPct}%`;
-        resumenDistritos.push({ slug: distSlug, pct: distPct, count: distCount });
-
-        return `
-          <div class="dash-territory-row" data-dist="${dist.toLowerCase()}">
-            <div class="dash-territory-share-info">
-              <strong>Distrito de ${escapar(dist)}</strong>
-              <span class="dash-territory-share-sub">${escapar(sedesText)}</span>
-            </div>
-            <div class="dash-territory-share">
-              <span class="dash-territory-share-pct" id="pctDistrict_${distSlug}">${distPct}%</span>
-              <span class="dash-territory-share-badge" id="badgeDistrict_${distSlug}">${distCount} usuarios</span>
-            </div>
-            <div class="dash-territory-track"><div class="dash-territory-bar ${barColorClass}" style="width: ${startWidth};" data-target-width="${distPct}%" id="barDistrict_${distSlug}"></div></div>
-          </div>
-        `;
-      }).join("");
-
-      // Firma de datos: si nada cambio, NO reconstruimos la lista. Asi el segundo
-      // render (la hidratacion desde SurrealDB llama a refrescarVistaActual) no
-      // reemplaza el odometro por texto plano ni re-crea las barras a mitad de
-      // animacion. Sin reconstruccion no hay micro-movimiento al terminar.
-      const firmaLista = JSON.stringify({
-        keys: distritosKeys,
-        resumen: resumenDistritos,
-        sedes: distritosKeys.map(k => distritosMap[k].sedes),
-      });
-      if (coverageContainer.dataset.firmaLista !== firmaLista) {
-        coverageContainer.dataset.firmaLista = firmaLista;
-        coverageContainer.innerHTML = listaHTML;
-      }
-
-      // Pills de sedes con total de usuarios al pasar el cursor.
-      const pillContainer = document.getElementById("dashDistrictSedePills");
-      if (pillContainer) {
-        const sedeCounts = {};
-        allBeneficiarios.forEach(b => {
-          const s = String(b.sede || "").trim();
-          if (s) sedeCounts[s] = (sedeCounts[s] || 0) + 1;
-        });
-        const colorClass = (dist) => {
-          const d = String(dist || "").toLowerCase();
-          if (d === "comas") return "dash-sede-pill--comas";
-          if (d === "carabayllo") return "dash-sede-pill--carabayllo";
-          return "dash-sede-pill--other";
-        };
-        const sedeDistrito = {};
-        allSedes.forEach(s => { if (s?.nombre) sedeDistrito[s.nombre] = s.distrito || "Comas"; });
-        const pills = [];
-        (distritosKeys || []).forEach(dist => {
-          const dInfo = distritosMap[dist];
-          (dInfo?.sedes || []).forEach(sede => {
-            const count = sedeCounts[sede] || 0;
-            const html = '<span class="dash-sede-pill ' + colorClass(sedeDistrito[sede] || dist) + '" data-count="' + count + '" title="' + escapar(sede) + ': ' + count + ' usuarios">' + escapar(sede) + '</span>';
-            pills.push({ html, cls: colorClass(sedeDistrito[sede] || dist) });
-          });
-        });
-        Object.keys(sedeCounts).forEach(sede => {
-          const already = pills.some(p => p.html.indexOf('>' + escapar(sede) + '<') >= 0);
-          if (!already) {
-            const dist = sedeDistrito[sede] || "Comas";
-            const html = '<span class="dash-sede-pill ' + colorClass(dist) + '" data-count="' + (sedeCounts[sede] || 0) + '" title="' + escapar(sede) + ': ' + (sedeCounts[sede] || 0) + ' usuarios">' + escapar(sede) + '</span>';
-            pills.push({ html, cls: colorClass(dist) });
-          }
-        });
-        const districtOrder = {
-          "dash-sede-pill--comas": 0,
-          "dash-sede-pill--carabayllo": 1,
-          "dash-sede-pill--other": 2
-        };
-        const groups = {};
-        pills.forEach(p => {
-          if (!groups[p.cls]) groups[p.cls] = [];
-          groups[p.cls].push(p.html);
-        });
-        const pillsHTML = Object.keys(groups)
-          .sort((a, b) => (districtOrder[a] ?? 99) - (districtOrder[b] ?? 99))
-          .filter(k => groups[k].length)
-          .map(k => '<div class="dash-territory-sede-pill-row">' + groups[k].join("") + '</div>')
-          .join("");
-        const firmaPills = JSON.stringify(pills);
-        if (pillContainer.dataset.firmaPills !== firmaPills) {
-          pillContainer.dataset.firmaPills = firmaPills;
-          pillContainer.innerHTML = pillsHTML;
-        }
-      }
-
-      // % y conteo del detalle con el mismo odometro que el resto del
-      // tablero. La memoria evita rodar en refrescos donde el valor no
-      // cambio: el nodo se re-crea con innerHTML y su flag de odometro
-      // propio se pierde en cada render.
-      resumenDistritos.forEach(r => {
-        const pctEl = document.getElementById("pctDistrict_" + r.slug);
-        if (pctEl) this._rodarOdometro(pctEl, "pctDistrito_" + r.slug, r.pct, "%");
-        const badgeEl = document.getElementById("badgeDistrict_" + r.slug);
-        if (badgeEl) this._rodarOdometro(badgeEl, "cntDistrito_" + r.slug, r.count, " usuarios");
-      });
-
-      if (esPrimeraEntrada) {
-        coverageContainer.querySelectorAll(".dash-territory-bar").forEach(bar => {
-          const tw = bar.getAttribute("data-target-width");
-          if (!tw) return;
-          // Comprometer el 0% inicial con un reflow forzado antes de animar.
-          // Sin esto, si render() cae en el mismo frame que la insercion del
-          // DOM, el navegador calcula 0%->meta en un solo estilo y la
-          // transicion se salta (mismo patron que las barras de anemia).
-          void bar.offsetWidth;
-          requestAnimationFrame(() => { bar.style.width = tw; });
-        });
-      }
-
-      const footUsuarios = document.getElementById("dashTerritoryTotalUsuarios");
-      if (footUsuarios) rollNum(footUsuarios, totalBeneficiarios);
-      const footSedes = document.getElementById("dashTerritoryTotalSedes");
-      if (footSedes) rollNum(footSedes, allSedes.length || 7);
-    }
-
-    // Da entrada a los elementos del tablero solo en la primera carga
-    if (esPrimeraEntrada) {
-      AnimationEngine.triggerStagger("view-dashboard");
-    }
-
-    // Panel de Anemia MINSA - Actualización de estado clínico directa con animación fluida
+    // Franja clínica: mismas bandas MINSA y mismos ids que antes. La barra
+    // arranca en 0% solo en la primera entrada; en refrescos transiciona.
     const anemiaContainer = document.getElementById("dashAnemiaTable");
     if (anemiaContainer) {
       const bandas = [
@@ -371,36 +143,26 @@ export const DashboardView = {
         const fill = document.getElementById(fillId);
         if (fill) {
           // El destino viaja en el nodo y se lee dentro del rAF, no en el
-          // closure. En la primera entrada la barra arranca en 0% y el
-          // porcentaje real se aplica en el frame siguiente; si para entonces
-          // la hidratación ya pintó los datos reales (el evento de refresco
-          // corre a los 120 ms, a veces antes que el frame), el callback
-          // antiguo leía su `stats` viejo y devolvía la barra a 0%. El
-          // porcentaje y los casos se veían bien porque no pasan por el rAF.
+          // closure: si la hidratación repinta antes del frame, el callback
+          // antiguo no devuelve la barra a 0%.
           fill.dataset.targetWidth = `${pct}%`;
           if (esPrimeraEntrada) {
             fill.style.width = "0%";
             void fill.offsetWidth;
             requestAnimationFrame(() => { fill.style.width = fill.dataset.targetWidth; });
           } else {
-            // En refrescos posteriores de datos, transicionar suavemente sin reiniciar a 0%
             fill.style.width = fill.dataset.targetWidth;
           }
         }
 
         const pctEl = document.getElementById(pctId);
-        if (pctEl) rollNum(pctEl, pct, true);
+        if (pctEl) this._rodarOdometro(pctEl, `clinica_pct_${pctId}`, pct, "%");
         const legEl = document.getElementById(legId);
-        if (legEl) rollNum(legEl, casos);
+        if (legEl) this._rodarOdometro(legEl, `clinica_casos_${legId}`, casos, "");
       });
-
-      const totalEval = document.getElementById("dashAnemiaTotalEvaluados");
-      if (totalEval) rollNum(totalEval, stats.total);
     }
 
     this._renderServicios(stats);
-    this.renderPriorityCases(esPrimeraEntrada);
-    this.renderRecentActivity(auditLogs, esPrimeraEntrada);
     this.renderAuditLogs(auditLogs);
   },
 
@@ -417,41 +179,6 @@ export const DashboardView = {
     AnimationEngine.odometerRoll(el, valor, { suffix, mergeGlyphs: true });
   },
 
-  /** % efectivo de asistencia en Casita: P y Tardanza cuentan como atendido.
-   *  Un alumno sin marcar NO cuenta: el estado vacío es ausencia de dato, no
-   *  un presente. El denominador son solo los alumnos de Casita, no todo el
-   *  padrón. */
-  _pctAsistenciaCasitas() {
-    const bModel = window.PDI?.BeneficiarioModel || (typeof BeneficiarioModel !== "undefined" ? BeneficiarioModel : null);
-    const todos = bModel && bModel.getAll ? bModel.getAll() : [];
-    const list = todos.filter(b => {
-      const marcas = [
-        ...(Array.isArray(b.servicios) ? b.servicios : []),
-        ...(Array.isArray(b.estrategias) ? b.estrategias : []),
-      ];
-      return marcas.some(s => {
-        const texto = String(s || "").toLowerCase();
-        return texto.includes("casita") || texto.includes("educat") || texto.includes("acompa");
-      });
-    });
-    if (!list.length) return 0;
-    let atendidos = 0;
-    try {
-      // La asistencia de hoy llega con la hidratación. Se publica en
-      // window.PDI.asistenciaHoy para que el panel general la lea sin cargar
-      // el controlador educativo. La jornada editable vive aparte.
-      const map = window.PDI?.asistenciaHoy
-        || window.PDI?.CasitasController?._cargar?.()
-        || {};
-      list.forEach(b => {
-        const estado = map[b.id] !== undefined ? map[b.id] : map[String(b.id)];
-        if (estado === "T" || estado === "P") atendidos++;
-      });
-    } catch (e) {
-      atendidos = 0;
-    }
-    return Math.round((atendidos / list.length) * 1000) / 10;
-  },
 
   /**
    * Un panel vacío no siempre significa "no hay datos": al entrar, la
@@ -514,49 +241,34 @@ export const DashboardView = {
       const c = claves.get(b);
       return c.has("casita") || c.has("biblioteca");
     }).length;
-    const aspUsuarios = usuarios.filter(b => claves.get(b).has("asp")).length;
     const casosActivos = casos.filter(c => c && c.etapa !== "cerrado").length;
-    const casosCriticos = casos.filter(c => c && c.etapa !== "cerrado" && c.urgencia === "Alta").length;
     const voluntariosActivos = voluntarios.filter(v => String(v?.estado || "").toLowerCase() === "activo").length;
 
     const poner = (id, valor) => {
       const el = document.getElementById(id);
       if (el) el.textContent = String(valor);
     };
+    const rodar = (id, clave, valor) => {
+      const el = document.getElementById(id);
+      if (el) this._rodarOdometro(el, clave, valor, "");
+    };
 
-    // Tarjetas de servicio
-    poner("dashAlimUsuarios", alimentario);
+    // Leads de servicio: ruedan una vez, no en cada refresco.
+    rodar("dashAlimUsuarios", "servicio_alim", alimentario);
+    rodar("dashEduActivos", "servicio_edu", educativo);
+    rodar("dashAspCasos", "servicio_asp", casosActivos);
+
+    // Filas: texto directo para que la hidratación no deje odómetros a medias.
     poner("dashAlimDesayuno", desayuno);
     poner("dashAlimLonchera", lonchera);
-    poner("dashEduActivos", educativo);
+    poner("dashAlimCred", stats.tamizados ?? 0);
     poner("dashEduCasita", casita);
     poner("dashEduBiblioteca", biblioteca);
-    poner("dashAspCasos", aspUsuarios);
     poner("dashAspDesayuno", desayuno);
     poner("dashAspLonchera", lonchera);
     poner("dashAspCasita", casita);
 
-    // Indicadores secundarios del hero
-    poner("dashFocusSedes", new Set(usuarios.map(b => String(b.sede || "").trim()).filter(Boolean)).size);
-    poner("dashFocusDistritos", new Set(usuarios.map(b => String(b.distrito || "").trim()).filter(Boolean)).size);
-    poner("dashFocusVoluntarios", voluntariosActivos);
-    poner("dashKpiVoluntarios", voluntariosActivos);
-    poner("dashKpiCasosSociales", casosActivos);
-
-    const contextCasos = document.getElementById("dashKpiCasosContext");
-    if (contextCasos) {
-      contextCasos.textContent = casosCriticos > 0
-        ? `${casosCriticos} en alerta alta`
-        : "Seguimiento social abierto";
-    }
-    const contextVol = document.getElementById("dashKpiVoluntariosContext");
-    if (contextVol) {
-      contextVol.textContent = voluntariosActivos > 0
-        ? "Acompañan los servicios del programa"
-        : this._mensajeSinDatos("Aún no hay voluntarios activos");
-    }
-
-    // Voluntarios por servicio
+    // Voluntarios por servicio: los seis del parte, sin "otros".
     const listaVol = document.getElementById("dashVoluntariosList");
     if (listaVol) {
       const claveVol = (servicio) => {
@@ -581,160 +293,93 @@ export const DashboardView = {
         { clave: "biblioteca", nombre: "Biblioteca comunitaria" },
         { clave: "asp", nombre: "Social pastoral (ASP)" },
         { clave: "reposteria", nombre: "Talleres de repostería" },
-        { clave: "otros", nombre: "Otros servicios" },
-      ].filter(f => (grupos[f.clave] || 0) > 0 || f.clave !== "otros");
-      const total = filas.reduce((suma, f) => suma + (grupos[f.clave] || 0), 0) || 1;
+      ];
+      const total = voluntariosActivos || 1;
       listaVol.innerHTML = filas.map(f => {
         const n = grupos[f.clave] || 0;
         const pct = Math.round((n / total) * 100);
         return `
-          <div class="dash-vol-row">
+          <li class="dash-vol-row">
             <span class="dash-vol-name">${escapar(f.nombre)}</span>
             <strong class="dash-vol-count">${n}</strong>
-            <span class="dash-vol-track"><span class="dash-vol-fill" style="width:${pct}%"></span></span>
-          </div>
+            <span class="dash-vol-track" aria-hidden="true"><span class="dash-vol-fill" style="width:${pct}%"></span></span>
+          </li>
         `;
       }).join("");
+      const totalEl = document.getElementById("dashVolTotal");
+      if (totalEl) totalEl.textContent = String(voluntariosActivos);
     }
 
-    // Cobertura por servicio y distrito
-    const cobertura = document.getElementById("dashCoverageServicios");
-    if (cobertura) {
-      const programas = [
-        { clave: "desayuno", nombre: "Desayuno" },
-        { clave: "lonchera", nombre: "Lonchera" },
-        { clave: "casita", nombre: "Casita" },
-        { clave: "biblioteca", nombre: "Biblioteca" },
-        { clave: "jac", nombre: "JAC" },
-        { clave: "btf", nombre: "BTF" },
-        { clave: "reposteria", nombre: "Repostería" },
-      ];
-      const distritos = new Map();
-      usuarios.forEach(b => {
-        const distrito = String(b.distrito || "Sin distrito").trim() || "Sin distrito";
-        if (!distritos.has(distrito)) distritos.set(distrito, Object.fromEntries(programas.map(p => [p.clave, 0])));
-        const fila = distritos.get(distrito);
-        const c = claves.get(b);
-        programas.forEach(p => { if (c.has(p.clave)) fila[p.clave] += 1; });
-      });
-      const orden = ["Comas", "Carabayllo"];
-      const nombres = [...distritos.keys()].sort((a, b) => {
-        const ia = orden.indexOf(a);
-        const ib = orden.indexOf(b);
-        return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib) || a.localeCompare(b, "es");
-      });
-      cobertura.innerHTML = nombres.map(distrito => {
-        const fila = distritos.get(distrito);
-        const chips = programas.map(p => {
-          const n = fila[p.clave] || 0;
-          const vacio = n === 0 ? " is-empty" : "";
-          return `<span class="dash-cov-chip${vacio}" title="${escapar(distrito)} · ${escapar(p.nombre)}: ${n} usuarios">
-            <span>${escapar(p.nombre)}</span><strong>${n}</strong>
-          </span>`;
-        }).join("");
-        return `
-          <div class="dash-cov-district">
-            <span class="dash-cov-district-name">${escapar(distrito)}</span>
-            <div class="dash-cov-chips">${chips}</div>
-          </div>
-        `;
-      }).join("");
-    }
+    this.renderTerritorio(usuarios, claves);
   },
 
-  renderPriorityCases(animar = false) {
-    const container = document.getElementById("dashPriorityCasesList");
+  /**
+   * Matriz territorial: los dos distritos del documento por los siete
+   * servicios. Es una tabla real en escritorio; en móvil el CSS la convierte
+   * en dos bloques con la etiqueta del distrito en cada celda.
+   */
+  renderTerritorio(usuarios, claves) {
+    const container = document.getElementById("dashTerritoryMatrix");
     if (!container) return;
 
-    const bModel = window.PDI?.BeneficiarioModel || (typeof BeneficiarioModel !== "undefined" ? BeneficiarioModel : null);
-    const all = bModel && bModel.getAll ? bModel.getAll() : [];
-    if (!all.length) {
-      container.innerHTML = `<div class="dash-empty-state">${this._mensajeSinDatos("No hay usuarios registrados actualmente.")}</div>`;
-      return;
-    }
+    const distritos = ["Comas", "Carabayllo"];
+    const programas = [
+      { clave: "desayuno", nombre: "Desayuno infantil" },
+      { clave: "lonchera", nombre: "Lonchera infantil" },
+      { clave: "casita", nombre: "Casita del Saber" },
+      { clave: "biblioteca", nombre: "Biblioteca comunitaria" },
+      { clave: "jac", nombre: "JAC" },
+      { clave: "btf", nombre: "BTF" },
+      { clave: "reposteria", nombre: "Talleres de repostería" },
+    ];
+    const mapaClaves = claves || new Map(usuarios.map(b => [b, this._clavesServicio(b)]));
+    const resumen = Object.fromEntries(distritos.map(d => [d, {
+      total: 0,
+      servicios: Object.fromEntries(programas.map(p => [p.clave, 0])),
+    }]));
 
-    const priorizados = [...all].sort((a, b) => {
-      const score = (x) => {
-        if (x.anemia === "Severa") return 4;
-        if (x.anemia === "Moderada") return 3;
-        if (x.estado === "Observado" || x.estado === "Sensible") return 2;
-        if (x.anemia === "Leve") return 1;
-        return 0;
-      };
-      return score(b) - score(a);
-    }).slice(0, 4);
+    usuarios.forEach(b => {
+      const distrito = String(b?.distrito || "").trim();
+      const dist = distritos.find(d => d.toLowerCase() === distrito.toLowerCase());
+      if (!dist) return;
+      resumen[dist].total += 1;
+      const c = mapaClaves.get(b);
+      programas.forEach(p => { if (c.has(p.clave)) resumen[dist].servicios[p.clave] += 1; });
+    });
 
-    container.innerHTML = priorizados.map(m => {
-      const isCritical = m.anemia === "Moderada" || m.anemia === "Severa";
-      const badgeCls = isCritical ? "badge-red" : (m.anemia === "Leve" ? "badge-yellow" : "badge-green");
-      const badgeText = m.anemia ? ("Hb " + (m.hb || "--") + " g/dL (" + m.anemia + ")") : m.estado;
-      const nombresArr = (m.nombres || "").trim().split(/\s+/);
-      const apellidosArr = (m.apellidos || "").trim().split(/\s+/);
-      const iniciales = (((nombresArr[0]?.[0] || "") + (apellidosArr[0]?.[0] || "")) || "NN").toUpperCase();
-
-      return '<div class="dash-priority-item">' +
-        '<div class="dash-priority-avatar ' + (isCritical ? 'critical' : '') + '">' + escapar(iniciales) + '</div>' +
-        '<div class="dash-priority-info">' +
-          '<div class="dash-priority-name">' +
-            '<strong>' + escapar(m.nombres) + ' ' + escapar(m.apellidos) + '</strong>' +
-            '<span class="dash-priority-meta">' + escapar(m.edad || '') + ' · ' + escapar(m.sede || m.distrito || '') + '</span>' +
-          '</div>' +
-          '<div class="dash-priority-tags">' +
-            '<span class="badge ' + badgeCls + '">' + escapar(badgeText) + '</span>' +
-            '<span class="dash-priority-code">' + escapar(m.codigo) + '</span>' +
-          '</div>' +
-        '</div>' +
-        '<a href="/expediente?id=' + encodeURIComponent(m.id) + '" class="btn-micro-action" title="Abrir expediente de ' + escapar(m.nombres) + '" data-astro-prefetch>' +
-          '<span>Expediente</span>' +
-          iconHtml("accion.abrir", { size: 12 }) +
-        '</a>' +
-      '</div>';
+    const totalUsuarios = distritos.reduce((s, d) => s + resumen[d].total, 0) || 1;
+    const cabeceras = distritos.map(d => {
+      const info = resumen[d];
+      const pct = Math.round((info.total / totalUsuarios) * 100);
+      return `<th scope="col" data-dist="${d.toLowerCase()}">
+        <span class="dash-matrix-dist">${escapar(d)}</span>
+        <span class="dash-matrix-total">${info.total} usuarios · ${pct} %</span>
+      </th>`;
     }).join("");
+    const filas = programas.map(p => {
+      const celdas = distritos
+        .map(d => `<td data-label="${escapar(d)}">${resumen[d].servicios[p.clave]}</td>`)
+        .join("");
+      return `<tr><th scope="row">${escapar(p.nombre)}</th>${celdas}</tr>`;
+    }).join("");
+    const totales = distritos
+      .map(d => `<td data-label="${escapar(d)}">${resumen[d].total}</td>`)
+      .join("");
 
-    if (animar) {
-      AnimationEngine.entradaEscalonada(container, ".dash-priority-item", { paso: 35 });
-    }
+    const firma = JSON.stringify({ cabeceras, filas, totales });
+    if (container.dataset.firma === firma) return;
+    container.dataset.firma = firma;
+    container.innerHTML = `
+      <table class="dash-matrix">
+        <caption class="dash-sr-only">Cobertura territorial por distrito y servicio</caption>
+        <thead><tr><th scope="col">Servicio</th>${cabeceras}</tr></thead>
+        <tbody>${filas}</tbody>
+        <tfoot><tr><th scope="row">Total</th>${totales}</tr></tfoot>
+      </table>
+    `;
   },
 
-  renderRecentActivity(auditLogs, animar = false) {
-    const container = document.getElementById("dashRecentActivityList");
-    if (!container) return;
 
-    const logs = (auditLogs || []).filter(l => !esCuentaPrueba(l)).slice(0, 4);
-    if (!logs.length) {
-      container.innerHTML = `<div class="dash-empty-state">${this._mensajeSinDatos("Sin eventos recientes registrados.")}</div>`;
-      return;
-    }
-
-    container.innerHTML = logs.map(l => {
-      const isSensitive = (l.status && l.status.toLowerCase().includes("sensible")) ||
-                          (l.action && l.action.toLowerCase().includes("derivaci"));
-      // Solo se anuncia urgencia cuando el propio texto del evento la declara.
-      const esUrgente = /urgencia/i.test((l.action || "") + " " + (l.detail || ""));
-      const timeClean = l.timestamp ? l.timestamp.replace(/^\d{4}-\d{2}-\d{2}\s*/, "") : "--:--";
-      const sede = nombreSede(l.sede) || "—";
-      const detalle = limpiarDetalle(l.detail);
-
-      return '<div class="dash-timeline-item">' +
-        '<div class="dash-timeline-dot ' + (isSensitive ? 'alert' : '') + '"></div>' +
-        '<div class="dash-timeline-body">' +
-          '<div class="dash-timeline-header">' +
-            '<span class="dash-timeline-user"><strong>' + escapar(l.user || "Operador") + '</strong> <span class="dash-timeline-role">(' + escapar(l.role || "PDI") + ')</span></span>' +
-            '<span class="dash-timeline-time">' + escapar(timeClean) + '</span>' +
-          '</div>' +
-          '<p class="dash-timeline-action"><strong>' + escapar(l.action) + '</strong>' + (detalle ? ': ' + escapar(detalle) : '') + '</p>' +
-          '<div class="dash-timeline-meta">' +
-            '<span>Sede: ' + escapar(sede) + '</span>' +
-            (esUrgente ? '<span class="dash-timeline-flag">Urgencia alta</span>' : '') +
-          '</div>' +
-        '</div>' +
-      '</div>';
-    }).join("");
-
-    if (animar) {
-      AnimationEngine.entradaEscalonada(container, ".dash-timeline-item", { paso: 35 });
-    }
-  },
 
   _initAuditSort() {
     this._auditSortMenu = initSortMenu({

@@ -368,6 +368,16 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Barra:** 4 px, pista Rule, relleno según banda, transición 600 ms `spring`. Las barras de medida del tablero (clínica, territorio, voluntariado) comparten el mismo grosor.
 - **Orden fijo:** normal, leve, moderada/severa.
 
+### Dashboard — Parte firmado (signature)
+- **Estructura:** una hoja `Surface` con borde `Rule` y radio 16, sin sombra: la hoja es papel; folio, franja clínica, hoja de servicios, matriz territorial y voluntarios separados por reglas de 1 px. No es una rejilla de tarjetas: es un documento.
+- **Folio:** línea de jornada 11/800 en mayúsculas con `time`; `h1` 26/700; subtítulo 13/500; chip de frescura y enlace de padrón a 30 px.
+- **Franja clínica:** una tira dividida en tres celdas con 1 px de separación sobre `Paper`; punto de 6 px, nombre 12.5/700, porcentaje 30/800, casos 11/500, rango 10.5/600 y medida de 4 px. El color va en punto, barra y porcentaje moderado; el resto en tinta.
+- **Hoja de servicios:** tres secciones con `h3` 16.5/700, nota 12/500 y enlace Brand Ink. Cada fila es un `dt`/`dd` con regla superior; el lead va a 40/800 (alimentario) y 30/800 (educativo y ASP); las filas a 12.5/500 y 13/700.
+- **Matriz territorial:** `<table>` real con `caption` oculto, `th scope="col"` para Comas (tinta, regla superior de 2 px) y Carabayllo (regla azul), `th scope="row"` para los siete servicios y `tfoot` de totales. En ≤640 px la tabla se convierte en bloques por fila con la etiqueta del distrito en cada celda (`data-label`), sin scroll horizontal.
+- **Voluntarios:** lista de seis filas en dos columnas; nombre 12.5/500, conteo 13/800 y medida de 4 px en tinta sobre pista `Paper`. El total activo va en la cabecera de la banda.
+- **Movimiento:** la franja clínica dibuja sus barras en la primera entrada (720 ms `spring`) y los leads ruedan una vez; las filas responden al hover. Sin cascada de entrada por sección.
+- **Responsive:** ≤768 px el folio se apila, la franja pasa a una columna y los voluntarios a una; ≤640 px la matriz se convierte en bloques y los enlaces táctiles llegan a 44 px.
+
 ### Territory Row
 - **Grid:** `1fr 66px`, gap 14, padding 11/0.
 - **Cifra:** Metric Secondary en Brand Ink; segundo distrito en Territory Blue.

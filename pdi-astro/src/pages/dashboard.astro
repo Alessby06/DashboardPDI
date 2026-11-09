@@ -6,312 +6,190 @@ import Icon from '../components/Icon.astro';
 
 <AppLayout title="Dashboard General" currentPage="dashboard">
   <section class="app-view active" id="view-dashboard">
-    <div class="view-header dash-header-clean">
-      <div class="view-title-group">
-        <div class="dash-title-row">
-          <h1>Panel de Infancia Saludable</h1>
-        </div>
-        <p class="dash-subtitle">
-          Cobertura, servicios y alertas de la jornada, en una sola lectura.
-        </p>
-      </div>
-      <div class="dash-header-meta">
-        <span class="dash-meta-chip">
-          <Icon name="estado.ok" size={13} />
-          <span>Datos al día</span>
-        </span>
-        <a class="dash-meta-link" href="/padron">
-          <span>Abrir padrón</span>
-          <Icon name="accion.abrir" size={12} />
-        </a>
-      </div>
-    </div>
-
-    <!-- Foco: usuarios activos + indicadores de servicio -->
-    <div class="dash-hero-grid">
-      <section class="dash-focus-card stagger-item" aria-labelledby="dashFocusLabel">
-        <span class="dash-focus-label" id="dashFocusLabel">Usuarios activos</span>
-        <div class="dash-focus-value" id="dashKpiBeneficiarios">-</div>
-        <p class="dash-focus-context" id="dashFocusContext">
-          Inscritos y activos en el programa.
-        </p>
-        <div class="dash-focus-foot">
-          <span class="dash-focus-foot-item">
-            <strong id="dashFocusSedes">-</strong>
-            <span>sedes</span>
-          </span>
-          <span class="dash-focus-foot-item">
-            <strong id="dashFocusDistritos">-</strong>
-            <span>distritos</span>
-          </span>
-          <span class="dash-focus-foot-item">
-            <strong id="dashFocusVoluntarios">-</strong>
-            <span>voluntarios</span>
-          </span>
-        </div>
-      </section>
-
-      <div class="dash-secondary-grid">
-        <article class="dash-secondary-card stagger-item">
-          <span class="dash-secondary-label">Atención CRED</span>
-          <div class="dash-secondary-value" id="dashKpiTamizados">-</div>
-          <span class="dash-secondary-context">Control vigente con dosaje de Hb</span>
-        </article>
-
-        <article class="dash-secondary-card stagger-item">
-          <span class="dash-secondary-label">Voluntarios activos</span>
-          <div class="dash-secondary-value" id="dashKpiVoluntarios">-</div>
-          <span class="dash-secondary-context" id="dashKpiVoluntariosContext">
-            Acompañan los servicios del programa
-          </span>
-        </article>
-
-        <article class="dash-secondary-card is-alert stagger-item">
-          <span class="dash-secondary-label">Casos ASP activos</span>
-          <div class="dash-secondary-value" id="dashKpiCasosSociales">-</div>
-          <span class="dash-secondary-context" id="dashKpiCasosContext">
-            Seguimiento social abierto
-          </span>
-        </article>
-      </div>
-    </div>
-
-    <!-- Servicios del programa -->
-    <section class="dash-section" aria-labelledby="dashServiciosTitle">
-      <div class="dash-section-head">
-        <div>
-          <h3 class="dash-section-title" id="dashServiciosTitle">Servicios</h3>
-          <p class="dash-section-note">Usuarios activos y desglose por programa.</p>
-        </div>
-      </div>
-
-      <div class="dash-service-grid">
-        <article class="dash-service-card stagger-item">
-          <header class="dash-service-head">
-            <span class="dash-service-icon is-green">
-              <Icon name="salud.medico" size={16} />
+    <div class="dash-page">
+      <div class="dash-sheet">
+        <header class="dash-folio">
+          <div class="dash-folio-main">
+            <p class="dash-folio-line">
+              Jornada del <time id="dashFolioFecha">…</time> · Infancia Saludable
+            </p>
+            <h1>Panel de Infancia Saludable</h1>
+            <p class="dash-folio-sub">
+              Cobertura, servicios y estado clínico de la jornada.
+            </p>
+          </div>
+          <div class="dash-folio-actions">
+            <span class="dash-meta-chip">
+              <Icon name="estado.ok" size={13} />
+              <span>Datos al día</span>
             </span>
-            <div class="dash-service-title-group">
-              <h4>Alimentario y nutricional</h4>
-              <span class="dash-service-note">Desayuno, lonchera y control CRED</span>
-            </div>
-          </header>
-          <div class="dash-service-lead">
-            <span class="dash-service-lead-value" id="dashAlimUsuarios">-</span>
-            <span class="dash-service-lead-label">usuarios activos</span>
-          </div>
-          <dl class="dash-service-rows">
-            <div class="dash-service-row">
-              <dt>Desayuno infantil</dt>
-              <dd id="dashAlimDesayuno">-</dd>
-            </div>
-            <div class="dash-service-row">
-              <dt>Lonchera infantil</dt>
-              <dd id="dashAlimLonchera">-</dd>
-            </div>
-          </dl>
-          <a class="dash-service-link" href="/salud">
-            <span>Ver servicio</span>
-            <Icon name="accion.abrir" size={12} />
-          </a>
-        </article>
-
-        <article class="dash-service-card stagger-item">
-          <header class="dash-service-head">
-            <span class="dash-service-icon is-blue">
-              <Icon name="educacion.grado" size={16} />
-            </span>
-            <div class="dash-service-title-group">
-              <h4>Acompañamiento educativo</h4>
-              <span class="dash-service-note">Casita del Saber y biblioteca</span>
-            </div>
-          </header>
-          <div class="dash-service-lead">
-            <span class="dash-service-lead-value" id="dashEduActivos">-</span>
-            <span class="dash-service-lead-label">usuarios activos</span>
-          </div>
-          <dl class="dash-service-rows">
-            <div class="dash-service-row">
-              <dt>Usuarios de Casita del Saber</dt>
-              <dd id="dashEduCasita">-</dd>
-            </div>
-            <div class="dash-service-row">
-              <dt>Biblioteca comunitaria</dt>
-              <dd id="dashEduBiblioteca">-</dd>
-            </div>
-          </dl>
-          <a class="dash-service-link" href="/educativo">
-            <span>Ver servicio</span>
-            <Icon name="accion.abrir" size={12} />
-          </a>
-        </article>
-
-        <article class="dash-service-card stagger-item">
-          <header class="dash-service-head">
-            <span class="dash-service-icon is-amber">
-              <Icon name="salud.escudo" size={16} />
-            </span>
-            <div class="dash-service-title-group">
-              <h4>Social pastoral (ASP)</h4>
-              <span class="dash-service-note">Casos y usuarios acompañados</span>
-            </div>
-          </header>
-          <div class="dash-service-lead">
-            <span class="dash-service-lead-value" id="dashAspCasos">-</span>
-            <span class="dash-service-lead-label">usuarios acompañados</span>
-          </div>
-          <dl class="dash-service-rows">
-            <div class="dash-service-row">
-              <dt>Usuarios de desayuno</dt>
-              <dd id="dashAspDesayuno">-</dd>
-            </div>
-            <div class="dash-service-row">
-              <dt>Usuarios de lonchera</dt>
-              <dd id="dashAspLonchera">-</dd>
-            </div>
-            <div class="dash-service-row">
-              <dt>Usuarios de Casita del Saber</dt>
-              <dd id="dashAspCasita">-</dd>
-            </div>
-          </dl>
-          <a class="dash-service-link" href="/social">
-            <span>Ver servicio</span>
-            <Icon name="accion.abrir" size={12} />
-          </a>
-        </article>
-      </div>
-    </section>
-
-    <!-- Estado nutricional + voluntariado -->
-    <div class="dash-two-col">
-      <div class="panel dash-anemia-panel stagger-item" id="widgetAnemiaStatus">
-        <div class="panel-head dash-anemia-panel-head">
-          <div class="panel-title dash-anemia-panel-title">
-            <Icon name="grafico.torta" size={16} />
-            <span>Estado nutricional y anemia</span>
-          </div>
-          <a href="/salud" class="panel-link dash-anemia-panel-link" title="Abrir módulo de salud">
-            Ver Desayuno Infantil<Icon name="accion.abrir" size={12} />
-          </a>
-        </div>
-        <div class="dash-anemia-panel-table" id="dashAnemiaTable">
-          <div class="dash-anemia-line" data-band="normal">
-            <span class="dash-anemia-line-dot"></span>
-            <div>
-              <span class="dash-anemia-line-name">Normal</span>
-              <span class="dash-anemia-line-note">Control vigente · dosaje anual</span>
-            </div>
-            <span class="dash-anemia-line-range">= 11.0 g/dL</span>
-            <div>
-              <span class="dash-anemia-line-pct" id="anemiaPctNormal">-</span>
-              <span class="dash-anemia-line-cases"><span id="anemiaLegendNormal">-</span> casos</span>
-            </div>
-            <span class="dash-anemia-line-track"><span class="dash-anemia-line-fill" id="segAnemiaNormal" style="width: 0%"></span></span>
-          </div>
-          <div class="dash-anemia-line" data-band="leve">
-            <span class="dash-anemia-line-dot"></span>
-            <div>
-              <span class="dash-anemia-line-name">Anemia leve</span>
-              <span class="dash-anemia-line-note">Seguimiento trimestral en casita</span>
-            </div>
-            <span class="dash-anemia-line-range">10.0 - 10.9 g/dL</span>
-            <div>
-              <span class="dash-anemia-line-pct" id="anemiaPctLeve">-</span>
-              <span class="dash-anemia-line-cases"><span id="anemiaLegendLeve">-</span> casos</span>
-            </div>
-            <span class="dash-anemia-line-track"><span class="dash-anemia-line-fill" id="segAnemiaLeve" style="width: 0%"></span></span>
-          </div>
-          <div class="dash-anemia-line" data-band="mod">
-            <span class="dash-anemia-line-dot"></span>
-            <div>
-              <span class="dash-anemia-line-name">Anemia moderada / severa</span>
-              <span class="dash-anemia-line-note">Derivación prioritaria a salud</span>
-            </div>
-            <span class="dash-anemia-line-range">&lt; 10.0 g/dL</span>
-            <div>
-              <span class="dash-anemia-line-pct" id="anemiaPctMod">-</span>
-              <span class="dash-anemia-line-cases"><span id="anemiaLegendMod">-</span> casos</span>
-            </div>
-            <span class="dash-anemia-line-track"><span class="dash-anemia-line-fill" id="segAnemiaMod" style="width: 0%"></span></span>
-          </div>
-        </div>
-      </div>
-
-      <div class="panel dash-volunteer-panel stagger-item" id="widgetVolunteers">
-        <div class="panel-head">
-          <div class="panel-title">
-            <Icon name="nav.voluntarios" size={16} />
-            <span>Voluntarios por servicio</span>
-          </div>
-          <a href="/voluntariados" class="panel-link" title="Abrir padrón de voluntarios">
-            Ver padrón<Icon name="accion.abrir" size={12} />
-          </a>
-        </div>
-        <div class="dash-vol-list" id="dashVoluntariosList">
-          <!-- Inyectado por DashboardView -->
-        </div>
-      </div>
-    </div>
-
-    <!-- Cobertura territorial -->
-    <div class="panel dash-coverage-panel stagger-item" id="widgetCoverageStatus">
-      <div class="panel-head dash-coverage-head">
-        <div class="panel-title dash-coverage-title">
-          <Icon name="lugar.ubicacion" size={16} />
-          <span>Cobertura territorial por distrito</span>
-        </div>
-        <a href="/sedes" class="panel-link dash-coverage-link" title="Abrir directorio de sedes">
-          Ver Sedes e Iglesias<Icon name="accion.abrir" size={12} />
-        </a>
-      </div>
-      <div class="dash-territory-list" id="dashDistrictCoverage">
-        <!-- Inyectado por DashboardView -->
-      </div>
-      <div class="dash-coverage-services" id="dashCoverageServicios">
-        <!-- Inyectado por DashboardView -->
-      </div>
-      <div class="dash-territory-sede-pills" id="dashDistrictSedePills">
-        <!-- Inyectado por DashboardView -->
-      </div>
-    </div>
-
-    <!-- Foco operativo -->
-    <div class="dash-operational-grid">
-      <div class="card" id="widgetPriorityCases">
-        <div class="card-header">
-          <div class="dash-card-header-flex">
-            <div class="card-title">
-              <Icon name="estado.alerta" size={18} style="color: var(--gt-red);" />
-              <span>Usuarios con atención prioritaria</span>
-            </div>
-          </div>
-        </div>
-        <div class="dash-priority-list" id="dashPriorityCasesList">
-          <!-- Inyectado dinámicamente vía DashboardView.renderPriorityCases -->
-        </div>
-      </div>
-
-      <div class="card stagger-item stagger-animate" id="widgetRecentActivity" style="animation-delay: 90ms;">
-        <div class="card-header">
-          <div class="dash-card-header-flex">
-            <div class="card-title">
-              <Icon name="estado.pendiente" size={18} style="color: var(--gt-green);" />
-              <span>Actividad reciente</span>
-            </div>
-            <a href="/auditoria" class="dash-card-action" title="Abrir bitácora completa">
-              <span>Ver historial</span>
-              <Icon name="accion.abrir" size={null} />
+            <a class="dash-meta-link" href="/padron">
+              <span>Abrir padrón</span>
+              <Icon name="accion.abrir" size={12} />
             </a>
           </div>
-        </div>
-        <div class="dash-timeline-list" id="dashRecentActivityList">
-          <!-- Inyectado dinámicamente vía DashboardView.renderRecentActivity -->
-        </div>
+        </header>
+
+        <!-- Franja clínica: la firma del parte -->
+        <section class="dash-band dash-band--clinical" aria-labelledby="dashClinicaTitle">
+          <div class="dash-band-head">
+            <h2 id="dashClinicaTitle">Estado nutricional y anemia</h2>
+            <a class="dash-band-link" href="/salud">Ver salud</a>
+          </div>
+
+          <ul class="dash-strip-cells" id="dashAnemiaTable">
+            <li class="dash-strip-cell" data-band="normal">
+              <span class="dash-strip-dot" aria-hidden="true"></span>
+              <span class="dash-strip-name">Normal</span>
+              <strong class="dash-strip-pct" id="anemiaPctNormal">…</strong>
+              <span class="dash-strip-cases"><span id="anemiaLegendNormal">…</span> casos</span>
+              <span class="dash-strip-range">= 11.0 g/dL</span>
+              <span class="dash-strip-track" aria-hidden="true">
+                <span class="dash-strip-fill" id="segAnemiaNormal" style="width: 0%"></span>
+              </span>
+            </li>
+
+            <li class="dash-strip-cell" data-band="leve">
+              <span class="dash-strip-dot" aria-hidden="true"></span>
+              <span class="dash-strip-name">Anemia leve</span>
+              <strong class="dash-strip-pct" id="anemiaPctLeve">…</strong>
+              <span class="dash-strip-cases"><span id="anemiaLegendLeve">…</span> casos</span>
+              <span class="dash-strip-range">10.0 - 10.9 g/dL</span>
+              <span class="dash-strip-track" aria-hidden="true">
+                <span class="dash-strip-fill" id="segAnemiaLeve" style="width: 0%"></span>
+              </span>
+            </li>
+
+            <li class="dash-strip-cell" data-band="mod">
+              <span class="dash-strip-dot" aria-hidden="true"></span>
+              <span class="dash-strip-name">Anemia moderada / severa</span>
+              <strong class="dash-strip-pct" id="anemiaPctMod">…</strong>
+              <span class="dash-strip-cases"><span id="anemiaLegendMod">…</span> casos</span>
+              <span class="dash-strip-range">&lt; 10.0 g/dL</span>
+              <span class="dash-strip-track" aria-hidden="true">
+                <span class="dash-strip-fill" id="segAnemiaMod" style="width: 0%"></span>
+              </span>
+            </li>
+          </ul>
+        </section>
+
+        <!-- Hoja de servicios: el cuerpo del parte -->
+        <section class="dash-band" aria-labelledby="dashServiciosTitle">
+          <div class="dash-band-head">
+            <h2 id="dashServiciosTitle">Servicios del programa</h2>
+          </div>
+
+          <div class="dash-ledger">
+            <article class="dash-service">
+              <header class="dash-service-head">
+                <div>
+                  <h3 class="dash-service-title">Servicio alimentario y nutricional</h3>
+                  <p class="dash-service-note">Desayuno, lonchera y control CRED</p>
+                </div>
+                <a class="dash-service-link" href="/salud" aria-label="Abrir servicio alimentario y nutricional">
+                  Abrir servicio
+                </a>
+              </header>
+              <dl class="dash-service-rows">
+                <div class="dash-service-row dash-service-row--lead">
+                  <dt>Usuarios activos</dt>
+                  <dd id="dashAlimUsuarios">…</dd>
+                </div>
+                <div class="dash-service-row">
+                  <dt>Usuarios de desayuno infantil</dt>
+                  <dd id="dashAlimDesayuno">…</dd>
+                </div>
+                <div class="dash-service-row">
+                  <dt>Usuarios de lonchera infantil</dt>
+                  <dd id="dashAlimLonchera">…</dd>
+                </div>
+                <div class="dash-service-row">
+                  <dt>Atención CRED</dt>
+                  <dd id="dashAlimCred">…</dd>
+                </div>
+              </dl>
+            </article>
+
+            <article class="dash-service">
+              <header class="dash-service-head">
+                <div>
+                  <h3 class="dash-service-title">Servicio de acompañamiento educativo</h3>
+                  <p class="dash-service-note">Casita del Saber y biblioteca</p>
+                </div>
+                <a class="dash-service-link" href="/educativo" aria-label="Abrir servicio de acompañamiento educativo">
+                  Abrir servicio
+                </a>
+              </header>
+              <dl class="dash-service-rows">
+                <div class="dash-service-row dash-service-row--lead">
+                  <dt>Usuarios activos</dt>
+                  <dd id="dashEduActivos">…</dd>
+                </div>
+                <div class="dash-service-row">
+                  <dt>Usuarios de Casita del Saber</dt>
+                  <dd id="dashEduCasita">…</dd>
+                </div>
+                <div class="dash-service-row">
+                  <dt>Biblioteca comunitaria</dt>
+                  <dd id="dashEduBiblioteca">…</dd>
+                </div>
+              </dl>
+            </article>
+
+            <article class="dash-service">
+              <header class="dash-service-head">
+                <div>
+                  <h3 class="dash-service-title">Servicio social pastoral (ASP)</h3>
+                  <p class="dash-service-note">Casos y usuarios acompañados</p>
+                </div>
+                <a class="dash-service-link" href="/social" aria-label="Abrir servicio social pastoral">
+                  Abrir servicio
+                </a>
+              </header>
+              <dl class="dash-service-rows">
+                <div class="dash-service-row dash-service-row--lead">
+                  <dt>Casos sociales activos</dt>
+                  <dd id="dashAspCasos">…</dd>
+                </div>
+                <div class="dash-service-row">
+                  <dt>Usuarios de desayuno infantil</dt>
+                  <dd id="dashAspDesayuno">…</dd>
+                </div>
+                <div class="dash-service-row">
+                  <dt>Usuarios de lonchera infantil</dt>
+                  <dd id="dashAspLonchera">…</dd>
+                </div>
+                <div class="dash-service-row">
+                  <dt>Usuarios de Casita del Saber</dt>
+                  <dd id="dashAspCasita">…</dd>
+                </div>
+              </dl>
+            </article>
+          </div>
+        </section>
+
+        <!-- Cobertura territorial: la matriz -->
+        <section class="dash-band" aria-labelledby="dashTerritorioTitle">
+          <div class="dash-band-head">
+            <h2 id="dashTerritorioTitle">Cobertura territorial por distrito</h2>
+            <a class="dash-band-link" href="/sedes">Ver sedes e iglesias</a>
+          </div>
+          <div class="dash-matrix-host" id="dashTerritoryMatrix"></div>
+        </section>
+
+        <!-- Voluntarios: el apoyo del parte -->
+        <section class="dash-band" aria-labelledby="dashVolTitle">
+          <div class="dash-band-head">
+            <h2 id="dashVolTitle">Voluntarios por servicio</h2>
+            <span class="dash-band-total"><strong id="dashVolTotal">…</strong> activos</span>
+            <a class="dash-band-link" href="/voluntariados">Ver padrón</a>
+          </div>
+          <ul class="dash-vol-list" id="dashVoluntariosList"></ul>
+        </section>
       </div>
     </div>
   </section>
 
-  <!-- Script del cliente -->
   <script>
     import '../scripts/pages/dashboard.js';
   </script>
