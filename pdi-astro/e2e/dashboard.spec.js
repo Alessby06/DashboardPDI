@@ -14,6 +14,11 @@ test.describe('dashboard — parte firmado', () => {
     await expect(page.locator('.dash-matrix tbody tr')).toHaveCount(7);
     await expect(page.locator('.dash-vol-row')).toHaveCount(6);
     await expect(page.locator('#dashReconcile')).toContainText('Población:');
+    await expect(page.locator('#dashTamizados')).toContainText('tamizados');
+    const asp = page.locator('.dash-service').nth(2);
+    await expect(asp.locator('dt').first()).toContainText('Usuarios con caso ASP activo');
+    await expect(asp.locator('#dashAspCasosMicro')).toContainText('caso');
+    await expect(page.locator('#dashMatrixNote')).toContainText('usuarios ubicados');
     await expect(page.locator('.dash-priority-item')).toHaveCount(0);
     await expect(page.locator('.dash-timeline-item')).toHaveCount(0);
   });

@@ -368,19 +368,24 @@ export const BeneficiarioModel = {
     const leves = list.filter(b => clase(b) === "Leve").length;
     const moderadas = list.filter(b => clase(b) === "Moderada" || clase(b) === "Severa").length;
 
-    const pctNormal = total > 0 ? Math.round((normales / total) * 100) : 0;
-    const pctLeve = total > 0 ? Math.round((leves / total) * 100) : 0;
-    const pctMod = total > 0 ? Math.round((moderadas / total) * 100) : 0;
+    // La clasificación clínica se reparte entre quienes tienen hemoglobina
+    // medida, no entre todo el padrón: los no tamizados no pertenecen a
+    // ninguna banda y no deben inflar el denominador.
+    const tamizados = list.filter(b => b.hb !== null && b.hb !== undefined && b.hb !== "").length;
+    const pctNormal = tamizados > 0 ? Math.round((normales / tamizados) * 100) : 0;
+    const pctLeve = tamizados > 0 ? Math.round((leves / tamizados) * 100) : 0;
+    const pctMod = tamizados > 0 ? Math.round((moderadas / tamizados) * 100) : 0;
 
     const comasCount = list.filter(b => b.distrito === "Comas").length;
     const carabaylloCount = list.filter(b => b.distrito === "Carabayllo").length;
 
     // Tamizado CREAL real: usuario con dosaje de Hb registrado (valor, no vacio).
-    const tamizados = list.filter(b => b.hb !== null && b.hb !== undefined && b.hb !== "").length;
+    // `sinTamizaje` permite declarar la base clínica sin esconder a nadie.
 
     return {
       total,
       tamizados,
+      sinTamizaje: total - tamizados,
       normales,
       leves,
       moderadas,

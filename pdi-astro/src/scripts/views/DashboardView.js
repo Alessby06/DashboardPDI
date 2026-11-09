@@ -207,6 +207,23 @@ export const DashboardView = {
       });
     }
 
+    // Base clínica declarada: los porcentajes se reparten entre tamizados y
+    // los no tamizados se nombran aparte, sin desaparecer del padrón.
+    const tamEl = document.getElementById("dashTamizados");
+    if (tamEl) {
+      tamEl.textContent = datosOk
+        ? `${stats.tamizados ?? 0} de ${stats.total ?? 0} tamizados`
+        : "Sin datos clínicos";
+    }
+    const sinTamEl = document.getElementById("dashSinTamizaje");
+    if (sinTamEl) {
+      const sinTam = datosOk ? (stats.sinTamizaje ?? 0) : 0;
+      sinTamEl.hidden = sinTam <= 0;
+      sinTamEl.textContent = sinTam > 0
+        ? `Sin tamizaje: ${sinTam}`
+        : "";
+    }
+
     this._renderServicios(stats);
     this.renderAuditLogs(auditLogs);
   },
@@ -292,7 +309,13 @@ export const DashboardView = {
 
     poner("dashAlimUsuarios", alimentario);
     poner("dashEduActivos", educativo);
-    poner("dashAspCasos", casosActivos);
+    poner("dashAspUsuarios", usuariosAsp.length);
+    const microAsp = document.getElementById("dashAspCasosMicro");
+    if (microAsp) {
+      microAsp.textContent = datosOk
+        ? (casosActivos === 1 ? "· 1 caso" : `· ${casosActivos} casos`)
+        : "";
+    }
     poner("dashAlimDesayuno", desayuno);
     poner("dashAlimLonchera", lonchera);
     poner("dashAlimCred", stats.tamizados ?? 0);
@@ -352,7 +375,7 @@ export const DashboardView = {
     const recon = document.getElementById("dashReconcile");
     if (recon) {
       recon.textContent = datosOk
-        ? `Población: ${usuarios.length} usuarios · ${alimentario} con ración · ${educativo} con acompañamiento · ${casosActivos} casos ASP · ${voluntarios.length} voluntarios.`
+        ? `Población: ${usuarios.length} usuarios · ${alimentario} con ración · ${educativo} con acompañamiento · ${usuariosAsp.length} con caso ASP (${casosActivos} casos) · ${voluntarios.length} voluntarios.`
         : this._mensajeSinDatos("Sin datos para conciliar.");
     }
 
@@ -375,6 +398,8 @@ export const DashboardView = {
 
     const estado = window.PDI?.DB?.estadoActual?.() || "ok";
     if (estado !== "ok" || !usuarios.length) {
+      const notaVacia = document.getElementById("dashMatrixNote");
+      if (notaVacia) notaVacia.textContent = "";
       const mensaje = this._mensajeSinDatos("Sin usuarios registrados en el padrón.");
       const firmaVacia = `vacio:${mensaje}`;
       if (container.dataset.firma === firmaVacia) return;
@@ -383,7 +408,11 @@ export const DashboardView = {
       return;
     }
 
-    const distritos = ["Comas", "Carabayllo"];
+    const distritos = [
+      { clave: "comas", nombre: "Comas", largo: "Comas" },
+      { clave: "carabayllo", nombre: "Carabayllo", largo: "Carabayllo" },
+    ];
+    const otras = { clave: "otras", nombre: "Otras sedes", largo: "Otras sedes / sin distrito" };
     const programas = [
       { clave: "desayuno", nombre: "Desayuno infantil" },
       { clave: "lonchera", nombre: "Lonchera infantil" },
@@ -394,49 +423,65 @@ export const DashboardView = {
       { clave: "reposteria", nombre: "Talleres de repostería" },
     ];
     const mapaClaves = claves || new Map(usuarios.map(b => [b, this._clavesServicio(b)]));
-    const resumen = Object.fromEntries(distritos.map(d => [d, {
+    const resumen = Object.fromEntries([...distritos, otras].map(d => [d.clave, {
       total: 0,
       servicios: Object.fromEntries(programas.map(p => [p.clave, 0])),
     }]));
 
     usuarios.forEach(b => {
-      const distrito = String(b?.distrito || "").trim();
-      const dist = distritos.find(d => d.toLowerCase() === distrito.toLowerCase());
-      if (!dist) return;
-      resumen[dist].total += 1;
+      const distrito = String(b?.distrito || "").trim().toLowerCase();
+      const grupo = distritos.find(d => d.nombre.toLowerCase() === distrito);
+      const clave = grupo ? grupo.clave : otras.clave;
+      resumen[clave].total += 1;
       const c = mapaClaves.get(b);
-      programas.forEach(p => { if (c.has(p.clave)) resumen[dist].servicios[p.clave] += 1; });
+      programas.forEach(p => { if (c.has(p.clave)) resumen[clave].servicios[p.clave] += 1; });
     });
 
-    const totalUsuarios = distritos.reduce((s, d) => s + resumen[d].total, 0) || 1;
+    // La base es todo el padrón: las sedes fuera de Comas y Carabayllo se
+    // agrupan en vez de desaparecer de la matriz.
+    const totalUsuarios = usuarios.length;
+    const basePct = totalUsuarios || 1;
+    const ubicados = resumen.comas.total + resumen.carabayllo.total;
+    const resto = resumen.otras.total;
+    const visibles = resto > 0 ? [...distritos, otras] : distritos;
 
-    const cabeceras = distritos.map(d => {
-      const info = resumen[d];
-      const pct = Math.round((info.total / totalUsuarios) * 100);
-      return `<th scope="col" data-dist="${d.toLowerCase()}">
-        <span class="dash-matrix-dist">${escapar(d)}</span>
+    const nota = document.getElementById("dashMatrixNote");
+    if (nota) {
+      const sustantivo = totalUsuarios === 1 ? "usuario" : "usuarios";
+      const participio = totalUsuarios === 1 ? "ubicado" : "ubicados";
+      nota.textContent = resto > 0
+        ? `${ubicados} de ${totalUsuarios} ${sustantivo} ${participio} en Comas o Carabayllo; ${resto} en otras sedes o sin distrito.`
+        : `${ubicados} de ${totalUsuarios} ${sustantivo} ${participio} en Comas o Carabayllo.`;
+    }
+
+    const cabeceras = visibles.map(d => {
+      const info = resumen[d.clave];
+      const pct = Math.round((info.total / basePct) * 100);
+      return `<th scope="col" data-dist="${d.clave}">
+        <span class="dash-matrix-dist">${escapar(d.nombre)}</span>
         <span class="dash-matrix-total">${info.total} usuarios · ${pct} %</span>
       </th>`;
     }).join("");
     const filas = programas.map(p => {
-      const celdas = distritos
-        .map(d => `<td>${resumen[d].servicios[p.clave]}</td>`)
+      const celdas = visibles
+        .map(d => `<td>${resumen[d.clave].servicios[p.clave]}</td>`)
         .join("");
       return `<tr><th scope="row">${escapar(p.nombre)}</th>${celdas}</tr>`;
     }).join("");
 
-    const bloques = distritos.map(d => {
-      const info = resumen[d];
-      const pct = Math.round((info.total / totalUsuarios) * 100);
+    const bloques = visibles.map(d => {
+      const info = resumen[d.clave];
+      const pct = Math.round((info.total / basePct) * 100);
       const filasMovil = programas.map(p => `
         <div class="dash-matrix-mobile-row">
           <dt>${escapar(p.nombre)}</dt>
           <dd>${info.servicios[p.clave]}</dd>
         </div>`).join("");
+      const etiqueta = d.clave === "otras" ? "Otras sedes o sin distrito" : `Distrito de ${d.nombre}`;
       return `
-        <section class="dash-matrix-mobile-district" data-dist="${d.toLowerCase()}" aria-label="Distrito de ${escapar(d)}">
+        <section class="dash-matrix-mobile-district" data-dist="${d.clave}" aria-label="${escapar(etiqueta)}">
           <h3>
-            <span>${escapar(d)}</span>
+            <span>${escapar(d.largo)}</span>
             <span class="dash-matrix-mobile-total">${info.total} usuarios · ${pct} %</span>
           </h3>
           <dl class="dash-matrix-mobile-list">${filasMovil}</dl>

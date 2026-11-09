@@ -414,6 +414,17 @@
   font-size: 40px;
 }
 
+/* Los casos acompañan al recuento de usuarios sin competir con el lead. */
+.dash-service-micro {
+  margin-left: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
 .dash-reconcile {
   margin: 10px 0 0;
   font-size: 11.5px;
@@ -426,6 +437,18 @@
 
 .dash-matrix-host {
   width: 100%;
+}
+
+.dash-matrix-note {
+  margin: 0 0 10px;
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+.dash-matrix-note:empty {
+  display: none;
 }
 
 .dash-matrix {
@@ -462,6 +485,16 @@
 
 .dash-matrix thead th[data-dist="carabayllo"] {
   border-top: 2px solid var(--gt-blue);
+}
+
+/* Grupo residual: existe para no borrar a nadie, no para competir por color. */
+.dash-matrix thead th[data-dist="otras"] {
+  border-top: 1px solid var(--text-dim);
+}
+
+.dash-matrix thead th[data-dist="otras"] .dash-matrix-dist,
+.dash-matrix thead th[data-dist="otras"] .dash-matrix-total {
+  color: var(--text-dim);
 }
 
 .dash-matrix-dist {
@@ -505,6 +538,15 @@
 
 .dash-matrix-mobile-district[data-dist="carabayllo"] {
   border-top-color: var(--gt-blue);
+}
+
+.dash-matrix-mobile-district[data-dist="otras"] {
+  border-top-width: 1px;
+  border-top-color: var(--text-dim);
+}
+
+.dash-matrix-mobile-district[data-dist="otras"] h3 {
+  color: var(--text-muted);
 }
 
 .dash-matrix-mobile-district h3 {
