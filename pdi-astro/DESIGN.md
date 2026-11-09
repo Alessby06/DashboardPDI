@@ -365,7 +365,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Grid:** `8px | 1fr | 88px | 64px`, gap 12, padding 15/0, divisor inferior.
 - **Punto:** 6 px, verde normal, ámbar leve, rojo moderada/severa.
 - **Textos:** nombre 13.5/700; nota 10.5/500 Ink Dim; rango 10.5/600 Ink Dim; cifra Data Value; conteo Micro.
-- **Barra:** 3 px, pista Rule, relleno según banda, transición 600 ms `spring`.
+- **Barra:** 4 px, pista Rule, relleno según banda, transición 600 ms `spring`. Las barras de medida del tablero (clínica, territorio, voluntariado) comparten el mismo grosor.
 - **Orden fijo:** normal, leve, moderada/severa.
 
 ### Territory Row

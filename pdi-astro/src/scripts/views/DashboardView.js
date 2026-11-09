@@ -8,6 +8,44 @@ import { initSortMenu } from '../ui/SortMenu.js';
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
 import { SEDES_POR_DISTRITO } from "../core/catalogos.js";
 import { iconHtml } from '../../data/iconos.js';
+
+// Nombres legibles de las sedes para el feed de actividad: el servidor guarda
+// IDs tipo `sede:carmen_alto` y la vista no debe mostrarlos crudos.
+const SEDES_NOMBRE = {
+  "sede:a_o_nuevo": "Año Nuevo",
+  "sede:carmen_alto": "Carmen Alto",
+  "sede:el_progreso": "El Progreso",
+  "sede:la_libertad": "La Libertad",
+  "sede:los_bendecidos": "Los Bendecidos",
+  "sede:san_pedro": "San Pedro",
+  "sede:santa_rosa": "Santa Rosa",
+};
+
+function nombreSede(valor) {
+  const limpio = String(valor || "").trim();
+  if (!limpio) return "";
+  const clave = limpio.toLowerCase();
+  if (SEDES_NOMBRE[clave]) return SEDES_NOMBRE[clave];
+  return limpio.replace(/^sede:/i, "").replace(/_/g, " ");
+}
+
+// Las cuentas de prueba (e2e, mfa.tmp*, prueba.temp*) no son actividad del
+// programa: se excluyen del feed para no mostrar altas y resetes internos.
+function esCuentaPrueba(log) {
+  const texto = `${log?.user || ""} ${log?.detail || ""}`.toLowerCase();
+  return /(mfa|prueba|e2e)[._-][a-z0-9]+/.test(texto)
+    || /\b(mfa|prueba|e2e)\b/.test(String(log?.user || "").toLowerCase());
+}
+
+// El detalle del servidor trae valores vacíos entre comillas y IDs de sede;
+// se traducen para que la bitácora se lea como actividad, no como un diff.
+function limpiarDetalle(txt) {
+  return String(txt || "")
+    .replace(/"?\(vacío\)"?/gi, "sin dato")
+    .replace(/sede:([a-z_]+)/gi, (_, id) => nombreSede(`sede:${id}`))
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
 // Filtros del historial de cambios que viajan en la URL. Los mismos sirven para
 // dashboard.html y para auditoria.html: es la misma vista en las dos paginas,
 // y el fragmento de auditoria es solo su version a pantalla completa.
@@ -163,7 +201,7 @@ export const DashboardView = {
           const esCarabayllo = distrito.toLowerCase() === "carabayllo";
           return [distrito, {
             sedes: [...sedes],
-            color: esComas ? "var(--gt-green)" : (esCarabayllo ? "var(--gt-blue, #0284c7)" : "var(--gt-yellow, #f59e0b)"),
+            color: esComas ? "var(--gt-green)" : (esCarabayllo ? "var(--gt-blue)" : "var(--gt-yellow)"),
             badgeClass: esComas ? "badge-green" : (esCarabayllo ? "badge-blue" : "badge-yellow"),
           }];
         }),
@@ -175,7 +213,7 @@ export const DashboardView = {
           if (!distritosMap[dist]) {
             distritosMap[dist] = {
               sedes: [],
-              color: dist.toLowerCase() === "comas" ? "var(--gt-green)" : (dist.toLowerCase() === "carabayllo" ? "var(--gt-blue, #0284c7)" : "var(--gt-yellow, #f59e0b)"),
+              color: dist.toLowerCase() === "comas" ? "var(--gt-green)" : (dist.toLowerCase() === "carabayllo" ? "var(--gt-blue)" : "var(--gt-yellow)"),
               badgeClass: dist.toLowerCase() === "comas" ? "badge-green" : (dist.toLowerCase() === "carabayllo" ? "badge-blue" : "badge-yellow")
             };
           }
@@ -476,6 +514,7 @@ export const DashboardView = {
       const c = claves.get(b);
       return c.has("casita") || c.has("biblioteca");
     }).length;
+    const aspUsuarios = usuarios.filter(b => claves.get(b).has("asp")).length;
     const casosActivos = casos.filter(c => c && c.etapa !== "cerrado").length;
     const casosCriticos = casos.filter(c => c && c.etapa !== "cerrado" && c.urgencia === "Alta").length;
     const voluntariosActivos = voluntarios.filter(v => String(v?.estado || "").toLowerCase() === "activo").length;
@@ -489,11 +528,10 @@ export const DashboardView = {
     poner("dashAlimUsuarios", alimentario);
     poner("dashAlimDesayuno", desayuno);
     poner("dashAlimLonchera", lonchera);
-    poner("dashAlimCred", stats.tamizados ?? 0);
     poner("dashEduActivos", educativo);
     poner("dashEduCasita", casita);
     poner("dashEduBiblioteca", biblioteca);
-    poner("dashAspCasos", casosActivos);
+    poner("dashAspCasos", aspUsuarios);
     poner("dashAspDesayuno", desayuno);
     poner("dashAspLonchera", lonchera);
     poner("dashAspCasita", casita);
@@ -516,14 +554,6 @@ export const DashboardView = {
       contextVol.textContent = voluntariosActivos > 0
         ? "Acompañan los servicios del programa"
         : this._mensajeSinDatos("Aún no hay voluntarios activos");
-    }
-
-    // Barra de atención CRED sobre el total de usuarios
-    const credBar = document.getElementById("barKpiCred");
-    if (credBar) {
-      const pct = usuarios.length > 0 ? Math.round(((stats.tamizados || 0) / usuarios.length) * 100) : 0;
-      credBar.dataset.targetWidth = `${pct}%`;
-      credBar.style.width = `${pct}%`;
     }
 
     // Voluntarios por servicio
@@ -670,7 +700,7 @@ export const DashboardView = {
     const container = document.getElementById("dashRecentActivityList");
     if (!container) return;
 
-    const logs = (auditLogs && auditLogs.length) ? auditLogs.slice(0, 4) : [];
+    const logs = (auditLogs || []).filter(l => !esCuentaPrueba(l)).slice(0, 4);
     if (!logs.length) {
       container.innerHTML = `<div class="dash-empty-state">${this._mensajeSinDatos("Sin eventos recientes registrados.")}</div>`;
       return;
@@ -682,6 +712,8 @@ export const DashboardView = {
       // Solo se anuncia urgencia cuando el propio texto del evento la declara.
       const esUrgente = /urgencia/i.test((l.action || "") + " " + (l.detail || ""));
       const timeClean = l.timestamp ? l.timestamp.replace(/^\d{4}-\d{2}-\d{2}\s*/, "") : "--:--";
+      const sede = nombreSede(l.sede) || "—";
+      const detalle = limpiarDetalle(l.detail);
 
       return '<div class="dash-timeline-item">' +
         '<div class="dash-timeline-dot ' + (isSensitive ? 'alert' : '') + '"></div>' +
@@ -690,9 +722,9 @@ export const DashboardView = {
             '<span class="dash-timeline-user"><strong>' + escapar(l.user || "Operador") + '</strong> <span class="dash-timeline-role">(' + escapar(l.role || "PDI") + ')</span></span>' +
             '<span class="dash-timeline-time">' + escapar(timeClean) + '</span>' +
           '</div>' +
-          '<p class="dash-timeline-action"><strong>' + escapar(l.action) + '</strong>: ' + escapar(l.detail || "") + '</p>' +
+          '<p class="dash-timeline-action"><strong>' + escapar(l.action) + '</strong>' + (detalle ? ': ' + escapar(detalle) : '') + '</p>' +
           '<div class="dash-timeline-meta">' +
-            '<span>Sede: ' + escapar(l.sede || "Central") + '</span>' +
+            '<span>Sede: ' + escapar(sede) + '</span>' +
             (esUrgente ? '<span class="dash-timeline-flag">Urgencia alta</span>' : '') +
           '</div>' +
         '</div>' +

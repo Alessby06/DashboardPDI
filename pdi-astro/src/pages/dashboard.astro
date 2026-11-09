@@ -9,7 +9,7 @@ import Icon from '../components/Icon.astro';
     <div class="view-header dash-header-clean">
       <div class="view-title-group">
         <div class="dash-title-row">
-          <h2>Panel de Infancia Saludable</h2>
+          <h1>Panel de Infancia Saludable</h1>
         </div>
         <p class="dash-subtitle">
           Cobertura, servicios y alertas de la jornada, en una sola lectura.
@@ -55,9 +55,6 @@ import Icon from '../components/Icon.astro';
         <article class="dash-secondary-card stagger-item">
           <span class="dash-secondary-label">Atención CRED</span>
           <div class="dash-secondary-value" id="dashKpiTamizados">-</div>
-          <div class="dash-secondary-track" aria-hidden="true">
-            <span class="dash-secondary-fill" id="barKpiCred" style="width: 0%"></span>
-          </div>
           <span class="dash-secondary-context">Control vigente con dosaje de Hb</span>
         </article>
 
@@ -112,10 +109,6 @@ import Icon from '../components/Icon.astro';
               <dt>Lonchera infantil</dt>
               <dd id="dashAlimLonchera">-</dd>
             </div>
-            <div class="dash-service-row">
-              <dt>Atención CRED</dt>
-              <dd id="dashAlimCred">-</dd>
-            </div>
           </dl>
           <a class="dash-service-link" href="/salud">
             <span>Ver servicio</span>
@@ -165,7 +158,7 @@ import Icon from '../components/Icon.astro';
           </header>
           <div class="dash-service-lead">
             <span class="dash-service-lead-value" id="dashAspCasos">-</span>
-            <span class="dash-service-lead-label">casos activos</span>
+            <span class="dash-service-lead-label">usuarios acompañados</span>
           </div>
           <dl class="dash-service-rows">
             <div class="dash-service-row">
@@ -303,7 +296,7 @@ import Icon from '../components/Icon.astro';
           <div class="dash-card-header-flex">
             <div class="card-title">
               <Icon name="estado.pendiente" size={18} style="color: var(--gt-green);" />
-              <span>Actividad reciente del programa</span>
+              <span>Actividad reciente</span>
             </div>
             <a href="/auditoria" class="dash-card-action" title="Abrir bitácora completa">
               <span>Ver historial</span>

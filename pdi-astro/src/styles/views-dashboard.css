@@ -17,458 +17,15 @@
    primeras, a views-comun.css.
    =========================================================================== */
 
-    @media (max-width: 768px) {
-      .social-controls-actions-wrap {
-        display: flex !important;
-        align-items: center !important;
-        gap: 8px !important;
-        width: 100% !important;
-      }
 
-      #dropdownSocialFilterPanel {
-        display: inline-flex !important;
-        position: relative !important;
-        flex: 1 1 46% !important;
-        min-width: 0 !important;
-}
 
-      .stage-dot {
-        width: 8px !important;
-        height: 8px !important;
-        min-width: 8px !important;
-        border-radius: var(--radius-full) !important;
-        flex-shrink: 0 !important;
-      }
 
-      .social-mobile-dropdown-item {
-        padding: 9px 12px;
-        border-radius: var(--radius-sm);
-        font-size: 13px;
-        font-weight: 500;
-        color: var(--text-main);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        cursor: pointer;
-        touch-action: manipulation;
-        -webkit-tap-highlight-color: transparent;
-        transition: background-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-spring) !important;
-      }
 
-      .social-mobile-dropdown-item:active {
-        transform: scale(0.98) !important;
-      }
 
-      .social-mobile-dropdown-item .item-left {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
 
-      @media (hover: hover) and (pointer: fine) {
-        .social-mobile-dropdown-item:hover {
-          background: var(--surface-hover);
-        }
-      }
 
-      .social-mobile-dropdown-item.selected {
-        background: var(--gt-green-bg) !important;
-        color: var(--text-brand) !important;
-        font-weight: 700;
-      }
 
-      .kanban-board {
-        flex-direction: column;
-        overflow-x: visible;
-        overflow-y: visible;
-        gap: 14px;
-      }
 
-      /* Filtrado activo de columna según la pestaña seleccionada en móvil */
-      .kanban-board[data-mobile-active-stage="pendiente"] .kanban-col:not([data-col-stage="pendiente"]),
-      .kanban-board[data-mobile-active-stage="evaluacion"] .kanban-col:not([data-col-stage="evaluacion"]),
-      .kanban-board[data-mobile-active-stage="canalizado"] .kanban-col:not([data-col-stage="canalizado"]),
-      .kanban-board[data-mobile-active-stage="cerrado"] .kanban-col:not([data-col-stage="cerrado"]) {
-        display: none !important;
-      }
-
-      .kanban-col {
-        flex: 1 1 100%;
-        width: 100% !important;
-        min-width: 100% !important;
-        max-width: 100% !important;
-        height: auto !important;
-        max-height: none !important;
-        min-height: 0 !important;
-        overflow: visible !important;
-      }
-
-      .kanban-col-body {
-        max-height: none !important;
-        height: auto !important;
-        min-height: 0 !important;
-        overflow-y: visible !important;
-        overflow-x: visible !important;
-        overscroll-behavior: auto !important;
-        touch-action: auto !important;
-        padding: 12px;
-      }
-
-      .kanban-btn {
-        height: 42px !important;
-        font-size: 13px !important;
-        font-weight: 700 !important;
-        gap: 8px !important;
-        border-radius: var(--radius-md) !important;
-      }
-
-      .kanban-btn svg {
-        width: 16px !important;
-        height: 16px !important;
-      }
-
-    }
-
-    /* Canvas Signature */
-
-    /* Barra de Herramientas y Filtros para Auditoría (Buscador izquierda, Filtros derecha) */
-    .audit-toolbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 10px;
-    /* Estilo para Facetas con conteo Cero (Deshabilitadas y en gris) */
-}
-
-    /* Modal Detalle Forense / Diff */
-
-    /* Responsive */
-
-    @media (max-width: 900px) {
-
-      /* Animación de entrada viva y escalonada (Staggered Reveal) en móviles */
-
-    }
-
-    /* Cobertura Territorial por Distrito & Dashboard Widgets Responsivo (Android) */
-    .district-coverage-card {
-      padding: 12px 16px;
-      border-radius: var(--radius-md);
-      background: var(--surface-2);
-      border: 1px solid var(--border-subtle);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .district-coverage-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .district-coverage-header strong {
-      font-size: 14px;
-      color: var(--text-main);
-    }
-
-    .district-coverage-sedes {
-      font-size: 12px;
-      color: var(--text-muted);
-      word-break: break-word;
-    }
-
-    .district-coverage-badge {
-      flex-shrink: 0;
-      white-space: nowrap;
-    }
-
-    .district-coverage-track {
-      height: 6px;
-      width: 100%;
-      background: var(--border-subtle);
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    .district-coverage-bar {
-      height: 100%;
-      border-radius: 999px;
-      transition: none;
-      /* Sin will-change: la regla de arriba pone transition: none, asi que
-         esta barra nunca anima su ancho. El aviso no acceleratora nada. */
-    }
-
-    .cred-calc-accordion.open {
-      border-color: var(--gt-yellow-border, rgba(245, 158, 11, 0.35));
-      box-shadow: var(--shadow-sm);
-    }
-
-    .cred-calc-accordion.open .cred-calc-chevron {
-      transform: rotate(180deg);
-      color: var(--text-warning);
-    }
-
-    @media (max-width: 768px) {
-      .cred-calc-toggle-btn {
-        padding: 12px 14px !important;
-      }
-      .cred-calc-header-left {
-        gap: 10px !important;
-      }
-      .cred-calc-icon-box {
-        width: 34px !important;
-        height: 34px !important;
-      }
-      .cred-calc-icon-box svg {
-        width: 17px !important;
-        height: 17px !important;
-      }
-      .cred-calc-title {
-        font-size: 13.5px !important;
-      }
-      .cred-calc-subtitle {
-        display: none !important;
-      }
-      .cred-calc-header-right .badge {
-        display: none !important;
-      }
-      .cred-calc-body {
-        padding: 14px 12px 16px !important;
-      }
-      .cred-calc-grid {
-        grid-template-columns: 1fr !important;
-        gap: 10px !important;
-      }
-      .dash-charts-grid {
-        grid-template-columns: 1fr !important;
-        gap: 14px !important;
-      }
-    }
-
-    /* === EXPEDIENTE INTEGRAL: LAYOUT MAESTRO-DETALLE ===
-       El expediente es una pagina, no una ventana encima del panel. Lo que
-       antes dimensionaba la caja del modal (82vh, 1080px) no hace falta:
-       el marco de la pagina vive en css/expediente.css. === */
-
-    /* Rediseño Sección 5: Ley N.° 29733 (PC & Móvil) */
-
-    .ley-consent-card {
-      background: var(--surface-1);
-      border: 1px solid var(--border-subtle);
-      border-left: 1px solid var(--gt-green);
-      border-radius: 10px;
-      padding: 12px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      box-shadow: var(--shadow-sm);
-      transition: transform var(--dur-fast) var(--ease-spring), box-shadow var(--dur-fast) var(--ease-smooth);
-      /* Sin will-change: aqui solo hay transform en :hover. El aviso permanente
-         le costaba una capa propia para siempre, y como esto vive dentro de
-         la columna de contenido, al plegar el menu habia que rasterizar
-         todas esas capas en cada fotograma. */
-    }
-
-    .ley-card-art {
-      font-size: 10.5px;
-      font-family: var(--mono-font);
-      color: var(--text-dim);
-      background: var(--surface-2);
-      padding: 2px 6px;
-      border-radius: 4px;
-      align-self: flex-start;
-    }
-
-    /* === OPTIMIZACIÓN RESPONSIVA PARA DISPOSITIVOS MÓVILES (ANDROID / TABLETS <= 768px) === */
-    @media (max-width: 768px) {
-
-      /* Barra de Pestañas Deslizable Horizontal (Pill Tabs) */
-
-      /* Carnet de Identidad en formato Horizontal Compacto */
-
-      /* Formularios en 1 Sola Columna para Móviles (Expediente y Nuevo Usuario) */
-
-      /* Padrón de Personas Autorizadas */
-    }
-
-/* === OPTIMIZACIÓN MÓVIL TOTAL EXPEDIENTE (ALTA PRIORIDAD PARA ANDROID <= 768px) === */
-
-/* Photo Uploader Component */
-
-/* ==========================================================================
-   PADRÓN BENEFICIARIOS: Búsqueda Facetada, Píldoras de Chips y Slider de Edad
-   ========================================================================== */
-
-/* === CROQUIS Y GEORREFERENCIACIÓN DE VIVIENDA (GOOGLE MAPS & FACHADA) === */
-
-/* Master-Detail Split Panel Structure */
-.sedes-metric-strip {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--surface-1);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: clamp(14px, 2.7vw, 20px) clamp(15px, 3.8vw, 30px);
-  margin-bottom: 12px;
-  box-shadow: var(--shadow-ambient);
-  gap: clamp(11px, 2.2vw, 22px);
-  flex-wrap: wrap;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.sedes-metric-item {
-  display: flex;
-  align-items: center;
-  gap: clamp(9px, 2vw, 18px);
-  flex: 1;
-  min-width: 0;
-  transition: transform var(--dur-norm) var(--ease-spring);
-  cursor: default;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .sedes-metric-item:hover {
-    transform: translateY(-2px);
-  }
-}
-
-.sedes-metric-icon {
-  width: clamp(41px, 6vw, 56px);
-  height: clamp(41px, 6vw, 56px);
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: transform var(--dur-panel) var(--ease-spring), box-shadow var(--dur-panel) var(--ease-smooth);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .sedes-metric-item:hover .sedes-metric-icon {
-    transform: scale(1.08);
-  }
-}
-
-.sedes-metric-icon svg {
-  width: clamp(20px, 3.3vw, 28px);
-  height: clamp(20px, 3.3vw, 28px);
-}
-
-.sedes-metric-icon.green {
-  background: var(--gt-green-bg);
-  border: 1px solid var(--gt-green-border);
-  color: var(--gt-green);
-  box-shadow: var(--shadow-sm);
-}
-
-.sedes-metric-icon.blue {
-  background: var(--gt-blue-bg);
-  border: 1px solid var(--gt-blue-border);
-  color: var(--gt-blue);
-  box-shadow: var(--shadow-sm);
-}
-
-.sedes-metric-icon.yellow {
-  background: var(--gt-yellow-bg);
-  border: 1px solid var(--gt-yellow-border);
-  color: var(--gt-yellow);
-  box-shadow: var(--shadow-sm);
-}
-
-.sedes-metric-icon.red {
-  background: var(--gt-red-bg);
-  border: 1px solid var(--gt-red-border);
-  color: var(--gt-red);
-  box-shadow: var(--shadow-sm);
-}
-
-.sedes-metric-data {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-width: 0;
-  flex: 1;
-}
-
-.sedes-metric-num {
-  font-size: clamp(16.5px, 4.5vw, 26px);
-  font-weight: var(--peso-cifra);
-  color: var(--text-main);
-  line-height: 1.12;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.sedes-metric-lbl {
-  font-size: clamp(11.5px, 3vw, 14.5px);
-  color: var(--text-muted);
-  font-weight: 500;
-  margin-top: 2px;
-  line-height: 1.2;
-  white-space: normal;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  word-break: break-word;
-}
-
-.sedes-metric-divider {
-  width: 1px;
-  height: 46px;
-  background: var(--border-subtle);
-}
-
-@media (max-width: 840px) {
-  .sedes-metric-strip {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: clamp(13px, 3.8vw, 20px) clamp(9px, 2.7vw, 15px);
-    padding: clamp(13px, 3.8vw, 18px) clamp(11px, 3.2vw, 16px);
-    width: 100%;
-    box-sizing: border-box;
-  }
-  .sedes-metric-divider {
-    display: none;
-  }
-}
-
-@media (max-width: 380px) {
-  .sedes-metric-strip {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 11px 7px;
-    padding: 11px 9px;
-  }
-  .sedes-metric-item {
-    gap: 7px;
-  }
-}
-
-/* Estilo Linear / Raycast: Cross-Fade de Opacidad Pura (200ms) - Cero Lag y 120 FPS */
-
-/* Congelar transiciones del DOM durante el Cross-Fade para garantizar 120 FPS nativos */
-
-/* Estado 3: Modo Auto (Sensor Inteligente) */
-
-/* 3. Sensor / Monitor SO: Latido rítmico de sincronización inteligente */
-
-/* Adaptabilidad para Cajas de Carga de Foto y Secciones de Retiro en Modo Oscuro */
-
-/* ==========================================
-   ESTILOS: CROQUIS Y MAPA GOOGLE EMBED
-   ========================================== */
-
-/* ===========================================================================
-   REDISEÑO DASHBOARD - ESTÉTICA OPERATIVA Y CLÍNICA (ANTI-SLOP PDI)
-   =========================================================================== */
 
 /* Header contextual sobrio */
 .dash-title-row {
@@ -478,23 +35,6 @@
   flex-wrap: wrap;
 }
 
-.dash-territory-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: var(--radius-full);
-  background: var(--surface-2);
-  color: var(--text-muted);
-  border: 1px solid var(--border-subtle);
-  font-size: 11.5px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-}
-
-.dash-territory-badge svg {
-  color: var(--text-brand);
-}
 
 .dash-subtitle {
   font-size: 13px;
@@ -533,7 +73,7 @@
   gap: 5px;
   font-size: 12px;
   font-weight: 700;
-  color: var(--brand-primary);
+  color: var(--brand-dark);
   text-decoration: none;
   padding: 4px 8px;
   border-radius: var(--radius-sm);
@@ -544,7 +84,7 @@
 @media (hover: hover) and (pointer: fine) {
   .dash-card-action:hover {
     background: var(--surface-hover);
-    color: var(--brand-hover);
+    color: var(--brand-dark);
   }
 }
 
@@ -575,115 +115,10 @@
 }
 
 /* Tira de Métricas Operativas Clave — Placas (fichas con valor ancla y pie hairline) */
-.plq-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  margin-bottom: 20px;
-}
-
-.plq-card {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 16px 18px 18px;
-  background: var(--surface-1);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  transition: border-color var(--dur-fast) var(--ease-smooth),
-              box-shadow var(--dur-fast) var(--ease-smooth);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .plq-card:hover {
-    border-color: var(--border-bright);
-    box-shadow: var(--shadow-ambient);
-  }
-}
-
-.plq-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.plq-label {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  line-height: 1.3;
-}
-
-.plq-val {
-  font-size: 32px;
-  font-weight: 600;
-  line-height: 1;
-  letter-spacing: -0.03em;
-  color: var(--text-main);
-  font-variant-numeric: tabular-nums;
-}
-
-.plq-val.alert {
-  color: var(--text-danger);
-}
-
-.plq-meta {
-  margin-top: auto;
-  padding-top: 10px;
-  border-top: 1px solid var(--border-subtle);
-  font-size: 11.5px;
-  font-weight: 500;
-  line-height: 1.4;
-  color: var(--text-dim);
-}
 
 /* Rejilla Principal de Gráficos / Clínico y Territorial */
-.dash-charts-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
-  gap: 20px;
-  margin-bottom: 12px;
-  align-items: stretch;
-}
-
-/* Las cards de esta rejilla entran SIN cambiar de tamano.
-   El stagger global (.stagger-item -> .stagger-animate) arranca en scale(0.98):
-   al terminar la animacion, TODA la card (texto, barras, pills) crecia ~2% de
-   golpe, lo que se percibia como que la card se "achicaba" o "agrandaba" sola.
-   Aqui la escala queda fija en 1: solo fundido + desplazamiento vertical. */
-.dash-charts-grid > .stagger-item {
-  transform: translateY(14px);
-}
-
-.dash-charts-grid > .stagger-item.stagger-animate {
-  animation-name: dashCardEntrance;
-}
-
-@keyframes dashCardEntrance {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.dash-charts-grid .card-header {
-  margin-bottom: 0 !important;
-}
 
 /* Panel Clínico de Estado Nutricional / Anemia MINSA */
-.dash-clinical-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
 
 /* ===========================================================================
    ESTADO NUTRICIONAL Y ANEMIA — Tabla de rangos
@@ -692,585 +127,11 @@
    lo actualiza DashboardView por id (dashAnemiaTable, anemiaLegend*, segAnemia*,
    anemiaPct*), así que los anchos de .dash-anemia-fill siguen siendo inline.
    =========================================================================== */
-.dash-anemia-table-card {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 18px 20px;
-  height: auto;
-  align-self: start;
-}
 
-.dash-anemia-table {
-  width: 100%;
-  border-collapse: collapse;
-}
 
-.dash-anemia-trow td {
-  padding: 9px 0;
-  border-bottom: 1px solid var(--border-subtle);
-  vertical-align: middle;
-}
 
-.dash-anemia-trow:last-child td {
-  border-bottom: 0;
-}
 
-.dash-anemia-tcount {
-  width: 56px;
-  font-size: 24px;
-  font-weight: var(--peso-cifra);
-  color: var(--text-main);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.03em;
-  text-align: center;
-  transform: translate(-4px, -2px);
-}
 
-.dash-anemia-band {
-  width: 34%;
-  padding-right: 14px;
-}
-
-.dash-anemia-bname {
-  display: block;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-main);
-}
-
-.dash-anemia-brange {
-  display: block;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-dim);
-  font-variant-numeric: tabular-nums;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.dash-anemia-fill {
-  display: block;
-  height: 6px;
-  border-radius: var(--radius-full);
-  transition: width var(--dur-bar) cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.dash-anemia-fill.normal {
-  background: var(--gt-green);
-}
-
-.dash-anemia-fill.leve {
-  background: var(--gt-yellow);
-}
-
-.dash-anemia-fill.mod {
-  background: var(--gt-red);
-}
-
-.dash-anemia-tpct {
-  width: 52px;
-  text-align: right;
-  font-size: 12.5px;
-  font-weight: var(--peso-cifra);
-  color: var(--text-dim);
-  font-variant-numeric: tabular-nums;
-}
-
-.dash-anemia-foot,
-.dash-territory-foot {
-  margin: 0;
-  margin-top: auto;
-  font-size: 12px;
-  color: var(--text-dim);
-  line-height: 1.4;
-  padding-top: 4px;
-}
-
-@media (max-width: 640px) {
-  .dash-anemia-table-card {
-    padding: 16px 14px;
-    gap: 12px;
-  }
-  .dash-anemia-table {
-    table-layout: auto;
-    width: 100%;
-  }
-  .dash-anemia-trow td {
-    padding: 9px 0;
-  }
-  .dash-anemia-tcount {
-    width: 26px;
-    font-size: 22px;
-    padding-right: 6px;
-    /* line-height:1 elimina el espacio bajo la baseline para que el
-       número quede visualmente centrado en la celda */
-    line-height: 1;
-    text-align: center;
-    transform: translate(-4px, -2px);
-  }
-  .dash-anemia-band {
-    width: 1%;
-    white-space: nowrap;
-    /* 10% de separación respecto a la barra (antes 5%) */
-    padding-right: 10%;
-  }
-  .dash-anemia-bname {
-    font-size: 12.5px;
-  }
-  .dash-anemia-brange {
-    font-size: 10px;
-  }
-  /* Celda de la barra: con holgura prudente a la izquierda */
-  .dash-anemia-trow td:nth-child(3) {
-    width: auto;
-    padding: 0 8px 0 10px;
-    position: relative;
-  }
-  /* Pista de fondo horizontal con separación armónica */
-  .dash-anemia-trow td:nth-child(3)::before {
-    content: "";
-    display: block;
-    position: absolute;
-    left: 10px;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    height: 6px;
-    background: var(--surface-2, rgba(255, 255, 255, 0.08));
-    border-radius: var(--radius-full);
-  }
-  .dash-anemia-fill {
-    position: relative;
-    z-index: 1;
-    min-width: 6px;
-  }
-  .dash-anemia-tpct {
-    width: 36px;
-    font-size: 12px;
-    text-align: right;
-  }
-  .dash-anemia-foot {
-    font-size: 11px;
-    line-height: 1.4;
-  }
-}
-
-/* ===========================================================================
-   ESTADO NUTRICIONAL Y ANEMIA — Métricas grandes (variante aceptada, density 0.6)
-   Carbonize del accept en /dashboard #widgetAnemiaStatus (variante 3).
-   Reglas bakeadas con density = 0.6; selectores retargetados a clases semánticas.
-   =========================================================================== */
-.dash-anemia-table-card .card-title span {
-  font-size: 16.5px;
-  font-weight: 700;
-  color: var(--text-main);
-}
-.dash-anemia-metrics {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
-  margin: 8px 0;
-}
-.dash-anemia-metric {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 7px 8px;
-  border-radius: 10px;
-  background: var(--bg-canvas);
-}
-.dash-anemia-metric .dash-anemia-bname {
-  font-size: 11.5px;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-.dash-anemia-metric .dash-anemia-pct {
-  font-variant-numeric: tabular-nums;
-  font-weight: var(--peso-cifra);
-  font-size: 24px;
-  color: var(--text-main);
-}
-.dash-anemia-metric.normal .dash-anemia-pct {
-  color: var(--gt-green);
-}
-.dash-anemia-metric.leve .dash-anemia-pct {
-  color: var(--gt-yellow);
-}
-.dash-anemia-metric.mod .dash-anemia-pct {
-  color: var(--gt-red);
-}
-.dash-anemia-metric .dash-anemia-fill {
-  width: 100%;
-  height: 6px;
-  border-radius: 3px;
-  background: rgba(15, 23, 42, 0.1);
-  margin-top: 4px;
-  overflow: hidden;
-}
-.dash-anemia-metric .dash-anemia-fill::after {
-  content: "";
-  display: block;
-  height: 100%;
-  border-radius: 3px;
-}
-.dash-anemia-metric.normal .dash-anemia-fill::after {
-  background: var(--gt-green);
-  width: 47%;
-}
-.dash-anemia-metric.leve .dash-anemia-fill::after {
-  background: var(--gt-yellow);
-  width: 40%;
-}
-.dash-anemia-metric.mod .dash-anemia-fill::after {
-  background: var(--gt-red);
-  width: 13%;
-}
-.dash-anemia-table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-  margin-top: 8px;
-}
-.dash-anemia-trow {
-  padding: 5px 0;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.05);
-}
-.dash-anemia-trow:last-child {
-  border-bottom: none;
-}
-.dash-anemia-tcount {
-  width: 48px;
-  font-variant-numeric: tabular-nums;
-  font-weight: var(--peso-cifra);
-  color: var(--text-dim);
-  font-size: 13px;
-}
-.dash-anemia-band {
-  width: 150px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.dash-anemia-bname {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-main);
-}
-.dash-anemia-brange {
-  font-size: 11.5px;
-  color: var(--text-muted);
-}
-.dash-anemia-fill {
-  border-radius: 5px;
-  height: 8px;
-}
-.dash-anemia-fill.normal {
-  background: var(--gt-green);
-}
-.dash-anemia-fill.leve {
-  background: var(--gt-yellow);
-}
-.dash-anemia-fill.mod {
-  background: var(--gt-red);
-}
-.dash-anemia-tpct {
-  width: 52px;
-  font-variant-numeric: tabular-nums;
-  font-weight: var(--peso-cifra);
-  color: var(--text-main);
-  text-align: right;
-  font-size: 13px;
-}
-.dash-anemia-foot {
-  margin-top: 8px;
-  font-size: 13px;
-  color: var(--text-muted);
-}
-
-/* Tintes semánticos por nivel de hemoglobina */
-
-.dash-status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.dash-status-dot.green {
-  background: var(--gt-green);
-}
-
-.dash-status-dot.yellow {
-  background: var(--gt-yellow);
-}
-
-.dash-status-dot.red {
-  background: var(--gt-red);
-}
-
-.dash-clinical-callout {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 10px 14px;
-  background: var(--gt-red-bg);
-  border: 1px solid var(--gt-red-border);
-  border-radius: var(--radius-md);
-  font-size: 12px;
-  color: var(--text-main);
-  line-height: 1.45;
-}
-
-.dash-clinical-callout svg {
-  color: var(--text-danger);
-  flex-shrink: 0;
-  margin-top: 1px;
-}
-
-.dash-callout-text strong {
-  color: var(--text-danger);
-  font-weight: 700;
-  margin-right: 5px;
-}
-
-/* Cobertura Territorial por Casitas y Distritos (De-nested & Balanced) */
-.dash-territory-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 100%;
-  gap: 18px;
-}
-
-.dash-territory-summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  background: var(--surface-2);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 10px 14px;
-  gap: 10px;
-}
-
-.dash-summary-item {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  text-align: center;
-}
-
-.dash-summary-label {
-  font-size: 10.5px;
-  color: var(--text-dim);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.dash-summary-val {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--text-main);
-  font-variant-numeric: tabular-nums;
-}
-
-.dash-summary-sep {
-  width: 1px;
-  height: 22px;
-  background: var(--border-subtle);
-}
-
-.dash-territory-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.dash-territory-row {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.dash-territory-row:last-child {
-  padding-bottom: 0;
-  border-bottom: none;
-}
-
-.dash-territory-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.dash-territory-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.dash-territory-info strong {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--text-main);
-}
-
-.dash-territory-sub {
-  font-size: 12px;
-  color: var(--text-dim);
-}
-
-.dash-territory-metric {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  flex-shrink: 0;
-}
-
-.dash-territory-metric strong {
-  font-size: 13.5px;
-  font-weight: var(--peso-cifra);
-  color: var(--text-main);
-  font-variant-numeric: tabular-nums;
-}
-
-.dash-territory-pct {
-  font-size: 12px;
-  color: var(--text-dim);
-  font-weight: var(--peso-cifra);
-  font-variant-numeric: tabular-nums;
-}
-
-.dash-territory-track {
-  height: 7px;
-  width: 100%;
-  background: var(--surface-2);
-  border-radius: var(--radius-full);
-  overflow: hidden;
-  border: 1px solid var(--border-subtle);
-}
-
-.dash-territory-bar {
-  height: 100%;
-  border-radius: var(--radius-full);
-  transition: width var(--dur-bar) var(--ease-spring);
-}
-
-.dash-territory-bar.green {
-  background: var(--gt-green);
-}
-
-.dash-territory-bar.blue {
-  background: var(--gt-blue, var(--gt-blue));
-}
-
-.dash-territory-bar.yellow {
-  background: var(--gt-yellow, var(--gt-yellow));
-}
-
-/* Superficies tintadas por distrito: lectura inmediata de la reparto territorial */
-.dash-territory-row {
-  padding: 12px 14px;
-  border: none;
-  border-radius: var(--radius-md);
-  gap: 10px;
-}
-
-.dash-territory-row:first-child {
-  background: rgba(var(--brand-rgb), 0.2);
-  padding-bottom: 12px;
-}
-
-.dash-territory-row:last-child {
-  background: rgba(2, 132, 199, 0.2);
-  padding-bottom: 12px;
-}
-
-.dash-territory-info strong {
-  font-size: 14px;
-}
-
-.dash-territory-sub {
-  font-size: 11.5px;
-}
-
-.dash-territory-metric strong {
-  font-size: 15px;
-}
-
-.dash-territory-track {
-  height: 10px;
-  border: none;
-  background: rgba(15, 23, 42, 0.06);
-}
-
-/* ===========================================================================
-   COBERTURA TERRITORIAL — Porcentaje protagonista
-   El reparto entre distritos se lee por peso relativo: el porcentaje manda y el
-   conteo de usuarios queda fuera de la vista (variante aceptada "solo
-   porcentaje"). El marcado lo emite DashboardView (dash-territory-*), así que
-   aquí solo se reestiliza lo que el JS ya genera: al re-renderizar la tarjeta
-   sigue viéndose igual.
-   =========================================================================== */
-.dash-territory-row {
-  background: none;
-  padding: 0 0 14px;
-  border-bottom: 1px solid var(--border-subtle);
-  border-radius: 0;
-  gap: 8px;
-}
-
-.dash-territory-row:first-child,
-.dash-territory-row:last-child {
-  background: none;
-}
-
-.dash-territory-row:last-child {
-  padding-bottom: 0;
-  border-bottom: 0;
-}
-
-.dash-territory-metric {
-  align-items: baseline;
-  gap: 9px;
-}
-
-/* Para volver a mostrar el conteo por distrito, quitar esta línea. */
-.dash-territory-metric strong {
-  display: none;
-}
-
-/* En móvil el texto de sedes puede ser largo y empujar el porcentaje hacia
-   abajo; flex-shrink:0 lo mantiene siempre alineado a la derecha. */
-.dash-territory-metric {
-  flex-shrink: 0;
-}
-
-.dash-territory-pct {
-  order: 1;
-  font-size: 20px;
-  font-weight: var(--peso-cifra);
-  color: var(--text-main);
-  letter-spacing: -0.02em;
-}
-
-.dash-territory-track {
-  /* Mismo grosor que las barras de estado nutricional (.dash-anemia-fill: 6px) */
-  height: 6px;
-  border: 0;
-}
-
-.dash-territory-sub {
-  font-size: 11.5px;
-}
 
 #widgetCoverageStatus {
   display: flex;
@@ -1282,7 +143,7 @@
 
 /* El enlace de acción comparte el acento territorial */
 #widgetCoverageStatus .dash-card-action {
-  color: var(--brand-primary);
+  color: var(--brand-dark);
 }
 
 #widgetCoverageStatus .dash-territory-list {
@@ -1297,71 +158,9 @@
   margin-top: 8px;
 }
 
-/* Cobertura Territorial — variante Hierarchy con ritmo espacial impecable */
-.dash-territory-list--hierarchy {
-  gap: 12px;
-  padding: 0;
-}
-.dash-territory-list--hierarchy .dash-territory-row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 4px 14px;
-  align-items: end;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border-subtle);
-}
-.dash-territory-list--hierarchy .dash-territory-row:last-child {
-  border-bottom: 0;
-  padding-bottom: 0;
-}
-.dash-territory-list--hierarchy .dash-territory-head { display: contents; }
-.dash-territory-list--hierarchy .dash-territory-info { grid-column: 1; }
-.dash-territory-list--hierarchy .dash-territory-info strong {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text-main);
-  display: block;
-}
-.dash-territory-list--hierarchy .dash-territory-sub {
-  font-size: 11.5px;
-  color: var(--text-dim);
-  line-height: 1.35;
-  margin-top: 3px;
-  display: block;
-}
-.dash-territory-list--hierarchy .dash-territory-metric { grid-column: 2; align-items: baseline; }
-.dash-territory-list--hierarchy .dash-territory-pct {
-  font-size: 28px;
-  font-weight: var(--peso-cifra);
-  color: var(--gt-green);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
-}
-.dash-territory-list--hierarchy .dash-territory-row:nth-child(2) .dash-territory-pct { color: var(--gt-blue); }
-.dash-territory-list--hierarchy .dash-territory-track { grid-column: 1 / -1; height: 6px; }
 
-/* Responsive Breakpoints */
-@media (max-width: 1024px) {
-  .plq-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
 
 @media (max-width: 640px) {
-  /* En móviles: Grid de 2x2 compacto para no desplazar el contenido hacia abajo */
-  .plq-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin-bottom: 14px;
-  }
-  .plq-card {
-    padding: 12px 13px 14px;
-    gap: 9px;
-  }
-  .plq-meta {
-    font-size: 10.5px;
-    padding-top: 8px;
-  }
 
   /* Mantener semáforo clínico en 3 columnas compactas tipo indicador médico */
 
@@ -1431,9 +230,9 @@
     align-items: center !important;
     justify-content: center !important;
     flex-shrink: 0 !important;
-    width: 34px !important;
-    height: 34px !important;
-    min-height: 34px !important;
+    width: 44px !important;
+    height: 44px !important;
+    min-height: 44px !important;
     padding: 0 !important;
     border-radius: var(--radius-sm) !important;
     background: var(--surface-1) !important;
@@ -1508,7 +307,7 @@
   height: 26px;
   border-radius: 50%;
   background: var(--surface-hover);
-  color: var(--text-brand);
+  color: var(--brand-dark);
   border: none;
   display: flex;
   align-items: center;
@@ -1521,7 +320,7 @@
 
 .dash-priority-avatar.critical {
   background: var(--gt-red-bg);
-  color: var(--text-danger);
+  color: var(--text-main);
   border-color: var(--gt-red-border);
 }
 
@@ -1906,263 +705,14 @@
 }
 
 @media (max-width: 768px) {
-  .dash-charts-grid {
-    grid-template-columns: 1fr !important;
-    gap: 14px !important;
-    margin-bottom: 14px !important;
-  }
   .dash-operational-grid {
     grid-template-columns: 1fr !important;
     gap: 14px !important;
   }
-  .anemia-threshold-bar {
-    grid-template-columns: 1fr !important;
-  }
-  .sedes-metric-alert {
-    width: 100%;
-  }
 }
 
-/* ===========================================================================
-   ESTADO NUTRICIONAL Y ANEMIA — Filas vivas (variante aceptada en /dashboard)
-   Limpieza del accept live (sesión d86349be): cada banda es una fila con nota
-   clínica, sin acciones (link "Ver plan" eliminado). Parámetros bakeados:
-   density = compact, actions = false. Filas planas con divisor inferior.
-   =========================================================================== */
-.dash-anemia-rows {
-  display: flex;
-  flex-direction: column;
-  flex: 0 0 auto;
-  gap: 0;
-  margin-top: 8px;
-  /* Coincide con la card hermana (list margin-top) para simetría vertical. */
-}
 
-/* Filas planas: sin borde/fondo propio (evita nested cards dentro del .card
-   contenedor). Separación por divisor inferior, mismo patrón que la lista
-   de territorio hermana. */
-.dash-anemia-row {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  align-items: stretch;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--border-subtle);
-  border-radius: 8px;
-  background: transparent;
-  transition: background-color var(--dur-norm) var(--ease-out);
-}
 
-.dash-anemia-row:last-child {
-  border-bottom: 0;
-}
-
-.dash-anemia-row:focus-within {
-  background: var(--surface-2);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .dash-anemia-row:hover {
-    background: var(--surface-2);
-  }
-}
-
-.dash-anemia-row-count {
-  font-size: 26px;
-  font-weight: var(--peso-cifra);
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  text-align: center;
-  color: var(--text-main);
-  font-variant-numeric: tabular-nums;
-}
-
-.dash-anemia-row-main {
-  min-width: 0;
-}
-
-.dash-anemia-row-topline {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-
-.dash-anemia-row-name {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-main);
-}
-
-.dash-anemia-row-range {
-  font-size: 10.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--text-dim);
-  font-variant-numeric: tabular-nums;
-}
-
-.dash-anemia-row-pct {
-  margin-left: auto;
-  font-size: 13px;
-  font-weight: var(--peso-cifra);
-  color: var(--text-dim);
-  font-variant-numeric: tabular-nums;
-}
-
-.dash-anemia-row[data-band="normal"] .dash-anemia-row-pct {
-  color: var(--gt-green);
-}
-
-.dash-anemia-row[data-band="leve"] .dash-anemia-row-pct {
-  color: var(--gt-yellow);
-}
-
-.dash-anemia-row[data-band="mod"] .dash-anemia-row-pct {
-  color: var(--gt-red);
-}
-
-.dash-anemia-row-track {
-  height: 6px;
-  border-radius: var(--radius-full);
-  background: rgba(15, 23, 42, 0.07);
-  overflow: hidden;
-}
-.dash-anemia-row-fill {
-  display: block;
-  height: 100%;
-  border-radius: var(--radius-full);
-}
-
-.dash-anemia-row-note {
-  margin: 4px 0 0;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-dim);
-}
-
-/* ===========================================================================
-   COBERTURA TERRITORIAL — Share primero (variante aceptada en /dashboard)
-   Limpieza del accept live (sesión d66afce6): el porcentaje y el conteo
-   lideran; nombre y sedes van debajo. Parámetros bakeados: size = 1 (30px),
-   tint = false (sin fondos por distrito).
-   =========================================================================== */
-.dash-territory-list--hierarchy .dash-territory-row--share {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 4px 14px;
-  align-items: baseline;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.dash-territory-list--hierarchy .dash-territory-row--share:last-child {
-  border-bottom: 0;
-  padding-bottom: 0;
-}
-
-.dash-territory-list--hierarchy .dash-territory-share-pct {
-  display: block;
-  font-size: 30px;
-  font-weight: var(--peso-cifra);
-  line-height: 1;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-  /* Reservar el ancho del slot del porcentaje. El HTML estatico pinta "—" (muy
-     estrecho, ~23px) y al llegar los datos la columna "auto" del grid crecia a
-     ~62px, empujando el nombre del distrito ~40px a la derecha de golpe. Con un
-     ancho minimo en em (escala con el font-size de 30px) el slot ya nace con el
-     tamano final y la columna no cambia entre "—" y "53%". */
-  min-width: 2.1em;
-}
-
-.dash-territory-list--hierarchy .dash-territory-row--share[data-dist="comas"] .dash-territory-share-pct {
-  color: var(--gt-green);
-}
-
-.dash-territory-list--hierarchy .dash-territory-row--share[data-dist="carabayllo"] .dash-territory-share-pct {
-  color: var(--gt-blue);
-}
-
-.dash-territory-list--hierarchy .dash-territory-share-badge {
-  display: block;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-dim);
-  margin-top: 2px;
-}
-
-/* El odometro de este detalle debe ocupar EXACTAMENTE la caja de linea del
-   texto plano que reemplaza: el .odometer-wrap global usa 1.15em y el slot de
-   porcentajes va con line-height 1. Si no coinciden, activar el odometro en el
-   primer render y volver a texto plano en la hidratacion movia la card 6px
-   de golpe. */
-.dash-territory-list--hierarchy .dash-territory-share-pct .odometer-wrap,
-.dash-territory-list--hierarchy .dash-territory-share-pct .odometer-digit,
-.dash-territory-list--hierarchy .dash-territory-share-pct .odometer-ribbon > span,
-.dash-territory-list--hierarchy .dash-territory-share-pct .odometer-glyph {
-  height: 1em;
-  line-height: 1em;
-}
-
-.dash-territory-list--hierarchy .dash-territory-share-badge .odometer-wrap,
-.dash-territory-list--hierarchy .dash-territory-share-badge .odometer-digit,
-.dash-territory-list--hierarchy .dash-territory-share-badge .odometer-ribbon > span,
-.dash-territory-list--hierarchy .dash-territory-share-badge .odometer-glyph {
-  height: 1.2em;
-  line-height: 1.2em;
-}
-
-/* Igualar tambien el ANCHO, no solo la altura. El .odometer-glyph global suma
-   0.06em de padding por lado y baja la opacidad a 0.9, asi que el odometro era
-   ~4px mas ancho que el texto plano que reemplaza. Como la fila usa
-   grid-template-columns: auto 1fr, esa diferencia ensanchaba la primera columna
-   y empujaba el nombre del distrito a la derecha durante el primer render; al
-   hidratar desde SurrealDB la vista se repinta con texto plano y el nombre daba
-   un salto de ~4px. Sin padding el odometro ocupa la misma caja que el texto. */
-.dash-territory-list--hierarchy .odometer-glyph {
-  padding: 0;
-  opacity: 1;
-}
-
-.dash-territory-list--hierarchy .dash-territory-share-info strong {
-  display: block;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text-main);
-}
-
-.dash-territory-list--hierarchy .dash-territory-share-sub {
-  display: block;
-  font-size: 11.5px;
-  color: var(--text-dim);
-  line-height: 1.35;
-  margin-top: 3px;
-}
-
-.dash-territory-list--hierarchy .dash-territory-row--share .dash-territory-track {
-  grid-column: 1 / -1;
-  margin-top: 8px;
-}
-
-/* ===========================================================================
-   PILLS DE SEDES EN CARD DE COBERTURA
-   =========================================================================== */
-
-.dash-territory-sede-pills {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 6px;
-  padding-top: 0;
-}
-
-.dash-territory-sede-pill-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
 
 .dash-sede-pill {
   position: relative;
@@ -2188,174 +738,7 @@
 .dash-sede-pill--carabayllo { background: var(--gt-blue, var(--gt-blue)); }
 .dash-sede-pill--other { background: var(--gt-yellow); }
 
-.dash-sede-pill::after {
-  content: attr(data-count) " usuarios";
-  position: absolute;
-  left: 50%;
-  bottom: calc(100% + 6px);
-  transform: translateX(-50%) translateY(4px);
-  padding: 3px 8px;
-  border-radius: var(--radius-sm);
-  background: var(--surface-1);
-  color: var(--text-main);
-  border: 1px solid var(--border-subtle);
-  font-size: 11px;
-  font-weight: 600;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  box-shadow: var(--shadow-sm);
-  transition: opacity var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
-}
 
-@media (hover: hover) and (pointer: fine) {
-  .dash-sede-pill:hover::after {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-}
-
-/* ===========================================================================
-   TIRA DE KPI DEL DASHBOARD
-   Cuatro placas de metrica. El rotulo sube un paso (12/800) y la cifra usa
-   Metric Compact con trazo fino (30/385): la placa se lee como parte clinico,
-   no como titular. La unidad queda en 300 al 60 % para no competir.
-   La placa de alerta conserva el tinte rojo semantico del sistema.
-   =========================================================================== */
-.dash-kpi-strip {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-/* En ventanas medianas (portátil pequeño, ventana partida) cuatro placas de
-   230px no caben y la cuarta cae sola a una segunda fila, dejando un hueco.
-   A dos columnas la tira queda 2x2, que es la composicion prevista. */
-@media (max-width: 1024px) {
-  .dash-kpi-strip {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-.dash-kpi-plate {
-  display: flex;
-  flex-direction: column;
-  padding: 16px 18px;
-  /* Misma piel que las cards de la rejilla inferior (.dash-anemia-panel y
-     .dash-coverage-panel): superficie base, radio de 16 y sombra ambiente. */
-  background: var(--surface-1);
-  border: 1px solid var(--border-subtle);
-  border-radius: 16px;
-  box-shadow: var(--shadow-ambient);
-  transition: border-color var(--dur-norm) var(--ease-smooth);
-}
-
-/* El hover es una señal de ratón: en táctil se queda pegado tras el toque. */
-@media (hover: hover) {
-  .dash-kpi-plate:hover {
-    border-color: var(--border-bright);
-  }
-}
-
-.dash-kpi-label {
-  margin-bottom: 10px;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-}
-
-.dash-kpi-value {
-  margin-bottom: 8px;
-  font-size: 30px;
-  font-weight: var(--peso-cifra);
-  line-height: 1.05;
-  letter-spacing: -0.035em;
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum" 1;
-  color: var(--text-main);
-}
-
-/* La cifra y su unidad no comparten peso: la barra de fracción y el signo de
-   porcentaje quedan en 300 al 60 %, así "13/13" se lee como una cifra con
-   acompañamiento y no como una cadena de texto. */
-.dash-kpi-value .odometer-glyph {
-  font-weight: var(--peso-cifra-aux);
-  opacity: 0.6;
-}
-
-.dash-kpi-context {
-  font-size: 11.5px;
-  font-weight: 500;
-  line-height: 1.4;
-  color: var(--text-muted);
-}
-
-.dash-kpi-plate.is-alert {
-  /* Tinte opaco sobre la superficie de la placa: al mezclar sobre el lienzo,
-     el rojo de texto bajaba a 4,19:1 en claro. Sobre superficie queda en AA. */
-  background: color-mix(in srgb, var(--gt-red) 5%, var(--surface-1));
-  border-color: color-mix(in srgb, var(--gt-red) 26%, var(--surface-1));
-}
-
-.dash-kpi-plate.is-alert .dash-kpi-label,
-.dash-kpi-plate.is-alert .dash-kpi-context,
-.dash-kpi-plate.is-alert .dash-kpi-value {
-  color: var(--text-danger);
-}
-
-/* En Android el 2x2 se lee como una sola retícula. El rótulo reserva dos
-   líneas para que las cuatro cifras caigan en la misma línea base, y el
-   contexto se ancla al pie: las placas dejan de parecer cuatro cajas sueltas.
-   El relleno baja de 20 a 14 px para que "13/13" respire a 360 dp. */
-@media (max-width: 640px) {
-  .dash-kpi-strip {
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-
-  .dash-kpi-plate {
-    padding: 14px 14px 15px;
-  }
-
-  .dash-kpi-label {
-    min-height: 2.6em;
-    margin-bottom: 10px;
-    font-size: 10.5px;
-    line-height: 1.3;
-    letter-spacing: 0.075em;
-    text-wrap: balance;
-  }
-
-  .dash-kpi-value {
-    margin-bottom: 8px;
-  }
-
-  /* La barra de fracción y el signo de porcentaje acompañan a la cifra:
-     se atenúan sin cambiar de tamaño para no romper la línea base. */
-  .dash-kpi-value .odometer-glyph {
-    opacity: 0.55;
-  }
-
-  .dash-kpi-context {
-    margin-top: auto;
-    min-height: 2.9em;
-    font-size: 11.5px;
-    line-height: 1.45;
-    text-wrap: balance;
-  }
-}
-
-/* 320 dp: "13/13" a 40 px no cabe entre los rellenos. Se usa la variante
-   compacta declarada del sistema (Metric Compact, 30/385), no un tamaño suelto. */
-@media (max-width: 340px) {
-  .dash-kpi-value {
-    font-size: 30px;
-    font-weight: var(--peso-cifra);
-  }
-}
 
 /* ===========================================================================
    PANEL DE ESTADO NUTRICIONAL Y ANEMIA
@@ -2461,7 +844,7 @@
 
 .dash-anemia-line-track {
   grid-column: 2 / -1;
-  height: 3px;
+  height: 4px;
   margin-top: 9px;
   border-radius: 2px;
   background: var(--border-subtle);
@@ -2628,12 +1011,16 @@
   border-radius: 6px;
   font-size: 10.5px;
   font-weight: 600;
-  background: rgba(0, 180, 148, 0.09);
+  background: var(--gt-green-bg);
   color: var(--text-main);
 }
 
 .dash-coverage-panel .dash-sede-pill--carabayllo {
-  background: rgba(2, 132, 199, 0.09);
+  background: var(--gt-blue-bg);
+}
+
+.dash-coverage-panel .dash-sede-pill--other {
+  background: var(--gt-yellow-bg);
 }
 
 .dash-coverage-panel .dash-sede-pill::after {
@@ -2710,7 +1097,7 @@
   border-radius: var(--radius-full);
   background: var(--brand-soft);
   border: 1px solid var(--gt-green-border);
-  color: var(--text-brand);
+  color: var(--brand-dark);
   font-size: 11.5px;
   font-weight: 700;
   text-decoration: none;
@@ -2740,9 +1127,7 @@
   flex-direction: column;
   gap: 6px;
   padding: 22px 22px 18px;
-  background:
-    radial-gradient(120% 90% at 0% 0%, var(--gt-green-bg), transparent 58%),
-    var(--surface-1);
+  background: var(--surface-1);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   min-height: 200px;
@@ -2758,7 +1143,7 @@
 }
 
 .dash-focus-value {
-  font-size: clamp(40px, 5vw, 56px);
+  font-size: clamp(30px, 4.5vw, 40px);
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.035em;
@@ -2842,22 +1227,6 @@
   text-wrap: pretty;
 }
 
-.dash-secondary-track {
-  height: 5px;
-  margin: 2px 0 4px;
-  border-radius: var(--radius-full);
-  background: var(--surface-2);
-  overflow: hidden;
-}
-
-.dash-secondary-fill {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--gt-green);
-  transition: width var(--dur-panel) var(--ease-drawer);
-}
-
 .dash-secondary-card.is-alert .dash-secondary-value {
   color: var(--text-danger, #dc2626);
 }
@@ -2922,29 +1291,20 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
   flex-shrink: 0;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
 }
 
 .dash-service-icon.is-green {
-  background: var(--gt-green-bg);
   color: var(--text-brand);
-  border-color: var(--gt-green-border);
 }
 
 .dash-service-icon.is-blue {
-  background: var(--gt-blue-bg);
   color: var(--gt-blue);
-  border-color: var(--gt-blue-border);
 }
 
 .dash-service-icon.is-amber {
-  background: rgba(245, 158, 11, 0.14);
-  color: var(--text-warning, #b45309);
-  border-color: rgba(245, 158, 11, 0.32);
+  color: var(--text-warning);
 }
 
 .dash-service-title-group {
@@ -2974,7 +1334,7 @@
 }
 
 .dash-service-lead-value {
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.025em;
@@ -3025,7 +1385,7 @@
   margin-top: 2px;
   font-size: 11.5px;
   font-weight: 700;
-  color: var(--text-brand);
+  color: var(--brand-dark);
   text-decoration: none;
 }
 
@@ -3188,7 +1548,7 @@
   }
 
   .dash-focus-value {
-    font-size: 44px;
+    font-size: 40px;
   }
 
   .dash-secondary-card {
@@ -3203,6 +1563,13 @@
     min-width: 0;
     width: 100%;
   }
+
+  /* Objetivos táctiles de 44 px en enlaces y acciones */
+  .dash-card-action,
+  .dash-service-link,
+  .dash-meta-link {
+    min-height: 44px;
+  }
 }
 
 /* Ajustes de composición del rediseño */
@@ -3216,17 +1583,5 @@
 }
 
 .dash-secondary-context {
-  margin-top: 0;
-}
-
-.dash-secondary-track {
-  margin: auto 0 6px;
-}
-
-.dash-secondary-context {
   margin-top: auto;
-}
-
-.dash-secondary-track {
-  margin: 2px 0 4px;
 }
