@@ -367,6 +367,188 @@
 
 /* Adaptabilidad para Cajas de Carga de Foto y Secciones de Retiro en Modo Oscuro */
 
+/* ===========================================================================
+   TABLA DE EVALUACIONES CRED · diseño unificado (igual que padrón y voluntariados)
+   Siete columnas: usuario, edad, peso/talla, hemoglobina/diagnóstico,
+   tamizajes, suplementación y acciones.
+   =========================================================================== */
+#cardSaludEvaluaciones .data-table {
+  width: 100%;
+  min-width: 880px;
+  table-layout: fixed;
+}
+
+#cardSaludEvaluaciones .data-table thead th { white-space: normal; }
+
+#cardSaludEvaluaciones .data-table thead th:nth-child(1) { width: 22%; text-align: left; }
+#cardSaludEvaluaciones .data-table thead th:nth-child(2) { width: 8%;  text-align: left; }
+#cardSaludEvaluaciones .data-table thead th:nth-child(3) { width: 12%; text-align: left; }
+#cardSaludEvaluaciones .data-table thead th:nth-child(4) { width: 18%; text-align: left; }
+#cardSaludEvaluaciones .data-table thead th:nth-child(5) { width: 14%; text-align: left; }
+#cardSaludEvaluaciones .data-table thead th:nth-child(6) { width: 16%; text-align: left; }
+#cardSaludEvaluaciones .data-table thead th:nth-child(7) { width: 10%; text-align: center; }
+
+#cardSaludEvaluaciones .data-table tbody tr.padron-tr {
+  transition: background-color var(--dur-fast) var(--ease-smooth);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  #cardSaludEvaluaciones .data-table tbody tr.padron-tr:hover {
+    background-color: var(--surface-hover);
+  }
+}
+
+#cardSaludEvaluaciones .padron-user-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+#cardSaludEvaluaciones .padron-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12.5px;
+  letter-spacing: -0.01em;
+  flex-shrink: 0;
+  border: 1px solid transparent;
+}
+
+#cardSaludEvaluaciones .padron-avatar.serv-desayuno {
+  background: rgba(var(--brand-rgb), 0.12);
+  color: var(--gt-green);
+  border-color: rgba(var(--brand-rgb), 0.25);
+}
+
+#cardSaludEvaluaciones .padron-avatar.serv-casita,
+#cardSaludEvaluaciones .padron-avatar.serv-biblioteca {
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--gt-yellow);
+  border-color: rgba(245, 158, 11, 0.25);
+}
+
+#cardSaludEvaluaciones .padron-avatar.serv-pastoral {
+  background: rgba(2, 132, 199, 0.12);
+  color: var(--gt-blue);
+  border-color: rgba(2, 132, 199, 0.25);
+}
+
+#cardSaludEvaluaciones .padron-avatar.serv-otro {
+  background: var(--surface-2);
+  color: var(--text-dim);
+  border-color: var(--border-subtle);
+}
+
+#cardSaludEvaluaciones .padron-avatar.is-retrato {
+  padding: 0;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+#cardSaludEvaluaciones .padron-avatar.is-retrato img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 22%;
+  display: block;
+  border-radius: inherit;
+}
+
+#cardSaludEvaluaciones .padron-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+#cardSaludEvaluaciones .padron-user-name {
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--text-main);
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#cardSaludEvaluaciones .padron-user-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
+}
+
+#cardSaludEvaluaciones .padron-code {
+  color: var(--text-brand);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+#cardSaludEvaluaciones .padron-meta-sep { opacity: 0.4; }
+
+#cardSaludEvaluaciones .padron-location-title {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-main);
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#cardSaludEvaluaciones .padron-location-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#cardSaludEvaluaciones .padron-contact-phone {
+  font-size: 13px;
+  color: var(--text-main);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+#cardSaludEvaluaciones .padron-hb-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+#cardSaludEvaluaciones .padron-metric-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-main);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+#cardSaludEvaluaciones .padron-metric-item.padron-metric-sub {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
 ::view-transition-group(*) {
   animation-duration: var(--dur-panel);
   animation-timing-function: var(--ease-spring, cubic-bezier(0.16, 1, 0.3, 1));

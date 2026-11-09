@@ -1229,7 +1229,6 @@ export const BeneficiariosView = {
         tbody.innerHTML = beneficiarios.map(b => {
           const telefono = b.telefono ? String(b.telefono).replace(/-/g, ' ') : 'Sin teléfono';
           const edadTxt = b.edad || 'Edad no reg.';
-          const nTam = Array.isArray(b.tamizajes) ? b.tamizajes.length : 0;
           const apoderadoTxt = b.apoderado || 'Sin apoderado';
           const parentescoTxt = b.parentesco || '';
           const estadoClase = b.estado === 'Activo' ? 'is-active' : 'is-paused';
@@ -1267,7 +1266,6 @@ export const BeneficiariosView = {
               <div class="padron-user-name" title="Apoderado">${escapar(apoderadoTxt)}</div>
               <div class="padron-metric-item padron-metric-sub">
                 ${parentescoTxt ? `<span>${escapar(parentescoTxt)}</span><span class="padron-meta-sep">&bull;</span>` : ''}
-                <span>${nTam > 0 ? 'Con tamizaje' : 'Sin tamizaje'}</span>
               </div>
             </td>
             <td>

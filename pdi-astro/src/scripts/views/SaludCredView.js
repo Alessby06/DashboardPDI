@@ -12,6 +12,7 @@ import { SEDES_NOMBRES, etiquetaSede } from "../core/catalogos.js";
 import { contarOpciones } from "../utils/FacetCounts.js";
 import { initSortMenu } from "../ui/SortMenu.js";
 import { iconHtml } from '../../data/iconos.js';
+import { avatarHtml } from "../utils/Avatar.js";
 // Filtros del modulo CRED que viajan en la URL. Valores tomados de los
 // desplegables de salud.html.
 const FILTROS_SALUD = {
@@ -619,19 +620,48 @@ export const SaludCredView = {
 
     if (tbody && !enMovil) {
       tbody.innerHTML = pageItems.map(b => {
-        const nTamizajes = Array.isArray(b.tamizajes) ? b.tamizajes.length : 0;
+        const tams = Array.isArray(b.tamizajes) ? b.tamizajes : [];
+        const nTamizajes = tams.length;
+        const fechaUltima = tams[0]?.fecha ? new Date(tams[0].fecha) : null;
+        const ultimaTxt = fechaUltima && !isNaN(fechaUltima.getTime())
+          ? fechaUltima.toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" })
+          : "Sin tamizaje";
+        const anemiaTxt = b.anemia || "Sin tamizaje";
         let badgeClass = "badge-green";
         if (b.anemia === "Leve") badgeClass = "badge-yellow";
         if (b.anemia === "Moderada" || b.anemia === "Severa") badgeClass = "badge-red";
+        if (anemiaTxt === "Sin tamizaje") badgeClass = "badge-neutral";
+
+        const hbTxt = b.hb != null ? `${escapar(b.hb)} g/dL` : "Sin dosaje";
+        const pesoTx = b.peso != null ? escapar(b.peso) : "—";
+        const tallaTx = b.talla != null ? escapar(b.talla) : "—";
 
         return `
-          <tr>
-            <td><strong>${escapar(b.nombres)} ${escapar(b.apellidos)}</strong><div style="font-size:11.5px; color:var(--text-dim); font-family:var(--mono-font);">${escapar(b.codigo)}</div></td>
-            <td>${escapar(b.edad)}</td>
-            <td>${escapar(b.peso)} kg / ${escapar(b.talla)} cm</td>
-            <td><strong style="font-family:var(--mono-font);">${escapar(b.hb)} g/dL</strong>${this._chipTendenciaHb(b)}${nTamizajes > 1 ? `<div style="font-size:11px; color:var(--text-dim); margin-top:2px;">${nTamizajes} pruebas registradas</div>` : ''}</td>
-            <td><span class="badge ${badgeClass}">${escapar(b.anemia)}</span></td>
-            <td>${b.anemia !== "Normal" ? "Sulfato Ferroso 1 dosis/día" : "Dieta Preventiva"}</td>
+          <tr class="padron-tr">
+            <td>
+              <div class="padron-user-cell">
+                ${avatarHtml(b)}
+                <div class="padron-user-info">
+                  <div class="padron-user-name" title="${escapar(`${b.nombres} ${b.apellidos}`)}">${escapar(b.nombres)} ${escapar(b.apellidos)}</div>
+                  <div class="padron-user-meta">
+                    <span class="padron-code">${escapar(b.codigo)}</span>
+                    <span class="padron-meta-sep">&bull;</span>
+                    <span>DNI ${escapar(b.dni || '—')}</span>
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td><div class="padron-location-title">${escapar(b.edad || "—")}</div></td>
+            <td><div class="padron-location-title">${pesoTx} kg / ${tallaTx} cm</div></td>
+            <td>
+              <div class="padron-contact-phone">${hbTxt}</div>
+              <div class="padron-hb-meta">${this._chipTendenciaHb(b)}<span class="badge ${badgeClass}">${escapar(anemiaTxt)}</span></div>
+            </td>
+            <td>
+              <div class="padron-metric-item">${nTamizajes} prueba${nTamizajes === 1 ? "" : "s"}</div>
+              <div class="padron-metric-item padron-metric-sub">${ultimaTxt}</div>
+            </td>
+            <td><div class="padron-location-sub">${b.anemia !== "Normal" ? "Sulfato Ferroso 1 dosis/día" : "Dieta Preventiva"}</div></td>
             <td>
               <div class="row-actions">
                 <button type="button" class="row-action" onclick="window.registrarDosaje ? window.registrarDosaje(${escaparEnManejador(b.id)}) : null" title="Registrar dosaje" aria-label="Registrar un dosaje de hemoglobina">
@@ -652,10 +682,17 @@ export const SaludCredView = {
 
     if (mobileContainer && enMovil) {
       mobileContainer.innerHTML = pageItems.map(b => {
-        const nTamizajes = Array.isArray(b.tamizajes) ? b.tamizajes.length : 0;
+        const tams = Array.isArray(b.tamizajes) ? b.tamizajes : [];
+        const nTamizajes = tams.length;
+        const fechaUltima = tams[0]?.fecha ? new Date(tams[0].fecha) : null;
+        const ultimaTxt = fechaUltima && !isNaN(fechaUltima.getTime())
+          ? fechaUltima.toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" })
+          : "Sin tamizaje";
+        const anemiaTxt = b.anemia || "Sin tamizaje";
         let badgeClass = "badge-green";
         if (b.anemia === "Leve") badgeClass = "badge-yellow";
         if (b.anemia === "Moderada" || b.anemia === "Severa") badgeClass = "badge-red";
+        if (anemiaTxt === "Sin tamizaje") badgeClass = "badge-neutral";
 
         return `
           <div class="mobile-card-item" id="mobile-salud-${escapar(b.id)}">
@@ -665,7 +702,7 @@ export const SaludCredView = {
                 <span>ID:</span> ${escapar(b.codigo)}
               </div>
               <div class="datacard-header-right">
-                <span class="badge ${badgeClass}">${escapar(b.anemia)}</span>
+                <span class="badge ${badgeClass}">${escapar(anemiaTxt)}</span>
               </div>
             </div>
 
@@ -697,6 +734,10 @@ export const SaludCredView = {
                 <div class="datacard-row">
                   <span class="datacard-label">Suplementación</span>
                   <span class="datacard-value">${b.anemia !== "Normal" ? "Sulfato Ferroso 1 dosis/día" : "Dieta Preventiva"}</span>
+                </div>
+                <div class="datacard-row">
+                  <span class="datacard-label">Tamizajes</span>
+                  <span class="datacard-value">${nTamizajes} prueba${nTamizajes === 1 ? "" : "s"} · ${ultimaTxt}</span>
                 </div>
                 <div class="datacard-actions-footer">
                   <button type="button" class="btn-action primary" style="width:100%; justify-content:center; margin-bottom:6px;" onclick="event.stopPropagation(); window.registrarDosaje ? window.registrarDosaje(${escaparEnManejador(b.id)}) : null">

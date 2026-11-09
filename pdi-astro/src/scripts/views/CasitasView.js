@@ -13,6 +13,7 @@ import { SEDES_NOMBRES, etiquetaSede } from "../core/catalogos.js";
 import { contarOpciones } from "../utils/FacetCounts.js";
 import { initSortMenu } from "../ui/SortMenu.js";
 import { iconHtml } from '../../data/iconos.js';
+import { avatarHtml } from "../utils/Avatar.js";
 import { ESTADOS_ASISTENCIA } from '../core/jornadaAsistencia.js';
 import { confirmar } from '../ui/confirmacion.js';
 
@@ -37,6 +38,16 @@ function colegioOrigenVisible(beneficiario) {
 function gradoVisible(beneficiario) {
   const grado = String(beneficiario?.grado ?? '').trim();
   return grado || 'Sin registrar';
+}
+
+function nivelEducativoVisible(beneficiario) {
+  const nivel = String(beneficiario?.nivelEducativo ?? '').trim();
+  if (nivel) return nivel;
+  const grado = String(beneficiario?.grado ?? '').trim();
+  if (grado.includes('Prim')) return 'Primaria';
+  if (grado.includes('Secund')) return 'Secundaria';
+  if (grado) return 'Inicial';
+  return 'Sin registrar';
 }
 
 function hoyLocal() {
@@ -618,6 +629,13 @@ export const CasitasView = {
     return `<span class="${info.badgeClass}" id="${prefijo}${escapar(id)}">${info.label}</span>`;
   },
 
+  /** Versión de la tabla nueva: punto de color + texto, como el estado del padrón. */
+  _tagAsistencia(id, prefijo) {
+    const info = this._estadoAsistenciaInfo(id);
+    const dotClase = { P: "dot-green", T: "dot-yellow", FJ: "dot-amber", FI: "dot-red" }[info.clave] || "dot-gray";
+    return `<span class="padron-status-tag estado-${info.clave || "sin"}" id="${prefijo}${escapar(id)}"><span class="padron-dot ${dotClase}"></span><span>${escapar(info.label)}</span></span>`;
+  },
+
   _motivoAsistencia(id) {
     const marca = this._controlador()?.getMarca?.(id);
     if (marca?.estado !== "FJ" || !marca.observacion) return "";
@@ -1112,7 +1130,7 @@ export const CasitasView = {
 
       const vacioHtml = `
         <tr>
-          <td colspan="6" style="text-align: center; padding: 36px 16px;">
+          <td colspan="7" style="text-align: center; padding: 36px 16px;">
             <div class="jornada-empty-icon">${iconHtml("archivo.libro", { size: 24 })}</div>
             <div class="jornada-empty-title">${escapar(mensaje.titulo)}</div>
             <div class="jornada-empty-text">${escapar(mensaje.detalle)}</div>
@@ -1136,17 +1154,31 @@ export const CasitasView = {
     if (tbody && !enMovil) {
       tbody.innerHTML = pageItems.map(b => {
         const colegio = colegioOrigenVisible(b);
+        const nivel = nivelEducativoVisible(b);
         return `
-        <tr>
-          <td><strong>${escapar(b.nombres)} ${escapar(b.apellidos)}</strong><div class="celda-subtexto">${escapar(b.codigo)}</div></td>
-          <td>${escapar(gradoVisible(b))}</td>
+        <tr class="padron-tr">
+          <td>
+            <div class="padron-user-cell">
+              ${avatarHtml(b)}
+              <div class="padron-user-info">
+                <div class="padron-user-name" title="${escapar(`${b.nombres} ${b.apellidos}`)}">${escapar(b.nombres)} ${escapar(b.apellidos)}</div>
+                <div class="padron-user-meta">
+                  <span class="padron-code">${escapar(b.codigo)}</span>
+                  <span class="padron-meta-sep">&bull;</span>
+                  <span>DNI ${escapar(b.dni || '—')}</span>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td><div class="padron-location-title">${escapar(nivel)}</div></td>
+          <td><div class="padron-location-title">${escapar(gradoVisible(b))}</div></td>
           <td><span class="celda-recortada" title="${escapar(colegio)}">${escapar(colegio)}</span></td>
           <td>
-            <div class="celda-fuerte">${escapar(b.apoderado)}</div>
-            <div class="celda-subtexto">${escapar(b.parentesco)} &bull; ${escapar(b.telefono || 'Sin tel')}</div>
+            <div class="padron-location-title">${escapar(b.apoderado)}</div>
+            <div class="padron-location-sub">${escapar(b.parentesco)} &bull; ${escapar(b.telefono || 'Sin tel')}</div>
           </td>
           <td>
-            ${this._badgeAsistencia(b.id, "badgeAsist_")}
+            ${this._tagAsistencia(b.id, "badgeAsist_")}
             ${this._motivoAsistencia(b.id)}
           </td>
           <td>
@@ -1186,6 +1218,10 @@ export const CasitasView = {
             </div>
 
             <div class="datacard-extra" id="extra-casita-${escapar(b.id)}">
+              <div class="datacard-row">
+                <span class="datacard-label">Nivel Educativo</span>
+                <span class="datacard-value">${escapar(nivelEducativoVisible(b))}</span>
+              </div>
               <div class="datacard-row">
                 <span class="datacard-label">Grado Escolar</span>
                 <span class="datacard-value">${escapar(gradoVisible(b))}</span>
