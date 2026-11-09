@@ -28,6 +28,16 @@ test.describe('dashboard — parte firmado', () => {
     await expect(page.locator('.dash-timeline-item')).toHaveCount(0);
   });
 
+  test('nombre y rol viven en el encabezado, no en el menú', async ({ page }) => {
+    await entrar(page, cuentas().coord);
+    await expect(page.locator('#topbarUsuarioNombre')).toBeVisible();
+    await expect(page.locator('#topbarUsuarioRol')).toBeVisible();
+    await page.locator('#btnPerfilMenu').click();
+    await expect(page.locator('#perfilMenu')).toBeVisible();
+    await expect(page.locator('#perfilMenu .topbar-menu-head')).toHaveCount(0);
+    await expect(page.locator('#perfilMenu')).not.toContainText('Coordinación');
+  });
+
   test('en 390 px la matriz se pliega y no hay scroll horizontal', async ({ page }) => {
     await entrar(page, cuentas().coord);
     await page.setViewportSize({ width: 390, height: 844 });
