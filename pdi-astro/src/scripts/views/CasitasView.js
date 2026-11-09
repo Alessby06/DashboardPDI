@@ -40,14 +40,9 @@ function gradoVisible(beneficiario) {
   return grado || 'Sin registrar';
 }
 
-function nivelEducativoVisible(beneficiario) {
-  const nivel = String(beneficiario?.nivelEducativo ?? '').trim();
-  if (nivel) return nivel;
-  const grado = String(beneficiario?.grado ?? '').trim();
-  if (grado.includes('Prim')) return 'Primaria';
-  if (grado.includes('Secund')) return 'Secundaria';
-  if (grado) return 'Inicial';
-  return 'Sin registrar';
+function tipoAtencionVisible(beneficiario) {
+  const valor = String(beneficiario?.tipoAtencion ?? '').trim();
+  return valor || '—';
 }
 
 function hoyLocal() {
@@ -1154,7 +1149,7 @@ export const CasitasView = {
     if (tbody && !enMovil) {
       tbody.innerHTML = pageItems.map(b => {
         const colegio = colegioOrigenVisible(b);
-        const nivel = nivelEducativoVisible(b);
+        const atencion = tipoAtencionVisible(b);
         return `
         <tr class="padron-tr">
           <td>
@@ -1170,7 +1165,7 @@ export const CasitasView = {
               </div>
             </div>
           </td>
-          <td><div class="padron-location-title">${escapar(nivel)}</div></td>
+          <td><div class="padron-location-title">${escapar(atencion)}</div></td>
           <td><div class="padron-location-title">${escapar(gradoVisible(b))}</div></td>
           <td><span class="celda-recortada" title="${escapar(colegio)}">${escapar(colegio)}</span></td>
           <td>
@@ -1219,8 +1214,8 @@ export const CasitasView = {
 
             <div class="datacard-extra" id="extra-casita-${escapar(b.id)}">
               <div class="datacard-row">
-                <span class="datacard-label">Nivel Educativo</span>
-                <span class="datacard-value">${escapar(nivelEducativoVisible(b))}</span>
+                <span class="datacard-label">Tipo de Atención</span>
+                <span class="datacard-value">${escapar(tipoAtencionVisible(b))}</span>
               </div>
               <div class="datacard-row">
                 <span class="datacard-label">Grado Escolar</span>

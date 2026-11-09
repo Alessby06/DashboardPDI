@@ -1265,7 +1265,7 @@ export const BeneficiariosView = {
             <td>
               <div class="padron-user-name" title="Apoderado">${escapar(apoderadoTxt)}</div>
               <div class="padron-metric-item padron-metric-sub">
-                ${parentescoTxt ? `<span>${escapar(parentescoTxt)}</span><span class="padron-meta-sep">&bull;</span>` : ''}
+                ${parentescoTxt ? `<span>${escapar(parentescoTxt)}</span>` : ''}
               </div>
             </td>
             <td>

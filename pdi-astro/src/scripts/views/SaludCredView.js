@@ -627,10 +627,10 @@ export const SaludCredView = {
           ? fechaUltima.toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" })
           : "Sin tamizaje";
         const anemiaTxt = b.anemia || "Sin tamizaje";
-        let badgeClass = "badge-green";
-        if (b.anemia === "Leve") badgeClass = "badge-yellow";
-        if (b.anemia === "Moderada" || b.anemia === "Severa") badgeClass = "badge-red";
-        if (anemiaTxt === "Sin tamizaje") badgeClass = "badge-neutral";
+        const dotClase = b.anemia === "Normal" ? "dot-green"
+          : b.anemia === "Leve" ? "dot-yellow"
+          : (b.anemia === "Moderada" || b.anemia === "Severa") ? "dot-red"
+          : "dot-gray";
 
         const hbTxt = b.hb != null ? `${escapar(b.hb)} g/dL` : "Sin dosaje";
         const pesoTx = b.peso != null ? escapar(b.peso) : "—";
@@ -654,8 +654,11 @@ export const SaludCredView = {
             <td><div class="padron-location-title">${escapar(b.edad || "—")}</div></td>
             <td><div class="padron-location-title">${pesoTx} kg / ${tallaTx} cm</div></td>
             <td>
-              <div class="padron-contact-phone">${hbTxt}</div>
-              <div class="padron-hb-meta">${this._chipTendenciaHb(b)}<span class="badge ${badgeClass}">${escapar(anemiaTxt)}</span></div>
+              <div class="padron-hb-linea">
+                <span class="padron-dot ${dotClase}" title="${escapar(anemiaTxt)}"></span>
+                <span class="padron-contact-phone">${hbTxt}</span>
+                ${this._chipTendenciaHb(b)}
+              </div>
             </td>
             <td>
               <div class="padron-metric-item">${nTamizajes} prueba${nTamizajes === 1 ? "" : "s"}</div>
@@ -689,20 +692,20 @@ export const SaludCredView = {
           ? fechaUltima.toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" })
           : "Sin tamizaje";
         const anemiaTxt = b.anemia || "Sin tamizaje";
-        let badgeClass = "badge-green";
-        if (b.anemia === "Leve") badgeClass = "badge-yellow";
-        if (b.anemia === "Moderada" || b.anemia === "Severa") badgeClass = "badge-red";
-        if (anemiaTxt === "Sin tamizaje") badgeClass = "badge-neutral";
+        const dotClase = b.anemia === "Normal" ? "dot-green"
+          : b.anemia === "Leve" ? "dot-yellow"
+          : (b.anemia === "Moderada" || b.anemia === "Severa") ? "dot-red"
+          : "dot-gray";
 
         return `
           <div class="mobile-card-item" id="mobile-salud-${escapar(b.id)}">
-            <!-- Cabecera: ID + Badge Diagnóstico Anemia -->
+            <!-- Cabecera: ID + punto de diagnóstico -->
             <div class="datacard-header">
               <div class="datacard-id">
                 <span>ID:</span> ${escapar(b.codigo)}
               </div>
               <div class="datacard-header-right">
-                <span class="badge ${badgeClass}">${escapar(anemiaTxt)}</span>
+                <span class="padron-dot ${dotClase}"></span><span>${escapar(anemiaTxt)}</span>
               </div>
             </div>
 

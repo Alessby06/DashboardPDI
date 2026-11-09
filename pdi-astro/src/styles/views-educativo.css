@@ -597,10 +597,13 @@
 .jornada-conflicto-resto { list-style: none; margin-left: -18px; font-style: italic; }
 
 .asist-botones {
-  display: inline-flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 4px;
-  flex-wrap: wrap;
+}
+
+#cardAsistenciaCasita .btn-asist {
+  padding: 6px 4px;
 }
 
 .btn-asist:disabled {
@@ -780,7 +783,7 @@
    =========================================================================== */
 #cardAsistenciaCasita .data-table {
   width: 100%;
-  min-width: 900px;
+  min-width: 940px;
   table-layout: fixed;
 }
 
@@ -789,10 +792,10 @@
 #cardAsistenciaCasita .data-table thead th:nth-child(1) { width: 20%; text-align: left; }
 #cardAsistenciaCasita .data-table thead th:nth-child(2) { width: 10%; text-align: left; }
 #cardAsistenciaCasita .data-table thead th:nth-child(3) { width: 12%; text-align: left; }
-#cardAsistenciaCasita .data-table thead th:nth-child(4) { width: 16%; text-align: left; }
-#cardAsistenciaCasita .data-table thead th:nth-child(5) { width: 18%; text-align: left; }
+#cardAsistenciaCasita .data-table thead th:nth-child(4) { width: 15%; text-align: left; }
+#cardAsistenciaCasita .data-table thead th:nth-child(5) { width: 17%; text-align: left; }
 #cardAsistenciaCasita .data-table thead th:nth-child(6) { width: 12%; text-align: left; }
-#cardAsistenciaCasita .data-table thead th:nth-child(7) { width: 12%; text-align: center; }
+#cardAsistenciaCasita .data-table thead th:nth-child(7) { width: 14%; text-align: center; }
 
 #cardAsistenciaCasita .data-table tbody tr.padron-tr {
   transition: background-color var(--dur-fast) var(--ease-smooth);
@@ -934,7 +937,7 @@
 
 #cardAsistenciaCasita .padron-status-tag.estado-P { color: var(--gt-green); }
 #cardAsistenciaCasita .padron-status-tag.estado-T { color: var(--text-warning); }
-#cardAsistenciaCasita .padron-status-tag.estado-FJ { color: #f97316; }
+#cardAsistenciaCasita .padron-status-tag.estado-FJ { color: var(--gt-orange); }
 #cardAsistenciaCasita .padron-status-tag.estado-FI { color: var(--gt-red); }
 #cardAsistenciaCasita .padron-status-tag.estado-sin { color: var(--text-dim); }
 
@@ -948,6 +951,6 @@
 
 #cardAsistenciaCasita .dot-green { background-color: var(--gt-green); }
 #cardAsistenciaCasita .dot-yellow { background-color: var(--gt-yellow); }
-#cardAsistenciaCasita .dot-amber { background-color: #f97316; }
+#cardAsistenciaCasita .dot-amber { background-color: var(--gt-orange); }
 #cardAsistenciaCasita .dot-red { background-color: var(--gt-red); }
 #cardAsistenciaCasita .dot-gray { background-color: var(--text-dim); opacity: 0.6; }
