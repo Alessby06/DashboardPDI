@@ -58,12 +58,15 @@ async function montar() {
 }
 
 function iniciar() {
+  // Engancha la reactividad antes de arrancar: la hidratación puede terminar
+  // durante arrancarComun() y el evento no debe perderse.
+  enlazar();
+
   // Acceso y chrome comun. Si devuelve null, PageGuard ya redirigio y no hay
   // nada mas que hacer en este documento.
   if (!arrancarComun()) return;
 
   DashboardView.reiniciarEntrada();
-  enlazar();
   montar();
 
   // Que redibujar cuando algo guarde en esta pagina, por ejemplo al dar de
