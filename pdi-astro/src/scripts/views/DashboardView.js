@@ -130,7 +130,7 @@ export const DashboardView = {
     if (fechaEl) {
       try {
         fechaEl.textContent = new Intl.DateTimeFormat("es-PE", {
-          day: "2-digit",
+          day: "numeric",
           month: "long",
           year: "numeric",
         }).format(new Date());
