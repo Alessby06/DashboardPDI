@@ -220,6 +220,14 @@ export function iniciarEstadoCarga() {
     return;
   }
 
+  // Recarga con copia de sesión: los modelos ya tienen los datos de la última
+  // hidratación, así que no se espera al esqueleto mínimo ni a la nube.
+  if (window.PDI?.__pdiSnapshotListo) {
+    document.documentElement.dataset.pdiReady = "1";
+    revelar({ animar: false, marcarListo: false });
+    return;
+  }
+
   if (contenido) {
     contenido.setAttribute("inert", "");
     contenido.setAttribute("aria-busy", "true");

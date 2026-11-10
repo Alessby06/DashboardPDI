@@ -88,6 +88,9 @@ const impeccableLive =
           localStorage.removeItem("pdi_usuario_login");
           localStorage.removeItem("pdi_usuario_foto");
           localStorage.removeItem("pdi_session_exp");
+          // La copia clínica de la pestaña no debe sobrevivir a una sesión
+          // vencida.
+          try { sessionStorage.removeItem("pdi_snapshot_v1"); } catch (e) {}
           window.location.replace("/login");
           return;
         }

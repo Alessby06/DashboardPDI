@@ -212,6 +212,31 @@ test.describe('navegación interna — sin estados vacíos', () => {
     await page.waitForTimeout(900);
   });
 
+  test('la recarga pinta la copia de sesión sin esperar a la nube', async ({ page }) => {
+    await entrar(page, cuentas().coord);
+    await esperarDatos(page);
+    await page.waitForFunction(
+      () => !!sessionStorage.getItem('pdi_snapshot_v1'),
+      null,
+      { timeout: 10_000 },
+    );
+
+    const antes = await page.evaluate(() => JSON.parse(sessionStorage.getItem('pdi_snapshot_v1')));
+    expect(antes.usuario).toBeTruthy();
+    expect(antes.datos.beneficiarios.length).toBeGreaterThan(0);
+
+    await page.reload();
+    await page.waitForFunction(
+      () => window.PDI?.__pdiSnapshotListo === true,
+      null,
+      { timeout: 15_000 },
+    );
+    await expect(page.locator('#dashAlimUsuarios')).toHaveText(/^\d+$/, { timeout: 1000 });
+
+    const despues = await page.evaluate(() => JSON.parse(sessionStorage.getItem('pdi_snapshot_v1')));
+    expect(despues.usuario).toBe(antes.usuario);
+  });
+
   test('auditoría anuncia la carga en vez de una tabla vacía', async ({ page }) => {
     await entrar(page, cuentas().coord);
     await esperarDatos(page);

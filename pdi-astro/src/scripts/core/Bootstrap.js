@@ -31,7 +31,7 @@ import { AuditModel } from "../models/AuditModel.js";
 import { Theme } from "./Theme.js";
 import { ToastView } from "../views/ToastView.js";
 import {
-  iniciarCapaDatos, refrescarDesdeNube, hidratarDesdeSurreal,
+  iniciarCapaDatos, refrescarDesdeNube, hidratarDesdeSurreal, aplicarSnapshotInicial,
 } from "./db.js";
 import { iniciarEstadoCarga } from "./LoadingState.js";
 
@@ -62,6 +62,10 @@ export function arrancarComun() {
   CasoSocialModel.init();
   SedeModel.init();
   VoluntarioModel.init();
+
+  // Copia de la última hidratación en esta pestaña: permite retirar el
+  // esqueleto sin esperar a la nube. Si no hay copia válida, no hace nada.
+  aplicarSnapshotInicial();
 
   if (typeof AuditModel.getAll !== "function") {
     console.error("[Bootstrap] AuditModel no responde; la vista de auditoria quedara vacia.");

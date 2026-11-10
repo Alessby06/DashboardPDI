@@ -10,6 +10,7 @@
 //  (PageGuard), que ya está documentado como una barrera de operación, no de
 //  seguridad. Las operaciones del perfil sí se validan contra la cookie.
 // ===========================================================================
+import { limpiarSnapshot } from '../core/snapshot.js';
 
 export const CLAVE_SESION = "pdi_sesion_activa";
 export const CLAVE_ROL = "pdi_active_role";
@@ -78,6 +79,9 @@ export async function autenticar(usuario, clave, codigo = "") {
     }
 
     const expiracion = Number(datos.exp) || (Date.now() + DURACION_SESION_MS);
+    // La copia clínica de una sesión anterior no debe sobrevivir al cambio de
+    // usuario, aunque la validación de alcance ya la descartaría.
+    limpiarSnapshot();
     localStorage.setItem(CLAVE_SESION, "1");
     localStorage.setItem(CLAVE_ROL, datos.rol || "coord");
     localStorage.setItem(CLAVE_USUARIO_NOMBRE, datos.nombre || "");
@@ -126,6 +130,9 @@ export function cerrarSesion() {
  * @returns {Promise<object|null>} cuenta pública o null
  */
 export async function sincronizarSesion() {
+  const loginPrevio = (() => {
+    try { return localStorage.getItem(CLAVE_USUARIO_LOGIN) || ""; } catch { return ""; }
+  })();
   try {
     const res = await fetch("/api/cuenta/sesion", { credentials: "same-origin" });
 
@@ -143,6 +150,9 @@ export async function sincronizarSesion() {
     if (!datos?.ok || !datos.cuenta) return null;
 
     const cuenta = datos.cuenta;
+    if (loginPrevio && cuenta.usuario && loginPrevio !== cuenta.usuario) {
+      limpiarSnapshot();
+    }
     localStorage.setItem(CLAVE_SESION, "1");
     localStorage.setItem(CLAVE_ROL, cuenta.rol || "coord");
     localStorage.setItem(CLAVE_USUARIO_NOMBRE, cuenta.nombre || "");

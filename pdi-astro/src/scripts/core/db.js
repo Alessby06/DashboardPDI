@@ -3,9 +3,10 @@
 // ===========================================================================
 //  El proyecto depende por completo de la instancia de SurrealDB Cloud:
 //
-//    - SIN CONEXIÓN: no se muestra ningún dato (los modelos inician vacíos);
-//      no hay fixtures ni espejo en localStorage. db.js reintenta sola con
-//      backoff y rehidrata apenas vuelve la conexión.
+//    - SIN CONEXIÓN: no se muestra ningún dato inventado; no hay fixtures ni
+//      espejo permanente. La copia de sesión en sessionStorage solo acelera el
+//      primer pintado tras una recarga y se borra al cerrar la pestaña o la
+//      sesión. db.js reintenta sola con backoff y rehidrata apenas vuelve. 
 //    - CRUD: toda mutación va SIEMPRE a la nube. Los modelos actualizan la
 //      memoria en forma optimista y esta capa confirma escribiendo en las
 //      tablas reales: persona, inscripcion, tamizaje_hemoglobina,
@@ -24,6 +25,7 @@ import { Surreal } from 'surrealdb';
 import { filtrarPorSede, filtrarCasos } from '../auth/alcance.js';
 import { AnemiaCalculator } from '../utils/AnemiaCalculator.js';
 import { ToastView } from '../views/ToastView.js';
+import { guardarSnapshot, leerSnapshot } from './snapshot.js';
 import { estrategiasDesdePrograma, SERVICIOS_VOLUNTARIADO, nombreServicioVisible } from '../../data/opcionesBeneficiario.js';
 import {
   normalizarParentesco,
@@ -144,6 +146,9 @@ let _liveGeneracion = 0;
 let _tempDebounceLive = null;
 let _ultimoError = null;
 let _ultimaHidratacion = 0;
+let _snapshotAplicado = false;
+let _snapshotIntentado = false;
+let _snapshotTimer = null;
 
 export function estadoActual() {
   return _estado;
@@ -320,10 +325,47 @@ const TABLAS_LIVE = [
   'asistencia_diaria'
 ];
 
+/**
+ * Aplica la última copia de sesión si es válida para este usuario y alcance.
+ * Devuelve true cuando la UI puede pintar de inmediato; la hidratación real
+ * corre después y confirma o corrige. No bloquea ni inventa datos.
+ */
+export function aplicarSnapshotInicial() {
+  if (_snapshotAplicado) return true;
+  // Solo se intenta una vez por documento: en una navegación interna los
+  // modelos ya están hidratados y no deben volver a la copia anterior.
+  if (!window.PDI?.BeneficiarioModel) return false;
+  if (_snapshotIntentado) return false;
+  _snapshotIntentado = true;
+  const snap = leerSnapshot();
+  if (!snap) return false;
+  try {
+    aplicarDatasets(
+      snap.datos.beneficiarios,
+      snap.datos.sedes,
+      snap.datos.casos,
+      snap.datos.voluntarios,
+      snap.datos.asistencia,
+      snap.datos.retirados,
+    );
+    _snapshotAplicado = true;
+    _ultimaHidratacion = snap.ts;
+    window.PDI.__pdiSnapshotListo = true;
+    cambiarEstado('ok');
+    return true;
+  } catch (err) {
+    console.warn('[PDI] Copia de sesión descartada:', err?.message || err);
+    return false;
+  }
+}
+
 /** Punto de arranque de la capa: lo invoca Bootstrap en todas las páginas. */
 export async function iniciarCapaDatos() {
   if (_iniciada) return;
   _iniciada = true;
+  // Si Bootstrap no la aplicó antes, se intenta aquí: la copia debe estar en
+  // los modelos antes de que el esqueleto se retire.
+  aplicarSnapshotInicial();
   intentarLevantar();
   // El reintento lo encaja el backoff de esta misma capa (5 s -> 30 s). Antes
   // había además un intervalo de vigilancia de 8 s: dos temporizadores
@@ -332,7 +374,9 @@ export async function iniciarCapaDatos() {
 
 async function intentarLevantar() {
   try {
-    cambiarEstado(_hidratado ? 'sin_conexion' : 'conectando');
+    // Con una copia en pantalla no se baja a "conectando": las cifras se
+    // quedarían en "—" mientras la nube confirma.
+    if (!_snapshotAplicado) cambiarEstado(_hidratado ? 'sin_conexion' : 'conectando');
     await conectar();
     // El registro LIVE y la primera hidratación viajan en paralelo: el render
     // inicial no debe esperar a las suscripciones (medido: ~0.3–1 s menos).
@@ -541,8 +585,11 @@ export async function hidratar(promedioSilencioso = false) {
   }
   if (_hidratando) return _hidratando;
   const versionAlSalir = _versionEscrituras;
+  const primeraCarga = !_hidratado;
   _hidratando = (async () => {
-    cambiarEstado('cargando');
+    // Si hay copia de sesión, no se pasa a "cargando": las cifras ya están
+    // pintadas y se quedarían en "—" durante la revalidación.
+    if (!_snapshotAplicado) cambiarEstado('cargando');
     try {
       // Un solo viaje: el lote completo cuesta 1 RTT en lugar de 6-8.
       const [sedesRaw, personasRaw, casosRaw, solicitudesRaw, voluntariosRaw, asistenciaRaw, sedesTodasRaw, retiradosRaw] =
@@ -570,6 +617,13 @@ export async function hidratar(promedioSilencioso = false) {
       aplicarDatasets(beneficiarios, sedes, casos, voluntarios, asistencia, retirados);
       _hidratado = true;
       _ultimaHidratacion = Date.now();
+      _snapshotAplicado = false;
+      // La copia de sesión se actualiza con lo que acaba de confirmar la nube.
+      // La primera carga se guarda en el acto; las siguientes esperan un poco
+      // para no escribir en cada evento LIVE.
+      const datosSnapshot = { beneficiarios, sedes, casos, voluntarios, asistencia, retirados };
+      if (primeraCarga) guardarSnapshot(datosSnapshot);
+      else programarSnapshot(datosSnapshot);
       _jsonDeReintento = 5000;
       // La nube volvió: el próximo corte puede avisar de nuevo.
       _avisoConexionMostrado = false;
@@ -602,6 +656,12 @@ export async function hidratar(promedioSilencioso = false) {
 export async function hidratarDesdeSurreal() {
   if (_estado !== 'ok') return;
   await hidratar();
+}
+
+/** Guarda la copia con retardo: los eventos LIVE no deben escribir en cada uno. */
+function programarSnapshot(datos) {
+  clearTimeout(_snapshotTimer);
+  _snapshotTimer = setTimeout(() => guardarSnapshot(datos), 1500);
 }
 
 function aplicarDatasets(beneficiarios, sedes, casos, voluntarios, asistencia, retirados) {
@@ -2986,7 +3046,7 @@ export async function crearBitacora(entry) {
 if (typeof window !== 'undefined') {
   window.PDI = window.PDI || {};
   window.PDI.DB = {
-    iniciarCapaDatos, suscribirEstado, estadoActual,
+    iniciarCapaDatos, suscribirEstado, estadoActual, aplicarSnapshotInicial,
     hidratarDesdeSurreal, refrescarDesdeNube, reintentarAhora, ultimoError, ultimaHidratacion,
   };
 }
