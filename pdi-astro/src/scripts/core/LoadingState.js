@@ -94,11 +94,14 @@ function permitePrecarga() {
 }
 
 const rutasEnCurso = new Map();
+const modulosEnCurso = new Map();
 
 /**
  * Deja el módulo de una ruta en la caché del navegador. El HTML se lee una vez
- * y se importan sus `script[type="module"]`: son las mismas URL que Astro
- * volverá a pedir al navegar, así que la importación resuelve al instante.
+ * y se marcan sus `script[type="module"]` con `modulepreload`: se descargan y
+ * compilan, pero **no se ejecutan** hasta la navegación real. Importarlos aquí
+ * ejecutaba el código de todas las secciones y podía bloquear el hilo principal
+ * justo cuando el usuario cambiaba de página.
  */
 async function precargarModulos(ruta) {
   if (!ruta || !permitePrecarga()) return;
@@ -120,21 +123,29 @@ async function precargarModulos(ruta) {
         .filter(Boolean)
         .map((src) => new URL(src, location.origin).href);
 
-      for (const src of fuentes) {
-        try {
-          // @vite-ignore: la URL la decide el HTML construido, no Vite.
-          await import(/* @vite-ignore */ src);
-        } catch {
-          // Un módulo ya cargado o bloqueado no invalida la ruta.
-        }
-      }
-      listas.add(ruta);
+      const resultados = await Promise.all(fuentes.map(cargarModulo));
+      if (resultados.every(Boolean)) listas.add(ruta);
     } catch {
       // Red lenta o ruta no disponible: la página conserva su esqueleto.
     }
   })().finally(() => rutasEnCurso.delete(ruta));
 
   rutasEnCurso.set(ruta, tarea);
+  return tarea;
+}
+
+/** Marca un módulo para descarga y compilación, sin ejecutarlo. */
+function cargarModulo(src) {
+  if (modulosEnCurso.has(src)) return modulosEnCurso.get(src);
+  const tarea = new Promise((resolve) => {
+    const enlace = document.createElement("link");
+    enlace.rel = "modulepreload";
+    enlace.href = src;
+    enlace.addEventListener("load", () => resolve(true), { once: true });
+    enlace.addEventListener("error", () => resolve(false), { once: true });
+    document.head.appendChild(enlace);
+  });
+  modulosEnCurso.set(src, tarea);
   return tarea;
 }
 
