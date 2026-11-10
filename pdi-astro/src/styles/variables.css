@@ -141,6 +141,7 @@
   --dur-rail: 420ms;     /* Riel del sidebar en escritorio */
   --dur-theme: 380ms;    /* Cambio de tema: fondos y bordes */
   --dur-bar: 720ms;      /* Barras de datos del dashboard */
+--dur-count: 560ms;    /* Conteo de cifras (siempre aterriza en el valor final) */
   --dur-highlight: 700ms; /* Destello de un cambio recién aplicado */
 
   /* Hojas inferiores: suben desde el borde inferior en un solo gesto

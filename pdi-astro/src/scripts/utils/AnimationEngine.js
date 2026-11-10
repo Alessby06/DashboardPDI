@@ -77,6 +77,107 @@ export const AnimationEngine = {
   },
 
   /**
+   * Cuenta una cifra desde el valor que ya se ve hasta el nuevo.
+   *
+   * A diferencia del odómetro, no depende de una transición CSS: si la pestaña
+   * se oculta, llega otro valor o el elemento desaparece, escribe el objetivo y
+   * termina. La primera vez que un elemento recibe un valor no anima: solo lo
+   * escribe. Con movimiento reducido, también lo escribe de inmediato.
+   *
+   * @param {string|HTMLElement} elementoOrId
+   * @param {number|string} objetivo
+   * @param {{ formato?: (valor: number) => string, duracion?: number }} opciones
+   */
+  contar(elementoOrId, objetivo, opciones = {}) {
+    const el = typeof elementoOrId === "string"
+      ? document.getElementById(elementoOrId)
+      : elementoOrId;
+    if (!el) return;
+
+    const destino = Number(objetivo);
+    const formato = typeof opciones.formato === "function"
+      ? opciones.formato
+      : (valor) => String(Math.round(valor));
+    const final = Number.isFinite(destino) ? formato(destino) : String(objetivo);
+
+    const aplicarFinal = () => {
+      el.textContent = final;
+      if (Number.isFinite(destino)) el.dataset.contadorValor = String(destino);
+      else delete el.dataset.contadorValor;
+    };
+
+    // Un valor nuevo cancela el anterior y arranca desde lo que se ve ahora.
+    let desde;
+    const previo = this._contadores.get(el);
+    if (previo) {
+      cancelAnimationFrame(previo.raf);
+      this._contadores.delete(el);
+      desde = previo.valor;
+    } else {
+      desde = Number(el.dataset.contadorValor);
+    }
+
+    const reducido = typeof window.matchMedia === "function"
+      && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (!Number.isFinite(destino)
+      || !Number.isFinite(desde)
+      || desde === destino
+      || reducido
+      || document.hidden) {
+      aplicarFinal();
+      return;
+    }
+
+    const duracion = opciones.duracion || this._duracionToken("--dur-count", 560);
+    const inicio = performance.now();
+    const ease = (t) => 1 - Math.pow(1 - t, 3);
+    const estado = { el, raf: 0, valor: desde, final, destino };
+
+    const paso = (ahora) => {
+      const p = Math.min(1, (ahora - inicio) / duracion);
+      const valor = desde + (destino - desde) * ease(p);
+      estado.valor = valor;
+      el.textContent = formato(valor);
+      if (p < 1) {
+        estado.raf = requestAnimationFrame(paso);
+      } else {
+        this._contadores.delete(el);
+        aplicarFinal();
+      }
+    };
+
+    this._contadores.set(el, estado);
+    estado.raf = requestAnimationFrame(paso);
+  },
+
+  /** Acaba de inmediato todos los contadores abiertos (pestaña oculta). */
+  _alOcultarContadores() {
+    if (typeof document === "undefined" || !document.hidden) return;
+    [...this._contadores.values()].forEach((estado) => {
+      cancelAnimationFrame(estado.raf);
+      estado.el.textContent = estado.final;
+      if (Number.isFinite(estado.destino)) {
+        estado.el.dataset.contadorValor = String(estado.destino);
+      } else {
+        delete estado.el.dataset.contadorValor;
+      }
+      this._contadores.delete(estado.el);
+    });
+  },
+
+  _contadores: new Map(),
+
+  /** Lee una duración de un token CSS; si no existe, usa el valor de respaldo. */
+  _duracionToken(nombre, porDefecto = 400) {
+    if (typeof getComputedStyle !== "function") return porDefecto;
+    const bruto = getComputedStyle(document.documentElement).getPropertyValue(nombre);
+    const numero = parseFloat(bruto);
+    if (!isFinite(numero)) return porDefecto;
+    return bruto.includes("s") && !bruto.includes("ms") ? numero * 1000 : numero;
+  },
+
+  /**
    * Dispara animaciones de entrada en cascada viva (stagger) agregando clases CSS a elementos hijos.
    * @param {string|HTMLElement} parentOrId - Contenedor padre.
    * @param {string} itemSelector - Selector de los elementos hijos.
@@ -195,4 +296,8 @@ export const AnimationEngine = {
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
   window.PDI.AnimationEngine = AnimationEngine;
+}
+
+if (typeof document !== "undefined") {
+  document.addEventListener("visibilitychange", () => AnimationEngine._alOcultarContadores());
 }

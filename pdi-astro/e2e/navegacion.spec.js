@@ -237,6 +237,37 @@ test.describe('navegación interna — sin estados vacíos', () => {
     expect(despues.usuario).toBe(antes.usuario);
   });
 
+  test('el contador de cifras aterriza y respeta movimiento reducido', async ({ page }) => {
+    await entrar(page, cuentas().coord);
+    await esperarDatos(page);
+    // Deja terminar la hidratación real para que no pise la cifra de prueba.
+    await page.waitForTimeout(1500);
+
+    const cifra = page.locator('#dashAlimUsuarios');
+    await expect(cifra).toHaveText(/^\d+$/);
+    const base = Number(await cifra.innerText());
+    const objetivo = base + 7;
+
+    await page.evaluate((destino) => {
+      window.PDI.AnimationEngine.contar(
+        document.getElementById('dashAlimUsuarios'),
+        destino,
+        { formato: (n) => String(Math.round(n)) },
+      );
+    }, objetivo);
+    await expect(cifra).toHaveText(String(objetivo), { timeout: 1500 });
+
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.evaluate(() => {
+      window.PDI.AnimationEngine.contar(
+        document.getElementById('dashAlimUsuarios'),
+        3,
+        { formato: (n) => String(Math.round(n)) },
+      );
+    });
+    await expect(cifra).toHaveText('3', { timeout: 120 });
+  });
+
   test('auditoría anuncia la carga en vez de una tabla vacía', async ({ page }) => {
     await entrar(page, cuentas().coord);
     await esperarDatos(page);

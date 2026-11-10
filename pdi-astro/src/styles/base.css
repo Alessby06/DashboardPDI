@@ -1162,3 +1162,26 @@
     overscroll-behavior-y: contain;
   }
 }
+
+/* Movimiento reducido: se retira el desplazamiento, no la señal.
+   Los cambios de color, borde, opacidad y sombra siguen explicando el estado;
+   las escalas, traslaciones y cascadas dejan de moverse. El contador de cifras
+   escribe el valor final desde JavaScript. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-property: opacity, background-color, border-color, color, box-shadow, filter !important;
+    transition-duration: var(--dur-fast) !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0.01ms !important;
+  }
+}

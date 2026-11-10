@@ -130,19 +130,19 @@ test('cada keyframe se define una sola vez', () => {
   assert.deepEqual(duplicados, [], `Keyframes declarados más de una vez:\n${duplicados.join('\n')}`);
 });
 
-test('el producto no consulta prefers-reduced-motion', () => {
-  const fallos = [];
-  const raiz = path.join(AQUI, '..', 'src');
-  const recorrer = (dir) => {
-    for (const entrada of fs.readdirSync(dir, { withFileTypes: true })) {
-      const ruta = path.join(dir, entrada.name);
-      if (entrada.isDirectory()) { recorrer(ruta); continue; }
-      if (!/\.(css|js|astro)$/.test(entrada.name)) continue;
-      const texto = fs.readFileSync(ruta, 'utf8');
-      if (/prefers-reduced-motion/.test(texto)) fallos.push(path.relative(raiz, ruta));
-    }
-  };
-  recorrer(raiz);
-  assert.deepEqual(fallos, [], `La animación corre siempre; no debe consultarse la preferencia:\n${fallos.join('\n')}`);
+test('el producto respeta prefers-reduced-motion', () => {
+  const base = fs.readFileSync(path.join(ESTILOS, 'base.css'), 'utf8');
+  assert.match(
+    base,
+    /@media\s*\(prefers-reduced-motion:\s*reduce\)/i,
+    'base.css debe retirar el desplazamiento con movimiento reducido',
+  );
+
+  const motor = fs.readFileSync(
+    path.join(AQUI, '..', 'src', 'scripts', 'utils', 'AnimationEngine.js'),
+    'utf8',
+  );
+  assert.match(motor, /prefers-reduced-motion/, 'el contador debe consultar la preferencia');
+  assert.match(motor, /contar\(/, 'el motor debe exponer el conteo de cifras');
 });
 

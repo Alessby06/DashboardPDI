@@ -3,6 +3,7 @@ import { crearStore } from '../utils/FilterStore.js';
 import { Dropdown } from '../utils/Dropdown.js';
 import { Responsive } from '../utils/Responsive.js';
 import { initSortMenu } from '../ui/SortMenu.js';
+import { AnimationEngine } from '../utils/AnimationEngine.js';
 
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
 import { iconHtml } from '../../data/iconos.js';
@@ -44,6 +45,8 @@ export const DashboardView = {
   _sello: null,
   _selloTimer: null,
   _selloLimpieza: false,
+  _selloAnterior: 0,
+  _cifrasPintadas: false,
 
   _obtenerStore() {
     if (!this._store) this._store = crearStore(FACETAS_AUDITORIA);
@@ -121,6 +124,9 @@ export const DashboardView = {
     const estado = window.PDI?.DB?.estadoActual?.() || "ok";
     const ultima = window.PDI?.DB?.ultimaHidratacion?.() || 0;
     const datosOk = estado === "ok";
+    // La primera pintura con datos no cuenta: solo escribe. El conteo aparece
+    // cuando la hidratación real cambia la copia de sesión o llega un LIVE.
+    const animarCifras = this._cifrasPintadas && datosOk;
 
     const fechaEl = document.getElementById("dashFolioFecha");
     if (fechaEl) {
@@ -190,12 +196,15 @@ export const DashboardView = {
         }
 
         const pctEl = document.getElementById(pctId);
-        if (pctEl) pctEl.textContent = datosOk ? `${pct} %` : "-";
+        if (pctEl) this._cifra(pctEl, datosOk ? pct : "—", (n) => `${Math.round(n)} %`, animarCifras);
         const casosEl = document.getElementById(casosId);
         if (casosEl) {
-          casosEl.textContent = datosOk
-            ? (casos === 1 ? "1 caso" : `${casos} casos`)
-            : "-";
+          this._cifra(
+            casosEl,
+            datosOk ? casos : "—",
+            (n) => (n === 1 ? "1 caso" : `${Math.round(n)} casos`),
+            animarCifras,
+          );
         }
       });
     }
@@ -217,8 +226,29 @@ export const DashboardView = {
         : "";
     }
 
-    this._renderServicios(stats);
+    this._renderServicios(stats, animarCifras);
     this.renderAuditLogs(auditLogs);
+    if (datosOk) this._cifrasPintadas = true;
+  },
+
+  /**
+   * Escribe una cifra. Con `animar` la cuenta desde el valor visible; en la
+   * primera pintura, o cuando no hay datos, la escribe directa.
+   */
+  _cifra(elemento, valor, formato, animar) {
+    if (!elemento) return;
+    const numero = Number(valor);
+    if (!Number.isFinite(numero)) {
+      elemento.textContent = String(valor);
+      delete elemento.dataset.contadorValor;
+      return;
+    }
+    if (!animar) {
+      elemento.textContent = formato(numero);
+      elemento.dataset.contadorValor = String(numero);
+      return;
+    }
+    AnimationEngine.contar(elemento, numero, { formato });
   },
 
   /** Edad legible del corte, sin depender de la zona horaria del lector. */
@@ -244,6 +274,9 @@ export const DashboardView = {
     if (!chip || !texto) return;
 
     const { estado = "ok", ultima = 0 } = this._sello || {};
+    const anterior = this._selloAnterior;
+    this._selloAnterior = ultima;
+    const refrescado = Boolean(anterior && ultima && ultima !== anterior);
     chip.classList.remove("is-warn", "is-loading");
     if (haceEl) haceEl.textContent = "";
     // Solo se reescribe si el mensaje cambia: el reloj interno no debe
@@ -298,6 +331,7 @@ export const DashboardView = {
     const edad = Math.max(0, Date.now() - fecha.getTime());
     if (haceEl) haceEl.textContent = this._hace(edad);
     if (edad > 30 * 60 * 1000) chip.classList.add("is-warn");
+    if (refrescado) AnimationEngine.destacar(chip);
   },
 
   _iniciarSello() {
@@ -349,7 +383,7 @@ export const DashboardView = {
    * modelos ya hidratados; no consulta la nube. El render es idempotente:
    * se puede llamar en cada refresco sin duplicar nodos.
    */
-  _renderServicios(stats) {
+  _renderServicios(stats, animar = false) {
     const usuarios = window.PDI?.BeneficiarioModel?.getAll?.() || [];
     const voluntarios = window.PDI?.VoluntarioModel?.getAll?.() || [];
     const casos = window.PDI?.CasoSocialModel?.getAll?.() || [];
@@ -388,7 +422,7 @@ export const DashboardView = {
 
     const poner = (id, n) => {
       const el = document.getElementById(id);
-      if (el) el.textContent = valor(n);
+      if (el) this._cifra(el, datosOk ? n : "—", (v) => String(Math.round(v)), animar);
     };
 
     poner("dashAlimUsuarios", alimentario);
@@ -396,9 +430,17 @@ export const DashboardView = {
     poner("dashAspUsuarios", usuariosAsp.length);
     const microAsp = document.getElementById("dashAspCasosMicro");
     if (microAsp) {
-      microAsp.textContent = datosOk
-        ? (casosActivos === 1 ? "· 1 caso" : `· ${casosActivos} casos`)
-        : "";
+      if (datosOk) {
+        this._cifra(
+          microAsp,
+          casosActivos,
+          (n) => (n === 1 ? "· 1 caso" : `· ${Math.round(n)} casos`),
+          animar,
+        );
+      } else {
+        microAsp.textContent = "";
+        delete microAsp.dataset.contadorValor;
+      }
     }
     poner("dashAlimDesayuno", desayuno);
     poner("dashAlimLonchera", lonchera);
@@ -412,6 +454,17 @@ export const DashboardView = {
     // Voluntarios por servicio: los seis del documento; "otros" solo si existe.
     const listaVol = document.getElementById("dashVoluntariosList");
     if (listaVol) {
+      // Los conteos viejos se leen antes de reconstruir la lista: así la cifra
+      // nueva puede contar desde la anterior en vez de aparecer de golpe.
+      const previos = new Map();
+      listaVol.querySelectorAll(".dash-vol-row").forEach((row) => {
+        const clave = row.dataset.servicio;
+        const cuenta = row.querySelector(".dash-vol-count");
+        if (!clave || !cuenta) return;
+        const n = Number(cuenta.dataset.contadorValor ?? cuenta.textContent);
+        if (Number.isFinite(n)) previos.set(clave, n);
+      });
+
       const claveVol = (servicio) => {
         const low = String(servicio || "").toLowerCase();
         if (low.includes("desayuno")) return "desayuno";
@@ -461,15 +514,32 @@ export const DashboardView = {
             : "";
         const clase = falta ? " is-gap" : sobra ? " is-idle" : "";
         return `
-          <li class="dash-vol-row${clase}">
+          <li class="dash-vol-row${clase}" data-servicio="${f.clave}">
             <span class="dash-vol-name">${escapar(f.nombre)}${bandera}</span>
             <strong class="dash-vol-count">${valor(n)}</strong>
             <span class="dash-vol-track" aria-hidden="true"><span class="dash-vol-fill" style="width:${pct}%"></span></span>
           </li>
         `;
       }).join("");
+
+      if (datosOk) {
+        listaVol.querySelectorAll(".dash-vol-row").forEach((row) => {
+          const clave = row.dataset.servicio;
+          const cuenta = row.querySelector(".dash-vol-count");
+          if (!clave || !cuenta) return;
+          const n = grupos[clave] || 0;
+          if (animar && previos.has(clave)) {
+            cuenta.dataset.contadorValor = String(previos.get(clave));
+            this._cifra(cuenta, n, (v) => String(Math.round(v)), true);
+          } else {
+            cuenta.textContent = String(n);
+            cuenta.dataset.contadorValor = String(n);
+          }
+        });
+      }
+
       const totalEl = document.getElementById("dashVolTotal");
-      if (totalEl) totalEl.textContent = datosOk ? String(total) : "-";
+      if (totalEl) this._cifra(totalEl, datosOk ? total : "—", (v) => String(Math.round(v)), animar);
     }
 
     // Línea de conciliación: una sola población y sus subconjuntos.
