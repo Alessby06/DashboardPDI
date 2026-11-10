@@ -1032,8 +1032,11 @@
   #view-auditoria .card .data-table th:nth-child(3) { width: 14%; }
   #view-auditoria .card .data-table th:nth-child(4) { width: 13%; }
   #view-auditoria .card .data-table th:nth-child(5) { width: 19%; }
-  #view-auditoria .card .data-table th:nth-child(6) { width: 12%; }
-  #view-auditoria .card .data-table th:nth-child(7) { width: 7%; text-align: center; }
+  #view-auditoria .card .data-table th:nth-child(6) { width: 11%; }
+  #view-auditoria .card .data-table th:nth-child(7) { width: 8%; text-align: center; }
+  /* El encabezado de la última columna cabe en una línea, como en las otras
+     cuatro tablas. */
+  #view-auditoria .card .data-table th:nth-child(7) { white-space: nowrap; }
 
   #view-auditoria .card .data-table td {
     min-width: 0;
