@@ -290,6 +290,9 @@ test.describe('navegación interna — sin estados vacíos', () => {
   test('el registro que cambia se resalta en su fila', async ({ page }) => {
     await entrar(page, cuentas().coord);
     await esperarDatos(page);
+    await page.evaluate(() => { window.PDI.navigate('/padron'); });
+    await page.waitForURL(/\/padron/);
+    await expect(page.locator('#tbodyBeneficiarios tr[data-id]').first()).toBeVisible({ timeout: 20_000 });
 
     const resaltado = await page.evaluate(() => {
       const fila = document.querySelector('#tbodyBeneficiarios tr[data-id]');
