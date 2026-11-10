@@ -39,13 +39,118 @@ const RUTAS_PREFETCH = [
 function prefetchRutasPrincipales() {
   if (window.__pdiPrefetchHecho) return;
   window.__pdiPrefetchHecho = true;
-  const rutas = RUTAS_PREFETCH.filter((ruta) => ruta !== location.pathname);
-  const lanzar = () => rutas.forEach((ruta) => prefetch(ruta));
+  const rutas = rutasDelMenu();
+  if (!rutas.length) return;
+  const lanzar = async () => {
+    rutas.forEach((ruta) => prefetch(ruta));
+    // El HTML por sí solo no basta: el chunk de la página se importa recién al
+    // navegar y eso es lo que dejaba un segundo de tabla vacía o de cifras en
+    // "…". Se importa ahora, en serie, para no competir con la hidratación.
+    for (const ruta of rutas) await precargarModulos(ruta);
+  };
   if (typeof requestIdleCallback === "function") {
     requestIdleCallback(lanzar, { timeout: 3000 });
   } else {
     setTimeout(lanzar, 1200);
   }
+}
+
+/** Ruta comparable: sin barra final y sin query. */
+function normalizarRuta(valor) {
+  try {
+    const url = new URL(valor || location.href, location.href);
+    const ruta = url.pathname.replace(/\/+$/, "");
+    return ruta || "/";
+  } catch {
+    return "";
+  }
+}
+
+/** Rutas que el rol puede ver en el menú, más las de la barra superior. */
+function rutasDelMenu() {
+  const rutas = new Set(["/perfil"]);
+  const sidebar = document.getElementById("sidebarNav");
+  try {
+    sidebar?.querySelectorAll('a[href^="/"]').forEach((a) => {
+      if (a.classList.contains("role-restricted")) return;
+      const ruta = normalizarRuta(a.getAttribute("href"));
+      if (ruta) rutas.add(ruta);
+    });
+  } catch {
+    // Sin sidebar (login, 404) se usan las rutas conocidas.
+  }
+  // Si el menú aún no está montado, se conserva la lista mínima histórica.
+  if (!sidebar) RUTAS_PREFETCH.forEach((ruta) => rutas.add(normalizarRuta(ruta)));
+  rutas.delete(normalizarRuta(location.href));
+  return [...rutas].filter(Boolean);
+}
+
+/** La precarga no debe gastar datos móviles ni competir en redes lentas. */
+function permitePrecarga() {
+  const conexion = navigator.connection;
+  if (!conexion) return true;
+  if (conexion.saveData) return false;
+  return !/^(slow-2g|2g)$/.test(String(conexion.effectiveType || ""));
+}
+
+const rutasEnCurso = new Map();
+
+/**
+ * Deja el módulo de una ruta en la caché del navegador. El HTML se lee una vez
+ * y se importan sus `script[type="module"]`: son las mismas URL que Astro
+ * volverá a pedir al navegar, así que la importación resuelve al instante.
+ */
+async function precargarModulos(ruta) {
+  if (!ruta || !permitePrecarga()) return;
+  window.PDI = window.PDI || {};
+  const listas = (window.PDI.__pdiRutasListas = window.PDI.__pdiRutasListas || new Set());
+  if (listas.has(ruta)) return;
+  if (rutasEnCurso.has(ruta)) return rutasEnCurso.get(ruta);
+
+  const tarea = (async () => {
+    try {
+      const respuesta = await fetch(ruta, {
+        headers: { Accept: "text/html" },
+        credentials: "same-origin",
+      });
+      if (!respuesta.ok) return;
+      const doc = new DOMParser().parseFromString(await respuesta.text(), "text/html");
+      const fuentes = [...doc.querySelectorAll('script[type="module"][src]')]
+        .map((script) => script.getAttribute("src"))
+        .filter(Boolean)
+        .map((src) => new URL(src, location.origin).href);
+
+      for (const src of fuentes) {
+        try {
+          // @vite-ignore: la URL la decide el HTML construido, no Vite.
+          await import(/* @vite-ignore */ src);
+        } catch {
+          // Un módulo ya cargado o bloqueado no invalida la ruta.
+        }
+      }
+      listas.add(ruta);
+    } catch {
+      // Red lenta o ruta no disponible: la página conserva su esqueleto.
+    }
+  })().finally(() => rutasEnCurso.delete(ruta));
+
+  rutasEnCurso.set(ruta, tarea);
+  return tarea;
+}
+
+/** Adelanta la ruta al pasar el puntero o al enfocar un enlace del menú. */
+function enlazarPrecargaPorIntencion() {
+  if (window.__pdiPrecargaIntencion) return;
+  window.__pdiPrecargaIntencion = true;
+  const activar = (evento) => {
+    const el = evento.target instanceof Element
+      ? evento.target.closest('a[href^="/"]')
+      : null;
+    if (!el || el.classList.contains("role-restricted")) return;
+    precargarModulos(normalizarRuta(el.getAttribute("href")));
+  };
+  document.addEventListener("pointerover", activar, { passive: true });
+  document.addEventListener("focusin", activar);
 }
 
 let iniciadoEn = 0;
@@ -68,6 +173,13 @@ function limpiarTemporizadores() {
 export function iniciarEstadoCarga() {
   const shell = document.getElementById("pdiViewShell");
   if (!shell) return;
+
+  // La ruta actual ya tiene su módulo ejecutándose: al volver a ella no hace
+  // falta enseñar el esqueleto. Se anota antes de cualquier salida temprana.
+  window.PDI = window.PDI || {};
+  const rutasListas = (window.PDI.__pdiRutasListas = window.PDI.__pdiRutasListas || new Set());
+  rutasListas.add(normalizarRuta(location.href));
+  enlazarPrecargaPorIntencion();
 
   // Si el controlador ya corrio en esta misma pagina, no dupliques listeners.
   if (shell.dataset.pdiCargaIniciada === "1") return;

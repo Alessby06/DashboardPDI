@@ -270,13 +270,19 @@ const OPCIONES_ORDEN_AUDIT = [
                   </tr>
                 </thead>
                 <tbody id="tbodyAuditLogs">
-                  <!-- Injected via JS -->
+                  <tr id="auditLogsCargando">
+                    <td colspan="7" style="text-align:center; padding:32px; color:var(--text-dim);">
+                      Cargando bitácora…
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
 
             <div class="mobile-accordion-list" id="mobileCardsAuditoria">
-              <!-- Injected via JS -->
+              <div id="auditCardsCargando" style="text-align:center; padding:32px; color:var(--text-dim); background:var(--surface-1); border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
+                Cargando bitácora…
+              </div>
             </div>
 
             <!-- Controles de Paginación y Densidad -->

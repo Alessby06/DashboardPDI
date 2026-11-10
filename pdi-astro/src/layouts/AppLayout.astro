@@ -131,16 +131,38 @@ const impeccableLive =
       // 1. Antiflash síncrono inmediato en carga inicial de la página
       aplicarTema(document);
 
+      /** Ruta comparable: sin barra final y sin query. */
+      function rutaDe(valor) {
+        try {
+          var u = new URL(valor || location.href, location.href);
+          var p = u.pathname.replace(/\/+$/, "");
+          return p || "/";
+        } catch (e) {
+          return "";
+        }
+      }
+
+      /** ¿La ruta ya tiene sus módulos en memoria? Lo anota LoadingState. */
+      function rutaConModulos(ruta) {
+        try {
+          var lista = window.PDI && window.PDI.__pdiRutasListas;
+          return !!(ruta && lista && lista.has(ruta));
+        } catch (e) {
+          return false;
+        }
+      }
+
       // 2. ClientRouter: transferir atributos y preparar subvistas ANTES de que Astro reemplace el documento
       document.addEventListener("astro:before-swap", function (ev) {
         if (ev.newDocument) {
           aplicarTema(ev.newDocument);
 
-          // La capa de datos ya hidrato en esta sesion: la pagina nueva no debe
-          // ensenar el esqueleto. El <html> se reemplaza en la transicion, asi
-          // que la marca se copia al documento nuevo antes del swap.
+          // La capa de datos ya hidrató en esta sesión. Solo se retira el
+          // esqueleto de entrada si los módulos de la página destino ya están
+          // precargados: de lo contrario se vería el marcado del servidor con
+          // las cifras en "…" o la tabla vacía hasta que corra su script.
           try {
-            if (window.PDI && window.PDI.__pdiDatosListos) {
+            if (window.PDI && window.PDI.__pdiDatosListos && rutaConModulos(rutaDe(ev.to))) {
               ev.newDocument.documentElement.setAttribute("data-pdi-ready", "1");
             }
           } catch (e) {}
@@ -183,7 +205,7 @@ const impeccableLive =
       document.addEventListener("astro:after-swap", function () {
         aplicarTema(document);
         try {
-          if (window.PDI && window.PDI.__pdiDatosListos) {
+          if (window.PDI && window.PDI.__pdiDatosListos && rutaConModulos(rutaDe(location.href))) {
             document.documentElement.setAttribute("data-pdi-ready", "1");
           }
         } catch (e) {}
@@ -216,8 +238,10 @@ const impeccableLive =
 
     <!-- Main Content Container -->
     <div class="main-wrapper">
-      <!-- Topbar persistente -->
-      <Topbar transition:persist />
+      <!-- Topbar persistente. La directiva va en el <header> del componente:
+           en la invocación Astro la ignora y el encabezado se recreaba en cada
+           cambio, mostrando "?" y "Sesión" hasta que corría su script. -->
+      <Topbar />
 
       <!-- Viewport Body -->
       <main

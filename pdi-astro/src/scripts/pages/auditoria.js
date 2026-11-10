@@ -38,14 +38,50 @@ function enlazar() {
 }
 
 /** Dibuja lo propio de esta pagina. Es idempotente. */
-async function montar() {
-  // La bitácora ya no viaja en la hidratación clínica: se pide al servidor,
-  // que es el único que puede abrir el namespace de auditoría.
-  try { AuditModel.aplicarDatos(await fetchBitacora()); } catch (e) { /* sin bitácora */ }
-  // No se llama DashboardView.render(): ademas de la bitacora, esa funcion
-  // dibujaba las tarjetas del dashboard, que en esta pagina no existen. Se
-  // invoca directamente la parte que le corresponde a la bitacora.
-  DashboardView.renderAuditLogs(AuditModel.getAll());
+function montar() {
+  // Si la bitácora ya viajó en esta sesión, se pinta de inmediato; el HTML
+  // trae una fila "Cargando bitácora…" para no confundir la espera con una
+  // tabla sin registros.
+  const enMemoria = AuditModel.getAll();
+  if (enMemoria.length) DashboardView.renderAuditLogs(enMemoria);
+  cargarBitacora();
+}
+
+let cargandoBitacora = false;
+
+async function cargarBitacora() {
+  if (cargandoBitacora) return;
+  cargandoBitacora = true;
+  try {
+    // La bitácora ya no viaja en la hidratación clínica: se pide al servidor,
+    // que es el único que puede abrir el namespace de auditoría.
+    AuditModel.aplicarDatos(await fetchBitacora());
+    DashboardView.renderAuditLogs(AuditModel.getAll());
+  } catch (e) {
+    // Sin respuesta no se miente con un "sin registros": se dice qué pasó.
+    pintarAvisoBitacora("No se pudo cargar la bitácora. Vuelve a intentarlo.");
+  } finally {
+    cargandoBitacora = false;
+  }
+}
+
+function pintarAvisoBitacora(mensaje) {
+  const tbody = document.getElementById("tbodyAuditLogs");
+  const movil = document.getElementById("mobileCardsAuditoria");
+  if (tbody) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" style="text-align:center; padding:32px; color:var(--text-dim);">${mensaje}</td>
+      </tr>
+    `;
+  }
+  if (movil) {
+    movil.innerHTML = `
+      <div style="text-align:center; padding:32px; color:var(--text-dim); background:var(--surface-1); border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
+        ${mensaje}
+      </div>
+    `;
+  }
 }
 
 function iniciar() {
