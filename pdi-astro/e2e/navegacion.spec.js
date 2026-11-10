@@ -131,6 +131,34 @@ test.describe('navegación interna — sin estados vacíos', () => {
     expect(cifrasResultado.ms).toBeLessThan(1500);
   });
 
+  test('conserva la posición del menú lateral al cambiar de sección', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 600 });
+    await entrar(page, cuentas().coord);
+    await esperarDatos(page);
+    await esperarRuta(page, '/padron');
+
+    const nav = page.locator('#sidebarNav');
+    const antes = await nav.evaluate((el) => {
+      const destino = Math.min(120, Math.max(0, el.scrollHeight - el.clientHeight));
+      const pane = window.__pdiPanes?.get(el);
+      if (pane?.lenis) pane.lenis.scrollTo(destino, { immediate: true, force: true });
+      else el.scrollTop = destino;
+      return { destino, desborda: el.scrollHeight > el.clientHeight + 4 };
+    });
+    expect(antes.desborda).toBe(true);
+    expect(antes.destino).toBeGreaterThan(40);
+    await page.waitForTimeout(250);
+
+    // Navegación programática para que Playwright no desplace el enlace a la
+    // vista antes de pulsarlo y falsee la medición.
+    await page.evaluate(() => { window.PDI.navigate('/padron'); });
+    await page.waitForURL(/\/padron/);
+    await page.waitForTimeout(400);
+
+    const despues = await nav.evaluate((el) => el.scrollTop);
+    expect(despues).toBeGreaterThanOrEqual(antes.destino - 4);
+  });
+
   test('auditoría anuncia la carga en vez de una tabla vacía', async ({ page }) => {
     await entrar(page, cuentas().coord);
     await esperarDatos(page);

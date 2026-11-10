@@ -365,11 +365,85 @@ export const Navigation = {
 
 // Sincronización continua de la navegación de Astro
 if (typeof document !== "undefined") {
+  // El <aside> persiste entre páginas, pero Astro lo mueve en el DOM y Lenis
+  // vuelve a medirlo: sin esta memoria, el menú reaparece arriba aunque el
+  // usuario lo hubiera bajado. Se guarda antes del cambio y se restaura
+  // después, sincronizando también el estado interno de Lenis.
+  const CLAVE_SCROLL_NAV = "pdi_sidebar_scroll";
+  let scrollNavGuardado = 0;
+  let temporizadorScrollNav = null;
+
+  const navLateral = () => document.getElementById("sidebarNav");
+
+  const leerScrollNav = () => {
+    const nav = navLateral();
+    if (nav) scrollNavGuardado = Number(nav.scrollTop) || 0;
+    return scrollNavGuardado;
+  };
+
+  const persistirScrollNav = () => {
+    try {
+      sessionStorage.setItem(CLAVE_SCROLL_NAV, String(scrollNavGuardado));
+    } catch (e) { /* almacenamiento bloqueado: se conserva en memoria */ }
+  };
+
+  const vincularScrollNav = () => {
+    const nav = navLateral();
+    if (!nav || nav.dataset.pdiScrollGuard === "1") return;
+    nav.dataset.pdiScrollGuard = "1";
+    nav.addEventListener("scroll", () => {
+      leerScrollNav();
+      clearTimeout(temporizadorScrollNav);
+      temporizadorScrollNav = setTimeout(persistirScrollNav, 150);
+    }, { passive: true });
+  };
+
+  const restaurarScrollNav = () => {
+    const nav = navLateral();
+    if (!nav) return;
+    if (!scrollNavGuardado) {
+      try {
+        scrollNavGuardado = Number(sessionStorage.getItem(CLAVE_SCROLL_NAV) || 0);
+      } catch (e) {
+        scrollNavGuardado = 0;
+      }
+    }
+    if (!scrollNavGuardado || scrollNavGuardado <= 0) return;
+    // Si Astro o Lenis conservaron la posición, o el usuario ya movió el
+    // menú, no se toca.
+    if (nav.scrollTop > 1) return;
+
+    const aplicar = () => {
+      if (nav.scrollTop > 1 || !scrollNavGuardado) return;
+      try {
+        const pane = window.__pdiPanes?.get(nav);
+        if (pane?.lenis) {
+          pane.lenis.scrollTo(scrollNavGuardado, { immediate: true, force: true });
+        } else {
+          nav.scrollTop = scrollNavGuardado;
+        }
+      } catch (e) {
+        try { nav.scrollTop = scrollNavGuardado; } catch (otro) { /* sin scroll */ }
+      }
+    };
+
+    aplicar();
+    requestAnimationFrame(aplicar);
+    setTimeout(aplicar, 140);
+  };
+
   const refrescarNavegacion = () => {
     document.documentElement.removeAttribute("data-menu-cerrandose");
     document.documentElement.classList.remove("pdi-navegando");
+    vincularScrollNav();
     Navigation.actualizarEnlaceActivo();
+    restaurarScrollNav();
   };
+
+  document.addEventListener("astro:before-swap", () => {
+    leerScrollNav();
+    persistirScrollNav();
+  });
   document.addEventListener("astro:after-swap", refrescarNavegacion);
   document.addEventListener("astro:page-load", refrescarNavegacion);
 }
