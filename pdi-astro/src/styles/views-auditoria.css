@@ -1033,7 +1033,7 @@
     overflow-wrap: anywhere;
   }
 
-  #view-auditoria .card .data-table th:nth-child(1) { width: 148px; }
+  #view-auditoria .card .data-table th:nth-child(1) { width: 124px; }
   #view-auditoria .card .data-table th:nth-child(2) { width: 168px; }
   #view-auditoria .card .data-table th:nth-child(3) { width: 122px; }
   #view-auditoria .card .data-table th:nth-child(4) { width: 148px; }

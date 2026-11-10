@@ -1440,14 +1440,14 @@ export const DashboardView = {
 
                 <div class="datacard-extra" id="extra-audit-${index}">
                   <div class="datacard-row">
-                    <span class="datacard-label">Usuario Responsable</span>
+                    <span class="datacard-label">Autor</span>
                     <span class="datacard-value" style="display:flex; align-items:center; gap:6px;">
                       <span class="audit-user-avatar" style="width:22px; height:22px; font-size:9.5px;">${getInitials(l.user)}</span>
                       ${escapar(l.user)}
                     </span>
                   </div>
                   <div class="datacard-row">
-                    <span class="datacard-label">Perfil / Rol</span>
+                    <span class="datacard-label">Rol</span>
                     <span class="datacard-value">${escapar(l.role)}</span>
                   </div>
                   <div class="datacard-row" style="flex-direction:column; align-items:flex-start; gap:6px;">
