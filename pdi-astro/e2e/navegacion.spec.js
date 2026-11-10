@@ -159,6 +159,59 @@ test.describe('navegación interna — sin estados vacíos', () => {
     expect(despues).toBeGreaterThanOrEqual(antes.destino - 4);
   });
 
+  test('cuentas pinta la copia en memoria al volver', async ({ page }) => {
+    await entrar(page, cuentas().admin);
+    await esperarDatos(page);
+    await esperarRuta(page, '/cuentas');
+
+    await page.evaluate(() => { window.PDI.navigate('/cuentas'); });
+    await page.waitForURL(/\/cuentas/);
+    await expect(page.locator('.cuenta-fila').first()).toBeVisible({ timeout: 20_000 });
+    expect(await page.locator('.cuenta-fila').count()).toBeGreaterThan(0);
+
+    await page.evaluate(() => { window.PDI.navigate('/dashboard'); });
+    await page.waitForURL(/\/dashboard/);
+
+    // Segunda vuelta con el servidor lento: la lista sale de memoria.
+    await page.route('**/api/cuenta/admin', async (route) => {
+      if (route.request().method() === 'GET') {
+        await new Promise((resolve) => setTimeout(resolve, 1200));
+      }
+      await route.continue();
+    });
+
+    await page.evaluate(() => { window.PDI.navigate('/cuentas'); });
+    await page.waitForURL(/\/cuentas/);
+    await expect(page.locator('.cuenta-fila').first()).toBeVisible({ timeout: 500 });
+    await expect(page.locator('#cuentasLista')).not.toContainText('Cargando cuentas', { timeout: 500 });
+    await page.waitForTimeout(900);
+  });
+
+  test('perfil pinta la copia en memoria al volver', async ({ page }) => {
+    await entrar(page, cuentas().coord);
+    await esperarDatos(page);
+    await esperarRuta(page, '/perfil');
+
+    await page.evaluate(() => { window.PDI.navigate('/perfil'); });
+    await page.waitForURL(/\/perfil/);
+    await expect(page.locator('#perfilNombre')).toHaveText('E2E coord', { timeout: 20_000 });
+
+    await page.evaluate(() => { window.PDI.navigate('/padron'); });
+    await page.waitForURL(/\/padron/);
+
+    // El topbar y el perfil comparten el endpoint de sesión; se retrasa para
+    // comprobar que el perfil no espera a la red en la segunda vuelta.
+    await page.route('**/api/cuenta/sesion', async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+      await route.continue();
+    });
+
+    await page.evaluate(() => { window.PDI.navigate('/perfil'); });
+    await page.waitForURL(/\/perfil/);
+    await expect(page.locator('#perfilNombre')).toHaveText('E2E coord', { timeout: 500 });
+    await page.waitForTimeout(900);
+  });
+
   test('auditoría anuncia la carga en vez de una tabla vacía', async ({ page }) => {
     await entrar(page, cuentas().coord);
     await esperarDatos(page);

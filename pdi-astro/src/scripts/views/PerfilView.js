@@ -245,31 +245,55 @@ export const PerfilView = {
 
   init() {
     const form = porId('formPerfil');
-    if (!form || form === this._formulario) return;
+    if (!form) return;
+    if (form === this._formulario) {
+      // Misma página (page-load duplicado): no reenganchar ni volver a pedir.
+      return;
+    }
     this._formulario = form;
     this._tocados = new Set();
     iniciarTiposCampo();
     this._conectarFormularios();
     this._conectarSalida();
-    this.cargar();
+
+    // Al volver a la sección, la copia en memoria se pinta en el acto. La red
+    // solo confirma; así no reaparece "cargando" en cada entrada.
+    if (this.cuenta) {
+      this.render();
+      this.actualizarEstado();
+    }
+    this.cargar({ fondo: Boolean(this.cuenta) });
   },
 
-  async cargar() {
+  async cargar({ fondo = false } = {}) {
     let cuenta;
     try {
       cuenta = await sincronizarSesion();
     } catch (err) {
       // Fallo del servidor o de la base: la cookie sigue siendo válida. No se
-      // expulsa al usuario; se le pide reintentar.
-      aviso('perfilDatosFeedback', 'No se pudo verificar la sesión. Revisa la conexión e intenta de nuevo.', 'error');
-      toast('No se pudo cargar el perfil', 'El servidor no respondió. Recarga la página para reintentar.', 'danger');
+      // expulsa al usuario; se le pide reintentar. Si ya hay datos en
+      // pantalla, se conservan sin un aviso en cada vuelta.
+      if (!fondo) {
+        aviso('perfilDatosFeedback', 'No se pudo verificar la sesión. Revisa la conexión e intenta de nuevo.', 'error');
+        toast('No se pudo cargar el perfil', 'El servidor no respondió. Recarga la página para reintentar.', 'danger');
+      }
       return;
     }
     if (!cuenta) {
       window.location.replace('/login');
       return;
     }
+
     this.cuenta = cuenta;
+
+    // Si el usuario ya está escribiendo mientras responde el servidor, no se
+    // pisan sus campos: solo se actualiza lo estructural.
+    if (fondo && this._enEdicion()) {
+      pintarTopbar(cuenta);
+      this._pintarAvisoTemporal();
+      return;
+    }
+
     this.render();
     this._cargarUsuario();
     this.actualizarEstado();
@@ -820,6 +844,21 @@ export const PerfilView = {
     // Sin el formulario en el DOM (otra página) no hay nada que perder.
     if (!porId('formPerfil')) return false;
     return Object.keys(CAMPOS).some((clave) => this._normalizado(clave) !== (this._base[clave] || ''));
+  },
+
+  /** ¿Hay algo que el usuario esté editando y no deba pisar el refresco? */
+  _enEdicion() {
+    if (this._tocados.size > 0) return true;
+    const panelTotp = porId('perfilTotpPanel');
+    if (panelTotp && !panelTotp.hidden) return true;
+    const usuario = (porId('perfilInputUsuario')?.value || '').trim();
+    if (usuario && usuario !== (this.cuenta?.usuario || '')) return true;
+    return [
+      'perfilInputUsuarioClave',
+      'perfilInputClaveActual',
+      'perfilInputClaveNueva',
+      'perfilInputClaveRepetir',
+    ].some((id) => (porId(id)?.value || '').length > 0);
   },
 
   _marcarError(clave, mensaje) {

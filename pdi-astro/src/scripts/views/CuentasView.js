@@ -255,6 +255,27 @@ function actualizarResumenSedes() {
 }
 
 async function cargarSedes() {
+  // Si la lista ya está en memoria se pinta sin bloquear el botón y se
+  // refresca en segundo plano, por si se añadió una sede en otra sección.
+  if (sedes.length) {
+    pintarSedes('ctaSedes', []);
+    actualizarResumenSedes();
+    fetchSedes()
+      .then((lista) => {
+        const nuevas = Array.isArray(lista) ? lista : [];
+        if (!nuevas.length) return;
+        sedes = nuevas;
+        // Si el formulario está abierto, se conservan las sedes marcadas.
+        const marcadas = Array.from(
+          porId('ctaSedes')?.querySelectorAll('input:checked') || [],
+        ).map((el) => el.value);
+        pintarSedes('ctaSedes', marcadas);
+        actualizarResumenSedes();
+      })
+      .catch(() => { /* se conserva la copia en memoria */ });
+    return;
+  }
+
   const boton = porId('btnCrearCuenta');
   if (boton) boton.disabled = true;
   try {
@@ -678,10 +699,25 @@ async function iniciar() {
 
   const lista = porId('cuentasLista');
   if (!lista) return;
+
+  // La copia en memoria sobrevive a la navegación interna. Al volver a la
+  // sección se pinta en el acto, sin el "Cargando cuentas…" de cada visita;
+  // la red solo confirma y actualiza.
+  if (cuentas.length) render();
+  if (sedes.length) {
+    pintarSedes('ctaSedes', []);
+    actualizarResumenSedes();
+  }
+
   try {
-    await cargarSedes();
-    await cargar();
+    await Promise.all([cargarSedes(), cargar()]);
   } catch (err) {
+    // Con datos en pantalla, un fallo de red no borra la lista: se avisa y se
+    // conserva la última copia.
+    if (cuentas.length) {
+      aviso('No se pudieron actualizar las cuentas', 'Se muestra la última copia cargada.', 'warning');
+      return;
+    }
     lista.innerHTML = `<div class="cuentas-vacio">
       <strong>No se pudieron cargar las cuentas</strong>
       <p>${escapar(err?.message || 'Revisa la conexión y recarga la página.')}</p>
