@@ -374,7 +374,8 @@
    =========================================================================== */
 #cardSaludEvaluaciones .data-table {
   width: 100%;
-  min-width: 920px;
+  /* Mismo suelo de ancho que las otras cuatro tablas. */
+  min-width: 940px;
   table-layout: fixed;
 }
 

@@ -1011,8 +1011,11 @@
    conserva el texto completo en su title.
    =========================================================================== */
 @media (min-width: 769px) {
+  /* Mismo suelo de ancho que las otras cuatro tablas: 940 px. Con 1080 la
+     tabla se salía de la tarjeta en pantallas de 1280 px y obligaba a
+     desplazar en horizontal para leer el estado. */
   #view-auditoria .card .data-table {
-    min-width: 1080px;
+    min-width: 940px;
     table-layout: fixed;
   }
 
@@ -1024,13 +1027,13 @@
     overflow-wrap: anywhere;
   }
 
-  #view-auditoria .card .data-table th:nth-child(1) { width: 14%; }
-  #view-auditoria .card .data-table th:nth-child(2) { width: 17%; }
-  #view-auditoria .card .data-table th:nth-child(3) { width: 15%; }
-  #view-auditoria .card .data-table th:nth-child(4) { width: 14%; }
-  #view-auditoria .card .data-table th:nth-child(5) { width: 21%; }
-  #view-auditoria .card .data-table th:nth-child(6) { width: 10%; }
-  #view-auditoria .card .data-table th:nth-child(7) { width: 9%; text-align: center; }
+  #view-auditoria .card .data-table th:nth-child(1) { width: 17%; }
+  #view-auditoria .card .data-table th:nth-child(2) { width: 18%; }
+  #view-auditoria .card .data-table th:nth-child(3) { width: 14%; }
+  #view-auditoria .card .data-table th:nth-child(4) { width: 13%; }
+  #view-auditoria .card .data-table th:nth-child(5) { width: 19%; }
+  #view-auditoria .card .data-table th:nth-child(6) { width: 12%; }
+  #view-auditoria .card .data-table th:nth-child(7) { width: 7%; text-align: center; }
 
   #view-auditoria .card .data-table td {
     min-width: 0;

@@ -967,7 +967,8 @@
 /* --- TABLA PC: CELDAS Y ELEMENTOS --- */
 #cardVoluntariosPadron .data-table {
   width: 100%;
-  min-width: 895px;
+  /* Mismo suelo de ancho que las otras cuatro tablas. */
+  min-width: 940px;
   table-layout: fixed;
   border-collapse: separate;
   border-spacing: 0;
