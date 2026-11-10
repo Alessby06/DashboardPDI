@@ -471,6 +471,8 @@ export const SocialKanbanView = {
         cuadro = requestAnimationFrame(() => this._igualarCarriles());
       });
     }
+
+    AnimationEngine.destacarCambio(document.getElementById("kanbanCasosSociales"));
   },
 
   handleSearch(query) {

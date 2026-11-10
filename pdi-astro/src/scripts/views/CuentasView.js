@@ -10,6 +10,7 @@
 //  se registra ni se puede recuperar después: si se pierde, se reinicia.
 // ===========================================================================
 import { escapar } from '../utils/HtmlHelper.js';
+import { AnimationEngine } from '../utils/AnimationEngine.js';
 import { confirmar } from '../ui/confirmacion.js';
 import { fetchSedes } from '../core/db.js';
 
@@ -228,6 +229,7 @@ function render() {
   }
 
   lista.innerHTML = visibles.map(filaHtml).join('');
+  AnimationEngine.destacarCambio(lista);
 }
 
 async function cargar() {
@@ -361,6 +363,7 @@ async function crearCuenta(evento) {
       datos.claveTemporal,
     );
     aviso('Cuenta creada', `${datos.cuenta?.nombre || nombre} ya puede entrar.`);
+    AnimationEngine.marcarCambio(datos.cuenta?.id);
     await cargar();
   } catch (err) {
     if (error) error.textContent = err?.message || 'No se pudo crear la cuenta.';
@@ -447,6 +450,7 @@ async function cambiarEstado(cuenta) {
     return;
   }
   aviso(desactivar ? 'Cuenta desactivada' : 'Cuenta reactivada', cuenta.nombre);
+  AnimationEngine.marcarCambio(cuenta.id);
   await cargar();
 }
 
@@ -474,6 +478,7 @@ async function cambiarRol(cuenta, select) {
     return;
   }
   aviso('Rol actualizado', `${cuenta.nombre} deberá volver a entrar.`);
+  AnimationEngine.marcarCambio(cuenta.id);
   await cargar();
 }
 
@@ -536,6 +541,7 @@ async function guardarSedes() {
     }
     cerrarModal('cuentasSedesModal');
     aviso('Sedes actualizadas', cuenta.nombre);
+    AnimationEngine.marcarCambio(cuenta.id);
     await cargar();
   } finally {
     if (boton) {

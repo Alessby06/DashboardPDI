@@ -8,6 +8,7 @@ import {
   reactivarBeneficiario, crearTamizaje, desactivarTamizaje,
 } from '../core/db.js';
 import { AnemiaCalculator } from '../utils/AnemiaCalculator.js';
+import { AnimationEngine } from '../utils/AnimationEngine.js';
 
 export function normalizeBeneficiarioServicios(b) {
   if (!b) return b;
@@ -180,6 +181,7 @@ export const BeneficiarioModel = {
     if (!ok) return null;
 
     list[idx] = actualizado;
+    AnimationEngine.marcarCambio(actualizado.id);
     return actualizado;
   },
 
@@ -323,6 +325,7 @@ export const BeneficiarioModel = {
     // El archivo se actualiza al momento; la hidratación confirmará la fecha y
     // el estado reales. La sede estaba operativa cuando se dio la baja.
     this._retirados = [{ ...removed, estado: 'Inactivo', sedeActiva: true }, ...this._retirados];
+    AnimationEngine.marcarCambio(removed.id);
     return true;
   },
 
@@ -343,6 +346,7 @@ export const BeneficiarioModel = {
     // el archivo y el padrón activo.
     if (!list.some(b => String(b.codigo || b.id) === clave)) list.push(reactivado);
     this._retirados = this._retirados.filter(b => String(b.codigo || b.id) !== clave);
+    AnimationEngine.marcarCambio(reactivado.id);
     return true;
   },
 

@@ -1235,7 +1235,7 @@ export const BeneficiariosView = {
           const estadoDot = b.estado === 'Activo' ? 'dot-green' : 'dot-gray';
 
           return `
-          <tr>
+          <tr data-id="${escapar(b.id)}">
             <td>
               <div class="padron-user-cell">
                 ${avatarHtml(b)}
@@ -1297,7 +1297,7 @@ export const BeneficiariosView = {
         `;
       } else {
         mobileContainer.innerHTML = beneficiarios.map(b => `
-          <div class="mobile-card-item" id="mobile-card-${escapar(b.id)}">
+          <div class="mobile-card-item" id="mobile-card-${escapar(b.id)}" data-id="${escapar(b.id)}">
             <!-- Cabecera: avatar + ID + Badge Estado -->
             <div class="datacard-header">
               <div class="datacard-header-left">
@@ -1360,6 +1360,8 @@ export const BeneficiariosView = {
         `).join("");
       }
     }
+
+    AnimationEngine.destacarCambio(enMovil ? mobileContainer : tbody);
   },
 
   toggleCard(id) {

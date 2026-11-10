@@ -233,6 +233,43 @@ export const AnimationEngine = {
   },
 
   /**
+   * Deja marcado el registro que acaba de cambiar para que la próxima vista
+   * que se pinte lo resalte. El marcador caduca para no iluminar una fila
+   * homónima en una navegación posterior.
+   */
+  marcarCambio(id, ttl = 2500) {
+    if (id === undefined || id === null || id === "") return;
+    this._cambioPendiente = { id: String(id), ts: Date.now(), ttl };
+  },
+
+  consumirCambio() {
+    const cambio = this._cambioPendiente;
+    this._cambioPendiente = null;
+    if (!cambio || Date.now() - cambio.ts > cambio.ttl) return null;
+    return cambio.id;
+  },
+
+  /** Resalta el registro marcado dentro del contenedor que acaba de pintarse. */
+  destacarCambio(contenedorOrId) {
+    const id = this.consumirCambio();
+    if (!id) return null;
+    const contenedor = typeof contenedorOrId === "string"
+      ? document.getElementById(contenedorOrId)
+      : contenedorOrId;
+    if (!contenedor) return null;
+    const escapar = typeof CSS !== "undefined" && CSS.escape
+      ? (valor) => CSS.escape(valor)
+      : (valor) => String(valor).replace(/["\\]/g, "\\$&");
+    const el = contenedor.querySelector(
+      `[data-id="${escapar(id)}"], [data-sede-id="${escapar(id)}"], [data-caso-id="${escapar(id)}"]`,
+    );
+    if (el) this.destacar(el);
+    return el;
+  },
+
+  _cambioPendiente: null,
+
+  /**
    * Da entrada en cascada a los hijos de un contenedor recién pintado.
    *
    * Anade una clase que anima con animation-fill-mode: backwards, en vez de

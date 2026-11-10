@@ -7,6 +7,7 @@ import { AuditModel } from '../models/AuditModel.js';
 import { BeneficiariosView } from '../views/BeneficiariosView.js';
 import { ModalView } from '../views/ModalView.js';
 import { ToastView } from '../views/ToastView.js';
+import { AnimationEngine } from '../utils/AnimationEngine.js';
 import { CanvasHelper } from '../utils/CanvasHelper.js';
 import { SEDES_OPERATIVAS } from '../../data/opcionesBeneficiario.js';
 import { distritoDeSede, resumenAlergias } from '../core/catalogos.js';
@@ -601,6 +602,7 @@ export const BeneficiarioController = {
     this.clearSignature();
     this.resetPhotos();
 
+    AnimationEngine.marcarCambio(creado.id);
     if (onComplete) onComplete();
   },
 
@@ -697,6 +699,7 @@ export const BeneficiarioController = {
     // viendo": la contesta publicarRefresco(), que cada pagina registro en su
     // arranque. Asi el mismo codigo sirve para activar un servicio desde el
     // padron, desde salud o desde el propio expediente, sin enumerarlos.
+    AnimationEngine.marcarCambio(id);
     window.PDI?.refrescarVistaActual?.();
   }
 };

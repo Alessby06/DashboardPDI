@@ -287,6 +287,20 @@ test.describe('navegación interna — sin estados vacíos', () => {
     }
   });
 
+  test('el registro que cambia se resalta en su fila', async ({ page }) => {
+    await entrar(page, cuentas().coord);
+    await esperarDatos(page);
+
+    const resaltado = await page.evaluate(() => {
+      const fila = document.querySelector('#tbodyBeneficiarios tr[data-id]');
+      if (!fila) return false;
+      window.PDI.AnimationEngine.marcarCambio(fila.dataset.id);
+      window.PDI.AnimationEngine.destacarCambio(document.getElementById('tbodyBeneficiarios'));
+      return fila.classList.contains('ixd-destello');
+    });
+    expect(resaltado).toBe(true);
+  });
+
   test('auditoría anuncia la carga en vez de una tabla vacía', async ({ page }) => {
     await entrar(page, cuentas().coord);
     await esperarDatos(page);

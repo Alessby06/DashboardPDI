@@ -631,7 +631,7 @@ export const VoluntariadosView = {
         const celularFormateado = v.celular ? v.celular.replace(/-/g, " ") : "Sin teléfono";
 
         return `
-          <tr class="padron-tr">
+          <tr class="padron-tr" data-id="${escapar(v.id)}">
             <td>
               <div class="padron-user-cell">
                 <div class="padron-avatar ${servColorClass}" aria-hidden="true">
@@ -710,7 +710,7 @@ export const VoluntariadosView = {
         const capCount = (v.capacitaciones && v.capacitaciones.length) || 0;
 
         return `
-          <div class="padron-mobile-card">
+          <div class="padron-mobile-card" data-id="${escapar(v.id)}">
             <!-- Header: Avatar + Nombre + Estado -->
             <div class="padron-mcard-header">
               <div class="padron-mcard-identity">
@@ -789,6 +789,8 @@ export const VoluntariadosView = {
         `;
       }).join("");
     }
+
+    AnimationEngine.destacarCambio(enMovil ? mobileContainer : tbody);
   },
 
 
@@ -943,6 +945,7 @@ export const VoluntariadosView = {
           this.render();
           return;
         }
+        AnimationEngine.marcarCambio(savedRecord.id);
 
         if (AuditModel && AuditModel.log) {
           AuditModel.log("Sistema", "Coordinación", "Actualización de Voluntario", payload.dni, `Ficha de ${nombres} ${apellidos} editada`);
@@ -955,6 +958,7 @@ export const VoluntariadosView = {
           this.render();
           return;
         }
+        AnimationEngine.marcarCambio(savedRecord.id);
 
         if (AuditModel && AuditModel.log) {
           AuditModel.log("Sistema", "Coordinación", "Alta de Voluntario", payload.dni, `Inscripción de ${nombres} ${apellidos} (${payload.sedeAsignada})`);
@@ -1033,6 +1037,7 @@ export const VoluntariadosView = {
           if (!updated) return;
 
           this._lastRenderSerial = null;
+          AnimationEngine.marcarCambio(vol.id);
           this.render();
           this.openModalFicha(vol.id);
           const total = updated.canastasRecibidas;
@@ -1135,6 +1140,7 @@ export const VoluntariadosView = {
 
       this.closeModalCapacitacion();
       this._lastRenderSerial = null;
+      AnimationEngine.marcarCambio(this._currentEditingId);
       this.render();
     } finally {
       this._guardandoCapacitacion = false;

@@ -6,6 +6,7 @@ import { VulnerabilityCalculator } from '../utils/VulnerabilityCalculator.js';
 import { SocialKanbanView } from '../views/SocialKanbanView.js';
 import { ToastView } from '../views/ToastView.js';
 import { iconHtml } from '../../data/iconos.js';
+import { AnimationEngine } from '../utils/AnimationEngine.js';
 
 export const SocialController = {
   /**
@@ -83,6 +84,7 @@ export const SocialController = {
       );
     }
 
+    AnimationEngine.marcarCambio(caso._casoId || caso.id);
     view?.renderKanban(model.getAll());
     window.PDI?.Bootstrap?.actualizarBadgesSidebar?.();
   },
@@ -140,6 +142,7 @@ export const SocialController = {
     }
 
     if (view) {
+      AnimationEngine.marcarCambio(caso._casoId || caso.id);
       view.renderKanban(model.getAll());
       view.renderVistaAutorizaciones?.();
       view.renderVistaMisSolicitudes?.();
@@ -208,6 +211,7 @@ export const SocialController = {
 
     const view = window.PDI?.SocialKanbanView || SocialKanbanView;
     if (view) {
+      AnimationEngine.marcarCambio(caso._casoId || caso.id);
       view.renderKanban(model.getAll());
       view.renderVistaAutorizaciones?.();
       view.renderVistaMisSolicitudes?.();
