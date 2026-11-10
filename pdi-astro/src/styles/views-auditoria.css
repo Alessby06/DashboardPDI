@@ -1033,12 +1033,12 @@
     overflow-wrap: anywhere;
   }
 
-  #view-auditoria .card .data-table th:nth-child(1) { width: 150px; }
-  #view-auditoria .card .data-table th:nth-child(2) { width: 172px; }
-  #view-auditoria .card .data-table th:nth-child(3) { width: 132px; }
-  #view-auditoria .card .data-table th:nth-child(4) { width: 150px; }
-  #view-auditoria .card .data-table th:nth-child(6) { width: 110px; }
-  #view-auditoria .card .data-table th:nth-child(7) { width: 94px; text-align: center; }
+  #view-auditoria .card .data-table th:nth-child(1) { width: 148px; }
+  #view-auditoria .card .data-table th:nth-child(2) { width: 168px; }
+  #view-auditoria .card .data-table th:nth-child(3) { width: 122px; }
+  #view-auditoria .card .data-table th:nth-child(4) { width: 148px; }
+  #view-auditoria .card .data-table th:nth-child(6) { width: 104px; }
+  #view-auditoria .card .data-table th:nth-child(7) { width: 92px; text-align: center; }
   /* El encabezado de la última columna cabe en una línea, como en las otras
      cuatro tablas. */
   #view-auditoria .card .data-table th:nth-child(7) { white-space: nowrap; }
