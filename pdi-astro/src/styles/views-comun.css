@@ -1337,10 +1337,11 @@
     padding-inline: 22px;
   }
 
-  /* Suelo común de ancho: las tablas scrollean con el mismo criterio */
-  #cardSaludEvaluaciones .data-table { min-width: 980px; }
-  #cardAsistenciaCasita .data-table { min-width: 900px; }
-  #view-auditoria .card .data-table { min-width: 1160px; }
+  /* Suelo común de ancho: cada tabla declara su propio mínimo en la hoja de
+     su página (views-padron.css, views-salud.css, views-educativo.css,
+     views-auditoria.css, views-voluntariados.css). Aquí no se repite ninguno:
+     al cargar las hojas de página después de esta, la regla duplicada ganaba
+     solo por orden de cascada, y una corrección en un sitio rompía la otra. */
 
   /* Última columna (acciones / asistencia / detalle): centrada en las cinco */
   #cardSaludEvaluaciones .data-table th:last-child,

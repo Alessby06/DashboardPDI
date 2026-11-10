@@ -1322,20 +1322,23 @@ export const DashboardView = {
     if (enMovil) { if (tbody) tbody.innerHTML = ""; }
     else { if (mobileContainer) mobileContainer.innerHTML = ""; }
 
-    const getActionBadgeClass = (action) => {
+    // El modulo de la escritura se dice con una barra de color, no con una
+    // pila: es el mismo lenguaje que las estrategias del padron.
+    const getAccionClase = (action) => {
       const act = (action || "").toLowerCase();
-      if (act.includes("cred") || act.includes("tamizaje") || act.includes("salud")) return "badge-yellow";
-      if (act.includes("derivaci") || act.includes("social")) return "badge-red";
-      if (act.includes("asistencia") || act.includes("casita")) return "badge-blue";
-      if (act.includes("padrón") || act.includes("aprobación") || act.includes("ingreso")) return "badge-green";
-      return "badge-blue";
+      if (act.includes("cred") || act.includes("tamizaje") || act.includes("salud")) return "is-salud";
+      if (act.includes("derivaci") || act.includes("social")) return "is-social";
+      if (act.includes("asistencia") || act.includes("casita")) return "is-educativo";
+      if (act.includes("padrón") || act.includes("aprobación") || act.includes("ingreso")) return "is-padron";
+      return "is-otro";
     };
 
-    const getStatusBadgeClass = (status) => {
+    // El estado se dice con el punto de 6 px, como en el padron y el educativo.
+    const getEstadoDot = (status) => {
       const s = (status || "").toLowerCase();
-      if (s.includes("sensible") || s.includes("crítico") || s.includes("derivaci")) return "badge-red";
-      if (s.includes("observado") || s.includes("revisión") || s.includes("pendiente")) return "badge-yellow";
-      return "badge-green"; // Registrado / Conforme
+      if (s.includes("sensible") || s.includes("crítico") || s.includes("derivaci")) return "dot-red";
+      if (s.includes("observado") || s.includes("revisión") || s.includes("pendiente")) return "dot-amber";
+      return "dot-green"; // Registrado / Conforme
     };
 
     const getInitials = (name) => {
@@ -1369,20 +1372,26 @@ export const DashboardView = {
                 <div class="audit-user-cell">
                   <div class="audit-user-avatar" aria-hidden="true">${getInitials(l.user)}</div>
                   <div>
-                    <strong>${escapar(l.user)}</strong>
+                    <div class="audit-user-name">${escapar(l.user)}</div>
                     <div class="audit-user-role">${escapar(l.role)}</div>
                   </div>
                 </div>
               </td>
-              <td><span class="badge ${getActionBadgeClass(l.action)}">${escapar(l.action)}</span></td>
+              <td><span class="audit-accion ${getAccionClase(l.action)}">${escapar(l.action)}</span></td>
               <td>${entityHtml}</td>
               <td><span class="audit-detail-cell" title="${escapar(l.detail)}">${escapar(l.detail)}</span></td>
-              <td><span class="badge ${getStatusBadgeClass(l.status)}">${escapar(l.status)}</span></td>
               <td>
-                <button type="button" class="btn-action-sm" onclick="event.stopPropagation(); window.openAuditDetail ? window.openAuditDetail('${escaparEnManejador(logIdStr)}') : (window.PDI?.DashboardView?.openLogDetail ? window.PDI.DashboardView.openLogDetail('${escaparEnManejador(logIdStr)}') : null)" title="Ver detalle de trazabilidad">
-                  <span>Detalle</span>
-                  ${iconHtml("accion.abrir", { size: 13 })}
-                </button>
+                <span class="padron-status-tag">
+                  <span class="padron-dot ${getEstadoDot(l.status)}"></span>
+                  <span>${escapar(l.status)}</span>
+                </span>
+              </td>
+              <td>
+                <div class="row-actions">
+                  <button type="button" class="row-action" onclick="event.stopPropagation(); window.openAuditDetail ? window.openAuditDetail('${escaparEnManejador(logIdStr)}') : (window.PDI?.DashboardView?.openLogDetail ? window.PDI.DashboardView.openLogDetail('${escaparEnManejador(logIdStr)}') : null)" title="Ver detalle de trazabilidad" aria-label="Ver detalle de trazabilidad">
+                    ${iconHtml("accion.ver", { size: 15 })}
+                  </button>
+                </div>
               </td>
             </tr>
           `;
@@ -1412,14 +1421,17 @@ export const DashboardView = {
                   <span>REG:</span> ${escapar(l.timestamp)}
                 </div>
                 <div class="datacard-header-right">
-                  <span class="badge ${getStatusBadgeClass(l.status)}">${escapar(l.status)}</span>
+                  <span class="audit-estado">
+                    <span class="padron-dot ${getEstadoDot(l.status)}"></span>
+                    <span>${escapar(l.status)}</span>
+                  </span>
                 </div>
               </div>
 
               <div class="datacard-body">
                 <div class="datacard-row audit-row-action">
                   <span class="datacard-label">Acción Registrada</span>
-                  <span class="datacard-value"><span class="badge ${getActionBadgeClass(l.action)}">${escapar(l.action)}</span></span>
+                  <span class="datacard-value"><span class="audit-accion ${getAccionClase(l.action)}">${escapar(l.action)}</span></span>
                 </div>
                 <div class="datacard-row">
                   <span class="datacard-label">Entidad Afectada</span>

@@ -563,22 +563,32 @@
     .audit-user-cell {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
+      min-width: 0;
     }
 
     .audit-user-avatar {
-      width: 32px;
-      height: 32px;
+      width: 36px;
+      height: 36px;
       border-radius: var(--radius-full);
       background: var(--surface-hover);
       color: var(--text-main);
       font-weight: 700;
-      font-size: 12px;
+      font-size: 12.5px;
+      letter-spacing: -0.01em;
       display: flex;
       align-items: center;
       justify-content: center;
       border: 1px solid var(--border-subtle);
       flex-shrink: 0;
+    }
+
+    /* Nombre del usuario: misma escala que el padron y los voluntariados. */
+    .audit-user-name {
+      font-weight: 600;
+      font-size: 13.5px;
+      color: var(--text-main);
+      line-height: 1.25;
     }
 
     /* Fila interactiva y acción */
@@ -613,7 +623,7 @@
     }
 
     .audit-user-role {
-      font-size: 11px;
+      font-size: 12px;
       color: var(--text-muted);
     }
 
@@ -661,12 +671,6 @@
       background: var(--gt-green);
       color: var(--on-brand);
       border-color: var(--gt-green);
-    }
-
-    @media (hover: hover) and (pointer: fine) {
-      .btn-action-sm.primary:hover {
-        background: var(--brand-dark);
-      }
     }
 
     /* Barra de Paginación y Densidad */
@@ -1001,8 +1005,9 @@
    `table-layout: auto` el navegador repartía por contenido: "Administrador"
    se partía a mitad de palabra, "Detalle" se apilaba letra a letra y la
    última columna quedaba fuera del recorte horizontal.
-   Con anchos fijos y un mínimo que sí cabe, cada columna conserva su sitio y
-   los textos envuelven entre palabras. El detalle se limita a dos líneas y
+   Ahora los anchos van en porcentaje, igual que en el padron, salud, educativo
+   y voluntariados: la tabla conserva el ritmo de las otras cuatro y el
+   porcentaje sobrante se reparte solo. El detalle se limita a dos líneas y
    conserva el texto completo en su title.
    =========================================================================== */
 @media (min-width: 769px) {
@@ -1011,21 +1016,21 @@
     table-layout: fixed;
   }
 
-  /* Anchos explícitos por columna: suman 820px y el detalle ocupa el resto
-     (~260px a 1080px). `table-layout: fixed` usa estas cabeceras. */
+  /* Anchos por columna en porcentaje: la suma da 100 %. El detalle de la
+     operación es la columna ancha; el resto respira parejo. */
   #view-auditoria .card .data-table th {
     white-space: normal;
     line-height: 1.25;
     overflow-wrap: anywhere;
   }
 
-  #view-auditoria .card .data-table th:nth-child(1) { width: 120px; }
-  #view-auditoria .card .data-table th:nth-child(2) { width: 160px; }
-  #view-auditoria .card .data-table th:nth-child(3) { width: 165px; }
-  #view-auditoria .card .data-table th:nth-child(4) { width: 175px; }
-  #view-auditoria .card .data-table th:nth-child(5) { width: 260px; }
-  #view-auditoria .card .data-table th:nth-child(6) { width: 110px; }
-  #view-auditoria .card .data-table th:nth-child(7) { width: 90px; }
+  #view-auditoria .card .data-table th:nth-child(1) { width: 14%; }
+  #view-auditoria .card .data-table th:nth-child(2) { width: 17%; }
+  #view-auditoria .card .data-table th:nth-child(3) { width: 15%; }
+  #view-auditoria .card .data-table th:nth-child(4) { width: 14%; }
+  #view-auditoria .card .data-table th:nth-child(5) { width: 21%; }
+  #view-auditoria .card .data-table th:nth-child(6) { width: 10%; }
+  #view-auditoria .card .data-table th:nth-child(7) { width: 9%; text-align: center; }
 
   #view-auditoria .card .data-table td {
     min-width: 0;
@@ -1039,19 +1044,13 @@
     word-break: normal;
   }
 
-  #view-auditoria .card .data-table td:nth-child(2) strong {
-    display: block;
-    line-height: 1.3;
-  }
-
   #view-auditoria .card .data-table td:nth-child(2) .audit-user-avatar {
     flex: 0 0 auto;
   }
 
   /* El nombre de la acción es largo: la píldora envuelve y no desborda. */
-  #view-auditoria .card .data-table td:nth-child(3) .badge {
+  #view-auditoria .card .data-table td:nth-child(3) .audit-accion {
     max-width: 100%;
-    white-space: normal;
     text-align: left;
     overflow-wrap: break-word;
     line-height: 1.25;
@@ -1093,10 +1092,75 @@
   }
 
   /* "Detalle" se apilaba letra a letra por el overflow-wrap heredado. */
-  #view-auditoria .card .data-table .btn-action-sm {
+  #view-auditoria .card .data-table .row-action {
     white-space: nowrap;
-    min-height: 32px;
   }
+}
+
+/* ===========================================================================
+   AUDITORÍA: LENGUAJE DE ACCIÓN Y ESTADO
+   La acción se dibuja como una línea de parte (barra fina de color + texto),
+   igual que las estrategias del padrón; el estado, como el punto de 6 px con
+   su valor, igual que el padron, el educativo y la salud. Sin píldoras.
+   =========================================================================== */
+.audit-accion {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.audit-accion::before {
+  content: "";
+  width: 3px;
+  height: 12px;
+  flex: none;
+  background: var(--accion-color, var(--border-medium));
+}
+
+.audit-accion.is-salud { --accion-color: var(--gt-yellow); }
+.audit-accion.is-social { --accion-color: var(--gt-red); }
+.audit-accion.is-educativo { --accion-color: var(--gt-blue); }
+.audit-accion.is-padron { --accion-color: var(--gt-green); }
+.audit-accion.is-otro { --accion-color: var(--border-medium); }
+
+.audit-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+#view-auditoria .padron-status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+#view-auditoria .padron-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+#view-auditoria .dot-green { background-color: var(--gt-green); }
+#view-auditoria .dot-amber {
+  background-color: var(--gt-yellow);
+  box-shadow: 0 0 0 2px var(--gt-yellow-bg);
+}
+#view-auditoria .dot-red {
+  background-color: var(--gt-red);
+  box-shadow: 0 0 0 2px var(--gt-red-bg);
 }
 
 @media (max-width: 768px) {
