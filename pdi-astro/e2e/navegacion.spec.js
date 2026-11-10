@@ -268,6 +268,25 @@ test.describe('navegación interna — sin estados vacíos', () => {
     await expect(cifra).toHaveText('3', { timeout: 120 });
   });
 
+  test('las métricas de las demás vistas también aterrizan', async ({ page }) => {
+    await entrar(page, cuentas().coord);
+    await esperarDatos(page);
+
+    const destinos = [
+      { ruta: '/voluntariados', selector: '#volRepartoTotal', patron: /^\d+$/ },
+      { ruta: '/sedes', selector: '#sedesMasterCountBadge', patron: /^\d+ sedes?$/ },
+      { ruta: '/social', selector: '#kanbanCountPendientes', patron: /^\d+$/ },
+      { ruta: '/auditoria', selector: '#auditKpiTotal', patron: /^\d+$/ },
+    ];
+
+    for (const { ruta, selector, patron } of destinos) {
+      await page.evaluate((destino) => { window.PDI.navigate(destino); }, ruta);
+      await page.waitForURL((url) => url.pathname === ruta);
+      await page.waitForTimeout(700);
+      await expect(page.locator(selector)).toHaveText(patron, { timeout: 20_000 });
+    }
+  });
+
   test('auditoría anuncia la carga en vez de una tabla vacía', async ({ page }) => {
     await entrar(page, cuentas().coord);
     await esperarDatos(page);

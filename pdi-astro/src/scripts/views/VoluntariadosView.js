@@ -341,13 +341,10 @@ export const VoluntariadosView = {
     const stats = VoluntarioModel.getStats();
 
     // Reparto en campo: el dato se lee como asignacion operativa, no como metrica de gestion.
-    const setTexto = (id, valor) => {
-      const el = document.getElementById(id);
-      if (el) el.textContent = valor;
-    };
+    const escribir = (id, valor, formato) => AnimationEngine.escribir(id, valor, { formato });
 
-    setTexto("volRepartoTotal", stats.total);
-    setTexto("volRepartoPausa", stats.enPausa);
+    escribir("volRepartoTotal", stats.total, (n) => String(Math.round(n)));
+    escribir("volRepartoPausa", stats.enPausa, (n) => String(Math.round(n)));
 
     const valores = [stats.desayuno, stats.casita, stats.pastoral, stats.otros];
     const pcts = repartirPorcentajes(valores);
@@ -359,8 +356,8 @@ export const VoluntariadosView = {
     ];
 
     grupos.forEach((grupo, indice) => {
-      setTexto(grupo.countId, grupo.count);
-      setTexto(grupo.pctId, `${pcts[indice]}%`);
+      escribir(grupo.countId, grupo.count, (n) => String(Math.round(n)));
+      escribir(grupo.pctId, pcts[indice], (n) => `${Math.round(n)}%`);
 
       const el = document.getElementById(grupo.barId);
       if (!el) return;

@@ -732,8 +732,8 @@ export const DashboardView = {
     const exportCountEl = document.getElementById("exportAuditCountBadge");
 
     const totalCount = (logs && logs.length) || 0;
-    if (totalEl) totalEl.textContent = totalCount;
-    if (exportCountEl) exportCountEl.textContent = `${totalCount} eventos`;
+    if (totalEl) AnimationEngine.escribir(totalEl, totalCount, { formato: (n) => String(Math.round(n)) });
+    if (exportCountEl) AnimationEngine.escribir(exportCountEl, totalCount, { formato: (n) => `${Math.round(n)} eventos` });
     
     if (sensEl) {
       const sensibles = logs ? logs.filter(l => 
@@ -741,7 +741,7 @@ export const DashboardView = {
         (l.detail && l.detail.toLowerCase().includes("demuna")) ||
         (l.status && l.status.toLowerCase().includes("sensible"))
       ) : [];
-      sensEl.textContent = sensibles.length;
+      AnimationEngine.escribir(sensEl, sensibles.length, { formato: (n) => String(Math.round(n)) });
     }
   },
 

@@ -432,8 +432,7 @@ export const SocialKanbanView = {
     }
 
     const setBadge = (id, count) => {
-      const el = document.getElementById(id);
-      if (el) el.textContent = count;
+      AnimationEngine.escribir(id, count, { formato: (n) => String(Math.round(n)) });
     };
     setBadge("kanbanCountPendientes", countP);
     setBadge("kanbanCountEvaluacion", countE);
@@ -561,7 +560,7 @@ export const SocialKanbanView = {
 
     if (countBadge) {
       if (activeCount > 0) {
-        countBadge.textContent = activeCount;
+        AnimationEngine.escribir(countBadge, activeCount, { formato: (n) => String(Math.round(n)) });
         countBadge.style.display = "inline-flex";
       } else {
         countBadge.style.display = "none";
@@ -1386,10 +1385,10 @@ export const SocialKanbanView = {
     const elAprob = document.getElementById("statMisSolicitudesAprobadas");
     const elRech = document.getElementById("statMisSolicitudesRechazadas");
 
-    if (elTotal) elTotal.textContent = String(totalCount);
-    if (elPend) elPend.textContent = String(pendCount);
-    if (elAprob) elAprob.textContent = String(aprobCount);
-    if (elRech) elRech.textContent = String(rechCount);
+    if (elTotal) AnimationEngine.escribir(elTotal, totalCount, { formato: (n) => String(Math.round(n)) });
+    if (elPend) AnimationEngine.escribir(elPend, pendCount, { formato: (n) => String(Math.round(n)) });
+    if (elAprob) AnimationEngine.escribir(elAprob, aprobCount, { formato: (n) => String(Math.round(n)) });
+    if (elRech) AnimationEngine.escribir(elRech, rechCount, { formato: (n) => String(Math.round(n)) });
 
     if (solicitudes.length === 0) {
       container.innerHTML = `

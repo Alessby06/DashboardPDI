@@ -596,7 +596,7 @@ export const BeneficiariosView = {
     if (label) label.textContent = enArchivo ? "Volver al padrón" : "Archivo";
     if (count) {
       const n = BeneficiarioModel.getRetirados().length;
-      count.textContent = String(n);
+      AnimationEngine.escribir(count, n, { formato: (v) => String(Math.round(v)) });
       count.style.display = enArchivo || n === 0 ? "none" : "inline-flex";
     }
     if (nuevo) nuevo.style.display = enArchivo ? "none" : "inline-flex";

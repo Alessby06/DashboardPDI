@@ -151,6 +151,38 @@ export const AnimationEngine = {
     estado.raf = requestAnimationFrame(paso);
   },
 
+  /**
+   * Escribe una cifra con la regla de la app: la primera vez que el elemento
+   * recibe un valor se escribe directo; las siguientes se cuentan desde el
+   * valor anterior. Es el punto de entrada para las vistas que no construyen
+   * su propio estado de primera pintura.
+   */
+  escribir(elementoOrId, valor, opciones = {}) {
+    const el = typeof elementoOrId === "string"
+      ? document.getElementById(elementoOrId)
+      : elementoOrId;
+    if (!el) return;
+
+    const formato = typeof opciones.formato === "function"
+      ? opciones.formato
+      : (n) => String(Math.round(n));
+    const numero = Number(valor);
+
+    if (!Number.isFinite(numero)) {
+      el.textContent = String(valor);
+      delete el.dataset.contadorValor;
+      return;
+    }
+
+    if (opciones.animar === false || !el.dataset.contadorValor) {
+      el.textContent = formato(numero);
+      el.dataset.contadorValor = String(numero);
+      return;
+    }
+
+    this.contar(el, numero, { formato });
+  },
+
   /** Acaba de inmediato todos los contadores abiertos (pestaña oculta). */
   _alOcultarContadores() {
     if (typeof document === "undefined" || !document.hidden) return;

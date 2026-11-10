@@ -633,9 +633,9 @@ export const SedesView = {
 
     const countBadge = document.getElementById("sedesCountBadge");
     const masterCountBadge = document.getElementById("sedesMasterCountBadge");
-    const textCount = `${filtered.length} ${filtered.length === 1 ? 'sede' : 'sedes'}`;
-    if (countBadge) countBadge.textContent = textCount;
-    if (masterCountBadge) masterCountBadge.textContent = textCount;
+    const formatoSedes = (n) => `${Math.round(n)} ${Math.round(n) === 1 ? "sede" : "sedes"}`;
+    if (countBadge) AnimationEngine.escribir(countBadge, filtered.length, { formato: formatoSedes });
+    if (masterCountBadge) AnimationEngine.escribir(masterCountBadge, filtered.length, { formato: formatoSedes });
 
     if (filtered.length > 0) {
       this._selectedSedeId = this._resolverSedeId(this._selectedSedeId);
