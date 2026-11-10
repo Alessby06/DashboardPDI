@@ -131,39 +131,19 @@ const impeccableLive =
       // 1. Antiflash síncrono inmediato en carga inicial de la página
       aplicarTema(document);
 
-      /** Ruta comparable: sin barra final y sin query. */
-      function rutaDe(valor) {
-        try {
-          var u = new URL(valor || location.href, location.href);
-          var p = u.pathname.replace(/\/+$/, "");
-          return p || "/";
-        } catch (e) {
-          return "";
-        }
-      }
-
-      /** ¿La ruta ya tiene sus módulos en memoria? Lo anota LoadingState. */
-      function rutaConModulos(ruta) {
-        try {
-          var lista = window.PDI && window.PDI.__pdiRutasListas;
-          return !!(ruta && lista && lista.has(ruta));
-        } catch (e) {
-          return false;
-        }
-      }
-
-      // 2. ClientRouter: transferir atributos y preparar subvistas ANTES de que Astro reemplace el documento
+      // 2. ClientRouter: preparar el documento nuevo ANTES del intercambio
       document.addEventListener("astro:before-swap", function (ev) {
         if (ev.newDocument) {
           aplicarTema(ev.newDocument);
 
-          // La capa de datos ya hidrató en esta sesión. Solo se retira el
-          // esqueleto de entrada si los módulos de la página destino ya están
-          // precargados: de lo contrario se vería el marcado del servidor con
-          // las cifras en "…" o la tabla vacía hasta que corra su script.
+          // El chrome (badges del sidebar) sigue visible porque los datos ya
+          // están en memoria; el contenido de la página entrante se tapa con
+          // `pdi-navegando` hasta que su script pinte, para no enseñar la
+          // tabla vacía ni las cifras en "…" del marcado del servidor.
           try {
-            if (window.PDI && window.PDI.__pdiDatosListos && rutaConModulos(rutaDe(ev.to))) {
+            if (window.PDI && window.PDI.__pdiDatosListos) {
               ev.newDocument.documentElement.setAttribute("data-pdi-ready", "1");
+              ev.newDocument.documentElement.classList.add("pdi-navegando");
             }
           } catch (e) {}
 
@@ -201,12 +181,13 @@ const impeccableLive =
         }
       });
 
-      // 3. ClientRouter: re-asegurar atributos inmediatamente tras el intercambio
+      // 3. ClientRouter: re-asegurar el tema y el velo de contenido tras el intercambio
       document.addEventListener("astro:after-swap", function () {
         aplicarTema(document);
         try {
-          if (window.PDI && window.PDI.__pdiDatosListos && rutaConModulos(rutaDe(location.href))) {
+          if (window.PDI && window.PDI.__pdiDatosListos) {
             document.documentElement.setAttribute("data-pdi-ready", "1");
+            document.documentElement.classList.add("pdi-navegando");
           }
         } catch (e) {}
       });

@@ -295,6 +295,21 @@ export function iniciarEstadoCarga() {
       desuscribir = null;
     }
 
+    // Navegación interna: el contenido ya está en el DOM y viene de la caché
+    // de módulos. Se muestra sin fundido para no retrasar la lectura; la
+    // transición de Astro ya hace la entrada entre páginas.
+    if (!animar) {
+      if (contenido) contenido.style.transition = "none";
+      if (esqueleto) esqueleto.style.transition = "none";
+      requestAnimationFrame(() => {
+        if (contenido) contenido.style.removeProperty("transition");
+        if (esqueleto) esqueleto.style.removeProperty("transition");
+      });
+    }
+
+    // El velo de navegación ya cumplió: la página tiene sus datos pintados.
+    document.documentElement.classList.remove("pdi-navegando");
+
     shell.classList.add("is-ready");
     shell.removeAttribute("data-pdi-loading-error");
     if (contenido) {

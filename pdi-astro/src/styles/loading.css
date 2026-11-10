@@ -76,6 +76,21 @@ html[data-pdi-ready="1"] .pdi-skeleton {
   display: none;
 }
 
+/* Navegación interna: el chrome (badges, topbar) ya está listo, pero el
+   contenido de la página entrante se tapa hasta que su script pinta. Sin esto
+   se vería el marcado del servidor: la tabla vacía o las cifras en "…". */
+html.pdi-navegando .pdi-view-content {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+html.pdi-navegando .pdi-skeleton {
+  display: flex;
+}
+
 /* Los contadores del sidebar se calculan de los modelos. Antes de la primera
    hidratacion valen 0 y no deben verse como si fueran datos reales. */
 html:not([data-pdi-ready="1"]) .nav-badge {

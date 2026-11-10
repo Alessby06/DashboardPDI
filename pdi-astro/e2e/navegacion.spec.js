@@ -11,7 +11,7 @@ async function esperarDatos(page) {
   );
 }
 
-/** Espera a que la ruta tenga su módulo en memoria (precarga en tiempo muerto). */
+/** Espera a que la ruta tenga su módulo precargado. */
 async function esperarRuta(page, ruta) {
   await page.waitForFunction(
     (destino) => !!window.PDI?.__pdiRutasListas?.has(destino),
@@ -21,13 +21,27 @@ async function esperarRuta(page, ruta) {
 }
 
 /**
- * Mide cuánto tarda la página nueva en pintar lo que se le pide, contado desde
- * `astro:after-swap`. Un valor negativo significa que no llegó a pintarse.
+ * Observa el cambio de documento desde `astro:after-swap` y devuelve:
+ *  - `cubierto`: la página entrante estaba tapada por el esqueleto (no se vio
+ *    su marcado vacío).
+ *  - `ms`: cuánto tardó en pintarse el dato pedido, o -1 si no llegó.
  */
-function medirDesdeElSwap(page, selector, patron) {
+function observarSwap(page, selector, patron) {
   return page.evaluate(
     ({ selector, patron }) => new Promise((resolve) => {
       document.addEventListener('astro:after-swap', () => {
+        const contenido = document.querySelector('#pdiViewContent');
+        const esqueleto = document.querySelector('#pdiSkeleton');
+        const estiloContenido = contenido ? getComputedStyle(contenido) : null;
+        const estiloEsqueleto = esqueleto ? getComputedStyle(esqueleto) : null;
+        const contenidoOculto = !estiloContenido
+          || estiloContenido.visibility === 'hidden'
+          || Number(estiloContenido.opacity) === 0;
+        const esqueletoVisible = !!estiloEsqueleto
+          && estiloEsqueleto.display !== 'none'
+          && Number(estiloEsqueleto.opacity) > 0;
+        const cubierto = contenidoOculto || esqueletoVisible;
+
         const inicio = performance.now();
         const expresion = new RegExp(patron);
         const revisar = () => {
@@ -35,14 +49,14 @@ function medirDesdeElSwap(page, selector, patron) {
           if (expresion.test(texto)) {
             obs.disconnect();
             clearTimeout(limite);
-            resolve(Math.round(performance.now() - inicio));
+            resolve({ cubierto, ms: Math.round(performance.now() - inicio) });
           }
         };
         const obs = new MutationObserver(revisar);
         obs.observe(document.body, { childList: true, subtree: true, characterData: true });
         const limite = setTimeout(() => {
           obs.disconnect();
-          resolve(-1);
+          resolve({ cubierto, ms: -1 });
         }, 4000);
         revisar();
       }, { once: true });
@@ -79,14 +93,22 @@ test.describe('navegación interna — sin estados vacíos', () => {
       document.querySelector('.topbar').__marca = window.__topbarMarca;
     });
 
-    // Padrón: la tabla debe tener filas en el primer fotograma tras el swap.
-    const medicionPadron = medirDesdeElSwap(page, '#tbodyBeneficiarios tr', '.+');
+    // Padrón: el esqueleto tapa la página hasta que hay filas.
+    const padron = observarSwap(page, '#tbodyBeneficiarios tr', '.+');
     await page.waitForTimeout(60);
     await page.click('a[href="/padron"]');
     await page.waitForURL(/\/padron/);
     await expect(page.locator('#tbodyBeneficiarios tr').first()).toBeVisible();
-    expect(await medicionPadron).toBeGreaterThanOrEqual(0);
-    expect(await medicionPadron).toBeLessThan(300);
+    const padronResultado = await padron;
+    expect(padronResultado.cubierto).toBe(true);
+    expect(padronResultado.ms).toBeGreaterThanOrEqual(0);
+    expect(padronResultado.ms).toBeLessThan(1500);
+
+    const visible = await page.locator('#pdiViewContent').evaluate((el) => {
+      const estilo = getComputedStyle(el);
+      return estilo.visibility === 'visible' && Number(estilo.opacity) === 1;
+    });
+    expect(visible).toBe(true);
 
     const encabezado = await page.evaluate(() => ({
       misma: document.querySelector('.topbar')?.__marca === window.__topbarMarca,
@@ -98,13 +120,15 @@ test.describe('navegación interna — sin estados vacíos', () => {
     expect(encabezado.nombre).toBe('E2E coord');
 
     // Dashboard: las cifras no pueden quedarse en "…" esperando la bitácora.
-    const medicionCifras = medirDesdeElSwap(page, '#dashAlimUsuarios', '^\\d+$');
+    const cifras = observarSwap(page, '#dashAlimUsuarios', '^\\d+$');
     await page.waitForTimeout(60);
     await page.click('a[href="/dashboard"]');
     await page.waitForURL(/\/dashboard/);
     await expect(page.locator('#dashAlimUsuarios')).toHaveText(/^\d+$/);
-    expect(await medicionCifras).toBeGreaterThanOrEqual(0);
-    expect(await medicionCifras).toBeLessThan(300);
+    const cifrasResultado = await cifras;
+    expect(cifrasResultado.cubierto).toBe(true);
+    expect(cifrasResultado.ms).toBeGreaterThanOrEqual(0);
+    expect(cifrasResultado.ms).toBeLessThan(1500);
   });
 
   test('auditoría anuncia la carga en vez de una tabla vacía', async ({ page }) => {
