@@ -1019,21 +1019,26 @@
     table-layout: fixed;
   }
 
-  /* Anchos por columna en porcentaje: la suma da 100 %. El detalle de la
-     operación es la columna ancha; el resto respira parejo. */
+  /* Anchos justos al contenido de cada columna, medidos sobre el DOM:
+     el timestamp es monoespaciado y tiene un ancho fijo; el usuario, el
+     avatar + el nombre; la acción y la entidad tienen un texto corto que
+     puede partirse en dos líneas. Sin holguras: antes la columna del
+     timestamp medía 189 px para 119 px de contenido y dejaba un hueco
+     muerto entre el timestamp y el avatar.
+     La quinta columna (detalle de la operación) no lleva ancho: se queda
+     con todo el espacio que sobra, que es donde el texto sí lo necesita. */
   #view-auditoria .card .data-table th {
     white-space: normal;
     line-height: 1.25;
     overflow-wrap: anywhere;
   }
 
-  #view-auditoria .card .data-table th:nth-child(1) { width: 17%; }
-  #view-auditoria .card .data-table th:nth-child(2) { width: 18%; }
-  #view-auditoria .card .data-table th:nth-child(3) { width: 14%; }
-  #view-auditoria .card .data-table th:nth-child(4) { width: 13%; }
-  #view-auditoria .card .data-table th:nth-child(5) { width: 19%; }
-  #view-auditoria .card .data-table th:nth-child(6) { width: 11%; }
-  #view-auditoria .card .data-table th:nth-child(7) { width: 8%; text-align: center; }
+  #view-auditoria .card .data-table th:nth-child(1) { width: 150px; }
+  #view-auditoria .card .data-table th:nth-child(2) { width: 172px; }
+  #view-auditoria .card .data-table th:nth-child(3) { width: 132px; }
+  #view-auditoria .card .data-table th:nth-child(4) { width: 150px; }
+  #view-auditoria .card .data-table th:nth-child(6) { width: 110px; }
+  #view-auditoria .card .data-table th:nth-child(7) { width: 94px; text-align: center; }
   /* El encabezado de la última columna cabe en una línea, como en las otras
      cuatro tablas. */
   #view-auditoria .card .data-table th:nth-child(7) { white-space: nowrap; }
