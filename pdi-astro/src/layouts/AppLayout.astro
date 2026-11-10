@@ -138,12 +138,14 @@ const impeccableLive =
 
           // El chrome (badges del sidebar) sigue visible porque los datos ya
           // están en memoria; el contenido de la página entrante se tapa con
-          // `pdi-navegando` hasta que su script pinte, para no enseñar la
-          // tabla vacía ni las cifras en "…" del marcado del servidor.
+          // `pdi-contenido-pendiente` hasta que su script pinte, para no
+          // enseñar la tabla vacía ni las cifras en "…" del marcado del
+          // servidor. No se usa `pdi-navegando`: esa clase es de Navigation y
+          // se retira en after-swap.
           try {
             if (window.PDI && window.PDI.__pdiDatosListos) {
               ev.newDocument.documentElement.setAttribute("data-pdi-ready", "1");
-              ev.newDocument.documentElement.classList.add("pdi-navegando");
+              ev.newDocument.documentElement.classList.add("pdi-contenido-pendiente");
             }
           } catch (e) {}
 
@@ -187,7 +189,7 @@ const impeccableLive =
         try {
           if (window.PDI && window.PDI.__pdiDatosListos) {
             document.documentElement.setAttribute("data-pdi-ready", "1");
-            document.documentElement.classList.add("pdi-navegando");
+            document.documentElement.classList.add("pdi-contenido-pendiente");
           }
         } catch (e) {}
       });

@@ -79,7 +79,7 @@ html[data-pdi-ready="1"] .pdi-skeleton {
 /* Navegación interna: el chrome (badges, topbar) ya está listo, pero el
    contenido de la página entrante se tapa hasta que su script pinta. Sin esto
    se vería el marcado del servidor: la tabla vacía o las cifras en "…". */
-html.pdi-navegando .pdi-view-content {
+html.pdi-contenido-pendiente .pdi-view-content {
   position: absolute;
   inset: 0;
   opacity: 0;
@@ -87,7 +87,7 @@ html.pdi-navegando .pdi-view-content {
   pointer-events: none;
 }
 
-html.pdi-navegando .pdi-skeleton {
+html.pdi-contenido-pendiente .pdi-skeleton {
   display: flex;
 }
 

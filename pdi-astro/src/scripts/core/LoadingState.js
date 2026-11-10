@@ -308,7 +308,7 @@ export function iniciarEstadoCarga() {
     }
 
     // El velo de navegación ya cumplió: la página tiene sus datos pintados.
-    document.documentElement.classList.remove("pdi-navegando");
+    document.documentElement.classList.remove("pdi-contenido-pendiente");
 
     shell.classList.add("is-ready");
     shell.removeAttribute("data-pdi-loading-error");
