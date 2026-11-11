@@ -131,21 +131,6 @@ components:
     textColor: "{colors.ink}"
     rounded: "{rounded.lg}"
     padding: "18px 20px"
-  badge-green:
-    backgroundColor: "rgba(0, 180, 148, 0.16)"
-    textColor: "{colors.brand-green-text}"
-    rounded: "{rounded.full}"
-    padding: "4px 10px"
-  badge-amber:
-    backgroundColor: "rgba(245, 158, 11, 0.16)"
-    textColor: "{colors.clinical-amber-text}"
-    rounded: "{rounded.full}"
-    padding: "4px 10px"
-  badge-red:
-    backgroundColor: "rgba(239, 68, 68, 0.16)"
-    textColor: "{colors.alert-red-text}"
-    rounded: "{rounded.full}"
-    padding: "4px 10px"
   button-neutral:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.ink}"
@@ -307,7 +292,7 @@ En tema oscuro la sombra difusa desaparece y el borde asume toda la elevación; 
 
 ## Shapes
 
-Radios cortos y contenidos: 6 px para controles pequeños, 10 px para botones, campos y desplegables, 16 px para tarjetas, paneles y placas, `9999px` solo para insignias y píldoras.
+Radios cortos y contenidos: 6 px para controles pequeños, 10 px para botones, campos y desplegables, 16 px para tarjetas, paneles y placas, `9999px` solo para puntos de estado, avatares y controles circulares.
 
 No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: las **hojas inferiores** llevan 20 px solo en las esquinas superiores, porque nacen del borde de la pantalla y el radio inferior no existe; y las **opciones dentro de un marco de 6 px** derivan su esquina con `calc(var(--radius-sm) - 2px)` para que el resalte quede concéntrico con el marco. Las marcas de datos conservan sus medidas: pista de barra de 2 px, barra de 3–6 px y punto de estado de 50 %.
 
@@ -336,9 +321,14 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Alert variant:** fondo `rgba(239,68,68,0.05)`, borde `rgba(239,68,68,0.26)`, textos en Alert Ink.
 - **Compact variant:** Metric Compact (30/800) para cabeceras clínicas densas; se declara explícitamente.
 
-### Badges
-- **Style:** píldora completa, padding 4/10, 12/700, fondo al 16 %, borde al 38 %, texto en la variante Ink.
-- **Variants:** `badge-green`, `badge-yellow`, `badge-blue`, `badge-red`, `badge-orange`. El naranja de insignia se alinea con Signal Orange.
+### Status Mark
+
+- **Forma:** punto de 6 px + etiqueta 12.5/600 en Ink Soft, separados 7 px. Sin fondo, sin borde, sin padding ni radio: la fila ya tiene su regla de 1 px y no necesita una caja dentro.
+- **Color:** solo el punto. Verde (normal), ámbar (atención o pendiente), azul (informativo), rojo (crítico), naranja (severo), gris (sin dato o inactivo). La etiqueta no cambia de color: la palabra dice el estado y el color lo confirma, así el dato sobrevive a la impresión, al daltonismo y al tema oscuro.
+- **Implementación:** `.status-mark` + `.status-mark-dot` en `components.css`; variantes `--ok`, `--warn`, `--info`, `--danger`, `--severe`, `--idle`. El punto es `aria-hidden`; el texto va siempre y no se sustituye por el color.
+- **Los otros dos trabajos:** un conteo va en micro (9.5/600, Ink Dim, `tabular-nums`) junto a su etiqueta, sin contenedor; una etiqueta o categoría usa Chip (radio 6, tinte al 9 %). Solo el estado lleva marca.
+
+**The No Badge Rule.** Ningún estado, conteo o etiqueta se dibuja como píldora con fondo tintado y borde. El badge metía una caja y un óvalo donde el sistema pide un punto, una palabra o una regla de 1 px, y repetía en color lo que la fila ya decía. Si algo necesita fondo para leerse, el problema es la jerarquía: se corrige ahí, no añadiendo una insignia.
 
 ### Buttons
 - **Neutral:** fondo Paper, borde Rule, Ink, 13.5/600, radio 10, padding 8/16.
@@ -386,7 +376,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Barra:** 4 px. **Sedes:** chips al pie, agrupados por distrito.
 
 ### List Rows
-- **Priority:** avatar 26 (36 en móvil), nombre 13/700, meta 11/400 Ink Dim, badge de estado, acción al final.
+- **Priority:** avatar 26 (36 en móvil), nombre 13/700, meta 11/400 Ink Dim, marca de estado, acción al final.
 - **Timeline:** hilo vertical de 1 px, punto de 10, hora en 11 Ink Dim, acción 12.5 Ink Soft, meta 10.5 en mayúsculas.
 
 ### Empty / Loading / Error
@@ -395,13 +385,13 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Sin conexión:** «Sin conexión con la base de datos. Reintentando…». Nunca se afirma que no hay datos si la hidratación está en curso.
 
 ### Filter Panel (signature)
-- **Estructura:** `FilterPanel.astro` dibuja contenedor, botón, cabecera (título, Restablecer, cerrar) y pie; `FilterField.astro` dibuja cada campo estándar (etiqueta, desplegable, opción «todos», opciones e insignias). Las facetas despliegan sus opciones en acordeón dentro del cuerpo del panel, no en un segundo popover: hay un solo scroll y ninguna opción queda cortada. Las páginas solo pasan arrays de opciones y el manejador; lo que es un widget distinto (slider de edad, paneles de fecha) va en el slot del campo.
+- **Estructura:** `FilterPanel.astro` dibuja contenedor, botón, cabecera (título, Restablecer, cerrar) y pie; `FilterField.astro` dibuja cada campo estándar (etiqueta, desplegable, opción «todos», opciones y contadores). Las facetas despliegan sus opciones en acordeón dentro del cuerpo del panel, no en un segundo popover: hay un solo scroll y ninguna opción queda cortada. Las páginas solo pasan arrays de opciones y el manejador; lo que es un widget distinto (slider de edad, paneles de fecha) va en el slot del campo.
 - **Marcador:** multiselección con checkbox; selección única con radio. El radio vive en `views-filters.css` una sola vez, no copiado por vista.
 - **Estado:** `FilterStore` es la única fuente. Multiselección, selección simple, dominio abierto (roles, distritos sin catálogo), «marcar todas las opciones = Todas» y `activos()` viven ahí. Las vistas no repiten esa regla.
 - **Contadores:** cada opción muestra cuántas coincidencias quedarían al elegirla, calculadas con la búsqueda y el resto de facetas (nunca con su propia selección). Las opciones con cero se deshabilitan. `FacetCounts` pinta la cifra y el estado; cada vista solo aporta sus datos y su predicado.
 - **Escritorio:** popover en el top layer, anclado al botón con `anchor-name` / `position-anchor`. Debajo si hay hueco; si no, encima con el mismo anclaje. 330 px, altura recortada al hueco y scroll interno. El respaldo (sin anclaje) calcula y reancla a mano.
 - **Móvil:** hoja inferior a 85dvh, cabecera con asa de arrastre real (40×4.5 px, centrada, con feedback al presionar) y cierre; el asa sigue el dedo 1:1, cierra pasados 75 px o un flick y vuelve elástica si el gesto es corto. Pie fijo con «Ver resultados (N)». La limpieza vive en la cabecera («Restablecer») y en los chips, no duplicada en el pie.
-- **Estados:** badge con facetas activas del store; chips descartables; contador desde el total del paginador, no contando filas; vacío con «Limpiar filtros».
+- **Estados:** contador de facetas activas del store (micro, sin píldora); chips descartables; contador desde el total del paginador, no contando filas; vacío con «Limpiar filtros».
 - **Accesibilidad:** `aria-expanded` / `aria-controls`, `role="dialog"`, foco al primer campo, trampa de Tab, Escape por capas (faceta y luego panel) y retorno al disparador; opciones con `role="checkbox"` o `role="radio"` y teclado.
 - **Motion:** la hoja se despliega, no salta. El panel nace desde el borde que toca al disparador con un `clip-path` direccional, sube o baja 6 px y funde en 220 ms `ease-out`; pliega hacia ese mismo borde en 160 ms. El submenú de cada faceta conserva su gesto de 4 px en 175 ms. El acordeón de faceta anima su **altura** (`grid-template-rows: 0fr → 1fr`, 190 ms al abrir y 150 ms al cerrar) para que el cuerpo no cambie de golpe; el scroll del cuerpo espera a esa expansión y se hace suave. La barra de chips entra y sale con la misma técnica (175 ms) y el contador del pie se actualiza a los 80 ms, no 160. En móvil la hoja sube desde el borde inferior en un desplazamiento vertical puro, sin perspectiva ni escala, para que el texto no se deforme mientras viaja: entra en `--sheet-in` (400 ms) con la curva del cajón lateral y sale en `--sheet-out` (260 ms) con `--sheet-exit-ease`. El velo entra antes (140 ms) y se apaga con la curva y la duración de la salida, de modo que la página no reaparece mientras la hoja todavía baja. El contenido entra con la hoja, sin fundido escalonado; el compás queda para el popover de escritorio. La hoja se oculta con `visibility`, no con `display`, para que una pulsación rápida no la deje abierta e invisible a medio camino. Al filtrar no se relanza la cascada de filas: los resultados cambian en el sitio.
 - **Pruebas:** `npm run test:filtros` recorre las siete vistas (apertura, dirección, scroll, foco, reinicio, auto-todos, móvil) y `npm test` cubre el store.
@@ -426,7 +416,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Cascadas:** una lista escalona su entrada una sola vez por contenedor. En re-renders (cambiar de pestaña, resolver, filtrar) las filas o tarjetas cambian en el sitio. `.social-requests-grid` usa `.social-cards--entrada` solo en el primer montaje.
 - **Scroll:** sin scroll snap y sin GSAP. La barra de progreso y el parallax del showcase del login viven en `ScrollAnimations.js` con `ScrollManager`; el desplazamiento es un `translate3d` sobre el propio elemento.
 - **Carga y navegación:** `astro.config.mjs` activa `prefetch` con `hover` y `prefetchAll`; además, una vez que los datos están en memoria, `LoadingState` pide en tiempo muerto las rutas principales (`/dashboard`, `/padron`, `/salud`, `/social`, `/voluntariados`, `/auditoria`). En desarrollo, `vite.server.warmup.clientFiles` pretransforma las entradas de página, vistas y núcleo al arrancar, para que la primera visita no compile 0,6–2,7 s. El topbar muestra una línea de progreso mientras dura el cambio de ruta.
-- **Estados vacíos y contadores:** el vacío entra con un fundido de `--dur-norm`; un badge que cambia de valor pulsa 260 ms con `contadorPulso`. El primer pintado no pulsa. Las cifras métricas usan `AnimationEngine.contar()`: cuentan desde el valor visible, no desde 0, y la primera pintura con datos se escribe directa. La fila o tarjeta que acaba de cambiar se marca con `destacar()` (`--dur-highlight`); no se relanza la cascada de filas.
+- **Estados vacíos y contadores:** el vacío entra con un fundido de `--dur-norm`; un contador que cambia de valor pulsa 260 ms con `contadorPulso`. El primer pintado no pulsa. Las cifras métricas usan `AnimationEngine.contar()`: cuentan desde el valor visible, no desde 0, y la primera pintura con datos se escribe directa. La fila o tarjeta que acaba de cambiar se marca con `destacar()` (`--dur-highlight`); no se relanza la cascada de filas.
 - **Subpaneles:** el cambio de pestaña en Social lo anima solo la View Transition nativa. En el expediente, la sección viaja sola: se retira un momento el nombre del `<main>` y la raíz no funde, de modo que el sidebar y el topbar no parpadean. La salida dura `--dur-fast` y la entrada `--dur-norm` con una espera de la mitad de la salida: la sección nueva no empieza hasta que la vieja se apagó, así que nunca se leen dos secciones superpuestas. El sentido sigue al orden del sidebar (bajar entra desde abajo, subir desde arriba) con 4–7 px de recorrido. Donde no exista View Transition, un fundido de respaldo de `--dur-fast`; nunca las dos a la vez.
 - **Movimiento reducido:** el producto consulta `prefers-reduced-motion: reduce`. Se retiran escalas, traslaciones, cascadas y transiciones espaciales; se conservan opacidad, color, borde y sombra para que el cambio de estado siga siendo legible. El contador de cifras escribe el valor final de inmediato. `tests/motion-guard.test.js` exige el bloque.
 
@@ -443,7 +433,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 ## Do's and Don'ts
 
 ### Do:
-- **Do** usar las primitivas compartidas (`.card`, `.panel`, `.kpi-plate`, `.data-table`, `.badge`, `.form-control`, `.btn-action`) antes de crear una clase.
+- **Do** usar las primitivas compartidas (`.card`, `.panel`, `.kpi-plate`, `.data-table`, `.status-mark`, `.form-control`, `.btn-action`) antes de crear una clase.
 - **Do** mantener una sola cifra dominante por tarjeta y una sola barra por fila.
 - **Do** resolver hover, foco y estados con los tokens de `variables.css`.
 - **Do** usar `tabular-nums` en toda cifra alineada.
@@ -460,6 +450,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Don't** usar el color de marca como relleno decorativo de secciones.
 - **Don't** reutilizar una clase de otra página cambiándole tamaño o peso (el caso `.dash-kpi-value` en salud).
 - **Don't** fijar un tema con valores absolutos (`#ffffff`, `#000000`) en pantalla; usa los tokens. La impresión sí puede forzar papel blanco y tinta negra.
+- **Don't** dibujar badges ni píldoras tintadas para estado, conteo o etiqueta: el estado va como marca de punto + palabra, el conteo en micro y la etiqueta como Chip.
 - **Don't** añadir sombras de color para señalar alertas.
 - **Don't** dejar un `<select>` nativo visible ni estilizarlo por vista: todo desplegable de selección pasa por `customSelect.js` y `custom-select.css`. La única excepción es un control que no pueda mejorarse (por ejemplo, `multiple` o `size > 1`); se marca `data-pdi-select="native"` y se justifica en el código.
 
@@ -470,3 +461,4 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 4. Toda superficie nueva usa una primitiva; ninguna repite la receta de tarjeta.
 5. La pieza se ve correcta en ambos temas y en 375 px de ancho.
 6. Ningún `<select>` nativo visible: todos pasan por `customSelect.js`; las excepciones llevan `data-pdi-select="native"` y están justificadas.
+7. Ningún badge: el estado se lee como marca (punto + palabra), el conteo como micro y la etiqueta como Chip. Una píldora tintada es una violación del contrato, no una variante.

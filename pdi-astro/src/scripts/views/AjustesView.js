@@ -11,9 +11,9 @@ import { Theme } from "../core/Theme.js";
 import { limpiarSnapshot } from "../core/snapshot.js";
 
 const ESTADOS_BD = {
-  ok: { clase: 'badge-green', punto: 'green', texto: 'En Línea' },
-  conectando: { clase: 'badge-yellow', punto: 'yellow', texto: 'Conectando…' },
-  sin_conexion: { clase: 'badge-red', punto: 'red', texto: 'Sin Conexión' },
+  ok: { clase: 'status-mark--ok', texto: 'En Línea' },
+  conectando: { clase: 'status-mark--warn', texto: 'Conectando…' },
+  sin_conexion: { clase: 'status-mark--danger', texto: 'Sin Conexión' },
 };
 
 export const AjustesView = {
@@ -63,8 +63,8 @@ export const AjustesView = {
 
   /**
    * Una sola suscripcion por documento. El modulo sobrevive a la navegacion
-   * con ClientRouter; el oyente se queda y, fuera de /ajustes, no encuentra el
-   * badge y no hace nada.
+   * con ClientRouter; el oyente se queda y, fuera de /ajustes, no encuentra la
+   * marca y no hace nada.
    */
   _suscribirEstadoBD() {
     if (this._desuscribirBD) return;
@@ -74,11 +74,11 @@ export const AjustesView = {
   },
 
   _pintarEstadoBD(estado) {
-    const badge = document.getElementById('syncStatusBadge');
-    if (!badge) return;
+    const marca = document.getElementById('syncStatusMark');
+    if (!marca) return;
     const info = ESTADOS_BD[estado] || ESTADOS_BD.conectando;
-    badge.className = 'badge ' + info.clase;
-    badge.innerHTML = `<span class="status-dot ${info.punto}"></span><span>${info.texto}</span>`;
+    marca.className = 'status-mark ' + info.clase;
+    marca.innerHTML = `<span class="status-mark-dot" aria-hidden="true"></span><span>${info.texto}</span>`;
   },
 
   _pintarUltimaSync() {
@@ -184,7 +184,7 @@ export const AjustesView = {
 
   triggerSync() {
     const btn = document.getElementById('btnTriggerSync');
-    const badge = document.getElementById('syncStatusBadge');
+    const marca = document.getElementById('syncStatusMark');
 
     // Sin el puente de Bootstrap no hay nada que sincronizar: antes se
     // resolvia igual y el aviso podia decir "sincronizada" sin hacer nada.
@@ -204,9 +204,9 @@ export const AjustesView = {
       `;
     }
 
-    if (badge) {
-      badge.className = 'badge badge-yellow';
-      badge.innerHTML = `<span class="status-dot yellow"></span><span>Sincronizando BD...</span>`;
+    if (marca) {
+      marca.className = 'status-mark status-mark--warn';
+      marca.innerHTML = `<span class="status-mark-dot" aria-hidden="true"></span><span>Sincronizando BD...</span>`;
     }
 
     // Sincronización REAL: re-descarga los datasets desde SurrealDB y espera

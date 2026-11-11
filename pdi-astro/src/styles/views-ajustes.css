@@ -443,28 +443,6 @@
   color: var(--text-muted);
 }
 
-/* Punto del badge de estado: la clase se usaba en el HTML pero no existia,
-   asi que el span salia invisible. */
-.status-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: var(--radius-full);
-  flex-shrink: 0;
-  background: var(--text-muted);
-}
-
-.status-dot.green {
-  background: var(--gt-green);
-}
-
-.status-dot.yellow {
-  background: var(--gt-yellow);
-}
-
-.status-dot.red {
-  background: var(--gt-red);
-}
-
 /* `.btn-secondary` tampoco estaba definida: el boton de sincronizar caia solo
    en `.btn-action` y no se distinguia de una accion primaria. */
 .btn-secondary {
