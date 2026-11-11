@@ -28,6 +28,22 @@ export default defineConfig({
           './src/scripts/utils/*.js',
         ],
       },
+
+      // El login local no funcionaba: en `astro dev` Astro entrega el cuerpo
+      // de los POST ya consumido al middleware, así que la Function de Vercel
+      // recibía "{}" y contestaba 400. En desarrollo, /api se redirige al
+      // despliegue (que sí conserva el cuerpo) contra la misma base de datos:
+      // entrar en local trabaja con los datos reales. Solo afecta a `astro
+      // dev`; el build no usa el proxy.
+      proxy: {
+        '/api': {
+          target: 'https://mvc-pdi.vercel.app',
+          changeOrigin: true,
+          secure: true,
+          // La Function valida que el Origin coincida con su host.
+          headers: { origin: 'https://mvc-pdi.vercel.app' },
+        },
+      },
     },
   },
 
