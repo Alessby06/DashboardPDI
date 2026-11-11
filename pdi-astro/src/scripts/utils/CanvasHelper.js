@@ -4,20 +4,35 @@ export const CanvasHelper = {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return null;
 
+    // El lienzo vive dentro de un modal cerrado al cargar la página: su caja
+    // mide 0×0. Si ya se inicializó, se redimensiona al abrir en vez de
+    // duplicar oyentes; si no, se prepara aquí y se completa al abrir.
+    if (canvas._pdiCanvasHelper) {
+      canvas._pdiCanvasHelper.resize();
+      return canvas._pdiCanvasHelper;
+    }
+
     const ctx = canvas.getContext("2d");
     let isDrawing = false;
     let hasDrawn = false;
 
-    // Ajustar escala de resolución
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * 2;
-    canvas.height = rect.height * 2;
-    ctx.scale(2, 2);
-    ctx.lineWidth = 2;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    const isLight = document.documentElement.getAttribute("data-theme") === "light";
-    ctx.strokeStyle = "#000000";
+    /** Ajusta el lienzo a su caja visible. Devuelve false si aún está oculto. */
+    function resize() {
+      const rect = canvas.getBoundingClientRect();
+      if (!rect.width || !rect.height) return false;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(rect.width * dpr);
+      canvas.height = Math.round(rect.height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.lineWidth = 2;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = "#000000";
+      hasDrawn = false;
+      return true;
+    }
+
+    resize();
 
     function getCoords(e) {
       const r = canvas.getBoundingClientRect();
@@ -75,9 +90,13 @@ export const CanvasHelper = {
     canvas.addEventListener("touchmove", draw, { passive: false });
     canvas.addEventListener("touchend", stopDrawing);
 
-    return {
+    const helper = {
+      resize,
       clear() {
+        ctx.save();
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.restore();
         hasDrawn = false;
       },
       hasSignature() {
@@ -104,6 +123,9 @@ export const CanvasHelper = {
         img.src = dataUrl;
       }
     };
+
+    canvas._pdiCanvasHelper = helper;
+    return helper;
   }
 };
 

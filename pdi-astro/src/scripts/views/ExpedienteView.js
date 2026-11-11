@@ -240,6 +240,7 @@ export const ExpedienteView = {
     // que es justo cuando hace falta para poder explicar el error.
     const params = new URLSearchParams(window.location.search);
     const codigoPedido = params.get("codigo");
+    const personaPedida = params.get("persona");
     let codigoNoEncontrado = null;
 
     if (codigoPedido) {
@@ -267,12 +268,19 @@ export const ExpedienteView = {
     const f = this._obtenerFiltros().leer();
     // Un inactivo solo se abre desde el archivo, y solo para dirección. El
     // resto del sistema sigue leyendo getById(), que no lo incluye.
-    const usuario = f.id
-      ? (BeneficiarioModel.getById(f.id)
-        || (this._rolEsDirectivo() ? BeneficiarioModel.getRetiradoById(f.id) : null))
-      : (f.codigo && this._rolEsDirectivo()
-        ? BeneficiarioModel.getRetiradoByCodigo(f.codigo)
-        : null);
+    // `persona` es el id canónico: a diferencia del código o del id numérico,
+    // no se repite entre el padrón activo y el archivo.
+    let usuario = null;
+    if (personaPedida && this._rolEsDirectivo()) {
+      usuario = BeneficiarioModel.getRetiradoByPersonaId(personaPedida);
+    } else {
+      usuario = f.id
+        ? (BeneficiarioModel.getById(f.id)
+          || (this._rolEsDirectivo() ? BeneficiarioModel.getRetiradoById(f.id) : null))
+        : (f.codigo && this._rolEsDirectivo()
+          ? BeneficiarioModel.getRetiradoByCodigo(f.codigo)
+          : null);
+    }
 
     if (!usuario) {
       this._id = null;
@@ -1212,6 +1220,7 @@ export const ExpedienteView = {
     if (this._guardandoExpediente) return;
     const b = BeneficiarioModel.getById(this._id);
     if (!b) return;
+    const antesAntropometria = { peso: b.peso, talla: b.talla, hb: b.hb };
 
     this._guardandoExpediente = true;
     const saveBtn = document.getElementById("btnSaveExpChanges");
@@ -1471,6 +1480,27 @@ export const ExpedienteView = {
             : ""),
         status: "Auditado",
       });
+    }
+
+    // Peso, talla y hemoglobina viven en el tamizaje, no en persona/inscripcion:
+    // updateConfirmado no los toca. Se guardan aparte solo si cambiaron.
+    const cambioAntropometria = b.peso !== antesAntropometria.peso
+      || b.talla !== antesAntropometria.talla
+      || b.hb !== antesAntropometria.hb;
+    if (cambioAntropometria) {
+      const okAntropometria = await BeneficiarioModel.actualizarAntropometria(b.id, {
+        peso: b.peso,
+        talla: b.talla,
+        hb: b.hb,
+        anemia: b.anemia,
+      });
+      if (!okAntropometria) {
+        ToastView.show(
+          "No se guardó la antropometría",
+          "Los demás datos se actualizaron, pero talla, peso o hemoglobina no. Revisa la conexión e inténtalo de nuevo.",
+          "warning",
+        );
+      }
     }
 
     this.isEditing = false;

@@ -354,6 +354,61 @@ test.describe('navegación interna — sin estados vacíos', () => {
     await page.waitForTimeout(1200);
   });
 
+  test('la firma del alta se puede dibujar al abrir la ficha', async ({ page }) => {
+    await entrar(page, cuentas().coord);
+    await esperarDatos(page);
+    await page.evaluate(() => { window.PDI.navigate('/padron'); });
+    await page.waitForURL(/\/padron/);
+    await page.click('#btnNuevoBeneficiario');
+    await expect(page.locator('#modalNuevoUsuario')).toHaveClass(/open/);
+    await page.waitForTimeout(500);
+
+    const resultado = await page.evaluate(() => {
+      const canvas = document.getElementById('canvasSignature');
+      const helper = window.PDI?.BeneficiarioController?.signatureCanvasHelper;
+      if (!canvas || !helper) return { ok: false };
+      const rect = canvas.getBoundingClientRect();
+      const x = rect.left + 20;
+      const y = rect.top + 20;
+      canvas.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, clientX: x, clientY: y }));
+      canvas.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: x + 40, clientY: y + 20 }));
+      window.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+      return {
+        ok: true,
+        width: canvas.width,
+        height: canvas.height,
+        firma: helper.hasSignature(),
+      };
+    });
+
+    expect(resultado.ok).toBe(true);
+    expect(resultado.width).toBeGreaterThan(0);
+    expect(resultado.height).toBeGreaterThan(0);
+    expect(resultado.firma).toBe(true);
+  });
+
+  test('el archivo abre el expediente de la persona correcta', async ({ page }) => {
+    await entrar(page, cuentas().coord);
+    await esperarDatos(page);
+    await page.evaluate(() => { window.PDI.navigate('/padron?vista=archivo'); });
+    await page.waitForURL(/\/padron\?vista=archivo/);
+
+    const filas = page.locator('#tbodyBeneficiarios tr[data-id]');
+    const total = await filas.count();
+    test.skip(total === 0, 'No hay usuarios en el archivo para verificar.');
+
+    const primera = filas.first();
+    const nombreFila = (await primera.locator('.padron-user-name').innerText()).replace(/\s+/g, ' ').trim();
+    const enlace = primera.locator('a.row-action').first();
+    expect(await enlace.getAttribute('href')).toContain('persona=');
+
+    await enlace.click();
+    await page.waitForURL(/\/expediente/);
+    const nombreExp = `${await page.locator('#expNombres').inputValue()} ${await page.locator('#expApellidos').inputValue()}`
+      .replace(/\s+/g, ' ').trim();
+    expect(nombreExp).toBe(nombreFila);
+  });
+
   test('auditoría anuncia la carga en vez de una tabla vacía', async ({ page }) => {
     await entrar(page, cuentas().coord);
     await esperarDatos(page);

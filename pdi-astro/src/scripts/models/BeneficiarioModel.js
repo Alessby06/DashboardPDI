@@ -5,7 +5,7 @@
 // de forma optimista: la memoria se actualiza aquí y db.js confirma el cambio.
 import {
   crearBeneficiario, actualizarBeneficiario, darBajaBeneficiario,
-  reactivarBeneficiario, crearTamizaje, desactivarTamizaje,
+  reactivarBeneficiario, crearTamizaje, actualizarTamizaje, desactivarTamizaje,
 } from '../core/db.js';
 import { AnemiaCalculator } from '../utils/AnemiaCalculator.js';
 import { AnimationEngine } from '../utils/AnimationEngine.js';
@@ -115,6 +115,16 @@ export const BeneficiarioModel = {
     const clean = String(codigo || "").trim().toLowerCase();
     if (!clean) return null;
     return this._retirados.find(b => String(b.codigo || "").toLowerCase() === clean) || null;
+  },
+
+  /**
+   * Clave estable del archivo: el id canónico de persona. El código y el id
+   * numérico pueden repetirse entre activos y retirados.
+   */
+  getRetiradoByPersonaId(personaId) {
+    const clean = String(personaId || "").trim();
+    if (!clean) return null;
+    return this._retirados.find(b => String(b._personaId || "") === clean) || null;
   },
 
   getAll() {
@@ -266,6 +276,41 @@ export const BeneficiarioModel = {
     }
     if (typeof ok === 'string') fila._tamizajeId = ok;
     return fila;
+  },
+
+  /**
+   * Guarda la antropometría editada desde el expediente en el tamizaje
+   * vigente. Si el usuario no tenía ninguno, crea la primera medición (solo
+   * cuando hay hemoglobina, que es el dato que define el registro).
+   */
+  async actualizarAntropometria(id, datos) {
+    const b = this.getById(id);
+    if (!b || !datos) return null;
+
+    if (b._tamizajeId) {
+      const ok = await actualizarTamizaje(b._tamizajeId, datos);
+      if (!ok) return null;
+    } else {
+      if (datos.hb == null) return null;
+      const creado = await crearTamizaje({
+        _personaId: b._personaId,
+        _inscripcionId: b._inscripcionId,
+        _sedeRawId: b._sedeRawId,
+        hb: datos.hb,
+        peso: datos.peso,
+        talla: datos.talla,
+        anemia: datos.anemia,
+        resultado: datos.resultado,
+      });
+      if (!creado) return null;
+      if (typeof creado === 'string') b._tamizajeId = creado;
+    }
+
+    if (datos.peso != null) b.peso = datos.peso;
+    if (datos.talla != null) b.talla = datos.talla;
+    if (datos.hb != null) b.hb = datos.hb;
+    if (datos.anemia) b.anemia = datos.anemia;
+    return true;
   },
 
   /**

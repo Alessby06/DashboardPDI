@@ -25,7 +25,10 @@ export const BeneficiarioController = {
   debounceMapTimer: null,
 
   initSignature() {
-    this.signatureCanvasHelper = CanvasHelper.init("canvasSignature");
+    const helper = CanvasHelper.init("canvasSignature");
+    this.signatureCanvasHelper = helper;
+    helper?.resize?.();
+    return helper;
   },
 
   clearSignature() {

@@ -1737,6 +1737,47 @@ export async function crearTamizaje(m) {
 }
 
 /**
+ * Actualiza la antropometría del tamizaje vigente desde el expediente. No
+ * crea historial nuevo: corrige la medición que se está viendo. Los campos
+ * vacíos conservan el valor anterior.
+ */
+export async function actualizarTamizaje(tamId, m) {
+  const tid = claveRegistro(tamId);
+  if (!tid) return false;
+
+  const campos = [];
+  const params = { tid };
+  if (m.peso !== null && m.peso !== undefined && m.peso !== '') {
+    campos.push('peso_kg = type::decimal($peso)');
+    params.peso = String(m.peso);
+  }
+  if (m.talla !== null && m.talla !== undefined && m.talla !== '') {
+    campos.push('talla_cm = type::decimal($talla)');
+    params.talla = String(m.talla);
+  }
+  if (m.hb !== null && m.hb !== undefined && m.hb !== '') {
+    campos.push('hb_valor = type::decimal($hb)', 'hb_ajustada = type::decimal($hb)');
+    params.hb = String(m.hb);
+  }
+  if (m.anemia || m.resultado) {
+    campos.push('resultado = $res');
+    params.res = AnemiaCalculator.resultadoDb(m.resultado) || resultadoDesdeAnemia(m.anemia);
+  }
+  if (!campos.length) return true;
+
+  try {
+    const res = await ejecutar(
+      `UPDATE type::record('tamizaje_hemoglobina', $tid) SET ${campos.join(', ')} RETURN AFTER;`,
+      params,
+    );
+    return comoLista(res).length > 0;
+  } catch (err) {
+    avisarFallo('Actualización de antropometría', err);
+    return false;
+  }
+}
+
+/**
  * Desactiva un tamizaje (soft delete: activo = false). Solo toca el campo que
  * el esquema en la nube ya conoce; el motivo de la desactivacion es un dato de
  * auditoria y como tal queda registrado en bitacora_auditoria, no aqui.
@@ -1788,9 +1829,21 @@ async function asegurarPersonaCuidador(apoderado) {
         'SELECT id FROM persona WHERE numero_documento = $doc LIMIT 1;', { doc: apoderado.documento }));
       if (found.length) {
         const id = String(found[0].id);
-        // Si la ficha trae sexo explícito, se corrige el registro existente.
-        if (sexoExplicito) {
-          await ejecutar('UPDATE type::record($rid) SET sexo = $sexo;', { rid: id, sexo });
+        // El documento identifica a la persona, pero el nombre puede haberse
+        // corregido en el expediente. Se actualiza sin tocar el resto.
+        const partes = String(apoderado.nombres || '').trim().split(/\s+/).filter(Boolean);
+        const nom = partes[0] || '';
+        const ape = partes.slice(1).join(' ');
+        const campos = [];
+        const params = { rid: id };
+        if (nom) { campos.push('nombres = $nom'); params.nom = nom; }
+        if (ape) { campos.push('apellidos = $ape'); params.ape = ape; }
+        if (sexoExplicito) { campos.push('sexo = $sexo'); params.sexo = sexo; }
+        if (campos.length) {
+          await ejecutar(
+            `UPDATE type::record($rid) SET ${campos.join(', ')};`,
+            params,
+          );
         }
         return id;
       }
@@ -2103,17 +2156,31 @@ export async function darBajaBeneficiario(b, motivo = 'Baja administrativa') {
  * su sede y su servicio; la vista valida antes que ambos sigan operativos.
  */
 export async function reactivarBeneficiario(b) {
-  const codigo = String(b?.codigo || '').trim();
-  if (!codigo) return false;
+  // Igual que la baja: el id canónico manda. El código no es único y puede
+  // reactivar a otra persona con el mismo código.
+  let pid = claveRegistro(b?._personaId);
+  if (!pid) {
+    const codigo = String(b?.codigo || '').trim();
+    if (!codigo) return false;
+    try {
+      const fila = comoLista(await ejecutar(
+        'SELECT VALUE id FROM persona WHERE codigo = $codigo LIMIT 1;', { codigo }))[0];
+      pid = claveRegistro(fila);
+    } catch (err) {
+      return avisarFallo('Reactivación del usuario', err) !== null ? false : false;
+    }
+  }
+  if (!pid) return false;
+
   try {
     await ejecutar(`
+      LET $usuario = type::record('persona', $pid);
       UPDATE inscripcion SET
         activo = true, estado = 'Activo',
         motivo_baja = NONE
-      WHERE ${F_USUARIO} = (SELECT VALUE id FROM persona WHERE codigo = $codigo LIMIT 1)[0]
-        AND activo = false;
-      UPDATE persona SET activo = true WHERE codigo = $codigo;`, {
-      codigo,
+      WHERE ${F_USUARIO} = $usuario AND activo = false;
+      UPDATE $usuario SET activo = true;`, {
+      pid,
     });
     return true;
   } catch (err) {

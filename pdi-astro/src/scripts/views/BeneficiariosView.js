@@ -574,9 +574,14 @@ export const BeneficiariosView = {
    */
   _urlExpediente(b) {
     const inactivo = b.estado === "Inactivo" || b.estado === "Retirado";
-    return inactivo
-      ? `/expediente?codigo=${encodeURIComponent(b.codigo)}`
-      : `/expediente?id=${encodeURIComponent(b.id)}`;
+    if (!inactivo) {
+      return `/expediente?id=${encodeURIComponent(b.id)}`;
+    }
+    // El código y el id numérico pueden repetirse entre el archivo y el padrón.
+    // El id canónico de persona es el único que distingue al retirado correcto.
+    return b._personaId
+      ? `/expediente?persona=${encodeURIComponent(b._personaId)}`
+      : `/expediente?codigo=${encodeURIComponent(b.codigo)}`;
   },
 
   /** Refleja la vista actual en el botón, el título y el alta de usuarios. */

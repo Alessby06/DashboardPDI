@@ -109,7 +109,9 @@ export const ModalView = {
     // añadía cinco oyentes duplicados y repintaba la firma mientras la hoja se
     // movía: ese era el parpadeo del formulario al abrir.
     const ctrl = window.PDI?.BeneficiarioController || (window.app && window.app.beneficiarioController);
-    if (ctrl && !ctrl.signatureCanvasHelper && ctrl.initSignature) ctrl.initSignature();
+    // El lienzo se preparó al cargar la página con el modal cerrado (0×0).
+    // Al abrir la hoja se redimensiona; initSignature es idempotente.
+    if (ctrl && ctrl.initSignature) ctrl.initSignature();
 
     // La firma del borrador y el estado del pie se restauran cuando la hoja ya
     // llegó, no a los 100 ms: antes competían con la animación de entrada.
