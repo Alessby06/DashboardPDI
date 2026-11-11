@@ -977,3 +977,111 @@
     font-size: 1.55rem;
   }
 }
+
+/* ==========================================================================
+   CAMBIO DE SECCIÓN DEL EXPEDIENTE
+   ==========================================================================
+   Solo viaja el panel: el sidebar, el topbar y el lienzo se quedan quietos
+   porque la raíz se silencia durante el cambio. Antes el panel no tenía nombre
+   de View Transition y el cambio era un corte seco; ahora funde en el sentido
+   del sidebar, para que se entienda de qué sección se viene. La salida dura
+   menos que la entrada: irse no debe hacer esperar. */
+.expediente-content-area .modal-tab-pane.active {
+  view-transition-name: expediente-seccion;
+}
+
+/* Durante el cambio de seccion, el <main> no participa con su transicion de
+   ruta y la raiz tampoco funde (views-comun.css le da fadeInTheme/fadeOutTheme
+   por el cambio de tema). Si lo hicieran, el lienzo entero se desvanece y se
+   desplaza 8 px a la vez que el panel: el unico movimiento es la seccion. */
+html.pdi-cambiando-seccion #mainContent {
+  view-transition-name: none;
+}
+
+html.pdi-cambiando-seccion::view-transition-group(root),
+html.pdi-cambiando-seccion::view-transition-old(root),
+html.pdi-cambiando-seccion::view-transition-new(root) {
+  /* base.css anima la raiz con !important por debajo de 900 px. */
+  animation: none !important;
+}
+
+/* Cada panel funde en su sitio: el grupo no se estira entre dos alturas. */
+::view-transition-group(expediente-seccion) {
+  animation: none;
+}
+
+::view-transition-old(expediente-seccion) {
+  animation: pdiExpedienteSaleArriba var(--dur-fast) var(--ease-smooth) both;
+}
+
+/* La entrada espera a que la salida esté avanzada: si funden a la vez, se leen
+   dos secciones superpuestas durante un cuarto de segundo. */
+::view-transition-new(expediente-seccion) {
+  animation: pdiExpedienteEntraAbajo var(--dur-norm) var(--ease-out)
+    calc(var(--dur-fast) / 2) both;
+}
+
+html[data-seccion-dir="arriba"]::view-transition-old(expediente-seccion) {
+  animation-name: pdiExpedienteSaleAbajo;
+}
+
+html[data-seccion-dir="arriba"]::view-transition-new(expediente-seccion) {
+  animation-name: pdiExpedienteEntraArriba;
+}
+
+/* Respaldo sin View Transitions: el mismo fundido, una sola vez por cambio y
+   nunca a la vez que la transición nativa. En la carga inicial no hay
+   dirección, así que la sección no se anima. */
+@supports not (view-transition-name: none) {
+  html[data-seccion-dir] .expediente-content-area .modal-tab-pane.active {
+    animation: pdiExpedienteEntraAbajo var(--dur-fast) var(--ease-out);
+  }
+
+  html[data-seccion-dir="arriba"] .expediente-content-area .modal-tab-pane.active {
+    animation-name: pdiExpedienteEntraArriba;
+  }
+}
+
+@keyframes pdiExpedienteEntraAbajo {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pdiExpedienteSaleArriba {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes pdiExpedienteEntraArriba {
+  from {
+    opacity: 0;
+    transform: translateY(-7px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pdiExpedienteSaleAbajo {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}

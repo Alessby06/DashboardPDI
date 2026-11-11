@@ -216,6 +216,10 @@ export const ExpedienteView = {
     const botones = Array.from(raiz.querySelectorAll(".modal-tab-btn"));
     if (!botones.length) return;
     const paneles = Array.from(raiz.querySelectorAll(".modal-tab-pane"));
+    let indiceVisible = -1;
+    // Turno de la transicion en curso: si dos cambios se solapan, solo el
+    // ultimo retira la clase que silencia la transicion del <main>.
+    let turnoSeccion = 0;
 
     // En escritorio desplaza el panel; en movil, la pagina entera. Lenis puede
     // llevar cualquiera de los dos, asi que se le pide a el cuando existe.
@@ -233,8 +237,25 @@ export const ExpedienteView = {
     // data-tab="tab-salud" -> "salud", el nombre que viaja en la URL.
     const slugDe = (boton) => String(boton?.dataset?.tab || "").replace(/^tab-/, "");
 
+    /**
+     * La direccion la marca el orden del sidebar: al bajar, el panel viejo sale
+     * hacia arriba y el nuevo entra desde abajo; al subir, al reves. Se anota
+     * antes de arrancar la View Transition porque el navegador resuelve los
+     * estilos de los pseudo-elementos antes de ejecutar su callback.
+     */
+    const marcarDireccion = (boton) => {
+      const indice = botones.indexOf(boton);
+      const anterior = indiceVisible;
+      indiceVisible = indice;
+      if (anterior === -1 || indice === anterior) return;
+      document.documentElement.dataset.seccionDir =
+        indice > anterior ? "abajo" : "arriba";
+    };
+
     const pintar = (boton) => {
       if (!boton) return;
+      indiceVisible = botones.indexOf(boton);
+
       reiniciarDesplazamiento();
       botones.forEach((b) => {
         const activo = b === boton;
@@ -244,7 +265,11 @@ export const ExpedienteView = {
         b.tabIndex = activo ? 0 : -1;
       });
       paneles.forEach((p) => {
-        p.style.display = p.id === boton.dataset.tab ? "block" : "none";
+        const activo = p.id === boton.dataset.tab;
+        p.style.display = activo ? "block" : "none";
+        // El nombre de la View Transition vive en el panel activo. Sin esta
+        // clase el CSS no sabria cual de los seis fotografiar.
+        p.classList.toggle("active", activo);
       });
     };
 
@@ -268,6 +293,12 @@ export const ExpedienteView = {
      */
     const activar = (boton, { url = true, foco = false } = {}) => {
       if (!boton) return;
+      // Repetir la seccion ya abierta no lanza una transicion vacia.
+      if (botones.indexOf(boton) === indiceVisible) {
+        if (url) escribirUrl(boton);
+        return;
+      }
+      marcarDireccion(boton);
       if (foco) {
         // El foco se mueve con el teclado. `preventScroll` evita que la pagina
         // salte en vertical; el `inline: nearest` mantiene visible el chip en la
@@ -278,9 +309,21 @@ export const ExpedienteView = {
       const aplicar = () => pintar(boton);
       if (typeof document.startViewTransition === "function"
         && document.visibilityState === "visible") {
+        const html = document.documentElement;
+        const turno = ++turnoSeccion;
+        // El <main> lleva su propia transicion de ruta (pdi-main-section) y
+        // volveria a mover el lienzo entero a la vez que el panel. Aqui se
+        // retira un momento: el unico movimiento es el de la seccion.
+        html.classList.add("pdi-cambiando-seccion");
+        const soltar = () => {
+          if (turno === turnoSeccion) html.classList.remove("pdi-cambiando-seccion");
+        };
         try {
-          document.startViewTransition(aplicar)?.finished?.catch(() => {});
+          const vt = document.startViewTransition(aplicar);
+          if (vt?.finished) vt.finished.then(soltar, soltar);
+          else soltar();
         } catch (e) {
+          soltar();
           aplicar();
         }
       } else {
