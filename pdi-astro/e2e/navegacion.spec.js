@@ -308,6 +308,52 @@ test.describe('navegación interna — sin estados vacíos', () => {
     expect(resaltado).toBe(true);
   });
 
+  test('auditoría pinta la copia de sesión al recargar', async ({ page }) => {
+    await entrar(page, cuentas().coord);
+    await esperarDatos(page);
+    await page.evaluate(() => { window.PDI.navigate('/auditoria'); });
+    await page.waitForURL(/\/auditoria/);
+    await expect(page.locator('#tbodyAuditLogs tr').first()).toBeVisible({ timeout: 20_000 });
+    await page.waitForFunction(
+      () => !!sessionStorage.getItem('pdi_cache_v1:bitacora'),
+      null,
+      { timeout: 10_000 },
+    );
+
+    await page.route('**/api/auditoria*', async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await route.continue();
+    });
+    await page.reload();
+    await expect(page.locator('#tbodyAuditLogs')).not.toContainText('Cargando bitácora…', { timeout: 1000 });
+    await expect(page.locator('#tbodyAuditLogs tr').first()).toBeVisible({ timeout: 1000 });
+    await page.waitForTimeout(1200);
+  });
+
+  test('cuentas pinta la copia de sesión al recargar', async ({ page }) => {
+    await entrar(page, cuentas().admin);
+    await esperarDatos(page);
+    await page.evaluate(() => { window.PDI.navigate('/cuentas'); });
+    await page.waitForURL(/\/cuentas/);
+    await expect(page.locator('.cuenta-fila').first()).toBeVisible({ timeout: 20_000 });
+    await page.waitForFunction(
+      () => !!sessionStorage.getItem('pdi_cache_v1:cuentas'),
+      null,
+      { timeout: 10_000 },
+    );
+
+    await page.route('**/api/cuenta/admin', async (route) => {
+      if (route.request().method() === 'GET') {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      }
+      await route.continue();
+    });
+    await page.reload();
+    await expect(page.locator('#cuentasLista')).not.toContainText('Cargando cuentas', { timeout: 1000 });
+    await expect(page.locator('.cuenta-fila').first()).toBeVisible({ timeout: 1000 });
+    await page.waitForTimeout(1200);
+  });
+
   test('auditoría anuncia la carga en vez de una tabla vacía', async ({ page }) => {
     await entrar(page, cuentas().coord);
     await esperarDatos(page);

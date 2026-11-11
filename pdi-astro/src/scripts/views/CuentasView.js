@@ -11,6 +11,7 @@
 // ===========================================================================
 import { escapar } from '../utils/HtmlHelper.js';
 import { AnimationEngine } from '../utils/AnimationEngine.js';
+import { guardarCache, leerCache } from '../core/snapshot.js';
 import { confirmar } from '../ui/confirmacion.js';
 import { fetchSedes } from '../core/db.js';
 
@@ -239,6 +240,9 @@ async function cargar() {
   }
   cuentas = Array.isArray(res.datos.cuentas) ? res.datos.cuentas : [];
   render();
+  if (cuentas.length) {
+    guardarCache('cuentas', cuentas, { ttlMs: 10 * 60 * 1000 });
+  }
 }
 
 function actualizarResumenSedes() {
@@ -708,7 +712,12 @@ async function iniciar() {
 
   // La copia en memoria sobrevive a la navegación interna. Al volver a la
   // sección se pinta en el acto, sin el "Cargando cuentas…" de cada visita;
-  // la red solo confirma y actualiza.
+  // la red solo confirma y actualiza. Tras una recarga, la copia de sesión
+  // hace el mismo trabajo antes de que responda /api/cuenta/admin.
+  if (!cuentas.length) {
+    const cache = leerCache("cuentas", { ttlMs: 10 * 60 * 1000 });
+    if (Array.isArray(cache) && cache.length) cuentas = cache;
+  }
   if (cuentas.length) render();
   if (sedes.length) {
     pintarSedes('ctaSedes', []);

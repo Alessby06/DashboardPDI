@@ -20,6 +20,7 @@
 import "../core/legacy-globals.js";
 import { arrancarComun, publicarRefresco } from "../core/Bootstrap.js";
 import { fetchBitacora } from '../core/db.js';
+import { guardarCache, leerCache } from '../core/snapshot.js';
 import { AuditModel } from '../models/AuditModel.js';
 import { DashboardView } from '../views/DashboardView.js';
 // El boton de confirmar la exportacion vive en el chrome comun
@@ -43,7 +44,15 @@ function montar() {
   // trae una fila "Cargando bitácora…" para no confundir la espera con una
   // tabla sin registros.
   const enMemoria = AuditModel.getAll();
-  if (enMemoria.length) DashboardView.renderAuditLogs(enMemoria);
+  if (enMemoria.length) {
+    DashboardView.renderAuditLogs(enMemoria);
+  } else {
+    const cache = leerCache("bitacora", { ttlMs: 10 * 60 * 1000 });
+    if (Array.isArray(cache) && cache.length) {
+      AuditModel.aplicarDatos(cache);
+      DashboardView.renderAuditLogs(cache);
+    }
+  }
   cargarBitacora();
 }
 
@@ -55,8 +64,17 @@ async function cargarBitacora() {
   try {
     // La bitácora ya no viaja en la hidratación clínica: se pide al servidor,
     // que es el único que puede abrir el namespace de auditoría.
-    AuditModel.aplicarDatos(await fetchBitacora());
-    DashboardView.renderAuditLogs(AuditModel.getAll());
+    const logs = await fetchBitacora();
+    const teniaCache = AuditModel.getAll().length > 0;
+    // Un fallo de red devuelve [] (fetchBitacora lo absorbe). Si ya había una
+    // copia en pantalla, no se borra: se conserva y la próxima vuelta reintenta.
+    if (logs.length || !teniaCache) {
+      AuditModel.aplicarDatos(logs);
+      DashboardView.renderAuditLogs(AuditModel.getAll());
+    }
+    if (logs.length) {
+      guardarCache("bitacora", logs, { ttlMs: 10 * 60 * 1000, maxBytes: 2_000_000 });
+    }
   } catch (e) {
     // Sin respuesta no se miente con un "sin registros": se dice qué pasó.
     pintarAvisoBitacora("No se pudo cargar la bitácora. Vuelve a intentarlo.");
