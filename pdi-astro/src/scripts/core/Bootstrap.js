@@ -215,7 +215,7 @@ export function actualizarBadgesSidebar() {
  * Ajustes re-descarga todos los datasets desde SurrealDB (cache fresca).
  */
 export function restaurarDatosLocales() {
-  refrescarDesdeNube();
+  return refrescarDesdeNube();
 }
 
 /** Publica el redibujado de la pagina, para los puentes heredados. */

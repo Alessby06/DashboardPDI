@@ -8,12 +8,26 @@ import { iconHtml } from '../../data/iconos.js';
 // Los metodos setTheme y toggleFocoMode se mantienen porque ajustes.html los
 // invoca por window.PDI.AjustesView, y ahora delegan en Theme.
 import { Theme } from "../core/Theme.js";
+import { limpiarSnapshot } from "../core/snapshot.js";
+
+const ESTADOS_BD = {
+  ok: { clase: 'badge-green', punto: 'green', texto: 'En Línea' },
+  conectando: { clase: 'badge-yellow', punto: 'yellow', texto: 'Conectando…' },
+  sin_conexion: { clase: 'badge-red', punto: 'red', texto: 'Sin Conexión' },
+};
 
 export const AjustesView = {
   init() {
     // El tema ya quedo restaurado por Theme.cargar() dentro de arrancarComun(),
     // que corre en todas las paginas. Aqui solo queda su parte propia.
     this.bindThemeButtons();
+
+    const btnSync = document.getElementById('btnTriggerSync');
+    if (btnSync) btnSync.onclick = () => this.triggerSync();
+    const btnCache = document.getElementById('btnClearCache');
+    if (btnCache) btnCache.onclick = () => this.clearCache();
+
+    this._suscribirEstadoBD();
     this.render();
   },
 
@@ -41,10 +55,46 @@ export const AjustesView = {
 
   render() {
     this._updateThemeUI();
+    // Estado real de la base y de la ultima hidratacion: antes eran textos
+    // fijos ("En Linea", "Hoy a las 10:45 AM") que no decian la verdad.
+    this._pintarEstadoBD(window.PDI?.DB?.estadoActual?.() ?? null);
+    this._pintarUltimaSync();
   },
 
-  _loadTheme() {
-    Theme.cargar();
+  /**
+   * Una sola suscripcion por documento. El modulo sobrevive a la navegacion
+   * con ClientRouter; el oyente se queda y, fuera de /ajustes, no encuentra el
+   * badge y no hace nada.
+   */
+  _suscribirEstadoBD() {
+    if (this._desuscribirBD) return;
+    const DB = window.PDI?.DB;
+    if (!DB?.suscribirEstado) return;
+    this._desuscribirBD = DB.suscribirEstado((estado) => this._pintarEstadoBD(estado));
+  },
+
+  _pintarEstadoBD(estado) {
+    const badge = document.getElementById('syncStatusBadge');
+    if (!badge) return;
+    const info = ESTADOS_BD[estado] || ESTADOS_BD.conectando;
+    badge.className = 'badge ' + info.clase;
+    badge.innerHTML = `<span class="status-dot ${info.punto}"></span><span>${info.texto}</span>`;
+  },
+
+  _pintarUltimaSync() {
+    const etiqueta = document.getElementById('labelLastSyncTime');
+    if (!etiqueta) return;
+    const ms = Number(window.PDI?.DB?.ultimaHidratacion?.() || 0);
+    const fecha = new Date(ms);
+    if (!ms || Number.isNaN(fecha.getTime())) {
+      etiqueta.textContent = '—';
+      return;
+    }
+    const hora = fecha.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const mismoDia = fecha.toDateString() === new Date().toDateString();
+    etiqueta.textContent = mismoDia
+      ? `Hoy a las ${hora}`
+      : fecha.toLocaleString('es-PE', { dateStyle: 'short', timeStyle: 'short' });
   },
 
   /** Mascota de foco. */
@@ -135,10 +185,18 @@ export const AjustesView = {
   triggerSync() {
     const btn = document.getElementById('btnTriggerSync');
     const badge = document.getElementById('syncStatusBadge');
-    const timeLabel = document.getElementById('labelLastSyncTime');
+
+    // Sin el puente de Bootstrap no hay nada que sincronizar: antes se
+    // resolvia igual y el aviso podia decir "sincronizada" sin hacer nada.
+    const restaurador = window.PDI?.Bootstrap?.restaurarDatosLocales;
+    if (typeof restaurador !== 'function') {
+      window.showToast?.('La sincronización no está disponible en este momento', 'warning');
+      return;
+    }
 
     if (btn) {
       btn.disabled = true;
+      btn.setAttribute('aria-busy', 'true');
       btn.style.opacity = '0.7';
       btn.innerHTML = `
         ${iconHtml("accion.actualizar", { size: 15 })}
@@ -148,16 +206,15 @@ export const AjustesView = {
 
     if (badge) {
       badge.className = 'badge badge-yellow';
-      badge.innerHTML = `<span class="status-dot yellow"></span> Sincronizando BD...`;
+      badge.innerHTML = `<span class="status-dot yellow"></span><span>Sincronizando BD...</span>`;
     }
 
-    // Sincronización REAL: re-descarga los datasets desde SurrealDB.
-    // Antes era un setTimeout decorativo que no tocaba la base de datos.
-    const restaurador = window.PDI?.Bootstrap?.restaurarDatosLocales
-      ?? (() => Promise.resolve());
+    // Sincronización REAL: re-descarga los datasets desde SurrealDB y espera
+    // a que termine antes de pintar el resultado.
     Promise.resolve(restaurador()).then(() => {
       if (btn) {
         btn.disabled = false;
+        btn.removeAttribute('aria-busy');
         btn.style.opacity = '1';
         btn.innerHTML = `
           ${iconHtml("accion.actualizar", { size: 15 })}
@@ -165,21 +222,11 @@ export const AjustesView = {
         `;
       }
 
-      const enLinea = window.PDI?.DB?.estadoActual?.() === 'ok';
-      if (badge) {
-        if (enLinea) {
-          badge.className = 'badge badge-green';
-          badge.innerHTML = `<span class="status-dot green"></span> En Línea`;
-        } else {
-          badge.className = 'badge badge-red';
-          badge.innerHTML = `<span class="status-dot red"></span> Sin Conexión`;
-        }
-      }
+      const estado = window.PDI?.DB?.estadoActual?.() ?? null;
+      this._pintarEstadoBD(estado);
+      this._pintarUltimaSync();
 
-      const now = new Date();
-      const timeStr = `Hoy a las ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-      if (timeLabel) timeLabel.textContent = timeStr;
-
+      const enLinea = estado === 'ok';
       window.showToast(
         enLinea
           ? 'Base de datos sincronizada exitosamente con el servidor remoto'
@@ -189,12 +236,19 @@ export const AjustesView = {
     });
   },
 
-  toggleAlertSetting(key, enabled) {
-    localStorage.setItem(`pdi_alert_${key}`, enabled ? 'true' : 'false');
-    window.showToast(`Preferencia de alertas actualizada (${enabled ? 'activado' : 'desactivado'})`, 'info');
-  },
-
+  /**
+   * Borra la copia de sesión y las cachés de vista de esta pestaña. No toca la
+   * sesión ni el tema: eso vive en localStorage y no es caché.
+   */
   clearCache() {
+    try {
+      limpiarSnapshot();
+      for (let i = sessionStorage.length - 1; i >= 0; i--) {
+        const clave = sessionStorage.key(i);
+        if (clave && clave.startsWith('pdi_')) sessionStorage.removeItem(clave);
+      }
+    } catch (e) {}
+
     window.showToast('Caché local limpiada. Refrescando plataforma...', 'warning');
     setTimeout(() => {
       window.location.reload();
@@ -208,6 +262,4 @@ if (typeof window !== 'undefined') {
   window.PDI.AjustesView = AjustesView;
   window.setTheme = (theme, showToast = false, event = null) => AjustesView.setTheme(theme, false, event);
   window.toggleFocoMode = (event = null) => AjustesView.toggleFocoMode(event);
-  window.triggerSync = () => AjustesView.triggerSync();
-  window.clearCache = () => AjustesView.clearCache();
 }

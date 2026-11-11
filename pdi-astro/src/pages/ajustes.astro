@@ -1,6 +1,7 @@
 ---
 import AppLayout from '../layouts/AppLayout.astro';
 import Icon from '../components/Icon.astro';
+import pkg from '../../package.json';
 import '../styles/views-ajustes.css';
 ---
 
@@ -74,9 +75,8 @@ import '../styles/views-ajustes.css';
           <div class="view-header">
             <div class="view-title-group">
               <h2>Ajustes y Configuración del Sistema</h2>
-              <p style="margin: 4px 0 0 0; color: var(--text-muted); font-size: 13.5px;">
-                Gestión del tema visual (Modo Oscuro), sincronización de base de datos, preferencias de alertas y
-                credenciales.
+              <p class="settings-page-note">
+                Apariencia, estado de la base de datos y mantenimiento de la copia local.
               </p>
             </div>
           </div>
@@ -222,8 +222,8 @@ import '../styles/views-ajustes.css';
                   </button>
                 </div>
 
-                <div class="settings-row" style="border-bottom:none; margin-top: 14px;">
-                  <div class="settings-info-text" style="flex:1;">
+                <div class="settings-row settings-row--note">
+                  <div class="settings-info-text settings-info-text--full">
                     <strong>Persistencia de Preferencias</strong>
                     <span>La configuración se guarda automáticamente en cookies y almacenamiento local para mantener tu
                       tema al volver a abrir la plataforma.</span>
@@ -248,46 +248,34 @@ import '../styles/views-ajustes.css';
                 <div class="settings-row">
                   <div class="settings-info-text">
                     <strong>Estado del Servidor de BD</strong>
-                    <span>Conexión activa con almacenamiento local</span>
+                    <span>SurrealDB remoto</span>
                   </div>
-                  <span class="badge badge-green" id="syncStatusBadge"
-                    style="display:inline-flex; align-items:center; gap:5px;">
-                    <span class="status-dot green"></span>
-                    <span>En Línea</span>
+                  <span class="badge" id="syncStatusBadge" role="status" aria-live="polite">
+                    <span class="status-dot"></span>
+                    <span>Comprobando…</span>
                   </span>
                 </div>
 
                 <div class="settings-row">
                   <div class="settings-info-text">
                     <strong>Última Sincronización</strong>
-                    <span id="labelLastSyncTime">Hoy a las 10:45 AM</span>
+                    <span id="labelLastSyncTime">—</span>
                   </div>
-                  <button type="button" class="btn-action btn-secondary" id="btnTriggerSync"
-                    onclick="window.PDI?.AjustesView?.triggerSync()">
+                  <button type="button" class="btn-action btn-secondary" id="btnTriggerSync">
                     <Icon name="accion.actualizar" size={15} />
                     <span>Sincronizar Ahora</span>
                   </button>
                 </div>
 
-                <div class="settings-row">
+                <div class="settings-row settings-row--last">
                   <div class="settings-info-text">
                     <strong>Limpieza de Caché & Datos Temporales</strong>
-                    <span>Vaciar datos en almacenamiento local y refrescar la vista inicial</span>
+                    <span>Borra la copia de sesión y las cachés de vista de esta pestaña</span>
                   </div>
-                  <button type="button" class="btn-action btn-secondary"
-                    onclick="window.PDI?.AjustesView?.clearCache()">
+                  <button type="button" class="btn-action btn-secondary" id="btnClearCache">
                     <Icon name="accion.actualizar" size={15} />
                     <span>Limpiar Caché</span>
                   </button>
-                </div>
-
-                <div class="settings-row" style="border-bottom:none;">
-                  <div class="settings-info-text" style="flex:1;">
-                    <strong>Endpoint de API / BD Remota</strong>
-                    <input type="text" class="audit-search-input"
-                      value="https://api.johannesgutenberg.edu.pe/v1/pdi/sync" readonly
-                      style="margin-top:6px; font-family:monospace; font-size:12px; background:var(--surface-2); color:var(--text-muted);">
-                  </div>
                 </div>
               </div>
             </div>
@@ -308,7 +296,7 @@ import '../styles/views-ajustes.css';
                 <div class="settings-row">
                   <div class="settings-info-text">
                     <strong>Versión del Sistema</strong>
-                    <span>v2.4.0</span>
+                    <span>v{pkg.version}</span>
                   </div>
                 </div>
 
@@ -319,10 +307,10 @@ import '../styles/views-ajustes.css';
                   </div>
                 </div>
 
-                <div class="settings-row" style="border-bottom:none;">
+                <div class="settings-row settings-row--last">
                   <div class="settings-info-text">
                     <strong>Derechos & Licencia</strong>
-                    <span>© 2026 ACJG. Todos los derechos reservados.</span>
+                    <span>© {new Date().getFullYear()} ACJG. Todos los derechos reservados.</span>
                   </div>
                 </div>
               </div>

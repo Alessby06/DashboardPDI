@@ -1,394 +1,15 @@
 /* ===========================================================================
    VISTAS - AJUSTES
    ===========================================================================
-   Porcion de views.css que necesita esta pagina y solo esta. Views.css eran
-   131 KB y se cargaba entero en cada una de las diez paginas; se partio
-   preguntando al DOM real de cada pagina que reglas encuentra un elemento
-   suyo, con el tema claro y con el oscuro, con las dos variantes de tabla y
-   con los modales abiertos.
-
-   Aqui tambien esta lo comun que en el original venia despues de la primera
-   regla propia de alguna pagina. Va aqui y no en views-comun.css porque el
-   orden lo decide todo: si una regla comun se adelantara a una propia que la
-   debe pisar, ganaria la equivocada.
+   Solo lo que usa /ajustes: las tres tarjetas, el selector de tema y la
+   mascota de foco. La hoja se carga unicamente en esta pagina, asi que todo
+   selector que no exista aqui es peso muerto.
 
    Para anadir una regla nueva, al archivo de la pagina que la use. Si la
    necesitan varias, a todas; si hace falta en las diez y es de las
    primeras, a views-comun.css.
    =========================================================================== */
 
-    @media (max-width: 768px) {
-      .social-controls-actions-wrap {
-        display: flex !important;
-        align-items: center !important;
-        gap: 8px !important;
-        width: 100% !important;
-      }
-
-      #dropdownSocialFilterPanel {
-        display: inline-flex !important;
-        position: relative !important;
-        flex: 1 1 46% !important;
-        min-width: 0 !important;
-}
-
-      .stage-dot {
-        width: 8px !important;
-        height: 8px !important;
-        min-width: 8px !important;
-        border-radius: var(--radius-full) !important;
-        flex-shrink: 0 !important;
-      }
-
-      .social-mobile-dropdown-item {
-        padding: 9px 12px;
-        border-radius: var(--radius-sm);
-        font-size: 13px;
-        font-weight: 500;
-        color: var(--text-main);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        cursor: pointer;
-        touch-action: manipulation;
-        -webkit-tap-highlight-color: transparent;
-        transition: background-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-spring) !important;
-      }
-
-      .social-mobile-dropdown-item:active {
-        transform: scale(0.98) !important;
-      }
-
-      .social-mobile-dropdown-item .item-left {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      @media (hover: hover) and (pointer: fine) {
-        .social-mobile-dropdown-item:hover {
-          background: var(--surface-hover);
-        }
-      }
-
-      .social-mobile-dropdown-item.selected {
-        background: var(--gt-green-bg) !important;
-        color: var(--text-brand) !important;
-        font-weight: 700;
-      }
-
-      .kanban-board {
-        flex-direction: column;
-        overflow-x: visible;
-        overflow-y: visible;
-        gap: 14px;
-      }
-
-      /* Filtrado activo de columna según la pestaña seleccionada en móvil */
-      .kanban-board[data-mobile-active-stage="pendiente"] .kanban-col:not([data-col-stage="pendiente"]),
-      .kanban-board[data-mobile-active-stage="evaluacion"] .kanban-col:not([data-col-stage="evaluacion"]),
-      .kanban-board[data-mobile-active-stage="canalizado"] .kanban-col:not([data-col-stage="canalizado"]),
-      .kanban-board[data-mobile-active-stage="cerrado"] .kanban-col:not([data-col-stage="cerrado"]) {
-        display: none !important;
-      }
-
-      .kanban-col {
-        flex: 1 1 100%;
-        width: 100% !important;
-        min-width: 100% !important;
-        max-width: 100% !important;
-        height: auto !important;
-        max-height: none !important;
-        min-height: 0 !important;
-        overflow: visible !important;
-      }
-
-      .kanban-col-body {
-        max-height: none !important;
-        height: auto !important;
-        min-height: 0 !important;
-        overflow-y: visible !important;
-        overflow-x: visible !important;
-        overscroll-behavior: auto !important;
-        touch-action: auto !important;
-        padding: 12px;
-      }
-
-      .kanban-btn {
-        height: 42px !important;
-        font-size: 13px !important;
-        font-weight: 700 !important;
-        gap: 8px !important;
-        border-radius: var(--radius-md) !important;
-      }
-
-      .kanban-btn svg {
-        width: 16px !important;
-        height: 16px !important;
-      }
-
-    }
-
-    /* Canvas Signature */
-
-    /* Barra de Herramientas y Filtros para Auditoría (Buscador izquierda, Filtros derecha) */
-    .audit-toolbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 10px;
-    }
-
-    .audit-search-input {
-      width: 100%;
-      height: 38px;
-      padding: 0 36px 0 36px;
-      font-size: 13px;
-      background: var(--surface-1);
-      color: var(--text-main);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      outline: none;
-      transition: border-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth);
-      font-family: inherit;
-    }
-
-    .audit-search-input:focus {
-      border-color: var(--border-bright, var(--border-bright));
-      box-shadow: none;
-    /* Estilo para Facetas con conteo Cero (Deshabilitadas y en gris) */
-}
-    @media (max-width: 768px) {
-      .audit-view-header {
-        margin-bottom: 8px !important;
-      }
-      .audit-header-title-row {
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        flex-wrap: nowrap !important;
-        gap: 8px !important;
-        width: 100% !important;
-      }
-      .audit-header-left {
-        display: flex !important;
-        align-items: center !important;
-        gap: 6px !important;
-        flex: 1 1 auto !important;
-        min-width: 0 !important;
-        flex-wrap: nowrap !important;
-      }
-      .audit-header-left h2 {
-        font-size: clamp(18px, 4.5vw, 22px) !important;
-        line-height: 1.25 !important;
-        margin: 0 !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-      }
-      .audit-legal-popover-wrapper {
-        flex-shrink: 0 !important;
-        display: inline-flex !important;
-        align-items: center !important;
-      }
-      .audit-legal-icon-btn {
-        width: 26px !important;
-        height: 26px !important;
-        flex-shrink: 0 !important;
-      }
-      .audit-legal-icon-btn svg {
-        width: 13px !important;
-        height: 13px !important;
-      }
-      .audit-legal-popover {
-        position: fixed !important;
-        top: 65px !important;
-        left: 12px !important;
-        right: 12px !important;
-        width: auto !important;
-        max-width: calc(100vw - 24px) !important;
-        z-index: 1600 !important;
-        box-shadow: var(--shadow-overlay) !important;
-      }
-      .audit-header-badge-actions {
-        width: auto !important;
-        flex-shrink: 0 !important;
-        display: flex !important;
-        align-items: center !important;
-      }
-      .btn-action-icon.btn-audit-export-icon {
-        width: 32px !important;
-        height: 32px !important;
-        flex-shrink: 0 !important;
-      }
-      .btn-action-icon.btn-audit-export-icon svg {
-        width: 16px !important;
-        height: 16px !important;
-      }
-      .audit-summary-bar {
-        gap: 8px !important;
-        margin-bottom: 8px !important;
-      }
-      .audit-kpi-chip {
-        padding: 4px 10px !important;
-        border-radius: var(--radius-sm) !important;
-        gap: 6px !important;
-      }
-      .audit-kpi-icon-box {
-        width: 22px !important;
-        height: 22px !important;
-      }
-      .audit-kpi-icon-box svg {
-        width: 12px !important;
-        height: 12px !important;
-      }
-      .audit-kpi-label {
-        font-size: 10.5px !important;
-      }
-      .audit-kpi-value {
-        font-size: 13px !important;
-      }
-      .audit-toolbar,
-      .sedes-controls-row {
-        position: relative !important;
-        overflow: visible !important;
-      }
-      .audit-search-wrap {
-        flex: 1 !important;
-        min-width: 0 !important;
-        max-width: none !important;
-      }
-      .audit-search-input {
-        height: 36px !important;
-        font-size: 12px !important;
-        padding-left: 32px !important;
-      }
-      .audit-search-icon {
-        left: 8px !important;
-        width: 15px !important;
-        height: 15px !important;
-
-}
-}
-
-    /* Modal Detalle Forense / Diff */
-
-    /* Responsive */
-
-    @media (max-width: 900px) {
-
-      /* Animación de entrada viva y escalonada (Staggered Reveal) en móviles */
-
-    }
-
-    .cred-calc-accordion.open {
-      border-color: var(--gt-yellow-border, rgba(245, 158, 11, 0.35));
-      box-shadow: var(--shadow-sm);
-    }
-
-    .cred-calc-accordion.open .cred-calc-chevron {
-      transform: rotate(180deg);
-      color: var(--text-warning);
-    }
-
-    @media (max-width: 768px) {
-      .cred-calc-toggle-btn {
-        padding: 12px 14px !important;
-      }
-      .cred-calc-header-left {
-        gap: 10px !important;
-      }
-      .cred-calc-icon-box {
-        width: 34px !important;
-        height: 34px !important;
-      }
-      .cred-calc-icon-box svg {
-        width: 17px !important;
-        height: 17px !important;
-      }
-      .cred-calc-title {
-        font-size: 13.5px !important;
-      }
-      .cred-calc-subtitle {
-        display: none !important;
-      }
-      .cred-calc-header-right .badge {
-        display: none !important;
-      }
-      .cred-calc-body {
-        padding: 14px 12px 16px !important;
-      }
-      .cred-calc-grid {
-        grid-template-columns: 1fr !important;
-        gap: 10px !important;
-      }
-      .dash-charts-grid {
-        grid-template-columns: 1fr !important;
-        gap: 14px !important;
-      }
-    }
-
-    /* === EXPEDIENTE INTEGRAL: LAYOUT MAESTRO-DETALLE ===
-       El expediente es una pagina, no una ventana encima del panel. Lo que
-       antes dimensionaba la caja del modal (82vh, 1080px) no hace falta:
-       el marco de la pagina vive en css/expediente.css. === */
-
-    /* Rediseño Sección 5: Ley N.° 29733 (PC & Móvil) */
-
-    .ley-consent-card {
-      background: var(--surface-1);
-      border: 1px solid var(--border-subtle);
-      border-left: 1px solid var(--gt-green);
-      border-radius: 10px;
-      padding: 12px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      box-shadow: var(--shadow-sm);
-      transition: transform var(--dur-fast) var(--ease-spring), box-shadow var(--dur-fast) var(--ease-smooth);
-      /* Sin will-change: aqui solo hay transform en :hover. El aviso permanente
-         le costaba una capa propia para siempre, y como esto vive dentro de
-         la columna de contenido, al plegar el menu habia que rasterizar
-         todas esas capas en cada fotograma. */
-    }
-
-    .ley-card-art {
-      font-size: 10.5px;
-      font-family: var(--mono-font);
-      color: var(--text-dim);
-      background: var(--surface-2);
-      padding: 2px 6px;
-      border-radius: 4px;
-      align-self: flex-start;
-    }
-
-    /* === OPTIMIZACIÓN RESPONSIVA PARA DISPOSITIVOS MÓVILES (ANDROID / TABLETS <= 768px) === */
-    @media (max-width: 768px) {
-
-      /* Barra de Pestañas Deslizable Horizontal (Pill Tabs) */
-
-      /* Carnet de Identidad en formato Horizontal Compacto */
-
-      /* Formularios en 1 Sola Columna para Móviles (Expediente y Nuevo Usuario) */
-
-      /* Padrón de Personas Autorizadas */
-    }
-
-/* === OPTIMIZACIÓN MÓVIL TOTAL EXPEDIENTE (ALTA PRIORIDAD PARA ANDROID <= 768px) === */
-
-/* Photo Uploader Component */
-
-/* ==========================================================================
-   PADRÓN BENEFICIARIOS: Búsqueda Facetada, Píldoras de Chips y Slider de Edad
-   ========================================================================== */
-
-/* === CROQUIS Y GEORREFERENCIACIÓN DE VIVIENDA (GOOGLE MAPS & FACHADA) === */
-
-/* ==========================================
-   ESTILOS: VISTA AJUSTES Y MODO OSCURO
-   ========================================== */
 .settings-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -440,12 +61,6 @@
   border: 1px solid var(--gt-yellow-border);
 }
 
-.settings-card-icon-box.purple {
-  background: rgba(147, 51, 234, 0.12);
-  color: #9333ea;
-  border: 1px solid rgba(147, 51, 234, 0.35);
-}
-
 .settings-card-icon-box.amber {
   background: rgba(180, 83, 9, 0.16);
   color: var(--text-warning);
@@ -471,10 +86,6 @@
   justify-content: flex-start;
   gap: 14px;
 }
-
-/* Estilo Linear / Raycast: Cross-Fade de Opacidad Pura (200ms) - Cero Lag y 120 FPS */
-
-/* Congelar transiciones del DOM durante el Cross-Fade para garantizar 120 FPS nativos */
 
 /* Foco Interactivo Lumie & Tarjeta de Diálogo en Ajustes */
 .foco-interactive-card {
@@ -832,10 +443,54 @@
   color: var(--text-muted);
 }
 
-/* Adaptabilidad para Cajas de Carga de Foto y Secciones de Retiro en Modo Oscuro */
+/* Punto del badge de estado: la clase se usaba en el HTML pero no existia,
+   asi que el span salia invisible. */
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+  background: var(--text-muted);
+}
 
-/* ==========================================
-   ESTILOS: CROQUIS Y MAPA GOOGLE EMBED
-   ========================================== */
+.status-dot.green {
+  background: var(--gt-green);
+}
+
+.status-dot.yellow {
+  background: var(--gt-yellow);
+}
+
+.status-dot.red {
+  background: var(--gt-red);
+}
+
+/* `.btn-secondary` tampoco estaba definida: el boton de sincronizar caia solo
+   en `.btn-action` y no se distinguia de una accion primaria. */
+.btn-secondary {
+  background: var(--surface-2);
+  color: var(--text-main);
+  border: 1px solid var(--border-subtle);
+}
+
+/* Utilidades de esta pagina: sustituyen los estilos inline del HTML. */
+.settings-page-note {
+  margin: 4px 0 0 0;
+  color: var(--text-muted);
+  font-size: 13.5px;
+}
+
+.settings-row--last {
+  border-bottom: none;
+}
+
+.settings-row--note {
+  border-bottom: none;
+  margin-top: 14px;
+}
+
+.settings-info-text--full {
+  flex: 1;
+}
 
 
