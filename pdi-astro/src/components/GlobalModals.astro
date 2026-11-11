@@ -182,10 +182,9 @@ import Icon from './Icon.astro';
                       <span>Foto de Fachada</span>
                     </div>
                     <div class="croquis-fachada-preview-box" id="regFachadaPreview"
-                      data-caja-archivo="regFotoFachadaInput" role="button" tabindex="0"
-                      aria-label="Subir foto de la vivienda o fachada"
-                      onclick="document.getElementById('regFotoFachadaInput').click()"
-                      title="Haga clic para subir foto real de la vivienda">
+                      role="button" tabindex="0"
+                      aria-label="Ver o subir la foto de la fachada"
+                      title="Clic para ver o cambiar la foto de la fachada">
                       <div class="croquis-fachada-placeholder ficha-photo-preview">
                         <div class="ficha-photo-icon-wrap">
                           <Icon name="nav.inicio" size={20} />
@@ -660,7 +659,33 @@ import Icon from './Icon.astro';
     </div>
   </div>
 
-  
+  <!-- Visor de la fachada: la foto se abre en grande y se puede cambiar o
+       quitar sin volver a la ficha. -->
+  <dialog class="croquis-foto-dialog" id="croquisFotoDialog"
+    aria-labelledby="croquisFotoDialogTitulo">
+    <div class="croquis-foto-dialog-box">
+      <header class="croquis-foto-dialog-head">
+        <h2 id="croquisFotoDialogTitulo">Foto de fachada</h2>
+        <button type="button" class="btn-close-modal" id="btnCerrarCroquisFoto"
+          aria-label="Cerrar el visor de la fachada">
+          <Icon name="accion.cerrar" size={18} />
+        </button>
+      </header>
+      <div class="croquis-foto-dialog-body">
+        <img id="croquisFotoDialogImg" alt="Foto de la fachada de la vivienda" />
+      </div>
+      <footer class="croquis-foto-dialog-foot">
+        <button type="button" class="btn-action croquis-foto-quitar" id="btnQuitarCroquisFoto">
+          <Icon name="accion.eliminar" size={14} />
+          <span>Quitar foto</span>
+        </button>
+        <button type="button" class="btn-action" id="btnActualizarCroquisFoto">
+          <Icon name="accion.foto" size={14} />
+          <span>Actualizar foto</span>
+        </button>
+      </footer>
+    </div>
+  </dialog>
 
   <!-- ==========================================
        MODAL: DETALLE PROFUNDO DE AUDITORÍA (DIFF & FORENSE)
@@ -2633,6 +2658,101 @@ import Icon from './Icon.astro';
     max-width: 230px;
   }
 
+  /* Visor de fachada */
+  .croquis-foto-dialog {
+    width: min(760px, calc(100vw - 28px));
+    max-width: min(760px, calc(100vw - 28px));
+    max-height: calc(100dvh - 28px);
+    margin: auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    overflow: visible;
+    color: var(--text-main);
+  }
+
+  .croquis-foto-dialog::backdrop {
+    background: rgba(2, 6, 23, 0.72);
+  }
+
+  .croquis-foto-dialog-box {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100dvh - 28px);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    background: var(--surface-1);
+    box-shadow: var(--shadow-overlay);
+    overflow: hidden;
+  }
+
+  .croquis-foto-dialog[open] .croquis-foto-dialog-box {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+  }
+
+  @starting-style {
+    .croquis-foto-dialog[open] .croquis-foto-dialog-box {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+
+  .croquis-foto-dialog-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .croquis-foto-dialog-head h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  .croquis-foto-dialog-body {
+    display: grid;
+    place-items: center;
+    flex: 1;
+    min-height: 0;
+    padding: 16px;
+    background: var(--surface-2);
+    overflow: auto;
+  }
+
+  .croquis-foto-dialog-body img {
+    display: block;
+    max-width: 100%;
+    max-height: min(66dvh, 560px);
+    border-radius: var(--radius-sm);
+    object-fit: contain;
+  }
+
+  .croquis-foto-dialog-foot {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 12px 18px;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .croquis-foto-quitar {
+    margin-right: auto;
+    color: var(--text-danger);
+  }
+
+  @media (max-width: 640px) {
+    .croquis-foto-dialog-foot .btn-action {
+      min-height: 44px;
+    }
+  }
+
   #formNuevoUsuario .form-control::placeholder {
     color: var(--text-dim);
     opacity: 1;
@@ -2748,7 +2868,7 @@ import Icon from './Icon.astro';
 </style>
 
 <script>
-  import { iniciarFicha, iniciarCroquis } from '../scripts/ui/fichaInscripcion.js';
+  import { iniciarFicha, iniciarCroquis, iniciarVisorFachada } from '../scripts/ui/fichaInscripcion.js';
   import { iniciarTiposCampo } from '../scripts/ui/tiposCampo.js';
   import { conectarGrado } from '../scripts/ui/gradoEscolar.js';
   import { iniciarCajasArchivo } from '../scripts/ui/archivos.js';
@@ -2759,6 +2879,7 @@ import Icon from './Icon.astro';
     iniciarFicha();
     iniciarCajasArchivo();
     iniciarCroquis();
+    iniciarVisorFachada();
     // El grado se elige de la lista del nivel educativo; no se escribe.
     conectarGrado(
       document.getElementById('regNivelEducativo'),

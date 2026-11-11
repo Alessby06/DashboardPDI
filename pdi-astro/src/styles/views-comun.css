@@ -2260,7 +2260,7 @@ input[type="range"] {
 
 .croquis-embed-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 170px;
+  grid-template-columns: minmax(0, 1fr) 220px;
   gap: 16px;
   align-items: stretch;
   padding-top: 14px;
@@ -2317,6 +2317,7 @@ input[type="range"] {
 }
 
 .croquis-fachada-preview-box {
+  position: relative;
   flex: 1;
   display: flex;
   align-items: center;
@@ -2328,6 +2329,28 @@ input[type="range"] {
   border-radius: var(--radius-sm);
   background: var(--surface-1);
   transition: border-color var(--dur-fast) var(--ease-smooth), background-color var(--dur-fast) var(--ease-smooth);
+}
+
+/* Con foto, la caja deja de ser un campo vacio y pasa a ser una imagen que se
+   puede abrir. La etiqueta "Ampliar" lo dice sin depender del hover. */
+#regFachadaPreview:has(img) {
+  cursor: zoom-in;
+}
+
+#regFachadaPreview:has(img)::after {
+  content: "Ampliar";
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: rgba(15, 23, 42, 0.72);
+  color: var(--on-scrim);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  opacity: 1;
+  pointer-events: none;
 }
 
 @media (hover: hover) and (pointer: fine) {

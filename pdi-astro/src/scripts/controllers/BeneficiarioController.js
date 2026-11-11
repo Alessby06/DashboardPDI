@@ -175,6 +175,24 @@ export const BeneficiarioController = {
     reader.readAsDataURL(file);
   },
 
+  _fachadaVacia() {
+    return `
+      <div class="croquis-fachada-placeholder ficha-photo-preview">
+        <div class="ficha-photo-icon-wrap">${iconHtml("nav.inicio", { size: 20 })}</div>
+        <span class="ficha-photo-title">Foto Fachada</span>
+        <span class="ficha-photo-hint">Opcional en visita</span>
+      </div>
+    `;
+  },
+
+  quitarFotoFachada() {
+    this.tempFotoFachada = null;
+    const input = document.getElementById("regFotoFachadaInput");
+    if (input) input.value = "";
+    const caja = document.getElementById("regFachadaPreview");
+    if (caja) caja.innerHTML = this._fachadaVacia();
+  },
+
   resetPhotos() {
     this.tempFotoUsuario = null;
     this.tempFotoApoderado = null;
@@ -182,6 +200,8 @@ export const BeneficiarioController = {
     this.tempFotoRetiro2 = null;
     this.tempFotoFachada = null;
     this.tempCoords = null;
+
+    this.quitarFotoFachada();
 
     const resetBox = (id, label) => {
       const el = document.getElementById(id);
@@ -197,16 +217,6 @@ export const BeneficiarioController = {
     resetBox("regFotoApoderadoPreview", "Foto Apoderado");
     resetBox("regFotoRetiro1Preview", "Foto P1");
     resetBox("regFotoRetiro2Preview", "Foto P2");
-
-    const fachadaBox = document.getElementById("regFachadaPreview");
-    if (fachadaBox) {
-      fachadaBox.innerHTML = `
-        <div class="croquis-fachada-placeholder">
-          ${iconHtml("nav.inicio", { size: 24 })}
-          <span>Subir foto de vivienda</span>
-        </div>
-      `;
-    }
 
     const ids = ["regFotoUsuarioInput", "regFotoApoderadoInput", "regFotoRetiro1Input", "regFotoRetiro2Input", "regFotoFachadaInput"];
     ids.forEach(i => {

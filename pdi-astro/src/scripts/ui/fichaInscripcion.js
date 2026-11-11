@@ -454,7 +454,63 @@ export function iniciarCroquis() {
   });
 }
 
-/** Conecta los eventos que cambian el estado de la ficha. */
+/**
+ * La fachada ya cargada se abre en el visor; vacia, abre el selector de
+ * archivo. Dentro del visor se puede actualizar o quitar sin salir de la
+ * ficha. Idempotente: con las transiciones de Astro el marcado se repinta.
+ */
+export function iniciarVisorFachada() {
+  const preview = document.getElementById("regFachadaPreview");
+  const input = document.getElementById("regFotoFachadaInput");
+  const dialogo = document.getElementById("croquisFotoDialog");
+  const imagen = document.getElementById("croquisFotoDialogImg");
+  if (!preview || !input || !dialogo || !imagen) return;
+  if (preview.dataset.visorFachada === "1") return;
+  preview.dataset.visorFachada = "1";
+
+  const abrir = () => {
+    const foto = preview.querySelector("img");
+    if (!foto) {
+      input.click();
+      return;
+    }
+    imagen.src = foto.currentSrc || foto.src;
+    imagen.alt = "Foto de la fachada de la vivienda";
+    if (!dialogo.open) dialogo.showModal();
+  };
+
+  preview.addEventListener("click", abrir);
+  preview.addEventListener("keydown", (evento) => {
+    if (evento.key !== "Enter" && evento.key !== " ") return;
+    if (evento.altKey || evento.ctrlKey || evento.metaKey) return;
+    evento.preventDefault();
+    abrir();
+  });
+
+  document.getElementById("btnCerrarCroquisFoto")?.addEventListener("click", () => {
+    dialogo.close();
+  });
+
+  document.getElementById("btnActualizarCroquisFoto")?.addEventListener("click", () => {
+    dialogo.close();
+    input.click();
+  });
+
+  document.getElementById("btnQuitarCroquisFoto")?.addEventListener("click", () => {
+    dialogo.close();
+    window.PDI?.BeneficiarioController?.quitarFotoFachada?.();
+    preview.focus({ preventScroll: true });
+  });
+
+  // El clic en el velo cierra; el clic dentro de la caja no.
+  dialogo.addEventListener("click", (evento) => {
+    if (evento.target === dialogo) dialogo.close();
+  });
+}
+
+/**
+ * Conecta los eventos que cambian el estado de la ficha.
+ */
 export function iniciarFicha() {
   const form = document.getElementById("formNuevoUsuario");
   if (!form) return;
@@ -556,5 +612,5 @@ export function iniciarFicha() {
 
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
-  window.PDI.Ficha = { evaluarFicha, refrescarEstadoFicha, alternarPersona2, quitarPersona2, setTieneAlergias, iniciarFicha, iniciarCroquis };
+  window.PDI.Ficha = { evaluarFicha, refrescarEstadoFicha, alternarPersona2, quitarPersona2, setTieneAlergias, iniciarFicha, iniciarCroquis, iniciarVisorFachada };
 }
