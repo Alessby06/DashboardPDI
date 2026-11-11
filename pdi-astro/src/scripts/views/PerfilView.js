@@ -70,6 +70,34 @@ function aviso(id, texto, tipo = '') {
   el.className = 'perfil-feedback' + (tipo ? ' is-' + tipo : '');
 }
 
+// Última cuenta buena de esta pestaña: si el servidor no responde al montar,
+// la vista repinta esto en el acto en vez de quedarse en el esqueleto.
+const CLAVE_CACHE_CUENTA = 'pdi_perfil_cuenta_v1';
+const TTL_CACHE_CUENTA = 10 * 60 * 1000;
+
+function guardarCacheCuenta(cuenta) {
+  if (!cuenta?.usuario) return;
+  try {
+    sessionStorage.setItem(CLAVE_CACHE_CUENTA, JSON.stringify({ t: Date.now(), cuenta }));
+  } catch (e) {}
+}
+
+function leerCacheCuenta() {
+  try {
+    const bruto = sessionStorage.getItem(CLAVE_CACHE_CUENTA);
+    if (!bruto) return null;
+    const datos = JSON.parse(bruto);
+    if (!datos?.cuenta?.usuario) return null;
+    if (Date.now() - Number(datos.t || 0) > TTL_CACHE_CUENTA) {
+      sessionStorage.removeItem(CLAVE_CACHE_CUENTA);
+      return null;
+    }
+    return datos.cuenta;
+  } catch (e) {
+    return null;
+  }
+}
+
 function toast(titulo, mensaje, tipo = 'success') {
   try {
     if (window.PDI?.ToastView?.show) window.PDI.ToastView.show(titulo, mensaje, tipo);
@@ -256,8 +284,23 @@ export const PerfilView = {
     this._conectarFormularios();
     this._conectarSalida();
 
-    // Al volver a la sección, la copia en memoria se pinta en el acto. La red
-    // solo confirma; así no reaparece "cargando" en cada entrada.
+    porId('btnReintentarPerfil')?.addEventListener('click', async () => {
+      const bloque = porId('perfilCargaError');
+      if (bloque) bloque.hidden = true;
+      aviso('perfilDatosFeedback', '');
+      const boton = porId('btnReintentarPerfil');
+      if (boton) boton.disabled = true;
+      try {
+        await this.cargar();
+      } finally {
+        if (boton) boton.disabled = false;
+      }
+    });
+
+    // Al volver a la sección, la copia en memoria (o la última cuenta buena de
+    // esta pestaña) se pinta en el acto. La red solo confirma; así no
+    // reaparece "cargando" en cada entrada.
+    if (!this.cuenta) this.cuenta = leerCacheCuenta();
     if (this.cuenta) {
       this.render();
       this.actualizarEstado();
@@ -266,17 +309,32 @@ export const PerfilView = {
   },
 
   async cargar({ fondo = false } = {}) {
+    // `undefined` marca fallo temporal (red caída o respuesta incompleta);
+    // `null` marca sesión terminada: el servidor respondió 401.
     let cuenta;
-    try {
-      cuenta = await sincronizarSesion();
-    } catch (err) {
-      // Fallo del servidor o de la base: la cookie sigue siendo válida. No se
-      // expulsa al usuario; se le pide reintentar. Si ya hay datos en
-      // pantalla, se conservan sin un aviso en cada vuelta.
-      if (!fondo) {
-        aviso('perfilDatosFeedback', 'No se pudo verificar la sesión. Revisa la conexión e intenta de nuevo.', 'error');
-        toast('No se pudo cargar el perfil', 'El servidor no respondió. Recarga la página para reintentar.', 'danger');
+    let fallos = 0;
+    while (true) {
+      try {
+        cuenta = await sincronizarSesion();
+        // Una respuesta 200 sin identificador no es una sesión válida: se
+        // trata como fallo y se reintenta, nunca como cuenta real.
+        if (cuenta && !cuenta.usuario) cuenta = undefined;
+      } catch (err) {
+        // Fallo del servidor o de la base: la cookie sigue siendo válida. No
+        // se expulsa al usuario; se le pide reintentar. Si ya hay datos en
+        // pantalla, se conservan sin un aviso en cada vuelta.
+        cuenta = undefined;
       }
+      if (cuenta !== undefined) break;
+      fallos++;
+      // En segundo plano no se insiste ni se avisa: los datos en pantalla
+      // siguen siendo válidos y la próxima entrada lo reintentará.
+      if (fondo || fallos >= 3) break;
+      await new Promise((r) => setTimeout(r, 700 * fallos));
+    }
+
+    if (cuenta === undefined) {
+      if (!fondo) this._mostrarFalloCarga();
       return;
     }
     if (!cuenta) {
@@ -285,6 +343,9 @@ export const PerfilView = {
     }
 
     this.cuenta = cuenta;
+    guardarCacheCuenta(cuenta);
+    const falloVisible = porId('perfilCargaError');
+    if (falloVisible) falloVisible.hidden = true;
 
     // Si el usuario ya está escribiendo mientras responde el servidor, no se
     // pisan sus campos: solo se actualiza lo estructural.
@@ -297,6 +358,18 @@ export const PerfilView = {
     this.render();
     this._cargarUsuario();
     this.actualizarEstado();
+  },
+
+  /** Fallo de carga sin datos en pantalla: visible, honesto y con salida. */
+  _mostrarFalloCarga() {
+    aviso('perfilDatosFeedback', 'No se pudo cargar tu perfil. Revisa la conexión e intenta de nuevo.', 'error');
+    toast('No se pudo cargar el perfil', 'El servidor no respondió. Usa Reintentar.', 'danger');
+    const bloque = porId('perfilCargaError');
+    if (bloque) bloque.hidden = false;
+    // El esqueleto no debe aparentar un estado real: "Cargando…" solo tiene
+    // sentido mientras hay una petición viva.
+    const estado = porId('perfilIdentidadEstado');
+    if (estado) estado.textContent = '—';
   },
 
   render({ conservarTotp = false } = {}) {
@@ -962,6 +1035,7 @@ export const PerfilView = {
         return;
       }
       this.cuenta = datos.cuenta;
+      guardarCacheCuenta(this.cuenta);
       localStorage.setItem('pdi_usuario_nombre', this.cuenta.nombre || '');
       this.render({ conservarTotp: true });
       aviso('perfilDatosFeedback', 'Datos guardados.', 'ok');
@@ -1008,6 +1082,7 @@ export const PerfilView = {
         return;
       }
       this.cuenta = datos.cuenta;
+      guardarCacheCuenta(this.cuenta);
       localStorage.setItem('pdi_usuario_login', this.cuenta.usuario || '');
       const inputClave = porId('perfilInputUsuarioClave');
       if (inputClave) inputClave.value = '';
@@ -1188,6 +1263,7 @@ export const PerfilView = {
       }
       if (this.cuenta) {
         this.cuenta.foto = datos.foto || data;
+        guardarCacheCuenta(this.cuenta);
         localStorage.setItem('pdi_usuario_foto', this.cuenta.foto);
         this._pintarAvatar();
       }
@@ -1218,6 +1294,7 @@ export const PerfilView = {
         return;
       }
       this.cuenta.foto = '';
+      guardarCacheCuenta(this.cuenta);
       localStorage.removeItem('pdi_usuario_foto');
       this._pintarAvatar();
       porId('perfilEliminarDialog')?.close();
@@ -1253,6 +1330,7 @@ export const PerfilView = {
       }
       if (this.cuenta) {
         this.cuenta.foto = datos.foto || foto;
+        guardarCacheCuenta(this.cuenta);
         localStorage.setItem('pdi_usuario_foto', this.cuenta.foto);
       }
       toast('Foto restaurada', 'Tu foto vuelve a estar activa.');

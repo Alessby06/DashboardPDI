@@ -52,7 +52,7 @@ import '../styles/views-perfil.css';
             <span class="perfil-dot" aria-hidden="true"></span>
             <span id="perfilIdentidadUsuario">@—</span>
             <span class="perfil-dot" aria-hidden="true"></span>
-            <span class="perfil-estado"><i aria-hidden="true"></i><span id="perfilIdentidadEstado">Activa</span></span>
+            <span class="perfil-estado"><i aria-hidden="true"></i><span id="perfilIdentidadEstado">Cargando…</span></span>
           </p>
           <p class="perfil-meta perfil-meta--dim">Alta <span id="perfilIdentidadDesde">—</span></p>
         </div>
@@ -61,6 +61,11 @@ import '../styles/views-perfil.css';
       <div class="perfil-undo" id="perfilUndoFoto" role="status" hidden>
         <span>Foto eliminada. Vuelven tus iniciales.</span>
         <button type="button" id="btnDeshacerFoto">Deshacer</button>
+      </div>
+
+      <div class="perfil-undo" id="perfilCargaError" role="alert" hidden>
+        <span>No se pudo cargar tu perfil. Los datos que ves no están completos.</span>
+        <button type="button" id="btnReintentarPerfil">Reintentar</button>
       </div>
 
       <div class="perfil-banner" id="perfilAvisoTemporal" hidden>
