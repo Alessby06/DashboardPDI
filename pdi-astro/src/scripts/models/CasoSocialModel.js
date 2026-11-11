@@ -158,7 +158,7 @@ export const CasoSocialModel = {
   },
 
   /**
-   * Casos con urgencia Alta que siguen abiertos. Alimenta el badge rojo del
+   * Casos con urgencia Alta que siguen abiertos. Alimenta el contador rojo del
    * menu lateral y el KPI "Casos en Alerta" del dashboard.
    */
   contarCriticos() {

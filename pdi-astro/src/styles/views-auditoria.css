@@ -833,9 +833,6 @@
       .cred-calc-subtitle {
         display: none !important;
       }
-      .cred-calc-header-right .badge {
-        display: none !important;
-      }
       .cred-calc-body {
         padding: 14px 12px 16px !important;
       }
@@ -1189,12 +1186,6 @@
   #view-auditoria .audit-calendar-icon-btn {
     width: 44px;
     height: 44px;
-  }
-
-  #mobileCardsAuditoria .badge {
-    max-width: 100%;
-    white-space: normal;
-    text-align: left;
   }
 
   /* "Acciones Sensibles" ya no se recorta con puntos suspensivos. */

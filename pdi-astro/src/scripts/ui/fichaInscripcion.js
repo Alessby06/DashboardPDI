@@ -354,7 +354,7 @@ export function refrescarEstadoFicha(pedidoDeAnuncio = false) {
       } else {
         textoDetalle = `Pendiente: ${faltantes.join(", ")}`;
       }
-      estado.innerHTML = `<span class="ficha-estado-pill"><span class="ficha-estado-dot"></span><span class="ficha-estado-badge">${faltantes.length} pendientes</span><span class="ficha-estado-text">${textoDetalle}</span></span>`;
+      estado.innerHTML = `<span class="ficha-estado-pill"><span class="ficha-estado-dot"></span><span class="ficha-estado-count">${faltantes.length} pendientes</span><span class="ficha-estado-text">${textoDetalle}</span></span>`;
       estado.classList.add("ficha-estado--faltan");
       estado.classList.remove("ficha-estado--listo");
       resumen = `Faltan ${faltantes.length} datos por completar`;

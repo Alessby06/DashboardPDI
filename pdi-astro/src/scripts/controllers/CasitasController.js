@@ -137,7 +137,7 @@ export const CasitasController = {
     return estadoEfectivo(this._guardado, this._borrador, inscripcionId);
   },
 
-  /** Clave, etiqueta y clase del badge. Sin marcar devuelve clave vacía. */
+  /** Clave, etiqueta y clase de la marca. Sin marcar devuelve clave vacía. */
   getEstadoInfo(id) {
     return infoEstado(this.getMarca(id));
   },

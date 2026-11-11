@@ -34,7 +34,7 @@
     transform: translateY(0.5px);
   }
 
-  /* Badge de filtros activos: sin rebote. Se repinta con cada faceta y el
+  /* Contador de filtros activos: sin rebote. Se repinta con cada faceta y el
      salto se veía como un fallo, no como feedback. */
 
   /* Popover principal de filtros: el estado cerrado es `display:none` (lo

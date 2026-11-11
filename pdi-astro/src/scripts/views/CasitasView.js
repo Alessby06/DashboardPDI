@@ -595,7 +595,7 @@ export const CasitasView = {
   _estadoAsistenciaInfo(id) {
     const ctrl = this._controlador();
     if (ctrl && typeof ctrl.getEstadoInfo === "function") return ctrl.getEstadoInfo(id);
-    return { clave: "", label: "Sin marcar", badgeClass: "badge badge-neutral" };
+    return { clave: "", label: "Sin marcar" };
   },
 
   _botonesAsistencia(id) {
@@ -617,11 +617,6 @@ export const CasitasView = {
         aria-label="Quitar la marca"
         title="Quitar la marca">×</button>
     ` : "");
-  },
-
-  _badgeAsistencia(id, prefijo) {
-    const info = this._estadoAsistenciaInfo(id);
-    return `<span class="${info.badgeClass}" id="${prefijo}${escapar(id)}">${info.label}</span>`;
   },
 
   /** Versión de la tabla nueva: punto de color + texto, como el estado del padrón. */
@@ -1191,7 +1186,7 @@ export const CasitasView = {
         <div class="mobile-card-item" id="mobile-casita-${escapar(b.id)}">
           <div class="datacard-header">
             <div class="datacard-id"><span>ID:</span> ${escapar(b.codigo)}</div>
-            <div class="datacard-header-right">${this._badgeAsistencia(b.id, "badgeAsistMob_")}</div>
+            <div class="datacard-header-right">${this._tagAsistencia(b.id, "badgeAsistMob_")}</div>
           </div>
 
           <div class="datacard-body">

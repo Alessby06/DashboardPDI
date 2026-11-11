@@ -16,8 +16,8 @@ interface Props {
   buttonId: string;
   /** id del menú (opcional) */
   menuId?: string;
-  /** id del badge de filtros activos */
-  badgeId?: string;
+  /** id del contador de filtros activos */
+  countId?: string;
   /** Título del encabezado */
   title: string;
   /** Expresión JS del botón Restablecer (sin comillas) */
@@ -32,7 +32,7 @@ const {
   id,
   buttonId,
   menuId,
-  badgeId,
+  countId,
   title,
   reset,
   buttonLabel = "Filtros",
@@ -56,8 +56,8 @@ const cerrar = "window.closeAllFilterSheets ? window.closeAllFilterSheets() : nu
     >
       <Icon name="accion.filtrar" size={16} />
       <span>{buttonLabel}</span>
-      {badgeId && (
-        <span class="audit-filter-badge" id={badgeId} style="display:none;">0</span>
+      {countId && (
+        <span class="filter-active-count" id={countId} style="display:none;">0</span>
       )}
       <Icon name="nav.desplegar" size={12} class="filter-caret" />
     </button>

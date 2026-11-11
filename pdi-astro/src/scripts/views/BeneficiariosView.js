@@ -929,8 +929,8 @@ export const BeneficiariosView = {
 
     this._filteredBeneficiarios = this._ordenarLista(list);
 
-    // Actualizar badge de filtros activos
-    // El badge sale del store: facetas multiples suman una por opcion y las
+    // Actualizar contador de filtros activos
+    // El contador sale del store: facetas multiples suman una por opcion y las
     // simples una. La edad sigue fuera porque es un rango, no una opcion.
     let activeFiltersCount = this._obtenerStore().contarActivos();
     if (this._filterEdadModo !== "all") activeFiltersCount++;
@@ -1202,7 +1202,7 @@ export const BeneficiariosView = {
     const tbody = document.getElementById("tbodyBeneficiarios");
     const mobileContainer = document.getElementById("mobileCardsBeneficiarios");
 
-    // El badge del sidebar es el total del padrón, no el total filtrado: ese
+    // El contador del sidebar es el total del padrón, no el total filtrado: ese
     // lo escribe actualizarBadgesSidebar desde el modelo. Escribirlo aquí hacía
     // que al filtrar la cifra del menú bajara (9 → 8) sin que nadie se diera
     // de baja.
@@ -1259,7 +1259,7 @@ export const BeneficiariosView = {
               <div class="padron-location-sub">${escapar(b.distrito || '—')} &bull; ${escapar(b.modalidad || '—')}</div>
             </td>
             <td>
-              <div class="servicios-badge-group">
+              <div class="servicios-registro-group">
                 ${this._getEstrategiasHtml(b.estrategias)}
               </div>
             </td>
@@ -1303,7 +1303,7 @@ export const BeneficiariosView = {
       } else {
         mobileContainer.innerHTML = beneficiarios.map(b => `
           <div class="mobile-card-item" id="mobile-card-${escapar(b.id)}" data-id="${escapar(b.id)}">
-            <!-- Cabecera: avatar + ID + Badge Estado -->
+            <!-- Cabecera: avatar + ID + marca de estado -->
             <div class="datacard-header">
               <div class="datacard-header-left">
                 ${avatarHtml(b)}
@@ -1312,7 +1312,10 @@ export const BeneficiariosView = {
                 </div>
               </div>
               <div class="datacard-header-right">
-                <span class="badge ${b.estado === 'Activo' ? 'badge-green' : (b.estado === 'Inactivo' || b.estado === 'Retirado' ? 'badge-gray' : 'badge-yellow')}">${escapar(b.estado)}</span>
+                <span class="status-mark status-mark--${b.estado === 'Activo' ? 'ok' : (b.estado === 'Inactivo' || b.estado === 'Retirado' ? 'idle' : 'warn')}">
+                  <span class="status-mark-dot" aria-hidden="true"></span>
+                  <span>${escapar(b.estado)}</span>
+                </span>
               </div>
             </div>
 
@@ -1339,7 +1342,7 @@ export const BeneficiariosView = {
                 </div>
                 <div class="datacard-row">
                   <span class="datacard-label">Estrategias</span>
-                  <div class="servicios-badge-group">
+                  <div class="servicios-registro-group">
                     ${this._getEstrategiasHtml(b.estrategias)}
                   </div>
                 </div>

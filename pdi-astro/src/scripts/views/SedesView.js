@@ -300,7 +300,7 @@ export const SedesView = {
   _updateActiveChips() {
     const chipsBar = document.getElementById("sedesActiveChipsBar");
     const chipsList = document.getElementById("sedesActiveChipsList");
-    const badge = document.getElementById("sedesActiveFiltersCount");
+    const contador = document.getElementById("sedesActiveFiltersCount");
     if (!chipsBar || !chipsList) return;
 
     let activeCount = 0;
@@ -331,12 +331,12 @@ export const SedesView = {
       `);
     }
 
-    if (badge) {
+    if (contador) {
       if (activeCount > 0) {
-        badge.textContent = activeCount;
-        badge.style.display = "inline-flex";
+        contador.textContent = activeCount;
+        contador.style.display = "inline-flex";
       } else {
-        badge.style.display = "none";
+        contador.style.display = "none";
       }
     }
 

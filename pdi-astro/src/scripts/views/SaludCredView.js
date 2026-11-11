@@ -495,7 +495,7 @@ export const SaludCredView = {
 
     this._updateFacetCounts();
 
-    // Badge desde el store: una definicion, no una suma por vista.
+    // Contador desde el store: una definicion, no una suma por vista.
     const count = this._obtenerStore().contarActivos();
 
     const badgeEl = document.getElementById("saludActiveFiltersCount");
@@ -963,8 +963,8 @@ export const SaludCredView = {
           <div style="flex:1; min-width:0;">
             <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
               <span style="font-size:12.5px; font-weight:700; color:var(--text-main); font-family:var(--mono-font);">${escapar(t.hb)} g/dL</span>
-              <span class="badge ${calc.badgeClass}">${escapar(calc.label)}</span>
-              ${idx === 0 ? `<span class="badge badge-blue">Última prueba</span>` : ""}
+              <span class="status-word">${escapar(calc.label)}</span>
+              ${idx === 0 ? `<span class="chip chip--blue">Última prueba</span>` : ""}
             </div>
             <div style="font-size:11.5px; color:var(--text-muted); margin-top:3px;">${escapar(fechaTxt)}</div>
             <div style="font-size:11.5px; color:var(--text-dim); margin-top:3px;">

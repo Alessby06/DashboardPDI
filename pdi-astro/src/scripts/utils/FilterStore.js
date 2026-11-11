@@ -130,7 +130,7 @@ export function crearStore(facetas, inicial = {}) {
     return lista;
   }
 
-  /** Cuenta para el badge: cada opcion marcada suma uno. */
+  /** Cuenta para el contador de filtros activos: cada opcion marcada suma uno. */
   function contarActivos() {
     return activos().reduce(
       (total, f) => total + (Array.isArray(f.valor) ? f.valor.length : 1),

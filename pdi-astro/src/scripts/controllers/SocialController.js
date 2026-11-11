@@ -304,8 +304,9 @@ export const SocialController = {
       scoreBarEl.style.backgroundColor = res.color;
     }
     if (categoryBadgeEl) {
-      categoryBadgeEl.textContent = res.category;
-      categoryBadgeEl.className = `badge ${res.badgeClass}`;
+      categoryBadgeEl.className = `status-mark ${res.markClass}`;
+      const labelEl = categoryBadgeEl.querySelector("#socioCategoryLabel");
+      if (labelEl) labelEl.textContent = res.category;
     }
     if (exoneracionEl) {
       exoneracionEl.textContent = res.exoneracion;

@@ -241,7 +241,7 @@ export const DerivacionView = {
             <span>${escapar(b.codigo || 'Sin código')} · ${escapar(b.dni || 'Sin documento')} · ${escapar(b.edad || '')}</span>
           </span>
           <span class="deriv-result-meta">${escapar(b.sede || 'Sin sede')}</span>
-          ${activo ? '<span class="deriv-result-badge">Caso abierto</span>' : ''}
+          ${activo ? '<span class="status-mark status-mark--warn deriv-result-mark"><span class="status-mark-dot" aria-hidden="true"></span><span>Caso abierto</span></span>' : ''}
         </button>
       `;
     }).join('');

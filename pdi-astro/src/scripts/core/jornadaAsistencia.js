@@ -12,17 +12,17 @@
 export const ZONA_HORARIA = "America/Lima";
 
 export const ESTADOS_ASISTENCIA = {
-  P:  { label: "Presente",            badgeClass: "badge badge-green"  },
-  T:  { label: "Tardanza",            badgeClass: "badge badge-yellow" },
-  FJ: { label: "Falta Justificada",   badgeClass: "badge badge-orange" },
-  FI: { label: "Falta Injustificada", badgeClass: "badge badge-red"    },
+  P:  { label: "Presente",            markClass: "status-mark--ok"  },
+  T:  { label: "Tardanza",            markClass: "status-mark--warn" },
+  FJ: { label: "Falta Justificada",   markClass: "status-mark--severe" },
+  FI: { label: "Falta Injustificada", markClass: "status-mark--danger"    },
 };
 
 /** Un alumno sin marcar no es una falta: es una ausencia de dato. */
 export const SIN_MARCAR = {
   clave: "",
   label: "Sin marcar",
-  badgeClass: "badge badge-neutral",
+  markClass: "status-mark--idle",
 };
 
 const LARGO_MAXIMO_MOTIVO = 120;
@@ -100,7 +100,7 @@ export function estadoEfectivo(guardado, borrador, inscripcionId) {
   return normalizarMarca(guardado[inscripcionId]);
 }
 
-/** Info de badge para el estado efectivo. */
+/** Info de marca para el estado efectivo. */
 export function infoEstado(marca) {
   const normal = normalizarMarca(marca);
   if (!normal.estado) return SIN_MARCAR;

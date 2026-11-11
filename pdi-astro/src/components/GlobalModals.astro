@@ -833,7 +833,10 @@ import Icon from './Icon.astro';
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
               <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-main);"
                 id="modalCasoUsuarioNombre">—</h3>
-              <span class="badge badge-red" id="modalCasoUrgenciaBadge">Media</span>
+              <span class="status-mark status-mark--warn" id="modalCasoUrgenciaBadge">
+                <span class="status-mark-dot" aria-hidden="true"></span>
+                <span>Media</span>
+              </span>
             </div>
             <p style="margin: 2px 0 0; font-size: 12px; color: var(--text-muted);">
               Código: <strong id="modalCasoCodigo"
@@ -854,7 +857,10 @@ import Icon from './Icon.astro';
         <div
           style="display: flex; align-items: center; justify-content: space-between; background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 10px 14px;">
           <span style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">Etapa en Tablero Kanban:</span>
-          <span id="modalCasoEtapaBadge" class="badge badge-yellow">En Evaluación Social</span>
+          <span id="modalCasoEtapaBadge" class="status-mark status-mark--warn">
+            <span class="status-mark-dot" aria-hidden="true"></span>
+            <span>En Evaluación Social</span>
+          </span>
         </div>
 
         <!-- Problemática & Situación Encontrada -->
@@ -943,7 +949,10 @@ import Icon from './Icon.astro';
             <div style="font-size: 11.5px; text-transform: uppercase; font-weight: 700; color: var(--text-dim); letter-spacing: 0.5px;">
               Autorización de Coordinación / Historial de Solicitudes
             </div>
-            <span id="modalCasoBadgeAutorizacion" class="badge badge-yellow">En Proceso</span>
+            <span id="modalCasoBadgeAutorizacion" class="status-mark status-mark--warn">
+              <span class="status-mark-dot" aria-hidden="true"></span>
+              <span>En Proceso</span>
+            </span>
           </div>
           <div id="modalCasoDetalleSolicitudActiva" style="font-size: 12.5px; color: var(--text-main); line-height: 1.45; background: var(--surface-2); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-bottom: 8px;">
           </div>
@@ -1133,14 +1142,14 @@ import Icon from './Icon.astro';
         <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 10px 14px;">
           <div>
             <span style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-dim); display: block;">Fase Actual</span>
-            <span id="solicitudEtapaOrigenBadge" class="badge badge-gray">Pendiente</span>
+            <span id="solicitudEtapaOrigenBadge" class="status-word">Pendiente</span>
           </div>
           <div style="color: var(--text-dim);">
             <Icon name="accion.abrir" size={20} />
           </div>
           <div style="text-align: right;">
             <span style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-dim); display: block;">Fase Solicitada</span>
-            <span id="solicitudEtapaDestinoBadge" class="badge badge-yellow">Evaluación</span>
+            <span id="solicitudEtapaDestinoBadge" class="status-word">Evaluación</span>
           </div>
         </div>
 
@@ -1205,7 +1214,7 @@ import Icon from './Icon.astro';
             <strong style="font-size: 13.5px; color: var(--text-main);" id="resolverUsuarioNombre">
               Liam Mateo Sanchez Diaz
             </strong>
-            <span class="badge badge-blue" id="resolverCodigoBadge">PDI-2026-003</span>
+            <span class="chip chip--blue" id="resolverCodigoBadge">PDI-2026-003</span>
           </div>
           <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">
             Solicitado por: <span id="resolverSolicitante" style="color: var(--text-main); font-weight: 600;">Lic. Ruth Soto</span>
@@ -1216,14 +1225,14 @@ import Icon from './Icon.astro';
         <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 10px 14px;">
           <div>
             <span style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-dim); display: block;">Fase Actual</span>
-            <span id="resolverEtapaOrigenBadge" class="badge badge-gray">Pendiente</span>
+            <span id="resolverEtapaOrigenBadge" class="status-word">Pendiente</span>
           </div>
           <div style="color: var(--text-dim);">
             <Icon name="accion.abrir" size={20} />
           </div>
           <div style="text-align: right;">
             <span style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-dim); display: block;">Fase a Autorizar</span>
-            <span id="resolverEtapaDestinoBadge" class="badge badge-yellow">Evaluación</span>
+            <span id="resolverEtapaDestinoBadge" class="status-word">Evaluación</span>
           </div>
         </div>
 
@@ -1435,7 +1444,10 @@ import Icon from './Icon.astro';
               <h3 style="margin: 0; font-size: 17px; font-weight: 700; color: var(--text-main);" id="fichaVolNombreCompleto">
                 María Elena Gutiérrez Vega
               </h3>
-              <span class="badge badge-green" id="fichaVolEstadoBadge">Activo</span>
+              <span class="status-mark status-mark--ok" id="fichaVolEstadoBadge">
+                <span class="status-mark-dot" aria-hidden="true"></span>
+                <span>Activo</span>
+              </span>
             </div>
             <p style="margin: 2px 0 0; font-size: 12px; color: var(--text-muted);">
               Código: <strong id="fichaVolCodigo" style="font-family: var(--mono-font); color: var(--text-brand);">VOL-2026-001</strong> &bull; DNI: <span id="fichaVolDni">41892341</span>
@@ -2244,37 +2256,25 @@ import Icon from './Icon.astro';
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 12px;
-    border-radius: var(--radius-full, 9999px);
-    background: var(--surface-2);
-    border: 1px solid var(--border-subtle);
     font-size: 12px;
     color: var(--text-muted);
     line-height: 1.25;
-    transition: all var(--dur-fast, 0.15s) ease;
     max-width: 100%;
   }
 
   :global(.ficha-estado-dot) {
-    width: 7px;
-    height: 7px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
-    background: var(--text-dim, #94a3b8);
+    background: var(--text-dim);
     flex-shrink: 0;
   }
 
-  :global(.ficha-estado-badge) {
-    display: inline-flex;
-    align-items: center;
-    padding: 2px 8px;
-    border-radius: var(--radius-full, 9999px);
-    font-size: 11px;
-    font-weight: 700;
-    /* `--surface-3` se retiró del sistema de tokens; el respaldo claro dejaba
-       el texto blanco del tema oscuro sobre un fondo casi blanco (1.1:1). */
-    background: var(--surface-hover);
-    color: var(--text-main);
-    border: 1px solid var(--border-subtle);
+  :global(.ficha-estado-count) {
+    font-size: 9.5px;
+    font-weight: 600;
+    color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
     flex-shrink: 0;
   }
 
@@ -2291,10 +2291,12 @@ import Icon from './Icon.astro';
   }
 
   :global(.ficha-estado-pill.is-ready) {
-    background: rgba(var(--brand-rgb), 0.08);
-    border-color: rgba(var(--brand-rgb), 0.3);
     color: var(--text-success);
     font-weight: 600;
+  }
+
+  :global(.ficha-estado-pill.is-ready .ficha-estado-dot) {
+    background: var(--text-success);
   }
 
   :global(.ficha-estado-pill.is-ready svg) {

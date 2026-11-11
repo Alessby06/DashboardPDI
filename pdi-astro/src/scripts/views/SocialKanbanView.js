@@ -15,6 +15,13 @@ import { iconHtml } from '../../data/iconos.js';
 function claveCaso(caso) {
   return String(caso?._casoId || caso?.id || '');
 }
+
+const TONO_URGENCIA = { Alta: 'danger', Media: 'warn', Baja: 'info' };
+
+/** Marca de estado (punto + palabra), el reemplazo del badge. */
+function marcaEstado(texto, tono) {
+  return `<span class="status-mark status-mark--${tono || 'idle'}"><span class="status-mark-dot" aria-hidden="true"></span><span>${texto}</span></span>`;
+}
 // Filtros del tablero que viajan en la URL. Los valores son los de los
 // desplegables de social.html.
 const FILTROS_SOCIAL = {
@@ -387,13 +394,13 @@ export const SocialKanbanView = {
       card.innerHTML = `
         <div class="kanban-card-header-row">
           <strong class="kanban-card-title" title="${escapar(c.usuario)}">${escapar(c.usuario)}</strong>
-          <span class="badge badge-${c.urgencia === 'Alta' ? 'red' : (c.urgencia === 'Media' ? 'yellow' : 'blue')}"><span class="badge-dot"></span>${escapar(c.urgencia)}</span>
+          ${marcaEstado(escapar(c.urgencia), TONO_URGENCIA[c.urgencia] || 'idle')}
         </div>
         <div class="kanban-card-meta">
           <a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(c.codigo)}')" class="kanban-card-code-link" title="Abrir expediente">
             ${escapar(c.codigo)}
           </a>
-          <span class="kanban-card-sede-badge" title="${escapar(c.sede)}">
+          <span class="kanban-card-sede" title="${escapar(c.sede)}">
             ${iconHtml("lugar.ubicacion", { size: 11 })}
             <span>${escapar(c.sede)}</span>
           </span>
@@ -453,7 +460,7 @@ export const SocialKanbanView = {
       }
     }
 
-    // Actualizar barra de chips y badge de filtros
+    // Actualizar barra de chips y contador de filtros
     this._updateFilterChips();
 
     // Un solo punto de escritura para los cuatro filtros: handleSearch(),
@@ -659,7 +666,7 @@ export const SocialKanbanView = {
     const etiquetasEl = document.getElementById("modalCasoEtiquetas");
     if (etiquetasEl) {
       etiquetasEl.innerHTML = etiquetas.length
-        ? etiquetas.map(t => `<span class="badge badge-gray">${escapar(t)}</span>`).join("")
+        ? etiquetas.map(t => `<span class="chip">${escapar(t)}</span>`).join("")
         : "";
     }
 
@@ -710,21 +717,23 @@ export const SocialKanbanView = {
     // Badges de urgencia y etapa
     const urgBadge = document.getElementById("modalCasoUrgenciaBadge");
     if (urgBadge) {
-      urgBadge.className = `badge badge-${caso.urgencia === 'Alta' ? 'red' : (caso.urgencia === 'Media' ? 'yellow' : 'blue')}`;
-      urgBadge.textContent = caso.urgencia;
+      urgBadge.className = `status-mark status-mark--${TONO_URGENCIA[caso.urgencia] || 'idle'}`;
+      const label = urgBadge.lastElementChild;
+      if (label) label.textContent = caso.urgencia;
     }
 
     const etapaBadge = document.getElementById("modalCasoEtapaBadge");
     const etapaMap = {
-      pendiente: { label: "Pendiente / Alerta", cls: "badge-red" },
-      evaluacion: { label: "En Evaluación Social", cls: "badge-yellow" },
-      canalizado: { label: "Canalizado (DEMUNA / BTF)", cls: "badge-blue" },
-      cerrado: { label: "Cerrado con Informe", cls: "badge-green" }
+      pendiente: { label: "Pendiente / Alerta", tono: "danger" },
+      evaluacion: { label: "En Evaluación Social", tono: "warn" },
+      canalizado: { label: "Canalizado (DEMUNA / BTF)", tono: "info" },
+      cerrado: { label: "Cerrado con Informe", tono: "ok" }
     };
     if (etapaBadge) {
-      const eInfo = etapaMap[caso.etapa] || { label: caso.etapa, cls: "badge-gray" };
-      etapaBadge.className = `badge ${eInfo.cls}`;
-      etapaBadge.textContent = eInfo.label;
+      const eInfo = etapaMap[caso.etapa] || { label: caso.etapa, tono: "idle" };
+      etapaBadge.className = `status-mark status-mark--${eInfo.tono}`;
+      const label = etapaBadge.lastElementChild;
+      if (label) label.textContent = eInfo.label;
     }
 
     // Dynamic actions in modal footer
@@ -742,8 +751,9 @@ export const SocialKanbanView = {
         secAut.style.display = "block";
         if (tieneSolicitud) {
           if (badgeAut) {
-            badgeAut.className = "badge badge-yellow";
-            badgeAut.textContent = "Pendiente de Autorización";
+            badgeAut.className = "status-mark status-mark--warn";
+            const label = badgeAut.lastElementChild;
+            if (label) label.textContent = "Pendiente de Autorización";
           }
           if (detSol) {
             detSol.style.display = "block";
@@ -759,8 +769,9 @@ export const SocialKanbanView = {
           }
         } else {
           if (badgeAut) {
-            badgeAut.className = "badge badge-gray";
-            badgeAut.textContent = "Sin solicitudes activas";
+            badgeAut.className = "status-mark status-mark--idle";
+            const label = badgeAut.lastElementChild;
+            if (label) label.textContent = "Sin solicitudes activas";
           }
           if (detSol) detSol.style.display = "none";
         }
@@ -1273,12 +1284,6 @@ export const SocialKanbanView = {
       return;
     }
 
-    const urgenciaBadgeClass = {
-      Alta: "badge-red",
-      Media: "badge-yellow",
-      Baja: "badge-blue"
-    };
-
     this._activarCascada(container);
     container.innerHTML = `
       <div class="social-requests-grid">
@@ -1297,11 +1302,9 @@ export const SocialKanbanView = {
                     onclick="window.PDI?.SocialKanbanView?.openDetalleCaso(${escaparEnManejador(claveCaso(caso))})">
                     ${escapar(caso.codigo)}
                   </span>
-                  <span class="badge ${urgenciaBadgeClass[caso.urgencia] || 'badge-gray'}">
-                    ${escapar(caso.urgencia || 'Media')}
-                  </span>
-                  <span class="badge badge-gray">
-                    ${iconHtml("lugar.ubicacion", { size: 11, style: "margin-right: 3px;" })}
+                  ${marcaEstado(escapar(caso.urgencia || 'Media'), TONO_URGENCIA[caso.urgencia] || 'idle')}
+                  <span class="chip">
+                    ${iconHtml("lugar.ubicacion", { size: 11 })}
                     ${escapar(caso.sede || 'Sede General')}
                   </span>
                 </div>
@@ -1411,11 +1414,11 @@ export const SocialKanbanView = {
     container.innerHTML = `
       <div class="social-requests-grid">
         ${solicitudes.map((sol, idx) => {
-          let badgeEstado = '<span class="badge badge-yellow">En revisión</span>';
+          let badgeEstado = marcaEstado('En revisión', 'warn');
           if (sol.estado === "aprobada") {
-            badgeEstado = '<span class="badge badge-green">Aprobada</span>';
+            badgeEstado = marcaEstado('Aprobada', 'ok');
           } else if (sol.estado === "rechazada") {
-            badgeEstado = '<span class="badge badge-red">Rechazada</span>';
+            badgeEstado = marcaEstado('Rechazada', 'danger');
           }
 
           return `
@@ -1431,8 +1434,8 @@ export const SocialKanbanView = {
                     ${escapar(sol.codigo)}
                   </span>
                   ${badgeEstado}
-                  <span class="badge badge-gray">
-                    ${iconHtml("lugar.ubicacion", { size: 11, style: "margin-right: 3px;" })}
+                  <span class="chip">
+                    ${iconHtml("lugar.ubicacion", { size: 11 })}
                     ${escapar(sol.sede || 'Sede General')}
                   </span>
                 </div>

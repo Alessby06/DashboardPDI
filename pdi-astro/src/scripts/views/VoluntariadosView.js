@@ -507,10 +507,10 @@ export const VoluntariadosView = {
   _updateActiveFilterBadge() {
     const count = this._obtenerStore().contarActivos();
 
-    const badge = document.getElementById("voluntariosActiveFiltersCount");
-    if (badge) {
-      badge.textContent = count;
-      badge.style.display = count > 0 ? "inline-flex" : "none";
+    const contador = document.getElementById("voluntariosActiveFiltersCount");
+    if (contador) {
+      contador.textContent = count;
+      contador.style.display = count > 0 ? "inline-flex" : "none";
     }
 
     const btn = document.getElementById("btnDropdownVoluntariosFilterPanel");
@@ -623,7 +623,6 @@ export const VoluntariadosView = {
         const servClaseLinea = claseLineaServicio(v.servicio);
         const servNombre = nombreServicioVisible(v.servicio);
 
-        let badgeEstadoClass = v.estado === "Activo" ? "badge-green" : (v.estado === "En Pausa" ? "badge-yellow" : "badge-gray");
         let estadoDotClass = v.estado === "Activo" ? "dot-green" : (v.estado === "En Pausa" ? "dot-amber" : "dot-gray");
         const capCount = (v.capacitaciones && v.capacitaciones.length) || 0;
 
@@ -705,8 +704,7 @@ export const VoluntariadosView = {
         const servClaseLinea = claseLineaServicio(v.servicio);
         const servNombre = nombreServicioVisible(v.servicio);
 
-        let badgeEstadoClass = v.estado === "Activo" ? "badge-green" : (v.estado === "En Pausa" ? "badge-yellow" : "badge-gray");
-        let estadoDotClass = v.estado === "Activo" ? "dot-green" : (v.estado === "En Pausa" ? "dot-amber" : "dot-gray");
+        const estadoTono = v.estado === "Activo" ? "ok" : (v.estado === "En Pausa" ? "warn" : "idle");
         const capCount = (v.capacitaciones && v.capacitaciones.length) || 0;
 
         return `
@@ -726,9 +724,9 @@ export const VoluntariadosView = {
                   </div>
                 </div>
               </div>
-              <span class="badge ${badgeEstadoClass} padron-status-badge">
-                <span class="padron-dot ${estadoDotClass}"></span>
-                ${escapar(v.estado)}
+              <span class="status-mark status-mark--${estadoTono}">
+                <span class="status-mark-dot" aria-hidden="true"></span>
+                <span>${escapar(v.estado)}</span>
               </span>
             </div>
 
@@ -995,9 +993,10 @@ export const VoluntariadosView = {
 
     const estadoBadge = document.getElementById("fichaVolEstadoBadge");
     if (estadoBadge) {
-      let badgeCls = vol.estado === "Activo" ? "badge-green" : (vol.estado === "En Pausa" ? "badge-yellow" : "badge-gray");
-      estadoBadge.className = `badge ${badgeCls}`;
-      estadoBadge.textContent = vol.estado;
+      const tono = vol.estado === "Activo" ? "ok" : (vol.estado === "En Pausa" ? "warn" : "idle");
+      estadoBadge.className = `status-mark status-mark--${tono}`;
+      const label = estadoBadge.lastElementChild;
+      if (label) label.textContent = vol.estado;
     }
 
     // Capacitaciones list

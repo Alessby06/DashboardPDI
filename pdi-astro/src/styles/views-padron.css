@@ -397,9 +397,6 @@
       .cred-calc-subtitle {
         display: none !important;
       }
-      .cred-calc-header-right .badge {
-        display: none !important;
-      }
       .cred-calc-body {
         padding: 14px 12px 16px !important;
       }
@@ -786,17 +783,10 @@
   }
 }
 
-/* El botón de Archivo: contenido centrado y contador pegado a la etiqueta.
-   El badge trae 10px de padding propio y el gap del botón añade otros 8px,
-   así que el número quedaba muy separado del texto. */
+/* El botón de Archivo: contenido centrado y contador pegado a la etiqueta. */
 #btnPadronArchivo {
   justify-content: center;
   gap: 6px;
-}
-
-#btnPadronArchivo .badge {
-  padding-left: 6px;
-  padding-right: 6px;
 }
 
 /* --- TABLA PRINCIPAL DEL PADRÓN: ESTABILIDAD Y ZERO LAYOUT SHIFT --- */

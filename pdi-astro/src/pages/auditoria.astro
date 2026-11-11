@@ -7,10 +7,10 @@ import '../styles/views-auditoria.css';
 import Icon from '../components/Icon.astro';
 
 const OPCIONES_ACCION = [
-  { valor: 'salud', badge: { texto: 'CRED', tono: 'yellow', compacta: true }, etiqueta: 'Salud y Nutrición' },
-  { valor: 'social', badge: { texto: 'ASP', tono: 'red', compacta: true }, etiqueta: 'Derivación Social' },
-  { valor: 'educativo', badge: { texto: 'CS', tono: 'blue', compacta: true }, etiqueta: 'Casitas del Saber' },
-  { valor: 'padron', badge: { texto: 'Padrón', tono: 'green', compacta: true }, etiqueta: 'Padrón / Coordinación' },
+  { valor: 'salud', chip: { texto: 'CRED', tono: 'yellow', compacta: true }, etiqueta: 'Salud y Nutrición' },
+  { valor: 'social', chip: { texto: 'ASP', tono: 'red', compacta: true }, etiqueta: 'Derivación Social' },
+  { valor: 'educativo', chip: { texto: 'CS', tono: 'blue', compacta: true }, etiqueta: 'Casitas del Saber' },
+  { valor: 'padron', chip: { texto: 'Padrón', tono: 'green', compacta: true }, etiqueta: 'Padrón / Coordinación' },
 ];
 const OPCIONES_FECHA = [
   { valor: 'today', etiqueta: 'Hoy (Jornada en curso)' },
@@ -25,9 +25,9 @@ const OPCIONES_ROL_AUDIT = [
   'Trabajadora Social',
 ].map((rol) => ({ valor: rol, etiqueta: rol }));
 const OPCIONES_ESTADO_AUDIT = [
-  { valor: 'Registrado', badge: { texto: 'Conforme', tono: 'green', compacta: true }, etiqueta: 'Registrado' },
-  { valor: 'Sensible', badge: { texto: 'Sensible', tono: 'red', compacta: true }, etiqueta: 'Alerta / Crítico' },
-  { valor: 'Observado', badge: { texto: 'Observado', tono: 'yellow', compacta: true }, etiqueta: 'En Revisión' },
+  { valor: 'Registrado', chip: { texto: 'Conforme', tono: 'green', compacta: true }, etiqueta: 'Registrado' },
+  { valor: 'Sensible', chip: { texto: 'Sensible', tono: 'red', compacta: true }, etiqueta: 'Alerta / Crítico' },
+  { valor: 'Observado', chip: { texto: 'Observado', tono: 'yellow', compacta: true }, etiqueta: 'En Revisión' },
 ];
 const OPCIONES_ORDEN_AUDIT = [
   { valor: 'reciente-desc', etiqueta: 'Más reciente' },
@@ -122,7 +122,7 @@ const OPCIONES_ORDEN_AUDIT = [
                 id="dropdownAuditFilterPanel"
                 buttonId="btnDropdownAuditFilterPanel"
                 menuId="menuAuditFilterPanel"
-                badgeId="auditActiveFiltersCount"
+                countId="auditActiveFiltersCount"
                 title="Filtros de Bitácora"
                 reset="window.resetAuditFilters ? window.resetAuditFilters() : null"
               >

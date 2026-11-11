@@ -55,6 +55,12 @@
   --gt-orange-bg: rgba(234, 88, 12, 0.14);
   --gt-orange-border: rgba(234, 88, 12, 0.35);
 
+  /* Tintes del Chip (etiqueta, no estado): mas suaves que el badge retirado. */
+  --chip-green-bg: rgba(0, 180, 148, 0.09);
+  --chip-yellow-bg: rgba(245, 158, 11, 0.09);
+  --chip-blue-bg: rgba(2, 132, 199, 0.09);
+  --chip-red-bg: rgba(239, 68, 68, 0.09);
+
   --brand-primary: var(--gt-green);
   --brand-hover: #00997d;
   --brand-dark: #00715d;
@@ -200,6 +206,12 @@
   --gt-orange-bg: rgba(234, 88, 12, 0.14);
   --gt-orange-border: rgba(234, 88, 12, 0.35);
 
+  /* Tintes del Chip (etiqueta, no estado): mas suaves que el badge retirado. */
+  --chip-green-bg: rgba(0, 180, 148, 0.09);
+  --chip-yellow-bg: rgba(245, 158, 11, 0.09);
+  --chip-blue-bg: rgba(2, 132, 199, 0.09);
+  --chip-red-bg: rgba(239, 68, 68, 0.09);
+
   --brand-primary: var(--gt-green);
   --brand-dark: #008f75;
   --brand-dim: #e6f7f4;
@@ -285,6 +297,12 @@
   --gt-orange: #ff9d66;
   --gt-orange-bg: rgba(255, 157, 102, 0.16);
   --gt-orange-border: rgba(255, 157, 102, 0.45);
+
+  /* Tintes del Chip en oscuro: un poco mas de presencia sobre negro. */
+  --chip-green-bg: rgba(46, 230, 160, 0.12);
+  --chip-yellow-bg: rgba(255, 194, 71, 0.12);
+  --chip-blue-bg: rgba(124, 196, 255, 0.12);
+  --chip-red-bg: rgba(255, 107, 107, 0.12);
 
   --brand-primary: #2ee6a0;
   --brand-hover: #6bffc4;

@@ -1154,15 +1154,15 @@ export const DashboardView = {
     filtered = this._ordenarAuditoria(filtered);
     this._filteredAuditLogs = filtered;
 
-    // Badge desde el store.
+    // Contador desde el store.
     const count = this._obtenerStore().contarActivos();
 
-    const badge = document.getElementById("auditActiveFiltersCount");
+    const contador = document.getElementById("auditActiveFiltersCount");
     const filterBtn = document.getElementById("btnDropdownAuditFilterPanel");
 
-    if (badge) {
-      badge.textContent = count;
-      badge.style.display = count > 0 ? "inline-flex" : "none";
+    if (contador) {
+      contador.textContent = count;
+      contador.style.display = count > 0 ? "inline-flex" : "none";
     }
     if (filterBtn) {
       filterBtn.classList.toggle("has-filters", count > 0);

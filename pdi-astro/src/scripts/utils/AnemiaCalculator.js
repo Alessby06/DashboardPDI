@@ -22,7 +22,7 @@ export const AnemiaCalculator = {
         clase: null,
         accion: "Ingrese un valor numérico de hemoglobina",
         color: "var(--text-muted)",
-        badgeClass: "badge-blue"
+        markClass: "status-mark--info"
       };
     }
 
@@ -32,7 +32,7 @@ export const AnemiaCalculator = {
         clase: "Severa",
         accion: "Derivación Hospitalaria Inmediata + Alerta Médica",
         color: "var(--gt-red)",
-        badgeClass: "badge-red"
+        markClass: "status-mark--danger"
       };
     } else if (val < 10.0) {
       return {
@@ -40,7 +40,7 @@ export const AnemiaCalculator = {
         clase: "Moderada",
         accion: "Sulfato Ferroso 2 gotas/kg/día + Visita Domiciliaria ASP",
         color: "var(--gt-red)",
-        badgeClass: "badge-red"
+        markClass: "status-mark--danger"
       };
     } else if (val < 11.0) {
       return {
@@ -48,7 +48,7 @@ export const AnemiaCalculator = {
         clase: "Leve",
         accion: "Suplementación con Gotas de Hierro + Taller Nutricional",
         color: "var(--gt-yellow)",
-        badgeClass: "badge-yellow"
+        markClass: "status-mark--warn"
       };
     } else {
       return {
@@ -56,7 +56,7 @@ export const AnemiaCalculator = {
         clase: "Normal",
         accion: "Desayuno Fortificado Diario + Control de Crecimiento cada 3 meses",
         color: "var(--gt-green)",
-        badgeClass: "badge-green"
+        markClass: "status-mark--ok"
       };
     }
   },

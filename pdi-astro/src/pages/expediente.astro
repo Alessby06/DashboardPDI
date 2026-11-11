@@ -252,8 +252,10 @@ import Icon from '../components/Icon.astro';
               <!-- SVG Avatar o Foto Dinámica -->
             </div>
             <div style="width:100%;">
-              <span class="badge badge-green"
-                style="font-size:11px; display:inline-block; margin-bottom:4px;">Usuario Activo</span>
+              <span class="status-mark status-mark--ok">
+                <span class="status-mark-dot" aria-hidden="true"></span>
+                <span>Usuario Activo</span>
+              </span>
               <div id="expPhotoName"
                 style="font-size:13.5px; font-weight:700; color:var(--text-main); line-height:1.3;"></div>
               <div id="expPhotoCode"

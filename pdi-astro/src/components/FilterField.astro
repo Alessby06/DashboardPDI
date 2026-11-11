@@ -15,8 +15,8 @@
 import { escaparJs } from '../scripts/utils/HtmlHelper.js';
 import Icon from './Icon.astro';
 
-/** Insignia opcional dentro de una opción (semáforo de anemia, módulo de auditoría). */
-interface Badge {
+/** Etiqueta opcional dentro de una opción (semáforo de anemia, módulo de auditoría). */
+interface Chip {
   texto: string;
   tono?: 'green' | 'yellow' | 'red' | 'blue';
   /** El panel de auditoría usaba 10 px; el de padrón, 10.5 px. */
@@ -25,9 +25,9 @@ interface Badge {
 
 interface Opcion {
   valor: string;
-  /** Texto visible. Si se omite, la opción se apoya solo en la insignia. */
+  /** Texto visible. Si se omite, la opción se apoya solo en la etiqueta. */
   etiqueta?: string;
-  badge?: Badge;
+  chip?: Chip;
   /** Una opción sin contador no genera id countFacet* (fechas específicas). */
   contador?: boolean;
 }
@@ -148,15 +148,15 @@ const contadorDe = (opcion: Opcion) =>
                 ) : (
                   <span class="padron-item-radio"></span>
                 )}
-                {opcion.badge && (
+                {opcion.chip && (
                   <span
                     class:list={[
-                      'badge',
-                      `badge-${opcion.badge.tono ?? 'green'}`,
-                      'facet-badge',
-                      opcion.badge.compacta && 'facet-badge--compacta',
+                      'chip',
+                      `chip--${opcion.chip.tono ?? 'green'}`,
+                      'facet-chip',
+                      opcion.chip.compacta && 'facet-chip--compacta',
                     ]}
-                  >{opcion.badge.texto}</span>
+                  >{opcion.chip.texto}</span>
                 )}
                 {opcion.etiqueta && <span class="padron-item-label">{opcion.etiqueta}</span>}
               </div>

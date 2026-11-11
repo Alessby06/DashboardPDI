@@ -93,7 +93,7 @@ html.pdi-contenido-pendiente .pdi-skeleton {
 
 /* Los contadores del sidebar se calculan de los modelos. Antes de la primera
    hidratacion valen 0 y no deben verse como si fueran datos reales. */
-html:not([data-pdi-ready="1"]) .nav-badge {
+html:not([data-pdi-ready="1"]) .nav-count {
   visibility: hidden;
 }
 

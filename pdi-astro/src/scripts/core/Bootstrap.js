@@ -97,7 +97,7 @@ export function arrancarComun() {
 }
 
 /**
- * Ultimo valor canonico de cada badge. Se compara contra este mapa y no
+ * Ultimo valor canonico de cada contador. Se compara contra este mapa y no
  * contra el texto del DOM: al navegar, el marcado puede reaparecer con su
  * valor de servidor y no queremos que eso cuente como un cambio real.
  */
@@ -128,7 +128,7 @@ function guardarBadgesEnCache() {
     for (const id of IDS_BADGES) {
       const el = document.getElementById(id);
       if (!el) continue;
-      const num = el.querySelector(".nav-badge-num");
+      const num = el.querySelector(".nav-count-num");
       datos[id] = Number((num ? num.textContent : el.textContent) || 0);
     }
     const listo = window.PDI?.__pdiDatosListos
@@ -151,10 +151,10 @@ export function actualizarBadgesSidebar() {
     ultimosBadges.set(id, texto);
 
     // El numero vive en su propio span: asi la animacion no mueve la pastilla.
-    let num = el.querySelector(".nav-badge-num");
+    let num = el.querySelector(".nav-count-num");
     if (!num) {
       num = document.createElement("span");
-      num.className = "nav-badge-num";
+      num.className = "nav-count-num";
       num.textContent = (el.textContent || "").trim();
       el.textContent = "";
       el.appendChild(num);
@@ -164,7 +164,7 @@ export function actualizarBadgesSidebar() {
     num.textContent = texto;
 
     // Solo celebra un cambio real de cifra. El primer pintado (sin anterior) y
-    // el paso por 0 de la hidratacion no cuentan: ahi el badge se limita a
+    // el paso por 0 de la hidratacion no cuentan: ahi el contador se limita a
     // aparecer con su valor.
     if (anterior === undefined || anterior === "0" || texto === "0") return;
 
@@ -180,7 +180,7 @@ export function actualizarBadgesSidebar() {
 
   try {
     set("badgeTotalBeneficiarios", BeneficiarioModel.getAll().length);
-  } catch (e) { /* badge no presente en esta pagina */ }
+  } catch (e) { /* contador no presente en esta pagina */ }
 
   try {
     set("badgeCasosCriticos", CasoSocialModel.contarCriticos());

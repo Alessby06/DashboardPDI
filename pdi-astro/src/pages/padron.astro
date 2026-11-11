@@ -9,9 +9,9 @@ import Icon from '../components/Icon.astro';
 const OPCIONES_ESTRATEGIA = ESTRATEGIAS.map((opcion) => ({ valor: opcion.clave, etiqueta: opcion.etiqueta }));
 const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiqueta: sede.etiqueta }));
 const OPCIONES_ANEMIA = [
-  { valor: 'Normal', badge: { texto: 'Normal', tono: 'green' } },
-  { valor: 'Leve', badge: { texto: 'Leve', tono: 'yellow' } },
-  { valor: 'Moderada', badge: { texto: 'Mod / Sev', tono: 'red' } },
+  { valor: 'Normal', chip: { texto: 'Normal', tono: 'green' } },
+  { valor: 'Leve', chip: { texto: 'Leve', tono: 'yellow' } },
+  { valor: 'Moderada', chip: { texto: 'Mod / Sev', tono: 'red' } },
 ];
 const OPCIONES_SEXO = [
   { valor: 'M', etiqueta: 'Masculino (M)' },
@@ -33,7 +33,7 @@ const OPCIONES_SEXO = [
                 title="Ver usuarios desactivados (Solo Dirección / Admin)" aria-pressed="false" style="display: none;">
                 <Icon name="accion.archivar" size={15} />
                 <span id="padronArchivoLabel">Archivo</span>
-                <span class="badge badge-gray" id="padronArchivoCount">0</span>
+                <span class="count" id="padronArchivoCount">0</span>
               </button>
               <button type="button" class="btn-action primary" id="btnNuevoBeneficiario"
                 onclick="window.openModalNuevoBeneficiario ? window.openModalNuevoBeneficiario() : (window.openModalNuevoUsuario ? window.openModalNuevoUsuario() : null)" title="Registrar nuevo usuario">
@@ -105,7 +105,7 @@ const OPCIONES_SEXO = [
                 id="dropdownPadronFilterPanel"
                 buttonId="btnDropdownPadronFilterPanel"
                 menuId="menuPadronFilterPanel"
-                badgeId="padronActiveFiltersCount"
+                countId="padronActiveFiltersCount"
                 title="Filtros de Padrón"
                 reset="window.resetPadronFilters ? window.resetPadronFilters() : null"
               >

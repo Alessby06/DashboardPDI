@@ -910,7 +910,7 @@ export const ExpedienteView = {
         </div>
         <strong class="retiro-person-name">${escapar(p.nombre)}</strong>
         <span class="retiro-person-dni">DNI ${escapar(p.dni)}</span>
-        <span class="badge badge-blue">${escapar(p.parentesco)}</span>
+        <span class="chip">${escapar(p.parentesco)}</span>
         <span class="retiro-person-phone">${iconHtml("comunicacion.llamar", { size: 12 })}Tel: ${escapar(p.telefono || "-")}</span>
       </div>
     `).join("");
@@ -940,7 +940,7 @@ export const ExpedienteView = {
         ${tarjeta("Flujo Transfronterizo de Datos", "Transferencia a la entidad cooperante Kinderwerk Lima e.V. (Alemania) con cifrado y medidas de seguridad.", "D.S. N.° 016-2024-JUS")}
       </div>
       <div class="ley-cert-box">
-        <div class="ley-cert-badge-icon">
+        <div class="ley-cert-icon">
           ${iconHtml("estado.ok", { size: 24 })}
         </div>
         <div class="ley-cert-text">
@@ -983,7 +983,10 @@ export const ExpedienteView = {
             <strong style="font-size:13px; color:var(--text-warning);">Derivacion Activa: Problemática ${escapar(tipo)}</strong>
             <div style="font-size:11.5px; color:var(--text-dim);">Derivado por: ${escapar(quien)} &bull; Tel: ${escapar(telefono)}</div>
           </div>
-          <span class="badge badge-${caso.urgencia === "Alta" ? "red" : "yellow"}">Urgencia: ${escapar(caso.urgencia)}</span>
+          <span class="status-mark status-mark--${caso.urgencia === "Alta" ? "danger" : "warn"}">
+            <span class="status-mark-dot" aria-hidden="true"></span>
+            <span>Urgencia: ${escapar(caso.urgencia)}</span>
+          </span>
         </div>
         <div style="font-size:12.5px; color:var(--text-main); margin-bottom:6px;"><strong>Situacion Encontrada:</strong> ${escapar(caso.situacionEncontrada || caso.detalle)}</div>
         <div style="font-size:12px; color:var(--text-dim); margin-bottom:4px;"><strong>Acciones Realizadas:</strong> ${escapar(caso.accionesPrevias || "Seguimiento domiciliario programado.")}</div>

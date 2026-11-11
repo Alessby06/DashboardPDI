@@ -82,7 +82,7 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                   id="dropdownSocialFilterPanel"
                   buttonId="btnDropdownSocialFilterPanel"
                   menuId="menuSocialFilterPanel"
-                  badgeId="socialActiveFiltersCount"
+                  countId="socialActiveFiltersCount"
                   title="Filtros de Casos Sociales"
                   reset="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.clearFilters() : null"
                 >
@@ -155,25 +155,25 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                   onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.setMobileActiveStage('pendiente') : null">
                   <span class="stage-dot" style="background: var(--gt-red);"></span>
                   <span class="stage-seg-label">Alerta</span>
-                  <span class="badge badge-red" id="mobileSegCountPendientes">0</span>
+                  <span class="count" id="mobileSegCountPendientes">0</span>
                 </button>
                 <button type="button" class="stage-seg-btn" data-stage="evaluacion" role="tab" aria-selected="false"
                   onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.setMobileActiveStage('evaluacion') : null">
                   <span class="stage-dot" style="background: var(--gt-yellow);"></span>
                   <span class="stage-seg-label">Evaluación</span>
-                  <span class="badge badge-yellow" id="mobileSegCountEvaluacion">0</span>
+                  <span class="count" id="mobileSegCountEvaluacion">0</span>
                 </button>
                 <button type="button" class="stage-seg-btn" data-stage="canalizado" role="tab" aria-selected="false"
                   onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.setMobileActiveStage('canalizado') : null">
                   <span class="stage-dot" style="background: var(--gt-blue);"></span>
                   <span class="stage-seg-label">Canalizados</span>
-                  <span class="badge badge-blue" id="mobileSegCountCanalizados">0</span>
+                  <span class="count" id="mobileSegCountCanalizados">0</span>
                 </button>
                 <button type="button" class="stage-seg-btn" data-stage="cerrado" role="tab" aria-selected="false"
                   onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.setMobileActiveStage('cerrado') : null">
                   <span class="stage-dot" style="background: var(--gt-green);"></span>
                   <span class="stage-seg-label">Cerrados</span>
-                  <span class="badge badge-green" id="mobileSegCountCerrados">0</span>
+                  <span class="count" id="mobileSegCountCerrados">0</span>
                 </button>
               </div>
 
@@ -186,7 +186,7 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                         <span class="stage-dot" style="background: var(--gt-red);"></span>
                         <span class="col-header-title">Pendientes / Alerta</span>
                       </div>
-                      <span class="kanban-count-pill" id="kanbanCountPendientes">0</span>
+                      <span class="count" id="kanbanCountPendientes">0</span>
                     </div>
                     <div class="kanban-col-body" id="kanbanColPendientes"></div>
                   </div>
@@ -198,7 +198,7 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                         <span class="stage-dot" style="background: var(--gt-yellow);"></span>
                         <span class="col-header-title">En Evaluación Social</span>
                       </div>
-                      <span class="kanban-count-pill" id="kanbanCountEvaluacion">0</span>
+                      <span class="count" id="kanbanCountEvaluacion">0</span>
                     </div>
                     <div class="kanban-col-body" id="kanbanColEvaluacion"></div>
                   </div>
@@ -210,7 +210,7 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                         <span class="stage-dot" style="background: var(--gt-blue);"></span>
                         <span class="col-header-title">Canalizados (DEMUNA / BTF)</span>
                       </div>
-                      <span class="kanban-count-pill" id="kanbanCountCanalizados">0</span>
+                      <span class="count" id="kanbanCountCanalizados">0</span>
                     </div>
                     <div class="kanban-col-body" id="kanbanColCanalizados"></div>
                   </div>
@@ -222,7 +222,7 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                         <span class="stage-dot" style="background: var(--gt-green);"></span>
                         <span class="col-header-title">Cerrados con Informe</span>
                       </div>
-                      <span class="kanban-count-pill" id="kanbanCountCerrados">0</span>
+                      <span class="count" id="kanbanCountCerrados">0</span>
                     </div>
                     <div class="kanban-col-body" id="kanbanColCerrados"></div>
                   </div>
@@ -241,7 +241,7 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                     <div>
                       <div class="cred-calc-title" style="display:flex; align-items:center; gap:8px;">
                         <span>Simulador de escenarios (no oficial)</span>
-                        <span class="badge badge-gray" style="font-size:10.5px; padding:2px 7px;">Herramienta de estimación</span>
+                        <span class="chip">Herramienta de estimación</span>
                       </div>
                       <div class="cred-calc-subtitle">Cálculo exploratorio de vulnerabilidad (0-100 pts). No reemplaza la evaluación socioeconómica oficial de 7 secciones.</div>
                     </div>
@@ -281,9 +281,9 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                       <div class="socio-dim-header">
                         <div>
                           <span class="socio-dim-title">1. Balance Ingreso / Egreso Económico</span>
-                          <span class="badge badge-gray" style="font-size:10px; margin-top:2px;">Máx. 28 pts</span>
+                          <span class="score-max">Máx. 28 pts</span>
                         </div>
-                        <div class="socio-score-badge" id="lblScoreIngreso">24 pts</div>
+                        <div class="socio-score-value" id="lblScoreIngreso">24 pts</div>
                       </div>
                       <div class="socio-input-row">
                         <input type="range" min="0" max="28" value="24" id="sliderIngreso"
@@ -315,9 +315,9 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                       <div class="socio-dim-header">
                         <div>
                           <span class="socio-dim-title">2. Condición y Tenencia de Vivienda</span>
-                          <span class="badge badge-gray" style="font-size:10px; margin-top:2px;">Máx. 20 pts</span>
+                          <span class="score-max">Máx. 20 pts</span>
                         </div>
-                        <div class="socio-score-badge" id="lblScoreVivienda">18 pts</div>
+                        <div class="socio-score-value" id="lblScoreVivienda">18 pts</div>
                       </div>
                       <div class="socio-input-row">
                         <input type="range" min="0" max="20" value="18" id="sliderVivienda"
@@ -349,9 +349,9 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                       <div class="socio-dim-header">
                         <div>
                           <span class="socio-dim-title">3. Factores de Soporte y Carga Familiar</span>
-                          <span class="badge badge-gray" style="font-size:10px; margin-top:2px;">Máx. 19 pts</span>
+                          <span class="score-max">Máx. 19 pts</span>
                         </div>
-                        <div class="socio-score-badge" id="lblScoreSoporte">16 pts</div>
+                        <div class="socio-score-value" id="lblScoreSoporte">16 pts</div>
                       </div>
                       <div class="socio-input-row">
                         <input type="range" min="0" max="19" value="16" id="sliderSoporte"
@@ -382,9 +382,9 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                       <div class="socio-dim-header">
                         <div>
                           <span class="socio-dim-title">4. Empleo y Ocupación del Cuidador</span>
-                          <span class="badge badge-gray" style="font-size:10px; margin-top:2px;">Máx. 16 pts</span>
+                          <span class="score-max">Máx. 16 pts</span>
                         </div>
-                        <div class="socio-score-badge" id="lblScoreEmpleo">14 pts</div>
+                        <div class="socio-score-value" id="lblScoreEmpleo">14 pts</div>
                       </div>
                       <div class="socio-input-row">
                         <input type="range" min="0" max="16" value="14" id="sliderEmpleo"
@@ -416,9 +416,9 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                       <div class="socio-dim-header">
                         <div>
                           <span class="socio-dim-title">5. Nivel de Instrucción del Hogar</span>
-                          <span class="badge badge-gray" style="font-size:10px; margin-top:2px;">Máx. 10 pts</span>
+                          <span class="score-max">Máx. 10 pts</span>
                         </div>
-                        <div class="socio-score-badge" id="lblScoreInstruccion">8 pts</div>
+                        <div class="socio-score-value" id="lblScoreInstruccion">8 pts</div>
                       </div>
                       <div class="socio-input-row">
                         <input type="range" min="0" max="10" value="8" id="sliderInstruccion"
@@ -449,9 +449,9 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                       <div class="socio-dim-header">
                         <div>
                           <span class="socio-dim-title">6. Salud y Discapacidad en Familia</span>
-                          <span class="badge badge-gray" style="font-size:10px; margin-top:2px;">Máx. 7 pts</span>
+                          <span class="score-max">Máx. 7 pts</span>
                         </div>
-                        <div class="socio-score-badge" id="lblScoreSaludFam">6 pts</div>
+                        <div class="socio-score-value" id="lblScoreSaludFam">6 pts</div>
                       </div>
                       <div class="socio-input-row">
                         <input type="range" min="0" max="7" value="6" id="sliderSaludFam"
@@ -500,8 +500,10 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                         </div>
                         <div style="display: flex; align-items: center; gap: 10px; margin-top: 4px; flex-wrap: wrap;">
                           <span class="socio-total-score" id="socioTotalScoreVal">86 / 100</span>
-                          <span class="badge badge-red" id="socioCategoryBadge">Extrema Pobreza / Vulnerabilidad
-                            Crítica</span>
+                          <span class="status-mark status-mark--idle" id="socioCategoryBadge">
+                            <span class="status-mark-dot" aria-hidden="true"></span>
+                            <span id="socioCategoryLabel">Sin evaluar</span>
+                          </span>
                         </div>
                       </div>
                       <div style="text-align: right;">
