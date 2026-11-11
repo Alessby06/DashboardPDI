@@ -389,9 +389,9 @@ export const VoluntariadosView = {
       barra.setAttribute("aria-label", `Composición del voluntariado por servicio: ${detalle}.`);
     }
 
-    setTexto("volRepartoComas", stats.comas);
-    setTexto("volRepartoCarabayllo", stats.carabayllo);
-    setTexto("volRepartoCanastas", stats.canastasTotal);
+    escribir("volRepartoComas", stats.comas, (n) => String(Math.round(n)));
+    escribir("volRepartoCarabayllo", stats.carabayllo, (n) => String(Math.round(n)));
+    escribir("volRepartoCanastas", stats.canastasTotal, (n) => String(Math.round(n)));
 
     const badgeNav = document.getElementById("badgeTotalVoluntarios");
     if (badgeNav) badgeNav.textContent = stats.total;
