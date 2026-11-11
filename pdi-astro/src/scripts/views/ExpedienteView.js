@@ -727,29 +727,27 @@ export const ExpedienteView = {
           <div class="retiro-person-photo">
             ${p.fotoUrl ? `<img src="${escapar(p.fotoUrl)}" alt="${escapar(p.nombre)}">` : getAdultAvatarSvg(p.parentesco)}
           </div>
-          <div style="flex:1; min-width:0;">
-            <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap:8px;">
-              <div class="form-group" style="grid-column: span 2; margin:0;">
-                <label>Nombres y Apellidos</label>
-                <input type="text" class="form-control" data-retiro-campo="nombre" data-tipo="nombre" maxlength="80"
-                  value="${escapar(p.nombre || "")}">
-              </div>
-              <div class="form-group" style="margin:0;">
-                <label>DNI (8 dígitos)</label>
-                <input type="text" class="form-control" data-retiro-campo="dni" data-tipo="dni" maxlength="8" inputmode="numeric"
-                  value="${escapar(p.dni || "")}">
-              </div>
-              <div class="form-group" style="margin:0;">
-                <label>Parentesco</label>
-                <select class="form-control" data-retiro-campo="parentesco">
-                  ${opcionesParentescoHtml(p.parentesco)}
-                </select>
-              </div>
-              <div class="form-group" style="grid-column: span 2; margin:0;">
-                <label>Teléfono</label>
-                <input type="text" class="form-control" data-retiro-campo="telefono" data-tipo="telefono" maxlength="9" inputmode="numeric"
-                  value="${escapar(p.telefono || "")}">
-              </div>
+          <div class="retiro-person-fields">
+            <div class="form-group retiro-person-field retiro-person-field--ancho">
+              <label>Nombres y Apellidos</label>
+              <input type="text" class="form-control" data-retiro-campo="nombre" data-tipo="nombre" maxlength="80"
+                value="${escapar(p.nombre || "")}">
+            </div>
+            <div class="form-group retiro-person-field">
+              <label>DNI (8 dígitos)</label>
+              <input type="text" class="form-control" data-retiro-campo="dni" data-tipo="dni" maxlength="8" inputmode="numeric"
+                value="${escapar(p.dni || "")}">
+            </div>
+            <div class="form-group retiro-person-field">
+              <label>Parentesco</label>
+              <select class="form-control" data-retiro-campo="parentesco">
+                ${opcionesParentescoHtml(p.parentesco)}
+              </select>
+            </div>
+            <div class="form-group retiro-person-field retiro-person-field--ancho">
+              <label>Teléfono</label>
+              <input type="text" class="form-control" data-retiro-campo="telefono" data-tipo="telefono" maxlength="9" inputmode="numeric"
+                value="${escapar(p.telefono || "")}">
             </div>
           </div>
         </div>
@@ -760,24 +758,15 @@ export const ExpedienteView = {
       return;
     }
 
-    contenedor.innerHTML = lista.map((p, idx) => `
+    contenedor.innerHTML = lista.map((p) => `
       <div class="retiro-person-card">
         <div class="retiro-person-photo">
           ${p.fotoUrl ? `<img src="${escapar(p.fotoUrl)}" alt="${escapar(p.nombre)}">` : getAdultAvatarSvg(p.parentesco)}
         </div>
-        <div style="flex:1; min-width:0;">
-          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:6px;">
-            <strong style="font-size:13px; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;">${idx + 1}. ${escapar(p.nombre)}</strong>
-          </div>
-          <div style="display:flex; align-items:center; gap:6px; margin:3px 0;">
-            <span class="badge badge-blue" style="font-size:10.5px; padding:2px 6px;">${escapar(p.parentesco)}</span>
-            <span style="font-size:11.5px; color:var(--text-muted); font-family:var(--mono-font);">DNI ${escapar(p.dni)}</span>
-          </div>
-          <div style="font-size:11.5px; color:var(--text-dim); display:flex; align-items:center; gap:4px;">
-            ${iconHtml("comunicacion.llamar", { size: 12 })}
-            <span>Tel: ${escapar(p.telefono || "-")}</span>
-          </div>
-        </div>
+        <strong class="retiro-person-name">${escapar(p.nombre)}</strong>
+        <span class="retiro-person-dni">DNI ${escapar(p.dni)}</span>
+        <span class="badge badge-blue">${escapar(p.parentesco)}</span>
+        <span class="retiro-person-phone">${iconHtml("comunicacion.llamar", { size: 12 })}Tel: ${escapar(p.telefono || "-")}</span>
       </div>
     `).join("");
   },

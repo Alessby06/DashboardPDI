@@ -1685,13 +1685,6 @@ input[type="range"] {
 .ley-cert-text strong {
         color: var(--text-brand);
       }
-@media (hover: hover) and (pointer: fine) {
-  .retiro-person-card:hover {
-    transform: translateY(-2px);
-    border-color: var(--gt-green-border);
-    box-shadow: var(--shadow-ambient);
-  }
-}
 .retiro-person-photo img, .retiro-person-photo svg {
         width: 100%;
         height: 100%;
@@ -2038,34 +2031,6 @@ input[type="range"] {
         flex: 1;
         min-width: 0;
       }
-.retiro-person-card {
-        background: var(--surface-1) !important;
-        border: 1px solid var(--border-subtle) !important;
-        border-left: 1px solid var(--gt-green);
-        border-radius: 10px;
-        padding: 14px;
-        display: flex;
-        gap: 14px;
-        align-items: center;
-        transition: transform var(--dur-fast) var(--ease-spring), border-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth);
-        /* Sin will-change: aqui solo hay transform en :hover. El aviso permanente
-           le costaba una capa propia para siempre, y como esto vive dentro de
-           la columna de contenido, al plegar el menu habia que rasterizar
-           todas esas capas en cada fotograma. */
-      }
-.retiro-person-photo {
-        width: 64px;
-        height: 64px;
-        min-width: 64px;
-        border-radius: 8px;
-        border: 1.5px solid var(--border-subtle);
-        overflow: hidden;
-        background: var(--surface-2);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: var(--shadow-sm);
-      }
 
 @media (max-width: 768px) {
 .modal-body-split {
@@ -2125,32 +2090,11 @@ input[type="range"] {
           border-radius: 8px !important;
           flex-shrink: 0 !important;
         }
-.retiro-padron-grid {
-          grid-template-columns: 1fr !important;
-          gap: 10px !important;
-        }
-.retiro-person-card {
-          padding: 10px 12px !important;
-          gap: 10px !important;
-        }
-.retiro-person-photo {
-          width: 50px !important;
-          height: 50px !important;
-          min-width: 50px !important;
-        }
 .modal-footer-pinned .btn-action {
           padding: 8px 12px !important;
           font-size: 12.5px !important;
         }
 }
-.retiro-person-card {
-    background: var(--surface-1) !important;
-    border: 1px solid var(--border-subtle) !important;
-    border-left: 1px solid var(--gt-green) !important;
-  }
-.retiro-person-photo {
-    background: var(--surface-2) !important;
-  }
 
 @media (max-width: 768px) {
 .expediente-title-wrap {

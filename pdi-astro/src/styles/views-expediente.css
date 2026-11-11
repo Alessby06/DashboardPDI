@@ -660,24 +660,160 @@
       align-self: flex-start;
     }
 
-    /* Padrón de Personas Autorizadas con Foto (Anexo 2) */
+    /* Padrón de Personas Autorizadas con Foto (Anexo 2)
+       Una hoja, no una rejilla de tarjetas: la superficie lleva el marco y
+       cada persona es una fila separada por una regla. Las medidas salen de
+       la escala del sistema (spacing 4/8/12/16/20/24, radios 6/10/16). */
     .retiro-padron-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 14px;
-      margin-top: 10px;
+      grid-template-columns: 1fr;
+      gap: 0;
+      margin-top: 0;
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 0 20px;
     }
 
-    /* En edicion la tarjeta deja de ser una ficha compacta: los cuatro campos
-       necesitan el ancho completo de la fila, no los 320px de la rejilla. */
-    .retiro-person-card--editing {
-      grid-column: 1 / -1;
-      align-items: flex-start;
+    .retiro-person-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 0;
+      background: transparent;
+      border: 0;
+      border-bottom: 1px solid var(--border-subtle);
+      border-radius: 0;
+      box-shadow: none;
+      transition: background var(--dur-fast) var(--ease-smooth);
+    }
+
+    .retiro-person-card:last-child {
+      border-bottom: 0;
     }
 
     @media (hover: hover) and (pointer: fine) {
-      .retiro-person-card--editing:hover {
-        transform: none;
+      .retiro-person-card:hover {
+        background: var(--surface-hover);
+      }
+    }
+
+    .retiro-person-photo {
+      width: 48px;
+      height: 48px;
+      min-width: 48px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+      overflow: hidden;
+      background: var(--surface-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .retiro-person-name {
+      flex: 1 1 auto;
+      min-width: 0;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .retiro-person-dni {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      font-family: var(--mono-font);
+      white-space: nowrap;
+    }
+
+    .retiro-person-phone {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: auto;
+      font-size: 12.5px;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+
+    /* En edición la fila crece: los cuatro campos de la persona autorizada
+       ocupan el ancho completo de la hoja, no la medida de una fila. */
+    .retiro-person-card--editing {
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr);
+      align-items: start;
+      gap: 16px;
+      margin: 12px 0;
+      padding: 16px;
+      background: var(--surface-2);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+    }
+
+    .retiro-person-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .retiro-person-fields .retiro-person-field {
+      margin: 0;
+    }
+
+    .retiro-person-fields .retiro-person-field--ancho {
+      grid-column: span 2;
+    }
+
+    @media (max-width: 768px) {
+      .retiro-padron-grid {
+        padding: 0 12px;
+      }
+
+      .retiro-person-card {
+        flex-wrap: wrap;
+        row-gap: 2px;
+        padding: 12px 0;
+      }
+
+      .retiro-person-photo {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+      }
+
+      .retiro-person-name {
+        order: 1;
+      }
+
+      .retiro-person-card .badge {
+        order: 2;
+      }
+
+      .retiro-person-dni {
+        order: 3;
+        flex: 1 1 100%;
+      }
+
+      .retiro-person-phone {
+        order: 4;
+        flex: 1 1 100%;
+        margin-left: 0;
+      }
+
+      .retiro-person-fields {
+        grid-template-columns: 1fr;
+      }
+
+      .retiro-person-fields .retiro-person-field--ancho {
+        grid-column: span 1;
+      }
+
+      .retiro-person-card--editing {
+        grid-template-columns: 1fr;
+        gap: 12px;
       }
     }
 
