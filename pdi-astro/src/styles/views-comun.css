@@ -2283,36 +2283,8 @@ input[type="range"] {
   display: block;
 }
 
-/* Sin mapa el hueco no es un vacio: es una accion pendiente. */
-.croquis-map-activar {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 16px;
-  text-align: center;
-  background: var(--surface-1);
-  z-index: 2;
-}
-
-.croquis-map-activar[hidden] {
-  display: none;
-}
-
-.croquis-map-activar svg {
-  color: var(--text-dim);
-}
-
-.croquis-map-activar-nota {
-  max-width: 28ch;
-  font-size: 11px;
-  line-height: 1.35;
-  color: var(--text-dim);
-}
-
+/* El estado sin mapa vive en GlobalModals (scoped): ahi tiene sus medidas y su
+   boton. Aqui solo queda la capa de carga, que necesita cubrir el iframe. */
 .croquis-map-loading {
   position: absolute;
   inset: 0;
