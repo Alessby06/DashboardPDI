@@ -269,6 +269,8 @@ test.describe('navegación interna — sin estados vacíos', () => {
   });
 
   test('las métricas de las demás vistas también aterrizan', async ({ page }) => {
+    const errores = [];
+    page.on('pageerror', (error) => errores.push(error.message));
     await entrar(page, cuentas().coord);
     await esperarDatos(page);
 
@@ -285,6 +287,8 @@ test.describe('navegación interna — sin estados vacíos', () => {
       await page.waitForTimeout(700);
       await expect(page.locator(selector)).toHaveText(patron, { timeout: 20_000 });
     }
+
+    expect(errores).toEqual([]);
   });
 
   test('el registro que cambia se resalta en su fila', async ({ page }) => {
