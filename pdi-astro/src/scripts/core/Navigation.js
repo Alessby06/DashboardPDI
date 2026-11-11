@@ -301,10 +301,18 @@ export const Navigation = {
 
 
   bindModalTabs() {
-    const botones = document.querySelectorAll(".modal-tab-btn");
+    // El expediente tiene su propio manejador (_enlazarSecciones): mueve el
+    // desplazamiento, restaura la seccion desde la URL y navega con el teclado.
+    // Aqui solo se enganchan las pestañas de los modales; si se incluyeran las
+    // del expediente, el ultimo en arrancar decidiria el comportamiento.
+    const fueraDelExpediente = (el) => !el.closest("#view-expediente");
+
+    const botones = Array.from(document.querySelectorAll(".modal-tab-btn"))
+      .filter(fueraDelExpediente);
     if (!botones.length) return;
 
-    const paneles = document.querySelectorAll(".tab-view-content, .modal-tab-pane");
+    const paneles = Array.from(document.querySelectorAll(".tab-view-content, .modal-tab-pane"))
+      .filter(fueraDelExpediente);
 
     const activar = (destino) => {
       botones.forEach((b) => b.classList.remove("active"));

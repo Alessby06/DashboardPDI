@@ -199,36 +199,42 @@ import Icon from '../components/Icon.astro';
 
 <div class="modal-body-split expediente-page-body">
     <!-- Sidebar de Navegación Lateral con Iconos -->
-    <aside class="expediente-sidebar">
-      <div class="expediente-sidebar-label">Secciones del Expediente</div>
+    <aside class="expediente-sidebar" role="tablist" aria-label="Secciones del Expediente">
+      <div class="expediente-sidebar-label" role="presentation">Secciones del Expediente</div>
 
-      <button type="button" class="modal-tab-btn expediente-nav-item active" data-tab="tab-identidad">
-        <Icon name="archivo.documento" size={2} />
+      <button type="button" class="modal-tab-btn expediente-nav-item active" data-tab="tab-identidad"
+        id="tabBtn-identidad" role="tab" aria-controls="tab-identidad" aria-selected="true" tabindex="0">
+        <Icon name="archivo.documento" size={null} />
         <span>1. Identidad</span>
       </button>
 
-      <button type="button" class="modal-tab-btn expediente-nav-item" data-tab="tab-salud">
-        <Icon name="salud.corazon" size={2} />
+      <button type="button" class="modal-tab-btn expediente-nav-item" data-tab="tab-salud"
+        id="tabBtn-salud" role="tab" aria-controls="tab-salud" aria-selected="false" tabindex="-1">
+        <Icon name="salud.corazon" size={null} />
         <span>2. Salud CRED</span>
       </button>
 
-      <button type="button" class="modal-tab-btn expediente-nav-item" data-tab="tab-escolar">
-        <Icon name="educacion.grado" size={2} />
+      <button type="button" class="modal-tab-btn expediente-nav-item" data-tab="tab-escolar"
+        id="tabBtn-escolar" role="tab" aria-controls="tab-escolar" aria-selected="false" tabindex="-1">
+        <Icon name="educacion.grado" size={null} />
         <span>3. Escolaridad</span>
       </button>
 
-      <button type="button" class="modal-tab-btn expediente-nav-item" data-tab="tab-apoderado">
-        <Icon name="persona.grupo" size={2} />
+      <button type="button" class="modal-tab-btn expediente-nav-item" data-tab="tab-apoderado"
+        id="tabBtn-apoderado" role="tab" aria-controls="tab-apoderado" aria-selected="false" tabindex="-1">
+        <Icon name="persona.grupo" size={null} />
         <span>4. Familia y Retiro</span>
       </button>
 
-      <button type="button" class="modal-tab-btn expediente-nav-item" data-tab="tab-consentimiento">
-        <Icon name="archivo.documento" size={2} />
+      <button type="button" class="modal-tab-btn expediente-nav-item" data-tab="tab-consentimiento"
+        id="tabBtn-consentimiento" role="tab" aria-controls="tab-consentimiento" aria-selected="false" tabindex="-1">
+        <Icon name="archivo.documento" size={null} />
         <span>5. Ley N.° 29733</span>
       </button>
 
-      <button type="button" class="modal-tab-btn expediente-nav-item" data-tab="tab-asp">
-        <Icon name="salud.escudo" size={2} />
+      <button type="button" class="modal-tab-btn expediente-nav-item" data-tab="tab-asp"
+        id="tabBtn-asp" role="tab" aria-controls="tab-asp" aria-selected="false" tabindex="-1">
+        <Icon name="salud.escudo" size={null} />
         <span>6. Social ASP</span>
       </button>
     </aside>
@@ -237,7 +243,7 @@ import Icon from '../components/Icon.astro';
     <div class="expediente-content-area">
 
       <!-- SECCIÓN 1: IDENTIDAD CON FOTO DEL USUARIO / ADOLESCENTE -->
-      <div class="modal-tab-pane" id="tab-identidad">
+      <div class="modal-tab-pane" id="tab-identidad" role="tabpanel" aria-labelledby="tabBtn-identidad">
         <div class="child-identity-layout">
 
           <!-- Carnet Fotográfico del Usuario -->
@@ -438,7 +444,7 @@ import Icon from '../components/Icon.astro';
       </div>
 
       <!-- SECCIÓN 2: SALUD CRED -->
-      <div class="modal-tab-pane" id="tab-salud" style="display: none;">
+      <div class="modal-tab-pane" id="tab-salud" role="tabpanel" aria-labelledby="tabBtn-salud" style="display: none;">
         <div class="form-grid" style="grid-template-columns: repeat(3, 1fr); gap:12px;">
           <div class="form-group">
             <label>Tipo de Seguro:</label>
@@ -504,7 +510,7 @@ import Icon from '../components/Icon.astro';
       </div>
 
       <!-- SECCIÓN 3: ESCOLARIDAD -->
-      <div class="modal-tab-pane" id="tab-escolar" style="display: none;">
+      <div class="modal-tab-pane" id="tab-escolar" role="tabpanel" aria-labelledby="tabBtn-escolar" style="display: none;">
         <div class="form-grid" style="grid-template-columns: repeat(2, 1fr); gap:12px;">
           <div class="form-group">
             <label>Nivel Educativo:</label>
@@ -541,7 +547,7 @@ import Icon from '../components/Icon.astro';
       </div>
 
       <!-- SECCIÓN 4: ENTORNO FAMILIAR Y RETIRO SEGURO CON FOTOS (ANEXO 2) -->
-      <div class="modal-tab-pane" id="tab-apoderado" style="display: none;">
+      <div class="modal-tab-pane" id="tab-apoderado" role="tabpanel" aria-labelledby="tabBtn-apoderado" style="display: none;">
         <!-- Datos del Apoderado Principal -->
         <div
           style="background:var(--surface-1); border:1px solid var(--border-subtle); border-radius:10px; padding:16px; margin-bottom:18px;">
@@ -609,7 +615,7 @@ import Icon from '../components/Icon.astro';
       </div>
 
       <!-- SECCIÓN 5: CONSENTIMIENTO LEY 29733 -->
-      <div class="modal-tab-pane" id="tab-consentimiento" style="display: none;">
+      <div class="modal-tab-pane" id="tab-consentimiento" role="tabpanel" aria-labelledby="tabBtn-consentimiento" style="display: none;">
         <div style="font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px;">
           Conforme a la <strong>Ley N.° 29733 (Ley de Protección de Datos Personales)</strong> y su Reglamento D.S.
           N.° 016-2024-JUS, el apoderado otorgó las autorizaciones expresas para la atención integral y
@@ -619,7 +625,7 @@ import Icon from '../components/Icon.astro';
       </div>
 
       <!-- SECCIÓN 6: SOCIAL PASTORAL ASP -->
-      <div class="modal-tab-pane" id="tab-asp" style="display: none;">
+      <div class="modal-tab-pane" id="tab-asp" role="tabpanel" aria-labelledby="tabBtn-asp" style="display: none;">
         <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:14px;">
           <div class="form-group">
             <label>Puntaje de Vulnerabilidad Socioeconómica (0-100):</label>

@@ -202,20 +202,122 @@ export const ExpedienteView = {
    * pagina entera, asi que el ambito es #view-expediente. Se acota a proposito:
    * sin el, un .modal-tab-btn de otro sitio (el modal deNuevoUsuario tambien
    * tiene) cambiaria de estilo al hacer clic.
+   *
+   * Un clic hace cuatro cosas: devuelve el desplazamiento al principio de la
+   * seccion, cambia el panel con un fundido, deja la seccion en la URL y mueve
+   * el foco con la misma logica que una lista de pestanas. Antes solo encendia
+   * y apagaba paneles: al cambiar desde el final de una seccion larga se
+   * aterrizaba a mitad de la siguiente.
    */
   _enlazarSecciones() {
     const raiz = document.getElementById("view-expediente");
     if (!raiz) return;
 
-    raiz.querySelectorAll(".modal-tab-btn").forEach(boton => {
-      boton.onclick = () => {
-        raiz.querySelectorAll(".modal-tab-btn").forEach(b => b.classList.remove("active"));
-        raiz.querySelectorAll(".modal-tab-pane").forEach(p => { p.style.display = "none"; });
-        boton.classList.add("active");
-        const destino = raiz.querySelector("#" + boton.dataset.tab);
-        if (destino) destino.style.display = "block";
+    const botones = Array.from(raiz.querySelectorAll(".modal-tab-btn"));
+    if (!botones.length) return;
+    const paneles = Array.from(raiz.querySelectorAll(".modal-tab-pane"));
+
+    // En escritorio desplaza el panel; en movil, la pagina entera. Lenis puede
+    // llevar cualquiera de los dos, asi que se le pide a el cuando existe.
+    const area = raiz.querySelector(".expediente-content-area");
+    const viewport = document.querySelector(".content-viewport");
+
+    const reiniciarDesplazamiento = () => {
+      const pane = area ? window.__pdiPanes?.get(area) : null;
+      pane?.lenis?.scrollTo(0, { immediate: true, force: true });
+      if (area) area.scrollTop = 0;
+      if (viewport) viewport.scrollTop = 0;
+      window.__pdiScroll?.main?.scrollTo(0, { immediate: true, force: true });
+    };
+
+    // data-tab="tab-salud" -> "salud", el nombre que viaja en la URL.
+    const slugDe = (boton) => String(boton?.dataset?.tab || "").replace(/^tab-/, "");
+
+    const pintar = (boton) => {
+      if (!boton) return;
+      reiniciarDesplazamiento();
+      botones.forEach((b) => {
+        const activo = b === boton;
+        b.classList.toggle("active", activo);
+        b.setAttribute("aria-selected", activo ? "true" : "false");
+        // Roving tabindex: el grupo es una sola parada de tabulador.
+        b.tabIndex = activo ? 0 : -1;
+      });
+      paneles.forEach((p) => {
+        p.style.display = p.id === boton.dataset.tab ? "block" : "none";
+      });
+    };
+
+    const escribirUrl = (boton) => {
+      const slug = slugDe(boton);
+      if (!slug) return;
+      try {
+        const url = new URL(window.location.href);
+        // La seccion por defecto no ensucia la direccion.
+        if (slug === "identidad") url.searchParams.delete("seccion");
+        else url.searchParams.set("seccion", slug);
+        window.history.replaceState(window.history.state, "", url.toString());
+      } catch (e) { /* sin History la seccion sigue funcionando */ }
+    };
+
+    /**
+     * La View Transition nativa es la misma que usa Social: un fundido. Si el
+     * navegador no la tiene, la pestaña esta oculta o el cambio falla, se
+     * aplica igual sin animar. Nunca se hacen las dos cosas a la vez
+     * (DESIGN.md, "Subpaneles").
+     */
+    const activar = (boton, { url = true, foco = false } = {}) => {
+      if (!boton) return;
+      if (foco) {
+        // El foco se mueve con el teclado. `preventScroll` evita que la pagina
+        // salte en vertical; el `inline: nearest` mantiene visible el chip en la
+        // tira horizontal del telefono.
+        boton.focus({ preventScroll: true });
+        boton.scrollIntoView({ block: "nearest", inline: "nearest" });
+      }
+      const aplicar = () => pintar(boton);
+      if (typeof document.startViewTransition === "function"
+        && document.visibilityState === "visible") {
+        try {
+          document.startViewTransition(aplicar)?.finished?.catch(() => {});
+        } catch (e) {
+          aplicar();
+        }
+      } else {
+        aplicar();
+      }
+      if (url) escribirUrl(boton);
+    };
+
+    botones.forEach((boton) => {
+      // onclick y no addEventListener: init() puede repetirse y asi no se
+      // acumulan manejadores.
+      boton.onclick = () => activar(boton);
+      boton.onkeydown = (e) => {
+        const i = botones.indexOf(boton);
+        let destino = null;
+        if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+          destino = botones[(i + 1) % botones.length];
+        } else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+          destino = botones[(i - 1 + botones.length) % botones.length];
+        } else if (e.key === "Home") {
+          destino = botones[0];
+        } else if (e.key === "End") {
+          destino = botones[botones.length - 1];
+        }
+        if (!destino) return;
+        e.preventDefault();
+        activar(destino, { foco: true });
       };
     });
+
+    // Entrada directa con ?seccion=salud (o recarga): se restaura sin animar y
+    // sin reescribir la direccion.
+    const pedida = new URLSearchParams(window.location.search).get("seccion");
+    const inicial = botones.find((b) => slugDe(b) === pedida || b.dataset.tab === pedida)
+      || botones.find((b) => b.classList.contains("active"))
+      || botones[0];
+    pintar(inicial);
   },
 
   /**
