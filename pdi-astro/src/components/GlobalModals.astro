@@ -145,6 +145,7 @@ import Icon from './Icon.astro';
               <div class="croquis-panel-container">
                 <div class="croquis-box-header">
                   <div class="croquis-box-title">
+                    <Icon name="lugar.mapa" size={15} />
                     <span>Croquis de Campo y Georreferenciación</span>
                   </div>
                   <div class="croquis-box-actions">
@@ -164,6 +165,7 @@ import Icon from './Icon.astro';
                       data-src="https://maps.google.com/maps?q=Comas,Lima,Peru&t=&z=15&ie=UTF8&iwloc=&output=embed"
                       loading="lazy" allowfullscreen></iframe>
                     <div class="croquis-map-activar" id="regMapaActivar">
+                      <Icon name="lugar.mapa" size={22} />
                       <button type="button" class="btn-action" id="btnCargarCroquis">
                         <Icon name="lugar.mapa" size={14} />
                         <span>Cargar mapa en pantalla</span>
@@ -177,7 +179,7 @@ import Icon from './Icon.astro';
 
                   <div class="croquis-fachada-card">
                     <div class="croquis-fachada-header">
-                      <span>Foto de la Vivienda / Fachada</span>
+                      <span>Foto de Fachada</span>
                     </div>
                     <div class="croquis-fachada-preview-box" id="regFachadaPreview"
                       data-caja-archivo="regFotoFachadaInput" role="button" tabindex="0"
@@ -2044,19 +2046,13 @@ import Icon from './Icon.astro';
     margin-bottom: 10px;
   }
 
-  /* Croquis Container */
+  /* Croquis: una sola superficie, no una caja dentro de otra. */
   .croquis-panel-container {
     background: var(--surface-2);
     border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-sm, 6px);
-    padding: 10px;
-    margin-top: 10px;
-  }
-
-  .croquis-fachada-hint {
-    font-size: 11px;
-    color: var(--text-dim);
-    margin-top: 4px;
+    border-radius: var(--radius-lg);
+    padding: 16px 18px 18px;
+    margin-top: 12px;
   }
 
   /* Fieldsets y bloques duales equilibrados */

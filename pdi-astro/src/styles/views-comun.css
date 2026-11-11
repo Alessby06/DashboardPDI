@@ -2195,139 +2195,6 @@ input[type="range"] {
     background: var(--surface-hover) !important;
   }
 }
-.croquis-box-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 8px;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-.croquis-box-title {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--text-brand);
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-  }
-.btn-gps-capture {
-    padding: 4px 10px !important;
-    font-size: 11.5px !important;
-    gap: 5px !important;
-    color: var(--text-brand) !important;
-    border-color: var(--gt-green-border) !important;
-    background: rgba(var(--brand-rgb), 0.08) !important;
-  }
-@media (hover: hover) and (pointer: fine) {
-  .btn-gps-capture:hover {
-    background: rgba(var(--brand-rgb), 0.16) !important;
-  }
-}
-.croquis-embed-grid {
-    display: grid;
-    grid-template-columns: 1fr 140px;
-    gap: 12px;
-    background: var(--surface-2);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    padding: 10px;
-  }
-.croquis-map-wrap {
-    position: relative;
-    width: 100%;
-    height: 180px;
-    border-radius: var(--radius-sm);
-    overflow: hidden;
-    border: 1px solid var(--border-subtle);
-    background: var(--surface-1);
-  }
-.croquis-map-iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-    display: block;
-  }
-.croquis-map-loading {
-    position: absolute;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.65);
-    color: var(--on-scrim);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 700;
-    backdrop-filter: blur(2px);
-    z-index: 10;
-  }
-.croquis-fachada-card {
-    display: flex;
-    flex-direction: column;
-    width: 140px;
-  }
-.croquis-fachada-header {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    margin-bottom: 6px;
-    white-space: nowrap;
-  }
-.croquis-fachada-preview-box {
-    width: 100%;
-    height: 146px;
-    border-radius: var(--radius-sm);
-    border: 1.5px dashed var(--border-medium);
-    background: var(--surface-1);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    overflow: hidden;
-    position: relative;
-    transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);
-  }
-@media (hover: hover) and (pointer: fine) {
-  .croquis-fachada-preview-box:hover {
-    border-color: var(--gt-green);
-    background: var(--surface-hover);
-  }
-}
-.croquis-fachada-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    padding: 8px;
-    text-align: center;
-    color: var(--text-dim);
-  }
-.croquis-fachada-placeholder span {
-    font-size: 10px;
-    font-weight: 600;
-    line-height: 1.25;
-  }
-
-@media (max-width: 768px) {
-.croquis-embed-grid {
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
-.croquis-map-wrap {
-      height: 160px;
-    }
-.croquis-fachada-card {
-      width: 100%;
-    }
-.croquis-fachada-preview-box {
-      height: 110px;
-    }
-}
 .photo-uploader-box {
     background: var(--surface-1) !important;
     border-color: var(--border-subtle) !important;
@@ -2339,145 +2206,213 @@ input[type="range"] {
     border-color: var(--brand-primary) !important;
   }
 }
-.croquis-box-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 10px;
-  }
-.croquis-box-title {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--text-brand);
-  }
-.btn-gps-capture {
-    font-size: 11px !important;
-    padding: 4px 10px !important;
-    height: 28px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 5px !important;
-    background: var(--gt-green-bg) !important;
-    color: var(--text-brand) !important;
-    border: 1px solid var(--gt-green-border) !important;
-    border-radius: var(--radius-sm) !important;
-    font-weight: 700 !important;
-  }
-@media (hover: hover) and (pointer: fine) {
-  .btn-gps-capture:hover {
-    background: var(--gt-green) !important;
-    color: var(--on-brand) !important;
-  }
-}
-/* El croquis es una sola superficie: el mapa y la fotoconviven en la misma
-   cara, sin cajas anidadas. El marco lo pone el mapa, no la rejilla. */
-.croquis-embed-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0;
-    align-items: stretch;
-    background: var(--surface-1);
-    border: 0;
-    border-radius: var(--radius-md);
-    padding: 16px;
-    width: 100%;
-  }
 
-@media (max-width: 640px) {
-.croquis-embed-grid {
-      grid-template-columns: 1fr;
-    }
+/* ---------------------------------------------------------------------------
+   CROQUIS DE CAMPO Y GEORREFERENCIACION
+   Una sola superficie: la cabecera la separa una regla de 1 px y el mapa y la
+   fachada conviven en la misma cara, divididos por una regla vertical.
+   --------------------------------------------------------------------------- */
+.croquis-box-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
 }
+
+.croquis-box-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.croquis-box-title svg {
+  color: var(--text-brand);
+  flex-shrink: 0;
+}
+
+.croquis-box-actions .btn-gps-capture {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-brand);
+  background: transparent;
+  border: 1px solid var(--gt-green-border);
+  border-radius: var(--radius-sm);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .croquis-box-actions .btn-gps-capture:hover {
+    background: rgba(var(--brand-rgb), 0.08);
+  }
+}
+
+.croquis-embed-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 170px;
+  gap: 16px;
+  align-items: stretch;
+  padding-top: 14px;
+}
+
 .croquis-map-wrap {
-    position: relative;
-    width: 100%;
-    height: 190px;
-    min-height: 190px;
-    border-radius: var(--radius-sm);
-    overflow: hidden;
-    border: 0;
-    background: var(--surface-2);
-  }
+  position: relative;
+  width: 100%;
+  height: 210px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-1);
+}
+
 .croquis-map-iframe {
-    width: 100%;
-    height: 100%;
-    border: 0;
-    display: block;
-  }
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+/* Sin mapa el hueco no es un vacio: es una accion pendiente. */
+.croquis-map-activar {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 16px;
+  text-align: center;
+  background: var(--surface-1);
+  z-index: 2;
+}
+
+.croquis-map-activar[hidden] {
+  display: none;
+}
+
+.croquis-map-activar svg {
+  color: var(--text-dim);
+}
+
+.croquis-map-activar-nota {
+  max-width: 28ch;
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--text-dim);
+}
+
 .croquis-map-loading {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(15, 23, 42, 0.6);
-    color: var(--on-scrim);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 600;
-    backdrop-filter: blur(2px);
-  }
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.6);
+  color: var(--on-scrim);
+  font-size: 12px;
+  font-weight: 600;
+  backdrop-filter: blur(2px);
+  z-index: 3;
+}
+
 .croquis-fachada-card {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    width: 100%;
-    height: 190px;
-    min-height: 190px;
-    background: transparent;
-    border: 0;
-    border-left: 0 solid var(--border-subtle);
-    border-radius: var(--radius-sm);
-    padding: 0 0 0 14px;
-    box-sizing: border-box;
-  }
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding-left: 16px;
+  border-left: 1px solid var(--border-subtle);
+}
+
 .croquis-fachada-header {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--text-main);
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-  }
+  margin-bottom: 8px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
 .croquis-fachada-preview-box {
-    flex: 1;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 0;
-    border: 0;
-    background: transparent;
-    margin: 0;
-    cursor: pointer;
-    transition: border-color var(--dur-norm), background var(--dur-norm);
-    overflow: hidden;
-    box-sizing: border-box;
-  }
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px dashed var(--border-medium);
+  border-radius: var(--radius-sm);
+  background: var(--surface-1);
+  transition: border-color var(--dur-fast) var(--ease-smooth), background-color var(--dur-fast) var(--ease-smooth);
+}
+
 @media (hover: hover) and (pointer: fine) {
   .croquis-fachada-preview-box:hover {
-    border-color: var(--brand-primary);
+    border-color: var(--gt-green);
     background: var(--surface-hover);
   }
 }
+
 .croquis-fachada-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    gap: 4px;
-    text-align: center;
-    padding: 6px;
-    color: var(--text-muted);
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  height: 100%;
+  padding: 6px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
 .croquis-fachada-placeholder span {
-    font-size: 10.5px;
-    font-weight: 600;
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+@media (max-width: 640px) {
+  .croquis-embed-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
   }
 
+  .croquis-map-wrap {
+    height: 170px;
+  }
 
+  .croquis-box-actions {
+    width: 100%;
+  }
+
+  .croquis-box-actions .btn-gps-capture {
+    width: 100%;
+    height: 44px;
+    justify-content: center;
+  }
+
+  .croquis-fachada-card {
+    padding-left: 0;
+    border-left: 0;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .croquis-fachada-preview-box {
+    min-height: 120px;
+    flex: none;
+  }
+}
