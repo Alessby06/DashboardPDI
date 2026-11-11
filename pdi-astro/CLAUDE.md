@@ -10,6 +10,17 @@ Manage background server: `astro dev stop`, `astro dev status`, `astro dev logs`
 
 Run `astro dev status` before starting: a second instance will fight over the port.
 
+## Stale CSS in dev
+
+If a stylesheet edit does not show up in the browser (the page keeps the old rules), the dev server's watcher has stopped noticing the file. It happens after the server has been up for a while, and it is silent: the HTML is fresh but the `<style>` injected for that sheet is the one from before the edit.
+
+```
+astro dev stop
+astro dev --background
+```
+
+Check what the server actually serves before assuming the change landed: `curl http://localhost:4321/src/styles/<file>.css` and look for the rule you just wrote. A stale sheet mixed with new markup is what makes a change look broken.
+
 ## Dev toolbar
 
 The dev toolbar is intentionally disabled at the project level (`devToolbar.enabled: false` in `astro.config.mjs`). Do not re-enable it.
