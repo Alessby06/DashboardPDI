@@ -746,6 +746,16 @@
       animation: none !important;
     }
 
+    /* `main` conserva su View Transition para la navegación entre páginas. En
+       un cambio de pestaña no hay página nueva: si se deja, todo el contenido
+       sube 8 px mientras el panel empuja en horizontal, y el gesto se lee como
+       el anterior. Aquí se neutraliza; su contenido, salvo el panel nombrado,
+       es idéntico en las dos capturas. */
+    html[data-social-dir]::view-transition-old(pdi-main-section),
+    html[data-social-dir]::view-transition-new(pdi-main-section) {
+      animation: none !important;
+    }
+
     ::view-transition-group(social-subview-panel) {
       animation-duration: var(--dur-panel);
       animation-timing-function: var(--ease-spring);
