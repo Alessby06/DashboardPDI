@@ -1193,6 +1193,31 @@ export const SocialKanbanView = {
       }
     };
 
+    // Dirección del empuje: avanzar en el orden de las pestañas empuja hacia la
+    // izquierda y retroceder hacia la derecha. La mecánica es única: la misma
+    // en escritorio y en móvil, solo cambia el recorrido (--social-dx).
+    const ORDEN_TABS = ["kanban", "autorizaciones", "mis-solicitudes"];
+    const panelActivo = document.querySelector(".social-subview-panel.active");
+    const tabActual = panelActivo?.id === "viewSocialAutorizaciones"
+      ? "autorizaciones"
+      : panelActivo?.id === "viewSocialMisSolicitudes"
+        ? "mis-solicitudes"
+        : "kanban";
+    const desde = ORDEN_TABS.indexOf(tabActual);
+    const hasta = ORDEN_TABS.indexOf(tabKey);
+    document.documentElement.dataset.socialDir =
+      desde >= 0 && hasta >= 0 && hasta < desde ? "prev" : "next";
+
+    // Con cambios encadenados, la transición anterior se cancela y su promesa
+    // se resuelve antes de que acabe la nueva. El token evita que esa limpieza
+    // retire la dirección de la transición en curso.
+    this._socialDirToken = (this._socialDirToken || 0) + 1;
+    const tokenDireccion = this._socialDirToken;
+    const limpiarDireccion = () => {
+      if (this._socialDirToken !== tokenDireccion) return;
+      delete document.documentElement.dataset.socialDir;
+    };
+
     // Actualizar parámetro en la URL
     if (actualizarUrl) {
       const url = new URL(window.location.href);
@@ -1214,12 +1239,14 @@ export const SocialKanbanView = {
         const transicion = document.startViewTransition(() => {
           aplicarCambioDeVista();
         });
-        transicion?.finished?.catch(() => {});
+        transicion?.finished?.then(limpiarDireccion).catch(limpiarDireccion);
       } catch {
         aplicarCambioDeVista();
+        window.setTimeout(limpiarDireccion, 400);
       }
     } else {
       aplicarCambioDeVista();
+      window.setTimeout(limpiarDireccion, 400);
     }
   },
 

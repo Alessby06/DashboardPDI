@@ -958,15 +958,13 @@
     animation: pdiAppSectionOut var(--dur-norm) cubic-bezier(0.4, 0, 1, 1) both !important;
   }
 
-  ::view-transition-new(root),
-  ::view-transition-new(social-subview-panel) {
+  ::view-transition-new(root) {
     animation-name: pdiMobileSectionFadeIn !important;
     animation-duration: var(--dur-theme) !important;
     animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
   }
 
-  ::view-transition-old(root),
-  ::view-transition-old(social-subview-panel) {
+  ::view-transition-old(root) {
     animation-name: pdiMobileSectionFadeOut !important;
     animation-duration: var(--dur-panel) !important;
     animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;

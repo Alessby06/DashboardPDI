@@ -721,7 +721,16 @@
       box-shadow: var(--shadow-sm);
     }
 
-    /* Subvistas de /social con View Transitions */
+    /* Subvistas de /social: un solo gesto, idéntico en escritorio y en móvil.
+       El panel nuevo empuja al anterior en el sentido de la pestaña. El
+       recorrido crece en móvil, pero la mecánica, las curvas y el reparto de
+       tiempos no cambian: antes el móvil fundía además la raíz, así que el
+       mismo cambio se sentía distinto según el ancho.
+       `data-social-dir` lo pone switchSocialTab antes de la View Transition y
+       se retira al terminar. */
+    html[data-social-dir="next"] { --social-dx: 24px; }
+    html[data-social-dir="prev"] { --social-dx: -24px; }
+
     .social-subview-panel {
       display: none;
     }
@@ -731,72 +740,49 @@
       view-transition-name: social-subview-panel;
     }
 
-    /* Navegadores sin View Transitions: un fundido corto como respaldo. Con
-       soporte, la transición nativa es la única animación del cambio; antes
-       competían las dos y el panel se reiniciaba al cambiar rápido. */
+    /* Solo viaja el panel: la raíz no cambia, así que no se anima. */
+    html[data-social-dir]::view-transition-old(root),
+    html[data-social-dir]::view-transition-new(root) {
+      animation: none !important;
+    }
+
+    ::view-transition-group(social-subview-panel) {
+      animation-duration: var(--dur-panel);
+      animation-timing-function: var(--ease-spring);
+    }
+
+    ::view-transition-old(social-subview-panel) {
+      animation: socialPushOut var(--dur-fast) var(--ease-out) both;
+    }
+
+    ::view-transition-new(social-subview-panel) {
+      animation: socialPushIn var(--dur-panel) var(--ease-spring) both;
+    }
+
+    @keyframes socialPushIn {
+      from { opacity: 0; transform: translateX(var(--social-dx, 24px)); }
+      to { opacity: 1; transform: none; }
+    }
+
+    @keyframes socialPushOut {
+      from { opacity: 1; transform: none; }
+      to { opacity: 0; transform: translateX(calc(var(--social-dx, 24px) * -0.55)); }
+    }
+
+    /* Navegadores sin View Transitions: el mismo empuje, animado en el panel. */
     @supports not (view-transition-name: none) {
-      .social-subview-panel.active {
-        animation: subpanelFadeIn var(--dur-fast) var(--ease-out);
+      html[data-social-dir] .social-subview-panel.active {
+        animation: socialPushIn var(--dur-panel) var(--ease-spring) both;
       }
+    }
+
+    @media (max-width: 900px) {
+      html[data-social-dir="next"] { --social-dx: 34px; }
+      html[data-social-dir="prev"] { --social-dx: -34px; }
     }
 
     body.filter-sheet-open .social-subview-panel.active {
       transform: none !important;
-    }
-
-    @keyframes subpanelFadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(8px);
-      }
-      to {
-        opacity: 1;
-        transform: none;
-      }
-    }
-
-    @keyframes subpanelFadeOut {
-      from {
-        opacity: 1;
-        transform: translateY(0);
-      }
-      to {
-        opacity: 0;
-        transform: translateY(-8px);
-      }
-    }
-
-    /* Sustituir la animación de subpanel en móvil para mantener consistencia con el resto */
-    @media (max-width: 900px) {
-      .social-subview-panel {
-        view-transition-name: none;
-      }
-
-      .social-subview-panel.active {
-        view-transition-name: pdi-mobile-social;
-        animation: pdiAppSectionIn var(--dur-norm) cubic-bezier(0.16, 1, 0.3, 1) both;
-      }
-
-      ::view-transition-group(pdi-mobile-social) {
-        animation-duration: var(--dur-panel);
-        animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-      }
-
-      ::view-transition-old(pdi-mobile-social) {
-        animation: pdiAppSectionOut var(--dur-norm) cubic-bezier(0.4, 0, 1, 1) both;
-      }
-
-      ::view-transition-new(pdi-mobile-social) {
-        animation: pdiAppSectionIn var(--dur-panel) cubic-bezier(0.16, 1, 0.3, 1) both;
-      }
-    }
-
-    ::view-transition-old(social-subview-panel) {
-      animation: var(--dur-norm) cubic-bezier(0.4, 0, 1, 1) both subpanelFadeOut;
-    }
-
-    ::view-transition-new(social-subview-panel) {
-      animation: var(--dur-panel) cubic-bezier(0.16, 1, 0.3, 1) both subpanelFadeIn;
     }
 
     /* Tarjetas y Contenedores de Autorizaciones y Solicitudes */

@@ -449,6 +449,9 @@ if (typeof document !== "undefined") {
 
   const refrescarNavegacion = () => {
     document.documentElement.removeAttribute("data-menu-cerrandose");
+    // Una transición de subvista cancelada por la navegación no debe dejar la
+    // dirección puesta: la página nueva no tiene paneles de Social que empujar.
+    document.documentElement.removeAttribute("data-social-dir");
     vincularScrollNav();
     Navigation.actualizarEnlaceActivo();
     restaurarScrollNav();
