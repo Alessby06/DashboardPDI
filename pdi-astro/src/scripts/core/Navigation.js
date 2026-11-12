@@ -360,14 +360,6 @@ export const Navigation = {
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
         if (a.classList.contains("role-restricted") || a.classList.contains("role-hidden")) return;
 
-        // Feedback inmediato: en el servidor de desarrollo la primera visita a
-        // una ruta compila módulos y puede tardar segundos. Sin esta señal, el
-        // clic parece perdido y se vuelve a pulsar.
-        const raiz = document.documentElement;
-        raiz.classList.add("pdi-navegando");
-        clearTimeout(this._navTimer);
-        this._navTimer = setTimeout(() => raiz.classList.remove("pdi-navegando"), 10000);
-
         const sidebar = document.getElementById("appSidebar");
         if (this._usaCajon() && sidebar && sidebar.classList.contains("open")) {
           // En móvil cerramos el cajón al navegar
@@ -457,7 +449,6 @@ if (typeof document !== "undefined") {
 
   const refrescarNavegacion = () => {
     document.documentElement.removeAttribute("data-menu-cerrandose");
-    document.documentElement.classList.remove("pdi-navegando");
     vincularScrollNav();
     Navigation.actualizarEnlaceActivo();
     restaurarScrollNav();

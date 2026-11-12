@@ -621,32 +621,6 @@
       flex: 1;
     }
 
-    /* Barra de navegación: feedback inmediato al pulsar un módulo. En el
-       servidor de desarrollo la primera visita compila la ruta y puede tardar;
-       esta línea confirma que el clic se registró mientras llega la página. */
-    .topbar::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: -1px;
-      width: 40%;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--brand-primary), transparent);
-      opacity: 0;
-      pointer-events: none;
-      transform: translateX(-100%);
-    }
-
-    html.pdi-navegando .topbar::after {
-      opacity: 1;
-      animation: navProgress 1.1s var(--ease-smooth) infinite;
-    }
-
-    @keyframes navProgress {
-      from { transform: translateX(-100%); }
-      to { transform: translateX(350%); }
-    }
-
     .btn-menu-toggle {
       display: inline-flex;
       align-items: center;
@@ -824,19 +798,6 @@
        un instante. */
     .pdi-sin-transicion {
       transition: none !important;
-    }
-
-    /* Progreso de lectura: barra fina sobre el topbar. */
-    .scroll-progress {
-      position: fixed;
-      inset-block-start: 0;
-      inset-inline: 0;
-      height: 2px;
-      background: var(--gt-green);
-      transform: scaleX(0);
-      transform-origin: 0 50%;
-      pointer-events: none;
-      z-index: 1200;
     }
 
     /* Barras de scroll finas y consistentes en todo el sistema. Se aplica a

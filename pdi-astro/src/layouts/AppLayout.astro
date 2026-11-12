@@ -149,8 +149,7 @@ const impeccableLive =
           // están en memoria; el contenido de la página entrante se tapa con
           // `pdi-contenido-pendiente` hasta que su script pinte, para no
           // enseñar la tabla vacía ni las cifras en "…" del marcado del
-          // servidor. No se usa `pdi-navegando`: esa clase es de Navigation y
-          // se retira en after-swap.
+          // servidor.
           try {
             if (window.PDI && window.PDI.__pdiDatosListos) {
               ev.newDocument.documentElement.setAttribute("data-pdi-ready", "1");
@@ -210,7 +209,6 @@ const impeccableLive =
 </head>
 
 <body data-page={currentPage}>
-  <div id="scrollProgress" class="scroll-progress" aria-hidden="true"></div>
   <!-- Toast Notification Stack persistente entre páginas -->
   <div class="toast-container" id="toastContainer" transition:persist></div>
 
