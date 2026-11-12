@@ -83,10 +83,6 @@ export function arrancarComun() {
   // PageGuard; esto es solo presentacion.
   RoleController.applyRolePermissions(PageGuard.rolActual, null, false);
 
-  // Badges del menu lateral: se calculan de los modelos, nunca de numeros
-  // escritos a mano en el HTML.
-  actualizarBadgesSidebar();
-
   // Encender la capa de datos (conexion, hidratacion, LIVE y reintentos).
   // No es await: el controlador de carga retira el esqueleto cuando la capa
   // avisa que la primera hidratacion termino.
@@ -94,120 +90,6 @@ export function arrancarComun() {
   iniciarCapaDatos();
 
   return slug;
-}
-
-/**
- * Ultimo valor canonico de cada contador. Se compara contra este mapa y no
- * contra el texto del DOM: al navegar, el marcado puede reaparecer con su
- * valor de servidor y no queremos que eso cuente como un cambio real.
- */
-const ultimosBadges = new Map();
-
-/** Últimos conteos conocidos de los badges, para pintarlos sin parpadeo. */
-const CLAVE_BADGES = "pdi_badges_sidebar";
-const IDS_BADGES = [
-  "badgeTotalBeneficiarios",
-  "badgeTotalVoluntarios",
-  "badgeCasosCriticos",
-  "badgeSolicitudesPendientes",
-  "badgeMisSolicitudesTotal",
-];
-
-/**
- * Guarda los conteos para que el script en línea del sidebar los pinte en la
- * primera pintura, antes de que arranque la hidratación. Sin esto, al navegar
- * el marcado nuevo llega con los badges vacíos y las pastillas aparecen un
- * instante después de que la página ya se ve.
- *
- * No se guarda mientras los modelos aún están vacíos: en una recarga dura eso
- * sustituiría los conteos buenos por ceros.
- */
-function guardarBadgesEnCache() {
-  try {
-    const datos = {};
-    for (const id of IDS_BADGES) {
-      const el = document.getElementById(id);
-      if (!el) continue;
-      const num = el.querySelector(".nav-count-num");
-      datos[id] = Number((num ? num.textContent : el.textContent) || 0);
-    }
-    const listo = window.PDI?.__pdiDatosListos
-      || Number(datos.badgeTotalBeneficiarios) > 0
-      || Number(datos.badgeTotalVoluntarios) > 0;
-    if (listo) localStorage.setItem(CLAVE_BADGES, JSON.stringify(datos));
-  } catch (e) { /* sin almacenamiento disponible: se pinta al hidratar */ }
-}
-
-/**
- * Escribe en los badges del sidebar los conteos reales de los modelos.
- * Llamar tambien tras cualquier alta/baja/cambio de etapa que altere un total.
- */
-export function actualizarBadgesSidebar() {
-  const set = (id, valor) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const texto = String(valor);
-    const anterior = ultimosBadges.get(id);
-    ultimosBadges.set(id, texto);
-
-    // El numero vive en su propio span: asi la animacion no mueve la pastilla.
-    let num = el.querySelector(".nav-count-num");
-    if (!num) {
-      num = document.createElement("span");
-      num.className = "nav-count-num";
-      num.textContent = (el.textContent || "").trim();
-      el.textContent = "";
-      el.appendChild(num);
-    }
-
-    if (num.textContent === texto) return;
-    num.textContent = texto;
-
-    // Solo celebra un cambio real de cifra. El primer pintado (sin anterior) y
-    // el paso por 0 de la hidratacion no cuentan: ahi el contador se limita a
-    // aparecer con su valor.
-    if (anterior === undefined || anterior === "0" || texto === "0") return;
-
-    const sube = Number(texto) > Number(anterior);
-    num.classList.remove("contador-pulso", "is-up", "is-down");
-    void num.offsetWidth;
-    num.classList.add("contador-pulso", sube ? "is-up" : "is-down");
-    window.clearTimeout(el._pulsoTimer);
-    el._pulsoTimer = window.setTimeout(() => {
-      num.classList.remove("contador-pulso", "is-up", "is-down");
-    }, 260);
-  };
-
-  try {
-    set("badgeTotalBeneficiarios", BeneficiarioModel.getAll().length);
-  } catch (e) { /* contador no presente en esta pagina */ }
-
-  try {
-    set("badgeCasosCriticos", CasoSocialModel.contarCriticos());
-  } catch (e) { /* idem */ }
-
-  try {
-    set("badgeTotalVoluntarios", VoluntarioModel.getAll().length);
-  } catch (e) { /* idem */ }
-
-  try {
-    const pendCount = CasoSocialModel.contarSolicitudesPendientes ? CasoSocialModel.contarSolicitudesPendientes() : 0;
-    set("badgeSolicitudesPendientes", pendCount);
-    const pendBadgeEl = document.getElementById("badgeSolicitudesPendientes");
-    if (pendBadgeEl) {
-      pendBadgeEl.style.display = pendCount > 0 ? "inline-flex" : "none";
-    }
-
-    // #region DEBUG
-    const totalSol = CasoSocialModel.contarTodasLasSolicitudes ? CasoSocialModel.contarTodasLasSolicitudes() : 0;
-    set("badgeMisSolicitudesTotal", totalSol);
-    const misSolBadgeEl = document.getElementById("badgeMisSolicitudesTotal");
-    if (misSolBadgeEl) {
-      misSolBadgeEl.style.display = totalSol > 0 ? "inline-flex" : "none";
-    }
-  } catch (e) {}
-
-  guardarBadgesEnCache();
 }
 
 /**
@@ -241,7 +123,7 @@ if (typeof window !== "undefined") {
   }
 
   window.PDI = window.PDI || {};
-  window.PDI.Bootstrap = { arrancarComun, publicarRefresco, restaurarDatosLocales, actualizarBadgesSidebar, hidratarDesdeSurreal };
+  window.PDI.Bootstrap = { arrancarComun, publicarRefresco, restaurarDatosLocales, hidratarDesdeSurreal };
   window.PDI.restaurarDatosLocales = restaurarDatosLocales;
   window.PDI.ToastView = ToastView;
   window.PDI.Navigation = Navigation;

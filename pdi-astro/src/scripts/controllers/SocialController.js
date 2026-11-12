@@ -86,7 +86,6 @@ export const SocialController = {
 
     AnimationEngine.marcarCambio(caso._casoId || caso.id);
     view?.renderKanban(model.getAll());
-    window.PDI?.Bootstrap?.actualizarBadgesSidebar?.();
   },
 
   /**
@@ -116,7 +115,6 @@ export const SocialController = {
       delete caso.solicitudCambio;
       if (Array.isArray(caso.historialSolicitudes)) caso.historialSolicitudes.shift();
       view?.renderKanban(model.getAll());
-      view?.actualizarBadgesPestañas?.();
       return;
     }
 
@@ -146,9 +144,7 @@ export const SocialController = {
       view.renderKanban(model.getAll());
       view.renderVistaAutorizaciones?.();
       view.renderVistaMisSolicitudes?.();
-      view.actualizarBadgesPestañas?.();
     }
-    window.PDI?.Bootstrap?.actualizarBadgesSidebar?.();
   },
 
   /**
@@ -215,11 +211,7 @@ export const SocialController = {
       view.renderKanban(model.getAll());
       view.renderVistaAutorizaciones?.();
       view.renderVistaMisSolicitudes?.();
-      view.actualizarBadgesPestañas?.();
     }
-
-    // Actualizar badges si cambió estado crítico
-    window.PDI?.Bootstrap?.actualizarBadgesSidebar?.();
   },
 
   syncScore(dimKey, value) {

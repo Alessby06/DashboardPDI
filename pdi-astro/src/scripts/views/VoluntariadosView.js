@@ -392,9 +392,6 @@ export const VoluntariadosView = {
     escribir("volRepartoComas", stats.comas, (n) => String(Math.round(n)));
     escribir("volRepartoCarabayllo", stats.carabayllo, (n) => String(Math.round(n)));
     escribir("volRepartoCanastas", stats.canastasTotal, (n) => String(Math.round(n)));
-
-    const badgeNav = document.getElementById("badgeTotalVoluntarios");
-    if (badgeNav) badgeNav.textContent = stats.total;
   },
 
   /** Busqueda comun a la lista y a los contadores de faceta. */

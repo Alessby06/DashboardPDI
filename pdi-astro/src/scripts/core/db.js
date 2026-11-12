@@ -689,8 +689,6 @@ function refrescarVistaActual() {
   if (_estado !== 'ok') return;
   const fn = (typeof window !== 'undefined' && window.PDI?.refrescarVistaActual);
   if (typeof fn === 'function') fn();
-  // Los badges del menu lateral salen de los modelos.
-  (typeof window !== 'undefined' && window.PDI?.Bootstrap?.actualizarBadgesSidebar?.());
 }
 
 /** fuerza re-hidratación desde la nube (Botón "Restablecer datos" de Ajustes). */

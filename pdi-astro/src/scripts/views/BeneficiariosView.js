@@ -1202,11 +1202,6 @@ export const BeneficiariosView = {
     const tbody = document.getElementById("tbodyBeneficiarios");
     const mobileContainer = document.getElementById("mobileCardsBeneficiarios");
 
-    // El contador del sidebar es el total del padrón, no el total filtrado: ese
-    // lo escribe actualizarBadgesSidebar desde el modelo. Escribirlo aquí hacía
-    // que al filtrar la cifra del menú bajara (9 → 8) sin que nadie se diera
-    // de baja.
-
     // Solo se dibuja la variante que se va a ver. La otra se deja vacia a
     // proposito: en escritorio la lista de tarjetas ocupaba 546 de los 1794
     // nodos del documento y 50 KB de marcado, y se regeneraba en cada pulsacion

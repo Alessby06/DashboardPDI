@@ -140,8 +140,6 @@ export const SocialKanbanView = {
     // mientras el selector dice "Evaluacion".
     const board = document.getElementById("kanbanCasosSociales");
     if (board) board.setAttribute("data-mobile-active-stage", f.etapa);
-
-    this.actualizarBadgesPestañas();
   },
 
   init() {
@@ -1048,7 +1046,6 @@ export const SocialKanbanView = {
     this.cerrarModalResolverSolicitud();
     this.renderVistaAutorizaciones();
     this.renderVistaMisSolicitudes();
-    this.actualizarBadgesPestañas();
   },
 
   /**
@@ -1157,8 +1154,6 @@ export const SocialKanbanView = {
     if (btnAutorizaciones) btnAutorizaciones.classList.toggle("active", tabKey === "autorizaciones");
     if (btnMisSolicitudes) btnMisSolicitudes.classList.toggle("active", tabKey === "mis-solicitudes");
 
-    this.actualizarBadgesPestañas();
-
     // El tab del navegador refleja la pestana activa con el mismo nombre que la
     // sidebar y el sufijo estandar de la app ("X | Sistema PDI (Astro)"). Este
     // metodo es el punto comun de todo cambio de tab (carga inicial por
@@ -1229,14 +1224,6 @@ export const SocialKanbanView = {
   },
 
   /**
-   * Actualiza los contadores numéricos en las pestañas y badges del sidebar.
-   */
-  actualizarBadgesPestañas() {
-    // Refrescar badges del menú lateral
-    window.PDI?.Bootstrap?.actualizarBadgesSidebar?.();
-  },
-
-  /**
    * La cascada de tarjetas se ve una sola vez por contenedor. En los
    * re-renders (cambiar de pestaña, resolver) las tarjetas aparecen en el
    * sitio, sin repetir el desfase.
@@ -1267,7 +1254,6 @@ export const SocialKanbanView = {
 
     const model = window.PDI?.CasoSocialModel || CasoSocialModel;
     const pendientes = model.getCasosConSolicitudPendiente ? model.getCasosConSolicitudPendiente() : [];
-    this.actualizarBadgesPestañas();
 
     if (pendientes.length === 0) {
       container.innerHTML = `
@@ -1377,7 +1363,6 @@ export const SocialKanbanView = {
     const solicitudes = userName
       ? todas.filter((s) => String(s.solicitadoPor || "").trim() === userName)
       : [];
-    this.actualizarBadgesPestañas();
 
     // Actualizar contadores en las tarjetas de estadísticas
     const totalCount = solicitudes.length;

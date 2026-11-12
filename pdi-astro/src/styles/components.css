@@ -1265,31 +1265,6 @@
       border-radius: 10px;
     }
 
-/* Contadores que cambian tras una acción: el movimiento vive solo en el
-   número, no en la pastilla, y sigue la dirección real del dato (sube o baja).
-   Nada de rebote: 220 ms de asentamiento. */
-.nav-count-num {
-  display: inline-block;
-}
-
-.nav-count-num.contador-pulso.is-up {
-  animation: contadorSube 220ms var(--ease-out);
-}
-
-.nav-count-num.contador-pulso.is-down {
-  animation: contadorBaja 220ms var(--ease-out);
-}
-
-@keyframes contadorSube {
-  from { opacity: 0.35; transform: translateY(3px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes contadorBaja {
-  from { opacity: 0.35; transform: translateY(-3px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
 /* Estados vacíos: entran con un fundido corto en lugar de aparecer de golpe. */
 tbody > tr > td[colspan],
 .mobile-accordion-list > div:not(.mobile-card-item),

@@ -46,7 +46,6 @@ function enlazar() {
     clearTimeout(reprogramado);
     reprogramado = setTimeout(() => {
       montar();
-      window.PDI?.Bootstrap?.actualizarBadgesSidebar?.();
     }, 120);
   });
 
@@ -58,7 +57,6 @@ function enlazar() {
       if (!listo) return;
       if (document.body?.getAttribute("data-page") !== "dashboard") return;
       montar();
-      if (estado === "ok") window.PDI?.Bootstrap?.actualizarBadgesSidebar?.();
     });
   } catch {
     // Sin capa de datos no hay estado que suscribir.

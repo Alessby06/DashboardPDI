@@ -91,12 +91,6 @@ html.pdi-contenido-pendiente .pdi-skeleton {
   display: flex;
 }
 
-/* Los contadores del sidebar se calculan de los modelos. Antes de la primera
-   hidratacion valen 0 y no deben verse como si fueran datos reales. */
-html:not([data-pdi-ready="1"]) .nav-count {
-  visibility: hidden;
-}
-
 .pdi-skeleton-body {
   display: flex;
   flex: 1;

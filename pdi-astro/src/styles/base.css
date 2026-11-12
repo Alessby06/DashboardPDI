@@ -174,7 +174,7 @@
     }
 
     .sidebar .logo-text,
-    .sidebar .nav-btn > span:not(.nav-count),
+    .sidebar .nav-btn > span,
     .sidebar .nav-label {
       opacity: 1 !important;
       visibility: visible !important;
@@ -507,7 +507,7 @@
       box-sizing: border-box;
     }
 
-    .nav-btn > span:not(.nav-count) {
+    .nav-btn > span {
       flex: 1;
       min-width: 0;
       /* Los nombres de servicio son largos: se permite una segunda linea para
@@ -585,17 +585,6 @@
     html[data-user-role="facilitadora"] .nav-btn[data-hide-unauthorized],
     html[data-user-role="promotora"] .nav-btn[data-hide-unauthorized] {
       display: none !important;
-    }
-
-    .nav-count {
-      margin-left: auto;
-      flex-shrink: 0;
-      font-size: 9.5px;
-      font-weight: 600;
-      font-variant-numeric: tabular-nums;
-      color: var(--text-dim);
-      transition: opacity var(--dur-norm) ease;
-      white-space: nowrap;
     }
 
     /* Main Content Area */
