@@ -449,10 +449,12 @@ if (typeof document !== "undefined") {
 
   // --- Dirección del empuje de página en móvil -------------------------
   // El empuje lateral global vive en base.css y solo se activa con
-  // data-page-dir. Se fija antes de que Astro cree la View Transition y se
-  // retira cuando la animación ya terminó (no en after-swap, que ocurre a
-  // mitad del recorrido).
+  // data-page-dir. Astro reemplaza todos los atributos de <html> en el swap,
+  // así que la dirección se escribe en el documento entrante (before-swap) y
+  // se confirma después del intercambio. No se retira hasta que la animación
+  // terminó: hacerlo en after-swap dejaría la transición a medias.
   let tokenDirPagina = 0;
+  let direccionPaginaPendiente = "";
 
   const paginaDeRuta = (url) => {
     try {
@@ -474,30 +476,36 @@ if (typeof document !== "undefined") {
     return orden;
   };
 
-  const fijarDireccionPagina = (evento) => {
-    if (window.innerWidth > 900) {
-      document.documentElement.removeAttribute("data-page-dir");
-      return;
-    }
+  const prepararDireccionPagina = (evento) => {
+    direccionPaginaPendiente = "";
+    if (window.innerWidth > 900) return;
     const destino = paginaDeRuta(evento?.to);
     const actual = document.body?.getAttribute("data-page") || "dashboard";
     const orden = ordenDePaginas();
     const desde = orden.indexOf(actual);
     const hasta = orden.indexOf(destino);
-    if (desde < 0 || hasta < 0) {
-      document.documentElement.removeAttribute("data-page-dir");
-      return;
-    }
-    document.documentElement.dataset.pageDir = hasta < desde ? "prev" : "next";
-    limpiarDireccionPagina(3000);
+    if (desde < 0 || hasta < 0) return;
+    direccionPaginaPendiente = hasta < desde ? "prev" : "next";
   };
 
-  const limpiarDireccionPagina = (ms) => {
+  const marcarNuevoDocumento = (evento) => {
+    if (!direccionPaginaPendiente) return;
+    try {
+      evento?.newDocument?.documentElement?.setAttribute("data-page-dir", direccionPaginaPendiente);
+    } catch (e) {
+      /* Documento sin acceso: se confirma en after-swap. */
+    }
+  };
+
+  const confirmarDireccionPagina = () => {
+    if (!direccionPaginaPendiente) return;
+    document.documentElement.dataset.pageDir = direccionPaginaPendiente;
+    direccionPaginaPendiente = "";
     const token = ++tokenDirPagina;
     window.setTimeout(() => {
       if (tokenDirPagina !== token) return;
       document.documentElement.removeAttribute("data-page-dir");
-    }, ms);
+    }, 420);
   };
 
   const refrescarNavegacion = () => {
@@ -505,17 +513,18 @@ if (typeof document !== "undefined") {
     // Una transición de subvista cancelada por la navegación no debe dejar la
     // dirección puesta: la página nueva no tiene paneles de Social que empujar.
     document.documentElement.removeAttribute("data-social-dir");
-    limpiarDireccionPagina(420);
     vincularScrollNav();
     Navigation.actualizarEnlaceActivo();
     restaurarScrollNav();
   };
 
-  document.addEventListener("astro:before-preparation", fijarDireccionPagina);
-  document.addEventListener("astro:before-swap", () => {
+  document.addEventListener("astro:before-preparation", prepararDireccionPagina);
+  document.addEventListener("astro:before-swap", (evento) => {
+    marcarNuevoDocumento(evento);
     leerScrollNav();
     persistirScrollNav();
   });
+  document.addEventListener("astro:after-swap", confirmarDireccionPagina);
   document.addEventListener("astro:after-swap", refrescarNavegacion);
   document.addEventListener("astro:page-load", refrescarNavegacion);
 }
