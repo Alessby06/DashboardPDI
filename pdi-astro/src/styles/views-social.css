@@ -723,13 +723,15 @@
 
     /* Subvistas de /social: un solo gesto, idéntico en escritorio y en móvil.
        El panel nuevo empuja al anterior en el sentido de la pestaña. El
-       recorrido crece en móvil, pero la mecánica, las curvas y el reparto de
-       tiempos no cambian: antes el móvil fundía además la raíz, así que el
-       mismo cambio se sentía distinto según el ancho.
+       recorrido es un porcentaje del panel, no una medida fija: 24 px sobre un
+       panel de 1120 px eran el 2 % y el ojo los leía como un simple fundido.
+       El 9 % en escritorio y el 12 % en móvil conservan la presencia que tenía
+       la variante en la maqueta. La mecánica, las curvas y el reparto de
+       tiempos no cambian según el ancho.
        `data-social-dir` lo pone switchSocialTab antes de la View Transition y
        se retira al terminar. */
-    html[data-social-dir="next"] { --social-dx: 24px; }
-    html[data-social-dir="prev"] { --social-dx: -24px; }
+    html[data-social-dir="next"] { --social-dx: 9%; }
+    html[data-social-dir="prev"] { --social-dx: -9%; }
 
     .social-subview-panel {
       display: none;
@@ -766,29 +768,35 @@
     }
 
     ::view-transition-new(social-subview-panel) {
-      animation: socialPushIn var(--dur-panel) var(--ease-spring) both;
+      animation: socialPushIn var(--dur-panel) cubic-bezier(0.4, 0, 0.2, 1) both;
     }
 
+    /* El panel nuevo se aclara en el primer 30 % del recorrido y luego viaja
+       opaco: así el movimiento se ve, en lugar de quedar escondido tras un
+       fundido que dura toda la animación. El saliente se desplaza más de lo
+       que entra (1,1×) para que los dos paneles se separen y el gesto se lea
+       como un empuje. */
     @keyframes socialPushIn {
-      from { opacity: 0; transform: translateX(var(--social-dx, 24px)); }
-      to { opacity: 1; transform: none; }
+      0% { opacity: 0; transform: translateX(var(--social-dx, 9%)); }
+      30% { opacity: 1; }
+      100% { opacity: 1; transform: none; }
     }
 
     @keyframes socialPushOut {
-      from { opacity: 1; transform: none; }
-      to { opacity: 0; transform: translateX(calc(var(--social-dx, 24px) * -0.55)); }
+      0% { opacity: 1; transform: none; }
+      100% { opacity: 0; transform: translateX(calc(var(--social-dx, 9%) * -1.1)); }
     }
 
     /* Navegadores sin View Transitions: el mismo empuje, animado en el panel. */
     @supports not (view-transition-name: none) {
       html[data-social-dir] .social-subview-panel.active {
-        animation: socialPushIn var(--dur-panel) var(--ease-spring) both;
+        animation: socialPushIn var(--dur-panel) cubic-bezier(0.4, 0, 0.2, 1) both;
       }
     }
 
     @media (max-width: 900px) {
-      html[data-social-dir="next"] { --social-dx: 34px; }
-      html[data-social-dir="prev"] { --social-dx: -34px; }
+      html[data-social-dir="next"] { --social-dx: 12%; }
+      html[data-social-dir="prev"] { --social-dx: -12%; }
     }
 
     body.filter-sheet-open .social-subview-panel.active {
