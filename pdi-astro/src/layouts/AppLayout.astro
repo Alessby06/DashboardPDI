@@ -25,30 +25,34 @@ interface Props {
 const { title, currentPage, pageCss } = Astro.props;
 
 const pdiAppSectionTransition = {
+  // Navegación entre páginas en escritorio: profundidad contenida. El
+  // contenido entra desde el 98,8 % y el saliente se retira al 100,4 %, sin
+  // desplazamiento vertical. Los fotogramas viven en base.css. En móvil, el
+  // bloque de 900 px sobrescribe estas animaciones con su fundido de 8 px.
   forwards: {
     old: {
-      name: "pdiAppSectionOut",
-      duration: "0.2s",
-      easing: "cubic-bezier(0.4, 0, 1, 1)",
+      name: "pdiPageDepthOut",
+      duration: "0.16s",
+      easing: "cubic-bezier(0.23, 1, 0.32, 1)",
       fillMode: "both",
     },
     new: {
-      name: "pdiAppSectionIn",
-      duration: "0.26s",
+      name: "pdiPageDepthIn",
+      duration: "0.22s",
       easing: "cubic-bezier(0.16, 1, 0.3, 1)",
       fillMode: "both",
     },
   },
   backwards: {
     old: {
-      name: "pdiAppSectionOut",
-      duration: "0.2s",
-      easing: "cubic-bezier(0.4, 0, 1, 1)",
+      name: "pdiPageDepthOut",
+      duration: "0.16s",
+      easing: "cubic-bezier(0.23, 1, 0.32, 1)",
       fillMode: "both",
     },
     new: {
-      name: "pdiAppSectionIn",
-      duration: "0.26s",
+      name: "pdiPageDepthIn",
+      duration: "0.22s",
       easing: "cubic-bezier(0.16, 1, 0.3, 1)",
       fillMode: "both",
     },
