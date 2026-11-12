@@ -35,13 +35,9 @@
   transition: opacity var(--dur-norm) var(--ease-out);
 }
 
-html:not([data-pdi-ready="1"]) .pdi-view-content {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
+/* El contenido se muestra desde el primer frame. Antes se ocultaba tras el
+   esqueleto de bloques grises; ahora la página enseña su marcado real y los
+   datos se pintan encima sin disfraz. */
 
 .pdi-view-shell.is-ready .pdi-view-content,
 html[data-pdi-ready="1"] .pdi-view-content {
@@ -59,12 +55,18 @@ html[data-pdi-ready="1"] .pdi-view-content {
   position: absolute;
   inset: 0;
   z-index: 2;
-  display: flex;
+  display: none;
   flex-direction: column;
   gap: 24px;
   overflow: hidden;
   background: var(--bg-base);
   transition: opacity var(--dur-norm) var(--ease-out);
+}
+
+/* El esqueleto solo se usa para el error de carga: los bloques grises ya no
+   se muestran. La página enseña su contenido real desde el primer frame. */
+[data-pdi-loading-error] .pdi-skeleton {
+  display: flex;
 }
 
 .pdi-view-shell.is-ready .pdi-skeleton {
@@ -76,20 +78,9 @@ html[data-pdi-ready="1"] .pdi-skeleton {
   display: none;
 }
 
-/* Navegación interna: el chrome (badges, topbar) ya está listo, pero el
-   contenido de la página entrante se tapa hasta que su script pinta. Sin esto
-   se vería el marcado del servidor: la tabla vacía o las cifras en "…". */
-html.pdi-contenido-pendiente .pdi-view-content {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-html.pdi-contenido-pendiente .pdi-skeleton {
-  display: flex;
-}
+/* `pdi-contenido-pendiente` sigue marcando la navegación, pero ya no tapa el
+   contenido: la página entrante se pinta con su marcado real desde el primer
+   frame y los datos se escriben encima. */
 
 .pdi-skeleton-body {
   display: flex;
