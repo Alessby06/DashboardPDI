@@ -397,7 +397,11 @@ let _avisoConexionMostrado = false;
 function avisarSinConexion(err) {
   if (_avisoConexionMostrado) return;
   _avisoConexionMostrado = true;
-  const detalle = String(err?.message || err || '').slice(0, 120);
+  const bruto = String(err?.message || err || '');
+  const esErrorInterno = err instanceof TypeError || /reading\s+'?href'?|cannot\s+read\s+properties/i.test(bruto);
+  const detalle = esErrorInterno
+    ? 'Los datos no se pueden leer ni guardar. Revisa la conexión.'
+    : bruto.slice(0, 120);
   try {
     ToastView.show(
       'Sin conexión con la base de datos',

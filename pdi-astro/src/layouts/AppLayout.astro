@@ -115,8 +115,14 @@ const impeccableLive =
           var esMovil = typeof window !== "undefined" && window.innerWidth <= 900;
           if (esMovil) {
             targetDoc.documentElement.setAttribute("data-menu-cajon", "si");
+            targetDoc.documentElement.removeAttribute("data-sidebar-pc");
           } else {
             targetDoc.documentElement.removeAttribute("data-menu-cajon");
+            if (localStorage.getItem("pdi_sidebar_pc") === "closed") {
+              targetDoc.documentElement.setAttribute("data-sidebar-pc", "closed");
+            } else {
+              targetDoc.documentElement.removeAttribute("data-sidebar-pc");
+            }
           }
           var rolActivo = localStorage.getItem("pdi_active_role") || "coord";
           targetDoc.documentElement.setAttribute("data-user-role", rolActivo);

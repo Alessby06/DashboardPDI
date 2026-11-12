@@ -113,6 +113,9 @@ export const Navigation = {
 
     sidebar.classList.toggle("closed-pc", !abriendo);
     sidebar.toggleAttribute("inert", !abriendo);
+    try {
+      localStorage.setItem("pdi_sidebar_pc", abriendo ? "open" : "closed");
+    } catch {}
     if (abriendo) {
       document.documentElement.removeAttribute("data-sidebar-pc");
     } else {
@@ -176,8 +179,9 @@ export const Navigation = {
   _precalentarRiel() {
     const sidebar = document.getElementById("appSidebar");
     if (!sidebar || this._usaCajon()) return;
+    if (sidebar.classList.contains("closed-pc")) return;
     const previo = sidebar.className;
-    sidebar.classList.add("collapsed");
+    sidebar.classList.add("closed-pc");
     void sidebar.offsetWidth;
     sidebar.className = previo;
   },
@@ -209,9 +213,16 @@ export const Navigation = {
         sidebar.toggleAttribute("inert", false);
         document.documentElement.removeAttribute("data-sidebar-pc");
       } else {
-        // En PC (> 900px) limpiar cualquier clase de drawer movil
+        // En PC (> 900px) limpiar cualquier clase de drawer movil y restaurar estado persistido
         sidebar.classList.remove("open");
-        const cerrado = sidebar.classList.contains("closed-pc");
+        let guardado = null;
+        try { guardado = localStorage.getItem("pdi_sidebar_pc"); } catch {}
+        const cerrado = guardado === "closed"
+          ? true
+          : guardado === "open"
+            ? false
+            : sidebar.classList.contains("closed-pc");
+        sidebar.classList.toggle("closed-pc", cerrado);
         sidebar.toggleAttribute("inert", cerrado);
         if (cerrado) {
           document.documentElement.setAttribute("data-sidebar-pc", "closed");
@@ -246,7 +257,11 @@ export const Navigation = {
       document.removeEventListener("keydown", this._onKey);
     }
     this._onKey = (e) => {
-      if (e.key === "Escape") this.closeSidebar();
+      if (e.key !== "Escape" || e.defaultPrevented || !this._usaCajon()) return;
+      if (document.querySelector(".modal-backdrop.open, .pdi-select.is-open, .cuenta-menu:not([hidden])")) {
+        return;
+      }
+      this.closeSidebar();
     };
     document.addEventListener("keydown", this._onKey);
 

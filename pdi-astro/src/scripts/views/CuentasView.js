@@ -518,6 +518,7 @@ function filaHtml(cuenta) {
 
   const contacto = cuenta.correo ? ` · ${escapar(cuenta.correo)}` : '';
   const estadoTexto = cuenta.activo ? 'Activa' : 'Desactivada';
+  const estadoMarcaClase = cuenta.activo ? 'status-mark--ok' : 'status-mark--idle';
   const estadoClase = cuenta.activo
     ? 'cuenta-estado-mark--activa'
     : 'cuenta-estado-mark--inactiva';
@@ -554,7 +555,7 @@ function filaHtml(cuenta) {
       </div>
 
       <div class="cuenta-acciones-col">
-        <span class="status-mark ${estadoClase}">${estadoTexto}</span>
+        <span class="status-mark ${estadoMarcaClase} ${estadoClase}"><span class="status-mark-dot" aria-hidden="true"></span>${estadoTexto}</span>
         <div class="cuenta-acciones-grupo">
           <button
             type="button"
@@ -1154,6 +1155,10 @@ async function guardarPermisos(evento) {
   const sedesNuevas = normalizarListaSedes(permisos.sedes);
   const cambioRol = seleccion.rol !== cuenta.rol;
   const cambioSedes = !arreglosIguales(sedesActuales, sedesNuevas);
+  const activaAccesoGlobal =
+    !esRolAlcanceGlobal(seleccion.rol) &&
+    sedesNuevas.length === 0 &&
+    (sedesActuales.length > 0 || esRolAlcanceGlobal(cuenta.rol));
 
   if (!cambioRol && !cambioSedes) {
     cerrarModal('cuentasPermisosModal');
@@ -1161,11 +1166,22 @@ async function guardarPermisos(evento) {
   }
 
   const boton = porId('btnGuardarPermisos');
-  if (cambioRol) {
+  if (cambioRol || activaAccesoGlobal) {
+    const partes = [];
+    if (cambioRol) {
+      partes.push(
+        `El rol de ${cuenta.nombre} pasará de ${ROLES[cuenta.rol] || cuenta.rol} a ${ROLES[seleccion.rol] || seleccion.rol} y se cerrará su sesión actual.`,
+      );
+    }
+    if (activaAccesoGlobal) {
+      partes.push(
+        'Ley N.° 29733: activar acceso a todas las sedes otorgará visibilidad territorial completa, incluidas futuras sedes.',
+      );
+    }
     const confirmado = await confirmar({
-      titulo: 'Confirmar cambio de rol',
-      mensaje: `El rol de ${cuenta.nombre} pasará de ${ROLES[cuenta.rol] || cuenta.rol} a ${ROLES[seleccion.rol] || seleccion.rol}. Se cerrará su sesión actual y deberá iniciar nuevamente.`,
-      confirmar: 'Guardar rol y permisos',
+      titulo: cambioRol ? 'Confirmar cambio de rol' : 'Confirmar acceso territorial global',
+      mensaje: partes.join(' '),
+      confirmar: cambioRol ? 'Guardar rol y permisos' : 'Confirmar acceso global',
       origen: boton,
     });
     if (!confirmado) return;

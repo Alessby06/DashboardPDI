@@ -127,7 +127,7 @@ export function conectarHoja({
         // transición para que no reaparezca un fotograma al soltar.
         detenerAnimacion();
         hoja.classList.add("pdi-sin-transicion");
-        accion();
+        accion({ porGesto: true });
         limpiar();
         void hoja.offsetWidth;
         hoja.classList.remove("pdi-sin-transicion");
@@ -247,16 +247,19 @@ function engancharAsaDeModal(asa) {
     // excluyen en conectarHoja.
     asaSelector: ".sheet-grab, .modal-header",
     telon,
-    alCerrar: () => {
+    alCerrar: ({ porGesto = false } = {}) => {
       // El cierre por asa delega en la X de cada ficha: así se conserva el
       // borrador, se limpia el estado y se actualizan inert/aria-hidden.
       const cerrar = telon.querySelector(".btn-close-modal");
       if (cerrar) cerrar.click();
       else telon.classList.remove("open");
       // El cierre por gesto no debe dejar el anillo de foco en el botón que
-      // abrió la hoja: el usuario viene de tocar, no de tabular.
-      const foco = document.activeElement;
-      if (foco instanceof HTMLElement && !telon.contains(foco)) foco.blur();
+      // abrió la hoja: el usuario viene de tocar, no de tabular. En Escape se
+      // conserva el foco devuelto al disparador para usuarios de teclado.
+      if (porGesto) {
+        const foco = document.activeElement;
+        if (foco instanceof HTMLElement && !telon.contains(foco)) foco.blur();
+      }
     },
   });
 }
@@ -278,6 +281,8 @@ function conectarEscape() {
     const cerrar = caja ? cerradores.get(caja) : null;
     if (typeof cerrar !== "function") return;
     evento.preventDefault();
+    evento.stopPropagation();
+    evento.stopImmediatePropagation();
     cerrar();
   });
 }

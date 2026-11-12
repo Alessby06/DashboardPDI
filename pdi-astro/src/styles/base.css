@@ -203,9 +203,10 @@
         height: 100vh !important;
         height: 100dvh !important;
         margin-left: 0 !important;
+        overflow: hidden;
         transform: translate3d(0, 0, 0);
         box-shadow: none !important;
-        z-index: 50 !important;
+        z-index: auto !important;
         flex-shrink: 0 !important;
         transition: transform var(--dur-rail) var(--ease-drawer),
                     background-color var(--dur-theme) cubic-bezier(0.16, 1, 0.3, 1),
@@ -216,24 +217,41 @@
       html[data-sidebar-pc="closed"] .sidebar {
         margin-left: -280px !important;
         pointer-events: none !important;
+        border-right-color: transparent !important;
+      }
+
+      .sidebar-main {
+        transition: opacity var(--dur-fast) var(--ease-out);
       }
 
       .sidebar-header,
+      .sidebar .project-switcher,
       .sidebar .nav-sections,
       .sidebar-footer {
-        transition: opacity var(--dur-panel) var(--ease-out),
+        transition: opacity var(--dur-fast) var(--ease-out),
                     transform var(--dur-rail) var(--ease-drawer),
                     padding var(--dur-panel) ease;
       }
 
+      .sidebar.closed-pc .sidebar-main,
+      html[data-sidebar-pc="closed"] .sidebar .sidebar-main {
+        opacity: 0;
+      }
+
       .sidebar.closed-pc .sidebar-header,
+      .sidebar.closed-pc .project-switcher,
       .sidebar.closed-pc .nav-sections,
-      .sidebar.closed-pc .sidebar-footer {
-        opacity: 0.72;
+      .sidebar.closed-pc .sidebar-footer,
+      html[data-sidebar-pc="closed"] .sidebar .sidebar-header,
+      html[data-sidebar-pc="closed"] .sidebar .project-switcher,
+      html[data-sidebar-pc="closed"] .sidebar .nav-sections,
+      html[data-sidebar-pc="closed"] .sidebar .sidebar-footer {
+        opacity: 0;
         transform: translate3d(-10px, 0, 0);
       }
 
       .main-wrapper {
+        position: relative;
         flex: 1 1 0% !important;
         min-width: 0 !important;
       }
@@ -371,7 +389,7 @@
     .project-option.active {
       background: var(--surface-1);
       border-color: var(--border-bright);
-      color: var(--text-brand);
+      color: var(--text-brand-strong);
       cursor: default;
     }
 
@@ -396,7 +414,7 @@
     }
 
     .project-option.active .project-state {
-      color: var(--text-brand);
+      color: var(--text-brand-strong);
     }
 
     .logo-text {
@@ -524,13 +542,13 @@
 
     .nav-btn.active {
       background: var(--brand-soft);
-      color: var(--text-brand);
+      color: var(--text-brand-strong);
       border-color: var(--border-bright);
       font-weight: 700;
     }
 
     .nav-btn.active svg {
-      stroke: var(--brand-primary);
+      stroke: var(--text-brand-strong);
     }
 
     /* Role Restricted Tab Styles (Grisáceo / Deshabilitado tanto en PC como en Móvil) */
