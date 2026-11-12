@@ -709,7 +709,7 @@
 
       .btn-action.primary:hover {
         background: var(--brand-fill-hover, var(--brand-dark));
-        border-color: var(--brand-fill-hover, var(--brand-dark));
+        box-shadow: var(--shadow-ambient);
       }
     }
 
@@ -718,7 +718,10 @@
       /* La tinta sale del tema: en claro Gutenberg Deep (#00715d, 5,97:1 con
          blanco); en oscuro verde luminoso con tinta casi negra (11,78:1). */
       color: var(--on-brand);
-      border: 1px solid var(--brand-fill, var(--brand-dark));
+      /* El borde de luz y la sombra baja son lo que separan el relleno oscuro
+         del lienzo: sin ellos el botón se lee como si estuviera pulsado. */
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: var(--shadow-sm);
       font-weight: 700;
     }
 

@@ -332,7 +332,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 
 ### Buttons
 - **Neutral:** fondo Paper, borde Rule, Ink, 13.5/600, radio 10, padding 8/16.
-- **Primary:** fondo Brand Deep, tinta On Brand; solo la acción que cierra la tarea. El verde vivo con blanco da ~2,6:1 y no aprueba AA; el verde profundo con blanco aprueba en ambos temas.
+- **Primary:** fondo Brand Deep, tinta On Brand, borde de luz `rgba(255,255,255,0.18)` y Sombra Small; solo la acción que cierra la tarea. El verde vivo con blanco da ~2,6:1 y no aprueba AA; el verde profundo con blanco aprueba en ambos temas. El borde de luz y la sombra baja son obligatorios: sin ellos un relleno tan oscuro se lee como un botón pulsado.
 - **Micro action:** 30×30 con icono; en móvil, botón cuadrado de 34 con borde.
 - **Hover / Focus:** fondo Hover, borde Rule Strong; foco visible con anillo de 2 px del color de marca.
 
