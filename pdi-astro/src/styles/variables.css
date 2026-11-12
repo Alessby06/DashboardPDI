@@ -64,13 +64,16 @@
   --brand-primary: var(--gt-green);
   --brand-hover: #00997d;
   --brand-dark: #00715d;
-  --brand-fill: #00715d;
-  --brand-fill-hover: #005d4c;
+  --brand-fill: var(--gt-green);
+  --brand-fill-hover: #00997d;
   --brand-dim: #046a58;
   --brand-soft: var(--gt-green-bg);
   /* Tinta que se pinta ENCIMA del verde de marca. En claro el verde es oscuro
      y admite blanco; en oscuro se aclara y pide tinta casi negra. */
   --on-brand: #ffffff;
+  /* Tinta sobre el verde vivo de la accion primaria: el blanco sobre #00b494
+     da 2,6:1; la casi negra sube a 7,4:1 y conserva el relleno luminoso. */
+  --on-brand-fill: #00130c;
   /* Tinta sobre rellenos solidos (rojo, ambar, azul): en oscuro esos rellenos
      se aclaran, asi que la tinta cambia a casi negra. */
   --on-solid: var(--on-brand);
@@ -218,11 +221,12 @@
 
   --brand-primary: var(--gt-green);
   --brand-dark: #00715d;
-  --brand-fill: #00715d;
-  --brand-fill-hover: #005d4c;
+  --brand-fill: var(--gt-green);
+  --brand-fill-hover: #00997d;
   --brand-dim: #e6f7f4;
   --brand-soft: var(--gt-green-bg);
   --on-brand: #ffffff;
+  --on-brand-fill: #00130c;
 
   --text-brand: #00876f;
   --text-brand-strong: #00715d;
@@ -321,6 +325,7 @@
   /* El verde de este tema es muy claro: el blanco encima daria 1,6:1. La tinta
      casi negra da 11,8:1 y conserva el aspecto de boton solido. */
   --on-brand: #00130c;
+  --on-brand-fill: var(--on-brand);
 
   /* El verde de marca da 12,0:1 sobre --surface-1, asi que sirve tal cual como
      color de texto y no hace falta un tono aparte. Se declara de todas formas

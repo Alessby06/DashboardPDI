@@ -910,7 +910,7 @@
 }
 
 .view-actions .btn-action.primary {
-  color: var(--on-brand) !important;
+  color: var(--on-brand-fill) !important;
   font-weight: 700 !important;
   font-size: 13px !important;
   padding: 0 16px !important;

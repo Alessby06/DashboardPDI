@@ -666,7 +666,7 @@ html.pdi-contenido-pendiente .pdi-skeleton {
   border: 0;
   border-radius: var(--radius-md);
   background: var(--brand-fill, var(--brand-dark));
-  color: var(--on-brand);
+  color: var(--on-brand-fill, var(--on-brand));
   font-family: var(--ui-font);
   font-size: 13px;
   font-weight: 700;

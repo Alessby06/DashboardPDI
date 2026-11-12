@@ -22,6 +22,7 @@ colors:
   rule-strong: "#94a3b8"
   rule-mid: "#cbd5e1"
   on-brand: "#ffffff"
+  on-brand-fill: "#00130c"
   on-solid: "#ffffff"
   on-scrim: "#ffffff"
 typography:
@@ -137,8 +138,8 @@ components:
     rounded: "{rounded.md}"
     padding: "8px 16px"
   button-primary:
-    backgroundColor: "{colors.brand-green-deep}"
-    textColor: "{colors.on-brand}"
+    backgroundColor: "{colors.brand-green}"
+    textColor: "{colors.on-brand-fill}"
     rounded: "{rounded.md}"
     padding: "8px 16px"
   input:
@@ -332,7 +333,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 
 ### Buttons
 - **Neutral:** fondo Paper, borde Rule, Ink, 13.5/600, radio 10, padding 8/16.
-- **Primary:** fondo Brand Deep, tinta On Brand, borde de luz `rgba(255,255,255,0.18)` y Sombra Small; solo la acción que cierra la tarea. El verde vivo con blanco da ~2,6:1 y no aprueba AA; el verde profundo con blanco aprueba en ambos temas. El borde de luz y la sombra baja son obligatorios: sin ellos un relleno tan oscuro se lee como un botón pulsado.
+- **Primary:** fondo Brand Green (#00b494), tinta On Brand Fill (#00130c, 7,4:1) y Sombra Small; solo la acción que cierra la tarea. El blanco sobre este verde da ~2,6:1 y no aprueba AA, así que la tinta es casi negra. El hover baja un paso a #00997d. Nada de rellenos profundos con tinta blanca: se leen como un botón pulsado.
 - **Micro action:** 30×30 con icono; en móvil, botón cuadrado de 34 con borde.
 - **Hover / Focus:** fondo Hover, borde Rule Strong; foco visible con anillo de 2 px del color de marca.
 
