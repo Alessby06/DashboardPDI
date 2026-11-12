@@ -447,7 +447,7 @@ if (typeof document !== "undefined") {
     setTimeout(aplicar, 140);
   };
 
-  // --- Dirección del empuje de página en móvil -------------------------
+  // --- Dirección del empuje de página -------------------------------
   // El empuje lateral global vive en base.css y solo se activa con
   // data-page-dir. Astro reemplaza todos los atributos de <html> en el swap,
   // así que la dirección se escribe en el documento entrante (before-swap) y
@@ -478,7 +478,6 @@ if (typeof document !== "undefined") {
 
   const prepararDireccionPagina = (evento) => {
     direccionPaginaPendiente = "";
-    if (window.innerWidth > 900) return;
     const destino = paginaDeRuta(evento?.to);
     const actual = document.body?.getAttribute("data-page") || "dashboard";
     const orden = ordenDePaginas();

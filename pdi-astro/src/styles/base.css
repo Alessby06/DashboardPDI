@@ -994,26 +994,32 @@
     animation-duration: var(--dur-panel) !important;
     animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
   }
+}
 
-  /* Navegación entre páginas con el mismo empuje lateral de Social. La
-     dirección la fija Navigation en `data-page-dir` según el orden del menú.
-     Mientras dura, la raíz no funde: solo viaja el contenido, así que el
-     sidebar y el topbar no parpadean. */
+/* Navegación entre páginas: el mismo empuje lateral de Social en ambos
+   anchos. La dirección la fija Navigation en `data-page-dir` según el orden
+   del menú. Mientras dura, la raíz no funde: solo viaja el contenido, así que
+   el sidebar y el topbar no parpadean. El recorrido es relativo al panel: 6 %
+   en escritorio y 12 % en móvil. */
+html[data-page-dir="next"] { --page-dx: 6%; }
+html[data-page-dir="prev"] { --page-dx: -6%; }
+
+html[data-page-dir]::view-transition-old(root),
+html[data-page-dir]::view-transition-new(root) {
+  animation: none !important;
+}
+
+html[data-page-dir]::view-transition-new(pdi-main-section) {
+  animation: pdiPagePushIn var(--dur-panel) var(--ease-spring) both !important;
+}
+
+html[data-page-dir]::view-transition-old(pdi-main-section) {
+  animation: pdiPagePushOut var(--dur-fast) var(--ease-out) both !important;
+}
+
+@media (max-width: 900px) {
   html[data-page-dir="next"] { --page-dx: 12%; }
   html[data-page-dir="prev"] { --page-dx: -12%; }
-
-  html[data-page-dir]::view-transition-old(root),
-  html[data-page-dir]::view-transition-new(root) {
-    animation: none !important;
-  }
-
-  html[data-page-dir]::view-transition-new(pdi-main-section) {
-    animation: pdiPagePushIn var(--dur-panel) var(--ease-spring) both !important;
-  }
-
-  html[data-page-dir]::view-transition-old(pdi-main-section) {
-    animation: pdiPagePushOut var(--dur-fast) var(--ease-out) both !important;
-  }
 }
 
 @keyframes pdiPagePushIn {
