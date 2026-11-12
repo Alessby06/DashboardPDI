@@ -13,7 +13,9 @@ import {
   codigoTotp,
   generarSecretoTotp,
   verificarTotp,
+  validarEliminacionCuentas,
 } from '../../api/_cuentaBase.mjs';
+import { clasificarCuentaBasura, esCuentaBasura } from '../src/scripts/utils/cuentasBasura.js';
 
 const SECRETO = 'secreto-de-prueba-para-el-perfil';
 
@@ -144,4 +146,58 @@ test('un código ya consumido no se vuelve a aceptar', () => {
     verificarTotp(secreto, codigoTotp(secreto, instante - 30000), actual, instante),
     null,
   );
+});
+
+// --- Detección y eliminación de cuentas basura ------------------------------
+
+test('clasificarCuentaBasura detecta restos E2E y cuentas de prueba sin falsos positivos comunes', () => {
+  assert.equal(clasificarCuentaBasura({ usuario: 'e2e-alta-17313', nombre: 'Alta E2E' })?.tipo, 'e2e');
+  assert.equal(clasificarCuentaBasura({ usuario: 'e2e-coord-999', nombre: 'E2E coord' })?.tipo, 'e2e');
+  assert.equal(clasificarCuentaBasura({ usuario: 'usuario.prueba', nombre: 'Usuario Prueba' })?.tipo, 'prueba');
+  assert.equal(clasificarCuentaBasura({ usuario: 'test123', nombre: 'Cuenta Demo' })?.tipo, 'prueba');
+  assert.equal(clasificarCuentaBasura({ usuario: 'asdf', nombre: 'aaaa' })?.tipo, 'prueba');
+  assert.equal(clasificarCuentaBasura({ usuario: '123456', nombre: '123456' })?.tipo, 'prueba');
+  assert.equal(
+    clasificarCuentaBasura({ usuario: 'maria.lopez', nombre: 'Maria Lopez', correo: 'maria@example.com' })?.tipo,
+    'prueba',
+  );
+
+  assert.equal(esCuentaBasura({ usuario: 'coordinacion', nombre: 'Coordinación General' }), false);
+  assert.equal(esCuentaBasura({ usuario: 'admin', nombre: 'Administrador TI' }), false);
+  assert.equal(esCuentaBasura({ usuario: 'camila.quispe', nombre: 'Camila Quispe Rojas' }), false);
+  assert.equal(esCuentaBasura({ usuario: 'esteban.testa', nombre: 'Esteban Demetrio Testa' }), false);
+});
+
+test('validarEliminacionCuentas protege la cuenta propia y al último admin activo', () => {
+  const todas = [
+    { id: 'cuenta:adm1', usuario: 'admin', nombre: 'Admin Uno', rol: 'admin', activo: true },
+    { id: 'cuenta:adm2', usuario: 'e2e-admin-1', nombre: 'E2E admin', rol: 'admin', activo: true },
+    { id: 'cuenta:adm3', usuario: 'admin.inactivo', nombre: 'Admin Viejo', rol: 'admin', activo: false },
+    { id: 'cuenta:pro1', usuario: 'e2e-promo-1', nombre: 'E2E promo', rol: 'promotora', activo: true },
+  ];
+
+  assert.equal(validarEliminacionCuentas(todas, [], 'cuenta:adm1').status, 400);
+  assert.equal(validarEliminacionCuentas(todas, ['cuenta:bad-id!'], 'cuenta:adm1').status, 400);
+  assert.equal(validarEliminacionCuentas(todas, ['cuenta:noexiste'], 'cuenta:adm1').status, 404);
+  assert.equal(validarEliminacionCuentas(todas, ['cuenta:adm1'], 'cuenta:adm1').status, 400);
+  assert.equal(validarEliminacionCuentas(todas, ['cuenta:adm2', 'cuenta:adm1'], 'cuenta:adm1').status, 400);
+
+  // Si solo queda un admin activo y otro actor intenta borrarlo, también se bloquea.
+  const unSoloAdmin = [
+    { id: 'cuenta:adm1', usuario: 'admin', rol: 'admin', activo: true },
+    { id: 'cuenta:adm3', usuario: 'admin.inactivo', rol: 'admin', activo: false },
+  ];
+  assert.equal(validarEliminacionCuentas(unSoloAdmin, ['cuenta:adm1'], 'cuenta:otro').status, 400);
+
+  // Borrado válido en lote (admin E2E + promo E2E + admin inactivo) conserva a adm1.
+  const ok = validarEliminacionCuentas(
+    todas,
+    ['cuenta:adm2', 'cuenta:pro1', 'cuenta:adm3', 'cuenta:adm2'],
+    'cuenta:adm1',
+  );
+  assert.equal(ok.ok, true);
+  assert.deepEqual(ok.objetivos.map((o) => o.id), ['cuenta:adm2', 'cuenta:pro1', 'cuenta:adm3']);
+
+  const demasiadas = Array.from({ length: 101 }, (_, i) => `cuenta:c${i}`);
+  assert.equal(validarEliminacionCuentas(todas, demasiadas, 'cuenta:adm1').status, 400);
 });

@@ -440,7 +440,7 @@ async function cuerpo(request) {
 /** Id de registro seguro para SurrealQL (`cuenta:abc123`). */
 function idRegistro(id) {
   const texto = String(id || '');
-  if (!/^[a-z_]+:[A-Za-z0-9]+$/.test(texto)) throw new Error('Identificador de cuenta no válido.');
+  if (!/^[a-z_]+:[A-Za-z0-9_]+$/.test(texto)) throw new Error('Identificador de cuenta no válido.');
   return texto;
 }
 
@@ -945,8 +945,107 @@ async function otrosAdminsActivos(cfg, excluirId) {
 
 async function objetivoDe(cfg, id) {
   const texto = String(id || '');
-  if (!/^cuenta:[A-Za-z0-9]+$/.test(texto)) return null;
+  if (!/^cuenta:[A-Za-z0-9_]+$/.test(texto)) return null;
   return cuentaPorId(cfg, texto);
+}
+
+const MAX_ELIMINAR_LOTE = 100;
+
+/**
+ * Valida las reglas de seguridad antes de eliminar una o varias cuentas.
+ * Impide eliminarse a sí mismo o dejar el sistema sin cuentas `admin` activas.
+ */
+export function validarEliminacionCuentas(todas, idsObjetivo, actorId) {
+  if (!Array.isArray(idsObjetivo) || !idsObjetivo.length) {
+    return { ok: false, status: 400, error: 'Selecciona al menos una cuenta para eliminar.', objetivos: [] };
+  }
+
+  const unicos = [];
+  const vistos = new Set();
+  for (const crudo of idsObjetivo) {
+    const id = String(crudo || '').trim();
+    if (!id) continue;
+    if (!/^cuenta:[A-Za-z0-9_]+$/.test(id)) {
+      return { ok: false, status: 400, error: 'Identificador de cuenta no válido.', objetivos: [] };
+    }
+    if (!vistos.has(id)) {
+      vistos.add(id);
+      unicos.push(id);
+    }
+  }
+
+  if (!unicos.length) {
+    return { ok: false, status: 400, error: 'Selecciona al menos una cuenta para eliminar.', objetivos: [] };
+  }
+  if (unicos.length > MAX_ELIMINAR_LOTE) {
+    return { ok: false, status: 400, error: `Solo puedes eliminar hasta ${MAX_ELIMINAR_LOTE} cuentas por lote.`, objetivos: [] };
+  }
+
+  const lista = Array.isArray(todas) ? todas : [];
+  const porId = new Map(lista.map((c) => [String(c.id), c]));
+  const objetivos = unicos.map((id) => porId.get(id)).filter(Boolean);
+  if (!objetivos.length) {
+    return { ok: false, status: 404, error: 'La cuenta indicada no existe.', objetivos: [] };
+  }
+
+  const eliminarSet = new Set(objetivos.map((o) => String(o.id)));
+  if (actorId && eliminarSet.has(String(actorId))) {
+    return { ok: false, status: 400, error: 'No puedes eliminar tu propia cuenta.', objetivos: [] };
+  }
+
+  const adminsRestantes = lista.filter(
+    (c) => c.rol === 'admin' && c.activo !== false && !eliminarSet.has(String(c.id)),
+  );
+  if (!adminsRestantes.length) {
+    return { ok: false, status: 400, error: 'Debe quedar al menos una cuenta de administración activa.', objetivos: [] };
+  }
+
+  return { ok: true, status: 200, error: '', objetivos };
+}
+
+async function ejecutarEliminacion(cfg, actor, idsCrudos, ip, { esLote = false } = {}) {
+  const todas = await consulta(cfg, 'SELECT id, usuario, nombre, rol, activo FROM cuenta;');
+  const validacion = validarEliminacionCuentas(todas, idsCrudos, actor.id);
+  if (!validacion.ok) {
+    const error = esLote && validacion.status === 404
+      ? 'Ninguna de las cuentas indicadas existe.'
+      : validacion.error;
+    return json({ ok: false, error }, validacion.status);
+  }
+
+  const { objetivos } = validacion;
+  const sentencias = objetivos.map((o) => `DELETE ${idRegistro(o.id)};`).join('\n');
+  await consulta(cfg, sentencias);
+
+  const idsEliminados = objetivos.map((o) => String(o.id));
+  if (objetivos.length === 1 && !esLote) {
+    const o = objetivos[0];
+    await auditar(
+      cfg,
+      actor,
+      'Cuenta eliminada',
+      `Eliminación definitiva de ${o.usuario} (${o.nombre}, rol ${o.rol}).`,
+      [{ campo: 'usuario', antes: o.usuario, despues: '' }],
+      ip,
+      ENTIDAD_CUENTAS,
+      o.id,
+    );
+    return json({ ok: true, eliminada: idsEliminados[0] });
+  }
+
+  const muestra = objetivos.slice(0, 10).map((o) => o.usuario).join(', ');
+  const extra = objetivos.length > 10 ? ` y ${objetivos.length - 10} más` : '';
+  await auditar(
+    cfg,
+    actor,
+    'Cuentas eliminadas',
+    `Eliminación en lote de ${objetivos.length} cuenta(s): ${muestra}${extra}.`,
+    null,
+    ip,
+    ENTIDAD_CUENTAS,
+    idsEliminados[0],
+  );
+  return json({ ok: true, eliminadas: idsEliminados });
 }
 
 async function admin(request, cfg) {
@@ -958,7 +1057,11 @@ async function admin(request, cfg) {
 
   if (request.method === 'GET') {
     const filas = await consulta(cfg, `SELECT * FROM cuenta ORDER BY nombre ASC;`);
-    return json({ ok: true, cuentas: (Array.isArray(filas) ? filas : []).map(publica) });
+    return json({
+      ok: true,
+      actualId: String(actual.cuenta.id),
+      cuentas: (Array.isArray(filas) ? filas : []).map(publica),
+    });
   }
 
   if (request.method !== 'POST') return json({ ok: false, error: 'Método no permitido.' }, 405);
@@ -1016,6 +1119,14 @@ async function admin(request, cfg) {
       ip, ENTIDAD_CUENTAS, creada.id,
     );
     return json({ ok: true, cuenta: publica(creada), claveTemporal }, 201);
+  }
+
+  // --- Eliminación (individual o en lote) ----------------------------------
+  if (accion === 'eliminar') {
+    return await ejecutarEliminacion(cfg, actual.cuenta, [entrada.id], ip, { esLote: false });
+  }
+  if (accion === 'eliminar_lote') {
+    return await ejecutarEliminacion(cfg, actual.cuenta, entrada.ids, ip, { esLote: true });
   }
 
   // Las demás acciones siempre actúan sobre una cuenta concreta.

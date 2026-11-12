@@ -14,6 +14,7 @@ import { AnimationEngine } from '../utils/AnimationEngine.js';
 import { guardarCache, leerCache } from '../core/snapshot.js';
 import { confirmar } from '../ui/confirmacion.js';
 import { fetchSedes } from '../core/db.js';
+import { clasificarCuentaBasura } from '../utils/cuentasBasura.js';
 
 const ROLES = {
   coord: 'Coordinación',
@@ -27,6 +28,7 @@ const ROL_OPCIONES = Object.entries(ROLES);
 
 let cuentas = [];
 let sedes = [];
+let actualId = '';
 let filtro = { texto: '', rol: '', estado: '' };
 let documentoEnlazado = false;
 let cuerpoEnlazado = null;
@@ -34,6 +36,7 @@ let usuarioTocado = false;
 let cuentaSedesId = '';
 let focoAntesDeModal = null;
 let copiarClaveTemporal = '';
+const seleccionadas = new Set();
 
 function porId(id) {
   return document.getElementById(id);
@@ -139,6 +142,29 @@ function cerrarTodosLosModales() {
 
 // --- Lista -----------------------------------------------------------------
 
+function adminsActivosCount() {
+  return cuentas.filter((c) => c.rol === 'admin' && c.activo).length;
+}
+
+function motivoNoEliminable(cuenta) {
+  if (!cuenta) return 'Cuenta no válida.';
+  if (actualId && cuenta.id === actualId) return 'No puedes eliminar tu propia cuenta.';
+  if (cuenta.rol === 'admin' && cuenta.activo && adminsActivosCount() <= 1) {
+    return 'Debe quedar al menos una cuenta de administración activa.';
+  }
+  return '';
+}
+
+function puedeEliminar(cuenta) {
+  return !motivoNoEliminable(cuenta);
+}
+
+function cuentasDetectadas() {
+  return cuentas.filter(
+    (c) => (!actualId || c.id !== actualId) && clasificarCuentaBasura(c) && puedeEliminar(c),
+  );
+}
+
 function coincide(cuenta) {
   const texto = filtro.texto.trim().toLowerCase();
   if (texto) {
@@ -148,6 +174,7 @@ function coincide(cuenta) {
   if (filtro.rol && cuenta.rol !== filtro.rol) return false;
   if (filtro.estado === 'activas' && !cuenta.activo) return false;
   if (filtro.estado === 'inactivas' && cuenta.activo) return false;
+  if (filtro.estado === 'sospechosas' && !clasificarCuentaBasura(cuenta)) return false;
   return true;
 }
 
@@ -167,13 +194,32 @@ function filaHtml(cuenta) {
     ? '<span class="cuenta-mfa">MFA activo</span>'
     : '';
 
+  const esPropia = Boolean(actualId && cuenta.id === actualId);
+  const deteccion = esPropia ? null : clasificarCuentaBasura(cuenta);
+  const bloqueoEliminar = motivoNoEliminable(cuenta);
+  const marcada = !bloqueoEliminar && seleccionadas.has(cuenta.id);
+
   return `
-    <div class="cuenta-fila${cuenta.activo ? '' : ' is-inactiva'}" role="listitem" data-id="${escapar(cuenta.id)}">
+    <div class="cuenta-fila${cuenta.activo ? '' : ' is-inactiva'}${deteccion ? ' is-sospechosa' : ''}" role="listitem" data-id="${escapar(cuenta.id)}">
       <div class="cuenta-identidad">
+        <label class="cuenta-check-wrap" title="${escapar(bloqueoEliminar || `Seleccionar ${cuenta.nombre}`)}">
+          <input
+            type="checkbox"
+            class="cuenta-check"
+            data-seleccionar="${escapar(cuenta.id)}"
+            aria-label="${escapar(bloqueoEliminar ? `${cuenta.nombre}: ${bloqueoEliminar}` : `Seleccionar cuenta de ${cuenta.nombre}`)}"
+            ${marcada ? 'checked' : ''}
+            ${bloqueoEliminar ? 'disabled' : ''}
+          />
+        </label>
         <span class="cuenta-avatar" aria-hidden="true">${escapar(inicialesDe(cuenta.nombre))}</span>
         <span class="cuenta-texto">
           <span class="cuenta-nombre">${escapar(cuenta.nombre)}</span>
-          <span class="cuenta-usuario">@${escapar(cuenta.usuario)}</span>
+          <span class="cuenta-usuario-linea">
+            <span class="cuenta-usuario">@${escapar(cuenta.usuario)}</span>
+            ${esPropia ? '<span class="status-mark status-mark--ok cuenta-marca"><span class="status-mark-dot" aria-hidden="true"></span>Tu cuenta</span>' : ''}
+            ${deteccion ? `<span class="status-mark status-mark--${deteccion.tipo === 'e2e' ? 'danger' : 'warn'} cuenta-marca" title="${escapar(deteccion.motivo)}"><span class="status-mark-dot" aria-hidden="true"></span>${escapar(deteccion.etiqueta)}</span>` : ''}
+          </span>
         </span>
       </div>
 
@@ -197,12 +243,98 @@ function filaHtml(cuenta) {
         <button type="button" class="cuentas-btn" data-accion="clave" aria-label="Reiniciar contraseña de ${escapar(cuenta.nombre)}">
           Clave
         </button>
-        <button type="button" class="cuentas-btn${cuenta.activo ? ' cuentas-btn--peligro' : ''}"
+        <button type="button" class="cuentas-btn"
           data-accion="estado" data-activo="${cuenta.activo ? '1' : '0'}" aria-label="${cuenta.activo ? 'Desactivar' : 'Activar'} cuenta de ${escapar(cuenta.nombre)}">
           ${cuenta.activo ? 'Desactivar' : 'Activar'}
         </button>
+        <button type="button" class="cuentas-btn cuentas-btn--peligro"
+          data-accion="eliminar"
+          aria-label="${escapar(bloqueoEliminar ? `${cuenta.nombre}: ${bloqueoEliminar}` : `Eliminar cuenta de ${cuenta.nombre}`)}"
+          title="${escapar(bloqueoEliminar || 'Eliminar cuenta definitivamente')}"
+          ${bloqueoEliminar ? 'disabled' : ''}>
+          Eliminar
+        </button>
       </div>
     </div>`;
+}
+
+function sincronizarChecks() {
+  const lista = porId('cuentasLista');
+  if (!lista) return;
+  lista.querySelectorAll('input[data-seleccionar]').forEach((input) => {
+    const id = input.getAttribute('data-seleccionar') || '';
+    input.checked = !input.disabled && seleccionadas.has(id);
+  });
+}
+
+function renderLoteBar() {
+  const bar = porId('cuentasLoteBar');
+  const info = porId('cuentasLoteInfo');
+  const acciones = porId('cuentasLoteAcciones');
+  if (!bar || !info || !acciones) return;
+
+  const porIdCuenta = new Map(cuentas.map((c) => [c.id, c]));
+  for (const id of [...seleccionadas]) {
+    const cuenta = porIdCuenta.get(id);
+    if (!cuenta || !puedeEliminar(cuenta)) seleccionadas.delete(id);
+  }
+
+  const detectadas = cuentasDetectadas();
+  const e2eCount = detectadas.filter((c) => clasificarCuentaBasura(c)?.tipo === 'e2e').length;
+  const pruebaCount = detectadas.length - e2eCount;
+  const visiblesEliminables = cuentas.filter((c) => coincide(c) && puedeEliminar(c));
+
+  if (!detectadas.length && !seleccionadas.size) {
+    bar.hidden = true;
+    info.innerHTML = '';
+    acciones.innerHTML = '';
+    return;
+  }
+
+  bar.hidden = false;
+
+  if (seleccionadas.size > 0) {
+    const sufijo = seleccionadas.size === 1 ? 'cuenta seleccionada' : 'cuentas seleccionadas';
+    const extraDetectadas = detectadas.length
+      ? ` <span class="cuentas-lote-detalle">(${detectadas.length} detectadas como posibles pruebas)</span>`
+      : '';
+    info.innerHTML = `<strong>${seleccionadas.size}</strong> ${sufijo} para eliminar.${extraDetectadas}`;
+  } else if (e2eCount && pruebaCount) {
+    info.innerHTML = `Detectadas <strong>${detectadas.length}</strong> cuentas posibles de prueba o basura (${e2eCount} E2E, ${pruebaCount} manuales).`;
+  } else if (e2eCount) {
+    info.innerHTML = `Detectadas <strong>${e2eCount}</strong> ${e2eCount === 1 ? 'cuenta temporal' : 'cuentas temporales'} de pruebas E2E.`;
+  } else {
+    info.innerHTML = `Detectadas <strong>${pruebaCount}</strong> ${pruebaCount === 1 ? 'posible cuenta' : 'posibles cuentas'} de prueba o basura.`;
+  }
+
+  const botones = [];
+  if (detectadas.length > 0) {
+    botones.push(
+      `<button type="button" class="cuentas-btn cuentas-btn--mini" data-lote="filtrar">${filtro.estado === 'sospechosas' ? 'Ver todas' : `Ver detectadas (${detectadas.length})`}</button>`,
+    );
+    const faltanDetectadas = detectadas.some((c) => !seleccionadas.has(c.id));
+    if (faltanDetectadas) {
+      botones.push(
+        `<button type="button" class="cuentas-btn cuentas-btn--mini" data-lote="seleccionar-detectadas">Seleccionar detectadas (${detectadas.length})</button>`,
+      );
+    }
+  }
+
+  if (seleccionadas.size > 0) {
+    if (visiblesEliminables.some((c) => !seleccionadas.has(c.id))) {
+      botones.push(
+        `<button type="button" class="cuentas-btn cuentas-btn--mini" data-lote="seleccionar-visibles">Seleccionar visibles (${visiblesEliminables.length})</button>`,
+      );
+    }
+    botones.push(
+      '<button type="button" class="cuentas-btn cuentas-btn--mini" data-lote="limpiar">Deseleccionar</button>',
+    );
+    botones.push(
+      `<button type="button" class="cuentas-btn cuentas-btn--mini cuentas-btn--peligro" data-lote="eliminar">Eliminar seleccionadas (${seleccionadas.size})</button>`,
+    );
+  }
+
+  acciones.innerHTML = botones.join('');
 }
 
 function render() {
@@ -214,12 +346,16 @@ function render() {
   const resumen = porId('cuentasResumen');
   if (resumen) {
     const activas = cuentas.filter((c) => c.activo).length;
+    const detectadas = cuentasDetectadas().length;
     resumen.innerHTML = cuentas.length
       ? `<span><strong>${cuentas.length}</strong> cuentas</span>
          <span><strong>${activas}</strong> activas</span>
-         <span><strong>${cuentas.length - activas}</strong> desactivadas</span>`
+         <span><strong>${cuentas.length - activas}</strong> desactivadas</span>
+         ${detectadas ? `<span><strong>${detectadas}</strong> posibles pruebas</span>` : ''}`
       : '';
   }
+
+  renderLoteBar();
 
   if (!visibles.length) {
     lista.innerHTML = `<div class="cuentas-vacio">
@@ -238,11 +374,10 @@ async function cargar() {
   if (!res.res.ok || !res.datos.ok) {
     throw new Error(res.datos.error || 'No se pudieron cargar las cuentas.');
   }
+  actualId = String(res.datos.actualId || '');
   cuentas = Array.isArray(res.datos.cuentas) ? res.datos.cuentas : [];
   render();
-  if (cuentas.length) {
-    guardarCache('cuentas', cuentas, { ttlMs: 10 * 60 * 1000 });
-  }
+  guardarCache('cuentas', cuentas, { ttlMs: 10 * 60 * 1000 });
 }
 
 function actualizarResumenSedes() {
@@ -555,6 +690,130 @@ async function guardarSedes() {
   }
 }
 
+async function eliminarCuenta(cuenta, origen = null) {
+  const bloqueo = motivoNoEliminable(cuenta);
+  if (bloqueo) {
+    aviso('No se puede eliminar', bloqueo, 'warning');
+    return;
+  }
+
+  const confirmado = await confirmar({
+    titulo: 'Eliminar cuenta',
+    mensaje: `Se eliminará definitivamente la cuenta de ${cuenta.nombre} (@${cuenta.usuario}). No podrá volver a entrar y esta acción no se puede deshacer.`,
+    confirmar: 'Eliminar cuenta',
+    peligro: true,
+    origen,
+  });
+  if (!confirmado) return;
+
+  try {
+    const { res, datos } = await pedir('/api/cuenta/admin', {
+      method: 'POST',
+      body: JSON.stringify({ accion: 'eliminar', id: cuenta.id }),
+    });
+    if (!res.ok || !datos.ok) {
+      aviso('No se pudo eliminar', datos.error || 'Intenta de nuevo.', 'danger');
+      return;
+    }
+    seleccionadas.delete(cuenta.id);
+    aviso('Cuenta eliminada', `${cuenta.nombre} (@${cuenta.usuario})`);
+    await cargar();
+    if (filtro.estado === 'sospechosas' && !cuentasDetectadas().length) {
+      restablecerFiltroEstado();
+    }
+  } catch (err) {
+    aviso('No se pudo eliminar', err?.message || 'Intenta de nuevo.', 'danger');
+  }
+}
+
+async function eliminarSeleccionadas(origen = null) {
+  const porIdCuenta = new Map(cuentas.map((c) => [c.id, c]));
+  const objetivoLista = [...seleccionadas]
+    .map((id) => porIdCuenta.get(id))
+    .filter((c) => c && puedeEliminar(c));
+
+  if (!objetivoLista.length) {
+    seleccionadas.clear();
+    renderLoteBar();
+    return;
+  }
+
+  const muestra = objetivoLista.slice(0, 5).map((c) => `@${c.usuario}`).join(', ');
+  const extra = objetivoLista.length > 5 ? ` y ${objetivoLista.length - 5} más` : '';
+  const confirmado = await confirmar({
+    titulo: 'Eliminar cuentas seleccionadas',
+    mensaje: `Se eliminarán definitivamente ${objetivoLista.length} cuenta(s): ${muestra}${extra}. Esta acción no se puede deshacer.`,
+    confirmar: `Eliminar ${objetivoLista.length} cuenta(s)`,
+    peligro: true,
+    origen,
+  });
+  if (!confirmado) return;
+
+  if (origen) origen.disabled = true;
+  try {
+    const { res, datos } = await pedir('/api/cuenta/admin', {
+      method: 'POST',
+      body: JSON.stringify({ accion: 'eliminar_lote', ids: objetivoLista.map((c) => c.id) }),
+    });
+    if (!res.ok || !datos.ok) {
+      aviso('No se pudieron eliminar', datos.error || 'Intenta de nuevo.', 'danger');
+      return;
+    }
+    for (const c of objetivoLista) seleccionadas.delete(c.id);
+    const total = Array.isArray(datos.eliminadas) ? datos.eliminadas.length : objetivoLista.length;
+    aviso('Cuentas eliminadas', `Se eliminaron ${total} cuenta(s).`);
+    await cargar();
+    if (filtro.estado === 'sospechosas' && !cuentasDetectadas().length) {
+      restablecerFiltroEstado();
+    }
+  } catch (err) {
+    aviso('No se pudieron eliminar', err?.message || 'Intenta de nuevo.', 'danger');
+  } finally {
+    if (origen && document.contains(origen)) origen.disabled = false;
+  }
+}
+
+function restablecerFiltroEstado(valor = '') {
+  const select = porId('cuentasEstado');
+  if (select) {
+    select.value = valor;
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+  } else {
+    filtro.estado = valor;
+    render();
+  }
+}
+
+function manejarAccionLote(accion, boton) {
+  if (accion === 'filtrar') {
+    restablecerFiltroEstado(filtro.estado === 'sospechosas' ? '' : 'sospechosas');
+    return;
+  }
+  if (accion === 'seleccionar-detectadas') {
+    for (const c of cuentasDetectadas()) seleccionadas.add(c.id);
+    sincronizarChecks();
+    renderLoteBar();
+    return;
+  }
+  if (accion === 'seleccionar-visibles') {
+    for (const c of cuentas) {
+      if (coincide(c) && puedeEliminar(c)) seleccionadas.add(c.id);
+    }
+    sincronizarChecks();
+    renderLoteBar();
+    return;
+  }
+  if (accion === 'limpiar') {
+    seleccionadas.clear();
+    sincronizarChecks();
+    renderLoteBar();
+    return;
+  }
+  if (accion === 'eliminar') {
+    eliminarSeleccionadas(boton);
+  }
+}
+
 // --- Enlace ----------------------------------------------------------------
 
 function alHacerClic(evento) {
@@ -571,8 +830,14 @@ function alHacerClic(evento) {
     return;
   }
 
+  const loteBoton = evento.target.closest('#cuentasLoteBar [data-lote]');
+  if (loteBoton) {
+    manejarAccionLote(loteBoton.getAttribute('data-lote'), loteBoton);
+    return;
+  }
+
   const boton = evento.target.closest('#cuentasLista [data-accion]');
-  if (!boton) return;
+  if (!boton || boton.disabled) return;
   const fila = boton.closest('.cuenta-fila');
   const cuenta = cuentas.find((c) => c.id === fila?.dataset.id);
   if (!cuenta) return;
@@ -581,9 +846,24 @@ function alHacerClic(evento) {
   if (accion === 'estado') cambiarEstado(cuenta);
   else if (accion === 'clave') reiniciarClave(cuenta);
   else if (accion === 'sedes') abrirSedes(cuenta);
+  else if (accion === 'eliminar') eliminarCuenta(cuenta, boton);
 }
 
 function alCambiar(evento) {
+  const check = evento.target.closest('#cuentasLista input[data-seleccionar]');
+  if (check) {
+    const id = check.getAttribute('data-seleccionar') || '';
+    const cuenta = cuentas.find((c) => c.id === id);
+    if (!cuenta || !puedeEliminar(cuenta)) {
+      check.checked = false;
+      return;
+    }
+    if (check.checked) seleccionadas.add(id);
+    else seleccionadas.delete(id);
+    renderLoteBar();
+    return;
+  }
+
   const select = evento.target.closest('#cuentasLista select[data-accion="rol"]');
   if (!select) return;
   const fila = select.closest('.cuenta-fila');
