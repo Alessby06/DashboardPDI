@@ -64,6 +64,8 @@
   --brand-primary: var(--gt-green);
   --brand-hover: #00997d;
   --brand-dark: #00715d;
+  --brand-fill: #00715d;
+  --brand-fill-hover: #005d4c;
   --brand-dim: #046a58;
   --brand-soft: var(--gt-green-bg);
   /* Tinta que se pinta ENCIMA del verde de marca. En claro el verde es oscuro
@@ -75,6 +77,8 @@
 
   /* Verde de marca CUANDO EL COLOR ES TEXTO (optimizado para nitidez y contraste) */
   --text-brand: #00876f;
+  /* Variante de alto contraste para texto verde sobre tintes --brand-soft (5,09:1). */
+  --text-brand-strong: #00715d;
   
   /* Rojo, ambar y azul CUANDO EL COLOR ES TEXTO (vivos y con contraste accesible) */
   --text-danger: #dc2626;
@@ -213,12 +217,15 @@
   --chip-red-bg: rgba(239, 68, 68, 0.09);
 
   --brand-primary: var(--gt-green);
-  --brand-dark: #008f75;
+  --brand-dark: #00715d;
+  --brand-fill: #00715d;
+  --brand-fill-hover: #005d4c;
   --brand-dim: #e6f7f4;
   --brand-soft: var(--gt-green-bg);
   --on-brand: #ffffff;
 
   --text-brand: #00876f;
+  --text-brand-strong: #00715d;
   --text-danger: #dc2626;
   --text-warning: #b45309;
   --text-info: #0284c7;
@@ -307,6 +314,8 @@
   --brand-primary: #2ee6a0;
   --brand-hover: #6bffc4;
   --brand-dark: #0fae76;
+  --brand-fill: var(--brand-primary);
+  --brand-fill-hover: var(--brand-hover);
   --brand-dim: #0b7a54;
   --brand-soft: var(--gt-green-bg);
   /* El verde de este tema es muy claro: el blanco encima daria 1,6:1. La tinta
@@ -317,6 +326,7 @@
      color de texto y no hace falta un tono aparte. Se declara de todas formas
      para que las mismas reglas de CSS sirvan para los dos temas. */
   --text-brand: var(--gt-green);
+  --text-brand-strong: var(--gt-green);
   
   /* Rojo, ambar y azul como texto, en tema oscuro. Los tres se aclaran en la
      misma proporcion para que se lean sobre las insignias tintadas, que ahora

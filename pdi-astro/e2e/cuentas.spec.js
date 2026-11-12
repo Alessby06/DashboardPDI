@@ -32,6 +32,8 @@ async function crearCuenta(page, { nombre, usuario, rol = 'promotora' }) {
 
   await expect(page.locator('#cuentasClaveModal')).toHaveClass(/open/, { timeout: 20_000 });
   const clave = (await page.locator('#claveModalValor').textContent())?.trim() || '';
+  await page.locator('#btnCopiarClave').click();
+  await expect(page.locator('#claveCopiaEstado')).toContainText(/Copiada/);
   await page.locator('#cuentasClaveModal [data-cerrar]').first().click();
   await expect(page.locator('#cuentasClaveModal')).not.toHaveClass(/open/);
   return clave;
@@ -61,7 +63,7 @@ test.describe('gestión de cuentas', () => {
 
     const fila = page.locator(`#cuentasLista .cuenta-fila:has-text("${usuario}")`);
     await expect(fila).toBeVisible();
-    await expect(fila.locator('select[data-accion="rol"]')).toHaveValue('promotora');
+    await expect(fila).toContainText('Promotora');
     await expect(fila).toContainText('Carmen Alto');
     await expect(fila).toContainText('Activa');
 
@@ -84,22 +86,27 @@ test.describe('gestión de cuentas', () => {
     const fila = page.locator(`#cuentasLista .cuenta-fila:has-text("${usuario}")`);
     await expect(fila).toBeVisible();
 
-    // Reinicio de contraseña: nueva clave temporal.
-    await fila.locator('[data-accion="clave"]').click();
+    // Reinicio de contraseña desde el menú contextual y resguardo al cerrar sin copiar.
+    await fila.locator('[data-accion="menu-fila"]').click();
+    await page.locator('#cuentaMenuFlotante [data-menu-accion="clave"]').click();
     await page.locator('#btnConfirmacionAceptar').click();
     await expect(page.locator('#cuentasClaveModal')).toHaveClass(/open/, { timeout: 20_000 });
     const claveNueva = (await page.locator('#claveModalValor').textContent())?.trim() || '';
     expect(claveNueva.length).toBe(16);
     expect(claveNueva).not.toBe(claveInicial);
     await page.locator('#cuentasClaveModal [data-cerrar]').first().click();
+    await expect(page.locator('#modalConfirmacion')).toHaveClass(/open/);
+    await page.locator('#btnConfirmacionAceptar').click();
+    await expect(page.locator('#cuentasClaveModal')).not.toHaveClass(/open/);
 
     // La clave anterior ya no sirve.
     const primero = await entrarComo(browser, usuario, claveInicial);
     await expect(primero.pagina.locator('#loginError')).toBeVisible({ timeout: 20_000 });
     await primero.contexto.close();
 
-    // Baja.
-    await fila.locator('[data-accion="estado"]').click();
+    // Baja desde el menú contextual de la fila.
+    await fila.locator('[data-accion="menu-fila"]').click();
+    await page.locator('#cuentaMenuFlotante [data-menu-accion="estado"]').click();
     await page.locator('#btnConfirmacionAceptar').click();
     await expect(fila).toContainText('Desactivada', { timeout: 20_000 });
 

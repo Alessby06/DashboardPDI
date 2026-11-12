@@ -53,6 +53,8 @@ export const ALIAS = {
   'accion.reactivar': 'refresh',
   'accion.foto': 'camera-01',
   'accion.lista': 'list-view',
+  'accion.mas': 'more-vertical',
+  'accion.copiar': 'copy-01',
 
   'estado.alerta': 'alert-02',
   'estado.error': 'alert-circle',
@@ -128,6 +130,15 @@ export const PERSONALIZADOS = {
     ["path", { d: "M5.7 13.7 4.3 15.8" }],
     ["path", { d: "M12 15.3v2.5" }],
     ["path", { d: "M18.3 13.7l1.4 2.1" }],
+  ],
+  "more-vertical": [
+    ["circle", { cx: "12", cy: "5", r: "0.9" }],
+    ["circle", { cx: "12", cy: "12", r: "0.9" }],
+    ["circle", { cx: "12", cy: "19", r: "0.9" }],
+  ],
+  "copy-01": [
+    ["rect", { x: "9", y: "9", width: "11", height: "11", rx: "2" }],
+    ["path", { d: "M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" }],
   ],
 };
 

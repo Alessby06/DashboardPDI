@@ -11,7 +11,8 @@ import Icon from './Icon.astro';
 const { variant = "default" } = Astro.props;
 
 const esDashboard = variant === "dashboard";
-const esTabla = ["padron", "salud", "educativo", "auditoria", "voluntariados", "cuentas"].includes(variant);
+const esCuentas = variant === "cuentas";
+const esTabla = ["padron", "salud", "educativo", "auditoria", "voluntariados"].includes(variant);
 const esTablero = variant === "social";
 const esTarjetas = variant === "sedes";
 const esDetalle = variant === "expediente";
@@ -102,6 +103,40 @@ const listas = Array.from({ length: 3 });
                   <span class="pdi-sk-block pdi-sk-line pdi-sk-line--xs"></span>
                 </div>
               ))}
+            </div>
+          ))}
+        </div>
+      </>
+    )}
+
+    {esCuentas && (
+      <>
+        <div class="pdi-sk-toolbar">
+          <span class="pdi-sk-block pdi-sk-search"></span>
+          <span class="pdi-sk-block pdi-sk-filter"></span>
+          <span class="pdi-sk-block pdi-sk-filter"></span>
+        </div>
+        <div class="pdi-sk-table pdi-sk-table--cuentas">
+          <div class="pdi-sk-thead">
+            {Array.from({ length: 4 }).map(() => (
+              <span class="pdi-sk-block pdi-sk-line pdi-sk-line--xs"></span>
+            ))}
+          </div>
+          {filas.map(() => (
+            <div class="pdi-sk-tr">
+              <div class="pdi-sk-cuenta-ident">
+                <span class="pdi-sk-block pdi-sk-avatar"></span>
+                <div class="pdi-sk-cuenta-lines">
+                  <span class="pdi-sk-block pdi-sk-cell pdi-sk-cell--wide"></span>
+                  <span class="pdi-sk-block pdi-sk-line pdi-sk-line--xs"></span>
+                </div>
+              </div>
+              <span class="pdi-sk-block pdi-sk-cell"></span>
+              <span class="pdi-sk-block pdi-sk-cell"></span>
+              <div class="pdi-sk-cuenta-acciones">
+                <span class="pdi-sk-block pdi-sk-btn-pill"></span>
+                <span class="pdi-sk-block pdi-sk-btn-icon"></span>
+              </div>
             </div>
           ))}
         </div>
@@ -251,7 +286,7 @@ const listas = Array.from({ length: 3 });
       </div>
     )}
 
-    {!esDashboard && !esTabla && !esTablero && !esTarjetas && !esDetalle && !esFormulario && !esPerfil && (
+    {!esDashboard && !esCuentas && !esTabla && !esTablero && !esTarjetas && !esDetalle && !esFormulario && !esPerfil && (
       <div class="pdi-sk-grid pdi-sk-grid--2">
         {[0, 1].map(() => (
           <div class="pdi-sk-panel pdi-sk-panel--list">

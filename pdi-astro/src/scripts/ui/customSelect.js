@@ -212,6 +212,8 @@ const tecladoMenu = (evento, select) => {
     items[items.length - 1]?.focus();
   } else if (evento.key === 'Escape') {
     evento.preventDefault();
+    evento.stopPropagation();
+    evento.stopImmediatePropagation();
     cerrar(select);
     select.closest(`.${CLASE_WRAP}`)?.querySelector('.pdi-select-trigger')?.focus();
   } else if (evento.key === 'Tab') {
@@ -339,14 +341,25 @@ if (typeof document !== 'undefined') {
   window.addEventListener('scroll', reposicionar, true);
   window.addEventListener('resize', reposicionar);
 
-  // Esc cierra el menú abierto aunque el foco se haya ido a otro sitio.
+  // Esc cierra el menú abierto aunque el foco se haya ido a otro sitio y evita
+  // que el mismo Escape cierre también un drawer padre debajo del select.
   document.addEventListener('keydown', (evento) => {
     if (evento.key !== 'Escape') return;
-    document.querySelectorAll(`.${CLASE_WRAP}.${CLASE_ABIERTO}`).forEach((wrap) => {
+    const abiertos = document.querySelectorAll(`.${CLASE_WRAP}.${CLASE_ABIERTO}`);
+    if (!abiertos.length) return;
+    evento.preventDefault();
+    evento.stopPropagation();
+    evento.stopImmediatePropagation();
+    let ultimoTrigger = null;
+    abiertos.forEach((wrap) => {
       const select = wrap.querySelector('select');
       if (select) cerrar(select);
+      ultimoTrigger = wrap.querySelector('.pdi-select-trigger') || ultimoTrigger;
     });
-  });
+    if (ultimoTrigger && document.activeElement !== ultimoTrigger) {
+      ultimoTrigger.focus?.();
+    }
+  }, { capture: true });
 
   // Un label[for] abre el trigger del select mejorado.
   document.addEventListener('click', (evento) => {

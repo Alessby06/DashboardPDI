@@ -50,6 +50,11 @@
       padding: 20px;
     }
 
+    /* Confirmación global sobre drawers (.modal-backdrop = 1000) y menús select (1200). */
+    #modalConfirmacion.modal-backdrop {
+      z-index: 1400;
+    }
+
     .modal-backdrop.open,
     .modal-backdrop.active {
       opacity: 1;
@@ -501,12 +506,24 @@
     }
 
     .btn-close-modal {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 36px;
+      min-height: 36px;
       background: transparent;
       border: none;
       color: var(--text-muted);
       cursor: pointer;
       padding: 5px;
       border-radius: var(--radius-sm);
+    }
+
+    @media (max-width: 768px), (pointer: coarse) {
+      .modal-backdrop.drawer .btn-close-modal {
+        min-width: 44px;
+        min-height: 44px;
+      }
     }
 
     @media (hover: hover) and (pointer: fine) {

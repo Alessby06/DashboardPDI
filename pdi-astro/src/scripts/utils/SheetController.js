@@ -269,6 +269,8 @@ function conectarEscape() {
   escapeListo = true;
   document.addEventListener("keydown", (evento) => {
     if (evento.key !== "Escape") return;
+    if (document.querySelector(".pdi-select.is-open")) return;
+    if (document.getElementById("modalConfirmacion")?.classList.contains("open")) return;
     const abiertos = Array.from(document.querySelectorAll(".modal-backdrop.drawer.open"));
     const abierto = abiertos[abiertos.length - 1];
     if (!abierto) return;

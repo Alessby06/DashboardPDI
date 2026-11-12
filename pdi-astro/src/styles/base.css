@@ -701,17 +701,17 @@
       }
 
       .btn-action.primary:hover {
-        background: var(--brand-dark);
-        border-color: var(--brand-dark);
+        background: var(--brand-fill-hover, var(--brand-dark));
+        border-color: var(--brand-fill-hover, var(--brand-dark));
       }
     }
 
     .btn-action.primary {
-      background: var(--gt-green);
-      /* La tinta sale del tema: sobre el verde claro del modo oscuro el blanco
-         daba 1,6:1. En claro sigue siendo blanco. */
+      background: var(--brand-fill, var(--brand-dark));
+      /* La tinta sale del tema: en claro Gutenberg Deep (#00715d, 5,97:1 con
+         blanco); en oscuro verde luminoso con tinta casi negra (11,78:1). */
       color: var(--on-brand);
-      border: 1px solid var(--gt-green);
+      border: 1px solid var(--brand-fill, var(--brand-dark));
       font-weight: 700;
     }
 

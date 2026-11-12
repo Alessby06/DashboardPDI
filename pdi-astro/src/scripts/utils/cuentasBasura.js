@@ -65,7 +65,7 @@ export function clasificarCuentaBasura(cuenta) {
   if (usuario.startsWith('e2e-') || usuario === 'e2e' || /\be2e\b/.test(nombre)) {
     return {
       tipo: 'e2e',
-      etiqueta: 'Prueba E2E',
+      etiqueta: 'Prueba automatizada',
       motivo: 'Cuenta temporal creada por pruebas automatizadas (prefijo e2e-).',
     };
   }
@@ -105,7 +105,7 @@ export function clasificarCuentaBasura(cuenta) {
     return {
       tipo: 'prueba',
       etiqueta: 'Posible prueba',
-      motivo: 'Contiene caracteres repetidos sin sentido.',
+      motivo: 'Contiene caracteres repetidos.',
     };
   }
 

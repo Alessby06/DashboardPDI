@@ -74,6 +74,8 @@ function alTeclear(evento) {
 
   if (evento.key === "Escape") {
     evento.preventDefault();
+    evento.stopPropagation();
+    evento.stopImmediatePropagation();
     terminar(false);
     return;
   }

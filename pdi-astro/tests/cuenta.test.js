@@ -16,6 +16,11 @@ import {
   validarEliminacionCuentas,
 } from '../../api/_cuentaBase.mjs';
 import { clasificarCuentaBasura, esCuentaBasura } from '../src/scripts/utils/cuentasBasura.js';
+import {
+  esRolAlcanceGlobal,
+  validarFormularioCrearCuenta,
+  validarPermisosCuenta,
+} from '../src/scripts/utils/cuentasValidacion.js';
 
 const SECRETO = 'secreto-de-prueba-para-el-perfil';
 
@@ -200,4 +205,89 @@ test('validarEliminacionCuentas protege la cuenta propia y al último admin acti
 
   const demasiadas = Array.from({ length: 101 }, (_, i) => `cuenta:c${i}`);
   assert.equal(validarEliminacionCuentas(todas, demasiadas, 'cuenta:adm1').status, 400);
+});
+
+// --- Reglas cliente de validación y alcance territorial (Ley N.° 29733) ---
+
+test('validarPermisosCuenta exige sede o autorización global en roles operativos', () => {
+  assert.equal(esRolAlcanceGlobal('admin'), true);
+  assert.equal(esRolAlcanceGlobal('social'), true);
+  assert.equal(esRolAlcanceGlobal('coord'), false);
+
+  // Roles con alcance global ignoran sedes específicas.
+  assert.deepEqual(validarPermisosCuenta({ rol: 'admin', sedes: ['sede:a'], accesoGlobal: false }), {
+    ok: true,
+    sedes: [],
+  });
+
+  // Rol operativo sin sedes ni autorización global se rechaza.
+  const sinSedes = validarPermisosCuenta({
+    rol: 'facilitadora',
+    sedes: [],
+    accesoGlobal: false,
+    sedesDisponiblesCount: 4,
+  });
+  assert.equal(sinSedes.ok, false);
+  assert.ok(sinSedes.error);
+
+  // Autorización global explícita devuelve arreglo vacío válido.
+  assert.deepEqual(
+    validarPermisosCuenta({
+      rol: 'coord',
+      sedes: ['sede:a'],
+      accesoGlobal: true,
+      sedesDisponiblesCount: 4,
+    }),
+    { ok: true, sedes: [] },
+  );
+
+  // Sedes explícitas se normalizan sin duplicados.
+  assert.deepEqual(
+    validarPermisosCuenta({
+      rol: 'promotora',
+      sedes: ['sede:carmen_alto', 'sede:carmen_alto', ''],
+      accesoGlobal: false,
+      sedesDisponiblesCount: 4,
+    }),
+    { ok: true, sedes: ['sede:carmen_alto'] },
+  );
+});
+
+test('validarFormularioCrearCuenta enruta errores por campo y rechaza teléfono con +51', () => {
+  const invalido = validarFormularioCrearCuenta({
+    nombre: 'A',
+    usuario: 'usuario inválido',
+    rol: 'facilitadora',
+    correo: 'correo-malo',
+    telefono: '+51 987654321',
+    sedes: [],
+    accesoGlobal: false,
+    sedesDisponiblesCount: 3,
+  });
+  assert.equal(invalido.ok, false);
+  assert.ok(invalido.errores.nombre);
+  assert.ok(invalido.errores.usuario);
+  assert.ok(invalido.errores.correo);
+  assert.ok(invalido.errores.telefono?.includes('+51'));
+  assert.ok(invalido.errores.sedes);
+
+  const valido = validarFormularioCrearCuenta({
+    nombre: '  Camila Quispe  ',
+    usuario: 'Camila.Quispe',
+    rol: 'promotora',
+    correo: 'CAMILA@PDI.ORG.PE',
+    telefono: '987-654-321',
+    sedes: ['sede:carmen_alto'],
+    accesoGlobal: false,
+    sedesDisponiblesCount: 3,
+  });
+  assert.equal(valido.ok, true);
+  assert.deepEqual(valido.datos, {
+    nombre: 'Camila Quispe',
+    usuario: 'camila.quispe',
+    rol: 'promotora',
+    correo: 'camila@pdi.org.pe',
+    telefono: '987654321',
+    sedes: ['sede:carmen_alto'],
+  });
 });
