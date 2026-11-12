@@ -447,16 +447,71 @@ if (typeof document !== "undefined") {
     setTimeout(aplicar, 140);
   };
 
+  // --- Dirección del empuje de página en móvil -------------------------
+  // El empuje lateral global vive en base.css y solo se activa con
+  // data-page-dir. Se fija antes de que Astro cree la View Transition y se
+  // retira cuando la animación ya terminó (no en after-swap, que ocurre a
+  // mitad del recorrido).
+  let tokenDirPagina = 0;
+
+  const paginaDeRuta = (url) => {
+    try {
+      const ruta = new URL(url, window.location.href).pathname.replace(/\/+$/, "");
+      const ultimo = ruta.split("/").pop();
+      return ultimo || "dashboard";
+    } catch (e) {
+      return "";
+    }
+  };
+
+  const ordenDePaginas = () => {
+    const orden = [];
+    document.querySelectorAll(".nav-sections .nav-btn[data-page]:not([data-subview])").forEach((btn) => {
+      if (btn.classList.contains("role-restricted")) return;
+      if (btn.offsetParent === null) return;
+      orden.push(btn.getAttribute("data-page"));
+    });
+    return orden;
+  };
+
+  const fijarDireccionPagina = (evento) => {
+    if (window.innerWidth > 900) {
+      document.documentElement.removeAttribute("data-page-dir");
+      return;
+    }
+    const destino = paginaDeRuta(evento?.to);
+    const actual = document.body?.getAttribute("data-page") || "dashboard";
+    const orden = ordenDePaginas();
+    const desde = orden.indexOf(actual);
+    const hasta = orden.indexOf(destino);
+    if (desde < 0 || hasta < 0) {
+      document.documentElement.removeAttribute("data-page-dir");
+      return;
+    }
+    document.documentElement.dataset.pageDir = hasta < desde ? "prev" : "next";
+    limpiarDireccionPagina(3000);
+  };
+
+  const limpiarDireccionPagina = (ms) => {
+    const token = ++tokenDirPagina;
+    window.setTimeout(() => {
+      if (tokenDirPagina !== token) return;
+      document.documentElement.removeAttribute("data-page-dir");
+    }, ms);
+  };
+
   const refrescarNavegacion = () => {
     document.documentElement.removeAttribute("data-menu-cerrandose");
     // Una transición de subvista cancelada por la navegación no debe dejar la
     // dirección puesta: la página nueva no tiene paneles de Social que empujar.
     document.documentElement.removeAttribute("data-social-dir");
+    limpiarDireccionPagina(420);
     vincularScrollNav();
     Navigation.actualizarEnlaceActivo();
     restaurarScrollNav();
   };
 
+  document.addEventListener("astro:before-preparation", fijarDireccionPagina);
   document.addEventListener("astro:before-swap", () => {
     leerScrollNav();
     persistirScrollNav();
