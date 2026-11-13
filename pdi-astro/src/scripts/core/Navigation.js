@@ -392,11 +392,6 @@ if (typeof document !== "undefined") {
   // restaurar; se ignora hasta que la navegación termina.
   let navegandoScroll = false;
 
-  /** Traza temporal, solo si la consola la pide con __PDI_SCROLL_DEBUG. */
-  const trazaScroll = (...args) => {
-    try { if (window.__PDI_SCROLL_DEBUG) console.log("[scroll]", ...args); } catch (e) { /* sin consola */ }
-  };
-
   const navLateral = () => document.getElementById("sidebarNav");
 
   const leerScrollNav = () => {
@@ -429,7 +424,6 @@ if (typeof document !== "undefined") {
         return;
       }
       leerScrollNav();
-      trazaScroll("evento", scrollNavGuardado);
       clearTimeout(temporizadorScrollNav);
       temporizadorScrollNav = setTimeout(persistirScrollNav, 150);
     }, { passive: true });
@@ -451,7 +445,6 @@ if (typeof document !== "undefined") {
     }
     // Si Astro o Lenis conservaron la posición, `aplicar` no la toca; si la
     // resetean después, las llamadas programadas la recuperan.
-    trazaScroll("restaurar", { guardado: scrollNavGuardado, top: nav.scrollTop, h: nav.clientHeight, sh: nav.scrollHeight });
 
     const aplicar = () => {
       if (nav.scrollTop > 1 || !scrollNavGuardado) return;
@@ -467,7 +460,6 @@ if (typeof document !== "undefined") {
       //    fotograma siguiente, así que el menú aparecía arriba y saltaba
       //    después. `scrollTop` deja la posición correcta en esa instantánea.
       try { nav.scrollTop = destino; } catch (e) { /* sin scroll */ }
-      trazaScroll("aplicar", { destino, top: nav.scrollTop });
       // 2) Lenis después, para que su estado interno no devuelva el menú a la
       //    posición anterior en la primera rueda.
       try {
@@ -578,7 +570,6 @@ if (typeof document !== "undefined") {
     if (nav && scrollNavGuardado > 0 && nav.scrollTop < 1) {
       nav.scrollTop = scrollNavGuardado;
     }
-    trazaScroll("before-swap", { guardado: scrollNavGuardado, top: nav?.scrollTop });
     persistirScrollNav();
   });
   document.addEventListener("astro:after-swap", confirmarDireccionPagina);

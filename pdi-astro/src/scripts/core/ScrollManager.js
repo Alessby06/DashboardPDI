@@ -11,7 +11,9 @@ import { esScrollNativo } from './scrollMode.js';
  */
 const PANE_SELECTOR = [
   '[data-smooth-scroll]',
-  '.nav-sections',
+  // `.nav-sections` (el menú lateral) queda fuera a proposito: su Lenis
+  // anidado reiniciaba el scrollTop al moverse el <aside> en cada navegacion
+  // del ClientRouter. El menu scrollea nativo y conserva la posicion.
   '.modal-body',
   '.modal-box',
   '.audit-filters-body',
