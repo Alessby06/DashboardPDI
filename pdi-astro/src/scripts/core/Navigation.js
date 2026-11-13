@@ -401,7 +401,11 @@ if (typeof document !== "undefined") {
 
   const leerScrollNav = () => {
     const nav = navLateral();
-    if (nav) scrollNavGuardado = Number(nav.scrollTop) || 0;
+    // Durante la navegación el panel se reinicia a 0. Ese valor no debe
+    // pisar la posición capturada al empezar el cambio.
+    if (nav && !(navegandoScroll && scrollNavGuardado > 0)) {
+      scrollNavGuardado = Number(nav.scrollTop) || 0;
+    }
     return scrollNavGuardado;
   };
 
@@ -416,7 +420,14 @@ if (typeof document !== "undefined") {
     if (!nav || nav.dataset.pdiScrollGuard === "1") return;
     nav.dataset.pdiScrollGuard = "1";
     nav.addEventListener("scroll", () => {
-      if (navegandoScroll) return;
+      if (navegandoScroll) {
+        // El movimiento del panel o Lenis pueden llevar el scroll a 0 antes
+        // de la captura de la transición: se devuelve en el acto.
+        if (scrollNavGuardado > 0 && nav.scrollTop < 1) {
+          nav.scrollTop = scrollNavGuardado;
+        }
+        return;
+      }
       leerScrollNav();
       trazaScroll("evento", scrollNavGuardado);
       clearTimeout(temporizadorScrollNav);
@@ -549,12 +560,25 @@ if (typeof document !== "undefined") {
     restaurarScrollNav();
   };
 
-  document.addEventListener("astro:before-preparation", prepararDireccionPagina);
-  document.addEventListener("astro:before-swap", (evento) => {
+  document.addEventListener("astro:before-preparation", () => {
+    // La posición se captura aquí, cuando el panel todavía está estable: más
+    // tarde el propio cambio de documento lo devuelve a 0.
+    if (!navegandoScroll) {
+      leerScrollNav();
+      persistirScrollNav();
+    }
     navegandoScroll = true;
+    prepararDireccionPagina();
+  });
+  document.addEventListener("astro:before-swap", (evento) => {
     marcarNuevoDocumento(evento);
-    leerScrollNav();
-    trazaScroll("before-swap", scrollNavGuardado);
+    // El panel pudo reiniciarse al preparar el documento nuevo: se devuelve
+    // la posición guardada antes de que Astro lo mueva.
+    const nav = navLateral();
+    if (nav && scrollNavGuardado > 0 && nav.scrollTop < 1) {
+      nav.scrollTop = scrollNavGuardado;
+    }
+    trazaScroll("before-swap", { guardado: scrollNavGuardado, top: nav?.scrollTop });
     persistirScrollNav();
   });
   document.addEventListener("astro:after-swap", confirmarDireccionPagina);
