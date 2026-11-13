@@ -176,6 +176,9 @@ export const ScrollManager = {
   autoAttach(el) {
     if (!this.enabled || !el || el.nodeType !== 1) return;
     if (el === this.mainWrapper) return;
+    // El menu lateral scrollea nativo: su Lenis anidado reiniciaba la
+    // posicion al mover el <aside> en cada navegacion del ClientRouter.
+    if (el.closest('.sidebar')) return;
     if (el.closest('.lenis-pane, [data-lenis-prevent], [data-scroll-native]')) return;
     if (enModalCerrado(el)) return;
     if (el.matches('pre, code, textarea, input, select, .table-container, .table-responsive, .kanban-board, .expediente-sidebar, .sidebar')) return;
