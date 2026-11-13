@@ -430,10 +430,13 @@ if (typeof document !== "undefined") {
 
     const aplicar = () => {
       if (nav.scrollTop > 1 || !scrollNavGuardado) return;
-      const destino = Math.min(
-        scrollNavGuardado,
-        Math.max(0, nav.scrollHeight - nav.clientHeight),
-      );
+      // El tope solo se aplica cuando el sidebar ya tiene layout. Durante
+      // after-swap puede medir 0 y dejaría la posición en 0 justo antes de
+      // la captura de la transición.
+      const maxScroll = nav.scrollHeight - nav.clientHeight;
+      const destino = maxScroll > 0
+        ? Math.min(scrollNavGuardado, maxScroll)
+        : scrollNavGuardado;
       // 1) Asignación directa primero. La instantánea de la transición se
       //    toma dentro de `after-swap`; `lenis.scrollTo` aplica en el
       //    fotograma siguiente, así que el menú aparecía arriba y saltaba
