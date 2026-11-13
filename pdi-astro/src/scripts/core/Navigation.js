@@ -461,6 +461,10 @@ if (typeof document !== "undefined") {
     };
 
     aplicar();
+    // La microtarea corre después de todos los escuchadores de after-swap:
+    // ScrollManager reactiva Lenis y puede devolver el panel a 0. Se vuelve a
+    // fijar antes de que el navegador capture la instantánea de la transición.
+    if (typeof queueMicrotask === "function") queueMicrotask(aplicar);
     requestAnimationFrame(aplicar);
     setTimeout(aplicar, 140);
   };
