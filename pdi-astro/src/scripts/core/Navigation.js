@@ -387,6 +387,10 @@ if (typeof document !== "undefined") {
   const CLAVE_SCROLL_NAV = "pdi_sidebar_scroll";
   let scrollNavGuardado = 0;
   let temporizadorScrollNav = null;
+  // Durante el intercambio, Astro mueve el panel y el navegador dispara un
+  // scroll a 0. Ese evento no debe sobrescribir la posición que se va a
+  // restaurar; se ignora hasta que la navegación termina.
+  let navegandoScroll = false;
 
   /** Traza temporal, solo si la consola la pide con __PDI_SCROLL_DEBUG. */
   const trazaScroll = (...args) => {
@@ -412,6 +416,7 @@ if (typeof document !== "undefined") {
     if (!nav || nav.dataset.pdiScrollGuard === "1") return;
     nav.dataset.pdiScrollGuard = "1";
     nav.addEventListener("scroll", () => {
+      if (navegandoScroll) return;
       leerScrollNav();
       trazaScroll("evento", scrollNavGuardado);
       clearTimeout(temporizadorScrollNav);
@@ -429,11 +434,13 @@ if (typeof document !== "undefined") {
         scrollNavGuardado = 0;
       }
     }
-    if (!scrollNavGuardado || scrollNavGuardado <= 0) return;
-    // Si Astro o Lenis conservaron la posición, o el usuario ya movió el
-    // menú, no se toca.
+    if (!scrollNavGuardado || scrollNavGuardado <= 0) {
+      navegandoScroll = false;
+      return;
+    }
+    // Si Astro o Lenis conservaron la posición, `aplicar` no la toca; si la
+    // resetean después, las llamadas programadas la recuperan.
     trazaScroll("restaurar", { guardado: scrollNavGuardado, top: nav.scrollTop, h: nav.clientHeight, sh: nav.scrollHeight });
-    if (nav.scrollTop > 1) return;
 
     const aplicar = () => {
       if (nav.scrollTop > 1 || !scrollNavGuardado) return;
@@ -466,7 +473,10 @@ if (typeof document !== "undefined") {
     // fijar antes de que el navegador capture la instantánea de la transición.
     if (typeof queueMicrotask === "function") queueMicrotask(aplicar);
     requestAnimationFrame(aplicar);
-    setTimeout(aplicar, 140);
+    setTimeout(() => {
+      aplicar();
+      navegandoScroll = false;
+    }, 140);
   };
 
   // --- Dirección del empuje de página -------------------------------
@@ -541,6 +551,7 @@ if (typeof document !== "undefined") {
 
   document.addEventListener("astro:before-preparation", prepararDireccionPagina);
   document.addEventListener("astro:before-swap", (evento) => {
+    navegandoScroll = true;
     marcarNuevoDocumento(evento);
     leerScrollNav();
     trazaScroll("before-swap", scrollNavGuardado);
