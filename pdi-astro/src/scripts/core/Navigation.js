@@ -430,16 +430,23 @@ if (typeof document !== "undefined") {
 
     const aplicar = () => {
       if (nav.scrollTop > 1 || !scrollNavGuardado) return;
+      const destino = Math.min(
+        scrollNavGuardado,
+        Math.max(0, nav.scrollHeight - nav.clientHeight),
+      );
+      // 1) Asignación directa primero. La instantánea de la transición se
+      //    toma dentro de `after-swap`; `lenis.scrollTo` aplica en el
+      //    fotograma siguiente, así que el menú aparecía arriba y saltaba
+      //    después. `scrollTop` deja la posición correcta en esa instantánea.
+      try { nav.scrollTop = destino; } catch (e) { /* sin scroll */ }
+      // 2) Lenis después, para que su estado interno no devuelva el menú a la
+      //    posición anterior en la primera rueda.
       try {
         const pane = window.__pdiPanes?.get(nav);
         if (pane?.lenis) {
-          pane.lenis.scrollTo(scrollNavGuardado, { immediate: true, force: true });
-        } else {
-          nav.scrollTop = scrollNavGuardado;
+          pane.lenis.scrollTo(destino, { immediate: true, force: true });
         }
-      } catch (e) {
-        try { nav.scrollTop = scrollNavGuardado; } catch (otro) { /* sin scroll */ }
-      }
+      } catch (e) { /* sin lenis */ }
     };
 
     aplicar();

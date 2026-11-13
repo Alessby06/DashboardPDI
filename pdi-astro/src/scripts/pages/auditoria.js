@@ -23,6 +23,7 @@ import { fetchBitacora, LIMITE_BITACORA } from '../core/db.js';
 import { guardarCache, leerCache } from '../core/snapshot.js';
 import { AuditModel } from '../models/AuditModel.js';
 import { DashboardView } from '../views/DashboardView.js';
+import { mismaBitacora } from '../utils/bitacora.js';
 // El boton de confirmar la exportacion vive en el chrome comun
 // (el chrome comun, que ahora va en linea en cada HTML) y su puente resuelve
 // por window.PDI, asi que el
@@ -81,12 +82,17 @@ async function cargarBitacora({ ampliar = false } = {}) {
     const { logs, total } = await fetchBitacora({ limit: limiteBitacora });
     totalBitacora = total;
     DashboardView._auditTotalServidor = totalBitacora;
-    const teniaCache = AuditModel.getAll().length > 0;
+    const actuales = AuditModel.getAll();
+    const teniaCache = actuales.length > 0;
+    // Si la copia ya muestra exactamente lo mismo, no se repinta: reemplazar
+    // la tabla reinicia las cifras y produce el parpadeo que se quiere quitar.
+    const cambio = !mismaBitacora(actuales, logs);
+    const hayMas = totalBitacora > actuales.length;
     // Un fallo de red devuelve [] (fetchBitacora lo absorbe). Si ya había una
     // copia en pantalla, no se borra: se conserva y la próxima vuelta reintenta.
-    if (logs.length || !teniaCache) {
+    if (!teniaCache || (logs.length && (cambio || hayMas))) {
       AuditModel.aplicarDatos(logs);
-      DashboardView.renderAuditLogs(AuditModel.getAll());
+      DashboardView.renderAuditLogs(logs);
     }
     if (logs.length) {
       guardarCache("bitacora", logs, { ttlMs: 10 * 60 * 1000, maxBytes: 2_000_000 });

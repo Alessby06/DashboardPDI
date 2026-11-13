@@ -20,20 +20,61 @@
 //  es justo lo que evita que padron.html cargue el kanban social o que
 //  salud.html cargue la tabla de auditoria.
 import { PageGuard } from "../auth/PageGuard.js";
-import { haySesion } from "../auth/usuarios.js";
+import { haySesion, CLAVE_ROL } from "../auth/usuarios.js";
 import { Navigation } from "./Navigation.js";
 import { RoleController } from "../controllers/RoleController.js";
 import { BeneficiarioModel } from "../models/BeneficiarioModel.js";
 import { CasoSocialModel } from "../models/CasoSocialModel.js";
 import { SedeModel } from "../models/SedeModel.js";
 import { VoluntarioModel } from "../models/VoluntarioModel.js";
+import { ColaboradorModel } from "../models/ColaboradorModel.js";
 import { AuditModel } from "../models/AuditModel.js";
 import { Theme } from "./Theme.js";
 import { ToastView } from "../views/ToastView.js";
 import {
   iniciarCapaDatos, refrescarDesdeNube, hidratarDesdeSurreal, aplicarSnapshotInicial,
+  fetchBitacora, LIMITE_BITACORA,
 } from "./db.js";
+import { guardarCache, leerCache } from "./snapshot.js";
 import { iniciarEstadoCarga } from "./LoadingState.js";
+
+/**
+ * Deja la bitácora lista antes de que se abra Historial de Cambios.
+ *
+ * Esa vista no puede pintar nada hasta que responde su API (~0,8-1,1 s en
+ * frío). Pedirla en tiempo muerto, solo para coordinación y administración,
+ * hace que la primera visita pinte de inmediato y que la revalidación sea
+ * invisible. No se adelanta en la propia página: allí la pide su script.
+ */
+let bitacoraPrecargada = false;
+
+function precargarBitacora(slug) {
+  if (bitacoraPrecargada || slug === "auditoria") return;
+  let rol = "";
+  try { rol = localStorage.getItem(CLAVE_ROL) || ""; } catch (e) { /* sin almacenamiento */ }
+  if (!["coord", "admin"].includes(rol)) return;
+  const conexion = navigator.connection;
+  if (conexion?.saveData || /^(slow-2g|2g)$/.test(String(conexion?.effectiveType || ""))) return;
+  bitacoraPrecargada = true;
+
+  const lanzar = async () => {
+    const cache = leerCache("bitacora", { ttlMs: 30 * 1000 });
+    if (Array.isArray(cache) && cache.length) {
+      if (!AuditModel.getAll().length) AuditModel.aplicarDatos(cache);
+      return;
+    }
+    const { logs } = await fetchBitacora({ limit: LIMITE_BITACORA });
+    if (!logs.length) return;
+    if (!AuditModel.getAll().length) AuditModel.aplicarDatos(logs);
+    guardarCache("bitacora", logs, { ttlMs: 10 * 60 * 1000, maxBytes: 2_000_000 });
+  };
+
+  if (typeof requestIdleCallback === "function") {
+    requestIdleCallback(() => { void lanzar(); }, { timeout: 3000 });
+  } else {
+    setTimeout(() => { void lanzar(); }, 1500);
+  }
+}
 
 /**
  * Arranca el chrome. Devuelve el slug de la pagina si el acceso fue concedido,
@@ -62,6 +103,7 @@ export function arrancarComun() {
   CasoSocialModel.init();
   SedeModel.init();
   VoluntarioModel.init();
+  ColaboradorModel.init();
 
   // Copia de la última hidratación en esta pestaña: permite retirar el
   // esqueleto sin esperar a la nube. Si no hay copia válida, no hace nada.
@@ -88,6 +130,7 @@ export function arrancarComun() {
   // avisa que la primera hidratacion termino.
   iniciarEstadoCarga();
   iniciarCapaDatos();
+  precargarBitacora(slug);
 
   return slug;
 }
