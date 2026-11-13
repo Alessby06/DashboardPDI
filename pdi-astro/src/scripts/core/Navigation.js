@@ -388,6 +388,11 @@ if (typeof document !== "undefined") {
   let scrollNavGuardado = 0;
   let temporizadorScrollNav = null;
 
+  /** Traza temporal, solo si la consola la pide con __PDI_SCROLL_DEBUG. */
+  const trazaScroll = (...args) => {
+    try { if (window.__PDI_SCROLL_DEBUG) console.log("[scroll]", ...args); } catch (e) { /* sin consola */ }
+  };
+
   const navLateral = () => document.getElementById("sidebarNav");
 
   const leerScrollNav = () => {
@@ -408,6 +413,7 @@ if (typeof document !== "undefined") {
     nav.dataset.pdiScrollGuard = "1";
     nav.addEventListener("scroll", () => {
       leerScrollNav();
+      trazaScroll("evento", scrollNavGuardado);
       clearTimeout(temporizadorScrollNav);
       temporizadorScrollNav = setTimeout(persistirScrollNav, 150);
     }, { passive: true });
@@ -426,6 +432,7 @@ if (typeof document !== "undefined") {
     if (!scrollNavGuardado || scrollNavGuardado <= 0) return;
     // Si Astro o Lenis conservaron la posición, o el usuario ya movió el
     // menú, no se toca.
+    trazaScroll("restaurar", { guardado: scrollNavGuardado, top: nav.scrollTop, h: nav.clientHeight, sh: nav.scrollHeight });
     if (nav.scrollTop > 1) return;
 
     const aplicar = () => {
@@ -442,6 +449,7 @@ if (typeof document !== "undefined") {
       //    fotograma siguiente, así que el menú aparecía arriba y saltaba
       //    después. `scrollTop` deja la posición correcta en esa instantánea.
       try { nav.scrollTop = destino; } catch (e) { /* sin scroll */ }
+      trazaScroll("aplicar", { destino, top: nav.scrollTop });
       // 2) Lenis después, para que su estado interno no devuelva el menú a la
       //    posición anterior en la primera rueda.
       try {
@@ -531,6 +539,7 @@ if (typeof document !== "undefined") {
   document.addEventListener("astro:before-swap", (evento) => {
     marcarNuevoDocumento(evento);
     leerScrollNav();
+    trazaScroll("before-swap", scrollNavGuardado);
     persistirScrollNav();
   });
   document.addEventListener("astro:after-swap", confirmarDireccionPagina);
