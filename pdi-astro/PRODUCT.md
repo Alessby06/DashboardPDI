@@ -33,9 +33,10 @@ Un único expediente longitudinal por beneficiario es el eje del sistema: padró
 ## Capabilities and Constraints
 
 - Astro 7 con salida estática, CSS nativo con tokens, JavaScript modular sin framework y SDK de SurrealDB.
-- Padrón único, salud CRED, educativo, familia y retiro, ASP, sedes, voluntariados, expediente, auditoría y ajustes.
+- Padrón único, padrón de colaboradores (facilitadores, promotoras, directores de I.E., enlaces de iglesias aliadas), salud CRED, educativo, familia y retiro, ASP, sedes, voluntariados, expediente, auditoría y ajustes.
+- Directorio de colaboradores con vinculación opcional a cuentas de acceso al sistema (`/cuentas`) y asignación territorial (distrito, sede e I.E.).
 - Exportación CSV de bitácoras y listados; auditoría de acciones por usuario.
-- Tratamiento de datos personales de menores bajo la Ley N.° 29733, citada en la interfaz y en los flujos de exportación.
+- Tratamiento de datos personales bajo la Ley N.° 29733, citada en la interfaz y en los flujos de exportación.
 - Hojas inferiores con gesto táctil en móvil; popovers anclados en escritorio.
 
 ## Brand Commitments
@@ -46,6 +47,7 @@ Un único expediente longitudinal por beneficiario es el eje del sistema: padró
 ## Evidence on Hand
 
 - Datos operativos reales de beneficiarios, sedes, tamizajes y derivaciones en la base SurrealDB del proyecto.
+- Fichas técnicas oficiales del programa: A4 Facilitadora/Promotora/Voluntaria (Casita), A4 Facilitador/Iglesia Aliada (Desayuno), y A5 Voluntarias/Directores de I.E. (Lonchera).
 - No hay testimonios, casos de prensa ni material de marketing; el trabajo futuro no debe inventarlos.
 
 ## Product Principles

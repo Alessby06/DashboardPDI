@@ -1,0 +1,352 @@
+---
+import AppLayout from '../layouts/AppLayout.astro';
+import FilterPanel from '../components/FilterPanel.astro';
+import FilterField from '../components/FilterField.astro';
+import SortMenu from '../components/SortMenu.astro';
+import Icon from '../components/Icon.astro';
+import '../styles/views-colaboradores.css';
+
+const OPCIONES_ROL = [
+  { valor: 'Facilitador(a) Comunitario(a)', etiqueta: 'Facilitador(a) Comunitario(a)' },
+  { valor: 'Promotora Social', etiqueta: 'Promotora Social' },
+  { valor: 'Promotora Educativa', etiqueta: 'Promotora Educativa' },
+  { valor: 'Director(a) I.E.', etiqueta: 'Director(a) I.E.' },
+  { valor: 'Docente Enlace', etiqueta: 'Docente Enlace' },
+  { valor: 'Enlace Parroquial / Iglesia', etiqueta: 'Enlace Parroquial / Iglesia' },
+];
+
+const OPCIONES_DISTRITO = [
+  { valor: 'Comas', etiqueta: 'Comas' },
+  { valor: 'Carabayllo', etiqueta: 'Carabayllo' },
+  { valor: 'El Agustino', etiqueta: 'El Agustino' },
+];
+
+const OPCIONES_ESTRATEGIA = [
+  { valor: 'Desayuno Infantil', etiqueta: 'Desayuno Infantil' },
+  { valor: 'Lonchera Infantil', etiqueta: 'Lonchera Infantil' },
+  { valor: 'Casita del Saber', etiqueta: 'Casita del Saber' },
+  { valor: 'Área Social Pastoral', etiqueta: 'Área Social Pastoral' },
+];
+
+const OPCIONES_CUENTA = [
+  { valor: 'con-cuenta', etiqueta: 'Con cuenta de acceso al sistema' },
+  { valor: 'sin-cuenta', etiqueta: 'Solo ficha de campo (sin login)' },
+];
+
+const OPCIONES_ORDEN = [
+  { valor: 'apellido-asc', etiqueta: 'Apellido (A-Z)' },
+  { valor: 'apellido-desc', etiqueta: 'Apellido (Z-A)' },
+  { valor: 'nombre-asc', etiqueta: 'Nombre (A-Z)' },
+  { valor: 'distrito-asc', etiqueta: 'Distrito (A-Z)' },
+  { valor: 'tipo-asc', etiqueta: 'Cargo / Rol (A-Z)' },
+  { valor: 'ingreso-desc', etiqueta: 'Ingreso (reciente)' },
+];
+---
+
+<AppLayout title="Padrón de Colaboradores" currentPage="colaboradores">
+  <section class="app-view active" id="view-colaboradores">
+    <div class="view-header">
+      <div class="view-title-group">
+        <h2>Padrón de Colaboradores e Instituciones Aliadas</h2>
+        <p>Directorio técnico de facilitadores comunitarios, promotoras de campo, directores de instituciones educativas y enlaces pastorales (Fichas A4 y A5).</p>
+      </div>
+      <div class="view-actions">
+        <button type="button" class="btn-action primary" onclick="window.openNuevoColaborador ? window.openNuevoColaborador() : null" title="Registrar nuevo colaborador de campo">
+          <Icon name="accion.agregar" size={15} />
+          <span>Nuevo Colaborador</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Cobertura y Reparto Operativo -->
+    <section class="colab-reparto" aria-labelledby="colabRepartoTitle">
+      <div class="colab-reparto-head">
+        <div>
+          <h3 class="colab-reparto-title" id="colabRepartoTitle">Equipo Operativo y Red de Enlace</h3>
+          <p class="colab-reparto-sub">Personal técnico, enlaces de iglesias y directores de colegios aliados</p>
+        </div>
+        <div class="colab-reparto-total" id="statColabTotal">0 activos / 0 total</div>
+      </div>
+
+      <div class="colab-reparto-grid">
+        <div class="colab-stat-box">
+          <span class="colab-stat-label">Facilitadoras y Promotoras</span>
+          <strong class="colab-stat-value" id="statColabFacilitadores">0</strong>
+          <span class="colab-stat-desc">Personal técnico PDI</span>
+        </div>
+        <div class="colab-stat-box">
+          <span class="colab-stat-label">Directores y Docentes I.E.</span>
+          <strong class="colab-stat-value" id="statColabDirectores">0</strong>
+          <span class="colab-stat-desc">Red educativa aliada</span>
+        </div>
+        <div class="colab-stat-box">
+          <span class="colab-stat-label">Enlaces de Iglesias</span>
+          <strong class="colab-stat-value" id="statColabEnlaces">0</strong>
+          <span class="colab-stat-desc">Pastoral y puntos de reparto</span>
+        </div>
+        <div class="colab-stat-box">
+          <span class="colab-stat-label">Comas / Carabayllo</span>
+          <strong class="colab-stat-value">
+            <span id="statColabComas">0</span> · <span id="statColabCarabayllo">0</span>
+          </strong>
+          <span class="colab-stat-desc">Cobertura territorial</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tabla y Directorio en Tarjeta Unificada -->
+    <div class="card" id="cardColaboradores">
+      <div class="card-header" style="display:flex; align-items:center; justify-content:space-between;">
+        <div class="card-title">Directorio de Colaboradores</div>
+        <span class="text-muted" id="colaboradoresCount" style="font-size:12px; font-weight:600;">—</span>
+      </div>
+
+      <!-- Barra de Filtros y Búsqueda -->
+      <div class="audit-toolbar table-toolbar" style="margin-bottom: 16px;">
+        <div class="audit-search-wrap">
+          <Icon name="accion.buscar" size={15} class="audit-search-icon" />
+          <input
+            type="text"
+            class="audit-search-input"
+            id="inputColabSearch"
+            placeholder="Buscar por nombre, DNI, celular, sede, colegio o rol..."
+            oninput="window.filterColabSearch ? window.filterColabSearch(this.value) : null"
+          />
+          <button
+            type="button"
+            class="audit-search-clear"
+            id="btnColabSearchClear"
+            style="display:none;"
+            onclick="window.clearColabSearch ? window.clearColabSearch() : null"
+            title="Limpiar búsqueda"
+          >
+            <Icon name="accion.cerrar" size={12} />
+          </button>
+        </div>
+
+        <button
+          type="button"
+          class="btn-action-icon btn-audit-export-icon table-export-btn"
+          id="btnExportColabCSV"
+          onclick="window.exportColaboradoresCSV ? window.exportColaboradoresCSV() : null"
+          aria-label="Descargar Padrón de Colaboradores en CSV"
+          title="Descargar reporte en CSV"
+        >
+          <Icon name="accion.descargar" size={16} />
+        </button>
+
+        <SortMenu
+          id="colabSort"
+          options={OPCIONES_ORDEN}
+          selected="apellido-asc"
+          onchange="window.sortColaboradores ? window.sortColaboradores(this.value) : null"
+        />
+
+        <FilterPanel
+          id="dropdownColabFilterPanel"
+          buttonId="btnDropdownColabFilterPanel"
+          menuId="menuColabFilterPanel"
+          countId="colabActiveFiltersCount"
+          title="Filtros de Colaboradores"
+          reset="window.resetColabFilters ? window.resetColabFilters() : null"
+        >
+          <FilterField
+            id="dropdownColabRol"
+            menuId="menuColabRol"
+            labelId="labelColabRolSelect"
+            label="Rol / Cargo"
+            labelTodos="Todos los Cargos"
+            todosEtiqueta="Todos los Cargos"
+            opciones={OPCIONES_ROL}
+            countPrefix="countFacetColabRol"
+            onSelect="window.setFilterColabRol"
+          />
+
+          <FilterField
+            id="dropdownColabDistrito"
+            menuId="menuColabDistrito"
+            labelId="labelColabDistritoSelect"
+            label="Distrito Asignado"
+            labelTodos="Todos los Distritos"
+            todosEtiqueta="Todos los Distritos"
+            opciones={OPCIONES_DISTRITO}
+            countPrefix="countFacetColabDistrito"
+            onSelect="window.setFilterColabDistrito"
+          />
+
+          <FilterField
+            id="dropdownColabEstrategia"
+            menuId="menuColabEstrategia"
+            labelId="labelColabEstrategiaSelect"
+            label="Estrategia / Servicio"
+            labelTodos="Todas las Estrategias"
+            todosEtiqueta="Todas las Estrategias"
+            opciones={OPCIONES_ESTRATEGIA}
+            countPrefix="countFacetColabEstrategia"
+            onSelect="window.setFilterColabEstrategia"
+          />
+
+          <FilterField
+            id="dropdownColabCuenta"
+            menuId="menuColabCuenta"
+            labelId="labelColabCuentaSelect"
+            label="Acceso al Sistema"
+            labelTodos="Todos los Estados de Cuenta"
+            todosEtiqueta="Todos los Estados de Cuenta"
+            opciones={OPCIONES_CUENTA}
+            countPrefix="countFacetColabCuenta"
+            onSelect="window.setFilterColabCuenta"
+          />
+        </FilterPanel>
+      </div>
+
+      <!-- Tabla de Registros -->
+      <div class="table-responsive">
+        <table class="data-table" id="tablaColaboradores">
+          <thead>
+            <tr>
+              <th scope="col">Colaborador</th>
+              <th scope="col">Cargo / Rol</th>
+              <th scope="col">Sede / Institución</th>
+              <th scope="col">Estrategia(s)</th>
+              <th scope="col">Contacto</th>
+              <th scope="col">Acceso Sistema</th>
+              <th scope="col">Estado</th>
+              <th scope="col" style="text-align: right;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyColaboradores">
+            <!-- Renderizado dinámico desde ColaboradoresView.js -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="empty-state" id="emptyColaboradores" style="display:none; padding: 40px 20px; text-align: center;">
+        <Icon name="nav.grupo" size={32} class="text-muted" style="margin-bottom: 12px; opacity: 0.5;" />
+        <h4 style="margin: 0 0 6px 0; color: var(--text-main);">No se encontraron colaboradores</h4>
+        <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Prueba ajustando los filtros de búsqueda o registra un nuevo colaborador.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal Ficha Técnica de Colaborador -->
+  <div class="modal-overlay" id="modalColaborador" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="modalColabTitle">
+    <div class="modal-content" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header" style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-subtle); padding: 16px 20px;">
+        <h3 id="modalColabTitle" style="margin: 0; font-size: 16px; font-weight: 600; color: var(--text-main);">Ficha de Colaborador</h3>
+        <button type="button" class="btn-action-icon" onclick="window.cerrarModalColaborador ? window.cerrarModalColaborador() : null" title="Cerrar modal">
+          <Icon name="accion.cerrar" size={14} />
+        </button>
+      </div>
+
+      <form id="formColaborador" style="padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+        <input type="hidden" id="colabEditId" value="" />
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div>
+            <label for="colabNombres" style="display:block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Nombres *</label>
+            <input type="text" id="colabNombres" required class="audit-search-input" style="width: 100%; border: 1px solid var(--border-default); border-radius: var(--radius-sm); padding: 8px 12px;" />
+          </div>
+          <div>
+            <label for="colabApellidos" style="display:block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Apellidos *</label>
+            <input type="text" id="colabApellidos" required class="audit-search-input" style="width: 100%; border: 1px solid var(--border-default); border-radius: var(--radius-sm); padding: 8px 12px;" />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div>
+            <label for="colabDni" style="display:block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">DNI</label>
+            <input type="text" id="colabDni" maxlength="8" class="audit-search-input" style="width: 100%; border: 1px solid var(--border-default); border-radius: var(--radius-sm); padding: 8px 12px;" />
+          </div>
+          <div>
+            <label for="colabCelular" style="display:block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">N° Celular</label>
+            <input type="tel" id="colabCelular" class="audit-search-input" style="width: 100%; border: 1px solid var(--border-default); border-radius: var(--radius-sm); padding: 8px 12px;" />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div>
+            <label for="colabTipo" style="display:block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Rol / Cargo *</label>
+            <select id="colabTipo" required style="width: 100%; height: 38px; border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--surface-1); color: var(--text-main); padding: 0 10px;">
+              <option value="Facilitador(a) Comunitario(a)">Facilitador(a) Comunitario(a)</option>
+              <option value="Promotora Social">Promotora Social</option>
+              <option value="Promotora Educativa">Promotora Educativa</option>
+              <option value="Director(a) I.E.">Director(a) I.E.</option>
+              <option value="Docente Enlace">Docente Enlace</option>
+              <option value="Enlace Parroquial / Iglesia">Enlace Parroquial / Iglesia</option>
+            </select>
+          </div>
+          <div>
+            <label for="colabDistrito" style="display:block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Distrito *</label>
+            <select id="colabDistrito" required style="width: 100%; height: 38px; border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--surface-1); color: var(--text-main); padding: 0 10px;">
+              <option value="Comas">Comas</option>
+              <option value="Carabayllo">Carabayllo</option>
+              <option value="El Agustino">El Agustino</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div>
+            <label for="colabSede" style="display:block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Sede / I.E. / Iglesia Aliada</label>
+            <input type="text" id="colabSede" placeholder="Ej. Comas - Año Nuevo o I.E. 3088" class="audit-search-input" style="width: 100%; border: 1px solid var(--border-default); border-radius: var(--radius-sm); padding: 8px 12px;" />
+          </div>
+          <div>
+            <label for="colabEmail" style="display:block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Correo Electrónico</label>
+            <input type="email" id="colabEmail" class="audit-search-input" style="width: 100%; border: 1px solid var(--border-default); border-radius: var(--radius-sm); padding: 8px 12px;" />
+          </div>
+        </div>
+
+        <div>
+          <label style="display:block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 6px;">Estrategia(s) en la(s) que participa</label>
+          <div style="display: flex; flex-wrap: wrap; gap: 12px; padding: 10px; background: var(--surface-2); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-main); cursor: pointer;">
+              <input type="checkbox" name="colabEstrategias" value="Desayuno Infantil" /> Desayuno Infantil
+            </label>
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-main); cursor: pointer;">
+              <input type="checkbox" name="colabEstrategias" value="Lonchera Infantil" /> Lonchera Infantil
+            </label>
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-main); cursor: pointer;">
+              <input type="checkbox" name="colabEstrategias" value="Casita del Saber" /> Casita del Saber
+            </label>
+            <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-main); cursor: pointer;">
+              <input type="checkbox" name="colabEstrategias" value="Área Social Pastoral" /> Área Social Pastoral
+            </label>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div>
+            <label for="colabUsuario" style="display:block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Usuario de Acceso (/cuentas)</label>
+            <input type="text" id="colabUsuario" placeholder="Opcional: usuario del sistema" class="audit-search-input" style="width: 100%; border: 1px solid var(--border-default); border-radius: var(--radius-sm); padding: 8px 12px;" />
+          </div>
+          <div>
+            <label for="colabEstado" style="display:block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Estado Operativo</label>
+            <select id="colabEstado" style="width: 100%; height: 38px; border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--surface-1); color: var(--text-main); padding: 0 10px;">
+              <option value="Activo">Activo</option>
+              <option value="Inactivo">Inactivo / Rotado</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label for="colabObservaciones" style="display:block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Observaciones y Funciones Específicas</label>
+          <textarea id="colabObservaciones" rows="2" class="audit-search-input" style="width: 100%; border: 1px solid var(--border-default); border-radius: var(--radius-sm); padding: 8px 12px; resize: vertical;" placeholder="Detalles de la labor asignada en campo..."></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; border-top: 1px solid var(--border-subtle); padding-top: 16px;">
+          <button type="button" class="btn-action secondary" onclick="window.cerrarModalColaborador ? window.cerrarModalColaborador() : null">
+            Cancelar
+          </button>
+          <button type="submit" class="btn-action primary">
+            Guardar Ficha
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    import '../scripts/pages/colaboradores.js';
+  </script>
+</AppLayout>

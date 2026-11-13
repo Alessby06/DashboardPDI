@@ -27,6 +27,7 @@ import { BeneficiarioModel } from "../models/BeneficiarioModel.js";
 import { CasoSocialModel } from "../models/CasoSocialModel.js";
 import { SedeModel } from "../models/SedeModel.js";
 import { VoluntarioModel } from "../models/VoluntarioModel.js";
+import { ColaboradorModel } from "../models/ColaboradorModel.js";
 import { AuditModel } from "../models/AuditModel.js";
 import { Theme } from "./Theme.js";
 import { ToastView } from "../views/ToastView.js";
@@ -102,6 +103,7 @@ export function arrancarComun() {
   CasoSocialModel.init();
   SedeModel.init();
   VoluntarioModel.init();
+  ColaboradorModel.init();
 
   // Copia de la última hidratación en esta pestaña: permite retirar el
   // esqueleto sin esperar a la nube. Si no hay copia válida, no hace nada.

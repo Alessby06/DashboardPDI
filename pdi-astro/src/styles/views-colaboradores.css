@@ -1,0 +1,198 @@
+/* ===========================================================================
+   VISTAS - PADRÓN DE COLABORADORES
+   ===========================================================================
+   Estilos específicos para el directorio de facilitadores, promotoras, directores
+   de I.E. y enlaces de iglesias aliadas (Fichas A4 y A5).
+   =========================================================================== */
+
+.colab-reparto {
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.colab-reparto-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.colab-reparto-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.colab-reparto-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 2px 0 0 0;
+}
+
+.colab-reparto-total {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+  background: var(--surface-2);
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+}
+
+.colab-reparto-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.colab-stat-box {
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.colab-stat-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.colab-stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-main);
+  font-variant-numeric: tabular-nums;
+}
+
+.colab-stat-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+/* Badges de Tipo de Colaborador */
+.chip-colab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.chip-colab--facilitador {
+  background: var(--accent-subtle);
+  color: var(--accent);
+  border: 1px solid var(--border-subtle);
+}
+
+.chip-colab--promotora-edu {
+  background: var(--status-review-bg);
+  color: var(--status-review);
+  border: 1px solid var(--status-review-border);
+}
+
+.chip-colab--promotora-soc {
+  background: var(--status-approved-bg);
+  color: var(--status-approved);
+  border: 1px solid var(--status-approved-border);
+}
+
+.chip-colab--director {
+  background: var(--surface-3);
+  color: var(--text-main);
+  border: 1px solid var(--border-default);
+}
+
+.chip-colab--enlace {
+  background: var(--surface-2);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+}
+
+/* Estado de Cuenta / Acceso al Sistema */
+.badge-acceso {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+}
+
+.badge-acceso--activo {
+  background: var(--status-approved-bg);
+  color: var(--status-approved);
+  border: 1px solid var(--status-approved-border);
+}
+
+.badge-acceso--campo {
+  background: var(--surface-2);
+  color: var(--text-dim);
+  border: 1px solid var(--border-subtle);
+}
+
+/* Enlaces directos */
+.colab-phone-link {
+  color: var(--text-main);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: color var(--dur-fast) var(--ease-smooth);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .colab-phone-link:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+}
+
+.colab-name-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.colab-code {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.colab-estrategias {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.badge-estrategia-mini {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+}
+
+@media (max-width: 768px) {
+  .colab-reparto-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

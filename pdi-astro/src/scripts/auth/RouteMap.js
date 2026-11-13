@@ -113,6 +113,15 @@ export const PAGINAS = {
     allowedRoles: ["coord", "facilitadora", "promotora", "admin"],
   },
 
+  colaboradores: {
+    ruta: "/colaboradores",
+    etiqueta: "Padrón de Colaboradores",
+    view: "view-colaboradores",
+    grupo: "Operación",
+    enMenu: true,
+    allowedRoles: ["coord", "facilitadora", "promotora", "social", "admin"],
+  },
+
   // La clave es el slug, y el slug es data-page del <body>: "voluntariados",
   // no "voluntarios". El identificador de vista heredado si es "view-voluntarios"
   // y no tiene por que coincidir, porque lo traduce slugDesdeView().
