@@ -1164,8 +1164,15 @@ export const CasitasView = {
           <td><div class="padron-location-title">${escapar(gradoVisible(b))}</div></td>
           <td><span class="celda-recortada" title="${escapar(colegio)}">${escapar(colegio)}</span></td>
           <td>
-            <div class="padron-location-title">${escapar(b.apoderado)}</div>
-            <div class="padron-location-sub">${escapar(b.parentesco)} &bull; ${escapar(b.telefono || 'Sin tel')}</div>
+            ${(b.retiroSolo || (b.retiroAutorizado && String(b.retiroAutorizado).toLowerCase().includes("solo")))
+              ? `<span class="status-pill status-favorable" style="font-size:11px; font-weight:600; display:inline-flex; align-items:center; gap:4px;">
+                   <span style="width:6px; height:6px; border-radius:50%; background:currentColor;"></span>
+                   Sale solo(a)
+                 </span>
+                 <div class="padron-location-sub" style="margin-top:2px; font-size:11px; color:var(--text-dim);">Ficha A2 autorizada</div>`
+              : `<div class="padron-location-title">${escapar(b.apoderado)}</div>
+                 <div class="padron-location-sub">${escapar(b.parentesco)} &bull; ${escapar(b.telefono || 'Sin tel')}</div>`
+            }
           </td>
           <td>
             ${this._tagAsistencia(b.id, "badgeAsist_")}
@@ -1195,8 +1202,8 @@ export const CasitasView = {
               <span class="datacard-value">${escapar(b.nombres)} ${escapar(b.apellidos)}</span>
             </div>
             <div class="datacard-row">
-              <span class="datacard-label">Apoderado Autorizado</span>
-              <span class="datacard-value">${escapar(b.apoderado)} <span class="celda-subtexto">(${escapar(b.parentesco)})</span></span>
+              <span class="datacard-label">Salida de Sede</span>
+              <span class="datacard-value">${(b.retiroSolo || (b.retiroAutorizado && String(b.retiroAutorizado).toLowerCase().includes("solo"))) ? '<span class="status-pill status-favorable" style="font-size:10px;">Sale solo(a) (Ficha A2)</span>' : `${escapar(b.apoderado)} <span class="celda-subtexto">(${escapar(b.parentesco)})</span>`}</span>
             </div>
 
             <div class="asist-bloque-movil">

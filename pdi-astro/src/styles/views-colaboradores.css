@@ -1,16 +1,36 @@
 /* ===========================================================================
-   VISTAS - PADRÓN DE COLABORADORES
+   VISTAS - RED TERRITORIAL Y COLABORADORES INSTITUCIONALES
    ===========================================================================
-   Estilos específicos para el directorio de facilitadores, promotoras, directores
-   de I.E. y enlaces de iglesias aliadas (Fichas A4 y A5).
+   Directorio oficial de directores escolares, docentes enlace, pastores
+   y facilitadoras PDI (Fichas A4 y A5). Modo Operate · Craft Floor.
    =========================================================================== */
 
+/* Variables locales semánticas para el directorio */
+:root {
+  --colab-colegio-text: var(--gt-blue, #0284c7);
+  --colab-colegio-bg: var(--gt-blue-bg, rgba(2, 132, 199, 0.1));
+  --colab-colegio-border: rgba(var(--brand-rgb, 0, 180, 148), 0.25);
+  
+  --colab-iglesia-text: var(--text-main, #0f172a);
+  --colab-iglesia-bg: var(--surface-3, #f1f5f9);
+  --colab-iglesia-border: var(--border-medium, #cbd5e1);
+
+  --colab-pdi-text: var(--brand-green-deep, #00715d);
+  --colab-pdi-bg: var(--gt-green-bg, rgba(0, 180, 148, 0.1));
+  --colab-pdi-border: rgba(var(--brand-rgb, 0, 180, 148), 0.25);
+
+  --colab-wa-text: var(--brand-green-deep, #00715d);
+  --colab-wa-bg: var(--gt-green-bg, rgba(0, 180, 148, 0.12));
+  --colab-wa-border: var(--gt-green, #00b494);
+}
+
+/* Tira de Cobertura y KPIs */
 .colab-reparto {
   background: var(--surface-1);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   padding: 16px 20px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -26,9 +46,10 @@
 
 .colab-reparto-title {
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-main);
   margin: 0;
+  letter-spacing: -0.01em;
 }
 
 .colab-reparto-sub {
@@ -38,13 +59,14 @@
 }
 
 .colab-reparto-total {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12.5px;
+  font-weight: 700;
   color: var(--text-main);
   background: var(--surface-2);
-  padding: 6px 12px;
+  padding: 5px 12px;
   border-radius: var(--radius-full);
   border: 1px solid var(--border-subtle);
+  font-variant-numeric: tabular-nums;
 }
 
 .colab-reparto-grid {
@@ -64,16 +86,17 @@
 }
 
 .colab-stat-label {
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 11.5px;
+  font-weight: 600;
   color: var(--text-muted);
 }
 
 .colab-stat-value {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   color: var(--text-main);
   font-variant-numeric: tabular-nums;
+  line-height: 1.1;
 }
 
 .colab-stat-desc {
@@ -81,100 +104,176 @@
   color: var(--text-dim);
 }
 
-/* Badges de Tipo de Colaborador */
-.chip-colab {
+/* ===========================================================================
+   BARRA DE PESTAÑAS DE CATEGORÍA TERRITORIAL
+   =========================================================================== */
+.colab-view-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 16px 0;
+  flex-wrap: wrap;
+}
+
+.colab-tab-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
+  gap: 8px;
+  padding: 9px 16px;
+  font-size: 13px;
   font-weight: 600;
-  padding: 3px 9px;
   border-radius: var(--radius-sm);
-  white-space: nowrap;
-}
-
-.chip-colab--facilitador {
-  background: var(--accent-subtle);
-  color: var(--accent);
   border: 1px solid var(--border-subtle);
+  background: var(--surface-1);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-smooth);
+  user-select: none;
 }
 
-.chip-colab--promotora-edu {
-  background: var(--status-review-bg);
-  color: var(--status-review);
-  border: 1px solid var(--status-review-border);
-}
-
-.chip-colab--promotora-soc {
-  background: var(--status-approved-bg);
-  color: var(--status-approved);
-  border: 1px solid var(--status-approved-border);
-}
-
-.chip-colab--director {
-  background: var(--surface-3);
+.colab-tab-btn:hover {
+  background: var(--surface-hover);
   color: var(--text-main);
-  border: 1px solid var(--border-default);
+  border-color: var(--border-bright);
 }
 
-.chip-colab--enlace {
+.colab-tab-btn.active {
+  background: var(--gt-green);
+  color: var(--on-brand-fill);
+  border-color: var(--gt-green);
+  box-shadow: var(--shadow-sm);
+}
+
+.colab-tab-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: var(--radius-full);
   background: var(--surface-2);
   color: var(--text-muted);
-  border: 1px solid var(--border-subtle);
+  font-variant-numeric: tabular-nums;
+  transition: all var(--dur-fast) var(--ease-smooth);
 }
 
-/* Estado de Cuenta / Acceso al Sistema */
-.badge-acceso {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 8px;
+.colab-tab-btn.active .colab-tab-badge {
+  background: rgba(0, 19, 12, 0.25);
+  color: var(--on-brand-fill);
+}
+
+/* ===========================================================================
+   ELEMENTOS DE TABLA Y JERARQUÍA
+   =========================================================================== */
+.colab-avatar {
+  width: 38px;
+  height: 38px;
   border-radius: var(--radius-full);
-}
-
-.badge-acceso--activo {
-  background: var(--status-approved-bg);
-  color: var(--status-approved);
-  border: 1px solid var(--status-approved-border);
-}
-
-.badge-acceso--campo {
-  background: var(--surface-2);
-  color: var(--text-dim);
-  border: 1px solid var(--border-subtle);
-}
-
-/* Enlaces directos */
-.colab-phone-link {
-  color: var(--text-main);
-  text-decoration: none;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 4px;
-  transition: color var(--dur-fast) var(--ease-smooth);
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  flex-shrink: 0;
+  border: 1px solid transparent;
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .colab-phone-link:hover {
-    color: var(--accent);
-    text-decoration: underline;
-  }
+.colab-avatar--colegios {
+  background: var(--colab-colegio-bg);
+  color: var(--colab-colegio-text);
+  border-color: var(--border-subtle);
+}
+
+.colab-avatar--iglesias {
+  background: var(--colab-iglesia-bg);
+  color: var(--colab-iglesia-text);
+  border-color: var(--border-medium);
+}
+
+.colab-avatar--pdi {
+  background: var(--colab-pdi-bg);
+  color: var(--colab-pdi-text);
+  border-color: var(--border-subtle);
 }
 
 .colab-name-group {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 
-.colab-code {
+.colab-entity-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.25;
+}
+
+.colab-person-name {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+
+.colab-meta-info {
   font-size: 11px;
   color: var(--text-dim);
   font-variant-numeric: tabular-nums;
 }
 
+/* Badges Semánticos de Rol */
+.chip-colab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.chip-colab--colegio {
+  background: var(--colab-colegio-bg);
+  color: var(--colab-colegio-text);
+  border: 1px solid var(--border-subtle);
+}
+
+.chip-colab--iglesia {
+  background: var(--colab-iglesia-bg);
+  color: var(--colab-iglesia-text);
+  border: 1px solid var(--border-medium);
+}
+
+.chip-colab--pdi {
+  background: var(--colab-pdi-bg);
+  color: var(--colab-pdi-text);
+  border: 1px solid var(--border-subtle);
+}
+
+.colab-subdetail {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 3px;
+}
+
+/* Enlace a Sede Territorial */
+.colab-sede-link {
+  color: var(--text-brand);
+  text-decoration: none;
+  font-size: 13px;
+  transition: all var(--dur-fast) var(--ease-smooth);
+}
+
+.colab-sede-link:hover {
+  text-decoration: underline;
+  color: var(--brand-green-deep);
+}
+
+.colab-district-tag {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+/* Programas Articulados */
 .colab-estrategias {
   display: flex;
   flex-wrap: wrap;
@@ -182,17 +281,167 @@
 }
 
 .badge-estrategia-mini {
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 500;
-  padding: 2px 6px;
+  padding: 2px 7px;
   border-radius: var(--radius-sm);
   background: var(--surface-2);
   color: var(--text-muted);
   border: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+
+/* Botones de Contacto Inmediato */
+.colab-contact-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.btn-contact-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: all var(--dur-fast) var(--ease-smooth);
+  width: fit-content;
+}
+
+.btn-contact-call {
+  background: var(--surface-2);
+  color: var(--text-main);
+  border: 1px solid var(--border-subtle);
+}
+
+.btn-contact-call:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-bright);
+}
+
+.btn-contact-wa {
+  background: var(--colab-wa-bg);
+  color: var(--colab-wa-text);
+  border: 1px solid var(--border-subtle);
+}
+
+.btn-contact-wa:hover {
+  background: var(--surface-hover);
+  border-color: var(--gt-green);
+}
+
+/* ===========================================================================
+   VISTA MÓVIL: TARJETAS TÁCTILES (< 768px)
+   =========================================================================== */
+.mobile-colab-view {
+  display: none;
 }
 
 @media (max-width: 768px) {
+  .desktop-colab-view {
+    display: none !important;
+  }
+
+  .mobile-colab-view {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
   .colab-reparto-grid {
     grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .colab-mobile-card {
+    background: var(--surface-1);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .colab-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .colab-card-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  .colab-card-subtitle {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .colab-card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--surface-2);
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .colab-card-estrategias {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .colab-card-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .btn-mobile-touch {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid var(--border-subtle);
+    transition: all var(--dur-fast) var(--ease-smooth);
+  }
+
+  .btn-mobile-call {
+    background: var(--surface-2);
+    color: var(--text-main);
+  }
+
+  .btn-mobile-wa {
+    background: var(--colab-wa-bg);
+    color: var(--colab-wa-text);
+    border-color: var(--border-subtle);
+  }
+
+  .btn-mobile-edit {
+    background: var(--surface-1);
+    color: var(--text-muted);
   }
 }

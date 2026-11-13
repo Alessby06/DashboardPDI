@@ -21,6 +21,7 @@ import "../core/legacy-globals.js";
 import { arrancarComun, publicarRefresco } from "../core/Bootstrap.js";
 import { BeneficiarioModel } from '../models/BeneficiarioModel.js';
 import { SaludCredView } from '../views/SaludCredView.js';
+import { AccionesNutricionalesView } from '../views/AccionesNutricionalesView.js';
 // El boton de exportar CRED abre el modal de confirmacion, y su handler
 // resuelve la descarga por window.PDI.AppController.
 import { AppController } from '../controllers/AppController.js';
@@ -31,11 +32,16 @@ let enlazado = false;
 function enlazar() {
   if (enlazado) return;
   enlazado = true;
+
+  document.addEventListener("pdi:datos-actualizados", () => {
+    AccionesNutricionalesView.actualizarSelectorUsuarios();
+  });
 }
 
 /** Dibuja lo propio de esta pagina. Es idempotente. */
 function montar() {
   SaludCredView.renderTable(BeneficiarioModel.getAll());
+  AccionesNutricionalesView.init();
 }
 
 function iniciar() {
@@ -53,8 +59,6 @@ function iniciar() {
 
   console.log("[PDI] Salud y Nutricion (CRED) lista (salud.html).");
 }
-
-
 
 document.addEventListener("astro:page-load", () => {
   if (document.body && document.body.getAttribute("data-page") === "salud") {

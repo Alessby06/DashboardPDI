@@ -12,11 +12,7 @@ let enlazado = false;
 function enlazar() {
   if (enlazado) return;
   enlazado = true;
-
-  const form = document.getElementById('formColaborador');
-  if (form) {
-    form.addEventListener('submit', (e) => ColaboradoresView.guardar(e));
-  }
+  ColaboradoresView.enlazarEventos();
 }
 
 function montar() {
@@ -30,7 +26,7 @@ function iniciar() {
   montar();
 
   publicarRefresco(montar);
-  console.log('[PDI] Padrón de Colaboradores listo (colaboradores.astro).');
+  console.log('[PDI] Red Territorial de Colaboradores lista (colaboradores.astro).');
 }
 
 document.addEventListener('astro:page-load', () => {

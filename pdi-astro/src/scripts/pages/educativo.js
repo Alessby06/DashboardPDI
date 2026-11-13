@@ -1,71 +1,122 @@
 // ===========================================================================
+
 //  Casita del Saber - Punto de entrada de educativo.html
+
 // ===========================================================================
+
 //  Pase de asistencia escolar, grado y nivelacion pedagogica.
+
 //
+
 //  Esta pagina es un documento, no una seccion. Al cargarse este archivo es lo
+
 //  unico que corre: primero comprueba el acceso, despues arma el chrome y solo
+
 //  entonces dibuja lo suyo. El orden no es decorativo, arrancarComun() puede
+
 //  redirigir si el rol no corresponde, y en ese caso lo de abajo no debe
+
 //  ejecutarse.
+
 //
+
 //  Montar y enlazar van separados a proposito. montar() dibuja y puede
+
 //  ejecutarse tantas veces como haga falta; enlazar() engancha escuchadores y
+
 //  se ejecuta una sola vez, porque un listener al documento registrado dos
+
 //  veces hace que cada clic se procese dos veces.
+
 //
+
 //  Cero consultas al DOM en nivel de modulo: todo ocurre dentro de iniciar(),
+
 //  que se invoca con el documento ya listo. Por eso importar este archivo nunca
+
 //  falla por un elemento que todavia no existe.
+
 import "../core/legacy-globals.js";
+
 import { arrancarComun, publicarRefresco } from "../core/Bootstrap.js";
+
 import { BeneficiarioModel } from '../models/BeneficiarioModel.js';
+
 import { CasitasView } from '../views/CasitasView.js';
+
 import { CasitasController } from '../controllers/CasitasController.js';
+import { AccionesEducativasView } from '../views/AccionesEducativasView.js';
+
 // El boton de exportar la asistencia abre el modal de confirmacion, y su
+
 // handler resuelve la descarga por window.PDI.AppController.
+
 import { AppController } from '../controllers/AppController.js';
 
 let enlazado = false;
 
 /** Engancha lo que debe ocurrir una sola vez por carga. */
+
 function enlazar() {
+
   if (enlazado) return;
+
   enlazado = true;
 
   // La capa de datos avisa cuando terminó una hidratación (propia o de otro
+
   // dispositivo). Si no hay borrador, la jornada se relee; si lo hay, el
+
   // controlador avisa en pantalla en vez de pisar lo que se está marcando.
+
   document.addEventListener("pdi:datos-actualizados", () => {
+
     window.PDI?.CasitasController?.sincronizarJornada?.();
+    AccionesEducativasView.actualizarSelectorUsuarios();
+
   });
+
 }
 
 /** Dibuja lo propio de esta pagina. Es idempotente. */
+
 function montar() {
+
   CasitasView.renderTable(BeneficiarioModel.getAll());
+  AccionesEducativasView.init();
+
 }
 
 function iniciar() {
+
   // Acceso y chrome comun. Si devuelve null, PageGuard ya redirigio y no hay
+
   // nada mas que hacer en este documento.
+
   if (!arrancarComun()) return;
 
   enlazar();
+
   montar();
 
   // Que redibujar cuando algo guarde en esta pagina, por ejemplo al dar de
+
   // alta a un usuario: antes era refreshAllViews(), que refrescaba las ocho
+
   // tablas; ahora solo la que esta a la vista.
+
   publicarRefresco(montar);
 
   console.log("[PDI] Casita del Saber lista (educativo.html).");
+
 }
 
-
-
 document.addEventListener("astro:page-load", () => {
+
   if (document.body && document.body.getAttribute("data-page") === "educativo") {
+
     iniciar();
+
   }
+
 });

@@ -241,6 +241,44 @@ export const BeneficiarioController = {
     }
   },
 
+  cambiarModalidadRetiro(tipo) {
+    const hidden = document.getElementById("checkModalidadRetiro");
+    const btnAcomp = document.getElementById("btnRetiroAcompanado");
+    const btnSolo = document.getElementById("btnRetiroSolo");
+    const contenedor = document.getElementById("contenedorPersonasRetiro");
+    const avisoSolo = document.getElementById("avisoRetiroSolo");
+
+    if (hidden) hidden.value = tipo;
+
+    if (tipo === "solo") {
+      if (btnSolo) {
+        btnSolo.style.background = "var(--accent)";
+        btnSolo.style.color = "var(--accent-contrast)";
+      }
+      if (btnAcomp) {
+        btnAcomp.style.background = "transparent";
+        btnAcomp.style.color = "var(--text-muted)";
+      }
+      if (contenedor) contenedor.style.display = "none";
+      if (avisoSolo) avisoSolo.style.display = "block";
+      const req1 = document.getElementById("regRetiroNombre1");
+      if (req1) req1.removeAttribute("required");
+    } else {
+      if (btnAcomp) {
+        btnAcomp.style.background = "var(--accent)";
+        btnAcomp.style.color = "var(--accent-contrast)";
+      }
+      if (btnSolo) {
+        btnSolo.style.background = "transparent";
+        btnSolo.style.color = "var(--text-muted)";
+      }
+      if (contenedor) contenedor.style.display = "block";
+      if (avisoSolo) avisoSolo.style.display = "none";
+      const req1 = document.getElementById("regRetiroNombre1");
+      if (req1) req1.setAttribute("required", "required");
+    }
+  },
+
   syncMismoApoderado(checked) {
     const getVal = (id) => document.getElementById(id)?.value || "";
     const nombre1 = document.getElementById("regRetiroNombre1");
@@ -392,6 +430,7 @@ export const BeneficiarioController = {
     const apoderadoDni = getVal("regApoderadoDni");
     const parentesco = getVal("regParentesco", "Madre");
     const sexoApoderado = getVal("regSexoApoderado");
+    const apoderadoEdad = getVal("regApoderadoEdad");
     const telefono = getVal("regTelefono");
     const telefonoAlt = getVal("regTelefonoAlt");
 
@@ -400,11 +439,14 @@ export const BeneficiarioController = {
       return;
     }
 
-    // Datos de Persona Autorizada 1
-    const retiroNombre1 = getVal("regRetiroNombre1") || apoderado;
-    const retiroDni1 = getVal("regRetiroDni1") || apoderadoDni;
-    const retiroParentesco1 = getVal("regRetiroParentesco1") || parentesco;
-    const retiroTel1 = getVal("regRetiroTel1") || telefono;
+    const modalidadRetiro = getVal("checkModalidadRetiro", "acompanado");
+    const saleSolo = modalidadRetiro === "solo";
+
+    // Datos de Persona Autorizada 1 (Ficha A2)
+    const retiroNombre1 = saleSolo ? "Sale solo(a)" : (getVal("regRetiroNombre1") || apoderado);
+    const retiroDni1 = saleSolo ? "-" : (getVal("regRetiroDni1") || apoderadoDni);
+    const retiroParentesco1 = saleSolo ? "Autorizado Ficha A2" : (getVal("regRetiroParentesco1") || parentesco);
+    const retiroTel1 = saleSolo ? "-" : (getVal("regRetiroTel1") || telefono);
 
     // Datos de Persona Autorizada 2 (Opcional)
     const retiroNombre2 = getVal("regRetiroNombre2");
@@ -547,6 +589,7 @@ export const BeneficiarioController = {
       parentesco,
       sexoApoderado,
       apoderadoDni,
+      apoderadoEdad: apoderadoEdad ? Number(apoderadoEdad) : null,
       telefono,
       telefonoAlt: telefonoAlt || "-",
       estado: "Activo",
@@ -556,8 +599,9 @@ export const BeneficiarioController = {
       anemia: "Sin tamizaje",
       canastaEntregada: exoneracionAporte.includes("100%"),
       orientacionFamiliar: true,
-      retiroAutorizado: `${retiroNombre1} (${retiroParentesco1})`,
-      retiroPadron: padronRetiro,
+      retiroAutorizado: saleSolo ? "Sale solo(a) (Autorizado Ficha A2)" : `${retiroNombre1} (${retiroParentesco1})`,
+      retiroSolo: saleSolo,
+      retiroPadron: saleSolo ? [] : padronRetiro,
       coordenadas: this.tempCoords || null,
       fotoFachada: this.tempFotoFachada || null,
       consentimientos,
@@ -720,4 +764,5 @@ export const BeneficiarioController = {
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
   window.PDI.BeneficiarioController = BeneficiarioController;
+  window.cambiarModalidadRetiro = (tipo) => BeneficiarioController.cambiarModalidadRetiro(tipo);
 }

@@ -33,7 +33,21 @@ const OPCIONES_ORDEN_CASITAS = [
             </div>
           </div>
 
-          <div class="card" id="cardAsistenciaCasita">
+          <!-- Barra de Pestañas de Casita del Saber -->
+          <div class="social-view-tabs educativo-view-tabs" role="tablist" aria-label="Secciones de Casita del Saber">
+            <button type="button" class="social-tab-btn educativo-tab-btn active" id="tabBtnEducativoAsistencia" data-tab="asistencia" role="tab" aria-selected="true" aria-controls="viewEducativoAsistencia">
+              <Icon name="educacion.libro" size={16} />
+              <span>Jornada de Asistencia</span>
+            </button>
+            <button type="button" class="social-tab-btn educativo-tab-btn" id="tabBtnEducativoAcciones" data-tab="acciones" role="tab" aria-selected="false" aria-controls="viewEducativoAcciones">
+              <Icon name="archivo.lista" size={16} />
+              <span>Acciones Socio-Educativas & Monitoreo</span>
+            </button>
+          </div>
+
+          <!-- SUBVISTA 1: Jornada de Asistencia Diaria -->
+          <div class="educativo-subview-panel active" id="viewEducativoAsistencia">
+            <div class="card" id="cardAsistenciaCasita">
             <div class="card-header">
               <div>
                 <div class="card-title">Jornada de Asistencia · Casita del Saber</div>
@@ -237,7 +251,397 @@ const OPCIONES_ORDEN_CASITAS = [
               </div>
             </div>
           </dialog>
-        </section>
+        </div>
+
+        <!-- SUBVISTA 2: Acciones Socio-Educativas & Monitoreo (Ficha A5) -->
+        <div class="educativo-subview-panel" id="viewEducativoAcciones" style="display: none;">
+          <!-- Sub-selector de instrumentos de la Ficha A5 -->
+          <div class="educativo-subtabs-bar">
+            <button type="button" class="educativo-subtab-btn active" id="btnSubSecColectivas">
+              <Icon name="persona.grupo" size={15} />
+              <span>Acciones Colectivas y Talleres (Hoja 3)</span>
+            </button>
+            <button type="button" class="educativo-subtab-btn" id="btnSubSecMonitoreo">
+              <Icon name="salud.escudo" size={15} />
+              <span>Monitoreo de Sedes / Espacios (Hoja 1)</span>
+            </button>
+            <button type="button" class="educativo-subtab-btn" id="btnSubSecSeguimiento">
+              <Icon name="persona.usuario" size={15} />
+              <span>Seguimiento Individual a Usuarios (Hoja 2)</span>
+            </button>
+          </div>
+
+          <!-- SECCIÓN 1: ACCIONES SOCIO-EDUCATIVAS COLECTIVAS (Hoja 3) -->
+          <div id="secEducativoColectivas">
+            <div class="card" style="margin-bottom: 20px;">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Registro de Acciones Socio-Educativas con Familias y Comunidad</div>
+                  <div style="font-size: 13px; color: var(--text-muted);">
+                    Talleres formativos, consejería, mediación lectora, ecología y donación de canastas alimentarias
+                  </div>
+                </div>
+              </div>
+
+              <form id="formAccionSocioeducativa" class="educativo-form-grid" novalidate>
+                <div class="form-row form-row-3">
+                  <div class="form-group">
+                    <label for="aseFecha" class="form-label">Fecha de Actividad <span class="req">*</span></label>
+                    <input type="date" id="aseFecha" class="form-control" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="aseSede" class="form-label">Sede / Casita <span class="req">*</span></label>
+                    <select id="aseSede" class="form-control" required>
+                      <option value="">Selecciona sede...</option>
+                      {OPCIONES_SEDE.map((s) => (
+                        <option value={s.valor}>{s.etiqueta}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="aseDistrito" class="form-label">Distrito</label>
+                    <select id="aseDistrito" class="form-control">
+                      <option value="Comas">Comas</option>
+                      <option value="Carabayllo">Carabayllo</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-row form-row-3">
+                  <div class="form-group">
+                    <label for="aseModalidad" class="form-label">Modalidad de Intervención</label>
+                    <select id="aseModalidad" class="form-control">
+                      <option value="Comunitaria">Comunitaria</option>
+                      <option value="Institución Educativa">Institución Educativa</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="aseEstrategia" class="form-label">Estrategia de Intervención</label>
+                    <select id="aseEstrategia" class="form-control">
+                      <option value="Atención fija">Atención fija</option>
+                      <option value="Atención itinerante">Atención itinerante</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="aseFacilitadora" class="form-label">Facilitadora / Responsable</label>
+                    <input type="text" id="aseFacilitadora" class="form-control" placeholder="Nombre de la facilitadora" />
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 10px;">
+                  <label class="form-label">Acciones Desarrolladas (Marcación múltiple) <span class="req">*</span></label>
+                  <div class="educativo-checkbox-grid">
+                    <label class="educativo-check-card">
+                      <input type="checkbox" name="chkAccionEducativa" value="Sesiones de consejería educativa" />
+                      <span>Sesiones de consejería educativa</span>
+                    </label>
+                    <label class="educativo-check-card">
+                      <input type="checkbox" name="chkAccionEducativa" value="Sesiones de Promoción de Derechos en las infancias" />
+                      <span>Sesiones de Promoción de Derechos en infancias</span>
+                    </label>
+                    <label class="educativo-check-card">
+                      <input type="checkbox" name="chkAccionEducativa" value="Biblioteca Comunitaria" />
+                      <span>Biblioteca Comunitaria</span>
+                    </label>
+                    <label class="educativo-check-card">
+                      <input type="checkbox" name="chkAccionEducativa" value="Mediación lectora - Cuenta Cuentos" />
+                      <span>Mediación lectora - Cuenta Cuentos</span>
+                    </label>
+                    <label class="educativo-check-card">
+                      <input type="checkbox" name="chkAccionEducativa" value="Acciones ecológicas" />
+                      <span>Acciones ecológicas (bio-talleres / huertos)</span>
+                    </label>
+                    <label class="educativo-check-card">
+                      <input type="checkbox" name="chkAccionEducativa" value="Visitas guiadas extracurriculares" />
+                      <span>Visitas guiadas extracurriculares</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="form-row form-row-3" style="margin-top: 14px;">
+                  <div class="form-group">
+                    <label for="aseAdultos" class="form-label">Participantes Adultos</label>
+                    <input type="number" id="aseAdultos" class="form-control" min="0" value="0" />
+                  </div>
+                  <div class="form-group">
+                    <label for="aseNinos" class="form-label">Participantes Niños/as</label>
+                    <input type="number" id="aseNinos" class="form-control" min="0" value="0" />
+                  </div>
+                  <div class="form-group">
+                    <label for="aseCanastas" class="form-label"># Canastas Alimentarias Donadas</label>
+                    <input type="number" id="aseCanastas" class="form-control" min="0" value="0" />
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 10px;">
+                  <label for="aseObservaciones" class="form-label">Observaciones y Resumen de la Jornada</label>
+                  <textarea id="aseObservaciones" class="form-control" rows="2" maxlength="300" placeholder="Detalles de la sesión, logros pedagógicos o acuerdos tomados con las familias..."></textarea>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+                  <button type="submit" class="btn-action primary">
+                    <Icon name="accion.confirmar" size={16} />
+                    <span>Guardar Acción Socio-Educativa</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Bitácora Histórica de Acciones Colectivas -->
+            <div class="card">
+              <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div class="card-title">Historial de Acciones Socio-Educativas Registradas</div>
+                  <div style="font-size: 13px; color: var(--text-muted);">
+                    Registro consolidado de actividades grupales por sede y fecha
+                  </div>
+                </div>
+                <button type="button" class="btn-action-icon table-export-btn" id="btnExportAccionesCSV" title="Descargar reporte en CSV">
+                  <Icon name="accion.descargar" size={18} />
+                </button>
+              </div>
+
+              <div class="table-container desktop-table-view">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 12%;">Fecha</th>
+                      <th style="width: 18%;">Sede & Distrito</th>
+                      <th style="width: 32%;">Acciones Desarrolladas</th>
+                      <th style="width: 10%; text-align: center;">Adultos</th>
+                      <th style="width: 10%; text-align: center;">Niños/as</th>
+                      <th style="width: 8%; text-align: center;">Canastas</th>
+                      <th style="width: 10%;">Facilitadora</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbodyAccionesColectivas">
+                    <!-- Injected via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECCIÓN 2: MONITOREO DE LUGARES DE ATENCIÓN (Hoja 1) -->
+          <div id="secEducativoMonitoreo" style="display: none;">
+            <div class="card" style="margin-bottom: 20px;">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Ficha de Monitoreo de Lugares de Atención</div>
+                  <div style="font-size: 13px; color: var(--text-muted);">
+                    Supervisión periódica de infraestructura, promotoras, usuarios y cuidadores
+                  </div>
+                </div>
+              </div>
+
+              <form id="formMonitoreoSede" class="educativo-form-grid" novalidate>
+                <div class="form-row form-row-3">
+                  <div class="form-group">
+                    <label for="monFecha" class="form-label">Fecha de Monitoreo <span class="req">*</span></label>
+                    <input type="date" id="monFecha" class="form-control" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="monSede" class="form-label">Sede / Lugar <span class="req">*</span></label>
+                    <select id="monSede" class="form-control" required>
+                      <option value="">Selecciona sede...</option>
+                      {OPCIONES_SEDE.map((s) => (
+                        <option value={s.valor}>{s.etiqueta}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="monDistrito" class="form-label">Distrito</label>
+                    <select id="monDistrito" class="form-control">
+                      <option value="Comas">Comas</option>
+                      <option value="Carabayllo">Carabayllo</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 10px;">
+                  <label class="form-label">Aspectos con Observación o Requieren Supervisión</label>
+                  <div class="educativo-checkbox-grid">
+                    <label class="educativo-check-card">
+                      <input type="checkbox" id="chkMonEspacio" />
+                      <span>Referente al espacio físico (limpieza, seguridad, ventilación)</span>
+                    </label>
+                    <label class="educativo-check-card">
+                      <input type="checkbox" id="chkMonPromotora" />
+                      <span>Referente a la promotora educativa (desempeño, trato, puntualidad)</span>
+                    </label>
+                    <label class="educativo-check-card">
+                      <input type="checkbox" id="chkMonUsuarios" />
+                      <span>Referente a los usuarios/as (asistencia, atención, convivencia)</span>
+                    </label>
+                    <label class="educativo-check-card">
+                      <input type="checkbox" id="chkMonCuidadores" />
+                      <span>Referente a los cuidadores (compromiso, recojo puntual)</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 10px;">
+                  <label for="monDetalle" class="form-label">Detalle de Observaciones y Acuerdos de Mejora</label>
+                  <textarea id="monDetalle" class="form-control" rows="3" maxlength="400" placeholder="Describe los hallazgos observados en la sede y las acciones correctivas acordadas..."></textarea>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+                  <button type="submit" class="btn-action primary">
+                    <Icon name="accion.confirmar" size={16} />
+                    <span>Guardar Monitoreo de Sede</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Bitácora de Monitoreos -->
+            <div class="card">
+              <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div class="card-title">Bitácora de Monitoreos Realizados</div>
+                  <div style="font-size: 13px; color: var(--text-muted);">
+                    Historial de visitas de supervisión y estado de las sedes
+                  </div>
+                </div>
+                <button type="button" class="btn-action-icon table-export-btn" id="btnExportMonitoreoCSV" title="Descargar reporte en CSV">
+                  <Icon name="accion.descargar" size={18} />
+                </button>
+              </div>
+
+              <div class="table-container desktop-table-view">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 12%;">Fecha</th>
+                      <th style="width: 18%;">Sede & Distrito</th>
+                      <th style="width: 25%;">Aspectos Evaluados</th>
+                      <th style="width: 33%;">Detalle de Observaciones</th>
+                      <th style="width: 12%;">Supervisora</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbodyMonitoreoEspacios">
+                    <!-- Injected via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECCIÓN 3: SEGUIMIENTO INDIVIDUAL SOCIO-EDUCATIVO (Hoja 2) -->
+          <div id="secEducativoSeguimiento" style="display: none;">
+            <div class="card" style="margin-bottom: 20px;">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Seguimiento Socio-Educativo a Usuarios/as</div>
+                  <div style="font-size: 13px; color: var(--text-muted);">
+                    Registro de visitas domiciliarias, orientación socioeducativa y enlace de derivación con Área Social Pastoral (ASP)
+                  </div>
+                </div>
+              </div>
+
+              <form id="formSeguimientoIndividual" class="educativo-form-grid" novalidate>
+                <div class="form-row form-row-2">
+                  <div class="form-group">
+                    <label for="segBeneficiarioSelect" class="form-label">Usuario / Alumno de Casita del Saber <span class="req">*</span></label>
+                    <select id="segBeneficiarioSelect" class="form-control" required>
+                      <option value="">Cargando usuarios...</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="segFecha" class="form-label">Fecha de Intervención <span class="req">*</span></label>
+                    <input type="date" id="segFecha" class="form-control" required />
+                  </div>
+                </div>
+
+                <div class="form-row form-row-3">
+                  <div class="form-group">
+                    <label for="segSede" class="form-label">Sede</label>
+                    <select id="segSede" class="form-control">
+                      {OPCIONES_SEDE.map((s) => (
+                        <option value={s.valor}>{s.etiqueta}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="segDistrito" class="form-label">Distrito</label>
+                    <select id="segDistrito" class="form-control">
+                      <option value="Comas">Comas</option>
+                      <option value="Carabayllo">Carabayllo</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="segFacilitadora" class="form-label">Facilitadora / Profesional</label>
+                    <input type="text" id="segFacilitadora" class="form-control" placeholder="Nombre" />
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 10px;">
+                  <label class="form-label">Acciones Realizadas con el Menor / Familia (Marcación múltiple) <span class="req">*</span></label>
+                  <div class="educativo-checkbox-grid">
+                    <label class="educativo-check-card">
+                      <input type="checkbox" name="chkAccionSeguimiento" value="Aplicación de ficha socio-económica" />
+                      <span>Aplicación de ficha socio-económica</span>
+                    </label>
+                    <label class="educativo-check-card">
+                      <input type="checkbox" name="chkAccionSeguimiento" value="Visita Domiciliaria" />
+                      <span>Visita Domiciliaria</span>
+                    </label>
+                    <label class="educativo-check-card">
+                      <input type="checkbox" name="chkAccionSeguimiento" value="Orientación educativa/social" />
+                      <span>Orientación educativa / social familiar</span>
+                    </label>
+                    <label class="educativo-check-card alert-card">
+                      <input type="checkbox" name="chkAccionSeguimiento" value="Derivación ASP" />
+                      <span>Derivación a Área Social Pastoral (ASP)</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 10px;">
+                  <label for="segNotas" class="form-label">Notas Pedagógicas y Conclusiones del Caso</label>
+                  <textarea id="segNotas" class="form-control" rows="2" maxlength="300" placeholder="Anotaciones cualitativas sobre el progreso escolar, dificultades detectadas o acuerdos con el apoderado..."></textarea>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+                  <button type="submit" class="btn-action primary">
+                    <Icon name="accion.confirmar" size={16} />
+                    <span>Guardar Seguimiento Individual</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Bitácora de Seguimientos -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Historial de Seguimientos Socio-Educativos</div>
+                  <div style="font-size: 13px; color: var(--text-muted);">
+                    Registro longitudinal de intervenciones familiares y pedagógicas
+                  </div>
+                </div>
+              </div>
+
+              <div class="table-container desktop-table-view">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 12%;">Fecha</th>
+                      <th style="width: 24%;">Usuario / Menor</th>
+                      <th style="width: 16%;">Sede & Distrito</th>
+                      <th style="width: 33%;">Acciones Realizadas</th>
+                      <th style="width: 15%;">Facilitadora</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbodySeguimientoUsuarios">
+                    <!-- Injected via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
   <script>
     import '../scripts/pages/educativo.js';

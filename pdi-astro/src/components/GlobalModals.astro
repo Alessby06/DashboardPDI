@@ -408,7 +408,7 @@ import Icon from './Icon.astro';
                   </div>
                 </div>
 
-                <div class="ficha-form-row ficha-form-row--2col">
+                <div class="ficha-form-row ficha-form-row--3col">
                   <div class="form-group">
                     <label for="regParentesco">Parentesco</label>
                     <select id="regParentesco" name="apoderado_parentesco" class="form-control">
@@ -424,6 +424,10 @@ import Icon from './Icon.astro';
                       <option value="F">Femenino (F)</option>
                       <option value="M">Masculino (M)</option>
                     </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="regApoderadoEdad">Edad (Años)</label>
+                    <input type="number" id="regApoderadoEdad" name="apoderado_edad" min="14" max="100" class="form-control" placeholder="Ej. 34">
                   </div>
                 </div>
 
@@ -443,9 +447,34 @@ import Icon from './Icon.astro';
 
             <!-- Personas Acreditadas de Retiro -->
             <div class="ficha-retiro-container">
-              <div class="ficha-retiro-section-label">
-                Acreditación de Personas para el Retiro en Sede (Ficha A2)
+              <div class="ficha-retiro-section-label" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+                <span>Acreditación de Personas para el Retiro en Sede (Ficha A2)</span>
               </div>
+
+              <!-- Selector Modalidad de Salida (Ficha A2) -->
+              <div class="alergia-control-block" style="margin-bottom: 14px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 10px 14px; background: var(--surface-1);">
+                <div class="alergia-toggle-row" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+                  <div>
+                    <span class="alergia-toggle-title" style="font-size: 13px; font-weight: 600; color: var(--text-main);">Modalidad de Salida de Sede</span>
+                    <span class="alergia-toggle-sub" style="display: block; font-size: 11.5px; color: var(--text-muted);">Declaración del padre/madre/cuidador según Ficha A2</span>
+                  </div>
+                  <div class="alergia-segmented" role="group" aria-label="Modalidad de retiro" style="display: inline-flex; border: 1px solid var(--border-default); border-radius: var(--radius-sm); overflow: hidden; background: var(--surface-2);">
+                    <button type="button" class="alergia-seg-btn is-active" id="btnRetiroAcompanado" style="padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; background: var(--accent); color: var(--accent-contrast);" onclick="window.cambiarModalidadRetiro ? window.cambiarModalidadRetiro('acompanado') : null">
+                      En compañía de adulto
+                    </button>
+                    <button type="button" class="alergia-seg-btn" id="btnRetiroSolo" style="padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: pointer; border: none; background: transparent; color: var(--text-muted);" onclick="window.cambiarModalidadRetiro ? window.cambiarModalidadRetiro('solo') : null">
+                      Autorizado a salir solo
+                    </button>
+                  </div>
+                  <input type="hidden" id="checkModalidadRetiro" name="modalidad_retiro" value="acompanado" />
+                </div>
+              </div>
+
+              <div id="avisoRetiroSolo" style="display:none; padding:12px 14px; background:var(--status-approved-bg); border:1px solid var(--status-approved-border); border-radius:var(--radius-sm); color:var(--status-approved); font-size:12.5px; margin-bottom:12px;">
+                <strong>Salida Individual Autorizada:</strong> El padre, madre o cuidador autorizó expresamente en la Ficha A2 que el menor puede retirarse solo de las instalaciones de Casita del Saber al culminar la sesión. No se requiere acreditación de terceros en puerta.
+              </div>
+
+              <div id="contenedorPersonasRetiro">
 
               <!-- Persona Autorizada 1 (Titular) -->
               <div class="section-retirador-card">
@@ -567,6 +596,7 @@ import Icon from './Icon.astro';
                   </div>
                 </div>
               </div>
+              </div><!-- fin contenedorPersonasRetiro -->
             </div>
           </div>
 

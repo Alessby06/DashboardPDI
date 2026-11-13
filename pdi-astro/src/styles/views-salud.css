@@ -578,3 +578,166 @@
   animation: none;
 }
 
+
+
+/* ===========================================================================
+   PESTAÑAS Y ACCIONES NUTRICIONALES COLECTIVAS (FICHA A6 DESAYUNO INFANTIL)
+   =========================================================================== */
+.salud-view-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0 16px 0;
+  flex-wrap: wrap;
+}
+
+.salud-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-1);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-smooth);
+}
+
+.salud-tab-btn:hover {
+  background: var(--surface-hover);
+  color: var(--text-main);
+  border-color: var(--border-bright);
+}
+
+.salud-tab-btn.active {
+  background: var(--gt-green);
+  color: var(--on-brand-fill);
+  border-color: var(--gt-green);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Barra de sub-pestañas de instrumentos Ficha A6 */
+.salud-subtabs-bar,
+.educativo-subtabs-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  padding: 4px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.educativo-subtab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--dur-fast) var(--ease-smooth);
+}
+
+.educativo-subtab-btn:hover {
+  background: var(--surface-hover);
+  color: var(--text-main);
+}
+
+.educativo-subtab-btn.active {
+  background: var(--surface-1);
+  color: var(--text-main);
+  border-color: var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Formularios estructurados de Acciones Nutricionales */
+.educativo-form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-row-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.form-row-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+/* Grid de Checkboxes interactivos */
+.educativo-checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.educativo-check-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-main);
+  cursor: pointer;
+  user-select: none;
+  transition: all var(--dur-fast) var(--ease-smooth);
+}
+
+.educativo-check-card:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-bright);
+}
+
+.educativo-check-card:has(input:checked) {
+  background: var(--gt-green-bg);
+  border-color: var(--gt-green);
+  color: var(--brand-green-deep);
+  font-weight: 600;
+}
+
+.educativo-check-card.alert-card:has(input:checked) {
+  background: var(--gt-red-bg);
+  border-color: var(--gt-red);
+  color: var(--gt-red);
+}
+
+.educativo-check-card input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--gt-green);
+  cursor: pointer;
+}
+
+.educativo-check-card.alert-card input[type="checkbox"] {
+  accent-color: var(--gt-red);
+}
+
+@media (max-width: 768px) {
+  .form-row-2,
+  .form-row-3 {
+    grid-template-columns: 1fr;
+  }
+  .educativo-checkbox-grid {
+    grid-template-columns: 1fr;
+  }
+}

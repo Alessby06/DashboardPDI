@@ -43,8 +43,21 @@ const OPCIONES_ORDEN_SALUD = [
       </div>
     </div>
 
+    <!-- Barra de Pestañas de Desayuno Infantil -->
+    <div class="social-view-tabs salud-view-tabs" role="tablist" aria-label="Secciones de Desayuno Infantil">
+      <button type="button" class="social-tab-btn salud-tab-btn active" id="tabBtnSaludIndividual" data-tab="individual" role="tab" aria-selected="true" aria-controls="viewSaludIndividual">
+        <Icon name="modulo.salud" size={16} />
+        <span>Control Antropométrico & Tamizajes CRED</span>
+      </button>
+      <button type="button" class="social-tab-btn salud-tab-btn" id="tabBtnSaludColectiva" data-tab="colectiva" role="tab" aria-selected="false" aria-controls="viewSaludColectiva">
+        <Icon name="archivo.lista" size={16} />
+        <span>Sesiones, Monitoreo & Campañas</span>
+      </button>
+    </div>
 
-    <!-- Tabla y Evaluaciones CRED en Tarjeta Unificada (Estandarizada con padron.astro) -->
+    <!-- SUBVISTA 1: Evaluaciones CRED Individuales -->
+    <div class="salud-subview-panel active" id="viewSaludIndividual">
+      <!-- Tabla y Evaluaciones CRED en Tarjeta Unificada (Estandarizada con padron.astro) -->
     <div class="card" id="cardSaludEvaluaciones" style="margin-top: 18px;">
       <div class="card-header">
         <div class="card-title">Historial de Evaluaciones CRED por Usuario</div>
@@ -205,6 +218,568 @@ const OPCIONES_ORDEN_SALUD = [
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- SUBVISTA 2: Sesiones, Monitoreo & Campañas (Ficha A6) -->
+  <div class="salud-subview-panel" id="viewSaludColectiva" style="display: none;">
+    <!-- Sub-selector de instrumentos de la Ficha A6 -->
+    <div class="educativo-subtabs-bar salud-subtabs-bar">
+      <button type="button" class="educativo-subtab-btn active" id="btnSubSaludMonitoreo">
+        <Icon name="salud.escudo" size={15} />
+        <span>Monitoreo de Reparto (Hoja 1)</span>
+      </button>
+      <button type="button" class="educativo-subtab-btn" id="btnSubSaludCapacitacion">
+        <Icon name="persona.grupo" size={15} />
+        <span>Capacitaciones a Voluntarias (Hoja 2)</span>
+      </button>
+      <button type="button" class="educativo-subtab-btn" id="btnSubSaludSesiones">
+        <Icon name="nav.usuarios" size={15} />
+        <span>Sesiones Educativas a Familias (Hoja 3)</span>
+      </button>
+      <button type="button" class="educativo-subtab-btn" id="btnSubSaludCampanas">
+        <Icon name="modulo.salud" size={15} />
+        <span>Campañas Integrales CRED (Hoja 4)</span>
+      </button>
+    </div>
+
+    <!-- SECCIÓN 1: MONITOREO DE REPARTO E INOCUIDAD (Hoja 1) -->
+    <div id="secSaludMonitoreo">
+      <div class="card" style="margin-bottom: 20px;">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Ficha de Monitoreo de Lugares de Reparto e Inocuidad</div>
+            <div style="font-size: 13px; color: var(--text-muted);">
+              Supervisión técnica de higiene, raciones sobrantes y control de manipulación de alimentos
+            </div>
+          </div>
+        </div>
+
+        <form id="formMonitoreoReparto" class="educativo-form-grid" novalidate>
+          <div class="form-row form-row-3">
+            <div class="form-group">
+              <label for="monRepFecha" class="form-label">Fecha de Monitoreo <span class="req">*</span></label>
+              <input type="date" id="monRepFecha" class="form-control" required />
+            </div>
+            <div class="form-group">
+              <label for="monRepSede" class="form-label">Lugar de Reparto / Sede <span class="req">*</span></label>
+              <select id="monRepSede" class="form-control" required>
+                <option value="">Selecciona sede...</option>
+                {OPCIONES_SEDE.map((s) => (
+                  <option value={s.valor}>{s.etiqueta}</option>
+                ))}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="monRepDistrito" class="form-label">Distrito</label>
+              <select id="monRepDistrito" class="form-control">
+                <option value="Comas">Comas</option>
+                <option value="Carabayllo">Carabayllo</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row form-row-3">
+            <div class="form-group">
+              <label for="monRepModalidad" class="form-label">Modalidad de Intervención</label>
+              <select id="monRepModalidad" class="form-control">
+                <option value="Comunitaria">Comunitaria</option>
+                <option value="Institución Educativa">Institución Educativa</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="monRepEstrategia" class="form-label">Estrategia de Intervención</label>
+              <select id="monRepEstrategia" class="form-control">
+                <option value="Desayuno Infantil">Desayuno Infantil</option>
+                <option value="Lonchera Infantil">Lonchera Infantil</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="monRepFacilitadora" class="form-label">Facilitador(a) Asignado</label>
+              <input type="text" id="monRepFacilitadora" class="form-control" placeholder="Nombre del facilitador(a)" />
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 10px;">
+            <label class="form-label">Observaciones e Incidentes Identificados en Reparto</label>
+            <div class="educativo-checkbox-grid">
+              <label class="educativo-check-card alert-card">
+                <input type="checkbox" id="chkIncidenteAlim" />
+                <span>Reporte de incidente con los alimentos</span>
+              </label>
+              <label class="educativo-check-card">
+                <input type="checkbox" id="chkSobroRaciones" />
+                <span>Ha sobrado raciones</span>
+              </label>
+              <label class="educativo-check-card alert-card">
+                <input type="checkbox" id="chkInadecuadaManip" />
+                <span>Inadecuada manipulación de alimentos</span>
+              </label>
+              <label class="educativo-check-card alert-card">
+                <input type="checkbox" id="chkBaldesPiso" />
+                <span>Baldes y bolsas de pan en el piso</span>
+              </label>
+              <label class="educativo-check-card alert-card">
+                <input type="checkbox" id="chkAmbienteSucio" />
+                <span>Ambiente sucio o sin desinfección</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-row form-row-2" style="margin-top: 14px;">
+            <div class="form-group">
+              <label for="monRepFamiliasOrientadas" class="form-label">Cantidad de Familias Orientadas</label>
+              <input type="number" id="monRepFamiliasOrientadas" class="form-control" min="0" value="0" />
+            </div>
+            <div class="form-group">
+              <label for="monRepObservaciones" class="form-label">Detalle y Acuerdos de Mejora</label>
+              <input type="text" id="monRepObservaciones" class="form-control" maxlength="250" placeholder="Medidas correctivas aplicadas..." />
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+            <button type="submit" class="btn-action primary">
+              <Icon name="accion.confirmar" size={16} />
+              <span>Guardar Monitoreo de Reparto</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Bitácora de Monitoreos -->
+      <div class="card">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div class="card-title">Historial de Monitoreos de Reparto e Inocuidad</div>
+            <div style="font-size: 13px; color: var(--text-muted);">
+              Registro cronológico de supervisiones en comedores y colegios
+            </div>
+          </div>
+          <button type="button" class="btn-action-icon table-export-btn" id="btnExportMonitoreoRepartoCSV" title="Descargar reporte en CSV">
+            <Icon name="accion.descargar" size={18} />
+          </button>
+        </div>
+
+        <div class="table-container desktop-table-view">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 12%;">Fecha</th>
+                <th style="width: 18%;">Sede & Distrito</th>
+                <th style="width: 38%;">Hallazgos e Incidentes</th>
+                <th style="width: 14%; text-align: center;">Familias Orientadas</th>
+                <th style="width: 18%;">Facilitador(a)</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyMonitoreoReparto">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 2: CAPACITACIONES A VOLUNTARIAS (Hoja 2) -->
+    <div id="secSaludCapacitacion" style="display: none;">
+      <div class="card" style="margin-bottom: 20px;">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Registro de Capacitaciones a Madres Voluntarias</div>
+            <div style="font-size: 13px; color: var(--text-muted);">
+              Jornadas formativas en manipulación higiénica, prevención de anemia y refrigerios saludables
+            </div>
+          </div>
+        </div>
+
+        <form id="formCapacitacionVoluntarias" class="educativo-form-grid" novalidate>
+          <div class="form-row form-row-3">
+            <div class="form-group">
+              <label for="capVolFecha" class="form-label">Fecha de Capacitación <span class="req">*</span></label>
+              <input type="date" id="capVolFecha" class="form-control" required />
+            </div>
+            <div class="form-group">
+              <label for="capVolSede" class="form-label">Sede / Lugar <span class="req">*</span></label>
+              <select id="capVolSede" class="form-control" required>
+                <option value="">Selecciona sede...</option>
+                {OPCIONES_SEDE.map((s) => (
+                  <option value={s.valor}>{s.etiqueta}</option>
+                ))}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="capVolDistrito" class="form-label">Distrito</label>
+              <select id="capVolDistrito" class="form-control">
+                <option value="Comas">Comas</option>
+                <option value="Carabayllo">Carabayllo</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 10px;">
+            <label class="form-label">Temáticas Abordadas (Marcación múltiple) <span class="req">*</span></label>
+            <div class="educativo-checkbox-grid">
+              <label class="educativo-check-card">
+                <input type="checkbox" name="chkCapTematica" value="Higiene y manipulación de alimentos" />
+                <span>Higiene y manipulación de alimentos</span>
+              </label>
+              <label class="educativo-check-card">
+                <input type="checkbox" name="chkCapTematica" value="Malnutrición" />
+                <span>Malnutrición infantil</span>
+              </label>
+              <label class="educativo-check-card">
+                <input type="checkbox" name="chkCapTematica" value="Anemia en la 1ra infancia" />
+                <span>Anemia en la 1ra infancia</span>
+              </label>
+              <label class="educativo-check-card">
+                <input type="checkbox" name="chkCapTematica" value="Anemia en la 2da infancia" />
+                <span>Anemia en la 2da infancia</span>
+              </label>
+              <label class="educativo-check-card">
+                <input type="checkbox" name="chkCapTematica" value="Grupo de Alimentos" />
+                <span>Grupos de Alimentos</span>
+              </label>
+              <label class="educativo-check-card">
+                <input type="checkbox" name="chkCapTematica" value="Platos y refrigerios saludable" />
+                <span>Platos y refrigerios saludables</span>
+              </label>
+              <label class="educativo-check-card">
+                <input type="checkbox" name="chkCapTematica" value="Bienestar emocional y habitos saludables" />
+                <span>Bienestar emocional y hábitos saludables</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-row form-row-3" style="margin-top: 14px;">
+            <div class="form-group">
+              <label for="capVolParticipantes" class="form-label">Cantidad de Participantes</label>
+              <input type="number" id="capVolParticipantes" class="form-control" min="0" value="0" />
+            </div>
+            <div class="form-group">
+              <label for="capVolCanastas" class="form-label"># Canastas Alimentarias Donadas</label>
+              <input type="number" id="capVolCanastas" class="form-control" min="0" value="0" />
+            </div>
+            <div class="form-group">
+              <label for="capVolLugaresParticipantes" class="form-label">Lugares / Sedes Participantes</label>
+              <input type="text" id="capVolLugaresParticipantes" class="form-control" placeholder="Ej. Año Nuevo, San Pedro" />
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 10px;">
+            <label for="capVolObservaciones" class="form-label">Observaciones y Acuerdos de la Jornada</label>
+            <textarea id="capVolObservaciones" class="form-control" rows="2" maxlength="300" placeholder="Comentarios sobre la participación y compromisos asumidos..."></textarea>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+            <button type="submit" class="btn-action primary">
+              <Icon name="accion.confirmar" size={16} />
+              <span>Guardar Capacitación</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Bitácora de Capacitaciones -->
+      <div class="card">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div class="card-title">Historial de Capacitaciones a Voluntarias</div>
+            <div style="font-size: 13px; color: var(--text-muted);">
+              Registro de talleres técnicos y competencias desarrolladas
+            </div>
+          </div>
+          <button type="button" class="btn-action-icon table-export-btn" id="btnExportCapacitacionesCSV" title="Descargar reporte en CSV">
+            <Icon name="accion.descargar" size={18} />
+          </button>
+        </div>
+
+        <div class="table-container desktop-table-view">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 12%;">Fecha</th>
+                <th style="width: 18%;">Sede & Distrito</th>
+                <th style="width: 38%;">Temáticas Abordadas</th>
+                <th style="width: 12%; text-align: center;">Participantes</th>
+                <th style="width: 10%; text-align: center;">Canastas</th>
+                <th style="width: 10%;">Registrado</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyCapacitacionesVoluntarias">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 3: SESIONES EDUCATIVAS A FAMILIAS (Hoja 3) -->
+    <div id="secSaludSesiones" style="display: none;">
+      <div class="card" style="margin-bottom: 20px;">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Registro de Sesiones Educativas a Familias</div>
+            <div style="font-size: 13px; color: var(--text-muted);">
+              Talleres de prevención nutricional, combate de anemia y refrigerios saludables para apoderados
+            </div>
+          </div>
+        </div>
+
+        <form id="formSesionEducativaFamilias" class="educativo-form-grid" novalidate>
+          <div class="form-row form-row-3">
+            <div class="form-group">
+              <label for="sesFamFecha" class="form-label">Fecha de Sesión <span class="req">*</span></label>
+              <input type="date" id="sesFamFecha" class="form-control" required />
+            </div>
+            <div class="form-group">
+              <label for="sesFamSede" class="form-label">Sede / Comedor <span class="req">*</span></label>
+              <select id="sesFamSede" class="form-control" required>
+                <option value="">Selecciona sede...</option>
+                {OPCIONES_SEDE.map((s) => (
+                  <option value={s.valor}>{s.etiqueta}</option>
+                ))}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="sesFamDistrito" class="form-label">Distrito</label>
+              <select id="sesFamDistrito" class="form-control">
+                <option value="Comas">Comas</option>
+                <option value="Carabayllo">Carabayllo</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row form-row-3">
+            <div class="form-group">
+              <label for="sesFamModalidad" class="form-label">Modalidad de Intervención</label>
+              <select id="sesFamModalidad" class="form-control">
+                <option value="Comunitaria">Comunitaria</option>
+                <option value="Institución Educativa">Institución Educativa</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="sesFamEstrategia" class="form-label">Estrategia de Intervención</label>
+              <select id="sesFamEstrategia" class="form-control">
+                <option value="Desayuno Infantil">Desayuno Infantil</option>
+                <option value="Lonchera Infantil">Lonchera Infantil</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="sesFamFacilitadora" class="form-label">Facilitador(a) / Ponente</label>
+              <input type="text" id="sesFamFacilitadora" class="form-control" placeholder="Nombre" />
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 10px;">
+            <label class="form-label">Temática Abordada con las Familias <span class="req">*</span></label>
+            <div class="educativo-checkbox-grid">
+              <label class="educativo-check-card">
+                <input type="checkbox" name="chkSesTematica" value="Higiene y manipulación de alimentos" />
+                <span>Higiene y manipulación de alimentos</span>
+              </label>
+              <label class="educativo-check-card">
+                <input type="checkbox" name="chkSesTematica" value="Malnutrición" />
+                <span>Malnutrición</span>
+              </label>
+              <label class="educativo-check-card">
+                <input type="checkbox" name="chkSesTematica" value="Prevención de anemia infantil" />
+                <span>Prevención de anemia infantil</span>
+              </label>
+              <label class="educativo-check-card">
+                <input type="checkbox" name="chkSesTematica" value="Platos y refrigerios saludable" />
+                <span>Platos y refrigerios saludables</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-row form-row-3" style="margin-top: 14px;">
+            <div class="form-group">
+              <label for="sesFamAdultos" class="form-label">Participantes Adultos</label>
+              <input type="number" id="sesFamAdultos" class="form-control" min="0" value="0" />
+            </div>
+            <div class="form-group">
+              <label for="sesFamNinos" class="form-label">Participantes Niños/as</label>
+              <input type="number" id="sesFamNinos" class="form-control" min="0" value="0" />
+            </div>
+            <div class="form-group">
+              <label for="sesFamCanastas" class="form-label"># Canastas Alimentarias Donadas</label>
+              <input type="number" id="sesFamCanastas" class="form-control" min="0" value="0" />
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 10px;">
+            <label for="sesFamObservaciones" class="form-label">Observaciones y Resumen de la Sesión</label>
+            <textarea id="sesFamObservaciones" class="form-control" rows="2" maxlength="300" placeholder="Detalles pedagógicos y compromisos familiares..."></textarea>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+            <button type="submit" class="btn-action primary">
+              <Icon name="accion.confirmar" size={16} />
+              <span>Guardar Sesión Familiar</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Bitácora de Sesiones -->
+      <div class="card">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div class="card-title">Historial de Sesiones Educativas a Familias</div>
+            <div style="font-size: 13px; color: var(--text-muted);">
+              Registro de talleres para cuidadores y familias
+            </div>
+          </div>
+          <button type="button" class="btn-action-icon table-export-btn" id="btnExportSesionesFamiliasCSV" title="Descargar reporte en CSV">
+            <Icon name="accion.descargar" size={18} />
+          </button>
+        </div>
+
+        <div class="table-container desktop-table-view">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 12%;">Fecha</th>
+                <th style="width: 18%;">Sede & Distrito</th>
+                <th style="width: 32%;">Temáticas Abordadas</th>
+                <th style="width: 10%; text-align: center;">Adultos</th>
+                <th style="width: 10%; text-align: center;">Niños/as</th>
+                <th style="width: 8%; text-align: center;">Canastas</th>
+                <th style="width: 10%;">Facilitador(a)</th>
+              </tr>
+            </thead>
+            <tbody id="tbodySesionesFamilias">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 4: CAMPAÑAS INTEGRALES DE SALUD CRED (Hoja 4) -->
+    <div id="secSaludCampanas" style="display: none;">
+      <div class="card" style="margin-bottom: 20px;">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Atenciones en Campañas Integrales de Salud CRED</div>
+            <div style="font-size: 13px; color: var(--text-muted);">
+              Registro de jornadas conjuntas con el Establecimiento de Salud local (Posta / MINSA)
+            </div>
+          </div>
+        </div>
+
+        <form id="formCampanaSaludCred" class="educativo-form-grid" novalidate>
+          <div class="form-row form-row-2">
+            <div class="form-group">
+              <label for="camSalBeneficiarioSelect" class="form-label">Usuario / Menor Evaluado <span class="req">*</span></label>
+              <select id="camSalBeneficiarioSelect" class="form-control" required>
+                <option value="">Cargando usuarios...</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="camSalFecha" class="form-label">Fecha de Campaña <span class="req">*</span></label>
+              <input type="date" id="camSalFecha" class="form-control" required />
+            </div>
+          </div>
+
+          <div class="form-row form-row-3">
+            <div class="form-group">
+              <label for="camSalSede" class="form-label">Sede / Comedor</label>
+              <select id="camSalSede" class="form-control">
+                {OPCIONES_SEDE.map((s) => (
+                  <option value={s.valor}>{s.etiqueta}</option>
+                ))}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="camSalDistrito" class="form-label">Distrito</label>
+              <select id="camSalDistrito" class="form-control">
+                <option value="Comas">Comas</option>
+                <option value="Carabayllo">Carabayllo</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="camSalEstablecimiento" class="form-label">Establecimiento de Salud (Posta / C.S.)</label>
+              <input type="text" id="camSalEstablecimiento" class="form-control" placeholder="Ej. C.S. Año Nuevo / C.S. El Progreso" />
+            </div>
+          </div>
+
+          <div class="form-row form-row-2" style="margin-top: 10px;">
+            <div class="form-group">
+              <label for="camSalResultadoHb" class="form-label">Resultado Tamizaje Hemoglobina (MINSA)</label>
+              <select id="camSalResultadoHb" class="form-control">
+                <option value="Regular">Regular (Hb ≥ 11.0 g/dL)</option>
+                <option value="En riesgo">En riesgo (11.0 - 11.4 g/dL)</option>
+                <option value="Anemia Leve">Anemia Leve (10.0 - 10.9 g/dL)</option>
+                <option value="Anemia Moderada">Anemia Moderada (7.0 - 9.9 g/dL)</option>
+                <option value="Anemia Grave">Anemia Grave (< 7.0 g/dL)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Intervenciones Inmediatas (Marcación múltiple)</label>
+              <div class="educativo-checkbox-grid" style="grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));">
+                <label class="educativo-check-card">
+                  <input type="checkbox" name="chkCamIntervencion" value="Canasta Alimentaria" />
+                  <span>Canasta Alimentaria</span>
+                </label>
+                <label class="educativo-check-card">
+                  <input type="checkbox" name="chkCamIntervencion" value="Orientación" />
+                  <span>Orientación Nutricional</span>
+                </label>
+                <label class="educativo-check-card alert-card">
+                  <input type="checkbox" name="chkCamIntervencion" value="Derivación ASP" />
+                  <span>Derivación a ASP</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 10px;">
+            <label for="camSalObservaciones" class="form-label">Observaciones y Diagnóstico Clínico</label>
+            <textarea id="camSalObservaciones" class="form-control" rows="2" maxlength="300" placeholder="Anotaciones médicas, entrega de sulfato ferroso o acuerdos de seguimiento..."></textarea>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+            <button type="submit" class="btn-action primary">
+              <Icon name="accion.confirmar" size={16} />
+              <span>Guardar Atención en Campaña CRED</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Bitácora de Campañas -->
+      <div class="card">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div class="card-title">Historial de Campañas Integrales de Salud CRED</div>
+            <div style="font-size: 13px; color: var(--text-muted);">
+              Consolidado de atenciones y derivaciones clínicas de salud
+            </div>
+          </div>
+          <button type="button" class="btn-action-icon table-export-btn" id="btnExportCampanasSaludCSV" title="Descargar reporte en CSV">
+            <Icon name="accion.descargar" size={18} />
+          </button>
+        </div>
+
+        <div class="table-container desktop-table-view">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 12%;">Fecha</th>
+                <th style="width: 20%;">Usuario / Menor</th>
+                <th style="width: 20%;">Sede & Centro de Salud</th>
+                <th style="width: 16%;">Resultado Hb</th>
+                <th style="width: 20%;">Intervenciones</th>
+                <th style="width: 12%;">Registrado</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyCampanasSaludCred">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
   </section>
 
   <script>
