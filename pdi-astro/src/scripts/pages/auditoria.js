@@ -19,7 +19,7 @@
 //  falla por un elemento que todavia no existe.
 import "../core/legacy-globals.js";
 import { arrancarComun, publicarRefresco } from "../core/Bootstrap.js";
-import { fetchBitacora } from '../core/db.js';
+import { fetchBitacora, LIMITE_BITACORA } from '../core/db.js';
 import { guardarCache, leerCache } from '../core/snapshot.js';
 import { AuditModel } from '../models/AuditModel.js';
 import { DashboardView } from '../views/DashboardView.js';
@@ -30,12 +30,15 @@ import { DashboardView } from '../views/DashboardView.js';
 // todas las paginas; con 2 KB en las que lo necesitan basta.
 import { AppController } from '../controllers/AppController.js';
 
-let enlazado = false;
-
-/** Engancha lo que debe ocurrir una sola vez por carga. */
+/** Engancha el botón de la carga ampliada. El documento se reemplaza en cada
+ *  navegación, así que el guardia vive en el propio botón y no en el módulo. */
 function enlazar() {
-  if (enlazado) return;
-  enlazado = true;
+  // La paginación de la tabla es local; este botón pide más eventos al
+  // servidor solo cuando el total conocido supera lo cargado.
+  const mas = document.getElementById("btnAuditCargarMas");
+  if (!mas || mas.dataset.enlazado === "1") return;
+  mas.dataset.enlazado = "1";
+  mas.addEventListener("click", () => { void cargarBitacora({ ampliar: true }); });
 }
 
 /** Dibuja lo propio de esta pagina. Es idempotente. */
@@ -45,10 +48,13 @@ function montar() {
   // tabla sin registros.
   const enMemoria = AuditModel.getAll();
   if (enMemoria.length) {
+    DashboardView._auditTotalServidor = Math.max(totalBitacora, enMemoria.length);
     DashboardView.renderAuditLogs(enMemoria);
   } else {
     const cache = leerCache("bitacora", { ttlMs: 10 * 60 * 1000 });
     if (Array.isArray(cache) && cache.length) {
+      totalBitacora = Math.max(totalBitacora, cache.length);
+      DashboardView._auditTotalServidor = totalBitacora;
       AuditModel.aplicarDatos(cache);
       DashboardView.renderAuditLogs(cache);
     }
@@ -57,14 +63,24 @@ function montar() {
 }
 
 let cargandoBitacora = false;
+let totalBitacora = 0;
+let limiteBitacora = LIMITE_BITACORA;
 
-async function cargarBitacora() {
+async function cargarBitacora({ ampliar = false } = {}) {
   if (cargandoBitacora) return;
   cargandoBitacora = true;
   try {
+    // «Cargar más» vuelve a pedir la lista completa ampliada en lugar de
+    // paginar por offset: los ids visibles se numeran por posición, y así no
+    // se duplican al mezclar dos páginas.
+    limiteBitacora = ampliar
+      ? Math.min(limiteBitacora + LIMITE_BITACORA, 1000)
+      : LIMITE_BITACORA;
     // La bitácora ya no viaja en la hidratación clínica: se pide al servidor,
     // que es el único que puede abrir el namespace de auditoría.
-    const logs = await fetchBitacora();
+    const { logs, total } = await fetchBitacora({ limit: limiteBitacora });
+    totalBitacora = total;
+    DashboardView._auditTotalServidor = totalBitacora;
     const teniaCache = AuditModel.getAll().length > 0;
     // Un fallo de red devuelve [] (fetchBitacora lo absorbe). Si ya había una
     // copia en pantalla, no se borra: se conserva y la próxima vuelta reintenta.

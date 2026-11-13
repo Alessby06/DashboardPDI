@@ -1256,15 +1256,24 @@ function mapearVoluntarios(volRaw) {
   });
 }
 
-/** Bitácora de auditoría. Vive fuera del namespace clínico: se pide al servidor. */
-export async function fetchBitacora() {
+/** Cuántos eventos pide la primera carga y cada «cargar más». */
+export const LIMITE_BITACORA = 200;
+
+/**
+ * Bitácora de auditoría. Vive fuera del namespace clínico: se pide al
+ * servidor, que devuelve los eventos y el total real de la tabla.
+ * @returns {Promise<{ logs: object[], total: number }>}
+ */
+export async function fetchBitacora({ limit = LIMITE_BITACORA } = {}) {
   try {
-    const res = await fetch('/api/auditoria?limit=500', { credentials: 'same-origin' });
-    if (!res.ok) return [];
+    const res = await fetch(`/api/auditoria?limit=${encodeURIComponent(limit)}`, { credentials: 'same-origin' });
+    if (!res.ok) return { logs: [], total: 0 };
     const datos = await res.json().catch(() => ({}));
-    return mapearBitacora(Array.isArray(datos.logs) ? datos.logs : []);
+    const logs = mapearBitacora(Array.isArray(datos.logs) ? datos.logs : []);
+    const total = Number(datos.total);
+    return { logs, total: Number.isFinite(total) ? total : logs.length };
   } catch {
-    return [];
+    return { logs: [], total: 0 };
   }
 }
 

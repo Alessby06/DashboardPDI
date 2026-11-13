@@ -14,6 +14,8 @@ import {
   generarSecretoTotp,
   verificarTotp,
   validarEliminacionCuentas,
+  normalizarLimiteAuditoria,
+  COLUMNAS_CUENTA_LISTA,
 } from '../../api/_cuentaBase.mjs';
 import { clasificarCuentaBasura, esCuentaBasura } from '../src/scripts/utils/cuentasBasura.js';
 import {
@@ -290,4 +292,26 @@ test('validarFormularioCrearCuenta enruta errores por campo y rechaza teléfono 
     telefono: '987654321',
     sedes: ['sede:carmen_alto'],
   });
+});
+
+// --- Rendimiento de consultas ----------------------------------------------
+
+test('el limite de auditoria se normaliza con un techo seguro', () => {
+  assert.equal(normalizarLimiteAuditoria(undefined), 200);
+  assert.equal(normalizarLimiteAuditoria(''), 200);
+  assert.equal(normalizarLimiteAuditoria('0'), 200);
+  assert.equal(normalizarLimiteAuditoria('25'), 25);
+  assert.equal(normalizarLimiteAuditoria('5000'), 1000);
+  assert.equal(normalizarLimiteAuditoria('-3'), 200);
+  assert.equal(normalizarLimiteAuditoria('abc'), 200);
+});
+
+test('la lista de cuentas nunca pide foto ni secretos', () => {
+  const columnas = COLUMNAS_CUENTA_LISTA.split(',').map((c) => c.trim());
+  for (const necesaria of ['id', 'usuario', 'nombre', 'rol', 'sedes', 'activo']) {
+    assert.ok(columnas.includes(necesaria), `falta ${necesaria}`);
+  }
+  for (const prohibida of ['foto', 'hash_cifrado', 'totp_secret', 'session_version', 'intentos_fallidos']) {
+    assert.ok(!columnas.includes(prohibida), `no debe pedirse ${prohibida}`);
+  }
 });

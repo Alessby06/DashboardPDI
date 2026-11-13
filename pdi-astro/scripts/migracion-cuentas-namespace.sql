@@ -39,6 +39,9 @@ DEFINE FIELD IF NOT EXISTS totp_ultimo_contador ON cuenta TYPE option<int>;
 DEFINE FIELD IF NOT EXISTS creado_el ON cuenta TYPE datetime DEFAULT time::now();
 DEFINE FIELD IF NOT EXISTS actualizado_el ON cuenta TYPE datetime VALUE time::now();
 DEFINE INDEX IF NOT EXISTS cuenta_usuario_unico ON cuenta FIELDS usuario UNIQUE;
+-- La lista de cuentas ordena por nombre. Sin este índice el plan es
+-- TableScan + SortByKey, que crece con cada cuenta.
+DEFINE INDEX IF NOT EXISTS idx_cuenta_nombre ON cuenta FIELDS nombre;
 
 -- Intentos por IP. Se guarda el hash de la IP, no la dirección en claro.
 DEFINE TABLE IF NOT EXISTS intento_login SCHEMAFULL PERMISSIONS NONE;

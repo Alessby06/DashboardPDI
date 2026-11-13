@@ -279,8 +279,16 @@ async function tokenDe(cfg) {
   return datos.token;
 }
 
-/** Ejecuta SurrealQL y devuelve el resultado de la última sentencia correcta. */
-export async function consulta(cfg, sql) {
+/**
+ * Ejecuta varias sentencias en un solo viaje a la base y devuelve una lista
+ * con el resultado de cada una, en el mismo orden.
+ *
+ * Cada viaje cuesta ~200 ms, así que la sesión y su consulta principal viajan
+ * juntas: la verificación se hace con el primer resultado y el resto se usa
+ * solo si la cuenta tiene permiso.
+ */
+export async function consultaLote(cfg, sentencias) {
+  const lista = Array.isArray(sentencias) ? sentencias : [sentencias];
   const token = await tokenDe(cfg);
   const res = await fetch(cfg.url + '/sql', {
     method: 'POST',
@@ -291,7 +299,7 @@ export async function consulta(cfg, sql) {
       'Content-Type': 'text/plain',
       Accept: 'application/json',
     },
-    body: sql,
+    body: lista.join('\n'),
   });
   const texto = await res.text();
   let datos;
@@ -301,8 +309,13 @@ export async function consulta(cfg, sql) {
   }
   const error = datos.find((d) => d && d.status === 'ERR');
   if (error) throw new Error(String(error.result || 'Error de base de datos.'));
-  const ultimo = [...datos].reverse().find((d) => d && d.status === 'OK');
-  return ultimo ? ultimo.result : null;
+  return datos.map((d) => (d && d.status === 'OK' ? d.result : null));
+}
+
+/** Ejecuta SurrealQL y devuelve el resultado de la última sentencia correcta. */
+export async function consulta(cfg, sql) {
+  const resultados = await consultaLote(cfg, [sql]);
+  return resultados.length ? resultados[resultados.length - 1] : null;
 }
 
 /** Literal seguro para interpolar valores controlados en SurrealQL. */
@@ -472,6 +485,26 @@ function publica(cuenta) {
   };
 }
 
+/**
+ * Columnas que necesita la lista de cuentas. Deja fuera la foto (52,9 KB de
+ * los 55,2 KB de la tabla) y todo lo que no debe salir de la base: el hash
+ * cifrado, el secreto TOTP, la versión de sesión y los intentos fallidos.
+ * La sesión y el perfil siguen usando `publica()` con la foto incluida.
+ */
+export const COLUMNAS_CUENTA_LISTA = [
+  'id', 'usuario', 'nombre', 'correo', 'telefono', 'rol', 'activo', 'sedes',
+  'debe_cambiar_clave', 'totp_activo', 'creado_el', 'actualizado_el',
+].join(', ');
+
+/** Límite de la bitácora: 200 por defecto y un techo de 1000 por petición. */
+export const LIMITE_AUDITORIA = 200;
+
+export function normalizarLimiteAuditoria(valor) {
+  const numero = Math.trunc(Number(valor));
+  if (!Number.isFinite(numero) || numero < 1) return LIMITE_AUDITORIA;
+  return Math.min(numero, 1000);
+}
+
 function datosSesion(cuenta, emitida = Date.now()) {
   return {
     sub: String(cuenta.id),
@@ -515,7 +548,12 @@ async function auditar(cfg, cuenta, accion, detalle, diff = null, ip = '', entid
   }
 }
 
-async function sesionDe(request, cfg) {
+/**
+ * Verifica la cookie y, opcionalmente, trae en el mismo viaje las consultas
+ * que necesita el llamador. `extras` puede ser una sentencia o una lista; el
+ * resultado queda en `sesion.extra` con la misma forma.
+ */
+async function sesionDe(request, cfg, extras = null) {
   const token = leerCookie(request, NOMBRE_COOKIE);
   const datos = verificarSesion(token, cfg.secreto);
   if (!datos) return null;
@@ -528,10 +566,24 @@ async function sesionDe(request, cfg) {
   const emitida = Number(datos.iat) || 0;
   if (emitida && Date.now() - emitida > DURACION_MAXIMA_SESION_MS) return null;
 
-  const cuenta = await cuentaPorId(cfg, datos.sub);
+  const lista = Array.isArray(extras) ? extras : (extras ? [extras] : []);
+  let cuenta = null;
+  let extra = null;
+
+  if (lista.length) {
+    const [fila, ...resto] = await consultaLote(cfg, [
+      `SELECT * FROM ${idRegistro(datos.sub)} LIMIT 1;`,
+      ...lista,
+    ]);
+    cuenta = Array.isArray(fila) && fila.length ? fila[0] : null;
+    extra = Array.isArray(extras) ? resto : resto[0];
+  } else {
+    cuenta = await cuentaPorId(cfg, datos.sub);
+  }
+
   if (!cuenta || cuenta.activo === false) return null;
   if (Number(datos.sv || 0) !== Number(cuenta.session_version || 0)) return null;
-  return { cuenta, datos };
+  return lista.length ? { cuenta, datos, extra } : { cuenta, datos };
 }
 
 /**
@@ -867,18 +919,32 @@ async function logout(request) {
 export async function handleAuditoria(request, env = {}) {
   try {
     const cfg = configDe(env);
-    const actual = await sesionDe(request, cfg);
+    const esLectura = request.method === 'GET';
+    const url = new URL(request.url);
+    const limite = normalizarLimiteAuditoria(url.searchParams.get('limit'));
+    const desplazamiento = Math.max(0, Math.trunc(Number(url.searchParams.get('offset'))) || 0);
+
+    // La sesión y la bitácora viajan en el mismo viaje. Si la cuenta no tiene
+    // permiso, la consulta se descarta y nunca sale del servidor.
+    const actual = await sesionDe(request, cfg, esLectura ? [
+      `SELECT * FROM bitacora_auditoria ORDER BY timestamp DESC LIMIT ${limite} START ${desplazamiento};`,
+      `SELECT count() FROM bitacora_auditoria GROUP ALL;`,
+    ] : null);
     if (!actual) return json({ ok: false, error: 'La sesión expiró.' }, 401);
 
-    if (request.method === 'GET') {
+    if (esLectura) {
       // La bitácora es de coordinación y administración, igual que la vista.
       if (!['coord', 'admin'].includes(actual.cuenta.rol)) {
         return json({ ok: false, error: 'No tienes permiso para ver la bitácora.' }, 403);
       }
-      const url = new URL(request.url);
-      const limite = Math.min(Math.max(Number(url.searchParams.get('limit')) || 500, 1), 1000);
-      const filas = await consulta(cfg, `SELECT * FROM bitacora_auditoria ORDER BY timestamp DESC LIMIT ${limite};`);
-      return json({ ok: true, logs: Array.isArray(filas) ? filas : [] });
+      const [filas, conteo] = Array.isArray(actual.extra) ? actual.extra : [actual.extra, null];
+      return json({
+        ok: true,
+        logs: Array.isArray(filas) ? filas : [],
+        total: Number(conteo?.[0]?.count || 0),
+        limit: limite,
+        offset: desplazamiento,
+      });
     }
 
     if (request.method === 'POST') {
@@ -1049,18 +1115,20 @@ async function ejecutarEliminacion(cfg, actor, idsCrudos, ip, { esLote = false }
 }
 
 async function admin(request, cfg) {
-  const actual = await sesionDe(request, cfg);
+  const esLectura = request.method === 'GET';
+  const actual = await sesionDe(request, cfg, esLectura
+    ? `SELECT ${COLUMNAS_CUENTA_LISTA} FROM cuenta ORDER BY nombre ASC;`
+    : null);
   if (!actual) return json({ ok: false, error: 'La sesión expiró.' }, 401, [cookieBorrada()]);
   if (actual.cuenta.rol !== 'admin') {
     return json({ ok: false, error: 'Solo administración puede gestionar cuentas.' }, 403);
   }
 
-  if (request.method === 'GET') {
-    const filas = await consulta(cfg, `SELECT * FROM cuenta ORDER BY nombre ASC;`);
+  if (esLectura) {
     return json({
       ok: true,
       actualId: String(actual.cuenta.id),
-      cuentas: (Array.isArray(filas) ? filas : []).map(publica),
+      cuentas: (Array.isArray(actual.extra) ? actual.extra : []).map(publica),
     });
   }
 

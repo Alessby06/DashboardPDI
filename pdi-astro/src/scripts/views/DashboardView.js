@@ -758,6 +758,9 @@ export const DashboardView = {
   _customDateRangeEnd: "",
   _auditCurrentPage: 1,
   _auditPageSize: 10,
+  // Total real de la tabla en el servidor. Si supera lo cargado, la barra de
+  // paginación lo dice y ofrece «Cargar más».
+  _auditTotalServidor: 0,
 
   toggleInnerDropdown(dropdownId) {
     Dropdown.alternarInterno(dropdownId);
@@ -1360,21 +1363,30 @@ export const DashboardView = {
 
   renderAuditPagination(total, start, end, totalPages) {
     const infoEl = document.getElementById("auditPaginationInfo");
+    const cargados = (this._currentAuditLogs || []).length;
+    const enServidor = Math.max(Number(this._auditTotalServidor) || 0, cargados);
     if (infoEl) {
       if (total === 0) {
         infoEl.textContent = "Sin registros coincidentes";
       } else {
-        infoEl.textContent = `Mostrando ${start + 1} a ${end} de ${total} eventos`;
+        const sufijo = enServidor > cargados ? ` · ${enServidor} en total` : "";
+        infoEl.textContent = `Mostrando ${start + 1} a ${end} de ${total} eventos${sufijo}`;
       }
     }
 
     const btnPrev = document.getElementById("btnAuditPagePrev");
     const btnNext = document.getElementById("btnAuditPageNext");
     const pageNumEl = document.getElementById("auditCurrentPageNum");
+    const btnMas = document.getElementById("btnAuditCargarMas");
 
     if (pageNumEl) pageNumEl.textContent = `Página ${this._auditCurrentPage} de ${totalPages}`;
     if (btnPrev) btnPrev.disabled = (this._auditCurrentPage <= 1);
     if (btnNext) btnNext.disabled = (this._auditCurrentPage >= totalPages);
+    if (btnMas) {
+      const restantes = Math.max(0, enServidor - cargados);
+      btnMas.style.display = restantes ? "inline-flex" : "none";
+      if (restantes) btnMas.textContent = `Cargar más (${restantes})`;
+    }
   },
 
   renderAuditTableAndCards(logs) {

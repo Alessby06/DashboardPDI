@@ -315,7 +315,7 @@ export const PerfilView = {
     let fallos = 0;
     while (true) {
       try {
-        cuenta = await sincronizarSesion();
+        cuenta = await sincronizarSesion({ forzar: true });
         // Una respuesta 200 sin identificador no es una sesión válida: se
         // trata como fallo y se reintenta, nunca como cuenta real.
         if (cuenta && !cuenta.usuario) cuenta = undefined;

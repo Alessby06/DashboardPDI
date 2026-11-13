@@ -224,6 +224,9 @@ import Icon from './Icon.astro';
   }
 
   async function actualizar() {
+    // Primero las marcas locales: el topbar del documento nuevo se pinta al
+    // instante y no queda un hueco mientras se confirma la sesión.
+    pintar({});
     conectar();
     // Al cambiar de documento el avatar persiste; el menú no debe quedarse
     // abierto sobre la página nueva.
