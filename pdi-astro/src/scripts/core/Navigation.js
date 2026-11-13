@@ -360,6 +360,17 @@ export const Navigation = {
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
         if (a.classList.contains("role-restricted") || a.classList.contains("role-hidden")) return;
 
+        // Fijar inmediatamente la posición de scroll del menú antes del cambio de página
+        const nav = document.getElementById("sidebarNav");
+        if (nav) {
+          const pos = Number(nav.scrollTop) || 0;
+          if (pos > 0) {
+            try {
+              sessionStorage.setItem("pdi_sidebar_scroll", String(pos));
+            } catch (err) {}
+          }
+        }
+
         const sidebar = document.getElementById("appSidebar");
         if (this._usaCajon() && sidebar && sidebar.classList.contains("open")) {
           // En móvil cerramos el cajón al navegar
@@ -387,6 +398,7 @@ if (typeof document !== "undefined") {
   const CLAVE_SCROLL_NAV = "pdi_sidebar_scroll";
   let scrollNavGuardado = 0;
   let temporizadorScrollNav = null;
+  let temporizadorFinNavegacion = null;
   // Durante el intercambio, Astro mueve el panel y el navegador dispara un
   // scroll a 0. Ese evento no debe sobrescribir la posición que se va a
   // restaurar; se ignora hasta que la navegación termina.
@@ -399,7 +411,10 @@ if (typeof document !== "undefined") {
     // Durante la navegación el panel se reinicia a 0. Ese valor no debe
     // pisar la posición capturada al empezar el cambio.
     if (nav && !(navegandoScroll && scrollNavGuardado > 0)) {
-      scrollNavGuardado = Number(nav.scrollTop) || 0;
+      const pos = Number(nav.scrollTop) || 0;
+      if (pos > 0 || !navegandoScroll) {
+        scrollNavGuardado = pos;
+      }
     }
     return scrollNavGuardado;
   };
@@ -414,18 +429,28 @@ if (typeof document !== "undefined") {
     const nav = navLateral();
     if (!nav || nav.dataset.pdiScrollGuard === "1") return;
     nav.dataset.pdiScrollGuard = "1";
+
+    // Capturar en fase de captura al hacer clic en cualquier enlace del menú lateral
+    nav.addEventListener("click", (e) => {
+      if (e.target.closest("a[href]")) {
+        scrollNavGuardado = Number(nav.scrollTop) || 0;
+        persistirScrollNav();
+        navegandoScroll = true;
+      }
+    }, { capture: true });
+
     nav.addEventListener("scroll", () => {
       if (navegandoScroll) {
-        // El movimiento del panel o Lenis pueden llevar el scroll a 0 antes
-        // de la captura de la transición: se devuelve en el acto.
-        if (scrollNavGuardado > 0 && nav.scrollTop < 1) {
+        // El movimiento del panel o Astro pueden llevar el scroll a 0 durante
+        // el intercambio: se devuelve en el acto y no se sobreescribe la memoria.
+        if (scrollNavGuardado > 0 && Math.abs(nav.scrollTop - scrollNavGuardado) > 2) {
           nav.scrollTop = scrollNavGuardado;
         }
         return;
       }
       leerScrollNav();
       clearTimeout(temporizadorScrollNav);
-      temporizadorScrollNav = setTimeout(persistirScrollNav, 150);
+      temporizadorScrollNav = setTimeout(persistirScrollNav, 100);
     }, { passive: true });
   };
 
@@ -443,25 +468,19 @@ if (typeof document !== "undefined") {
       navegandoScroll = false;
       return;
     }
-    // Si Astro o Lenis conservaron la posición, `aplicar` no la toca; si la
-    // resetean después, las llamadas programadas la recuperan.
 
     const aplicar = () => {
-      if (nav.scrollTop > 1 || !scrollNavGuardado) return;
-      // El tope solo se aplica cuando el sidebar ya tiene layout. Durante
-      // after-swap puede medir 0 y dejaría la posición en 0 justo antes de
-      // la captura de la transición.
+      if (!nav || !scrollNavGuardado) return;
+      // El tope solo se aplica cuando el sidebar ya tiene layout medido.
       const maxScroll = nav.scrollHeight - nav.clientHeight;
       const destino = maxScroll > 0
         ? Math.min(scrollNavGuardado, maxScroll)
         : scrollNavGuardado;
-      // 1) Asignación directa primero. La instantánea de la transición se
-      //    toma dentro de `after-swap`; `lenis.scrollTo` aplica en el
-      //    fotograma siguiente, así que el menú aparecía arriba y saltaba
-      //    después. `scrollTop` deja la posición correcta en esa instantánea.
+
+      // Si ya está en la posición calculada con margen de 1px, no tocar
+      if (Math.abs(nav.scrollTop - destino) <= 1) return;
+
       try { nav.scrollTop = destino; } catch (e) { /* sin scroll */ }
-      // 2) Lenis después, para que su estado interno no devuelva el menú a la
-      //    posición anterior en la primera rueda.
       try {
         const pane = window.__pdiPanes?.get(nav);
         if (pane?.lenis) {
@@ -470,16 +489,20 @@ if (typeof document !== "undefined") {
       } catch (e) { /* sin lenis */ }
     };
 
+    // Aplicar inmediatamente y en las fases de layout de la transición
     aplicar();
-    // La microtarea corre después de todos los escuchadores de after-swap:
-    // ScrollManager reactiva Lenis y puede devolver el panel a 0. Se vuelve a
-    // fijar antes de que el navegador capture la instantánea de la transición.
     if (typeof queueMicrotask === "function") queueMicrotask(aplicar);
     requestAnimationFrame(aplicar);
-    setTimeout(() => {
+    setTimeout(aplicar, 60);
+    setTimeout(aplicar, 160);
+    setTimeout(aplicar, 320);
+
+    // Liberar navegandoScroll solo después de que la transición haya terminado completamente
+    clearTimeout(temporizadorFinNavegacion);
+    temporizadorFinNavegacion = setTimeout(() => {
       aplicar();
       navegandoScroll = false;
-    }, 140);
+    }, 450);
   };
 
   // --- Dirección del empuje de página -------------------------------
@@ -552,22 +575,21 @@ if (typeof document !== "undefined") {
     restaurarScrollNav();
   };
 
-  document.addEventListener("astro:before-preparation", () => {
+  document.addEventListener("astro:before-preparation", (evento) => {
     // La posición se captura aquí, cuando el panel todavía está estable: más
     // tarde el propio cambio de documento lo devuelve a 0.
-    if (!navegandoScroll) {
-      leerScrollNav();
-      persistirScrollNav();
-    }
+    leerScrollNav();
+    persistirScrollNav();
     navegandoScroll = true;
-    prepararDireccionPagina();
+    prepararDireccionPagina(evento);
   });
   document.addEventListener("astro:before-swap", (evento) => {
     marcarNuevoDocumento(evento);
+    navegandoScroll = true;
     // El panel pudo reiniciarse al preparar el documento nuevo: se devuelve
     // la posición guardada antes de que Astro lo mueva.
     const nav = navLateral();
-    if (nav && scrollNavGuardado > 0 && nav.scrollTop < 1) {
+    if (nav && scrollNavGuardado > 0 && Math.abs(nav.scrollTop - scrollNavGuardado) > 2) {
       nav.scrollTop = scrollNavGuardado;
     }
     persistirScrollNav();
