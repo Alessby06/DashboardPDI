@@ -439,25 +439,29 @@ export const ExpedienteView = {
       // cartel de error, y el repintado que lanza la hidratacion resolvera el
       // expediente. El aviso solo tiene sentido con los datos ya descargados.
       const estadoCapa = estadoActual();
-      if (estadoCapa === "conectando" || estadoCapa === "cargando") {
+      const hayDatos = (BeneficiarioModel.getAll() || []).length > 0;
+
+      // Mientras la capa de datos sigue conectando o hidratando Y aún no hay datos
+      // en memoria, se aguarda sin exponer el formulario en blanco.
+      if (!hayDatos && (estadoCapa === "conectando" || estadoCapa === "cargando")) {
         const viewRoot = document.getElementById("view-expediente");
-        if (viewRoot) viewRoot.removeAttribute("data-sin-expediente");
+        if (viewRoot) {
+          viewRoot.removeAttribute("data-sin-expediente");
+          viewRoot.setAttribute("data-cargando", "true");
+        }
         if (estadoSinExpediente) estadoSinExpediente.style.display = "none";
         document.getElementById("expPageTitle").textContent = "Expediente Integral del Usuario";
         const subCarga = document.getElementById("expPageSubtitle");
         if (subCarga) subCarga.textContent = "";
-        const pageBody = document.querySelector(".expediente-page-body");
-        if (pageBody) pageBody.style.removeProperty("display");
-        const pageActions = document.querySelector(".expediente-page-actions");
-        if (pageActions) pageActions.style.removeProperty("display");
-        const pageNav = document.querySelector(".expediente-page-nav");
-        if (pageNav) pageNav.style.removeProperty("display");
         return;
       }
 
       if (estadoSinExpediente) estadoSinExpediente.style.display = "flex";
       const viewRoot = document.getElementById("view-expediente");
-      if (viewRoot) viewRoot.setAttribute("data-sin-expediente", "true");
+      if (viewRoot) {
+        viewRoot.removeAttribute("data-cargando");
+        viewRoot.setAttribute("data-sin-expediente", "true");
+      }
 
       document.getElementById("expPageTitle").textContent = "Expediente Integral del Usuario";
       const sub = document.getElementById("expPageSubtitle");
@@ -520,7 +524,10 @@ export const ExpedienteView = {
     }
 
     const viewRoot = document.getElementById("view-expediente");
-    if (viewRoot) viewRoot.removeAttribute("data-sin-expediente");
+    if (viewRoot) {
+      viewRoot.removeAttribute("data-cargando");
+      viewRoot.removeAttribute("data-sin-expediente");
+    }
     if (estadoSinExpediente) estadoSinExpediente.style.display = "none";
     const pageBody = document.querySelector(".expediente-page-body");
     if (pageBody) pageBody.style.removeProperty("display");

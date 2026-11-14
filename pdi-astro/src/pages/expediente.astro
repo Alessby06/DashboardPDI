@@ -20,7 +20,7 @@ import Icon from '../components/Icon.astro';
 <AppLayout title="Expediente Integral" currentPage="expediente">
 <section class="app-view active" id="view-expediente">
 
-  <!-- Script síncrono inline para pre-hidratación instantánea: elimina los 2 segundos de campos vacíos -->
+  <!-- Script síncrono inline para pre-hidratación instantánea: 0 ms de parpadeo -->
   <script is:inline>
     (function () {
       function prehidratarExpediente() {
@@ -28,22 +28,68 @@ import Icon from '../components/Icon.astro';
           var params = new URLSearchParams(window.location.search);
           var id = params.get("id");
           var codigo = params.get("codigo");
-          if (!id && !codigo) return;
+          var root = document.getElementById("view-expediente");
+          var sinExp = document.getElementById("expSinExpediente");
 
-          var raw = localStorage.getItem("pdi_beneficiarios");
-          if (!raw) return;
-          var lista = JSON.parse(raw);
-          if (!Array.isArray(lista) || !lista.length) return;
-
-          var b = null;
-          if (id) {
-            var numId = parseInt(id, 10);
-            b = lista.find(function (item) { return item.id === numId; });
-          } else if (codigo) {
-            var cleanCod = codigo.trim().toLowerCase();
-            b = lista.find(function (item) { return (item.codigo || "").toLowerCase() === cleanCod; });
+          // 1. Si no hay ID ni código en la URL, mostrar inmediatamente el estado "sin expediente"
+          if (!id && !codigo) {
+            if (root) root.setAttribute("data-sin-expediente", "true");
+            if (sinExp) sinExp.style.display = "flex";
+            var elTit = document.getElementById("expSinExpedienteTitulo");
+            if (elTit) elTit.textContent = "No se indicó qué expediente abrir";
+            var elDet = document.getElementById("expSinExpedienteDetalle");
+            if (elDet) elDet.textContent = "Esta página necesita saber a qué usuario corresponde. Se llega a ella directamente desde el Padrón de Usuarios seleccionando una fila.";
+            return;
           }
-          if (!b) return;
+
+          // 2. Intentar leer snapshot clínico (o fallback legacy)
+          var lista = null;
+          var retirados = null;
+          try {
+            var rawSnap = localStorage.getItem("pdi_snapshot_v1") || sessionStorage.getItem("pdi_snapshot_v1");
+            if (rawSnap) {
+              var snap = JSON.parse(rawSnap);
+              if (snap && snap.datos && Array.isArray(snap.datos.beneficiarios)) {
+                lista = snap.datos.beneficiarios;
+                retirados = snap.datos.retirados || [];
+              }
+            }
+          } catch(e) {}
+
+          if (!lista) {
+            try {
+              var raw = localStorage.getItem("pdi_beneficiarios");
+              if (raw) lista = JSON.parse(raw);
+            } catch(e) {}
+          }
+
+          var refValor = codigo || id;
+          var refTexto = codigo ? ("el código " + codigo) : ("el ID #" + id);
+
+          // 3. Si tenemos la lista local (snapshot disponible)
+          if (Array.isArray(lista) && lista.length > 0) {
+            var b = null;
+            if (id) {
+              var numId = parseInt(id, 10);
+              b = lista.find(function (item) { return item.id === numId; });
+              if (!b && Array.isArray(retirados)) {
+                b = retirados.find(function (item) { return item.id === numId; });
+              }
+            } else if (codigo) {
+              var cleanCod = codigo.trim().toLowerCase();
+              b = lista.find(function (item) { return (item.codigo || "").toLowerCase() === cleanCod; });
+              if (!b && Array.isArray(retirados)) {
+                b = retirados.find(function (item) { return (item.codigo || "").toLowerCase() === cleanCod; });
+              }
+            }
+
+            // Si el beneficiario EXISTE: pre-hidratar todos sus campos inmediatamente
+            if (b) {
+              if (root) {
+                root.removeAttribute("data-cargando");
+                root.removeAttribute("data-sin-expediente");
+              }
+              if (sinExp) sinExp.style.display = "none";
 
           function setVal(idEl, val) {
             var el = document.getElementById(idEl);
@@ -135,6 +181,38 @@ import Icon from '../components/Icon.astro';
           }
           window.__pdiEstrategias = window.__pdiEstrategias || {};
           window.__pdiEstrategias["expEstrategia"] = estr;
+          return;
+        }
+
+        // Si la lista EXISTE y el beneficiario NO ESTÁ: sabemos en 0 ms que no existe
+        if (root) {
+          root.removeAttribute("data-cargando");
+          root.setAttribute("data-sin-expediente", "true");
+        }
+        if (sinExp) sinExp.style.display = "flex";
+        var elTitNo = document.getElementById("expSinExpedienteTitulo");
+        if (elTitNo) elTitNo.textContent = "No hay ningún usuario con " + refTexto;
+        var elBadgeWrap = document.getElementById("expSinExpedienteBadgeWrap");
+        var elBadge = document.getElementById("expSinExpedienteBadge");
+        if (elBadge && elBadgeWrap) {
+          elBadge.textContent = refValor;
+          elBadgeWrap.style.display = "inline-flex";
+        }
+        var elDetNo = document.getElementById("expSinExpedienteDetalle");
+        if (elDetNo) {
+          elDetNo.textContent = "No se encontró un registro activo ni histórico para este identificador. Puede que el usuario haya sido dado de baja definitiva, o que el enlace provenga de otra instalación.";
+        }
+        var elAudit = document.getElementById("expSinExpedienteBtnAuditoria");
+        if (elAudit) {
+          elAudit.href = "/auditoria?q=" + encodeURIComponent(refValor);
+          elAudit.style.display = "inline-flex";
+        }
+        return;
+      }
+
+      // 4. Si no hay lista en caché aún (primera carga sin snapshot):
+      // Ocultar formulario para evitar mostrar campos vacíos mientras conecta
+      if (root) root.setAttribute("data-cargando", "true");
         } catch (e) {}
       }
 
