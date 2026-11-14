@@ -11,14 +11,14 @@ import Icon from '../components/Icon.astro';
         <header class="dash-folio">
           <div class="dash-folio-main">
             <p class="dash-folio-line">
-              Parte al <time id="dashFolioFecha">…</time>
+              Parte al <time id="dashFolioFecha">hoy</time>
             </p>
             <h1>Panel de Infancia Saludable</h1>
             <p class="dash-folio-sub">
               Cobertura territorial, triada de servicios y estado nutricional del programa.
             </p>
             <p class="dash-folio-meta">
-              <span>Responsable: <strong id="dashFolioResponsable">…</strong></span>
+              <span>Responsable: <strong id="dashFolioResponsable">Sesión activa</strong></span>
               <span id="dashAmbitoLabel">Ámbito: todas las sedes</span>
             </p>
           </div>
@@ -43,7 +43,7 @@ import Icon from '../components/Icon.astro';
             </button>
             <span class="dash-meta-chip is-loading" id="dashEstado" role="status" aria-live="polite">
               <span class="dash-estado-dot" aria-hidden="true"></span>
-              <span id="dashEstadoTexto">Cargando…</span>
+              <span id="dashEstadoTexto">Sincronizando…</span>
               <span class="dash-meta-hace" id="dashEstadoHace" aria-hidden="true"></span>
             </span>
             <a class="dash-meta-link" href="/padron">
@@ -58,7 +58,7 @@ import Icon from '../components/Icon.astro';
           <div class="dash-kpi-col">
             <span class="dash-kpi-label">Padrón de Niños</span>
             <strong class="dash-kpi-val" id="kpiTotalPadron">—</strong>
-            <span class="dash-kpi-sub" id="kpiTotalPadronSub">Cargando matrícula…</span>
+            <span class="dash-kpi-sub" id="kpiTotalPadronSub">Matrícula general</span>
           </div>
           <div class="dash-kpi-col">
             <span class="dash-kpi-label">Prevalencia de Anemia</span>

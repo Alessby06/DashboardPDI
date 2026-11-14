@@ -331,7 +331,7 @@ const TABLAS_LIVE = [
  * corre después y confirma o corrige. No bloquea ni inventa datos.
  */
 export function aplicarSnapshotInicial() {
-  if (_snapshotAplicado) return true;
+  if (_snapshotAplicado || _hidratado) return true;
   // Solo se intenta una vez por documento: en una navegación interna los
   // modelos ya están hidratados y no deben volver a la copia anterior.
   if (!window.PDI?.BeneficiarioModel) return false;

@@ -127,10 +127,6 @@ export const DashboardView = {
 
     const estado = window.PDI?.DB?.estadoActual?.() || "ok";
     const ultima = window.PDI?.DB?.ultimaHidratacion?.() || 0;
-    const datosOk = estado === "ok";
-    // La primera pintura con datos no cuenta: solo escribe. El conteo aparece
-    // cuando la hidratación real cambia la copia de sesión o llega un LIVE.
-    const animarCifras = this._cifrasPintadas && datosOk;
 
     // Selector de sede y ámbito institucional
     const selectSede = document.getElementById("dashSelectSede");
@@ -146,6 +142,31 @@ export const DashboardView = {
     const statsFiltradas = (filtroSede && filtroSede !== "all" && window.PDI?.BeneficiarioModel?.getStats)
       ? window.PDI.BeneficiarioModel.getStats(filtroSede)
       : (stats || {});
+
+    // Cálculo de subconjunto ASP para el ledger ejecutivo
+    const allUsuarios = window.PDI?.BeneficiarioModel?.getAll?.() || [];
+    let usuariosParaAsp = allUsuarios;
+    if (filtroSede && filtroSede !== "all") {
+      const q = String(filtroSede).toLowerCase();
+      usuariosParaAsp = allUsuarios.filter(b => (b.sede && b.sede.toLowerCase().includes(q)) || (b.distrito && b.distrito.toLowerCase().includes(q)));
+    }
+    const casos = window.PDI?.CasoSocialModel?.getAll?.() || [];
+    const casosActivos = casos.filter(c => c && c.etapa !== "cerrado").length;
+    const personasAsp = new Set(
+      casos
+        .filter(c => c && c.etapa !== "cerrado")
+        .map(c => String(c._personaId || c.beneficiarioId || ""))
+        .filter(Boolean),
+    );
+    const usuariosAsp = usuariosParaAsp.filter(b => personasAsp.has(String(b._personaId || b.id)));
+
+    // Si tenemos beneficiarios en memoria (por snapshot persistente o hidratación previa),
+    // los datos son válidos y deben pintarse de inmediato (estrategia Stale-While-Revalidate).
+    const hayDatosEnMemoria = (statsFiltradas?.total != null && statsFiltradas.total > 0) || (allUsuarios?.length > 0);
+    const datosOk = hayDatosEnMemoria || estado === "ok";
+    // La primera pintura con datos no cuenta: solo escribe. El conteo aparece
+    // cuando la hidratación real cambia la copia de sesión o llega un LIVE.
+    const animarCifras = this._cifrasPintadas && datosOk;
 
     const ambitoLabel = document.getElementById("dashAmbitoLabel");
     if (ambitoLabel) {
@@ -194,23 +215,6 @@ export const DashboardView = {
     this._sello = { estado, ultima };
     this._pintarSello();
     this._iniciarSello();
-
-    // Cálculo de subconjunto ASP para el ledger ejecutivo
-    const allUsuarios = window.PDI?.BeneficiarioModel?.getAll?.() || [];
-    let usuariosParaAsp = allUsuarios;
-    if (filtroSede && filtroSede !== "all") {
-      const q = String(filtroSede).toLowerCase();
-      usuariosParaAsp = allUsuarios.filter(b => (b.sede && b.sede.toLowerCase().includes(q)) || (b.distrito && b.distrito.toLowerCase().includes(q)));
-    }
-    const casos = window.PDI?.CasoSocialModel?.getAll?.() || [];
-    const casosActivos = casos.filter(c => c && c.etapa !== "cerrado").length;
-    const personasAsp = new Set(
-      casos
-        .filter(c => c && c.etapa !== "cerrado")
-        .map(c => String(c._personaId || c.beneficiarioId || ""))
-        .filter(Boolean),
-    );
-    const usuariosAsp = usuariosParaAsp.filter(b => personasAsp.has(String(b._personaId || b.id)));
 
     // Banda Maestra de Resumen Institucional (Ledger ejecutivo 4 KPIs)
     const kpiTotalPadron = document.getElementById("kpiTotalPadron");
@@ -380,12 +384,12 @@ export const DashboardView = {
       if (texto.textContent !== mensaje) texto.textContent = mensaje;
     };
 
-    if (estado === "sin_conexion") {
+    if (estado === "sin_conexion" && !ultima) {
       chip.classList.add("is-warn");
       poner("Sin conexión · reintentando");
       return;
     }
-    if (estado !== "ok") {
+    if (estado !== "ok" && !ultima) {
       chip.classList.add("is-loading");
       poner("Cargando datos…");
       return;
@@ -420,9 +424,21 @@ export const DashboardView = {
       // Sin Intl se conserva el guion: mejor una hora incompleta que inventada.
     }
 
-    poner(mismoDia
-      ? `Actualizado hoy ${horaTexto}`
-      : `Actualizado ${diaTexto} · ${horaTexto}`);
+    if (estado === "sin_conexion") {
+      chip.classList.add("is-warn");
+      poner(mismoDia
+        ? `Actualizado hoy ${horaTexto} · sin conexión`
+        : `Actualizado ${diaTexto} · sin conexión`);
+    } else if (estado !== "ok") {
+      chip.classList.add("is-loading");
+      poner(mismoDia
+        ? `Actualizado hoy ${horaTexto} · sincronizando…`
+        : `Actualizado ${diaTexto} · sincronizando…`);
+    } else {
+      poner(mismoDia
+        ? `Actualizado hoy ${horaTexto}`
+        : `Actualizado ${diaTexto} · ${horaTexto}`);
+    }
     const edad = Math.max(0, Date.now() - fecha.getTime());
     if (haceEl) haceEl.textContent = this._hace(edad);
     if (edad > 30 * 60 * 1000) chip.classList.add("is-warn");

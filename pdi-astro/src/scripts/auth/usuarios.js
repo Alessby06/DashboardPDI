@@ -107,9 +107,15 @@ export async function autenticar(usuario, clave, codigo = "") {
     }
 
     const expiracion = Number(datos.exp) || (Date.now() + DURACION_SESION_MS);
-    // La copia clínica de una sesión anterior no debe sobrevivir al cambio de
-    // usuario, aunque la validación de alcance ya la descartaría.
-    limpiarSnapshot();
+    const loginPrevio = (() => {
+      try { return (localStorage.getItem(CLAVE_USUARIO_LOGIN) || "").toLowerCase().trim(); } catch { return ""; }
+    })();
+    const loginNuevo = String(datos.usuario || "").toLowerCase().trim();
+    // Solo borra la copia clínica si cambia de usuario. Si es el mismo usuario,
+    // conserva la copia para que la entrada al dashboard sea inmediata (0 ms).
+    if (loginPrevio && loginNuevo && loginPrevio !== loginNuevo) {
+      limpiarSnapshot();
+    }
     localStorage.setItem(CLAVE_SESION, "1");
     localStorage.setItem(CLAVE_ROL, datos.rol || "coord");
     localStorage.setItem(CLAVE_USUARIO_NOMBRE, datos.nombre || "");
