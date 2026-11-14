@@ -22,7 +22,6 @@ import { arrancarComun, publicarRefresco } from "../core/Bootstrap.js";
 import { BeneficiarioModel } from '../models/BeneficiarioModel.js';
 import { CasoSocialModel } from '../models/CasoSocialModel.js';
 import { SedeModel } from '../models/SedeModel.js';
-import { AuditModel } from '../models/AuditModel.js';
 import { DashboardView } from '../views/DashboardView.js';
 // El boton de exportar del panel invoca window.exportDataCSV, y ese puente
 // resuelve por window.PDI. Antes AppController lo traia legacy-globals a las
@@ -69,7 +68,7 @@ function montar() {
   // retrasaba las cifras ~400 ms y las dejaba en "…". Se pinta en el acto con
   // los modelos en memoria; la bitácora sigue viva en /auditoria.
   const filtroSede = DashboardView._filtroSede || "all";
-  DashboardView.render(BeneficiarioModel.getStats(filtroSede), AuditModel.getAll());
+  DashboardView.render(BeneficiarioModel.getStats(filtroSede));
 }
 
 function iniciar() {

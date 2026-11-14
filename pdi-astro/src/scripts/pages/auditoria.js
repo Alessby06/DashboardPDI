@@ -22,7 +22,7 @@ import { arrancarComun, publicarRefresco } from "../core/Bootstrap.js";
 import { fetchBitacora, LIMITE_BITACORA } from '../core/db.js';
 import { guardarCache, leerCache } from '../core/snapshot.js';
 import { AuditModel } from '../models/AuditModel.js';
-import { DashboardView } from '../views/DashboardView.js';
+import { AuditView } from '../views/AuditView.js';
 import { mismaBitacora } from '../utils/bitacora.js';
 // El boton de confirmar la exportacion vive en el chrome comun
 // (el chrome comun, que ahora va en linea en cada HTML) y su puente resuelve
@@ -49,15 +49,15 @@ function montar() {
   // tabla sin registros.
   const enMemoria = AuditModel.getAll();
   if (enMemoria.length) {
-    DashboardView._auditTotalServidor = Math.max(totalBitacora, enMemoria.length);
-    DashboardView.renderAuditLogs(enMemoria);
+    AuditView._auditTotalServidor = Math.max(totalBitacora, enMemoria.length);
+    AuditView.renderAuditLogs(enMemoria);
   } else {
     const cache = leerCache("bitacora", { ttlMs: 10 * 60 * 1000 });
     if (Array.isArray(cache) && cache.length) {
       totalBitacora = Math.max(totalBitacora, cache.length);
-      DashboardView._auditTotalServidor = totalBitacora;
+      AuditView._auditTotalServidor = totalBitacora;
       AuditModel.aplicarDatos(cache);
-      DashboardView.renderAuditLogs(cache);
+      AuditView.renderAuditLogs(cache);
     }
   }
   cargarBitacora();
@@ -81,7 +81,7 @@ async function cargarBitacora({ ampliar = false } = {}) {
     // que es el único que puede abrir el namespace de auditoría.
     const { logs, total } = await fetchBitacora({ limit: limiteBitacora });
     totalBitacora = total;
-    DashboardView._auditTotalServidor = totalBitacora;
+    AuditView._auditTotalServidor = totalBitacora;
     const actuales = AuditModel.getAll();
     const teniaCache = actuales.length > 0;
     // Si la copia ya muestra exactamente lo mismo, no se repinta: reemplazar
@@ -92,7 +92,7 @@ async function cargarBitacora({ ampliar = false } = {}) {
     // copia en pantalla, no se borra: se conserva y la próxima vuelta reintenta.
     if (!teniaCache || (logs.length && (cambio || hayMas))) {
       AuditModel.aplicarDatos(logs);
-      DashboardView.renderAuditLogs(logs);
+      AuditView.renderAuditLogs(logs);
     }
     if (logs.length) {
       guardarCache("bitacora", logs, { ttlMs: 10 * 60 * 1000, maxBytes: 2_000_000 });

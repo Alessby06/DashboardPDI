@@ -15,7 +15,7 @@ import Icon from '../components/Icon.astro';
             </p>
             <h1>Panel de Infancia Saludable</h1>
             <p class="dash-folio-sub">
-              Cobertura territorial, triada de servicios y estado nutricional del programa.
+              Cobertura territorial, <abbr title="Servicio Alimentario, Acompañamiento Educativo y Pastoral ASP">tríada de servicios</abbr> y estado nutricional del programa.
             </p>
             <p class="dash-folio-meta">
               <span>Responsable: <strong id="dashFolioResponsable">Sesión activa</strong></span>
@@ -66,7 +66,7 @@ import Icon from '../components/Icon.astro';
             <span class="dash-kpi-sub" id="kpiTasaAnemiaSub">En población tamizada</span>
           </div>
           <div class="dash-kpi-col">
-            <span class="dash-kpi-label">Casos Críticos ASP</span>
+            <span class="dash-kpi-label">Casos Críticos <abbr title="Acompañamiento Social Pastoral">ASP</abbr></span>
             <strong class="dash-kpi-val" id="kpiCasosAsp">—</strong>
             <span class="dash-kpi-sub" id="kpiCasosAspSub">Seguimiento pastoral</span>
           </div>
@@ -80,7 +80,7 @@ import Icon from '../components/Icon.astro';
         <!-- Franja clínica: la firma del parte (4 niveles calibrados Ficha A6) -->
         <section class="dash-band dash-band--clinical" aria-labelledby="dashClinicaTitle">
           <div class="dash-band-head">
-            <h2 id="dashClinicaTitle">Anemia infantil (Hb)</h2>
+            <h2 id="dashClinicaTitle">Anemia infantil (<abbr title="Hemoglobina">Hb</abbr>)</h2>
             <div class="dash-band-meta">
               <span class="dash-band-note" id="dashTamizados">…</span>
               <span class="dash-band-note" id="dashSinTamizaje" hidden></span>
@@ -139,14 +139,14 @@ import Icon from '../components/Icon.astro';
         <!-- Hoja de servicios: el cuerpo del parte -->
         <section class="dash-band" aria-labelledby="dashServiciosTitle">
           <div class="dash-band-head">
-            <h2 id="dashServiciosTitle">Programas del parte</h2>
+            <h2 id="dashServiciosTitle">Tríada troncal de servicios</h2>
           </div>
           <div class="dash-ledger">
             <article class="dash-service">
               <header class="dash-service-head">
                 <div>
                   <h3 class="dash-service-title">Alimentación y nutrición</h3>
-                  <p class="dash-service-note">Desayuno, lonchera y control CRED</p>
+                  <p class="dash-service-note">Desayuno, lonchera y control <abbr title="Control de Crecimiento y Desarrollo">CRED</abbr></p>
                 </div>
                 <a class="dash-service-link" href="/salud">Ver alimentación</a>
               </header>
@@ -164,7 +164,7 @@ import Icon from '../components/Icon.astro';
                   <dd id="dashAlimLonchera">…</dd>
                 </div>
                 <div class="dash-service-row">
-                  <dt>Atención CRED</dt>
+                  <dt>Atención <abbr title="Control de Crecimiento y Desarrollo">CRED</abbr></dt>
                   <dd id="dashAlimCred">…</dd>
                 </div>
               </dl>
@@ -197,26 +197,26 @@ import Icon from '../components/Icon.astro';
             <article class="dash-service">
               <header class="dash-service-head">
                 <div>
-                  <h3 class="dash-service-title">Servicio social pastoral (ASP)</h3>
-                  <p class="dash-service-note">Solo usuarios con caso ASP activo</p>
+                  <h3 class="dash-service-title">Servicio social pastoral (<abbr title="Acompañamiento Social Pastoral">ASP</abbr>)</h3>
+                  <p class="dash-service-note">Solo usuarios con caso <abbr title="Acompañamiento Social Pastoral">ASP</abbr> activo</p>
                 </div>
                 <a class="dash-service-link" href="/social">Ver social</a>
               </header>
               <dl class="dash-service-rows">
                 <div class="dash-service-row dash-service-row--lead">
-                  <dt>Usuarios con caso ASP activo <span class="dash-service-micro" id="dashAspCasosMicro">…</span></dt>
+                  <dt>Usuarios con caso <abbr title="Acompañamiento Social Pastoral">ASP</abbr> activo <span class="dash-service-micro" id="dashAspCasosMicro">…</span></dt>
                   <dd id="dashAspUsuarios">…</dd>
                 </div>
                 <div class="dash-service-row">
-                  <dt>Con caso ASP en desayuno</dt>
+                  <dt>Con caso <abbr title="Acompañamiento Social Pastoral">ASP</abbr> en desayuno</dt>
                   <dd id="dashAspDesayuno">…</dd>
                 </div>
                 <div class="dash-service-row">
-                  <dt>Con caso ASP en lonchera</dt>
+                  <dt>Con caso <abbr title="Acompañamiento Social Pastoral">ASP</abbr> en lonchera</dt>
                   <dd id="dashAspLonchera">…</dd>
                 </div>
                 <div class="dash-service-row">
-                  <dt>Con caso ASP en Casita del Saber</dt>
+                  <dt>Con caso <abbr title="Acompañamiento Social Pastoral">ASP</abbr> en Casita del Saber</dt>
                   <dd id="dashAspCasita">…</dd>
                 </div>
               </dl>

@@ -102,7 +102,7 @@ const OPCIONES_ORDEN_AUDIT = [
                 <label for="inputAuditSearch" class="pdi-sr-only">Buscar en auditoría por DNI, código, usuario o acción</label>
                 <input type="search" id="inputAuditSearch" class="audit-search-input" aria-label="Buscar en auditoría por DNI, código, usuario o acción"
                   placeholder="Buscar por DNI, código, usuario o acción..."
-                  oninput="window.filterAuditSearch ? window.filterAuditSearch(this.value) : (window.PDI?.DashboardView?.filterBySearch ? window.PDI.DashboardView.filterBySearch(this.value) : null)">
+                  oninput="window.filterAuditSearch ? window.filterAuditSearch(this.value) : (window.PDI?.AuditView?.filterBySearch ? window.PDI.AuditView.filterBySearch(this.value) : (window.PDI?.DashboardView?.filterBySearch ? window.PDI.DashboardView.filterBySearch(this.value) : null))">
                 <button type="button" class="audit-search-clear" id="btnAuditSearchClear" style="display:none;"
                   onclick="window.clearAuditSearch ? window.clearAuditSearch() : null" title="Limpiar búsqueda">
                   <Icon name="accion.cerrar" size={12} />
@@ -293,7 +293,7 @@ const OPCIONES_ORDEN_AUDIT = [
                 <div class="padron-density-wrapper" style="display:flex; align-items:center; gap:6px;">
                   <span style="font-size:12px; color:var(--text-dim);">Mostrar:</span>
                   <select class="audit-density-select padron-density-select" id="selectAuditPageSize"
-                    onchange="window.changeAuditPageSize ? window.changeAuditPageSize(this.value) : (window.PDI?.DashboardView?.changePageSize ? window.PDI.DashboardView.changePageSize(this.value) : null)">
+                    onchange="window.changeAuditPageSize ? window.changeAuditPageSize(this.value) : (window.PDI?.AuditView?.changePageSize ? window.PDI.AuditView.changePageSize(this.value) : (window.PDI?.DashboardView?.changePageSize ? window.PDI.DashboardView.changePageSize(this.value) : null))">
                     <option value="10" selected>10 por página</option>
                     <option value="25">25 por página</option>
                     <option value="50">50 por página (Máx)</option>
@@ -306,13 +306,13 @@ const OPCIONES_ORDEN_AUDIT = [
               </div>
               <div class="padron-pagination-right audit-pagination-right">
                 <button type="button" class="btn-page" id="btnAuditPagePrev"
-                  onclick="window.prevAuditPage ? window.prevAuditPage() : (window.PDI?.DashboardView?.changePage ? window.PDI.DashboardView.changePage((window.PDI.DashboardView._auditCurrentPage || 1) - 1) : null)">
+                  onclick="window.prevAuditPage ? window.prevAuditPage() : (window.PDI?.AuditView?.changePage ? window.PDI.AuditView.changePage((window.PDI.AuditView._auditCurrentPage || 1) - 1) : (window.PDI?.DashboardView?.changePage ? window.PDI.DashboardView.changePage((window.PDI.DashboardView._auditCurrentPage || 1) - 1) : null))">
                   <Icon name="accion.volver" size={14} />
                   <span>Anterior</span>
                 </button>
                 <span class="audit-page-indicator" id="auditCurrentPageNum">Página 1</span>
                 <button type="button" class="btn-page" id="btnAuditPageNext"
-                  onclick="window.nextAuditPage ? window.nextAuditPage() : (window.PDI?.DashboardView?.changePage ? window.PDI.DashboardView.changePage((window.PDI.DashboardView._auditCurrentPage || 1) + 1) : null)">
+                  onclick="window.nextAuditPage ? window.nextAuditPage() : (window.PDI?.AuditView?.changePage ? window.PDI.AuditView.changePage((window.PDI.AuditView._auditCurrentPage || 1) + 1) : (window.PDI?.DashboardView?.changePage ? window.PDI.DashboardView.changePage((window.PDI.DashboardView._auditCurrentPage || 1) + 1) : null))">
                   <span>Siguiente</span>
                   <Icon name="accion.abrir" size={14} />
                 </button>
