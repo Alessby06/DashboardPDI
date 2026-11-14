@@ -1001,7 +1001,7 @@ export const ExpedienteView = {
       : "En evaluacion";
 
     cont.innerHTML = `
-      <div style="background:var(--surface-hover); padding:14px; border-radius:var(--radius-sm); border-left:3px solid var(--gt-yellow);">
+      <div style="background:var(--surface-2); padding:14px; border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
           <div>
             <strong style="font-size:13px; color:var(--text-warning);">Derivacion Activa: Problemática ${escapar(tipo)}</strong>

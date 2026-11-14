@@ -962,7 +962,7 @@
 
     .auth-justification-box {
       background: var(--surface-1);
-      border-left: 3px solid var(--gt-yellow);
+      border-left: 1px solid var(--gt-yellow);
       padding: 9px 12px;
       border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
       font-size: 12px;
@@ -971,7 +971,7 @@
 
     .coordination-feedback-box {
       background: var(--surface-1);
-      border-left: 3px solid var(--brand-primary);
+      border-left: 1px solid var(--brand-primary);
       padding: 9px 12px;
       border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
       font-size: 12px;

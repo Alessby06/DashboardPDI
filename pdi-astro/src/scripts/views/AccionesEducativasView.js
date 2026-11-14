@@ -10,6 +10,7 @@ import { BeneficiarioModel } from '../models/BeneficiarioModel.js';
 import { ToastView } from './ToastView.js';
 import { escapar } from '../utils/HtmlHelper.js';
 import { CsvExporter } from '../utils/CsvExporter.js';
+import { confirmar } from '../ui/confirmacion.js';
 
 function porId(id) {
   return document.getElementById(id);
@@ -150,7 +151,7 @@ export const AccionesEducativasView = {
     const inputFac = porId('aseFacilitadora');
     if (inputFac && !inputFac.value) inputFac.value = usuarioActivo().nombre;
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const sede = porId('aseSede')?.value;
       if (!sede) {
@@ -213,7 +214,7 @@ export const AccionesEducativasView = {
     const inputFac = porId('monFacilitadora');
     if (inputFac && !inputFac.value) inputFac.value = usuarioActivo().nombre;
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const sede = porId('monSede')?.value;
       if (!sede) {
@@ -259,7 +260,7 @@ export const AccionesEducativasView = {
     // Llenar selector de usuarios
     this.actualizarSelectorUsuarios();
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const selectUser = porId('segBeneficiarioSelect');
       const benefId = selectUser?.value;
@@ -306,9 +307,12 @@ export const AccionesEducativasView = {
 
       // Si incluye derivación ASP, ofrecer abrir el flujo formal de derivación
       if (acciones.includes('Derivación ASP')) {
-        const confirmarDerivacion = window.confirm(
-          `Has marcado "Derivación ASP" para ${benefNombre}.\n¿Deseas abrir la ficha de derivación formal ahora?`
-        );
+        const confirmarDerivacion = await confirmar({
+          titulo: 'Derivación ASP',
+          mensaje: `Has marcado "Derivación ASP" para ${benefNombre}.\n¿Deseas abrir la ficha de derivación formal ahora?`,
+          confirmar: 'Abrir derivación',
+          cancelar: 'En otro momento',
+        });
         if (confirmarDerivacion) {
           const btnDerivar = porId('btnNuevaDerivacion');
           if (btnDerivar) {

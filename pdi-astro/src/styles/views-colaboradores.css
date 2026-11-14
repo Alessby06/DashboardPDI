@@ -126,14 +126,16 @@
   background: var(--surface-1);
   color: var(--text-muted);
   cursor: pointer;
-  transition: all var(--dur-fast) var(--ease-smooth);
+  transition: color var(--dur-fast) var(--ease-smooth), background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth);
   user-select: none;
 }
 
-.colab-tab-btn:hover {
-  background: var(--surface-hover);
-  color: var(--text-main);
-  border-color: var(--border-bright);
+@media (hover: hover) and (pointer: fine) {
+  .colab-tab-btn:hover {
+    background: var(--surface-hover);
+    color: var(--text-main);
+    border-color: var(--border-bright);
+  }
 }
 
 .colab-tab-btn.active {
@@ -151,7 +153,7 @@
   background: var(--surface-2);
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
-  transition: all var(--dur-fast) var(--ease-smooth);
+  transition: color var(--dur-fast) var(--ease-smooth), background-color var(--dur-fast) var(--ease-smooth);
 }
 
 .colab-tab-btn.active .colab-tab-badge {
@@ -260,12 +262,14 @@
   color: var(--text-brand);
   text-decoration: none;
   font-size: 13px;
-  transition: all var(--dur-fast) var(--ease-smooth);
+  transition: color var(--dur-fast) var(--ease-smooth), text-decoration-color var(--dur-fast) var(--ease-smooth);
 }
 
-.colab-sede-link:hover {
-  text-decoration: underline;
-  color: var(--brand-green-deep);
+@media (hover: hover) and (pointer: fine) {
+  .colab-sede-link:hover {
+    text-decoration: underline;
+    color: var(--brand-green-deep);
+  }
 }
 
 .colab-district-tag {
@@ -307,7 +311,7 @@
   padding: 5px 10px;
   border-radius: var(--radius-sm);
   text-decoration: none;
-  transition: all var(--dur-fast) var(--ease-smooth);
+  transition: color var(--dur-fast) var(--ease-smooth), background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth);
   width: fit-content;
 }
 
@@ -317,20 +321,22 @@
   border: 1px solid var(--border-subtle);
 }
 
-.btn-contact-call:hover {
-  background: var(--surface-hover);
-  border-color: var(--border-bright);
-}
-
 .btn-contact-wa {
   background: var(--colab-wa-bg);
   color: var(--colab-wa-text);
   border: 1px solid var(--border-subtle);
 }
 
-.btn-contact-wa:hover {
-  background: var(--surface-hover);
-  border-color: var(--gt-green);
+@media (hover: hover) and (pointer: fine) {
+  .btn-contact-call:hover {
+    background: var(--surface-hover);
+    border-color: var(--border-bright);
+  }
+
+  .btn-contact-wa:hover {
+    background: var(--surface-hover);
+    border-color: var(--gt-green);
+  }
 }
 
 /* ===========================================================================
@@ -426,7 +432,7 @@
     text-decoration: none;
     cursor: pointer;
     border: 1px solid var(--border-subtle);
-    transition: all var(--dur-fast) var(--ease-smooth);
+    transition: color var(--dur-fast) var(--ease-smooth), background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth);
   }
 
   .btn-mobile-call {

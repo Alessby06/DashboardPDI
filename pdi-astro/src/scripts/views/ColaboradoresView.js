@@ -5,6 +5,7 @@ import { ColaboradorModel, clasificarCategoria, CATEGORIAS_COLABORADOR } from '.
 import { ToastView } from './ToastView.js';
 import { AuditModel } from '../models/AuditModel.js';
 import { escapar } from '../utils/HtmlHelper.js';
+import { confirmar } from '../ui/confirmacion.js';
 
 let busquedaActual = '';
 let categoriaTabActual = 'colegios';
@@ -621,11 +622,18 @@ export const ColaboradoresView = {
     this.render();
   },
 
-  eliminar(id) {
+  async eliminar(id) {
     const colab = ColaboradorModel.getById(id);
     if (!colab) return;
 
-    if (confirm(`¿Estás seguro de dar de baja la ficha de ${colab.apellidos}, ${colab.nombres}?`)) {
+    const aceptar = await confirmar({
+      titulo: 'Dar de baja colaborador',
+      mensaje: `¿Estás seguro de dar de baja la ficha de ${colab.apellidos}, ${colab.nombres}?`,
+      confirmar: 'Dar de baja',
+      cancelar: 'Cancelar',
+      peligro: true,
+    });
+    if (aceptar) {
       ColaboradorModel.delete(id);
       ToastView.show('Ficha Eliminada', `Se eliminó el registro de ${colab.codigo}.`, 'info');
       if (AuditModel && typeof AuditModel.registrarAccion === 'function') {

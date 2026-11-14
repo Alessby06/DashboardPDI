@@ -497,7 +497,7 @@ export const DerivacionView = {
 <title>Ficha de derivación ${escapar(d.folio)}</title>
 <style>
   * { box-sizing: border-box; }
-  body { font-family: Arial, Helvetica, sans-serif; color: #111; margin: 0; padding: 28px; font-size: 12px; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; color: #111; margin: 0; padding: 28px; font-size: 12px; }
   .head { display: flex; justify-content: space-between; gap: 16px; border-bottom: 2px solid #111; padding-bottom: 10px; margin-bottom: 14px; }
   .head h1 { font-size: 18px; margin: 0 0 4px; }
   .head p { margin: 0; color: #555; }

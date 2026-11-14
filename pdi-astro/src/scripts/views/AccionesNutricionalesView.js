@@ -10,6 +10,7 @@ import { BeneficiarioModel } from '../models/BeneficiarioModel.js';
 import { ToastView } from './ToastView.js';
 import { escapar } from '../utils/HtmlHelper.js';
 import { CsvExporter } from '../utils/CsvExporter.js';
+import { confirmar } from '../ui/confirmacion.js';
 
 function porId(id) {
   return document.getElementById(id);
@@ -165,7 +166,7 @@ export const AccionesNutricionalesView = {
     const inputFac = porId('monRepFacilitadora');
     if (inputFac && !inputFac.value) inputFac.value = usuarioActivo().nombre;
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const sede = porId('monRepSede')?.value;
       if (!sede) {
@@ -218,7 +219,7 @@ export const AccionesNutricionalesView = {
     const inputFecha = porId('capVolFecha');
     if (inputFecha && !inputFecha.value) inputFecha.value = hoyISO();
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const sede = porId('capVolSede')?.value;
       if (!sede) {
@@ -273,7 +274,7 @@ export const AccionesNutricionalesView = {
     const inputFac = porId('sesFamFacilitadora');
     if (inputFac && !inputFac.value) inputFac.value = usuarioActivo().nombre;
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const sede = porId('sesFamSede')?.value;
       if (!sede) {
@@ -332,7 +333,7 @@ export const AccionesNutricionalesView = {
     const inputFecha = porId('camSalFecha');
     if (inputFecha && !inputFecha.value) inputFecha.value = hoyISO();
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const selectUser = porId('camSalBeneficiarioSelect');
       const benefId = selectUser?.value;
@@ -376,9 +377,12 @@ export const AccionesNutricionalesView = {
 
       // Si incluye derivación ASP, activar flujo
       if (intervenciones.includes('Derivación ASP')) {
-        const confirmarDeriv = window.confirm(
-          `Has seleccionado "Derivación ASP" para ${benefNombre}.\n¿Deseas abrir la ficha de derivación formal ahora?`
-        );
+        const confirmarDeriv = await confirmar({
+          titulo: 'Derivación ASP',
+          mensaje: `Has seleccionado "Derivación ASP" para ${benefNombre}.\n¿Deseas abrir la ficha de derivación formal ahora?`,
+          confirmar: 'Abrir derivación',
+          cancelar: 'En otro momento',
+        });
         if (confirmarDeriv) {
           const btnDerivar = porId('btnNuevaDerivacion');
           if (btnDerivar) {

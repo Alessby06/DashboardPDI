@@ -975,13 +975,15 @@
   background: var(--surface-1);
   color: var(--text-muted);
   cursor: pointer;
-  transition: all var(--dur-fast) var(--ease-smooth);
+  transition: color var(--dur-fast) var(--ease-smooth), background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth);
 }
 
-.educativo-tab-btn:hover {
-  background: var(--surface-hover);
-  color: var(--text-main);
-  border-color: var(--border-bright);
+@media (hover: hover) and (pointer: fine) {
+  .educativo-tab-btn:hover {
+    background: var(--surface-hover);
+    color: var(--text-main);
+    border-color: var(--border-bright);
+  }
 }
 
 .educativo-tab-btn.active {
@@ -1017,12 +1019,14 @@
   color: var(--text-muted);
   cursor: pointer;
   white-space: nowrap;
-  transition: all var(--dur-fast) var(--ease-smooth);
+  transition: color var(--dur-fast) var(--ease-smooth), background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth);
 }
 
-.educativo-subtab-btn:hover {
-  background: var(--surface-hover);
-  color: var(--text-main);
+@media (hover: hover) and (pointer: fine) {
+  .educativo-subtab-btn:hover {
+    background: var(--surface-hover);
+    color: var(--text-main);
+  }
 }
 
 .educativo-subtab-btn.active {
@@ -1072,12 +1076,14 @@
   color: var(--text-main);
   cursor: pointer;
   user-select: none;
-  transition: all var(--dur-fast) var(--ease-smooth);
+  transition: color var(--dur-fast) var(--ease-smooth), background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth);
 }
 
-.educativo-check-card:hover {
-  background: var(--surface-hover);
-  border-color: var(--border-bright);
+@media (hover: hover) and (pointer: fine) {
+  .educativo-check-card:hover {
+    background: var(--surface-hover);
+    border-color: var(--border-bright);
+  }
 }
 
 .educativo-check-card:has(input:checked) {
