@@ -826,18 +826,21 @@ export const AuditView = {
       if (!Array.isArray(diff) || diff.length === 0) {
         return `
           <div class="audit-diff-empty">
-            <span style="color:var(--text-dim); font-size:12px;">Operación de registro o consulta sin alteración de campos individuales.</span>
+            <span>Operación de registro o consulta inmutable sin alteración de valores previos.</span>
           </div>
         `;
       }
       return `
         <div class="audit-diff-container">
+          <div class="audit-diff-bar-header">
+            <span>Detalle de Modificaciones (${diff.length} ${diff.length === 1 ? 'campo alterado' : 'campos alterados'})</span>
+          </div>
           <table class="audit-diff-table-inner">
             <thead>
               <tr>
-                <th style="width:28%;">Campo Modificado</th>
-                <th style="width:36%;">Estado Anterior</th>
-                <th style="width:36%;">Nuevo Valor</th>
+                <th style="width:32%;">Campo Modificado</th>
+                <th style="width:34%;">Estado Anterior</th>
+                <th style="width:34%;">Nuevo Valor</th>
               </tr>
             </thead>
             <tbody>
@@ -847,9 +850,22 @@ export const AuditView = {
                 const despues = d.despues !== undefined && d.despues !== null ? String(d.despues) : (d.valorNuevo || '—');
                 return `
                   <tr>
-                    <td><strong>${escapar(label)}</strong>${d.campo && d.etiqueta ? `<br><small style="color:var(--text-dim); font-size:11px;">(${escapar(d.campo)})</small>` : ''}</td>
-                    <td class="diff-val-prev"><span>${escapar(antes)}</span></td>
-                    <td class="diff-val-curr"><span>${escapar(despues)}</span></td>
+                    <td class="diff-td-field">
+                      <strong class="diff-field-name">${escapar(label)}</strong>
+                      ${d.campo && d.etiqueta && d.campo !== d.etiqueta ? `<span class="diff-field-id"><code>${escapar(d.campo)}</code></span>` : ''}
+                    </td>
+                    <td>
+                      <div class="diff-pill diff-pill-prev" title="Valor anterior">
+                        <span class="diff-pill-sign">−</span>
+                        <span class="diff-pill-text">${escapar(antes)}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="diff-pill diff-pill-curr" title="Nuevo valor">
+                        <span class="diff-pill-sign">+</span>
+                        <span class="diff-pill-text">${escapar(despues)}</span>
+                      </div>
+                    </td>
                   </tr>
                 `;
               }).join('')}
@@ -894,14 +910,14 @@ export const AuditView = {
               <td>
                 <div class="audit-user-cell">
                   <div class="audit-user-avatar" aria-hidden="true">${getInitials(l.user)}</div>
-                  <div>
-                    <div class="audit-user-name">${escapar(l.user)}</div>
+                  <div class="audit-user-text">
+                    <div class="audit-user-name" title="${escapar(l.user)}">${escapar(l.user)}</div>
                     <div class="audit-user-role">${escapar(l.role)}</div>
                   </div>
                 </div>
               </td>
               <td><span class="audit-sede-tag">${escapar(sedeText)}</span></td>
-              <td class="audit-timestamp">${escapar(l.timestamp)}</td>
+              <td class="audit-timestamp" style="text-align:right;">${escapar(l.timestamp)}</td>
               <td style="text-align:center;">
                 <button type="button" class="audit-row-toggle-btn" id="btn-toggle-${escapar(logIdStr)}"
                   aria-expanded="false" aria-label="Expandir detalles" title="Expandir detalles"
@@ -914,20 +930,19 @@ export const AuditView = {
               <td colspan="7">
                 <div class="audit-expanded-panel">
                   <div class="audit-expanded-header">
-                    <div class="audit-expanded-title-area">
-                      <h4>${escapar(tituloText)}</h4>
-                      ${subtituloText ? `<p class="audit-expanded-sub">${escapar(subtituloText)}</p>` : ''}
-                    </div>
                     <div class="audit-expanded-meta-tags">
-                      <span class="audit-meta-chip">IP: <code>${escapar(l.ip || '127.0.0.1')}</code></span>
-                      <span class="audit-meta-chip">Código: <code>${escapar(l.entity || 'N/A')}</code></span>
+                      <span class="audit-meta-chip">IP de origen: <code>${escapar(l.ip || '127.0.0.1')}</code></span>
+                      <span class="audit-meta-chip">Entidad: <code>${escapar(l.entity || 'N/A')}</code></span>
+                      ${l.submodulo ? `<span class="audit-meta-chip">Área: <strong>${escapar(l.submodulo)}</strong></span>` : ''}
                       ${isUsuario ? `
-                        <a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(l.entity)}')" class="audit-entity-link" style="margin-left:8px; font-size:12px; font-weight:600;">
+                        <a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(l.entity)}')" class="audit-entity-link">
                           Abrir Expediente →
                         </a>
                       ` : ''}
-                      <button type="button" class="btn-action primary small" style="margin-left:auto;" onclick="event.stopPropagation(); window.openAuditDetail ? window.openAuditDetail('${escaparEnManejador(logIdStr)}') : null">
-                        ${iconHtml("accion.ver", { size: 13, style: "margin-right:4px;" })} Ficha
+                    </div>
+                    <div class="audit-expanded-actions">
+                      <button type="button" class="btn-action btn-action-sm secondary" onclick="event.stopPropagation(); window.openAuditDetail ? window.openAuditDetail('${escaparEnManejador(logIdStr)}') : null">
+                        ${iconHtml("accion.ver", { size: 13, style: "margin-right:4px;" })} Ver Ficha
                       </button>
                     </div>
                   </div>
@@ -1002,8 +1017,8 @@ export const AuditView = {
                     ${renderDiffTable(l.diff)}
                   </div>
                   <div class="datacard-actions-footer" style="margin-top:12px;">
-                    <button type="button" class="btn-action primary" style="width:100%; justify-content:center;" onclick="event.stopPropagation(); window.openAuditDetail ? window.openAuditDetail('${escaparEnManejador(logIdStr)}') : null">
-                      ${iconHtml("accion.ver", { size: 15, style: "margin-right:6px;" })}
+                    <button type="button" class="btn-action secondary" style="width:100%; justify-content:center;" onclick="event.stopPropagation(); window.openAuditDetail ? window.openAuditDetail('${escaparEnManejador(logIdStr)}') : null">
+                      ${iconHtml("accion.ver", { size: 14, style: "margin-right:6px;" })}
                       Ver Ficha Completa de Auditoría
                     </button>
                   </div>

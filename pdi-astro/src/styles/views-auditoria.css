@@ -563,18 +563,18 @@
     .audit-user-cell {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 8px;
       min-width: 0;
     }
 
     .audit-user-avatar {
-      width: 36px;
-      height: 36px;
+      width: 26px;
+      height: 26px;
       border-radius: var(--radius-full);
-      background: var(--surface-hover);
-      color: var(--text-main);
+      background: var(--surface-2);
+      color: var(--text-muted);
       font-weight: 700;
-      font-size: 12.5px;
+      font-size: 10px;
       letter-spacing: -0.01em;
       display: flex;
       align-items: center;
@@ -583,12 +583,29 @@
       flex-shrink: 0;
     }
 
-    /* Nombre del usuario: misma escala que el padron y los voluntariados. */
+    .audit-user-text {
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    /* Nombre del usuario: escala sobria que no satura la fila */
     .audit-user-name {
       font-weight: 600;
-      font-size: 13.5px;
+      font-size: 12.5px;
       color: var(--text-main);
       line-height: 1.25;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .audit-user-role {
+      font-size: 11px;
+      color: var(--text-dim);
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     /* Fila interactiva y acción */
@@ -1021,96 +1038,41 @@
      tabla se salía de la tarjeta en pantallas de 1280 px y obligaba a
      desplazar en horizontal para leer el estado. */
   #view-auditoria .card .data-table {
-    min-width: 940px;
+    min-width: 980px;
     table-layout: fixed;
+    width: 100%;
   }
 
-  /* Anchos justos al contenido de cada columna, medidos sobre el DOM:
-     el timestamp es monoespaciado y tiene un ancho fijo; el usuario, el
-     avatar + el nombre; la acción y la entidad tienen un texto corto que
-     puede partirse en dos líneas. Sin holguras: antes la columna del
-     timestamp medía 189 px para 119 px de contenido y dejaba un hueco
-     muerto entre el timestamp y el avatar.
-     La quinta columna (detalle de la operación) no lleva ancho: se queda
-     con todo el espacio que sobra, que es donde el texto sí lo necesita. */
   #view-auditoria .card .data-table th {
-    white-space: normal;
+    white-space: nowrap;
     line-height: 1.25;
-    overflow-wrap: anywhere;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-dim);
   }
 
-  #view-auditoria .card .data-table th:nth-child(1) { width: 124px; }
-  #view-auditoria .card .data-table th:nth-child(2) { width: 168px; }
-  #view-auditoria .card .data-table th:nth-child(3) { width: 122px; }
-  #view-auditoria .card .data-table th:nth-child(4) { width: 148px; }
-  #view-auditoria .card .data-table th:nth-child(6) { width: 104px; }
-  #view-auditoria .card .data-table th:nth-child(7) { width: 92px; text-align: center; }
-  /* El encabezado de la última columna cabe en una línea, como en las otras
-     cuatro tablas. */
-  #view-auditoria .card .data-table th:nth-child(7) { white-space: nowrap; }
+  /* Cuadrícula precisa de la bitácora institucional (7 columnas) */
+  #view-auditoria .card .data-table th:nth-child(1),
+  #view-auditoria .card .data-table td:nth-child(1) { width: 110px; min-width: 110px; max-width: 110px; }
+  #view-auditoria .card .data-table th:nth-child(2),
+  #view-auditoria .card .data-table td:nth-child(2) { width: auto; min-width: 250px; }
+  #view-auditoria .card .data-table th:nth-child(3),
+  #view-auditoria .card .data-table td:nth-child(3) { width: 180px; min-width: 180px; max-width: 200px; }
+  #view-auditoria .card .data-table th:nth-child(4),
+  #view-auditoria .card .data-table td:nth-child(4) { width: 190px; min-width: 190px; max-width: 210px; }
+  #view-auditoria .card .data-table th:nth-child(5),
+  #view-auditoria .card .data-table td:nth-child(5) { width: 105px; min-width: 105px; max-width: 120px; }
+  #view-auditoria .card .data-table th:nth-child(6),
+  #view-auditoria .card .data-table td:nth-child(6) { width: 135px; min-width: 135px; max-width: 145px; }
+  #view-auditoria .card .data-table th:nth-child(7),
+  #view-auditoria .card .data-table td:nth-child(7) { width: 44px; min-width: 44px; max-width: 44px; text-align: center; }
 
   #view-auditoria .card .data-table td {
     min-width: 0;
-    overflow-wrap: anywhere;
-  }
-
-  /* Usuario / perfil: el nombre y el cargo envuelven entre palabras, nunca
-     dentro de una. El avatar no se comprime. */
-  #view-auditoria .card .data-table td:nth-child(2) {
-    overflow-wrap: normal;
-    word-break: normal;
-  }
-
-  #view-auditoria .card .data-table td:nth-child(2) .audit-user-avatar {
-    flex: 0 0 auto;
-  }
-
-  /* El nombre de la acción es largo: la píldora envuelve y no desborda. */
-  #view-auditoria .card .data-table td:nth-child(3) .audit-accion {
-    max-width: 100%;
-    text-align: left;
-    overflow-wrap: break-word;
-    line-height: 1.25;
-  }
-
-  /* La entidad es un código largo (p. ej. cuenta:vc9n...): debe partirse en
-     varias líneas dentro de su columna. Forzarlo a una sola línea (nowrap)
-     hacía que desbordara sobre el detalle. El enlace flex necesita
-     min-width: 0; si no, el código empuja la columna. */
-  #view-auditoria .card .data-table td:nth-child(4) {
-    overflow-wrap: anywhere;
-    word-break: break-word;
-  }
-
-  #view-auditoria .card .data-table td:nth-child(4) code {
-    display: block;
-    max-width: 100%;
-    min-width: 0;
-    white-space: normal;
-    overflow-wrap: anywhere;
-    word-break: break-word;
-    font-size: 11.5px;
-    line-height: 1.3;
-  }
-
-  #view-auditoria .card .data-table td:nth-child(4) .audit-entity-link {
-    display: block;
-    min-width: 0;
-    max-width: 100%;
-  }
-
-  #view-auditoria .card .audit-detail-cell {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    overflow: hidden;
-    overflow-wrap: break-word;
-  }
-
-  /* "Detalle" se apilaba letra a letra por el overflow-wrap heredado. */
-  #view-auditoria .card .data-table .row-action {
-    white-space: nowrap;
+    padding: 10px 12px;
+    vertical-align: middle;
   }
 }
 
@@ -1302,18 +1264,18 @@
   line-height: 1.3;
 }
 .audit-modulo-tag {
-  display: inline-block;
-  padding: 2px 7px;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
   background: var(--surface-2);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xs);
-  font-size: 11.5px;
-  font-weight: 500;
+  font-size: 11px;
+  font-weight: 600;
   color: var(--text-muted);
-  max-width: 170px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  max-width: 100%;
+  white-space: normal;
+  line-height: 1.25;
 }
 .audit-sede-tag {
   font-size: 12px;
@@ -1339,7 +1301,7 @@
   border-bottom: 2px solid var(--border-subtle);
 }
 .audit-expanded-panel {
-  padding: 16px 20px;
+  padding: 14px 18px;
   background: var(--surface-2);
   border-top: 1px solid var(--border-subtle);
   display: flex;
@@ -1348,21 +1310,10 @@
 }
 .audit-expanded-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
   flex-wrap: wrap;
-}
-.audit-expanded-title-area h4 {
-  margin: 0 0 4px 0;
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--text-main);
-}
-.audit-expanded-sub {
-  margin: 0;
-  font-size: 12px;
-  color: var(--text-muted);
 }
 .audit-expanded-meta-tags {
   display: flex;
@@ -1371,17 +1322,31 @@
   flex-wrap: wrap;
 }
 .audit-meta-chip {
-  font-size: 11.5px;
+  font-size: 11px;
   color: var(--text-dim);
   background: var(--surface-1);
   padding: 3px 8px;
   border-radius: var(--radius-xs);
   border: 1px solid var(--border-subtle);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 .audit-meta-chip code {
   font-family: var(--mono-font);
   color: var(--text-main);
   font-weight: 600;
+  font-size: 11px;
+}
+.audit-entity-link {
+  color: var(--text-brand);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: underline;
+  margin-left: 4px;
+}
+.audit-expanded-actions {
+  margin-left: auto;
 }
 
 .audit-diff-container {
@@ -1390,42 +1355,90 @@
   border-radius: var(--radius-sm);
   overflow: hidden;
 }
+.audit-diff-bar-header {
+  padding: 7px 14px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+}
 .audit-diff-table-inner {
   width: 100%;
   border-collapse: collapse;
   font-size: 12px;
 }
 .audit-diff-table-inner th {
-  background: var(--surface-2);
-  padding: 8px 12px;
+  background: var(--surface-1);
+  padding: 8px 14px;
+  font-size: 11px;
   font-weight: 600;
-  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
   text-align: left;
   border-bottom: 1px solid var(--border-subtle);
 }
 .audit-diff-table-inner td {
-  padding: 8px 12px;
+  padding: 9px 14px;
   border-bottom: 1px solid var(--border-subtle);
   vertical-align: middle;
 }
 .audit-diff-table-inner tr:last-child td {
   border-bottom: none;
 }
-.diff-val-prev {
-  background: var(--chip-red-bg);
-  color: var(--text-danger);
-  text-decoration: line-through;
+.diff-td-field {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.diff-field-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+.diff-field-id code {
+  font-family: var(--mono-font);
+  font-size: 10.5px;
+  color: var(--text-dim);
+}
+.diff-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: var(--radius-xs);
+  font-size: 12px;
+  line-height: 1.3;
   word-break: break-word;
 }
-.diff-val-curr {
+.diff-pill-prev {
+  background: var(--chip-red-bg);
+  color: var(--text-danger);
+  border: 1px solid var(--gt-red-border);
+}
+.diff-pill-prev .diff-pill-text {
+  text-decoration: line-through;
+}
+.diff-pill-curr {
   background: var(--chip-green-bg);
   color: var(--text-brand);
   font-weight: 600;
-  word-break: break-word;
+  border: 1px solid var(--gt-green-border);
+}
+.diff-pill-sign {
+  font-family: var(--mono-font);
+  font-weight: 800;
+  font-size: 11px;
+  opacity: 0.8;
 }
 .audit-diff-empty {
-  padding: 12px 14px;
+  padding: 14px 16px;
   background: var(--surface-1);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--text-dim);
 }
