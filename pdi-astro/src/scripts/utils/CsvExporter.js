@@ -44,9 +44,22 @@ export const CsvExporter = {
 
   /** Bitacora de Auditoria. */
   exportAuditLogs(logs) {
-    const encabezados = ["Timestamp", "Usuario", "Rol", "Accion", "Entidad_Afectada", "Detalle_Operacion", "Estado_Registro"];
+    const encabezados = ["ID", "Timestamp", "Severidad", "Titulo", "Subtitulo", "Modulo", "Submodulo", "Usuario", "Rol", "Entidad_Afectada", "Sede", "IP_Origen", "Detalle_Operacion", "Diff_JSON"];
     const filas = (logs || []).map(l => [
-      l.timestamp, l.user, l.role, l.action, l.entity, l.detail, l.status
+      l.id || "",
+      l.timestamp || "",
+      l.severidad || l.status || "Rutinario",
+      l.titulo || l.action || "",
+      l.subtitulo || "",
+      l.modulo || "General",
+      l.submodulo || "",
+      l.user || "Sistema",
+      l.role || "Sistema",
+      l.entity || "",
+      l.sede || "Central",
+      l.ip || "",
+      l.detail || "",
+      l.diff ? JSON.stringify(l.diff) : ""
     ]);
     this._descargar("bitacora_auditoria_pdi_ley29733.csv", encabezados, filas);
   },

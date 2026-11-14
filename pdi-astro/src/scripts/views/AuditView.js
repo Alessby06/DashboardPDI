@@ -10,13 +10,23 @@ import { iconHtml } from '../../data/iconos.js';
 // Filtros de la bitácora de trazabilidad que viajan en la URL de auditoria.html.
 const FILTROS_AUDITORIA = {
   q:       { valor: "" },
-  accion:  { valor: [], valores: ["salud", "social", "educativo", "padron"], multiple: true },
+  accion:  { valor: [], valores: [
+    "Padrón de Usuarios",
+    "Padrón de Colaboradores",
+    "Padrón de Voluntarios",
+    "Servicio Alimentario y Nutricional",
+    "Servicio de Acompañamiento Educativo",
+    "Servicio Social Pastoral (ASP)",
+    "Sedes e Iglesias Aliadas",
+    "Cuentas y Acceso",
+    "salud", "social", "educativo", "padron"
+  ], multiple: true },
   fecha:   { valor: "all", valores: ["all", "today", "week", "specific", "range"] },
   fechaEspecifica: { valor: "" },
   rangoDesde:      { valor: "" },
   rangoHasta:      { valor: "" },
   rol:     { valor: [], valores: ["Coordinación", "Facilitadora", "Promotora", "Trabajadora Social"], multiple: true },
-  estado:  { valor: [], valores: ["Registrado", "Sensible", "Observado"], multiple: true },
+  estado:  { valor: [], valores: ["Rutinario", "Sensible", "Crítico/Legal", "Registrado", "Observado"], multiple: true },
   pagina:  { valor: 1, numeros: { min: 1, max: 10000 } },
   tam:     { valor: 10, numeros: { min: 5, max: 100 } },
 };
@@ -469,16 +479,28 @@ export const AuditView = {
   _matchesAuditAction(log, actionKeys) {
     if (!actionKeys || actionKeys.length === 0) return true;
     return actionKeys.some(actionFilter => {
-      if (actionFilter === "salud") {
-        return (log.action && (log.action.toLowerCase().includes("cred") || log.action.toLowerCase().includes("tamizaje") || log.action.toLowerCase().includes("salud")));
-      } else if (actionFilter === "social") {
-        return (log.action && (log.action.toLowerCase().includes("derivaci") || log.action.toLowerCase().includes("social") || log.action.toLowerCase().includes("caso"))) || (log.role && log.role.toLowerCase().includes("social"));
-      } else if (actionFilter === "educativo") {
-        return (log.action && (log.action.toLowerCase().includes("asistencia") || log.action.toLowerCase().includes("casita") || log.action.toLowerCase().includes("saber"))) || (log.role && log.role.toLowerCase().includes("promotora"));
-      } else if (actionFilter === "padron") {
-        return (log.action && (log.action.toLowerCase().includes("padrón") || log.action.toLowerCase().includes("aprobación") || log.action.toLowerCase().includes("usuario") || log.action.toLowerCase().includes("menor") || log.action.toLowerCase().includes("ingreso"))) || (log.role && log.role.toLowerCase().includes("coordinaci"));
+      const m = (log.modulo || "").toLowerCase();
+      const a = (log.action || "").toLowerCase();
+      const f = actionFilter.toLowerCase();
+      if (m && (m === f || m.includes(f) || f.includes(m))) return true;
+      if (f === "salud" || f.includes("nutricional") || f.includes("alimentario")) {
+        return m.includes("alimentario") || a.includes("cred") || a.includes("tamizaje") || a.includes("salud");
+      } else if (f === "social" || f.includes("pastoral") || f.includes("asp")) {
+        return m.includes("pastoral") || m.includes("social") || a.includes("derivaci") || a.includes("social") || a.includes("caso") || (log.role && log.role.toLowerCase().includes("social"));
+      } else if (f === "educativo" || f.includes("educativo")) {
+        return m.includes("educativo") || a.includes("asistencia") || a.includes("casita") || a.includes("saber");
+      } else if (f === "padron" || f.includes("usuarios")) {
+        return m.includes("usuarios") || m.includes("padron") || a.includes("padrón") || a.includes("aprobación") || a.includes("usuario");
+      } else if (f.includes("colaborador")) {
+        return m.includes("colaborador") || a.includes("colaborador");
+      } else if (f.includes("voluntari")) {
+        return m.includes("voluntari") || a.includes("voluntari");
+      } else if (f.includes("sedes") || f.includes("iglesia")) {
+        return m.includes("sedes") || a.includes("sede");
+      } else if (f.includes("cuentas") || f.includes("acceso")) {
+        return m.includes("cuentas") || a.includes("cuenta") || a.includes("clave") || a.includes("mfa");
       }
-      return false;
+      return a.includes(f);
     });
   },
 
@@ -489,7 +511,15 @@ export const AuditView = {
 
   _matchesAuditStatus(log, statusKeys) {
     if (!statusKeys || statusKeys.length === 0) return true;
-    return statusKeys.some(s => log.status && log.status.toLowerCase().includes(s.toLowerCase()));
+    return statusKeys.some(s => {
+      const key = s.toLowerCase();
+      const sev = (log.severidad || "").toLowerCase();
+      const stat = (log.status || "").toLowerCase();
+      if (key.includes("rutinario") && (sev.includes("rutinario") || stat.includes("registrado"))) return true;
+      if (key.includes("sensible") && (sev.includes("sensible") || stat.includes("sensible") || stat.includes("observado"))) return true;
+      if ((key.includes("crítico") || key.includes("critico") || key.includes("legal")) && (sev.includes("crítico") || sev.includes("critico") || sev.includes("legal"))) return true;
+      return sev.includes(key) || stat.includes(key);
+    });
   },
 
   _matchesAuditDate(log, dateKey) {
@@ -549,7 +579,13 @@ export const AuditView = {
         const entity = (l.entity || "").toLowerCase();
         const detail = (l.detail || "").toLowerCase();
         const id = (l.id || "").toLowerCase();
-        matchQuery = user.includes(query) || role.includes(query) || action.includes(query) || entity.includes(query) || detail.includes(query) || id.includes(query);
+        const titulo = (l.titulo || "").toLowerCase();
+        const subtitulo = (l.subtitulo || "").toLowerCase();
+        const modulo = (l.modulo || "").toLowerCase();
+        const severidad = (l.severidad || "").toLowerCase();
+        matchQuery = user.includes(query) || role.includes(query) || action.includes(query) ||
+                     entity.includes(query) || detail.includes(query) || id.includes(query) ||
+                     titulo.includes(query) || subtitulo.includes(query) || modulo.includes(query) || severidad.includes(query);
       }
 
       return matchAction && matchRole && matchStatus && matchDate && matchQuery;
@@ -768,20 +804,15 @@ export const AuditView = {
     if (enMovil) { if (tbody) tbody.innerHTML = ""; }
     else { if (mobileContainer) mobileContainer.innerHTML = ""; }
 
-    const getAccionClase = (action) => {
-      const act = (action || "").toLowerCase();
-      if (act.includes("cred") || act.includes("tamizaje") || act.includes("salud")) return "is-salud";
-      if (act.includes("derivaci") || act.includes("social")) return "is-social";
-      if (act.includes("asistencia") || act.includes("casita")) return "is-educativo";
-      if (act.includes("padrón") || act.includes("aprobación") || act.includes("ingreso")) return "is-padron";
-      return "is-otro";
-    };
-
-    const getEstadoDot = (status) => {
-      const s = (status || "").toLowerCase();
-      if (s.includes("sensible") || s.includes("crítico") || s.includes("derivaci")) return "dot-red";
-      if (s.includes("observado") || s.includes("revisión") || s.includes("pendiente")) return "dot-amber";
-      return "dot-green";
+    const getSeveridadBadge = (sev, status) => {
+      const s = String(sev || status || 'Rutinario').toLowerCase();
+      if (s.includes('crítico') || s.includes('critico') || s.includes('legal')) {
+        return `<span class="audit-sev-badge sev-critico"><span class="audit-sev-dot dot-red"></span>Crítico</span>`;
+      }
+      if (s.includes('sensible') || s.includes('observado') || s.includes('revisión')) {
+        return `<span class="audit-sev-badge sev-sensible"><span class="audit-sev-dot dot-amber"></span>Sensible</span>`;
+      }
+      return `<span class="audit-sev-badge sev-rutinario"><span class="audit-sev-dot dot-green"></span>Rutinario</span>`;
     };
 
     const getInitials = (name) => {
@@ -789,6 +820,43 @@ export const AuditView = {
       const parts = name.trim().split(" ");
       if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
       return parts[0].substring(0, 2).toUpperCase();
+    };
+
+    const renderDiffTable = (diff) => {
+      if (!Array.isArray(diff) || diff.length === 0) {
+        return `
+          <div class="audit-diff-empty">
+            <span style="color:var(--text-dim); font-size:12px;">Operación de registro o consulta sin alteración de campos individuales.</span>
+          </div>
+        `;
+      }
+      return `
+        <div class="audit-diff-container">
+          <table class="audit-diff-table-inner">
+            <thead>
+              <tr>
+                <th style="width:28%;">Campo Modificado</th>
+                <th style="width:36%;">Estado Anterior</th>
+                <th style="width:36%;">Nuevo Valor</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${diff.map(d => {
+                const label = d.etiqueta || d.campo || 'Campo';
+                const antes = d.antes !== undefined && d.antes !== null ? String(d.antes) : (d.valorAnterior || '—');
+                const despues = d.despues !== undefined && d.despues !== null ? String(d.despues) : (d.valorNuevo || '—');
+                return `
+                  <tr>
+                    <td><strong>${escapar(label)}</strong>${d.campo && d.etiqueta ? `<br><small style="color:var(--text-dim); font-size:11px;">(${escapar(d.campo)})</small>` : ''}</td>
+                    <td class="diff-val-prev"><span>${escapar(antes)}</span></td>
+                    <td class="diff-val-curr"><span>${escapar(despues)}</span></td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
     };
 
     if (tbody && !enMovil) {
@@ -803,14 +871,22 @@ export const AuditView = {
       } else {
         tbody.innerHTML = logs.map(l => {
           const isUsuario = (l.entity && l.entity.startsWith("PDI-"));
-          const entityHtml = isUsuario 
-            ? `<a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(l.entity)}')" class="audit-entity-link audit-entity-link--usuario" title="Abrir expediente del usuario"><code class="audit-entity-code audit-entity-code--usuario">${escapar(l.entity)}</code></a>`
-            : `<code class="audit-entity-code" title="${escapar(l.entity)}">${escapar(l.entity)}</code>`;
-
           const logIdStr = l.id || "";
+          const tituloText = l.titulo || l.action || 'Operación';
+          const subtituloText = l.subtitulo || l.detail || '';
+          const moduloText = l.modulo || 'General';
+          const sedeText = l.sede || 'Central';
+
           return `
-            <tr class="audit-row-interactive">
-              <td class="audit-timestamp">${escapar(l.timestamp)}</td>
+            <tr class="audit-row-interactive" id="audit-row-${escapar(logIdStr)}" onclick="window.PDI?.AuditView?.toggleAuditRow('${escaparEnManejador(logIdStr)}')">
+              <td>${getSeveridadBadge(l.severidad, l.status)}</td>
+              <td>
+                <div class="audit-cell-title">
+                  <strong class="audit-title-text">${escapar(tituloText)}</strong>
+                  ${subtituloText ? `<div class="audit-sub-text">${escapar(subtituloText)}</div>` : ''}
+                </div>
+              </td>
+              <td><span class="audit-modulo-tag" title="${escapar(moduloText)}">${escapar(moduloText)}</span></td>
               <td>
                 <div class="audit-user-cell">
                   <div class="audit-user-avatar" aria-hidden="true">${getInitials(l.user)}</div>
@@ -820,20 +896,36 @@ export const AuditView = {
                   </div>
                 </div>
               </td>
-              <td><span class="audit-accion ${getAccionClase(l.action)}">${escapar(l.action)}</span></td>
-              <td>${entityHtml}</td>
-              <td><span class="audit-detail-cell" title="${escapar(l.detail)}">${escapar(l.detail)}</span></td>
-              <td>
-                <span class="padron-status-tag">
-                  <span class="padron-dot ${getEstadoDot(l.status)}"></span>
-                  <span>${escapar(l.status)}</span>
-                </span>
+              <td><span class="audit-sede-tag">${escapar(sedeText)}</span></td>
+              <td class="audit-timestamp">${escapar(l.timestamp)}</td>
+              <td style="text-align:center;">
+                <button type="button" class="audit-row-toggle-btn" id="btn-toggle-${escapar(logIdStr)}" aria-label="Expandir detalles" title="Expandir detalles" onclick="event.stopPropagation(); window.PDI?.AuditView?.toggleAuditRow('${escaparEnManejador(logIdStr)}')">
+                  ${iconHtml("nav.desplegar", { size: 14 })}
+                </button>
               </td>
-              <td>
-                <div class="row-actions">
-                  <button type="button" class="row-action" onclick="event.stopPropagation(); window.openAuditDetail ? window.openAuditDetail('${escaparEnManejador(logIdStr)}') : (window.PDI?.DashboardView?.openLogDetail ? window.PDI.DashboardView.openLogDetail('${escaparEnManejador(logIdStr)}') : null)" title="Ver detalle de trazabilidad" aria-label="Ver detalle de trazabilidad">
-                    ${iconHtml("accion.ver", { size: 15 })}
-                  </button>
+            </tr>
+            <tr class="audit-row-details" id="details-${escapar(logIdStr)}" style="display:none;">
+              <td colspan="7">
+                <div class="audit-expanded-panel">
+                  <div class="audit-expanded-header">
+                    <div class="audit-expanded-title-area">
+                      <h4>${escapar(tituloText)}</h4>
+                      ${subtituloText ? `<p class="audit-expanded-sub">${escapar(subtituloText)}</p>` : ''}
+                    </div>
+                    <div class="audit-expanded-meta-tags">
+                      <span class="audit-meta-chip">IP: <code>${escapar(l.ip || '127.0.0.1')}</code></span>
+                      <span class="audit-meta-chip">Código: <code>${escapar(l.entity || 'N/A')}</code></span>
+                      ${isUsuario ? `
+                        <a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(l.entity)}')" class="audit-entity-link" style="margin-left:8px; font-size:12px; font-weight:600;">
+                          Abrir Expediente →
+                        </a>
+                      ` : ''}
+                      <button type="button" class="btn-action primary small" style="margin-left:auto;" onclick="event.stopPropagation(); window.openAuditDetail ? window.openAuditDetail('${escaparEnManejador(logIdStr)}') : null">
+                        ${iconHtml("accion.ver", { size: 13, style: "margin-right:4px;" })} Ficha
+                      </button>
+                    </div>
+                  </div>
+                  ${renderDiffTable(l.diff)}
                 </div>
               </td>
             </tr>
@@ -857,6 +949,10 @@ export const AuditView = {
             : `<code class="audit-entity-code" title="${escapar(l.entity)}">${escapar(l.entity)}</code>`;
 
           const logIdStr = l.id || "";
+          const tituloText = l.titulo || l.action || 'Operación';
+          const subtituloText = l.subtitulo || l.detail || '';
+          const moduloText = l.modulo || 'General';
+
           return `
             <div class="mobile-card-item" id="mobile-audit-${index}">
               <div class="datacard-header">
@@ -864,17 +960,19 @@ export const AuditView = {
                   <span>REG:</span> ${escapar(l.timestamp)}
                 </div>
                 <div class="datacard-header-right">
-                  <span class="audit-estado">
-                    <span class="padron-dot ${getEstadoDot(l.status)}"></span>
-                    <span>${escapar(l.status)}</span>
-                  </span>
+                  ${getSeveridadBadge(l.severidad, l.status)}
                 </div>
               </div>
 
               <div class="datacard-body">
-                <div class="datacard-row audit-row-action">
-                  <span class="datacard-label">Acción Registrada</span>
-                  <span class="datacard-value"><span class="audit-accion ${getAccionClase(l.action)}">${escapar(l.action)}</span></span>
+                <div class="datacard-row" style="flex-direction:column; align-items:flex-start; gap:4px;">
+                  <span class="datacard-label" style="font-size:11px;">Título del Evento</span>
+                  <span class="audit-title-text" style="font-size:13px;">${escapar(tituloText)}</span>
+                  ${subtituloText ? `<span class="audit-sub-text" style="font-size:11.5px;">${escapar(subtituloText)}</span>` : ''}
+                </div>
+                <div class="datacard-row">
+                  <span class="datacard-label">Módulo</span>
+                  <span class="datacard-value"><span class="audit-modulo-tag">${escapar(moduloText)}</span></span>
                 </div>
                 <div class="datacard-row">
                   <span class="datacard-label">Entidad Afectada</span>
@@ -886,26 +984,26 @@ export const AuditView = {
                     <span class="datacard-label">Autor</span>
                     <span class="datacard-value" style="display:flex; align-items:center; gap:6px;">
                       <span class="audit-user-avatar" style="width:22px; height:22px; font-size:9.5px;">${getInitials(l.user)}</span>
-                      ${escapar(l.user)}
+                      ${escapar(l.user)} (${escapar(l.role)})
                     </span>
                   </div>
                   <div class="datacard-row">
-                    <span class="datacard-label">Rol</span>
-                    <span class="datacard-value">${escapar(l.role)}</span>
+                    <span class="datacard-label">Sede / IP</span>
+                    <span class="datacard-value">${escapar(l.sede || 'Central')} · <code>${escapar(l.ip || '127.0.0.1')}</code></span>
                   </div>
-                  <div class="datacard-row" style="flex-direction:column; align-items:flex-start; gap:6px;">
-                    <span class="datacard-label">Detalle de la Operación</span>
-                    <span class="datacard-value" style="text-align:left; font-size:12.5px; font-weight:500; color:var(--text-muted);">${escapar(l.detail)}</span>
+                  <div style="margin-top:8px;">
+                    <span class="datacard-label" style="display:block; margin-bottom:6px;">Diferencias (Diff):</span>
+                    ${renderDiffTable(l.diff)}
                   </div>
-                  <div class="datacard-actions-footer">
-                    <button type="button" class="btn-action primary" style="width:100%; justify-content:center;" onclick="event.stopPropagation(); window.openAuditDetail ? window.openAuditDetail('${escaparEnManejador(logIdStr)}') : (window.PDI?.DashboardView?.openLogDetail ? window.PDI.DashboardView.openLogDetail('${escaparEnManejador(logIdStr)}') : null)">
+                  <div class="datacard-actions-footer" style="margin-top:12px;">
+                    <button type="button" class="btn-action primary" style="width:100%; justify-content:center;" onclick="event.stopPropagation(); window.openAuditDetail ? window.openAuditDetail('${escaparEnManejador(logIdStr)}') : null">
                       ${iconHtml("accion.ver", { size: 15, style: "margin-right:6px;" })}
                       Ver Ficha Completa de Auditoría
                     </button>
                   </div>
                 </div>
 
-                <button type="button" class="datacard-toggle-btn" id="btnToggleAudit-${index}" onclick="window.PDI ? window.PDI.DashboardView.toggleAuditCard(${escaparEnManejador(index)}) : (window.PDI?.AuditView?.toggleAuditCard ? window.PDI.AuditView.toggleAuditCard(${escaparEnManejador(index)}) : null)">
+                <button type="button" class="datacard-toggle-btn" id="btnToggleAudit-${index}" onclick="window.PDI?.AuditView?.toggleAuditCard(${escaparEnManejador(index)})">
                   <span class="btn-text">Ver más</span>
                   ${iconHtml("nav.desplegar", { size: null })}
                 </button>
@@ -914,6 +1012,17 @@ export const AuditView = {
           `;
         }).join("");
       }
+    }
+  },
+
+  toggleAuditRow(logId) {
+    const detailsRow = document.getElementById(`details-${logId}`);
+    const toggleBtn = document.getElementById(`btn-toggle-${logId}`);
+    if (!detailsRow) return;
+    const isVisible = detailsRow.style.display !== "none";
+    detailsRow.style.display = isVisible ? "none" : "table-row";
+    if (toggleBtn) {
+      toggleBtn.classList.toggle("is-expanded", !isVisible);
     }
   },
 
@@ -947,6 +1056,7 @@ export const AuditView = {
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
   window.PDI.AuditView = AuditView;
+  window.toggleAuditRow = (id) => AuditView.toggleAuditRow(id);
   // Compatibilidad hacia atrás con referencias directas a DashboardView
   if (window.PDI.DashboardView) {
     window.PDI.DashboardView.renderAuditLogs = (logs) => AuditView.renderAuditLogs(logs);

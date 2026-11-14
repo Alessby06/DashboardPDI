@@ -1265,14 +1265,22 @@ export const LIMITE_BITACORA = 200;
  * servidor, que devuelve los eventos y el total real de la tabla.
  * @returns {Promise<{ logs: object[], total: number }>}
  */
-export async function fetchBitacora({ limit = LIMITE_BITACORA } = {}) {
+export async function fetchBitacora({ limit = LIMITE_BITACORA, offset = 0, modulo = '', severidad = '', sede = '', q = '' } = {}) {
   try {
-    const res = await fetch(`/api/auditoria?limit=${encodeURIComponent(limit)}`, { credentials: 'same-origin' });
+    const params = new URLSearchParams();
+    if (limit) params.set('limit', String(limit));
+    if (offset) params.set('offset', String(offset));
+    if (modulo && modulo !== 'Todos' && modulo !== 'todos') params.set('modulo', modulo);
+    if (severidad && severidad !== 'Todas' && severidad !== 'todas') params.set('severidad', severidad);
+    if (sede && sede !== 'Todas' && sede !== 'Todas las sedes') params.set('sede', sede);
+    if (q) params.set('q', q);
+
+    const res = await fetch(`/api/auditoria?${params.toString()}`, { credentials: 'same-origin' });
     if (!res.ok) return { logs: [], total: 0 };
     const datos = await res.json().catch(() => ({}));
     const logs = mapearBitacora(Array.isArray(datos.logs) ? datos.logs : []);
     const total = Number(datos.total);
-    return { logs, total: Number.isFinite(total) ? total : logs.length };
+    return { logs, total: Number.isFinite(total) ? total : logs.length, limit: Number(datos.limit) || limit, offset: Number(datos.offset) || offset };
   } catch {
     return { logs: [], total: 0 };
   }
@@ -1280,19 +1288,35 @@ export async function fetchBitacora({ limit = LIMITE_BITACORA } = {}) {
 
 /** Convierte los registros crudos de bitácora en objetos del modelo. */
 function mapearBitacora(raw) {
-  return raw.map((b, i) => ({
-    id: 'LOG-' + String(i + 1).padStart(4, '0'),
-    timestamp: textoTiempo(b.timestamp),
-    user: b.usuario_nombre || 'Sistema',
-    role: b.rol || 'Sistema',
-    action: b.accion || '',
-    entity: b.registro_id || '',
-    detail: b.detalle || '',
-    status: 'Registrado',
-    ip: b.ip_origen || '',
-    sede: b.sede_nombre || 'Central',
-    diff: Array.isArray(b.diff) && b.diff.length ? b.diff[0] : null,
-  }));
+  return raw.map((b, i) => {
+    const diffNormalizado = Array.isArray(b.diff) && b.diff.length
+      ? b.diff
+      : (b.diff && typeof b.diff === 'object' ? [b.diff] : null);
+
+    const titulo = b.titulo || (b.accion ? `${b.accion} · ${b.registro_id || b.entidad || 'Sistema'}` : `Evento de Auditoría #${i + 1}`);
+    const modulo = b.modulo || 'General';
+    const severidad = b.severidad || 'Rutinario';
+
+    return {
+      id: b.id || ('LOG-' + String(i + 1).padStart(4, '0')),
+      timestamp: textoTiempo(b.timestamp),
+      isoTimestamp: b.timestamp || '',
+      titulo,
+      subtitulo: b.subtitulo || b.detalle || '',
+      modulo,
+      submodulo: b.submodulo || null,
+      severidad,
+      user: b.usuario_nombre || 'Sistema',
+      role: b.rol || 'Sistema',
+      action: b.accion || '',
+      entity: b.entidad_codigo || b.registro_id || '',
+      detail: b.detalle || '',
+      status: 'Registrado',
+      ip: b.ip_origen || '',
+      sede: b.sede_nombre || 'Central',
+      diff: diffNormalizado,
+    };
+  });
 }
 
 /** Asistencia de un día para la Casita del Saber: { [beneficiarioId]: 'P'|'T'|'FJ'|'FI' } */
@@ -3117,6 +3141,11 @@ export async function crearBitacora(entry) {
       credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        titulo: entry.titulo || '',
+        subtitulo: entry.subtitulo || '',
+        modulo: entry.modulo || 'General',
+        submodulo: entry.submodulo || null,
+        severidad: entry.severidad || 'Rutinario',
         action: entry.action || '',
         entity: entry.entity || '',
         detail: entry.detail || '',

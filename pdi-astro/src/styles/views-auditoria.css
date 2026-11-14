@@ -1239,3 +1239,182 @@
     text-align: left;
   }
 }
+
+
+/* --- Remake Historial de Cambios: Expandable Ledger & Severity Badges --- */
+.audit-sev-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.audit-sev-badge.sev-rutinario {
+  background: rgba(34, 197, 94, 0.12);
+  color: #16a34a;
+  border: 1px solid rgba(34, 197, 94, 0.25);
+}
+.audit-sev-badge.sev-sensible {
+  background: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+.audit-sev-badge.sev-critico {
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+.audit-sev-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.audit-sev-dot.dot-green { background: #16a34a; }
+.audit-sev-dot.dot-amber { background: #d97706; }
+.audit-sev-dot.dot-red { background: #dc2626; }
+
+.audit-cell-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.audit-title-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+.audit-sub-text {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+.audit-modulo-tag {
+  display: inline-block;
+  padding: 2px 7px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-muted);
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.audit-sede-tag {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.audit-row-toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: var(--radius-xs);
+  color: var(--text-dim);
+  transition: transform var(--dur-fast) var(--ease-spring), color var(--dur-fast) var(--ease-smooth);
+}
+.audit-row-toggle-btn.is-expanded {
+  transform: rotate(180deg);
+  color: var(--text-brand);
+}
+
+.audit-row-details td {
+  padding: 0 !important;
+  background: var(--surface-1);
+  border-bottom: 2px solid var(--border-subtle);
+}
+.audit-expanded-panel {
+  padding: 16px 20px;
+  background: var(--surface-2);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.audit-expanded-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.audit-expanded-title-area h4 {
+  margin: 0 0 4px 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+.audit-expanded-sub {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.audit-expanded-meta-tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.audit-meta-chip {
+  font-size: 11.5px;
+  color: var(--text-dim);
+  background: var(--surface-1);
+  padding: 3px 8px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border-subtle);
+}
+.audit-meta-chip code {
+  font-family: var(--mono-font);
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.audit-diff-container {
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.audit-diff-table-inner {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.audit-diff-table-inner th {
+  background: var(--surface-2);
+  padding: 8px 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: left;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.audit-diff-table-inner td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle;
+}
+.audit-diff-table-inner tr:last-child td {
+  border-bottom: none;
+}
+.diff-val-prev {
+  background: rgba(239, 68, 68, 0.06);
+  color: #dc2626;
+  text-decoration: line-through;
+}
+.diff-val-curr {
+  background: rgba(34, 197, 94, 0.08);
+  color: #16a34a;
+  font-weight: 600;
+}
+.audit-diff-empty {
+  padding: 12px 14px;
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+}

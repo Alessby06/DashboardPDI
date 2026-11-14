@@ -250,13 +250,18 @@ export const ModalView = {
               </tr>
             </thead>
             <tbody>
-              ${log.diff.map(d => `
+              ${log.diff.map(d => {
+                const label = d.etiqueta || d.campo || 'Campo';
+                const antes = d.antes !== undefined && d.antes !== null ? String(d.antes) : (d.valorAnterior || '-');
+                const despues = d.despues !== undefined && d.despues !== null ? String(d.despues) : (d.valorNuevo || '-');
+                return `
                 <tr>
-                  <td><strong>${escapar(d.campo)}</strong></td>
-                  <td class="diff-prev"><span>${escapar(d.valorAnterior || '-')}</span></td>
-                  <td class="diff-curr"><span>${escapar(d.valorNuevo || '-')}</span></td>
+                  <td><strong>${escapar(label)}</strong>${d.campo && d.etiqueta ? `<br><small style="color:var(--text-dim); font-size:11px;">(${escapar(d.campo)})</small>` : ''}</td>
+                  <td class="diff-prev"><span>${escapar(antes)}</span></td>
+                  <td class="diff-curr"><span>${escapar(despues)}</span></td>
                 </tr>
-              `).join("")}
+                `;
+              }).join("")}
             </tbody>
           </table>
         `;

@@ -7,10 +7,14 @@ import '../styles/views-auditoria.css';
 import Icon from '../components/Icon.astro';
 
 const OPCIONES_ACCION = [
-  { valor: 'salud', chip: { texto: 'CRED', tono: 'yellow', compacta: true }, etiqueta: 'Salud y Nutrición' },
-  { valor: 'social', chip: { texto: 'ASP', tono: 'red', compacta: true }, etiqueta: 'Derivación Social' },
-  { valor: 'educativo', chip: { texto: 'CS', tono: 'blue', compacta: true }, etiqueta: 'Casitas del Saber' },
-  { valor: 'padron', chip: { texto: 'Padrón', tono: 'green', compacta: true }, etiqueta: 'Padrón / Coordinación' },
+  { valor: 'Padrón de Usuarios', chip: { texto: 'Usuarios', tono: 'green', compacta: true }, etiqueta: 'Padrón de Usuarios' },
+  { valor: 'Padrón de Colaboradores', chip: { texto: 'Personal', tono: 'blue', compacta: true }, etiqueta: 'Padrón de Colaboradores' },
+  { valor: 'Padrón de Voluntarios', chip: { texto: 'Voluntariado', tono: 'purple', compacta: true }, etiqueta: 'Padrón de Voluntarios' },
+  { valor: 'Servicio Alimentario y Nutricional', chip: { texto: 'Nutrición', tono: 'yellow', compacta: true }, etiqueta: 'Servicio Alimentario y Nutricional' },
+  { valor: 'Servicio de Acompañamiento Educativo', chip: { texto: 'Educación', tono: 'blue', compacta: true }, etiqueta: 'Servicio de Acompañamiento Educativo' },
+  { valor: 'Servicio Social Pastoral (ASP)', chip: { texto: 'Pastoral', tono: 'red', compacta: true }, etiqueta: 'Servicio Social Pastoral (ASP)' },
+  { valor: 'Sedes e Iglesias Aliadas', chip: { texto: 'Sedes', tono: 'green', compacta: true }, etiqueta: 'Sedes e Iglesias Aliadas' },
+  { valor: 'Cuentas y Acceso', chip: { texto: 'Seguridad', tono: 'gray', compacta: true }, etiqueta: 'Cuentas y Acceso' },
 ];
 const OPCIONES_FECHA = [
   { valor: 'today', etiqueta: 'Hoy (Jornada en curso)' },
@@ -25,9 +29,9 @@ const OPCIONES_ROL_AUDIT = [
   'Trabajadora Social',
 ].map((rol) => ({ valor: rol, etiqueta: rol }));
 const OPCIONES_ESTADO_AUDIT = [
-  { valor: 'Registrado', chip: { texto: 'Conforme', tono: 'green', compacta: true }, etiqueta: 'Registrado' },
-  { valor: 'Sensible', chip: { texto: 'Sensible', tono: 'red', compacta: true }, etiqueta: 'Alerta / Crítico' },
-  { valor: 'Observado', chip: { texto: 'Observado', tono: 'yellow', compacta: true }, etiqueta: 'En Revisión' },
+  { valor: 'Rutinario', chip: { texto: 'Rutinario', tono: 'green', compacta: true }, etiqueta: 'Rutinario / Operativo' },
+  { valor: 'Sensible', chip: { texto: 'Sensible', tono: 'yellow', compacta: true }, etiqueta: 'Sensible / Confidencial' },
+  { valor: 'Crítico/Legal', chip: { texto: 'Crítico', tono: 'red', compacta: true }, etiqueta: 'Crítico / Legal' },
 ];
 const OPCIONES_ORDEN_AUDIT = [
   { valor: 'reciente-desc', etiqueta: 'Más reciente' },
@@ -131,8 +135,8 @@ const OPCIONES_ORDEN_AUDIT = [
                         id="dropdownAuditAction"
                         menuId="menuAuditAction"
                         labelId="labelAuditActionSelect"
-                        label="Tipo de Evento"
-                        labelTodos="Todos los Eventos"
+                        label="Módulo Oficial"
+                        labelTodos="Todos los Módulos"
                         todosEtiqueta="Todos"
                         opciones={OPCIONES_ACCION}
                         onSelect="window.toggleAuditAction"
@@ -233,9 +237,9 @@ const OPCIONES_ORDEN_AUDIT = [
                         id="dropdownAuditStatus"
                         menuId="menuAuditStatus"
                         labelId="labelAuditStatusSelect"
-                        label="Estado"
-                        labelTodos="Todos los Estados"
-                        todosEtiqueta="Todos"
+                        label="Severidad Institucional"
+                        labelTodos="Todas las Severidades"
+                        todosEtiqueta="Todas"
                         opciones={OPCIONES_ESTADO_AUDIT}
                         onSelect="window.toggleAuditStatus"
                         abrir="window.toggleAuditInnerDropdown ? window.toggleAuditInnerDropdown('dropdownAuditStatus') : null"
@@ -260,13 +264,13 @@ const OPCIONES_ORDEN_AUDIT = [
                 <caption class="pdi-sr-only">Bitácora de auditoría. Cada registro describe una operación con su usuario, acción, entidad afectada y detalle.</caption>
                 <thead>
                   <tr>
-                    <th scope="col">Timestamp</th>
+                    <th scope="col" style="width:115px;">Severidad</th>
+                    <th scope="col">Título del Evento</th>
+                    <th scope="col">Módulo</th>
                     <th scope="col">Autor</th>
-                    <th scope="col">Acción</th>
-                    <th scope="col">Entidad Afectada</th>
-                    <th scope="col">Detalle de la Operación</th>
-                    <th scope="col">Estado</th>
-                    <th scope="col">Acciones</th>
+                    <th scope="col">Sede</th>
+                    <th scope="col">Fecha y Hora</th>
+                    <th scope="col" style="width:44px; text-align:center;"></th>
                   </tr>
                 </thead>
                 <tbody id="tbodyAuditLogs">

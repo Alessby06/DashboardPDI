@@ -523,25 +523,41 @@ function datosSesion(cuenta, emitida = Date.now()) {
 
 async function auditar(cfg, cuenta, accion, detalle, diff = null, ip = '', entidad = 'PDI - Perfil', objetivoId = null) {
   try {
-    // El esquema de bitacora_auditoria no admite claves libres dentro de
-    // `diff`; el resumen legible va en `detalle` y el diff se deja vacío.
     const cambios = Array.isArray(diff) && diff.length
       ? ' Cambios: ' + diff.map((d) => {
           const antes = d.antes === '' || d.antes === null || d.antes === undefined ? '(vacío)' : d.antes;
           const despues = d.despues === '' || d.despues === null || d.despues === undefined ? '(vacío)' : d.despues;
-          return `${d.campo} de "${antes}" a "${despues}"`;
+          return `${d.campo || 'campo'} de "${antes}" a "${despues}"`;
         }).join('; ') + '.'
       : '';
+    const diffNormalizado = Array.isArray(diff) && diff.length
+      ? JSON.stringify(diff.map(d => ({
+          campo: String(d.campo || ''),
+          etiqueta: String(d.etiqueta || d.campo || ''),
+          antes: d.antes ?? null,
+          despues: d.despues ?? null,
+        })))
+      : 'NONE';
+    const severidad = /contrase[ñn]a|mfa|bloque|permiso|rol|elimin/i.test(accion) ? 'Crítico/Legal' : 'Rutinario';
+    const titulo = `${accion} · ${entidad}`;
+    const subtitulo = String(detalle + cambios).slice(0, 300);
+
     await consulta(cfg, `CREATE bitacora_auditoria CONTENT {
-      usuario_nombre: ${lit(cuenta.nombre)},
-      rol: ${lit(cuenta.rol)},
+      titulo: ${lit(titulo)},
+      subtitulo: ${lit(subtitulo)},
+      modulo: 'Cuentas y Acceso',
+      severidad: ${lit(severidad)},
+      usuario_nombre: ${lit(cuenta.nombre || 'Sistema')},
+      rol: ${lit(cuenta.rol || 'Sistema')},
+      autor_usuario_id: ${lit(String(cuenta.id || ''))},
       accion: ${lit(accion)},
       entidad: ${lit(entidad)},
-      registro_id: ${lit(String(objetivoId || cuenta.id))},
+      registro_id: ${lit(String(objetivoId || cuenta.id || ''))},
+      entidad_codigo: ${lit(String(objetivoId || cuenta.id || ''))},
       detalle: ${lit(detalle + cambios)},
       ip_origen: ${lit(ip)},
       sede_nombre: 'Central',
-      diff: NONE
+      diff: ${diffNormalizado}
     };`);
   } catch (err) {
     console.error('[cuenta] no se pudo auditar:', err?.message || err);
@@ -924,11 +940,39 @@ export async function handleAuditoria(request, env = {}) {
     const limite = normalizarLimiteAuditoria(url.searchParams.get('limit'));
     const desplazamiento = Math.max(0, Math.trunc(Number(url.searchParams.get('offset'))) || 0);
 
+    const moduloFiltro = String(url.searchParams.get('modulo') || '').trim();
+    const severidadFiltro = String(url.searchParams.get('severidad') || '').trim();
+    const sedeFiltro = String(url.searchParams.get('sede') || '').trim();
+    const busqueda = String(url.searchParams.get('q') || '').trim().toLowerCase();
+
+    // Filtros dinámicos con cláusulas WHERE indexadas
+    const condiciones = [];
+    if (moduloFiltro && moduloFiltro !== 'Todos' && moduloFiltro !== 'todos') {
+      condiciones.push(`modulo = ${lit(moduloFiltro)}`);
+    }
+    if (severidadFiltro && severidadFiltro !== 'Todas' && severidadFiltro !== 'todas') {
+      condiciones.push(`severidad = ${lit(severidadFiltro)}`);
+    }
+    if (sedeFiltro && sedeFiltro !== 'Todas' && sedeFiltro !== 'Todas las sedes') {
+      condiciones.push(`sede_nombre = ${lit(sedeFiltro)}`);
+    }
+    if (busqueda) {
+      const qLit = lit(busqueda);
+      condiciones.push(`(
+        string::lowercase(titulo) CONTAINS ${qLit} OR 
+        string::lowercase(subtitulo) CONTAINS ${qLit} OR 
+        string::lowercase(entidad_codigo) CONTAINS ${qLit} OR 
+        string::lowercase(usuario_nombre) CONTAINS ${qLit} OR 
+        string::lowercase(detalle) CONTAINS ${qLit}
+      )`);
+    }
+    const clausulaWhere = condiciones.length ? `WHERE ${condiciones.join(' AND ')}` : '';
+
     // La sesión y la bitácora viajan en el mismo viaje. Si la cuenta no tiene
     // permiso, la consulta se descarta y nunca sale del servidor.
     const actual = await sesionDe(request, cfg, esLectura ? [
-      `SELECT * FROM bitacora_auditoria ORDER BY timestamp DESC LIMIT ${limite} START ${desplazamiento};`,
-      `SELECT count() FROM bitacora_auditoria GROUP ALL;`,
+      `SELECT * FROM bitacora_auditoria ${clausulaWhere} ORDER BY timestamp DESC LIMIT ${limite} START ${desplazamiento};`,
+      `SELECT count() FROM bitacora_auditoria ${clausulaWhere} GROUP ALL;`,
     ] : null);
     if (!actual) return json({ ok: false, error: 'La sesión expiró.' }, 401);
 
@@ -955,10 +999,32 @@ export async function handleAuditoria(request, env = {}) {
       const entidad = String(entrada.entidad || 'PDI · Sistema').slice(0, 80);
       const detalle = String(entrada.detalle || entrada.detail || '').slice(0, 1000);
       const sede = String(entrada.sede || 'Central').slice(0, 80);
-      const registro = String(entrada.entity || entrada.registro || '').slice(0, 120);
+      const registro = String(entrada.entity || entrada.registro || entrada.entidad_codigo || '').slice(0, 120);
+      const modulo = String(entrada.modulo || 'General').slice(0, 80);
+      const submodulo = entrada.submodulo ? String(entrada.submodulo).slice(0, 80) : null;
+      const severidad = String(entrada.severidad || 'Rutinario').slice(0, 30);
+      const titulo = String(entrada.titulo || `${accion} · ${registro || entidad}`).slice(0, 200);
+      const subtitulo = String(entrada.subtitulo || detalle).slice(0, 300);
+
+      const diffValido = Array.isArray(entrada.diff) && entrada.diff.length
+        ? JSON.stringify(entrada.diff.map(d => ({
+            campo: String(d.campo || ''),
+            etiqueta: String(d.etiqueta || d.campo || ''),
+            antes: d.antes ?? null,
+            despues: d.despues ?? null,
+          })))
+        : 'NONE';
+
       await consulta(cfg, `CREATE bitacora_auditoria CONTENT {
+        titulo: ${lit(titulo)},
+        subtitulo: ${lit(subtitulo)},
+        modulo: ${lit(modulo)},
+        submodulo: ${lit(submodulo)},
+        severidad: ${lit(severidad)},
+        entidad_codigo: ${lit(registro)},
         usuario_nombre: ${lit(actual.cuenta.nombre || 'Sistema')},
         rol: ${lit(actual.cuenta.rol || 'Sistema')},
+        autor_usuario_id: ${lit(String(actual.cuenta.id || ''))},
         accion: ${lit(accion)},
         entidad: ${lit(entidad)},
         registro_id: ${lit(registro)},
@@ -966,7 +1032,7 @@ export async function handleAuditoria(request, env = {}) {
         ip_origen: ${lit(ipDe(request))},
         sede_nombre: ${lit(sede)},
         timestamp: time::now(),
-        diff: NONE
+        diff: ${diffValido}
       };`);
       return json({ ok: true });
     }
