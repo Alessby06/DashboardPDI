@@ -614,17 +614,26 @@
       transition: background-color var(--dur-fast) var(--ease-smooth);
     }
 
+    /* Vercel Guidelines: evitar anillo de foco en clic de ratón */
+    .audit-row-interactive:focus:not(:focus-visible) {
+      outline: none;
+    }
+
     .audit-row-interactive:focus-visible {
       outline: 2px solid var(--border-focus);
       outline-offset: -2px;
     }
 
     .audit-row-interactive.is-expanded {
-      background-color: var(--surface-2);
+      background-color: var(--surface-2) !important;
+    }
+
+    .audit-row-interactive.is-expanded > td {
+      border-bottom-color: transparent !important;
     }
 
     @media (hover: hover) and (pointer: fine) {
-      .audit-row-interactive:hover {
+      .audit-row-interactive:not(.is-expanded):hover {
         background: var(--surface-hover) !important;
       }
     }
@@ -1053,23 +1062,29 @@
     color: var(--text-dim);
   }
 
-  /* Cuadrícula precisa de la bitácora institucional (7 columnas) */
-  #view-auditoria .card .data-table th:nth-child(1),
-  #view-auditoria .card .data-table td:nth-child(1) { width: 110px; min-width: 110px; max-width: 110px; }
-  #view-auditoria .card .data-table th:nth-child(2),
-  #view-auditoria .card .data-table td:nth-child(2) { width: auto; min-width: 250px; }
-  #view-auditoria .card .data-table th:nth-child(3),
-  #view-auditoria .card .data-table td:nth-child(3) { width: 180px; min-width: 180px; max-width: 200px; }
-  #view-auditoria .card .data-table th:nth-child(4),
-  #view-auditoria .card .data-table td:nth-child(4) { width: 190px; min-width: 190px; max-width: 210px; }
-  #view-auditoria .card .data-table th:nth-child(5),
-  #view-auditoria .card .data-table td:nth-child(5) { width: 105px; min-width: 105px; max-width: 120px; }
-  #view-auditoria .card .data-table th:nth-child(6),
-  #view-auditoria .card .data-table td:nth-child(6) { width: 135px; min-width: 135px; max-width: 145px; }
-  #view-auditoria .card .data-table th:nth-child(7),
-  #view-auditoria .card .data-table td:nth-child(7) { width: 44px; min-width: 44px; max-width: 44px; text-align: center; }
+  /* Cuadrícula precisa de la bitácora institucional (exclusivo para filas del ledger superior) */
+  #view-auditoria .card .data-table > thead > tr > th:nth-child(1),
+  #view-auditoria .card .data-table > tbody > tr.audit-row-interactive > td:nth-child(1) { width: 110px; min-width: 110px; max-width: 110px; }
 
-  #view-auditoria .card .data-table td {
+  #view-auditoria .card .data-table > thead > tr > th:nth-child(2),
+  #view-auditoria .card .data-table > tbody > tr.audit-row-interactive > td:nth-child(2) { width: auto; min-width: 250px; }
+
+  #view-auditoria .card .data-table > thead > tr > th:nth-child(3),
+  #view-auditoria .card .data-table > tbody > tr.audit-row-interactive > td:nth-child(3) { width: 180px; min-width: 180px; max-width: 200px; }
+
+  #view-auditoria .card .data-table > thead > tr > th:nth-child(4),
+  #view-auditoria .card .data-table > tbody > tr.audit-row-interactive > td:nth-child(4) { width: 190px; min-width: 190px; max-width: 210px; }
+
+  #view-auditoria .card .data-table > thead > tr > th:nth-child(5),
+  #view-auditoria .card .data-table > tbody > tr.audit-row-interactive > td:nth-child(5) { width: 105px; min-width: 105px; max-width: 120px; }
+
+  #view-auditoria .card .data-table > thead > tr > th:nth-child(6),
+  #view-auditoria .card .data-table > tbody > tr.audit-row-interactive > td:nth-child(6) { width: 135px; min-width: 135px; max-width: 145px; text-align: right; }
+
+  #view-auditoria .card .data-table > thead > tr > th:nth-child(7),
+  #view-auditoria .card .data-table > tbody > tr.audit-row-interactive > td:nth-child(7) { width: 44px; min-width: 44px; max-width: 44px; text-align: center; }
+
+  #view-auditoria .card .data-table > tbody > tr.audit-row-interactive > td {
     min-width: 0;
     padding: 10px 12px;
     vertical-align: middle;
@@ -1296,14 +1311,16 @@
 }
 
 .audit-row-details td {
-  padding: 0 !important;
-  background: var(--surface-1);
+  padding: 0 16px 14px 16px !important;
+  background-color: var(--surface-2) !important;
   border-bottom: 2px solid var(--border-subtle);
 }
 .audit-expanded-panel {
-  padding: 14px 18px;
-  background: var(--surface-2);
-  border-top: 1px solid var(--border-subtle);
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -1324,7 +1341,7 @@
 .audit-meta-chip {
   font-size: 11px;
   color: var(--text-dim);
-  background: var(--surface-1);
+  background: var(--surface-2);
   padding: 3px 8px;
   border-radius: var(--radius-xs);
   border: 1px solid var(--border-subtle);
@@ -1368,6 +1385,7 @@
 .audit-diff-table-inner {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
   font-size: 12px;
 }
 .audit-diff-table-inner th {
@@ -1378,13 +1396,14 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--text-dim);
-  text-align: left;
+  text-align: left !important;
   border-bottom: 1px solid var(--border-subtle);
 }
 .audit-diff-table-inner td {
   padding: 9px 14px;
   border-bottom: 1px solid var(--border-subtle);
   vertical-align: middle;
+  text-align: left !important;
 }
 .audit-diff-table-inner tr:last-child td {
   border-bottom: none;
@@ -1392,7 +1411,7 @@
 .diff-td-field {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
 }
 .diff-field-name {
   font-size: 12.5px;
@@ -1408,10 +1427,11 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 3px 9px;
+  padding: 4px 10px;
   border-radius: var(--radius-xs);
   font-size: 12px;
   line-height: 1.3;
+  font-variant-numeric: tabular-nums;
   word-break: break-word;
 }
 .diff-pill-prev {

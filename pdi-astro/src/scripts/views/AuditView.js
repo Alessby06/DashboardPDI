@@ -838,9 +838,9 @@ export const AuditView = {
           <table class="audit-diff-table-inner">
             <thead>
               <tr>
-                <th style="width:32%;">Campo Modificado</th>
-                <th style="width:34%;">Estado Anterior</th>
-                <th style="width:34%;">Nuevo Valor</th>
+                <th style="width:32%; text-align:left;">Campo Modificado</th>
+                <th style="width:34%; text-align:left;">Estado Anterior</th>
+                <th style="width:34%; text-align:left;">Nuevo Valor</th>
               </tr>
             </thead>
             <tbody>
@@ -850,17 +850,17 @@ export const AuditView = {
                 const despues = d.despues !== undefined && d.despues !== null ? String(d.despues) : (d.valorNuevo || '—');
                 return `
                   <tr>
-                    <td class="diff-td-field">
+                    <td class="diff-td-field" style="text-align:left;">
                       <strong class="diff-field-name">${escapar(label)}</strong>
                       ${d.campo && d.etiqueta && d.campo !== d.etiqueta ? `<span class="diff-field-id"><code>${escapar(d.campo)}</code></span>` : ''}
                     </td>
-                    <td>
+                    <td style="text-align:left;">
                       <div class="diff-pill diff-pill-prev" title="Valor anterior">
                         <span class="diff-pill-sign">−</span>
                         <span class="diff-pill-text">${escapar(antes)}</span>
                       </div>
                     </td>
-                    <td>
+                    <td style="text-align:left;">
                       <div class="diff-pill diff-pill-curr" title="Nuevo valor">
                         <span class="diff-pill-sign">+</span>
                         <span class="diff-pill-text">${escapar(despues)}</span>
