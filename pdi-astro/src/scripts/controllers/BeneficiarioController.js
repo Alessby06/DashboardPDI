@@ -279,6 +279,36 @@ export const BeneficiarioController = {
     }
   },
 
+  cambiarPersonaInscribe(tipo) {
+    const hidden = document.getElementById("checkInscribeMismo");
+    const btnMismo = document.getElementById("btnInscribeMismo");
+    const btnOtro = document.getElementById("btnInscribeOtro");
+    const detalle = document.getElementById("inscribeCamposDetalle");
+    if (hidden) hidden.value = tipo === "otro" ? "no" : "si";
+
+    if (tipo === "otro") {
+      if (btnOtro) {
+        btnOtro.style.background = "var(--accent)";
+        btnOtro.style.color = "var(--accent-contrast)";
+      }
+      if (btnMismo) {
+        btnMismo.style.background = "transparent";
+        btnMismo.style.color = "var(--text-muted)";
+      }
+      if (detalle) detalle.style.display = "block";
+    } else {
+      if (btnMismo) {
+        btnMismo.style.background = "var(--accent)";
+        btnMismo.style.color = "var(--accent-contrast)";
+      }
+      if (btnOtro) {
+        btnOtro.style.background = "transparent";
+        btnOtro.style.color = "var(--text-muted)";
+      }
+      if (detalle) detalle.style.display = "none";
+    }
+  },
+
   syncMismoApoderado(checked) {
     const getVal = (id) => document.getElementById(id)?.value || "";
     const nombre1 = document.getElementById("regRetiroNombre1");
@@ -411,6 +441,8 @@ export const BeneficiarioController = {
     const esCasita = estrategias.some((e) => String(e).includes("Casita del Saber"));
     const tipoAtencion = esCasita ? getVal("regTipoAtencion", "Atención fija") : "";
     const exoneracionAporte = getVal("regExoneracion", "100% (Exonerado Vulnerabilidad Extrema)");
+    const facilitadora = getVal("regFacilitadora", "");
+    const derivadoAsp = getChecked("regDerivadoAsp");
 
     const seguro = getVal("regSeguro", "SIS Gratuito");
     // El centro de salud y la I.E. no se inventan: si no se escriben, no se
@@ -453,6 +485,13 @@ export const BeneficiarioController = {
     const retiroDni2 = getVal("regRetiroDni2");
     const retiroParentesco2 = getVal("regRetiroParentesco2") || "Familiar";
     const retiroTel2 = getVal("regRetiroTel2");
+
+    // Datos Ficha A1 Bloque 3: Persona que Inscribe (cuando difiere del apoderado)
+    const inscribeMismo = getVal("checkInscribeMismo", "si") === "si";
+    const inscribeNombre = inscribeMismo ? apoderado : (getVal("regInscribeNombre") || apoderado);
+    const inscribeDni = inscribeMismo ? apoderadoDni : (getVal("regInscribeDni") || apoderadoDni);
+    const inscribeParentesco = inscribeMismo ? parentesco : (getVal("regInscribeParentesco") || parentesco);
+    const inscribeTelefono = inscribeMismo ? telefono : (getVal("regInscribeTelefono") || telefono);
 
     const consentimientos = {
       evaluacionSocial: getChecked("checkHistorialVida"),
@@ -553,6 +592,15 @@ export const BeneficiarioController = {
       estrategia,
       estrategias,
       exoneracionAporte,
+      facilitadora,
+      derivadoAsp,
+      personaInscribe: {
+        mismoApoderado: inscribeMismo,
+        nombre: inscribeNombre,
+        dni: inscribeDni,
+        parentesco: inscribeParentesco,
+        telefono: inscribeTelefono,
+      },
       servicios: (() => {
         const s = new Set();
         const estLow = (estrategia || "").toLowerCase();
@@ -765,4 +813,5 @@ if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
   window.PDI.BeneficiarioController = BeneficiarioController;
   window.cambiarModalidadRetiro = (tipo) => BeneficiarioController.cambiarModalidadRetiro(tipo);
+  window.cambiarPersonaInscribe = (tipo) => BeneficiarioController.cambiarPersonaInscribe(tipo);
 }

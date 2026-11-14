@@ -1,0 +1,618 @@
+---
+import Icon from './Icon.astro';
+---
+
+<!-- Modal de Impresión Oficial: Ficha de Inscripción A1 (Formato Oficial Johannes Gutenberg) -->
+<div class="modal-backdrop" id="modalFichaA1Oficial" inert aria-hidden="true" style="z-index: 9999;">
+  <div class="modal-box modal-box--a1-print" role="dialog" aria-labelledby="a1PrintModalTitle" aria-modal="true">
+    
+    <!-- Barra de Control Superior (no se imprime) -->
+    <div class="a1-print-toolbar no-print">
+      <div class="a1-toolbar-info">
+        <Icon name="archivo.documento" size={18} />
+        <div>
+          <h3 id="a1PrintModalTitle" class="a1-toolbar-title">Ficha Oficial de Inscripción A1 (2026)</h3>
+          <span class="a1-toolbar-sub">Formato normativo institucional listo para impresión en hoja A4 y archivo en pioner físico</span>
+        </div>
+      </div>
+      <div class="a1-toolbar-actions">
+        <button type="button" class="btn-action primary" id="btnEjecutarPrintA1" onclick="window.imprimirDocumentoA1 ? window.imprimirDocumentoA1() : window.print()">
+          <Icon name="accion.imprimir" size={15} />
+          <span>Imprimir Hoja A4</span>
+        </button>
+        <button type="button" class="btn-action btn-secondary" onclick="window.cerrarModalFichaA1 ? window.cerrarModalFichaA1() : null">
+          <Icon name="accion.cerrar" size={15} />
+          <span>Cerrar</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Hoja A4 Imprimible Maquetada con Precisión Tipográfica Oficial -->
+    <div class="a1-paper-viewport">
+      <article class="ficha-a1-paper" id="a1PaperDocument">
+        
+        <!-- Membrete Institucional -->
+        <header class="a1-header">
+          <div class="a1-brand-col">
+            <img src="/assets/jg-icon.png" alt="Johannes Gutenberg" class="a1-logo" width="46" height="46" />
+            <div class="a1-brand-text">
+              <span class="a1-org-name">ASOCIACIÓN CULTURAL JOHANNES GUTENBERG</span>
+              <span class="a1-prog-name">PROYECTO INFANCIA SALUDABLE · ÁREA PDI</span>
+              <span class="a1-doc-title">FICHA DE INSCRIPCIÓN Y AFILIACIÓN DEL USUARIO (FORMATO A1)</span>
+            </div>
+          </div>
+          <div class="a1-folio-box">
+            <div class="a1-folio-item">
+              <span class="a1-folio-lbl">CÓDIGO ÚNICO:</span>
+              <strong class="a1-folio-val" id="a1FolioCodigo">0000-IS2026</strong>
+            </div>
+            <div class="a1-folio-item">
+              <span class="a1-folio-lbl">FECHA INGRESO:</span>
+              <span class="a1-folio-val" id="a1FolioFecha">--/--/2026</span>
+            </div>
+            <div class="a1-folio-item">
+              <span class="a1-folio-lbl">SEDE PASTORAL:</span>
+              <span class="a1-folio-val" id="a1FolioSede">Sede Comas</span>
+            </div>
+          </div>
+        </header>
+
+        <!-- Franja de Estrategia, Modalidad y Derivación ASP -->
+        <section class="a1-section-band">
+          <div class="a1-badge-grid">
+            <div class="a1-badge-cell">
+              <span class="a1-cell-tag">MODALIDAD:</span>
+              <strong id="a1TxtModalidad">Comunitaria</strong>
+            </div>
+            <div class="a1-badge-cell">
+              <span class="a1-cell-tag">ESTRATEGIA(S):</span>
+              <strong id="a1TxtEstrategias">Desayuno Infantil</strong>
+            </div>
+            <div class="a1-badge-cell">
+              <span class="a1-cell-tag">EXONERACIÓN APORTE:</span>
+              <strong id="a1TxtExoneracion">100%</strong>
+            </div>
+            <div class="a1-badge-cell">
+              <span class="a1-cell-tag">FACILITADORA ASIGNADA:</span>
+              <strong id="a1TxtFacilitadora">Hna. María Elena Santos</strong>
+            </div>
+            <div class="a1-badge-cell a1-cell-asp">
+              <span class="a1-cell-tag">DERIVACIÓN ASP:</span>
+              <strong id="a1TxtDerivadoAsp">[ NO ] Regular</strong>
+            </div>
+          </div>
+        </section>
+
+        <!-- BLOQUE I: DATOS GENERALES DEL NNA -->
+        <section class="a1-block">
+          <h4 class="a1-block-title">I. DATOS GENERALES DEL NIÑO, NIÑA O ADOLESCENTE</h4>
+          <table class="a1-table">
+            <tbody>
+              <tr>
+                <td class="a1-label" style="width: 18%;">Apellidos:</td>
+                <td class="a1-value" id="a1ValApellidos" style="width: 32%;">—</td>
+                <td class="a1-label" style="width: 18%;">Nombres:</td>
+                <td class="a1-value" id="a1ValNombres" style="width: 32%;">—</td>
+              </tr>
+              <tr>
+                <td class="a1-label">Doc. Identidad:</td>
+                <td class="a1-value" id="a1ValDni">—</td>
+                <td class="a1-label">Fecha Nac. / Edad:</td>
+                <td class="a1-value" id="a1ValNacEdad">—</td>
+              </tr>
+              <tr>
+                <td class="a1-label">Sexo:</td>
+                <td class="a1-value" id="a1ValSexo">—</td>
+                <td class="a1-label">Distrito:</td>
+                <td class="a1-value" id="a1ValDistrito">—</td>
+              </tr>
+              <tr>
+                <td class="a1-label">Dirección Domicilio:</td>
+                <td class="a1-value" colspan="3" id="a1ValDireccion">—</td>
+              </tr>
+              <tr>
+                <td class="a1-label">Referencia:</td>
+                <td class="a1-value" colspan="3" id="a1ValReferencia">—</td>
+              </tr>
+              <tr>
+                <td class="a1-label">I.E. de Origen:</td>
+                <td class="a1-value" id="a1ValColegio">—</td>
+                <td class="a1-label">Nivel / Grado:</td>
+                <td class="a1-value" id="a1ValGrado">—</td>
+              </tr>
+              <tr>
+                <td class="a1-label">Seguro de Salud:</td>
+                <td class="a1-value" id="a1ValSeguro">—</td>
+                <td class="a1-label">Centro de Salud Ref.:</td>
+                <td class="a1-value" id="a1ValCentroSalud">—</td>
+              </tr>
+              <tr>
+                <td class="a1-label">Alergias / Restricc.:</td>
+                <td class="a1-value" colspan="3" id="a1ValAlergias">Ninguna reportada</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- BLOQUE II: DATOS DE LA MADRE / PADRE O CUIDADOR PRINCIPAL -->
+        <section class="a1-block">
+          <h4 class="a1-block-title">II. DATOS DEL APODERADO(A) TITULAR / CUIDADOR PRINCIPAL</h4>
+          <table class="a1-table">
+            <tbody>
+              <tr>
+                <td class="a1-label" style="width: 18%;">Apellidos y Nombres:</td>
+                <td class="a1-value" colspan="3" id="a1ValApoNombre">—</td>
+              </tr>
+              <tr>
+                <td class="a1-label" style="width: 18%;">DNI / Documento:</td>
+                <td class="a1-value" id="a1ValApoDni" style="width: 32%;">—</td>
+                <td class="a1-label" style="width: 18%;">Parentesco / Edad:</td>
+                <td class="a1-value" id="a1ValApoParentesco" style="width: 32%;">—</td>
+              </tr>
+              <tr>
+                <td class="a1-label">Celular Principal:</td>
+                <td class="a1-value" id="a1ValApoTel">—</td>
+                <td class="a1-label">Teléfono Emergencia:</td>
+                <td class="a1-value" id="a1ValApoTelAlt">—</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- BLOQUE III: PERSONA QUIEN INSCRIBE (BLOQUE 3 OFICIAL) -->
+        <section class="a1-block">
+          <h4 class="a1-block-title">III. INFORMACIÓN DE LA PERSONA QUIEN REALIZA LA INSCRIPCIÓN</h4>
+          <table class="a1-table">
+            <tbody>
+              <tr>
+                <td class="a1-label" style="width: 18%;">Condición:</td>
+                <td class="a1-value" colspan="3" id="a1ValInscribeCondicion">Mismo apoderado titular</td>
+              </tr>
+              <tr>
+                <td class="a1-label">Apellidos y Nombres:</td>
+                <td class="a1-value" id="a1ValInscribeNombre">—</td>
+                <td class="a1-label">DNI:</td>
+                <td class="a1-value" id="a1ValInscribeDni">—</td>
+              </tr>
+              <tr>
+                <td class="a1-label">Parentesco con NNA:</td>
+                <td class="a1-value" id="a1ValInscribeParentesco">—</td>
+                <td class="a1-label">Celular de Contacto:</td>
+                <td class="a1-value" id="a1ValInscribeTel">—</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- BLOQUE IV: DECLARACIÓN Y CONSENTIMIENTO INFORMADO (LEY 29733) -->
+        <section class="a1-block a1-consentimiento-box">
+          <h4 class="a1-block-title">IV. AUTORIZACIONES EXPRESAS Y CONSENTIMIENTO INFORMADO (LEY N.° 29733)</h4>
+          <p class="a1-legal-clause">
+            En cumplimiento de la Ley de Protección de Datos Personales (Ley N.° 29733) y su Reglamento, el/la firmante otorga su consentimiento libre, previo, expreso e inequívoco para el tratamiento de datos y autoriza formalmente:
+          </p>
+          <div class="a1-checks-grid">
+            <div class="a1-check-item">
+              <span class="a1-box-square">[X]</span>
+              <span><strong>Evaluación Socioeconómica:</strong> Visitas domiciliares y levantamiento de ficha social.</span>
+            </div>
+            <div class="a1-check-item">
+              <span class="a1-box-square">[X]</span>
+              <span><strong>Uso de Imagen:</strong> Registro de fotos/videos exclusivamente para fines pastorales y reportes.</span>
+            </div>
+            <div class="a1-check-item">
+              <span class="a1-box-square">[X]</span>
+              <span><strong>Gestión de Donaciones:</strong> Canalización de beneficios y alimentos con cooperantes.</span>
+            </div>
+            <div class="a1-check-item">
+              <span class="a1-box-square">[X]</span>
+              <span><strong>Flujo Transfronterizo:</strong> Reporte auditado sin fines comerciales a cooperantes oficiales.</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- BLOQUE V: RECUADROS DE FIRMA Y HUELLA DACTILAR -->
+        <footer class="a1-signatures">
+          <div class="a1-sig-box">
+            <div class="a1-sig-line"></div>
+            <span class="a1-sig-name" id="a1SigApoNombre">Firma del Padre / Madre o Apoderado</span>
+            <span class="a1-sig-meta" id="a1SigApoDni">DNI: ___________</span>
+          </div>
+          <div class="a1-huella-box">
+            <div class="a1-huella-inner">
+              <span>HUELLA DACTILAR</span>
+              <span class="a1-huella-sub">(Índice derecho)</span>
+            </div>
+          </div>
+          <div class="a1-sig-box">
+            <div class="a1-sig-line"></div>
+            <span class="a1-sig-name" id="a1SigFacilitadoraNombre">Firma y Sello Facilitadora PDI</span>
+            <span class="a1-sig-meta">Coordinación / Sede Pastoral</span>
+          </div>
+        </footer>
+
+      </article>
+    </div>
+
+  </div>
+</div>
+
+<style>
+  /* Modal de Impresión: Presentación en Pantalla */
+  .modal-box--a1-print {
+    max-width: 900px;
+    width: 95vw;
+    max-height: 94vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    background: var(--surface-1);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .a1-print-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border-subtle);
+    gap: 16px;
+    flex-shrink: 0;
+  }
+
+  .a1-toolbar-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .a1-toolbar-title {
+    margin: 0;
+    font-size: 14.5px;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+
+  .a1-toolbar-sub {
+    font-size: 11.5px;
+    color: var(--text-muted);
+  }
+
+  .a1-toolbar-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .a1-paper-viewport {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    background: #e2e8f0;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Hoja A4 Proporcional */
+  .ficha-a1-paper {
+    width: 210mm;
+    min-height: 297mm;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    padding: 12mm 14mm;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    font-size: 9.5pt;
+    line-height: 1.35;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 7mm;
+  }
+
+  /* Encabezado */
+  .a1-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 2pt solid #0f172a;
+    padding-bottom: 4mm;
+    gap: 12px;
+  }
+
+  .a1-brand-col {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .a1-logo {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+  }
+
+  .a1-brand-text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .a1-org-name {
+    font-size: 8pt;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #475569;
+  }
+
+  .a1-prog-name {
+    font-size: 7.5pt;
+    font-weight: 600;
+    color: #64748b;
+  }
+
+  .a1-doc-title {
+    font-size: 10pt;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.01em;
+    margin-top: 1mm;
+  }
+
+  .a1-folio-box {
+    border: 1pt solid #0f172a;
+    padding: 2mm 3mm;
+    background: #f8fafc;
+    border-radius: 3px;
+    min-width: 140px;
+    display: flex;
+    flex-direction: column;
+    gap: 1mm;
+  }
+
+  .a1-folio-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 7.5pt;
+  }
+
+  .a1-folio-lbl {
+    color: #64748b;
+    font-weight: 600;
+  }
+
+  .a1-folio-val {
+    color: #0f172a;
+    font-weight: 700;
+  }
+
+  /* Franja Resumen */
+  .a1-section-band {
+    background: #f1f5f9;
+    border: 0.8pt solid #cbd5e1;
+    border-radius: 3px;
+    padding: 2mm 3mm;
+  }
+
+  .a1-badge-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    font-size: 7.5pt;
+  }
+
+  .a1-badge-cell {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .a1-cell-tag {
+    font-size: 6.5pt;
+    color: #64748b;
+    font-weight: 700;
+  }
+
+  .a1-badge-cell strong {
+    color: #0f172a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Bloques de Tablas */
+  .a1-block {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5mm;
+  }
+
+  .a1-block-title {
+    margin: 0;
+    font-size: 8pt;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #0f172a;
+    background: #e2e8f0;
+    padding: 1.5mm 3mm;
+    border-left: 3pt solid #0f172a;
+  }
+
+  .a1-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8pt;
+  }
+
+  .a1-table td {
+    padding: 1.6mm 2.2mm;
+    border: 0.6pt solid #cbd5e1;
+    vertical-align: middle;
+  }
+
+  .a1-table .a1-label {
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 700;
+  }
+
+  .a1-table .a1-value {
+    color: #0f172a;
+    font-weight: 500;
+  }
+
+  /* Consentimiento */
+  .a1-consentimiento-box {
+    border: 0.8pt solid #cbd5e1;
+    padding: 2.5mm 3mm;
+    background: #fcfcfc;
+    border-radius: 3px;
+  }
+
+  .a1-legal-clause {
+    font-size: 7.2pt;
+    color: #475569;
+    margin: 1mm 0 2mm;
+    line-height: 1.3;
+    text-align: justify;
+  }
+
+  .a1-checks-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5mm 8mm;
+    font-size: 7.2pt;
+    color: #1e293b;
+  }
+
+  .a1-check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .a1-box-square {
+    font-family: monospace;
+    font-weight: bold;
+    color: #0f172a;
+  }
+
+  /* Firmas */
+  .a1-signatures {
+    display: grid;
+    grid-template-columns: 1fr 100px 1fr;
+    gap: 6mm;
+    align-items: flex-end;
+    margin-top: auto;
+    padding-top: 5mm;
+  }
+
+  .a1-sig-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .a1-sig-line {
+    width: 85%;
+    border-bottom: 0.8pt solid #0f172a;
+    margin-bottom: 2mm;
+  }
+
+  .a1-sig-name {
+    font-size: 7.5pt;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  .a1-sig-meta {
+    font-size: 7pt;
+    color: #64748b;
+  }
+
+  .a1-huella-box {
+    display: flex;
+    justify-content: center;
+  }
+
+  .a1-huella-inner {
+    width: 80px;
+    height: 95px;
+    border: 1pt dashed #475569;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 6.5pt;
+    color: #64748b;
+    text-align: center;
+    padding: 4px;
+    background: #fafafa;
+  }
+
+  .a1-huella-sub {
+    font-size: 5.5pt;
+    color: #94a3b8;
+    margin-top: 2px;
+  }
+
+  /* =========================================================================
+     REGLAS DE IMPRESIÓN OFICIAL (A4 vertical exacto)
+     ========================================================================= */
+  @media print {
+    @page {
+      size: A4 portrait;
+      margin: 10mm 12mm;
+    }
+
+    body.imprimiendo-ficha-a1 * {
+      visibility: hidden;
+    }
+
+    body.imprimiendo-ficha-a1 #modalFichaA1Oficial,
+    body.imprimiendo-ficha-a1 #modalFichaA1Oficial * {
+      visibility: visible;
+    }
+
+    body.imprimiendo-ficha-a1 .no-print {
+      display: none !important;
+    }
+
+    body.imprimiendo-ficha-a1 #modalFichaA1Oficial {
+      position: absolute !important;
+      left: 0 !important;
+      top: 0 !important;
+      width: 100% !important;
+      height: auto !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: #ffffff !important;
+      display: block !important;
+    }
+
+    body.imprimiendo-ficha-a1 .modal-box--a1-print {
+      max-width: 100% !important;
+      width: 100% !important;
+      max-height: none !important;
+      box-shadow: none !important;
+      border: none !important;
+      padding: 0 !important;
+      background: transparent !important;
+    }
+
+    body.imprimiendo-ficha-a1 .a1-paper-viewport {
+      padding: 0 !important;
+      background: transparent !important;
+      overflow: visible !important;
+    }
+
+    body.imprimiendo-ficha-a1 .ficha-a1-paper {
+      width: 100% !important;
+      min-height: auto !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      gap: 5mm !important;
+    }
+  }
+</style>

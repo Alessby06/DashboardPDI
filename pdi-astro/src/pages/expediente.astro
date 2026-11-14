@@ -173,6 +173,11 @@ import Icon from '../components/Icon.astro';
 
       <!-- Acciones del expediente (imprimir y retorno al padrón) -->
       <div class="expediente-nav-group-actions">
+        <button type="button" class="btn-action btn-secondary btn-icon-mobile" id="expPrintFichaA1Btn"
+          onclick="window.abrirModalFichaA1 ? window.abrirModalFichaA1() : null" title="Ver e imprimir Ficha Oficial A1 (2026)" aria-label="Ficha A1 Oficial">
+          <Icon name="archivo.documento" size={15} />
+          <span class="btn-text-responsive">Ficha A1</span>
+        </button>
         <button type="button" class="btn-action btn-secondary btn-icon-mobile" id="expPrintBtn"
           onclick="window.print()" title="Imprimir el expediente completo" aria-label="Imprimir expediente">
           <Icon name="accion.imprimir" size={15} />
@@ -391,6 +396,15 @@ import Icon from '../components/Icon.astro';
               <div class="form-group" style="grid-column: 1 / -1; min-width: 0;">
                 <EstrategiaMultiSelect id="expEstrategia" label="Estrategia Asignada" disabled />
               </div>
+              <div class="form-group">
+                <label>Facilitadora Responsable de Sede:</label>
+                <input type="text" class="form-control" id="expFacilitadora" readonly placeholder="No asignada">
+              </div>
+              <div class="form-group" style="display:flex; align-items:center; padding-top:18px;">
+                <div id="expDerivadoAspBadge" style="display:none; padding:6px 12px; border-radius:var(--radius-sm); font-size:12px; font-weight:600; background:var(--status-approved-bg); color:var(--status-approved); border:1px solid var(--status-approved-border);">
+                  Derivación formal por ASP
+                </div>
+              </div>
 
               <!-- Bloque de Croquis Georreferenciado y Fachada en el Expediente -->
               <div class="form-group" style="grid-column: span 2; margin-top: 4px;">
@@ -596,6 +610,37 @@ import Icon from '../components/Icon.astro';
           </div>
         </div>
 
+        <!-- Ficha A1 Bloque III: Persona que Inscribe -->
+        <div id="expInscribeBox"
+          style="background:var(--surface-1); border:1px solid var(--border-subtle); border-radius:10px; padding:16px; margin-bottom:18px;">
+          <div
+            style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; border-bottom:1px solid var(--border-subtle); padding-bottom:8px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <Icon name="persona.usuario" size={18} />
+              <h4 style="margin:0; font-size:13.5px; font-weight:700; color:var(--text-main);">Persona que Realizó la Inscripción (Ficha A1 - Bloque III)</h4>
+            </div>
+            <span id="expInscribeEsMismoBadge" style="font-size:11.5px; padding:2px 8px; border-radius:12px; background:var(--surface-2); color:var(--text-muted); font-weight:600;"></span>
+          </div>
+          <div class="form-grid" style="grid-template-columns: repeat(2, 1fr); gap:12px;">
+            <div class="form-group">
+              <label>Nombres y Apellidos:</label>
+              <input type="text" class="form-control" id="expInscribeNombre" readonly>
+            </div>
+            <div class="form-group">
+              <label>DNI / Documento:</label>
+              <input type="text" class="form-control" id="expInscribeDni" readonly>
+            </div>
+            <div class="form-group">
+              <label>Parentesco / Relación con el Menor:</label>
+              <input type="text" class="form-control" id="expInscribeParentesco" readonly>
+            </div>
+            <div class="form-group">
+              <label>Teléfono de Contacto:</label>
+              <input type="text" class="form-control" id="expInscribeTelefono" readonly>
+            </div>
+          </div>
+        </div>
+
         <!-- Padrón de Personas Autorizadas para Retiro con Fotografía -->
         <div style="border-top:1px solid var(--border-subtle); padding-top:14px;">
           <div style="margin-bottom:10px;">
@@ -643,6 +688,28 @@ import Icon from '../components/Icon.astro';
           Ficha de Derivación de Caso Social (ASP):
         </label>
         <div id="expCasoSocialDetail"></div>
+
+        <!-- Historial de Seguimiento: Visitas Domiciliarias y Atenciones Sociales (D-01) -->
+        <div style="margin-top: 20px; border-top: 1px solid var(--border-subtle); padding-top: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <div>
+              <h4 style="margin: 0; font-size: 13.5px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 6px;">
+                <Icon name="archivo.documento" size={16} />
+                <span>Historial de Visitas Domiciliarias y Atenciones Sociales (D-01)</span>
+              </h4>
+              <p style="margin: 2px 0 0 0; font-size: 11.5px; color: var(--text-muted);">
+                Seguimiento socio-educativo individualizado registrado por el equipo pastoral en campo.
+              </p>
+            </div>
+            <button type="button" class="btn-action btn-secondary" id="btnExpRegistrarAtencion" onclick="window.abrirRegistroAtencionExpediente ? window.abrirRegistroAtencionExpediente() : null">
+              <Icon name="persona.agregar" size={14} />
+              <span>Nueva Atención / Visita</span>
+            </button>
+          </div>
+          <div id="expAtencionesTimeline" style="background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 8px;">
+            <div style="font-size:12.5px; color:var(--text-muted); text-align:center; padding:12px;">Cargando historial de atenciones...</div>
+          </div>
+        </div>
       </div>
 
     </div>

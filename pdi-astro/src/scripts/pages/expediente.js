@@ -4,6 +4,7 @@
 import "../core/legacy-globals.js";
 import { arrancarComun, publicarRefresco } from "../core/Bootstrap.js";
 import { ExpedienteView } from "../views/ExpedienteView.js";
+import { DerivacionView } from "../views/DerivacionView.js";
 import { iniciarTiposCampo } from "../ui/tiposCampo.js";
 
 /** Engancha los eventos del DOM de la página. Es idempotente. */
@@ -12,6 +13,7 @@ function enlazar() {
   // Los campos con tipo propio (DNI, telefono, nombres) filtran lo que se
   // escribe. El modulo es idempotente: conectarlo dos veces no duplica nada.
   iniciarTiposCampo();
+  DerivacionView.init();
 }
 
 /** Dibuja lo propio de esta pagina. Es idempotente. */

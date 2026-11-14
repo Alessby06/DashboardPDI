@@ -754,6 +754,14 @@ export const SedesView = {
         <span>${escapar(facilitadoraTel)}</span>
       </a>
     ` : '';
+    const pastorTel = sede.pastorTel || sede.aliadoTel || '';
+    const pastorTelDigits = String(pastorTel).replace(/[^0-9]/g, '');
+    const pastorTelLink = pastorTelDigits ? `
+      <a class="sedes-people-tel" href="tel:${pastorTelDigits}" style="margin-top:2px;">
+        ${iconHtml("comunicacion.llamar", { size: 12 })}
+        <span>${escapar(pastorTel)}</span>
+      </a>
+    ` : '';
     const mapQuery = encodeURIComponent(`${direccion}, ${sede.distrito || 'Comas'}, Lima, Peru`);
     const mapsNavUrl = `https://www.google.com/maps/dir/?api=1&destination=${mapQuery}`;
 
@@ -788,6 +796,10 @@ export const SedesView = {
             <a href="${escapar(mapsNavUrl)}" target="_blank" class="btn-action btn-sede-map" title="Navegar en Google Maps">
               ${iconHtml("lugar.ruta", { size: 14 })}
               <span>Ubicación GPS</span>
+            </a>
+            <a href="/colaboradores?sede=${encodeURIComponent(sede.nombre)}" class="btn-action btn-secondary" title="Ver equipo de colaboradoras, promotoras y pastores asignados">
+              ${iconHtml("nav.voluntarios", { size: 14 })}
+              <span>Equipo Territorial</span>
             </a>
             <button type="button" class="btn-action primary" onclick="window.filterPadronBySede ? window.filterPadronBySede('${escaparEnManejador(sede.nombre)}') : null">
               ${iconHtml("persona.grupo", { size: 14 })}
@@ -850,8 +862,9 @@ export const SedesView = {
             <span class="sedes-people-val">${escapar(iglesiaAliada)}</span>
           </div>
           <div class="sedes-people-cell">
-            <span class="sedes-people-key">Representante</span>
+            <span class="sedes-people-key">Representante / Pastor</span>
             <span class="sedes-people-val">${escapar(pastorAliado)}</span>
+            ${pastorTelLink}
           </div>
         </div>
         <!-- Dirección Territorial y Referencia -->

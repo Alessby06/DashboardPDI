@@ -872,8 +872,9 @@ function mapearSedes(raw) {
       facilitadoraCargo: 'Facilitadora Comunitaria PDI',
       facilitadoraTel: s.facilitadora_tel || '',
       iglesiaAliada: s.aliado_nombre || '',
-      pastorAliado: '',
-      aliadoTel: s.facilitadora_tel || '',
+      pastorAliado: s.pastor_nombre || s.pastor_aliado || s.aliado_nombre || '',
+      pastorTel: s.pastor_tel || s.aliado_tel || '',
+      aliadoTel: s.aliado_tel || s.facilitadora_tel || '',
       tipoAliado: s.aliado_institucion || s.tipo_local || '',
       servicios: Array.isArray(s.servicios) ? s.servicios.map(nombreServicioVisible) : [],
       aforoMax: s.aforo_max || 0,
@@ -1557,6 +1558,9 @@ export async function crearBeneficiario(m) {
     mod: modalidadUiADb(m.modalidad),
     periodo: new Date().getFullYear(),
     estado: ['Activo', 'Inactivo', 'Graduado', 'Trasladado', 'Retirado'].includes(m.estado) ? m.estado : 'Activo',
+    facilitadora: m.facilitadora ? String(m.facilitadora).trim() : null,
+    derivadoAsp: Boolean(m.derivadoAsp),
+    inscribePersona: m.personaInscribe || null,
   };
 
   try {
@@ -1643,6 +1647,9 @@ export async function crearBeneficiario(m) {
         periodo: $periodo, programa: $prog, estrategias: $estrategias,
         modalidad: $modalidadGuardable,
         tipo_atencion: $tipoAtencionGuardable ?? NONE, estado: $estado,
+        facilitadora_nombre: $facilitadora ?? NONE,
+        derivado_asp: $derivadoAsp ?? false,
+        persona_inscribe: $inscribePersona ?? NONE,
         activo: true
       } RETURN VALUE id));
       IF string::len($cuiId) > 0 {
@@ -2207,6 +2214,7 @@ export async function crearSede(s) {
     await ejecutar(`CREATE sede CONTENT {
       nombre: $nombre, distrito: $distrito, direccion: $dir, referencia: $ref ?? NONE,
       tipo_local: $tipo, aliado_nombre: $aliado, aliado_institucion: $aliadoInst,
+      pastor_nombre: $pastor ?? NONE, pastor_tel: $pastorTel ?? NONE,
       facilitadora_nombre: $fac, facilitadora_tel: $facTel ?? NONE,
       servicios: $serv, aforo_max: $aforo, horario: $horario ?? NONE,
       estado: $estado, activo: true
@@ -2216,6 +2224,8 @@ export async function crearSede(s) {
       tipo: tipoLocalCanonico(s.tipoAliado),
       aliado: s.iglesiaAliada || s.pastorAliado || s.nombre,
       aliadoInst: s.tipoAliado || 'Local Comunal',
+      pastor: s.pastorAliado || s.pastorNombre || null,
+      pastorTel: s.pastorTel || s.aliadoTel || null,
       fac: s.facilitadora || '', facTel: s.facilitadoraTel || '',
       serv: Array.isArray(s.servicios) && s.servicios.length ? s.servicios : ['Desayuno Infantil'],
       aforo: Number(s.aforoMax) > 0 ? Number(s.aforoMax) : 30,
@@ -2234,6 +2244,7 @@ export async function actualizarSede(s) {
     await ejecutar(`UPDATE sede SET
       nombre = $nombre, distrito = $distrito, direccion = $dir, referencia = $ref ?? NONE,
       tipo_local = $tipo, aliado_nombre = $aliado, aliado_institucion = $aliadoInst,
+      pastor_nombre = $pastor ?? NONE, pastor_tel = $pastorTel ?? NONE,
       facilitadora_nombre = $fac, facilitadora_tel = $facTel ?? NONE,
       servicios = $serv, aforo_max = $aforo, horario = $horario ?? NONE,
       estado = $estado
@@ -2243,6 +2254,8 @@ export async function actualizarSede(s) {
       tipo: tipoLocalCanonico(s.tipoAliado),
       aliado: s.iglesiaAliada || s.nombre,
       aliadoInst: s.tipoAliado || 'Local Comunal',
+      pastor: s.pastorAliado || s.pastorNombre || null,
+      pastorTel: s.pastorTel || s.aliadoTel || null,
       fac: s.facilitadora || '', facTel: s.facilitadoraTel || '',
       serv: Array.isArray(s.servicios) && s.servicios.length ? s.servicios : ['Desayuno Infantil'],
       aforo: Number(s.aforoMax) > 0 ? Number(s.aforoMax) : 30,

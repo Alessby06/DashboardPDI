@@ -21,6 +21,17 @@ function esCelularValido(num) {
 export const ColaboradoresView = {
   init() {
     this.enlazarEventos();
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const qSede = params.get('sede') || params.get('buscar') || '';
+      if (qSede) {
+        const input = document.getElementById('inputColabSearch');
+        if (input) input.value = qSede;
+        busquedaActual = qSede.toLowerCase();
+        const clearBtn = document.getElementById('btnColabSearchClear');
+        if (clearBtn) clearBtn.style.display = 'flex';
+      }
+    }
     this.render();
   },
 

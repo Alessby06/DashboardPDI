@@ -50,10 +50,20 @@ export const AnemiaCalculator = {
         color: "var(--gt-yellow)",
         markClass: "status-mark--warn"
       };
+    } else if (val < 11.5) {
+      return {
+        label: "En riesgo (Sub-estándar)",
+        clase: "Normal",
+        resultadoDb: "En riesgo",
+        accion: "Monitoreo Preventivo + Consejería Alimentaria Rica en Hierro",
+        color: "var(--gt-yellow)",
+        markClass: "status-mark--warn"
+      };
     } else {
       return {
         label: "Normal (Sin Anemia)",
         clase: "Normal",
+        resultadoDb: "Regular",
         accion: "Desayuno Fortificado Diario + Control de Crecimiento cada 3 meses",
         color: "var(--gt-green)",
         markClass: "status-mark--ok"

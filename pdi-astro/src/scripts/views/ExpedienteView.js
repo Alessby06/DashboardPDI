@@ -487,6 +487,7 @@ export const ExpedienteView = {
   _pintar(b, caso) {
     this._id = b.id;
     this._usuarioActual = b;
+    this._casoActual = caso;
     this._esArchivo = b.estado === "Inactivo" || b.estado === "Retirado";
     if (this.isEditing) {
       this.isEditing = false;
@@ -786,6 +787,11 @@ export const ExpedienteView = {
     window.__pdiEstrategias = window.__pdiEstrategias || {};
     window.__pdiEstrategias["expEstrategia"] = estrategias;
     window.PDI?.EstrategiaMultiSelect?.setValues("expEstrategia", estrategias);
+    this._set("expFacilitadora", b.facilitadora || "Coordinación Pastoral PDI");
+    const badgeAsp = document.getElementById("expDerivadoAspBadge");
+    if (badgeAsp) {
+      badgeAsp.style.display = b.derivadoAsp ? "inline-block" : "none";
+    }
   },
 
   _pintarSalud(b) {
@@ -845,6 +851,20 @@ export const ExpedienteView = {
     this._set("expApoderadoTel", b.telefono || "-");
     this._set("expTelefonoAlt", b.telefonoAlt || "No registrado");
     this._set("expRetiro", b.retiroAutorizado || `${b.apoderado} (Apoderado Principal)`);
+
+    // Persona que Realizó la Inscripción (Ficha A1 - Bloque III)
+    const inscribe = b.personaInscribe || null;
+    const esMismo = !inscribe || inscribe.mismoApoderado !== false;
+    const badgeMismo = document.getElementById("expInscribeEsMismoBadge");
+    if (badgeMismo) {
+      badgeMismo.textContent = esMismo ? "Mismo Apoderado Titular" : "Tercero / Familiar";
+      badgeMismo.style.background = esMismo ? "var(--surface-2)" : "var(--status-approved-bg)";
+      badgeMismo.style.color = esMismo ? "var(--text-muted)" : "var(--status-approved)";
+    }
+    this._set("expInscribeNombre", (inscribe && !esMismo && inscribe.nombre) ? inscribe.nombre : b.apoderado);
+    this._set("expInscribeDni", (inscribe && !esMismo && inscribe.dni) ? inscribe.dni : (b.apoderadoDni || "-"));
+    this._set("expInscribeParentesco", (inscribe && !esMismo && inscribe.parentesco) ? inscribe.parentesco : (b.parentesco || "Apoderado(a)"));
+    this._set("expInscribeTelefono", (inscribe && !esMismo && inscribe.telefono) ? inscribe.telefono : (b.telefono || "-"));
 
     this._pintarRetiro(b);
   },
@@ -964,6 +984,10 @@ export const ExpedienteView = {
           El usuario no registra derivaciones activas a DEMUNA ni alertas de vulnerabilidad extrema. Monitoreo regular activo.
         </div>
         ${botonEval}`;
+      const timeElVacio = document.getElementById("expAtencionesTimeline");
+      if (timeElVacio) {
+        timeElVacio.innerHTML = `<div style="font-size:12.5px; color:var(--text-muted); text-align:center; padding:12px;">Sin atenciones ni visitas domiciliarias registradas. Para registrar intervenciones tipificadas (DEMUNA, BTF, Canastas), el usuario puede derivarse en el Área Social.</div>`;
+      }
       return;
     }
 
@@ -993,6 +1017,42 @@ export const ExpedienteView = {
         <div style="font-size:12px; color:var(--text-dim);"><strong>Soporte Familiar:</strong> ${escapar(soporte)}</div>
         ${botonEval}
       </div>`;
+
+    const timeEl = document.getElementById("expAtencionesTimeline");
+    if (timeEl) {
+      const eventos = Array.isArray(caso.eventos) ? caso.eventos : [];
+      if (eventos.length === 0) {
+        timeEl.innerHTML = `<div style="font-size:12.5px; color:var(--text-muted); text-align:center; padding:12px;">El caso social está activo pero no cuenta con atenciones o visitas registradas aún. Haz clic en "Nueva Atención / Visita" arriba para registrar la primera intervención.</div>`;
+      } else {
+        timeEl.innerHTML = eventos.map(ev => {
+          const isVisita = (ev.tipo || ev.tipo_evento || '').toLowerCase().includes('visita');
+          const isDemuna = (ev.tipo || ev.tipo_evento || '').toLowerCase().includes('demuna');
+          let badgeBg = 'var(--accent)';
+          if (isVisita) badgeBg = 'var(--gt-green)';
+          else if (isDemuna) badgeBg = 'var(--gt-red)';
+
+          return `
+            <div style="padding:10px 12px; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+              <div>
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                  <span style="font-size:11px; font-weight:700; padding:2px 8px; border-radius:10px; background:${badgeBg}; color:#fff;">
+                    ${escapar(ev.tipo || ev.tipo_evento || 'Atención')}
+                  </span>
+                  <strong style="font-size:12.5px; color:var(--text-main);">${escapar(ev.responsable || 'Personal PDI')}</strong>
+                  ${ev.oficio ? `<span style="font-size:11px; color:var(--text-dim); font-family:var(--mono-font);">Ref: ${escapar(ev.oficio)}</span>` : ''}
+                </div>
+                <div style="font-size:12px; color:var(--text-muted); margin-top:4px; line-height:1.4;">
+                  ${escapar(ev.descripcion || 'Sin detalle.')}
+                </div>
+              </div>
+              <span style="font-size:11px; font-family:var(--mono-font); color:var(--text-dim); white-space:nowrap;">
+                ${escapar(ev.fecha || '')}
+              </span>
+            </div>
+          `;
+        }).join('');
+      }
+    }
   },
 
   /**
@@ -1851,10 +1911,144 @@ export const ExpedienteView = {
     this.render();
     ToastView.show("Usuario Reactivado", `${b.nombres} ${b.apellidos} volvió al padrón como Activo.`, "success");
   },
+
+  abrirModalFichaA1() {
+    const b = this._usuarioActual;
+    if (!b) {
+      if (typeof ToastView !== "undefined") {
+        ToastView.show("Ficha A1", "No hay un expediente activo para generar la Ficha A1.", "warning");
+      }
+      return;
+    }
+
+    const setTxt = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = (val !== undefined && val !== null && String(val).trim() !== "") ? String(val) : "—";
+    };
+
+    // Folio y Cabecera
+    setTxt("a1FolioCodigo", b.codigo || "0000-IS2026");
+    setTxt("a1FolioFecha", b.fechaIngreso || (b.createdAt ? new Date(b.createdAt).toLocaleDateString("es-PE") : "01/03/2026"));
+    setTxt("a1FolioSede", b.sede ? `Sede ${b.sede}` : (b.distrito || "Comas"));
+
+    // Franja Superior
+    setTxt("a1TxtModalidad", b.modalidad || "Comunitaria");
+    const estrList = Array.isArray(b.estrategias) && b.estrategias.length ? b.estrategias.join(", ") : (b.estrategia || "Desayuno Infantil");
+    setTxt("a1TxtEstrategias", estrList);
+    setTxt("a1TxtExoneracion", b.exoneracionAporte || "100%");
+    setTxt("a1TxtFacilitadora", b.facilitadora || "Coordinación Pastoral PDI");
+    setTxt("a1TxtDerivadoAsp", b.derivadoAsp ? "[ SÍ ] Derivado Social Pastoral" : "[ NO ] Regular");
+
+    // Bloque I: Datos Generales NNA
+    setTxt("a1ValApellidos", b.apellidos || "—");
+    setTxt("a1ValNombres", b.nombres || "—");
+    setTxt("a1ValDni", b.dni || "—");
+    setTxt("a1ValNacEdad", `${b.fechaNacimiento || "—"} (${b.edad || "—"})`);
+    setTxt("a1ValSexo", b.sexo === "F" ? "Femenino" : (b.sexo === "M" ? "Masculino" : (b.sexo || "—")));
+    setTxt("a1ValDireccion", b.direccion || "—");
+    setTxt("a1ValReferencia", b.referencia || "Sin referencia adicional");
+    setTxt("a1ValSeguro", b.seguro || "SIS Gratuito");
+    setTxt("a1ValColegio", b.colegio || "—");
+    setTxt("a1ValGrado", b.grado || "—");
+
+    let txtAlergias = "Ninguna reportada";
+    if (b.alergias && Array.isArray(b.alergias) && b.alergias.length > 0) {
+      txtAlergias = b.alergias.map(a => `${a.tipo || "Alergia"}: ${a.descripcion || ""}`).join("; ");
+    } else if (b.alergiasNotas) {
+      txtAlergias = b.alergiasNotas;
+    }
+    setTxt("a1ValAlergias", txtAlergias);
+
+    // Bloque II: Datos del Apoderado
+    setTxt("a1ValApodNombre", b.apoderado || "—");
+    setTxt("a1ValApodDni", b.apoderadoDni || "—");
+    setTxt("a1ValApodParentesco", b.parentesco || "Madre");
+    setTxt("a1ValApodTelefono", b.telefono || "—");
+    setTxt("a1ValApodTelAlt", b.telefonoAlt || "No registrado");
+
+    // Bloque III: Persona Quien Inscribe
+    const inscribe = b.personaInscribe || null;
+    const esMismo = !inscribe || inscribe.mismoApoderado !== false;
+    if (esMismo) {
+      setTxt("a1ValInscNombre", b.apoderado || "—");
+      setTxt("a1ValInscDni", b.apoderadoDni || "—");
+      setTxt("a1ValInscParentesco", `${b.parentesco || "Apoderado"} (Misma persona titular)`);
+      setTxt("a1ValInscTelefono", b.telefono || "—");
+    } else {
+      setTxt("a1ValInscNombre", inscribe.nombre || b.apoderado);
+      setTxt("a1ValInscDni", inscribe.dni || b.apoderadoDni || "—");
+      setTxt("a1ValInscParentesco", inscribe.parentesco || "Tercero / Familiar");
+      setTxt("a1ValInscTelefono", inscribe.telefono || b.telefono || "—");
+    }
+
+    // Bloque IV: Modalidad de Salida y Personas Acreditadas
+    const modRetiro = b.modalidadRetiro === "solo" ? "AUTORIZADO A SALIR SOLO DE SEDE" : "EN COMPAÑÍA DE ADULTO RESPONSABLE ACREDITADO";
+    setTxt("a1ValRetiroMod", modRetiro);
+
+    const listaRetiro = Array.isArray(b.retiroPadron) && b.retiroPadron.length > 0
+      ? b.retiroPadron
+      : [{ nombre: b.apoderado, dni: b.apoderadoDni, parentesco: b.parentesco || "Apoderado" }];
+
+    setTxt("a1ValRetiroNombre1", listaRetiro[0] ? `${listaRetiro[0].nombre} (${listaRetiro[0].parentesco || "Apoderado"})` : "—");
+    setTxt("a1ValRetiroDni1", listaRetiro[0] ? (listaRetiro[0].dni || "—") : "—");
+    setTxt("a1ValRetiroNombre2", listaRetiro[1] ? `${listaRetiro[1].nombre} (${listaRetiro[1].parentesco || "Familiar"})` : "No registrado");
+    setTxt("a1ValRetiroDni2", listaRetiro[1] ? (listaRetiro[1].dni || "—") : "—");
+
+    // Bloque V: Declaraciones y Consentimientos
+    const c = b.consentimientos || {};
+    setTxt("a1ValHistorialSocial", c.evaluacionSocial !== false ? "[ X ] AUTORIZADO" : "[  ] DENEGADO");
+    setTxt("a1ValUsoImagen", c.usoFotografia !== false ? "[ X ] AUTORIZADO" : "[  ] DENEGADO");
+    setTxt("a1ValAporteSimb", c.aporteEconomico !== false ? "[ X ] CONFORME Y COMPROMETIDO" : "[  ] EXONERADO");
+
+    // Pie de Firma
+    setTxt("a1ValApodFirmaNombre", b.apoderado || "—");
+    setTxt("a1ValApodFirmaDni", b.apoderadoDni || "—");
+
+    const modal = document.getElementById("modalFichaA1Oficial");
+    if (modal) {
+      modal.removeAttribute("inert");
+      modal.setAttribute("aria-hidden", "false");
+      modal.classList.add("is-visible");
+      document.body.style.overflow = "hidden";
+    }
+  },
+
+  cerrarModalFichaA1() {
+    const modal = document.getElementById("modalFichaA1Oficial");
+    if (modal) {
+      modal.setAttribute("inert", "");
+      modal.setAttribute("aria-hidden", "true");
+      modal.classList.remove("is-visible");
+      document.body.style.overflow = "";
+    }
+  },
+
+  imprimirDocumentoA1() {
+    window.print();
+  },
+
+  abrirRegistroAtencionExpediente() {
+    const caso = this._casoActual;
+    if (caso && window.PDI?.DerivacionView?.abrirAtencion) {
+      window.PDI.DerivacionView.abrirAtencion(caso);
+    } else {
+      if (typeof ToastView !== "undefined") {
+        ToastView.show(
+          "Sin Caso Social Activo",
+          "Para registrar visitas domiciliarias o atenciones tipificadas, el usuario debe tener una ficha de derivación activa en /social.",
+          "info"
+        );
+      }
+    }
+  },
 };
 
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
   window.PDI.ExpedienteView = ExpedienteView;
   window.desplazarExpediente = (dir) => ExpedienteView._desplazar(dir);
+  window.abrirModalFichaA1 = () => ExpedienteView.abrirModalFichaA1();
+  window.cerrarModalFichaA1 = () => ExpedienteView.cerrarModalFichaA1();
+  window.imprimirDocumentoA1 = () => ExpedienteView.imprimirDocumentoA1();
+  window.abrirRegistroAtencionExpediente = () => ExpedienteView.abrirRegistroAtencionExpediente();
 }

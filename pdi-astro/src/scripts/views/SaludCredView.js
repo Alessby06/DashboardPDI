@@ -1105,7 +1105,7 @@ export const SaludCredView = {
       hb: hbVal,
       // Valor exacto del esquema: 'Regular' | 'Anemia leve' | 'Anemia moderada'
       // | 'Anemia grave'. calc.label está pensado para mostrar, no para guardar.
-      resultado: AnemiaCalculator.resultadoDb(calc.clase) || "Regular",
+      resultado: calc.resultadoDb || AnemiaCalculator.resultadoDb(calc.clase) || "Regular",
       // Clave canónica: la que comparan filtros y conteos del panel.
       anemia: calc.clase || "Normal",
       peso: pesoRaw !== "" ? pesoVal : null,

@@ -17,6 +17,7 @@ import {
 import { SEDES_POR_DISTRITO } from '../scripts/core/catalogos.js';
 import EstrategiaMultiSelect from './EstrategiaMultiSelect.astro';
 import Icon from './Icon.astro';
+import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
 ---
 
 <!-- ==========================================
@@ -256,6 +257,22 @@ import Icon from './Icon.astro';
                   </select>
                 </div>
               </div>
+
+              <div class="ficha-form-row ficha-form-row--2col" style="margin-top: 10px;">
+                <div class="form-group">
+                  <label for="regFacilitadora">Facilitadora PDI Asignada (Responsable de Sede)</label>
+                  <input type="text" id="regFacilitadora" name="facilitadora" class="form-control" maxlength="80"
+                    placeholder="Ej. Lic. Carmen Rosa Pérez" />
+                </div>
+                <div class="form-group" style="display: flex; flex-direction: column; justify-content: flex-end;">
+                  <label class="pdi-checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 10px; background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm);">
+                    <input type="checkbox" id="regDerivadoAsp" name="derivado_asp" value="1" style="width: 16px; height: 16px; accent-color: var(--accent);" />
+                    <span style="font-size: 12.5px; font-weight: 500; color: var(--text-main);">
+                      Derivado formalmente por Área Social Pastoral (ASP)
+                    </span>
+                  </label>
+                </div>
+              </div>
             </div>
 
             <!-- Fila Dual: Salud Base a la izquierda, Educación a la derecha -->
@@ -440,6 +457,50 @@ import Icon from './Icon.astro';
                     <label for="regTelefonoAlt">Teléfono de Respaldo / Emergencia</label>
                     <input type="tel" id="regTelefonoAlt" name="telefono_alt" autocomplete="tel" data-tipo="celular" class="form-control" maxlength="9" pattern="9[0-9]{8}" inputmode="numeric"
                       placeholder="Ej. 912345678 (Tía / Vecina)">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bloque Ficha A1: Persona Quien Inscribe (si difiere del apoderado) -->
+            <div class="ficha-fieldset" style="margin-top: 14px; margin-bottom: 14px; background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px;">
+                <div>
+                  <legend class="ficha-legend" style="margin-bottom: 2px;">Persona que Realiza la Inscripción (Ficha A1 - Bloque III)</legend>
+                  <p style="margin: 0; font-size: 11.5px; color: var(--text-muted);">
+                    ¿La persona que inscribe físicamente al menor es el mismo apoderado registrado arriba?
+                  </p>
+                </div>
+                <div class="alergia-segmented" role="group" aria-label="Persona que inscribe" style="display: inline-flex; border: 1px solid var(--border-default); border-radius: var(--radius-sm); overflow: hidden; background: var(--surface-2);">
+                  <button type="button" class="alergia-seg-btn is-active" id="btnInscribeMismo" style="padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; background: var(--accent); color: var(--accent-contrast);" onclick="window.cambiarPersonaInscribe ? window.cambiarPersonaInscribe('mismo') : null">
+                    Sí, es el apoderado
+                  </button>
+                  <button type="button" class="alergia-seg-btn" id="btnInscribeOtro" style="padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: pointer; border: none; background: transparent; color: var(--text-muted);" onclick="window.cambiarPersonaInscribe ? window.cambiarPersonaInscribe('otro') : null">
+                    No, es otra persona
+                  </button>
+                </div>
+                <input type="hidden" id="checkInscribeMismo" name="inscribe_mismo" value="si" />
+              </div>
+
+              <div id="inscribeCamposDetalle" style="display: none; padding-top: 10px; border-top: 1px dashed var(--border-subtle);">
+                <div class="ficha-form-row ficha-form-row--2col">
+                  <div class="form-group">
+                    <label for="regInscribeNombre">Nombres y Apellidos de quien inscribe</label>
+                    <input type="text" id="regInscribeNombre" name="inscribe_nombre" class="form-control" maxlength="120" placeholder="Ej. Rosa Gómez Prado" />
+                  </div>
+                  <div class="form-group">
+                    <label for="regInscribeDni">DNI / Documento</label>
+                    <input type="text" id="regInscribeDni" name="inscribe_dni" class="form-control" maxlength="15" placeholder="8 dígitos" />
+                  </div>
+                </div>
+                <div class="ficha-form-row ficha-form-row--2col" style="margin-top: 8px;">
+                  <div class="form-group">
+                    <label for="regInscribeParentesco">Parentesco o Relación con el Menor</label>
+                    <input type="text" id="regInscribeParentesco" name="inscribe_parentesco" class="form-control" maxlength="50" placeholder="Ej. Tía materna / Vecina de confianza" />
+                  </div>
+                  <div class="form-group">
+                    <label for="regInscribeTelefono">Teléfono de Contacto</label>
+                    <input type="tel" id="regInscribeTelefono" name="inscribe_telefono" class="form-control" maxlength="9" placeholder="Ej. 987654321" />
                   </div>
                 </div>
               </div>
@@ -1869,6 +1930,9 @@ import Icon from './Icon.astro';
             </div>
           </div>
         </div>
+
+  <!-- Modal Oficial Ficha A1 Imprimible (2026) -->
+  <ModalFichaA1Oficial />
 
 <style>
   /* Encabezado del Modal */
