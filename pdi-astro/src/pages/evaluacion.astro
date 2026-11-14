@@ -1,10 +1,110 @@
 ---
 import AppLayout from '../layouts/AppLayout.astro';
+import Icon from '../components/Icon.astro';
 import '../styles/views-evaluacion.css';
 ---
 
 <AppLayout title="Evaluación socioeconómica" currentPage="evaluacion">
   <section class="app-view active" id="view-evaluacion">
+    <!-- Script síncrono inline para pre-hidratación instantánea: 0 ms de parpadeo -->
+    <script is:inline>
+      (function () {
+        function prehidratarEvaluacion() {
+          try {
+            var params = new URLSearchParams(window.location.search);
+            var personaParam = params.get("persona") || params.get("codigo") || params.get("id");
+            var casoParam = params.get("caso");
+            var root = document.getElementById("view-evaluacion");
+            var sinEval = document.getElementById("evalSinEvaluacion");
+
+            if (!personaParam && !casoParam) {
+              if (root) root.setAttribute("data-sin-evaluacion", "true");
+              if (sinEval) sinEval.style.display = "flex";
+              var elTit = document.getElementById("evalSinTitulo");
+              if (elTit) elTit.textContent = "No se indicó qué usuario evaluar";
+              var elDet = document.getElementById("evalSinDetalle");
+              if (elDet) elDet.textContent = "Esta evaluación requiere un usuario o caso específico. Se accede desde el tablero de Casos Sociales (ASP) o desde el Expediente.";
+              return;
+            }
+
+            var rawSnap = localStorage.getItem("pdi_snapshot_v1") || sessionStorage.getItem("pdi_snapshot_v1");
+            if (!rawSnap) return;
+            var snap = JSON.parse(rawSnap);
+            if (!snap || !snap.datos) return;
+
+            var beneficiarios = snap.datos.beneficiarios || [];
+            var retirados = snap.datos.retirados || [];
+            var casos = snap.datos.casos || [];
+
+            var norm = function(v) { return String(v || "").replace(/[⟨⟩]/g, "").trim().toLowerCase(); };
+            var targetNorm = norm(personaParam);
+
+            var persona = beneficiarios.find(function(b) {
+              return norm(b._personaId) === targetNorm || norm(b.codigo) === targetNorm || norm(b.id) === targetNorm;
+            });
+            if (!persona && Array.isArray(retirados)) {
+              persona = retirados.find(function(b) {
+                return norm(b._personaId) === targetNorm || norm(b.codigo) === targetNorm || norm(b.id) === targetNorm;
+              });
+            }
+
+            if (!persona && casoParam) {
+              var targetCaso = norm(casoParam);
+              var c = casos.find(function(item) {
+                return norm(item._casoId) === targetCaso || norm(item.codigo) === targetCaso;
+              });
+              if (c && c._personaId) {
+                persona = {
+                  _personaId: c._personaId,
+                  codigo: c.codigo || "",
+                  nombres: c.usuario || "",
+                  apellidos: "",
+                  sede: c.sede || ""
+                };
+              }
+            }
+
+            if (persona) {
+              if (root) root.removeAttribute("data-sin-evaluacion");
+              if (sinEval) sinEval.style.display = "none";
+              var elNom = document.getElementById("evalUsuario");
+              if (elNom) elNom.textContent = ((persona.nombres || "") + " " + (persona.apellidos || "")).trim() || "Evaluación socioeconómica";
+              var elMeta = document.getElementById("evalMeta");
+              if (elMeta) {
+                var metaParts = [persona.codigo, persona.sede ? ("Sede " + persona.sede) : ""].filter(Boolean);
+                elMeta.textContent = metaParts.join(" · ") || "Cargando evaluación…";
+              }
+              var elVolver = document.getElementById("evalVolver");
+              if (elVolver && persona.codigo) {
+                elVolver.href = "/expediente?codigo=" + encodeURIComponent(persona.codigo);
+              }
+              return;
+            }
+
+            // Si el snapshot estaba completo y el usuario no está: marcar 0 ms no encontrado
+            if (beneficiarios.length > 0) {
+              if (root) root.setAttribute("data-sin-evaluacion", "true");
+              if (sinEval) sinEval.style.display = "flex";
+              var elTitNo = document.getElementById("evalSinTitulo");
+              if (elTitNo) elTitNo.textContent = "Usuario no encontrado";
+              var elBadgeWrap = document.getElementById("evalSinBadgeWrap");
+              var elBadge = document.getElementById("evalSinBadge");
+              if (elBadge && elBadgeWrap) {
+                elBadge.textContent = personaParam || casoParam || "";
+                elBadgeWrap.style.display = "inline-flex";
+              }
+              var elDetNo = document.getElementById("evalSinDetalle");
+              if (elDetNo) {
+                elDetNo.textContent = "No se encontró ningún usuario o caso con el identificador \"" + (personaParam || casoParam) + "\". Verifique el código o vuelva a Casos Sociales.";
+              }
+            }
+          } catch (e) {}
+        }
+        prehidratarEvaluacion();
+        document.addEventListener("astro:after-swap", prehidratarEvaluacion);
+      })();
+    </script>
+
     <div class="eval-shell">
       <header class="eval-head">
         <div class="eval-head-main">
@@ -20,6 +120,36 @@ import '../styles/views-evaluacion.css';
           <span id="evalScoreExoneracion" class="eval-score-exo"></span>
         </div>
       </header>
+
+      <!-- Estado sin evaluación: tarjeta institucional cuando el id/código no existe o no se indicó -->
+      <div class="eval-sin-evaluacion" id="evalSinEvaluacion" style="display:none;" role="region" aria-live="polite">
+        <div class="eval-empty-card">
+          <div class="eval-empty-icon-wrap" aria-hidden="true">
+            <Icon name="salud.escudo" size={28} />
+          </div>
+
+          <div class="eval-empty-badge-wrap" id="evalSinBadgeWrap" style="display: none;">
+            <span class="eval-code-badge" id="evalSinBadge"></span>
+          </div>
+
+          <h3 class="eval-empty-title" id="evalSinTitulo">Evaluación no disponible</h3>
+
+          <p class="eval-empty-desc" id="evalSinDetalle">
+            No se indicó qué usuario o caso corresponde evaluar. Se accede a esta herramienta desde un caso social en el tablero ASP o desde el expediente integral.
+          </p>
+
+          <div class="eval-empty-actions">
+            <a class="btn-action primary" href="/social" id="evalBtnVolverSocial">
+              <Icon name="modulo.social" size={15} />
+              <span>Volver a Casos Sociales (ASP)</span>
+            </a>
+            <a class="btn-action btn-secondary" href="/padron" id="evalBtnIrPadron">
+              <Icon name="persona.usuario" size={15} />
+              <span>Padrón de Usuarios</span>
+            </a>
+          </div>
+        </div>
+      </div>
 
       <div class="eval-banner" id="evalBanner" hidden></div>
 

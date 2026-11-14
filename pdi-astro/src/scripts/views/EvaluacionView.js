@@ -542,13 +542,20 @@ export const EvaluacionView = {
   async cargar() {
     if (this._cargado) return;
     const params = new URLSearchParams(location.search);
-    const personaParam = params.get('persona') || '';
+    const personaParam = params.get('persona') || params.get('codigo') || params.get('id') || '';
     const casoParam = params.get('caso') || '';
     const evalParam = params.get('eval') || '';
+
+    // Si no hay parámetros en la URL, mostrar inmediatamente el estado no encontrado
+    if (!personaParam && !casoParam) {
+      this._resolver('', '', '', []);
+      return;
+    }
+
     const esperar = (intentos = 0) => {
       const lista = window.PDI?.BeneficiarioModel?.getAll?.() || [];
       if (!lista.length && intentos < 40) {
-        setTimeout(() => esperar(intentos + 1), 250);
+        setTimeout(() => esperar(intentos + 1), 150);
         return;
       }
       this._resolver(personaParam, casoParam, evalParam, lista);
@@ -580,12 +587,35 @@ export const EvaluacionView = {
       }
     }
 
+    const root = document.getElementById('view-evaluacion');
+    const sinEval = document.getElementById('evalSinEvaluacion');
+
     if (!persona) {
-      this._banner('No se encontró el usuario. Abre la evaluación desde un caso o desde el expediente.', 'danger');
-      document.getElementById('evalUsuario').textContent = 'Sin usuario';
-      document.getElementById('evalMeta').textContent = 'Vuelve al caso e inténtalo de nuevo.';
+      if (root) root.setAttribute('data-sin-evaluacion', 'true');
+      if (sinEval) sinEval.style.display = 'flex';
+      const elTit = document.getElementById('evalSinTitulo');
+      const elBadgeWrap = document.getElementById('evalSinBadgeWrap');
+      const elBadge = document.getElementById('evalSinBadge');
+      const elDet = document.getElementById('evalSinDetalle');
+      const ref = personaParam || casoParam;
+
+      if (ref) {
+        if (elTit) elTit.textContent = `No se encontró el usuario (${ref})`;
+        if (elBadge && elBadgeWrap) {
+          elBadge.textContent = ref;
+          elBadgeWrap.style.display = 'inline-flex';
+        }
+        if (elDet) elDet.textContent = 'No se encontró un registro clínico activo ni histórico para este identificador. Compruebe el código o vuelva a Casos Sociales.';
+      } else {
+        if (elTit) elTit.textContent = 'No se indicó qué usuario evaluar';
+        if (elBadgeWrap) elBadgeWrap.style.display = 'none';
+        if (elDet) elDet.textContent = 'Esta herramienta requiere abrir la evaluación desde un caso social o desde el expediente del usuario.';
+      }
       return;
     }
+
+    if (root) root.removeAttribute('data-sin-evaluacion');
+    if (sinEval) sinEval.style.display = 'none';
     this.persona = persona;
     const casos = window.PDI?.CasoSocialModel?.getAll?.() || [];
     this.caso = casos.find(c =>

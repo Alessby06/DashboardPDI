@@ -656,3 +656,111 @@
     grid-template-columns: 1fr auto;
   }
 }
+
+/* ===========================================================================
+   ESTADO SIN EVALUACIÓN / NO ENCONTRADO
+   =========================================================================== */
+
+#view-evaluacion[data-sin-evaluacion="true"] .eval-layout,
+#view-evaluacion[data-sin-evaluacion="true"] .eval-score,
+#view-evaluacion[data-sin-evaluacion="true"] .eval-banner {
+  display: none !important;
+}
+
+#view-evaluacion[data-sin-evaluacion="true"] .eval-sin-evaluacion {
+  display: flex !important;
+}
+
+.eval-sin-evaluacion {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  min-height: 420px;
+  text-align: center;
+}
+
+.eval-empty-card {
+  max-width: 520px;
+  width: 100%;
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg, 12px);
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);
+}
+
+.eval-empty-icon-wrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: rgba(var(--brand-rgb), 0.08);
+  border: 1px solid var(--gt-green-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-brand);
+  margin-bottom: 4px;
+}
+
+.eval-empty-badge-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eval-code-badge {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  padding: 4px 14px;
+  border-radius: 20px;
+  letter-spacing: 0.02em;
+}
+
+.eval-empty-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.3;
+}
+
+.eval-empty-desc {
+  max-width: 44ch;
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-dim);
+}
+
+.eval-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.eval-empty-actions .btn-action {
+  min-height: 40px;
+  padding: 8px 18px;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}

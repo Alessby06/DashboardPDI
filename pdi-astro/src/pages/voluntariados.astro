@@ -212,7 +212,11 @@ const OPCIONES_ORDEN_VOLUNTARIOS = [
                   </tr>
                 </thead>
                 <tbody id="tbodyVoluntarios">
-                  <!-- Inyectado dinámicamente -->
+                  <tr id="voluntariosCargando">
+                    <td colspan="7" style="text-align: center; padding: 32px; color: var(--text-dim);">
+                      Cargando voluntarios…
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -226,7 +230,7 @@ const OPCIONES_ORDEN_VOLUNTARIOS = [
             <div class="padron-pagination-bar" id="voluntariosPaginationBar">
               <div class="padron-pagination-left">
                 <span id="voluntariosPaginationInfo" style="font-size:12.5px; color:var(--text-muted); font-weight:500;">
-                  Mostrando 0 de 0 voluntarios
+                  Mostrando voluntarios…
                 </span>
                 <div class="padron-density-wrapper" id="voluntariosDensityWrapper"
                   style="display:flex; align-items:center; gap:6px;">
