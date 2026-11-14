@@ -182,8 +182,8 @@ window.openModalExportGeneric = (config) => {
 };
 
 window.openModalExportAudit = () => {
-  const dv = window.PDI?.DashboardView;
-  const logs = dv?._filteredAuditLogs || dv?._currentAuditLogs || (window.PDI?.AuditModel?.getAll ? window.PDI.AuditModel.getAll() : []);
+  const av = window.PDI?.AuditView || window.PDI?.DashboardView;
+  const logs = av?._filteredAuditLogs || av?._currentAuditLogs || (window.PDI?.AuditModel?.getAll ? window.PDI.AuditModel.getAll() : []);
   window.openModalExportGeneric({
     title: "Descarga de Bitácora de Auditoría",
     subtitle: "Confirmación de generación de reporte forense",
@@ -450,25 +450,30 @@ window.exportAuditCSV = () => window.PDI?.AppController?.exportAuditCSV?.();
 // ---------------------------------------------------------------------------
 //  AUDITORIA
 // ---------------------------------------------------------------------------
-window.toggleAuditInnerDropdown = (id) => window.PDI?.DashboardView?.toggleInnerDropdown?.(id);
-window.toggleAuditAction = (val) => window.PDI?.DashboardView?.toggleAction?.(val);
-window.selectAuditDate = (val, label) => window.PDI?.DashboardView?.selectDate?.(val, label);
-window.toggleAuditRole = (val) => window.PDI?.DashboardView?.toggleRole?.(val);
-window.toggleAuditStatus = (val) => window.PDI?.DashboardView?.toggleStatus?.(val);
-window.removeAuditChip = (key, val) => window.PDI?.DashboardView?.removeAuditFilter?.(key, val);
-window.resetAuditFilters = () => window.PDI?.DashboardView?.resetAuditFilters?.();
-window.filterAuditSearch = (q) => window.PDI?.DashboardView?.filterBySearch?.(q);
-window.clearAuditSearch = () => window.PDI?.DashboardView?.clearSearch?.();
-window.changeAuditPageSize = (size) => window.PDI?.DashboardView?.changePageSize?.(size);
-window.prevAuditPage = () =>
-  window.PDI?.DashboardView?.changePage?.((window.PDI.DashboardView._auditCurrentPage || 1) - 1);
-window.nextAuditPage = () =>
-  window.PDI?.DashboardView?.changePage?.((window.PDI.DashboardView._auditCurrentPage || 1) + 1);
-window.openAuditDetail = (logId) => window.PDI?.DashboardView?.openLogDetail?.(logId);
+const _av = () => window.PDI?.AuditView || window.PDI?.DashboardView;
+window.toggleAuditInnerDropdown = (id) => _av()?.toggleInnerDropdown?.(id);
+window.toggleAuditAction = (val) => _av()?.toggleAction?.(val);
+window.selectAuditDate = (val, label) => _av()?.selectDate?.(val, label);
+window.toggleAuditRole = (val) => _av()?.toggleRole?.(val);
+window.toggleAuditStatus = (val) => _av()?.toggleStatus?.(val);
+window.removeAuditChip = (key, val) => _av()?.removeAuditFilter?.(key, val);
+window.resetAuditFilters = () => _av()?.resetAuditFilters?.();
+window.filterAuditSearch = (q) => _av()?.filterBySearch?.(q);
+window.clearAuditSearch = () => _av()?.clearSearch?.();
+window.changeAuditPageSize = (size) => _av()?.changePageSize?.(size);
+window.prevAuditPage = () => {
+  const v = _av();
+  v?.changePage?.((v._auditCurrentPage || 1) - 1);
+};
+window.nextAuditPage = () => {
+  const v = _av();
+  v?.changePage?.((v._auditCurrentPage || 1) + 1);
+};
+window.openAuditDetail = (logId) => _av()?.openLogDetail?.(logId);
 window.handleAuditDatePickerChange = (type, val) =>
-  window.PDI?.DashboardView?.handleDatePickerChange?.(type, val);
+  _av()?.handleDatePickerChange?.(type, val);
 window.handleAuditDateManualInput = (type, el) =>
-  window.PDI?.DashboardView?.handleDateManualInput?.(type, el);
+  _av()?.handleDateManualInput?.(type, el);
 window.toggleAuditLegalInfo = (e) => {
   if (e) e.stopPropagation();
   document.getElementById("wrapAuditLegalPopover")?.classList.toggle("open");

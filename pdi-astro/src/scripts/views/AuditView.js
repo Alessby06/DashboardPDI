@@ -807,12 +807,12 @@ export const AuditView = {
     const getSeveridadBadge = (sev, status) => {
       const s = String(sev || status || 'Rutinario').toLowerCase();
       if (s.includes('crítico') || s.includes('critico') || s.includes('legal')) {
-        return `<span class="audit-sev-badge sev-critico"><span class="audit-sev-dot dot-red"></span>Crítico</span>`;
+        return `<span class="audit-sev-badge sev-critico" title="Crítico / Legal: Bajas, cambios de rol o casos de relevancia legal"><span class="audit-sev-dot dot-red"></span>Crítico</span>`;
       }
       if (s.includes('sensible') || s.includes('observado') || s.includes('revisión')) {
-        return `<span class="audit-sev-badge sev-sensible"><span class="audit-sev-dot dot-amber"></span>Sensible</span>`;
+        return `<span class="audit-sev-badge sev-sensible" title="Sensible / Confidencial: Evaluaciones CRED, salud, nutrición o datos protegidos"><span class="audit-sev-dot dot-amber"></span>Sensible</span>`;
       }
-      return `<span class="audit-sev-badge sev-rutinario"><span class="audit-sev-dot dot-green"></span>Rutinario</span>`;
+      return `<span class="audit-sev-badge sev-rutinario" title="Rutinario / Operativo: Asistencias, talleres o actualizaciones regulares"><span class="audit-sev-dot dot-green"></span>Rutinario</span>`;
     };
 
     const getInitials = (name) => {
@@ -878,7 +878,11 @@ export const AuditView = {
           const sedeText = l.sede || 'Central';
 
           return `
-            <tr class="audit-row-interactive" id="audit-row-${escapar(logIdStr)}" onclick="window.PDI?.AuditView?.toggleAuditRow('${escaparEnManejador(logIdStr)}')">
+            <tr class="audit-row-interactive" id="audit-row-${escapar(logIdStr)}"
+              tabindex="0" role="button" aria-expanded="false"
+              aria-label="Registro ${escapar(tituloText)}. Pulse Enter o Espacio para alternar detalles"
+              onclick="window.PDI?.AuditView?.toggleAuditRow('${escaparEnManejador(logIdStr)}')"
+              onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.PDI?.AuditView?.toggleAuditRow('${escaparEnManejador(logIdStr)}'); }">
               <td>${getSeveridadBadge(l.severidad, l.status)}</td>
               <td>
                 <div class="audit-cell-title">
@@ -899,7 +903,9 @@ export const AuditView = {
               <td><span class="audit-sede-tag">${escapar(sedeText)}</span></td>
               <td class="audit-timestamp">${escapar(l.timestamp)}</td>
               <td style="text-align:center;">
-                <button type="button" class="audit-row-toggle-btn" id="btn-toggle-${escapar(logIdStr)}" aria-label="Expandir detalles" title="Expandir detalles" onclick="event.stopPropagation(); window.PDI?.AuditView?.toggleAuditRow('${escaparEnManejador(logIdStr)}')">
+                <button type="button" class="audit-row-toggle-btn" id="btn-toggle-${escapar(logIdStr)}"
+                  aria-expanded="false" aria-label="Expandir detalles" title="Expandir detalles"
+                  onclick="event.stopPropagation(); window.PDI?.AuditView?.toggleAuditRow('${escaparEnManejador(logIdStr)}')">
                   ${iconHtml("nav.desplegar", { size: 14 })}
                 </button>
               </td>
@@ -1018,11 +1024,20 @@ export const AuditView = {
   toggleAuditRow(logId) {
     const detailsRow = document.getElementById(`details-${logId}`);
     const toggleBtn = document.getElementById(`btn-toggle-${logId}`);
+    const mainRow = document.getElementById(`audit-row-${logId}`);
     if (!detailsRow) return;
     const isVisible = detailsRow.style.display !== "none";
-    detailsRow.style.display = isVisible ? "none" : "table-row";
+    const nextState = !isVisible;
+    detailsRow.style.display = nextState ? "table-row" : "none";
     if (toggleBtn) {
-      toggleBtn.classList.toggle("is-expanded", !isVisible);
+      toggleBtn.classList.toggle("is-expanded", nextState);
+      toggleBtn.setAttribute("aria-expanded", String(nextState));
+      toggleBtn.setAttribute("aria-label", nextState ? "Ocultar detalles" : "Expandir detalles");
+      toggleBtn.title = nextState ? "Ocultar detalles" : "Expandir detalles";
+    }
+    if (mainRow) {
+      mainRow.classList.toggle("is-expanded", nextState);
+      mainRow.setAttribute("aria-expanded", String(nextState));
     }
   },
 
@@ -1042,6 +1057,7 @@ export const AuditView = {
     if (card) {
       const isExp = card.classList.toggle("expanded");
       if (btn) {
+        btn.setAttribute("aria-expanded", String(isExp));
         const textSpan = btn.querySelector(".btn-text");
         if (textSpan) textSpan.textContent = isExp ? "Ver menos" : "Ver más";
       }
@@ -1056,6 +1072,7 @@ export const AuditView = {
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
   window.PDI.AuditView = AuditView;
+  window.PDI.DashboardView = window.PDI.DashboardView || AuditView;
   window.toggleAuditRow = (id) => AuditView.toggleAuditRow(id);
   // Compatibilidad hacia atrás con referencias directas a DashboardView
   if (window.PDI.DashboardView) {
