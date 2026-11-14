@@ -148,6 +148,91 @@
     border-color var(--dur-fast) var(--ease-smooth);
 }
 
+.dash-selector-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.dash-select {
+  height: 30px;
+  padding: 0 24px 0 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-main);
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  outline: none;
+  transition: border-color var(--dur-fast) var(--ease-smooth);
+}
+
+.dash-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-main);
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-smooth),
+    border-color var(--dur-fast) var(--ease-smooth);
+}
+
+/* --- Resumen Maestro (Ledger Institucional Sobrio) ------------------------ */
+
+.dash-overview-ledger {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  margin-top: 20px;
+  background: var(--border-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.dash-kpi-col {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 20px;
+  background: var(--surface-1);
+}
+
+.dash-kpi-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.dash-kpi-val {
+  font-size: clamp(26px, 3.2vw, 34px);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.dash-kpi-sub {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* --- Bandas --------------------------------------------------------------- */
 
 .dash-band {
@@ -221,6 +306,10 @@
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   overflow: hidden;
+}
+
+.dash-strip-cells--4col {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .dash-strip-cell {
@@ -302,9 +391,14 @@
   transition: transform var(--dur-bar) var(--ease-spring);
 }
 
+.dash-strip-cell[data-band="riesgo"] .dash-strip-dot,
+.dash-strip-cell[data-band="riesgo"] .dash-strip-fill {
+  background: var(--gt-yellow);
+}
+
 .dash-strip-cell[data-band="leve"] .dash-strip-dot,
 .dash-strip-cell[data-band="leve"] .dash-strip-fill {
-  background: var(--gt-yellow);
+  background: #f97316;
 }
 
 .dash-strip-cell[data-band="mod"] .dash-strip-dot,
@@ -314,6 +408,19 @@
 
 .dash-strip-cell[data-band="mod"] .dash-strip-pct {
   color: var(--text-danger);
+}
+
+/* --- Grilla Asimétrica Inferior ------------------------------------------- */
+
+.dash-split-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.dash-split-grid .dash-band {
+  margin-top: 20px;
 }
 
 /* --- Hoja de servicios ---------------------------------------------------- */
@@ -713,6 +820,15 @@
     border-color: var(--gt-green);
   }
 
+  .dash-action-btn:hover {
+    background: var(--surface-hover);
+    border-color: var(--border-bright);
+  }
+
+  .dash-select:hover {
+    border-color: var(--border-bright);
+  }
+
   .dash-band-link:hover,
   .dash-service-link:hover {
     text-decoration: underline;
@@ -771,18 +887,48 @@
   }
 }
 
+@media (max-width: 960px) {
+  .dash-overview-ledger {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dash-strip-cells--4col {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dash-split-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+@media (pointer: coarse), (max-width: 640px) {
+  .dash-select,
+  .dash-action-btn {
+    min-height: 44px;
+    height: 44px;
+    padding: 0 14px;
+    font-size: 13px;
+  }
+}
+
 @media (max-width: 640px) {
   .dash-sheet {
     padding: 18px 14px 16px;
     border-radius: var(--radius-md);
   }
 
+  .dash-overview-ledger {
+    grid-template-columns: 1fr;
+  }
+
   .dash-folio h1 {
     font-size: 22px;
   }
 
-  /* A 768 caben las tres celdas; la franja solo se apila en el teléfono. */
-  .dash-strip-cells {
+  /* A 768 caben las celdas; la franja solo se apila en el teléfono. */
+  .dash-strip-cells,
+  .dash-strip-cells--4col {
     grid-template-columns: minmax(0, 1fr);
   }
 

@@ -4,8 +4,9 @@ import { Dropdown } from '../utils/Dropdown.js';
 import { Responsive } from '../utils/Responsive.js';
 import { initSortMenu } from '../ui/SortMenu.js';
 import { AnimationEngine } from '../utils/AnimationEngine.js';
+import { CsvExporter } from '../utils/CsvExporter.js';
 
-import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
+import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";
 import { iconHtml } from '../../data/iconos.js';
 
 // Filtros del historial de cambios que viajan en la URL. Los mismos sirven para
@@ -40,6 +41,8 @@ export const DashboardView = {
   _filtros: null,
   _filtrosLeidos: false,
   _haEntrado: false,
+  _filtroSede: "all",
+  _enlazado: false,
 
   _store: null,
   _sello: null,
@@ -63,6 +66,7 @@ export const DashboardView = {
 
   reiniciarEntrada() {
     this._haEntrado = false;
+    this._enlazado = false;
   },
 
   _obtenerFiltros() {
@@ -128,6 +132,28 @@ export const DashboardView = {
     // cuando la hidratación real cambia la copia de sesión o llega un LIVE.
     const animarCifras = this._cifrasPintadas && datosOk;
 
+    // Selector de sede y ámbito institucional
+    const selectSede = document.getElementById("dashSelectSede");
+    if (selectSede && selectSede.value !== this._filtroSede) {
+      if (!this._filtroSede || this._filtroSede === "all") {
+        selectSede.value = "all";
+      } else {
+        selectSede.value = this._filtroSede;
+      }
+    }
+    const filtroSede = this._filtroSede || (selectSede ? selectSede.value : "all");
+
+    const statsFiltradas = (filtroSede && filtroSede !== "all" && window.PDI?.BeneficiarioModel?.getStats)
+      ? window.PDI.BeneficiarioModel.getStats(filtroSede)
+      : (stats || {});
+
+    const ambitoLabel = document.getElementById("dashAmbitoLabel");
+    if (ambitoLabel) {
+      ambitoLabel.textContent = filtroSede === "all"
+        ? "Ámbito: todas las sedes"
+        : `Ámbito: ${filtroSede}`;
+    }
+
     const fechaEl = document.getElementById("dashFolioFecha");
     if (fechaEl) {
       const ahora = new Date();
@@ -169,14 +195,83 @@ export const DashboardView = {
     this._pintarSello();
     this._iniciarSello();
 
-    // Franja clínica: cifras directas y conteo con singular/plural. Si la base
-    // no está disponible, se muestra "-" en vez de un 0 que miente.
+    // Cálculo de subconjunto ASP para el ledger ejecutivo
+    const allUsuarios = window.PDI?.BeneficiarioModel?.getAll?.() || [];
+    let usuariosParaAsp = allUsuarios;
+    if (filtroSede && filtroSede !== "all") {
+      const q = String(filtroSede).toLowerCase();
+      usuariosParaAsp = allUsuarios.filter(b => (b.sede && b.sede.toLowerCase().includes(q)) || (b.distrito && b.distrito.toLowerCase().includes(q)));
+    }
+    const casos = window.PDI?.CasoSocialModel?.getAll?.() || [];
+    const casosActivos = casos.filter(c => c && c.etapa !== "cerrado").length;
+    const personasAsp = new Set(
+      casos
+        .filter(c => c && c.etapa !== "cerrado")
+        .map(c => String(c._personaId || c.beneficiarioId || ""))
+        .filter(Boolean),
+    );
+    const usuariosAsp = usuariosParaAsp.filter(b => personasAsp.has(String(b._personaId || b.id)));
+
+    // Banda Maestra de Resumen Institucional (Ledger ejecutivo 4 KPIs)
+    const kpiTotalPadron = document.getElementById("kpiTotalPadron");
+    if (kpiTotalPadron) {
+      this._cifra(kpiTotalPadron, datosOk ? (statsFiltradas.total ?? 0) : "—", (n) => String(Math.round(n)), animarCifras);
+    }
+    const kpiTotalPadronSub = document.getElementById("kpiTotalPadronSub");
+    if (kpiTotalPadronSub) {
+      if (!datosOk) {
+        kpiTotalPadronSub.textContent = "Cargando matrícula…";
+      } else if (filtroSede && filtroSede !== "all") {
+        kpiTotalPadronSub.textContent = `Filtro activo: ${filtroSede}`;
+      } else {
+        kpiTotalPadronSub.textContent = `${statsFiltradas.comasCount ?? 0} Comas · ${statsFiltradas.carabaylloCount ?? 0} Carabayllo`;
+      }
+    }
+
+    const kpiTasaAnemia = document.getElementById("kpiTasaAnemia");
+    if (kpiTasaAnemia) {
+      this._cifra(kpiTasaAnemia, datosOk ? (statsFiltradas.pctTotalAnemia ?? 0) : "—", (n) => `${Math.round(n)} %`, animarCifras);
+    }
+    const kpiTasaAnemiaSub = document.getElementById("kpiTasaAnemiaSub");
+    if (kpiTasaAnemiaSub) {
+      if (!datosOk) {
+        kpiTasaAnemiaSub.textContent = "En población tamizada";
+      } else {
+        kpiTasaAnemiaSub.textContent = `${statsFiltradas.totalAnemia ?? 0} de ${statsFiltradas.tamizados ?? 0} tamizados`;
+      }
+    }
+
+    const kpiCasosAsp = document.getElementById("kpiCasosAsp");
+    if (kpiCasosAsp) {
+      this._cifra(kpiCasosAsp, datosOk ? casosActivos : "—", (n) => String(Math.round(n)), animarCifras);
+    }
+    const kpiCasosAspSub = document.getElementById("kpiCasosAspSub");
+    if (kpiCasosAspSub) {
+      if (!datosOk) {
+        kpiCasosAspSub.textContent = "Seguimiento pastoral";
+      } else {
+        kpiCasosAspSub.textContent = `${usuariosAsp.length} niños en seguimiento`;
+      }
+    }
+
+    const kpiSedesActivas = document.getElementById("kpiSedesActivas");
+    if (kpiSedesActivas) {
+      const sedesCount = window.PDI?.SedeModel?.getAll?.()?.length || 6;
+      this._cifra(kpiSedesActivas, datosOk ? sedesCount : "—", (n) => String(Math.round(n)), animarCifras);
+    }
+    const kpiSedesActivasSub = document.getElementById("kpiSedesActivasSub");
+    if (kpiSedesActivasSub) {
+      kpiSedesActivasSub.textContent = "Comas y El Agustino";
+    }
+
+    // Franja clínica: cifras directas y conteo con singular/plural (4 niveles calibrados Ficha A6)
     const anemiaContainer = document.getElementById("dashAnemiaTable");
     if (anemiaContainer) {
       const bandas = [
-        { fillId: "segAnemiaNormal", pctId: "anemiaPctNormal", casosId: "anemiaCasosNormal", pct: stats.pctNormal, casos: stats.normales },
-        { fillId: "segAnemiaLeve", pctId: "anemiaPctLeve", casosId: "anemiaCasosLeve", pct: stats.pctLeve, casos: stats.leves },
-        { fillId: "segAnemiaMod", pctId: "anemiaPctMod", casosId: "anemiaCasosMod", pct: stats.pctMod, casos: stats.moderadas },
+        { fillId: "segAnemiaNormal", pctId: "anemiaPctNormal", casosId: "anemiaCasosNormal", pct: statsFiltradas.pctNormal, casos: statsFiltradas.normales },
+        { fillId: "segAnemiaRiesgo", pctId: "anemiaPctRiesgo", casosId: "anemiaCasosRiesgo", pct: statsFiltradas.pctRiesgo, casos: statsFiltradas.riesgo },
+        { fillId: "segAnemiaLeve", pctId: "anemiaPctLeve", casosId: "anemiaCasosLeve", pct: statsFiltradas.pctLeve, casos: statsFiltradas.leves },
+        { fillId: "segAnemiaMod", pctId: "anemiaPctMod", casosId: "anemiaCasosMod", pct: statsFiltradas.pctMod, casos: statsFiltradas.moderadas },
       ];
 
       bandas.forEach(({ fillId, pctId, casosId, pct, casos }) => {
@@ -214,19 +309,19 @@ export const DashboardView = {
     const tamEl = document.getElementById("dashTamizados");
     if (tamEl) {
       tamEl.textContent = datosOk
-        ? `${stats.tamizados ?? 0} de ${stats.total ?? 0} tamizados`
+        ? `${statsFiltradas.tamizados ?? 0} de ${statsFiltradas.total ?? 0} tamizados`
         : "Sin datos clínicos";
     }
     const sinTamEl = document.getElementById("dashSinTamizaje");
     if (sinTamEl) {
-      const sinTam = datosOk ? (stats.sinTamizaje ?? 0) : 0;
+      const sinTam = datosOk ? (statsFiltradas.sinTamizaje ?? 0) : 0;
       sinTamEl.hidden = sinTam <= 0;
       sinTamEl.textContent = sinTam > 0
         ? `Sin tamizaje: ${sinTam}`
         : "";
     }
 
-    this._renderServicios(stats, animarCifras);
+    this._renderServicios(statsFiltradas, animarCifras);
     this.renderAuditLogs(auditLogs);
     if (datosOk) this._cifrasPintadas = true;
   },
@@ -384,7 +479,12 @@ export const DashboardView = {
    * se puede llamar en cada refresco sin duplicar nodos.
    */
   _renderServicios(stats, animar = false) {
-    const usuarios = window.PDI?.BeneficiarioModel?.getAll?.() || [];
+    let usuarios = window.PDI?.BeneficiarioModel?.getAll?.() || [];
+    const filtroSede = this._filtroSede;
+    if (filtroSede && filtroSede !== "all") {
+      const q = String(filtroSede).toLowerCase();
+      usuarios = usuarios.filter(b => (b.sede && b.sede.toLowerCase().includes(q)) || (b.distrito && b.distrito.toLowerCase().includes(q)));
+    }
     const voluntarios = window.PDI?.VoluntarioModel?.getAll?.() || [];
     const casos = window.PDI?.CasoSocialModel?.getAll?.() || [];
     const claves = new Map(usuarios.map(b => [b, this._clavesServicio(b)]));
@@ -1580,6 +1680,68 @@ export const DashboardView = {
 
   toggleDropdown(dropdownId) {
     Dropdown.alternar(dropdownId);
+  },
+
+  enlazarEventos(alCambiar) {
+    if (this._enlazado) return;
+    this._enlazado = true;
+
+    const selectSede = document.getElementById("dashSelectSede");
+    if (selectSede) {
+      selectSede.addEventListener("change", (e) => {
+        this._filtroSede = e.target.value;
+        if (typeof alCambiar === "function") {
+          alCambiar();
+        } else {
+          const stats = window.PDI?.BeneficiarioModel?.getStats?.(this._filtroSede) || {};
+          this.render(stats, window.PDI?.AuditModel?.getAll?.() || []);
+        }
+      });
+    }
+
+    const btnExport = document.getElementById("btnExportarParte");
+    if (btnExport) {
+      btnExport.addEventListener("click", () => {
+        this.exportarParteDiario();
+      });
+    }
+  },
+
+  exportarParteDiario() {
+    const estado = window.PDI?.DB?.estadoActual?.() || "ok";
+    if (estado !== "ok") {
+      if (window.PDI?.ToastView) {
+        window.PDI.ToastView.mostrar("Los datos aún se están sincronizando...", "warning");
+      }
+      return;
+    }
+    const filtroSede = this._filtroSede || "all";
+    const bModel = window.PDI?.BeneficiarioModel;
+    const stats = (bModel && bModel.getStats) ? bModel.getStats(filtroSede) : {};
+    const hoy = new Date().toISOString().slice(0, 10);
+    const ambito = filtroSede === "all" ? "Todas_las_Sedes" : filtroSede.replace(/\s+/g, "_");
+    const nombreArchivo = `parte_diario_pdi_${ambito}_${hoy}.csv`;
+
+    const encabezados = ["Seccion", "Indicador", "Cifra", "Detalle_Porcentaje"];
+    const filas = [
+      ["Encabezado", "Fecha de Corte", hoy, ""],
+      ["Encabezado", "Ámbito Territorial", filtroSede === "all" ? "Todas las sedes" : filtroSede, ""],
+      ["Padrón", "Padrón Activo Total", stats.total ?? 0, "100 %"],
+      ["Padrón", "Tamizados con Dosaje Hb", stats.tamizados ?? 0, `${stats.tamizados ? Math.round((stats.tamizados / (stats.total || 1)) * 100) : 0} % cobertura`],
+      ["Padrón", "Sin Tamizaje Registrado", stats.sinTamizaje ?? 0, ""],
+      ["Clínica Hb", "Sin Anemia (>= 11.5 g/dL)", stats.normales ?? 0, `${stats.pctNormal ?? 0} % de tamizados`],
+      ["Clínica Hb", "En Riesgo Sub-estándar (11.0 - 11.4 g/dL)", stats.riesgo ?? 0, `${stats.pctRiesgo ?? 0} % de tamizados`],
+      ["Clínica Hb", "Anemia Leve (10.0 - 10.9 g/dL)", stats.leves ?? 0, `${stats.pctLeve ?? 0} % de tamizados`],
+      ["Clínica Hb", "Anemia Moderada / Severa (< 10.0 g/dL)", stats.moderadas ?? 0, `${stats.pctMod ?? 0} % de tamizados`],
+      ["Clínica Hb", "Prevalencia Total de Anemia", stats.totalAnemia ?? 0, `${stats.pctTotalAnemia ?? 0} % de tamizados`],
+    ];
+
+    if (CsvExporter && CsvExporter._descargar) {
+      CsvExporter._descargar(nombreArchivo, encabezados, filas);
+      if (window.PDI?.ToastView) {
+        window.PDI.ToastView.mostrar("Parte diario descargado con éxito.", "success");
+      }
+    }
   }
 };
 

@@ -409,11 +409,16 @@ export const BeneficiarioModel = {
     );
   },
 
-  getStats() {
-    const list = this.getAll();
+  getStats(filtroSede = null) {
+    let list = this.getAll();
+    if (filtroSede && filtroSede !== 'all') {
+      const q = String(filtroSede).toLowerCase();
+      list = list.filter(b => (b.sede && b.sede.toLowerCase().includes(q)) || (b.distrito && b.distrito.toLowerCase().includes(q)));
+    }
     const total = list.length;
     const clase = (b) => AnemiaCalculator.normalizar(b && b.anemia);
     const normales = list.filter(b => clase(b) === "Normal").length;
+    const riesgo = list.filter(b => clase(b) === "En riesgo").length;
     const leves = list.filter(b => clase(b) === "Leve").length;
     const moderadas = list.filter(b => clase(b) === "Moderada" || clase(b) === "Severa").length;
 
@@ -422,8 +427,11 @@ export const BeneficiarioModel = {
     // ninguna banda y no deben inflar el denominador.
     const tamizados = list.filter(b => b.hb !== null && b.hb !== undefined && b.hb !== "").length;
     const pctNormal = tamizados > 0 ? Math.round((normales / tamizados) * 100) : 0;
+    const pctRiesgo = tamizados > 0 ? Math.round((riesgo / tamizados) * 100) : 0;
     const pctLeve = tamizados > 0 ? Math.round((leves / tamizados) * 100) : 0;
     const pctMod = tamizados > 0 ? Math.round((moderadas / tamizados) * 100) : 0;
+    const totalAnemia = leves + moderadas;
+    const pctTotalAnemia = tamizados > 0 ? Math.round((totalAnemia / tamizados) * 100) : 0;
 
     const comasCount = list.filter(b => b.distrito === "Comas").length;
     const carabaylloCount = list.filter(b => b.distrito === "Carabayllo").length;
@@ -436,9 +444,13 @@ export const BeneficiarioModel = {
       tamizados,
       sinTamizaje: total - tamizados,
       normales,
+      riesgo,
       leves,
       moderadas,
+      totalAnemia,
+      pctTotalAnemia,
       pctNormal,
+      pctRiesgo,
       pctLeve,
       pctMod,
       comasCount,

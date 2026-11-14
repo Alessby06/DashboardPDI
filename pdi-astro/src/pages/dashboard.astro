@@ -15,27 +15,69 @@ import Icon from '../components/Icon.astro';
             </p>
             <h1>Panel de Infancia Saludable</h1>
             <p class="dash-folio-sub">
-              Cobertura, servicios y hemoglobina infantil del programa.
+              Cobertura territorial, triada de servicios y estado nutricional del programa.
             </p>
             <p class="dash-folio-meta">
               <span>Responsable: <strong id="dashFolioResponsable">…</strong></span>
-              <span>Ámbito: todas las sedes</span>
+              <span id="dashAmbitoLabel">Ámbito: todas las sedes</span>
             </p>
           </div>
           <div class="dash-folio-actions">
+            <div class="dash-selector-wrap">
+              <label for="dashSelectSede" class="dash-sr-only">Filtrar por sede</label>
+              <select id="dashSelectSede" class="dash-select" aria-label="Filtrar parte por sede o distrito">
+                <option value="all">Todas las sedes</option>
+                <option value="Comas">Distrito Comas</option>
+                <option value="Carabayllo">Distrito Carabayllo</option>
+                <option value="San Pedro">Sede San Pedro</option>
+                <option value="El Progreso">Sede El Progreso</option>
+                <option value="Año Nuevo">Sede Año Nuevo</option>
+                <option value="Santa Rosa">Sede Santa Rosa</option>
+                <option value="Los Bendecidos">Sede Los Bendecidos</option>
+                <option value="La Libertad">Sede La Libertad</option>
+              </select>
+            </div>
+            <button type="button" class="dash-action-btn" id="btnExportarParte" title="Descargar reporte consolidado en CSV (UTF-8 BOM)">
+              <Icon name="accion.descargar" size={13} />
+              <span>Parte CSV</span>
+            </button>
             <span class="dash-meta-chip is-loading" id="dashEstado" role="status" aria-live="polite">
               <span class="dash-estado-dot" aria-hidden="true"></span>
               <span id="dashEstadoTexto">Cargando…</span>
               <span class="dash-meta-hace" id="dashEstadoHace" aria-hidden="true"></span>
             </span>
             <a class="dash-meta-link" href="/padron">
-              <span>Ver padrón completo</span>
+              <span>Ver padrón</span>
               <Icon name="accion.abrir" size={12} />
             </a>
           </div>
         </header>
 
-        <!-- Franja clínica: la firma del parte -->
+        <!-- Banda Maestra de Resumen Institucional (Ledger sobrio, reglas de 1px) -->
+        <section class="dash-overview-ledger" aria-label="Resumen ejecutivo del parte">
+          <div class="dash-kpi-col">
+            <span class="dash-kpi-label">Padrón de Niños</span>
+            <strong class="dash-kpi-val" id="kpiTotalPadron">—</strong>
+            <span class="dash-kpi-sub" id="kpiTotalPadronSub">Cargando matrícula…</span>
+          </div>
+          <div class="dash-kpi-col">
+            <span class="dash-kpi-label">Prevalencia de Anemia</span>
+            <strong class="dash-kpi-val" id="kpiTasaAnemia">—</strong>
+            <span class="dash-kpi-sub" id="kpiTasaAnemiaSub">En población tamizada</span>
+          </div>
+          <div class="dash-kpi-col">
+            <span class="dash-kpi-label">Casos Críticos ASP</span>
+            <strong class="dash-kpi-val" id="kpiCasosAsp">—</strong>
+            <span class="dash-kpi-sub" id="kpiCasosAspSub">Seguimiento pastoral</span>
+          </div>
+          <div class="dash-kpi-col">
+            <span class="dash-kpi-label">Sedes Territoriales</span>
+            <strong class="dash-kpi-val" id="kpiSedesActivas">—</strong>
+            <span class="dash-kpi-sub" id="kpiSedesActivasSub">Red comunitaria activa</span>
+          </div>
+        </section>
+
+        <!-- Franja clínica: la firma del parte (4 niveles calibrados Ficha A6) -->
         <section class="dash-band dash-band--clinical" aria-labelledby="dashClinicaTitle">
           <div class="dash-band-head">
             <h2 id="dashClinicaTitle">Anemia infantil (Hb)</h2>
@@ -47,15 +89,26 @@ import Icon from '../components/Icon.astro';
             </div>
           </div>
 
-          <ul class="dash-strip-cells" id="dashAnemiaTable">
+          <ul class="dash-strip-cells dash-strip-cells--4col" id="dashAnemiaTable">
             <li class="dash-strip-cell" data-band="normal">
               <span class="dash-strip-dot" aria-hidden="true"></span>
               <span class="dash-strip-name">Sin anemia</span>
               <strong class="dash-strip-pct" id="anemiaPctNormal">…</strong>
               <span class="dash-strip-cases" id="anemiaCasosNormal">…</span>
-              <span class="dash-strip-range">≥ 11,0 g/dL</span>
+              <span class="dash-strip-range">≥ 11,5 g/dL</span>
               <span class="dash-strip-track" aria-hidden="true">
                 <span class="dash-strip-fill" id="segAnemiaNormal"></span>
+              </span>
+            </li>
+
+            <li class="dash-strip-cell" data-band="riesgo">
+              <span class="dash-strip-dot" aria-hidden="true"></span>
+              <span class="dash-strip-name">En riesgo (Sub-estándar)</span>
+              <strong class="dash-strip-pct" id="anemiaPctRiesgo">…</strong>
+              <span class="dash-strip-cases" id="anemiaCasosRiesgo">…</span>
+              <span class="dash-strip-range">11,0 – 11,4 g/dL</span>
+              <span class="dash-strip-track" aria-hidden="true">
+                <span class="dash-strip-fill" id="segAnemiaRiesgo"></span>
               </span>
             </li>
 
@@ -173,25 +226,29 @@ import Icon from '../components/Icon.astro';
           <p class="dash-reconcile" id="dashReconcile" aria-live="polite"></p>
         </section>
 
-        <!-- Cobertura territorial: la matriz -->
-        <section class="dash-band" aria-labelledby="dashTerritorioTitle">
-          <div class="dash-band-head">
-            <h2 id="dashTerritorioTitle">Cobertura territorial por servicio</h2>
-            <a class="dash-band-link" href="/sedes">Ver sedes e iglesias</a>
-          </div>
-          <p class="dash-matrix-note" id="dashMatrixNote"></p>
-          <div class="dash-matrix-host" id="dashTerritoryMatrix"></div>
-        </section>
+        <!-- Bloque Asimétrico: Matriz Territorial (60%) y Fuerza Comunitaria (40%) -->
+        <div class="dash-split-grid">
+          <!-- Cobertura territorial: la matriz -->
+          <section class="dash-band dash-band--territorio" aria-labelledby="dashTerritorioTitle">
+            <div class="dash-band-head">
+              <h2 id="dashTerritorioTitle">Cobertura territorial por servicio</h2>
+              <a class="dash-band-link" href="/sedes">Ver sedes e iglesias</a>
+            </div>
+            <p class="dash-matrix-note" id="dashMatrixNote"></p>
+            <div class="dash-matrix-host" id="dashTerritoryMatrix"></div>
+          </section>
 
-        <!-- Voluntarios: el apoyo del parte -->
-        <section class="dash-band" aria-labelledby="dashVolTitle">
-          <div class="dash-band-head">
-            <h2 id="dashVolTitle">Voluntarios por servicio</h2>
-            <span class="dash-band-total"><strong id="dashVolTotal">…</strong> voluntarios</span>
-            <a class="dash-band-link" href="/voluntariados">Ver voluntariado</a>
-          </div>
-          <ul class="dash-vol-list" id="dashVoluntariosList"></ul>
-        </section>
+          <!-- Voluntarios: el apoyo del parte -->
+          <section class="dash-band dash-band--voluntariado" aria-labelledby="dashVolTitle">
+            <div class="dash-band-head">
+              <h2 id="dashVolTitle">Fuerza comunitaria en campo</h2>
+              <span class="dash-band-total"><strong id="dashVolTotal">…</strong> voluntarias</span>
+              <a class="dash-band-link" href="/voluntariados">Ver voluntariado</a>
+            </div>
+            <p class="dash-matrix-note" style="margin-top:-4px; margin-bottom:12px;">Dotación activa y alertas de cobertura</p>
+            <ul class="dash-vol-list" id="dashVoluntariosList"></ul>
+          </section>
+        </div>
       </div>
     </div>
   </section>

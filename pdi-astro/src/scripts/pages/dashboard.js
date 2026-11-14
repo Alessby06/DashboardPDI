@@ -68,7 +68,8 @@ function montar() {
   // El dashboard no muestra la bitácora. Pedirla aquí antes de pintar solo
   // retrasaba las cifras ~400 ms y las dejaba en "…". Se pinta en el acto con
   // los modelos en memoria; la bitácora sigue viva en /auditoria.
-  DashboardView.render(BeneficiarioModel.getStats(), AuditModel.getAll());
+  const filtroSede = DashboardView._filtroSede || "all";
+  DashboardView.render(BeneficiarioModel.getStats(filtroSede), AuditModel.getAll());
 }
 
 function iniciar() {
@@ -82,6 +83,7 @@ function iniciar() {
 
   listo = true;
   DashboardView.reiniciarEntrada();
+  DashboardView.enlazarEventos(montar);
   montar();
 
   // Que redibujar cuando algo guarde en esta pagina, por ejemplo al dar de
