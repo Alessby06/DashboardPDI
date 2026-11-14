@@ -108,9 +108,21 @@
    }
 
    /* --- Estado sin expediente ---------------------------------------------
-      Se muestra cuando la URL no trae id, o el id no existe. Antes esto era un
-      expediente en blanco sin explicacion; como pagina tiene su propio hueco y
-      puede decir que falta y ofrecer el enlace al padron. */
+      Se muestra cuando la URL no trae id, o el id no existe. Oculta el formulario
+      y la barra de acciones para evitar un estado fantasma vacío. */
+
+   #view-expediente[data-sin-expediente="true"] .expediente-page-body,
+   #view-expediente[data-sin-expediente="true"] .modal-body-split,
+   #view-expediente[data-sin-expediente="true"] .expediente-page-actions,
+   #view-expediente[data-sin-expediente="true"] .expediente-nav-group-paging,
+   #view-expediente[data-sin-expediente="true"] #expPrintFichaA1Btn,
+   #view-expediente[data-sin-expediente="true"] #expPrintBtn {
+     display: none !important;
+   }
+
+   #view-expediente[data-sin-expediente="true"] .expediente-sin-expediente {
+     display: flex !important;
+   }
 
    .expediente-sin-expediente {
      flex: 1 1 auto;
@@ -118,24 +130,92 @@
      flex-direction: column;
      align-items: center;
      justify-content: center;
-     gap: 12px;
-     padding: 56px 24px;
+     padding: 48px 24px;
+     min-height: 440px;
      text-align: center;
    }
 
-   .expediente-sin-expediente h4 {
-     margin: 0;
-     font-size: 17px;
-     font-weight: 700;
-     color: var(--text-main);
+   .expediente-empty-card {
+     max-width: 520px;
+     width: 100%;
+     background: var(--surface-1);
+     border: 1px solid var(--border-subtle);
+     border-radius: var(--radius-lg, 12px);
+     padding: 40px 32px;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     text-align: center;
+     gap: 16px;
+     box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);
    }
 
-   .expediente-sin-expediente p {
-     max-width: 52ch;
-     margin: 0;
+   .expediente-empty-icon-wrap {
+     width: 56px;
+     height: 56px;
+     border-radius: 14px;
+     background: rgba(var(--brand-rgb), 0.08);
+     border: 1px solid var(--gt-green-border);
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     color: var(--text-brand);
+     margin-bottom: 4px;
+   }
+
+   .expediente-empty-badge-wrap {
+     display: inline-flex;
+     align-items: center;
+     justify-content: center;
+   }
+
+   .expediente-code-badge {
+     font-family: var(--font-mono, ui-monospace, monospace);
      font-size: 13px;
+     font-weight: 700;
+     color: var(--text-main);
+     background: var(--surface-2);
+     border: 1px solid var(--border-subtle);
+     padding: 4px 14px;
+     border-radius: 20px;
+     letter-spacing: 0.02em;
+   }
+
+   .expediente-empty-title {
+     margin: 0;
+     font-size: 18px;
+     font-weight: 700;
+     color: var(--text-main);
+     line-height: 1.3;
+   }
+
+   .expediente-empty-desc {
+     max-width: 44ch;
+     margin: 0;
+     font-size: 13.5px;
      line-height: 1.55;
      color: var(--text-dim);
+   }
+
+   .expediente-empty-actions {
+     display: flex;
+     flex-wrap: wrap;
+     gap: 12px;
+     align-items: center;
+     justify-content: center;
+     margin-top: 8px;
+     width: 100%;
+   }
+
+   .expediente-empty-actions .btn-action {
+     min-height: 40px;
+     padding: 8px 18px;
+     font-size: 13.5px;
+     font-weight: 600;
+     text-decoration: none !important;
+     display: inline-flex;
+     align-items: center;
+     gap: 7px;
    }
 
    /* =========================================================================
@@ -267,6 +347,21 @@ body.pdi-editando #view-expediente select:not(:disabled) {
 
      .expediente-sin-expediente {
        padding: 36px 16px !important;
+     }
+
+     .expediente-empty-card {
+       padding: 28px 18px !important;
+       gap: 14px !important;
+     }
+
+     .expediente-empty-actions {
+       flex-direction: column !important;
+       width: 100% !important;
+     }
+
+     .expediente-empty-actions .btn-action {
+       width: 100% !important;
+       justify-content: center !important;
      }
 
      /* La barra lateral pasa a ser una tira horizontal de secciones. Se

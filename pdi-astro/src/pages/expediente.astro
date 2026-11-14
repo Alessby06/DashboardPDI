@@ -191,15 +191,34 @@ import Icon from '../components/Icon.astro';
     </div>
   </header>
 
-  <!-- Estado sin expediente. Se muestra cuando la URL no trae id, o el id no
-       existe, en vez de dejar en pantalla un expediente vacio sin explicacion. -->
-  <div class="expediente-sin-expediente" id="expSinExpediente" style="display:none;">
-    <h4 id="expSinExpedienteTitulo">No se indicó qué expediente abrir</h4>
-    <p id="expSinExpedienteDetalle">
-      Esta página necesita saber a qué usuario corresponde. Se llega a ella desde el
-      Padrón de Usuarios, con el enlace "Expediente" de cada fila.
-    </p>
-    <a class="btn-action primary" href="/padron">Ir al Padrón de Usuarios</a>
+  <!-- Estado sin expediente: tarjeta institucional cuando el id/código no existe o no se indicó -->
+  <div class="expediente-sin-expediente" id="expSinExpediente" style="display:none;" role="region" aria-live="polite">
+    <div class="expediente-empty-card">
+      <div class="expediente-empty-icon-wrap" aria-hidden="true">
+        <Icon name="archivo.documento" size={28} />
+      </div>
+
+      <div class="expediente-empty-badge-wrap" id="expSinExpedienteBadgeWrap" style="display: none;">
+        <span class="expediente-code-badge" id="expSinExpedienteBadge"></span>
+      </div>
+
+      <h3 class="expediente-empty-title" id="expSinExpedienteTitulo">Expediente no encontrado</h3>
+
+      <p class="expediente-empty-desc" id="expSinExpedienteDetalle">
+        No se encontró ningún usuario con los datos indicados. Es posible que el expediente haya sido dado de baja o que el enlace sea incorrecto.
+      </p>
+
+      <div class="expediente-empty-actions">
+        <a class="btn-action primary" href="/padron" id="expSinExpedienteBtnPadron">
+          <Icon name="persona.usuario" size={15} />
+          <span>Volver al Padrón de Usuarios</span>
+        </a>
+        <a class="btn-action btn-secondary" href="/auditoria" id="expSinExpedienteBtnAuditoria" style="display: none;">
+          <Icon name="accion.buscar" size={15} />
+          <span>Buscar en Auditoría</span>
+        </a>
+      </div>
+    </div>
   </div>
 
 <div class="modal-body-split expediente-page-body">

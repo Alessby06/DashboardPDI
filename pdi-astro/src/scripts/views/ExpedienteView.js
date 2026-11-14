@@ -440,42 +440,94 @@ export const ExpedienteView = {
       // expediente. El aviso solo tiene sentido con los datos ya descargados.
       const estadoCapa = estadoActual();
       if (estadoCapa === "conectando" || estadoCapa === "cargando") {
+        const viewRoot = document.getElementById("view-expediente");
+        if (viewRoot) viewRoot.removeAttribute("data-sin-expediente");
         if (estadoSinExpediente) estadoSinExpediente.style.display = "none";
         document.getElementById("expPageTitle").textContent = "Expediente Integral del Usuario";
         const subCarga = document.getElementById("expPageSubtitle");
         if (subCarga) subCarga.textContent = "";
-        document.querySelector(".expediente-page-body").style.display = "";
-        document.querySelector(".expediente-page-actions").style.display = "";
-        document.querySelector(".expediente-page-nav").style.display = "";
+        const pageBody = document.querySelector(".expediente-page-body");
+        if (pageBody) pageBody.style.removeProperty("display");
+        const pageActions = document.querySelector(".expediente-page-actions");
+        if (pageActions) pageActions.style.removeProperty("display");
+        const pageNav = document.querySelector(".expediente-page-nav");
+        if (pageNav) pageNav.style.removeProperty("display");
         return;
       }
 
-      if (estadoSinExpediente) estadoSinExpediente.style.display = "block";
+      if (estadoSinExpediente) estadoSinExpediente.style.display = "flex";
+      const viewRoot = document.getElementById("view-expediente");
+      if (viewRoot) viewRoot.setAttribute("data-sin-expediente", "true");
+
       document.getElementById("expPageTitle").textContent = "Expediente Integral del Usuario";
       const sub = document.getElementById("expPageSubtitle");
       if (sub) sub.textContent = "";
-      document.querySelector(".expediente-page-body").style.display = "none";
-      document.querySelector(".expediente-page-actions").style.display = "none";
-      document.querySelector(".expediente-page-nav").style.display = "none";
+
+      const pageBody = document.querySelector(".expediente-page-body");
+      if (pageBody) pageBody.style.setProperty("display", "none", "important");
+      const pageActions = document.querySelector(".expediente-page-actions");
+      if (pageActions) pageActions.style.setProperty("display", "none", "important");
+      const pageNav = document.querySelector(".expediente-page-nav");
+      if (pageNav) pageNav.style.setProperty("display", "none", "important");
+
+      const badgeWrap = document.getElementById("expSinExpedienteBadgeWrap");
+      const badge = document.getElementById("expSinExpedienteBadge");
+      const auditBtn = document.getElementById("expSinExpedienteBtnAuditoria");
 
       // Se nombra lo que se pidio. Con un codigo inexistente decir "no se
       // indico que expediente abrir" seria falso: si se indico, y no existe.
-      const buscado = f.id
-        ? `el id ${f.id}`
-        : (codigoNoEncontrado ? `el código ${codigoNoEncontrado}` : null);
-      document.getElementById("expSinExpedienteTitulo").textContent = buscado
-        ? `No hay ningún usuario con ${buscado}`
-        : "No se indicó qué expediente abrir";
-      document.getElementById("expSinExpedienteDetalle").textContent = buscado
-        ? "Puede que se haya dado de baja, o que el enlace sea de otra instalación."
-        : "Esta página necesita saber a qué usuario corresponde. Se llega desde el Padrón de Usuarios.";
+      const buscadoCodigo = codigoNoEncontrado || codigoPedido || null;
+      const buscadoId = f.id || null;
+
+      if (buscadoCodigo || buscadoId) {
+        const refTexto = buscadoCodigo ? `código ${buscadoCodigo}` : `ID #${buscadoId}`;
+        const refValor = buscadoCodigo || buscadoId;
+        const elTitulo = document.getElementById("expSinExpedienteTitulo");
+        if (elTitulo) elTitulo.textContent = `No hay ningún usuario con el ${refTexto}`;
+
+        if (badge && badgeWrap) {
+          badge.textContent = refValor;
+          badgeWrap.style.display = "inline-flex";
+        }
+
+        const elDetalle = document.getElementById("expSinExpedienteDetalle");
+        if (elDetalle) {
+          elDetalle.textContent =
+            "No se encontró un registro activo ni histórico para este identificador. Puede que el usuario haya sido dado de baja definitiva, o que el enlace provenga de otra instalación.";
+        }
+
+        if (auditBtn) {
+          auditBtn.href = `/auditoria?q=${encodeURIComponent(refValor)}`;
+          auditBtn.style.display = "inline-flex";
+        }
+      } else {
+        const elTitulo = document.getElementById("expSinExpedienteTitulo");
+        if (elTitulo) elTitulo.textContent = "No se indicó qué expediente abrir";
+
+        if (badgeWrap) badgeWrap.style.display = "none";
+
+        const elDetalle = document.getElementById("expSinExpedienteDetalle");
+        if (elDetalle) {
+          elDetalle.textContent =
+            "Esta página necesita saber a qué usuario corresponde. Se llega a ella directamente desde el Padrón de Usuarios seleccionando una fila.";
+        }
+
+        if (auditBtn) {
+          auditBtn.style.display = "none";
+        }
+      }
       return;
     }
 
+    const viewRoot = document.getElementById("view-expediente");
+    if (viewRoot) viewRoot.removeAttribute("data-sin-expediente");
     if (estadoSinExpediente) estadoSinExpediente.style.display = "none";
-    document.querySelector(".expediente-page-body").style.display = "";
-    document.querySelector(".expediente-page-actions").style.display = "";
-    document.querySelector(".expediente-page-nav").style.display = "";
+    const pageBody = document.querySelector(".expediente-page-body");
+    if (pageBody) pageBody.style.removeProperty("display");
+    const pageActions = document.querySelector(".expediente-page-actions");
+    if (pageActions) pageActions.style.removeProperty("display");
+    const pageNav = document.querySelector(".expediente-page-nav");
+    if (pageNav) pageNav.style.removeProperty("display");
 
     const casos = CasoSocialModel.getAll();
     const caso = casos.find(c => c.codigo === usuario.codigo);
