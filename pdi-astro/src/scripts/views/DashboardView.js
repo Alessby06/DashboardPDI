@@ -781,32 +781,44 @@ export const DashboardView = {
       }
       return;
     }
-    const filtroSede = this._filtroSede || "all";
-    const bModel = window.PDI?.BeneficiarioModel;
-    const stats = (bModel && bModel.getStats) ? bModel.getStats(filtroSede) : {};
-    const hoy = new Date().toISOString().slice(0, 10);
-    const ambito = filtroSede === "all" ? "Todas_las_Sedes" : filtroSede.replace(/\s+/g, "_");
-    const nombreArchivo = `parte_diario_pdi_${ambito}_${hoy}.csv`;
+    const btnExport = document.getElementById("btnExportarParte");
+    const btnLabel = document.getElementById("btnExportarParteLabel");
+    if (btnExport) btnExport.setAttribute("aria-busy", "true");
+    if (btnLabel) btnLabel.textContent = "Generando…";
 
-    const encabezados = ["Seccion", "Indicador", "Cifra", "Detalle_Porcentaje"];
-    const filas = [
-      ["Encabezado", "Fecha de Corte", hoy, ""],
-      ["Encabezado", "Ámbito Territorial", filtroSede === "all" ? "Todas las sedes" : filtroSede, ""],
-      ["Padrón", "Padrón Activo Total", stats.total ?? 0, "100 %"],
-      ["Padrón", "Tamizados con Dosaje Hb", stats.tamizados ?? 0, `${stats.tamizados ? Math.round((stats.tamizados / (stats.total || 1)) * 100) : 0} % cobertura`],
-      ["Padrón", "Sin Tamizaje Registrado", stats.sinTamizaje ?? 0, ""],
-      ["Clínica Hb", "Sin Anemia (>= 11.5 g/dL)", stats.normales ?? 0, `${stats.pctNormal ?? 0} % de tamizados`],
-      ["Clínica Hb", "En Riesgo Sub-estándar (11.0 - 11.4 g/dL)", stats.riesgo ?? 0, `${stats.pctRiesgo ?? 0} % de tamizados`],
-      ["Clínica Hb", "Anemia Leve (10.0 - 10.9 g/dL)", stats.leves ?? 0, `${stats.pctLeve ?? 0} % de tamizados`],
-      ["Clínica Hb", "Anemia Moderada / Severa (< 10.0 g/dL)", stats.moderadas ?? 0, `${stats.pctMod ?? 0} % de tamizados`],
-      ["Clínica Hb", "Prevalencia Total de Anemia", stats.totalAnemia ?? 0, `${stats.pctTotalAnemia ?? 0} % de tamizados`],
-    ];
+    try {
+      const filtroSede = this._filtroSede || "all";
+      const bModel = window.PDI?.BeneficiarioModel;
+      const stats = (bModel && bModel.getStats) ? bModel.getStats(filtroSede) : {};
+      const hoy = new Date().toISOString().slice(0, 10);
+      const ambito = filtroSede === "all" ? "Todas_las_Sedes" : filtroSede.replace(/\s+/g, "_");
+      const nombreArchivo = `parte_diario_pdi_${ambito}_${hoy}.csv`;
 
-    if (CsvExporter && CsvExporter._descargar) {
-      CsvExporter._descargar(nombreArchivo, encabezados, filas);
-      if (window.PDI?.ToastView) {
-        window.PDI.ToastView.mostrar("Parte diario descargado con éxito.", "success");
+      const encabezados = ["Seccion", "Indicador", "Cifra", "Detalle_Porcentaje"];
+      const filas = [
+        ["Encabezado", "Fecha de Corte", hoy, ""],
+        ["Encabezado", "Ámbito Territorial", filtroSede === "all" ? "Todas las sedes" : filtroSede, ""],
+        ["Padrón", "Padrón Activo Total", stats.total ?? 0, "100 %"],
+        ["Padrón", "Tamizados con Dosaje Hb", stats.tamizados ?? 0, `${stats.tamizados ? Math.round((stats.tamizados / (stats.total || 1)) * 100) : 0} % cobertura`],
+        ["Padrón", "Sin Tamizaje Registrado", stats.sinTamizaje ?? 0, ""],
+        ["Clínica Hb", "Sin Anemia (>= 11.5 g/dL)", stats.normales ?? 0, `${stats.pctNormal ?? 0} % de tamizados`],
+        ["Clínica Hb", "En Riesgo Sub-estándar (11.0 - 11.4 g/dL)", stats.riesgo ?? 0, `${stats.pctRiesgo ?? 0} % de tamizados`],
+        ["Clínica Hb", "Anemia Leve (10.0 - 10.9 g/dL)", stats.leves ?? 0, `${stats.pctLeve ?? 0} % de tamizados`],
+        ["Clínica Hb", "Anemia Moderada / Severa (< 10.0 g/dL)", stats.moderadas ?? 0, `${stats.pctMod ?? 0} % de tamizados`],
+        ["Clínica Hb", "Prevalencia Total de Anemia", stats.totalAnemia ?? 0, `${stats.pctTotalAnemia ?? 0} % de tamizados`],
+      ];
+
+      if (CsvExporter && CsvExporter._descargar) {
+        CsvExporter._descargar(nombreArchivo, encabezados, filas);
+        if (window.PDI?.ToastView) {
+          window.PDI.ToastView.mostrar("Parte diario descargado con éxito.", "success");
+        }
       }
+    } finally {
+      setTimeout(() => {
+        if (btnExport) btnExport.setAttribute("aria-busy", "false");
+        if (btnLabel) btnLabel.textContent = "Parte CSV";
+      }, 500);
     }
   },
 

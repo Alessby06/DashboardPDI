@@ -423,19 +423,27 @@
   margin-top: 20px;
 }
 
-/* --- Hoja de servicios ---------------------------------------------------- */
+/* --- Hoja de servicios: Tríada Troncal (3 columnas en desktop) ------------ */
 
 .dash-ledger {
-  display: block;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--border-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
 }
 
 .dash-service {
-  padding: 18px 0;
-  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  padding: 18px 20px 16px;
+  background: var(--surface-1);
 }
 
 .dash-service:first-child {
-  padding-top: 0;
+  padding-top: 18px;
   border-top: 0;
 }
 
@@ -443,9 +451,8 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 14px;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
 .dash-service-title {
@@ -457,14 +464,15 @@
 }
 
 .dash-service-note {
-  margin: 2px 0 0;
-  font-size: 12px;
+  margin: 3px 0 0;
+  font-size: 11.5px;
   font-weight: 500;
   color: var(--text-muted);
+  line-height: 1.35;
 }
 
 .dash-service-link {
-  padding: 4px 0;
+  padding: 2px 0;
   font-size: 11.5px;
   font-weight: 700;
   color: var(--text-main);
@@ -475,6 +483,9 @@
 .dash-service-rows {
   margin: 0;
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
 }
 
 .dash-service-row {
@@ -832,12 +843,48 @@
   border: 0;
 }
 
+abbr[title] {
+  text-decoration: underline dotted var(--text-dim);
+  text-underline-offset: 3px;
+  cursor: help;
+}
+
+.dash-select:focus-visible,
+.dash-action-btn:focus-visible,
 .dash-meta-link:focus-visible,
 .dash-band-link:focus-visible,
 .dash-service-link:focus-visible {
   outline: 2px solid var(--border-focus);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
+}
+
+/* --- Skeletons anti-CLS para carga inicial --- */
+.dash-matrix-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 0;
+}
+
+.dash-skeleton-row {
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  opacity: 0.6;
+}
+
+.dash-skeleton-row.is-head {
+  height: 38px;
+  background: var(--surface-2);
+  opacity: 0.8;
+}
+
+.dash-skeleton-item {
+  height: 34px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  opacity: 0.5;
 }
 
 /* --- Hover ---------------------------------------------------------------- */
@@ -918,6 +965,10 @@
 @media (max-width: 960px) {
   .dash-overview-ledger {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dash-ledger {
+    grid-template-columns: 1fr;
   }
 
   .dash-strip-cells--4col {

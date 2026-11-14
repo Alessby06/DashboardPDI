@@ -6,6 +6,114 @@ import Icon from '../components/Icon.astro';
 
 <AppLayout title="Dashboard General" currentPage="dashboard">
   <section class="app-view active" id="view-dashboard">
+    <!-- Script síncrono inline para pre-hidratación instantánea: 0 ms de parpadeo -->
+    <script is:inline>
+      (function () {
+        try {
+          var fechaEl = document.getElementById("dashFolioFecha");
+          var ahora = new Date();
+          if (fechaEl) {
+            try {
+              fechaEl.textContent = new Intl.DateTimeFormat("es-PE", { day: "numeric", month: "long", year: "numeric" }).format(ahora);
+              fechaEl.dateTime = new Intl.DateTimeFormat("en-CA", { year: "numeric", month: "2-digit", day: "2-digit" }).format(ahora);
+            } catch (e) {
+              fechaEl.textContent = "hoy";
+            }
+          }
+
+          var rawSnap = localStorage.getItem("pdi_snapshot_v1") || sessionStorage.getItem("pdi_snapshot_v1");
+          if (!rawSnap) return;
+          var snap = JSON.parse(rawSnap);
+          if (!snap || !snap.datos) return;
+
+          var bList = snap.datos.beneficiarios || [];
+          var casos = snap.datos.casos || [];
+          var sedes = snap.datos.sedes || [];
+          var voluntarios = snap.datos.voluntarios || [];
+
+          var params = new URLSearchParams(window.location.search);
+          var filtroSede = params.get("sede") || params.get("distrito") || "all";
+          if (filtroSede !== "all") {
+            var q = filtroSede.toLowerCase();
+            bList = bList.filter(function (b) {
+              return (b.sede && b.sede.toLowerCase().indexOf(q) !== -1) || (b.distrito && b.distrito.toLowerCase().indexOf(q) !== -1);
+            });
+            var sel = document.getElementById("dashSelectSede");
+            if (sel) sel.value = filtroSede;
+            var amb = document.getElementById("dashAmbitoLabel");
+            if (amb) amb.textContent = "Ámbito: " + filtroSede;
+          }
+
+          var total = bList.length;
+          var tamizados = 0;
+          var normales = 0;
+          var riesgo = 0;
+          var leves = 0;
+          var moderadas = 0;
+
+          for (var i = 0; i < total; i++) {
+            var b = bList[i];
+            if (b.hb !== null && b.hb !== undefined && b.hb !== "") {
+              tamizados++;
+              var anemia = String(b.anemia || "").toLowerCase();
+              if (anemia.indexOf("normal") !== -1 || anemia.indexOf("sin") !== -1) normales++;
+              else if (anemia.indexOf("riesgo") !== -1) riesgo++;
+              else if (anemia.indexOf("leve") !== -1) leves++;
+              else if (anemia.indexOf("mod") !== -1 || anemia.indexOf("sev") !== -1) moderadas++;
+              else normales++;
+            }
+          }
+
+          var pctNormal = tamizados > 0 ? Math.round((normales / tamizados) * 100) : 0;
+          var pctRiesgo = tamizados > 0 ? Math.round((riesgo / tamizados) * 100) : 0;
+          var pctLeve = tamizados > 0 ? Math.round((leves / tamizados) * 100) : 0;
+          var pctMod = tamizados > 0 ? Math.round((moderadas / tamizados) * 100) : 0;
+          var totalAnemia = leves + moderadas;
+          var pctTotalAnemia = tamizados > 0 ? Math.round((totalAnemia / tamizados) * 100) : 0;
+
+          var kPadron = document.getElementById("kpiTotalPadron");
+          if (kPadron) kPadron.textContent = String(total);
+
+          var kTasa = document.getElementById("kpiTasaAnemia");
+          if (kTasa) kTasa.textContent = pctTotalAnemia + " %";
+
+          var kCasos = document.getElementById("kpiCasosAsp");
+          var casosActivos = casos.filter(function (c) { return c && c.etapa !== "cerrado"; }).length;
+          if (kCasos) kCasos.textContent = String(casosActivos);
+
+          var kSedes = document.getElementById("kpiSedesActivas");
+          if (kSedes) kSedes.textContent = String(sedes.length || 7);
+
+          var setTxt = function (id, val) {
+            var el = document.getElementById(id);
+            if (el) el.textContent = val;
+          };
+          setTxt("dashTamizados", tamizados + " de " + total + " tamizados (" + (total > 0 ? Math.round((tamizados / total) * 100) : 0) + " %)");
+          setTxt("anemiaPctNormal", pctNormal + " %");
+          setTxt("anemiaCasosNormal", normales + " " + (normales === 1 ? "caso" : "casos"));
+          setTxt("anemiaPctRiesgo", pctRiesgo + " %");
+          setTxt("anemiaCasosRiesgo", riesgo + " " + (riesgo === 1 ? "caso" : "casos"));
+          setTxt("anemiaPctLeve", pctLeve + " %");
+          setTxt("anemiaCasosLeve", leves + " " + (leves === 1 ? "caso" : "casos"));
+          setTxt("anemiaPctMod", pctMod + " %");
+          setTxt("anemiaCasosMod", moderadas + " " + (moderadas === 1 ? "caso" : "casos"));
+
+          var setScale = function (id, pct) {
+            var el = document.getElementById(id);
+            if (el) el.style.transform = "scaleX(" + (pct / 100) + ")";
+          };
+          setScale("segAnemiaNormal", pctNormal);
+          setScale("segAnemiaRiesgo", pctRiesgo);
+          setScale("segAnemiaLeve", pctLeve);
+          setScale("segAnemiaMod", pctMod);
+
+          var kVol = document.getElementById("dashVolTotal");
+          if (kVol) kVol.textContent = String(voluntarios.length);
+        } catch (e) {
+          // Pre-hidratación silenciosa
+        }
+      })();
+    </script>
     <div class="dash-page">
       <div class="dash-sheet">
         <header class="dash-folio">
@@ -24,22 +132,26 @@ import Icon from '../components/Icon.astro';
           </div>
           <div class="dash-folio-actions">
             <div class="dash-selector-wrap">
-              <label for="dashSelectSede" class="dash-sr-only">Filtrar por sede</label>
+              <label for="dashSelectSede" class="dash-sr-only">Filtrar por sede o distrito</label>
               <select id="dashSelectSede" class="dash-select" aria-label="Filtrar parte por sede o distrito">
                 <option value="all">Todas las sedes</option>
-                <option value="Comas">Distrito Comas</option>
-                <option value="Carabayllo">Distrito Carabayllo</option>
-                <option value="San Pedro">Sede San Pedro</option>
-                <option value="El Progreso">Sede El Progreso</option>
-                <option value="Año Nuevo">Sede Año Nuevo</option>
-                <option value="Santa Rosa">Sede Santa Rosa</option>
-                <option value="Los Bendecidos">Sede Los Bendecidos</option>
-                <option value="La Libertad">Sede La Libertad</option>
+                <optgroup label="Ámbito por Distrito">
+                  <option value="Comas">Distrito Comas</option>
+                  <option value="Carabayllo">Distrito Carabayllo</option>
+                </optgroup>
+                <optgroup label="Sedes Parroquiales">
+                  <option value="San Pedro">Sede San Pedro</option>
+                  <option value="El Progreso">Sede El Progreso</option>
+                  <option value="Año Nuevo">Sede Año Nuevo</option>
+                  <option value="Santa Rosa">Sede Santa Rosa</option>
+                  <option value="Los Bendecidos">Sede Los Bendecidos</option>
+                  <option value="La Libertad">Sede La Libertad</option>
+                </optgroup>
               </select>
             </div>
-            <button type="button" class="dash-action-btn" id="btnExportarParte" title="Descargar reporte consolidado en CSV (UTF-8 BOM)">
+            <button type="button" class="dash-action-btn" id="btnExportarParte" title="Descargar reporte consolidado en CSV (UTF-8 BOM)" aria-busy="false">
               <Icon name="accion.descargar" size={13} />
-              <span>Parte CSV</span>
+              <span id="btnExportarParteLabel">Parte CSV</span>
             </button>
             <span class="dash-meta-chip is-loading" id="dashEstado" role="status" aria-live="polite">
               <span class="dash-estado-dot" aria-hidden="true"></span>
@@ -234,19 +346,31 @@ import Icon from '../components/Icon.astro';
               <h2 id="dashTerritorioTitle">Cobertura territorial por servicio</h2>
               <a class="dash-band-link" href="/sedes">Ver sedes e iglesias</a>
             </div>
-            <p class="dash-matrix-note" id="dashMatrixNote"></p>
-            <div class="dash-matrix-host" id="dashTerritoryMatrix"></div>
+            <p class="dash-matrix-note" id="dashMatrixNote">Distribución de usuarios por distrito y programas troncales</p>
+            <div class="dash-matrix-host" id="dashTerritoryMatrix">
+              <div class="dash-matrix-skeleton" aria-hidden="true">
+                <div class="dash-skeleton-row is-head"></div>
+                <div class="dash-skeleton-row"></div>
+                <div class="dash-skeleton-row"></div>
+                <div class="dash-skeleton-row"></div>
+              </div>
+            </div>
           </section>
 
           <!-- Voluntarios: el apoyo del parte -->
           <section class="dash-band dash-band--voluntariado" aria-labelledby="dashVolTitle">
             <div class="dash-band-head">
               <h2 id="dashVolTitle">Fuerza comunitaria en campo</h2>
-              <span class="dash-band-total"><strong id="dashVolTotal">…</strong> voluntarias</span>
+              <span class="dash-band-total"><strong id="dashVolTotal">—</strong> voluntarias</span>
               <a class="dash-band-link" href="/voluntariados">Ver voluntariado</a>
             </div>
             <p class="dash-matrix-note" style="margin-top:-4px; margin-bottom:12px;">Dotación activa y alertas de cobertura</p>
-            <ul class="dash-vol-list" id="dashVoluntariosList"></ul>
+            <ul class="dash-vol-list" id="dashVoluntariosList">
+              <li class="dash-vol-row dash-skeleton-item" aria-hidden="true"></li>
+              <li class="dash-vol-row dash-skeleton-item" aria-hidden="true"></li>
+              <li class="dash-vol-row dash-skeleton-item" aria-hidden="true"></li>
+              <li class="dash-vol-row dash-skeleton-item" aria-hidden="true"></li>
+            </ul>
           </section>
         </div>
       </div>
