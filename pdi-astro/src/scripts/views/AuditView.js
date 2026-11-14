@@ -1072,10 +1072,18 @@ export const AuditView = {
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
   window.PDI.AuditView = AuditView;
-  window.PDI.DashboardView = window.PDI.DashboardView || AuditView;
   window.toggleAuditRow = (id) => AuditView.toggleAuditRow(id);
-  // Compatibilidad hacia atrás con referencias directas a DashboardView
-  if (window.PDI.DashboardView) {
+  // Compatibilidad hacia atrás: adaptador para no mutar el objeto AuditView
+  if (!window.PDI.DashboardView) {
+    window.PDI.DashboardView = {
+      renderAuditLogs: (logs) => AuditView.renderAuditLogs(logs),
+      openLogDetail: (id) => AuditView.openLogDetail(id),
+      toggleAuditCard: (idx) => AuditView.toggleAuditCard(idx),
+      filterBySearch: (q) => AuditView.filterBySearch(q),
+      changePageSize: (s) => AuditView.changePageSize(s),
+      changePage: (p) => AuditView.changePage(p),
+    };
+  } else if (window.PDI.DashboardView !== AuditView) {
     window.PDI.DashboardView.renderAuditLogs = (logs) => AuditView.renderAuditLogs(logs);
     window.PDI.DashboardView.openLogDetail = (id) => AuditView.openLogDetail(id);
     window.PDI.DashboardView.toggleAuditCard = (idx) => AuditView.toggleAuditCard(idx);
