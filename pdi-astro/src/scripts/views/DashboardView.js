@@ -316,16 +316,19 @@ export const DashboardView = {
 
     if (estado === "sin_conexion" && !ultima) {
       chip.classList.add("is-warn");
-      poner("Sin conexión · reintentando");
+      chip.title = "Sin conexión con la nube";
+      poner("Sin conexión");
       return;
     }
     if (estado !== "ok" && !ultima) {
       chip.classList.add("is-loading");
-      poner("Cargando datos…");
+      chip.title = "Sincronizando datos...";
+      poner("Sincronizando…");
       return;
     }
     if (!ultima) {
-      poner("Datos disponibles");
+      chip.title = "Conectado al servidor";
+      poner("En vivo");
       return;
     }
 
@@ -336,7 +339,8 @@ export const DashboardView = {
       fecha = null;
     }
     if (!fecha || Number.isNaN(fecha.getTime())) {
-      poner("Datos disponibles");
+      chip.title = "Conectado al servidor";
+      poner("En vivo");
       return;
     }
 
@@ -354,23 +358,21 @@ export const DashboardView = {
       // Ignorar fallos de formato
     }
 
+    const detalleSinc = mismoDia ? `hoy a las ${horaTexto}` : `${diaTexto} a las ${horaTexto}`;
+
     if (estado === "sin_conexion") {
       chip.classList.add("is-warn");
-      poner(mismoDia
-        ? `Actualizado hoy ${horaTexto} · sin conexión`
-        : `Actualizado ${diaTexto} · sin conexión`);
+      chip.title = `Sin conexión · Última sincronización: ${detalleSinc}`;
+      poner("Sin conexión");
     } else if (estado !== "ok") {
       chip.classList.add("is-loading");
-      poner(mismoDia
-        ? `Actualizado hoy ${horaTexto} · sincronizando…`
-        : `Actualizado ${diaTexto} · sincronizando…`);
+      chip.title = "Sincronizando con la nube…";
+      poner("Sincronizando…");
     } else {
-      poner(mismoDia
-        ? `Actualizado ${horaTexto}`
-        : `Actualizado ${diaTexto} · ${horaTexto}`);
+      chip.title = `En vivo · Sincronizado ${detalleSinc}`;
+      poner("En vivo");
     }
     const edad = Math.max(0, Date.now() - fecha.getTime());
-    if (haceEl) haceEl.textContent = this._hace(edad);
     if (edad > 30 * 60 * 1000) chip.classList.add("is-warn");
     if (refrescado) AnimationEngine.destacar(chip);
   },
@@ -811,13 +813,13 @@ export const DashboardView = {
       if (CsvExporter && CsvExporter._descargar) {
         CsvExporter._descargar(nombreArchivo, encabezados, filas);
         if (window.PDI?.ToastView) {
-          window.PDI.ToastView.mostrar("Parte diario descargado con éxito.", "success");
+          window.PDI.ToastView.show("Reporte exportado", `Consolidado territorial (${ambito.replace(/_/g, " ")}) descargado con éxito.`, "success");
         }
       }
     } finally {
       setTimeout(() => {
         if (btnExport) btnExport.setAttribute("aria-busy", "false");
-        if (btnLabel) btnLabel.textContent = "Parte CSV";
+        if (btnLabel) btnLabel.textContent = "Exportar reporte";
       }, 500);
     }
   },

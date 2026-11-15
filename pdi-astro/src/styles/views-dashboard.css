@@ -23,9 +23,10 @@
 
 .dash-folio {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 20px;
+  gap: 16px;
+  margin-bottom: 4px;
 }
 
 .dash-folio-main {
@@ -34,10 +35,10 @@
 }
 
 .dash-folio-line {
-  margin: 0 0 8px;
+  margin: 0 0 4px;
   font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-dim);
 }
@@ -48,35 +49,11 @@
 
 .dash-folio h1 {
   margin: 0;
-  font-size: clamp(22px, 4.4vw, 26px);
+  font-size: clamp(20px, 3.8vw, 24px);
   font-weight: 700;
-  line-height: 1.12;
+  line-height: 1.15;
   letter-spacing: -0.025em;
   color: var(--text-main);
-}
-
-.dash-folio-sub {
-  margin: 8px 0 0;
-  max-width: 58ch;
-  font-size: 13px;
-  line-height: 1.45;
-  color: var(--text-muted);
-  text-wrap: pretty;
-}
-
-.dash-folio-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 14px;
-  margin: 10px 0 0;
-  font-size: 11.5px;
-  font-weight: 500;
-  color: var(--text-dim);
-}
-
-.dash-folio-meta strong {
-  font-weight: 700;
-  color: var(--text-muted);
 }
 
 .dash-folio-actions {
@@ -187,13 +164,13 @@
     border-color var(--dur-fast) var(--ease-smooth);
 }
 
-/* --- Resumen Maestro (Ledger Institucional Sobrio) ------------------------ */
+/* --- Resumen Maestro y Franja Clínica (Simetría unificada 4x4) ----------- */
 
 .dash-overview-ledger {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1px;
-  margin-top: 20px;
+  margin-top: 14px;
   background: var(--border-subtle);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
@@ -207,13 +184,30 @@
   background: var(--surface-1);
 }
 
+.dash-kpi-head-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
 .dash-kpi-label {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--text-muted);
-  margin-bottom: 6px;
+}
+
+.dash-kpi-pill {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+  background: var(--surface-2);
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
 }
 
 .dash-kpi-val {
@@ -233,6 +227,47 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin-bottom: 10px;
+}
+
+.dash-strip-track {
+  height: 3px;
+  margin-top: auto;
+  border-radius: var(--radius-pill);
+  background: var(--border-subtle);
+  overflow: hidden;
+}
+
+.dash-strip-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(0);
+  transform-origin: left center;
+  border-radius: var(--radius-pill);
+  background: var(--gt-green);
+  transition: transform var(--dur-bar) var(--ease-spring);
+}
+
+.dash-strip-fill--neutral {
+  background: var(--border-subtle);
+  opacity: 0.8;
+}
+
+.dash-kpi-col[data-band="riesgo"] .dash-strip-fill {
+  background: var(--gt-yellow);
+}
+
+.dash-kpi-col[data-band="leve"] .dash-strip-fill {
+  background: var(--gt-orange);
+}
+
+.dash-kpi-col[data-band="mod"] .dash-strip-fill {
+  background: var(--gt-red);
+}
+
+.dash-kpi-col[data-band="mod"] .dash-kpi-val {
+  color: var(--text-danger);
 }
 
 /* --- Bandas --------------------------------------------------------------- */
@@ -293,123 +328,6 @@
   font-weight: 800;
   color: var(--text-main);
   font-variant-numeric: tabular-nums;
-}
-
-/* --- Franja clínica (firma) ----------------------------------------------- */
-
-.dash-strip-cells {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  background: var(--border-subtle);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-}
-
-.dash-strip-cells--4col {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
-.dash-strip-cell {
-  display: grid;
-  grid-template-columns: 8px minmax(0, 1fr) auto;
-  grid-template-rows: auto auto auto auto;
-  column-gap: 8px;
-  row-gap: 2px;
-  align-items: center;
-  padding: 16px 18px;
-  background: var(--surface-1);
-}
-
-.dash-strip-dot {
-  grid-column: 1;
-  grid-row: 1;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--gt-green);
-}
-
-.dash-strip-name {
-  grid-column: 2;
-  grid-row: 1;
-  font-size: 12.5px;
-  font-weight: 700;
-  color: var(--text-main);
-}
-
-.dash-strip-pct {
-  grid-column: 3;
-  grid-row: 1 / span 2;
-  justify-self: end;
-  font-size: 30px;
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-main);
-}
-
-.dash-strip-cases {
-  grid-column: 2;
-  grid-row: 2;
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--text-dim);
-}
-
-.dash-strip-range {
-  grid-column: 1 / -1;
-  grid-row: 3;
-  margin-top: 8px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-dim);
-  font-variant-numeric: tabular-nums;
-}
-
-.dash-strip-track {
-  grid-column: 1 / -1;
-  grid-row: 4;
-  height: 4px;
-  margin-top: 4px;
-  border-radius: var(--radius-pill);
-  background: var(--border-subtle);
-  overflow: hidden;
-}
-
-.dash-strip-fill {
-  display: block;
-  width: 100%;
-  height: 100%;
-  transform: scaleX(0);
-  transform-origin: left center;
-  border-radius: var(--radius-pill);
-  background: var(--gt-green);
-  transition: transform var(--dur-bar) var(--ease-spring);
-}
-
-.dash-strip-cell[data-band="riesgo"] .dash-strip-dot,
-.dash-strip-cell[data-band="riesgo"] .dash-strip-fill {
-  background: var(--gt-yellow);
-}
-
-.dash-strip-cell[data-band="leve"] .dash-strip-dot,
-.dash-strip-cell[data-band="leve"] .dash-strip-fill {
-  background: var(--gt-orange);
-}
-
-.dash-strip-cell[data-band="mod"] .dash-strip-dot,
-.dash-strip-cell[data-band="mod"] .dash-strip-fill {
-  background: var(--gt-red);
-}
-
-.dash-strip-cell[data-band="mod"] .dash-strip-pct {
-  color: var(--text-danger);
 }
 
 /* --- Grilla Asimétrica Inferior ------------------------------------------- */
@@ -605,7 +523,7 @@
 }
 
 .dash-matrix thead th[data-dist="comas"] {
-  border-top: 2px solid var(--text-main);
+  border-top: 2px solid var(--gt-green);
 }
 
 .dash-matrix thead th[data-dist="carabayllo"] {
@@ -686,7 +604,7 @@
 
 .dash-matrix-mobile-district {
   padding-top: 8px;
-  border-top: 2px solid var(--text-main);
+  border-top: 2px solid var(--gt-green);
 }
 
 .dash-matrix-mobile-district[data-dist="carabayllo"] {
@@ -805,22 +723,26 @@
 
 .dash-vol-flag {
   margin-left: 6px;
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 700;
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+  background: var(--gt-yellow-bg);
   color: var(--text-warning);
   white-space: nowrap;
 }
 
 .dash-vol-flag--dim {
   font-weight: 500;
+  background: var(--surface-2);
   color: var(--text-dim);
 }
 
 .dash-vol-track {
   grid-column: 1 / -1;
-  height: 4px;
+  height: 3px;
   border-radius: var(--radius-full);
-  background: var(--surface-2);
+  background: var(--border-subtle);
   overflow: hidden;
 }
 
@@ -828,7 +750,7 @@
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: var(--text-main);
+  background: var(--gt-green);
 }
 
 /* --- Accesibilidad y foco ------------------------------------------------- */

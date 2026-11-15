@@ -122,13 +122,6 @@ import Icon from '../components/Icon.astro';
               Parte al <time id="dashFolioFecha">hoy</time>
             </p>
             <h1>Panel de Infancia Saludable</h1>
-            <p class="dash-folio-sub">
-              Cobertura territorial, <abbr title="Servicio Alimentario, Acompañamiento Educativo y Pastoral ASP">tríada de servicios</abbr> y estado nutricional del programa.
-            </p>
-            <p class="dash-folio-meta">
-              <span>Responsable: <strong id="dashFolioResponsable">Sesión activa</strong></span>
-              <span id="dashAmbitoLabel">Ámbito: todas las sedes</span>
-            </p>
           </div>
           <div class="dash-folio-actions">
             <div class="dash-selector-wrap">
@@ -149,103 +142,115 @@ import Icon from '../components/Icon.astro';
                 </optgroup>
               </select>
             </div>
-            <button type="button" class="dash-action-btn" id="btnExportarParte" title="Descargar reporte consolidado en CSV (UTF-8 BOM)" aria-busy="false">
+            <button type="button" class="dash-action-btn" id="btnExportarParte" title="Exportar consolidado territorial en CSV" aria-busy="false">
               <Icon name="accion.descargar" size={13} />
-              <span id="btnExportarParteLabel">Parte CSV</span>
+              <span id="btnExportarParteLabel">Exportar reporte</span>
             </button>
-            <span class="dash-meta-chip is-loading" id="dashEstado" role="status" aria-live="polite">
+            <span class="dash-meta-chip is-loading" id="dashEstado" role="status" aria-label="Estado de conexión en tiempo real">
               <span class="dash-estado-dot" aria-hidden="true"></span>
-              <span id="dashEstadoTexto">Sincronizando…</span>
-              <span class="dash-meta-hace" id="dashEstadoHace" aria-hidden="true"></span>
+              <span id="dashEstadoTexto">En vivo</span>
+              <span class="dash-meta-hace" id="dashEstadoHace" aria-hidden="true" hidden></span>
             </span>
-            <a class="dash-meta-link" href="/padron">
-              <span>Ver padrón</span>
-              <Icon name="accion.abrir" size={12} />
-            </a>
           </div>
         </header>
 
         <!-- Banda Maestra de Resumen Institucional (Ledger sobrio, reglas de 1px) -->
-        <section class="dash-overview-ledger" aria-label="Resumen ejecutivo del parte">
+        <section class="dash-overview-ledger" aria-label="Resumen ejecutivo de cobertura">
           <div class="dash-kpi-col">
             <span class="dash-kpi-label">Padrón de Niños</span>
             <strong class="dash-kpi-val" id="kpiTotalPadron">—</strong>
             <span class="dash-kpi-sub" id="kpiTotalPadronSub">Matrícula general</span>
+            <span class="dash-strip-track" aria-hidden="true">
+              <span class="dash-strip-fill dash-strip-fill--neutral" style="transform: scaleX(1);"></span>
+            </span>
           </div>
           <div class="dash-kpi-col">
             <span class="dash-kpi-label">Prevalencia de Anemia</span>
             <strong class="dash-kpi-val" id="kpiTasaAnemia">—</strong>
             <span class="dash-kpi-sub" id="kpiTasaAnemiaSub">En población tamizada</span>
+            <span class="dash-strip-track" aria-hidden="true">
+              <span class="dash-strip-fill dash-strip-fill--neutral" style="transform: scaleX(1);"></span>
+            </span>
           </div>
           <div class="dash-kpi-col">
             <span class="dash-kpi-label">Casos Críticos <abbr title="Acompañamiento Social Pastoral">ASP</abbr></span>
             <strong class="dash-kpi-val" id="kpiCasosAsp">—</strong>
             <span class="dash-kpi-sub" id="kpiCasosAspSub">Seguimiento pastoral</span>
+            <span class="dash-strip-track" aria-hidden="true">
+              <span class="dash-strip-fill dash-strip-fill--neutral" style="transform: scaleX(1);"></span>
+            </span>
           </div>
           <div class="dash-kpi-col">
             <span class="dash-kpi-label">Sedes Territoriales</span>
             <strong class="dash-kpi-val" id="kpiSedesActivas">—</strong>
             <span class="dash-kpi-sub" id="kpiSedesActivasSub">Red comunitaria activa</span>
+            <span class="dash-strip-track" aria-hidden="true">
+              <span class="dash-strip-fill dash-strip-fill--neutral" style="transform: scaleX(1);"></span>
+            </span>
           </div>
         </section>
 
-        <!-- Franja clínica: la firma del parte (4 niveles calibrados Ficha A6) -->
+        <!-- Franja clínica: 4 niveles simétricos calibrados Ficha A6 -->
         <section class="dash-band dash-band--clinical" aria-labelledby="dashClinicaTitle">
           <div class="dash-band-head">
-            <h2 id="dashClinicaTitle">Anemia infantil (<abbr title="Hemoglobina">Hb</abbr>)</h2>
+            <h2 id="dashClinicaTitle">Estratificación de Anemia infantil (<abbr title="Hemoglobina">Hb</abbr>)</h2>
             <div class="dash-band-meta">
               <span class="dash-band-note" id="dashTamizados">…</span>
               <span class="dash-band-note" id="dashSinTamizaje" hidden></span>
-              <span class="dash-band-note">Porcentajes redondeados</span>
+              <span class="dash-band-note">Porcentajes sobre tamizados</span>
               <a class="dash-band-link" href="/salud">Ver salud</a>
             </div>
           </div>
 
-          <ul class="dash-strip-cells dash-strip-cells--4col" id="dashAnemiaTable">
-            <li class="dash-strip-cell" data-band="normal">
-              <span class="dash-strip-dot" aria-hidden="true"></span>
-              <span class="dash-strip-name">Sin anemia</span>
-              <strong class="dash-strip-pct" id="anemiaPctNormal">…</strong>
-              <span class="dash-strip-cases" id="anemiaCasosNormal">…</span>
-              <span class="dash-strip-range">≥ 11,5 g/dL</span>
+          <div class="dash-overview-ledger dash-overview-ledger--clinical" id="dashAnemiaTable">
+            <div class="dash-kpi-col" data-band="normal">
+              <div class="dash-kpi-head-row">
+                <span class="dash-kpi-label">Sin anemia</span>
+                <span class="dash-kpi-pill">≥ 11,5 g/dL</span>
+              </div>
+              <strong class="dash-kpi-val" id="anemiaPctNormal">…</strong>
+              <span class="dash-kpi-sub" id="anemiaCasosNormal">…</span>
               <span class="dash-strip-track" aria-hidden="true">
                 <span class="dash-strip-fill" id="segAnemiaNormal"></span>
               </span>
-            </li>
+            </div>
 
-            <li class="dash-strip-cell" data-band="riesgo">
-              <span class="dash-strip-dot" aria-hidden="true"></span>
-              <span class="dash-strip-name">En riesgo (Sub-estándar)</span>
-              <strong class="dash-strip-pct" id="anemiaPctRiesgo">…</strong>
-              <span class="dash-strip-cases" id="anemiaCasosRiesgo">…</span>
-              <span class="dash-strip-range">11,0 – 11,4 g/dL</span>
+            <div class="dash-kpi-col" data-band="riesgo">
+              <div class="dash-kpi-head-row">
+                <span class="dash-kpi-label">En riesgo</span>
+                <span class="dash-kpi-pill">11,0 – 11,4</span>
+              </div>
+              <strong class="dash-kpi-val" id="anemiaPctRiesgo">…</strong>
+              <span class="dash-kpi-sub" id="anemiaCasosRiesgo">…</span>
               <span class="dash-strip-track" aria-hidden="true">
                 <span class="dash-strip-fill" id="segAnemiaRiesgo"></span>
               </span>
-            </li>
+            </div>
 
-            <li class="dash-strip-cell" data-band="leve">
-              <span class="dash-strip-dot" aria-hidden="true"></span>
-              <span class="dash-strip-name">Anemia leve</span>
-              <strong class="dash-strip-pct" id="anemiaPctLeve">…</strong>
-              <span class="dash-strip-cases" id="anemiaCasosLeve">…</span>
-              <span class="dash-strip-range">10,0 – 10,9 g/dL</span>
+            <div class="dash-kpi-col" data-band="leve">
+              <div class="dash-kpi-head-row">
+                <span class="dash-kpi-label">Anemia leve</span>
+                <span class="dash-kpi-pill">10,0 – 10,9</span>
+              </div>
+              <strong class="dash-kpi-val" id="anemiaPctLeve">…</strong>
+              <span class="dash-kpi-sub" id="anemiaCasosLeve">…</span>
               <span class="dash-strip-track" aria-hidden="true">
                 <span class="dash-strip-fill" id="segAnemiaLeve"></span>
               </span>
-            </li>
+            </div>
 
-            <li class="dash-strip-cell" data-band="mod">
-              <span class="dash-strip-dot" aria-hidden="true"></span>
-              <span class="dash-strip-name">Anemia moderada / severa</span>
-              <strong class="dash-strip-pct" id="anemiaPctMod">…</strong>
-              <span class="dash-strip-cases" id="anemiaCasosMod">…</span>
-              <span class="dash-strip-range">&lt; 10,0 g/dL</span>
+            <div class="dash-kpi-col" data-band="mod">
+              <div class="dash-kpi-head-row">
+                <span class="dash-kpi-label">Mod / Severa</span>
+                <span class="dash-kpi-pill">&lt; 10,0</span>
+              </div>
+              <strong class="dash-kpi-val" id="anemiaPctMod">…</strong>
+              <span class="dash-kpi-sub" id="anemiaCasosMod">…</span>
               <span class="dash-strip-track" aria-hidden="true">
                 <span class="dash-strip-fill" id="segAnemiaMod"></span>
               </span>
-            </li>
-          </ul>
+            </div>
+          </div>
         </section>
 
         <!-- Hoja de servicios: el cuerpo del parte -->

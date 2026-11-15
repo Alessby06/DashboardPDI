@@ -33,6 +33,7 @@ Un único expediente longitudinal por beneficiario es el eje del sistema: padró
 ## Capabilities and Constraints
 
 - Astro 7 con salida estática, CSS nativo con tokens, JavaScript modular sin framework y SDK de SurrealDB.
+- Dashboard general: torre de control ejecutiva para monitoreo inmediato de prevalencia de anemia, cobertura territorial y operatividad de la tríada de servicios, sin redundancia de navegación ni metadatos ya visibles en el marco global.
 - Padrón único, padrón de colaboradores (facilitadores, promotoras, directores de I.E., enlaces de iglesias aliadas), salud CRED, educativo, familia y retiro, ASP, sedes, voluntariados, expediente, auditoría y ajustes.
 - Directorio de colaboradores con vinculación opcional a cuentas de acceso al sistema (`/cuentas`) y asignación territorial (distrito, sede e I.E.).
 - Exportación CSV de bitácoras y listados; auditoría de acciones por usuario.
