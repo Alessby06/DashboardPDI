@@ -15,6 +15,12 @@
   min-height: calc(100% + 48px);
 }
 
+/* El viewport tiene su propio fondo frío; en el dashboard se pinta completo
+   para que el papel llegue hasta el borde inferior al hacer scroll. */
+body[data-page="dashboard"] #mainContent {
+  background: var(--dash-paper);
+}
+
 .dash-page {
   width: 100%;
   max-width: 1240px;
