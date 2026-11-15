@@ -390,7 +390,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Grid:** `8px | 1fr | 88px | 64px`, gap 12, padding 15/0, divisor inferior.
 - **Punto:** 6 px, verde normal, ámbar leve, rojo moderada/severa.
 - **Textos:** nombre 13.5/700; nota 10.5/500 Ink Dim; rango 10.5/600 Ink Dim; cifra Data Value; conteo Micro.
-- **Barra:** 4 px, pista Rule, relleno según banda, transición 600 ms `spring`. Las barras de medida del tablero (clínica, territorio, voluntariado) comparten el mismo grosor.
+- **Barra:** 4 px, pista Rule, relleno según banda, transición 600 ms `spring`. Las barras de medida del tablero comparten el mismo lenguaje, no el mismo grosor: la clínica del dashboard usa 10 px, la cobertura 4 px y el equipo 2 px, cada una según su función.
 - **Orden fijo:** normal, leve, moderada/severa.
 - **En el dashboard:** la franja se compone como prevalencia 30/800 + barra apilada de 10 px + cuatro columnas con punto, rango, porcentaje y conteo. La fila `8px | 1fr | 88px | 64px` se conserva para las vistas clínicas que necesitan el detalle por caso.
 

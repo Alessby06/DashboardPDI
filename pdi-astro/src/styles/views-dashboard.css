@@ -524,6 +524,7 @@ body[data-page="dashboard"] #mainContent {
   padding: 12px 0;
   border-top: 1px solid var(--dash-rule);
   color: var(--dash-ink);
+  text-decoration: none;
 }
 
 .dash-atencion-lista > li:first-child .dash-atencion-fila { border-top: 0; }
