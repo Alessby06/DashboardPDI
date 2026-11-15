@@ -26,10 +26,10 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 20px;
-  flex-wrap: wrap;
 }
 
 .dash-folio-main {
+  flex: 1 1 auto;
   min-width: 0;
 }
 
@@ -82,8 +82,10 @@
 .dash-folio-actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 8px;
   flex-wrap: wrap;
+  flex: 0 0 auto;
 }
 
 .dash-meta-chip {

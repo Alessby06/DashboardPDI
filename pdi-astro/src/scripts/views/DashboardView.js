@@ -288,7 +288,7 @@ export const DashboardView = {
 
   _hace(ms) {
     const min = Math.floor(Math.max(0, ms) / 60000);
-    if (min < 1) return "(hace menos de 1 min)";
+    if (min < 1) return "";
     if (min < 60) return `(hace ${min} min)`;
     const h = Math.floor(min / 60);
     const resto = min % 60;
@@ -366,7 +366,7 @@ export const DashboardView = {
         : `Actualizado ${diaTexto} · sincronizando…`);
     } else {
       poner(mismoDia
-        ? `Actualizado hoy ${horaTexto}`
+        ? `Actualizado ${horaTexto}`
         : `Actualizado ${diaTexto} · ${horaTexto}`);
     }
     const edad = Math.max(0, Date.now() - fecha.getTime());
