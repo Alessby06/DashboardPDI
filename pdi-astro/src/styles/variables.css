@@ -172,7 +172,25 @@
   --sheet-exit-ease: var(--ease-drawer);
   --sheet-closed: translate3d(0, 100%, 0);
   --sheet-open: translate3d(0, 0, 0);
-  
+
+  /* Dashboard: registro cálido. Es una paleta de componente, no un cambio
+     global. El resto de la app conserva el lienzo frío hasta que se apruebe
+     la migración completa. */
+  --dash-paper: #f5f0e6;
+  --dash-surface: #fbf8f1;
+  --dash-surface-2: #efe8db;
+  --dash-hover: #ece4d6;
+  --dash-rule: #e0d8c9;
+  --dash-rule-strong: #c8bfae;
+  --dash-ink: #1b1a17;
+  --dash-muted: #5c574d;
+  --dash-dim: #6f685c;
+  --dash-green: #00715d;
+  --dash-amber: #9a4a05;
+  --dash-danger: #b91c1c;
+  --dash-info: #0369a1;
+  --dash-shadow: 0 4px 16px -2px rgba(27, 26, 23, 0.08), 0 1px 3px 0 rgba(27, 26, 23, 0.05);
+
   color-scheme: light;
 }
 
@@ -374,7 +392,24 @@
   --shadow-overlay: 0 0 0 1px rgba(255, 255, 255, 0.05), 0 20px 40px -16px rgba(0, 0, 0, 0.90);
   --shadow-glow: none;
   --modal-overlay-bg: rgba(0, 0, 0, 0.86);
-  
+
+  /* Dashboard: el mismo registro cálido sobre negro cálido. La tinta no es
+     blanca pura: la crema baja la dureza sin perder contraste. */
+  --dash-paper: #12110f;
+  --dash-surface: #1b1915;
+  --dash-surface-2: #191713;
+  --dash-hover: rgba(244, 239, 229, 0.08);
+  --dash-rule: #2f2b25;
+  --dash-rule-strong: #4a443a;
+  --dash-ink: #f4efe5;
+  --dash-muted: #c9c2b4;
+  --dash-dim: #a39b8c;
+  --dash-green: #2ee6a0;
+  --dash-amber: #ffc247;
+  --dash-danger: #ff8b8b;
+  --dash-info: #7cc4ff;
+  --dash-shadow: 0 0 0 1px rgba(244, 239, 229, 0.05), 0 20px 40px -16px rgba(0, 0, 0, 0.90);
+
   color-scheme: dark;
 }
 

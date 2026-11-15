@@ -159,21 +159,53 @@ export const DashboardView = {
     this._pintarSello();
     this._iniciarSello();
 
-    // Banda Maestra de Resumen Institucional (Ledger ejecutivo 4 KPIs)
+    // Hero: tres cifras y su contexto.
+    const totalPadron = Number(statsFiltradas.total ?? 0);
+    const tamizados = Number(statsFiltradas.tamizados ?? 0);
+    const comas = Number(statsFiltradas.comasCount ?? 0);
+    const carabayllo = Number(statsFiltradas.carabaylloCount ?? 0);
+    const otrasSedes = Math.max(0, totalPadron - comas - carabayllo);
+    const cobertura = totalPadron > 0 ? Math.round((tamizados / totalPadron) * 100) : 0;
+    const sinTamizaje = Number(statsFiltradas.sinTamizaje ?? 0);
+
     const kpiTotalPadron = document.getElementById("kpiTotalPadron");
     if (kpiTotalPadron) {
-      this._cifra(kpiTotalPadron, datosOk ? (statsFiltradas.total ?? 0) : "—", (n) => String(Math.round(n)), animarCifras);
+      this._cifra(kpiTotalPadron, datosOk ? totalPadron : "—", (n) => String(Math.round(n)), animarCifras);
     }
     const kpiTotalPadronSub = document.getElementById("kpiTotalPadronSub");
     if (kpiTotalPadronSub) {
-      if (!datosOk) {
-        kpiTotalPadronSub.textContent = "Cargando matrícula…";
-      } else if (filtroSede && filtroSede !== "all") {
-        kpiTotalPadronSub.textContent = `Filtro activo: ${filtroSede}`;
-      } else {
-        kpiTotalPadronSub.textContent = `${statsFiltradas.comasCount ?? 0} Comas · ${statsFiltradas.carabaylloCount ?? 0} Carabayllo`;
-      }
+      kpiTotalPadronSub.innerHTML = datosOk
+        ? `<strong>${comas}</strong> en Comas · <strong>${carabayllo}</strong> en Carabayllo · <strong>${otrasSedes}</strong> en otras sedes`
+        : "Cargando padrón…";
     }
+
+    const kpiCobertura = document.getElementById("kpiCoberturaTamizaje");
+    if (kpiCobertura) {
+      this._cifra(kpiCobertura, datosOk ? cobertura : "—", (n) => `${Math.round(n)} %`, animarCifras);
+    }
+    const kpiCoberturaSub = document.getElementById("kpiCoberturaTamizajeSub");
+    if (kpiCoberturaSub) {
+      kpiCoberturaSub.innerHTML = datosOk
+        ? `<strong>${tamizados} de ${totalPadron}</strong> niños con hemoglobina registrada`
+        : "Cargando tamizajes…";
+    }
+    const barraCobertura = document.getElementById("dashBarraCobertura");
+    if (barraCobertura) {
+      barraCobertura.style.transform = `scaleX(${datosOk ? cobertura / 100 : 0})`;
+    }
+    const alertaSinTamizaje = document.getElementById("dashAlertaSinTamizaje");
+    if (alertaSinTamizaje) {
+      alertaSinTamizaje.hidden = !datosOk || sinTamizaje <= 0;
+      alertaSinTamizaje.textContent = sinTamizaje > 0 ? `${sinTamizaje} sin tamizaje` : "";
+    }
+
+    const setGrow = (id, valor) => {
+      const el = document.getElementById(id);
+      if (el) el.style.flexGrow = String(Math.max(0, Number(valor) || 0));
+    };
+    setGrow("dashBarraComas", comas);
+    setGrow("dashBarraCarabayllo", carabayllo);
+    setGrow("dashBarraOtras", otrasSedes);
 
     const kpiTasaAnemia = document.getElementById("kpiTasaAnemia");
     if (kpiTasaAnemia) {
@@ -181,11 +213,9 @@ export const DashboardView = {
     }
     const kpiTasaAnemiaSub = document.getElementById("kpiTasaAnemiaSub");
     if (kpiTasaAnemiaSub) {
-      if (!datosOk) {
-        kpiTasaAnemiaSub.textContent = "En población tamizada";
-      } else {
-        kpiTasaAnemiaSub.textContent = `${statsFiltradas.totalAnemia ?? 0} de ${statsFiltradas.tamizados ?? 0} tamizados`;
-      }
+      kpiTasaAnemiaSub.textContent = datosOk
+        ? `${statsFiltradas.totalAnemia ?? 0} de ${statsFiltradas.tamizados ?? 0} tamizados con anemia`
+        : "En población tamizada";
     }
 
     const kpiCasosAsp = document.getElementById("kpiCasosAsp");
@@ -195,20 +225,17 @@ export const DashboardView = {
     const kpiCasosAspSub = document.getElementById("kpiCasosAspSub");
     if (kpiCasosAspSub) {
       if (!datosOk) {
-        kpiCasosAspSub.textContent = "Seguimiento pastoral";
+        kpiCasosAspSub.textContent = "Cargando seguimiento…";
       } else {
-        kpiCasosAspSub.textContent = `${usuariosAsp.length} niños en seguimiento`;
+        const ninos = usuariosAsp.length;
+        kpiCasosAspSub.innerHTML = `<strong>${ninos} ${ninos === 1 ? "niño" : "niños"}</strong> en acompañamiento · <strong>${casosActivos} ${casosActivos === 1 ? "caso" : "casos"}</strong> abiertos`;
       }
     }
 
     const kpiSedesActivas = document.getElementById("kpiSedesActivas");
     if (kpiSedesActivas) {
-      const sedesCount = window.PDI?.SedeModel?.getAll?.()?.length || 6;
+      const sedesCount = window.PDI?.SedeModel?.getAll?.()?.length || 0;
       this._cifra(kpiSedesActivas, datosOk ? sedesCount : "—", (n) => String(Math.round(n)), animarCifras);
-    }
-    const kpiSedesActivasSub = document.getElementById("kpiSedesActivasSub");
-    if (kpiSedesActivasSub) {
-      kpiSedesActivasSub.textContent = "Comas y Carabayllo";
     }
 
     // Franja clínica: cifras directas y conteo calibrado (Ficha A6)
@@ -224,17 +251,8 @@ export const DashboardView = {
       bandas.forEach(({ fillId, pctId, casosId, pct, casos }) => {
         const fill = document.getElementById(fillId);
         if (fill) {
-          const escala = datosOk ? Math.max(0, Math.min(100, Number(pct) || 0)) / 100 : 0;
-          fill.dataset.targetScale = String(escala);
-          if (esPrimeraEntrada || !datosOk) {
-            fill.style.transform = "scaleX(0)";
-            if (datosOk) {
-              void fill.offsetWidth;
-              requestAnimationFrame(() => { fill.style.transform = `scaleX(${fill.dataset.targetScale})`; });
-            }
-          } else {
-            fill.style.transform = `scaleX(${escala})`;
-          }
+          const valor = datosOk ? Math.max(0, Math.min(100, Number(pct) || 0)) : 0;
+          fill.style.flexGrow = String(valor);
         }
 
         const pctEl = document.getElementById(pctId);
@@ -249,6 +267,20 @@ export const DashboardView = {
           );
         }
       });
+
+      const barraClinica = document.getElementById("dashAnemiaBarra");
+      if (barraClinica) {
+        if (datosOk) {
+          barraClinica.classList.add("is-visible");
+          if (esPrimeraEntrada) {
+            barraClinica.classList.remove("is-visible");
+            void barraClinica.offsetWidth;
+            requestAnimationFrame(() => barraClinica.classList.add("is-visible"));
+          }
+        } else {
+          barraClinica.classList.remove("is-visible");
+        }
+      }
     }
 
     const tamEl = document.getElementById("dashTamizados");
@@ -474,7 +506,7 @@ export const DashboardView = {
         this._cifra(
           microAsp,
           casosActivos,
-          (n) => (n === 1 ? "· 1 caso" : `· ${Math.round(n)} casos`),
+          (n) => (n === 1 ? "1 caso abierto" : `${Math.round(n)} casos abiertos`),
           animar,
         );
       } else {
@@ -487,6 +519,12 @@ export const DashboardView = {
     poner("dashAlimCred", stats.tamizados ?? 0);
     poner("dashEduCasita", casita);
     poner("dashEduBiblioteca", biblioteca);
+    const notaEdu = document.getElementById("dashEduNota");
+    if (notaEdu) {
+      notaEdu.textContent = datosOk
+        ? `${educativo} de ${usuarios.length} niños del padrón con al menos un acompañamiento.`
+        : "";
+    }
     poner("dashAspDesayuno", aspDesayuno);
     poner("dashAspLonchera", aspLonchera);
     poner("dashAspCasita", aspCasita);
@@ -582,6 +620,11 @@ export const DashboardView = {
 
       const totalEl = document.getElementById("dashVolTotal");
       if (totalEl) this._cifra(totalEl, datosOk ? total : "—", (v) => String(Math.round(v)), animar);
+
+      const sinVoluntarios = datosOk
+        ? filas.filter((f) => (grupos[f.clave] || 0) === 0 && (demanda[f.clave] || 0) > 0).length
+        : 0;
+      this._renderAtencion(stats, sinVoluntarios);
     }
 
     // Línea de conciliación de población y servicios
@@ -600,6 +643,45 @@ export const DashboardView = {
    * Organizada en escritorio como tabla semántica con encabezados de categoría;
    * en móvil, en bloques por distrito con subtítulos de sección.
    */
+  /** Franja de prioridades: solo muestra los frentes que existen. */
+  _renderAtencion(stats = {}, sinVoluntarios = 0) {
+    const estado = window.PDI?.DB?.estadoActual?.() || "ok";
+    const datosOk = estado === "ok";
+    const anemia = Number(stats?.moderadas) || 0;
+    const sinTamizaje = Number(stats?.sinTamizaje) || 0;
+    const voluntarios = Number(sinVoluntarios) || 0;
+    const frentes = [anemia, sinTamizaje, voluntarios].filter((n) => n > 0).length;
+
+    const set = (id, texto) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = texto;
+    };
+    set("atencionAnemiaTexto", `${anemia} ${anemia === 1 ? "anemia moderada/severa" : "anemias moderadas/severas"}`);
+    set("atencionSinTamizajeTexto", `${sinTamizaje} ${sinTamizaje === 1 ? "niño sin tamizaje" : "niños sin tamizaje"}`);
+    set("atencionVoluntariosTexto", `${voluntarios} ${voluntarios === 1 ? "servicio sin voluntarios" : "servicios sin voluntarios"}`);
+    set("atencionFrentes", datosOk ? `${frentes} ${frentes === 1 ? "frente abierto" : "frentes abiertos"}` : "—");
+
+    const filas = [
+      ["atencionFilaAnemia", anemia],
+      ["atencionFilaSinTamizaje", sinTamizaje],
+      ["atencionFilaVoluntarios", voluntarios],
+    ];
+    filas.forEach(([id, n]) => {
+      const el = document.getElementById(id);
+      if (el) el.hidden = !datosOk || n <= 0;
+    });
+
+    const vacio = document.getElementById("atencionVacio");
+    if (vacio) {
+      vacio.hidden = datosOk && frentes > 0;
+      vacio.textContent = estado === "sin_conexion"
+        ? "Sin conexión con la base de datos. Reintentando…"
+        : datosOk
+          ? "Sin pendientes abiertos."
+          : "Cargando datos…";
+    }
+  },
+
   renderTerritorio(usuarios, claves) {
     const container = document.getElementById("dashTerritoryMatrix");
     if (!container) return;

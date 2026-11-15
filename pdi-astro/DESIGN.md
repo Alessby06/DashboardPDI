@@ -1,6 +1,6 @@
 ---
 name: PDI Johannes Gutenberg
-description: "Gestión del Programa de Desarrollo Infantil: un parte clínico sobrio, operativo y legible en sedes comunitarias, con paridad entre tema claro y oscuro."
+description: "Gestión del Programa de Desarrollo Infantil: una sala de situación cálida, operativa y legible en sedes comunitarias, con paridad entre tema claro y oscuro."
 colors:
   brand-green: "#00b494"
   brand-green-text: "#00876f"
@@ -153,16 +153,18 @@ components:
 
 ## Overview
 
-**Creative North Star: "El Parte Clínico"**
+**Creative North Star: "La Sala de Situación"**
 
-El sistema se lee como el parte que una coordinadora revisa antes de empezar la jornada: una superficie blanca, un borde fino, una cifra que manda y el resto ordenado para escanearse en segundos. Nada compite con el dato. El color no decora: informa estado clínico o territorial, y cuando no hay estado que informar, la interfaz es tinta sobre papel.
+El sistema se lee como la sala de situación que una coordinadora revisa antes de empezar la jornada: una superficie de papel cálido, tres cifras que ordenan la lectura, una franja de atención con lo que no puede esperar y el resto dispuesto para escanearse en segundos. Nada compite con el dato. El color no decora: informa estado clínico o territorial, y cuando no hay estado que informar, la interfaz es tinta cálida sobre papel.
 
 La densidad es la de un documento de trabajo, no la de un panel de marketing. Cada tarjeta responde a una pregunta operativa concreta y la responde una sola vez. La jerarquía se construye con tamaño y posición, no con peso acumulado ni con cajas dentro de cajas.
+
+El dashboard abre el **registro cálido** del producto: papel, tinta cálida y tarjetas color crema. El resto de las vistas conserva por ahora el lienzo frío del sistema; la migración completa se hará con los mismos tokens `--dash-*` una vez validada la referencia.
 
 La referencia viva es `/dashboard`, y su gramática se organiza en seis capas: lienzo, cabecera, tira de KPI, paneles de datos, contenido y estados. Toda superficie nueva hereda esas piezas; ninguna las vuelve a dibujar por su cuenta. El sistema funciona igual en tema claro y oscuro: no son dos diseños, es el mismo con dos juegos de valores.
 
 **Key Characteristics:**
-- Superficie blanca sobre lienzo frío en claro; negro real y superficies casi negras en oscuro.
+- El dashboard usa papel cálido (`#f5f0e6`) con tarjetas color crema; en oscuro, negro cálido (`#12110f`) con tinta crema (`#f4efe5`), no blanco puro. El resto del sistema conserva el lienzo frío hasta su migración.
 - Separación por borde de 1 px; una sola sombra ambiente.
 - Manrope en todo el sistema, del rótulo al número.
 - Una cifra dominante por tarjeta; los conteos se quedan en tamaño micro.
@@ -192,6 +194,30 @@ Paleta de cuatro colores de marca sobre neutros fríos. El color aparece solo cu
 - **Ink** (#0f172a): texto principal y cifras. **Ink Soft** (#334155): texto secundario. **Ink Dim** (#64748b): rótulos, notas y metadatos.
 - **Rule** (#e2e8f0): bordes y divisores. **Rule Strong** (#94a3b8): foco y hover de borde. **Rule Mid** (#cbd5e1): paso intermedio para checkboxes y marcos que no llegan a Rule Strong.
 - **On Brand** (#ffffff; oscuro `#00130c`): tinta que se pinta encima del verde de marca. **On Solid** (#ffffff; oscuro `#00130c`): la misma tinta sobre cualquier relleno sólido saturado (rojo, ámbar, azul). **On Scrim** (#ffffff): tinta sobre un velo oscuro que se mantiene oscuro en ambos temas.
+
+### Dashboard Warm Register
+
+El dashboard usa un grupo propio de tokens cálidos, declarados en `variables.css` y consumidos solo por `views-dashboard.css`. No son un cambio global: el resto de las vistas sigue con el lienzo frío y los mismos roles semánticos.
+
+| Rol | Claro | Oscuro |
+|---|---|---|
+| Papel (`--dash-paper`) | `#f5f0e6` | `#12110f` |
+| Superficie (`--dash-surface`) | `#fbf8f1` | `#1b1915` |
+| Superficie hundida (`--dash-surface-2`) | `#efe8db` | `#191713` |
+| Hover (`--dash-hover`) | `#ece4d6` | `rgba(244,239,229,0.08)` |
+| Regla (`--dash-rule`) | `#e0d8c9` | `#2f2b25` |
+| Regla fuerte (`--dash-rule-strong`) | `#c8bfae` | `#4a443a` |
+| Tinta (`--dash-ink`) | `#1b1a17` | `#f4efe5` |
+| Secundaria (`--dash-muted`) | `#5c574d` | `#c9c2b4` |
+| Dim (`--dash-dim`) | `#6f685c` | `#a39b8c` |
+| Verde texto (`--dash-green`) | `#00715d` | `#2ee6a0` |
+| Ámbar texto (`--dash-amber`) | `#9a4a05` | `#ffc247` |
+| Rojo texto (`--dash-danger`) | `#b91c1c` | `#ff8b8b` |
+| Azul texto (`--dash-info`) | `#0369a1` | `#7cc4ff` |
+
+**Contraste:** tinta sobre papel 15,3:1; dim sobre papel 4,85:1; ámbar sobre papel 5,5:1; crema sobre negro cálido 16,5:1; dim oscura 6,9:1. El dim y el ámbar de la maqueta original se corrigieron para pasar AA en texto pequeño; no se usan los valores `#8b8478` ni `#b45309` sobre papel.
+
+**The Warm Register Rule.** Los tokens `--dash-*` no salen del dashboard. Si otra vista necesita el registro cálido, se migra el sistema completo con los mismos valores; no se importan a medias.
 
 ### Login Showcase
 
@@ -266,11 +292,19 @@ No es una paleta nueva: son los mismos roles con otros valores. El fondo es negr
 Área de contenido con 24 px de padding en escritorio, 16/14 px por debajo de 900 px y 12/10 px por debajo de 640 px. Las vistas apilan bloques cada 24 px.
 
 Rejillas del tablero, en este orden:
-- **KPI:** `repeat(auto-fit, minmax(230px, 1fr))`, `gap` 20, margen inferior 20. Cuatro placas en escritorio; 2×2 en móvil.
+- **KPI:** `repeat(auto-fit, minmax(230px, 1fr))`, `gap` 20, margen inferior 20. En el dashboard son tres placas en una sola superficie; en el resto de las vistas, cuatro.
 - **Paneles de datos:** `repeat(auto-fit, minmax(min(100%, 340px), 1fr))`, `gap` 20.
 - **Contenido:** `repeat(auto-fit, minmax(350px, 1fr))`, `gap` 20.
 
-Breakpoints: 1024 px (KPI a dos columnas), 900 px (padding reducido), 640 px (KPI 2×2, cabeceras apiladas), 420 px (se ocultan las etiquetas de acción y queda el icono).
+### Dashboard Layout
+
+- **Hero:** `1.3fr 1fr 1fr` sin gap; una sola superficie con divisores de 1 px.
+- **Clínica + atención:** `1.55fr / 0.75fr`, gap 20.
+- **Servicios:** `repeat(3, 1fr)`, gap 18.
+- **Territorio + equipo:** `1.6fr / 0.75fr`, gap 20.
+- **Breakpoints:** 1080 px (hero a dos columnas, clínica y territorio a una, atención primero), 900 px (márgenes del viewport), 820 px (servicios a una, clínica apilada, bandas 2×2), 640 px (hero a una, matriz en bloques), 480 px (bandas a una).
+
+Breakpoints generales: 1024 px (KPI a dos columnas), 900 px (padding reducido), 640 px (KPI 2×2, cabeceras apiladas), 420 px (se ocultan las etiquetas de acción y queda el icono).
 
 El ancho lo manda el contenido: las tablas se desplazan dentro de su tarjeta antes que romper la página. La densidad es compacta: filas de 11 px de padding vertical; tarjetas de 18–22 px de padding.
 
@@ -358,21 +392,19 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Textos:** nombre 13.5/700; nota 10.5/500 Ink Dim; rango 10.5/600 Ink Dim; cifra Data Value; conteo Micro.
 - **Barra:** 4 px, pista Rule, relleno según banda, transición 600 ms `spring`. Las barras de medida del tablero (clínica, territorio, voluntariado) comparten el mismo grosor.
 - **Orden fijo:** normal, leve, moderada/severa.
+- **En el dashboard:** la franja se compone como prevalencia 30/800 + barra apilada de 10 px + cuatro columnas con punto, rango, porcentaje y conteo. La fila `8px | 1fr | 88px | 64px` se conserva para las vistas clínicas que necesitan el detalle por caso.
 
-### Dashboard — Torre de control ejecutiva
-- **Estructura:** una hoja `Surface` con borde `Rule` y radio 16: folio, KPIs simétricos, tríada de servicios, matriz territorial y fuerza comunitaria en una sola lectura sin ruido visual.
-- **Folio y encabezado:** línea de parte 11/800 en mayúsculas (“Parte al <time datetime>”) con la fecha en castellano; `h1` 24/700; sin subtítulos redundantes ni duplicación de firma (el usuario, rol y sede activa ya están en el chrome global). A la derecha: selector de sede/distrito, botón de exportación (“Exportar reporte”) con confirmación y micro-indicador de sincronización en vivo (`● Conectado` / `● Sin conexión`) sin textos superfluos.
-- **8 KPIs simétricos (dos bandas de 4 columnas unificadas):**
-  - **Banda 1 (Cobertura):** Padrón de niños, Prevalencia de anemia, Casos críticos ASP y Sedes activas.
-  - **Banda 2 (Clínica Hb):** Sin anemia, En riesgo (sub-estándar), Anemia leve y Anemia moderada/severa.
-  - **Simetría absoluta:** ambas bandas comparten la misma anatomía exacta: label en 11/700 mayúsculas, cifra tabular a la izquierda en 30/800, subtexto descriptivo en 11.5/500 y micro-barra semántica en la base (verde, ámbar, naranja, rojo en clínica; neutral institucional en cobertura).
-- **Tríada troncal de servicios:** 3 columnas (`repeat(3, 1fr)`) correspondientes a Alimentación, Refuerzo educativo y Pastoral ASP. Cifra lead a 30/800 y desglose tabular en filas limpias.
-- **Matriz territorial y voluntariado:**
-  - **Matriz:** `<table>` semántica con encabezados neutrales para Comas y Carabayllo (sin reglas oscuras ni colores marrones disonantes); división clara de 1 px.
-  - **Fuerza comunitaria:** lista tabular sobria por servicio con cifra tabular y chip de alerta (`sin voluntarios`) cuando hay usuarios desatendidos, sin barras de subrayado negro grueso.
-- **Movimiento:** la franja clínica dibuja sus barras en la primera entrada (720 ms `spring`) con `transform: scaleX()`, no con `width`; las cifras se cuentan en `--dur-count` (560 ms, `ease-out`) desde el valor visible y siempre aterrizan en el objetivo, también si la pestaña se oculta (sin odómetro, que se queda a medio rodar); las filas responden al hover. Sin cascada de entrada por sección.
-- **Responsive:** ≤768 px el folio se apila, los voluntarios pasan a una columna y los enlaces táctiles llegan a 44 px; ≤640 px la franja clínica pasa a una columna y la matriz se convierte en bloques por grupo (Comas, Carabayllo y, si existe, “Otras sedes / sin distrito”).
-- **Estados:** si la capa no está en `ok`, las cifras muestran “—” (no 0) y el sello dice “Sin conexión · reintentando” o “Cargando datos…”. El sello arranca en “Cargando…” y solo declara “Actualizado…” cuando hay una hidratación real. La matriz y la conciliación usan el mensaje de estado vacío de `_mensajeSinDatos`.
+### Dashboard — Sala de situación
+
+- **Estructura:** una página cálida, no una hoja única. Cabecera, hero de tres cifras, clínica y atención, tríada de servicios, territorio y equipo. Las tarjetas usan `--dash-surface` y `--dash-rule`; el fondo es `--dash-paper`.
+- **Cabecera:** eyebrow 11/800, fecha en `h1` 30/700, subtítulo con sedes activas y sello en vivo (punto + palabra). A la derecha, selector de sede/distrito (por `customSelect`) y exportación secundaria.
+- **Hero:** tres placas en una sola superficie con divisores de 1 px: niños acompañados (40/500, distribución Comas/Carabayllo/Otras), cobertura de tamizaje (40/500, barra de 4 px y aviso de pendientes) y casos ASP activos (40/500, usuarios y casos abiertos). No son cuatro KPIs simétricos.
+- **Clínica y atención:** `1.55fr / 0.75fr`. La clínica lleva prevalencia 30/800, barra apilada de 10 px (normal, riesgo, leve, moderada/severa) y cuatro bandas en columnas con punto, rango, porcentaje y conteo. La atención lista tres frentes con punto de estado, texto y enlace; las filas con cero se ocultan y el vacío dice “Sin pendientes abiertos.” sin inventar un cero.
+- **Servicios:** tres tarjetas (alimentación, educativo, ASP) con icono, cifra 30/800, filas de desglose y una nota de cobertura en educativo. La cifra y las filas bastan; no se añade una barra decorativa.
+- **Territorio y equipo:** `1.6fr / 0.75fr`. La matriz es una tabla semántica con grupos (tríada troncal / iniciativas) y bloque móvil por distrito; el equipo lista voluntarias por servicio con brechas en ámbar, sin badges.
+- **Movimiento:** la barra de cobertura y la barra clínica dibujan una vez en la primera entrada (720 ms `spring`, `transform: scaleX()`); las cifras cuentan en `--dur-count` desde el valor visible. Sin cascada por sección. El hover vive en `(hover: hover) and (pointer: fine)`.
+- **Responsive:** 1080 px (hero a dos columnas, clínica y territorio a una, atención primero), 900 px (márgenes del viewport), 820 px (servicios a una, clínica apilada, bandas 2×2), 640 px (hero a una, matriz en bloques), 480 px (bandas a una, botón solo icono).
+- **Estados:** si la capa no está en `ok`, las cifras muestran “—” (no 0), el sello dice “Sincronizando…” o “Sin conexión”, y la atención muestra carga o error. La prehidratación con la copia de sesión escribe los valores antes de que llegue la nube; la hidratación real siempre tiene la última palabra.
 - **Navegación interna:** el `<header>` del topbar persiste entre páginas, igual que el sidebar, para que nombre, rol y avatar no parpadeen. Las rutas visibles del menú precargan su módulo con `modulepreload` en tiempo muerto (descarga y compila, no ejecuta); al navegar, la página entrante se pinta con su marcado real desde el primer frame: no hay esqueleto de bloques grises ni velo de contenido, y los datos se escriben encima cuando llegan. El esqueleto solo reaparece si la carga falla, como tarjeta de error con reintento. Auditoría muestra “Cargando bitácora…” mientras responde el servidor.
 
 ### Territory Row
@@ -422,6 +454,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Scroll:** sin scroll snap y sin GSAP. Solo queda el parallax del showcase del login en `ScrollAnimations.js` con `ScrollManager`; el desplazamiento es un `translate3d` sobre el propio elemento. No hay barra de progreso de lectura ni línea de progreso de ruta: ambas añadían una franja luminosa fija sobre el topbar sin informar de nada que el usuario no viera ya.
 - **Carga y navegación:** `astro.config.mjs` activa `prefetch` con `hover` y `prefetchAll`; además, una vez que los datos están en memoria, `LoadingState` pide en tiempo muerto las rutas principales (`/dashboard`, `/padron`, `/salud`, `/social`, `/voluntariados`, `/auditoria`). En desarrollo, `vite.server.warmup.clientFiles` pretransforma las entradas de página, vistas y núcleo al arrancar, para que la primera visita no compile 0,6–2,7 s.
 - **Estados vacíos y contadores:** el vacío entra con un fundido de `--dur-norm`; un contador que cambia de valor pulsa 260 ms con `contadorPulso`. El primer pintado no pulsa. Las cifras métricas usan `AnimationEngine.contar()`: cuentan desde el valor visible, no desde 0, y la primera pintura con datos se escribe directa. La fila o tarjeta que acaba de cambiar se marca con `destacar()` (`--dur-highlight`); no se relanza la cascada de filas.
+- **Dashboard:** la barra de cobertura y la barra clínica se dibujan una vez en la primera entrada (720 ms `spring`); las cifras cuentan desde el valor visible; no hay cascada por sección. El registro cálido no cambia la mecánica.
 - **Navegación entre páginas:** el mismo empuje lateral de Social en ambos anchos. El contenido viaja 6 % de su ancho en escritorio y 12 % en móvil, con 260 ms de entrada (`--ease-spring`) y 160 ms de salida (`--ease-out`); el saliente recorre 1,1 veces ese desplazamiento y se funde. La dirección la fija `Navigation` en `data-page-dir` según el orden del menú y se retira al terminar. La raíz no funde, así que el sidebar y el topbar no parpadean. La profundidad contenida (`pdiPageDepthIn/Out`) queda como respaldo para las rutas fuera del menú.
 - **Subpaneles:** en Social, un solo gesto para las tres pestañas: el panel nuevo empuja al anterior en el sentido del orden (9 % del ancho del panel en escritorio y 12 % en móvil, no una medida fija: 24 px sobre 1120 px eran el 2 % y se leían como un fundido), con 260 ms de entrada y 160 ms de salida. El panel nuevo se aclara en el primer 30 % del recorrido y luego viaja opaco, y el saliente recorre 1,1 veces ese desplazamiento, para que los dos se separen y el gesto se lea como empuje. La raíz y el `<main>` no se animan, así que el sidebar y el topbar no parpadean y el contenido no sube mientras el panel empuja. La dirección la fija `switchSocialTab` en `data-social-dir` y se retira al terminar; sin View Transition, el mismo empuje se anima sobre el panel. En el expediente, la sección viaja sola: se retira un momento el nombre del `<main>` y la raíz no funde, de modo que el sidebar y el topbar no parpadean. La salida dura `--dur-fast` y la entrada `--dur-norm` con una espera de la mitad de la salida: la sección nueva no empieza hasta que la vieja se apagó, así que nunca se leen dos secciones superpuestas. El sentido sigue al orden del sidebar (bajar entra desde abajo, subir desde arriba) con 4-7 px de recorrido. Donde no exista View Transition, un fundido de respaldo de `--dur-fast`; nunca las dos a la vez.
 - **Movimiento reducido:** el producto consulta `prefers-reduced-motion: reduce`. Se retiran escalas, traslaciones, cascadas y transiciones espaciales; se conservan opacidad, color, borde y sombra para que el cambio de estado siga siendo legible. El contador de cifras escribe el valor final de inmediato. `tests/motion-guard.test.js` exige el bloque.
@@ -446,6 +479,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Do** dejar el borde de 1 px como separador principal; la sombra es solo ambiente.
 - **Do** verificar cada pieza en claro, en oscuro, en escritorio y en móvil antes de darla por terminada.
 - **Do** declarar los tokens de un componente compartido en su propia hoja, una vez por tema, en lugar de parchear la vista.
+- **Do** usar `--dash-*` para el registro cálido del dashboard; el resto del sistema conserva los tokens núcleo hasta la migración global.
 
 ### Don't:
 - **Don't** redeclarar tokens núcleo (color, superficie, borde, texto, sombra) en una hoja de vista. Los tokens de componente —`--filter-border`, `--sk-base`— viven en su hoja compartida y se declaran una sola vez por tema.
@@ -458,6 +492,8 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Don't** fijar un tema con valores absolutos (`#ffffff`, `#000000`) en pantalla; usa los tokens. La impresión sí puede forzar papel blanco y tinta negra.
 - **Don't** dibujar badges ni píldoras tintadas para estado, conteo o etiqueta: el estado va como marca de punto + palabra, el conteo en micro y la etiqueta como Chip.
 - **Don't** añadir sombras de color para señalar alertas.
+- **Don't** importar `--dash-*` fuera del dashboard ni duplicar sus valores en otra hoja. El registro cálido es una excepción declarada, no una paleta paralela.
+- **Don't** usar rojo en una barra de cobertura que no sea una alerta: el color de estado va en el punto o en el texto, no en la longitud de la barra.
 - **Don't** dejar un `<select>` nativo visible ni estilizarlo por vista: todo desplegable de selección pasa por `customSelect.js` y `custom-select.css`. La única excepción es un control que no pueda mejorarse (por ejemplo, `multiple` o `size > 1`); se marca `data-pdi-select="native"` y se justifica en el código.
 
 ### Conformance Checklist
@@ -468,3 +504,4 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 5. La pieza se ve correcta en ambos temas y en 375 px de ancho.
 6. Ningún `<select>` nativo visible: todos pasan por `customSelect.js`; las excepciones llevan `data-pdi-select="native"` y están justificadas.
 7. Ningún badge: el estado se lee como marca (punto + palabra), el conteo como micro y la etiqueta como Chip. Una píldora tintada es una violación del contrato, no una variante.
+8. El dashboard usa `--dash-*` y ninguna otra vista los importa. La paleta cálida se migra completa o no se migra.
