@@ -419,13 +419,14 @@
 }
 
 .dash-punto {
-  grid-area: punto;
   width: 6px;
   height: 6px;
   margin-top: 5px;
   border-radius: var(--radius-full);
   background: var(--dash-rule-strong);
 }
+
+.dash-banda .dash-punto { grid-area: punto; }
 
 .dash-banda[data-banda="normal"] .dash-punto { background: var(--gt-green); }
 .dash-banda[data-banda="riesgo"] .dash-punto { background: var(--gt-yellow); }
