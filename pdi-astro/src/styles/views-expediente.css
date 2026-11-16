@@ -44,25 +44,25 @@
 
     @media (max-width: 768px) {
       .social-controls-actions-wrap {
-        display: flex !important;
-        align-items: center !important;
-        gap: 8px !important;
-        width: 100% !important;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
       }
 
       #dropdownSocialFilterPanel {
-        display: inline-flex !important;
-        position: relative !important;
-        flex: 1 1 46% !important;
-        min-width: 0 !important;
+        display: inline-flex;
+        position: relative;
+        flex: 1 1 46%;
+        min-width: 0;
 }
 
       .stage-dot {
-        width: 8px !important;
-        height: 8px !important;
-        min-width: 8px !important;
-        border-radius: var(--radius-full) !important;
-        flex-shrink: 0 !important;
+        width: 8px;
+        height: 8px;
+        min-width: 8px;
+        border-radius: var(--radius-full);
+        flex-shrink: 0;
       }
 
       .social-mobile-dropdown-item {
@@ -77,7 +77,7 @@
         cursor: pointer;
         touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
-        transition: background-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-spring) !important;
+        transition: background-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-spring);
       }
 
       .social-mobile-dropdown-item:active {
@@ -119,37 +119,37 @@
 
       .kanban-col {
         flex: 1 1 100%;
-        width: 100% !important;
-        min-width: 100% !important;
-        max-width: 100% !important;
-        height: auto !important;
-        max-height: none !important;
-        min-height: 0 !important;
-        overflow: visible !important;
+        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
+        height: auto;
+        max-height: none;
+        min-height: 0;
+        overflow: visible;
       }
 
       .kanban-col-body {
-        max-height: none !important;
-        height: auto !important;
-        min-height: 0 !important;
-        overflow-y: visible !important;
-        overflow-x: visible !important;
-        overscroll-behavior: auto !important;
-        touch-action: auto !important;
+        max-height: none;
+        height: auto;
+        min-height: 0;
+        overflow-y: visible;
+        overflow-x: visible;
+        overscroll-behavior: auto;
+        touch-action: auto;
         padding: 12px;
       }
 
       .kanban-btn {
-        height: 42px !important;
-        font-size: 13px !important;
-        font-weight: 700 !important;
-        gap: 8px !important;
-        border-radius: var(--radius-md) !important;
+        height: 42px;
+        font-size: 13px;
+        font-weight: 700;
+        gap: 8px;
+        border-radius: var(--radius-md);
       }
 
       .kanban-btn svg {
-        width: 16px !important;
-        height: 16px !important;
+        width: 16px;
+        height: 16px;
       }
 
     }
@@ -188,35 +188,35 @@
 
     @media (max-width: 768px) {
       .cred-calc-toggle-btn {
-        padding: 12px 14px !important;
+        padding: 12px 14px;
       }
       .cred-calc-header-left {
-        gap: 10px !important;
+        gap: 10px;
       }
       .cred-calc-icon-box {
-        width: 34px !important;
-        height: 34px !important;
+        width: 34px;
+        height: 34px;
       }
       .cred-calc-icon-box svg {
-        width: 17px !important;
-        height: 17px !important;
+        width: 17px;
+        height: 17px;
       }
       .cred-calc-title {
-        font-size: 13.5px !important;
+        font-size: 13.5px;
       }
       .cred-calc-subtitle {
-        display: none !important;
+        display: none;
       }
       .cred-calc-body {
-        padding: 14px 12px 16px !important;
+        padding: 14px 12px 16px;
       }
       .cred-calc-grid {
-        grid-template-columns: 1fr !important;
-        gap: 10px !important;
+        grid-template-columns: 1fr;
+        gap: 10px;
       }
       .dash-charts-grid {
-        grid-template-columns: 1fr !important;
-        gap: 14px !important;
+        grid-template-columns: 1fr;
+        gap: 14px;
       }
     }
 
@@ -254,44 +254,44 @@
     }
 
     .modal-body-split {
-      display: flex !important;
-      flex: 1 1 0% !important;
-      min-height: 0 !important;
-      height: calc(100% - 126px) !important;
-      max-height: calc(100% - 126px) !important;
-      overflow: hidden !important;
+      display: flex;
+      flex: 1 1 0%;
+      min-height: 0;
+      height: calc(100% - 126px);
+      max-height: calc(100% - 126px);
+      overflow: hidden;
     }
 
     .expediente-sidebar {
-      height: 100% !important;
-      width: 220px !important;
-      min-width: 220px !important;
-      flex-shrink: 0 !important;
-      background: var(--surface-2) !important;
-      border-right: 1px solid var(--border-subtle) !important;
-      display: flex !important;
-      flex-direction: column !important;
-      gap: 5px !important;
-      padding: 14px 10px !important;
-      overflow-y: auto !important;
+      height: 100%;
+      width: 220px;
+      min-width: 220px;
+      flex-shrink: 0;
+      background: var(--surface-2);
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      padding: 14px 10px;
+      overflow-y: auto;
     }
 
     .expediente-nav-item {
-      display: flex !important;
-      align-items: center !important;
-      gap: 10px !important;
-      width: 100% !important;
-      padding: 9px 12px !important;
-      border-radius: 8px !important;
-      border: 1px solid transparent !important;
-      background: transparent !important;
-      color: var(--text-muted) !important;
-      font-family: var(--ui-font) !important;
-      font-size: 12.5px !important;
-      font-weight: 600 !important;
-      text-align: left !important;
-      cursor: pointer !important;
-      transition: background-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-spring) !important;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: var(--ui-font);
+      font-size: 12.5px;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      transition: background-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-spring);
       /* Sin will-change: este boton es de la barra lateral del expediente, o
          sea que esta DENTRO del elemento cuya anchura se anima al plegar el
          menu. Con el aviso cada uno era una capa propia, y al cambiar el ancho
@@ -337,10 +337,10 @@
     }
 
     .expediente-nav-item svg {
-      width: 17px !important;
-      height: 17px !important;
-      flex-shrink: 0 !important;
-      stroke: currentColor !important;
+      width: 17px;
+      height: 17px;
+      flex-shrink: 0;
+      stroke: currentColor;
     }
 
     .expediente-nav-item.active svg {
@@ -348,21 +348,21 @@
     }
 
     .expediente-content-area {
-      flex: 1 1 0% !important;
-      min-height: 0 !important;
-      padding: 20px 26px !important;
-      overflow-y: auto !important;
-      background: var(--surface-1) !important;
+      flex: 1 1 0%;
+      min-height: 0;
+      padding: 20px 26px;
+      overflow-y: auto;
+      background: var(--surface-1);
     }
 
     .modal-footer-pinned {
-      flex-shrink: 0 !important;
-      padding: 12px 22px !important;
-      border-top: 1px solid var(--border-subtle) !important;
-      display: flex !important;
-      justify-content: space-between !important;
-      align-items: center !important;
-      background: var(--surface-1) !important;
+      flex-shrink: 0;
+      padding: 12px 22px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--surface-1);
     }
 
     .child-identity-layout {
@@ -374,8 +374,8 @@
     .child-photo-card {
       width: 215px;
       min-width: 215px;
-      background: var(--surface-1) !important;
-      border: 1px solid var(--border-subtle) !important;
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
       border-radius: 12px;
       padding: 16px;
       display: flex;
@@ -826,8 +826,8 @@
       /* La linea completa que antes ocupaba un solo boton se reparte entre los
          tres: misma altura, mismo ritmo, sin que ninguno jale mas que otro. */
       .exp-foto-acciones {
-        flex-direction: row !important;
-        gap: 8px !important;
+        flex-direction: row;
+        gap: 8px;
       }
 
       .exp-foto-acciones > .btn-action {
@@ -849,15 +849,15 @@
   border-right: 1px solid var(--border-subtle) !important;
 }
 .expediente-content-area {
-  background: var(--surface-1) !important;
+  background: var(--surface-1);
 }
 .child-photo-card {
   background: var(--surface-1) !important;
   border: 1px solid var(--border-subtle) !important;
 }
 .child-photo-frame {
-  background: var(--surface-2) !important;
-  border: 2px solid var(--border-subtle) !important;
+  background: var(--surface-2);
+  border: 2px solid var(--border-subtle);
 }
 
 /* === OPTIMIZACIÓN MÓVIL TOTAL EXPEDIENTE (ALTA PRIORIDAD PARA ANDROID <= 768px) === */
