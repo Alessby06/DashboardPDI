@@ -395,9 +395,9 @@ export const SocialKanbanView = {
           ${marcaEstado(escapar(c.urgencia), TONO_URGENCIA[c.urgencia] || 'idle')}
         </div>
         <div class="kanban-card-meta">
-          <a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(c.codigo)}')" class="kanban-card-code-link" title="Abrir expediente">
+          <button type="button" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(c.codigo)}')" class="kanban-card-code-link" title="Abrir expediente">
             ${escapar(c.codigo)}
-          </a>
+          </button>
           <span class="kanban-card-sede" title="${escapar(c.sede)}">
             ${iconHtml("lugar.ubicacion", { size: 11 })}
             <span>${escapar(c.sede)}</span>

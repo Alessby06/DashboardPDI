@@ -96,6 +96,7 @@ export const BeneficiarioController = {
     const navLink = document.getElementById("expLinkGoogleMapsNav");
     if (navLink) {
       navLink.href = `https://www.google.com/maps/dir/?api=1&destination=${searchQuery}`;
+      navLink.removeAttribute("aria-disabled");
     }
 
     if (indicator) indicator.style.display = 'none';
@@ -133,6 +134,7 @@ export const BeneficiarioController = {
         const navLink = document.getElementById("expLinkGoogleMapsNav");
         if (navLink) {
           navLink.href = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+          navLink.removeAttribute("aria-disabled");
         }
 
         if (indicator) indicator.style.display = 'none';

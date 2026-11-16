@@ -935,9 +935,9 @@ export const AuditView = {
                       <span class="audit-meta-chip">Entidad: <code>${escapar(l.entity || 'N/A')}</code></span>
                       ${l.submodulo ? `<span class="audit-meta-chip">Área: <strong>${escapar(l.submodulo)}</strong></span>` : ''}
                       ${isUsuario ? `
-                        <a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(l.entity)}')" class="audit-entity-link">
+                        <button type="button" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(l.entity)}')" class="audit-entity-link">
                           Abrir Expediente →
-                        </a>
+                        </button>
                       ` : ''}
                     </div>
                     <div class="audit-expanded-actions">
@@ -966,7 +966,7 @@ export const AuditView = {
         mobileContainer.innerHTML = logs.map((l, index) => {
           const isUsuario = (l.entity && l.entity.startsWith("PDI-"));
           const entityHtml = isUsuario 
-            ? `<a href="javascript:void(0)" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(l.entity)}')" class="audit-entity-link audit-entity-link--usuario" title="Abrir expediente del usuario"><code class="audit-entity-code audit-entity-code--usuario">${escapar(l.entity)}</code></a>`
+            ? `<button type="button" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(l.entity)}')" class="audit-entity-link audit-entity-link--usuario" title="Abrir expediente del usuario"><code class="audit-entity-code audit-entity-code--usuario">${escapar(l.entity)}</code></button>`
             : `<code class="audit-entity-code" title="${escapar(l.entity)}">${escapar(l.entity)}</code>`;
 
           const logIdStr = l.id || "";

@@ -1094,6 +1094,9 @@
     }
 
     .kanban-card-code-link {
+      /* Accion que abre el expediente, no un enlace: boton con piel de codigo. */
+      appearance: none;
+      cursor: pointer;
       font-family: var(--mono-font);
       font-size: 11px;
       font-weight: 600;

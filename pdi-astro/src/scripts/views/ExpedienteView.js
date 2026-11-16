@@ -1157,6 +1157,7 @@ export const ExpedienteView = {
       enlace.href = hayCoordenadas
         ? `https://www.google.com/maps/dir/?api=1&destination=${b.coordenadas.lat},${b.coordenadas.lng}`
         : `https://www.google.com/maps/dir/?api=1&destination=${consulta}`;
+      enlace.removeAttribute("aria-disabled");
     }
 
     const vista = document.getElementById("expFachadaPreview");

@@ -667,6 +667,15 @@
       display: inline-flex;
       align-items: center;
       gap: 3px;
+      /* Es una accion, no una navegacion: se dibuja como enlace sin los
+         controles nativos del boton. */
+      background: none;
+      border: 0;
+      padding: 0;
+      font: inherit;
+      color: inherit;
+      cursor: pointer;
+      text-align: left;
     }
 
     @media (hover: hover) and (pointer: fine) {
