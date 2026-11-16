@@ -18,7 +18,7 @@ const AQUI = path.dirname(fileURLToPath(import.meta.url));
 const ESTILOS = path.join(AQUI, '..', 'src', 'styles');
 
 const PRESUPUESTO = {
-  'base.css': 77,
+  'base.css': 40,
   'button-motion.css': 1,
   'components.css': 44,
   'custom-select.css': 12,
@@ -39,7 +39,7 @@ const PRESUPUESTO = {
   'views-voluntariados.css': 53,
 };
 
-const TOPE_TOTAL = 553;
+const TOPE_TOTAL = 516;
 
 test('el presupuesto de !important solo puede bajar', () => {
   const fallos = [];

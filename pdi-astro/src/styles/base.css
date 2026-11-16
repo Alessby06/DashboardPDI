@@ -176,9 +176,9 @@
     .sidebar .logo-text,
     .sidebar .nav-btn > span,
     .sidebar .nav-label {
-      opacity: 1 !important;
-      visibility: visible !important;
-      transform: none !important;
+      opacity: 1;
+      visibility: visible;
+      transform: none;
     }
 
     /* ==================================================================
@@ -189,25 +189,25 @@
        ================================================================== */
     @media (min-width: 901px) {
       .sidebar-backdrop {
-        display: none !important;
-        opacity: 0 !important;
-        visibility: hidden !important;
-        pointer-events: none !important;
+        display: none;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
       }
 
       .sidebar {
-        position: relative !important;
-        width: 280px !important;
-        min-width: 280px !important;
-        max-width: 280px !important;
-        height: 100vh !important;
-        height: 100dvh !important;
-        margin-left: 0 !important;
+        position: relative;
+        width: 280px;
+        min-width: 280px;
+        max-width: 280px;
+        height: 100vh;
+        height: 100dvh;
+        margin-left: 0;
         overflow: hidden;
         transform: translate3d(0, 0, 0);
-        box-shadow: none !important;
-        z-index: auto !important;
-        flex-shrink: 0 !important;
+        box-shadow: none;
+        z-index: auto;
+        flex-shrink: 0;
         transition: transform var(--dur-rail) var(--ease-drawer),
                     background-color var(--dur-theme) cubic-bezier(0.16, 1, 0.3, 1),
                     border-color var(--dur-theme) cubic-bezier(0.16, 1, 0.3, 1);
@@ -252,8 +252,8 @@
 
       .main-wrapper {
         position: relative;
-        flex: 1 1 0% !important;
-        min-width: 0 !important;
+        flex: 1 1 0%;
+        min-width: 0;
       }
     }
 
@@ -264,28 +264,28 @@
        ================================================================== */
     @media (max-width: 900px) {
       .sidebar {
-        position: fixed !important;
-        left: 0 !important;
-        top: 0 !important;
-        bottom: 0 !important;
-        height: 100vh !important;
-        height: 100dvh !important;
-        width: min(300px, 84vw) !important;
-        min-width: min(300px, 84vw) !important;
-        z-index: 1050 !important;
-        transform: translate3d(-100%, 0, 0) !important;
-        margin-left: 0 !important;
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        height: 100vh;
+        height: 100dvh;
+        width: min(300px, 84vw);
+        min-width: min(300px, 84vw);
+        z-index: 1050;
+        transform: translate3d(-100%, 0, 0);
+        margin-left: 0;
         backface-visibility: hidden;
         -webkit-backface-visibility: hidden;
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
         will-change: transform;
         touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
         contain: layout style;
         transition: transform var(--dur-nav) var(--ease-drawer),
                     background-color var(--dur-theme) var(--ease-drawer),
-                    border-color var(--dur-theme) var(--ease-drawer) !important;
+                    border-color var(--dur-theme) var(--ease-drawer);
       }
 
       .sidebar.open {
@@ -293,8 +293,8 @@
       }
 
       .sidebar-backdrop {
-        display: block !important;
-        position: fixed !important;
+        display: block;
+        position: fixed;
         top: 0;
         left: 0;
         right: 0;
@@ -797,7 +797,7 @@
        estado cerrado inclinado se hace sin transición para que no reaparezca
        un instante. */
     .pdi-sin-transicion {
-      transition: none !important;
+      transition: none;
     }
 
     /* Barras de scroll finas y consistentes en todo el sistema. Se aplica a
@@ -891,7 +891,7 @@
         gap: 10px;
       }
       .topbar-brand-wrap {
-        display: none !important;
+        display: none;
       }
       .topbar-right .btn-action span {
         display: none;
