@@ -215,7 +215,8 @@
   color: var(--text-brand);
 }
 
-.eval-card-head h3 {
+.eval-card-head h2,
+  .eval-card-head h3 {
   margin: 0;
   font-size: 16px;
   font-weight: 800;
