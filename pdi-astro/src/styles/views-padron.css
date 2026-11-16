@@ -731,46 +731,6 @@
   flex-wrap: wrap;
 }
 
-.view-actions .btn-action {
-  height: 38px;
-  padding: 0 16px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  border-radius: var(--radius-md);
-  box-sizing: border-box;
-  cursor: pointer;
-  transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);
-}
-
-.view-actions .btn-action:not(.primary) {
-  background: var(--surface-1);
-  color: var(--text-main);
-  border: 1px solid var(--border-subtle);
-  box-shadow: var(--shadow-sm);
-}
-
-/* El hover solo existe con puntero fino: en táctil el navegador deja el
-   :hover pegado tras el toque y el botón parecía seguir pulsado. */
-@media (hover: hover) and (pointer: fine) {
-  .view-actions .btn-action:not(.primary):hover {
-    background: var(--surface-hover);
-    border-color: var(--border-bright);
-    color: var(--text-main);
-  }
-}
-
-.view-actions .btn-action.primary {
-  color: var(--on-brand);
-  font-weight: 700;
-  font-size: 13px;
-  padding: 0 16px;
-  border-radius: var(--radius-md);
-
-}
-
 /* El botón de Archivo: contenido centrado y contador pegado a la etiqueta. */
 #btnPadronArchivo {
   justify-content: center;
