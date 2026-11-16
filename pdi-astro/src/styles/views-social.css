@@ -122,7 +122,7 @@
         }
 
         .stage-seg-btn .stage-dot {
-          display: none !important;
+          display: none;
         }
 
         .stage-seg-btn .count {
@@ -141,7 +141,7 @@
       }
 
       .social-mobile-stage-dropdown {
-        display: none !important;
+        display: none;
       }
     }
 
@@ -175,8 +175,8 @@
     }
 
     .kanban-col {
-      background: var(--surface-2) !important;
-      border: 1px solid var(--border-subtle) !important;
+      background: var(--surface-2);
+      border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
       display: flex;
       flex-direction: column;
@@ -249,7 +249,7 @@
 
     .kanban-col-body {
       padding: 12px;
-      overflow-y: auto !important;
+      overflow-y: auto;
       overflow-x: hidden;
       display: flex;
       flex-direction: column;
@@ -295,8 +295,8 @@
     }
 
     .kanban-col {
-      background: transparent !important;
-      border: 0 !important;
+      background: transparent;
+      border: 0;
       border-radius: 0;
       overflow: visible;
     }
@@ -324,26 +324,26 @@
     /* Mobile Controls Row (ASP Kanban) */
     @media (max-width: 768px) {
       .sedes-controls-row {
-        display: flex !important;
-        align-items: center !important;
-        gap: 8px !important;
+        display: flex;
+        align-items: center;
+        gap: 8px;
       }
 
       .audit-search-wrap {
-        flex: 1 1 auto !important;
-        min-width: 0 !important;
+        flex: 1 1 auto;
+        min-width: 0;
       }
 
       .social-controls-actions-wrap {
-        display: flex !important;
-        align-items: center !important;
-        gap: 8px !important;
-        width: auto !important;
-        flex-shrink: 0 !important;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: auto;
+        flex-shrink: 0;
       }
 
       .social-mobile-stage-dropdown {
-        display: none !important;
+        display: none;
       }
 
       .kanban-board {
@@ -363,13 +363,13 @@
 
       .kanban-col {
         flex: 1 1 100%;
-        width: 100% !important;
-        min-width: 100% !important;
-        max-width: 100% !important;
-        height: auto !important;
-        max-height: none !important;
-        min-height: 0 !important;
-        overflow: visible !important;
+        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
+        height: auto;
+        max-height: none;
+        min-height: 0;
+        overflow: visible;
       }
 
       .kanban-col-header .count {
@@ -377,13 +377,13 @@
     }
 
     .kanban-col-body {
-        max-height: none !important;
-        height: auto !important;
-        min-height: 0 !important;
-        overflow-y: visible !important;
-        overflow-x: visible !important;
-        overscroll-behavior: auto !important;
-        touch-action: auto !important;
+        max-height: none;
+        height: auto;
+        min-height: 0;
+        overflow-y: visible;
+        overflow-x: visible;
+        overscroll-behavior: auto;
+        touch-action: auto;
         padding: 12px;
       }
 
@@ -509,8 +509,8 @@
        el usuario esta moviendo, no leyendo. */
     body.kanban-drag-activo,
     body.kanban-drag-activo * {
-      user-select: none !important;
-      -webkit-user-select: none !important;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     .kanban-card[data-bloqueada="1"] {
@@ -608,7 +608,7 @@
       box-shadow: var(--shadow-sm);
       box-sizing: border-box;
       min-width: 0;
-      flex-shrink: 0 !important; /* CRITICO: evita que flexbox aplaste y corte los botones en columnas con 3+ tarjetas */
+      flex-shrink: 0; /* CRITICO: evita que flexbox aplaste y corte los botones en columnas con 3+ tarjetas */
       -webkit-user-drag: none;
     }
 
@@ -654,8 +654,8 @@
 
     /* Solicitud de cambio en proceso */
     .kanban-card.en-proceso-autorizacion {
-      border-color: var(--gt-yellow-border) !important;
-      background: linear-gradient(180deg, var(--gt-yellow-bg) 0%, var(--surface-1) 100%) !important;
+      border-color: var(--gt-yellow-border);
+      background: linear-gradient(180deg, var(--gt-yellow-bg) 0%, var(--surface-1) 100%);
     }
 
     .kanban-card-pending-notice {
@@ -1308,62 +1308,62 @@
 
     @media (max-width: 768px) {
       .audit-view-header {
-        margin-bottom: 8px !important;
+        margin-bottom: 8px;
       }
       .audit-header-title-row {
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        flex-wrap: nowrap !important;
-        gap: 8px !important;
-        width: 100% !important;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: nowrap;
+        gap: 8px;
+        width: 100%;
       }
       .audit-header-left {
-        display: flex !important;
-        align-items: center !important;
-        gap: 6px !important;
-        flex: 1 1 auto !important;
-        min-width: 0 !important;
-        flex-wrap: nowrap !important;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex: 1 1 auto;
+        min-width: 0;
+        flex-wrap: nowrap;
       }
       .audit-header-left h2 {
-        font-size: clamp(18px, 4.5vw, 22px) !important;
-        line-height: 1.25 !important;
-        margin: 0 !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
+        font-size: clamp(18px, 4.5vw, 22px);
+        line-height: 1.25;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
       .audit-legal-popover-wrapper {
-        flex-shrink: 0 !important;
-        display: inline-flex !important;
-        align-items: center !important;
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
       }
       .audit-legal-icon-btn {
-        width: 26px !important;
-        height: 26px !important;
-        flex-shrink: 0 !important;
+        width: 26px;
+        height: 26px;
+        flex-shrink: 0;
       }
       .audit-legal-icon-btn svg {
-        width: 13px !important;
-        height: 13px !important;
+        width: 13px;
+        height: 13px;
       }
       .audit-legal-popover {
-        position: fixed !important;
-        top: 65px !important;
-        left: 12px !important;
-        right: 12px !important;
-        width: auto !important;
-        max-width: calc(100vw - 24px) !important;
-        z-index: 1600 !important;
-        box-shadow: var(--shadow-overlay) !important;
+        position: fixed;
+        top: 65px;
+        left: 12px;
+        right: 12px;
+        width: auto;
+        max-width: calc(100vw - 24px);
+        z-index: 1600;
+        box-shadow: var(--shadow-overlay);
       }
       .audit-header-badge-actions {
-        width: auto !important;
-        flex-shrink: 0 !important;
-        display: flex !important;
-        align-items: center !important;
+        width: auto;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
       }
       /* Exportar es la unica accion de esta cabecera. El estandar movil le
          reservaba una fila entera y la dejaba sola contra el borde izquierdo,
@@ -1373,36 +1373,36 @@
         margin-top: 0 !important;
       }
       .btn-action-icon.btn-audit-export-icon {
-        width: 32px !important;
-        height: 32px !important;
-        flex-shrink: 0 !important;
+        width: 32px;
+        height: 32px;
+        flex-shrink: 0;
       }
       .btn-action-icon.btn-audit-export-icon svg {
-        width: 16px !important;
-        height: 16px !important;
+        width: 16px;
+        height: 16px;
       }
       .audit-summary-bar {
-        gap: 8px !important;
-        margin-bottom: 8px !important;
+        gap: 8px;
+        margin-bottom: 8px;
       }
       .audit-kpi-chip {
-        padding: 4px 10px !important;
-        border-radius: var(--radius-sm) !important;
-        gap: 6px !important;
+        padding: 4px 10px;
+        border-radius: var(--radius-sm);
+        gap: 6px;
       }
       .audit-kpi-icon-box {
-        width: 22px !important;
-        height: 22px !important;
+        width: 22px;
+        height: 22px;
       }
       .audit-kpi-icon-box svg {
-        width: 12px !important;
-        height: 12px !important;
+        width: 12px;
+        height: 12px;
       }
       .audit-kpi-label {
-        font-size: 10.5px !important;
+        font-size: 10.5px;
       }
       .audit-kpi-value {
-        font-size: 13px !important;
+        font-size: 13px;
       }
 }
 
@@ -1522,109 +1522,109 @@
 
     @media (max-width: 768px) {
       .role-selector-wrap {
-        gap: 6px !important;
-        flex: 1 !important;
-        min-width: 0 !important;
-        align-items: center !important;
-        justify-content: flex-end !important;
+        gap: 6px;
+        flex: 1;
+        min-width: 0;
+        align-items: center;
+        justify-content: flex-end;
       }
       .role-label-full {
-        display: none !important;
+        display: none;
       }
       .role-label-short {
-        display: inline !important;
+        display: inline;
       }
       .role-selector-label {
-        font-size: 11.5px !important;
-        font-weight: 800 !important;
-        letter-spacing: 0.04em !important;
-        color: var(--text-brand) !important;
-        flex-shrink: 0 !important;
-        white-space: nowrap !important;
+        font-size: 11.5px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        color: var(--text-brand);
+        flex-shrink: 0;
+        white-space: nowrap;
       }
       .role-selector-wrap .custom-dropdown {
-        flex: 1 !important;
-        min-width: 0 !important;
-        max-width: 100% !important;
+        flex: 1;
+        min-width: 0;
+        max-width: 100%;
       }
       .role-selector-wrap .custom-dropdown-btn {
-        height: 36px !important;
-        padding: 0 10px !important;
-        font-size: 13px !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        justify-content: space-between !important;
+        height: 36px;
+        padding: 0 10px;
+        font-size: 13px;
+        width: 100%;
+        max-width: 100%;
+        justify-content: space-between;
       }
       .role-selector-wrap .custom-dropdown-btn .dropdown-label,
       #labelActiveRole {
-        font-size: 13px !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        white-space: nowrap !important;
-        flex: 1 !important;
-        text-align: left !important;
+        font-size: 13px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex: 1;
+        text-align: left;
       }
       .role-selector-wrap .custom-dropdown-menu {
-        left: 0 !important;
-        right: 0 !important;
-        width: 100% !important;
-        min-width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
+        left: 0;
+        right: 0;
+        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
       }
       .btn-role-info {
-        width: 28px !important;
-        height: 28px !important;
-        flex-shrink: 0 !important;
-        cursor: pointer !important;
+        width: 28px;
+        height: 28px;
+        flex-shrink: 0;
+        cursor: pointer;
       }
       .role-info-tooltip {
-        position: fixed !important;
-        top: 66px !important;
-        left: 12px !important;
-        right: 12px !important;
-        width: auto !important;
-        max-width: calc(100vw - 24px) !important;
-        box-shadow: var(--shadow-overlay) !important;
-        z-index: 1500 !important;
+        position: fixed;
+        top: 66px;
+        left: 12px;
+        right: 12px;
+        width: auto;
+        max-width: calc(100vw - 24px);
+        box-shadow: var(--shadow-overlay);
+        z-index: 1500;
       }
       .cred-calc-toggle-btn {
-        padding: 12px 14px !important;
+        padding: 12px 14px;
       }
       .cred-calc-header-left {
-        gap: 10px !important;
+        gap: 10px;
       }
       .cred-calc-icon-box {
-        width: 34px !important;
-        height: 34px !important;
+        width: 34px;
+        height: 34px;
       }
       .cred-calc-icon-box svg {
-        width: 17px !important;
-        height: 17px !important;
+        width: 17px;
+        height: 17px;
       }
       .cred-calc-title {
-        font-size: 13.5px !important;
+        font-size: 13.5px;
       }
       .cred-calc-subtitle {
-        display: none !important;
+        display: none;
       }
       /* La insignia ya no existe; la cabecera movil conserva su jerarquia. */
       .cred-calc-body {
         padding: 14px 12px 16px !important;
       }
       .cred-calc-grid {
-        grid-template-columns: 1fr !important;
-        gap: 10px !important;
+        grid-template-columns: 1fr;
+        gap: 10px;
       }
       .dash-charts-grid {
-        grid-template-columns: 1fr !important;
-        gap: 14px !important;
+        grid-template-columns: 1fr;
+        gap: 14px;
       }
     }
 
     @media (max-width: 480px) {
       #labelActiveRole {
-        font-size: 13px !important;
+        font-size: 13px;
       }
     }
 
@@ -1738,12 +1738,12 @@
 }
 
 .socio-num-input {
-  width: 65px !important;
+  width: 65px;
   font-family: var(--mono-font);
   font-weight: 700;
   text-align: center;
-  padding: 5px 8px !important;
-  font-size: 13px !important;
+  padding: 5px 8px;
+  font-size: 13px;
 }
 
 .socio-guide-box {
