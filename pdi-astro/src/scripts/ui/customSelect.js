@@ -46,7 +46,13 @@ const crearTrigger = (select) => {
   boton.setAttribute('aria-expanded', 'false');
 
   const ariaLabel = select.getAttribute('aria-label') || textoDeLabel(select);
-  if (ariaLabel) boton.setAttribute('aria-label', ariaLabel);
+  if (ariaLabel) {
+    // El nombre accesible incluye el valor visible. Sin esto, el boton dice
+    // "Filtrar por sede" y muestra "Todas las sedes": axe lo marca como
+    // label-content-name-mismatch y el dictado no encuentra el texto.
+    boton.dataset.pdiLabel = ariaLabel;
+    boton.setAttribute('aria-label', `${ariaLabel}: ${etiquetaVisible(select) || 'Selecciona…'}`);
+  }
   if (select.disabled) boton.disabled = true;
 
   // Conserva la geometria que el select tenia por estilo en linea.
@@ -97,6 +103,9 @@ const sincronizar = (select) => {
 
   trigger.disabled = select.disabled;
   valor.textContent = etiquetaVisible(select) || 'Selecciona…';
+  if (trigger.dataset.pdiLabel) {
+    trigger.setAttribute('aria-label', `${trigger.dataset.pdiLabel}: ${valor.textContent}`);
+  }
 
   if (menu) {
     menu.querySelectorAll('.pdi-select-option').forEach((item) => {

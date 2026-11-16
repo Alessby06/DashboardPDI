@@ -403,9 +403,17 @@ export const PerfilView = {
     const foto = this.cuenta?.foto || '';
     const iniciales = porId('perfilIniciales');
     const fotoEl = porId('perfilFoto');
+    const boton = porId('btnCambiarFoto');
     if (iniciales) {
-      iniciales.textContent = inicialesDe(this.cuenta?.nombre || '');
+      const texto = inicialesDe(this.cuenta?.nombre || '');
+      iniciales.textContent = texto;
       iniciales.style.display = foto ? 'none' : '';
+      // Las iniciales son texto visible: el nombre accesible las incluye para
+      // que coincida con lo que se ve y con lo que se dicta.
+      boton?.setAttribute(
+        'aria-label',
+        foto ? 'Opciones de la foto de perfil' : `${texto}, opciones de la foto de perfil`
+      );
     }
     if (fotoEl) {
       if (foto) {

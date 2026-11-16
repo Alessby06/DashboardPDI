@@ -244,7 +244,7 @@
       overflow: hidden;
     }
 
-    .expediente-title-text-group h3 {
+    .expediente-title-text-group #expPageTitle {
       margin: 0;
       font-size: 15.5px;
       font-weight: 700;
