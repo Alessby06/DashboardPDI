@@ -222,7 +222,7 @@ El sistema usa un registro cálido de neutros. Los valores viven en `variables.c
 
 ### Login Showcase
 
-La pantalla de acceso es una maqueta oscura fija, independiente del tema del panel. Usa su propio grupo de tokens —`--showcase-black`, `--showcase-surface`, `--showcase-ink` y `--showcase-shadow*`— y no debe reutilizar las superficies del tablero. Se declaran en la propia página porque el login no importa `variables.css`; esa duplicación es aislamiento de superficie, no deriva.
+La pantalla de acceso conserva su propia composición y sus tokens de showcase, pero comparte los neutros cálidos del sistema. El bloque de módulos mantiene el negro cálido como contraste de marca. Los tokens se declaran en la propia página porque el login no importa `variables.css`; esa duplicación es aislamiento de superficie, no deriva.
 
 ### Dark Theme
 
