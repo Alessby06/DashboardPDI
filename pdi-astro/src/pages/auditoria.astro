@@ -260,17 +260,18 @@ const OPCIONES_ORDEN_AUDIT = [
             </div>
 
             <div class="table-container desktop-table-view">
-              <table class="data-table">
+              <span id="auditRowHint" class="pdi-sr-only">Pulse Enter o Espacio para alternar el detalle del registro.</span>
+                <table class="data-table">
                 <caption class="pdi-sr-only">Bitácora de auditoría. Cada registro describe una operación con su usuario, acción, entidad afectada y detalle.</caption>
                 <thead>
                   <tr>
-                    <th scope="col" style="width:110px;">Severidad</th>
-                    <th scope="col" style="min-width:250px;">Título del Evento</th>
-                    <th scope="col" style="width:180px;">Módulo</th>
-                    <th scope="col" style="width:190px;">Autor</th>
-                    <th scope="col" style="width:105px;">Sede</th>
-                    <th scope="col" style="width:135px; text-align:right;">Fecha y Hora</th>
-                    <th scope="col" style="width:44px; text-align:center;"></th>
+                    <th scope="col" id="auditThSeveridad" style="width:110px;">Severidad</th>
+                    <th scope="col" id="auditThTitulo" style="min-width:250px;">Título del Evento</th>
+                    <th scope="col" id="auditThModulo" style="width:180px;">Módulo</th>
+                    <th scope="col" id="auditThAutor" style="width:190px;">Autor</th>
+                    <th scope="col" id="auditThSede" style="width:105px;">Sede</th>
+                    <th scope="col" id="auditThFecha" style="width:135px; text-align:right;">Fecha y Hora</th>
+                    <th scope="col" id="auditThAcciones" style="width:44px; text-align:center;"></th>
                   </tr>
                 </thead>
                 <tbody id="tbodyAuditLogs">

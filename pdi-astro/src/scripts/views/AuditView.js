@@ -879,7 +879,7 @@ export const AuditView = {
       if (logs.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="7" style="text-align:center; padding:32px; color:var(--text-dim);">
+            <td colspan="7" headers="auditThSeveridad auditThTitulo auditThModulo auditThAutor auditThSede auditThFecha auditThAcciones" style="text-align:center; padding:32px; color:var(--text-dim);">
               No se encontraron eventos de auditoría con los filtros y búsqueda especificados.
             </td>
           </tr>
@@ -896,7 +896,7 @@ export const AuditView = {
           return `
             <tr class="audit-row-interactive" id="audit-row-${escapar(logIdStr)}"
               tabindex="0" role="button" aria-expanded="false"
-              aria-label="Registro ${escapar(tituloText)}. Pulse Enter o Espacio para alternar detalles"
+              aria-describedby="auditRowHint"
               onclick="window.PDI?.AuditView?.toggleAuditRow('${escaparEnManejador(logIdStr)}')"
               onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.PDI?.AuditView?.toggleAuditRow('${escaparEnManejador(logIdStr)}'); }">
               <td>${getSeveridadBadge(l.severidad, l.status)}</td>
@@ -927,7 +927,7 @@ export const AuditView = {
               </td>
             </tr>
             <tr class="audit-row-details" id="details-${escapar(logIdStr)}" style="display:none;">
-              <td colspan="7">
+              <td colspan="7" headers="auditThSeveridad auditThTitulo auditThModulo auditThAutor auditThSede auditThFecha auditThAcciones">
                 <div class="audit-expanded-panel">
                   <div class="audit-expanded-header">
                     <div class="audit-expanded-meta-tags">
