@@ -654,12 +654,10 @@
     width: 100%;
   }
 
-  @layer views {
-.eval-foot-actions .btn-action {
+  .eval-foot-actions .btn-action {
     flex: 1;
     min-height: 42px;
   }
-}
 
   .eval-history-row {
     grid-template-columns: 1fr auto;
@@ -763,15 +761,13 @@
   width: 100%;
 }
 
-@layer views {
 .eval-empty-actions .btn-action {
   min-height: 40px;
   padding: 8px 18px;
   font-size: 13.5px;
   font-weight: 600;
-  text-decoration: none;
+  text-decoration: none !important;
   display: inline-flex;
   align-items: center;
   gap: 7px;
-}
 }

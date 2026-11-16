@@ -830,15 +830,13 @@
         gap: 8px;
       }
 
-      @layer views {
-.exp-foto-acciones > .btn-action {
-        flex: 1 1 0;
-        width: auto;
-        padding: 6px 2px;
-        font-size: 10px;
-        white-space: nowrap;
+      .exp-foto-acciones > .btn-action {
+        flex: 1 1 0 !important;
+        width: auto !important;
+        padding: 6px 2px !important;
+        font-size: 10px !important;
+        white-space: nowrap !important;
       }
-}
 
       /* Formularios en 1 Sola Columna para Móviles (Expediente y Nuevo Usuario) */
 
@@ -925,12 +923,10 @@
     flex-wrap: wrap !important;
   }
 
-  @layer views {
-.expediente-page-actions .modal-footer-pinned:has(#btnSaveExpChanges[style*="display: inline-flex"]) > div:last-child .btn-action {
-    flex: 1 1 0%;
-    justify-content: center;
+  .expediente-page-actions .modal-footer-pinned:has(#btnSaveExpChanges[style*="display: inline-flex"]) > div:last-child .btn-action {
+    flex: 1 1 0% !important;
+    justify-content: center !important;
   }
-}
 }
 
 /* === PORTADA DEL CARNET SIN FOTO ===

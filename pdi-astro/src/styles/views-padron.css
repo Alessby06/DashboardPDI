@@ -204,19 +204,15 @@
         display: flex;
         align-items: center;
       }
-      @layer views {
-.btn-action-icon.btn-audit-export-icon {
+      .btn-action-icon.btn-audit-export-icon {
         width: 32px;
         height: 32px;
         flex-shrink: 0;
       }
-}
-      @layer views {
-.btn-action-icon.btn-audit-export-icon svg {
+      .btn-action-icon.btn-audit-export-icon svg {
         width: 16px;
         height: 16px;
       }
-}
       .audit-summary-bar {
         gap: 8px;
         margin-bottom: 8px;
@@ -744,7 +740,6 @@
   flex-wrap: wrap;
 }
 
-@layer views {
 .view-actions .btn-action {
   height: 38px;
   padding: 0 16px;
@@ -758,30 +753,24 @@
   cursor: pointer;
   transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);
 }
-}
 
-@layer views {
 .view-actions .btn-action:not(.primary) {
   background: var(--surface-1);
   color: var(--text-main);
   border: 1px solid var(--border-subtle);
   box-shadow: var(--shadow-sm);
 }
-}
 
 /* El hover solo existe con puntero fino: en táctil el navegador deja el
    :hover pegado tras el toque y el botón parecía seguir pulsado. */
 @media (hover: hover) and (pointer: fine) {
-  @layer views {
-.view-actions .btn-action:not(.primary):hover {
+  .view-actions .btn-action:not(.primary):hover {
     background: var(--surface-hover);
     border-color: var(--border-bright);
     color: var(--text-main);
   }
 }
-}
 
-@layer views {
 .view-actions .btn-action.primary {
   color: var(--on-brand);
   font-weight: 700;
@@ -789,7 +778,6 @@
   padding: 0 16px;
   border-radius: var(--radius-md);
 
-}
 }
 
 /* El botón de Archivo: contenido centrado y contador pegado a la etiqueta. */
@@ -1045,8 +1033,7 @@
     margin-top: 4px;
   }
 
-  @layer views {
-#view-beneficiarios .view-actions .btn-action,
+  #view-beneficiarios .view-actions .btn-action,
   .view-actions .btn-action,
   .view-actions .btn-action.primary,
   #view-beneficiarios .view-actions .btn-action.primary {
@@ -1064,7 +1051,6 @@
     -webkit-tap-highlight-color: transparent;
   }
 }
-}
 
 @media (max-width: 420px) {
   #view-beneficiarios .view-actions,
@@ -1072,8 +1058,7 @@
     gap: 8px;
   }
 
-  @layer views {
-#view-beneficiarios .view-actions .btn-action,
+  #view-beneficiarios .view-actions .btn-action,
   .view-actions .btn-action,
   .view-actions .btn-action.primary,
   #view-beneficiarios .view-actions .btn-action.primary {
@@ -1083,15 +1068,12 @@
     padding: 0 6px;
     white-space: nowrap;
   }
-}
 
-  @layer views {
-#view-beneficiarios .view-actions .btn-action svg,
+  #view-beneficiarios .view-actions .btn-action svg,
   .view-actions .btn-action svg {
     width: 14px;
     height: 14px;
   }
-}
 }
 
 /* Los textos largos se recortan con elipsis dentro de su columna. */

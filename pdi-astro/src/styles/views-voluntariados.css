@@ -194,19 +194,15 @@
         display: flex;
         align-items: center;
       }
-      @layer views {
-.btn-action-icon.btn-audit-export-icon {
+      .btn-action-icon.btn-audit-export-icon {
         width: 32px;
         height: 32px;
         flex-shrink: 0;
       }
-}
-      @layer views {
-.btn-action-icon.btn-audit-export-icon svg {
+      .btn-action-icon.btn-audit-export-icon svg {
         width: 16px;
         height: 16px;
       }
-}
       .audit-summary-bar {
         gap: 8px;
         margin-bottom: 8px;
@@ -882,7 +878,6 @@
   flex-wrap: wrap;
 }
 
-@layer views {
 .view-actions .btn-action {
   height: 38px;
   padding: 0 16px;
@@ -896,30 +891,24 @@
   cursor: pointer;
   transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);
 }
-}
 
-@layer views {
 .view-actions .btn-action:not(.primary) {
   background: var(--surface-1);
   color: var(--text-main);
   border: 1px solid var(--border-subtle);
   box-shadow: var(--shadow-sm);
 }
-}
 
 /* Mismo criterio que el padrón: el hover pegajoso del táctil no debe dejar
    el botón con aspecto de pulsado. */
 @media (hover: hover) and (pointer: fine) {
-  @layer views {
-.view-actions .btn-action:not(.primary):hover {
+  .view-actions .btn-action:not(.primary):hover {
     background: var(--surface-hover);
     border-color: var(--border-bright);
     color: var(--text-main);
   }
 }
-}
 
-@layer views {
 .view-actions .btn-action.primary {
   color: var(--on-brand);
   font-weight: 700;
@@ -927,7 +916,6 @@
   padding: 0 16px;
   border-radius: var(--radius-md);
 
-}
 }
 
 /* --- CONTENEDOR GENERAL DEL PADRÓN --- */
@@ -1834,8 +1822,7 @@ Oscuro (ya cumplía 5.77–8.28): #2dd4bf 9.88 · #fcd34d 12.76 · #7dd3fc 11.03
     margin-top: 4px;
   }
 
-  @layer views {
-#view-voluntarios .view-actions .btn-action,
+  #view-voluntarios .view-actions .btn-action,
   .view-actions .btn-action,
   .view-actions .btn-action.primary,
   #view-voluntarios .view-actions .btn-action.primary {
@@ -1853,7 +1840,6 @@ Oscuro (ya cumplía 5.77–8.28): #2dd4bf 9.88 · #fcd34d 12.76 · #7dd3fc 11.03
     -webkit-tap-highlight-color: transparent;
   }
 }
-}
 
 @media (max-width: 420px) {
   #view-voluntarios .view-actions,
@@ -1861,8 +1847,7 @@ Oscuro (ya cumplía 5.77–8.28): #2dd4bf 9.88 · #fcd34d 12.76 · #7dd3fc 11.03
     gap: 8px;
   }
 
-  @layer views {
-#view-voluntarios .view-actions .btn-action,
+  #view-voluntarios .view-actions .btn-action,
   .view-actions .btn-action,
   .view-actions .btn-action.primary,
   #view-voluntarios .view-actions .btn-action.primary {
@@ -1872,15 +1857,12 @@ Oscuro (ya cumplía 5.77–8.28): #2dd4bf 9.88 · #fcd34d 12.76 · #7dd3fc 11.03
     padding: 0 6px;
     white-space: nowrap;
   }
-}
 
-  @layer views {
-#view-voluntarios .view-actions .btn-action svg,
+  #view-voluntarios .view-actions .btn-action svg,
   .view-actions .btn-action svg {
     width: 14px;
     height: 14px;
   }
-}
 }
 
 /* Ficha de voluntario en movil: el pie tenia nowrap y los tres botones
@@ -1910,32 +1892,24 @@ Oscuro (ya cumplía 5.77–8.28): #2dd4bf 9.88 · #fcd34d 12.76 · #7dd3fc 11.03
     justify-content: flex-start !important;
   }
 
-  @layer views {
-#modalFichaVoluntario .modal-caso-footer-left .btn-action {
+  #modalFichaVoluntario .modal-caso-footer-left .btn-action {
     width: 100%;
   }
-}
 
-  @layer views {
-#modalFichaVoluntario .modal-caso-footer-right .btn-action {
-    flex: 1 1 0;
-    min-width: 0;
+  #modalFichaVoluntario .modal-caso-footer-right .btn-action {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
   }
-}
 
-  @layer views {
-#modalFichaVoluntario .modal-caso-footer .btn-action {
-    height: 40px;
-    padding: 0 10px;
-    justify-content: center;
-    font-size: 12.5px;
+  #modalFichaVoluntario .modal-caso-footer .btn-action {
+    height: 40px !important;
+    padding: 0 10px !important;
+    justify-content: center !important;
+    font-size: 12.5px !important;
     white-space: nowrap;
   }
-}
 
-  @layer views {
-#modalFichaVoluntario .modal-caso-footer .btn-action svg {
+  #modalFichaVoluntario .modal-caso-footer .btn-action svg {
     flex: none;
   }
-}
 }

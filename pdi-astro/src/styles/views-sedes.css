@@ -92,19 +92,15 @@
         display: flex;
         align-items: center;
       }
-      @layer views {
-.btn-action-icon.btn-audit-export-icon {
+      .btn-action-icon.btn-audit-export-icon {
         width: 32px;
         height: 32px;
         flex-shrink: 0;
       }
-}
-      @layer views {
-.btn-action-icon.btn-audit-export-icon svg {
+      .btn-action-icon.btn-audit-export-icon svg {
         width: 16px;
         height: 16px;
       }
-}
       .audit-summary-bar {
         gap: 8px;
         margin-bottom: 8px;
@@ -806,8 +802,7 @@
     width: 100%;
   }
 
-  @layer views {
-.sedes-detail-actions .btn-action {
+  .sedes-detail-actions .btn-action {
     width: 100%;
     min-height: 44px;
     justify-content: center;
@@ -816,7 +811,6 @@
     padding: 0 10px;
     border-radius: var(--radius-md);
   }
-}
 
   .sedes-people-strip {
     grid-template-columns: repeat(2, minmax(0, 1fr));

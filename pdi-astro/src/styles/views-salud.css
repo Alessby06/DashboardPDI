@@ -192,19 +192,15 @@
         display: flex;
         align-items: center;
       }
-      @layer views {
-.btn-action-icon.btn-audit-export-icon {
+      .btn-action-icon.btn-audit-export-icon {
         width: 32px;
         height: 32px;
         flex-shrink: 0;
       }
-}
-      @layer views {
-.btn-action-icon.btn-audit-export-icon svg {
+      .btn-action-icon.btn-audit-export-icon svg {
         width: 16px;
         height: 16px;
       }
-}
       .audit-summary-bar {
         gap: 8px;
         margin-bottom: 8px;
