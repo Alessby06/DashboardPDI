@@ -62,6 +62,9 @@ const impeccableLive =
       /* Identidad Teal Gutenberg (DESIGN.md) */
       --brand-primary: #00715d;
       --brand-hover: #005c4b;
+      /* Alias del contrato global: `--brand-fill` es el relleno de accion. */
+      --brand-fill: var(--brand-primary);
+      --brand-fill-hover: var(--brand-hover);
       --brand-light: #00b494;
       --brand-surface: rgba(0, 180, 148, 0.08);
       --brand-border: rgba(0, 180, 148, 0.24);
@@ -98,8 +101,8 @@ const impeccableLive =
 
       /* Login showcase: valores fijos de la maqueta (no dependen del tema).
          La pagina no importa variables.css, asi que deben vivir aqui. */
-      --showcase-black: #000000;
-      --showcase-surface: #14161a;
+      --showcase-black: #12110f;
+      --showcase-surface: #1b1915;
       --showcase-ink: #0b0f14;
       --showcase-shadow: rgba(0, 0, 0, 0.3);
       --showcase-shadow-strong: rgba(0, 0, 0, 0.35);
@@ -133,6 +136,8 @@ const impeccableLive =
     [data-theme="dark"] {
       --brand-primary: #2ee6a0;
       --brand-hover: #6bffc4;
+      --brand-fill: var(--brand-primary);
+      --brand-fill-hover: var(--brand-hover);
       --brand-light: #6bffc4;
       --brand-surface: rgba(46, 230, 160, 0.14);
       --brand-border: rgba(46, 230, 160, 0.42);
@@ -723,6 +728,7 @@ const impeccableLive =
     .profile-card-btn {
       background: var(--surface-card);
       border: 1px solid var(--border-subtle);
+      color: var(--text-title);
       border-radius: var(--radius-md);
       padding: 9px 10px;
       font-family: var(--ui-font);
@@ -1548,21 +1554,26 @@ const impeccableLive =
   /* ── Aceptado 4b350464 · "Tinta azulada": botón primario en azul-negro #1c2233, sombra neutra y hover con un toque del azul del logo ACJG ── */
   /* Ajuste: negro puro (#000000) igual que las tarjetas de módulos, con hover casi negro
      y sombra neutra para que en tema claro conserve la separación del fondo. */
+  /* El CTA es la accion solida del sistema, no un bloque de marca: usa el
+     verde de accion con On Brand. En claro, #00715d con blanco (5,6:1); en
+     oscuro, el verde aclarado con tinta casi negra. Asi coincide con
+     "Nuevo Usuario" y el resto de acciones primarias. */
   .access-column .btn-primary-action {
-    background: var(--showcase-black);
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.2);
+    background: var(--brand-fill);
+    color: var(--on-brand);
+    box-shadow: 0 1px 3px rgba(var(--brand-rgb), 0.25);
   }
   .access-column .btn-primary-action:hover {
-    background: var(--showcase-surface);
+    background: var(--brand-fill-hover);
   }
   [data-theme="dark"] .access-column .btn-primary-action {
-    background: #ffffff;
-    color: var(--showcase-ink);
+    background: var(--brand-fill);
+    color: var(--on-brand);
     border: none;
-    box-shadow: 0 2px 14px var(--showcase-shadow-float);
+    box-shadow: 0 2px 14px rgba(var(--brand-rgb), 0.22);
   }
   [data-theme="dark"] .access-column .btn-primary-action:hover {
-    background: #e6e8ec;
+    background: var(--brand-fill-hover);
   }
   /* El spinner del botón es blanco sobre negro: en modo oscuro el fondo es blanco,
      así que sus bordes pasan a oscuro para que siga siendo visible. */

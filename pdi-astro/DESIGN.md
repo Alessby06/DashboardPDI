@@ -23,7 +23,6 @@ colors:
   rule-strong: "#a89d8b"
   rule-mid: "#c8bfae"
   on-brand: "#ffffff"
-  on-brand-fill: "#ffffff"
   on-solid: "#ffffff"
   on-scrim: "#ffffff"
 typography:
@@ -223,7 +222,7 @@ El sistema usa un registro cálido de neutros. Los valores viven en `variables.c
 
 ### Login Showcase
 
-La pantalla de acceso conserva su propia composición y sus tokens de showcase, pero comparte los neutros cálidos del sistema. El bloque de módulos mantiene el negro cálido como contraste de marca; el CTA usa `--brand-fill` con `--on-brand`. Los tokens se declaran en la propia página porque el login no importa `variables.css`; esa duplicación es aislamiento de superficie, no deriva.
+La pantalla de acceso conserva su propia composición y sus tokens de showcase, pero comparte los neutros cálidos del sistema. El bloque de módulos mantiene el negro cálido como contraste de marca; el CTA usa el verde de acción (`--brand-primary`, equivalente local de `--brand-fill`) con `--on-brand`. Los tokens se declaran en la propia página porque el login no importa `variables.css`; esa duplicación es aislamiento de superficie, no deriva.
 
 ### Dark Theme
 
