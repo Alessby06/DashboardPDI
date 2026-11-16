@@ -673,7 +673,7 @@ html[data-pdi-ready="1"] .pdi-skeleton {
 }
 
 .pdi-sk-retry:focus-visible {
-  outline: 2px solid var(--brand-primary);
+  outline: 2px solid var(--border-focus);
   outline-offset: 3px;
 }
 

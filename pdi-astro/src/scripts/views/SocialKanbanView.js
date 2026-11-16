@@ -756,7 +756,7 @@ export const SocialKanbanView = {
           if (detSol) {
             detSol.style.display = "block";
             detSol.innerHTML = `
-              <div style="font-weight: 700; color: #fbbf24; margin-bottom: 3px;">
+              <div style="font-weight: 700; color: var(--text-warning); margin-bottom: 3px;">
                 Solicitud en curso: ${caso.solicitudCambio.etapaOrigen.toUpperCase()} → ${caso.solicitudCambio.etapaDestino.toUpperCase()}
               </div>
               <div><strong>Motivo:</strong> ${escapar(caso.solicitudCambio.motivo)}</div>
@@ -780,7 +780,7 @@ export const SocialKanbanView = {
             ${caso.historialSolicitudes.map(h => `
               <div style="padding: 6px 8px; background: var(--surface-2); border-radius: 4px; border: 1px solid var(--border-subtle);">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                  <strong style="color: ${h.evento === 'aprobada' ? 'var(--gt-green)' : (h.evento === 'rechazada' ? '#f87171' : '#fbbf24')};">
+                  <strong style="color: ${h.evento === 'aprobada' ? 'var(--text-success)' : (h.evento === 'rechazada' ? 'var(--text-danger)' : 'var(--text-warning)')};">
                     ${h.evento === 'aprobada' ? 'Aprobada por Coordinación' : (h.evento === 'rechazada' ? 'Rechazada por Coordinación' : 'Solicitud Enviada')}
                   </strong>
                   <span style="font-family: var(--mono-font); font-size: 10px;">${escapar(h.fecha)}</span>
@@ -1341,7 +1341,7 @@ export const SocialKanbanView = {
 
               <!-- Motivo de la solicitud -->
               <div class="auth-justification-box">
-                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #d97706; margin-bottom: 3px; letter-spacing: 0.3px;">
+                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-warning); margin-bottom: 3px; letter-spacing: 0.3px;">
                   Sustento y Justificación Operativa:
                 </div>
                 <div style="font-size: 12.5px; line-height: 1.4; color: var(--text-main);">
@@ -1498,7 +1498,7 @@ export const SocialKanbanView = {
                   </div>
                 </div>
               ` : `
-                <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #d97706; background: rgba(245, 158, 11, 0.08); padding: 7px 12px; border-radius: var(--radius-sm); border: 1px dashed rgba(245, 158, 11, 0.3);">
+                <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-warning); background: var(--chip-yellow-bg); padding: 7px 12px; border-radius: var(--radius-sm); border: 1px dashed var(--gt-yellow-border);">
                   ${iconHtml("estado.pendiente", { size: 14 })}
                   <span>Esperando resolución de Coordinación General. El caso permanece en su fase actual hasta su aprobación.</span>
                 </div>

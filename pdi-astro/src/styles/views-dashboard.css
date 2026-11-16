@@ -916,7 +916,7 @@ body[data-page="dashboard"] #mainContent {
 }
 
 .dash-atencion-fila:focus-visible {
-  outline: 2px solid var(--gt-green);
+  outline: 2px solid var(--border-focus);
   outline-offset: 2px;
 }
 

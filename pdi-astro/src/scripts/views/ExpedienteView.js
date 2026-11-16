@@ -1086,15 +1086,26 @@ export const ExpedienteView = {
         timeEl.innerHTML = eventos.map(ev => {
           const isVisita = (ev.tipo || ev.tipo_evento || '').toLowerCase().includes('visita');
           const isDemuna = (ev.tipo || ev.tipo_evento || '').toLowerCase().includes('demuna');
-          let badgeBg = 'var(--accent)';
-          if (isVisita) badgeBg = 'var(--gt-green)';
-          else if (isDemuna) badgeBg = 'var(--gt-red)';
+          // Etiqueta de categoria, no estado solido: Chip con tinte y tinta
+          // (DESIGN.md). El relleno brillante con blanco daba 2,64:1.
+          let chipBg = 'var(--surface-2)';
+          let chipInk = 'var(--text-muted)';
+          let chipBorder = 'var(--border-subtle)';
+          if (isVisita) {
+            chipBg = 'var(--chip-green-bg)';
+            chipInk = 'var(--text-success)';
+            chipBorder = 'var(--gt-green-border)';
+          } else if (isDemuna) {
+            chipBg = 'var(--chip-red-bg)';
+            chipInk = 'var(--text-danger)';
+            chipBorder = 'var(--gt-red-border)';
+          }
 
           return `
             <div style="padding:10px 12px; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
               <div>
                 <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                  <span style="font-size:11px; font-weight:700; padding:2px 8px; border-radius:10px; background:${badgeBg}; color:#fff;">
+                  <span style="font-size:10.5px; font-weight:600; padding:3px 8px; border-radius:var(--radius-sm); background:${chipBg}; color:${chipInk}; border:1px solid ${chipBorder};">
                     ${escapar(ev.tipo || ev.tipo_evento || 'Atención')}
                   </span>
                   <strong style="font-size:12.5px; color:var(--text-main);">${escapar(ev.responsable || 'Personal PDI')}</strong>

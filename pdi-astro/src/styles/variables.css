@@ -18,9 +18,11 @@
   --border-medium: #b8ae9c;
   /* Paso intermedio de borde: checkboxes y marcos que no llegan a Rule Strong. */
   --rule-mid: #c8bfae;
-  /* Anillo de foco: un solo valor para los dos temas, resuelto desde el verde
-     de marca (DESIGN.md, Components · Hover / Focus). */
-  --border-focus: var(--gt-green);
+  /* Anillo de foco: usa el verde de accion, no el brillante. El brillante
+     (#00b494) da 2,32:1 sobre papel y no alcanza el 3:1 que WCAG 1.4.11 pide
+     para el indicador de foco; el de accion da 5,97:1 en claro y 11,8:1 en
+     oscuro (DESIGN.md, Components · Hover / Focus). */
+  --border-focus: var(--brand-fill);
   /* Tinta sobre un relleno solido saturado (rojo, ambar, azul): sigue el mismo
      criterio que On Brand, porque en oscuro esos rellenos se aclaran. */
   
@@ -77,7 +79,8 @@
 
   /* Verde de marca CUANDO EL COLOR ES TEXTO (optimizado para nitidez y contraste) */
   --text-brand: #00715d;
-  /* Variante de alto contraste para texto verde sobre tintes --brand-soft (5,09:1). */
+  /* Variante de alto contraste para texto verde sobre tintes --brand-soft
+     (6,7:1 sobre el tinte del 16 %; 7,5:1 sobre papel). */
   --text-brand-strong: #005c4b;
   
   /* Rojo, ambar y azul CUANDO EL COLOR ES TEXTO (vivos y con contraste accesible) */
@@ -178,7 +181,7 @@
   --dash-surface-2: var(--surface-2);
   --dash-hover: var(--surface-hover);
   --dash-rule: var(--border-subtle);
-  --dash-rule-strong: var(--border-medium);
+  --dash-rule-strong: var(--border-bright);
   --dash-ink: var(--text-main);
   --dash-muted: var(--text-muted);
   --dash-dim: var(--text-dim);
@@ -394,7 +397,7 @@
   --dash-surface-2: var(--surface-2);
   --dash-hover: var(--surface-hover);
   --dash-rule: var(--border-subtle);
-  --dash-rule-strong: var(--border-medium);
+  --dash-rule-strong: var(--border-bright);
   --dash-ink: var(--text-main);
   --dash-muted: var(--text-muted);
   --dash-dim: var(--text-dim);

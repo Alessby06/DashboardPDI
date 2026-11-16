@@ -696,7 +696,7 @@
 
 /* Teclado: las opciones son div con onclick; el foco tiene que verse. */
 .padron-dropdown-item:focus-visible {
-  outline: 2px solid var(--brand-primary);
+  outline: 2px solid var(--border-focus);
   outline-offset: -2px;
   background: var(--surface-hover);
 }

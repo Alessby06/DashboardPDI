@@ -4,8 +4,8 @@ description: "Gestión del Programa de Desarrollo Infantil: una sala de situaci�
 colors:
   brand-green: "#00b494"
   brand-green-text: "#00715d"
-  brand-green-deep: "#00715d"
   brand-action: "#00715d"
+  success-green-text: "#147235"
   clinical-amber: "#f59e0b"
   clinical-amber-text: "#9a4a05"
   territory-blue: "#0284c7"
@@ -185,6 +185,7 @@ Paleta de cuatro colores de marca sobre neutros cálidos. El color aparece solo 
 ### Tertiary
 - **Alert Red** (#ef4444): anemia moderada/severa y casos críticos. Como texto, **Alert Ink** (#b91c1c).
 - **Signal Orange** (#ea580c): cuarto nivel del semáforo MINSA; separa «moderada» de «severa».
+- **Success Ink** (#147235; oscuro `#2ee6a0`): confirmación y mejora como texto (`--text-success`). No es un verde de acción ni sustituye a `--text-brand`.
 
 ### Neutral
 - **Canvas** (#f2ece1): fondo de página.
@@ -207,7 +208,7 @@ El sistema usa un registro cálido de neutros. Los valores viven en `variables.c
 | Superficie hundida (`--dash-surface-2` → `--surface-2`) | `#efe8db` | `#191713` |
 | Hover (`--dash-hover` → `--surface-hover`) | `#ece4d6` | `rgba(244,239,229,0.08)` |
 | Regla (`--dash-rule` → `--border-subtle`) | `#e0d8c9` | `#2f2b25` |
-| Regla fuerte (`--dash-rule-strong` → `--border-medium`) | `#b8ae9c` | `#4a443a` |
+| Regla fuerte (`--dash-rule-strong` → `--border-bright`) | `#a89d8b` | `#8a8172` |
 | Tinta (`--dash-ink` → `--text-main`) | `#1b1a17` | `#f4efe5` |
 | Secundaria (`--dash-muted`) | `#5c574d` | `#c9c2b4` |
 | Dim (`--dash-dim`) | `#6f685c` | `#a39b8c` |
@@ -216,7 +217,7 @@ El sistema usa un registro cálido de neutros. Los valores viven en `variables.c
 | Rojo texto (`--dash-danger`) | `#b91c1c` | `#ff8b8b` |
 | Azul texto (`--dash-info`) | `#0369a1` | `#7cc4ff` |
 
-**Contraste:** tinta sobre papel 15,3:1; dim sobre papel 4,85:1; ámbar sobre papel 5,5:1; crema sobre negro cálido 16,5:1; dim oscura 6,9:1. El dim y el ámbar de la maqueta original se corrigieron para pasar AA en texto pequeño; no se usan los valores `#8b8478` ni `#b45309` sobre papel.
+**Contraste:** tinta sobre papel 15,3:1; dim sobre papel 4,85:1; ámbar sobre papel 5,5:1; crema sobre negro cálido 16,5:1; dim oscura 6,85:1 sobre el lienzo (`#12110f`) y 6,37:1 sobre la tarjeta (`#1b1915`). El dim y el ámbar de la maqueta original se corrigieron para pasar AA en texto pequeño; no se usan los valores `#8b8478` ni `#b45309` sobre papel.
 
 **The Warm Register Rule.** El registro cálido es global: los tokens núcleo de `variables.css` son la fuente. `--dash-*` son alias del dashboard y no se duplican en otras hojas.
 
@@ -241,6 +242,7 @@ No es una paleta nueva: son los mismos roles con otros valores. El fondo es un n
 | Ink Dim | `#6f685c` | `#a39b8c` |
 | Brand Green | `#00b494` | `#2ee6a0` |
 | Action Green | `#00715d` | `#2ee6a0` |
+| Success Ink | `#147235` | `#2ee6a0` |
 | Amber / Blue / Red | `#f59e0b` / `#0284c7` / `#ef4444` | `#ffc247` / `#7cc4ff` / `#ff8b8b` |
 | On Brand | `#ffffff` | `#00130c` |
 | On Solid | `#ffffff` | `#00130c` |
@@ -251,7 +253,7 @@ No es una paleta nueva: son los mismos roles con otros valores. El fondo es un n
 
 **The Green Is Not Decoration Rule.** El verde no rellena fondos grandes ni titula secciones: marca acción, estado normal y pertenencia.
 
-**The Two-Green Rule.** `#00b494` identifica (logo, puntos, barras, tintes); `#00715d` actúa en claro y el verde aclarado actúa en oscuro. Los botones sólidos y los CTA usan `--brand-fill`; las pestañas y selecciones usan `--brand-soft` con `--text-brand-strong`. El verde brillante no rellena una acción ni una pestaña activa.
+**The Two-Green Rule.** `#00b494` identifica (logo, puntos, barras, tintes); `#00715d` actúa en claro y el verde aclarado actúa en oscuro. Los botones sólidos y los CTA usan `--brand-fill`; las pestañas y selecciones usan `--brand-soft` con `--text-brand-strong`. El verde brillante no rellena una acción ni una pestaña activa. `--brand-hover` es un token de relleno: como texto se usa `--text-brand-strong` (7,5:1), nunca `--brand-hover` (3,16:1).
 
 **The Two-Ink Rule.** La tinta sobre marca o sobre un relleno saturado sale de `On Brand`/`On Solid`, nunca de un blanco fijo: en claro el relleno de acción es profundo y pide blanco; en oscuro el relleno se aclara y pide tinta casi negra (`#00130c`). Sobre un velo oscuro que no cambia con el tema, `On Scrim`. Blanco sobre #00715d da 5,6:1; sobre #00b494 da 2,6:1 y por eso el brillante no es un relleno de acción.
 
@@ -374,11 +376,11 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Neutral:** fondo Paper, borde Rule, Ink, 13.5/600, radio 10, padding 8/16.
 - **Primary:** fondo Gutenberg Action (`--brand-fill`: #00715d en claro; #2ee6a0 en oscuro), tinta `On Brand` (blanca en claro; casi negra en oscuro) y Sombra Small; solo la acción que cierra la tarea. El blanco sobre #00715d da 5,6:1. El hover usa `--brand-fill-hover` (#005c4b en claro; #6bffc4 en oscuro). El verde brillante #00b494 no se usa como relleno de acción.
 - **Micro action:** 30×30 con icono; en móvil, botón cuadrado de 34 con borde.
-- **Hover / Focus:** fondo Hover, borde Rule Strong; foco visible con anillo de 2 px del color de marca.
+- **Hover / Focus:** fondo Hover, borde Rule Strong; foco visible con anillo de 2 px de `--border-focus` (#00715d en claro; verde aclarado en oscuro), que da 5,97:1 sobre papel. El verde brillante no se usa para el foco: su 2,32:1 no alcanza el 3:1 de WCAG 1.4.11.
 
 ### Inputs / Fields
 - **Style:** fondo Paper, borde Rule, radio 10, padding 10/14, 14 px. En los modales los campos van sobre Paper para dar un paso de tono frente a la Surface del diálogo.
-- **Focus:** borde Rule Strong, sin glow ni sombra.
+- **Focus:** borde Rule Strong y anillo de teclado de 2 px con `--border-focus` y offset 2, sin glow ni sombra. El campo nunca pierde el contorno al enfocarse con teclado.
 - **Error / Disabled:** error con texto y borde Alert; deshabilitado en Ink Dim.
 - **Selects:** ningún `<select>` nativo se muestra sin mejorar. `src/scripts/ui/customSelect.js` los convierte al dropdown propio (`pdi-select` + `pdi-select-trigger` + `pdi-select-menu`, hoja `custom-select.css`): mismo `<select>` vivo para `id`, `name`, `value`, `required`, `disabled` y `onchange`; menú en `<body>` con `position: fixed` para que ningún modal lo recorte; entrada de 6 px + fundido en `--dur-norm` y salida en `--dur-fast`. Un `<select>` nuevo se mejora solo; si no se puede, se marca `data-pdi-select="native"` y se documenta la excepción.
 
@@ -486,6 +488,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Do** declarar los tokens de un componente compartido en su propia hoja, una vez por tema, en lugar de parchear la vista.
 - **Do** usar los tokens núcleo cálidos en todas las vistas; el dashboard puede usar los alias `--dash-*`, que apuntan a ellos.
 - **Do** usar `--brand-fill` para acciones sólidas y `--brand-soft` con `--text-brand-strong` para pestañas y selecciones; el verde brillante es identidad e indicador.
+- **Do** usar `--border-focus` para todo anillo de teclado, con 2 px y offset 2; es el único indicador de foco y debe superar 3:1.
 
 ### Don't:
 - **Don't** redeclarar tokens núcleo (color, superficie, borde, texto, sombra) en una hoja de vista. Los tokens de componente —`--filter-border`, `--sk-base`— viven en su hoja compartida y se declaran una sola vez por tema.
@@ -501,7 +504,9 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Don't** crear una paleta paralela: `--dash-*` son alias del dashboard, no valores propios que se copian a otras hojas.
 - **Don't** usar `--gt-green` o `--brand-primary` como relleno de un botón o de una pestaña activa, ni blanco sobre `#00b494`: una acción sólida va con `--brand-fill` y `--on-brand`.
 - **Don't** usar rojo en una barra de cobertura que no sea una alerta: el color de estado va en el punto o en el texto, no en la longitud de la barra.
-- **Don't** pintar texto con `--gt-green`, `--gt-yellow`, `--gt-blue` o `--gt-orange`: sobre un tinte claro el verde brillante da 2,2:1. La tinta de servicio usa `--text-brand`, `--text-warning`, `--text-info` o `--text-danger` (≥4,8:1 sobre su tinte).
+- **Don't** pintar texto con `--gt-green`, `--gt-yellow`, `--gt-blue` o `--gt-orange`: sobre un tinte claro el verde brillante da 2,2:1. La tinta de servicio usa `--text-brand`, `--text-warning`, `--text-info`, `--text-danger` o `--text-success` (≥4,8:1 sobre su tinte).
+- **Don't** usar `--brand-hover` ni `--brand-fill` como color de texto de un enlace: el primero da 3,16:1 sobre papel. El hover de un enlace va con `--text-brand-strong`.
+- **Don't** quitar el `outline` de un control con `:focus-visible`: el borde de 1 px no es un indicador de foco suficiente.
 - **Don't** dejar un `<select>` nativo visible ni estilizarlo por vista: todo desplegable de selección pasa por `customSelect.js` y `custom-select.css`. La única excepción es un control que no pueda mejorarse (por ejemplo, `multiple` o `size > 1`); se marca `data-pdi-select="native"` y se justifica en el código.
 
 ### Conformance Checklist
