@@ -253,6 +253,7 @@ import Icon from './Icon.astro';
     display: flex;
     align-items: center;
     gap: 8px;
+    min-width: 0;
   }
 
   .topbar-perfil {
@@ -270,6 +271,7 @@ import Icon from './Icon.astro';
     border-radius: 50%;
     border: 1px solid var(--border-subtle);
     background: var(--surface-2);
+    flex: none;
     color: var(--text-muted);
     font-size: 12.5px;
     font-weight: 800;
@@ -374,13 +376,14 @@ import Icon from './Icon.astro';
 
   @media (max-width: 520px) {
     .topbar-identidad strong {
-      max-width: 148px;
+      max-width: 160px;
       font-size: 13px;
     }
 
+    /* El rol largo empujaba el avatar fuera del viewport. En móvil el nombre
+       basta para identificar la sesión; el rol sigue en el menú y en perfil. */
     .topbar-identidad span {
-      max-width: 148px;
-      font-size: 11px;
+      display: none;
     }
   }
 

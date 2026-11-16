@@ -191,7 +191,7 @@
   fill: var(--text-muted);
 }
 .foco-base-thread {
-  fill: #94a3b8;
+  fill: var(--border-medium);
 }
 .foco-base-tip {
   fill: var(--text-dim);
@@ -208,19 +208,19 @@
 
 /* Estado 1: Modo Claro (Día - Foco en Reposo) */
 .foco-trigger-btn.state-light .foco-glass-body {
-  fill: rgba(226, 232, 240, 0.55);
-  stroke: #94a3b8;
+  fill: rgba(224, 216, 201, 0.55);
+  stroke: var(--border-medium);
   stroke-width: 2.5;
 }
 .foco-trigger-btn.state-light .foco-eyes-happy {
   display: block;
-  stroke: #475569;
+  stroke: var(--text-muted);
 }
 .foco-trigger-btn.state-light .foco-cheek {
   fill: rgba(244, 114, 182, 0.5);
 }
 .foco-trigger-btn.state-light .foco-smile {
-  stroke: #475569;
+  stroke: var(--text-muted);
 }
 
 /* Estado 2: Modo Oscuro (Noche - Foco Encendido Radiante) */

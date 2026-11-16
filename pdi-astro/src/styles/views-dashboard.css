@@ -125,7 +125,7 @@ body[data-page="dashboard"] #mainContent {
   color: var(--dash-muted);
   font-size: 12.5px;
   font-weight: 600;
-  box-shadow: 0 1px 3px rgba(27, 26, 23, 0.06);
+  box-shadow: var(--shadow-sm);
   transition: border-color var(--dur-fast) var(--ease-out);
 }
 

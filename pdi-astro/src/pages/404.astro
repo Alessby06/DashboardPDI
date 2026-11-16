@@ -13,7 +13,7 @@ import '../styles/fonts.css';
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>No encontramos esta página · PDI Johannes Gutenberg</title>
     <meta name="robots" content="noindex" />
-    <meta name="theme-color" content="#ffffff" id="metaThemeColor" />
+    <meta name="theme-color" content="#f5f0e6" id="metaThemeColor" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <script is:inline>
       // Tema antes del primer pintado: evita el destello claro al recargar en oscuro.
@@ -25,7 +25,7 @@ import '../styles/fonts.css';
             : guardado === 'dark';
           document.documentElement.setAttribute('data-theme', oscuro ? 'dark' : 'light');
           var meta = document.getElementById('metaThemeColor');
-          if (meta) meta.setAttribute('content', oscuro ? '#0d0d0f' : '#ffffff');
+          if (meta) meta.setAttribute('content', oscuro ? '#12110f' : '#f5f0e6');
         } catch (e) {
           document.documentElement.setAttribute('data-theme', 'light');
         }

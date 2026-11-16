@@ -11,16 +11,16 @@ colors:
   alert-red: "#ef4444"
   alert-red-text: "#dc2626"
   signal-orange: "#ea580c"
-  canvas: "#f4f6f9"
-  paper: "#f8fafc"
-  hover: "#eef2f6"
-  surface: "#ffffff"
-  ink: "#0f172a"
-  ink-soft: "#334155"
-  ink-dim: "#64748b"
-  rule: "#e2e8f0"
-  rule-strong: "#94a3b8"
-  rule-mid: "#cbd5e1"
+  canvas: "#f2ece1"
+  paper: "#f5f0e6"
+  hover: "#ece4d6"
+  surface: "#fbf8f1"
+  ink: "#1b1a17"
+  ink-soft: "#5c574d"
+  ink-dim: "#6f685c"
+  rule: "#e0d8c9"
+  rule-strong: "#a89d8b"
+  rule-mid: "#c8bfae"
   on-brand: "#ffffff"
   on-brand-fill: "#00130c"
   on-solid: "#ffffff"
@@ -159,12 +159,12 @@ El sistema se lee como la sala de situación que una coordinadora revisa antes d
 
 La densidad es la de un documento de trabajo, no la de un panel de marketing. Cada tarjeta responde a una pregunta operativa concreta y la responde una sola vez. La jerarquía se construye con tamaño y posición, no con peso acumulado ni con cajas dentro de cajas.
 
-El dashboard abre el **registro cálido** del producto: papel, tinta cálida y tarjetas color crema. El resto de las vistas conserva por ahora el lienzo frío del sistema; la migración completa se hará con los mismos tokens `--dash-*` una vez validada la referencia.
+El registro cálido es el del sistema completo: papel, tinta cálida y tarjetas color crema en todas las vistas, no solo en el dashboard. El dashboard es la referencia de esa gramática; `--dash-*` conserva los alias históricos del tablero y apunta a los tokens núcleo.
 
 La referencia viva es `/dashboard`, y su gramática se organiza en seis capas: lienzo, cabecera, tira de KPI, paneles de datos, contenido y estados. Toda superficie nueva hereda esas piezas; ninguna las vuelve a dibujar por su cuenta. El sistema funciona igual en tema claro y oscuro: no son dos diseños, es el mismo con dos juegos de valores.
 
 **Key Characteristics:**
-- El dashboard usa papel cálido (`#f5f0e6`) con tarjetas color crema; en oscuro, negro cálido (`#12110f`) con tinta crema (`#f4efe5`), no blanco puro. El resto del sistema conserva el lienzo frío hasta su migración.
+- El sistema usa papel cálido (`#f5f0e6`) con tarjetas color crema (`#fbf8f1`); en oscuro, negro cálido (`#12110f`) con tinta crema (`#f4efe5`), no blanco puro.
 - Separación por borde de 1 px; una sola sombra ambiente.
 - Manrope en todo el sistema, del rótulo al número.
 - Una cifra dominante por tarjeta; los conteos se quedan en tamaño micro.
@@ -173,41 +173,42 @@ La referencia viva es `/dashboard`, y su gramática se organiza en seis capas: l
 
 ## Colors
 
-Paleta de cuatro colores de marca sobre neutros fríos. El color aparece solo cuando comunica estado, serie de datos o acción.
+Paleta de cuatro colores de marca sobre neutros cálidos. El color aparece solo cuando comunica estado, serie de datos o acción.
 
 ### Primary
-- **Gutenberg Green** (#00b494): marca, acción primaria, barra de estado normal y acentos de datos. Como texto usa **Gutenberg Ink** (#00876f), porque el verde vivo no alcanza AA sobre blanco. **Gutenberg Deep** (#00715d) queda para estados presionados.
+- **Gutenberg Green** (#00b494): marca, acción primaria, barra de estado normal y acentos de datos. Como texto usa **Gutenberg Ink** (#00715d), porque el verde vivo no alcanza AA sobre papel. **Gutenberg Deep** (#00715d) queda para estados presionados.
 
 ### Secondary
-- **Clinical Amber** (#f59e0b): anemia leve, advertencias y seguimiento. Como texto, **Amber Ink** (#b45309).
-- **Territory Blue** (#0284c7): segundo distrito y datos informativos; sirve igual como texto.
+- **Clinical Amber** (#f59e0b): anemia leve, advertencias y seguimiento. Como texto, **Amber Ink** (#9a4a05).
+- **Territory Blue** (#0284c7): segundo distrito y datos informativos. Como texto, **Territory Ink** (#0369a1).
 
 ### Tertiary
-- **Alert Red** (#ef4444): anemia moderada/severa y casos críticos. Como texto, **Alert Ink** (#dc2626).
+- **Alert Red** (#ef4444): anemia moderada/severa y casos críticos. Como texto, **Alert Ink** (#b91c1c).
 - **Signal Orange** (#ea580c): cuarto nivel del semáforo MINSA; separa «moderada» de «severa».
 
 ### Neutral
-- **Canvas** (#f4f6f9): fondo del área de contenido.
-- **Paper** (#f8fafc): fondo base y superficie hundida (cabecera de tabla, campo en reposo).
-- **Hover** (#eef2f6): estado hover neutro. No lleva tinte de marca.
-- **Surface** (#ffffff): tarjetas, paneles y modales.
-- **Ink** (#0f172a): texto principal y cifras. **Ink Soft** (#334155): texto secundario. **Ink Dim** (#64748b): rótulos, notas y metadatos.
-- **Rule** (#e2e8f0): bordes y divisores. **Rule Strong** (#94a3b8): foco y hover de borde. **Rule Mid** (#cbd5e1): paso intermedio para checkboxes y marcos que no llegan a Rule Strong.
+- **Canvas** (#f2ece1): fondo de página.
+- **Paper** (#f5f0e6): fondo del área de contenido.
+- **Sunken** (#efe8db): superficie hundida (cabecera de tabla, campo en reposo, pista de barra).
+- **Hover** (#ece4d6): estado hover neutro. No lleva tinte de marca.
+- **Surface** (#fbf8f1): tarjetas, paneles y modales.
+- **Ink** (#1b1a17): texto principal y cifras. **Ink Soft** (#5c574d): texto secundario. **Ink Dim** (#6f685c): rótulos, notas y metadatos.
+- **Rule** (#e0d8c9): bordes y divisores. **Rule Strong** (#a89d8b): foco y hover de borde. **Rule Mid** (#c8bfae): paso intermedio para checkboxes y marcos que no llegan a Rule Strong.
 - **On Brand** (#ffffff; oscuro `#00130c`): tinta que se pinta encima del verde de marca. **On Solid** (#ffffff; oscuro `#00130c`): la misma tinta sobre cualquier relleno sólido saturado (rojo, ámbar, azul). **On Scrim** (#ffffff): tinta sobre un velo oscuro que se mantiene oscuro en ambos temas.
 
-### Dashboard Warm Register
+### Warm Register (global)
 
-El dashboard usa un grupo propio de tokens cálidos, declarados en `variables.css` y consumidos solo por `views-dashboard.css`. No son un cambio global: el resto de las vistas sigue con el lienzo frío y los mismos roles semánticos.
+El sistema usa un registro cálido de neutros. Los valores viven en `variables.css`; el dashboard conserva alias `--dash-*` que apuntan a los tokens núcleo, no una paleta paralela.
 
 | Rol | Claro | Oscuro |
 |---|---|---|
-| Papel (`--dash-paper`) | `#f5f0e6` | `#12110f` |
-| Superficie (`--dash-surface`) | `#fbf8f1` | `#1b1915` |
-| Superficie hundida (`--dash-surface-2`) | `#efe8db` | `#191713` |
-| Hover (`--dash-hover`) | `#ece4d6` | `rgba(244,239,229,0.08)` |
-| Regla (`--dash-rule`) | `#e0d8c9` | `#2f2b25` |
-| Regla fuerte (`--dash-rule-strong`) | `#c8bfae` | `#4a443a` |
-| Tinta (`--dash-ink`) | `#1b1a17` | `#f4efe5` |
+| Papel (`--dash-paper` → `--bg-base`) | `#f5f0e6` | `#12110f` |
+| Superficie (`--dash-surface` → `--surface-1`) | `#fbf8f1` | `#1b1915` |
+| Superficie hundida (`--dash-surface-2` → `--surface-2`) | `#efe8db` | `#191713` |
+| Hover (`--dash-hover` → `--surface-hover`) | `#ece4d6` | `rgba(244,239,229,0.08)` |
+| Regla (`--dash-rule` → `--border-subtle`) | `#e0d8c9` | `#2f2b25` |
+| Regla fuerte (`--dash-rule-strong` → `--border-medium`) | `#b8ae9c` | `#4a443a` |
+| Tinta (`--dash-ink` → `--text-main`) | `#1b1a17` | `#f4efe5` |
 | Secundaria (`--dash-muted`) | `#5c574d` | `#c9c2b4` |
 | Dim (`--dash-dim`) | `#6f685c` | `#a39b8c` |
 | Verde texto (`--dash-green`) | `#00715d` | `#2ee6a0` |
@@ -217,7 +218,7 @@ El dashboard usa un grupo propio de tokens cálidos, declarados en `variables.cs
 
 **Contraste:** tinta sobre papel 15,3:1; dim sobre papel 4,85:1; ámbar sobre papel 5,5:1; crema sobre negro cálido 16,5:1; dim oscura 6,9:1. El dim y el ámbar de la maqueta original se corrigieron para pasar AA en texto pequeño; no se usan los valores `#8b8478` ni `#b45309` sobre papel.
 
-**The Warm Register Rule.** Los tokens `--dash-*` no salen del dashboard. Si otra vista necesita el registro cálido, se migra el sistema completo con los mismos valores; no se importan a medias.
+**The Warm Register Rule.** El registro cálido es global: los tokens núcleo de `variables.css` son la fuente. `--dash-*` son alias del dashboard y no se duplican en otras hojas.
 
 ### Login Showcase
 
@@ -225,19 +226,19 @@ La pantalla de acceso es una maqueta oscura fija, independiente del tema del pan
 
 ### Dark Theme
 
-No es una paleta nueva: son los mismos roles con otros valores. El fondo es negro real para separar al máximo en pantallas mates y con luz ambiente alta.
+No es una paleta nueva: son los mismos roles con otros valores. El fondo es un negro cálido para separar al máximo en pantallas mates y con luz ambiente alta, sin la dureza del blanco puro sobre negro.
 
 | Rol | Claro | Oscuro |
 |---|---|---|
-| Canvas / fondo | `#f4f6f9` | `#000000` |
-| Surface (tarjeta) | `#ffffff` | `#0d0d0f` |
-| Paper (hundido) | `#f8fafc` | `#151518` |
-| Rule | `#e2e8f0` | `#34343c` |
-| Rule Strong | `#94a3b8` | `#9494a3` |
-| Rule Mid | `#cbd5e1` | `#4a4a55` |
-| Ink | `#0f172a` | `#ffffff` |
-| Ink Soft | `#334155` | `#dcdce4` |
-| Ink Dim | `#64748b` | `#b4b4c0` |
+| Canvas / fondo | `#f2ece1` | `#12110f` |
+| Surface (tarjeta) | `#fbf8f1` | `#1b1915` |
+| Paper (hundido) | `#efe8db` | `#191713` |
+| Rule | `#e0d8c9` | `#2f2b25` |
+| Rule Strong | `#a89d8b` | `#8a8172` |
+| Rule Mid | `#c8bfae` | `#4a443a` |
+| Ink | `#1b1a17` | `#f4efe5` |
+| Ink Soft | `#5c574d` | `#c9c2b4` |
+| Ink Dim | `#6f685c` | `#a39b8c` |
 | Brand Green | `#00b494` | `#2ee6a0` |
 | Amber / Blue / Red | `#f59e0b` / `#0284c7` / `#ef4444` | `#ffc247` / `#7cc4ff` / `#ff8b8b` |
 | On Brand | `#ffffff` | `#00130c` |
@@ -479,7 +480,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Do** dejar el borde de 1 px como separador principal; la sombra es solo ambiente.
 - **Do** verificar cada pieza en claro, en oscuro, en escritorio y en móvil antes de darla por terminada.
 - **Do** declarar los tokens de un componente compartido en su propia hoja, una vez por tema, en lugar de parchear la vista.
-- **Do** usar `--dash-*` para el registro cálido del dashboard; el resto del sistema conserva los tokens núcleo hasta la migración global.
+- **Do** usar los tokens núcleo cálidos en todas las vistas; el dashboard puede usar los alias `--dash-*`, que apuntan a ellos.
 
 ### Don't:
 - **Don't** redeclarar tokens núcleo (color, superficie, borde, texto, sombra) en una hoja de vista. Los tokens de componente —`--filter-border`, `--sk-base`— viven en su hoja compartida y se declaran una sola vez por tema.
@@ -492,7 +493,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Don't** fijar un tema con valores absolutos (`#ffffff`, `#000000`) en pantalla; usa los tokens. La impresión sí puede forzar papel blanco y tinta negra.
 - **Don't** dibujar badges ni píldoras tintadas para estado, conteo o etiqueta: el estado va como marca de punto + palabra, el conteo en micro y la etiqueta como Chip.
 - **Don't** añadir sombras de color para señalar alertas.
-- **Don't** importar `--dash-*` fuera del dashboard ni duplicar sus valores en otra hoja. El registro cálido es una excepción declarada, no una paleta paralela.
+- **Don't** crear una paleta paralela: `--dash-*` son alias del dashboard, no valores propios que se copian a otras hojas.
 - **Don't** usar rojo en una barra de cobertura que no sea una alerta: el color de estado va en el punto o en el texto, no en la longitud de la barra.
 - **Don't** dejar un `<select>` nativo visible ni estilizarlo por vista: todo desplegable de selección pasa por `customSelect.js` y `custom-select.css`. La única excepción es un control que no pueda mejorarse (por ejemplo, `multiple` o `size > 1`); se marca `data-pdi-select="native"` y se justifica en el código.
 
@@ -504,4 +505,4 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 5. La pieza se ve correcta en ambos temas y en 375 px de ancho.
 6. Ningún `<select>` nativo visible: todos pasan por `customSelect.js`; las excepciones llevan `data-pdi-select="native"` y están justificadas.
 7. Ningún badge: el estado se lee como marca (punto + palabra), el conteo como micro y la etiqueta como Chip. Una píldora tintada es una violación del contrato, no una variante.
-8. El dashboard usa `--dash-*` y ninguna otra vista los importa. La paleta cálida se migra completa o no se migra.
+8. El registro cálido es global; `--dash-*` son alias del dashboard y no duplican valores.

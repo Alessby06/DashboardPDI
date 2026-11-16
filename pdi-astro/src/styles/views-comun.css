@@ -18,8 +18,8 @@
        aqui, una vez por tema, porque esta es la hoja compartida de esos
        componentes; variables.css guarda los nucleos, no las pieles. */
     :root {
-      --sheet-veil-margen: rgba(15, 23, 42, 0.74);
-      --sheet-veil-borde: rgba(15, 23, 42, 0.38);
+      --sheet-veil-margen: rgba(18, 17, 15, 0.74);
+      --sheet-veil-borde: rgba(18, 17, 15, 0.38);
       --sheet-veil-marca: rgba(0, 180, 148, 0.09);
       /* Peso canonico de las cifras, tomado de .dash-kpi-value (30/385): el
          trazo fino separa la cifra del rotulo sin competir con el. Las
@@ -307,7 +307,7 @@
         width: 44px;
         height: 5px;
         border-radius: 999px;
-        background: var(--border-strong, #94a3b8);
+        background: var(--border-medium);
         opacity: 0.8;
         transition: transform var(--dur-fast), background var(--dur-fast);
       }
@@ -1984,7 +1984,7 @@ input[type="range"] {
           width: 100vw;
           height: 100vh;
           height: 100dvh;
-          background: rgba(15, 23, 42, 0.65);
+          background: var(--modal-overlay-bg);
           z-index: 1040;
           opacity: 0;
           visibility: hidden;
@@ -2308,7 +2308,7 @@ input[type="range"] {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(15, 23, 42, 0.6);
+  background: var(--modal-overlay-bg);
   color: var(--on-scrim);
   font-size: 12px;
   font-weight: 600;
@@ -2361,7 +2361,7 @@ input[type="range"] {
   bottom: 8px;
   padding: 3px 8px;
   border-radius: var(--radius-sm);
-  background: rgba(15, 23, 42, 0.72);
+  background: rgba(18, 17, 15, 0.72);
   color: var(--on-scrim);
   font-size: 10.5px;
   font-weight: 700;

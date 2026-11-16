@@ -607,7 +607,7 @@
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #ffffff;
+  background: var(--surface-1);
   border: 2px solid var(--gt-green);
   cursor: pointer;
   pointer-events: auto;
@@ -625,7 +625,7 @@
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #ffffff;
+  background: var(--surface-1);
   border: 2px solid var(--gt-green);
   cursor: pointer;
   pointer-events: auto;

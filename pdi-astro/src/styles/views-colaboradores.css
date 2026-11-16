@@ -11,9 +11,9 @@
   --colab-colegio-bg: var(--gt-blue-bg, rgba(2, 132, 199, 0.1));
   --colab-colegio-border: rgba(var(--brand-rgb, 0, 180, 148), 0.25);
   
-  --colab-iglesia-text: var(--text-main, #0f172a);
+  --colab-iglesia-text: var(--text-main);
   --colab-iglesia-bg: var(--surface-3, #f1f5f9);
-  --colab-iglesia-border: var(--border-medium, #cbd5e1);
+  --colab-iglesia-border: var(--border-medium);
 
   --colab-pdi-text: var(--brand-green-deep, #00715d);
   --colab-pdi-bg: var(--gt-green-bg, rgba(0, 180, 148, 0.1));

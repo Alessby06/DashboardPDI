@@ -727,7 +727,7 @@
     width: 44px !important;
     height: 5px !important;
     border-radius: 999px !important;
-    background: var(--border-strong, #94a3b8) !important;
+    background: var(--border-medium) !important;
     opacity: 0.8 !important;
     transition: transform var(--dur-fast), background var(--dur-fast) !important;
   }
