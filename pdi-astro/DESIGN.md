@@ -516,6 +516,12 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Don't** dejar una acción táctil por debajo de 44 px de alto, aunque en escritorio se vea a 30 o 34.
 - **Don't** dejar un `<select>` nativo visible ni estilizarlo por vista: todo desplegable de selección pasa por `customSelect.js` y `custom-select.css`. La única excepción es un control que no pueda mejorarse (por ejemplo, `multiple` o `size > 1`); se marca `data-pdi-select="native"` y se justifica en el código.
 
+### CSS Debt Budget
+
+La deuda de `!important` se paga por hoja y con medición, no por intuición. `tests/important-guard.test.js` fija un tope por archivo: puede bajar, nunca subir; una hoja nueva con `!important` falla con tope 0.
+
+Para bajar una hoja: se capturan los estilos computados de todos los elementos a 390 y 1440 px, con el estado cerrado y el estado abierto de la vista; se retira el `!important` de las reglas que no protegen una hoja inferior y se comparan las dos capturas. Solo se aplica al código si la diferencia es cero en los cuatro estados. Sedes fue la primera hoja: 199 → 113 sin un solo cambio medido.
+
 ### Conformance Checklist
 1. Ninguna hoja de vista declara tokens núcleo ni bloques `[data-theme]`; los de componente viven en su hoja compartida.
 2. Cero hex o `rgba()` nuevos fuera de `variables.css`.
