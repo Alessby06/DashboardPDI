@@ -79,7 +79,13 @@ import Icon from './Icon.astro';
       var fotoEl = document.getElementById("topbarAvatarFoto");
       var nombreEl = document.getElementById("topbarUsuarioNombre");
       var rolEl = document.getElementById("topbarUsuarioRol");
+      var botonEl = document.getElementById("btnPerfilMenu");
       if (inicialesEl) inicialesEl.textContent = iniciales;
+      // El nombre accesible incluye las iniciales visibles: quien usa dictado
+      // dice "VU", no "abrir menú de la cuenta".
+      if (botonEl && !foto) {
+        botonEl.setAttribute("aria-label", iniciales + ", abrir menú de la cuenta");
+      }
       if (nombreEl && nombre) nombreEl.textContent = nombre;
       if (rolEl) rolEl.textContent = roles[rol] || "Perfil";
       if (fotoEl && foto) {
@@ -114,6 +120,7 @@ import Icon from './Icon.astro';
   function pintar(cuenta) {
     const iniciales = document.getElementById('topbarAvatarIniciales');
     const foto = document.getElementById('topbarAvatarFoto');
+    const boton = document.getElementById('btnPerfilMenu');
     const nombre = document.getElementById('topbarUsuarioNombre');
     const rol = document.getElementById('topbarUsuarioRol');
     const nombreTexto = cuenta?.nombre || localStorage.getItem('pdi_usuario_nombre') || '';
@@ -121,8 +128,15 @@ import Icon from './Icon.astro';
     const rolTexto = cuenta?.rol || localStorage.getItem('pdi_active_role') || '';
 
     if (iniciales) {
-      iniciales.textContent = inicialesDe(nombreTexto);
+      const textoIniciales = inicialesDe(nombreTexto);
+      iniciales.textContent = textoIniciales;
       iniciales.style.display = fotoTexto ? 'none' : '';
+      // Con foto visible no hay texto que coincida; sin foto, las iniciales
+      // forman parte del nombre accesible para que el dictado las encuentre.
+      boton?.setAttribute(
+        'aria-label',
+        fotoTexto ? 'Abrir menú de la cuenta' : textoIniciales + ', abrir menú de la cuenta'
+      );
     }
     if (foto) {
       if (fotoTexto) {
