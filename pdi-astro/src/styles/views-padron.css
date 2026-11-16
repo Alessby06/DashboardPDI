@@ -1062,8 +1062,8 @@
   .view-actions .btn-action,
   .view-actions .btn-action.primary,
   #view-beneficiarios .view-actions .btn-action.primary {
-    height: 38px !important;
-    min-height: 38px !important;
+    height: 44px !important;
+    min-height: 44px !important;
     font-size: 11.5px !important;
     padding: 0 6px !important;
     white-space: nowrap !important;

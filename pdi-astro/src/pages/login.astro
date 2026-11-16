@@ -235,7 +235,8 @@ const impeccableLive =
       object-fit: contain;
     }
 
-    .showcase-brand-text h3 {
+    .showcase-brand-text .showcase-brand-name {
+      display: block;
       font-size: 14px;
       font-weight: 800;
       color: #ffffff;
@@ -975,7 +976,7 @@ const impeccableLive =
     --v-yellow: #f7cd03;
   }
   .showcase-emblem { background: var(--showcase-black); border-color: var(--border-subtle); }
-  .showcase-brand-text h3 { color: var(--text-title); }
+  .showcase-brand-text .showcase-brand-name { color: var(--text-title); }
   .showcase-brand-text p { color: var(--text-muted); }
   .showcase-body { margin: 26px 0; }
   .showcase-tagline {
@@ -1396,7 +1397,7 @@ const impeccableLive =
   /* ── Aceptado 9271afa6 · "Bandas y manifiesto sobrio": banda tricolor superior, cabecera fileteada, kicker en versalitas, titular 32px y módulos como registro abierto con acordeón ── */
   .showcase-column { padding: 44px 46px; }
   .showcase-header { padding-bottom: 22px; border-bottom: 1px solid var(--border-subtle); }
-  .showcase-brand-text h3 { font-size: 13px; font-weight: 600; letter-spacing: 0; }
+  .showcase-brand-text .showcase-brand-name { font-size: 13px; font-weight: 600; letter-spacing: 0; }
   .showcase-brand-text p { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; }
   .showcase-body { margin: 34px 0 26px; }
   .showcase-tagline {
@@ -1668,7 +1669,7 @@ const impeccableLive =
         <div class="showcase-header">
           <div class="showcase-emblem" aria-hidden="true"><img src="/assets/jg-icon.png" alt="Emblema ACJG" loading="lazy" decoding="async" /></div>
           <div class="showcase-brand-text">
-            <h3>Asociación Cultural Johannes Gutenberg</h3>
+            <span class="showcase-brand-name">Asociación Cultural Johannes Gutenberg</span>
             <p>Sedes de Intervención: Comas y Carabayllo</p>
           </div>
         </div>

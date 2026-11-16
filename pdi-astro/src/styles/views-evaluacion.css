@@ -39,7 +39,7 @@
   color: var(--text-muted);
 }
 
-.eval-head h2 {
+.eval-head h1 {
   margin: 2px 0 0;
   font-size: 24px;
   font-weight: 800;
@@ -629,7 +629,7 @@
     padding: 16px;
   }
 
-  .eval-head h2 {
+  .eval-head h1 {
     font-size: 21px;
   }
 

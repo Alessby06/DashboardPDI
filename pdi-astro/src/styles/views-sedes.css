@@ -899,7 +899,7 @@
   display: inline-flex !important;
   align-items: center !important;
   gap: 6px !important;
-  min-height: 38px !important;
+  min-height: 44px !important;
   padding: 6px 14px !important;
   background: var(--gt-green-bg) !important;
   border: 1px solid var(--gt-green-border) !important;

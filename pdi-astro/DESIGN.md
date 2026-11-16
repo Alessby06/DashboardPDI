@@ -340,10 +340,13 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 ## Components
 
 ### Page Header
-- **Title:** rol Title, Ink. **Subtitle:** rol Subtitle, Ink Dim, 4 px de separación.
+- **Title:** rol Title, Ink, y el **único `h1` de la página**. La marca del sidebar y del login es texto, no un encabezado. Las secciones van en `h2` y las subsecciones en `h3`.
+- **Subtitle:** rol Subtitle, Ink Dim, 4 px de separación.
 - **Separation:** 32 px entre el bloque de título y el primer contenido de la vista (24 px del `gap` de `.app-view` + 8 px de margen de la cabecera). La cabecera nunca arranca pegada a las tarjetas.
 - **Actions:** icono de 36×36 con borde Rule y radio 10; texto visible solo si hay espacio.
-- **Mobile:** bajo 640 px, título y acciones se apilan; bajo 420 px la acción queda solo con icono.
+- **Mobile:** bajo 640 px, título y acciones se apilan; bajo 420 px la acción queda solo con icono, con un objetivo táctil de 44×44.
+
+**The Single H1 Rule.** Cada página declara un solo `h1`: el título de la vista. La marca del sidebar y la del login se dibujan como texto, nunca como encabezado; las secciones de la vista son `h2` y las subsecciones `h3`. Un modal abierto es un contexto nuevo y su título es `h2`.
 
 ### Data Panel (signature)
 - **Skin:** Surface, borde Rule, radio 16, sombra ambiente, padding 18/20/10.
@@ -375,7 +378,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 ### Buttons
 - **Neutral:** fondo Paper, borde Rule, Ink, 13.5/600, radio 10, padding 8/16.
 - **Primary:** fondo Gutenberg Action (`--brand-fill`: #00715d en claro; #2ee6a0 en oscuro), tinta `On Brand` (blanca en claro; casi negra en oscuro) y Sombra Small; solo la acción que cierra la tarea. El blanco sobre #00715d da 5,6:1. El hover usa `--brand-fill-hover` (#005c4b en claro; #6bffc4 en oscuro). El verde brillante #00b494 no se usa como relleno de acción.
-- **Micro action:** 30×30 con icono; en móvil, botón cuadrado de 34 con borde.
+- **Micro action:** 30×30 con icono en puntero fino; con puntero grueso, 44×44. Toda acción táctil mide al menos 44 px de alto (PRODUCT.md).
 - **Hover / Focus:** fondo Hover, borde Rule Strong; foco visible con anillo de 2 px de `--border-focus` (#00715d en claro; verde aclarado en oscuro), que da 5,97:1 sobre papel. El verde brillante no se usa para el foco: su 2,32:1 no alcanza el 3:1 de WCAG 1.4.11.
 
 ### Inputs / Fields
@@ -489,6 +492,8 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Do** usar los tokens núcleo cálidos en todas las vistas; el dashboard puede usar los alias `--dash-*`, que apuntan a ellos.
 - **Do** usar `--brand-fill` para acciones sólidas y `--brand-soft` con `--text-brand-strong` para pestañas y selecciones; el verde brillante es identidad e indicador.
 - **Do** usar `--border-focus` para todo anillo de teclado, con 2 px y offset 2; es el único indicador de foco y debe superar 3:1.
+- **Do** reservar el `h1` para el título de la vista y usar `h2` para sus secciones; la marca es texto.
+- **Do** dar 44 px de alto a toda acción táctil con puntero grueso.
 
 ### Don't:
 - **Don't** redeclarar tokens núcleo (color, superficie, borde, texto, sombra) en una hoja de vista. Los tokens de componente —`--filter-border`, `--sk-base`— viven en su hoja compartida y se declaran una sola vez por tema.
@@ -507,6 +512,8 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Don't** pintar texto con `--gt-green`, `--gt-yellow`, `--gt-blue` o `--gt-orange`: sobre un tinte claro el verde brillante da 2,2:1. La tinta de servicio usa `--text-brand`, `--text-warning`, `--text-info`, `--text-danger` o `--text-success` (≥4,8:1 sobre su tinte).
 - **Don't** usar `--brand-hover` ni `--brand-fill` como color de texto de un enlace: el primero da 3,16:1 sobre papel. El hover de un enlace va con `--text-brand-strong`.
 - **Don't** quitar el `outline` de un control con `:focus-visible`: el borde de 1 px no es un indicador de foco suficiente.
+- **Don't** usar `h1` para la marca ni `h2` para el título de la página: rompe el árbol de navegación por encabezados.
+- **Don't** dejar una acción táctil por debajo de 44 px de alto, aunque en escritorio se vea a 30 o 34.
 - **Don't** dejar un `<select>` nativo visible ni estilizarlo por vista: todo desplegable de selección pasa por `customSelect.js` y `custom-select.css`. La única excepción es un control que no pueda mejorarse (por ejemplo, `multiple` o `size > 1`); se marca `data-pdi-select="native"` y se justifica en el código.
 
 ### Conformance Checklist

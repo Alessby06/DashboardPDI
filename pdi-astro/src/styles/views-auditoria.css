@@ -249,7 +249,7 @@
       min-width: 0;
     }
 
-    .audit-header-left h2 {
+    .audit-header-left h1 {
       margin: 0;
       font-size: 22px !important;
       font-weight: 700;
@@ -470,7 +470,7 @@
         min-width: 0 !important;
         flex-wrap: nowrap !important;
       }
-      .audit-header-left h2 {
+      .audit-header-left h1 {
         font-size: clamp(18px, 4.5vw, 22px) !important;
         line-height: 1.25 !important;
         margin: 0 !important;

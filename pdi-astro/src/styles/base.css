@@ -423,7 +423,7 @@
       overflow: hidden;
     }
 
-    .logo-text h1 {
+    .logo-text .logo-nombre {
       font-size: 15px;
       font-weight: 700;
       letter-spacing: -0.01em;
@@ -855,7 +855,7 @@
       flex-wrap: wrap;
     }
 
-    .view-title-group h2 {
+    .view-title-group h1 {
       font-size: clamp(18px, 4.5vw, 22px);
       font-weight: 700;
       color: var(--text-main);
@@ -1211,5 +1211,34 @@ html[data-page-dir]::view-transition-old(pdi-main-section) {
   ::view-transition-old(*),
   ::view-transition-new(*) {
     animation-duration: 0.01ms !important;
+  }
+}
+
+/* PRODUCT.md: en el telefono los objetivos tactiles miden al menos 44 px.
+   Se aplica solo con puntero grueso para no inflar la densidad del escritorio. */
+@media (pointer: coarse) {
+  .btn-action,
+  .btn-action-sm,
+  .kanban-btn,
+  .pdi-select-trigger,
+  .social-tab-btn,
+  .salud-tab-btn,
+  .colab-tab-btn,
+  .educativo-tab-btn,
+  .padron-btn-ficha,
+  .padron-btn-edit,
+  .cuentas-resumen-link,
+  .sede-tel-link {
+    min-height: 44px;
+  }
+
+  .btn-action-icon,
+  .btn-close-modal,
+  .topbar-avatar,
+  .audit-legal-icon-btn,
+  .pagination-btn,
+  .perfil-dialog-close {
+    min-width: 44px;
+    min-height: 44px;
   }
 }
