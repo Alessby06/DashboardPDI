@@ -1126,20 +1126,20 @@
 
 #tablaBeneficiarios .padron-avatar.serv-desayuno {
   background: rgba(var(--brand-rgb), 0.12);
-  color: var(--gt-green);
+  color: var(--text-brand);
   border-color: rgba(var(--brand-rgb), 0.25);
 }
 
 #tablaBeneficiarios .padron-avatar.serv-casita,
 #tablaBeneficiarios .padron-avatar.serv-biblioteca {
   background: rgba(245, 158, 11, 0.12);
-  color: var(--gt-yellow);
+  color: var(--text-warning);
   border-color: rgba(245, 158, 11, 0.25);
 }
 
 #tablaBeneficiarios .padron-avatar.serv-pastoral {
   background: rgba(2, 132, 199, 0.12);
-  color: var(--gt-blue);
+  color: var(--text-info);
   border-color: rgba(2, 132, 199, 0.25);
 }
 
@@ -1182,20 +1182,20 @@
 
 #mobileCardsBeneficiarios .padron-avatar.serv-desayuno {
   background: rgba(var(--brand-rgb), 0.12);
-  color: var(--gt-green);
+  color: var(--text-brand);
   border-color: rgba(var(--brand-rgb), 0.25);
 }
 
 #mobileCardsBeneficiarios .padron-avatar.serv-casita,
 #mobileCardsBeneficiarios .padron-avatar.serv-biblioteca {
   background: rgba(245, 158, 11, 0.12);
-  color: var(--gt-yellow);
+  color: var(--text-warning);
   border-color: rgba(245, 158, 11, 0.25);
 }
 
 #mobileCardsBeneficiarios .padron-avatar.serv-pastoral {
   background: rgba(2, 132, 199, 0.12);
-  color: var(--gt-blue);
+  color: var(--text-info);
   border-color: rgba(2, 132, 199, 0.25);
 }
 
@@ -1290,10 +1290,10 @@
   font-weight: 600;
 }
 
-#tablaBeneficiarios .padron-service-indicator.serv-desayuno strong { color: var(--gt-green); }
-#tablaBeneficiarios .padron-service-indicator.serv-casita strong { color: var(--gt-yellow); }
+#tablaBeneficiarios .padron-service-indicator.serv-desayuno strong { color: var(--text-brand); }
+#tablaBeneficiarios .padron-service-indicator.serv-casita strong { color: var(--text-warning); }
 #tablaBeneficiarios .padron-service-indicator.serv-pastoral strong,
-#tablaBeneficiarios .padron-service-indicator.serv-biblioteca strong { color: var(--gt-blue); }
+#tablaBeneficiarios .padron-service-indicator.serv-biblioteca strong { color: var(--text-info); }
 
 #tablaBeneficiarios .padron-role-text {
   font-size: 12px;
@@ -1335,7 +1335,7 @@
 }
 
 #tablaBeneficiarios .padron-metric-item svg {
-  color: var(--gt-green);
+  color: var(--text-brand);
   flex-shrink: 0;
 }
 
@@ -1348,7 +1348,7 @@
 }
 
 #tablaBeneficiarios .padron-metric-item.padron-metric-sub svg {
-  color: var(--gt-blue);
+  color: var(--text-info);
 }
 
 #tablaBeneficiarios .padron-status-tag {

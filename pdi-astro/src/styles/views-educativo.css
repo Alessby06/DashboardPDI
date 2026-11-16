@@ -827,20 +827,20 @@
 
 #cardAsistenciaCasita .padron-avatar.serv-desayuno {
   background: rgba(var(--brand-rgb), 0.12);
-  color: var(--gt-green);
+  color: var(--text-brand);
   border-color: rgba(var(--brand-rgb), 0.25);
 }
 
 #cardAsistenciaCasita .padron-avatar.serv-casita,
 #cardAsistenciaCasita .padron-avatar.serv-biblioteca {
   background: rgba(245, 158, 11, 0.12);
-  color: var(--gt-yellow);
+  color: var(--text-warning);
   border-color: rgba(245, 158, 11, 0.25);
 }
 
 #cardAsistenciaCasita .padron-avatar.serv-pastoral {
   background: rgba(2, 132, 199, 0.12);
-  color: var(--gt-blue);
+  color: var(--text-info);
   border-color: rgba(2, 132, 199, 0.25);
 }
 
@@ -932,10 +932,10 @@
   white-space: nowrap;
 }
 
-#cardAsistenciaCasita .padron-status-tag.estado-P { color: var(--gt-green); }
+#cardAsistenciaCasita .padron-status-tag.estado-P { color: var(--text-brand); }
 #cardAsistenciaCasita .padron-status-tag.estado-T { color: var(--text-warning); }
-#cardAsistenciaCasita .padron-status-tag.estado-FJ { color: var(--gt-orange); }
-#cardAsistenciaCasita .padron-status-tag.estado-FI { color: var(--gt-red); }
+#cardAsistenciaCasita .padron-status-tag.estado-FJ { color: var(--text-warning); }
+#cardAsistenciaCasita .padron-status-tag.estado-FI { color: var(--text-danger); }
 #cardAsistenciaCasita .padron-status-tag.estado-sin { color: var(--text-dim); }
 
 #cardAsistenciaCasita .padron-dot {
@@ -1096,7 +1096,7 @@
 .educativo-check-card.alert-card:has(input:checked) {
   background: var(--gt-red-bg);
   border-color: var(--gt-red);
-  color: var(--gt-red);
+  color: var(--text-danger);
 }
 
 .educativo-check-card input[type="checkbox"] {

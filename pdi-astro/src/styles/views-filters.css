@@ -516,7 +516,7 @@
 
 @media (hover: hover) and (pointer: fine) {
   [data-theme="dark"] .padron-chip-remove:hover {
-    color: var(--gt-red);
+    color: var(--text-danger);
   }
 }
 
@@ -1017,7 +1017,7 @@
   .audit-filters-header-title svg {
     width: 17px;
     height: 17px;
-    color: var(--brand-primary);
+    color: var(--text-brand);
   }
 
   .audit-filters-header-actions {

@@ -792,7 +792,7 @@
 
 .padron-pill-chip.chip-green {
   background: rgba(var(--brand-rgb), 0.12);
-  color: var(--gt-green);
+  color: var(--text-brand);
   border: 1px solid rgba(var(--brand-rgb), 0.22);
 }
 
@@ -1058,19 +1058,19 @@
 
 .padron-avatar.serv-desayuno {
   background: rgba(var(--brand-rgb), 0.12);
-  color: var(--gt-green);
+  color: var(--text-brand);
   border-color: rgba(var(--brand-rgb), 0.25);
 }
 
 .padron-avatar.serv-casita {
   background: rgba(245, 158, 11, 0.12);
-  color: var(--gt-yellow);
+  color: var(--text-warning);
   border-color: rgba(245, 158, 11, 0.25);
 }
 
 .padron-avatar.serv-pastoral {
   background: rgba(2, 132, 199, 0.12);
-  color: var(--gt-blue);
+  color: var(--text-info);
   border-color: rgba(2, 132, 199, 0.25);
 }
 
@@ -1249,7 +1249,7 @@
   font-weight: 600;
   background: rgba(var(--brand-rgb), 0.08);
   border: 1px solid rgba(var(--brand-rgb), 0.28);
-  color: var(--gt-green);
+  color: var(--text-brand);
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);

@@ -946,18 +946,18 @@
 
 .portada-iniciales.serv-desayuno {
   background: rgba(var(--brand-rgb), 0.12);
-  color: var(--gt-green);
+  color: var(--text-brand);
 }
 
 .portada-iniciales.serv-casita,
 .portada-iniciales.serv-biblioteca {
   background: rgba(245, 158, 11, 0.12);
-  color: var(--gt-yellow);
+  color: var(--text-warning);
 }
 
 .portada-iniciales.serv-pastoral {
   background: rgba(2, 132, 199, 0.12);
-  color: var(--gt-blue);
+  color: var(--text-info);
 }
 
 .portada-iniciales.serv-otro {

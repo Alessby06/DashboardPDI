@@ -501,6 +501,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Don't** crear una paleta paralela: `--dash-*` son alias del dashboard, no valores propios que se copian a otras hojas.
 - **Don't** usar `--gt-green` o `--brand-primary` como relleno de un botón o de una pestaña activa, ni blanco sobre `#00b494`: una acción sólida va con `--brand-fill` y `--on-brand`.
 - **Don't** usar rojo en una barra de cobertura que no sea una alerta: el color de estado va en el punto o en el texto, no en la longitud de la barra.
+- **Don't** pintar texto con `--gt-green`, `--gt-yellow`, `--gt-blue` o `--gt-orange`: sobre un tinte claro el verde brillante da 2,2:1. La tinta de servicio usa `--text-brand`, `--text-warning`, `--text-info` o `--text-danger` (≥4,8:1 sobre su tinte).
 - **Don't** dejar un `<select>` nativo visible ni estilizarlo por vista: todo desplegable de selección pasa por `customSelect.js` y `custom-select.css`. La única excepción es un control que no pueda mejorarse (por ejemplo, `multiple` o `size > 1`); se marca `data-pdi-select="native"` y se justifica en el código.
 
 ### Conformance Checklist
