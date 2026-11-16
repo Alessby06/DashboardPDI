@@ -348,7 +348,8 @@
     }
 
     /* Botón Icono de Descarga CSV */
-    .btn-action-icon.btn-audit-export-icon {
+    @layer views {
+.btn-action-icon.btn-audit-export-icon {
       width: 36px;
       height: 36px;
       border-radius: var(--radius-sm);
@@ -363,13 +364,16 @@
       transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);
       -webkit-tap-highlight-color: transparent;
     }
+}
 
     @media (hover: hover) and (pointer: fine) {
-      .btn-action-icon.btn-audit-export-icon:hover {
+      @layer views {
+.btn-action-icon.btn-audit-export-icon:hover {
         background: var(--surface-hover);
         border-color: var(--text-dim);
         color: var(--text-main);
       }
+}
     }
 
     /* Estilo para Facetas con conteo Cero (Deshabilitadas y en gris) */
@@ -508,15 +512,19 @@
         display: flex;
         align-items: center;
       }
-      .btn-action-icon.btn-audit-export-icon {
+      @layer views {
+.btn-action-icon.btn-audit-export-icon {
         width: 32px;
         height: 32px;
         flex-shrink: 0;
       }
-      .btn-action-icon.btn-audit-export-icon svg {
+}
+      @layer views {
+.btn-action-icon.btn-audit-export-icon svg {
         width: 16px;
         height: 16px;
       }
+}
       /* Los dos indicadores en una sola fila, aunque el ancho sea corto. */
       .audit-summary-bar {
         display: grid;
@@ -689,7 +697,8 @@
       }
     }
 
-    .btn-action-sm {
+    @layer views {
+.btn-action-sm {
       padding: 6px 12px;
       min-height: 36px;
       border-radius: var(--radius-sm);
@@ -708,19 +717,24 @@
          la columna de contenido, al plegar el menu habia que rasterizar
          todas esas capas en cada fotograma. */
     }
+}
 
     @media (hover: hover) and (pointer: fine) {
-      .btn-action-sm:hover {
+      @layer views {
+.btn-action-sm:hover {
         background: var(--surface-hover);
         border-color: var(--border-bright);
       }
+}
     }
 
-    .btn-action-sm.primary {
+    @layer views {
+.btn-action-sm.primary {
       background: var(--brand-fill);
       color: var(--on-brand);
       border-color: var(--brand-fill);
     }
+}
 
     /* Barra de Paginación y Densidad */
     .audit-pagination-bar,
@@ -1178,10 +1192,12 @@
   }
 
   /* Objetivos táctiles: 44 px en móvil para paginar, exportar y buscar. */
-  #view-auditoria .btn-action-sm,
+  @layer views {
+#view-auditoria .btn-action-sm,
   #view-auditoria .btn-page {
     min-height: 44px;
   }
+}
 
   #view-auditoria .audit-calendar-icon-btn {
     width: 44px;

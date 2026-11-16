@@ -1,3 +1,5 @@
+@layer components, views;
+
 /* Variables del Sistema PDI - Asociacion Cultural Johannes Gutenberg */
 :root {
   /* Tinta fija del QR de MFA: oscura sobre blanco en ambos temas para que

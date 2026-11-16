@@ -213,7 +213,8 @@
      width: 100%;
    }
 
-   .expediente-empty-actions .btn-action {
+   @layer views {
+.expediente-empty-actions .btn-action {
      min-height: 40px;
      padding: 8px 18px;
      font-size: 13.5px;
@@ -223,17 +224,20 @@
      align-items: center;
      gap: 7px;
    }
+}
 
    /* =========================================================================
    REGLAS GLOBALES DE EXPEDIENTE: INTERACCIÓN Y NAVEGACIÓN
    ========================================================================= */
 
 /* Retorno al padrón: sin subrayado */
+@layer views {
 #expBackToPadron,
 #expBackToPadron:focus,
 #expBackToPadron:active,
 .expediente-nav-group-actions a.btn-action {
-  text-decoration: none !important;
+  text-decoration: none;
+}
 }
 
 /* Navegación secuencial: estado deshabilitado en los extremos */
@@ -365,10 +369,12 @@ body.pdi-editando #view-expediente select:not(:disabled) {
        width: 100%;
      }
 
-     .expediente-empty-actions .btn-action {
+     @layer views {
+.expediente-empty-actions .btn-action {
        width: 100%;
        justify-content: center;
      }
+}
 
      /* La barra lateral pasa a ser una tira horizontal de secciones. Se
         declara con #view-expediente para ganar a la base de la hoja de la

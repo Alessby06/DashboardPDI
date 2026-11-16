@@ -55,7 +55,8 @@
     }
 
     /* Transición Suave y Fluida al Cambiar entre Modo Claro y Oscuro */
-    body,
+    @layer components {
+body,
     .app-shell,
     .topbar,
     .main-wrapper,
@@ -81,6 +82,7 @@
                   border-color var(--dur-theme) var(--ease-spring),
                   box-shadow var(--dur-theme) var(--ease-spring);
     }
+}
 
     /* Vistas Activas - Visualización Inmediata y Fluida */
     .app-view, .content-view {
@@ -118,16 +120,20 @@
     /* El movimiento de los botones vive en button-motion.css. Aquí solo queda
        el tinte de la pulsación; el lift y la compresión usan las propiedades
        translate/scale para no pisar los transform de chevrons ni drawers. */
-    .btn-action:active:not(:disabled):not(.primary),
+    @layer components {
+.btn-action:active:not(:disabled):not(.primary),
     .btn-action-icon:active:not(:disabled),
     .row-action:active {
       background: var(--surface-hover);
       border-color: var(--text-dim);
     }
+}
 
-    .btn-action.primary:active:not(:disabled) {
+    @layer components {
+.btn-action.primary:active:not(:disabled) {
       filter: brightness(0.96);
     }
+}
 
     /* View Transitions API (Circular Ripple Reveal Animation) */
     ::view-transition-old(root),
@@ -650,7 +656,8 @@
       gap: 10px;
     }
 
-    .btn-action {
+    @layer components {
+.btn-action {
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -666,29 +673,37 @@
       transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-spring), opacity var(--dur-fast) var(--ease-smooth);
       white-space: nowrap;
     }
+}
 
-    .btn-action svg {
+    @layer components {
+.btn-action svg {
       width: 17px;
       height: 17px;
       stroke: currentColor;
     }
+}
 
     /* El hover solo existe donde hay puntero fino: en táctil se queda pegado
        después del toque y el botón parece activo cuando ya no lo está. */
     @media (hover: hover) and (pointer: fine) {
-      .btn-action:hover {
+      @layer components {
+.btn-action:hover {
         background: var(--surface-hover);
         border-color: var(--border-bright);
       }
+}
 
-      .btn-action.primary:hover {
+      @layer components {
+.btn-action.primary:hover {
         background: var(--brand-fill-hover, var(--brand-dark));
         border-color: var(--brand-fill-hover, var(--brand-dark));
         box-shadow: var(--shadow-ambient);
       }
+}
     }
 
-    .btn-action.primary {
+    @layer components {
+.btn-action.primary {
       background: var(--brand-fill, var(--brand-dark));
       /* Acción sólida: verde profundo en claro con tinta blanca (5,6:1); en
          oscuro el verde se aclara y la tinta vuelve a ser casi negra. El verde
@@ -698,25 +713,30 @@
       box-shadow: var(--shadow-sm);
       font-weight: 700;
     }
+}
 
     /* Rojo reservado a acciones destructivas («Desactivar usuario»). Vive solo
        en el borde y la tinta: rellenar el botón de rojo lo convierte en una
        alarma que compite con todo lo demás de la vista. «Cancelar Edición» no
        lo usa: cancelar no destruye nada. */
-    .btn-action.danger,
+    @layer components {
+.btn-action.danger,
     .btn-action.btn-danger {
       background: transparent;
       border-color: var(--gt-red-border);
       color: var(--text-danger);
     }
+}
 
     @media (hover: hover) and (pointer: fine) {
-      .btn-action.danger:hover,
+      @layer components {
+.btn-action.danger:hover,
       .btn-action.btn-danger:hover {
         background: transparent;
         border-color: var(--gt-red);
         color: var(--text-danger);
       }
+}
     }
 
     .theme-toggle-btn {
@@ -893,12 +913,16 @@
       .topbar-brand-wrap {
         display: none;
       }
-      .topbar-right .btn-action span {
+      @layer components {
+.topbar-right .btn-action span {
         display: none;
       }
-      .topbar-right .btn-action {
+}
+      @layer components {
+.topbar-right .btn-action {
         padding: 8px 10px;
       }
+}
     }
 
     /* Mientras el panel se retira y antes de cambiar de pagina, los enlaces no
@@ -1217,7 +1241,8 @@ html[data-page-dir]::view-transition-old(pdi-main-section) {
 /* PRODUCT.md: en el telefono los objetivos tactiles miden al menos 44 px.
    Se aplica solo con puntero grueso para no inflar la densidad del escritorio. */
 @media (pointer: coarse) {
-  .btn-action,
+  @layer components {
+.btn-action,
   .btn-action-sm,
   .kanban-btn,
   .pdi-select-trigger,
@@ -1231,8 +1256,10 @@ html[data-page-dir]::view-transition-old(pdi-main-section) {
   .sede-tel-link {
     min-height: 44px;
   }
+}
 
-  .btn-action-icon,
+  @layer components {
+.btn-action-icon,
   .btn-close-modal,
   .topbar-avatar,
   .audit-legal-icon-btn,
@@ -1241,4 +1268,5 @@ html[data-page-dir]::view-transition-old(pdi-main-section) {
     min-width: 44px;
     min-height: 44px;
   }
+}
 }

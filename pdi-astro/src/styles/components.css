@@ -997,12 +997,14 @@
       flex-wrap: wrap;
     }
 
-    .download-toast-actions .btn-action,
+    @layer components {
+.download-toast-actions .btn-action,
     .toast-confirmacion-actions .btn-action {
       min-height: 34px;
       padding: 0 14px;
       font-size: 12.5px;
     }
+}
 
     /* Sobre fondo oscuro el hairline neutro desaparece: se sube al tono medio
        y la sombra se abre para que el carton no se funda con la pagina. */

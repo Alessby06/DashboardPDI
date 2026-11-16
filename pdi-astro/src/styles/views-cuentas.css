@@ -889,11 +889,13 @@
     align-items: stretch;
   }
 
-  .cuentas-head .btn-action.primary {
+  @layer views {
+.cuentas-head .btn-action.primary {
     width: 100%;
     min-height: 44px;
     justify-content: center;
   }
+}
 
   .cuentas-toolbar {
     display: grid;
@@ -989,11 +991,13 @@
     width: 100%;
   }
 
-  .cuentas-lote-acciones .btn-action {
+  @layer views {
+.cuentas-lote-acciones .btn-action {
     flex: 1 1 auto;
     min-height: 44px;
     justify-content: center;
   }
+}
 
   .cuentas-row-2,
   .cuentas-sedes-grid {
@@ -1019,10 +1023,12 @@
     align-items: stretch;
   }
 
-  .cuentas-clave-caja .btn-action {
+  @layer views {
+.cuentas-clave-caja .btn-action {
     min-height: 44px;
     justify-content: center;
   }
+}
 }
 
 @media (pointer: coarse) {

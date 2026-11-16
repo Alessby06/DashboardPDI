@@ -192,15 +192,19 @@
         display: flex;
         align-items: center;
       }
-      .btn-action-icon.btn-audit-export-icon {
+      @layer views {
+.btn-action-icon.btn-audit-export-icon {
         width: 32px;
         height: 32px;
         flex-shrink: 0;
       }
-      .btn-action-icon.btn-audit-export-icon svg {
+}
+      @layer views {
+.btn-action-icon.btn-audit-export-icon svg {
         width: 16px;
         height: 16px;
       }
+}
       .audit-summary-bar {
         gap: 8px;
         margin-bottom: 8px;
@@ -768,8 +772,12 @@
   .jornada-chip { font-size: 10.5px; padding: 3px 8px; }
   .jornada-aviso { flex-direction: column; }
   .jornada-aviso-acciones { width: 100%; }
-  .jornada-aviso-acciones .btn-action { flex: 1 1 auto; justify-content: center; }
-  .jornada-acciones .btn-action { flex: 1 1 auto; justify-content: center; }
+  @layer views {
+.jornada-aviso-acciones .btn-action { flex: 1 1 auto; justify-content: center; }
+}
+  @layer views {
+.jornada-acciones .btn-action { flex: 1 1 auto; justify-content: center; }
+}
   .asist-motivo { max-width: 100%; white-space: normal; }
 }
 

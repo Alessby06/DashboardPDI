@@ -1372,15 +1372,19 @@
         justify-content: flex-end !important;
         margin-top: 0 !important;
       }
-      .btn-action-icon.btn-audit-export-icon {
+      @layer views {
+.btn-action-icon.btn-audit-export-icon {
         width: 32px;
         height: 32px;
         flex-shrink: 0;
       }
-      .btn-action-icon.btn-audit-export-icon svg {
+}
+      @layer views {
+.btn-action-icon.btn-audit-export-icon svg {
         width: 16px;
         height: 16px;
       }
+}
       .audit-summary-bar {
         gap: 8px;
         margin-bottom: 8px;
@@ -2510,10 +2514,12 @@
     width: 100%;
   }
 
-  .deriv-footer-actions .btn-action {
+  @layer views {
+.deriv-footer-actions .btn-action {
     flex: 1;
     height: 44px;
   }
+}
 }
 
 /* El atributo hidden debe ganar a los display:flex/grid de los bloques. */
