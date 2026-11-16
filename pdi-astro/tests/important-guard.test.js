@@ -39,16 +39,21 @@ const PRESUPUESTO = {
   'views-voluntariados.css': 214,
 };
 
+const TOPE_TOTAL = 1818;
+
 test('el presupuesto de !important solo puede bajar', () => {
   const fallos = [];
+  let total = 0;
   for (const archivo of fs.readdirSync(ESTILOS).filter((f) => f.endsWith('.css')).sort()) {
     const css = fs.readFileSync(path.join(ESTILOS, archivo), 'utf8');
     const cuenta = (css.match(/!important/g) || []).length;
+    total += cuenta;
     const tope = PRESUPUESTO[archivo] ?? 0;
     if (cuenta > tope) {
       fallos.push(`${archivo}: ${cuenta} > ${tope}`);
     }
   }
+  if (total > TOPE_TOTAL) fallos.push(`total: ${total} > ${TOPE_TOTAL}`);
 
   assert.deepEqual(
     fallos,
