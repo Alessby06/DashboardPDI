@@ -1512,9 +1512,9 @@ input[type="range"] {
 
 @media (max-width: 900px) {
 .sidebar-backdrop.active {
-          opacity: 1 !important;
-          visibility: visible !important;
-          pointer-events: auto !important;
+          opacity: 1;
+          visibility: visible;
+          pointer-events: auto;
           cursor: pointer;
         }
 .sidebar {
@@ -1538,7 +1538,7 @@ input[type="range"] {
           -webkit-tap-highlight-color: transparent;
         }
 .sidebar.open {
-          transform: translate3d(0, 0, 0) !important;
+          transform: translate3d(0, 0, 0);
         }
 .btn-menu-toggle {
           display: inline-flex;
@@ -1554,10 +1554,10 @@ input[type="range"] {
 .sidebar.open .nav-btn.role-restricted {
           animation: mobileNavSlideInRestricted var(--dur-norm) var(--ease-spring) both;
           animation-delay: calc(var(--nav-idx, 0) * 22ms);
-          opacity: 0.35 !important;
-          cursor: not-allowed !important;
-          pointer-events: none !important;
-          filter: grayscale(90%) !important;
+          opacity: 0.35;
+          cursor: not-allowed;
+          pointer-events: none;
+          filter: grayscale(90%);
         }
 }
 

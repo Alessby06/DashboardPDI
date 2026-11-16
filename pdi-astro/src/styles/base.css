@@ -289,7 +289,7 @@
       }
 
       .sidebar.open {
-        transform: translate3d(0, 0, 0) !important;
+        transform: translate3d(0, 0, 0);
       }
 
       .sidebar-backdrop {
@@ -315,9 +315,9 @@
       }
 
       .sidebar-backdrop.active {
-        opacity: 1 !important;
-        visibility: visible !important;
-        pointer-events: auto !important;
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
         cursor: pointer;
       }
     }
@@ -555,11 +555,11 @@
     .nav-btn.role-restricted,
     .sidebar .nav-btn.role-restricted,
     .sidebar.open .nav-btn.role-restricted {
-      opacity: 0.35 !important;
-      cursor: not-allowed !important;
-      pointer-events: none !important;
-      filter: grayscale(90%) !important;
-      color: var(--text-muted) !important;
+      opacity: 0.35;
+      cursor: not-allowed;
+      pointer-events: none;
+      filter: grayscale(90%);
+      color: var(--text-muted);
     }
 
     /* Antiflash CSS Instantáneo: Reglas nativas basadas en html[data-user-role]
@@ -1045,7 +1045,7 @@ html[data-page-dir]::view-transition-old(pdi-main-section) {
 
 @media (max-width: 900px) {
   .sidebar.open .nav-btn {
-    animation-duration: var(--dur-panel) !important;
+    animation-duration: var(--dur-panel);
   }
 }
 

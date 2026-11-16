@@ -18,28 +18,28 @@ const AQUI = path.dirname(fileURLToPath(import.meta.url));
 const ESTILOS = path.join(AQUI, '..', 'src', 'styles');
 
 const PRESUPUESTO = {
-  'base.css': 40,
+  'base.css': 30,
   'button-motion.css': 1,
-  'components.css': 14,
+  'components.css': 8,
   'custom-select.css': 12,
   'expediente.css': 71,
   'variables.css': 4,
   'views-auditoria.css': 21,
   'views-colaboradores.css': 1,
-  'views-comun.css': 99,
+  'views-comun.css': 91,
   'views-educativo.css': 4,
   'views-evaluacion.css': 3,
-  'views-expediente.css': 54,
+  'views-expediente.css': 46,
   'views-filters.css': 2,
   'views-padron.css': 11,
   'views-perfil.css': 1,
   'views-salud.css': 4,
   'views-sedes.css': 60,
   'views-social.css': 31,
-  'views-voluntariados.css': 53,
+  'views-voluntariados.css': 43,
 };
 
-const TOPE_TOTAL = 486;
+const TOPE_TOTAL = 444;
 
 test('el presupuesto de !important solo puede bajar', () => {
   const fallos = [];

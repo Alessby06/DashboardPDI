@@ -311,10 +311,10 @@
       /* La tinta de marca sobre su propio tinte bajaba a 3,83:1 a 12,5 px.
          Superficie, borde de marca e icono verde dejan el estado activo
          legible en los dos temas sin tocar la rampa de color. */
-      background: var(--surface-1) !important;
-      color: var(--text-main) !important;
-      border-color: var(--brand-primary) !important;
-      font-weight: 700 !important;
+      background: var(--surface-1);
+      color: var(--text-main);
+      border-color: var(--brand-primary);
+      font-weight: 700;
     }
 
     /* Esta barra se quedaba con los colores del tema claro al pasar al
@@ -550,7 +550,7 @@
     }
 
     [data-theme="dark"] .exoneracion-tooltip .tooltip-title {
-      border-bottom-color: var(--border-subtle) !important;
+      border-bottom-color: var(--border-subtle);
     }
 
     [data-theme="dark"] .tooltip-pct.pct-50 {
@@ -560,9 +560,9 @@
     }
 
     [data-theme="dark"] .tooltip-pct.pct-0 {
-      background: rgba(180, 180, 192, 0.14) !important;
-      color: var(--text-dim) !important;
-      border-color: rgba(180, 180, 192, 0.35) !important;
+      background: rgba(180, 180, 192, 0.14);
+      color: var(--text-dim);
+      border-color: rgba(180, 180, 192, 0.35);
     }
 
     /* Programas y Servicios Checklist */

@@ -1465,22 +1465,22 @@
 }
 
 [data-theme="dark"] #cardVoluntariosPadron {
-  background: var(--surface-1) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow: var(--shadow-ambient) !important;
+  background: var(--surface-1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: var(--shadow-ambient);
 }
 
 [data-theme="dark"] #cardVoluntariosPadron .audit-toolbar {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 [data-theme="dark"] #cardVoluntariosPadron .data-table thead th {
-  background: rgba(255, 255, 255, 0.025) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: rgba(255, 255, 255, 0.025);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 [data-theme="dark"] #cardVoluntariosPadron .data-table tbody td {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -1490,9 +1490,9 @@
 }
 
 [data-theme="dark"] .padron-mobile-card {
-  background: var(--surface-1) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow: none !important;
+  background: var(--surface-1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: none;
 }
 
 [data-theme="dark"] .padron-btn-ficha {
