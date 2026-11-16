@@ -44,9 +44,14 @@
       justify-content: center;
       z-index: 1000;
       opacity: 0;
+      /* Cerrado no es solo transparente: fuera del arbol de accesibilidad y
+         del orden de tabulacion. La visibilidad se retrasa hasta que termina
+         el fundido para no cortar la salida. */
+      visibility: hidden;
       pointer-events: none;
       transition: opacity var(--dur-norm) var(--ease-drawer),
-                  background-color var(--dur-norm) var(--ease-drawer);
+                  background-color var(--dur-norm) var(--ease-drawer),
+                  visibility 0s linear var(--dur-norm);
       padding: 20px;
     }
 
@@ -58,12 +63,14 @@
     .modal-backdrop.open,
     .modal-backdrop.active {
       opacity: 1;
+      visibility: visible;
       pointer-events: auto;
       /* El velo entra antes que la hoja: atenúa el fondo en 220 ms y la hoja
          sube en 250 ms. La misma curva en ambos evita que uno se sienta más
-         brusco que el otro. */
+         brusco que el otro. La visibilidad entra sin espera. */
       transition: opacity var(--dur-norm) var(--ease-drawer),
-                  background-color var(--dur-norm) var(--ease-drawer);
+                  background-color var(--dur-norm) var(--ease-drawer),
+                  visibility 0s;
       /* Velo de modal: mismo de las hojas, sin desenfoque, con foco radial
          detras de la ventana. Longhands a proposito: un shorthand con capas
          y var() es fragil y, si el parser lo descarta, el telon desaparece. */
