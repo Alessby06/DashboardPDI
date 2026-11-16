@@ -6,6 +6,7 @@ import { ToastView } from './ToastView.js';
 import { AuditModel } from '../models/AuditModel.js';
 import { escapar } from '../utils/HtmlHelper.js';
 import { confirmar } from '../ui/confirmacion.js';
+import { initSortMenu } from '../ui/SortMenu.js';
 
 let busquedaActual = '';
 let categoriaTabActual = 'colegios';
@@ -106,8 +107,22 @@ export const ColaboradoresView = {
 
   render() {
     const todos = ColaboradorModel.getAll();
+    this._initSort();
     this.renderStats(todos);
     this.aplicarFiltrosYOrden();
+  },
+
+  /**
+   * El menú de orden es el componente compartido de las tablas. Esta vista
+   * dibujaba el marcado pero no llamaba a su controlador: el botón abría el
+   * `aria-haspopup` sin listener, no desplegaba y el caret no giraba.
+   */
+  _initSort() {
+    this._sortMenu = initSortMenu({
+      id: 'colabSort',
+      onSelect: (valor) => this.sort(valor),
+    });
+    this._sortMenu?.sync(ordenActual);
   },
 
   renderStats(datos) {
@@ -467,6 +482,7 @@ export const ColaboradoresView = {
 
   sort(criterio) {
     ordenActual = criterio || 'apellido-asc';
+    this._sortMenu?.sync(ordenActual);
     this.aplicarFiltrosYOrden();
   },
 

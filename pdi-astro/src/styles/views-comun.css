@@ -2437,3 +2437,32 @@ input[type="range"] {
     flex: none;
   }
 }
+
+/* ===========================================================================
+   MENÚ DE ORDEN — CABE SIEMPRE
+   ===========================================================================
+   El menú se dibuja en absoluto dentro del panel con scroll de la vista, que
+   recorta lo que sobresale: en ventanas bajas las últimas opciones quedaban
+   fuera del viewport. SortMenu.js mide al abrir y marca `.abre-arriba` cuando
+   hay más sitio arriba; el alto solo se limita en línea cuando tampoco cabe
+   entero, para no pisar el 60vh que ya usa el móvil.
+   =========================================================================== */
+
+.padron-sort-menu {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.padron-sort-dropdown.abre-arriba .padron-sort-menu {
+  top: auto;
+  bottom: calc(100% + 6px);
+  transform: translateY(6px);
+}
+
+.padron-sort-dropdown.abre-arriba.open .padron-sort-menu {
+  transform: translateY(0);
+
+  @starting-style {
+    transform: translateY(6px);
+  }
+}

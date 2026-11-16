@@ -4,6 +4,11 @@
 // se copian seis veces.
 const controles = new Map();
 
+/** Aire mínimo entre el menú y el borde del viewport. */
+const MARGEN_VIEWPORT = 12;
+/** Alto mínimo con el que el menú sigue siendo usable con scroll. */
+const ALTO_MINIMO = 140;
+
 export function initSortMenu({ id, onSelect }) {
   if (!id || typeof document === "undefined") return null;
 
@@ -37,11 +42,41 @@ export function initSortMenu({ id, onSelect }) {
   };
 
   const abrir = () => {
+    // El menú vive dentro del panel con scroll de la vista, que recorta lo que
+    // sobresale. Antes de pintarlo se decide hacia dónde cabe y cuánto.
+    apartar();
     dropdown.classList.add("open");
     boton.setAttribute("aria-expanded", "true");
+    colocar();
     const activa = opciones().find((opcion) => opcion.getAttribute("aria-selected") === "true")
       || opciones()[0];
     activa?.focus();
+  };
+
+  /** Devuelve el menú a su estado natural antes de volver a medirlo. */
+  const apartar = () => {
+    dropdown.classList.remove("abre-arriba");
+    menu.style.removeProperty("max-height");
+  };
+
+  /**
+   * Abre hacia arriba cuando abajo no cabe, y limita el alto al espacio real
+   * del viewport para que ninguna opción quede cortada por el borde.
+   */
+  const colocar = () => {
+    const cajaBoton = boton.getBoundingClientRect();
+    const alto = menu.getBoundingClientRect().height;
+    if (!alto) return;
+
+    const espacioAbajo = window.innerHeight - cajaBoton.bottom - MARGEN_VIEWPORT;
+    const espacioArriba = cajaBoton.top - MARGEN_VIEWPORT;
+    const abreArriba = alto > espacioAbajo && espacioArriba > espacioAbajo;
+    dropdown.classList.toggle("abre-arriba", abreArriba);
+
+    const disponible = Math.max(ALTO_MINIMO, abreArriba ? espacioArriba : espacioAbajo);
+    if (alto > disponible) {
+      menu.style.maxHeight = `${Math.round(disponible)}px`;
+    }
   };
 
   boton.addEventListener("click", () => {
