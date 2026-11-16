@@ -20,7 +20,7 @@ const ESTILOS = path.join(AQUI, '..', 'src', 'styles');
 const PRESUPUESTO = {
   'base.css': 40,
   'button-motion.css': 1,
-  'components.css': 44,
+  'components.css': 14,
   'custom-select.css': 12,
   'expediente.css': 71,
   'variables.css': 4,
@@ -39,7 +39,7 @@ const PRESUPUESTO = {
   'views-voluntariados.css': 53,
 };
 
-const TOPE_TOTAL = 516;
+const TOPE_TOTAL = 486;
 
 test('el presupuesto de !important solo puede bajar', () => {
   const fallos = [];
