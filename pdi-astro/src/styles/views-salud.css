@@ -337,8 +337,8 @@
 }
 
 .padron-dropdown-item.selected .padron-item-checkbox {
-  background: var(--gt-green);
-  border-color: var(--gt-green);
+  background: var(--brand-fill);
+  border-color: var(--brand-fill);
   color: var(--on-brand);
 }
 .padron-item-checkbox svg {
@@ -614,10 +614,10 @@
 }
 
 .salud-tab-btn.active {
-  background: var(--gt-green);
-  color: var(--on-brand-fill);
-  border-color: var(--gt-green);
-  box-shadow: var(--shadow-sm);
+  background: var(--brand-soft);
+  color: var(--text-brand-strong);
+  border-color: var(--gt-green-border);
+  box-shadow: none;
 }
 
 /* Barra de sub-pestañas de instrumentos Ficha A6 */

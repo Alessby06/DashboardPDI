@@ -830,13 +830,9 @@
   }
 
   .audit-filters-footer .btn-apply-filters {
-    display: none;
-  }
-
-  /* Capa propia: el panel no participa del layout ni del scroll de la vista. */
-  .audit-filters-menu {
-    position: fixed;
-  }
+  background: var(--brand-fill);
+  background-image: none;
+  color: var(--on-brand);
 }
 
 .filter-count {
@@ -1098,8 +1094,8 @@
     gap: 8px;
     cursor: pointer;
     touch-action: manipulation;
-    /* Solido y con texto oscuro: el degradado dejaba el blanco en 2,66:1. */
-    background: var(--gt-green);
+    /* Sólido con la tinta de acción: blanco en claro, casi negro en oscuro. */
+    background: var(--brand-fill);
     background-image: none;
     color: var(--on-brand);
   }

@@ -521,15 +521,13 @@
 }
 
 .perfil-btn--primary {
-  /* Verde más profundo para que el blanco supere AA en claro. En oscuro se
-     conserva el verde claro con tinta casi negra. */
-  background: color-mix(in srgb, var(--text-brand) 88%, #000);
-  border-color: transparent;
-  color: #fff;
+  background: var(--brand-fill);
+  border-color: var(--brand-fill);
+  color: var(--on-brand);
 }
 
 html[data-theme="dark"] .perfil-btn--primary {
-  background: var(--gt-green);
+  background: var(--brand-fill);
   color: var(--on-brand);
 }
 

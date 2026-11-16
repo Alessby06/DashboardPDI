@@ -715,10 +715,10 @@
     }
 
     .social-tab-btn.active {
-      background: var(--brand-primary);
-      color: var(--on-brand);
-      border-color: var(--brand-primary);
-      box-shadow: var(--shadow-sm);
+      background: var(--brand-soft);
+      color: var(--text-brand-strong);
+      border-color: var(--gt-green-border);
+      box-shadow: none;
     }
 
     /* Subvistas de /social: un solo gesto, idéntico en escritorio y en móvil.
@@ -1239,8 +1239,8 @@
     }
     @media (hover: hover) and (pointer: fine) {
       .kanban-btn.primary:hover {
-        background: var(--brand-primary);
-        border-color: var(--brand-primary);
+        background: var(--brand-fill);
+        border-color: var(--brand-fill);
         color: var(--on-brand) !important;
         box-shadow: var(--shadow-sm);
       }
@@ -1910,8 +1910,8 @@
 }
 
 .padron-dropdown-item.selected .padron-item-checkbox {
-  background: var(--gt-green);
-  border-color: var(--gt-green);
+  background: var(--brand-fill);
+  border-color: var(--brand-fill);
   color: var(--on-brand);
 }
 

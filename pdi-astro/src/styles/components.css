@@ -606,9 +606,9 @@
     }
 
     .btn-asist.active-P {
-      background: var(--gt-green);
+      background: var(--brand-fill);
       color: var(--on-brand) !important;
-      border-color: var(--gt-green);
+      border-color: var(--brand-fill);
       box-shadow: var(--shadow-sm);
     }
 

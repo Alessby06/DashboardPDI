@@ -281,8 +281,8 @@
 }
 
 .padron-dropdown-item.selected .padron-item-checkbox {
-  background: var(--gt-green);
-  border-color: var(--gt-green);
+  background: var(--brand-fill);
+  border-color: var(--brand-fill);
   color: var(--on-brand);
 }
 

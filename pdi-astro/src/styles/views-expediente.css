@@ -446,7 +446,7 @@
 
     @media (hover: hover) and (pointer: fine) {
       .btn-exoneracion-info:hover {
-        background: var(--gt-green);
+        background: var(--brand-fill);
         color: var(--on-brand);
         transform: scale(1.08);
       }

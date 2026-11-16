@@ -1624,8 +1624,8 @@ input[type="range"] {
         color: transparent;
       }
 .programa-item.active .programa-check-box {
-        background: var(--gt-green);
-        border-color: var(--gt-green);
+        background: var(--brand-fill);
+        border-color: var(--brand-fill);
         color: var(--on-brand);
       }
 .programa-details {
@@ -1686,7 +1686,7 @@ input[type="range"] {
         width: 42px;
         height: 42px;
         border-radius: 8px;
-        background: var(--gt-green);
+        background: var(--brand-fill);
         color: var(--on-brand);
         display: flex;
         align-items: center;
@@ -1856,10 +1856,10 @@ input[type="range"] {
     transform: translateY(-50%);
   }
 .sedes-chip-btn.active {
-    background: var(--gt-green);
-    border-color: var(--gt-green);
-    color: var(--on-brand);
-    box-shadow: var(--shadow-sm);
+    background: var(--brand-soft);
+    border-color: var(--gt-green-border);
+    color: var(--text-brand-strong);
+    box-shadow: none;
   }
 .settings-card-icon-box.blue {
     background: var(--gt-blue-bg);

@@ -3,13 +3,14 @@ name: PDI Johannes Gutenberg
 description: "Gestión del Programa de Desarrollo Infantil: una sala de situación cálida, operativa y legible en sedes comunitarias, con paridad entre tema claro y oscuro."
 colors:
   brand-green: "#00b494"
-  brand-green-text: "#00876f"
+  brand-green-text: "#00715d"
   brand-green-deep: "#00715d"
+  brand-action: "#00715d"
   clinical-amber: "#f59e0b"
-  clinical-amber-text: "#b45309"
+  clinical-amber-text: "#9a4a05"
   territory-blue: "#0284c7"
   alert-red: "#ef4444"
-  alert-red-text: "#dc2626"
+  alert-red-text: "#b91c1c"
   signal-orange: "#ea580c"
   canvas: "#f2ece1"
   paper: "#f5f0e6"
@@ -22,7 +23,7 @@ colors:
   rule-strong: "#a89d8b"
   rule-mid: "#c8bfae"
   on-brand: "#ffffff"
-  on-brand-fill: "#00130c"
+  on-brand-fill: "#ffffff"
   on-solid: "#ffffff"
   on-scrim: "#ffffff"
 typography:
@@ -138,8 +139,8 @@ components:
     rounded: "{rounded.md}"
     padding: "8px 16px"
   button-primary:
-    backgroundColor: "{colors.brand-green}"
-    textColor: "{colors.on-brand-fill}"
+    backgroundColor: "{colors.brand-action}"
+    textColor: "{colors.on-brand}"
     rounded: "{rounded.md}"
     padding: "8px 16px"
   input:
@@ -176,7 +177,7 @@ La referencia viva es `/dashboard`, y su gramática se organiza en seis capas: l
 Paleta de cuatro colores de marca sobre neutros cálidos. El color aparece solo cuando comunica estado, serie de datos o acción.
 
 ### Primary
-- **Gutenberg Green** (#00b494): marca, acción primaria, barra de estado normal y acentos de datos. Como texto usa **Gutenberg Ink** (#00715d), porque el verde vivo no alcanza AA sobre papel. **Gutenberg Deep** (#00715d) queda para estados presionados.
+- **Gutenberg Green** (#00b494): marca, barra de estado normal, puntos y acentos de identidad. Como texto usa **Gutenberg Ink** (#00715d). **Gutenberg Action** (#00715d): relleno de acciones sólidas, con tinta `On Brand` (blanca en claro; casi negra sobre el verde aclarado en oscuro). El verde brillante no se usa como relleno de botón.
 
 ### Secondary
 - **Clinical Amber** (#f59e0b): anemia leve, advertencias y seguimiento. Como texto, **Amber Ink** (#9a4a05).
@@ -222,7 +223,7 @@ El sistema usa un registro cálido de neutros. Los valores viven en `variables.c
 
 ### Login Showcase
 
-La pantalla de acceso conserva su propia composición y sus tokens de showcase, pero comparte los neutros cálidos del sistema. El bloque de módulos mantiene el negro cálido como contraste de marca. Los tokens se declaran en la propia página porque el login no importa `variables.css`; esa duplicación es aislamiento de superficie, no deriva.
+La pantalla de acceso conserva su propia composición y sus tokens de showcase, pero comparte los neutros cálidos del sistema. El bloque de módulos mantiene el negro cálido como contraste de marca; el CTA usa `--brand-fill` con `--on-brand`. Los tokens se declaran en la propia página porque el login no importa `variables.css`; esa duplicación es aislamiento de superficie, no deriva.
 
 ### Dark Theme
 
@@ -240,6 +241,7 @@ No es una paleta nueva: son los mismos roles con otros valores. El fondo es un n
 | Ink Soft | `#5c574d` | `#c9c2b4` |
 | Ink Dim | `#6f685c` | `#a39b8c` |
 | Brand Green | `#00b494` | `#2ee6a0` |
+| Action Green | `#00715d` | `#2ee6a0` |
 | Amber / Blue / Red | `#f59e0b` / `#0284c7` / `#ef4444` | `#ffc247` / `#7cc4ff` / `#ff8b8b` |
 | On Brand | `#ffffff` | `#00130c` |
 | On Solid | `#ffffff` | `#00130c` |
@@ -250,7 +252,9 @@ No es una paleta nueva: son los mismos roles con otros valores. El fondo es un n
 
 **The Green Is Not Decoration Rule.** El verde no rellena fondos grandes ni titula secciones: marca acción, estado normal y pertenencia.
 
-**The Two-Ink Rule.** La tinta sobre marca o sobre un relleno saturado sale de `On Brand`/`On Solid`, nunca de un blanco fijo: en claro el relleno es oscuro y pide blanco; en oscuro el relleno se aclara y pide tinta casi negra (`#00130c`). Sobre un velo oscuro que no cambia con el tema, `On Scrim`. Blanco sobre el verde oscuro da 1,6:1.
+**The Two-Green Rule.** `#00b494` identifica (logo, puntos, barras, tintes); `#00715d` actúa en claro y el verde aclarado actúa en oscuro. Los botones sólidos y los CTA usan `--brand-fill`; las pestañas y selecciones usan `--brand-soft` con `--text-brand-strong`. El verde brillante no rellena una acción ni una pestaña activa.
+
+**The Two-Ink Rule.** La tinta sobre marca o sobre un relleno saturado sale de `On Brand`/`On Solid`, nunca de un blanco fijo: en claro el relleno de acción es profundo y pide blanco; en oscuro el relleno se aclara y pide tinta casi negra (`#00130c`). Sobre un velo oscuro que no cambia con el tema, `On Scrim`. Blanco sobre #00715d da 5,6:1; sobre #00b494 da 2,6:1 y por eso el brillante no es un relleno de acción.
 
 **The Contrast Per Theme Rule.** El contraste se verifica dos veces, una por tema. Un texto que pasa en claro puede fallar en oscuro porque los tokens de tinta cambian de valor.
 
@@ -363,12 +367,13 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Color:** solo el punto. Verde (normal), ámbar (atención o pendiente), azul (informativo), rojo (crítico), naranja (severo), gris (sin dato o inactivo). La etiqueta no cambia de color: la palabra dice el estado y el color lo confirma, así el dato sobrevive a la impresión, al daltonismo y al tema oscuro.
 - **Implementación:** `.status-mark` + `.status-mark-dot` en `components.css`; variantes `--ok`, `--warn`, `--info`, `--danger`, `--severe`, `--idle`. El punto es `aria-hidden`; el texto va siempre y no se sustituye por el color.
 - **Los otros dos trabajos:** un conteo va en micro (9.5/600, Ink Dim, `tabular-nums`) junto a su etiqueta, sin contenedor; una etiqueta o categoría usa Chip (radio 6, tinte al 9 %). Solo el estado lleva marca.
+- **Auditoría:** la severidad (“Sensible”, “Rutinario”) usa esta marca de punto + palabra; no se dibuja como píldora.
 
 **The No Badge Rule.** Ningún estado, conteo o etiqueta se dibuja como píldora con fondo tintado y borde. El badge metía una caja y un óvalo donde el sistema pide un punto, una palabra o una regla de 1 px, y repetía en color lo que la fila ya decía. Si algo necesita fondo para leerse, el problema es la jerarquía: se corrige ahí, no añadiendo una insignia.
 
 ### Buttons
 - **Neutral:** fondo Paper, borde Rule, Ink, 13.5/600, radio 10, padding 8/16.
-- **Primary:** fondo Brand Green (#00b494), tinta On Brand Fill (#00130c, 7,4:1) y Sombra Small; solo la acción que cierra la tarea. El blanco sobre este verde da ~2,6:1 y no aprueba AA, así que la tinta es casi negra. El hover baja un paso a #00997d. Nada de rellenos profundos con tinta blanca: se leen como un botón pulsado.
+- **Primary:** fondo Gutenberg Action (`--brand-fill`: #00715d en claro; #2ee6a0 en oscuro), tinta `On Brand` (blanca en claro; casi negra en oscuro) y Sombra Small; solo la acción que cierra la tarea. El blanco sobre #00715d da 5,6:1. El hover usa `--brand-fill-hover` (#005c4b en claro; #6bffc4 en oscuro). El verde brillante #00b494 no se usa como relleno de acción.
 - **Micro action:** 30×30 con icono; en móvil, botón cuadrado de 34 con borde.
 - **Hover / Focus:** fondo Hover, borde Rule Strong; foco visible con anillo de 2 px del color de marca.
 
@@ -481,6 +486,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Do** verificar cada pieza en claro, en oscuro, en escritorio y en móvil antes de darla por terminada.
 - **Do** declarar los tokens de un componente compartido en su propia hoja, una vez por tema, en lugar de parchear la vista.
 - **Do** usar los tokens núcleo cálidos en todas las vistas; el dashboard puede usar los alias `--dash-*`, que apuntan a ellos.
+- **Do** usar `--brand-fill` para acciones sólidas y `--brand-soft` con `--text-brand-strong` para pestañas y selecciones; el verde brillante es identidad e indicador.
 
 ### Don't:
 - **Don't** redeclarar tokens núcleo (color, superficie, borde, texto, sombra) en una hoja de vista. Los tokens de componente —`--filter-border`, `--sk-base`— viven en su hoja compartida y se declaran una sola vez por tema.
@@ -494,6 +500,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Don't** dibujar badges ni píldoras tintadas para estado, conteo o etiqueta: el estado va como marca de punto + palabra, el conteo en micro y la etiqueta como Chip.
 - **Don't** añadir sombras de color para señalar alertas.
 - **Don't** crear una paleta paralela: `--dash-*` son alias del dashboard, no valores propios que se copian a otras hojas.
+- **Don't** usar `--gt-green` o `--brand-primary` como relleno de un botón o de una pestaña activa, ni blanco sobre `#00b494`: una acción sólida va con `--brand-fill` y `--on-brand`.
 - **Don't** usar rojo en una barra de cobertura que no sea una alerta: el color de estado va en el punto o en el texto, no en la longitud de la barra.
 - **Don't** dejar un `<select>` nativo visible ni estilizarlo por vista: todo desplegable de selección pasa por `customSelect.js` y `custom-select.css`. La única excepción es un control que no pueda mejorarse (por ejemplo, `multiple` o `size > 1`); se marca `data-pdi-select="native"` y se justifica en el código.
 
@@ -506,3 +513,4 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 6. Ningún `<select>` nativo visible: todos pasan por `customSelect.js`; las excepciones llevan `data-pdi-select="native"` y están justificadas.
 7. Ningún badge: el estado se lee como marca (punto + palabra), el conteo como micro y la etiqueta como Chip. Una píldora tintada es una violación del contrato, no una variante.
 8. El registro cálido es global; `--dash-*` son alias del dashboard y no duplican valores.
+9. Ningún sólido verde usa `#00b494` con blanco: las acciones usan `--brand-fill` + `--on-brand`; las pestañas y selecciones usan `--brand-soft` + `--text-brand-strong`.

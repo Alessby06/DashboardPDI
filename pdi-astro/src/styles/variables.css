@@ -64,8 +64,8 @@
   --brand-primary: var(--gt-green);
   --brand-hover: #00997d;
   --brand-dark: #00715d;
-  --brand-fill: var(--gt-green);
-  --brand-fill-hover: #00997d;
+  --brand-fill: #00715d;
+  --brand-fill-hover: #005c4b;
   --brand-dim: #046a58;
   --brand-soft: var(--gt-green-bg);
   /* Tinta que se pinta ENCIMA del verde de marca. En claro el verde es oscuro
@@ -73,7 +73,7 @@
   --on-brand: #ffffff;
   /* Tinta sobre el verde vivo de la accion primaria: el blanco sobre #00b494
      da 2,6:1; la casi negra sube a 7,4:1 y conserva el relleno luminoso. */
-  --on-brand-fill: #00130c;
+  --on-brand-fill: var(--on-brand);
   /* Tinta sobre rellenos solidos (rojo, ambar, azul): en oscuro esos rellenos
      se aclaran, asi que la tinta cambia a casi negra. */
   --on-solid: var(--on-brand);
@@ -239,12 +239,12 @@
 
   --brand-primary: var(--gt-green);
   --brand-dark: #00715d;
-  --brand-fill: var(--gt-green);
-  --brand-fill-hover: #00997d;
+  --brand-fill: #00715d;
+  --brand-fill-hover: #005c4b;
   --brand-dim: #e6f7f4;
   --brand-soft: var(--gt-green-bg);
   --on-brand: #ffffff;
-  --on-brand-fill: #00130c;
+  --on-brand-fill: var(--on-brand);
 
   --text-brand: #00715d;
   --text-brand-strong: #005c4b;

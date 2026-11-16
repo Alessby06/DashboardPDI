@@ -690,10 +690,10 @@
 
     .btn-action.primary {
       background: var(--brand-fill, var(--brand-dark));
-      /* Verde vivo con tinta casi negra: el blanco sobre #00b494 da 2,6:1 y no
-         aprueba AA; esta pareja sube a 7,4:1 y no oscurece el botón, que es lo
-         que lo hacía parecer pulsado. */
-      color: var(--on-brand-fill, var(--on-brand));
+      /* Acción sólida: verde profundo en claro con tinta blanca (5,6:1); en
+         oscuro el verde se aclara y la tinta vuelve a ser casi negra. El verde
+         brillante queda para identidad, puntos y barras. */
+      color: var(--on-brand);
       border: 1px solid var(--brand-fill, var(--brand-dark));
       box-shadow: var(--shadow-sm);
       font-weight: 700;

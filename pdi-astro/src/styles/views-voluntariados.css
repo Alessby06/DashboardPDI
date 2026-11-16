@@ -383,8 +383,8 @@
 }
 
 .padron-dropdown-item.selected .padron-item-checkbox {
-  background: var(--gt-green);
-  border-color: var(--gt-green);
+  background: var(--brand-fill);
+  border-color: var(--brand-fill);
   color: var(--on-brand);
 }
 .padron-item-checkbox svg {
@@ -910,7 +910,7 @@
 }
 
 .view-actions .btn-action.primary {
-  color: var(--on-brand-fill) !important;
+  color: var(--on-brand) !important;
   font-weight: 700 !important;
   font-size: 13px !important;
   padding: 0 16px !important;
