@@ -1421,7 +1421,7 @@
 
 .padron-role-pill:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--brand-primary);
+  box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--border-focus);
 }
 
 .padron-mcard-phone-link {

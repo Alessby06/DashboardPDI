@@ -2155,9 +2155,13 @@
 }
 
 .deriv-search input:focus {
-  outline: none;
-  border-color: var(--gt-green);
-  box-shadow: 0 0 0 3px var(--gt-green-bg);
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px var(--brand-soft);
+}
+
+.deriv-search input:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
 }
 
 .deriv-results {
@@ -2184,9 +2188,10 @@
 }
 
 .deriv-result:focus-visible {
-  border-color: var(--gt-green);
+  border-color: var(--border-focus);
   background: var(--surface-hover);
-  outline: none;
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -2377,9 +2382,15 @@
 .deriv-full input:focus,
 .deriv-full select:focus,
 .deriv-full textarea:focus {
-  outline: none;
-  border-color: var(--gt-green);
-  box-shadow: 0 0 0 3px var(--gt-green-bg);
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px var(--brand-soft);
+}
+
+.deriv-full input:focus-visible,
+.deriv-full select:focus-visible,
+.deriv-full textarea:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
 }
 
 .deriv-tags {

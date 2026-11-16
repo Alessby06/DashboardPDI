@@ -729,7 +729,7 @@
 .audit-filters-menu textarea:focus-visible,
 .padron-chip-remove:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--brand-primary);
+  box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--border-focus);
 }
 
 /* Salida del estado vacio: el filtro que dejo la tabla a cero se quita desde
@@ -761,7 +761,7 @@
 
 .btn-clear-empty-filters:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--brand-primary);
+  box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--border-focus);
 }
 
 /* El placeholder del campo de edad daba 4,4:1; --text-dim lo deja en 4,76. */

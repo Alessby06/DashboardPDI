@@ -180,8 +180,13 @@
     }
 
     .audit-date-text-input:focus {
-      border-color: var(--gt-green);
+      border-color: var(--border-focus);
       box-shadow: none;
+    }
+
+    .audit-date-text-input:focus-visible {
+      outline: 2px solid var(--border-focus);
+      outline-offset: 2px;
     }
 
     .audit-native-picker-hidden {
