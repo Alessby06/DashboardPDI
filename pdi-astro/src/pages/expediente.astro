@@ -397,24 +397,24 @@ import Icon from '../components/Icon.astro';
             <div class="form-grid" style="grid-template-columns: repeat(2, 1fr); gap:12px;">
               <div class="form-group">
                 <label>Código Correlativo:</label>
-                <input type="text" class="form-control" id="expCodigo" readonly
+                <input type="text" class="form-control" id="expCodigo" aria-label="Código correlativo" readonly
                   style="font-family: var(--mono-font); font-weight: bold; color: var(--text-brand);">
               </div>
               <div class="form-group">
                 <label>DNI:</label>
-                <input type="text" class="form-control" id="expDni" data-tipo="dni" readonly maxlength="8" inputmode="numeric" pattern="[0-9]{8}">
+                <input type="text" class="form-control" id="expDni" aria-label="DNI" data-tipo="dni" readonly maxlength="8" inputmode="numeric" pattern="[0-9]{8}">
               </div>
               <div class="form-group">
                 <label>Nombres Completos:</label>
-                <input type="text" class="form-control" id="expNombres" data-tipo="nombre" readonly maxlength="60">
+                <input type="text" class="form-control" id="expNombres" aria-label="Nombres completos" data-tipo="nombre" readonly maxlength="60">
               </div>
               <div class="form-group">
                 <label>Apellidos:</label>
-                <input type="text" class="form-control" id="expApellidos" data-tipo="nombre" readonly maxlength="60">
+                <input type="text" class="form-control" id="expApellidos" aria-label="Apellidos" data-tipo="nombre" readonly maxlength="60">
               </div>
               <div class="form-group">
                 <label>Fecha de Nacimiento:</label>
-                <input type="date" class="form-control" id="expFechaNac" readonly>
+                <input type="date" class="form-control" id="expFechaNac" aria-label="Fecha de nacimiento" readonly>
               </div>
               <div class="form-group">
                 <label>Edad (calculada):</label>
@@ -429,7 +429,7 @@ import Icon from '../components/Icon.astro';
               </div>
               <div class="form-group" style="grid-column: span 2;">
                 <label>Dirección Actual Domiciliaria:</label>
-                <input type="text" class="form-control" id="expDireccion" readonly maxlength="180"
+                <input type="text" class="form-control" id="expDireccion" aria-label="Dirección actual domiciliaria" readonly maxlength="180"
                   oninput="window.handleAddressInputDebounce ? window.handleAddressInputDebounce('exp') : null">
               </div>
               <div class="form-group">
@@ -522,7 +522,7 @@ import Icon from '../components/Icon.astro';
                 <div class="croquis-embed-grid">
                   <!-- Visor Google Maps Embed -->
                   <div class="croquis-map-wrap">
-                    <iframe id="expGoogleMapIframe" class="croquis-map-iframe"
+                    <iframe id="expGoogleMapIframe" class="croquis-map-iframe" title="Mapa de la ubicación del domicilio"
                       src="about:blank"
                       loading="lazy" allowfullscreen></iframe>
                   </div>
