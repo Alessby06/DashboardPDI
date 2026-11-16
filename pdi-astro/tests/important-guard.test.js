@@ -33,13 +33,13 @@ const PRESUPUESTO = {
   'views-filters.css': 2,
   'views-padron.css': 11,
   'views-perfil.css': 1,
-  'views-salud.css': 95,
+  'views-salud.css': 4,
   'views-sedes.css': 113,
   'views-social.css': 31,
   'views-voluntariados.css': 53,
 };
 
-const TOPE_TOTAL = 1145;
+const TOPE_TOTAL = 1054;
 
 test('el presupuesto de !important solo puede bajar', () => {
   const fallos = [];
