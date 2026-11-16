@@ -1,0 +1,19 @@
+/* ===========================================================================
+   ICONO DE EXPORTACION (.btn-action-icon.btn-audit-export-icon) EN MOVIL
+   La base y el tamano de escritorio viven en views-comun.css. Este bloque
+   compartido aporta solo el ajuste de 32 px en pantallas de hasta 768 px y
+   lo importan las vistas que muestran el icono dentro de .audit-toolbar.
+   Colaboradores queda fuera a proposito: alli el icono conserva su tamano.
+   =========================================================================== */
+@media (max-width: 768px) {
+  .btn-action-icon.btn-audit-export-icon {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+  }
+
+  .btn-action-icon.btn-audit-export-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+}

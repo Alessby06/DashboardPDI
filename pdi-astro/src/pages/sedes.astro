@@ -6,6 +6,7 @@ import SortMenu from '../components/SortMenu.astro';
 import { PROGRAMAS } from '../data/opcionesBeneficiario.js';
 import { SEDES_POR_DISTRITO } from '../scripts/core/catalogos.js';
 import '../styles/views-sedes.css';
+import '../styles/views-export-icon.css';
 import Icon from '../components/Icon.astro';
 
 const OPCIONES_DISTRITO = Object.keys(SEDES_POR_DISTRITO).map((distrito) => ({ valor: distrito, etiqueta: distrito }));

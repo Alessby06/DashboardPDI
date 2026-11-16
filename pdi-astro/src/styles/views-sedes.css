@@ -92,16 +92,7 @@
         display: flex;
         align-items: center;
       }
-      .btn-action-icon.btn-audit-export-icon {
-        width: 32px;
-        height: 32px;
-        flex-shrink: 0;
-      }
-      .btn-action-icon.btn-audit-export-icon svg {
-        width: 16px;
-        height: 16px;
-      }
-      .audit-summary-bar {
+.audit-summary-bar {
         gap: 8px;
         margin-bottom: 8px;
       }

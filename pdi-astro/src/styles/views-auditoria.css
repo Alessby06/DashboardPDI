@@ -347,31 +347,6 @@
       gap: 10px;
     }
 
-    /* Botón Icono de Descarga CSV */
-    .btn-action-icon.btn-audit-export-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: var(--radius-sm);
-      background: var(--surface-1);
-      border: 1px solid var(--border-subtle);
-      color: var(--text-main);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      padding: 0;
-      transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    @media (hover: hover) and (pointer: fine) {
-      .btn-action-icon.btn-audit-export-icon:hover {
-        background: var(--surface-hover);
-        border-color: var(--text-dim);
-        color: var(--text-main);
-      }
-    }
-
     /* Estilo para Facetas con conteo Cero (Deshabilitadas y en gris) */
 
     /* Barra Resumen Dinámica y Compacta de Auditoría */
@@ -508,16 +483,7 @@
         display: flex;
         align-items: center;
       }
-      .btn-action-icon.btn-audit-export-icon {
-        width: 32px;
-        height: 32px;
-        flex-shrink: 0;
-      }
-      .btn-action-icon.btn-audit-export-icon svg {
-        width: 16px;
-        height: 16px;
-      }
-      /* Los dos indicadores en una sola fila, aunque el ancho sea corto. */
+/* Los dos indicadores en una sola fila, aunque el ancho sea corto. */
       .audit-summary-bar {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
