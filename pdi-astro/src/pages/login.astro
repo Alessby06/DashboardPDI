@@ -19,6 +19,7 @@ const impeccableLive =
   <title>Acceso al Sistema | PDI — Johannes Gutenberg</title>
   <link rel="icon" type="image/png" href="/assets/jg-icon.png" />
   <link rel="apple-touch-icon" href="/assets/jg-icon.png" />
+  <meta name="theme-color" id="metaThemeColor" content="#f2ece1" />
 
   <script is:inline>
     /* Antiflash: aplica tema antes del primer render para evitar FOUC */
@@ -28,6 +29,8 @@ const impeccableLive =
         var oscuro = saved === "dark" ||
           (saved === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
         document.documentElement.setAttribute("data-theme", oscuro ? "dark" : "light");
+        var meta = document.getElementById("metaThemeColor");
+        if (meta) meta.setAttribute("content", oscuro ? "#12110f" : "#f2ece1");
       } catch (e) {}
     })();
 
@@ -51,573 +54,304 @@ const impeccableLive =
   </script>
 
   <style>
-    /* ── Reset & Tokens Fundacionales (Dominio PDI) ─────────────── */
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    /* =========================================================================
+       ACCESO · composición centrada
+       Una sola paleta cálida, un solo componente de formulario. La marca
+       acompaña; la tarea de ingresar es lo primero.
+       ========================================================================= */
 
     :root {
-      /* Identidad Teal Gutenberg (DESIGN.md) */
-      --brand-primary: #00715d;
+      --paper: #f2ece1;
+      --surface: #fbf8f1;
+      --surface-2: #efe8db;
+      --ink: #1b1a17;
+      --body: #5c574d;
+      --muted: #6f685c;
+      --line: #e0d8c9;
+      --line-2: #cfc5b2;
+      --brand: #00715d;
       --brand-hover: #005c4b;
-      /* Alias del contrato global: `--brand-fill` es el relleno de accion. */
-      --brand-fill: var(--brand-primary);
-      --brand-fill-hover: var(--brand-hover);
-      --brand-light: #00b494;
-      --brand-surface: rgba(0, 180, 148, 0.08);
-      --brand-border: rgba(0, 180, 148, 0.24);
-      --brand-rgb: 0, 180, 148;
+      --brand-soft: #d9efe8;
+      --brand-ink: #00594a;
       --on-brand: #ffffff;
-      --hero-accent-rgb: 46, 230, 160;
-
-      /* Alertas */
       --danger: #b91c1c;
-      --danger-bg: rgba(185, 28, 28, 0.08);
-      --danger-border: rgba(185, 28, 28, 0.22);
-
-      /* Superficies y Neutros (Lienzo institucional cálido) */
-      --bg-page: #f2ece1;
-      --surface-card: #fbf8f1;
-      --surface-subtle: #efe8db;
-      --surface-inset: #f5f0e6;
-      --border-subtle: rgba(27, 26, 23, 0.08);
-      --border-medium: rgba(27, 26, 23, 0.14);
-
-      /* Tipografía & Textos */
-      --text-title: #1b1a17;
-      --text-body: #5c574d;
-      --text-muted: #5c574d;
-      --text-faint: #6f685c;
-
-      /* Hero Izquierdo (Atmósfera institucional sobria) */
-      --hero-bg: #12110f;
-      --hero-card-bg: rgba(27, 25, 21, 0.7);
-      --hero-card-border: rgba(244, 239, 229, 0.08);
-      --hero-title: #f4efe5;
-      --hero-text: #a39b8c;
-      --hero-accent: #2ee6a0;
-
-      /* Login showcase: valores fijos de la maqueta (no dependen del tema).
-         La pagina no importa variables.css, asi que deben vivir aqui. */
-      --showcase-black: #12110f;
-      --showcase-surface: #1b1915;
-      --showcase-ink: #0b0f14;
-      --showcase-shadow: rgba(0, 0, 0, 0.3);
-      --showcase-shadow-strong: rgba(0, 0, 0, 0.35);
-      --showcase-shadow-float: rgba(0, 0, 0, 0.55);
-
-      /* Escala de Radios (DESIGN.md) */
-      --radius-sm: 6px;
-      --radius-md: 10px;
-      --radius-lg: 16px;
-      --radius-full: 9999px;
-
-      /* Sombras Multicapa (Estrategia de Elevación Layered) */
-      --shadow-flat: 0 1px 2px rgba(15, 23, 42, 0.04);
-      --shadow-raised: 0 0 0 1px rgba(15, 23, 42, 0.06), 0 3px 12px -2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04);
-
-      --ease-snappy: cubic-bezier(0.23, 1, 0.32, 1);
-      /* Desaceleracion mas tendida que la quint: el revelado de los modulos
-         aterriza sin el golpe seco al final del recorrido. */
-      --ease-fluid: cubic-bezier(0.33, 1, 0.68, 1);
-      /* Deja animar height: 0 -> auto en los despliegues de los modulos.
-         Es una propiedad heredada, asi que basta declararla en la raiz. */
-      interpolate-size: allow-keywords;
-      --ui-font: 'Manrope', sans-serif;
+      --danger-soft: #fbe9e7;
+      --focus: #00715d;
+      --shadow-card: 0 1px 0 rgba(27, 26, 23, 0.03), 0 28px 56px -32px rgba(27, 26, 23, 0.32);
+      color-scheme: light;
     }
 
-    /* Modo oscuro de alto contraste, alineado con el resto del sistema.
-       El login conserva su decision de diseño (boton principal blanco y
-       tarjetas de modulos claras sobre fondo oscuro); lo que cambia es la
-       base, que pasa a negro real, y el texto secundario, que sube hasta
-       pasar AA con holgura. */
     [data-theme="dark"] {
-      --brand-primary: #2ee6a0;
+      --paper: #12110f;
+      --surface: #1b1915;
+      --surface-2: #191713;
+      --ink: #f4efe5;
+      --body: #c9c2b4;
+      --muted: #a39b8c;
+      --line: #2f2b25;
+      --line-2: #3d3830;
+      --brand: #2ee6a0;
       --brand-hover: #6bffc4;
-      --brand-fill: var(--brand-primary);
-      --brand-fill-hover: var(--brand-hover);
-      --brand-light: #6bffc4;
-      --brand-surface: rgba(46, 230, 160, 0.14);
-      --brand-border: rgba(46, 230, 160, 0.42);
-      --brand-rgb: 46, 230, 160;
+      --brand-soft: rgba(46, 230, 160, 0.12);
+      --brand-ink: #8bf2c8;
       --on-brand: #00130c;
-
       --danger: #ff8b8b;
-      --danger-bg: rgba(255, 139, 139, 0.14);
-      --danger-border: rgba(255, 139, 139, 0.42);
-
-      --bg-page: #12110f;
-      --surface-card: #1b1915;
-      --surface-subtle: #191713;
-      --surface-inset: #12110f;
-      --border-subtle: #2f2b25;
-      --border-medium: #4a443a;
-
-      --text-title: #f4efe5;
-      --text-body: #c9c2b4;
-      --text-muted: #c9c2b4;
-      --text-faint: #a39b8c;
-
-      --hero-bg: #12110f;
-      --hero-card-bg: rgba(27, 25, 21, 0.92);
-      --hero-card-border: #2f2b25;
-      --hero-title: #f4efe5;
-      --hero-text: #a39b8c;
-      --hero-accent: #2ee6a0;
-      --hero-accent-rgb: 46, 230, 160;
-
-      --shadow-flat: 0 1px 2px rgba(0, 0, 0, 0.55);
-      --shadow-raised: 0 0 0 1px rgba(255, 255, 255, 0.10), 0 4px 18px rgba(0, 0, 0, 0.70);
+      --danger-soft: rgba(239, 68, 68, 0.12);
+      --focus: #2ee6a0;
+      --shadow-card: 0 1px 0 rgba(0, 0, 0, 0.5), 0 28px 56px -32px rgba(0, 0, 0, 0.75);
+      color-scheme: dark;
     }
 
-    /* ── Estructura de Página ───────────────────────────────────── */
-    html, body {
-      min-height: 100dvh;
-      font-family: var(--ui-font);
-      background: var(--bg-page);
-      color: var(--text-body);
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--body);
+      font-family: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.55;
       -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
     }
 
-    .login-container {
-      min-height: 100dvh;
-      display: grid;
-      grid-template-columns: 1fr;
+    h1,
+    h2,
+    p {
+      margin: 0;
     }
 
-    @media (min-width: 1024px) {
-      .login-container {
-        grid-template-columns: 1.1fr 1fr;
-      }
+    button,
+    input {
+      font: inherit;
+      color: inherit;
     }
 
-    /* ── Columna Izquierda: Identidad Institucional ─────────────── */
-    .showcase-column {
-      display: none;
-      background: var(--hero-bg);
-      padding: 56px 60px;
-      flex-direction: column;
+    button {
+      cursor: pointer;
+    }
+
+    img,
+    svg {
+      display: block;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+      border-radius: 8px;
+    }
+
+    /* --- Cabecera --------------------------------------------------------- */
+    .top {
+      display: flex;
+      align-items: center;
       justify-content: space-between;
-      position: relative;
-      border-right: 1px solid var(--border-subtle);
-      overflow-y: auto;
+      gap: 16px;
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 26px 40px;
     }
 
-    @media (min-width: 1024px) {
-      .showcase-column {
-        display: flex;
-      }
-    }
-
-    .showcase-header {
+    .brand {
       display: flex;
       align-items: center;
       gap: 14px;
     }
 
-    .showcase-emblem {
-      width: 42px;
-      height: 42px;
-      border-radius: var(--radius-md);
-      background: var(--showcase-black);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .brand .emblem {
+      width: 44px;
+      height: 44px;
+      flex: 0 0 44px;
+      border-radius: 12px;
     }
 
-    .showcase-emblem img {
-      width: 26px;
-      height: 26px;
-      object-fit: contain;
-    }
-
-    .showcase-brand-text .showcase-brand-name {
+    .brand strong {
       display: block;
-      font-size: 14px;
-      font-weight: 800;
-      color: #ffffff;
-      letter-spacing: 0.01em;
+      font-size: 13.5px;
+      font-weight: 700;
+      line-height: 1.3;
+      color: var(--ink);
     }
 
-    .showcase-brand-text p {
-      font-size: 12px;
-      color: var(--hero-text);
+    .brand span {
+      display: block;
+      margin-top: 3px;
+      font-size: 10.5px;
       font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--muted);
     }
 
-    .showcase-body {
-      margin: 40px 0;
-      max-width: 520px;
-    }
-
-    .showcase-tagline {
+    .theme {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--brand-primary);
-      background: var(--brand-surface);
-      border: 1px solid var(--brand-border);
-      padding: 4px 12px;
-      border-radius: var(--radius-full);
-      margin-bottom: 20px;
-    }
-
-    .showcase-title {
-      font-size: 30px;
-      font-weight: 800;
-      line-height: 1.2;
-      color: var(--hero-title);
-      letter-spacing: -0.025em;
-      text-wrap: balance;
-      margin-bottom: 14px;
-    }
-
-    .showcase-desc {
-      font-size: 15px;
-      line-height: 1.55;
-      color: var(--hero-text);
-      text-wrap: pretty;
-      margin-bottom: 32px;
-    }
-
-    /* Módulos Operativos (The Signature Element del PDI) */
-    .modules-card {
-      background: var(--hero-card-bg);
-      border: 1px solid var(--hero-card-border);
-      border-radius: var(--radius-lg);
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .modules-card-label {
-      font-size: 11px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--hero-text);
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--hero-card-border);
-    }
-
-    .module-item {
-      position: relative;
-    }
-
-    .module-icon-well {
-      width: 36px;
-      height: 36px;
-      border-radius: var(--radius-md);
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.09);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      color: var(--hero-accent);
-      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.04);
-      transition: border-color 0.28s var(--ease-fluid), background 0.28s var(--ease-fluid), transform 0.36s var(--ease-fluid);
-    }
-
-        @media (hover: hover) and (pointer: fine) {
-  .module-item:hover .module-icon-well {
-        background: rgba(var(--hero-accent-rgb), 0.1);
-        border-color: rgba(var(--hero-accent-rgb), 0.35);
-        transform: translateY(-2px) scale(1.05);
-      }
-    }
-
-    /* ── SVG Micro-Animations (Seamless Harmonic Loops) ────────── */
-    /* Micro-movimiento de los módulos: la geometría ya es Hugeicons y el
-       gesto se aplica al icono completo, no a paths internos que ya no existen. */
-    :global(.module-icon-well svg) {
-      transform-box: fill-box;
-      transform-origin: center;
-      will-change: transform, opacity;
-    }
-
-    :global(.anim-svg-sprout) { animation: moduloRespira 3.8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite; }
-    :global(.anim-svg-book)   { animation: moduloFlota  4.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite; }
-    :global(.anim-svg-social) { animation: moduloLate   3.4s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite; }
-    :global(.anim-svg-pulse)  { animation: moduloPulso  3.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite; }
-
-    @keyframes moduloRespira {
-      0%, 100% { transform: rotate(0deg) scale(1); }
-      50%      { transform: rotate(3deg) scale(1.05); }
-    }
-    @keyframes moduloFlota {
-      0%, 100% { transform: translateY(0); }
-      50%      { transform: translateY(-1.6px); }
-    }
-    @keyframes moduloLate {
-      0%, 100% { transform: scale(1); opacity: 0.88; }
-      22%      { transform: scale(1.09); opacity: 1; }
-      38%      { transform: scale(1.02); opacity: 0.94; }
-      52%      { transform: scale(1.06); opacity: 1; }
-      72%      { transform: scale(1); opacity: 0.88; }
-    }
-    @keyframes moduloPulso {
-      0%, 100% { transform: scaleY(1); opacity: 0.8; }
-      24%      { transform: scaleY(1.16); opacity: 1; filter: drop-shadow(0 0 2px rgba(var(--hero-accent-rgb), 0.5)); }
-      48%      { transform: scaleY(0.93); opacity: 0.86; filter: none; }
-      68%      { transform: scaleY(1.05); opacity: 0.94; }
-      85%      { transform: scaleY(1); opacity: 0.8; }
-    }
-
-    .module-text-wrap h4 {
-      font-size: 13px;
-      font-weight: 700;
-      color: #ffffff;
-      line-height: 1.3;
-    }
-
-    .module-text-wrap p {
-      font-size: 12px;
-      color: var(--hero-text);
-      line-height: 1.35;
-    }
-
-    .showcase-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-top: 20px;
-      border-top: 1px solid var(--border-subtle);
-      font-size: 12px;
-      color: var(--text-faint);
-    }
-
-    /* ── Columna Derecha: Panel de Acceso ───────────────────────── */
-    .access-column {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 32px 24px;
-      min-height: 100dvh;
-      background: var(--bg-page);
-    }
-
-    @media (min-width: 640px) {
-      .access-column {
-        padding: 44px 48px;
-      }
-    }
-
-    @media (min-width: 1024px) {
-      .access-column {
-        padding: 44px 56px;
-      }
-    }
-
-    /* Cabecera del Panel */
-    .access-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      max-width: 440px;
-      margin: 0 auto;
-    }
-
-    .brand-mobile-slot {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    @media (min-width: 1024px) {
-      .brand-mobile-slot {
-        visibility: hidden;
-      }
-    }
-
-    .brand-logo-img {
-      height: 28px;
-      width: auto;
-      object-fit: contain;
-    }
-
-    /* Control de logos 100% CSS */
-    .brand-logo-light { display: block; }
-    .brand-logo-dark  { display: none; }
-    [data-theme="dark"] .brand-logo-light { display: none !important; }
-    [data-theme="dark"] .brand-logo-dark  { display: block !important; }
-
-    /* Botón de Tema */
-    .theme-button {
-      background: var(--surface-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-full);
-      padding: 7px 12px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text-body);
-      cursor: pointer;
-      box-shadow: var(--shadow-flat);
-      transition: color 0.15s ease, border-color 0.15s ease, transform 0.15s var(--ease-snappy);
-    }
-
-        @media (hover: hover) and (pointer: fine) {
-  .theme-button:hover {
-        color: var(--text-title);
-        border-color: var(--border-medium);
-        transform: translateY(-1px);
-      }
-    }
-
-    /* Contenido Central: Formulario */
-    .access-content {
-      width: 100%;
-      max-width: 420px;
-      margin: auto;
-      padding: 24px 0;
-    }
-
-    .form-header-group {
-      margin-bottom: 24px;
-    }
-
-    .form-main-title {
-      font-size: 22px;
-      font-weight: 800;
-      color: var(--text-title);
-      letter-spacing: -0.02em;
-      line-height: 1.2;
-      text-wrap: balance;
-      margin-bottom: 6px;
-    }
-
-    .form-sub-title {
-      font-size: 14px;
-      color: var(--text-muted);
-      line-height: 1.45;
-      text-wrap: pretty;
-    }
-
-    /* Formulario */
-    .form-stack {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .form-row {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    /* El atributo hidden no basta: la regla de clase de arriba le gana al
-       display:none del navegador y el campo del segundo factor se veía
-       siempre, aunque la cuenta no tuviera MFA. */
-    .form-row[hidden] {
-      display: none;
-    }
-
-    .label-caption {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--text-body);
-      letter-spacing: -0.01em;
-    }
-
-    .input-wrapper {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-
-    .input-icon-glyph {
-      position: absolute;
-      left: 14px;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-      transition: color 0.15s ease;
-    }
-
-    .text-input {
-      width: 100%;
       height: 44px;
-      padding: 0 14px 0 42px;
-      background: var(--surface-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      font-family: var(--ui-font);
-      font-size: 14px;
-      color: var(--text-title);
-      box-shadow: var(--shadow-flat);
-      outline: none;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--body);
+      font-size: 12px;
+      font-weight: 600;
+      transition: border-color 0.16s ease, color 0.16s ease, background-color 0.16s ease;
     }
 
-    .text-input::placeholder {
-      color: var(--text-faint);
+    /* --- Tarjeta de acceso ----------------------------------------------- */
+    .stage {
+      display: flex;
+      justify-content: center;
+      padding: 18px 40px 0;
     }
 
-        @media (hover: hover) and (pointer: fine) {
-  .text-input:hover {
-        border-color: var(--border-medium);
-      }
+    .card {
+      width: min(100%, 520px);
+      padding: 40px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--surface);
+      box-shadow: var(--shadow-card);
+      animation: rise 0.42s cubic-bezier(0.23, 1, 0.32, 1) both;
     }
 
-    .text-input:focus {
-      border-color: var(--brand-primary);
-      box-shadow: 0 0 0 3px var(--brand-surface);
+    .eyebrow {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
     }
 
-    .input-wrapper:focus-within .input-icon-glyph {
-      color: var(--brand-primary);
+    .card h1 {
+      margin-top: 10px;
+      font-size: 40px;
+      line-height: 1.08;
+      letter-spacing: -0.035em;
+      font-weight: 700;
+      color: var(--ink);
+      text-wrap: balance;
     }
 
-    /* Toggle Contraseña */
-    .btn-eye-toggle {
-      position: absolute;
-      right: 8px;
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      padding: 6px 8px;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
+    .sub {
+      margin-top: 14px;
+      max-width: 38ch;
+      font-size: 15.5px;
+      line-height: 1.55;
+    }
+
+    /* --- Formulario ------------------------------------------------------ */
+    .form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      margin-top: 30px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field label {
+      font-size: 12.5px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      color: var(--ink);
+    }
+
+    .control {
+      position: relative;
       display: flex;
       align-items: center;
-      justify-content: center;
-      transition: color 0.15s ease;
+      height: 48px;
+      border-bottom: 1px solid var(--line-2);
+      transition: border-color 0.16s ease;
     }
 
-        @media (hover: hover) and (pointer: fine) {
-  .btn-eye-toggle:hover {
-        color: var(--text-title);
-      }
+    .control:focus-within {
+      border-bottom-color: var(--brand);
     }
 
-    /* Mensaje de Error */
+    .control:has(input:focus-visible) {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+      border-radius: 8px;
+    }
+
+    .control .lead {
+      position: absolute;
+      left: 2px;
+      color: var(--muted);
+      pointer-events: none;
+      transition: color 0.16s ease;
+    }
+
+    .control:focus-within .lead {
+      color: var(--brand);
+    }
+
+    .control input {
+      width: 100%;
+      height: 100%;
+      padding: 0 46px 0 34px;
+      border: 0;
+      background: transparent;
+      color: var(--ink);
+      font-size: 16px;
+      outline: none;
+    }
+
+    .control input::placeholder {
+      color: var(--muted);
+      opacity: 0.72;
+    }
+
+    .eye {
+      position: absolute;
+      right: 0;
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      transition: color 0.16s ease;
+    }
+
+    #iconPassEye {
+      display: flex;
+    }
+
+    /* --- Error ----------------------------------------------------------- */
     .status-error-callout {
       display: none;
       align-items: flex-start;
       gap: 10px;
-      background: var(--danger-bg);
-      border: 1px solid var(--danger-border);
-      border-radius: var(--radius-md);
-      padding: 10px 12px;
-      font-size: 13px;
-      line-height: 1.4;
+      padding: 12px 14px;
+      border-left: 3px solid var(--danger);
+      border-radius: 0 8px 8px 0;
+      background: var(--danger-soft);
       color: var(--danger);
-      font-weight: 600;
-      animation: calloutShake 0.22s ease;
+      font-size: 12.5px;
+      line-height: 1.45;
     }
 
     .status-error-callout.visible {
@@ -625,62 +359,52 @@ const impeccableLive =
     }
 
     .status-error-callout svg {
-      flex-shrink: 0;
+      flex: 0 0 16px;
       margin-top: 1px;
     }
 
-    @keyframes calloutShake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-4px); }
-      75% { transform: translateX(4px); }
+    .recovery {
+      margin-top: -2px;
+      font-size: 12.5px;
+      color: var(--muted);
     }
 
-    /* Botón Principal (Active verb: "Ingresar al sistema") */
+    /* --- Botón ----------------------------------------------------------- */
     .btn-primary-action {
-      width: 100%;
-      height: 46px;
-      background: var(--brand-primary);
-      color: var(--on-brand);
-      border: none;
-      border-radius: var(--radius-md);
-      font-family: var(--ui-font);
-      font-size: 14.5px;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      cursor: pointer;
-      display: flex;
+      position: relative;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      margin-top: 4px;
-      box-shadow: 0 1px 3px rgba(var(--brand-rgb), 0.25);
-      transition: background 0.15s ease, transform 0.12s var(--ease-snappy);
-    }
-
-        @media (hover: hover) and (pointer: fine) {
-  .btn-primary-action:hover {
-        background: var(--brand-hover);
-      }
+      gap: 10px;
+      width: 100%;
+      height: 52px;
+      border: 0;
+      border-radius: 12px;
+      background: var(--brand);
+      color: var(--on-brand);
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      transition: background-color 0.16s ease, transform 0.12s ease, opacity 0.16s ease;
     }
 
     .btn-primary-action:active {
-      transform: scale(0.975);
+      transform: scale(0.985);
     }
 
     .btn-primary-action:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
+      opacity: 0.72;
+      cursor: progress;
     }
 
     .btn-spinner {
       display: none;
       width: 16px;
       height: 16px;
-      border: 2px solid rgba(255, 255, 255, 0.35);
-      border-top-color: #ffffff;
+      border: 2px solid color-mix(in srgb, var(--on-brand) 30%, transparent);
+      border-top-color: var(--on-brand);
       border-radius: 50%;
-      animation: spinRound 0.65s linear infinite;
+      animation: spin 0.7s linear infinite;
     }
 
     .btn-primary-action.loading .btn-spinner {
@@ -688,1123 +412,251 @@ const impeccableLive =
     }
 
     .btn-primary-action.loading .btn-label {
-      opacity: 0.8;
+      opacity: 0.75;
     }
 
-    @keyframes spinRound {
-      to { transform: rotate(360deg); }
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
     }
 
-    /* ── Selector de Perfiles Institucionales ──────────────────── */
-    .profiles-directory {
-      margin-top: 24px;
+    /* --- Acceso rápido (temporal, hasta el 5 de diciembre) --------------- */
+    .quick {
+      margin-top: 34px;
       padding-top: 20px;
-      border-top: 1px solid var(--border-subtle);
+      border-top: 1px solid var(--line);
     }
 
-    .profiles-label-bar {
+    .quick-head {
       display: flex;
-      align-items: center;
+      align-items: baseline;
       justify-content: space-between;
-      margin-bottom: 10px;
+      gap: 12px;
+      margin-bottom: 12px;
     }
 
-    .profiles-title {
-      font-size: 11.5px;
+    .quick-title {
+      font-size: 10.5px;
       font-weight: 700;
-      color: var(--text-muted);
-      letter-spacing: 0.02em;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
     }
 
-    .profiles-note {
+    .quick-note {
       font-size: 11px;
-      color: var(--text-faint);
+      color: var(--muted);
+      opacity: 0.85;
     }
 
-    .profiles-grid {
+    .chips {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 8px;
     }
 
-    @media (min-width: 400px) {
-      .profiles-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-      .profile-card-btn:last-child {
-        grid-column: span 2;
-      }
-    }
-
-    .profile-card-btn {
-      background: var(--surface-card);
-      border: 1px solid var(--border-subtle);
-      color: var(--text-title);
-      border-radius: var(--radius-md);
-      padding: 9px 10px;
-      font-family: var(--ui-font);
-      cursor: pointer;
+    .chip {
       display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 2px;
-      text-align: left;
-      box-shadow: var(--shadow-flat);
-      transition: border-color 0.15s ease, background 0.15s ease, transform 0.12s var(--ease-snappy);
-    }
-
-        @media (hover: hover) and (pointer: fine) {
-  .profile-card-btn:hover {
-        border-color: var(--brand-light);
-        background: var(--surface-subtle);
-        transform: translateY(-1px);
-      }
-    }
-
-    .profile-card-btn:active {
-      transform: scale(0.97);
-    }
-
-    .profile-card-btn.active {
-      background: var(--brand-surface);
-      border-color: var(--brand-primary);
-    }
-
-    .profile-role-name {
-      font-size: 12px;
-      font-weight: 800;
-      color: var(--text-title);
-      line-height: 1.2;
-    }
-
-    .profile-card-btn.active .profile-role-name {
-      color: var(--brand-primary);
-    }
-
-    .profile-user-id {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-muted);
-    }
-
-    /* Pie de Página */
-    .access-footer {
-      width: 100%;
-      max-width: 420px;
-      margin: 0 auto;
-      text-align: center;
-      font-size: 11.5px;
-      color: var(--text-faint);
-      line-height: 1.4;
-    }
-    /* Refinamientos de pulido (impeccable live, sesion 9e3bf80c) */
-    .showcase-column {
-      scrollbar-width: thin;
-      scrollbar-color: rgba(148, 163, 184, 0.415) transparent;
-    }
-    .showcase-column::-webkit-scrollbar {
-      width: 10px;
-    }
-    .showcase-column::-webkit-scrollbar-thumb {
-      background: rgba(148, 163, 184, 0.415);
-      border: 3px solid transparent;
-      border-radius: var(--radius-full);
-      background-clip: padding-box;
-    }
-        @media (hover: hover) and (pointer: fine) {
-  .showcase-column::-webkit-scrollbar-thumb:hover {
-        background: rgba(148, 163, 184, 0.62);
-        background-clip: padding-box;
-      }
-    }
-    .showcase-column ::selection {
-      background: rgba(var(--hero-accent-rgb), 0.469);
-      color: var(--hero-title);
-    }
-    .showcase-column :focus-visible {
-      outline: 2px solid var(--hero-accent);
-      outline-offset: 2px;
-      border-radius: var(--radius-sm);
-    }
-    .module-item {
-      margin: 0 -8px;
-    }
-    .showcase-emblem {
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    }
-    .showcase-footer {
-      border-top-color: rgba(255, 255, 255, 0.1);
-    }
-    /* Entrada del panel de identidad — coreografía b06589e2 sustituida por la accion 5caee1a3
-       "Manifiesto" (aceptada): el panel asienta por capas a distinta profundidad, sin cascada heredada. */
-    @keyframes layerSettle {
-      from { opacity: 0; transform: translateY(var(--dy)); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .showcase-header { --dy: 21.6px; animation: layerSettle 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
-    .showcase-body   { --dy: 12px;   animation: layerSettle 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
-    .showcase-footer { --dy: 6px;    animation: layerSettle 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
-    .showcase-tagline,
-    .showcase-title {
-      --dy: 9.6px;
-      animation: layerSettle 0.396s cubic-bezier(0.16, 1, 0.3, 1) both;
-      animation-delay: 81ms;
-    }
-    
-    /* Optimizacion movil: evita la salto del wipe y suaviza el ritmo sin cambiar desktop */
-  @media (max-width: 900px) {
-    .access-column {
-      animation-duration: 0.54s !important;
-      animation-delay: 0.12s;
-      contain: layout paint;
-    }
-    .access-column .form-main-title {
-      animation-delay: 0.26s;
-    }
-    .showcase-header,
-    .showcase-body,
-    .showcase-footer {
-      animation-duration: 0.38s !important;
-    }
-    .showcase-tagline,
-    .showcase-title {
-      animation-duration: 0.33s !important;
-    }
-  }
-  /* Menu de modulos desplegable */
-    .module-radio {
-      position: absolute;
-      opacity: 0;
-      pointer-events: none;
-    }
-    .module-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      width: 100%;
-      box-sizing: border-box;
-      padding: 7px 8px;
-      border-radius: var(--radius-md);
-      cursor: pointer;
-      color: var(--hero-text);
-      border: 1px solid transparent;
-      transition: background-color 0.28s var(--ease-fluid), border-color 0.28s var(--ease-fluid);
-    }
-        @media (hover: hover) and (pointer: fine) {
-  .module-row:hover {
-        background: rgba(255, 255, 255, 0.04);
-      }
-    }
-    .module-radio:focus-visible + .module-row {
-      outline: 2px solid var(--hero-accent);
-      outline-offset: 2px;
-    }
-    .module-text-wrap {
-      flex: 1;
-      min-width: 0;
-      padding-top: 1px;
-    }
-    .module-text-wrap h4 {
-      font-size: 13px;
-      font-weight: 700;
-      color: #ffffff;
-      line-height: 1.35;
-      transition: color 0.2s ease;
-    }
-    .module-text-wrap p {
-      /* El alto real del texto es el que manda: se anima de 0 a auto gracias a
-         interpolate-size, sin un max-height de relleno que abre la descripcion
-         de golpe en los primeros milisegundos y deja el resto del recorrido
-         sin nada que ver. El hueco de arriba es relleno animado, para que el
-         estado plegado mida 0 exacto. */
-      margin: 0;
-      height: 0;
-      padding-top: 0;
-      box-sizing: border-box;
-      overflow: hidden;
-      opacity: 0;
-      transform: translateY(-3px);
-      font-size: 12px;
-      color: var(--hero-text);
-      line-height: 1.4;
-      /* Despliegue y pliegue simetricos: misma duracion y curva en ambos sentidos */
-      transition: height 0.46s var(--ease-fluid), padding-top 0.46s var(--ease-fluid), opacity 0.34s var(--ease-fluid), transform 0.44s var(--ease-fluid);
-    }
-    .module-chev {
-      display: inline-flex;
       align-items: center;
       justify-content: center;
-      color: var(--hero-text);
-      transform: rotate(0deg);
-      transition: transform 0.46s var(--ease-fluid), color 0.2s ease, opacity 0.2s ease;
-      margin-top: 9px;
-      flex-shrink: 0;
-      opacity: 0.6;
+      height: 44px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--paper);
+      color: var(--ink);
+      font-size: 12.5px;
+      font-weight: 600;
+      text-align: center;
+      transition: border-color 0.16s ease, background-color 0.16s ease, color 0.16s ease;
     }
-    .module-radio:checked + .module-row {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: rgba(var(--hero-accent-rgb), 0.25);
+
+    .chip.active,
+    .chip[aria-pressed="true"] {
+      border-color: color-mix(in srgb, var(--brand) 45%, var(--line));
+      background: var(--brand-soft);
+      color: var(--brand-ink);
+      font-weight: 700;
     }
-    .module-radio:checked + .module-row .module-text-wrap p {
-      height: auto;
-      padding-top: 5px;
-      opacity: 1;
-      transform: none;
+
+    .chip:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
     }
-    .module-radio:checked + .module-row .module-text-wrap h4 {
-      color: #ffffff;
+
+    /* --- Banda de módulos ------------------------------------------------ */
+    .band {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      max-width: 1040px;
+      margin: 52px auto 0;
+      padding: 0 40px;
+      border-top: 1px solid var(--line);
     }
-    .module-radio:checked + .module-row .module-chev {
-      transform: rotate(180deg);
-      color: var(--hero-accent);
-      opacity: 1;
+
+    .mod {
+      padding: 20px 22px 0 0;
     }
-    .module-radio:checked + .module-row .module-icon-well {
-      background: rgba(var(--brand-rgb), 0.12);
-      border-color: rgba(var(--brand-rgb), 0.4);
+
+    .mod .ico {
+      margin-bottom: 10px;
+      color: var(--muted);
     }
-        @media (hover: hover) and (pointer: fine) {
-  .module-row:hover .module-chev {
-        color: var(--hero-accent);
-        opacity: 0.9;
+
+    .mod b {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .mod span {
+      display: block;
+      margin-top: 4px;
+      font-size: 12px;
+      line-height: 1.45;
+      color: var(--muted);
+    }
+
+    /* --- Pie ------------------------------------------------------------- */
+    .foot {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      max-width: 1160px;
+      margin: 34px auto 0;
+      padding: 18px 40px 28px;
+      border-top: 1px solid var(--line);
+      font-size: 11.5px;
+      color: var(--muted);
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
       }
     }
-    
-  /* ── Aceptado dd791b86 · "Franja bandera": identidad tricolor del logo ACJG (azul #3048f0 · rojo #c03018 · amarillo #e8c21a) ── */
-  .showcase-column {
-    --v-blue: #3048f0;
-    --v-blue-focus: #3048f0;
-    --v-red: #c03018;
-    --v-yellow: #e8c21a;
-    background: var(--bg-page);
-    color: var(--text-body);
-    padding: 40px 44px;
-  }
-  /* Modo oscuro: los tres se calculan en OKLCh conservando el matiz exacto del
-     color claro. El azul recupera el 100% de su croma (0.248) —imposible a esta
-     luminosidad en el tono pastel anterior, que ya estaba en el límite de gamut sRGB.
-     Rojo y amarillo superan la croma de su versión clara.
-     --v-blue-focus existe porque el gamut no permite croma pleno Y contraste alto
-     a la vez: el filete (gráfico) usa --v-blue, los indicadores de foco usan el
-     derivado más claro. Mismo matiz 268.4°, se leen como una sola familia. */
-  [data-theme="dark"] .showcase-column {
-    --v-blue: #3a57ff;
-    --v-blue-focus: #5c80ff;
-    --v-red: #ff4324;
-    --v-yellow: #f7cd03;
-  }
-  .showcase-emblem { background: var(--showcase-black); border-color: var(--border-subtle); }
-  .showcase-brand-text .showcase-brand-name { color: var(--text-title); }
-  .showcase-brand-text p { color: var(--text-muted); }
-  .showcase-body { margin: 26px 0; }
-  .showcase-tagline {
-    color: var(--text-title);
-    background: linear-gradient(90deg,
-      color-mix(in srgb, var(--v-blue) 20%, transparent),
-      color-mix(in srgb, var(--v-red) 20%, transparent) 50%,
-      color-mix(in srgb, var(--v-yellow) 34%, transparent));
-    border-color: var(--border-subtle);
-  }
-  .showcase-title { color: var(--text-title); }
-  .showcase-title::after {
-    content: "";
-    display: block;
-    width: 64px;
-    height: 4px;
-    margin-top: 16px;
-    border-radius: var(--radius-full);
-    background: linear-gradient(90deg, var(--v-blue) 0 33%, var(--v-red) 33% 66%, var(--v-yellow) 66% 100%);
-  }
-  .showcase-desc { color: var(--text-muted); }
-  .modules-card { background: var(--surface-card); border-color: var(--border-subtle); padding: 14px; gap: 9px; }
-  .modules-card-label { color: var(--text-muted); border-bottom-color: var(--border-subtle); }
-  .module-icon-well {
-    background: color-mix(in srgb, var(--v-blue) 10%, var(--surface-subtle));
-    border-color: color-mix(in srgb, var(--v-blue) 24%, transparent);
-    color: color-mix(in srgb, var(--v-blue) 80%, var(--text-title));
-  }
+
+    /* --- Interacción ----------------------------------------------------- */
     @media (hover: hover) and (pointer: fine) {
-  .module-item:hover .module-icon-well {
-      background: color-mix(in srgb, var(--v-blue) 18%, var(--surface-subtle));
-      border-color: color-mix(in srgb, var(--v-blue) 48%, transparent);
+      .theme:hover {
+        border-color: var(--line-2);
+        color: var(--ink);
+      }
+
+      .eye:hover {
+        color: var(--ink);
+      }
+
+      .chip:hover {
+        border-color: var(--line-2);
+      }
+
+      .btn-primary-action:hover {
+        background: var(--brand-hover);
+      }
     }
-  }
-  .module-text-wrap h4 { color: var(--text-title); }
-  .module-text-wrap p { color: var(--text-muted); }
-  .module-row { color: var(--text-body); }
-    @media (hover: hover) and (pointer: fine) {
-  .module-row:hover { background: var(--surface-subtle); }
-  }
-  .module-chev { color: var(--text-faint); }
-    @media (hover: hover) and (pointer: fine) {
-  .module-row:hover .module-chev { color: var(--v-blue); }
-  }
-  .module-radio:focus-visible + .module-row { outline-color: var(--v-blue-focus); }
-  .module-radio:checked + .module-row {
-    background: color-mix(in srgb, var(--v-blue) 9%, var(--surface-card));
-    border-color: color-mix(in srgb, var(--v-blue) 34%, transparent);
-  }
-  .module-radio:checked + .module-row .module-text-wrap h4 { color: color-mix(in srgb, var(--v-blue) 65%, var(--text-title)); }
-  .module-radio:checked + .module-row .module-chev { color: var(--v-blue); }
-  .module-radio:checked + .module-row .module-icon-well {
-    background: color-mix(in srgb, var(--v-blue) 16%, var(--surface-subtle));
-    border-color: color-mix(in srgb, var(--v-blue) 45%, transparent);
-  }
-  .showcase-footer { border-top-color: var(--border-subtle); color: var(--text-faint); }
-  /* ── Aceptado 77a6f0fc · "Espejo tricolor": panel de acceso con la paleta azul del logo ACJG y contraste corregido (consistente con el aside) ── */
-  .access-column {
-    --v-blue: #3048f0;
-    --v-blue-focus: #3048f0;
-    --v-red: #c03018;
-    --v-yellow: #e8c21a;
-  }
-  [data-theme="dark"] .access-column {
-    --v-blue: #3a57ff;
-    --v-blue-focus: #5c80ff;
-    --v-red: #ff4324;
-    --v-yellow: #f7cd03;
-  }
-  /* Filete tricolor bajo el título (cinta 0.6) */
-  .access-column .form-main-title::after {
-    content: "";
-    display: block;
-    width: 90px;
-    height: 4px;
-    margin-top: 12px;
-    border-radius: var(--radius-full);
-    background: linear-gradient(90deg, var(--v-blue) 0 33%, var(--v-red) 33% 66%, var(--v-yellow) 66% 100%);
-  }
-  /* Punto tricolor en "Perfiles autorizados" */
-  .access-column .profiles-title::before {
-    content: "";
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    margin-right: 8px;
-    vertical-align: -1px;
-    border-radius: var(--radius-full);
-    background: conic-gradient(from 210deg, var(--v-blue), var(--v-red), var(--v-yellow), var(--v-blue));
-  }
-  /* Acento azul + contraste corregido.
-     Los indicadores de foco usan --v-blue-focus (mismo matiz, un punto más claro)
-     para conservar margen de contraste sobre el fondo oscuro. */
-  .access-column .text-input:focus {
-    border-color: var(--v-blue-focus);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--v-blue-focus) 14%, transparent);
-  }
-  .access-column .text-input::placeholder { color: var(--text-muted); }
-  .access-column .input-wrapper:focus-within .input-icon-glyph { color: var(--v-blue-focus); }
-  .access-column .btn-primary-action {
-    background: var(--brand-primary);
-    box-shadow: 0 1px 3px rgba(var(--brand-rgb), 0.25);
-  }
-    @media (hover: hover) and (pointer: fine) {
-  .access-column .btn-primary-action:hover {
-      background: var(--brand-hover);
+
+    @media (prefers-reduced-motion: reduce) {
+      .card {
+        animation: none;
+      }
+
+      .btn-primary-action,
+      .eye,
+      .theme,
+      .chip,
+      .control,
+      .btn-spinner {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+      }
     }
-  }
-    @media (hover: hover) and (pointer: fine) {
-  .access-column .profile-card-btn:hover { border-color: var(--brand-light); }
-  }
-  .access-column .profile-card-btn.active {
-    background: var(--brand-surface);
-    border-color: var(--brand-primary);
-  }
-  .access-column .profile-card-btn.active .profile-role-name { color: var(--brand-primary); }
-  .access-column .profiles-note { color: var(--text-muted); }
-  .access-column .profile-user-id { color: var(--text-body); }
-  .access-column .access-footer { color: var(--text-muted); }
-  .access-column .theme-button { color: var(--text-body); }
-  .access-column .status-error-callout {
-    color: var(--danger);
-    background: var(--danger-bg);
-    border-color: var(--danger-border);
-  }
-  .access-column .theme-button:focus-visible,
-  .access-column .btn-primary-action:focus-visible,
-  .access-column .profile-card-btn:focus-visible,
-  .access-column .btn-eye-toggle:focus-visible {
-    outline: 2px solid var(--text-dim, #64748b);
-    outline-offset: 2px;
-  }
-  /* ── Aceptado 19731e3c · "Contraste editorial": sube el contraste del texto del aside y devuelve presencia al rótulo "Módulos de Atención Activos" ── */
-  .showcase-column .module-chev { color: var(--text-muted); }
-  .showcase-column .showcase-footer { color: var(--text-muted); }
-  .showcase-column .modules-card-label {
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    color: var(--text-title);
-    padding-bottom: 10px;
-    border-bottom-color: color-mix(in srgb, var(--text-title) 18%, transparent);
-  }
-  .showcase-column .showcase-desc,
-  .showcase-column .module-text-wrap p,
-  .showcase-column .showcase-brand-text p {
-    color: var(--text-body);
-    line-height: 1.55;
-  }
-  .showcase-column .module-text-wrap h4 { color: var(--text-title); }
-  /* ── Help & recovery (critique fix) ── */
-  .help-recovery {
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-top: 8px;
-    line-height: 1.4;
-  }
-  .help-first-time {
-    font-size: 12px;
-    color: var(--text-faint);
-    margin-top: 4px;
-    line-height: 1.4;
-  }
-  /* ── Aceptado 6d3aa132 · "Contraste de pesos": titulares finos 300 y cuerpo semibold; escala tipográfica 0.9 ── */
-  .showcase-column .modules-card { gap: 10px; }
-  .showcase-column .modules-card .modules-card-label {
-    font-size: 9.9px;
-    letter-spacing: 0.14em;
-  }
-  .showcase-column .modules-card .module-text-wrap h4 {
-    font-size: 16.5px;
-    font-weight: 300;
-    letter-spacing: -0.018em;
-    line-height: 1.12;
-  }
-  .showcase-column .modules-card .module-text-wrap p {
-    font-size: 11.5px;
-    font-weight: 600;
-    line-height: 1.5;
-    color: var(--text-muted);
-  }
-  .showcase-column .modules-card .module-chev { margin-top: 5px; opacity: 0.7; }
-  .showcase-column .modules-card .module-radio:focus-visible + .module-row {
-    outline: 2px solid var(--v-blue-focus);
-    outline-offset: 2px;
-  }
-  .showcase-column .modules-card .module-radio:checked + .module-row {
-    background: color-mix(in srgb, var(--v-blue) 8%, var(--surface-card));
-    border-color: color-mix(in srgb, var(--v-blue) 30%, transparent);
-  }
-  .showcase-column .modules-card .module-radio:checked + .module-row .module-text-wrap p {
-    height: auto;
-    padding-top: 6px;
-    opacity: 1;
-    transform: none;
-  }
-  /* ── Aceptado 52a7ec60 · "Jerarquía tipográfica": título sobrio, rótulos en versalitas y campos de línea; perfiles como chips ── */
-  .access-column .form-header-group { margin-bottom: 34px; }
-  .access-column .form-main-title {
-    font-size: 26px;
-    letter-spacing: -0.02em;
-    line-height: 1.03;
-  }
-  .access-column .form-sub-title { font-size: 13.5px; max-width: 40ch; }
-  .access-column .form-stack { gap: 20px; }
-  .access-column .label-caption {
-    text-transform: none;
-    letter-spacing: normal;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--text-title);
-  }
-  .access-column .input-icon-glyph { left: 2px; }
-  .access-column .text-input {
-    height: 44px;
-    padding: 0 12px 0 28px;
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid var(--border-medium);
-    border-radius: 0;
-    box-shadow: none;
-    font-size: 15px;
-  }
-  .access-column .text-input::placeholder {
-    /* nada extra */
-  }
-  .access-column .text-input:focus {
-    outline: none;
-    border-bottom-color: var(--brand-primary);
-    box-shadow: 0 1px 0 var(--brand-primary);
-    background: transparent;
-  }
-  .access-column .text-input:focus::placeholder {
-    color: rgba(15, 23, 42, 0.55);
-  }
-  .access-column .btn-primary-action {
-    height: 50px;
-    border-radius: var(--radius-full);
-    font-size: 15px;
-    margin-top: 8px;
-  }
-  .access-column .profiles-directory { margin-top: 30px; padding-top: 22px; }
-  .access-column .profiles-grid { display: flex; flex-wrap: wrap; gap: 6px; }
-  .access-column .profile-card-btn {
-    display: inline-flex;
-    flex-direction: row;
-    align-items: baseline;
-    gap: 7px;
-    padding: 6px 13px;
-    border-radius: var(--radius-full);
-    box-shadow: none;
-    background: var(--surface-subtle);
-    border-color: transparent;
-  }
-  .access-column .profile-card-btn:last-child { grid-column: auto; }
-    @media (hover: hover) and (pointer: fine) {
-  .access-column .profile-card-btn:hover {
-      transform: none;
-      background: var(--surface-card);
-      border-color: var(--border-subtle);
+
+    /* --- Responsive ------------------------------------------------------ */
+    @media (max-width: 820px) {
+      .top,
+      .stage,
+      .band,
+      .foot {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+
+      .stage {
+        padding-top: 10px;
+      }
+
+      .card {
+        padding: 28px;
+        border-radius: 16px;
+      }
+
+      .card h1 {
+        font-size: 32px;
+      }
+
+      .band {
+        grid-template-columns: 1fr 1fr;
+        gap: 0 20px;
+      }
+
+      .mod {
+        padding-right: 0;
+      }
+
+      .foot {
+        flex-direction: column;
+        gap: 6px;
+      }
     }
-  }
-  .access-column .profile-card-btn.active {
-    background: color-mix(in srgb, var(--v-blue) 8%, transparent);
-    border-color: color-mix(in srgb, var(--v-blue) 40%, transparent);
-  }
-  .access-column .profile-card-btn.active .profile-role-name { color: var(--v-blue); }
-  .access-column .profile-role-name { font-size: 11.5px; }
-  .access-column .profile-user-id { font-size: 10px; color: var(--text-faint); }
-  /* ── Aceptado 8ff0256c · "Distill — Punto": el selector de perfiles se reduce a filas planas; el rol activo
-     se senala con un punto v-azul funcional. Se ocultan el id de usuario (redundante con la etiqueta), la
-     nota "Acceso rapido" y el punto tricolor decorativo del titulo. ── */
-  .access-column .profile-user-id { display: none; }
-  .access-column .profiles-note { display: none; }
-  .access-column .profiles-title::before { display: none; }
-  .access-column .profile-card-btn {
-    background: none;
-    box-shadow: none;
-    border-color: transparent;
-    padding: 4px 8px;
-    border-radius: var(--radius-full);
-  }
-    @media (hover: hover) and (pointer: fine) {
-  .access-column .profile-card-btn:hover {
-      background: none;
-      border-color: transparent;
-      transform: none;
+
+    @media (max-width: 520px) {
+      .top .brand span {
+        display: none;
+      }
+
+      .card {
+        padding: 24px;
+      }
+
+      .quick-head {
+        flex-direction: column;
+        gap: 2px;
+      }
     }
-  }
-  .access-column .profile-role-name {
-    font-size: 12.5px;
-    font-weight: 600;
-    color: var(--text-muted);
-    vertical-align: middle;
-  }
-    @media (hover: hover) and (pointer: fine) {
-  .access-column .profile-card-btn:hover .profile-role-name { color: var(--text-title); }
-  }
-  .access-column .profile-card-btn.active {
-    background: none;
-    border-color: transparent;
-  }
-  .access-column .profile-card-btn.active .profile-role-name { color: var(--text-title); font-weight: 600; }
-  /* El punto azul v-azul del activo se define mas abajo, en el bloque de las pastillas
-     (posicion absoluto para no descentrar la etiqueta). */
-  /* ── Aceptado 31cf7d7f · "Polish — Rótulo-cabecera": el encabezado entra al sistema de kickers del kit
-     (12px / 800 / mayusculas / 0.08em) con hairline bajo el rotulo; el rol gana un tracking ligeramente
-     apretado. Se mantiene el punto v-azul del activo y los cortes del distill (nota e id ocultos). ── */
-  .access-column .profiles-title {
-    font-size: 12px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text-title);
-  }
-  .access-column .profiles-label-bar {
-    margin-bottom: 12px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid color-mix(in srgb, var(--text-title) 18%, transparent);
-  }
-  .access-column .profile-role-name { letter-spacing: -0.008em; }
-  /* ── Aceptado 5a292619 · "Pills en rejilla ordenada" (libre): los perfiles pasan a pastillas con relleno
-     suave, en rejilla equilibrada de 3 columnas y orden alfabetico por CSS order (el DOM y el grafo
-     data-user quedan intactos). El activo conserva el punto v-azul; foco visible en v-azul. ── */
-  .access-column .profiles-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 8px;
-    align-items: stretch;
-    width: 100%;
-  }
-  .access-column .profile-card-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    background: var(--surface-card);
-    border: 1px solid var(--border-medium);
-    padding: 8px 12px;
-    border-radius: var(--radius-full);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-    transition: background .18s ease, border-color .18s ease, color .18s ease, box-shadow .18s ease;
-    box-sizing: border-box;
-    cursor: pointer;
-    min-height: 38px;
-  }
-  [data-theme="dark"] .access-column .profile-card-btn {
-    border-color: rgba(255, 255, 255, 0.16);
-    box-shadow: 0 1px 3px var(--showcase-shadow);
-  }
-    @media (hover: hover) and (pointer: fine) {
-  .access-column .profile-card-btn:hover {
-      background: var(--surface-subtle);
-      border-color: var(--text-title);
-    }
-  }
-  .access-column .profile-card-btn.active {
-    background: var(--surface-subtle);
-    border-color: var(--text-title);
-    box-shadow: 0 0 0 1px var(--text-title);
-  }
-  .access-column .profile-role-name {
-    color: var(--text-body);
-    font-size: 12px;
-    font-weight: 600;
-    white-space: nowrap;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-    /* Ancla del punto azul: al posicionarlo respecto de la etiqueta (y no de la
-       pastilla) el punto queda pegado al texto en cualquier ancho de pastilla,
-       sin sacar la etiqueta del centro ni desplazar el layout al seleccionar. */
-    position: relative;
-  }
-  .access-column .profile-card-btn.active .profile-role-name {
-    color: var(--text-title);
-    font-weight: 600; /* No cambia de peso para evitar que la página o el layout se mueva */
-  }
-  .access-column .profile-card-btn:focus-visible { outline: 2px solid var(--v-blue-focus); outline-offset: 2px; }
-  /* Punto indicador anclado a la etiqueta: left negativo lo Moulle contra el
-     inicio del texto, así queda a ~7px de la primera letra en vez de pegado al
-     borde izquierdo de la pastilla. El padding sigue siendo simétrico, por eso
-     la etiqueta permanece perfectamente centrada. */
-  .access-column .profile-card-btn {
-    padding-left: 14px;
-    padding-right: 14px;
-  }
-  .access-column .profile-card-btn .profile-role-name::before {
-    content: "";
-    position: absolute;
-    left: -13px;
-    top: 50%;
-    width: 6px;
-    height: 6px;
-    margin: -3px 0 0 0;
-    border-radius: var(--radius-full);
-    background: transparent;
-    transition: background-color 0.2s ease;
-  }
-  /* El punto azul es un indicador de estado, no un gráfico decorativo: usa
-       --v-blue-focus para conservar contraste sobre la pastilla activa. */
-  .access-column .profile-card-btn.active .profile-role-name::before {
-    background: var(--v-blue-focus);
-    animation: profileDotIn 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-  /* Aparición limpia: pequeño rebote + halo que se disipa */
-  @keyframes profileDotIn {
-    0%   { transform: scale(0.2); opacity: 0; box-shadow: 0 0 0 0 color-mix(in srgb, var(--v-blue-focus) 45%, transparent); }
-    55%  { transform: scale(1.22); opacity: 1; box-shadow: 0 0 0 5px color-mix(in srgb, var(--v-blue-focus) 0%, transparent); }
-    100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 4px color-mix(in srgb, var(--v-blue-focus) 0%, transparent); }
-  }
-  
-  /* Distribución armónica: Fila 1 (2 pills: Administración TI y Coordinación, 3 columnas cada una), Fila 2 (3 pills: Educación, Nutrición, Trabajo Social, 2 columnas cada una) */
-  .access-column .profiles-grid .profile-card-btn:nth-child(5) {
-    grid-column: span 3; /* Administración TI */
-    order: 1;
-  }
-  .access-column .profiles-grid .profile-card-btn:nth-child(1) {
-    grid-column: span 3; /* Coordinación */
-    order: 2;
-  }
-  .access-column .profiles-grid .profile-card-btn:nth-child(3) {
-    grid-column: span 2; /* Educación */
-    order: 3;
-  }
-  .access-column .profiles-grid .profile-card-btn:nth-child(2) {
-    grid-column: span 2; /* Nutrición */
-    order: 4;
-  }
-  .access-column .profiles-grid .profile-card-btn:nth-child(4) {
-    grid-column: span 2; /* Trabajo Social */
-    order: 5;
-  }
-  
-  /* ── Aceptado 9271afa6 · "Bandas y manifiesto sobrio": banda tricolor superior, cabecera fileteada, kicker en versalitas, titular 32px y módulos como registro abierto con acordeón ── */
-  .showcase-column { padding: 44px 46px; }
-  .showcase-header { padding-bottom: 22px; border-bottom: 1px solid var(--border-subtle); }
-  .showcase-brand-text .showcase-brand-name { font-size: 13px; font-weight: 600; letter-spacing: 0; }
-  .showcase-brand-text p { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; }
-  .showcase-body { margin: 34px 0 26px; }
-  .showcase-tagline {
-    background: none;
-    border: none;
-    border-radius: 0;
-    padding: 0;
-    margin-bottom: 18px;
-    gap: 0;
-    font-size: 11px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
-  }
-  .showcase-title {
-    font-size: 30px;
-    font-weight: 800;
-    line-height: 1.03;
-    letter-spacing: -0.028em;
-  }
-  .showcase-desc { font-size: 15.5px; max-width: 46ch; margin-bottom: 30px; }
-  .modules-card {
-    background: none;
-    border: none;
-    border-top: 1px solid var(--border-subtle);
-    border-bottom: 1px solid var(--border-subtle);
-    border-radius: 0;
-    padding: 0;
-  }
-  .module-item { margin: 0; border-top: 1px solid var(--border-subtle); }
-  .module-row { align-items: flex-start; gap: 14px; padding: 14px 0; border-radius: 0; }
-  .showcase-column .modules-card .module-radio:checked + .module-row .module-text-wrap p {
-    height: auto;
-    padding-top: 6px;
-    opacity: 1;
-    transform: none;
-  }
-  /* ── Acompañamiento sobrio: transiciones suaves y limpias para despliegue/pliegue, fondo negro/neutro en reposo ── */
-  .showcase-column .modules-card .module-row {
-    transition: background 0.24s cubic-bezier(0.2, 0, 0, 1), border-color 0.24s cubic-bezier(0.2, 0, 0, 1), transform 0.2s ease;
-  }
-    @media (hover: hover) and (pointer: fine) {
-  .showcase-column .modules-card .module-row:hover {
-      background: var(--showcase-black);
-      border-color: rgba(255, 255, 255, 0.14);
-    }
-  }
-  .showcase-column .modules-card .module-icon-well {
-    border-radius: 10px;
-    color: #ffffff;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-  }
-    @media (hover: hover) and (pointer: fine) {
-  .showcase-column .modules-card .module-row:hover .module-icon-well {
-      color: #ffffff;
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.2);
-    }
-  }
-  .showcase-column .modules-card .module-radio:checked + .module-row {
-    background: var(--showcase-black);
-    border-color: rgba(255, 255, 255, 0.22);
-    box-shadow: 0 4px 16px var(--showcase-shadow-strong);
-  }
-  .showcase-column .modules-card .module-radio:checked + .module-row .module-icon-well {
-    color: #ffffff;
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.25);
-  }
-  .showcase-column .modules-card .module-radio:checked + .module-row h4 {
-    color: #ffffff;
-    font-weight: 700;
-  }
-  .showcase-column .modules-card .module-radio:focus-visible + .module-row {
-    outline: 2px solid #ffffff;
-    outline-offset: 2px;
-    border-radius: var(--radius-md);
-  }
-  /* Rejilla 2×2 de módulos en negro con bordes definidos y consistentes.
-     align-items: start evita que la tarjeta abierta estire a su vecina: cada
-     celda toma su altura natural y solo crece la que se despliega. */
-  .showcase-column .modules-card {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: start;
-    gap: 10px;
-    border-top: 0;
-    border-bottom: 0;
-  }
-  .showcase-column .modules-card .modules-card-label {
-    grid-column: 1 / -1;
-    border-bottom: 0;
-    padding-bottom: 8px;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    color: var(--text-title);
-    opacity: 0.95;
-  }
-  [data-theme="dark"] .showcase-column .modules-card .modules-card-label {
-    color: #ffffff;
-  }
-  .showcase-column .modules-card .module-item {
-    border-top: 0;
-    margin: 0;
-    display: flex;
-    align-self: start;
-    width: 100%;
-  }
-  .showcase-column .modules-card .module-row {
-    flex: 1 1 auto;
-    gap: 10px;
-    padding: 13px 12px;
-    border-radius: var(--radius-md);
-    background: var(--showcase-black);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-sizing: border-box;
-  }
-  .showcase-column .modules-card .module-text-wrap h4 {
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    line-height: 1.3;
-    color: #ffffff;
-  }
-  .showcase-column .modules-card .module-text-wrap p {
-    font-size: 11.5px;
-    font-weight: 450;
-    line-height: 1.5;
-    color: rgba(255, 255, 255, 0.72);
-    height: 0;
-    padding-top: 0;
-    box-sizing: border-box;
-    overflow: hidden;
-    opacity: 0;
-    transform: translateY(-3px);
-    /* Despliegue y pliegue simetricos: misma duracion y curva en ambos sentidos */
-    transition: height 0.46s var(--ease-fluid), padding-top 0.46s var(--ease-fluid), opacity 0.34s var(--ease-fluid), transform 0.44s var(--ease-fluid);
-  }
-  .showcase-column .modules-card .module-chev {
-    color: #ffffff !important;
-    opacity: 1;
-    margin-top: 2px;
-    transition: transform 0.46s var(--ease-fluid), color 0.2s ease, opacity 0.2s ease;
-  }
-  .showcase-column .modules-card .module-chev svg {
-    width: 17px;
-    height: 17px;
-    stroke: #ffffff;
-    stroke-width: 2.5;
-  }
-  .showcase-column .modules-card .module-radio:checked + .module-row .module-chev {
-    transform: rotate(180deg);
-    color: #ffffff !important;
-    opacity: 1;
-  }
-  /* ── Aceptado 4b350464 · "Tinta azulada": botón primario en azul-negro #1c2233, sombra neutra y hover con un toque del azul del logo ACJG ── */
-  /* Ajuste: negro puro (#000000) igual que las tarjetas de módulos, con hover casi negro
-     y sombra neutra para que en tema claro conserve la separación del fondo. */
-  /* El CTA es la accion solida del sistema, no un bloque de marca: usa el
-     verde de accion con On Brand. En claro, #00715d con blanco (5,6:1); en
-     oscuro, el verde aclarado con tinta casi negra. Asi coincide con
-     "Nuevo Usuario" y el resto de acciones primarias. */
-  .access-column .btn-primary-action {
-    background: var(--brand-fill);
-    color: var(--on-brand);
-    box-shadow: 0 1px 3px rgba(var(--brand-rgb), 0.25);
-  }
-    @media (hover: hover) and (pointer: fine) {
-  .access-column .btn-primary-action:hover {
-      background: var(--brand-fill-hover);
-    }
-  }
-  [data-theme="dark"] .access-column .btn-primary-action {
-    background: var(--brand-fill);
-    color: var(--on-brand);
-    border: none;
-    box-shadow: 0 2px 14px rgba(var(--brand-rgb), 0.22);
-  }
-    @media (hover: hover) and (pointer: fine) {
-  [data-theme="dark"] .access-column .btn-primary-action:hover {
-      background: var(--brand-fill-hover);
-    }
-  }
-  /* El spinner del botón es blanco sobre negro: en modo oscuro el fondo es blanco,
-     así que sus bordes pasan a oscuro para que siga siendo visible. */
-  [data-theme="dark"] .access-column .btn-primary-action .btn-spinner {
-    border-color: rgba(15, 23, 42, 0.25);
-    border-top-color: var(--showcase-ink);
-  }
-  /* ── Modo oscuro · "Inversión": tarjetas de módulos y botón pasan de negro a superficie clara.
-     Jerarquía: el botón es blanco puro (#ffffff) porque es la acción principal y el elemento
-     más pequeño — el punto más brillante de la pantalla. Las tarjetas usan un blancobatido
-     (#f4f6f8) para no competir con él y evitar el deslumbramiento de una superficie grande
-     en blanco absoluto sobre un fondo casi negro. Texto y bordes se invieren a oscuro. ── */
-  [data-theme="dark"] .showcase-column .modules-card .module-row {
-    background: #f4f6f8;
-    border-color: rgba(15, 23, 42, 0.1);
-  }
-    @media (hover: hover) and (pointer: fine) {
-  [data-theme="dark"] .showcase-column .modules-card .module-row:hover {
-      background: #ffffff;
-      border-color: rgba(15, 23, 42, 0.18);
-    }
-  }
-  [data-theme="dark"] .showcase-column .modules-card .module-radio:checked + .module-row {
-    background: #ffffff;
-    border-color: rgba(15, 23, 42, 0.26);
-    box-shadow: 0 6px 22px var(--showcase-shadow-float);
-  }
-  [data-theme="dark"] .showcase-column .modules-card .module-icon-well {
-    color: #0f172a;
-    background: rgba(15, 23, 42, 0.05);
-    border-color: rgba(15, 23, 42, 0.12);
-  }
-    @media (hover: hover) and (pointer: fine) {
-  [data-theme="dark"] .showcase-column .modules-card .module-row:hover .module-icon-well {
-      color: #0f172a;
-      background: rgba(15, 23, 42, 0.08);
-      border-color: rgba(15, 23, 42, 0.18);
-    }
-  }
-  [data-theme="dark"] .showcase-column .modules-card .module-radio:checked + .module-row .module-icon-well {
-    color: #0f172a;
-    background: rgba(15, 23, 42, 0.1);
-    border-color: rgba(15, 23, 42, 0.22);
-  }
-  [data-theme="dark"] .showcase-column .modules-card .module-text-wrap h4,
-  [data-theme="dark"] .showcase-column .modules-card .module-radio:checked + .module-row h4 {
-    color: #0f172a;
-  }
-  [data-theme="dark"] .showcase-column .modules-card .module-text-wrap p {
-    color: rgba(15, 23, 42, 0.66);
-  }
-  [data-theme="dark"] .showcase-column .modules-card .module-chev,
-  [data-theme="dark"] .showcase-column .modules-card .module-radio:checked + .module-row .module-chev {
-    color: #0f172a !important;
-  }
-  [data-theme="dark"] .showcase-column .modules-card .module-chev svg {
-    stroke: #0f172a;
-  }
-  [data-theme="dark"] .showcase-column .modules-card .module-radio:focus-visible + .module-row {
-    outline-color: #0f172a;
-  }
-  /* ── Aceptado 5e7e4623 · "Wipe": la columna de acceso se revela como lámina por máscara desde la izquierda; el titular asienta en una segunda ola ── */
-  @keyframes accWipeLeft {
-    from { clip-path: inset(0 100% 0 0); opacity: 0.4; }
-    to   { clip-path: inset(0 0 0 0);    opacity: 1; }
-  }
-  @keyframes accCascade {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .access-column {
-    animation: accWipeLeft 0.468s cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-  .access-column .form-main-title {
-    animation: accCascade 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
-    animation-delay: 0.14s;
-  }
-  /* Tip Word/editor: entrada natural con cursor nativo */
-  @media (max-width: 900px) {
-    .access-column {
-      animation-delay: 0.12s;
-      contain: layout paint;
-    }
-    .access-column .form-main-title {
-      animation-delay: 0.372s;
-    }
-  }
-  
+
   </style>
 </head>
 <body>
-  <div class="login-container">
-    <!-- COLUMNA IZQUIERDA: Contexto Institucional Humano (Desktop) -->
-    
-      <aside class="showcase-column" aria-label="Identidad del Programa">
-        <div class="showcase-header">
-          <div class="showcase-emblem" aria-hidden="true"><img src="/assets/jg-icon.png" alt="Emblema ACJG" loading="lazy" decoding="async" /></div>
-          <div class="showcase-brand-text">
-            <span class="showcase-brand-name">Asociación Cultural Johannes Gutenberg</span>
-            <p>Sedes de Intervención: Comas y Carabayllo</p>
-          </div>
-        </div>
-        <div class="showcase-body">
-          <h1 class="showcase-title">Seguimiento comunitario para la infancia y familias de Lima Norte</h1>
-          <p class="showcase-desc">Herramienta de registro para facilitadoras, trabajadoras sociales y coordinadores en el seguimiento de usuarios.</p>
-          <!-- Signature: Ficha de Módulos Operativos -->
-          <div class="modules-card">
-            <div class="modules-card-label">Módulos de Atención Activos</div>
-            <div class="module-item">
-              <input class="module-radio" type="radio" name="pdi-modulo" id="pdi-modulo-m1" />
-              <label class="module-row" for="pdi-modulo-m1">
-                <span class="module-icon-well" aria-hidden="true"><Icon name="nav.alimentario" size={18} class="anim-svg-sprout" /></span>
-                <span class="module-text-wrap"><h4>Desayuno Infantil</h4><p>Monitoreo antropométrico, asistencia en comedores y control de tamizaje.</p></span>
-                <span class="module-chev" aria-hidden="true"><Icon name="nav.desplegar" size={12} /></span>
-              </label>
-            </div>
-            <div class="module-item">
-              <input class="module-radio" type="radio" name="pdi-modulo" id="pdi-modulo-m2" />
-              <label class="module-row" for="pdi-modulo-m2">
-                <span class="module-icon-well" aria-hidden="true"><Icon name="educacion.libro" size={18} class="anim-svg-book" /></span>
-                <span class="module-text-wrap"><h4>Acompañamiento Educativo</h4><p>Refuerzo escolar comunitario, talleres y soporte pedagógico.</p></span>
-                <span class="module-chev" aria-hidden="true"><Icon name="nav.desplegar" size={12} /></span>
-              </label>
-            </div>
-            <div class="module-item">
-              <input class="module-radio" type="radio" name="pdi-modulo" id="pdi-modulo-m3" />
-              <label class="module-row" for="pdi-modulo-m3">
-                <span class="module-icon-well" aria-hidden="true"><Icon name="modulo.social" size={18} class="anim-svg-social" /></span>
-                <span class="module-text-wrap"><h4>Atención Social y Familiar</h4><p>Visitas domiciliarias, canalización de casos y expediente único.</p></span>
-                <span class="module-chev" aria-hidden="true"><Icon name="nav.desplegar" size={12} /></span>
-              </label>
-            </div>
-            <div class="module-item">
-              <input class="module-radio" type="radio" name="pdi-modulo" id="pdi-modulo-m4" />
-              <label class="module-row" for="pdi-modulo-m4">
-                <span class="module-icon-well" aria-hidden="true"><Icon name="modulo.salud" size={18} class="anim-svg-pulse" /></span>
-                <span class="module-text-wrap"><h4>Salud Preventiva</h4><p>Controles de desarrollo infantil, vacunas y derivaciones.</p></span>
-                <span class="module-chev" aria-hidden="true"><Icon name="nav.desplegar" size={12} /></span>
-              </label>
-            </div>
-          </div>
-        </div>
-        <div class="showcase-footer">
-          <span>&copy; 2026 Asociación Cultural Johannes Gutenberg</span>
-          <span>Todos los derechos reservados</span>
-        </div>
-      </aside>
 
-    <!-- COLUMNA DERECHA: Panel de Autenticación -->
-  <main class="access-column">
-    <header class="access-header">
-      <div class="brand-mobile-slot">
-        <img
-          src="/assets/logo-asociacion.png"
-          alt="Asociación Cultural Johannes Gutenberg"
-          class="brand-logo-img brand-logo-light"
-          loading="lazy"
-          decoding="async"
-        />
-        <img
-          src="/assets/logo-light-acjg.png"
-          alt="Asociación Cultural Johannes Gutenberg"
-          class="brand-logo-img brand-logo-dark"
-          loading="lazy"
-          decoding="async"
-        />
+  <header class="top">
+    <div class="brand">
+      <img class="emblem" src="/assets/jg-icon.png" alt="" width="44" height="44" />
+      <div>
+        <strong>Asociación Cultural Johannes Gutenberg</strong>
+        <span>Comas y Carabayllo</span>
       </div>
+    </div>
+    <button class="theme" type="button" id="btnThemeToggle">
+      <Icon name="tema.claro" size={15} />
+      <span id="themeToggleLabel">Claro</span>
+    </button>
+  </header>
 
-      <button type="button" class="theme-button" id="btnThemeToggle">
-        <Icon name="tema.claro" size={14} />
-        <span id="themeToggleLabel">Tema</span>
-      </button>
-    </header>
+  <main class="stage">
+    <section class="card" aria-labelledby="tituloAcceso">
+      <p class="eyebrow">Programa Infancia Saludable</p>
+      <h1 id="tituloAcceso">Ingreso al Sistema</h1>
+      <p class="sub">Digita tus credenciales para acceder a los módulos de trabajo.</p>
 
-    <div class="access-content">
-      <div class="form-header-group">
-        <h2 class="form-main-title">Ingreso al Sistema</h2>
-        <p class="form-sub-title">Digita tus credenciales para acceder a los módulos de trabajo.</p>        </div>
-
-      <form class="form-stack" id="loginForm" autocomplete="on" novalidate>
-        <!-- Usuario -->
-        <div class="form-row">
-          <label class="label-caption" for="inputUsuario">Usuario institucional</label>
-          <div class="input-wrapper">
-            <span class="input-icon-glyph" aria-hidden="true">
-              <Icon name="persona.usuario" size={17} />
+      <form class="form" id="loginForm" autocomplete="on" novalidate>
+        <div class="field">
+          <label for="inputUsuario">Usuario institucional</label>
+          <div class="control">
+            <span class="lead" aria-hidden="true">
+              <Icon name="persona.usuario" size={18} />
             </span>
             <input
               type="text"
@@ -1815,38 +667,38 @@ const impeccableLive =
               autocomplete="username"
               required
               spellcheck="false"
+              aria-describedby="loginError"
             />
           </div>
         </div>
 
-        <!-- Contraseña -->
-        <div class="form-row">
-          <label class="label-caption" for="inputClave">Contraseña</label>
-          <div class="input-wrapper">
-            <span class="input-icon-glyph" aria-hidden="true">
-              <Icon name="seguridad.candado" size={17} />
+        <div class="field">
+          <label for="inputClave">Contraseña</label>
+          <div class="control">
+            <span class="lead" aria-hidden="true">
+              <Icon name="seguridad.candado" size={18} />
             </span>
             <input
               type="password"
               id="inputClave"
               name="clave"
               class="text-input"
-              placeholder="••••••••"
+              placeholder="Tu contraseña"
               autocomplete="current-password"
               required
+              aria-describedby="loginError"
             />
-            <button type="button" class="btn-eye-toggle" id="btnTogglePass" aria-label="Mostrar contraseña">
-              <Icon name="password.ver" size={17} id="iconPassEye" />
+            <button type="button" class="eye" id="btnTogglePass" aria-label="Mostrar contraseña" aria-pressed="false">
+              <span id="iconPassEye"><Icon name="password.ver" size={17} /></span>
             </button>
           </div>
         </div>
 
-        <!-- Segundo factor (solo si la cuenta lo tiene activo) -->
-        <div class="form-row" id="filaCodigoTotp" hidden>
-          <label class="label-caption" for="inputCodigoTotp">Código de verificación</label>
-          <div class="input-wrapper">
-            <span class="input-icon-glyph" aria-hidden="true">
-              <Icon name="seguridad.candado" size={17} />
+        <div class="field" id="filaCodigoTotp" hidden>
+          <label for="inputCodigoTotp">Código de verificación</label>
+          <div class="control">
+            <span class="lead" aria-hidden="true">
+              <Icon name="seguridad.candado" size={18} />
             </span>
             <input
               type="text"
@@ -1862,57 +714,63 @@ const impeccableLive =
           </div>
         </div>
 
-        <!-- Mensaje de Error -->
         <div class="status-error-callout" id="loginError" role="alert" aria-live="polite">
           <Icon name="estado.alerta" size={17} />
           <span id="loginErrorMsg">Credenciales no válidas. Revisa usuario y contraseña.</span>
         </div>
-        <p class="help-recovery">¿Problemas para ingresar? Contacta a Administración TI</p>
 
-        <!-- Botón de Envío -->
+        <p class="recovery">¿Problemas para ingresar? Contacta a Administración TI</p>
+
         <button type="submit" class="btn-primary-action" id="btnLogin">
           <span class="btn-spinner" aria-hidden="true"></span>
           <span class="btn-label">Ingresar al sistema</span>
         </button>
       </form>
 
-      <!-- Directorio de Perfiles para Acceso Rápido -->
-      <section class="profiles-directory" aria-label="Perfiles autorizados de trabajo">
-        <div class="profiles-label-bar">
-          <span class="profiles-title">Perfiles autorizados</span>
-          <span class="profiles-note">Acceso rápido</span>
+      <section class="quick" aria-label="Acceso rápido">
+        <div class="quick-head">
+          <span class="quick-title">Acceso rápido</span>
+          <span class="quick-note">Disponible hasta el 5 de diciembre</span>
         </div>
-
-        <div class="profiles-grid" id="profilesGrid">
-          <button type="button" class="profile-card-btn" data-user="coordinacion">
-            <span class="profile-role-name">Coordinación</span>
-            <span class="profile-user-id">coordinacion</span>
-          </button>
-          <button type="button" class="profile-card-btn" data-user="facilitadora">
-            <span class="profile-role-name">Nutrición</span>
-            <span class="profile-user-id">facilitadora</span>
-          </button>
-          <button type="button" class="profile-card-btn" data-user="promotora">
-            <span class="profile-role-name">Educación</span>
-            <span class="profile-user-id">promotora</span>
-          </button>
-          <button type="button" class="profile-card-btn" data-user="social">
-            <span class="profile-role-name">Trabajo Social</span>
-            <span class="profile-user-id">social</span>
-          </button>
-          <button type="button" class="profile-card-btn" data-user="admin">
-            <span class="profile-role-name">Administración TI</span>
-            <span class="profile-user-id">admin</span>
-          </button>
+        <div class="chips" id="profilesGrid">
+          <button type="button" class="profile-card-btn chip" data-user="coordinacion" aria-pressed="false">Coordinación</button>
+          <button type="button" class="profile-card-btn chip" data-user="facilitadora" aria-pressed="false">Nutrición</button>
+          <button type="button" class="profile-card-btn chip" data-user="promotora" aria-pressed="false">Educación</button>
+          <button type="button" class="profile-card-btn chip" data-user="social" aria-pressed="false">Trabajo Social</button>
+          <button type="button" class="profile-card-btn chip" data-user="admin" aria-pressed="false">Administración TI</button>
         </div>
       </section>
-    </div>
-
-    <footer class="access-footer">
-      <p>Sistema PDI &bull; Asociación Cultural Johannes Gutenberg</p>
-    </footer>
+    </section>
   </main>
-  </div>
+
+  <section class="band" aria-label="Líneas de trabajo">
+    <div class="mod">
+      <span class="ico" aria-hidden="true"><Icon name="nav.alimentario" size={18} /></span>
+      <b>Desayuno infantil</b>
+      <span>Antropometría, asistencia y tamizaje.</span>
+    </div>
+    <div class="mod">
+      <span class="ico" aria-hidden="true"><Icon name="educacion.libro" size={18} /></span>
+      <b>Acompañamiento educativo</b>
+      <span>Refuerzo escolar y soporte pedagógico.</span>
+    </div>
+    <div class="mod">
+      <span class="ico" aria-hidden="true"><Icon name="modulo.social" size={18} /></span>
+      <b>Atención social</b>
+      <span>Visitas, canalización y expediente único.</span>
+    </div>
+    <div class="mod">
+      <span class="ico" aria-hidden="true"><Icon name="modulo.salud" size={18} /></span>
+      <b>Salud preventiva</b>
+      <span>Desarrollo, vacunas y derivaciones.</span>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <span>© 2026 Asociación Cultural Johannes Gutenberg</span>
+    <span>Sistema PDI · Todos los derechos reservados</span>
+  </footer>
+
 
   <script>
     import { autenticar, haySesion } from '../scripts/auth/usuarios.js';
@@ -1926,11 +784,13 @@ const impeccableLive =
     // 2. Control de Tema con persistencia en localStorage
     const btnThemeToggle = document.getElementById('btnThemeToggle');
     const themeToggleLabel = document.getElementById('themeToggleLabel');
+    const metaTema = document.getElementById('metaThemeColor');
 
     function syncThemeText(theme) {
       if (themeToggleLabel) {
         themeToggleLabel.textContent = theme === 'dark' ? 'Oscuro' : 'Claro';
       }
+      if (metaTema) metaTema.setAttribute('content', theme === 'dark' ? '#12110f' : '#f2ece1');
     }
 
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
@@ -1961,6 +821,7 @@ const impeccableLive =
       const isPass = inputClave.type === 'password';
       inputClave.type = isPass ? 'text' : 'password';
       btnTogglePass.setAttribute('aria-label', isPass ? 'Ocultar contraseña' : 'Mostrar contraseña');
+      btnTogglePass.setAttribute('aria-pressed', String(isPass));
       if (iconPassEye) {
         iconPassEye.innerHTML = isPass ? EYE_SLASH : EYE_OPEN;
       }
@@ -1976,8 +837,12 @@ const impeccableLive =
       const card = e.target.closest('.profile-card-btn');
       if (!card) return;
 
-      document.querySelectorAll('.profile-card-btn').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.profile-card-btn').forEach((c) => {
+        c.classList.remove('active');
+        c.setAttribute('aria-pressed', 'false');
+      });
       card.classList.add('active');
+      card.setAttribute('aria-pressed', 'true');
 
       if (inputUsuario) inputUsuario.value = card.dataset.user || '';
 
@@ -2019,9 +884,18 @@ const impeccableLive =
       }
     }
 
+    function limpiarInvalidos() {
+      [inputUsuario, inputClave].forEach((campo) => campo?.removeAttribute('aria-invalid'));
+    }
+
     function ocultarError() {
       document.getElementById('loginError')?.classList.remove('visible');
+      limpiarInvalidos();
     }
+
+    [inputUsuario, inputClave].forEach((campo) => {
+      campo?.addEventListener('input', () => campo.removeAttribute('aria-invalid'));
+    });
 
     // 6. Envío del Formulario
     const loginForm = document.getElementById('loginForm');
@@ -2037,8 +911,13 @@ const impeccableLive =
 
       if (!usuario || !clave) {
         mostrarError('Por favor completa tanto tu usuario como tu contraseña.');
-        if (!usuario) inputUsuario?.focus();
-        else inputClave?.focus();
+        if (!usuario) {
+          inputUsuario?.setAttribute('aria-invalid', 'true');
+          inputUsuario?.focus();
+        } else {
+          inputClave?.setAttribute('aria-invalid', 'true');
+          inputClave?.focus();
+        }
         return;
       }
 
@@ -2095,9 +974,6 @@ const impeccableLive =
     });
   </script>
 
-  <script>
-    import '../scripts/core/SmoothScroll.js';
-  </script>
 </body>
 </html>
 
