@@ -116,9 +116,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     body {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
       margin: 0;
       background: var(--paper);
       color: var(--body);
@@ -166,7 +163,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      width: 100%;
       max-width: 1160px;
       margin: 0 auto;
       padding: 26px 40px;
@@ -221,17 +217,15 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     /* --- Tarjeta de acceso ----------------------------------------------- */
     .stage {
       display: flex;
-      flex: 1 0 auto;
-      align-items: center;
       justify-content: center;
-      padding: 20px 40px;
+      padding: 18px 40px 0;
     }
 
     .card {
       width: min(100%, 520px);
-      padding: 28px;
+      padding: 40px;
       border: 1px solid var(--line);
-      border-radius: 16px;
+      border-radius: 20px;
       background: var(--surface);
       box-shadow: var(--shadow-card);
       animation: rise 0.42s cubic-bezier(0.23, 1, 0.32, 1) both;
@@ -246,19 +240,19 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .card h1 {
-      margin-top: 8px;
-      font-size: 32px;
-      line-height: 1.15;
-      letter-spacing: -0.03em;
+      margin-top: 10px;
+      font-size: 40px;
+      line-height: 1.08;
+      letter-spacing: -0.035em;
       font-weight: 700;
       color: var(--ink);
       text-wrap: balance;
     }
 
     .sub {
-      margin-top: 12px;
+      margin-top: 14px;
       max-width: 38ch;
-      font-size: 15px;
+      font-size: 15.5px;
       line-height: 1.55;
     }
 
@@ -266,8 +260,8 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     .form {
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      margin-top: 24px;
+      gap: 18px;
+      margin-top: 30px;
     }
 
     .field {
@@ -462,8 +456,8 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     /* --- Acceso rápido (temporal, hasta el 5 de diciembre) --------------- */
     .quick {
-      margin-top: 24px;
-      padding-top: 16px;
+      margin-top: 34px;
+      padding-top: 20px;
       border-top: 1px solid var(--line);
     }
 
@@ -472,7 +466,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       align-items: baseline;
       justify-content: space-between;
       gap: 12px;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
     }
 
     .quick-title {
@@ -490,32 +484,71 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0 4px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
     }
 
     .chip {
-      display: inline-flex;
+      display: flex;
       align-items: center;
-      min-height: 44px;
-      padding: 0 8px;
-      border: 0;
-      border-radius: 8px;
-      background: transparent;
-      color: var(--brand-ink);
+      justify-content: center;
+      height: 44px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--paper);
+      color: var(--ink);
       font-size: 12.5px;
       font-weight: 600;
-      text-decoration: underline;
-      text-underline-offset: 3px;
-      transition: color 0.16s ease;
+      text-align: center;
+      transition: border-color 0.16s ease, background-color 0.16s ease, color 0.16s ease;
     }
 
     .chip.active,
     .chip[aria-pressed="true"] {
-      color: var(--brand);
+      border-color: color-mix(in srgb, var(--brand) 45%, var(--line));
+      background: var(--brand-soft);
+      color: var(--brand-ink);
       font-weight: 700;
-      text-decoration: none;
+    }
+
+    .chip:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+    }
+
+    /* --- Banda de módulos ------------------------------------------------ */
+    .band {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      max-width: 1040px;
+      margin: 52px auto 0;
+      padding: 0 40px;
+      border-top: 1px solid var(--line);
+    }
+
+    .mod {
+      padding: 20px 22px 0 0;
+    }
+
+    .mod .ico {
+      margin-bottom: 10px;
+      color: var(--muted);
+    }
+
+    .mod b {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .mod span {
+      display: block;
+      margin-top: 4px;
+      font-size: 12px;
+      line-height: 1.45;
+      color: var(--muted);
     }
 
     /* --- Pie ------------------------------------------------------------- */
@@ -523,10 +556,9 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       display: flex;
       justify-content: space-between;
       gap: 12px;
-      width: 100%;
       max-width: 1160px;
-      margin: 0 auto;
-      padding: 18px 40px 24px;
+      margin: 34px auto 0;
+      padding: 18px 40px 28px;
       border-top: 1px solid var(--line);
       font-size: 11.5px;
       color: var(--muted);
@@ -551,7 +583,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       }
 
       .chip:hover {
-        color: var(--brand);
+        border-color: var(--line-2);
       }
 
       .btn-primary-action:hover {
@@ -575,23 +607,85 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       }
     }
 
+    /* --- Ajuste por altura ------------------------------------------------
+       El login no debe pedir scroll. Si la pantalla no puede contener la
+       composición completa (tarjeta + banda + pie), la tarjeta se queda sola
+       y centrada; la banda y el pie vuelven en pantallas altas. */
+    @media (max-height: 1155px) {
+      .top {
+        padding: 10px 40px;
+      }
+
+      .stage {
+        min-height: calc(100vh - 64px);
+        align-items: center;
+        padding: 0 40px;
+      }
+
+      .band,
+      .foot {
+        display: none;
+      }
+    }
+
+    @media (max-height: 839px) and (min-width: 521px) {
+      .card {
+        padding: 32px;
+      }
+
+      .card h1 {
+        font-size: 36px;
+      }
+
+      .form {
+        gap: 16px;
+        margin-top: 24px;
+      }
+
+      .quick {
+        margin-top: 24px;
+        padding-top: 16px;
+      }
+
+      .chips {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .chip:last-child:nth-child(odd) {
+        grid-column: auto;
+      }
+    }
+
     /* --- Responsive ------------------------------------------------------ */
     @media (max-width: 820px) {
       .top,
       .stage,
+      .band,
       .foot {
         padding-left: 24px;
         padding-right: 24px;
       }
 
       .stage {
-        padding-top: 20px;
-        padding-bottom: 20px;
+        padding-top: 10px;
       }
 
       .card {
         padding: 28px;
         border-radius: 16px;
+      }
+
+      .card h1 {
+        font-size: 32px;
+      }
+
+      .band {
+        grid-template-columns: 1fr 1fr;
+        gap: 0 20px;
+      }
+
+      .mod {
+        padding-right: 0;
       }
 
       .foot {
@@ -890,6 +984,29 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       </section>
     </section>
   </main>
+
+  <section class="band" aria-label="Líneas de trabajo">
+    <div class="mod">
+      <span class="ico" aria-hidden="true"><Icon name="nav.alimentario" size={18} /></span>
+      <b>Desayuno infantil</b>
+      <span>Antropometría, asistencia y tamizaje.</span>
+    </div>
+    <div class="mod">
+      <span class="ico" aria-hidden="true"><Icon name="educacion.libro" size={18} /></span>
+      <b>Acompañamiento educativo</b>
+      <span>Refuerzo escolar y soporte pedagógico.</span>
+    </div>
+    <div class="mod">
+      <span class="ico" aria-hidden="true"><Icon name="modulo.social" size={18} /></span>
+      <b>Atención social</b>
+      <span>Visitas, canalización y expediente único.</span>
+    </div>
+    <div class="mod">
+      <span class="ico" aria-hidden="true"><Icon name="modulo.salud" size={18} /></span>
+      <b>Salud preventiva</b>
+      <span>Desarrollo, vacunas y derivaciones.</span>
+    </div>
+  </section>
 
   <footer class="foot">
     <span>© 2026 Asociación Cultural Johannes Gutenberg</span>
