@@ -201,6 +201,9 @@ function setEstadoModalAbierto(modal, abierto) {
     modal.removeAttribute('aria-hidden');
     modal.classList.add('open');
   } else {
+    if (modal.contains(document.activeElement)) {
+      try { document.activeElement.blur(); } catch {}
+    }
     modal.classList.remove('open');
     modal.setAttribute('inert', '');
     modal.setAttribute('aria-hidden', 'true');
@@ -238,7 +241,6 @@ function abrirModal(id, origen = null, respaldoCuentaId = '') {
 function cerrarModal(id) {
   const modal = porId(id);
   if (!modal) return;
-  setEstadoModalAbierto(modal, false);
 
   let destino = focoAntesDeModal && document.contains(focoAntesDeModal)
     ? focoAntesDeModal
@@ -261,6 +263,8 @@ function cerrarModal(id) {
       // Sin elemento enfocable disponible.
     }
   }
+
+  setEstadoModalAbierto(modal, false);
 }
 
 async function solicitarCierreModal(id, disparador = null) {

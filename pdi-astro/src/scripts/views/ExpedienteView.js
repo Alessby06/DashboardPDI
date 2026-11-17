@@ -18,6 +18,7 @@
 //  clases modal-tab-btn y modal-tab-pane siguen llamandose asi: las selecciona
 //  css/views.css y renombrarlas no compensaba el riesgo.
 import { PageGuard } from "../auth/PageGuard.js";
+import { moverFocoFueraDeModal } from "../utils/focoModal.js";
 import { BeneficiarioModel } from "../models/BeneficiarioModel.js";
 import { CasoSocialModel } from "../models/CasoSocialModel.js";
 import { AuditModel } from "../models/AuditModel.js";
@@ -1984,6 +1985,7 @@ export const ExpedienteView = {
   },
 
   abrirModalFichaA1() {
+    this._focoFichaA1 = document.activeElement;
     const b = this._usuarioActual;
     if (!b) {
       if (typeof ToastView !== "undefined") {
@@ -2087,6 +2089,8 @@ export const ExpedienteView = {
   cerrarModalFichaA1() {
     const modal = document.getElementById("modalFichaA1Oficial");
     if (modal) {
+      moverFocoFueraDeModal(document, modal, this._focoFichaA1);
+      this._focoFichaA1 = null;
       modal.setAttribute("inert", "");
       modal.setAttribute("aria-hidden", "true");
       modal.classList.remove("is-visible");

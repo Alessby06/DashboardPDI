@@ -13,6 +13,7 @@ import { contarOpciones } from "../utils/FacetCounts.js";
 import { initSortMenu } from "../ui/SortMenu.js";
 import { iconHtml } from '../../data/iconos.js';
 import { avatarHtml } from "../utils/Avatar.js";
+import { elegirReenganche, moverFocoFueraDeModal } from "../utils/focoModal.js";
 // Filtros del modulo CRED que viajan en la URL. Valores tomados de los
 // desplegables de salud.html.
 const FILTROS_SALUD = {
@@ -788,8 +789,14 @@ export const SaludCredView = {
    */
   _sacarFocoDelModal(modal, destino, respaldoSelector) {
     if (!modal || !modal.contains(document.activeElement)) return;
+    const usuarioId = this._pruebaUsuarioId;
+    const selectorUsuario = Number.isFinite(usuarioId)
+      ? `#view-salud button[onclick*="openHistorialTamizaje(${usuarioId})"], #view-salud button[onclick*="registrarDosaje(${usuarioId})"]`
+      : null;
+    const candidatos = selectorUsuario ? [...document.querySelectorAll(selectorUsuario)] : [];
+    const reenganchado = elegirReenganche(candidatos);
     const selector = respaldoSelector || "#view-salud button, #view-salud a[href]";
-    const respaldo = [...document.querySelectorAll(selector)]
+    const respaldo = reenganchado || [...document.querySelectorAll(selector)]
       .find(el => !modal.contains(el) && !el.closest("[inert]"));
     const candidato = destino
       && document.contains(destino)
@@ -799,7 +806,7 @@ export const SaludCredView = {
       && !destino.closest("[inert]")
       ? destino
       : respaldo;
-    if (candidato && typeof candidato.focus === "function") candidato.focus();
+    moverFocoFueraDeModal(document, modal, candidato);
   },
 
   /**
@@ -1001,10 +1008,10 @@ export const SaludCredView = {
     const modal = document.getElementById("modalHistorialTamizaje");
     if (!modal) return;
     this._ocultarFormularioNuevaPrueba();
-    this._pruebaUsuarioId = null;
     // El foco sale antes de inert/aria-hidden: así Chrome no bloquea el
     // elemento enfocado ni deja el aviso de accesibilidad en consola.
     this._sacarFocoDelModal(modal, this._focoHistorial);
+    this._pruebaUsuarioId = null;
     this._focoHistorial = null;
     modal.classList.remove("open");
     modal.setAttribute("inert", "");

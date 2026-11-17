@@ -9,6 +9,7 @@ import { crearDerivacion, crearEventoCaso } from '../core/db.js';
 import { ToastView } from './ToastView.js';
 import { escapar } from '../utils/HtmlHelper.js';
 import { validarTipo } from '../ui/tiposCampo.js';
+import { moverFocoFueraDeModal } from '../utils/focoModal.js';
 
 const ROLES = {
   coord: 'Coordinación',
@@ -157,13 +158,19 @@ export const DerivacionView = {
   cerrar() {
     const modal = porId('modalNuevaDerivacion');
     if (!modal) return;
+    const disparador = porId('btnNuevaDerivacion');
+    if (disparador && typeof disparador.focus === 'function') {
+      try { disparador.focus({ preventScroll: true }); } catch {}
+    }
+    if (modal.contains(document.activeElement)) {
+      try { document.activeElement.blur(); } catch {}
+    }
     modal.classList.remove('open');
-    modal.setAttribute('aria-hidden', 'true');
     modal.setAttribute('inert', '');
+    modal.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('pdi-derivacion-open');
     this._seleccionado = null;
     this._casoActivo = null;
-    setTimeout(() => porId('btnNuevaDerivacion')?.focus(), 30);
   },
 
   _feedback(texto, tipo = '') {
@@ -588,6 +595,7 @@ export const DerivacionView = {
   },
 
   abrirAtencion(caso) {
+    this._focoAtencion = document.activeElement;
     if (!caso) {
       ToastView.show('Sin caso', 'Abre un caso para registrar una atención.', 'warning');
       return;
@@ -614,9 +622,11 @@ export const DerivacionView = {
     const modal = porId('modalAtencionCaso');
     if (!modal) return;
     const caso = this._casoAtencion;
+    moverFocoFueraDeModal(document, modal, this._focoAtencion);
+    this._focoAtencion = null;
     modal.classList.remove('open');
-    modal.setAttribute('aria-hidden', 'true');
     modal.setAttribute('inert', '');
+    modal.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('pdi-derivacion-open');
     this._casoAtencion = null;
     if (reabrirDetalle && caso) {

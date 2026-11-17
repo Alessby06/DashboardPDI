@@ -169,7 +169,12 @@ export const ModalView = {
       ? focoAntesDeFicha
       : document.getElementById("btnNuevoBeneficiario");
     focoAntesDeFicha = null;
-    if (destino) destino.focus({ preventScroll: true });
+    if (destino && typeof destino.focus === "function") {
+      try { destino.focus({ preventScroll: true }); } catch {}
+    }
+    if (modal.contains(document.activeElement)) {
+      try { document.activeElement.blur(); } catch {}
+    }
 
     // El modal cerrado no puede quedar en el orden de tabulacion.
     modal.setAttribute("inert", "");
