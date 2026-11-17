@@ -9,6 +9,8 @@ import '../styles/fonts.css';
 // produccion nunca lleva la URL de localhost.
 const impeccableLive =
   String(import.meta.env.PUBLIC_IMPECCABLE_LIVE ?? 'true').toLowerCase() !== 'false';
+
+const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 ---
 <!doctype html>
 <html lang="es">
@@ -376,9 +378,28 @@ const impeccableLive =
     }
 
     .recovery {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 2px 6px;
       margin-top: -2px;
       font-size: 12.5px;
       color: var(--muted);
+    }
+
+    .recovery-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 0 2px;
+      border: 0;
+      background: transparent;
+      color: var(--brand-ink);
+      font: inherit;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      cursor: pointer;
     }
 
     /* --- Botón ----------------------------------------------------------- */
@@ -639,6 +660,163 @@ const impeccableLive =
       }
     }
 
+    /* --- Recuperación de acceso ------------------------------------------ */
+    .rec-dialog {
+      width: min(calc(100% - 32px), 480px);
+      max-height: calc(100dvh - 32px);
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--surface);
+      color: var(--body);
+      box-shadow: var(--shadow-card);
+      overflow: auto;
+    }
+
+    .rec-dialog::backdrop {
+      background: rgba(18, 17, 15, 0.55);
+      backdrop-filter: blur(2px);
+    }
+
+    .rec-card {
+      padding: 28px;
+    }
+
+    .rec-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .rec-head h2 {
+      margin: 8px 0 0;
+      font-size: 24px;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+
+    .rec-close {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--muted);
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .rec-desc {
+      margin-top: 14px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .rec-dialog .form {
+      margin-top: 22px;
+      gap: 16px;
+    }
+
+    .rec-hp {
+      position: absolute;
+      left: -9999px;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+    }
+
+    .rec-error {
+      padding: 10px 12px;
+      border-left: 3px solid var(--danger);
+      border-radius: 0 8px 8px 0;
+      background: var(--danger-soft);
+      color: var(--danger);
+      font-size: 12.5px;
+      line-height: 1.45;
+    }
+
+    .rec-soporte {
+      margin-top: -2px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .rec-ok-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .rec-ok-desc {
+      margin-top: 8px;
+      font-size: 13.5px;
+      line-height: 1.55;
+    }
+
+    .rec-code {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 18px 0;
+      padding: 12px 14px;
+      border: 1px dashed var(--line-2);
+      border-radius: 10px;
+      background: var(--paper);
+    }
+
+    .rec-code span {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .rec-copy {
+      height: 44px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--brand-ink);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .recovery-link:hover {
+        color: var(--brand);
+      }
+
+      .rec-close:hover {
+        background: var(--paper);
+        color: var(--ink);
+      }
+
+      .rec-copy:hover {
+        border-color: var(--line-2);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .rec-dialog {
+        width: calc(100% - 24px);
+      }
+
+      .rec-card {
+        padding: 22px;
+      }
+
+      .rec-head h2 {
+        font-size: 21px;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -731,7 +909,10 @@ const impeccableLive =
           <span id="loginErrorMsg">Credenciales no válidas. Revisa usuario y contraseña.</span>
         </div>
 
-        <p class="recovery">¿Problemas para ingresar? Contacta a Administración TI</p>
+        <p class="recovery">
+          ¿Problemas para ingresar?
+          <button type="button" class="recovery-link" id="btnRecuperar" aria-haspopup="dialog">Solicita una recuperación</button>
+        </p>
 
         <button type="submit" class="btn-primary-action" id="btnLogin">
           <span class="btn-spinner" aria-hidden="true"></span>
@@ -783,6 +964,50 @@ const impeccableLive =
     <span>Sistema PDI · Todos los derechos reservados</span>
   </footer>
 
+
+  <dialog class="rec-dialog" id="dialogRecuperar" aria-labelledby="recTitulo" aria-describedby="recDesc">
+    <div class="rec-card">
+      <header class="rec-head">
+        <div>
+          <p class="eyebrow">Recuperar acceso</p>
+          <h2 id="recTitulo">Solicita una clave temporal</h2>
+        </div>
+        <button type="button" class="rec-close" id="btnRecCerrar" aria-label="Cerrar">×</button>
+      </header>
+      <p class="rec-desc" id="recDesc">La recuperación la realiza Administración TI. Si la solicitud corresponde a una cuenta activa, se generará una clave temporal de un solo uso y deberás cambiarla al entrar.</p>
+
+      <div id="recFormWrap">
+        <form class="form" id="recForm" novalidate>
+          <div class="field">
+            <label for="recUsuario">Usuario institucional</label>
+            <div class="control">
+              <span class="lead" aria-hidden="true"><Icon name="persona.usuario" size={18} /></span>
+              <input id="recUsuario" name="usuario" type="text" placeholder="ej. coordinacion" autocomplete="username" spellcheck="false" maxlength="32" />
+            </div>
+          </div>
+          <input type="text" id="recHp" name="hp" class="rec-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <div class="rec-error" id="recError" role="alert" aria-live="polite" hidden></div>
+          <button type="submit" class="btn-primary-action" id="btnRecEnviar">
+            <span class="btn-spinner" aria-hidden="true"></span>
+            <span class="btn-label">Enviar solicitud</span>
+          </button>
+          {soporteEmail && (
+            <p class="rec-soporte">¿Prefieres escribir? <a href={`mailto:${soporteEmail}`}>{soporteEmail}</a></p>
+          )}
+        </form>
+      </div>
+
+      <div id="recOk" role="status" hidden>
+        <p class="rec-ok-title">Solicitud registrada</p>
+        <p class="rec-ok-desc">Menciona este código cuando contactes a Administración TI. No compartas tu contraseña por ningún canal.</p>
+        <div class="rec-code">
+          <span id="recCodigo">—</span>
+          <button type="button" class="rec-copy" id="btnRecCopiar">Copiar</button>
+        </div>
+        <button type="button" class="btn-primary-action" id="btnRecListo">Cerrar</button>
+      </div>
+    </div>
+  </dialog>
 
   <script>
     import { autenticar, haySesion } from '../scripts/auth/usuarios.js';
@@ -982,6 +1207,112 @@ const impeccableLive =
         }
         mostrarError(res.error || 'Credenciales incorrectas. Verifica tu usuario y clave.');
         if (!res.requiereTotp) inputClave?.select();
+      }
+    });
+  </script>
+
+  <script>
+    const dialogRec = document.getElementById('dialogRecuperar');
+    const btnRecuperar = document.getElementById('btnRecuperar');
+    const recForm = document.getElementById('recForm');
+    const recUsuario = document.getElementById('recUsuario');
+    const recHp = document.getElementById('recHp');
+    const recError = document.getElementById('recError');
+    const recFormWrap = document.getElementById('recFormWrap');
+    const recOk = document.getElementById('recOk');
+    const recCodigo = document.getElementById('recCodigo');
+    const btnRecEnviar = document.getElementById('btnRecEnviar');
+    const btnRecCopiar = document.getElementById('btnRecCopiar');
+    let recAbiertoEl = 0;
+
+    function limpiarRecError() {
+      if (!recError) return;
+      recError.hidden = true;
+      recError.textContent = '';
+    }
+
+    function mostrarRecError(mensaje) {
+      if (!recError) return;
+      recError.textContent = mensaje;
+      recError.hidden = false;
+    }
+
+    btnRecuperar?.addEventListener('click', () => {
+      if (!dialogRec) return;
+      const loginUsuario = document.getElementById('inputUsuario');
+      if (recUsuario) recUsuario.value = loginUsuario?.value?.trim() || '';
+      limpiarRecError();
+      if (recFormWrap) recFormWrap.hidden = false;
+      if (recOk) recOk.hidden = true;
+      recAbiertoEl = Date.now();
+      dialogRec.showModal();
+      recUsuario?.focus();
+    });
+
+    document.getElementById('btnRecCerrar')?.addEventListener('click', () => dialogRec?.close());
+    document.getElementById('btnRecListo')?.addEventListener('click', () => dialogRec?.close());
+
+    dialogRec?.addEventListener('click', (evento) => {
+      if (evento.target === dialogRec) dialogRec.close();
+    });
+
+    dialogRec?.addEventListener('close', () => {
+      btnRecuperar?.focus();
+      if (recForm) recForm.reset();
+      limpiarRecError();
+      if (recFormWrap) recFormWrap.hidden = false;
+      if (recOk) recOk.hidden = true;
+      if (recCodigo) recCodigo.textContent = '—';
+    });
+
+    recForm?.addEventListener('submit', async (evento) => {
+      evento.preventDefault();
+      limpiarRecError();
+      const usuario = recUsuario?.value?.trim() || '';
+      if (!usuario) {
+        mostrarRecError('Escribe tu usuario institucional.');
+        recUsuario?.focus();
+        return;
+      }
+
+      btnRecEnviar?.classList.add('loading');
+      if (btnRecEnviar) btnRecEnviar.disabled = true;
+
+      try {
+        const res = await fetch('/api/cuenta/recuperacion', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ usuario, hp: recHp?.value || '', ts: recAbiertoEl }),
+        });
+        const datos = await res.json().catch(() => ({}));
+        if (res.ok && datos.ok) {
+          if (recCodigo) recCodigo.textContent = datos.codigo || '—';
+          if (recFormWrap) recFormWrap.hidden = true;
+          if (recOk) recOk.hidden = false;
+          btnRecCopiar?.focus();
+        } else {
+          mostrarRecError(datos.error || 'No se pudo registrar la solicitud. Intenta de nuevo.');
+        }
+      } catch {
+        mostrarRecError('No se pudo conectar. Revisa tu conexión e intenta de nuevo.');
+      } finally {
+        btnRecEnviar?.classList.remove('loading');
+        if (btnRecEnviar) btnRecEnviar.disabled = false;
+      }
+    });
+
+    btnRecCopiar?.addEventListener('click', async () => {
+      const codigo = (recCodigo?.textContent || '').trim();
+      if (!codigo || codigo === '—') return;
+      try {
+        await navigator.clipboard.writeText(codigo);
+        btnRecCopiar.textContent = 'Copiado';
+        window.setTimeout(() => {
+          btnRecCopiar.textContent = 'Copiar';
+        }, 1800);
+      } catch {
+        // Sin portapapeles, el código sigue visible para copiarlo a mano.
       }
     });
   </script>
