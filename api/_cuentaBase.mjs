@@ -229,6 +229,19 @@ export function generarClaveTemporal(largo = 16) {
   return clave;
 }
 
+/**
+ * Código corto de referencia para una solicitud de recuperación. Solo letras
+ * mayúsculas y números, sin O/0 ni I/1, para dictarlo por teléfono.
+ */
+export function generarCodigoRecuperacion() {
+  const alfabeto = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let codigo = '';
+  for (let i = 0; i < 6; i += 1) {
+    codigo += alfabeto[crypto.randomInt(0, alfabeto.length)];
+  }
+  return codigo;
+}
+
 /** Roles que la aplicación reconoce. Un rol desconocido no da acceso a nada. */
 export const ROLES_VALIDOS = ['coord', 'facilitadora', 'promotora', 'social', 'admin'];
 
@@ -377,6 +390,15 @@ function ipDe(request) {
 /** Identificador estable de la IP, sin guardar la dirección en claro. */
 function ipHash(ip) {
   return crypto.createHash('sha256').update(String(ip || 'local')).digest('hex').slice(0, 32);
+}
+
+/** Igual que ipHash, pero ligado al secreto del servidor. Se usa en la
+ *  recuperación para que el hash no sea reversible por diccionario de IPs. */
+function ipHashRecuperacion(ip, secreto) {
+  return crypto.createHash('sha256')
+    .update(String(ip || 'local') + '|' + String(secreto || ''))
+    .digest('hex')
+    .slice(0, 32);
 }
 
 /** Minutos que quedan de bloqueo; 0 si no hay bloqueo vigente. */
@@ -622,6 +644,92 @@ function bloqueoClaveTemporal(cuenta) {
 }
 
 // --- Acciones ---------------------------------------------------------------
+
+/**
+ * Solicitud pública de recuperación. No consulta `cuenta`: registra siempre
+ * para no revelar si el usuario existe. Devuelve el código vigente si ya hay
+ * una solicitud pendiente reciente. No genera ni entrega claves.
+ */
+async function solicitarRecuperacion(request, cfg) {
+  if (!origenValido(request)) return json({ ok: false, error: 'Origen no permitido.' }, 403);
+
+  let entrada;
+  try {
+    entrada = await cuerpo(request);
+  } catch {
+    return json({ ok: false, error: 'Solicitud no válida.' }, 400);
+  }
+
+  // Honeypot: un humano no lo ve; los bots lo rellenan.
+  if (String(entrada.hp || '').trim()) {
+    return json({ ok: false, error: 'No se pudo procesar la solicitud.' }, 400);
+  }
+
+  // Tiempo mínimo de llenado: el diálogo envía el instante en que se abrió.
+  const enviado = Number(entrada.ts);
+  const ahora = Date.now();
+  if (!Number.isFinite(enviado) || ahora - enviado < 1500 || ahora - enviado > 2 * 60 * 60 * 1000) {
+    return json({ ok: false, error: 'No se pudo procesar la solicitud.' }, 400);
+  }
+
+  const validado = validarUsuario(entrada.usuario);
+  if (!validado.ok) return json({ ok: false, error: validado.error }, 400);
+  const usuario = validado.usuario;
+
+  const hashIp = ipHashRecuperacion(ipDe(request), cfg.secreto);
+
+  // Límite por origen y global. La tabla es pequeña: un count por carga basta.
+  const [porIp] = (await consulta(cfg, `
+    SELECT count() AS total FROM solicitud_recuperacion
+    WHERE ip_hash = ${lit(hashIp)} AND creado_el > time::now() - 1h
+    GROUP ALL;`)) || [];
+  if (Number(porIp?.total || 0) >= 5) {
+    return json({ ok: false, error: 'Demasiadas solicitudes desde esta conexión. Intenta más tarde.' }, 429);
+  }
+
+  const [global] = (await consulta(cfg, `
+    SELECT count() AS total FROM solicitud_recuperacion
+    WHERE creado_el > time::now() - 1h
+    GROUP ALL;`)) || [];
+  if (Number(global?.total || 0) >= 50) {
+    return json({ ok: false, error: 'El servicio está recibiendo muchas solicitudes. Intenta más tarde.' }, 429);
+  }
+
+  // Una pendiente por usuario y 30 minutos: si existe, devuelve su código.
+  const pendiente = await consulta(cfg, `
+    SELECT codigo FROM solicitud_recuperacion
+    WHERE usuario = ${lit(usuario)} AND estado = 'pendiente'
+      AND creado_el > time::now() - 30m
+    ORDER BY creado_el DESC LIMIT 1;`);
+  const fila = Array.isArray(pendiente) ? pendiente[0] : null;
+  if (fila && fila.codigo) return json({ ok: true, codigo: fila.codigo });
+
+  let codigo = '';
+  for (let intento = 0; intento < 5; intento += 1) {
+    const candidato = generarCodigoRecuperacion();
+    const usado = await consulta(cfg, `
+      SELECT VALUE codigo FROM solicitud_recuperacion
+      WHERE codigo = ${lit(candidato)} LIMIT 1;`);
+    if (!Array.isArray(usado) || usado.length === 0) {
+      codigo = candidato;
+      break;
+    }
+  }
+  if (!codigo) {
+    return json({ ok: false, error: 'No se pudo registrar la solicitud. Intenta de nuevo.' }, 500);
+  }
+
+  await consulta(cfg, `
+    CREATE solicitud_recuperacion CONTENT {
+      usuario: ${lit(usuario)},
+      codigo: ${lit(codigo)},
+      estado: 'pendiente',
+      creado_el: time::now(),
+      ip_hash: ${lit(hashIp)}
+    };`);
+
+  return json({ ok: true, codigo });
+}
 
 async function login(request, cfg) {
   if (!origenValido(request)) return json({ ok: false, error: 'Origen no permitido.' }, 403);
@@ -1401,6 +1509,10 @@ export async function handleCuenta(request, env = {}) {
       if (request.method !== 'POST') return json({ ok: false, error: 'Se espera POST.' }, 405);
       if (!origenValido(request)) return json({ ok: false, error: 'Origen no permitido.' }, 403);
       return await totp(request, cfg);
+    }
+    if (ruta === '/api/cuenta/recuperacion') {
+      if (request.method !== 'POST') return json({ ok: false, error: 'Se espera POST.' }, 405);
+      return await solicitarRecuperacion(request, cfg);
     }
     if (ruta === '/api/cuenta/admin') {
       return await admin(request, cfg);
