@@ -522,6 +522,10 @@ La deuda de `!important` se paga por hoja y con medición, no por intuición. `t
 
 Para bajar una hoja: se capturan los estilos computados de todos los elementos a 390 y 1440 px, con el estado cerrado y el estado abierto de la vista; se retira el `!important` de las reglas que no protegen una hoja inferior y se comparan las dos capturas. Solo se aplica al código si la diferencia es cero en los cuatro estados. Sedes fue la primera hoja: 199 → 113 sin un solo cambio medido.
 
+Antes de tocar la cascada, se deduplica. Un bloque idéntico copiado en varias hojas se mueve a una hoja compartida que importan solo las páginas que lo usaban, y se mide igual. Así se hizo con el icono de exportación (siete copias) y con los botones de `.view-actions` (dos copias). La deduplicación no cambia el estilo computado; reduce lo que compite.
+
+Las capas `@layer` no se introducen por componente. Un estilo sin capa gana a cualquiera que esté en una capa, así que envolver solo una familia hunde el componente en vez de ordenarlo: se probó con `.btn-action` y se revirtió al medir entre 70 y 125 elementos alterados por página. Migrar a capas exige mover de una vez todo lo que compite por esos elementos —en este proyecto, casi todo `base.css`, `components.css` y las vistas— y no es un piloto.
+
 ### Conformance Checklist
 1. Ninguna hoja de vista declara tokens núcleo ni bloques `[data-theme]`; los de componente viven en su hoja compartida.
 2. Cero hex o `rgba()` nuevos fuera de `variables.css`.
