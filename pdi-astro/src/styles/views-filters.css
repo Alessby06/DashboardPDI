@@ -135,7 +135,7 @@
      el de padron dejaba 68px fuera a 1366x768. El techo usa el viewport real
      y deja aire para la topbar. */
   max-height: calc(100dvh - 32px);
-  background: var(--surface-1);
+  background: var(--surface-2);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   box-shadow:
@@ -584,7 +584,7 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 6px;
-  background: var(--surface-1);
+  background: var(--surface-2);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-overlay);
@@ -1115,7 +1115,7 @@
   }
 
   .padron-inner-dropdown-menu {
-    background: var(--surface-1);
+    background: var(--surface-2);
     border: 1px solid var(--border-subtle);
     box-shadow: var(--shadow-overlay);
     border-radius: var(--radius-sm);

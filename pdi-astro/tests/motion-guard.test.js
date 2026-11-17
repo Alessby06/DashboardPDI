@@ -25,6 +25,29 @@ function archivosCss() {
   return fs.readdirSync(ESTILOS).filter((f) => f.endsWith('.css')).sort();
 }
 
+/**
+ * Los bloques `<style>` de los .astro también son CSS del producto. El guard
+ * los ignoraba y por ahí se colaron dos `transition: all` en GlobalModals.
+ * Se devuelven como fuentes con el mismo formato que las hojas.
+ */
+function estilosAstro() {
+  const raiz = path.join(AQUI, '..', 'src');
+  const salida = [];
+  const recorrer = (dir) => {
+    for (const entrada of fs.readdirSync(dir, { withFileTypes: true })) {
+      const ruta = path.join(dir, entrada.name);
+      if (entrada.isDirectory()) { recorrer(ruta); continue; }
+      if (!entrada.name.endsWith('.astro')) continue;
+      const html = fs.readFileSync(ruta, 'utf8');
+      for (const m of html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)) {
+        salida.push({ archivo: path.relative(raiz, ruta).replace(/\\/g, '/'), css: m[1] });
+      }
+    }
+  };
+  recorrer(raiz);
+  return salida;
+}
+
 /** Devuelve las reglas con su selector, cuerpo y la cadena de @media. */
 function reglasDe(css) {
   const reglas = [];
@@ -104,8 +127,11 @@ test('todo :hover visual está guardado para puntero fino', () => {
 
 test('ninguna regla usa transition: all', () => {
   const fallos = [];
-  for (const archivo of archivosCss()) {
-    const css = fs.readFileSync(path.join(ESTILOS, archivo), 'utf8');
+  const fuentes = [
+    ...archivosCss().map((archivo) => ({ archivo, css: fs.readFileSync(path.join(ESTILOS, archivo), 'utf8') })),
+    ...estilosAstro(),
+  ];
+  for (const { archivo, css } of fuentes) {
     for (const regla of reglasDe(css)) {
       if (/transition(?:-property)?\s*:\s*all\b/i.test(regla.cuerpo)) {
         fallos.push(`${archivo}: ${regla.selector.slice(0, 110)}`);

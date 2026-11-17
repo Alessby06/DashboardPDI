@@ -843,7 +843,7 @@
       width: 100%;
       min-width: 100%;
       box-sizing: border-box;
-      background: var(--surface-1);
+      background: var(--surface-2);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
       box-shadow: var(--shadow-overlay);

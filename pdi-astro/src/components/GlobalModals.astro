@@ -2551,7 +2551,9 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
     background: transparent;
     color: var(--text-muted);
     cursor: pointer;
-    transition: all 0.15s ease;
+    /* La transición universal animaba propiedades de layout y sacaba el
+       trabajo del compositor. Solo cambia el color al pasar el puntero. */
+    transition: color 0.15s ease;
     user-select: none;
   }
 
@@ -2652,7 +2654,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
     font-weight: 500;
     color: var(--text-muted);
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
   }
 
   .btn-quitar-persona2:hover {

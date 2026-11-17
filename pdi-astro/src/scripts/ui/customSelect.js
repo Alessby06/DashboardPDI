@@ -77,9 +77,31 @@ const crearTrigger = (select) => {
 
 const construirMenu = (select, menu) => {
   menu.textContent = '';
-  const opciones = [...select.options];
-  opciones.forEach((opcion, indice) => {
+  let contenedor = menu;
+  let grupoActual = null;
+  [...select.options].forEach((opcion, indice) => {
     if (opcion.hidden) return;
+    // El select puede agrupar con <optgroup>. El listbox conserva esa
+    // jerarquia: un role="group" con su etiqueta visible, en vez de aplanar
+    // las opciones y perder el contexto ("Distrito" / "Sedes Parroquiales").
+    const grupo = opcion.parentElement instanceof HTMLOptGroupElement ? opcion.parentElement : null;
+    if (grupo !== grupoActual) {
+      grupoActual = grupo;
+      if (grupo) {
+        contenedor = document.createElement('div');
+        contenedor.className = 'pdi-select-group';
+        contenedor.setAttribute('role', 'group');
+        contenedor.setAttribute('aria-label', grupo.label);
+        const etiqueta = document.createElement('div');
+        etiqueta.className = 'pdi-select-group-label';
+        etiqueta.setAttribute('aria-hidden', 'true');
+        etiqueta.textContent = grupo.label;
+        contenedor.append(etiqueta);
+        menu.append(contenedor);
+      } else {
+        contenedor = menu;
+      }
+    }
     const item = document.createElement('button');
     item.type = 'button';
     item.className = 'pdi-select-option';
@@ -89,7 +111,7 @@ const construirMenu = (select, menu) => {
     item.disabled = opcion.disabled;
     item.setAttribute('aria-selected', indice === select.selectedIndex ? 'true' : 'false');
     item.addEventListener('click', () => elegir(select, indice));
-    menu.append(item);
+    contenedor.append(item);
   });
 };
 
@@ -148,7 +170,14 @@ const posicionar = (wrap) => {
   }
 
   const margen = 6;
-  const ancho = Math.min(rect.width, window.innerWidth - 16);
+  const disponible = window.innerWidth - 16;
+  // El menú no hereda el ancho del disparador: se ajusta a su contenido para
+  // que "Distrito Carabayllo" o "50 por página (Máx)" no se partan en dos
+  // líneas. El disparador marca el mínimo y el viewport el máximo.
+  menu.style.maxWidth = `${disponible}px`;
+  menu.style.width = 'max-content';
+  menu.style.minWidth = `${Math.min(rect.width, disponible)}px`;
+  const ancho = Math.min(menu.getBoundingClientRect().width, disponible);
   const izquierda = Math.max(8, Math.min(rect.left, window.innerWidth - ancho - 8));
   menu.style.position = 'fixed';
   menu.style.left = `${izquierda}px`;
@@ -252,6 +281,11 @@ const mejorar = (select) => {
   const menu = document.createElement('div');
   menu.className = 'pdi-select-menu';
   menu.id = `${select.id || 'pdi-select'}-menu`;
+  // El menú tiene overflow-y:auto, pero no es un panel de la página. Sin esta
+  // marca, ScrollManager lo confunde con un panel con scroll, lo envuelve en
+  // .scroll-pane-content y le monta un Lenis: la primera apertura cambia de
+  // ritmo y la segunda ya no. La lista se desplaza de forma nativa.
+  menu.setAttribute('data-scroll-native', '');
   menu.setAttribute('role', 'listbox');
   menu.setAttribute('aria-labelledby', trigger.id);
   trigger.setAttribute('aria-controls', menu.id);

@@ -40,13 +40,15 @@ export const Theme = {
    * interfaz se pinta clara, asi que en movil se veia una barra negra sobre una
    * pantalla blanca. El script antiflash del <head> lo deja bien en la primera
    * carga; esto lo mantiene bien cuando el tema cambia o cuando el tema es
-   * "system" y el sistema cambia por su cuenta. Los valores son --surface-1.
+   * "system" y el sistema cambia por su cuenta. El valor sale del papel real
+   * (--bg-base), no de un hex duplicado que se desincroniza.
    */
   _pintarColorDeBarra() {
     const metaTema = document.getElementById('metaThemeColor');
     if (!metaTema) return;
     const oscuro = document.documentElement.getAttribute('data-theme') === 'dark';
-    metaTema.setAttribute('content', oscuro ? '#0d0d0f' : '#ffffff');
+    const papel = getComputedStyle(document.documentElement).getPropertyValue('--bg-base').trim();
+    metaTema.setAttribute('content', papel || (oscuro ? '#12110f' : '#f5f0e6'));
   },
 
   /**
