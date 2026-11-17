@@ -580,8 +580,7 @@
     .ley-consent-card {
       /* Antes era #ffffff fijo. En tema oscuro las cuatro tarjetas quedaban
          blancas con el texto claro encima: texto casi blanco sobre blanco,
-         ilegible. --surface-1 vale #ffffff en claro y #181818 en oscuro, que es
-         justo lo que hacia falta. */
+         ilegible. --surface-1 es la superficie de tarjeta en ambos temas. */
       background: var(--surface-1);
       border: 1px solid var(--border-subtle);
       border-left: 1px solid var(--gt-green);
