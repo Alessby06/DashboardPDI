@@ -71,9 +71,11 @@ const { id, label = 'Estrategia Asignada', disabled = false } = Astro.props;
       color var(--dur-fast) var(--ease-smooth);
   }
 
+    @media (hover: hover) and (pointer: fine) {
   .estr-chip:hover {
-    border-color: var(--border-medium);
-    background: var(--surface-hover);
+      border-color: var(--border-medium);
+      background: var(--surface-hover);
+    }
   }
 
   .estr-chip-check {
@@ -106,8 +108,10 @@ const { id, label = 'Estrategia Asignada', disabled = false } = Astro.props;
     cursor: default;
   }
 
+    @media (hover: hover) and (pointer: fine) {
   .estr-chips.is-disabled .estr-chip:hover {
-    border-color: var(--border-subtle);
+      border-color: var(--border-subtle);
+    }
   }
 
   /* El navegador pinta los <button disabled> con su propio gris. El control

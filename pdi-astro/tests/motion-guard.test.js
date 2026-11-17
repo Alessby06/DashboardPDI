@@ -48,6 +48,14 @@ function estilosAstro() {
   return salida;
 }
 
+/** Hojas sueltas + bloques `<style>` de los .astro, como una sola lista. */
+function fuentes() {
+  return [
+    ...archivosCss().map((archivo) => ({ archivo, css: fs.readFileSync(path.join(ESTILOS, archivo), 'utf8') })),
+    ...estilosAstro(),
+  ];
+}
+
 /** Devuelve las reglas con su selector, cuerpo y la cadena de @media. */
 function reglasDe(css) {
   const reglas = [];
@@ -113,8 +121,7 @@ function reglasDe(css) {
 
 test('todo :hover visual está guardado para puntero fino', () => {
   const fallos = [];
-  for (const archivo of archivosCss()) {
-    const css = fs.readFileSync(path.join(ESTILOS, archivo), 'utf8');
+  for (const { archivo, css } of fuentes()) {
     for (const regla of reglasDe(css)) {
       if (!/:hover/.test(regla.selector)) continue;
       if (/hover:\s*hover/i.test(regla.media)) continue;
@@ -127,11 +134,7 @@ test('todo :hover visual está guardado para puntero fino', () => {
 
 test('ninguna regla usa transition: all', () => {
   const fallos = [];
-  const fuentes = [
-    ...archivosCss().map((archivo) => ({ archivo, css: fs.readFileSync(path.join(ESTILOS, archivo), 'utf8') })),
-    ...estilosAstro(),
-  ];
-  for (const { archivo, css } of fuentes) {
+  for (const { archivo, css } of fuentes()) {
     for (const regla of reglasDe(css)) {
       if (/transition(?:-property)?\s*:\s*all\b/i.test(regla.cuerpo)) {
         fallos.push(`${archivo}: ${regla.selector.slice(0, 110)}`);

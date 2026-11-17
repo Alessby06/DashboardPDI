@@ -326,10 +326,12 @@ const impeccableLive =
       transition: border-color 0.28s var(--ease-fluid), background 0.28s var(--ease-fluid), transform 0.36s var(--ease-fluid);
     }
 
-    .module-item:hover .module-icon-well {
-      background: rgba(var(--hero-accent-rgb), 0.1);
-      border-color: rgba(var(--hero-accent-rgb), 0.35);
-      transform: translateY(-2px) scale(1.05);
+        @media (hover: hover) and (pointer: fine) {
+  .module-item:hover .module-icon-well {
+        background: rgba(var(--hero-accent-rgb), 0.1);
+        border-color: rgba(var(--hero-accent-rgb), 0.35);
+        transform: translateY(-2px) scale(1.05);
+      }
     }
 
     /* ── SVG Micro-Animations (Seamless Harmonic Loops) ────────── */
@@ -465,10 +467,12 @@ const impeccableLive =
       transition: color 0.15s ease, border-color 0.15s ease, transform 0.15s var(--ease-snappy);
     }
 
-    .theme-button:hover {
-      color: var(--text-title);
-      border-color: var(--border-medium);
-      transform: translateY(-1px);
+        @media (hover: hover) and (pointer: fine) {
+  .theme-button:hover {
+        color: var(--text-title);
+        border-color: var(--border-medium);
+        transform: translateY(-1px);
+      }
     }
 
     /* Contenido Central: Formulario */
@@ -563,8 +567,10 @@ const impeccableLive =
       color: var(--text-faint);
     }
 
-    .text-input:hover {
-      border-color: var(--border-medium);
+        @media (hover: hover) and (pointer: fine) {
+  .text-input:hover {
+        border-color: var(--border-medium);
+      }
     }
 
     .text-input:focus {
@@ -592,8 +598,10 @@ const impeccableLive =
       transition: color 0.15s ease;
     }
 
-    .btn-eye-toggle:hover {
-      color: var(--text-title);
+        @media (hover: hover) and (pointer: fine) {
+  .btn-eye-toggle:hover {
+        color: var(--text-title);
+      }
     }
 
     /* Mensaje de Error */
@@ -649,8 +657,10 @@ const impeccableLive =
       transition: background 0.15s ease, transform 0.12s var(--ease-snappy);
     }
 
-    .btn-primary-action:hover {
-      background: var(--brand-hover);
+        @media (hover: hover) and (pointer: fine) {
+  .btn-primary-action:hover {
+        background: var(--brand-hover);
+      }
     }
 
     .btn-primary-action:active {
@@ -743,10 +753,12 @@ const impeccableLive =
       transition: border-color 0.15s ease, background 0.15s ease, transform 0.12s var(--ease-snappy);
     }
 
-    .profile-card-btn:hover {
-      border-color: var(--brand-light);
-      background: var(--surface-subtle);
-      transform: translateY(-1px);
+        @media (hover: hover) and (pointer: fine) {
+  .profile-card-btn:hover {
+        border-color: var(--brand-light);
+        background: var(--surface-subtle);
+        transform: translateY(-1px);
+      }
     }
 
     .profile-card-btn:active {
@@ -799,9 +811,11 @@ const impeccableLive =
       border-radius: var(--radius-full);
       background-clip: padding-box;
     }
-    .showcase-column::-webkit-scrollbar-thumb:hover {
-      background: rgba(148, 163, 184, 0.62);
-      background-clip: padding-box;
+        @media (hover: hover) and (pointer: fine) {
+  .showcase-column::-webkit-scrollbar-thumb:hover {
+        background: rgba(148, 163, 184, 0.62);
+        background-clip: padding-box;
+      }
     }
     .showcase-column ::selection {
       background: rgba(var(--hero-accent-rgb), 0.469);
@@ -876,8 +890,10 @@ const impeccableLive =
       border: 1px solid transparent;
       transition: background-color 0.28s var(--ease-fluid), border-color 0.28s var(--ease-fluid);
     }
-    .module-row:hover {
-      background: rgba(255, 255, 255, 0.04);
+        @media (hover: hover) and (pointer: fine) {
+  .module-row:hover {
+        background: rgba(255, 255, 255, 0.04);
+      }
     }
     .module-radio:focus-visible + .module-row {
       outline: 2px solid var(--hero-accent);
@@ -947,9 +963,11 @@ const impeccableLive =
       background: rgba(var(--brand-rgb), 0.12);
       border-color: rgba(var(--brand-rgb), 0.4);
     }
-    .module-row:hover .module-chev {
-      color: var(--hero-accent);
-      opacity: 0.9;
+        @media (hover: hover) and (pointer: fine) {
+  .module-row:hover .module-chev {
+        color: var(--hero-accent);
+        opacity: 0.9;
+      }
     }
     
   /* ── Aceptado dd791b86 · "Franja bandera": identidad tricolor del logo ACJG (azul #3048f0 · rojo #c03018 · amarillo #e8c21a) ── */
@@ -1005,16 +1023,22 @@ const impeccableLive =
     border-color: color-mix(in srgb, var(--v-blue) 24%, transparent);
     color: color-mix(in srgb, var(--v-blue) 80%, var(--text-title));
   }
+    @media (hover: hover) and (pointer: fine) {
   .module-item:hover .module-icon-well {
-    background: color-mix(in srgb, var(--v-blue) 18%, var(--surface-subtle));
-    border-color: color-mix(in srgb, var(--v-blue) 48%, transparent);
+      background: color-mix(in srgb, var(--v-blue) 18%, var(--surface-subtle));
+      border-color: color-mix(in srgb, var(--v-blue) 48%, transparent);
+    }
   }
   .module-text-wrap h4 { color: var(--text-title); }
   .module-text-wrap p { color: var(--text-muted); }
   .module-row { color: var(--text-body); }
+    @media (hover: hover) and (pointer: fine) {
   .module-row:hover { background: var(--surface-subtle); }
+  }
   .module-chev { color: var(--text-faint); }
+    @media (hover: hover) and (pointer: fine) {
   .module-row:hover .module-chev { color: var(--v-blue); }
+  }
   .module-radio:focus-visible + .module-row { outline-color: var(--v-blue-focus); }
   .module-radio:checked + .module-row {
     background: color-mix(in srgb, var(--v-blue) 9%, var(--surface-card));
@@ -1074,10 +1098,14 @@ const impeccableLive =
     background: var(--brand-primary);
     box-shadow: 0 1px 3px rgba(var(--brand-rgb), 0.25);
   }
+    @media (hover: hover) and (pointer: fine) {
   .access-column .btn-primary-action:hover {
-    background: var(--brand-hover);
+      background: var(--brand-hover);
+    }
   }
+    @media (hover: hover) and (pointer: fine) {
   .access-column .profile-card-btn:hover { border-color: var(--brand-light); }
+  }
   .access-column .profile-card-btn.active {
     background: var(--brand-surface);
     border-color: var(--brand-primary);
@@ -1222,10 +1250,12 @@ const impeccableLive =
     border-color: transparent;
   }
   .access-column .profile-card-btn:last-child { grid-column: auto; }
+    @media (hover: hover) and (pointer: fine) {
   .access-column .profile-card-btn:hover {
-    transform: none;
-    background: var(--surface-card);
-    border-color: var(--border-subtle);
+      transform: none;
+      background: var(--surface-card);
+      border-color: var(--border-subtle);
+    }
   }
   .access-column .profile-card-btn.active {
     background: color-mix(in srgb, var(--v-blue) 8%, transparent);
@@ -1247,10 +1277,12 @@ const impeccableLive =
     padding: 4px 8px;
     border-radius: var(--radius-full);
   }
+    @media (hover: hover) and (pointer: fine) {
   .access-column .profile-card-btn:hover {
-    background: none;
-    border-color: transparent;
-    transform: none;
+      background: none;
+      border-color: transparent;
+      transform: none;
+    }
   }
   .access-column .profile-role-name {
     font-size: 12.5px;
@@ -1258,7 +1290,9 @@ const impeccableLive =
     color: var(--text-muted);
     vertical-align: middle;
   }
+    @media (hover: hover) and (pointer: fine) {
   .access-column .profile-card-btn:hover .profile-role-name { color: var(--text-title); }
+  }
   .access-column .profile-card-btn.active {
     background: none;
     border-color: transparent;
@@ -1311,9 +1345,11 @@ const impeccableLive =
     border-color: rgba(255, 255, 255, 0.16);
     box-shadow: 0 1px 3px var(--showcase-shadow);
   }
+    @media (hover: hover) and (pointer: fine) {
   .access-column .profile-card-btn:hover {
-    background: var(--surface-subtle);
-    border-color: var(--text-title);
+      background: var(--surface-subtle);
+      border-color: var(--text-title);
+    }
   }
   .access-column .profile-card-btn.active {
     background: var(--surface-subtle);
@@ -1439,9 +1475,11 @@ const impeccableLive =
   .showcase-column .modules-card .module-row {
     transition: background 0.24s cubic-bezier(0.2, 0, 0, 1), border-color 0.24s cubic-bezier(0.2, 0, 0, 1), transform 0.2s ease;
   }
+    @media (hover: hover) and (pointer: fine) {
   .showcase-column .modules-card .module-row:hover {
-    background: var(--showcase-black);
-    border-color: rgba(255, 255, 255, 0.14);
+      background: var(--showcase-black);
+      border-color: rgba(255, 255, 255, 0.14);
+    }
   }
   .showcase-column .modules-card .module-icon-well {
     border-radius: 10px;
@@ -1450,10 +1488,12 @@ const impeccableLive =
     border: 1px solid rgba(255, 255, 255, 0.12);
     transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
   }
+    @media (hover: hover) and (pointer: fine) {
   .showcase-column .modules-card .module-row:hover .module-icon-well {
-    color: #ffffff;
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
   }
   .showcase-column .modules-card .module-radio:checked + .module-row {
     background: var(--showcase-black);
@@ -1564,8 +1604,10 @@ const impeccableLive =
     color: var(--on-brand);
     box-shadow: 0 1px 3px rgba(var(--brand-rgb), 0.25);
   }
+    @media (hover: hover) and (pointer: fine) {
   .access-column .btn-primary-action:hover {
-    background: var(--brand-fill-hover);
+      background: var(--brand-fill-hover);
+    }
   }
   [data-theme="dark"] .access-column .btn-primary-action {
     background: var(--brand-fill);
@@ -1573,8 +1615,10 @@ const impeccableLive =
     border: none;
     box-shadow: 0 2px 14px rgba(var(--brand-rgb), 0.22);
   }
+    @media (hover: hover) and (pointer: fine) {
   [data-theme="dark"] .access-column .btn-primary-action:hover {
-    background: var(--brand-fill-hover);
+      background: var(--brand-fill-hover);
+    }
   }
   /* El spinner del botón es blanco sobre negro: en modo oscuro el fondo es blanco,
      así que sus bordes pasan a oscuro para que siga siendo visible. */
@@ -1591,9 +1635,11 @@ const impeccableLive =
     background: #f4f6f8;
     border-color: rgba(15, 23, 42, 0.1);
   }
+    @media (hover: hover) and (pointer: fine) {
   [data-theme="dark"] .showcase-column .modules-card .module-row:hover {
-    background: #ffffff;
-    border-color: rgba(15, 23, 42, 0.18);
+      background: #ffffff;
+      border-color: rgba(15, 23, 42, 0.18);
+    }
   }
   [data-theme="dark"] .showcase-column .modules-card .module-radio:checked + .module-row {
     background: #ffffff;
@@ -1605,10 +1651,12 @@ const impeccableLive =
     background: rgba(15, 23, 42, 0.05);
     border-color: rgba(15, 23, 42, 0.12);
   }
+    @media (hover: hover) and (pointer: fine) {
   [data-theme="dark"] .showcase-column .modules-card .module-row:hover .module-icon-well {
-    color: #0f172a;
-    background: rgba(15, 23, 42, 0.08);
-    border-color: rgba(15, 23, 42, 0.18);
+      color: #0f172a;
+      background: rgba(15, 23, 42, 0.08);
+      border-color: rgba(15, 23, 42, 0.18);
+    }
   }
   [data-theme="dark"] .showcase-column .modules-card .module-radio:checked + .module-row .module-icon-well {
     color: #0f172a;

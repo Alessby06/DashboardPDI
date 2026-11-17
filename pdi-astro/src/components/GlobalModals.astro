@@ -2052,9 +2052,11 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
     transition: border-color var(--dur-fast, 0.15s) ease, background-color var(--dur-fast, 0.15s) ease;
   }
 
+    @media (hover: hover) and (pointer: fine) {
   .ficha-photo:hover {
-    border-color: var(--border-bright) !important;
-    background: var(--surface-hover) !important;
+      border-color: var(--border-bright) !important;
+      background: var(--surface-hover) !important;
+    }
   }
 
   .ficha-photo--profile,
@@ -2106,10 +2108,12 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
     height: 26px;
   }
 
+    @media (hover: hover) and (pointer: fine) {
   .photo-uploader-box:hover .ficha-photo-icon-wrap {
-    background: var(--surface-1);
-    color: var(--text-main);
-    transform: scale(1.06);
+      background: var(--surface-1);
+      color: var(--text-main);
+      transform: scale(1.06);
+    }
   }
 
   .ficha-photo-title {
@@ -2557,8 +2561,10 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
     user-select: none;
   }
 
+    @media (hover: hover) and (pointer: fine) {
   .alergia-seg-btn:hover {
-    color: var(--text-main);
+      color: var(--text-main);
+    }
   }
 
   .alergia-seg-btn.is-active {
@@ -2619,10 +2625,12 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
     transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
   }
 
+    @media (hover: hover) and (pointer: fine) {
   .btn-agregar-persona2:hover {
-    border-color: var(--border-bright);
-    background: var(--surface-hover);
-    color: var(--text-main);
+      border-color: var(--border-bright);
+      background: var(--surface-hover);
+      color: var(--text-main);
+    }
   }
 
   .btn-agregar-persona2-text {
@@ -2657,10 +2665,12 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
     transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
   }
 
+    @media (hover: hover) and (pointer: fine) {
   .btn-quitar-persona2:hover {
-    background: rgba(239, 68, 68, 0.08);
-    color: var(--status-danger, #ef4444);
-    border-color: rgba(239, 68, 68, 0.3);
+      background: rgba(239, 68, 68, 0.08);
+      color: var(--status-danger, #ef4444);
+      border-color: rgba(239, 68, 68, 0.3);
+    }
   }
 
   /* Texto para lectores de pantalla que no debe ocupar lugar en pantalla. */
@@ -2701,10 +2711,12 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
     transform: none;
   }
 
+    @media (hover: hover) and (pointer: fine) {
   #btnGuardarFicha:disabled:hover {
-    background: var(--surface-2);
-    opacity: 1;
-    transform: none;
+      background: var(--surface-2);
+      opacity: 1;
+      transform: none;
+    }
   }
 
   /* Los encabezados de seccion usan los tokens de info y marca, que en claro
@@ -2884,10 +2896,12 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
     border-color: var(--border-subtle) !important;
   }
 
+    @media (hover: hover) and (pointer: fine) {
   #modalNuevoUsuario .btn-gps-capture:hover {
-    color: var(--text-main) !important;
-    border-color: var(--border-medium) !important;
-    background: var(--surface-hover) !important;
+      color: var(--text-main) !important;
+      border-color: var(--border-medium) !important;
+      background: var(--surface-hover) !important;
+    }
   }
 
   #modalNuevoUsuario input[type="checkbox"] {
@@ -2957,9 +2971,11 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
     color: var(--text-danger);
   }
 
+    @media (hover: hover) and (pointer: fine) {
   #modalConfirmacion .confirm-aceptar.peligro:hover {
-    background: var(--gt-red-border);
-    color: var(--text-main);
+      background: var(--gt-red-border);
+      color: var(--text-main);
+    }
   }
 </style>
 
