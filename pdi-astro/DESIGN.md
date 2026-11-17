@@ -104,6 +104,12 @@ typography:
     fontSize: "9.5px"
     fontWeight: 600
     lineHeight: 1.3
+  code:
+    fontFamily: "ui-monospace, SFMono-Regular, Consolas, Liberation Mono, monospace"
+    fontSize: "20px"
+    fontWeight: 800
+    lineHeight: 1.3
+    letterSpacing: "0.08em"
 rounded:
   sm: "6px"
   md: "10px"
@@ -223,7 +229,7 @@ El sistema usa un registro cálido de neutros. Los valores viven en `variables.c
 
 ### Login Showcase
 
-La pantalla de acceso conserva su propia composición y sus tokens de showcase, pero comparte los neutros cálidos del sistema. El bloque de módulos mantiene el negro cálido como contraste de marca; el CTA usa el verde de acción (`--brand-primary`, equivalente local de `--brand-fill`) con `--on-brand`. Los tokens se declaran en la propia página porque el login no importa `variables.css`; esa duplicación es aislamiento de superficie, no deriva.
+La pantalla de acceso es una columna de 480 px: cabecera, tarjeta, tira de usuarios de prueba, línea de módulos y pie. La tarjeta usa Surface, radio 16, borde Rule y sombra Ambiente; los campos son cajas hundidas (`surface-2`) con borde inset de 1 px y anillo de foco de 2 px con offset 2. El h1 de 30/700 es la excepción de display de esta superficie; el resto sigue la rampa cerrada. El CTA usa el verde de acción con `--on-brand`; la tira «Usuarios de prueba» es secundaria, vive fuera de la tarjeta y solo rellena el usuario hasta el 5 de diciembre de 2026. El diálogo usa radio 16 y sombra Overlay; el código de recuperación usa una pila monoespaciada. Los tokens se declaran en la propia página porque el login no importa `variables.css`; esa duplicación es aislamiento de superficie, no deriva.
 
 ### Dark Theme
 
@@ -461,7 +467,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Keyframes:** una sola definición por nombre, en `base.css`. Las hojas de vista no redeclaran animaciones compartidas; el test falla si aparece un duplicado. `slideUp` y `pulseHighlight` se retiraron por no usarse.
 - **`will-change`:** solo en elementos con movimiento real y continuo (sidebar, hojas, fantasma de arrastre). No se deja en tarjetas, botones o toasts por un hover puntual.
 - **Cascadas:** una lista escalona su entrada una sola vez por contenedor. En re-renders (cambiar de pestaña, resolver, filtrar) las filas o tarjetas cambian en el sitio. `.social-requests-grid` usa `.social-cards--entrada` solo en el primer montaje.
-- **Scroll:** sin scroll snap y sin GSAP. Solo queda el parallax del showcase del login en `ScrollAnimations.js` con `ScrollManager`; el desplazamiento es un `translate3d` sobre el propio elemento. No hay barra de progreso de lectura ni línea de progreso de ruta: ambas añadían una franja luminosa fija sobre el topbar sin informar de nada que el usuario no viera ya.
+- **Scroll:** sin scroll snap y sin GSAP. No hay parallax de login: el scroll suave vive en `ScrollManager`; `ScrollAnimations.js` se retiró con el showcase.
 - **Carga y navegación:** `astro.config.mjs` activa `prefetch` con `hover` y `prefetchAll`; además, una vez que los datos están en memoria, `LoadingState` pide en tiempo muerto las rutas principales (`/dashboard`, `/padron`, `/salud`, `/social`, `/voluntariados`, `/auditoria`). En desarrollo, `vite.server.warmup.clientFiles` pretransforma las entradas de página, vistas y núcleo al arrancar, para que la primera visita no compile 0,6–2,7 s.
 - **Estados vacíos y contadores:** el vacío entra con un fundido de `--dur-norm`; un contador que cambia de valor pulsa 260 ms con `contadorPulso`. El primer pintado no pulsa. Las cifras métricas usan `AnimationEngine.contar()`: cuentan desde el valor visible, no desde 0, y la primera pintura con datos se escribe directa. La fila o tarjeta que acaba de cambiar se marca con `destacar()` (`--dur-highlight`); no se relanza la cascada de filas.
 - **Dashboard:** la barra de cobertura y la barra clínica se dibujan una vez en la primera entrada (720 ms `spring`); las cifras cuentan desde el valor visible; no hay cascada por sección. El registro cálido no cambia la mecánica.
@@ -476,7 +482,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Trazo:** token único `--icon-stroke: 1.75` en `src/styles/iconos.css`. Ningún path lleva `stroke-width` incrustado; un cambio de peso se hace en un solo sitio. El color siempre es `currentColor`.
 - **Tamaño:** lo fija la vista o el CSS existente. `size={null}` deja que el CSS dimensione; los selectores `.nav-btn svg`, `.btn-action svg`, `.audit-search-icon`, `.filter-caret` y `.caret` siguen mandando.
 - **Accesibilidad:** decorativo por defecto (`aria-hidden="true"`); con `title` pasa a `role="img"` + `aria-label` + `<title>`. Los botones icono-only conservan su `aria-label`, que no se sustituye por el icono.
-- **Excepciones (no son iconografía de sistema):** la silueta y los dos rostros de avatar del expediente, la serie de hemoglobina, la mascota del foco y su cursor de ayuda. Los módulos del login ya son iconos del set, con micro-movimiento aplicado al icono completo. `tests/iconos-guard.test.js` impide que aparezcan nuevos `<svg>` fuera de esa lista.
+- **Excepciones (no son iconografía de sistema):** la silueta y los dos rostros de avatar del expediente, la serie de hemoglobina, la mascota del foco y su cursor de ayuda. El login no añade iconos fuera del set. `tests/iconos-guard.test.js` impide que aparezcan nuevos `<svg>` fuera de esa lista.
 - **Prohibido:** hex en paths, `stroke-width` por instancia, importar Hugeicons en runtime y duplicar geometría en una vista. Si falta un icono, se añade al generador y se regenera.
 
 ## Do's and Don'ts

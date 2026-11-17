@@ -1,5 +1,4 @@
 import { ScrollManager } from './ScrollManager.js';
-import { initScrollAnimations, destroyScrollAnimations } from './ScrollAnimations.js';
 
 function contenedor() {
   return document.querySelector('.content-viewport');
@@ -84,10 +83,8 @@ if (!window.__pdiSmoothScrollBound) {
   window.__pdiSmoothScrollBound = true;
 
   ScrollManager.init();
-  initScrollAnimations();
 
   document.addEventListener('astro:before-swap', () => {
-    destroyScrollAnimations();
     ScrollManager.stop();
   });
   document.addEventListener('astro:after-swap', () => {
@@ -96,7 +93,6 @@ if (!window.__pdiSmoothScrollBound) {
     ScrollManager.refresh();
     ScrollManager.start();
     ScrollManager._syncModales?.();
-    initScrollAnimations();
   });
   document.addEventListener('astro:page-load', () => ScrollManager.refresh());
 

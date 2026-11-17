@@ -1,8 +1,9 @@
 ---
 import Icon from '../components/Icon.astro';
 import '../styles/fonts.css';
-// Login page — Versión Definitiva con diseño artesanal (Craft & Human-First)
-// Basado en /frontend-design y /interface-design para el Sistema PDI — ACJG
+// Login page — acceso al PDI. Una columna de 480 px: cabecera, tarjeta de
+// acceso, usuarios de prueba y pie. La autenticación y la recuperación viven
+// en la API; aquí solo se compone la superficie.
 
 // Edicion visual en vivo de impeccable: mismo toggle que AppLayout. La
 // inyeccion de live.js solo entra en dev y con la llave activa; el build de
@@ -18,7 +19,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="description" content="Sistema PDI — Programa de Infancia Saludable de la Asociación Cultural Johannes Gutenberg. Gestión de usuarios, salud, educación y voluntariado." />
-  <title>Acceso al sistema | PDI — Johannes Gutenberg</title>
+  <title>Acceso al PDI | PDI — Johannes Gutenberg</title>
   <link rel="icon" type="image/png" href="/assets/jg-icon.png" />
   <link rel="apple-touch-icon" href="/assets/jg-icon.png" />
   <meta name="theme-color" id="metaThemeColor" content="#f2ece1" />
@@ -70,11 +71,13 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       --body: #5c574d;
       --muted: #6f685c;
       --line: #e0d8c9;
-      --line-2: #cfc5b2;
+      --line-2: #c8bfae;
       --brand: #00715d;
       --brand-hover: #005c4b;
       --brand-soft: #d9efe8;
-      --brand-ink: #00594a;
+      --brand-ink: #005c4b;
+      --brand-link: #00715d;
+      --brand-link-hover: #005c4b;
       --on-brand: #ffffff;
       --danger: #b91c1c;
       --danger-soft: #fbe9e7;
@@ -83,7 +86,11 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       --field-border-strong: #a89d8b;
       --field-bg: #efe8db;
       --field-bg-focus: #fbf8f1;
+      --hover: #ece4d6;
+      --line-strong: #a89d8b;
+      --scrim: rgba(18, 17, 15, 0.65);
       --shadow-ambient: 0 4px 16px -2px rgba(27, 26, 23, 0.08), 0 1px 3px 0 rgba(27, 26, 23, 0.05);
+      --shadow-overlay: 0 16px 40px -8px rgba(15, 23, 42, 0.18), 0 6px 16px -8px rgba(15, 23, 42, 0.12);
       color-scheme: light;
     }
 
@@ -99,7 +106,9 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       --brand: #2ee6a0;
       --brand-hover: #6bffc4;
       --brand-soft: rgba(46, 230, 160, 0.12);
-      --brand-ink: #8bf2c8;
+      --brand-ink: #2ee6a0;
+      --brand-link: #2ee6a0;
+      --brand-link-hover: #2ee6a0;
       --on-brand: #00130c;
       --danger: #ff8b8b;
       --danger-soft: rgba(239, 68, 68, 0.12);
@@ -108,7 +117,11 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       --field-border-strong: #8a8172;
       --field-bg: #191713;
       --field-bg-focus: #1b1915;
-      --shadow-ambient: 0 0 0 1px rgba(244, 239, 229, 0.05), 0 20px 40px -16px rgba(0, 0, 0, 0.9);
+      --hover: rgba(244, 239, 229, 0.08);
+      --line-strong: #8a8172;
+      --scrim: rgba(18, 17, 15, 0.65);
+      --shadow-ambient: 0 0 0 1px rgba(244, 239, 229, 0.05);
+      --shadow-overlay: 0 0 0 1px rgba(255, 255, 255, 0.05), 0 20px 40px -16px rgba(0, 0, 0, 0.9);
       color-scheme: dark;
     }
 
@@ -206,7 +219,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     .brand span {
       display: block;
       margin-top: 3px;
-      font-size: 10.5px;
+      font-size: 11px;
       font-weight: 600;
       letter-spacing: 0.07em;
       text-transform: uppercase;
@@ -312,14 +325,15 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       display: flex;
       align-items: center;
       height: 44px;
-      border: 1px solid var(--field-border);
+      border: 0;
       border-radius: 10px;
       background: var(--field-bg);
-      transition: border-color 160ms ease, background-color 160ms ease;
+      box-shadow: inset 0 0 0 1px var(--field-border);
+      transition: box-shadow 160ms ease, background-color 160ms ease;
     }
 
     .control:focus-within {
-      border-color: var(--field-border-strong);
+      box-shadow: inset 0 0 0 1px var(--field-border-strong);
       background: var(--field-bg-focus);
     }
 
@@ -329,7 +343,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .control:has(input[aria-invalid="true"]) {
-      border-color: var(--danger);
+      box-shadow: inset 0 0 0 1px var(--danger);
     }
 
     .control:has(input[aria-invalid="true"]) .lead {
@@ -359,13 +373,51 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       border: 0;
       background: transparent;
       color: var(--ink);
-      font-size: 16px;
+      font-size: 16.5px;
       outline: none;
     }
 
     .control input::placeholder {
       color: var(--muted);
       opacity: 1;
+    }
+
+    .field-error {
+      font-size: 12.5px;
+      line-height: 1.45;
+      color: var(--danger);
+    }
+
+    .field-error:not([hidden]) {
+      animation: login-reveal 150ms cubic-bezier(0.23, 1, 0.32, 1) both;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .noscript {
+      margin-top: 16px;
+      padding: 12px 14px;
+      border: 1px solid var(--field-border);
+      border-radius: 10px;
+      background: var(--field-bg);
+      color: var(--body);
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+
+    .noscript a {
+      color: var(--brand-link);
+      font-weight: 700;
     }
 
     .eye {
@@ -405,11 +457,12 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       transform: none;
     }
 
-    .totp-help {
+    .totp-status {
       margin-top: 2px;
-      font-size: 12px;
+      font-size: 12.5px;
+      font-weight: 600;
       line-height: 1.45;
-      color: var(--muted);
+      color: var(--brand-ink);
     }
 
     #filaCodigoTotp:not([hidden]) {
@@ -422,7 +475,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       align-items: flex-start;
       gap: 10px;
       padding: 12px 14px;
-      border-left: 3px solid var(--danger);
+      border: 1px solid color-mix(in srgb, var(--danger) 38%, transparent);
       border-radius: 10px;
       background: var(--danger-soft);
       color: var(--danger);
@@ -459,7 +512,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       padding: 0 2px;
       border: 0;
       background: transparent;
-      color: var(--brand-ink);
+      color: var(--brand-link);
       font: inherit;
       font-weight: 700;
       text-decoration: underline;
@@ -522,7 +575,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       opacity: 0.85;
     }
 
-    /* --- Acceso de demostración ------------------------------------------ */
+    /* --- Usuarios de prueba ---------------------------------------------- */
     .quick {
       margin-top: 24px;
       padding-top: 16px;
@@ -546,6 +599,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     .quick-note {
       font-size: 11.5px;
+      line-height: 1.4;
       color: var(--muted);
     }
 
@@ -556,6 +610,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .chip {
+      position: relative;
       grid-column: span 2;
       display: flex;
       align-items: center;
@@ -569,7 +624,26 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       font-size: 12.5px;
       font-weight: 600;
       text-align: center;
+      cursor: pointer;
       transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
+    }
+
+    .chip input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .chip input:focus-visible {
+      outline: none;
+    }
+
+    .chip:has(input:focus-visible) {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
     }
 
     .chip:nth-child(4),
@@ -577,13 +651,17 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       grid-column: span 3;
     }
 
-    .chip.active,
-    .chip[aria-pressed="true"] {
+    .chip:has(input:checked) {
       border-color: var(--brand);
       background: var(--brand-soft);
       color: var(--brand-ink);
       font-weight: 700;
       box-shadow: inset 3px 0 0 var(--brand);
+    }
+
+    .chip:has(input:disabled) {
+      opacity: 0.55;
+      cursor: not-allowed;
     }
 
     .stage.is-totp .quick {
@@ -601,7 +679,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     .foot {
       width: min(calc(100% - 48px), 480px);
       margin: 16px auto 0;
-      padding: 14px 0 24px;
+      padding: 14px 0 calc(24px + env(safe-area-inset-bottom));
       border-top: 1px solid var(--line);
       font-size: 11.5px;
       color: var(--muted);
@@ -631,7 +709,8 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     @media (hover: hover) and (pointer: fine) {
       .theme:hover {
-        border-color: var(--line-2);
+        border-color: var(--line-strong);
+        background: var(--hover);
         color: var(--ink);
       }
 
@@ -639,9 +718,9 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
         color: var(--ink);
       }
 
-      .chip:not(.active):not([aria-pressed="true"]):hover {
-        border-color: var(--line-2);
-        background: var(--surface-2);
+      .chip:not(:has(input:checked)):not(:has(input:disabled)):hover {
+        border-color: var(--line-strong);
+        background: var(--hover);
       }
 
       .btn-primary-action:hover {
@@ -649,23 +728,28 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       }
 
       .recovery-link:hover {
-        color: var(--brand);
+        color: var(--brand-link-hover);
       }
 
       .rec-close:hover {
-        background: var(--paper);
+        background: var(--hover);
         color: var(--ink);
       }
 
       .rec-copy:hover {
-        border-color: var(--line-2);
-        background: var(--surface-2);
+        border-color: var(--line-strong);
+        background: var(--hover);
+      }
+
+      .rec-soporte a:hover {
+        color: var(--brand-link-hover);
       }
     }
 
     @media (prefers-reduced-motion: reduce) {
       .card,
       .status-error-callout.visible,
+      .field-error:not([hidden]),
       #filaCodigoTotp:not([hidden]),
       .rec-dialog.is-opening,
       .rec-dialog.is-closing,
@@ -696,7 +780,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       }
     }
 
-    @media (pointer: coarse) {
+    @media (any-pointer: coarse) {
       .recovery-link {
         min-height: 44px;
       }
@@ -715,7 +799,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       border-radius: 16px;
       background: var(--surface);
       color: var(--body);
-      box-shadow: var(--shadow-ambient);
+      box-shadow: var(--shadow-overlay);
       overflow: auto;
     }
 
@@ -728,7 +812,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .rec-dialog::backdrop {
-      background: rgba(18, 17, 15, 0.65);
+      background: var(--scrim);
       backdrop-filter: blur(2px);
     }
 
@@ -741,6 +825,8 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .rec-card {
+      display: flex;
+      flex-direction: column;
       min-height: 360px;
       padding: 24px;
     }
@@ -801,7 +887,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     .rec-error {
       padding: 10px 12px;
-      border-left: 3px solid var(--danger);
+      border: 1px solid color-mix(in srgb, var(--danger) 38%, transparent);
       border-radius: 10px;
       background: var(--danger-soft);
       color: var(--danger);
@@ -817,14 +903,9 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .rec-soporte a {
-      color: var(--brand-ink);
+      color: var(--brand-link);
       text-underline-offset: 2px;
-    }
-
-    .rec-ok-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--ink);
+      transition: color 160ms ease;
     }
 
     .rec-ok-desc {
@@ -846,9 +927,10 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .rec-code span {
+      font-family: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
       font-size: 20px;
       font-weight: 800;
-      letter-spacing: 0.16em;
+      letter-spacing: 0.08em;
       color: var(--ink);
       font-variant-numeric: tabular-nums;
     }
@@ -860,10 +942,24 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       border: 1px solid var(--field-border);
       border-radius: 10px;
       background: var(--surface);
-      color: var(--brand-ink);
+      color: var(--brand-link);
       font-size: 12.5px;
       font-weight: 700;
       transition: border-color 160ms ease, background-color 160ms ease;
+    }
+
+    #recOk:not([hidden]) {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    #recOk .rec-soporte {
+      margin-top: 12px;
+    }
+
+    #recOk .btn-primary-action {
+      margin-top: auto;
     }
 
     #recOk.is-entering {
@@ -906,16 +1002,26 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     @media (max-width: 520px) {
+      .top {
+        padding-top: 20px;
+      }
+
       .card {
         padding: 20px;
       }
 
       .stage {
-        padding-top: 24px;
+        padding-top: 18px;
+      }
+
+      .quick {
+        margin-top: 14px;
+        padding-top: 10px;
       }
 
       .quick-head {
         align-items: flex-start;
+        margin-bottom: 8px;
       }
 
       .chips {
@@ -933,12 +1039,12 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       }
 
       .modules {
-        display: none;
+        margin-top: 10px;
       }
 
       .foot {
-        margin-top: 12px;
-        padding: 12px 0 18px;
+        margin-top: 10px;
+        padding: 10px 0 calc(14px + env(safe-area-inset-bottom));
         font-size: 11px;
       }
 
@@ -970,7 +1076,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       <img class="emblem" src="/assets/jg-icon.png" alt="" width="44" height="44" />
       <div>
         <strong>Asociación Cultural Johannes Gutenberg</strong>
-        <span>Comas y Carabayllo</span>
+        <span>El Agustino y Comas</span>
       </div>
     </div>
     <button class="theme" type="button" id="btnThemeToggle" aria-label="Tema oscuro" aria-pressed="false" title="Cambiar tema">
@@ -983,8 +1089,30 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
   <main class="stage">
     <section class="card" aria-labelledby="tituloAcceso">
-      <h1 id="tituloAcceso">Ingreso al sistema</h1>
-      <p class="sub">Acceso exclusivo para el equipo del programa.</p>
+      <h1 id="tituloAcceso">Ingreso al PDI</h1>
+      <p class="sub">Programa Infancia Saludable · El Agustino y Comas.</p>
+
+      <noscript>
+        <style>
+          .quick.quick,
+          .recovery.recovery {
+            display: none;
+          }
+
+          .btn-primary-action {
+            opacity: 0.6;
+            pointer-events: none;
+          }
+        </style>
+        <p class="noscript">
+          Activa JavaScript para ingresar. Si necesitas recuperar tu acceso,{' '}
+          {soporteEmail ? (
+            <a href={`mailto:${soporteEmail}`}>{soporteEmail}</a>
+          ) : (
+            'contacta a Administración TI'
+          )}.
+        </p>
+      </noscript>
 
       <form class="form" id="loginForm" autocomplete="on" novalidate>
         <div class="field">
@@ -996,7 +1124,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
             <input
               type="text"
               id="inputUsuario"
-              name="usuario"
               class="text-input"
               placeholder="ej. coordinacion"
               autocomplete="username"
@@ -1004,9 +1131,10 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
               autocorrect="off"
               required
               spellcheck="false"
-              aria-describedby="loginError"
+              aria-describedby="errorUsuario loginError"
             />
           </div>
+          <p class="field-error" id="errorUsuario" hidden></p>
         </div>
 
         <div class="field">
@@ -1018,23 +1146,24 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
             <input
               type="password"
               id="inputClave"
-              name="clave"
               class="text-input"
               placeholder="Tu contraseña"
               autocomplete="current-password"
               autocapitalize="none"
               required
-              aria-describedby="loginError"
+              aria-describedby="errorClave loginError"
             />
             <button type="button" class="eye" id="btnTogglePass" aria-label="Mostrar contraseña" aria-pressed="false">
               <span class="eye-icon eye-on"><Icon name="password.ver" size={17} /></span>
               <span class="eye-icon eye-off"><Icon name="password.ocultar" size={17} /></span>
             </button>
           </div>
+          <p class="field-error" id="errorClave" hidden></p>
         </div>
 
         <div class="field" id="filaCodigoTotp" hidden>
           <label for="inputCodigoTotp">Código de verificación</label>
+          <p class="totp-status" id="totpStatus" role="status">Contraseña verificada. Ingresa el código de 6 dígitos de tu app de autenticación.</p>
           <div class="control">
             <span class="lead" aria-hidden="true">
               <Icon name="salud.escudo" size={18} />
@@ -1042,7 +1171,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
             <input
               type="text"
               id="inputCodigoTotp"
-              name="codigo"
               class="text-input"
               placeholder="123456"
               inputmode="numeric"
@@ -1052,16 +1180,16 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
               spellcheck="false"
               maxlength="6"
               pattern="[0-9]{6}"
-              aria-describedby="totpHelp"
+              aria-describedby="totpStatus loginError"
             />
           </div>
-          <p class="totp-help" id="totpHelp">Código de 6 dígitos de tu app de autenticación.</p>
         </div>
 
-        <div class="status-error-callout" id="loginError" role="alert" aria-atomic="true">
+        <div class="status-error-callout" id="loginError">
           <Icon name="estado.alerta" size={17} />
           <span id="loginErrorMsg">Usuario o contraseña incorrectos.</span>
         </div>
+        <p class="sr-only" id="loginStatus" role="status" aria-live="polite"></p>
 
         <button type="submit" class="btn-primary-action" id="btnLogin">
           <span class="btn-spinner" aria-hidden="true"></span>
@@ -1075,17 +1203,32 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       </form>
     </section>
 
-    <section class="quick" aria-label="Acceso de demostración">
+    <section class="quick" aria-label="Usuarios de prueba">
       <div class="quick-head">
-        <span class="quick-title">Acceso de demostración</span>
-        <span class="quick-note">Hasta el 5 de diciembre</span>
+        <span class="quick-title">Usuarios de prueba</span>
+        <span class="quick-note">Solo completa el usuario · Clave por TI · 5 dic 2026.</span>
       </div>
-      <div class="chips" id="profilesGrid">
-        <button type="button" class="profile-card-btn chip" data-user="coordinacion" aria-pressed="false">Coordinación</button>
-        <button type="button" class="profile-card-btn chip" data-user="facilitadora" aria-pressed="false">Nutrición</button>
-        <button type="button" class="profile-card-btn chip" data-user="promotora" aria-pressed="false">Educación</button>
-        <button type="button" class="profile-card-btn chip" data-user="social" aria-pressed="false">Trabajo Social</button>
-        <button type="button" class="profile-card-btn chip" data-user="admin" aria-pressed="false">Administración TI</button>
+      <div class="chips" id="profilesGrid" role="radiogroup" aria-label="Usuarios de prueba">
+        <label class="profile-card-btn chip">
+          <input type="radio" name="perfilDemo" value="coordinacion" data-user="coordinacion" />
+          Coordinación
+        </label>
+        <label class="profile-card-btn chip">
+          <input type="radio" name="perfilDemo" value="facilitadora" data-user="facilitadora" />
+          Nutrición
+        </label>
+        <label class="profile-card-btn chip">
+          <input type="radio" name="perfilDemo" value="promotora" data-user="promotora" />
+          Educación
+        </label>
+        <label class="profile-card-btn chip">
+          <input type="radio" name="perfilDemo" value="social" data-user="social" />
+          Trabajo Social
+        </label>
+        <label class="profile-card-btn chip">
+          <input type="radio" name="perfilDemo" value="admin" data-user="admin" />
+          Administración TI
+        </label>
       </div>
     </section>
 
@@ -1128,12 +1271,15 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       </div>
 
       <div id="recOk" role="status" hidden>
-        <p class="rec-ok-title">Solicitud registrada</p>
         <p class="rec-ok-desc" id="recOkDesc">Menciona este código cuando contactes a Administración TI. No compartas tu contraseña por ningún canal.</p>
         <div class="rec-code">
           <span id="recCodigo">—</span>
           <button type="button" class="rec-copy" id="btnRecCopiar">Copiar</button>
         </div>
+        {soporteEmail && (
+          <p class="rec-soporte">¿Necesitas ayuda? Escribe a <a id="recSoporteOk" href={`mailto:${soporteEmail}`}>{soporteEmail}</a> con el código en el asunto.</p>
+        )}
+        <p class="sr-only" id="recCopiado" role="status" aria-live="polite"></p>
         <button type="button" class="btn-primary-action" id="btnRecListo">Cerrar</button>
       </div>
     </div>
@@ -1177,11 +1323,25 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     const filaCodigoTotp = document.getElementById('filaCodigoTotp');
     const inputCodigoTotp = document.getElementById('inputCodigoTotp');
     const stage = document.querySelector('.stage');
+    const loginForm = document.getElementById('loginForm');
+    const btnLogin = document.getElementById('btnLogin');
+
+    function textoBotonLogin() {
+      return filaCodigoTotp && !filaCodigoTotp.hidden ? 'Verificar código' : 'Ingresar al sistema';
+    }
+
+    function textoCargaLogin() {
+      return filaCodigoTotp && !filaCodigoTotp.hidden ? 'Verificando código…' : 'Verificando…';
+    }
 
     function mostrarTotp(visible) {
       if (filaCodigoTotp) filaCodigoTotp.hidden = !visible;
       stage?.classList.toggle('is-totp', visible);
       if (!visible && inputCodigoTotp) inputCodigoTotp.value = '';
+      const label = btnLogin?.querySelector('.btn-label');
+      if (label && !btnLogin?.classList.contains('loading')) {
+        label.textContent = visible ? 'Verificar código' : 'Ingresar al sistema';
+      }
     }
 
     btnTogglePass?.addEventListener('click', () => {
@@ -1193,39 +1353,64 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     });
 
     // 4. Selector de Perfiles (Directorio Rápido)
-    // Las pastillas solo rellenan el usuario: las contraseñas ya no viven en
-    // el HTML ni en el bundle.
+    // Los radios solo rellenan el usuario: las contraseñas no viven en el HTML
+    // ni en el bundle. La tira es un atajo, no una credencial completa.
     const profilesGrid = document.getElementById('profilesGrid');
     const inputUsuario = document.getElementById('inputUsuario');
 
-    profilesGrid?.addEventListener('click', (e) => {
-      const card = e.target.closest('.profile-card-btn');
-      if (!card) return;
-
-      document.querySelectorAll('.profile-card-btn').forEach((c) => {
-        c.classList.remove('active');
-        c.setAttribute('aria-pressed', 'false');
-      });
-      card.classList.add('active');
-      card.setAttribute('aria-pressed', 'true');
-
-      if (inputUsuario) inputUsuario.value = card.dataset.user || '';
-
+    profilesGrid?.addEventListener('change', (e) => {
+      const radio = e.target.closest('input[name="perfilDemo"]');
+      if (!radio) return;
+      if (inputUsuario) inputUsuario.value = radio.dataset.user || '';
       ocultarError();
       mostrarTotp(false);
-      inputClave?.focus();
     });
+
+    profilesGrid?.addEventListener('click', (e) => {
+      if (!e.target.closest('.chip')) return;
+      if (e.detail > 0) inputClave?.focus();
+    });
+
+    const demoExpira = Date.parse('2026-12-06T00:00:00-05:00');
+    if (Number.isFinite(demoExpira) && Date.now() >= demoExpira) {
+      profilesGrid?.querySelectorAll('input[name="perfilDemo"]').forEach((radio) => {
+        radio.disabled = true;
+      });
+      const notaDemo = document.querySelector('.quick-note');
+      if (notaDemo) notaDemo.textContent = 'Acceso de prueba finalizado el 5 de diciembre de 2026.';
+    }
 
     // 5. Errores y Alertas
     function mostrarError(msg) {
       const box = document.getElementById('loginError');
       const text = document.getElementById('loginErrorMsg');
+      const status = document.getElementById('loginStatus');
       if (text) text.textContent = msg;
+      if (status) status.textContent = msg;
       if (box) {
         box.classList.remove('visible');
         void box.offsetWidth;
         box.classList.add('visible');
       }
+    }
+
+    function mostrarErrorCampo(idError, msg) {
+      const error = document.getElementById(idError);
+      const status = document.getElementById('loginStatus');
+      if (error) {
+        error.textContent = msg;
+        error.hidden = false;
+      }
+      if (status) status.textContent = msg;
+    }
+
+    function limpiarErroresCampo() {
+      ['errorUsuario', 'errorClave'].forEach((id) => {
+        const error = document.getElementById(id);
+        if (!error) return;
+        error.hidden = true;
+        error.textContent = '';
+      });
     }
 
     function limpiarInvalidos() {
@@ -1235,16 +1420,39 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     function ocultarError() {
       document.getElementById('loginError')?.classList.remove('visible');
       limpiarInvalidos();
+      limpiarErroresCampo();
+      const status = document.getElementById('loginStatus');
+      if (status) status.textContent = '';
     }
 
     [inputUsuario, inputClave, inputCodigoTotp].forEach((campo) => {
-      campo?.addEventListener('input', () => campo.removeAttribute('aria-invalid'));
+      campo?.addEventListener('input', () => {
+        campo.removeAttribute('aria-invalid');
+        const idError = campo.id === 'inputUsuario'
+          ? 'errorUsuario'
+          : campo.id === 'inputClave'
+            ? 'errorClave'
+            : null;
+        if (idError) {
+          const error = document.getElementById(idError);
+          if (error) {
+            error.hidden = true;
+            error.textContent = '';
+          }
+        }
+        const status = document.getElementById('loginStatus');
+        if (status) status.textContent = '';
+      });
+    });
+
+    inputUsuario?.addEventListener('input', () => {
+      const seleccionado = profilesGrid?.querySelector('input[name="perfilDemo"]:checked');
+      if (seleccionado && seleccionado.dataset.user !== inputUsuario.value) {
+        seleccionado.checked = false;
+      }
     });
 
     // 6. Envío del Formulario
-    const loginForm = document.getElementById('loginForm');
-    const btnLogin = document.getElementById('btnLogin');
-
     function ponerBotonCargando(boton, activo, textoNormal, textoCarga) {
       if (!boton) return;
       boton.disabled = activo;
@@ -1264,18 +1472,29 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       const codigo = inputCodigoTotp?.value?.trim() ?? '';
 
       if (!usuario || !clave) {
-        mostrarError('Escribe tu usuario y tu contraseña.');
+        const faltantes = [];
         if (!usuario) {
           inputUsuario?.setAttribute('aria-invalid', 'true');
-          inputUsuario?.focus();
-        } else {
-          inputClave?.setAttribute('aria-invalid', 'true');
-          inputClave?.focus();
+          mostrarErrorCampo('errorUsuario', 'Falta el usuario.');
+          faltantes.push('el usuario');
         }
+        if (!clave) {
+          inputClave?.setAttribute('aria-invalid', 'true');
+          mostrarErrorCampo('errorClave', 'Falta la contraseña.');
+          faltantes.push('la contraseña');
+        }
+        const status = document.getElementById('loginStatus');
+        if (status) {
+          status.textContent = faltantes.length === 2
+            ? 'Escribe tu usuario y tu contraseña.'
+            : 'Falta ' + faltantes[0] + '.';
+        }
+        if (!usuario) inputUsuario?.focus();
+        else inputClave?.focus();
         return;
       }
 
-      ponerBotonCargando(btnLogin, true, 'Ingresar al sistema', 'Verificando…');
+      ponerBotonCargando(btnLogin, true, textoBotonLogin(), textoCargaLogin());
 
       // Timeout amplio: el login ahora pasa por Argon2 y SurrealDB en el
       // servidor; en un arranque en frío 8 s se quedaban cortos.
@@ -1290,7 +1509,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
           timeout
         ]);
       } catch (err) {
-        ponerBotonCargando(btnLogin, false, 'Ingresar al sistema', 'Verificando…');
+        ponerBotonCargando(btnLogin, false, textoBotonLogin(), textoCargaLogin());
         if (err.message === 'timeout') {
           mostrarError('No pudimos conectar. Revisa tu conexión e inténtalo de nuevo.');
         } else {
@@ -1303,7 +1522,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       if (res.ok) {
         window.location.replace(res.debeCambiarClave ? '/perfil' : '/dashboard');
       } else {
-        ponerBotonCargando(btnLogin, false, 'Ingresar al sistema', 'Verificando…');
+        ponerBotonCargando(btnLogin, false, textoBotonLogin(), textoCargaLogin());
 
         if (res.requiereTotp) {
           mostrarTotp(true);
@@ -1332,9 +1551,12 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     const recHp = document.getElementById('recHp');
     const recError = document.getElementById('recError');
     const recDesc = document.getElementById('recDesc');
+    const recTitulo = document.getElementById('recTitulo');
     const recFormWrap = document.getElementById('recFormWrap');
     const recOk = document.getElementById('recOk');
     const recCodigo = document.getElementById('recCodigo');
+    const recSoporteOk = document.getElementById('recSoporteOk');
+    const recCopiado = document.getElementById('recCopiado');
     const btnRecEnviar = document.getElementById('btnRecEnviar');
     const btnRecCopiar = document.getElementById('btnRecCopiar');
     const prefiereMenosMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -1379,6 +1601,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       if (recFormWrap) recFormWrap.hidden = false;
       if (recOk) recOk.hidden = true;
       if (recDesc) recDesc.hidden = false;
+      if (recTitulo) recTitulo.textContent = 'Solicita una contraseña temporal';
       dialogRec.setAttribute('aria-describedby', 'recDesc');
       recAbiertoEl = Date.now();
       dialogRec.classList.remove('is-closing');
@@ -1411,6 +1634,8 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       if (recFormWrap) recFormWrap.hidden = false;
       if (recOk) recOk.hidden = true;
       if (recDesc) recDesc.hidden = false;
+      if (recTitulo) recTitulo.textContent = 'Solicita una contraseña temporal';
+      if (recCopiado) recCopiado.textContent = '';
       dialogRec?.setAttribute('aria-describedby', 'recDesc');
       if (recCodigo) recCodigo.textContent = '—';
     });
@@ -1443,8 +1668,15 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
         const datos = await res.json().catch(() => ({}));
         if (res.ok && datos.ok) {
           if (recCodigo) recCodigo.textContent = datos.codigo || '—';
+          if (recTitulo) recTitulo.textContent = 'Solicitud registrada';
           if (recFormWrap) recFormWrap.hidden = true;
           if (recDesc) recDesc.hidden = true;
+          if (recSoporteOk && datos.codigo) {
+            const base = (recSoporteOk.getAttribute('href') || '').split('?')[0];
+            if (base) {
+              recSoporteOk.href = base + '?subject=' + encodeURIComponent('Recuperación de acceso PDI · ' + datos.codigo);
+            }
+          }
           if (recOk) {
             recOk.hidden = false;
             recOk.classList.remove('is-entering');
@@ -1475,8 +1707,10 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       try {
         await navigator.clipboard.writeText(codigo);
         btnRecCopiar.textContent = 'Copiado';
+        if (recCopiado) recCopiado.textContent = 'Código copiado.';
         window.setTimeout(() => {
           btnRecCopiar.textContent = 'Copiar';
+          if (recCopiado) recCopiado.textContent = '';
         }, 1800);
       } catch {
         // Sin portapapeles, el código sigue visible para copiarlo a mano.
