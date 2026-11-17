@@ -294,6 +294,18 @@ const impeccableLive =
       border-radius: 8px;
     }
 
+    .control:has(input[aria-invalid="true"]) {
+      border-bottom-color: var(--danger);
+    }
+
+    .control:has(input[aria-invalid="true"]) .lead {
+      color: var(--danger);
+    }
+
+    .control:has(input[aria-invalid="true"]:focus-visible) {
+      outline-color: var(--danger);
+    }
+
     .control .lead {
       position: absolute;
       left: 2px;
