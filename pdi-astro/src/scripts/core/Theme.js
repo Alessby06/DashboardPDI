@@ -137,13 +137,17 @@ export const Theme = {
       // 1. Congelar temporalmente transiciones individuales para evitar sobrecarga GPU
       root.classList.add('disable-theme-transitions');
 
-      // 2. Ejecutar cross-fade de opacidad nativo
+      // 2. Marcar el cambio de tema: los fades de ::view-transition(root) solo
+      //    aplican mientras esta clase está puesta, no durante la navegación.
+      root.classList.add('pdi-cambiando-tema');
+
+      // 3. Ejecutar cross-fade de opacidad nativo
       const transition = document.startViewTransition(() => {
         applyThemeChange();
       });
       this._transicion = transition;
 
-      // 3. Restaurar transiciones al concluir el desvanecimiento
+      // 4. Restaurar transiciones al concluir el desvanecimiento
       transition.finished
         .catch(() => {
           // Si otra transicion empezo antes de que acabara esta, el navegador la
@@ -153,6 +157,7 @@ export const Theme = {
         .finally(() => {
           if (this._transicion === transition) this._transicion = null;
           root.classList.remove('disable-theme-transitions');
+          root.classList.remove('pdi-cambiando-tema');
         });
     } else {
       applyThemeChange();
@@ -194,6 +199,7 @@ if (typeof window !== 'undefined') {
 if (typeof document !== 'undefined') {
   const liberarCongelado = () => {
     document.documentElement.classList.remove('disable-theme-transitions');
+    document.documentElement.classList.remove('pdi-cambiando-tema');
     // El fundido de tema tapa la pagina mientras dura. Si la persona ya esta
     // interactuando (abrir el menu, una hoja), se corta para que su animacion
     // se vea en el acto en vez de aparecer al terminar el fundido.
