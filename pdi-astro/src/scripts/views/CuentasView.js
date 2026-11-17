@@ -73,6 +73,8 @@ let focoModalRespaldoId = '';
 let copiarClaveTemporal = '';
 let claveCopiada = false;
 let confirmandoCierreClave = false;
+let alCerrarClave = null;
+let solicitudesRecuperacion = [];
 let cargandoSedes = false;
 let menuCuentaId = '';
 let menuOrigenTrigger = null;
@@ -289,7 +291,10 @@ async function solicitarCierreModal(id, disparador = null) {
       confirmandoCierreClave = false;
     }
   }
+  const alCerrar = id === 'cuentasClaveModal' ? alCerrarClave : null;
+  if (id === 'cuentasClaveModal') alCerrarClave = null;
   cerrarModal(id);
+  if (alCerrar) await alCerrar();
 }
 
 // --- Reglas de negocio y filtros ------------------------------------------
@@ -885,7 +890,8 @@ function actualizarEstadoCopia(copiada, mensaje = '') {
   }
 }
 
-function mostrarClave(titulo, usuarioEtiqueta, clave, origen = null) {
+function mostrarClave(titulo, usuarioEtiqueta, clave, origen = null, alCerrar = null) {
+  alCerrarClave = typeof alCerrar === 'function' ? alCerrar : null;
   copiarClaveTemporal = String(clave || '');
   const elTitulo = porId('claveModalTitulo');
   const elUsuario = porId('claveModalUsuario');
@@ -1263,7 +1269,7 @@ async function cambiarEstado(cuenta, origen = null) {
   await cargar();
 }
 
-async function reiniciarClave(cuenta, origen = null) {
+async function reiniciarClave(cuenta, origen = null, solicitudId = null) {
   const confirmado = await confirmar({
     titulo: 'Reiniciar contraseña',
     mensaje: `Se generará una nueva contraseña temporal para ${cuenta.nombre} y se cerrarán sus sesiones activas. La clave anterior dejará de funcionar.`,
@@ -1281,11 +1287,24 @@ async function reiniciarClave(cuenta, origen = null) {
     aviso('No se pudo reiniciar', datos.error || 'Intenta de nuevo.', 'danger');
     return;
   }
+  const alCerrar = solicitudId
+    ? async () => {
+        const entregada = await confirmar({
+          titulo: '¿Entregaste la clave?',
+          mensaje: 'Marca la solicitud como resuelta solo si ya la entregaste por un canal verificado.',
+          confirmar: 'Sí, resolver',
+          cancelar: 'Aún no',
+          origen,
+        });
+        if (entregada) await cerrarSolicitudRecuperacion(solicitudId, 'resolver');
+      }
+    : null;
   mostrarClave(
     'Contraseña reiniciada',
     `${cuenta.nombre} (@${cuenta.usuario})`,
     datos.claveTemporal,
     origen,
+    alCerrar,
   );
 }
 
@@ -1631,8 +1650,155 @@ function enlazar() {
   enlazarFiltrosYLote();
 }
 
+function fechaSolicitud(valor) {
+  try {
+    return new Date(valor).toLocaleString('es-PE', {
+      day: '2-digit',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  } catch {
+    return '';
+  }
+}
+
+function montarRecuperacion() {
+  if (porId('cuentasRecuperacion')) return;
+  const wrap = porId('cuentasListaWrap');
+  if (!wrap || !wrap.parentElement) return;
+  const seccion = document.createElement('section');
+  seccion.id = 'cuentasRecuperacion';
+  seccion.className = 'cuentas-recuperacion';
+  seccion.hidden = true;
+  seccion.setAttribute('aria-labelledby', 'cuentasRecTitulo');
+  seccion.innerHTML = `
+    <div class="cuentas-rec-head">
+      <div>
+        <h2 class="cuentas-rec-titulo" id="cuentasRecTitulo">Solicitudes de recuperación</h2>
+        <p class="cuentas-rec-sub" id="cuentasRecSub"></p>
+      </div>
+      <button type="button" class="btn-action" id="btnRecActualizar">Actualizar</button>
+    </div>
+    <div class="cuentas-rec-lista" id="cuentasRecLista"></div>`;
+  wrap.parentElement.insertBefore(seccion, wrap);
+
+  porId('btnRecActualizar')?.addEventListener('click', () => cargarRecuperacion());
+  porId('cuentasRecLista')?.addEventListener('click', (evento) => {
+    const boton = evento.target.closest('[data-rec-accion]');
+    if (!boton) return;
+    const id = boton.getAttribute('data-rec-id') || '';
+    const solicitud = solicitudesRecuperacion.find((s) => s.id === id);
+    if (!solicitud) return;
+    if (boton.getAttribute('data-rec-accion') === 'resolver') {
+      const cuenta = cuentas.find((c) => c.usuario === solicitud.usuario && c.activo !== false);
+      if (!cuenta) {
+        aviso('Cuenta no encontrada', 'Descarta la solicitud o revisa el usuario.', 'warning');
+        return;
+      }
+      reiniciarClave(cuenta, boton, solicitud.id);
+    } else {
+      descartarSolicitud(solicitud, boton);
+    }
+  });
+}
+
+function renderRecuperacion() {
+  const seccion = porId('cuentasRecuperacion');
+  const lista = porId('cuentasRecLista');
+  const sub = porId('cuentasRecSub');
+  if (!seccion || !lista) return;
+
+  const total = solicitudesRecuperacion.length;
+  if (!total) {
+    seccion.hidden = true;
+    lista.innerHTML = '';
+    if (sub) sub.textContent = '';
+    return;
+  }
+
+  seccion.hidden = false;
+  if (sub) {
+    sub.textContent = `${total} ${total === 1 ? 'solicitud pendiente' : 'solicitudes pendientes'} · verifica la identidad antes de restablecer.`;
+  }
+
+  lista.innerHTML = solicitudesRecuperacion.map((solicitud) => {
+    const cuenta = cuentas.find((c) => c.usuario === solicitud.usuario && c.activo !== false);
+    const id = escapar(solicitud.id);
+    const usuario = escapar(solicitud.usuario);
+    const codigo = escapar(solicitud.codigo || '—');
+    const fecha = escapar(fechaSolicitud(solicitud.creado_el));
+    const resolver = cuenta
+      ? `<button type="button" class="btn-action" data-rec-accion="resolver" data-rec-id="${id}">Restablecer y resolver</button>`
+      : '<span class="cuentas-rec-aviso">Cuenta no encontrada</span>';
+    return `
+      <div class="cuentas-rec-fila">
+        <div class="cuentas-rec-dato">
+          <b>${usuario}</b>
+          <span>${fecha} · código ${codigo}</span>
+        </div>
+        <div class="cuentas-rec-acciones">
+          ${resolver}
+          <button type="button" class="btn-action" data-rec-accion="descartar" data-rec-id="${id}">Descartar</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function cargarRecuperacion() {
+  const { res, datos } = await pedir('/api/cuenta/admin', {
+    method: 'POST',
+    body: JSON.stringify({ accion: 'recuperacion_listar' }),
+  });
+  if (!res.ok || !datos.ok) {
+    solicitudesRecuperacion = [];
+    renderRecuperacion();
+    return;
+  }
+  solicitudesRecuperacion = Array.isArray(datos.solicitudes) ? datos.solicitudes : [];
+  renderRecuperacion();
+}
+
+async function descartarSolicitud(solicitud, origen = null) {
+  const confirmado = await confirmar({
+    titulo: 'Descartar solicitud',
+    mensaje: `Se cerrará la solicitud ${solicitud.codigo} de ${solicitud.usuario} sin restablecer la clave. La persona deberá volver a solicitarla.`,
+    confirmar: 'Descartar',
+    cancelar: 'Cancelar',
+    peligro: true,
+    origen,
+  });
+  if (!confirmado) return;
+  await cerrarSolicitudRecuperacion(solicitud.id, 'descartar');
+}
+
+async function cerrarSolicitudRecuperacion(id, cierre) {
+  const { res, datos } = await pedir('/api/cuenta/admin', {
+    method: 'POST',
+    body: JSON.stringify({
+      accion: 'recuperacion_cerrar',
+      id,
+      cierre,
+      motivo: cierre === 'descartar' ? 'descartada_por_admin' : '',
+    }),
+  });
+  if (!res.ok || !datos.ok) {
+    aviso('No se pudo cerrar', datos.error || 'Intenta de nuevo.', 'danger');
+    return;
+  }
+  aviso(
+    cierre === 'resolver' ? 'Solicitud resuelta' : 'Solicitud descartada',
+    cierre === 'resolver'
+      ? 'La clave temporal se entregó y el caso quedó cerrado.'
+      : 'La solicitud se cerró sin restablecer la clave.',
+  );
+  await cargarRecuperacion();
+  window.PDI?.Auth?.sincronizarSesion?.({ forzar: true });
+}
+
 async function iniciar() {
   enlazar();
+  montarRecuperacion();
 
   const lista = porId('cuentasLista');
   if (!lista) return;
@@ -1668,6 +1834,12 @@ async function iniciar() {
         iniciar();
       });
     }
+  }
+
+  try {
+    await cargarRecuperacion();
+  } catch {
+    // La bandeja es complementaria: un fallo no debe tumbar la vista.
   }
 }
 

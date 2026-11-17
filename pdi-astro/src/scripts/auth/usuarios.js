@@ -24,6 +24,23 @@ export const CLAVE_SEDES = "pdi_usuario_sedes";
 // cada cambio de página. Vive en sessionStorage: se va con la pestaña.
 const CLAVE_SESION_CACHE = "pdi_sesion_cache";
 const SESION_CACHE_MS = 5 * 60 * 1000;
+const CLAVE_REC = "pdi_rec_pendientes";
+
+function leerContadorRecuperacion() {
+  try {
+    return Number(sessionStorage.getItem(CLAVE_REC)) || 0;
+  } catch {
+    return 0;
+  }
+}
+
+/** Enciende el punto de solicitudes pendientes junto a «Cuentas y acceso». */
+function pintarPuntoRecuperacion(total) {
+  const n = Number(total) || 0;
+  document.querySelectorAll("[data-rec-dot]").forEach((el) => {
+    el.hidden = n <= 0;
+  });
+}
 
 function leerSesionCache() {
   try {
@@ -171,7 +188,10 @@ export function cerrarSesion() {
  */
 export async function sincronizarSesion({ forzar = false } = {}) {
   const cache = !forzar ? leerSesionCache() : null;
-  if (cache) return cache;
+  if (cache) {
+    pintarPuntoRecuperacion(leerContadorRecuperacion());
+    return cache;
+  }
 
   const loginPrevio = (() => {
     try { return localStorage.getItem(CLAVE_USUARIO_LOGIN) || ""; } catch { return ""; }
@@ -206,6 +226,12 @@ export async function sincronizarSesion({ forzar = false } = {}) {
     else localStorage.removeItem(CLAVE_USUARIO_FOTO);
 
     guardarSesionCache(cuenta);
+    try {
+      sessionStorage.setItem(CLAVE_REC, String(Number(datos.solicitudesPendientes) || 0));
+    } catch {
+      // Sin almacenamiento, el punto se calcula en la siguiente carga.
+    }
+    pintarPuntoRecuperacion(datos.solicitudesPendientes);
     return cuenta;
   } catch (e) {
     // Se propaga: el llamador decide si muestra un reintento. Nunca se debe
@@ -217,4 +243,12 @@ export async function sincronizarSesion({ forzar = false } = {}) {
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
   window.PDI.Auth = { haySesion, autenticar, cerrarSesion, sincronizarSesion };
+
+  const pintarRec = () => pintarPuntoRecuperacion(leerContadorRecuperacion());
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", pintarRec);
+  } else {
+    pintarRec();
+  }
+  document.addEventListener("astro:page-load", pintarRec);
 }

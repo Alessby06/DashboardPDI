@@ -116,6 +116,9 @@ const navItems = [
           >
             <Icon name={ICONO_DE_NAV[item.icon]} />
             <span>{item.label}</span>
+            {item.page === 'cuentas' && (
+              <span class="nav-dot" data-rec-dot hidden aria-hidden="true"></span>
+            )}
           </a>
         );
       })}
@@ -132,6 +135,16 @@ const navItems = [
     opacity: 0.42;
     filter: grayscale(1);
     color: var(--text-dim);
+  }
+
+  /* Punto de estado: hay solicitudes de recuperación pendientes. */
+  .nav-dot {
+    width: 7px;
+    height: 7px;
+    margin-left: auto;
+    flex: 0 0 7px;
+    border-radius: 50%;
+    background: var(--brand-fill, var(--gt-green));
   }
 
     @media (hover: hover) and (pointer: fine) {
