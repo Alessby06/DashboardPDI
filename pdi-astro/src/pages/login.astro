@@ -222,13 +222,13 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .card {
-      width: min(100%, 520px);
-      padding: 40px;
+      width: min(100%, 480px);
+      padding: 28px;
       border: 1px solid var(--line);
-      border-radius: 20px;
+      border-radius: 16px;
       background: var(--surface);
       box-shadow: var(--shadow-card);
-      animation: rise 0.42s cubic-bezier(0.23, 1, 0.32, 1) both;
+      animation: rise 0.32s cubic-bezier(0.23, 1, 0.32, 1) both;
     }
 
     .eyebrow {
@@ -241,18 +241,18 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     .card h1 {
       margin-top: 10px;
-      font-size: 40px;
-      line-height: 1.08;
-      letter-spacing: -0.035em;
+      font-size: 30px;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
       font-weight: 700;
       color: var(--ink);
       text-wrap: balance;
     }
 
     .sub {
-      margin-top: 14px;
+      margin-top: 12px;
       max-width: 38ch;
-      font-size: 15.5px;
+      font-size: 14.5px;
       line-height: 1.55;
     }
 
@@ -260,18 +260,18 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     .form {
       display: flex;
       flex-direction: column;
-      gap: 18px;
-      margin-top: 30px;
+      gap: 14px;
+      margin-top: 20px;
     }
 
     .field {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
     }
 
     .field label {
-      font-size: 12.5px;
+      font-size: 12px;
       font-weight: 700;
       letter-spacing: 0.01em;
       color: var(--ink);
@@ -281,18 +281,20 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       position: relative;
       display: flex;
       align-items: center;
-      height: 48px;
+      height: 44px;
       border-bottom: 1px solid var(--line-2);
-      transition: border-color 0.16s ease;
+      border-radius: 8px;
+      transition: border-color 0.16s ease, background-color 0.16s ease;
     }
 
     .control:focus-within {
       border-bottom-color: var(--brand);
+      background: color-mix(in srgb, var(--brand) 6%, transparent);
     }
 
     .control:has(input:focus-visible) {
       outline: 2px solid var(--focus);
-      outline-offset: 2px;
+      outline-offset: 0;
       border-radius: 8px;
     }
 
@@ -306,6 +308,10 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     .control:has(input[aria-invalid="true"]:focus-visible) {
       outline-color: var(--danger);
+    }
+
+    .control:has(input[aria-invalid="true"]):focus-within {
+      background: color-mix(in srgb, var(--danger) 6%, transparent);
     }
 
     .control .lead {
@@ -350,8 +356,23 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       transition: color 0.16s ease;
     }
 
-    #iconPassEye {
+    .eye-icon {
+      grid-area: 1 / 1;
       display: flex;
+      transition:
+        opacity 150ms cubic-bezier(0.23, 1, 0.32, 1),
+        transform 150ms cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .eye-off,
+    .eye[aria-pressed="true"] .eye-on {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+
+    .eye[aria-pressed="true"] .eye-off {
+      opacity: 1;
+      transform: none;
     }
 
     /* --- Error ----------------------------------------------------------- */
@@ -390,7 +411,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     .recovery-link {
       display: inline-flex;
       align-items: center;
-      min-height: 44px;
+      min-height: 32px;
       padding: 0 2px;
       border: 0;
       background: transparent;
@@ -410,12 +431,12 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       justify-content: center;
       gap: 10px;
       width: 100%;
-      height: 52px;
+      height: 48px;
       border: 0;
       border-radius: 12px;
       background: var(--brand);
       color: var(--on-brand);
-      font-size: 15px;
+      font-size: 14.5px;
       font-weight: 700;
       letter-spacing: 0.01em;
       transition: background-color 0.16s ease, transform 0.12s ease, opacity 0.16s ease;
@@ -456,8 +477,8 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     /* --- Acceso rápido (temporal, hasta el 5 de diciembre) --------------- */
     .quick {
-      margin-top: 34px;
-      padding-top: 20px;
+      margin-top: 24px;
+      padding-top: 16px;
       border-top: 1px solid var(--line);
     }
 
@@ -466,7 +487,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       align-items: baseline;
       justify-content: space-between;
       gap: 12px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .quick-title {
@@ -485,21 +506,21 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     .chips {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
     }
 
     .chip {
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 44px;
-      padding: 0 10px;
+      height: 40px;
+      padding: 0 8px;
       border: 1px solid var(--line);
       border-radius: 10px;
       background: var(--paper);
       color: var(--ink);
-      font-size: 12.5px;
+      font-size: 12px;
       font-weight: 600;
       text-align: center;
       transition: border-color 0.16s ease, background-color 0.16s ease, color 0.16s ease;
@@ -507,14 +528,10 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     .chip.active,
     .chip[aria-pressed="true"] {
-      border-color: color-mix(in srgb, var(--brand) 45%, var(--line));
-      background: var(--brand-soft);
+      border-color: var(--brand);
+      background: var(--paper);
       color: var(--brand-ink);
       font-weight: 700;
-    }
-
-    .chip:last-child:nth-child(odd) {
-      grid-column: 1 / -1;
     }
 
     /* --- Banda de módulos ------------------------------------------------ */
@@ -586,6 +603,10 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
         border-color: var(--line-2);
       }
 
+      .chip:is(.active, [aria-pressed="true"]):hover {
+        border-color: var(--brand);
+      }
+
       .btn-primary-action:hover {
         background: var(--brand-hover);
       }
@@ -598,12 +619,20 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
       .btn-primary-action,
       .eye,
+      .eye-icon,
       .theme,
       .chip,
       .control,
+      .rec-dialog,
       .btn-spinner {
         transition-duration: 0.01ms !important;
         animation-duration: 0.01ms !important;
+      }
+    }
+
+    @media (pointer: coarse) {
+      .recovery-link {
+        min-height: 44px;
       }
     }
 
@@ -623,40 +652,12 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       }
 
       .card {
-        padding: 32px;
+        padding: 28px;
       }
 
       .band,
       .foot {
         display: none;
-      }
-    }
-
-    @media (max-height: 839px) and (min-width: 521px) {
-      .card {
-        padding: 32px;
-      }
-
-      .card h1 {
-        font-size: 36px;
-      }
-
-      .form {
-        gap: 16px;
-        margin-top: 24px;
-      }
-
-      .quick {
-        margin-top: 24px;
-        padding-top: 16px;
-      }
-
-      .chips {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-
-      .chip:last-child:nth-child(odd) {
-        grid-column: auto;
       }
     }
 
@@ -675,12 +676,8 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       }
 
       .card {
-        padding: 28px;
+        padding: 24px;
         border-radius: 16px;
-      }
-
-      .card h1 {
-        font-size: 32px;
       }
 
       .band {
@@ -709,10 +706,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
         display: none;
       }
 
-      .card {
-        padding: 24px;
-      }
-
       .quick-head {
         flex-direction: column;
         gap: 2px;
@@ -730,6 +723,23 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       color: var(--body);
       box-shadow: var(--shadow-card);
       overflow: auto;
+      opacity: 0;
+      transform: translateY(6px) scale(0.98);
+      transition:
+        opacity 200ms cubic-bezier(0.23, 1, 0.32, 1),
+        transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .rec-dialog[open] {
+      opacity: 1;
+      transform: none;
+    }
+
+    @starting-style {
+      .rec-dialog[open] {
+        opacity: 0;
+        transform: translateY(6px) scale(0.98);
+      }
     }
 
     .rec-dialog::backdrop {
@@ -925,7 +935,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
           <label for="inputClave">Contraseña</label>
           <div class="control">
             <span class="lead" aria-hidden="true">
-              <Icon name="seguridad.candado" size={18} />
+              <Icon name="password.candado" size={18} />
             </span>
             <input
               type="password"
@@ -938,7 +948,8 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
               aria-describedby="loginError"
             />
             <button type="button" class="eye" id="btnTogglePass" aria-label="Mostrar contraseña" aria-pressed="false">
-              <span id="iconPassEye"><Icon name="password.ver" size={17} /></span>
+              <span class="eye-icon eye-on"><Icon name="password.ver" size={17} /></span>
+              <span class="eye-icon eye-off"><Icon name="password.ocultar" size={17} /></span>
             </button>
           </div>
         </div>
@@ -947,7 +958,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
           <label for="inputCodigoTotp">Código de verificación</label>
           <div class="control">
             <span class="lead" aria-hidden="true">
-              <Icon name="seguridad.candado" size={18} />
+              <Icon name="password.candado" size={18} />
             </span>
             <input
               type="text"
@@ -1070,7 +1081,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
   <script>
     import { autenticar, haySesion } from '../scripts/auth/usuarios.js';
-    import { iconBody } from '../data/iconos.js';
 
     // 1. Redirigir si ya existe sesión
     if (haySesion()) {
@@ -1107,10 +1117,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     const inputClave = document.getElementById('inputClave');
     const filaCodigoTotp = document.getElementById('filaCodigoTotp');
     const inputCodigoTotp = document.getElementById('inputCodigoTotp');
-    const iconPassEye = document.getElementById('iconPassEye');
-
-    const EYE_OPEN = iconBody('password.ver');
-    const EYE_SLASH = iconBody('password.ocultar');
 
     btnTogglePass?.addEventListener('click', () => {
       if (!inputClave) return;
@@ -1118,9 +1124,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       inputClave.type = isPass ? 'text' : 'password';
       btnTogglePass.setAttribute('aria-label', isPass ? 'Ocultar contraseña' : 'Mostrar contraseña');
       btnTogglePass.setAttribute('aria-pressed', String(isPass));
-      if (iconPassEye) {
-        iconPassEye.innerHTML = isPass ? EYE_SLASH : EYE_OPEN;
-      }
     });
 
     // 4. Selector de Perfiles (Directorio Rápido)

@@ -44,6 +44,7 @@ export const ALIAS = {
   // usan las tablas para "ver ficha", para que el control no se confunda.
   'password.ver': 'eye-password',
   'password.ocultar': 'eye-password-off',
+  'password.candado': 'lock-padlock',
   'accion.imprimir': 'printer',
   'accion.abrir': 'arrow-right-01',
   'accion.volver': 'arrow-left-01',
@@ -130,6 +131,13 @@ export const PERSONALIZADOS = {
     ["path", { d: "M5.7 13.7 4.3 15.8" }],
     ["path", { d: "M12 15.3v2.5" }],
     ["path", { d: "M18.3 13.7l1.4 2.1" }],
+  ],
+  // Candado de arco y caja. El icono `lock` de Hugeicons lleva un círculo
+  // completo que a 18 px se lee como un ojo; este no deja ambigüedad junto al
+  // botón de mostrar contraseña.
+  "lock-padlock": [
+    ["path", { d: "M7 10h10a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2Z" }],
+    ["path", { d: "M8 10V7.5a4 4 0 0 1 8 0V10" }],
   ],
   "more-vertical": [
     ["circle", { cx: "12", cy: "5", r: "0.9" }],
