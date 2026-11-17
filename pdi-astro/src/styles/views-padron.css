@@ -48,14 +48,6 @@
         gap: 14px;
       }
 
-      /* Filtrado activo de columna según la pestaña seleccionada en móvil */
-      .kanban-board[data-mobile-active-stage="pendiente"] .kanban-col:not([data-col-stage="pendiente"]),
-      .kanban-board[data-mobile-active-stage="evaluacion"] .kanban-col:not([data-col-stage="evaluacion"]),
-      .kanban-board[data-mobile-active-stage="canalizado"] .kanban-col:not([data-col-stage="canalizado"]),
-      .kanban-board[data-mobile-active-stage="cerrado"] .kanban-col:not([data-col-stage="cerrado"]) {
-        display: none !important;
-      }
-
       .kanban-col {
         flex: 1 1 100%;
         width: 100%;

@@ -24,22 +24,22 @@ const PRESUPUESTO = {
   'custom-select.css': 12,
   'expediente.css': 71,
   'variables.css': 4,
-  'views-auditoria.css': 18,
+  'views-auditoria.css': 17,
   'views-colaboradores.css': 1,
   'views-comun.css': 89,
-  'views-educativo.css': 1,
+  'views-educativo.css': 0,
   'views-evaluacion.css': 3,
-  'views-expediente.css': 43,
+  'views-expediente.css': 42,
   'views-filters.css': 2,
-  'views-padron.css': 8,
+  'views-padron.css': 7,
   'views-perfil.css': 1,
-  'views-salud.css': 1,
+  'views-salud.css': 0,
   'views-sedes.css': 60,
   'views-social.css': 31,
-  'views-voluntariados.css': 40,
+  'views-voluntariados.css': 39,
 };
 
-const TOPE_TOTAL = 424;
+const TOPE_TOTAL = 418;
 
 test('el presupuesto de !important solo puede bajar', () => {
   const fallos = [];
