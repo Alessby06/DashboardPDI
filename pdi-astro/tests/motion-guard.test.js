@@ -6,6 +6,9 @@
 //     el hover pegado tras el toque y el control queda como pulsado.
 //  2. Ninguna regla usa `transition: all`: anima propiedades de layout sin
 //     querer y saca el trabajo del compositor.
+//  3. Toda regla `::view-transition-(old|new|group)(root)` en views-comun.css
+//     lleva `pdi-cambiando-tema`: el fundido de tema no debe filtrarse a la
+//     navegación (donde base.css manda `animation: none`).
 //
 // El recorrido es deliberadamente simple: sigue llaves, ignora comentarios y
 // arrastra la condición de los @media que envuelven cada regla.
@@ -142,6 +145,22 @@ test('ninguna regla usa transition: all', () => {
     }
   }
   assert.deepEqual(fallos, [], `transition: all encontrado:\n${fallos.join('\n')}`);
+});
+
+test('toda regla ::view-transition(root) en views-comun.css exige pdi-cambiando-tema', () => {
+  // Solo views-comun.css: base.css lleva reglas raíz desnudas y deliberadas
+  // (`animation: none` en 133-137, `html[data-page-dir]` en 1007-1010) que no
+  // deben caer bajo este guard.
+  const css = fs.readFileSync(path.join(ESTILOS, 'views-comun.css'), 'utf8');
+  const fallos = reglasDe(css)
+    .filter((regla) => /::view-transition-(?:old|new|group)\(root\)/.test(regla.selector))
+    .filter((regla) => !/pdi-cambiando-tema/.test(regla.selector))
+    .map((regla) => regla.selector.slice(0, 110));
+  assert.deepEqual(
+    fallos,
+    [],
+    `Reglas ::view-transition(root) sin la clase de estado (${fallos.length}). Prefijar con "html.pdi-cambiando-tema":\n${fallos.join('\n')}`,
+  );
 });
 
 test('cada keyframe se define una sola vez', () => {

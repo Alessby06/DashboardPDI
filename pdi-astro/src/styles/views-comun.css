@@ -1874,15 +1874,15 @@ input[type="range"] {
     color: var(--text-info);
     border: 1px solid var(--gt-blue-border);
   }
-::view-transition-group(root) {
+html.pdi-cambiando-tema::view-transition-group(root) {
     animation-duration: var(--dur-norm);
     animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   }
-::view-transition-old(root) {
+html.pdi-cambiando-tema::view-transition-old(root) {
     animation: var(--dur-norm) cubic-bezier(0.16, 1, 0.3, 1) both fadeOutTheme;
     z-index: 1;
   }
-::view-transition-new(root) {
+html.pdi-cambiando-tema::view-transition-new(root) {
     animation: var(--dur-norm) cubic-bezier(0.16, 1, 0.3, 1) both fadeInTheme;
     z-index: 2;
   }
