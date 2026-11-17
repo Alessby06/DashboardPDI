@@ -2215,12 +2215,6 @@ input[type="range"] {
            la columna de contenido, al plegar el menu habia que rasterizar
            todas esas capas en cada fotograma. */
   }
-@media (hover: hover) and (pointer: fine) {
-  .photo-uploader-box:hover {
-    border-color: var(--gt-green) !important;
-    background: var(--surface-hover) !important;
-  }
-}
 .photo-uploader-box {
     background: var(--surface-1) !important;
     border-color: var(--border-subtle) !important;
