@@ -827,7 +827,25 @@ async function sesion(request, cfg) {
   const actual = await sesionDe(request, cfg);
   if (!actual) return json({ ok: false }, 401, [cookieBorrada()]);
   const nueva = datosSesion(actual.cuenta, actual.datos.iat);
-  return json({ ok: true, cuenta: publica(actual.cuenta), exp: nueva.exp }, 200, [cookieSesion(request, nueva, cfg)]);
+
+  // Solo el admin ve el punto de solicitudes pendientes en el menú.
+  let solicitudesPendientes = 0;
+  if (actual.cuenta.rol === 'admin') {
+    try {
+      const [fila] = (await consulta(cfg, `
+        SELECT count() AS total FROM solicitud_recuperacion
+        WHERE estado = 'pendiente' GROUP ALL;`)) || [];
+      solicitudesPendientes = Number(fila?.total || 0);
+    } catch {
+      solicitudesPendientes = 0;
+    }
+  }
+
+  return json(
+    { ok: true, cuenta: publica(actual.cuenta), exp: nueva.exp, solicitudesPendientes },
+    200,
+    [cookieSesion(request, nueva, cfg)],
+  );
 }
 
 async function perfil(request, cfg) {
@@ -1312,6 +1330,52 @@ async function admin(request, cfg) {
   const entrada = await cuerpo(request);
   const accion = String(entrada.accion || '').trim();
   const ip = ipDe(request);
+
+  // --- Recuperación de acceso ----------------------------------------------
+  if (accion === 'recuperacion_listar') {
+    const solicitudes = await consulta(cfg, `
+      SELECT id, usuario, codigo, estado, creado_el, resuelto_el, motivo_cierre
+      FROM solicitud_recuperacion
+      WHERE estado = 'pendiente'
+      ORDER BY creado_el ASC
+      LIMIT 100;`);
+    return json({ ok: true, solicitudes: Array.isArray(solicitudes) ? solicitudes : [] });
+  }
+
+  if (accion === 'recuperacion_cerrar') {
+    const id = String(entrada.id || '').trim();
+    if (!/^solicitud_recuperacion:[A-Za-z0-9_]+$/.test(id)) {
+      return json({ ok: false, error: 'Solicitud no válida.' }, 400);
+    }
+    const cierre = String(entrada.cierre || '').trim();
+    if (cierre !== 'resolver' && cierre !== 'descartar') {
+      return json({ ok: false, error: 'Cierre no válido.' }, 400);
+    }
+    const filas = await consulta(cfg, `SELECT * FROM ${id} LIMIT 1;`);
+    const solicitud = Array.isArray(filas) ? filas[0] : null;
+    if (!solicitud) return json({ ok: false, error: 'La solicitud no existe.' }, 404);
+    if (solicitud.estado !== 'pendiente') {
+      return json({ ok: false, error: 'La solicitud ya está cerrada.' }, 409);
+    }
+
+    const motivo = cierre === 'descartar'
+      ? String(entrada.motivo || 'descartada_por_admin').slice(0, 40)
+      : '';
+    const estado = cierre === 'resolver' ? 'resuelta' : 'descartada';
+    await consulta(cfg, `UPDATE ${id} SET
+      estado = ${lit(estado)},
+      resuelto_el = time::now(),
+      resuelto_por = ${idRegistro(actual.cuenta.id)},
+      motivo_cierre = ${lit(motivo)};`);
+
+    await auditar(
+      cfg, actual.cuenta,
+      cierre === 'resolver' ? 'Solicitud de recuperación resuelta' : 'Solicitud de recuperación descartada',
+      `Solicitud ${solicitud.codigo || id} de ${solicitud.usuario}; ${cierre === 'resolver' ? 'clave restablecida' : 'descartada'}.`,
+      null, ip, ENTIDAD_CUENTAS, id,
+    );
+    return json({ ok: true, estado });
+  }
 
   // --- Alta ----------------------------------------------------------------
   if (accion === 'crear') {
