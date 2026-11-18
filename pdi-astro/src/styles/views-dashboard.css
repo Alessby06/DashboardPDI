@@ -887,7 +887,7 @@ body[data-page="dashboard"] #mainContent {
   display: block;
   height: 2px;
   border-radius: var(--radius-full);
-  background: var(--dash-surface-2);
+  background: var(--chart-track);
   overflow: hidden;
 }
 
