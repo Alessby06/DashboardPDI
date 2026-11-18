@@ -1033,7 +1033,9 @@ html[data-page-dir]::view-transition-old(pdi-main-section) {
 }
 
 @keyframes pdiPagePushIn {
-  from { opacity: 0; transform: translateX(var(--page-dx, 12%)); }
+  /* La entrante nace opaca: si empieza en 0, la captura saliente queda
+     visible durante los primeros frames ya con la URL de destino. */
+  from { opacity: 1; transform: translateX(var(--page-dx, 12%)); }
   30% { opacity: 1; }
   to { opacity: 1; transform: none; }
 }
