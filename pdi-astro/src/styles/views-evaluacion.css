@@ -492,7 +492,7 @@
 .eval-dim-bar {
   height: 3px;
   border-radius: var(--radius-full);
-  background: var(--surface-2);
+  background: var(--chart-track);
   overflow: hidden;
 }
 

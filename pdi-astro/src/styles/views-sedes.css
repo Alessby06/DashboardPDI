@@ -970,7 +970,7 @@
 .sede-aforo-bar {
   width: 100%;
   height: 6px;
-  background: var(--border-subtle);
+  background: var(--chart-track);
   border-radius: 3px;
   overflow: hidden;
 }

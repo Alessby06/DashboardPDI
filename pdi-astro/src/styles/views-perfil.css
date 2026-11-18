@@ -761,7 +761,7 @@ html[data-theme="dark"] .perfil-btn--danger {
 .perfil-strength-seg {
   height: 3px;
   border-radius: var(--radius-full);
-  background: var(--surface-2);
+  background: var(--chart-track);
   transition: background-color var(--dur-fast) var(--ease-smooth);
 }
 
