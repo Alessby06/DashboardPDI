@@ -204,9 +204,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      width: min(calc(100% - 48px), 480px);
       margin: 0 auto;
-      padding: 28px 0 0;
     }
 
     .brand {
@@ -221,15 +219,11 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .brand .emblem {
-      width: 44px;
-      height: 44px;
-      flex: 0 0 44px;
       border-radius: 10px;
     }
 
     .brand strong {
       display: block;
-      font-size: 13.5px;
       font-weight: 700;
       line-height: 1.3;
       color: var(--ink);
@@ -251,14 +245,10 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       justify-content: center;
       gap: 8px;
       flex: 0 0 auto;
-      min-width: 96px;
-      height: 44px;
-      padding: 0 12px;
       border: 1px solid var(--line);
       border-radius: 10px;
       background: var(--surface);
       color: var(--body);
-      font-size: 12px;
       font-weight: 600;
       transition: border-color 160ms ease, color 160ms ease, background-color 160ms ease;
     }
@@ -268,34 +258,28 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       display: none;
     }
 
-    .theme-sun,
-    .theme-label-light {
+    .theme-moon,
+    .theme-label-to-dark {
       display: inline-flex;
     }
 
-    [data-theme="dark"] .theme-sun,
-    [data-theme="dark"] .theme-label-light {
+    [data-theme="dark"] .theme-moon,
+    [data-theme="dark"] .theme-label-to-dark {
       display: none;
     }
 
-    [data-theme="dark"] .theme-moon,
-    [data-theme="dark"] .theme-label-dark {
+    [data-theme="dark"] .theme-sun,
+    [data-theme="dark"] .theme-label-to-light {
       display: inline-flex;
     }
 
     /* --- Composición ------------------------------------------------------ */
     .stage {
-      display: flex;
-      flex-direction: column;
       flex: 1 0 auto;
-      width: min(calc(100% - 48px), 480px);
-      margin: 0 auto;
-      padding-top: 32px;
     }
 
     .card {
       width: 100%;
-      padding: 24px;
       border: 1px solid var(--line);
       border-radius: 16px;
       background: var(--surface);
@@ -304,7 +288,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .card h1 {
-      font-size: 30px;
       line-height: 1.1;
       letter-spacing: -0.03em;
       font-weight: 700;
@@ -314,7 +297,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     .sub {
       margin-top: 8px;
-      font-size: 14px;
       line-height: 1.55;
     }
 
@@ -322,8 +304,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     .form {
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      margin-top: 20px;
     }
 
     .field {
@@ -333,7 +313,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .field label {
-      font-size: 12.5px;
       font-weight: 700;
       letter-spacing: 0.01em;
       color: var(--ink);
@@ -552,7 +531,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     .btn-primary-action:disabled {
       opacity: 0.72;
-      cursor: progress;
+      cursor: not-allowed;
     }
 
     .btn-label {
@@ -583,8 +562,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     /* --- Usuarios de prueba ---------------------------------------------- */
     .quick {
-      margin-top: 24px;
-      padding-top: 16px;
       border-top: 1px solid var(--line);
     }
 
@@ -615,13 +592,11 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 40px;
       padding: 0 8px;
       border: 1px solid var(--line);
       border-radius: 10px;
       background: var(--surface);
       color: var(--ink);
-      font-size: 12.5px;
       font-weight: 600;
       text-align: center;
       cursor: pointer;
@@ -668,9 +643,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .foot {
-      width: min(calc(100% - 48px), 480px);
-      margin: 16px auto 0;
-      padding: 14px 0 calc(24px + env(safe-area-inset-bottom));
       border-top: 1px solid var(--line);
       font-size: 11.5px;
       color: var(--muted);
@@ -988,72 +960,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       }
     }
 
-    @media (max-width: 520px) {
-      .top {
-        padding-top: 20px;
-      }
-
-      .card {
-        padding: 20px;
-      }
-
-      .stage {
-        padding-top: 18px;
-      }
-
-      .quick {
-        margin-top: 14px;
-        padding-top: 10px;
-      }
-
-      .quick-head {
-        align-items: flex-start;
-        margin-bottom: 8px;
-      }
-
-      .chips {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .chip,
-      .chip:nth-child(4),
-      .chip:nth-child(5) {
-        grid-column: auto;
-      }
-
-      .chip:last-child {
-        grid-column: 1 / -1;
-      }
-
-      .modules {
-        margin-top: 10px;
-      }
-
-      .foot {
-        margin-top: 10px;
-        padding: 10px 0 calc(14px + env(safe-area-inset-bottom));
-        font-size: 11px;
-      }
-
-      .rec-dialog {
-        width: calc(100% - 48px);
-        max-height: calc(100dvh - 48px);
-      }
-
-      .rec-card {
-        min-height: 380px;
-        padding: 20px;
-      }
-
-      .rec-head h2 {
-        font-size: 20px;
-      }
-
-      .rec-dialog .form {
-        margin-top: 18px;
-      }
-    }
-
     /* --- Composición B ---------------------------------------------------- */
     .skip-link {
       position: fixed;
@@ -1094,10 +1000,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       font-size: 12.5px;
     }
 
-    .brand span {
-      font-size: 11px;
-    }
-
     .theme {
       min-width: 88px;
       height: 38px;
@@ -1109,7 +1011,9 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       display: grid;
       grid-template-columns: minmax(0, 1fr) 400px;
       align-items: start;
-      gap: 48px;
+      align-content: start;
+      column-gap: 48px;
+      row-gap: 14px;
       width: min(calc(100% - 64px), 1040px);
       margin: 0 auto;
       padding: 26px 0 0;
@@ -1118,6 +1022,8 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     .plate {
       min-width: 0;
       padding-top: 4px;
+      grid-column: 1;
+      grid-row: 1 / span 2;
     }
 
     .plate h2 {
@@ -1140,7 +1046,9 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       display: grid;
       grid-template-columns: 1fr 1fr;
       row-gap: 14px;
-      margin-top: 24px;
+      margin: 24px 0 0;
+      padding: 0;
+      list-style: none;
       border-top: 1px solid var(--line);
     }
 
@@ -1158,7 +1066,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       padding: 11px 0 11px 16px;
     }
 
-    .plate-mod b {
+    .plate-mod strong {
       display: block;
       color: var(--ink);
       font-size: 12px;
@@ -1176,8 +1084,9 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     .access {
       display: flex;
       flex-direction: column;
-      gap: 14px;
       min-width: 0;
+      grid-column: 2;
+      grid-row: 1;
     }
 
     .card {
@@ -1203,19 +1112,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       font-size: 12px;
     }
 
-    .control {
-      height: 36px;
-    }
-
-    .eye {
-      width: 36px;
-      height: 36px;
-    }
-
-    .control input {
-      font-size: 15px;
-    }
-
     .btn-primary-action {
       height: 44px;
       background: var(--action);
@@ -1229,7 +1125,8 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .quick {
-      margin-top: 14px;
+      grid-column: 2;
+      grid-row: 2;
       padding-top: 12px;
     }
 
@@ -1245,13 +1142,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     .chip {
       height: 34px;
       font-size: 11.5px;
-    }
-
-    .chip:has(input:checked) {
-      box-shadow: none;
-      border-color: var(--brand);
-      background: var(--brand-soft);
-      color: var(--brand-ink);
     }
 
     .foot {
@@ -1339,11 +1229,22 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
         gap: 22px;
       }
 
+      .plate,
+      .access,
+      .quick {
+        grid-column: 1;
+        grid-row: auto;
+      }
+
       .plate {
         max-width: 560px;
       }
 
       .access {
+        max-width: 400px;
+      }
+
+      .quick {
         max-width: 400px;
       }
     }
@@ -1375,7 +1276,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
         padding-left: 12px;
       }
 
-      .plate-mod b {
+      .plate-mod strong {
         font-size: 11.5px;
       }
 
@@ -1415,7 +1316,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
         padding-left: 10px;
       }
 
-      .plate-mod b {
+      .plate-mod strong {
         font-size: 11.5px;
       }
 
@@ -1427,8 +1328,11 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
         padding: 20px;
       }
 
+      .quick-head {
+        align-items: flex-start;
+      }
+
       .quick {
-        margin-top: 12px;
         padding-top: 10px;
       }
 
@@ -1493,41 +1397,25 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
         <span>El Agustino y Comas</span>
       </div>
     </div>
-    <button class="theme" type="button" id="btnThemeToggle" aria-label="Tema oscuro" aria-pressed="false" title="Cambiar tema">
+    <button class="theme" type="button" id="btnThemeToggle" aria-label="Cambiar a oscuro" title="Cambiar a oscuro">
       <span class="theme-icon theme-sun" aria-hidden="true"><Icon name="tema.claro" size={15} /></span>
       <span class="theme-icon theme-moon" aria-hidden="true"><Icon name="tema.oscuro" size={15} /></span>
-      <span class="theme-label theme-label-light" aria-hidden="true">Claro</span>
-      <span class="theme-label theme-label-dark" aria-hidden="true">Oscuro</span>
+      <span class="theme-label theme-label-to-dark" aria-hidden="true">Oscuro</span>
+      <span class="theme-label theme-label-to-light" aria-hidden="true">Claro</span>
     </button>
   </header>
 
   <main class="stage">
-    <aside class="plate" aria-label="Programa Infancia Saludable">
-      <h2>Programa Infancia Saludable</h2>
-      <p class="plate-desc">Padrón, educación, salud y atención social en un mismo expediente.</p>
-      <div class="plate-modules">
-        <div class="plate-mod"><b>Desayuno infantil</b><span>Antropometría, asistencia y tamizaje.</span></div>
-        <div class="plate-mod"><b>Acompañamiento educativo</b><span>Refuerzo escolar y soporte pedagógico.</span></div>
-        <div class="plate-mod"><b>Atención social</b><span>Visitas, canalización y expediente único.</span></div>
-        <div class="plate-mod"><b>Salud preventiva</b><span>Desarrollo, vacunas y derivaciones.</span></div>
-      </div>
-    </aside>
-
     <div class="access">
     <section class="card" aria-labelledby="tituloAcceso">
       <h1 id="tituloAcceso">Ingreso al PDI</h1>
-      <p class="sub">Acceso para el equipo del programa.</p>
+      <p class="sub">Solo personal autorizado del programa.</p>
 
       <noscript>
         <style>
           .quick.quick,
           .recovery.recovery {
             display: none;
-          }
-
-          .btn-primary-action {
-            opacity: 0.6;
-            pointer-events: none;
           }
         </style>
         <p class="noscript">
@@ -1540,13 +1428,14 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
         </p>
       </noscript>
 
-      <form class="form" id="loginForm" autocomplete="on" novalidate>
+      <form class="form" id="loginForm" method="post" autocomplete="on" novalidate>
         <div class="field">
           <label for="inputUsuario">Usuario institucional</label>
           <div class="control">
             <input
               type="text"
               id="inputUsuario"
+              name="usuario"
               class="text-input"
               placeholder="ej. coordinacion"
               autocomplete="username"
@@ -1566,6 +1455,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
             <input
               type="password"
               id="inputClave"
+              name="clave"
               class="text-input"
               placeholder="Tu contraseña…"
               autocomplete="current-password"
@@ -1583,11 +1473,12 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
         <div class="field" id="filaCodigoTotp" hidden>
           <label for="inputCodigoTotp">Código de verificación</label>
-          <p class="totp-status" id="totpStatus" role="status">Contraseña verificada. Ingresa el código de 6 dígitos de tu app de autenticación.</p>
+          <p class="totp-status" id="totpStatus" role="status">Contraseña verificada. Ingresa el código de 6 dígitos de tu aplicación de autenticación.</p>
           <div class="control">
             <input
               type="text"
               id="inputCodigoTotp"
+              name="codigo"
               class="text-input"
               placeholder="123456"
               inputmode="numeric"
@@ -1608,17 +1499,29 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
         </div>
         <p class="sr-only" id="loginStatus" role="status" aria-live="polite"></p>
 
-        <button type="submit" class="btn-primary-action" id="btnLogin">
+        <button type="submit" class="btn-primary-action" id="btnLogin" disabled>
           <span class="btn-spinner" aria-hidden="true"></span>
           <span class="btn-label">Ingresar al sistema</span>
         </button>
 
         <p class="recovery">
           ¿Olvidaste tu contraseña?
-          <button type="button" class="recovery-link" id="btnRecuperar" aria-haspopup="dialog">Solicita una recuperación</button>
+          <button type="button" class="recovery-link" id="btnRecuperar" aria-haspopup="dialog">Recuperar acceso</button>
         </p>
       </form>
     </section>
+    </div>
+
+    <aside class="plate" aria-labelledby="plateTitle">
+      <h2 id="plateTitle">Programa Infancia Saludable</h2>
+      <p class="plate-desc">Padrón, educación, salud y atención social en un mismo expediente.</p>
+      <ul class="plate-modules">
+        <li class="plate-mod"><strong>Desayuno infantil</strong><span>Antropometría, asistencia y tamizaje.</span></li>
+        <li class="plate-mod"><strong>Educación</strong><span>Refuerzo escolar y soporte pedagógico.</span></li>
+        <li class="plate-mod"><strong>Atención social</strong><span>Visitas, canalización y expediente único.</span></li>
+        <li class="plate-mod"><strong>Salud preventiva</strong><span>Desarrollo, vacunas y derivaciones.</span></li>
+      </ul>
+    </aside>
 
     <section class="quick" aria-label="Usuarios de prueba">
       <div class="quick-head">
@@ -1631,7 +1534,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
         </label>
         <label class="profile-card-btn chip">
           <input type="radio" name="perfilDemo" value="facilitadora" data-user="facilitadora" />
-          Nutrición
+          Desayuno
         </label>
         <label class="profile-card-btn chip">
           <input type="radio" name="perfilDemo" value="promotora" data-user="promotora" />
@@ -1639,7 +1542,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
         </label>
         <label class="profile-card-btn chip">
           <input type="radio" name="perfilDemo" value="social" data-user="social" />
-          Trabajo Social
+          Atención social
         </label>
         <label class="profile-card-btn chip">
           <input type="radio" name="perfilDemo" value="admin" data-user="admin" />
@@ -1647,7 +1550,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
         </label>
       </div>
     </section>
-    </div>
   </main>
 
   <footer class="foot">
@@ -1657,7 +1559,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
   <dialog class="rec-dialog" id="dialogRecuperar" aria-labelledby="recTitulo" aria-describedby="recDesc">
     <div class="rec-card">
       <header class="rec-head">
-        <h2 id="recTitulo">Solicita una contraseña temporal</h2>
+        <h2 id="recTitulo">Recuperar acceso</h2>
         <button type="button" class="rec-close" id="btnRecCerrar" aria-label="Cerrar">
           <Icon name="accion.cerrar" size={18} />
         </button>
@@ -1713,8 +1615,8 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     function syncThemeState(theme) {
       const oscuro = theme === 'dark';
-      btnThemeToggle?.setAttribute('aria-label', 'Tema oscuro');
-      btnThemeToggle?.setAttribute('aria-pressed', String(oscuro));
+      btnThemeToggle?.setAttribute('aria-label', oscuro ? 'Cambiar a claro' : 'Cambiar a oscuro');
+      btnThemeToggle?.setAttribute('title', oscuro ? 'Cambiar a claro' : 'Cambiar a oscuro');
       if (metaTema) metaTema.setAttribute('content', oscuro ? '#12110f' : '#f2ece1');
     }
 
@@ -1739,6 +1641,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     const stage = document.querySelector('.stage');
     const loginForm = document.getElementById('loginForm');
     const btnLogin = document.getElementById('btnLogin');
+    if (btnLogin) btnLogin.disabled = false;
 
     function textoBotonLogin() {
       return filaCodigoTotp && !filaCodigoTotp.hidden ? 'Verificar código' : 'Ingresar al sistema';
@@ -2019,7 +1922,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       if (recFormWrap) recFormWrap.hidden = false;
       if (recOk) recOk.hidden = true;
       if (recDesc) recDesc.hidden = false;
-      if (recTitulo) recTitulo.textContent = 'Solicita una contraseña temporal';
+      if (recTitulo) recTitulo.textContent = 'Recuperar acceso';
       dialogRec.setAttribute('aria-describedby', 'recDesc');
       recAbiertoEl = Date.now();
       dialogRec.classList.remove('is-closing');
@@ -2067,7 +1970,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       if (recFormWrap) recFormWrap.hidden = false;
       if (recOk) recOk.hidden = true;
       if (recDesc) recDesc.hidden = false;
-      if (recTitulo) recTitulo.textContent = 'Solicita una contraseña temporal';
+      if (recTitulo) recTitulo.textContent = 'Recuperar acceso';
       if (recCopiado) recCopiado.textContent = '';
       dialogRec?.setAttribute('aria-describedby', 'recDesc');
       if (recCodigo) recCodigo.textContent = '—';
