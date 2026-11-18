@@ -732,9 +732,9 @@ export const SedesView = {
 
     const pct = sede.porcentajeOcupacion;
     // Un solo semáforo de aforo: la barra (y su color por umbral).
-    let barColor = "var(--gt-green)";
-    if (pct >= 95) barColor = "var(--gt-red)";
-    else if (pct >= 80) barColor = "var(--gt-yellow)";
+    let barColor = "var(--chart-blue-fill)";
+    if (pct >= 95) barColor = "var(--chart-blush-fill)";
+    else if (pct >= 80) barColor = "var(--chart-butter-fill)";
 
     const facilitadora = sede.facilitadora || 'Sin asignar';
     const facilitadoraCargo = sede.facilitadoraCargo || 'Sin cargo registrado';
