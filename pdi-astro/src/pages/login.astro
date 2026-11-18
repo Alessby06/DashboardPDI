@@ -23,6 +23,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
   <link rel="icon" type="image/png" href="/assets/jg-icon.png" />
   <link rel="apple-touch-icon" href="/assets/jg-icon.png" />
   <meta name="theme-color" id="metaThemeColor" content="#f2ece1" />
+  <link rel="preload" href="/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin />
 
   <script is:inline>
     /* Antiflash: aplica tema antes del primer render para evitar FOUC */
@@ -78,6 +79,9 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       --brand-ink: #005c4b;
       --brand-link: #00715d;
       --brand-link-hover: #005c4b;
+      --action: #00b494;
+      --action-hover: #00a886;
+      --on-action: #00130c;
       --on-brand: #ffffff;
       --danger: #b91c1c;
       --danger-soft: #fbe9e7;
@@ -109,6 +113,9 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       --brand-ink: #2ee6a0;
       --brand-link: #2ee6a0;
       --brand-link-hover: #2ee6a0;
+      --action: #2ee6a0;
+      --action-hover: #6bffc4;
+      --on-action: #00130c;
       --on-brand: #00130c;
       --danger: #ff8b8b;
       --danger-soft: rgba(239, 68, 68, 0.12);
@@ -597,12 +604,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       color: var(--ink);
     }
 
-    .quick-note {
-      font-size: 11.5px;
-      line-height: 1.4;
-      color: var(--muted);
-    }
-
     .chips {
       display: grid;
       grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -656,7 +657,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       background: var(--brand-soft);
       color: var(--brand-ink);
       font-weight: 700;
-      box-shadow: inset 3px 0 0 var(--brand);
     }
 
     .chip:has(input:disabled) {
@@ -666,14 +666,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     .stage.is-totp .quick {
       display: none;
-    }
-
-    .modules {
-      margin-top: 16px;
-      font-size: 11.5px;
-      line-height: 1.5;
-      color: var(--muted);
-      text-align: center;
     }
 
     .foot {
@@ -1067,13 +1059,434 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       }
     }
 
+    /* --- Composición B ---------------------------------------------------- */
+    .skip-link {
+      position: fixed;
+      left: 16px;
+      top: -60px;
+      z-index: 50;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--ink);
+      box-shadow: var(--shadow-overlay);
+      font-size: 12.5px;
+      font-weight: 700;
+      transition: top 160ms ease;
+    }
+
+    .skip-link:focus {
+      top: 12px;
+    }
+
+    .top {
+      width: min(calc(100% - 64px), 1040px);
+      padding: 26px 0 0;
+    }
+
+    .brand {
+      gap: 11px;
+    }
+
+    .brand .emblem {
+      width: 36px;
+      height: 36px;
+      flex: 0 0 36px;
+      border-radius: 10px;
+    }
+
+    .brand strong {
+      font-size: 12.5px;
+    }
+
+    .brand span {
+      font-size: 11px;
+    }
+
+    .theme {
+      min-width: 88px;
+      height: 38px;
+      padding: 0 11px;
+      font-size: 11.5px;
+    }
+
+    .stage {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 420px;
+      align-items: start;
+      gap: 48px;
+      width: min(calc(100% - 64px), 1040px);
+      margin: 0 auto;
+      padding: 26px 0 0;
+    }
+
+    .plate {
+      min-width: 0;
+      padding-top: 4px;
+    }
+
+    .plate h2 {
+      color: var(--ink);
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      text-wrap: balance;
+    }
+
+    .plate-desc {
+      margin-top: 10px;
+      max-width: 36ch;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .plate-modules {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      margin-top: 20px;
+      border-top: 1px solid var(--line);
+    }
+
+    .plate-mod {
+      min-width: 0;
+      padding: 13px 16px 13px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .plate-mod:nth-child(odd) {
+      border-right: 1px solid var(--line);
+    }
+
+    .plate-mod:nth-child(even) {
+      padding: 13px 0 13px 16px;
+    }
+
+    .plate-mod b {
+      display: block;
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .plate-mod span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .access {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .card {
+      padding: 24px;
+    }
+
+    .card h1 {
+      font-size: 26px;
+    }
+
+    .sub {
+      margin-top: 8px;
+      font-size: 13.5px;
+      line-height: 1.5;
+    }
+
+    .form {
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .field label {
+      font-size: 12px;
+    }
+
+    .control {
+      height: 40px;
+    }
+
+    .eye {
+      width: 40px;
+      height: 40px;
+    }
+
+    .control input {
+      font-size: 16.5px;
+    }
+
+    .btn-primary-action {
+      height: 44px;
+      background: var(--action);
+      color: var(--on-action);
+      font-size: 13.5px;
+    }
+
+    .btn-spinner {
+      border-color: color-mix(in srgb, var(--on-action) 30%, transparent);
+      border-top-color: var(--on-action);
+    }
+
+    .quick {
+      margin-top: 14px;
+      padding-top: 12px;
+    }
+
+    .quick-head {
+      justify-content: flex-start;
+      margin-bottom: 7px;
+    }
+
+    .quick-title {
+      font-size: 12px;
+    }
+
+    .chip {
+      height: 34px;
+      font-size: 11.5px;
+    }
+
+    .chip:has(input:checked) {
+      box-shadow: none;
+      border-color: var(--brand);
+      background: var(--brand-soft);
+      color: var(--brand-ink);
+    }
+
+    .foot {
+      width: min(calc(100% - 64px), 1040px);
+      margin: 20px auto 0;
+      padding: 14px 0 calc(24px + env(safe-area-inset-bottom));
+    }
+
+    .rec-dialog {
+      width: min(calc(100% - 48px), 440px);
+      overscroll-behavior: contain;
+    }
+
+    .rec-card {
+      min-height: 340px;
+      padding: 22px;
+    }
+
+    .rec-close {
+      width: 40px;
+      height: 40px;
+      flex: 0 0 40px;
+    }
+
+    .rec-copy {
+      height: 40px;
+    }
+
+    button,
+    a,
+    label,
+    input {
+      touch-action: manipulation;
+    }
+
+    button,
+    a,
+    label {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .btn-primary-action:hover {
+        background: var(--action-hover);
+      }
+    }
+
+    @media (any-pointer: coarse) {
+      .control,
+      .eye,
+      .theme {
+        height: 44px;
+      }
+
+      .eye {
+        width: 44px;
+      }
+
+      .chip {
+        height: 44px;
+      }
+
+      .rec-close {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
+      }
+
+      .rec-copy {
+        height: 44px;
+      }
+
+      .recovery-link {
+        min-height: 44px;
+      }
+    }
+
+    @media (max-width: 1080px) {
+      .stage {
+        grid-template-columns: 1fr;
+        gap: 22px;
+      }
+
+      .plate {
+        max-width: 560px;
+      }
+
+      .access {
+        max-width: 420px;
+      }
+    }
+
+    @media (max-width: 820px) {
+      .top,
+      .stage,
+      .foot {
+        width: calc(100% - 40px);
+      }
+
+      .stage {
+        padding-top: 20px;
+      }
+
+      .plate h2 {
+        font-size: 20px;
+      }
+
+      .plate-desc {
+        font-size: 12.5px;
+      }
+
+      .plate-mod {
+        padding: 11px 12px 11px 0;
+      }
+
+      .plate-mod:nth-child(even) {
+        padding-left: 12px;
+      }
+
+      .plate-mod b {
+        font-size: 11.5px;
+      }
+
+      .access {
+        max-width: 420px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .stage {
+        padding-top: 18px;
+      }
+
+      .plate {
+        max-width: none;
+      }
+
+      .plate h2 {
+        font-size: 20px;
+      }
+
+      .plate-desc,
+      .plate-mod span {
+        display: none;
+      }
+
+      .plate-modules {
+        margin-top: 8px;
+      }
+
+      .plate-mod {
+        padding: 6px 10px 6px 0;
+      }
+
+      .plate-mod:nth-child(even) {
+        padding-left: 10px;
+      }
+
+      .plate-mod b {
+        font-size: 11.5px;
+      }
+
+      .sub {
+        display: none;
+      }
+
+      .card {
+        padding: 20px;
+      }
+
+      .quick {
+        margin-top: 12px;
+        padding-top: 10px;
+      }
+
+      .chips {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .chip,
+      .chip:nth-child(4),
+      .chip:nth-child(5) {
+        grid-column: auto;
+      }
+
+      .chip:last-child {
+        grid-column: 1 / -1;
+      }
+
+      .foot {
+        margin-top: 14px;
+        padding: 12px 0 calc(18px + env(safe-area-inset-bottom));
+      }
+
+      .rec-dialog {
+        width: calc(100% - 40px);
+      }
+
+      .rec-card {
+        min-height: 340px;
+        padding: 20px;
+      }
+
+      .rec-head h2 {
+        font-size: 20px;
+      }
+
+      .rec-dialog .form {
+        margin-top: 18px;
+      }
+
+      .top .brand span {
+        display: block;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .skip-link {
+        transition: none;
+      }
+    }
+
   </style>
 </head>
 <body>
 
+  <a class="skip-link" href="#loginForm">Saltar al formulario de acceso</a>
+
   <header class="top">
     <div class="brand">
-      <img class="emblem" src="/assets/jg-icon.png" alt="" width="44" height="44" />
+      <img class="emblem" src="/assets/jg-icon.png" alt="" width="36" height="36" />
       <div>
         <strong>Asociación Cultural Johannes Gutenberg</strong>
         <span>El Agustino y Comas</span>
@@ -1088,9 +1501,21 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
   </header>
 
   <main class="stage">
+    <aside class="plate" aria-label="Programa Infancia Saludable">
+      <h2>Programa Infancia Saludable</h2>
+      <p class="plate-desc">Un solo expediente para padrón, salud, educación, derivaciones y voluntariado, con trazabilidad de cada acción.</p>
+      <div class="plate-modules">
+        <div class="plate-mod"><b>Desayuno infantil</b><span>Antropometría, asistencia y tamizaje.</span></div>
+        <div class="plate-mod"><b>Acompañamiento educativo</b><span>Refuerzo escolar y soporte pedagógico.</span></div>
+        <div class="plate-mod"><b>Atención social</b><span>Visitas, canalización y expediente único.</span></div>
+        <div class="plate-mod"><b>Salud preventiva</b><span>Desarrollo, vacunas y derivaciones.</span></div>
+      </div>
+    </aside>
+
+    <div class="access">
     <section class="card" aria-labelledby="tituloAcceso">
       <h1 id="tituloAcceso">Ingreso al PDI</h1>
-      <p class="sub">Programa Infancia Saludable · El Agustino y Comas.</p>
+      <p class="sub">Acceso para el equipo del programa.</p>
 
       <noscript>
         <style>
@@ -1114,7 +1539,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
         </p>
       </noscript>
 
-      <form class="form" id="loginForm" autocomplete="on" novalidate>
+      <form class="form" id="loginForm" autocomplete="on" novalidate tabindex="-1">
         <div class="field">
           <label for="inputUsuario">Usuario institucional</label>
           <div class="control">
@@ -1147,7 +1572,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
               type="password"
               id="inputClave"
               class="text-input"
-              placeholder="Tu contraseña"
+              placeholder="Tu contraseña…"
               autocomplete="current-password"
               autocapitalize="none"
               required
@@ -1187,7 +1612,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
         <div class="status-error-callout" id="loginError">
           <Icon name="estado.alerta" size={17} />
-          <span id="loginErrorMsg">Usuario o contraseña incorrectos.</span>
+          <span id="loginErrorMsg">Usuario o contraseña incorrectos. Revísalos e inténtalo de nuevo.</span>
         </div>
         <p class="sr-only" id="loginStatus" role="status" aria-live="polite"></p>
 
@@ -1206,7 +1631,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     <section class="quick" aria-label="Usuarios de prueba">
       <div class="quick-head">
         <span class="quick-title">Usuarios de prueba</span>
-        <span class="quick-note">Solo completa el usuario · Clave por TI · 5 dic 2026.</span>
       </div>
       <div class="chips" id="profilesGrid" role="radiogroup" aria-label="Usuarios de prueba">
         <label class="profile-card-btn chip">
@@ -1231,12 +1655,11 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
         </label>
       </div>
     </section>
-
-    <p class="modules">Desayuno infantil · Educación · Atención social · Salud</p>
+    </div>
   </main>
 
   <footer class="foot">
-    <span>© 2026 Asociación Cultural Johannes Gutenberg · Sistema PDI</span>
+    <span>© 2026 Asociación Cultural Johannes Gutenberg</span>
   </footer>
 
   <dialog class="rec-dialog" id="dialogRecuperar" aria-labelledby="recTitulo" aria-describedby="recDesc">
@@ -1368,7 +1791,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     profilesGrid?.addEventListener('click', (e) => {
       if (!e.target.closest('.chip')) return;
-      if (e.detail > 0) inputClave?.focus();
+      if (e.detail > 0) requestAnimationFrame(() => inputClave?.focus());
     });
 
     const demoExpira = Date.parse('2026-12-06T00:00:00-05:00');
@@ -1376,8 +1799,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       profilesGrid?.querySelectorAll('input[name="perfilDemo"]').forEach((radio) => {
         radio.disabled = true;
       });
-      const notaDemo = document.querySelector('.quick-note');
-      if (notaDemo) notaDemo.textContent = 'Acceso de prueba finalizado el 5 de diciembre de 2026.';
+      document.querySelector('.quick')?.setAttribute('hidden', '');
     }
 
     // 5. Errores y Alertas
@@ -1536,7 +1958,12 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
           }
         } else {
           mostrarTotp(false);
-          mostrarError(res.error || 'Usuario o contraseña incorrectos.');
+          const mensaje = res.error || 'Usuario o contraseña incorrectos.';
+          mostrarError(
+            mensaje === 'Usuario o contraseña incorrectos.'
+              ? mensaje + ' Revísalos e inténtalo de nuevo.'
+              : mensaje
+          );
           inputClave?.select();
         }
       }
@@ -1593,8 +2020,8 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       }, 180);
     }
 
-    btnRecuperar?.addEventListener('click', () => {
-      if (!dialogRec) return;
+    function abrirRecDialogo() {
+      if (!dialogRec || dialogRec.open) return;
       const loginUsuario = document.getElementById('inputUsuario');
       if (recUsuario) recUsuario.value = loginUsuario?.value?.trim() || '';
       limpiarRecError();
@@ -1605,10 +2032,20 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       dialogRec.setAttribute('aria-describedby', 'recDesc');
       recAbiertoEl = Date.now();
       dialogRec.classList.remove('is-closing');
+      if (location.hash !== '#recuperar') {
+        history.pushState({ recuperar: true }, '', '#recuperar');
+      }
       dialogRec.showModal();
       dialogRec.classList.add('is-opening');
       window.setTimeout(() => dialogRec.classList.remove('is-opening'), 240);
       recUsuario?.focus();
+    }
+
+    btnRecuperar?.addEventListener('click', abrirRecDialogo);
+
+    window.addEventListener('popstate', () => {
+      if (location.hash === '#recuperar') abrirRecDialogo();
+      else if (dialogRec?.open) cerrarRecDialogo();
     });
 
     document.getElementById('btnRecCerrar')?.addEventListener('click', cerrarRecDialogo);
@@ -1625,9 +2062,14 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     recUsuario?.addEventListener('input', () => recUsuario.removeAttribute('aria-invalid'));
 
+    if (location.hash === '#recuperar') abrirRecDialogo();
+
     dialogRec?.addEventListener('close', () => {
       recCerrando = false;
       dialogRec?.classList.remove('is-opening', 'is-closing');
+      if (location.hash === '#recuperar') {
+        history.replaceState(null, '', location.pathname + location.search);
+      }
       btnRecuperar?.focus();
       if (recForm) recForm.reset();
       limpiarRecError();

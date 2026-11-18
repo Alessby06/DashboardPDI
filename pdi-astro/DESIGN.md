@@ -182,7 +182,7 @@ La referencia viva es `/dashboard`, y su gramática se organiza en seis capas: l
 Paleta de cuatro colores de marca sobre neutros cálidos. El color aparece solo cuando comunica estado, serie de datos o acción.
 
 ### Primary
-- **Gutenberg Green** (#00b494): marca, barra de estado normal, puntos y acentos de identidad. Como texto usa **Gutenberg Ink** (#00715d). **Gutenberg Action** (#00715d): relleno de acciones sólidas, con tinta `On Brand` (blanca en claro; casi negra sobre el verde aclarado en oscuro). El verde brillante no se usa como relleno de botón.
+- **Gutenberg Green** (#00b494): marca, barra de estado normal, puntos y acentos de identidad. Como texto usa **Gutenberg Ink** (#00715d). **Gutenberg Action** (#00715d): relleno de acciones sólidas, con tinta `On Brand` (blanca en claro; casi negra sobre el verde aclarado en oscuro). El verde brillante no se usa como relleno de botón en el producto; la única excepción es el CTA del login, que usa #00b494 con tinta #00130c (7,2:1), documentado en Login Showcase.
 
 ### Secondary
 - **Clinical Amber** (#f59e0b): anemia leve, advertencias y seguimiento. Como texto, **Amber Ink** (#9a4a05).
@@ -229,7 +229,7 @@ El sistema usa un registro cálido de neutros. Los valores viven en `variables.c
 
 ### Login Showcase
 
-La pantalla de acceso es una columna de 480 px: cabecera, tarjeta, tira de usuarios de prueba, línea de módulos y pie. La tarjeta usa Surface, radio 16, borde Rule y sombra Ambiente; los campos son cajas hundidas (`surface-2`) con borde inset de 1 px y anillo de foco de 2 px con offset 2. El h1 de 30/700 es la excepción de display de esta superficie; el resto sigue la rampa cerrada. El CTA usa el verde de acción con `--on-brand`; la tira «Usuarios de prueba» es secundaria, vive fuera de la tarjeta y solo rellena el usuario hasta el 5 de diciembre de 2026. El diálogo usa radio 16 y sombra Overlay; el código de recuperación usa una pila monoespaciada. Los tokens se declaran en la propia página porque el login no importa `variables.css`; esa duplicación es aislamiento de superficie, no deriva.
+La pantalla de acceso es una composición de 1040 px en dos columnas a partir de 1080: placa de programa (572) y tarjeta (420). La placa lleva el nombre del programa, una frase de expediente y los cuatro módulos en 2×2; no lleva notas de sedes, leyes ni fechas. La tarjeta usa Surface, radio 16, sombra Ambiente; los campos miden 40 px (44 en táctil) con borde inset de 1 px y anillo de foco de 2 px con offset 2. El h1 es 26/700; el CTA mide 44 y usa el verde de marca `#00b494` con tinta `#00130c` en claro (7,2:1; hover `#00a886`) y `#2ee6a0`/`#00130c` en oscuro. Es una excepción local del login: el resto del producto conserva `--brand-fill` `#00715d`; el brillante no se usa con blanco. La tira «Usuarios de prueba» vive bajo la tarjeta, sin nota ni fecha visible; caduca el 5 de diciembre y se oculta. El pie es solo el copyright. El diálogo usa radio 16, sombra Overlay y 440 px; el código de recuperación usa monoespaciada. Los tokens se declaran en la propia página porque el login no importa `variables.css`; esa duplicación es aislamiento de superficie.
 
 ### Dark Theme
 
@@ -513,7 +513,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Don't** dibujar badges ni píldoras tintadas para estado, conteo o etiqueta: el estado va como marca de punto + palabra, el conteo en micro y la etiqueta como Chip.
 - **Don't** añadir sombras de color para señalar alertas.
 - **Don't** crear una paleta paralela: `--dash-*` son alias del dashboard, no valores propios que se copian a otras hojas.
-- **Don't** usar `--gt-green` o `--brand-primary` como relleno de un botón o de una pestaña activa, ni blanco sobre `#00b494`: una acción sólida va con `--brand-fill` y `--on-brand`.
+- **Don't** usar `--gt-green` o `--brand-primary` como relleno de un botón o de una pestaña activa, ni blanco sobre `#00b494`: una acción sólida va con `--brand-fill` y `--on-brand`. La excepción es el CTA del login (`#00b494` + `#00130c`), documentada en Login Showcase.
 - **Don't** usar rojo en una barra de cobertura que no sea una alerta: el color de estado va en el punto o en el texto, no en la longitud de la barra.
 - **Don't** pintar texto con `--gt-green`, `--gt-yellow`, `--gt-blue` o `--gt-orange`: sobre un tinte claro el verde brillante da 2,2:1. La tinta de servicio usa `--text-brand`, `--text-warning`, `--text-info`, `--text-danger` o `--text-success` (≥4,8:1 sobre su tinte).
 - **Don't** usar `--brand-hover` ni `--brand-fill` como color de texto de un enlace: el primero da 3,16:1 sobre papel. El hover de un enlace va con `--text-brand-strong`.
