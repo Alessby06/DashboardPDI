@@ -19,9 +19,12 @@ export function elegirReenganche(candidatos) {
 export function moverFocoFueraDeModal(doc, modal, destino) {
   const anterior = doc.activeElement;
   const conectado = Boolean(destino && doc.contains?.(destino));
+  // Conectado no basta: un destino oculto o inerte hace que focus() no opere
+  // sin lanzar, y el foco acabaría en BODY tras blurear el modal.
+  const enfocable = conectado ? elegirReenganche([destino]) : null;
 
-  if (conectado && typeof destino.focus === 'function') {
-    try { destino.focus({ preventScroll: true }); } catch {}
+  if (enfocable && typeof enfocable.focus === 'function') {
+    try { enfocable.focus({ preventScroll: true }); } catch {}
   }
   if (anterior && modal?.contains?.(anterior) && typeof anterior.blur === 'function') {
     try { anterior.blur(); } catch {}

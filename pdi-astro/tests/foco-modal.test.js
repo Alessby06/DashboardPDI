@@ -50,3 +50,18 @@ test('si el destino no está conectado, no se enfoca pero el foco residual sale 
   assert.equal(destino.opcionesFocus, undefined);
   assert.equal(anterior.blurado, true);
 });
+
+test('un destino conectado pero oculto o inerte no recibe el foco', () => {
+  const anterior = boton({ etiqueta: 'anterior' });
+  const oculto = boton({ visible: false, etiqueta: 'oculto' });
+  const inerte = boton({ inerte: true, etiqueta: 'inerte' });
+  const modal = { contains: (elemento) => elemento === anterior };
+  const documento = { activeElement: anterior, contains: () => true };
+
+  moverFocoFueraDeModal(documento, modal, oculto);
+  moverFocoFueraDeModal(documento, modal, inerte);
+
+  assert.equal(oculto.opcionesFocus, undefined);
+  assert.equal(inerte.opcionesFocus, undefined);
+  assert.equal(anterior.blurado, true);
+});

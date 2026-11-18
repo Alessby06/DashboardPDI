@@ -155,9 +155,15 @@ export const Theme = {
           // que quitar igualmente la clase de congelacion.
         })
         .finally(() => {
-          if (this._transicion === transition) this._transicion = null;
-          root.classList.remove('disable-theme-transitions');
-          root.classList.remove('pdi-cambiando-tema');
+          // Solo la transición activa puede limpiar. Si otra empezó antes de
+          // que esta terminara, limpiar aquí le quitaría a la nueva las
+          // clases que necesita para su fundido (y reactivaría las
+          // transiciones de color de 380 ms a mitad del cambio).
+          if (this._transicion === transition) {
+            this._transicion = null;
+            root.classList.remove('disable-theme-transitions');
+            root.classList.remove('pdi-cambiando-tema');
+          }
         });
     } else {
       applyThemeChange();

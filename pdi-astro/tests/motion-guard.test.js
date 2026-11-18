@@ -59,6 +59,26 @@ function fuentes() {
   ];
 }
 
+/**
+ * Fades de tema (por nombre de keyframe) en ::view-transition(root) que no
+ * llevan la clase de estado. Se aplica a TODAS las fuentes, no solo a
+ * views-comun.css, para que un fade añadido en otra hoja o en un .astro no
+ * vuelva a colarse en la navegación sin que el guard lo detecte.
+ */
+function fadesDeTemaSinClase(fuentes) {
+  const fallos = [];
+  for (const { archivo, css } of fuentes) {
+    for (const regla of reglasDe(css)) {
+      if (!/::view-transition-(?:old|new|group)\(root\)/.test(regla.selector)) continue;
+      if (!/fadeInTheme|fadeOutTheme/.test(regla.cuerpo)) continue;
+      if (!/pdi-cambiando-tema/.test(regla.selector)) {
+        fallos.push(`${archivo}: ${regla.selector.slice(0, 110)}`);
+      }
+    }
+  }
+  return fallos;
+}
+
 /** Devuelve las reglas con su selector, cuerpo y la cadena de @media. */
 function reglasDe(css) {
   const reglas = [];
@@ -161,6 +181,21 @@ test('toda regla ::view-transition(root) en views-comun.css exige pdi-cambiando-
     [],
     `Reglas ::view-transition(root) sin la clase de estado (${fallos.length}). Prefijar con "html.pdi-cambiando-tema":\n${fallos.join('\n')}`,
   );
+});
+
+test('detecta un fade de tema sin la clase en cualquier hoja o bloque astro', () => {
+  const sintetico = [{
+    archivo: 'views-salud.css',
+    css: '::view-transition-new(root) { animation: 220ms both fadeInTheme; }',
+  }];
+  assert.deepEqual(
+    fadesDeTemaSinClase(sintetico),
+    ['views-salud.css: ::view-transition-new(root)'],
+  );
+});
+
+test('ningún fade de tema del producto vive fuera de pdi-cambiando-tema', () => {
+  assert.deepEqual(fadesDeTemaSinClase(fuentes()), []);
 });
 
 test('cada keyframe se define una sola vez', () => {
