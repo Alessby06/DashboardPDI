@@ -277,8 +277,8 @@ body[data-page="dashboard"] #mainContent {
   height: 100%;
 }
 
-.dash-seg-comas { background: var(--gt-green); }
-.dash-seg-cara { background: var(--gt-yellow); }
+.dash-seg-comas { background: var(--chart-blue-fill); }
+.dash-seg-cara { background: var(--chart-butter-fill); }
 .dash-seg-otras { background: var(--dash-rule-strong); }
 
 .dash-barra-cobertura {
@@ -295,7 +295,7 @@ body[data-page="dashboard"] #mainContent {
   width: 100%;
   height: 100%;
   border-radius: var(--radius-full);
-  background: var(--gt-green);
+  background: var(--chart-blue-fill);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform var(--dur-bar) var(--ease-spring);

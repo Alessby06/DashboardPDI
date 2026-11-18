@@ -500,7 +500,7 @@
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: var(--gt-green);
+  background: var(--chart-blue-fill);
 }
 
 .eval-banner {

@@ -766,16 +766,16 @@ html[data-theme="dark"] .perfil-btn--danger {
 }
 
 .perfil-strength[data-nivel="1"] .perfil-strength-seg:nth-child(-n + 1) {
-  background: var(--text-danger, #dc2626);
+  background: var(--chart-blush-fill);
 }
 
 .perfil-strength[data-nivel="2"] .perfil-strength-seg:nth-child(-n + 2) {
-  background: var(--text-warning, #b45309);
+  background: var(--chart-butter-fill);
 }
 
 .perfil-strength[data-nivel="3"] .perfil-strength-seg:nth-child(-n + 3),
 .perfil-strength[data-nivel="4"] .perfil-strength-seg:nth-child(-n + 4) {
-  background: var(--gt-green);
+  background: var(--chart-blue-fill);
 }
 
 /* --- Diálogos de la foto ------------------------------------------------ */

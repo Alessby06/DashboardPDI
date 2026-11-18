@@ -194,11 +194,11 @@ Paleta de tinta, papel y la tríada pastel del logo. El azul codifica lo normal,
 - **Gutenberg Ink** (#1b1a17): la acción primaria en claro, con `On Action` crema (#f4efe5); hover #2b2a26. En oscuro la acción es **Gutenberg Paper** (#f4efe5) con tinta casi negra (#12110f); hover #ffffff. La acción es la tinta del tema, no un color de marca.
 
 ### Data Palette
-La tríada del logo se usa como **familia de datos**, no como decoración: fondo pastel para chips y superficies, tono medio para barras y puntos, tinta oscura para el texto.
-- **Sky** (`--chart-blue` #5b8fa3; fondo #dfe9ed; borde #b9cdd4; tinta #2f5c6b): normal, cobertura, territorio, información e interacción.
-- **Butter** (`--chart-butter` #b8862b; fondo #f4e7c6; borde #e2cd9b; tinta #7a5716): atención, riesgo leve, pendientes.
-- **Peach** (`--chart-peach` #b06f4f; fondo #f4d9c8; borde #e3bca3; tinta #8b4a2f): anemia leve, paso intermedio.
-- **Blush** (`--chart-blush` #a85a52; fondo #f3ded6; borde #e2bdb2; tinta #8a3d32): moderada/severa, alerta, social pastoral.
+La tríada del logo se usa como **familia de datos**, no como decoración: fondo pastel para chips y superficies, relleno pastel para las barras, marca para los puntos de 6 px y tinta oscura para el texto.
+- **Sky** (`--chart-blue` #5b8fa3; fondo #dfe9ed; borde #b9cdd4; tinta #2f5c6b): normal, cobertura, territorio, información e interacción. Barra `--chart-blue-fill` #8fb6c4; marca #5b8fa3.
+- **Butter** (`--chart-butter` #b8862b; fondo #f4e7c6; borde #e2cd9b; tinta #7a5716): atención, riesgo leve, pendientes. Barra `--chart-butter-fill` #d8b566; marca #b8862b.
+- **Peach** (`--chart-peach` #b06f4f; fondo #f4d9c8; borde #e3bca3; tinta #8b4a2f): anemia leve, paso intermedio. Barra `--chart-peach-fill` #d79a74; marca #b06f4f.
+- **Blush** (`--chart-blush` #a85a52; fondo #f3ded6; borde #e2bdb2; tinta #8a3d32): moderada/severa, alerta, social pastoral. Barra `--chart-blush-fill` #cf8b7c; marca #a85a52.
 - **Interactive** (`--interactive` #2f5c6b; hover #244b58; `On Interactive` #f4efe5): enlaces, selección, pestañas activas, checkboxes. El CTA nunca usa este azul: usa `--action`.
 
 ### Secondary
@@ -280,7 +280,7 @@ El logo conserva su verde propio (`#00b494`); no es un token de interfaz ni se u
 ### Named Rules
 **The Logo Triad Rule.** El rojo, el amarillo y el azul del logo vuelven como tríada de datos en tintes pastel: azul normal/cobertura/interacción, mantequilla atención, durazno leve y rubor severo. El verde del logo no entra en la interfaz.
 
-**The Pastel Data Rule.** El color de datos se compone en tres pasos: fondo pastel para chips y superficies, tono medio para barras y puntos, y tinta oscura para el texto. Los puntos de 6 px usan `--chart-*` (marca); las masas grandes usan `--chart-*-fill`, un paso más claro que sobre papel no se lee como bloque. En oscuro ambos coinciden. Nunca se llena una tarjeta entera de pastel, nunca se usa pastel en un botón primario y nunca se escribe blanco sobre pastel.
+**The Pastel Data Rule.** El color de datos se compone en tres pasos: fondo pastel para chips y superficies, relleno pastel para toda barra de datos, y tinta oscura para el texto. Las barras usan `--chart-*-fill` en cualquier grosor (clínica, cobertura, distritos, evaluación, fuerza de contraseña); los puntos de 6 px usan `--chart-*` (marca), un paso más oscuro que sobre papel conserva el contraste. En oscuro ambas capas coinciden. Nunca se llena una tarjeta entera de pastel, nunca se usa pastel en un botón primario y nunca se escribe blanco sobre pastel.
 
 **The Blue Interactive Rule.** El azul (`--interactive`/`--brand-fill`) es el color de enlaces, selección, pestañas activas y checkboxes. El CTA y los botones primarios no lo usan: siguen en tinta (`--action`). La selección se lee en azul; la acción se lee en tinta.
 
@@ -435,7 +435,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Grid:** `8px | 1fr | 88px | 64px`, gap 12, padding 15/0, divisor inferior.
 - **Punto:** 6 px; normal Sky, riesgo Butter, leve Peach, moderada/severa Blush.
 - **Textos:** nombre 13.5/700; nota 10.5/500 Ink Dim; rango 10.5/600 Ink Dim; cifra Data Value; conteo Micro.
-- **Barra:** 4 px, pista Rule, relleno según banda, transición 600 ms `spring`. Las barras de medida del tablero comparten el mismo lenguaje, no el mismo grosor: la clínica del dashboard usa 10 px, la cobertura 4 px y el equipo 2 px, cada una según su función.
+- **Barra:** 4 px, pista Rule, relleno `--chart-*-fill` según banda, transición 600 ms `spring`. Las barras de medida del tablero comparten el mismo lenguaje, no el mismo grosor: la clínica del dashboard usa 10 px, la cobertura 4 px y el equipo 2 px, cada una según su función.
 - **Orden fijo:** normal, leve, moderada/severa.
 - **En el dashboard:** la franja se compone como prevalencia 30/800 + barra apilada de 10 px + cuatro columnas con punto, rango, porcentaje y conteo. La fila `8px | 1fr | 88px | 64px` se conserva para las vistas clínicas que necesitan el detalle por caso.
 
