@@ -57,6 +57,20 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     })();
   </script>
 
+  <script is:inline>
+    /* Modo de entrada: el anillo de foco solo se dibuja al navegar con teclado.
+       Al escribir con ratón o dedo, el campo no se enciende. */
+    (function () {
+      var raiz = document.documentElement;
+      document.addEventListener("pointerdown", function () {
+        raiz.setAttribute("data-pointer", "");
+      }, true);
+      document.addEventListener("keydown", function (evento) {
+        if (evento.key === "Tab") raiz.removeAttribute("data-pointer");
+      }, true);
+    })();
+  </script>
+
   <style>
     /* =========================================================================
        ACCESO · una sola columna
@@ -344,6 +358,10 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     .control:has(input:focus-visible) {
       outline: 2px solid var(--focus);
       outline-offset: 0;
+    }
+
+    html[data-pointer] .control:has(input:focus-visible) {
+      outline: none;
     }
 
     .control:has(input[aria-invalid="true"]) {
