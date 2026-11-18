@@ -689,12 +689,11 @@
     }
 
     .btn-action.primary {
-      background: var(--brand-fill, var(--brand-dark));
-      /* Acción sólida: verde profundo en claro con tinta blanca (5,6:1); en
-         oscuro el verde se aclara y la tinta vuelve a ser casi negra. El verde
-         brillante queda para identidad, puntos y barras. */
-      color: var(--on-brand);
-      border: 1px solid var(--brand-fill, var(--brand-dark));
+      background: var(--action);
+      /* Acción sólida: tinta en claro con crema; en oscuro crema con casi
+         negro. El verde no entra en la UI. */
+      color: var(--on-action);
+      border: 1px solid var(--action);
       box-shadow: var(--shadow-sm);
       font-weight: 700;
     }

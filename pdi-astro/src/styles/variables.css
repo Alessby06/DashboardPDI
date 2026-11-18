@@ -9,7 +9,7 @@
   --surface-1: #fbf8f1;
   --surface-2: #efe8db;
   /* Hover neutro, no tinte de marca: el color solo informa estado
-     (DESIGN.md, The Green Is Not Decoration Rule). */
+     (DESIGN.md, The Logo-Only Green Rule). */
   --surface-hover: #ece4d6;
   --surface-glass: rgba(251, 248, 241, 0.95);
   
@@ -18,25 +18,22 @@
   --border-medium: #b8ae9c;
   /* Paso intermedio de borde: checkboxes y marcos que no llegan a Rule Strong. */
   --rule-mid: #c8bfae;
-  /* Anillo de foco: usa el verde de accion, no el brillante. El brillante
-     (#00b494) da 2,32:1 sobre papel y no alcanza el 3:1 que WCAG 1.4.11 pide
-     para el indicador de foco; el de accion da 5,97:1 en claro y 11,8:1 en
-     oscuro (DESIGN.md, Components · Hover / Focus). */
-  --border-focus: var(--brand-fill);
-  /* Tinta sobre un relleno solido saturado (rojo, ambar, azul): sigue el mismo
-     criterio que On Brand, porque en oscuro esos rellenos se aclaran. */
+  /* Anillo de foco: la tinta del tema, no un color de marca. En claro es
+     #1b1a17 y en oscuro #f4efe5; ambos superan 15:1. */
+  --border-focus: var(--text-main);
+  /* Tinta sobre rellenos solidos saturados (rojo, ambar, azul): no sigue al
+     primario; se declara abajo como --on-solid. */
   
   /* Tinta sobre un velo oscuro (scrim) que se mantiene oscuro en los dos temas. */
   --on-scrim: #ffffff;
   
-  /* Gutenberg Official 4-Color Signature */
-  --gt-green: #00b494;
-  /* Canal RGB del verde de marca. Existe para poder teñir con transparencias
-     (rgba(var(--brand-rgb), 0.12)) sin fijar el color a mano en cada vista:
-     cuando el tema oscuro aclara el verde, todos los tintes lo siguen solos. */
-  --brand-rgb: 0, 180, 148;
-  --gt-green-bg: rgba(0, 180, 148, 0.16);
-  --gt-green-border: rgba(0, 180, 148, 0.38);
+  /* El verde ya no es un color de interfaz: los tokens historicos se resuelven
+     a tinta/superficie para que ninguna vista herede el tono. El logo conserva
+     su asset verde; la UI no. */
+  --gt-green: var(--text-main);
+  --brand-rgb: 27, 26, 23;
+  --gt-green-bg: rgba(var(--brand-rgb), 0.16);
+  --gt-green-border: rgba(var(--brand-rgb), 0.38);
   
   --gt-yellow: #f59e0b;
   --gt-yellow-bg: rgba(245, 158, 11, 0.16);
@@ -58,38 +55,38 @@
   --gt-orange-border: rgba(234, 88, 12, 0.35);
 
   /* Tintes del Chip (etiqueta, no estado): mas suaves que el badge retirado. */
-  --chip-green-bg: rgba(0, 180, 148, 0.09);
+  --chip-green-bg: rgba(var(--brand-rgb), 0.09);
   --chip-yellow-bg: rgba(245, 158, 11, 0.09);
   --chip-blue-bg: rgba(2, 132, 199, 0.09);
   --chip-red-bg: rgba(239, 68, 68, 0.09);
 
-  --brand-primary: var(--gt-green);
-  --brand-hover: #00997d;
-  --brand-dark: #00715d;
-  --brand-fill: #00715d;
-  --brand-fill-hover: #005c4b;
-  --brand-dim: #046a58;
-  --brand-soft: var(--gt-green-bg);
-  /* Tinta que se pinta ENCIMA del verde de accion. En claro el relleno es
-     profundo y admite blanco; en oscuro se aclara y pide tinta casi negra. */
-  --on-brand: #ffffff;
-  /* Tinta sobre rellenos solidos (rojo, ambar, azul): en oscuro esos rellenos
-     se aclaran, asi que la tinta cambia a casi negra. */
-  --on-solid: var(--on-brand);
+  --action: var(--text-main);
+  --action-hover: #2b2a26;
+  --on-action: #f4efe5;
 
-  /* Verde de marca CUANDO EL COLOR ES TEXTO (optimizado para nitidez y contraste) */
-  --text-brand: #00715d;
-  /* Variante de alto contraste para texto verde sobre tintes --brand-soft
-     (6,7:1 sobre el tinte del 16 %; 7,5:1 sobre papel). */
-  --text-brand-strong: #005c4b;
+  --brand-primary: var(--text-main);
+  --brand-green-deep: var(--text-main);
+  --brand-hover: var(--action-hover);
+  --brand-dark: var(--text-main);
+  --brand-fill: var(--action);
+  --brand-fill-hover: var(--action-hover);
+  --brand-dim: var(--surface-2);
+  --brand-soft: var(--surface-2);
+  /* Tinta del primario neutral: crema en claro, casi negra en oscuro. */
+  --on-brand: var(--on-action);
+  /* Tinta sobre rellenos saturados (rojo, ambar, azul): no sigue al primario. */
+  --on-solid: #ffffff;
+
+  /* Texto de marca historico: ahora es tinta. Los enlaces no son verdes. */
+  --text-brand: var(--text-main);
+  --text-brand-strong: var(--text-main);
   
   /* Rojo, ambar y azul CUANDO EL COLOR ES TEXTO (vivos y con contraste accesible) */
   --text-danger: #b91c1c;
   --text-warning: #9a4a05;
   --text-info: #0369a1;
-  /* Verde de confirmacion como texto: --gt-green sobre blanco no llega a 3:1.
-     Este tono da 5,3:1 sobre el papel cálido y 5,7:1 sobre la tarjeta. */
-  --text-success: #147235;
+  /* Confirmacion/normal: tinta. El color queda para excepciones. */
+  --text-success: var(--text-main);
   
   /* Pure Neutral Crisp Typography */
   --text-main: #1b1a17;
@@ -207,10 +204,10 @@
   --border-medium: #b8ae9c;
   --rule-mid: #c8bfae;
   
-  --gt-green: #00b494;
-  --brand-rgb: 0, 180, 148;
-  --gt-green-bg: rgba(0, 180, 148, 0.16);
-  --gt-green-border: rgba(0, 180, 148, 0.38);
+  --gt-green: var(--text-main);
+  --brand-rgb: 27, 26, 23;
+  --gt-green-bg: rgba(var(--brand-rgb), 0.16);
+  --gt-green-border: rgba(var(--brand-rgb), 0.38);
   
   --gt-yellow: #f59e0b;
   --gt-yellow-bg: rgba(245, 158, 11, 0.16);
@@ -232,21 +229,21 @@
   --gt-orange-border: rgba(234, 88, 12, 0.35);
 
   /* Tintes del Chip (etiqueta, no estado): mas suaves que el badge retirado. */
-  --chip-green-bg: rgba(0, 180, 148, 0.09);
+  --chip-green-bg: rgba(var(--brand-rgb), 0.09);
   --chip-yellow-bg: rgba(245, 158, 11, 0.09);
   --chip-blue-bg: rgba(2, 132, 199, 0.09);
   --chip-red-bg: rgba(239, 68, 68, 0.09);
 
-  --brand-primary: var(--gt-green);
-  --brand-dark: #00715d;
-  --brand-fill: #00715d;
-  --brand-fill-hover: #005c4b;
-  --brand-dim: #e6f7f4;
-  --brand-soft: var(--gt-green-bg);
-  --on-brand: #ffffff;
+  --brand-primary: var(--text-main);
+  --brand-dark: var(--text-main);
+  --brand-fill: var(--action);
+  --brand-fill-hover: var(--action-hover);
+  --brand-dim: var(--surface-2);
+  --brand-soft: var(--surface-2);
+  --on-brand: var(--on-action);
 
-  --text-brand: #00715d;
-  --text-brand-strong: #005c4b;
+  --text-brand: var(--text-main);
+  --text-brand-strong: var(--text-main);
   --text-danger: #b91c1c;
   --text-warning: #9a4a05;
   --text-info: #0369a1;
@@ -288,9 +285,8 @@
 
 /* Tema oscuro de alto contraste.
    Base negra cálida para maxima separacion del texto, bordes mas marcados que en
-   el resto de la interfaz y el verde de marca aclarado hasta casi neon. El
-   objetivo es que se lea igual de bien con luz ambiente alta, en una pantalla
-   mate o con baja vision, sin depender del zoom. */
+   el resto de la interfaz y tinta clara. El verde ya no entra en la UI: solo
+   vive en el logo. */
 [data-theme="dark"] {
   --obsidian: #1b1915;
   --bg-base: #12110f;
@@ -305,10 +301,10 @@
   --border-medium: #4a443a;
   --rule-mid: #4a443a;
   
-  --gt-green: #2ee6a0;
-  --brand-rgb: 46, 230, 160;
-  --gt-green-bg: rgba(46, 230, 160, 0.16);
-  --gt-green-border: rgba(46, 230, 160, 0.45);
+  --gt-green: var(--text-main);
+  --brand-rgb: 244, 239, 229;
+  --gt-green-bg: rgba(var(--brand-rgb), 0.16);
+  --gt-green-border: rgba(var(--brand-rgb), 0.45);
   
   --gt-yellow: #ffc247;
   --gt-yellow-bg: rgba(255, 194, 71, 0.16);
@@ -327,27 +323,29 @@
   --gt-orange-border: rgba(255, 157, 102, 0.45);
 
   /* Tintes del Chip en oscuro: un poco mas de presencia sobre negro. */
-  --chip-green-bg: rgba(46, 230, 160, 0.12);
+  --chip-green-bg: rgba(var(--brand-rgb), 0.12);
   --chip-yellow-bg: rgba(255, 194, 71, 0.12);
   --chip-blue-bg: rgba(124, 196, 255, 0.12);
   --chip-red-bg: rgba(255, 107, 107, 0.12);
 
-  --brand-primary: #2ee6a0;
-  --brand-hover: #6bffc4;
-  --brand-dark: #0fae76;
-  --brand-fill: var(--brand-primary);
-  --brand-fill-hover: var(--brand-hover);
-  --brand-dim: #0b7a54;
-  --brand-soft: var(--gt-green-bg);
-  /* El verde de este tema es muy claro: el blanco encima daria 1,6:1. La tinta
-     casi negra da 11,8:1 y conserva el aspecto de boton solido. */
-  --on-brand: #00130c;
+  --action: var(--text-main);
+  --action-hover: #ffffff;
+  --on-action: #12110f;
 
-  /* El verde de marca da 12,0:1 sobre --surface-1, asi que sirve tal cual como
-     color de texto y no hace falta un tono aparte. Se declara de todas formas
-     para que las mismas reglas de CSS sirvan para los dos temas. */
-  --text-brand: #2ee6a0;
-  --text-brand-strong: #2ee6a0;
+  --brand-primary: var(--text-main);
+  --brand-green-deep: var(--text-main);
+  --brand-hover: var(--action-hover);
+  --brand-dark: var(--text-main);
+  --brand-fill: var(--action);
+  --brand-fill-hover: var(--action-hover);
+  --brand-dim: var(--surface-2);
+  --brand-soft: var(--surface-2);
+  --on-brand: var(--on-action);
+  --on-solid: #00130c;
+
+  /* La tinta clara da 12,0:1 sobre --surface-1 y sirve como texto. */
+  --text-brand: var(--text-main);
+  --text-brand-strong: var(--text-main);
   
   /* Rojo, ambar y azul como texto, en tema oscuro. Los tres se aclaran en la
      misma proporcion para que se lean sobre las insignias tintadas, que ahora
@@ -355,8 +353,8 @@
   --text-danger: #ff8b8b;
   --text-warning: #ffc247;
   --text-info: #7cc4ff;
-  /* El verde de marca da mas de 9:1 sobre el pie oscuro de la ficha. */
-  --text-success: #2ee6a0;
+  /* La tinta clara da mas de 9:1 sobre el pie oscuro de la ficha. */
+  --text-success: var(--text-main);
   
   --text-main: #f4efe5;
   --text-muted: #c9c2b4;

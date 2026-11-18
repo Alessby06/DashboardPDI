@@ -1233,7 +1233,7 @@
       flex-shrink: 0;
     }
 
-    /* Primary: Soft Tint resting, vibrant hover */
+    /* Primary: neutral tint resting, ink hover */
     .kanban-btn.primary {
       background: var(--gt-green-bg);
       color: var(--text-brand);

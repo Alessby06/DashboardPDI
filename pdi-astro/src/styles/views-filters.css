@@ -1094,7 +1094,7 @@
     gap: 8px;
     cursor: pointer;
     touch-action: manipulation;
-    /* Sólido con la tinta de acción: blanco en claro, casi negro en oscuro. */
+    /* Sólido con la tinta de acción: crema en claro, casi negro en oscuro. */
     background: var(--brand-fill);
     background-image: none;
     color: var(--on-brand);

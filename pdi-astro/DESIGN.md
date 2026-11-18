@@ -2,10 +2,10 @@
 name: PDI Johannes Gutenberg
 description: "Gestión del Programa de Desarrollo Infantil: una sala de situación cálida, operativa y legible en sedes comunitarias, con paridad entre tema claro y oscuro."
 colors:
-  brand-green: "#00b494"
-  brand-green-text: "#00715d"
-  brand-action: "#00715d"
-  success-green-text: "#147235"
+  logo-green: "#00b494"
+  action: "#1b1a17"
+  action-hover: "#2b2a26"
+  on-action: "#f4efe5"
   clinical-amber: "#f59e0b"
   clinical-amber-text: "#9a4a05"
   territory-blue: "#0284c7"
@@ -22,7 +22,6 @@ colors:
   rule: "#e0d8c9"
   rule-strong: "#a89d8b"
   rule-mid: "#c8bfae"
-  on-brand: "#ffffff"
   on-solid: "#ffffff"
   on-scrim: "#ffffff"
 typography:
@@ -144,8 +143,8 @@ components:
     rounded: "{rounded.md}"
     padding: "8px 16px"
   button-primary:
-    backgroundColor: "{colors.brand-action}"
-    textColor: "{colors.on-brand}"
+    backgroundColor: "{colors.action}"
+    textColor: "{colors.on-action}"
     rounded: "{rounded.md}"
     padding: "8px 16px"
   input:
@@ -161,7 +160,7 @@ components:
 
 **Creative North Star: "La Sala de Situación"**
 
-El sistema se lee como la sala de situación que una coordinadora revisa antes de empezar la jornada: una superficie de papel cálido, tres cifras que ordenan la lectura, una franja de atención con lo que no puede esperar y el resto dispuesto para escanearse en segundos. Nada compite con el dato. El color no decora: informa estado clínico o territorial, y cuando no hay estado que informar, la interfaz es tinta cálida sobre papel.
+El sistema se lee como la sala de situación que una coordinadora revisa antes de empezar la jornada: una superficie de papel cálido, tres cifras que ordenan la lectura, una franja de atención con lo que no puede esperar y el resto dispuesto para escanearse en segundos. Nada compite con el dato. El color no decora: informa una excepción clínica o territorial; lo normal es tinta. El verde vive solo en el logo.
 
 La densidad es la de un documento de trabajo, no la de un panel de marketing. Cada tarjeta responde a una pregunta operativa concreta y la responde una sola vez. La jerarquía se construye con tamaño y posición, no con peso acumulado ni con cajas dentro de cajas.
 
@@ -174,15 +173,16 @@ La referencia viva es `/dashboard`, y su gramática se organiza en seis capas: l
 - Separación por borde de 1 px; una sola sombra ambiente.
 - Manrope en todo el sistema, del rótulo al número.
 - Una cifra dominante por tarjeta; los conteos se quedan en tamaño micro.
-- Verde, ámbar, azul y rojo reservados a semántica.
+- Verde, ámbar, azul y rojo reservados a semántica: el verde solo en el logo; ámbar, azul y rojo solo para excepción. Lo normal es tinta.
 - Dos temas con paridad obligatoria: nada se aprueba mirando uno solo.
 
 ## Colors
 
-Paleta de cuatro colores de marca sobre neutros cálidos. El color aparece solo cuando comunica estado, serie de datos o acción.
+Paleta de tinta y papel sobre neutros cálidos. Ámbar, azul y rojo aparecen solo para excepción; lo normal es tinta. El verde es únicamente el asset del logo y no entra en la interfaz.
 
 ### Primary
-- **Gutenberg Green** (#00b494): marca, barra de estado normal, puntos y acentos de identidad. Como texto usa **Gutenberg Ink** (#00715d). **Gutenberg Action** (#00715d): relleno de acciones sólidas, con tinta `On Brand` (blanca en claro; casi negra sobre el verde aclarado en oscuro). El verde brillante no se usa como relleno de botón en el producto; la única excepción es el CTA del login, que usa #00b494 con tinta #00130c (7,2:1), documentado en Login Showcase.
+- **Gutenberg Logo Green** (#00b494): solo el asset del logo. No es un color de interfaz: no rellena, no escribe, no enfoca y no marca estado.
+- **Gutenberg Ink** (#1b1a17): la acción primaria en claro, con `On Action` crema (#f4efe5); hover #2b2a26. En oscuro la acción es **Gutenberg Paper** (#f4efe5) con tinta casi negra (#12110f); hover #ffffff. La acción es la tinta del tema, no un color de marca.
 
 ### Secondary
 - **Clinical Amber** (#f59e0b): anemia leve, advertencias y seguimiento. Como texto, **Amber Ink** (#9a4a05).
@@ -191,7 +191,7 @@ Paleta de cuatro colores de marca sobre neutros cálidos. El color aparece solo 
 ### Tertiary
 - **Alert Red** (#ef4444): anemia moderada/severa y casos críticos. Como texto, **Alert Ink** (#b91c1c).
 - **Signal Orange** (#ea580c): cuarto nivel del semáforo MINSA; separa «moderada» de «severa».
-- **Success Ink** (#147235; oscuro `#2ee6a0`): confirmación y mejora como texto (`--text-success`). No es un verde de acción ni sustituye a `--text-brand`.
+- **Normal / Success:** tinta. La confirmación y el estado normal no usan verde; el color queda para excepción.
 
 ### Neutral
 - **Canvas** (#f2ece1): fondo de página.
@@ -201,7 +201,7 @@ Paleta de cuatro colores de marca sobre neutros cálidos. El color aparece solo 
 - **Surface** (#fbf8f1): tarjetas, paneles y modales.
 - **Ink** (#1b1a17): texto principal y cifras. **Ink Soft** (#5c574d): texto secundario. **Ink Dim** (#6f685c): rótulos, notas y metadatos.
 - **Rule** (#e0d8c9): bordes y divisores. **Rule Strong** (#a89d8b): foco y hover de borde. **Rule Mid** (#c8bfae): paso intermedio para checkboxes y marcos que no llegan a Rule Strong.
-- **On Brand** (#ffffff; oscuro `#00130c`): tinta que se pinta encima del verde de marca. **On Solid** (#ffffff; oscuro `#00130c`): la misma tinta sobre cualquier relleno sólido saturado (rojo, ámbar, azul). **On Scrim** (#ffffff): tinta sobre un velo oscuro que se mantiene oscuro en ambos temas.
+- **On Action** (#f4efe5; oscuro `#12110f`): tinta sobre el primario neutral. **On Solid** (#ffffff; oscuro `#00130c`): tinta sobre cualquier relleno sólido saturado (rojo, ámbar, azul). **On Scrim** (#ffffff): tinta sobre un velo oscuro que se mantiene oscuro en ambos temas.
 
 ### Warm Register (global)
 
@@ -218,18 +218,18 @@ El sistema usa un registro cálido de neutros. Los valores viven en `variables.c
 | Tinta (`--dash-ink` → `--text-main`) | `#1b1a17` | `#f4efe5` |
 | Secundaria (`--dash-muted`) | `#5c574d` | `#c9c2b4` |
 | Dim (`--dash-dim`) | `#6f685c` | `#a39b8c` |
-| Verde texto (`--dash-green`) | `#00715d` | `#2ee6a0` |
+| Normal (`--dash-green`, alias de tinta) | `#1b1a17` | `#f4efe5` |
 | Ámbar texto (`--dash-amber`) | `#9a4a05` | `#ffc247` |
 | Rojo texto (`--dash-danger`) | `#b91c1c` | `#ff8b8b` |
 | Azul texto (`--dash-info`) | `#0369a1` | `#7cc4ff` |
 
-**Contraste:** tinta sobre papel 15,3:1; dim sobre papel 4,85:1; ámbar sobre papel 5,5:1; crema sobre negro cálido 16,5:1; dim oscura 6,85:1 sobre el lienzo (`#12110f`) y 6,37:1 sobre la tarjeta (`#1b1915`). El dim y el ámbar de la maqueta original se corrigieron para pasar AA en texto pequeño; no se usan los valores `#8b8478` ni `#b45309` sobre papel.
+**Contraste:** tinta sobre papel 15,3:1; dim sobre papel 4,85:1; ámbar sobre papel 5,5:1; crema sobre negro cálido 16,5:1; dim oscura 6,85:1 sobre el lienzo (`#12110f`) y 6,37:1 sobre la tarjeta (`#1b1915`). La acción neutral da 15,2:1 en claro y 16,5:1 en oscuro; el verde no entra en la interfaz. El dim y el ámbar de la maqueta original se corrigieron para pasar AA en texto pequeño; no se usan los valores `#8b8478` ni `#b45309` sobre papel.
 
 **The Warm Register Rule.** El registro cálido es global: los tokens núcleo de `variables.css` son la fuente. `--dash-*` son alias del dashboard y no se duplican en otras hojas.
 
 ### Login Showcase
 
-La pantalla de acceso es una composición de 1040 px en dos columnas a partir de 1080: placa de programa (592) y tarjeta (400). La placa lleva el nombre del programa, una frase de expediente en una línea y los cuatro módulos en 2×2, con celdas de 11 px que comparten el compás de las etiquetas del formulario; no lleva notas de sedes, leyes ni fechas. La tarjeta usa Surface, radio 16, padding 22 y sombra Ambiente; el formulario separa campos cada 14 px. Los campos miden 36 px (44 en táctil), con texto de 15 (16 en táctil), borde inset de 1 px y foco de tinta de 2 px sin halo ni cambio de fondo; no llevan icono de lead porque la etiqueta y el placeholder bastan, y solo la contraseña conserva el ojo de 36. El h1 es 26/700; el CTA mide 44 y usa el verde de marca `#00b494` con tinta `#00130c` en claro (7,2:1; hover `#00a886`) y `#2ee6a0`/`#00130c` en oscuro. Es una excepción local del login: el resto del producto conserva `--brand-fill` `#00715d`; el brillante no se usa con blanco. La tira «Usuarios de prueba» vive bajo la tarjeta, sin nota ni fecha visible; caduca el 5 de diciembre y se oculta. En móvil el orden es tarjeta, placa y demo; la tarjeta va primero para que el acceso no espere al contexto. El pie es solo el copyright. El diálogo usa radio 16, sombra Overlay y 440 px; el código de recuperación usa monoespaciada. Los tokens se declaran en la propia página porque el login no importa `variables.css`; esa duplicación es aislamiento de superficie.
+La pantalla de acceso es una composición de 1040 px en dos columnas a partir de 1080: placa de programa (592) y tarjeta (400). La placa lleva el nombre del programa, una frase de expediente en una línea y los cuatro módulos en 2×2, con celdas de 11 px que comparten el compás de las etiquetas del formulario; no lleva notas de sedes, leyes ni fechas. La tarjeta usa Surface, radio 16, padding 22 y sombra Ambiente; el formulario separa campos cada 14 px. Los campos miden 36 px (44 en táctil), con texto de 15 (16 en táctil), borde inset de 1 px y foco de tinta de 2 px sin halo ni cambio de fondo; no llevan icono de lead porque la etiqueta y el placeholder bastan, y solo la contraseña conserva el ojo de 36. El h1 es 26/700; el CTA mide 44 y usa la acción neutral `#1b1a17` con tinta `#f4efe5` en claro (15,2:1; hover `#2b2a26`) y `#f4efe5`/`#12110f` en oscuro (16,5:1; hover `#ffffff`). No es una excepción: usa los mismos tokens `--action`/`--on-action` que el resto del producto; el verde no entra en la interfaz y el logo es su único soporte. La tira «Usuarios de prueba» vive bajo la tarjeta, sin nota ni fecha visible; caduca el 5 de diciembre y se oculta. En móvil el orden es tarjeta, placa y demo; la tarjeta va primero para que el acceso no espere al contexto. El pie es solo el copyright. El diálogo usa radio 16, sombra Overlay y 440 px; el código de recuperación usa monoespaciada. Los tokens se declaran en la propia página porque el login no importa `variables.css`; esa duplicación es aislamiento de superficie.
 
 ### Dark Theme
 
@@ -246,22 +246,23 @@ No es una paleta nueva: son los mismos roles con otros valores. El fondo es un n
 | Ink | `#1b1a17` | `#f4efe5` |
 | Ink Soft | `#5c574d` | `#c9c2b4` |
 | Ink Dim | `#6f685c` | `#a39b8c` |
-| Brand Green | `#00b494` | `#2ee6a0` |
-| Action Green | `#00715d` | `#2ee6a0` |
-| Success Ink | `#147235` | `#2ee6a0` |
+| Action | `#1b1a17` | `#f4efe5` |
+| Action Hover | `#2b2a26` | `#ffffff` |
+| On Action | `#f4efe5` | `#12110f` |
 | Amber / Blue / Red | `#f59e0b` / `#0284c7` / `#ef4444` | `#ffc247` / `#7cc4ff` / `#ff8b8b` |
-| On Brand | `#ffffff` | `#00130c` |
 | On Solid | `#ffffff` | `#00130c` |
 | On Scrim | `#ffffff` | `#ffffff` |
 
+El logo conserva su verde propio (`#00b494`); no es un token de interfaz ni se usa fuera del asset.
+
 ### Named Rules
-**The Clinical Color Rule.** Un color saturado solo aparece si representa un estado, una serie de datos o la marca. Si el elemento no informa nada, va en neutro.
+**The Clinical Color Rule.** El color aparece solo si representa una excepción: ámbar, rojo o azul. Lo normal es tinta; si el elemento no informa una excepción, va en neutro. El verde no entra en la interfaz.
 
-**The Green Is Not Decoration Rule.** El verde no rellena fondos grandes ni titula secciones: marca acción, estado normal y pertenencia.
+**The Logo-Only Green Rule.** El verde vive únicamente en el logo. No rellena, no escribe, no enfoca, no marca estado ni selección. El logo es un asset; `logo-green` pertenece al asset, no a la interfaz.
 
-**The Two-Green Rule.** `#00b494` identifica (logo, puntos, barras, tintes); `#00715d` actúa en claro y el verde aclarado actúa en oscuro. Los botones sólidos y los CTA usan `--brand-fill`; las pestañas y selecciones usan `--brand-soft` con `--text-brand-strong`. El verde brillante no rellena una acción ni una pestaña activa. `--brand-hover` es un token de relleno: como texto se usa `--text-brand-strong` (7,5:1), nunca `--brand-hover` (3,16:1).
+**The Ink Action Rule.** La acción primaria es la tinta del tema: `#1b1a17` en claro y `#f4efe5` en oscuro. No usa `--brand-fill`; el verde no es una acción. `--action`, `--action-hover` y `--on-action` son los únicos tokens del primario. `--brand-*` queda como alias legacy resuelto a tinta/superficie y no se usa en trabajo nuevo.
 
-**The Two-Ink Rule.** La tinta sobre marca o sobre un relleno saturado sale de `On Brand`/`On Solid`, nunca de un blanco fijo: en claro el relleno de acción es profundo y pide blanco; en oscuro el relleno se aclara y pide tinta casi negra (`#00130c`). Sobre un velo oscuro que no cambia con el tema, `On Scrim`. Blanco sobre #00715d da 5,6:1; sobre #00b494 da 2,6:1 y por eso el brillante no es un relleno de acción.
+**The Action Ink Rule.** La tinta del primario neutral es `On Action` (crema en claro, casi negra en oscuro). La tinta de un relleno saturado (rojo, ámbar, azul) sigue siendo `On Solid` (blanco en claro, casi negra en oscuro). No hay `On Brand` verde.
 
 **The Contrast Per Theme Rule.** El contraste se verifica dos veces, una por tema. Un texto que pasa en claro puede fallar en oscuro porque los tokens de tinta cambian de valor.
 
@@ -356,7 +357,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 
 ### Data Panel (signature)
 - **Skin:** Surface, borde Rule, radio 16, sombra ambiente, padding 18/20/10.
-- **Head:** flex con línea base compartida; icono 16 del color del área; Panel Title; enlace de 11/600 en Brand Ink.
+- **Head:** flex con línea base compartida; icono 16 del color del área; Panel Title; enlace de 11/600 en Ink.
 - **Rows:** 15 px de padding vertical, divisor Rule de 1 px, sin caja por fila.
 - **States:** vacío con mensaje centrado y borde discontinuo; cargando y sin conexión usan el mismo espacio.
 
@@ -374,7 +375,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 ### Status Mark
 
 - **Forma:** punto de 6 px + etiqueta 12.5/600 en Ink Soft, separados 7 px. Sin fondo, sin borde, sin padding ni radio: la fila ya tiene su regla de 1 px y no necesita una caja dentro.
-- **Color:** solo el punto. Verde (normal), ámbar (atención o pendiente), azul (informativo), rojo (crítico), naranja (severo), gris (sin dato o inactivo). La etiqueta no cambia de color: la palabra dice el estado y el color lo confirma, así el dato sobrevive a la impresión, al daltonismo y al tema oscuro.
+- **Color:** solo el punto. Tinta (normal), ámbar (atención o pendiente), azul (informativo), rojo (crítico), naranja (severo), gris (sin dato o inactivo). La etiqueta no cambia de color: la palabra dice el estado y el color lo confirma, así el dato sobrevive a la impresión, al daltonismo y al tema oscuro.
 - **Implementación:** `.status-mark` + `.status-mark-dot` en `components.css`; variantes `--ok`, `--warn`, `--info`, `--danger`, `--severe`, `--idle`. El punto es `aria-hidden`; el texto va siempre y no se sustituye por el color.
 - **Los otros dos trabajos:** un conteo va en micro (9.5/600, Ink Dim, `tabular-nums`) junto a su etiqueta, sin contenedor; una etiqueta o categoría usa Chip (radio 6, tinte al 9 %). Solo el estado lleva marca.
 - **Auditoría:** la severidad (“Sensible”, “Rutinario”) usa esta marca de punto + palabra; no se dibuja como píldora.
@@ -383,13 +384,13 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 
 ### Buttons
 - **Neutral:** fondo Paper, borde Rule, Ink, 13.5/600, radio 10, padding 8/16.
-- **Primary:** fondo Gutenberg Action (`--brand-fill`: #00715d en claro; #2ee6a0 en oscuro), tinta `On Brand` (blanca en claro; casi negra en oscuro) y Sombra Small; solo la acción que cierra la tarea. El blanco sobre #00715d da 5,6:1. El hover usa `--brand-fill-hover` (#005c4b en claro; #6bffc4 en oscuro). El verde brillante #00b494 no se usa como relleno de acción.
+- **Primary:** fondo Action (`--action`: #1b1a17 en claro; #f4efe5 en oscuro), tinta `On Action` (crema en claro; casi negra en oscuro) y Sombra Small; solo la acción que cierra la tarea. El hover usa `--action-hover` (#2b2a26 en claro; #ffffff en oscuro). El verde no es un relleno de acción; `--brand-fill` resuelve a la acción por compatibilidad legacy.
 - **Micro action:** 30×30 con icono en puntero fino; con puntero grueso, 44×44. Toda acción táctil mide al menos 44 px de alto (PRODUCT.md).
-- **Hover / Focus:** fondo Hover, borde Rule Strong; foco visible con anillo de 2 px de `--border-focus` (#00715d en claro; verde aclarado en oscuro), que da 5,97:1 sobre papel. El verde brillante no se usa para el foco: su 2,32:1 no alcanza el 3:1 de WCAG 1.4.11.
+- **Hover / Focus:** fondo Hover, borde Rule Strong; foco visible con anillo de 2 px de `--border-focus` (#1b1a17 en claro; #f4efe5 en oscuro), 15,2:1 / 16,5:1. El verde no se usa para el foco.
 
 ### Inputs / Fields
 - **Style:** fondo Paper, borde Rule, radio 10, padding 10/14, 14 px. En los modales los campos van sobre Paper para dar un paso de tono frente a la Surface del diálogo.
-- **Focus:** borde Rule Strong y anillo de teclado de 2 px con `--border-focus` y offset 2, sin glow ni sombra. El campo nunca pierde el contorno al enfocarse con teclado.
+- **Focus:** borde Rule Strong y anillo de teclado de 2 px con `--border-focus` (tinta en claro, crema en oscuro) y offset 2, sin glow ni sombra. El campo nunca pierde el contorno al enfocarse con teclado.
 - **Error / Disabled:** error con texto y borde Alert; deshabilitado en Ink Dim.
 - **Selects:** ningún `<select>` nativo se muestra sin mejorar. `src/scripts/ui/customSelect.js` los convierte al dropdown propio (`pdi-select` + `pdi-select-trigger` + `pdi-select-menu`, hoja `custom-select.css`): mismo `<select>` vivo para `id`, `name`, `value`, `required`, `disabled` y `onchange`; menú en `<body>` con `position: fixed` para que ningún modal lo recorte; entrada de 6 px + fundido en `--dur-norm` y salida en `--dur-fast`. Un `<select>` nuevo se mejora solo; si no se puede, se marca `data-pdi-select="native"` y se documenta la excepción.
 
@@ -404,7 +405,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 
 ### Clinical Band (signature)
 - **Grid:** `8px | 1fr | 88px | 64px`, gap 12, padding 15/0, divisor inferior.
-- **Punto:** 6 px, verde normal, ámbar leve, rojo moderada/severa.
+- **Punto:** 6 px; normal en tinta, leve en ámbar, moderada/severa en rojo.
 - **Textos:** nombre 13.5/700; nota 10.5/500 Ink Dim; rango 10.5/600 Ink Dim; cifra Data Value; conteo Micro.
 - **Barra:** 4 px, pista Rule, relleno según banda, transición 600 ms `spring`. Las barras de medida del tablero comparten el mismo lenguaje, no el mismo grosor: la clínica del dashboard usa 10 px, la cobertura 4 px y el equipo 2 px, cada una según su función.
 - **Orden fijo:** normal, leve, moderada/severa.
@@ -425,7 +426,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 
 ### Territory Row
 - **Grid:** `1fr 66px`, gap 14, padding 11/0.
-- **Cifra:** Metric Secondary en Brand Ink; segundo distrito en Territory Blue.
+- **Cifra:** Metric Secondary en Ink; segundo distrito en Territory Blue.
 - **Barra:** 4 px. **Sedes:** chips al pie, agrupados por distrito.
 
 ### List Rows
@@ -496,7 +497,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Do** verificar cada pieza en claro, en oscuro, en escritorio y en móvil antes de darla por terminada.
 - **Do** declarar los tokens de un componente compartido en su propia hoja, una vez por tema, en lugar de parchear la vista.
 - **Do** usar los tokens núcleo cálidos en todas las vistas; el dashboard puede usar los alias `--dash-*`, que apuntan a ellos.
-- **Do** usar `--brand-fill` para acciones sólidas y `--brand-soft` con `--text-brand-strong` para pestañas y selecciones; el verde brillante es identidad e indicador.
+- **Do** usar `--action` para la acción sólida y `--on-action` para su tinta; `--brand-*` queda como alias legacy neutral. El verde solo vive en el logo.
 - **Do** usar `--border-focus` para todo anillo de teclado, con 2 px y offset 2; es el único indicador de foco y debe superar 3:1.
 - **Do** reservar el `h1` para el título de la vista y usar `h2` para sus secciones; la marca es texto.
 - **Do** dar 44 px de alto a toda acción táctil con puntero grueso.
@@ -507,16 +508,16 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Don't** resolver la cascada con `!important`; si una regla no gana, el selector está mal planteado.
 - **Don't** inventar tamaños fuera de la rampa cerrada.
 - **Don't** anidar tarjetas ni duplicar la receta de tarjeta dentro de una hoja de vista.
-- **Don't** usar el color de marca como relleno decorativo de secciones.
+- **Don't** usar color como relleno decorativo de secciones: el color solo aparece para excepción.
 - **Don't** reutilizar una clase de otra página cambiándole tamaño o peso (el caso `.dash-kpi-value` en salud).
 - **Don't** fijar un tema con valores absolutos (`#ffffff`, `#000000`) en pantalla; usa los tokens. La impresión sí puede forzar papel blanco y tinta negra.
 - **Don't** dibujar badges ni píldoras tintadas para estado, conteo o etiqueta: el estado va como marca de punto + palabra, el conteo en micro y la etiqueta como Chip.
 - **Don't** añadir sombras de color para señalar alertas.
 - **Don't** crear una paleta paralela: `--dash-*` son alias del dashboard, no valores propios que se copian a otras hojas.
-- **Don't** usar `--gt-green` o `--brand-primary` como relleno de un botón o de una pestaña activa, ni blanco sobre `#00b494`: una acción sólida va con `--brand-fill` y `--on-brand`. La excepción es el CTA del login (`#00b494` + `#00130c`), documentada en Login Showcase.
+- **Don't** usar verde en la interfaz: no rellena, no escribe, no enfoca, no marca estado ni selección. La acción va con `--action` y `--on-action`; el logo es la única excepción verde.
 - **Don't** usar rojo en una barra de cobertura que no sea una alerta: el color de estado va en el punto o en el texto, no en la longitud de la barra.
-- **Don't** pintar texto con `--gt-green`, `--gt-yellow`, `--gt-blue` o `--gt-orange`: sobre un tinte claro el verde brillante da 2,2:1. La tinta de servicio usa `--text-brand`, `--text-warning`, `--text-info`, `--text-danger` o `--text-success` (≥4,8:1 sobre su tinte).
-- **Don't** usar `--brand-hover` ni `--brand-fill` como color de texto de un enlace: el primero da 3,16:1 sobre papel. El hover de un enlace va con `--text-brand-strong`.
+- **Don't** pintar texto con verde: los enlaces, las etiquetas y el texto de marca usan tinta (`--text-main`/`--text-muted`). El color queda para excepción (ámbar, rojo, azul).
+- **Don't** usar `--brand-hover` ni `--brand-fill` como color de texto de un enlace: los enlaces usan tinta y subrayado; no hay verde de enlace.
 - **Don't** quitar el `outline` de un control con `:focus-visible`: el borde de 1 px no es un indicador de foco suficiente.
 - **Don't** usar `h1` para la marca ni `h2` para el título de la página: rompe el árbol de navegación por encabezados.
 - **Don't** dejar una acción táctil por debajo de 44 px de alto, aunque en escritorio se vea a 30 o 34.
@@ -541,4 +542,4 @@ Las capas `@layer` no se introducen por componente. Un estilo sin capa gana a cu
 6. Ningún `<select>` nativo visible: todos pasan por `customSelect.js`; las excepciones llevan `data-pdi-select="native"` y están justificadas.
 7. Ningún badge: el estado se lee como marca (punto + palabra), el conteo como micro y la etiqueta como Chip. Una píldora tintada es una violación del contrato, no una variante.
 8. El registro cálido es global; `--dash-*` son alias del dashboard y no duplican valores.
-9. Ningún sólido verde usa `#00b494` con blanco: las acciones usan `--brand-fill` + `--on-brand`; las pestañas y selecciones usan `--brand-soft` + `--text-brand-strong`.
+9. Ningún verde entra en la interfaz: ni sólidos, ni texto, ni foco, ni selección. Las acciones usan `--action` + `--on-action`; el logo es la única excepción.

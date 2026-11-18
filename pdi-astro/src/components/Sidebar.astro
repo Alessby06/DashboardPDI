@@ -137,14 +137,15 @@ const navItems = [
     color: var(--text-dim);
   }
 
-  /* Punto de estado: hay solicitudes de recuperación pendientes. */
+  /* Punto de estado: hay solicitudes de recuperación pendientes. Ambar es
+     atencion; el verde ya no se usa en la interfaz. */
   .nav-dot {
     width: 7px;
     height: 7px;
     margin-left: auto;
     flex: 0 0 7px;
     border-radius: 50%;
-    background: var(--brand-fill, var(--gt-green));
+    background: var(--gt-yellow);
   }
 
     @media (hover: hover) and (pointer: fine) {

@@ -20,7 +20,7 @@
     :root {
       --sheet-veil-margen: rgba(18, 17, 15, 0.74);
       --sheet-veil-borde: rgba(18, 17, 15, 0.38);
-      --sheet-veil-marca: rgba(0, 180, 148, 0.09);
+      --sheet-veil-marca: rgba(244, 239, 229, 0.09);
       /* Peso canonico de las cifras, tomado de .dash-kpi-value (30/385): el
          trazo fino separa la cifra del rotulo sin competir con el. Las
          unidades y signos que acompanan a la cifra bajan a 300. */
@@ -31,7 +31,7 @@
     [data-theme="dark"] {
       --sheet-veil-margen: rgba(0, 0, 0, 0.88);
       --sheet-veil-borde: rgba(0, 0, 0, 0.58);
-      --sheet-veil-marca: rgba(46, 230, 160, 0.08);
+      --sheet-veil-marca: rgba(244, 239, 229, 0.08);
     }
 
     /* Modals & Drawers - Performance y Fluididad de Apertura/Cierre */
