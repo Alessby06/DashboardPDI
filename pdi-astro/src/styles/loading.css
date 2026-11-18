@@ -656,8 +656,8 @@ html[data-pdi-ready="1"] .pdi-skeleton {
   padding: 0 18px;
   border: 0;
   border-radius: var(--radius-md);
-  background: var(--brand-fill, var(--brand-dark));
-  color: var(--on-brand);
+  background: var(--action, var(--brand-dark));
+  color: var(--on-action);
   font-family: var(--ui-font);
   font-size: 13px;
   font-weight: 700;
@@ -668,7 +668,7 @@ html[data-pdi-ready="1"] .pdi-skeleton {
 
 @media (hover: hover) and (pointer: fine) {
   .pdi-sk-retry:hover {
-    background: var(--brand-fill-hover, var(--brand-dark));
+    background: var(--action-hover, var(--brand-dark));
   }
 }
 

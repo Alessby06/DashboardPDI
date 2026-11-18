@@ -102,7 +102,7 @@ body[data-page="dashboard"] #mainContent {
 }
 
 .dash-punto-vivo.is-warn .dash-estado-dot { background: var(--gt-yellow); }
-.dash-punto-vivo.is-loading .dash-estado-dot { background: var(--dash-rule-strong); }
+.dash-punto-vivo.is-loading .dash-estado-dot { background: var(--chart-blue); }
 
 .dash-acciones {
   display: flex;
@@ -218,9 +218,25 @@ body[data-page="dashboard"] #mainContent {
 .dash-kpi {
   min-width: 0;
   padding: 22px 24px 20px;
+  position: relative;
 }
 
 .dash-kpi + .dash-kpi { border-left: 1px solid var(--dash-rule); }
+
+.dash-kpi::after {
+  content: "";
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 0;
+  height: 2px;
+  border-radius: var(--radius-full);
+  background: var(--kpi-rule, var(--chart-blue));
+}
+
+.dash-kpi:nth-child(1) { --kpi-rule: var(--chart-blue); }
+.dash-kpi:nth-child(2) { --kpi-rule: var(--chart-blue); }
+.dash-kpi:nth-child(3) { --kpi-rule: var(--chart-blush); }
 
 .dash-rotulo {
   display: block;
@@ -267,7 +283,7 @@ body[data-page="dashboard"] #mainContent {
   margin-top: 14px;
   border-radius: var(--radius-full);
   overflow: hidden;
-  background: var(--dash-surface-2);
+  background: var(--chart-track);
 }
 
 .dash-mini-barra span {
@@ -278,7 +294,7 @@ body[data-page="dashboard"] #mainContent {
 }
 
 .dash-seg-comas { background: var(--gt-green); }
-.dash-seg-cara { background: var(--gt-blue); }
+.dash-seg-cara { background: var(--gt-yellow); }
 .dash-seg-otras { background: var(--dash-rule-strong); }
 
 .dash-barra-cobertura {
@@ -286,7 +302,7 @@ body[data-page="dashboard"] #mainContent {
   height: 4px;
   margin-top: 14px;
   border-radius: var(--radius-full);
-  background: var(--dash-surface-2);
+  background: var(--chart-track);
   overflow: hidden;
 }
 
@@ -384,7 +400,7 @@ body[data-page="dashboard"] #mainContent {
   height: 10px;
   margin-bottom: 4px;
   border-radius: var(--radius-full);
-  background: var(--dash-surface-2);
+  background: var(--chart-track);
   overflow: hidden;
   transform: scaleX(0);
   transform-origin: left;
@@ -599,7 +615,31 @@ body[data-page="dashboard"] #mainContent {
   width: 18px;
   height: 18px;
   flex: none;
-  color: var(--dash-green);
+  color: currentColor;
+}
+
+.dash-servicio-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-md);
+}
+
+.dash-servicio-icon.is-alim {
+  background: var(--chart-butter-bg);
+  color: var(--chart-butter-ink);
+}
+
+.dash-servicio-icon.is-edu {
+  background: var(--chart-blue-bg);
+  color: var(--chart-blue-ink);
+}
+
+.dash-servicio-icon.is-social {
+  background: var(--chart-blush-bg);
+  color: var(--chart-blush-ink);
 }
 
 .dash-servicio-cab h3 {
@@ -718,6 +758,25 @@ body[data-page="dashboard"] #mainContent {
   text-transform: uppercase;
   color: var(--dash-dim);
 }
+
+.dash-matrix thead th[data-dist="comas"] {
+  background: var(--chart-blue-bg);
+  border-radius: 6px 6px 0 0;
+}
+
+.dash-matrix thead th[data-dist="carabayllo"] {
+  background: var(--chart-butter-bg);
+  border-radius: 6px 6px 0 0;
+}
+
+.dash-matrix thead th[data-dist="otras"] {
+  background: var(--surface-2);
+  border-radius: 6px 6px 0 0;
+}
+
+.dash-matrix thead th[data-dist="comas"] .dash-matrix-dist { color: var(--chart-blue-ink); }
+.dash-matrix thead th[data-dist="carabayllo"] .dash-matrix-dist { color: var(--chart-butter-ink); }
+.dash-matrix thead th[data-dist="otras"] .dash-matrix-dist { color: var(--dash-ink); }
 
 .dash-matrix thead th:first-child {
   padding-left: 0;
@@ -992,6 +1051,22 @@ body[data-page="dashboard"] #mainContent {
     font-size: 13px;
     font-weight: 800;
     color: var(--dash-ink);
+  }
+  .dash-matrix-mobile-district h3 > span:first-child::before {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-right: 6px;
+    border-radius: var(--radius-full);
+    background: var(--dash-rule-strong);
+    vertical-align: middle;
+  }
+  .dash-matrix-mobile-district[data-dist="comas"] h3 > span:first-child::before {
+    background: var(--chart-blue);
+  }
+  .dash-matrix-mobile-district[data-dist="carabayllo"] h3 > span:first-child::before {
+    background: var(--chart-butter);
   }
   .dash-matrix-mobile-total {
     font-size: 10.5px;

@@ -1233,17 +1233,17 @@
       flex-shrink: 0;
     }
 
-    /* Primary: neutral tint resting, ink hover */
+    /* Primary: tinta solida; el azul queda para seleccion/interaccion. */
     .kanban-btn.primary {
-      background: var(--gt-green-bg);
-      color: var(--text-brand);
-      border-color: var(--gt-green-border);
+      background: var(--action);
+      color: var(--on-action);
+      border-color: var(--action);
     }
     @media (hover: hover) and (pointer: fine) {
       .kanban-btn.primary:hover {
-        background: var(--brand-fill);
-        border-color: var(--brand-fill);
-        color: var(--on-brand) !important;
+        background: var(--action-hover);
+        border-color: var(--action-hover);
+        color: var(--on-action) !important;
         box-shadow: var(--shadow-sm);
       }
     }

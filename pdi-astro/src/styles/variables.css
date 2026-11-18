@@ -30,63 +30,83 @@
   /* El verde ya no es un color de interfaz: los tokens historicos se resuelven
      a tinta/superficie para que ninguna vista herede el tono. El logo conserva
      su asset verde; la UI no. */
-  --gt-green: var(--text-main);
-  --brand-rgb: 27, 26, 23;
-  --gt-green-bg: rgba(var(--brand-rgb), 0.16);
-  --gt-green-border: rgba(var(--brand-rgb), 0.38);
-  
-  --gt-yellow: #f59e0b;
-  --gt-yellow-bg: rgba(245, 158, 11, 0.16);
-  --gt-yellow-border: rgba(245, 158, 11, 0.38);
-  
-  --gt-blue: #0284c7;
-  --gt-blue-bg: rgba(2, 132, 199, 0.16);
-  --gt-blue-border: rgba(2, 132, 199, 0.38);
-  
-  --gt-red: #ef4444;
-  --gt-red-bg: rgba(239, 68, 68, 0.16);
-  --gt-red-border: rgba(239, 68, 68, 0.38);
+  --gt-green: var(--chart-blue);
+  --brand-rgb: 47, 92, 107;
+  --gt-green-bg: var(--chart-blue-bg);
+  --gt-green-border: var(--chart-blue-border);
 
-  /* Naranja del semaforo MINSA: separa "Moderada" del rojo de "Severa".
-     Antes ambas clases compartian --gt-red y solo se diferenciaban por
-     opacidad, lo que hacia indistinguibles el anillo y la leyenda. */
-  --gt-orange: #ea580c;
-  --gt-orange-bg: rgba(234, 88, 12, 0.14);
-  --gt-orange-border: rgba(234, 88, 12, 0.35);
+  /* Paleta pastel del logo: azul, mantequilla, durazno y rubor. */
+  --chart-blue-bg: #dfe9ed;
+  --chart-blue-border: #b9cdd4;
+  --chart-blue: #5b8fa3;
+  --chart-blue-ink: #2f5c6b;
+  --chart-butter-bg: #f4e7c6;
+  --chart-butter-border: #e2cd9b;
+  --chart-butter: #b8862b;
+  --chart-butter-ink: #7a5716;
+  --chart-peach-bg: #f4d9c8;
+  --chart-peach-border: #e3bca3;
+  --chart-peach: #b06f4f;
+  --chart-peach-ink: #8b4a2f;
+  --chart-blush-bg: #f3ded6;
+  --chart-blush-border: #e2bdb2;
+  --chart-blush: #a85a52;
+  --chart-blush-ink: #8a3d32;
+  --chart-track: #e8dfd1;
+  --interactive: #2f5c6b;
+  --interactive-hover: #244b58;
+  --on-interactive: #f4efe5;
+  
+  --gt-yellow: var(--chart-butter);
+  --gt-yellow-bg: var(--chart-butter-bg);
+  --gt-yellow-border: var(--chart-butter-border);
+  
+  --gt-blue: var(--chart-blue);
+  --gt-blue-bg: var(--chart-blue-bg);
+  --gt-blue-border: var(--chart-blue-border);
+  
+  --gt-red: var(--chart-blush);
+  --gt-red-bg: var(--chart-blush-bg);
+  --gt-red-border: var(--chart-blush-border);
 
-  /* Tintes del Chip (etiqueta, no estado): mas suaves que el badge retirado. */
-  --chip-green-bg: rgba(var(--brand-rgb), 0.09);
-  --chip-yellow-bg: rgba(245, 158, 11, 0.09);
-  --chip-blue-bg: rgba(2, 132, 199, 0.09);
-  --chip-red-bg: rgba(239, 68, 68, 0.09);
+  /* Durazno: paso intermedio entre atencion y riesgo. */
+  --gt-orange: var(--chart-peach);
+  --gt-orange-bg: var(--chart-peach-bg);
+  --gt-orange-border: var(--chart-peach-border);
+
+  /* Tintes del Chip (etiqueta, no estado): los pasteles del logo. */
+  --chip-green-bg: var(--chart-blue-bg);
+  --chip-yellow-bg: var(--chart-butter-bg);
+  --chip-blue-bg: var(--chart-blue-bg);
+  --chip-red-bg: var(--chart-blush-bg);
 
   --action: var(--text-main);
   --action-hover: #2b2a26;
   --on-action: #f4efe5;
 
-  --brand-primary: var(--text-main);
-  --brand-green-deep: var(--text-main);
-  --brand-hover: var(--action-hover);
-  --brand-dark: var(--text-main);
-  --brand-fill: var(--action);
-  --brand-fill-hover: var(--action-hover);
-  --brand-dim: var(--surface-2);
-  --brand-soft: var(--surface-2);
-  /* Tinta del primario neutral: crema en claro, casi negra en oscuro. */
-  --on-brand: var(--on-action);
+  --brand-primary: var(--interactive);
+  --brand-green-deep: var(--chart-blue-ink);
+  --brand-hover: var(--interactive-hover);
+  --brand-dark: var(--interactive);
+  --brand-fill: var(--interactive);
+  --brand-fill-hover: var(--interactive-hover);
+  --brand-dim: var(--chart-blue-bg);
+  --brand-soft: var(--chart-blue-bg);
+  /* Tinta sobre el azul interactivo: crema en claro, casi negra en oscuro. */
+  --on-brand: var(--on-interactive);
   /* Tinta sobre rellenos saturados (rojo, ambar, azul): no sigue al primario. */
   --on-solid: #ffffff;
 
-  /* Texto de marca historico: ahora es tinta. Los enlaces no son verdes. */
-  --text-brand: var(--text-main);
-  --text-brand-strong: var(--text-main);
+  /* Texto de marca historico: ahora es azul de datos/interaccion. */
+  --text-brand: var(--chart-blue-ink);
+  --text-brand-strong: var(--chart-blue-ink);
   
-  /* Rojo, ambar y azul CUANDO EL COLOR ES TEXTO (vivos y con contraste accesible) */
-  --text-danger: #b91c1c;
-  --text-warning: #9a4a05;
-  --text-info: #0369a1;
-  /* Confirmacion/normal: tinta. El color queda para excepciones. */
-  --text-success: var(--text-main);
+  /* Rojo, ambar y azul como texto, en sus versiones de tinta pastel. */
+  --text-danger: var(--chart-blush-ink);
+  --text-warning: var(--chart-butter-ink);
+  --text-info: var(--chart-blue-ink);
+  /* Normal/confirmacion: azul; el color deja de ser un agujero negro. */
+  --text-success: var(--chart-blue-ink);
   
   /* Pure Neutral Crisp Typography */
   --text-main: #1b1a17;
@@ -204,49 +224,49 @@
   --border-medium: #b8ae9c;
   --rule-mid: #c8bfae;
   
-  --gt-green: var(--text-main);
-  --brand-rgb: 27, 26, 23;
-  --gt-green-bg: rgba(var(--brand-rgb), 0.16);
-  --gt-green-border: rgba(var(--brand-rgb), 0.38);
+  --gt-green: var(--chart-blue);
+  --brand-rgb: 47, 92, 107;
+  --gt-green-bg: var(--chart-blue-bg);
+  --gt-green-border: var(--chart-blue-border);
   
-  --gt-yellow: #f59e0b;
-  --gt-yellow-bg: rgba(245, 158, 11, 0.16);
-  --gt-yellow-border: rgba(245, 158, 11, 0.38);
+  --gt-yellow: var(--chart-butter);
+  --gt-yellow-bg: var(--chart-butter-bg);
+  --gt-yellow-border: var(--chart-butter-border);
   
-  --gt-blue: #0284c7;
-  --gt-blue-bg: rgba(2, 132, 199, 0.16);
-  --gt-blue-border: rgba(2, 132, 199, 0.38);
+  --gt-blue: var(--chart-blue);
+  --gt-blue-bg: var(--chart-blue-bg);
+  --gt-blue-border: var(--chart-blue-border);
   
-  --gt-red: #ef4444;
-  --gt-red-bg: rgba(239, 68, 68, 0.16);
-  --gt-red-border: rgba(239, 68, 68, 0.38);
+  --gt-red: var(--chart-blush);
+  --gt-red-bg: var(--chart-blush-bg);
+  --gt-red-border: var(--chart-blush-border);
 
   /* Naranja del semaforo MINSA: separa "Moderada" del rojo de "Severa".
      Antes ambas clases compartian --gt-red y solo se diferenciaban por
      opacidad, lo que hacia indistinguibles el anillo y la leyenda. */
-  --gt-orange: #ea580c;
-  --gt-orange-bg: rgba(234, 88, 12, 0.14);
-  --gt-orange-border: rgba(234, 88, 12, 0.35);
+  --gt-orange: var(--chart-peach);
+  --gt-orange-bg: var(--chart-peach-bg);
+  --gt-orange-border: var(--chart-peach-border);
 
-  /* Tintes del Chip (etiqueta, no estado): mas suaves que el badge retirado. */
-  --chip-green-bg: rgba(var(--brand-rgb), 0.09);
-  --chip-yellow-bg: rgba(245, 158, 11, 0.09);
-  --chip-blue-bg: rgba(2, 132, 199, 0.09);
-  --chip-red-bg: rgba(239, 68, 68, 0.09);
+  /* Tintes del Chip: los pasteles del logo. */
+  --chip-green-bg: var(--chart-blue-bg);
+  --chip-yellow-bg: var(--chart-butter-bg);
+  --chip-blue-bg: var(--chart-blue-bg);
+  --chip-red-bg: var(--chart-blush-bg);
 
-  --brand-primary: var(--text-main);
-  --brand-dark: var(--text-main);
-  --brand-fill: var(--action);
-  --brand-fill-hover: var(--action-hover);
-  --brand-dim: var(--surface-2);
-  --brand-soft: var(--surface-2);
-  --on-brand: var(--on-action);
+  --brand-primary: var(--interactive);
+  --brand-dark: var(--interactive);
+  --brand-fill: var(--interactive);
+  --brand-fill-hover: var(--interactive-hover);
+  --brand-dim: var(--chart-blue-bg);
+  --brand-soft: var(--chart-blue-bg);
+  --on-brand: var(--on-interactive);
 
-  --text-brand: var(--text-main);
-  --text-brand-strong: var(--text-main);
-  --text-danger: #b91c1c;
-  --text-warning: #9a4a05;
-  --text-info: #0369a1;
+  --text-brand: var(--chart-blue-ink);
+  --text-brand-strong: var(--chart-blue-ink);
+  --text-danger: var(--chart-blush-ink);
+  --text-warning: var(--chart-butter-ink);
+  --text-info: var(--chart-blue-ink);
   
   --text-main: #1b1a17;
   --text-muted: #5c574d;
@@ -301,60 +321,79 @@
   --border-medium: #4a443a;
   --rule-mid: #4a443a;
   
-  --gt-green: var(--text-main);
-  --brand-rgb: 244, 239, 229;
-  --gt-green-bg: rgba(var(--brand-rgb), 0.16);
-  --gt-green-border: rgba(var(--brand-rgb), 0.45);
-  
-  --gt-yellow: #ffc247;
-  --gt-yellow-bg: rgba(255, 194, 71, 0.16);
-  --gt-yellow-border: rgba(255, 194, 71, 0.45);
-  
-  --gt-blue: #7cc4ff;
-  --gt-blue-bg: rgba(124, 196, 255, 0.16);
-  --gt-blue-border: rgba(124, 196, 255, 0.45);
-  
-  --gt-red: #ff6b6b;
-  --gt-red-bg: rgba(255, 107, 107, 0.16);
-  --gt-red-border: rgba(255, 107, 107, 0.45);
+  /* Paleta pastel del logo en oscuro: tintes profundos, tinta clara. */
+  --chart-blue-bg: #1c2a31;
+  --chart-blue-border: #324c56;
+  --chart-blue: #8fb6c4;
+  --chart-blue-ink: #cfe2e8;
+  --chart-butter-bg: #2e2718;
+  --chart-butter-border: #5a4a2a;
+  --chart-butter: #d8b566;
+  --chart-butter-ink: #f0dfb8;
+  --chart-peach-bg: #33241d;
+  --chart-peach-border: #5c4032;
+  --chart-peach: #d79a74;
+  --chart-peach-ink: #f0d3c2;
+  --chart-blush-bg: #33201f;
+  --chart-blush-border: #5c3835;
+  --chart-blush: #cf8b7c;
+  --chart-blush-ink: #f0d0cb;
+  --chart-track: #2f2b25;
+  --interactive: #9fc4d0;
+  --interactive-hover: #b7d6df;
+  --on-interactive: #12110f;
 
-  --gt-orange: #ff9d66;
-  --gt-orange-bg: rgba(255, 157, 102, 0.16);
-  --gt-orange-border: rgba(255, 157, 102, 0.45);
+  --gt-green: var(--chart-blue);
+  --brand-rgb: 159, 196, 208;
+  --gt-green-bg: var(--chart-blue-bg);
+  --gt-green-border: var(--chart-blue-border);
+  
+  --gt-yellow: var(--chart-butter);
+  --gt-yellow-bg: var(--chart-butter-bg);
+  --gt-yellow-border: var(--chart-butter-border);
+  
+  --gt-blue: var(--chart-blue);
+  --gt-blue-bg: var(--chart-blue-bg);
+  --gt-blue-border: var(--chart-blue-border);
+  
+  --gt-red: var(--chart-blush);
+  --gt-red-bg: var(--chart-blush-bg);
+  --gt-red-border: var(--chart-blush-border);
 
-  /* Tintes del Chip en oscuro: un poco mas de presencia sobre negro. */
-  --chip-green-bg: rgba(var(--brand-rgb), 0.12);
-  --chip-yellow-bg: rgba(255, 194, 71, 0.12);
-  --chip-blue-bg: rgba(124, 196, 255, 0.12);
-  --chip-red-bg: rgba(255, 107, 107, 0.12);
+  --gt-orange: var(--chart-peach);
+  --gt-orange-bg: var(--chart-peach-bg);
+  --gt-orange-border: var(--chart-peach-border);
+
+  /* Tintes del Chip en oscuro: tintes profundos del logo. */
+  --chip-green-bg: var(--chart-blue-bg);
+  --chip-yellow-bg: var(--chart-butter-bg);
+  --chip-blue-bg: var(--chart-blue-bg);
+  --chip-red-bg: var(--chart-blush-bg);
 
   --action: var(--text-main);
   --action-hover: #ffffff;
   --on-action: #12110f;
 
-  --brand-primary: var(--text-main);
-  --brand-green-deep: var(--text-main);
-  --brand-hover: var(--action-hover);
-  --brand-dark: var(--text-main);
-  --brand-fill: var(--action);
-  --brand-fill-hover: var(--action-hover);
-  --brand-dim: var(--surface-2);
-  --brand-soft: var(--surface-2);
-  --on-brand: var(--on-action);
+  --brand-primary: var(--interactive);
+  --brand-green-deep: var(--chart-blue-ink);
+  --brand-hover: var(--interactive-hover);
+  --brand-dark: var(--interactive);
+  --brand-fill: var(--interactive);
+  --brand-fill-hover: var(--interactive-hover);
+  --brand-dim: var(--chart-blue-bg);
+  --brand-soft: var(--chart-blue-bg);
+  --on-brand: var(--on-interactive);
   --on-solid: #00130c;
 
-  /* La tinta clara da 12,0:1 sobre --surface-1 y sirve como texto. */
-  --text-brand: var(--text-main);
-  --text-brand-strong: var(--text-main);
+  /* Azul interactivo como texto de enlace/seleccion. */
+  --text-brand: var(--chart-blue-ink);
+  --text-brand-strong: var(--chart-blue-ink);
   
-  /* Rojo, ambar y azul como texto, en tema oscuro. Los tres se aclaran en la
-     misma proporcion para que se lean sobre las insignias tintadas, que ahora
-     llevan un 16 % del color en vez del 15 % anterior. */
-  --text-danger: #ff8b8b;
-  --text-warning: #ffc247;
-  --text-info: #7cc4ff;
-  /* La tinta clara da mas de 9:1 sobre el pie oscuro de la ficha. */
-  --text-success: var(--text-main);
+  /* Las tres familias como texto, aclaradas para el fondo oscuro. */
+  --text-danger: var(--chart-blush-ink);
+  --text-warning: var(--chart-butter-ink);
+  --text-info: var(--chart-blue-ink);
+  --text-success: var(--chart-blue-ink);
   
   --text-main: #f4efe5;
   --text-muted: #c9c2b4;

@@ -638,9 +638,9 @@
     }
 
     .btn-action-sm.primary {
-      background: var(--brand-fill);
-      color: var(--on-brand);
-      border-color: var(--brand-fill);
+      background: var(--action);
+      color: var(--on-action);
+      border-color: var(--action);
     }
 
     /* Barra de Paginación y Densidad */

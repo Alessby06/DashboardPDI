@@ -6,12 +6,21 @@ colors:
   action: "#1b1a17"
   action-hover: "#2b2a26"
   on-action: "#f4efe5"
-  clinical-amber: "#f59e0b"
-  clinical-amber-text: "#9a4a05"
-  territory-blue: "#0284c7"
-  alert-red: "#ef4444"
-  alert-red-text: "#b91c1c"
-  signal-orange: "#ea580c"
+  chart-blue-bg: "#dfe9ed"
+  chart-blue: "#5b8fa3"
+  chart-blue-ink: "#2f5c6b"
+  chart-butter-bg: "#f4e7c6"
+  chart-butter: "#b8862b"
+  chart-butter-ink: "#7a5716"
+  chart-peach-bg: "#f4d9c8"
+  chart-peach: "#b06f4f"
+  chart-peach-ink: "#8b4a2f"
+  chart-blush-bg: "#f3ded6"
+  chart-blush: "#a85a52"
+  chart-blush-ink: "#8a3d32"
+  interactive: "#2f5c6b"
+  interactive-hover: "#244b58"
+  on-interactive: "#f4efe5"
   canvas: "#f2ece1"
   paper: "#f5f0e6"
   hover: "#ece4d6"
@@ -160,7 +169,7 @@ components:
 
 **Creative North Star: "La Sala de Situación"**
 
-El sistema se lee como la sala de situación que una coordinadora revisa antes de empezar la jornada: una superficie de papel cálido, tres cifras que ordenan la lectura, una franja de atención con lo que no puede esperar y el resto dispuesto para escanearse en segundos. Nada compite con el dato. El color no decora: informa una excepción clínica o territorial; lo normal es tinta. El verde vive solo en el logo.
+El sistema se lee como la sala de situación que una coordinadora revisa antes de empezar la jornada: una superficie de papel cálido, tres cifras que ordenan la lectura, una franja de atención con lo que no puede esperar y el resto dispuesto para escanearse en segundos. Nada compite con el dato. El color codifica la tríada del logo en tintes pastel: azul para lo normal y la cobertura, mantequilla para la atención, durazno para lo leve y rubor para lo severo. La acción es tinta; el verde vive solo en el logo.
 
 La densidad es la de un documento de trabajo, no la de un panel de marketing. Cada tarjeta responde a una pregunta operativa concreta y la responde una sola vez. La jerarquía se construye con tamaño y posición, no con peso acumulado ni con cajas dentro de cajas.
 
@@ -173,25 +182,33 @@ La referencia viva es `/dashboard`, y su gramática se organiza en seis capas: l
 - Separación por borde de 1 px; una sola sombra ambiente.
 - Manrope en todo el sistema, del rótulo al número.
 - Una cifra dominante por tarjeta; los conteos se quedan en tamaño micro.
-- Verde, ámbar, azul y rojo reservados a semántica: el verde solo en el logo; ámbar, azul y rojo solo para excepción. Lo normal es tinta.
+- La tríada del logo (azul, mantequilla y rubor) vuelve en tintes pastel para datos, estado e interacción; el verde solo vive en el logo. La acción es tinta.
 - Dos temas con paridad obligatoria: nada se aprueba mirando uno solo.
 
 ## Colors
 
-Paleta de tinta y papel sobre neutros cálidos. Ámbar, azul y rojo aparecen solo para excepción; lo normal es tinta. El verde es únicamente el asset del logo y no entra en la interfaz.
+Paleta de tinta, papel y la tríada pastel del logo. El azul codifica lo normal, la cobertura, el territorio y la interacción; la mantequilla, la atención; el durazno, el paso leve; el rubor, lo severo. El verde es únicamente el asset del logo; la acción primaria es tinta.
 
 ### Primary
 - **Gutenberg Logo Green** (#00b494): solo el asset del logo. No es un color de interfaz: no rellena, no escribe, no enfoca y no marca estado.
 - **Gutenberg Ink** (#1b1a17): la acción primaria en claro, con `On Action` crema (#f4efe5); hover #2b2a26. En oscuro la acción es **Gutenberg Paper** (#f4efe5) con tinta casi negra (#12110f); hover #ffffff. La acción es la tinta del tema, no un color de marca.
 
+### Data Palette
+La tríada del logo se usa como **familia de datos**, no como decoración: fondo pastel para chips y superficies, tono medio para barras y puntos, tinta oscura para el texto.
+- **Sky** (`--chart-blue` #5b8fa3; fondo #dfe9ed; borde #b9cdd4; tinta #2f5c6b): normal, cobertura, territorio, información e interacción.
+- **Butter** (`--chart-butter` #b8862b; fondo #f4e7c6; borde #e2cd9b; tinta #7a5716): atención, riesgo leve, pendientes.
+- **Peach** (`--chart-peach` #b06f4f; fondo #f4d9c8; borde #e3bca3; tinta #8b4a2f): anemia leve, paso intermedio.
+- **Blush** (`--chart-blush` #a85a52; fondo #f3ded6; borde #e2bdb2; tinta #8a3d32): moderada/severa, alerta, social pastoral.
+- **Interactive** (`--interactive` #2f5c6b; hover #244b58; `On Interactive` #f4efe5): enlaces, selección, pestañas activas, checkboxes. El CTA nunca usa este azul: usa `--action`.
+
 ### Secondary
-- **Clinical Amber** (#f59e0b): anemia leve, advertencias y seguimiento. Como texto, **Amber Ink** (#9a4a05).
-- **Territory Blue** (#0284c7): segundo distrito y datos informativos. Como texto, **Territory Ink** (#0369a1).
+- **Butter** (mantequilla): atención y riesgo leve. Relleno `#b8862b`, fondo `#f4e7c6`, texto `#7a5716`.
+- **Sky** (azul): segundo distrito, cobertura e información. Relleno `#5b8fa3`, fondo `#dfe9ed`, texto `#2f5c6b`.
 
 ### Tertiary
-- **Alert Red** (#ef4444): anemia moderada/severa y casos críticos. Como texto, **Alert Ink** (#b91c1c).
-- **Signal Orange** (#ea580c): cuarto nivel del semáforo MINSA; separa «moderada» de «severa».
-- **Normal / Success:** tinta. La confirmación y el estado normal no usan verde; el color queda para excepción.
+- **Blush** (rubor): anemia moderada/severa y casos críticos. Relleno `#a85a52`, fondo `#f3ded6`, texto `#8a3d32`.
+- **Peach** (durazno): anemia leve; separa «riesgo» de «moderada».
+- **Normal / Success:** azul Sky. La confirmación y el estado normal usan el azul de la familia, no verde; el verde queda solo en el logo.
 
 ### Neutral
 - **Canvas** (#f2ece1): fondo de página.
@@ -201,7 +218,7 @@ Paleta de tinta y papel sobre neutros cálidos. Ámbar, azul y rojo aparecen sol
 - **Surface** (#fbf8f1): tarjetas, paneles y modales.
 - **Ink** (#1b1a17): texto principal y cifras. **Ink Soft** (#5c574d): texto secundario. **Ink Dim** (#6f685c): rótulos, notas y metadatos.
 - **Rule** (#e0d8c9): bordes y divisores. **Rule Strong** (#a89d8b): foco y hover de borde. **Rule Mid** (#c8bfae): paso intermedio para checkboxes y marcos que no llegan a Rule Strong.
-- **On Action** (#f4efe5; oscuro `#12110f`): tinta sobre el primario neutral. **On Solid** (#ffffff; oscuro `#00130c`): tinta sobre cualquier relleno sólido saturado (rojo, ámbar, azul). **On Scrim** (#ffffff): tinta sobre un velo oscuro que se mantiene oscuro en ambos temas.
+- **On Action** (#f4efe5; oscuro `#12110f`): tinta sobre el primario neutral. **On Interactive** (#f4efe5; oscuro `#12110f`): tinta sobre el azul de selección. **On Solid** (#ffffff; oscuro `#00130c`): tinta sobre cualquier relleno sólido saturado (rojo, ámbar, azul). **On Scrim** (#ffffff): tinta sobre un velo oscuro que se mantiene oscuro en ambos temas.
 
 ### Warm Register (global)
 
@@ -218,18 +235,18 @@ El sistema usa un registro cálido de neutros. Los valores viven en `variables.c
 | Tinta (`--dash-ink` → `--text-main`) | `#1b1a17` | `#f4efe5` |
 | Secundaria (`--dash-muted`) | `#5c574d` | `#c9c2b4` |
 | Dim (`--dash-dim`) | `#6f685c` | `#a39b8c` |
-| Normal (`--dash-green`, alias de tinta) | `#1b1a17` | `#f4efe5` |
-| Ámbar texto (`--dash-amber`) | `#9a4a05` | `#ffc247` |
-| Rojo texto (`--dash-danger`) | `#b91c1c` | `#ff8b8b` |
-| Azul texto (`--dash-info`) | `#0369a1` | `#7cc4ff` |
+| Normal (`--dash-green`, azul Sky) | `#2f5c6b` | `#cfe2e8` |
+| Ámbar texto (`--dash-amber`) | `#7a5716` | `#f0dfb8` |
+| Rojo texto (`--dash-danger`) | `#8a3d32` | `#f0d0cb` |
+| Azul texto (`--dash-info`) | `#2f5c6b` | `#cfe2e8` |
 
-**Contraste:** tinta sobre papel 15,3:1; dim sobre papel 4,85:1; ámbar sobre papel 5,5:1; crema sobre negro cálido 16,5:1; dim oscura 6,85:1 sobre el lienzo (`#12110f`) y 6,37:1 sobre la tarjeta (`#1b1915`). La acción neutral da 15,2:1 en claro y 16,5:1 en oscuro; el verde no entra en la interfaz. El dim y el ámbar de la maqueta original se corrigieron para pasar AA en texto pequeño; no se usan los valores `#8b8478` ni `#b45309` sobre papel.
+**Contraste:** tinta sobre papel 15,3:1; dim sobre papel 4,85:1; la acción neutral da 15,2:1 en claro y 16,5:1 en oscuro; el azul interactivo #2f5c6b sobre papel da 6,4:1; la tinta de cada familia sobre su fondo pastel supera 5:1. El verde no entra en la interfaz. El dim y el ámbar de la maqueta original se corrigieron para pasar AA en texto pequeño; no se usan los valores `#8b8478` ni `#b45309` sobre papel.
 
 **The Warm Register Rule.** El registro cálido es global: los tokens núcleo de `variables.css` son la fuente. `--dash-*` son alias del dashboard y no se duplican en otras hojas.
 
 ### Login Showcase
 
-La pantalla de acceso es una composición de 1040 px en dos columnas a partir de 1080: placa de programa (592) y tarjeta (400). La placa lleva el nombre del programa, una frase de expediente en una línea y los cuatro módulos en 2×2, con celdas de 11 px que comparten el compás de las etiquetas del formulario; no lleva notas de sedes, leyes ni fechas. La tarjeta usa Surface, radio 16, padding 22 y sombra Ambiente; el formulario separa campos cada 14 px. Los campos miden 36 px (44 en táctil), con texto de 15 (16 en táctil), borde inset de 1 px y foco de tinta de 2 px sin halo ni cambio de fondo; no llevan icono de lead porque la etiqueta y el placeholder bastan, y solo la contraseña conserva el ojo de 36. El h1 es 26/700; el CTA mide 44 y usa la acción neutral `#1b1a17` con tinta `#f4efe5` en claro (15,2:1; hover `#2b2a26`) y `#f4efe5`/`#12110f` en oscuro (16,5:1; hover `#ffffff`). No es una excepción: usa los mismos tokens `--action`/`--on-action` que el resto del producto; el verde no entra en la interfaz y el logo es su único soporte. La tira «Usuarios de prueba» vive bajo la tarjeta, sin nota ni fecha visible; caduca el 5 de diciembre y se oculta. En móvil el orden es tarjeta, placa y demo; la tarjeta va primero para que el acceso no espere al contexto. El pie es solo el copyright. El diálogo usa radio 16, sombra Overlay y 440 px; el código de recuperación usa monoespaciada. Los tokens se declaran en la propia página porque el login no importa `variables.css`; esa duplicación es aislamiento de superficie.
+La pantalla de acceso es una composición de 1040 px en dos columnas a partir de 1080: placa de programa (592) y tarjeta (400). La placa lleva el nombre del programa, una frase de expediente en una línea y los cuatro módulos en 2×2, con celdas de 11 px que comparten el compás de las etiquetas del formulario; no lleva notas de sedes, leyes ni fechas. La tarjeta usa Surface, radio 16, padding 22 y sombra Ambiente; el formulario separa campos cada 14 px. Los campos miden 36 px (44 en táctil), con texto de 15 (16 en táctil), borde inset de 1 px y foco de tinta de 2 px sin halo ni cambio de fondo; no llevan icono de lead porque la etiqueta y el placeholder bastan, y solo la contraseña conserva el ojo de 36. El h1 es 26/700; el CTA mide 44 y usa la acción neutral `#1b1a17` con tinta `#f4efe5` en claro (15,2:1; hover `#2b2a26`) y `#f4efe5`/`#12110f` en oscuro (16,5:1; hover `#ffffff`). No es una excepción: usa los mismos tokens `--action`/`--on-action` que el resto del producto; el chip seleccionado y el enlace «Recuperar acceso» usan el azul interactivo (`--brand-soft`/`--text-brand`), y el verde no entra en la interfaz: el logo es su único soporte. La tira «Usuarios de prueba» vive bajo la tarjeta, sin nota ni fecha visible; caduca el 5 de diciembre y se oculta. En móvil el orden es tarjeta, placa y demo; la tarjeta va primero para que el acceso no espere al contexto. El pie es solo el copyright. El diálogo usa radio 16, sombra Overlay y 440 px; el código de recuperación usa monoespaciada. Los tokens se declaran en la propia página porque el login no importa `variables.css`; esa duplicación es aislamiento de superficie.
 
 ### Dark Theme
 
@@ -249,20 +266,31 @@ No es una paleta nueva: son los mismos roles con otros valores. El fondo es un n
 | Action | `#1b1a17` | `#f4efe5` |
 | Action Hover | `#2b2a26` | `#ffffff` |
 | On Action | `#f4efe5` | `#12110f` |
-| Amber / Blue / Red | `#f59e0b` / `#0284c7` / `#ef4444` | `#ffc247` / `#7cc4ff` / `#ff8b8b` |
+| Sky (fondo / marca / tinta) | `#dfe9ed` / `#5b8fa3` / `#2f5c6b` | `#1c2a31` / `#8fb6c4` / `#cfe2e8` |
+| Butter (fondo / marca / tinta) | `#f4e7c6` / `#b8862b` / `#7a5716` | `#2e2718` / `#d8b566` / `#f0dfb8` |
+| Peach (fondo / marca / tinta) | `#f4d9c8` / `#b06f4f` / `#8b4a2f` | `#33241d` / `#d79a74` / `#f0d3c2` |
+| Blush (fondo / marca / tinta) | `#f3ded6` / `#a85a52` / `#8a3d32` | `#33201f` / `#cf8b7c` / `#f0d0cb` |
+| Interactive | `#2f5c6b` | `#9fc4d0` |
+| On Interactive | `#f4efe5` | `#12110f` |
 | On Solid | `#ffffff` | `#00130c` |
 | On Scrim | `#ffffff` | `#ffffff` |
 
 El logo conserva su verde propio (`#00b494`); no es un token de interfaz ni se usa fuera del asset.
 
 ### Named Rules
-**The Clinical Color Rule.** El color aparece solo si representa una excepción: ámbar, rojo o azul. Lo normal es tinta; si el elemento no informa una excepción, va en neutro. El verde no entra en la interfaz.
+**The Logo Triad Rule.** El rojo, el amarillo y el azul del logo vuelven como tríada de datos en tintes pastel: azul normal/cobertura/interacción, mantequilla atención, durazno leve y rubor severo. El verde del logo no entra en la interfaz.
 
-**The Logo-Only Green Rule.** El verde vive únicamente en el logo. No rellena, no escribe, no enfoca, no marca estado ni selección. El logo es un asset; `logo-green` pertenece al asset, no a la interfaz.
+**The Pastel Data Rule.** El color de datos se compone en tres pasos: fondo pastel para chips y superficies, tono medio para barras y puntos, tinta oscura para el texto. Nunca se llena una tarjeta entera de pastel, nunca se usa pastel en un botón primario y nunca se escribe blanco sobre pastel.
 
-**The Ink Action Rule.** La acción primaria es la tinta del tema: `#1b1a17` en claro y `#f4efe5` en oscuro. No usa `--brand-fill`; el verde no es una acción. `--action`, `--action-hover` y `--on-action` son los únicos tokens del primario. `--brand-*` queda como alias legacy resuelto a tinta/superficie y no se usa en trabajo nuevo.
+**The Blue Interactive Rule.** El azul (`--interactive`/`--brand-fill`) es el color de enlaces, selección, pestañas activas y checkboxes. El CTA y los botones primarios no lo usan: siguen en tinta (`--action`). La selección se lee en azul; la acción se lee en tinta.
 
-**The Action Ink Rule.** La tinta del primario neutral es `On Action` (crema en claro, casi negra en oscuro). La tinta de un relleno saturado (rojo, ámbar, azul) sigue siendo `On Solid` (blanco en claro, casi negra en oscuro). No hay `On Brand` verde.
+**The Clinical Color Rule.** El color codifica estado y serie de datos; no decora. Normal es azul Sky; atención es Butter; leve es Peach; severo es Blush. El verde solo vive en el logo.
+
+**The Logo-Only Green Rule.** El verde vive únicamente en el logo. No rellena, no escribe, no enfoca, no marca estado ni selección. El logo es un asset; `logo-green` pertenece al asset, no a la interfaz. Los nombres legacy `--gt-green`, `--brand-green-deep` y `--chip-green-bg` se conservan por compatibilidad y resuelven a la tríada pastel; no pintan verde.
+
+**The Ink Action Rule.** La acción primaria es la tinta del tema: `#1b1a17` en claro y `#f4efe5` en oscuro. No usa `--brand-fill`; el azul es interacción, no acción. `--action`, `--action-hover` y `--on-action` son los únicos tokens del primario. `--brand-*` es la familia interactiva (azul/pastel) y no se usa para el CTA.
+
+**The Action Ink Rule.** La tinta del primario neutral es `On Action` (crema en claro, casi negra en oscuro); la del azul de selección es `On Interactive` (la misma pareja). La tinta de un relleno saturado (rojo, ámbar, azul) sigue siendo `On Solid` (blanco en claro, casi negra en oscuro). No hay `On Brand` verde.
 
 **The Contrast Per Theme Rule.** El contraste se verifica dos veces, una por tema. Un texto que pasa en claro puede fallar en oscuro porque los tokens de tinta cambian de valor.
 
@@ -375,7 +403,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 ### Status Mark
 
 - **Forma:** punto de 6 px + etiqueta 12.5/600 en Ink Soft, separados 7 px. Sin fondo, sin borde, sin padding ni radio: la fila ya tiene su regla de 1 px y no necesita una caja dentro.
-- **Color:** solo el punto. Tinta (normal), ámbar (atención o pendiente), azul (informativo), rojo (crítico), naranja (severo), gris (sin dato o inactivo). La etiqueta no cambia de color: la palabra dice el estado y el color lo confirma, así el dato sobrevive a la impresión, al daltonismo y al tema oscuro.
+- **Color:** solo el punto. Sky (normal), Butter (atención o pendiente), Sky (informativo), Blush (crítico), Peach (severo), gris (sin dato o inactivo). La etiqueta no cambia de color: la palabra dice el estado y el color lo confirma, así el dato sobrevive a la impresión, al daltonismo y al tema oscuro.
 - **Implementación:** `.status-mark` + `.status-mark-dot` en `components.css`; variantes `--ok`, `--warn`, `--info`, `--danger`, `--severe`, `--idle`. El punto es `aria-hidden`; el texto va siempre y no se sustituye por el color.
 - **Los otros dos trabajos:** un conteo va en micro (9.5/600, Ink Dim, `tabular-nums`) junto a su etiqueta, sin contenedor; una etiqueta o categoría usa Chip (radio 6, tinte al 9 %). Solo el estado lleva marca.
 - **Auditoría:** la severidad (“Sensible”, “Rutinario”) usa esta marca de punto + palabra; no se dibuja como píldora.
@@ -384,7 +412,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 
 ### Buttons
 - **Neutral:** fondo Paper, borde Rule, Ink, 13.5/600, radio 10, padding 8/16.
-- **Primary:** fondo Action (`--action`: #1b1a17 en claro; #f4efe5 en oscuro), tinta `On Action` (crema en claro; casi negra en oscuro) y Sombra Small; solo la acción que cierra la tarea. El hover usa `--action-hover` (#2b2a26 en claro; #ffffff en oscuro). El verde no es un relleno de acción; `--brand-fill` resuelve a la acción por compatibilidad legacy.
+- **Primary:** fondo Action (`--action`: #1b1a17 en claro; #f4efe5 en oscuro), tinta `On Action` (crema en claro; casi negra en oscuro) y Sombra Small; solo la acción que cierra la tarea. El hover usa `--action-hover` (#2b2a26 en claro; #ffffff en oscuro). El azul interactivo no es relleno de acción; `--brand-fill` es la familia de selección y enlaces, no el CTA.
 - **Micro action:** 30×30 con icono en puntero fino; con puntero grueso, 44×44. Toda acción táctil mide al menos 44 px de alto (PRODUCT.md).
 - **Hover / Focus:** fondo Hover, borde Rule Strong; foco visible con anillo de 2 px de `--border-focus` (#1b1a17 en claro; #f4efe5 en oscuro), 15,2:1 / 16,5:1. El verde no se usa para el foco.
 
@@ -400,12 +428,12 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Hover:** fila en Hover. **Mobile:** acordeón de tarjetas con la misma jerarquía.
 
 ### Chip
-- **Sede / etiqueta:** radio 6, padding 4/8, 10.5/600, tinte del distrito al 9 %.
+- **Sede / etiqueta:** radio 6, padding 4/8, 10.5/600, tinte pastel de su familia (Sky, Butter o Blush) al 9 %, texto en la tinta de la familia.
 - **Count:** rol Micro en Ink Dim, separado 6 px.
 
 ### Clinical Band (signature)
 - **Grid:** `8px | 1fr | 88px | 64px`, gap 12, padding 15/0, divisor inferior.
-- **Punto:** 6 px; normal en tinta, leve en ámbar, moderada/severa en rojo.
+- **Punto:** 6 px; normal Sky, riesgo Butter, leve Peach, moderada/severa Blush.
 - **Textos:** nombre 13.5/700; nota 10.5/500 Ink Dim; rango 10.5/600 Ink Dim; cifra Data Value; conteo Micro.
 - **Barra:** 4 px, pista Rule, relleno según banda, transición 600 ms `spring`. Las barras de medida del tablero comparten el mismo lenguaje, no el mismo grosor: la clínica del dashboard usa 10 px, la cobertura 4 px y el equipo 2 px, cada una según su función.
 - **Orden fijo:** normal, leve, moderada/severa.
@@ -415,18 +443,19 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 
 - **Estructura:** una página cálida, no una hoja única. Cabecera, hero de tres cifras, clínica y atención, tríada de servicios, territorio y equipo. Las tarjetas usan `--dash-surface` y `--dash-rule`; el fondo es `--dash-paper`.
 - **Cabecera:** eyebrow 11/800, fecha en `h1` 30/700, subtítulo con sedes activas y sello en vivo (punto + palabra). A la derecha, selector de sede/distrito (por `customSelect`) y exportación secundaria.
-- **Hero:** tres placas en una sola superficie con divisores de 1 px: niños acompañados (40/500, distribución Comas/Carabayllo/Otras), cobertura de tamizaje (40/500, barra de 4 px y aviso de pendientes) y casos ASP activos (40/500, usuarios y casos abiertos). No son cuatro KPIs simétricos.
-- **Clínica y atención:** `1.55fr / 0.75fr`. La clínica lleva prevalencia 30/800, barra apilada de 10 px (normal, riesgo, leve, moderada/severa) y cuatro bandas en columnas con punto, rango, porcentaje y conteo. La atención lista tres frentes con punto de estado, texto y enlace; las filas con cero se ocultan y el vacío dice “Sin pendientes abiertos.” sin inventar un cero.
-- **Servicios:** tres tarjetas (alimentación, educativo, ASP) con icono, cifra 30/800, filas de desglose y una nota de cobertura en educativo. La cifra y las filas bastan; no se añade una barra decorativa.
-- **Territorio y equipo:** `1.6fr / 0.75fr`. La matriz es una tabla semántica con grupos (tríada troncal / iniciativas) y bloque móvil por distrito; el equipo lista voluntarias por servicio con brechas en ámbar, sin badges.
+- **Hero:** tres placas en una sola superficie con divisores de 1 px: niños acompañados (40/500, distribución Comas/Carabayllo/Otras), cobertura de tamizaje (40/500, barra de 4 px y aviso de pendientes) y casos ASP activos (40/500, usuarios y casos abiertos). No son cuatro KPIs simétricos. Una regla de 2 px al pie de cada placa la liga a su serie: Sky, Sky y Blush.
+- **Clínica y atención:** `1.55fr / 0.75fr`. La clínica lleva prevalencia 30/800, barra apilada de 10 px (normal Sky, riesgo Butter, leve Peach, moderada/severa Blush) y cuatro bandas en columnas con punto, rango, porcentaje y conteo. La atención lista tres frentes con punto de estado, texto y enlace; las filas con cero se ocultan y el vacío dice “Sin pendientes abiertos.” sin inventar un cero.
+- **Servicios:** tres tarjetas (alimentación, educativo, ASP) con un cuadro de icono de 30 px: Alimentación Butter, Educativo Sky, Social Blush; la cifra 30/800, las filas de desglose y la nota de cobertura en educativo. La cifra y las filas bastan; no se añade una barra decorativa.
+- **Territorio y equipo:** `1.6fr / 0.75fr`. La matriz es una tabla semántica con grupos (tríada troncal / iniciativas) y bloque móvil por distrito; las cabeceras de Comas y Carabayllo se tiñen Sky y Butter, y el equipo lista voluntarias por servicio con brechas en Butter, sin badges.
 - **Movimiento:** la barra de cobertura y la barra clínica dibujan una vez en la primera entrada (720 ms `spring`, `transform: scaleX()`); las cifras cuentan en `--dur-count` desde el valor visible. Sin cascada por sección. El hover vive en `(hover: hover) and (pointer: fine)`.
 - **Responsive:** 1080 px (hero a dos columnas, clínica y territorio a una, atención primero), 900 px (márgenes del viewport), 820 px (servicios a una, clínica apilada, bandas 2×2), 640 px (hero a una, matriz en bloques), 480 px (bandas a una, botón solo icono).
 - **Estados:** si la capa no está en `ok`, las cifras muestran “—” (no 0), el sello dice “Sincronizando…” o “Sin conexión”, y la atención muestra carga o error. La prehidratación con la copia de sesión escribe los valores antes de que llegue la nube; la hidratación real siempre tiene la última palabra.
 - **Navegación interna:** el `<header>` del topbar persiste entre páginas, igual que el sidebar, para que nombre, rol y avatar no parpadeen. Las rutas visibles del menú precargan su módulo con `modulepreload` en tiempo muerto (descarga y compila, no ejecuta); al navegar, la página entrante se pinta con su marcado real desde el primer frame: no hay esqueleto de bloques grises ni velo de contenido, y los datos se escriben encima cuando llegan. El esqueleto solo reaparece si la carga falla, como tarjeta de error con reintento. Auditoría muestra “Cargando bitácora…” mientras responde el servidor.
+- **Navegación y color:** el activo del sidebar es una superficie neutra; el estado del módulo es punto Sky + palabra, sin píldora; el punto de solicitudes pendientes es Butter; los enlaces de cabecera y de tarjeta usan Sky.
 
 ### Territory Row
 - **Grid:** `1fr 66px`, gap 14, padding 11/0.
-- **Cifra:** Metric Secondary en Ink; segundo distrito en Territory Blue.
+- **Cifra:** Metric Secondary en Ink; segundo distrito en Sky.
 - **Barra:** 4 px. **Sedes:** chips al pie, agrupados por distrito.
 
 ### List Rows
@@ -497,7 +526,8 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Do** verificar cada pieza en claro, en oscuro, en escritorio y en móvil antes de darla por terminada.
 - **Do** declarar los tokens de un componente compartido en su propia hoja, una vez por tema, en lugar de parchear la vista.
 - **Do** usar los tokens núcleo cálidos en todas las vistas; el dashboard puede usar los alias `--dash-*`, que apuntan a ellos.
-- **Do** usar `--action` para la acción sólida y `--on-action` para su tinta; `--brand-*` queda como alias legacy neutral. El verde solo vive en el logo.
+- **Do** usar `--action` para la acción sólida y `--on-action` para su tinta; `--brand-*` es la familia interactiva azul/pastel, no el CTA. El verde solo vive en el logo.
+- **Do** usar la tríada del logo con las tres capas: fondo pastel, marca media y tinta oscura. El color codifica dato o estado; no rellena tarjetas completas.
 - **Do** usar `--border-focus` para todo anillo de teclado, con 2 px y offset 2; es el único indicador de foco y debe superar 3:1.
 - **Do** reservar el `h1` para el título de la vista y usar `h2` para sus secciones; la marca es texto.
 - **Do** dar 44 px de alto a toda acción táctil con puntero grueso.
@@ -508,16 +538,16 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Don't** resolver la cascada con `!important`; si una regla no gana, el selector está mal planteado.
 - **Don't** inventar tamaños fuera de la rampa cerrada.
 - **Don't** anidar tarjetas ni duplicar la receta de tarjeta dentro de una hoja de vista.
-- **Don't** usar color como relleno decorativo de secciones: el color solo aparece para excepción.
+- **Don't** usar color como relleno decorativo de secciones: cada tinte debe codificar dato o estado.
 - **Don't** reutilizar una clase de otra página cambiándole tamaño o peso (el caso `.dash-kpi-value` en salud).
 - **Don't** fijar un tema con valores absolutos (`#ffffff`, `#000000`) en pantalla; usa los tokens. La impresión sí puede forzar papel blanco y tinta negra.
 - **Don't** dibujar badges ni píldoras tintadas para estado, conteo o etiqueta: el estado va como marca de punto + palabra, el conteo en micro y la etiqueta como Chip.
 - **Don't** añadir sombras de color para señalar alertas.
 - **Don't** crear una paleta paralela: `--dash-*` son alias del dashboard, no valores propios que se copian a otras hojas.
 - **Don't** usar verde en la interfaz: no rellena, no escribe, no enfoca, no marca estado ni selección. La acción va con `--action` y `--on-action`; el logo es la única excepción verde.
-- **Don't** usar rojo en una barra de cobertura que no sea una alerta: el color de estado va en el punto o en el texto, no en la longitud de la barra.
-- **Don't** pintar texto con verde: los enlaces, las etiquetas y el texto de marca usan tinta (`--text-main`/`--text-muted`). El color queda para excepción (ámbar, rojo, azul).
-- **Don't** usar `--brand-hover` ni `--brand-fill` como color de texto de un enlace: los enlaces usan tinta y subrayado; no hay verde de enlace.
+- **Don't** usar Blush ni Butter en una barra de cobertura que no sea una alerta: la cobertura usa Sky; el estado va en el punto o en el texto, no en la longitud de la barra.
+- **Don't** pintar texto con verde: los enlaces usan el azul interactivo (`--text-brand`), las etiquetas usan tinta y el verde queda solo en el logo.
+- **Don't** llenar una tarjeta completa de pastel, usar pastel como relleno de un botón primario ni escribir blanco sobre un pastel: el pastel es una capa de datos, no una superficie de acción.
 - **Don't** quitar el `outline` de un control con `:focus-visible`: el borde de 1 px no es un indicador de foco suficiente.
 - **Don't** usar `h1` para la marca ni `h2` para el título de la página: rompe el árbol de navegación por encabezados.
 - **Don't** dejar una acción táctil por debajo de 44 px de alto, aunque en escritorio se vea a 30 o 34.

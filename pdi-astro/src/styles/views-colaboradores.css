@@ -15,13 +15,13 @@
   --colab-iglesia-bg: var(--surface-3, #f1f5f9);
   --colab-iglesia-border: var(--border-medium);
 
-  --colab-pdi-text: var(--text-main);
-  --colab-pdi-bg: var(--surface-2);
-  --colab-pdi-border: var(--border-bright);
+  --colab-pdi-text: var(--chart-blue-ink);
+  --colab-pdi-bg: var(--chart-blue-bg);
+  --colab-pdi-border: var(--chart-blue-border);
 
-  --colab-wa-text: var(--text-main);
-  --colab-wa-bg: var(--surface-2);
-  --colab-wa-border: var(--border-bright);
+  --colab-wa-text: var(--chart-butter-ink);
+  --colab-wa-bg: var(--chart-butter-bg);
+  --colab-wa-border: var(--chart-butter-border);
 }
 
 /* Tira de Cobertura y KPIs */

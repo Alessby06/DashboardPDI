@@ -830,9 +830,9 @@
   }
 
   .audit-filters-footer .btn-apply-filters {
-  background: var(--brand-fill);
+  background: var(--action);
   background-image: none;
-  color: var(--on-brand);
+  color: var(--on-action);
 }
 
 .filter-count {
@@ -1095,9 +1095,9 @@
     cursor: pointer;
     touch-action: manipulation;
     /* Sólido con la tinta de acción: crema en claro, casi negro en oscuro. */
-    background: var(--brand-fill);
+    background: var(--action);
     background-image: none;
-    color: var(--on-brand);
+    color: var(--on-action);
   }
 
   .audit-filters-footer .btn-apply-filters svg {

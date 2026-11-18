@@ -525,14 +525,14 @@
 }
 
 .perfil-btn--primary {
-  background: var(--brand-fill);
-  border-color: var(--brand-fill);
-  color: var(--on-brand);
+  background: var(--action);
+  border-color: var(--action);
+  color: var(--on-action);
 }
 
 html[data-theme="dark"] .perfil-btn--primary {
-  background: var(--brand-fill);
-  color: var(--on-brand);
+  background: var(--action);
+  color: var(--on-action);
 }
 
 .perfil-btn--soft {
