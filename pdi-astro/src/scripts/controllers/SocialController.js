@@ -293,7 +293,7 @@ export const SocialController = {
     if (scoreValEl) scoreValEl.textContent = `${res.total} / 100`;
     if (scoreBarEl) {
       scoreBarEl.style.width = `${res.total}%`;
-      scoreBarEl.style.backgroundColor = res.color;
+      scoreBarEl.style.backgroundColor = res.fill || res.color;
     }
     if (categoryBadgeEl) {
       categoryBadgeEl.className = `status-mark ${res.markClass}`;
