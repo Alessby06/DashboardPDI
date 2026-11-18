@@ -1,9 +1,9 @@
 ---
 import Icon from '../components/Icon.astro';
 import '../styles/fonts.css';
-// Login page — acceso al PDI. Una columna de 480 px: cabecera, tarjeta de
-// acceso, usuarios de prueba y pie. La autenticación y la recuperación viven
-// en la API; aquí solo se compone la superficie.
+// Login page — ingreso al PDI. Composición de 1040 px: placa de programa y
+// tarjeta de 400. La autenticación y la recuperación viven en la API; aquí
+// solo se compone la superficie.
 
 // Edicion visual en vivo de impeccable: mismo toggle que AppLayout. La
 // inyeccion de live.js solo entra en dev y con la llave activa; el build de
@@ -18,8 +18,8 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="description" content="Sistema PDI — Programa de Infancia Saludable de la Asociación Cultural Johannes Gutenberg. Gestión de usuarios, salud, educación y voluntariado." />
-  <title>Acceso al PDI | PDI — Johannes Gutenberg</title>
+  <meta name="description" content="Ingreso al Programa Infancia Saludable de la Asociación Cultural Johannes Gutenberg: coordinación, salud, educación y atención social." />
+  <title>Ingreso al PDI | Johannes Gutenberg</title>
   <link rel="icon" type="image/png" href="/assets/jg-icon.png" />
   <link rel="apple-touch-icon" href="/assets/jg-icon.png" />
   <meta name="theme-color" id="metaThemeColor" content="#f2ece1" />
@@ -73,7 +73,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
   <style>
     /* =========================================================================
-       ACCESO · una sola columna
+       ACCESO · placa + tarjeta
        El login comparte la gramática del sistema: papel cálido, tarjeta plana,
        campos en caja, radios 10/16 y una única sombra ambiente.
        ========================================================================= */
