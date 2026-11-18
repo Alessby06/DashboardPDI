@@ -331,7 +331,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       position: relative;
       display: flex;
       align-items: center;
-      height: 44px;
+      height: 36px;
       border: 0;
       border-radius: 10px;
       background: var(--field-bg);
@@ -353,35 +353,23 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       box-shadow: inset 0 0 0 1px var(--danger);
     }
 
-    .control:has(input[aria-invalid="true"]) .lead {
-      color: var(--danger);
-    }
-
     .control:has(input[aria-invalid="true"]:focus-visible) {
       outline-color: var(--danger);
-    }
-
-    .control .lead {
-      position: absolute;
-      left: 12px;
-      color: var(--muted);
-      pointer-events: none;
-      transition: color 160ms ease;
-    }
-
-    .control:focus-within .lead {
-      color: var(--brand);
     }
 
     .control input {
       width: 100%;
       height: 100%;
-      padding: 0 46px 0 38px;
+      padding: 0 14px;
       border: 0;
       background: transparent;
       color: var(--ink);
-      font-size: 16.5px;
+      font-size: 16px;
       outline: none;
+    }
+
+    .control:has(.eye) input {
+      padding-right: 40px;
     }
 
     .control input::placeholder {
@@ -432,8 +420,8 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       right: 0;
       display: grid;
       place-items: center;
-      width: 44px;
-      height: 44px;
+      width: 36px;
+      height: 36px;
       border: 0;
       border-radius: 10px;
       background: transparent;
@@ -1112,7 +1100,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     .stage {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 420px;
+      grid-template-columns: minmax(0, 1fr) 400px;
       align-items: start;
       gap: 48px;
       width: min(calc(100% - 64px), 1040px);
@@ -1136,7 +1124,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     .plate-desc {
       margin-top: 10px;
-      max-width: 36ch;
+      max-width: 72ch;
       font-size: 13px;
       line-height: 1.55;
     }
@@ -1144,13 +1132,14 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     .plate-modules {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      margin-top: 20px;
+      row-gap: 14px;
+      margin-top: 24px;
       border-top: 1px solid var(--line);
     }
 
     .plate-mod {
       min-width: 0;
-      padding: 13px 16px 13px 0;
+      padding: 11px 16px 11px 0;
       border-bottom: 1px solid var(--line);
     }
 
@@ -1159,7 +1148,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .plate-mod:nth-child(even) {
-      padding: 13px 0 13px 16px;
+      padding: 11px 0 11px 16px;
     }
 
     .plate-mod b {
@@ -1185,7 +1174,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .card {
-      padding: 24px;
+      padding: 22px;
     }
 
     .card h1 {
@@ -1199,8 +1188,8 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .form {
-      gap: 16px;
-      margin-top: 18px;
+      gap: 14px;
+      margin-top: 16px;
     }
 
     .field label {
@@ -1208,16 +1197,16 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .control {
-      height: 40px;
+      height: 36px;
     }
 
     .eye {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
     }
 
     .control input {
-      font-size: 16.5px;
+      font-size: 16px;
     }
 
     .btn-primary-action {
@@ -1344,7 +1333,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       }
 
       .access {
-        max-width: 420px;
+        max-width: 400px;
       }
     }
 
@@ -1380,7 +1369,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       }
 
       .access {
-        max-width: 420px;
+        max-width: 400px;
       }
     }
 
@@ -1404,6 +1393,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
       .plate-modules {
         margin-top: 8px;
+        row-gap: 8px;
       }
 
       .plate-mod {
@@ -1503,7 +1493,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
   <main class="stage">
     <aside class="plate" aria-label="Programa Infancia Saludable">
       <h2>Programa Infancia Saludable</h2>
-      <p class="plate-desc">Un solo expediente para padrón, salud, educación, derivaciones y voluntariado, con trazabilidad de cada acción.</p>
+      <p class="plate-desc">Padrón, educación, salud y atención social en un mismo expediente.</p>
       <div class="plate-modules">
         <div class="plate-mod"><b>Desayuno infantil</b><span>Antropometría, asistencia y tamizaje.</span></div>
         <div class="plate-mod"><b>Acompañamiento educativo</b><span>Refuerzo escolar y soporte pedagógico.</span></div>
@@ -1543,9 +1533,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
         <div class="field">
           <label for="inputUsuario">Usuario institucional</label>
           <div class="control">
-            <span class="lead" aria-hidden="true">
-              <Icon name="persona.usuario" size={18} />
-            </span>
             <input
               type="text"
               id="inputUsuario"
@@ -1565,9 +1552,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
         <div class="field">
           <label for="inputClave">Contraseña</label>
           <div class="control">
-            <span class="lead" aria-hidden="true">
-              <Icon name="password.candado" size={18} />
-            </span>
             <input
               type="password"
               id="inputClave"
@@ -1590,9 +1574,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
           <label for="inputCodigoTotp">Código de verificación</label>
           <p class="totp-status" id="totpStatus" role="status">Contraseña verificada. Ingresa el código de 6 dígitos de tu app de autenticación.</p>
           <div class="control">
-            <span class="lead" aria-hidden="true">
-              <Icon name="salud.escudo" size={18} />
-            </span>
             <input
               type="text"
               id="inputCodigoTotp"
@@ -1677,7 +1658,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
           <div class="field">
             <label for="recUsuario">Usuario institucional</label>
             <div class="control">
-              <span class="lead" aria-hidden="true"><Icon name="persona.usuario" size={18} /></span>
               <input id="recUsuario" name="usuario" type="text" placeholder="ej. coordinacion" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="32" />
             </div>
           </div>

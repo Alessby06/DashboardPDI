@@ -229,7 +229,7 @@ El sistema usa un registro cálido de neutros. Los valores viven en `variables.c
 
 ### Login Showcase
 
-La pantalla de acceso es una composición de 1040 px en dos columnas a partir de 1080: placa de programa (572) y tarjeta (420). La placa lleva el nombre del programa, una frase de expediente y los cuatro módulos en 2×2; no lleva notas de sedes, leyes ni fechas. La tarjeta usa Surface, radio 16, sombra Ambiente; los campos miden 40 px (44 en táctil) con borde inset de 1 px y anillo de foco de 2 px con offset 2. El h1 es 26/700; el CTA mide 44 y usa el verde de marca `#00b494` con tinta `#00130c` en claro (7,2:1; hover `#00a886`) y `#2ee6a0`/`#00130c` en oscuro. Es una excepción local del login: el resto del producto conserva `--brand-fill` `#00715d`; el brillante no se usa con blanco. La tira «Usuarios de prueba» vive bajo la tarjeta, sin nota ni fecha visible; caduca el 5 de diciembre y se oculta. El pie es solo el copyright. El diálogo usa radio 16, sombra Overlay y 440 px; el código de recuperación usa monoespaciada. Los tokens se declaran en la propia página porque el login no importa `variables.css`; esa duplicación es aislamiento de superficie.
+La pantalla de acceso es una composición de 1040 px en dos columnas a partir de 1080: placa de programa (592) y tarjeta (400). La placa lleva el nombre del programa, una frase de expediente en una línea y los cuatro módulos en 2×2, con celdas de 11 px que comparten el compás de las etiquetas del formulario; no lleva notas de sedes, leyes ni fechas. La tarjeta usa Surface, radio 16, padding 22 y sombra Ambiente; el formulario separa campos cada 14 px. Los campos miden 36 px (44 en táctil), con texto de 16, borde inset de 1 px y anillo de foco de 2 px con offset 2; no llevan icono de lead porque la etiqueta y el placeholder bastan, y solo la contraseña conserva el ojo de 36. El h1 es 26/700; el CTA mide 44 y usa el verde de marca `#00b494` con tinta `#00130c` en claro (7,2:1; hover `#00a886`) y `#2ee6a0`/`#00130c` en oscuro. Es una excepción local del login: el resto del producto conserva `--brand-fill` `#00715d`; el brillante no se usa con blanco. La tira «Usuarios de prueba» vive bajo la tarjeta, sin nota ni fecha visible; caduca el 5 de diciembre y se oculta. El pie es solo el copyright. El diálogo usa radio 16, sombra Overlay y 440 px; el código de recuperación usa monoespaciada. Los tokens se declaran en la propia página porque el login no importa `variables.css`; esa duplicación es aislamiento de superficie.
 
 ### Dark Theme
 
@@ -293,7 +293,7 @@ No es una paleta nueva: son los mismos roles con otros valores. El fondo es un n
 
 **The Tabular Rule.** Toda cifra que forme columna o se compare verticalmente lleva `font-variant-numeric: tabular-nums`.
 
-**The Closed Ramp Rule.** Solo existen estos tamaños: 9.5, 10.5, 11, 11.5, 12, 12.5, 13, 13.5, 14, 15, 16.5, 20, 22, 26, 30, 40 px, más el `clamp` del Title. Un tamaño nuevo se añade al contrato antes de usarse.
+**The Closed Ramp Rule.** Solo existen estos tamaños: 9.5, 10.5, 11, 11.5, 12, 12.5, 13, 13.5, 14, 15, 16, 16.5, 20, 22, 26, 30, 40 px, más el `clamp` del Title. Un tamaño nuevo se añade al contrato antes de usarse. **16** es el texto de campo de formulario y el mínimo de iOS para no ampliar la página al enfocar; no se usa para prosa.
 
 **The Panel vs Card Rule.** El título de un panel de datos es más pequeño que el de una tarjeta de contenido: 14/800 frente a 16.5/700. El panel gana densidad; la tarjeta gana lectura.
 
