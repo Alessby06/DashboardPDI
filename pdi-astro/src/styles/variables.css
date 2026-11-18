@@ -52,6 +52,13 @@
   --chart-blush-border: #e2bdb2;
   --chart-blush: #a85a52;
   --chart-blush-ink: #8a3d32;
+  /* Capa de relleno para masas grandes (barra clinica de 10 px, reglas).
+     El hex del oscuro sobre papel se lava; el relleno pide menos croma que el
+     punto de 6 px, que sigue usando --chart-* para conservar contraste. */
+  --chart-blue-fill: #8fb6c4;
+  --chart-butter-fill: #d8b566;
+  --chart-peach-fill: #d79a74;
+  --chart-blush-fill: #cf8b7c;
   --chart-track: #e8dfd1;
   --interactive: #2f5c6b;
   --interactive-hover: #244b58;
@@ -338,6 +345,11 @@
   --chart-blush-border: #5c3835;
   --chart-blush: #cf8b7c;
   --chart-blush-ink: #f0d0cb;
+  /* En oscuro el relleno coincide con la marca: ya contrasta con el fondo. */
+  --chart-blue-fill: #8fb6c4;
+  --chart-butter-fill: #d8b566;
+  --chart-peach-fill: #d79a74;
+  --chart-blush-fill: #cf8b7c;
   --chart-track: #2f2b25;
   --interactive: #9fc4d0;
   --interactive-hover: #b7d6df;

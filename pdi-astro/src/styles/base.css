@@ -387,8 +387,8 @@
     }
 
     .project-option.active {
-      background: var(--surface-1);
-      border-color: var(--border-bright);
+      background: var(--surface-2);
+      border-color: transparent;
       color: var(--text-main);
       cursor: default;
     }
@@ -417,7 +417,7 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      color: var(--chart-blue-ink);
+      color: var(--text-main);
     }
 
     .project-option.active .project-state::before {
@@ -425,7 +425,7 @@
       width: 5px;
       height: 5px;
       border-radius: var(--radius-full);
-      background: var(--chart-blue);
+      background: var(--interactive);
     }
 
     .logo-text {
@@ -554,12 +554,12 @@
     .nav-btn.active {
       background: var(--surface-2);
       color: var(--text-main);
-      border-color: var(--border-bright);
+      border-color: transparent;
       font-weight: 700;
     }
 
     .nav-btn.active svg {
-      stroke: currentColor;
+      stroke: var(--interactive);
     }
 
     /* Role Restricted Tab Styles (Grisáceo / Deshabilitado tanto en PC como en Móvil) */

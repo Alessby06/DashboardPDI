@@ -266,10 +266,10 @@ No es una paleta nueva: son los mismos roles con otros valores. El fondo es un n
 | Action | `#1b1a17` | `#f4efe5` |
 | Action Hover | `#2b2a26` | `#ffffff` |
 | On Action | `#f4efe5` | `#12110f` |
-| Sky (fondo / marca / tinta) | `#dfe9ed` / `#5b8fa3` / `#2f5c6b` | `#1c2a31` / `#8fb6c4` / `#cfe2e8` |
-| Butter (fondo / marca / tinta) | `#f4e7c6` / `#b8862b` / `#7a5716` | `#2e2718` / `#d8b566` / `#f0dfb8` |
-| Peach (fondo / marca / tinta) | `#f4d9c8` / `#b06f4f` / `#8b4a2f` | `#33241d` / `#d79a74` / `#f0d3c2` |
-| Blush (fondo / marca / tinta) | `#f3ded6` / `#a85a52` / `#8a3d32` | `#33201f` / `#cf8b7c` / `#f0d0cb` |
+| Sky (fondo / marca / relleno / tinta) | `#dfe9ed` / `#5b8fa3` / `#8fb6c4` / `#2f5c6b` | `#1c2a31` / `#8fb6c4` / `#8fb6c4` / `#cfe2e8` |
+| Butter (fondo / marca / relleno / tinta) | `#f4e7c6` / `#b8862b` / `#d8b566` / `#7a5716` | `#2e2718` / `#d8b566` / `#d8b566` / `#f0dfb8` |
+| Peach (fondo / marca / relleno / tinta) | `#f4d9c8` / `#b06f4f` / `#d79a74` / `#8b4a2f` | `#33241d` / `#d79a74` / `#d79a74` / `#f0d3c2` |
+| Blush (fondo / marca / relleno / tinta) | `#f3ded6` / `#a85a52` / `#cf8b7c` / `#8a3d32` | `#33201f` / `#cf8b7c` / `#cf8b7c` / `#f0d0cb` |
 | Interactive | `#2f5c6b` | `#9fc4d0` |
 | On Interactive | `#f4efe5` | `#12110f` |
 | On Solid | `#ffffff` | `#00130c` |
@@ -280,7 +280,7 @@ El logo conserva su verde propio (`#00b494`); no es un token de interfaz ni se u
 ### Named Rules
 **The Logo Triad Rule.** El rojo, el amarillo y el azul del logo vuelven como tríada de datos en tintes pastel: azul normal/cobertura/interacción, mantequilla atención, durazno leve y rubor severo. El verde del logo no entra en la interfaz.
 
-**The Pastel Data Rule.** El color de datos se compone en tres pasos: fondo pastel para chips y superficies, tono medio para barras y puntos, tinta oscura para el texto. Nunca se llena una tarjeta entera de pastel, nunca se usa pastel en un botón primario y nunca se escribe blanco sobre pastel.
+**The Pastel Data Rule.** El color de datos se compone en tres pasos: fondo pastel para chips y superficies, tono medio para barras y puntos, y tinta oscura para el texto. Los puntos de 6 px usan `--chart-*` (marca); las masas grandes usan `--chart-*-fill`, un paso más claro que sobre papel no se lee como bloque. En oscuro ambos coinciden. Nunca se llena una tarjeta entera de pastel, nunca se usa pastel en un botón primario y nunca se escribe blanco sobre pastel.
 
 **The Blue Interactive Rule.** El azul (`--interactive`/`--brand-fill`) es el color de enlaces, selección, pestañas activas y checkboxes. El CTA y los botones primarios no lo usan: siguen en tinta (`--action`). La selección se lee en azul; la acción se lee en tinta.
 
@@ -443,7 +443,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 
 - **Estructura:** una página cálida, no una hoja única. Cabecera, hero de tres cifras, clínica y atención, tríada de servicios, territorio y equipo. Las tarjetas usan `--dash-surface` y `--dash-rule`; el fondo es `--dash-paper`.
 - **Cabecera:** eyebrow 11/800, fecha en `h1` 30/700, subtítulo con sedes activas y sello en vivo (punto + palabra). A la derecha, selector de sede/distrito (por `customSelect`) y exportación secundaria.
-- **Hero:** tres placas en una sola superficie con divisores de 1 px: niños acompañados (40/500, distribución Comas/Carabayllo/Otras), cobertura de tamizaje (40/500, barra de 4 px y aviso de pendientes) y casos ASP activos (40/500, usuarios y casos abiertos). No son cuatro KPIs simétricos. Una regla de 2 px al pie de cada placa la liga a su serie: Sky, Sky y Blush.
+- **Hero:** tres placas en una sola superficie con divisores de 1 px: niños acompañados (40/500, distribución Comas/Carabayllo/Otras), cobertura de tamizaje (40/500, barra de 4 px y aviso de pendientes) y casos ASP activos (40/500, usuarios y casos abiertos). No son cuatro KPIs simétricos y no llevan regla al pie: la barra de cobertura, las mini barras y los puntos ya dicen la serie, y una tercera regla roja hacía que «Casos ASP» se leyera como alerta.
 - **Clínica y atención:** `1.55fr / 0.75fr`. La clínica lleva prevalencia 30/800, barra apilada de 10 px (normal Sky, riesgo Butter, leve Peach, moderada/severa Blush) y cuatro bandas en columnas con punto, rango, porcentaje y conteo. La atención lista tres frentes con punto de estado, texto y enlace; las filas con cero se ocultan y el vacío dice “Sin pendientes abiertos.” sin inventar un cero.
 - **Servicios:** tres tarjetas (alimentación, educativo, ASP) con un cuadro de icono de 30 px: Alimentación Butter, Educativo Sky, Social Blush; la cifra 30/800, las filas de desglose y la nota de cobertura en educativo. La cifra y las filas bastan; no se añade una barra decorativa.
 - **Territorio y equipo:** `1.6fr / 0.75fr`. La matriz es una tabla semántica con grupos (tríada troncal / iniciativas) y bloque móvil por distrito; las cabeceras de Comas y Carabayllo se tiñen Sky y Butter, y el equipo lista voluntarias por servicio con brechas en Butter, sin badges.
@@ -451,7 +451,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Responsive:** 1080 px (hero a dos columnas, clínica y territorio a una, atención primero), 900 px (márgenes del viewport), 820 px (servicios a una, clínica apilada, bandas 2×2), 640 px (hero a una, matriz en bloques), 480 px (bandas a una, botón solo icono).
 - **Estados:** si la capa no está en `ok`, las cifras muestran “—” (no 0), el sello dice “Sincronizando…” o “Sin conexión”, y la atención muestra carga o error. La prehidratación con la copia de sesión escribe los valores antes de que llegue la nube; la hidratación real siempre tiene la última palabra.
 - **Navegación interna:** el `<header>` del topbar persiste entre páginas, igual que el sidebar, para que nombre, rol y avatar no parpadeen. Las rutas visibles del menú precargan su módulo con `modulepreload` en tiempo muerto (descarga y compila, no ejecuta); al navegar, la página entrante se pinta con su marcado real desde el primer frame: no hay esqueleto de bloques grises ni velo de contenido, y los datos se escriben encima cuando llegan. El esqueleto solo reaparece si la carga falla, como tarjeta de error con reintento. Auditoría muestra “Cargando bitácora…” mientras responde el servidor.
-- **Navegación y color:** el activo del sidebar es una superficie neutra; el estado del módulo es punto Sky + palabra, sin píldora; el punto de solicitudes pendientes es Butter; los enlaces de cabecera y de tarjeta usan Sky.
+- **Navegación y color:** el activo del sidebar y el módulo activo son superficie `surface-2` sin borde, con el icono en azul interactivo; el foco de teclado conserva su anillo de 2 px con offset. El módulo activo usa punto + palabra, sin píldora; el punto de solicitudes pendientes es Butter; los enlaces de cabecera y de tarjeta usan Sky.
 
 ### Territory Row
 - **Grid:** `1fr 66px`, gap 14, padding 11/0.

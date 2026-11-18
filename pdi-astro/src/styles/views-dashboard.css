@@ -218,25 +218,9 @@ body[data-page="dashboard"] #mainContent {
 .dash-kpi {
   min-width: 0;
   padding: 22px 24px 20px;
-  position: relative;
 }
 
 .dash-kpi + .dash-kpi { border-left: 1px solid var(--dash-rule); }
-
-.dash-kpi::after {
-  content: "";
-  position: absolute;
-  left: 24px;
-  right: 24px;
-  bottom: 0;
-  height: 2px;
-  border-radius: var(--radius-full);
-  background: var(--kpi-rule, var(--chart-blue));
-}
-
-.dash-kpi:nth-child(1) { --kpi-rule: var(--chart-blue); }
-.dash-kpi:nth-child(2) { --kpi-rule: var(--chart-blue); }
-.dash-kpi:nth-child(3) { --kpi-rule: var(--chart-blush); }
 
 .dash-rotulo {
   display: block;
@@ -416,10 +400,10 @@ body[data-page="dashboard"] #mainContent {
   height: 100%;
 }
 
-.dash-seg-normal { background: var(--gt-green); }
-.dash-seg-riesgo { background: var(--gt-yellow); }
-.dash-seg-leve { background: var(--gt-orange); }
-.dash-seg-mod { background: var(--gt-red); }
+.dash-seg-normal { background: var(--chart-blue-fill); }
+.dash-seg-riesgo { background: var(--chart-butter-fill); }
+.dash-seg-leve { background: var(--chart-peach-fill); }
+.dash-seg-mod { background: var(--chart-blush-fill); }
 
 .dash-bandas {
   display: grid;
