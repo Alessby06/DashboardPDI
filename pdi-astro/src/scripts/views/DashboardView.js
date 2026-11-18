@@ -348,18 +348,15 @@ export const DashboardView = {
 
     if (estado === "sin_conexion" && !ultima) {
       chip.classList.add("is-warn");
-      chip.title = "Sin conexión con la nube";
       poner("Sin conexión");
       return;
     }
     if (estado !== "ok" && !ultima) {
       chip.classList.add("is-loading");
-      chip.title = "Sincronizando datos...";
       poner("Sincronizando…");
       return;
     }
     if (!ultima) {
-      chip.title = "Conectado al servidor";
       poner("En vivo");
       return;
     }
@@ -371,7 +368,6 @@ export const DashboardView = {
       fecha = null;
     }
     if (!fecha || Number.isNaN(fecha.getTime())) {
-      chip.title = "Conectado al servidor";
       poner("En vivo");
       return;
     }
@@ -394,14 +390,11 @@ export const DashboardView = {
 
     if (estado === "sin_conexion") {
       chip.classList.add("is-warn");
-      chip.title = `Sin conexión · Última sincronización: ${detalleSinc}`;
       poner("Sin conexión");
     } else if (estado !== "ok") {
       chip.classList.add("is-loading");
-      chip.title = "Sincronizando con la nube…";
       poner("Sincronizando…");
     } else {
-      chip.title = `En vivo · Sincronizado ${detalleSinc}`;
       poner("En vivo");
     }
     const edad = Math.max(0, Date.now() - fecha.getTime());
