@@ -895,7 +895,7 @@ body[data-page="dashboard"] #mainContent {
   display: block;
   height: 100%;
   border-radius: var(--radius-full);
-  background: var(--gt-green);
+  background: var(--chart-blue-fill);
 }
 
 .dash-vol-flag {
@@ -927,7 +927,7 @@ body[data-page="dashboard"] #mainContent {
   font-weight: 700;
 }
 
-.dash-vol-row.is-gap .dash-vol-fill { background: var(--gt-orange); }
+.dash-vol-row.is-gap .dash-vol-fill { background: var(--chart-peach-fill); }
 .dash-vol-row.is-idle { opacity: 0.68; }
 
 .dash-conciliacion {

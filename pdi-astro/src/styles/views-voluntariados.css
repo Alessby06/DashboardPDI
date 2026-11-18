@@ -504,9 +504,9 @@
   transition: width var(--dur-bar) cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.vol-reparto-seg--food   { background: var(--gt-green); }
-.vol-reparto-seg--casita { background: var(--gt-yellow); }
-.vol-reparto-seg--asp    { background: var(--gt-blue, var(--gt-blue)); }
+.vol-reparto-seg--food   { background: var(--chart-blue-fill); }
+.vol-reparto-seg--casita { background: var(--chart-butter-fill); }
+.vol-reparto-seg--asp    { background: var(--chart-blush-fill); }
 .vol-reparto-seg--otros  { background: var(--text-dim); }
 
 .vol-reparto-list {
@@ -544,9 +544,9 @@
   border-radius: 50%;
 }
 
-.vol-reparto-dot--food   { background: var(--gt-green); }
-.vol-reparto-dot--casita { background: var(--gt-yellow); }
-.vol-reparto-dot--asp    { background: var(--gt-blue, var(--gt-blue)); }
+.vol-reparto-dot--food   { background: var(--chart-blue); }
+.vol-reparto-dot--casita { background: var(--chart-butter); }
+.vol-reparto-dot--asp    { background: var(--chart-blush); }
 .vol-reparto-dot--otros  { background: var(--text-dim); }
 
 .vol-reparto-name {
