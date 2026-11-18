@@ -85,11 +85,10 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       --on-brand: #ffffff;
       --danger: #b91c1c;
       --danger-soft: #fbe9e7;
-      --focus: #00715d;
+      --focus: #1b1a17;
       --field-border: #c8bfae;
       --field-border-strong: #a89d8b;
       --field-bg: #efe8db;
-      --field-bg-focus: #fbf8f1;
       --hover: #ece4d6;
       --line-strong: #a89d8b;
       --scrim: rgba(18, 17, 15, 0.65);
@@ -119,11 +118,10 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       --on-brand: #00130c;
       --danger: #ff8b8b;
       --danger-soft: rgba(239, 68, 68, 0.12);
-      --focus: #2ee6a0;
+      --focus: #f4efe5;
       --field-border: #4a443a;
       --field-border-strong: #8a8172;
       --field-bg: #191713;
-      --field-bg-focus: #1b1915;
       --hover: rgba(244, 239, 229, 0.08);
       --line-strong: #8a8172;
       --scrim: rgba(18, 17, 15, 0.65);
@@ -336,25 +334,20 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       border-radius: 10px;
       background: var(--field-bg);
       box-shadow: inset 0 0 0 1px var(--field-border);
-      transition: box-shadow 160ms ease, background-color 160ms ease;
+      transition: box-shadow 160ms ease;
     }
 
     .control:focus-within {
       box-shadow: inset 0 0 0 1px var(--field-border-strong);
-      background: var(--field-bg-focus);
     }
 
     .control:has(input:focus-visible) {
       outline: 2px solid var(--focus);
-      outline-offset: 2px;
+      outline-offset: 0;
     }
 
     .control:has(input[aria-invalid="true"]) {
       box-shadow: inset 0 0 0 1px var(--danger);
-    }
-
-    .control:has(input[aria-invalid="true"]:focus-visible) {
-      outline-color: var(--danger);
     }
 
     .control input {
@@ -364,7 +357,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       border: 0;
       background: transparent;
       color: var(--ink);
-      font-size: 16px;
+      font-size: 15px;
       outline: none;
     }
 
@@ -853,10 +846,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       background: var(--paper);
     }
 
-    .rec-dialog .control:focus-within {
-      background: var(--paper);
-    }
-
     .rec-hp {
       position: absolute;
       left: -9999px;
@@ -1206,7 +1195,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .control input {
-      font-size: 16px;
+      font-size: 15px;
     }
 
     .btn-primary-action {
@@ -1297,6 +1286,10 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       .eye,
       .theme {
         height: 44px;
+      }
+
+      .control input {
+        font-size: 16px;
       }
 
       .eye {
@@ -1472,7 +1465,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 </head>
 <body>
 
-  <a class="skip-link" href="#loginForm">Saltar al formulario de acceso</a>
+  <a class="skip-link" href="#inputUsuario">Saltar al formulario de acceso</a>
 
   <header class="top">
     <div class="brand">
@@ -1529,7 +1522,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
         </p>
       </noscript>
 
-      <form class="form" id="loginForm" autocomplete="on" novalidate tabindex="-1">
+      <form class="form" id="loginForm" autocomplete="on" novalidate>
         <div class="field">
           <label for="inputUsuario">Usuario institucional</label>
           <div class="control">
