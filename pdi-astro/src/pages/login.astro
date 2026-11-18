@@ -362,6 +362,14 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       padding-right: 40px;
     }
 
+    /* El navegador pinta su propio ojo y su botón de credenciales dentro del
+       campo; el login ya tiene el suyo. Se ocultan para que no se dupliquen. */
+    .control input[type="password"]::-ms-reveal,
+    .control input[type="password"]::-ms-clear,
+    .control input[type="password"]::-webkit-credentials-auto-fill-button {
+      display: none;
+    }
+
     .control input::placeholder {
       color: var(--muted);
       opacity: 1;
