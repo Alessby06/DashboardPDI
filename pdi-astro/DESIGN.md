@@ -213,7 +213,7 @@ La tríada del logo se usa como **familia de datos**, no como decoración: fondo
 ### Neutral
 - **Canvas** (#f2ece1): fondo de página.
 - **Paper** (#f5f0e6): fondo del área de contenido.
-- **Sunken** (#efe8db): superficie hundida (cabecera de tabla, campo en reposo, pista de barra).
+- **Sunken** (#efe8db): superficie hundida (cabecera de tabla, campo en reposo). La pista de barra usa `--chart-track`, no Sunken: una sola pista para todas las medidas.
 - **Hover** (#ece4d6): estado hover neutro. No lleva tinte de marca.
 - **Surface** (#fbf8f1): tarjetas, paneles y modales.
 - **Ink** (#1b1a17): texto principal y cifras. **Ink Soft** (#5c574d): texto secundario. **Ink Dim** (#6f685c): rótulos, notas y metadatos.
@@ -370,7 +370,7 @@ En tema oscuro la sombra difusa desaparece y el borde asume toda la elevación; 
 
 Radios cortos y contenidos: 6 px para controles pequeños, 10 px para botones, campos y desplegables, 16 px para tarjetas, paneles y placas, `9999px` solo para puntos de estado, avatares y controles circulares.
 
-No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: las **hojas inferiores** llevan 20 px solo en las esquinas superiores, porque nacen del borde de la pantalla y el radio inferior no existe; y las **opciones dentro de un marco de 6 px** derivan su esquina con `calc(var(--radius-sm) - 2px)` para que el resalte quede concéntrico con el marco. Las marcas de datos conservan sus medidas: pista de barra de 2 px, barra de 3–6 px y punto de estado de 50 %.
+No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: las **hojas inferiores** llevan 20 px solo en las esquinas superiores, porque nacen del borde de la pantalla y el radio inferior no existe; y las **opciones dentro de un marco de 6 px** derivan su esquina con `calc(var(--radius-sm) - 2px)` para que el resalte quede concéntrico con el marco. Las marcas de datos conservan sus medidas: pista uniforme `--chart-track`, barra de 3–10 px y punto de estado de 50 %.
 
 ## Components
 
@@ -435,7 +435,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Grid:** `8px | 1fr | 88px | 64px`, gap 12, padding 15/0, divisor inferior.
 - **Punto:** 6 px; normal Sky, riesgo Butter, leve Peach, moderada/severa Blush.
 - **Textos:** nombre 13.5/700; nota 10.5/500 Ink Dim; rango 10.5/600 Ink Dim; cifra Data Value; conteo Micro.
-- **Barra:** 4 px, pista Rule, relleno `--chart-*-fill` según banda, transición 600 ms `spring`. Las barras de medida del tablero comparten el mismo lenguaje, no el mismo grosor: la clínica del dashboard usa 10 px, la cobertura 4 px y el equipo 2 px, cada una según su función.
+- **Barra:** 4 px, pista `--chart-track`, relleno `--chart-*-fill` según banda, transición 600 ms `spring`. Las barras de medida del tablero comparten el mismo lenguaje, no el mismo grosor: la clínica del dashboard usa 10 px, la cobertura 4 px y el equipo 2 px, cada una según su función.
 - **Orden fijo:** normal, leve, moderada/severa.
 - **En el dashboard:** la franja se compone como prevalencia 30/800 + barra apilada de 10 px + cuatro columnas con punto, rango, porcentaje y conteo. La fila `8px | 1fr | 88px | 64px` se conserva para las vistas clínicas que necesitan el detalle por caso.
 
