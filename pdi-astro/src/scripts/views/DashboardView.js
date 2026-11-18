@@ -561,8 +561,8 @@ export const DashboardView = {
         { clave: "lonchera", nombre: "Lonchera infantil" },
         { clave: "casita", nombre: "Casita del Saber" },
         { clave: "biblioteca", nombre: "Biblioteca comunitaria" },
-        { clave: "asp", nombre: "Social pastoral (ASP)", abbrTitle: "Acompañamiento Social Pastoral" },
-        { clave: "reposteria", nombre: "Talleres de repostería", abbrTitle: "Talleres Vocacionales y Repostería" },
+        { clave: "asp", nombre: "Social pastoral (ASP)" },
+        { clave: "reposteria", nombre: "Talleres de repostería" },
       ];
       if ((grupos.otros || 0) > 0) {
         filas.push({ clave: "otros", nombre: "Otros servicios" });
@@ -589,9 +589,7 @@ export const DashboardView = {
             ? `<span class="dash-vol-flag dash-vol-flag--dim">sin usuarios</span>`
             : "";
         const clase = falta ? " is-gap" : sobra ? " is-idle" : "";
-        const nombreHtml = f.abbrTitle
-          ? `<abbr title="${escapar(f.abbrTitle)}">${escapar(f.nombre)}</abbr>`
-          : escapar(f.nombre);
+        const nombreHtml = escapar(f.nombre);
 
         return `
           <li class="dash-vol-row${clase}" data-servicio="${f.clave}">
@@ -708,18 +706,18 @@ export const DashboardView = {
       {
         grupo: "Tríada Troncal (Infancia Saludable)",
         items: [
-          { clave: "desayuno", nombre: "Desayuno infantil", abbrTitle: "" },
-          { clave: "lonchera", nombre: "Lonchera infantil", abbrTitle: "" },
-          { clave: "casita", nombre: "Casita del Saber", abbrTitle: "" },
-          { clave: "biblioteca", nombre: "Biblioteca comunitaria", abbrTitle: "" },
+          { clave: "desayuno", nombre: "Desayuno infantil" },
+          { clave: "lonchera", nombre: "Lonchera infantil" },
+          { clave: "casita", nombre: "Casita del Saber" },
+          { clave: "biblioteca", nombre: "Biblioteca comunitaria" },
         ]
       },
       {
         grupo: "Iniciativas Comunitarias Complementarias",
         items: [
-          { clave: "jac", nombre: "JAC", abbrTitle: "Juegos y Aprendizaje Comunitario" },
-          { clave: "btf", nombre: "BTF", abbrTitle: "Bienestar y Terapia Familiar" },
-          { clave: "reposteria", nombre: "Talleres de repostería", abbrTitle: "Talleres Vocacionales y Repostería" },
+          { clave: "jac", nombre: "Juegos y aprendizaje comunitario (JAC)" },
+          { clave: "btf", nombre: "Bienestar y terapia familiar (BTF)" },
+          { clave: "reposteria", nombre: "Talleres de repostería" },
         ]
       }
     ];
@@ -764,19 +762,12 @@ export const DashboardView = {
       </th>`;
     }).join("");
 
-    const renderNombreProg = (p) => {
-      if (p.abbrTitle) {
-        return `<abbr title="${escapar(p.abbrTitle)}">${escapar(p.nombre)}</abbr>`;
-      }
-      return escapar(p.nombre);
-    };
-
     const tbodyGrupos = taxonomiaProgramas.map(g => {
       const filasGrupo = g.items.map(p => {
         const celdas = visibles
           .map(d => `<td>${resumen[d.clave].servicios[p.clave]}</td>`)
           .join("");
-        return `<tr><th scope="row">${renderNombreProg(p)}</th>${celdas}</tr>`;
+        return `<tr><th scope="row">${escapar(p.nombre)}</th>${celdas}</tr>`;
       }).join("");
       return `
         <tbody>
@@ -794,7 +785,7 @@ export const DashboardView = {
       const gruposMovil = taxonomiaProgramas.map(g => {
         const filasMovil = g.items.map(p => `
           <div class="dash-matrix-mobile-row">
-            <dt>${renderNombreProg(p)}</dt>
+            <dt>${escapar(p.nombre)}</dt>
             <dd>${info.servicios[p.clave]}</dd>
           </div>`).join("");
         return `
