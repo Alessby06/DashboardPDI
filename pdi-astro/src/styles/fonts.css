@@ -4,13 +4,30 @@
    Evita que el navegador pida la tipografía a Google en una aplicación con
    datos de menores. El archivo es la variable latin (pesos 300–800); incluye
    los acentos y la eñe que usa el español.
+
+   `font-display: block` es deliberado y no un descuido. Con `swap`, la
+   instantánea que la View Transition pinta al cambiar de sección se captura
+   con la fuente todavía en estado de carga, así que el texto entra con la
+   fuente de respaldo y ese mapa de bits queda congelado durante toda la
+   animación (~160 ms): se ve otra tipografía en la entrada de cada sección.
+   Medido con screencast en /voluntariados: el título salía con 769 px de
+   ancho y 2 451 píxeles de tinta, y al terminar la animación pasaba a 781 px
+   y 2 929, la Manrope real. Con `block` el navegador no pinta texto hasta
+   tener la fuente, la captura espera el archivo (que ya está en caché) y la
+   instantánea entra correcta.
+
+   El coste es que en la primera visita, sin la fuente en caché, el texto no
+   aparece hasta que llega el WOFF2 (24 KB, precargado en AppLayout y con
+   caché inmutable de un año). Si algún día eso pesa más que el parpadeo, la
+   salida no es volver a `swap` a secas: hay que sacar la sección del
+   snapshot o servir la fuente sin viaje de red.
    =========================================================================== */
 
 @font-face {
   font-family: "Manrope";
   font-style: normal;
   font-weight: 300 800;
-  font-display: swap;
+  font-display: block;
   src: url("/fonts/manrope-latin.woff2") format("woff2");
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
     U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
