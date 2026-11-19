@@ -1,4 +1,4 @@
-﻿---
+---
 import AppLayout from '../layouts/AppLayout.astro';
 import '../styles/views-dashboard.css';
 import Icon from '../components/Icon.astro';
@@ -9,10 +9,10 @@ import Icon from '../components/Icon.astro';
     <div class="dash-page">
       <header class="dash-cabecera">
         <div class="dash-cabecera-texto">
-          <p class="dash-eyebrow">Infancia Saludable · Comas y Carabayllo</p>
-          <h1 class="dash-titulo"><time id="dashFolioFecha">hoy</time></h1>
+          <p class="dash-eyebrow">Infancia Saludable · Comas y Carabayllo · <time id="dashFolioFecha">hoy</time></p>
+          <h1 class="dash-titulo">Dashboard general</h1>
           <p class="dash-subtitulo">
-            <span><strong id="kpiSedesActivas">—</strong> sedes activas</span>
+            <span><strong id="kpiSedesActivas">······</strong> sedes activas</span>
             <span class="dash-punto-vivo" id="dashEstado" role="status" aria-label="Estado de conexión">
               <span class="dash-estado-dot" aria-hidden="true"></span>
               <span id="dashEstadoTexto">Cargando…</span>
@@ -49,7 +49,7 @@ import Icon from '../components/Icon.astro';
       <section class="dash-hero dash-superficie" aria-label="Indicadores principales">
         <div class="dash-kpi">
           <span class="dash-rotulo">Niños acompañados</span>
-          <strong class="dash-cifra" id="kpiTotalPadron">—</strong>
+          <strong class="dash-cifra" id="kpiTotalPadron">······</strong>
           <p class="dash-kpi-sub" id="kpiTotalPadronSub">Cargando padrón…</p>
           <span class="dash-mini-barra" aria-hidden="true">
             <span class="dash-seg-comas" id="dashBarraComas"></span>
@@ -59,7 +59,7 @@ import Icon from '../components/Icon.astro';
         </div>
         <div class="dash-kpi">
           <span class="dash-rotulo">Cobertura de tamizaje</span>
-          <strong class="dash-cifra" id="kpiCoberturaTamizaje">—</strong>
+          <strong class="dash-cifra" id="kpiCoberturaTamizaje">······</strong>
           <p class="dash-kpi-sub" id="kpiCoberturaTamizajeSub">Cargando tamizajes…</p>
           <span class="dash-barra-cobertura" aria-hidden="true">
             <i id="dashBarraCobertura"></i>
@@ -68,7 +68,7 @@ import Icon from '../components/Icon.astro';
         </div>
         <div class="dash-kpi">
           <span class="dash-rotulo">Casos ASP activos</span>
-          <strong class="dash-cifra" id="kpiCasosAsp">—</strong>
+          <strong class="dash-cifra" id="kpiCasosAsp">······</strong>
           <p class="dash-kpi-sub" id="kpiCasosAspSub">Cargando seguimiento…</p>
           <p class="dash-kpi-nota">Seguimiento social pastoral</p>
         </div>
@@ -88,7 +88,7 @@ import Icon from '../components/Icon.astro';
 
           <div class="dash-clinica-resumen">
             <div class="dash-prevalencia">
-              <strong id="kpiTasaAnemia">—</strong>
+              <strong id="kpiTasaAnemia">······</strong>
               <p id="kpiTasaAnemiaSub">En población tamizada</p>
             </div>
             <div class="dash-barra-clinica" id="dashAnemiaBarra" aria-hidden="true">
@@ -103,26 +103,26 @@ import Icon from '../components/Icon.astro';
             <li class="dash-banda" data-banda="normal">
               <span class="dash-punto" aria-hidden="true"></span>
               <span class="dash-banda-texto"><strong>Sin anemia</strong><span>≥ 11,5 g/dL</span></span>
-              <strong class="dash-banda-pct" id="anemiaPctNormal">—</strong>
-              <span class="dash-banda-casos" id="anemiaCasosNormal">—</span>
+              <strong class="dash-banda-pct" id="anemiaPctNormal">······</strong>
+              <span class="dash-banda-casos" id="anemiaCasosNormal">······</span>
             </li>
             <li class="dash-banda" data-banda="riesgo">
               <span class="dash-punto" aria-hidden="true"></span>
               <span class="dash-banda-texto"><strong>En riesgo</strong><span>11,0 – 11,4 g/dL</span></span>
-              <strong class="dash-banda-pct" id="anemiaPctRiesgo">—</strong>
-              <span class="dash-banda-casos" id="anemiaCasosRiesgo">—</span>
+              <strong class="dash-banda-pct" id="anemiaPctRiesgo">······</strong>
+              <span class="dash-banda-casos" id="anemiaCasosRiesgo">······</span>
             </li>
             <li class="dash-banda" data-banda="leve">
               <span class="dash-punto" aria-hidden="true"></span>
               <span class="dash-banda-texto"><strong>Anemia leve</strong><span>10,0 – 10,9 g/dL</span></span>
-              <strong class="dash-banda-pct" id="anemiaPctLeve">—</strong>
-              <span class="dash-banda-casos" id="anemiaCasosLeve">—</span>
+              <strong class="dash-banda-pct" id="anemiaPctLeve">······</strong>
+              <span class="dash-banda-casos" id="anemiaCasosLeve">······</span>
             </li>
             <li class="dash-banda" data-banda="mod">
               <span class="dash-punto" aria-hidden="true"></span>
               <span class="dash-banda-texto"><strong>Moderada / severa</strong><span>&lt; 10,0 g/dL</span></span>
-              <strong class="dash-banda-pct" id="anemiaPctMod">—</strong>
-              <span class="dash-banda-casos" id="anemiaCasosMod">—</span>
+              <strong class="dash-banda-pct" id="anemiaPctMod">······</strong>
+              <span class="dash-banda-casos" id="anemiaCasosMod">······</span>
             </li>
           </ul>
 
@@ -132,14 +132,14 @@ import Icon from '../components/Icon.astro';
         <aside class="dash-atencion dash-superficie" aria-labelledby="dashAtencionTitle">
           <header class="dash-atencion-cab">
             <h2 id="dashAtencionTitle">Requiere atención</h2>
-            <span id="atencionFrentes">—</span>
+            <span id="atencionFrentes">······</span>
           </header>
           <ul class="dash-atencion-lista">
             <li id="atencionFilaAnemia" hidden>
               <div class="dash-atencion-fila">
                 <span class="dash-punto is-rojo" aria-hidden="true"></span>
                 <span class="dash-atencion-texto">
-                  <strong id="atencionAnemiaTexto">—</strong>
+                  <strong id="atencionAnemiaTexto">······</strong>
                   <span>Derivación y seguimiento clínico.</span>
                 </span>
               </div>
@@ -148,7 +148,7 @@ import Icon from '../components/Icon.astro';
               <div class="dash-atencion-fila">
                 <span class="dash-punto is-ambar" aria-hidden="true"></span>
                 <span class="dash-atencion-texto">
-                  <strong id="atencionSinTamizajeTexto">—</strong>
+                  <strong id="atencionSinTamizajeTexto">······</strong>
                   <span>Cobertura de tamizaje pendiente.</span>
                 </span>
               </div>
@@ -157,7 +157,7 @@ import Icon from '../components/Icon.astro';
               <div class="dash-atencion-fila">
                 <span class="dash-punto is-naranja" aria-hidden="true"></span>
                 <span class="dash-atencion-texto">
-                  <strong id="atencionVoluntariosTexto">—</strong>
+                  <strong id="atencionVoluntariosTexto">······</strong>
                   <span>Servicios con usuarios pero sin equipo activo.</span>
                 </span>
               </div>
@@ -180,13 +180,13 @@ import Icon from '../components/Icon.astro';
               <h3>Alimentación</h3>
             </header>
             <div class="dash-servicio-principal">
-              <strong id="dashAlimUsuarios">—</strong>
+              <strong id="dashAlimUsuarios">······</strong>
               <span>niños con ración</span>
             </div>
             <dl class="dash-filas">
-              <div><dt>Desayuno infantil</dt><dd id="dashAlimDesayuno">—</dd></div>
-              <div><dt>Lonchera infantil</dt><dd id="dashAlimLonchera">—</dd></div>
-              <div><dt>Tamizajes CRED</dt><dd id="dashAlimCred">—</dd></div>
+              <div><dt>Desayuno infantil</dt><dd id="dashAlimDesayuno">······</dd></div>
+              <div><dt>Lonchera infantil</dt><dd id="dashAlimLonchera">······</dd></div>
+              <div><dt>Tamizajes CRED</dt><dd id="dashAlimCred">······</dd></div>
             </dl>
           </article>
 
@@ -196,12 +196,12 @@ import Icon from '../components/Icon.astro';
               <h3>Acompañamiento educativo</h3>
             </header>
             <div class="dash-servicio-principal">
-              <strong id="dashEduActivos">—</strong>
+              <strong id="dashEduActivos">······</strong>
               <span>niños acompañados</span>
             </div>
             <dl class="dash-filas">
-              <div><dt>Casita del Saber</dt><dd id="dashEduCasita">—</dd></div>
-              <div><dt>Biblioteca comunitaria</dt><dd id="dashEduBiblioteca">—</dd></div>
+              <div><dt>Casita del Saber</dt><dd id="dashEduCasita">······</dd></div>
+              <div><dt>Biblioteca comunitaria</dt><dd id="dashEduBiblioteca">······</dd></div>
             </dl>
             <p class="dash-servicio-nota" id="dashEduNota"></p>
           </article>
@@ -212,14 +212,14 @@ import Icon from '../components/Icon.astro';
               <h3>Social pastoral (ASP)</h3>
             </header>
             <div class="dash-servicio-principal">
-              <strong id="dashAspUsuarios">—</strong>
+              <strong id="dashAspUsuarios">······</strong>
               <span>niños en seguimiento</span>
             </div>
-            <p class="dash-servicio-extra"><span id="dashAspCasosMicro">—</span></p>
+            <p class="dash-servicio-extra"><span id="dashAspCasosMicro">······</span></p>
             <dl class="dash-filas">
-              <div><dt>Con caso en desayuno</dt><dd id="dashAspDesayuno">—</dd></div>
-              <div><dt>Con caso en lonchera</dt><dd id="dashAspLonchera">—</dd></div>
-              <div><dt>Con caso en Casita</dt><dd id="dashAspCasita">—</dd></div>
+              <div><dt>Con caso en desayuno</dt><dd id="dashAspDesayuno">······</dd></div>
+              <div><dt>Con caso en lonchera</dt><dd id="dashAspLonchera">······</dd></div>
+              <div><dt>Con caso en Casita</dt><dd id="dashAspCasita">······</dd></div>
             </dl>
           </article>
         </div>
@@ -246,7 +246,7 @@ import Icon from '../components/Icon.astro';
             </div>
           </header>
           <div class="dash-vol-total">
-            <strong id="dashVolTotal">—</strong>
+            <strong id="dashVolTotal">······</strong>
             <span>voluntarias activas</span>
           </div>
           <ul class="dash-vol-lista" id="dashVoluntariosList">

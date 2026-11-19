@@ -719,9 +719,9 @@ body[data-page="dashboard"] #mainContent {
   border-bottom: 1px solid var(--dash-rule);
   text-align: right;
   vertical-align: bottom;
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--dash-dim);
 }
@@ -792,9 +792,9 @@ body[data-page="dashboard"] #mainContent {
 .dash-matrix-group-row th {
   padding: 14px 0 6px;
   border-bottom: 0;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.09em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--dash-dim);
 }
@@ -1037,9 +1037,9 @@ body[data-page="dashboard"] #mainContent {
   }
   .dash-matrix-mobile-subtitle {
     margin: 10px 0 2px;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 800;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--dash-dim);
   }
