@@ -53,3 +53,30 @@ test('no queda un vercel.json en el subdirectorio que Vercel no lee', () => {
     'pdi-astro/vercel.json no lo lee Vercel: las reglas van en el de la raíz',
   );
 });
+
+// El clic muerto medido en producción: dashboard -> padrón tardaba ~750 ms en
+// llegar al intercambio y 336 ms eran el HTML del destino revalidándose (la
+// respuesta era 304: Vercel ya lo tenía, el navegador preguntaba igual). Con
+// stale-while-revalidate entrega su copia al instante y revalida en segundo
+// plano, así que el viaje sale del camino crítico.
+const FUENTE_HTML = '/((?!_astro|assets|fonts|api).*)';
+
+test('el HTML de la aplicación se sirve al instante y revalida en segundo plano', () => {
+  const c = cabecerasDe(FUENTE_HTML);
+  assert.equal(c['cache-control'], 'public, max-age=0, stale-while-revalidate=60');
+});
+
+test('la regla del HTML no cubre assets, fuentes ni la API', () => {
+  const patron = new RegExp(`^${FUENTE_HTML}$`);
+  for (const ruta of ['/padron', '/dashboard', '/expediente', '/salud', '/voluntariados']) {
+    assert.ok(patron.test(ruta), `el HTML de ${ruta} debería cachearse`);
+  }
+  for (const ruta of [
+    '/_astro/padron.CB2.js',
+    '/assets/jg-icon.png',
+    '/fonts/manrope-latin.woff2',
+    '/api/beneficiarios',
+  ]) {
+    assert.equal(patron.test(ruta), false, `${ruta} no puede quedar con la caché del HTML`);
+  }
+});

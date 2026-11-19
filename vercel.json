@@ -44,6 +44,15 @@
       ]
     },
     {
+      "source": "/((?!_astro|assets|fonts|api).*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, stale-while-revalidate=60"
+        }
+      ]
+    },
+    {
       "source": "/(.*)",
       "headers": [
         {
