@@ -996,10 +996,10 @@ export const BeneficiariosView = {
 
     this._renderFilteredList(pageItems, list.length);
 
-    if (animar) {
-      AnimationEngine.entradaEscalonada("tbodyBeneficiarios", ":scope > tr", { paso: 22, maxDesfase: 10 });
-      AnimationEngine.entradaEscalonada("mobileCardsBeneficiarios", ":scope > *", { paso: 22, maxDesfase: 10 });
-    }
+    // Sin entrada animada al llegar a la sección. La tabla ya se pinta dentro
+    // del cambio de página (que tiene su propia transición) y agregarle un
+    // fundido de 220 ms a las filas —o al renglón de "cargando"— hacía que el
+    // contenido parpadeara justo después del swap.
   },
 
   _renderPagination(totalCount) {
