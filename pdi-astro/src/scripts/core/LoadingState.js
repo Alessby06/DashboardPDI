@@ -120,6 +120,51 @@ function precargarEstilo(href) {
   document.head.appendChild(enlace);
 }
 
+/** Rutas que el menú lateral muestra a este rol, sin la actual. */
+function rutasDelMenu() {
+  const rutas = new Set();
+  document.querySelectorAll('#sidebarNav a[href^="/"]').forEach((a) => {
+    if (a.classList.contains("role-restricted") || a.hidden) return;
+    const ruta = normalizarRuta(a.getAttribute("href"));
+    if (ruta) rutas.add(ruta);
+  });
+  rutas.delete(normalizarRuta(location.href));
+  return [...rutas];
+}
+
+/**
+ * En pantalla táctil no hay hover: el toque y la descarga empiezan a la vez, así
+ * que el primer clic en una sección paga el documento entero (medido: ~930 ms
+ * hasta las filas, contra ~280 ms con el HTML ya adelantado).
+ *
+ * La única señal de intención anterior al toque es abrir el cajón del menú: en
+ * el teléfono se navega abriéndolo primero. Al abrirlo se adelantan las
+ * secciones que muestra, una vez por sesión. Es la misma precarga de siempre,
+ * disparada por algo que la persona hizo, no por tiempo muerto.
+ */
+function precargarAlAbrirMenu() {
+  if (window.__pdiMenuTactil) return;
+  window.__pdiMenuTactil = true;
+
+  document.addEventListener("click", (evento) => {    // La consulta va en el clic, no al enganchar: un híbrido puede cambiar de
+    // puntero, y enganchar condicionado deja el menú sin precarga para siempre.
+    if (!window.matchMedia?.("(pointer: coarse)").matches) return;
+    const boton = evento.target instanceof Element
+      ? evento.target.closest("#btnSidebarToggle")
+      : null;
+    if (!boton) return;
+
+    if (window.__pdiMenuPrecargado) return;
+    if (!permitePrecarga()) return;
+    // El cajón arranca cerrado: el primer toque en el botón siempre lo abre, y
+    // ahí es cuando hace falta. Los siguientes ya no gastan nada.
+    window.__pdiMenuPrecargado = true;
+    rutasDelMenu().forEach(precargarModulos);
+    // En captura: el botón del menú llama a `stopPropagation()`, así que un
+    // oyente en burbuja no llega a ver el clic.
+  }, { capture: true });
+}
+
 /** Adelanta la ruta al pasar el puntero o al enfocar un enlace del menú. */
 function enlazarPrecargaPorIntencion() {
   if (window.__pdiPrecargaIntencion) return;
@@ -163,6 +208,7 @@ export function iniciarEstadoCarga() {
 
   // La precarga por intención se engancha una sola vez por carga.
   enlazarPrecargaPorIntencion();
+  precargarAlAbrirMenu();
 
   // La ruta actual ya tiene su módulo ejecutándose: no hace falta volver a
   // adelantarla ni enseñar su esqueleto al regresar.
