@@ -82,6 +82,15 @@
                   box-shadow var(--dur-theme) var(--ease-spring);
     }
 
+    /* El highlight del sidebar no debe tener cruzado entre items al cambiar
+       de página: la transición del tema deja el resaltado de la sección
+       anterior visible mientras entra el de la nueva (parpadeo). En
+       navegación el swap es instantáneo; la cruzado se mantiene en cambios
+       de tema. */
+    html[data-page-dir] .nav-btn {
+      transition: none;
+    }
+
     /* Vistas Activas - Visualización Inmediata y Fluida */
     .app-view, .content-view {
       display: none;
@@ -932,8 +941,10 @@
   to { opacity: 1; transform: none; }
 }
 @keyframes pdiAppSectionIn {
+  /* La entrante nace opaca: el desplazamiento de 8 px basta para leer el
+     cambio sin dejar ver la captura saliente. */
   from {
-    opacity: 0;
+    opacity: 1;
     transform: translateY(8px);
   }
   to {
@@ -957,8 +968,10 @@
    entra desde el 98,8 % y el saliente se retira al 100,4 %, sin desplazamiento.
    El móvil conserva el fundido de 8 px de arriba. */
 @keyframes pdiPageDepthIn {
+  /* Misma regla que pdiPagePushIn: la entrante nace opaca para que la
+     captura saliente no se vea ya con la URL de destino. */
   from {
-    opacity: 0;
+    opacity: 1;
     transform: scale(0.988);
   }
   to {
