@@ -102,7 +102,8 @@ body[data-page="dashboard"] #mainContent {
 }
 
 .dash-punto-vivo.is-warn .dash-estado-dot { background: var(--gt-yellow); }
-.dash-punto-vivo.is-loading .dash-estado-dot { background: var(--chart-blue); }
+/* Cargando no es "en vivo": vuelve al neutro de la regla, no al azul de datos. */
+.dash-punto-vivo.is-loading .dash-estado-dot { background: var(--dash-rule-strong); }
 
 .dash-acciones {
   display: flex;
@@ -754,7 +755,7 @@ body[data-page="dashboard"] #mainContent {
 }
 
 .dash-matrix thead th[data-dist="otras"] {
-  background: var(--surface-2);
+  background: var(--chart-track);
   border-radius: 6px 6px 0 0;
 }
 
@@ -911,7 +912,7 @@ body[data-page="dashboard"] #mainContent {
   height: 4px;
   margin-right: 4px;
   border-radius: var(--radius-full);
-  background: var(--gt-orange);
+  background: var(--chart-butter);
   vertical-align: 1px;
 }
 
@@ -927,7 +928,8 @@ body[data-page="dashboard"] #mainContent {
   font-weight: 700;
 }
 
-.dash-vol-row.is-gap .dash-vol-fill { background: var(--chart-peach-fill); }
+/* La brecha es atención: texto, punto y barra en mantequilla (DESIGN.md). */
+.dash-vol-row.is-gap .dash-vol-fill { background: var(--chart-butter-fill); }
 .dash-vol-row.is-idle { opacity: 0.68; }
 
 .dash-conciliacion {
@@ -1002,7 +1004,8 @@ body[data-page="dashboard"] #mainContent {
     align-items: stretch;
     gap: 14px;
   }
-  .dash-barra-clinica { margin-bottom: 0; }
+  /* En columna, flex: 1 con flex-basis 0% colapsaba la barra a 0 px de alto. */
+  .dash-barra-clinica { flex: none; height: 10px; margin-bottom: 0; }
   .dash-bandas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
