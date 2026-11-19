@@ -1033,7 +1033,10 @@ html[data-page-dir]::view-transition-new(root) {
 }
 
 html[data-page-dir]::view-transition-new(pdi-main-section) {
-  animation: pdiPagePushIn var(--dur-panel) var(--ease-spring) both !important;
+  /* El saliente ya sale en --dur-fast; si el entrante dura --dur-panel
+     (260ms) se superponen dos páginas: shuttering/doble imagen. El push
+     del entrante con --dur-fast consume el solape de transición. */
+  animation: pdiPagePushIn var(--dur-fast) var(--ease-spring) both !important;
 }
 
 html[data-page-dir]::view-transition-old(pdi-main-section) {
