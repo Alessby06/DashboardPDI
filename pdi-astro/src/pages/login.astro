@@ -224,18 +224,16 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     .brand strong {
       display: block;
-      font-weight: 700;
+      font-weight: 500;
       line-height: 1.3;
       color: var(--ink);
     }
 
     .brand span {
       display: block;
-      margin-top: 3px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
+      margin-top: 4px;
+      font-size: 12px;
+      font-weight: 400;
       color: var(--muted);
     }
 
@@ -246,10 +244,10 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       gap: 8px;
       flex: 0 0 auto;
       border: 1px solid var(--line);
-      border-radius: 10px;
+      border-radius: 8px;
       background: var(--surface);
       color: var(--body);
-      font-weight: 600;
+      font-weight: 500;
       transition: border-color 160ms ease, color 160ms ease, background-color 160ms ease;
     }
 
@@ -290,7 +288,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     .card h1 {
       line-height: 1.1;
       letter-spacing: -0.03em;
-      font-weight: 700;
+      font-weight: 500;
       color: var(--ink);
       text-wrap: balance;
     }
@@ -313,8 +311,8 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .field label {
-      font-weight: 700;
-      letter-spacing: 0.01em;
+      font-weight: 500;
+      letter-spacing: 0;
       color: var(--ink);
     }
 
@@ -324,7 +322,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       align-items: center;
       height: 36px;
       border: 0;
-      border-radius: 10px;
+      border-radius: 8px;
       background: var(--field-bg);
       box-shadow: inset 0 0 0 1px var(--field-border);
       transition: box-shadow 160ms ease;
@@ -350,11 +348,11 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     .control input {
       width: 100%;
       height: 100%;
-      padding: 0 14px;
+      padding: 0 16px;
       border: 0;
       background: transparent;
       color: var(--ink);
-      font-size: 15px;
+      font-size: 16px;
       outline: none;
     }
 
@@ -376,7 +374,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .field-error {
-      font-size: 12.5px;
+      font-size: 12px;
       line-height: 1.45;
       color: var(--danger);
     }
@@ -399,18 +397,18 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     .noscript {
       margin-top: 16px;
-      padding: 12px 14px;
+      padding: 12px 16px;
       border: 1px solid var(--field-border);
-      border-radius: 10px;
+      border-radius: 8px;
       background: var(--field-bg);
       color: var(--body);
-      font-size: 12.5px;
+      font-size: 12px;
       line-height: 1.5;
     }
 
     .noscript a {
       color: var(--brand-link);
-      font-weight: 700;
+      font-weight: 500;
     }
 
     .eye {
@@ -421,7 +419,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       width: 36px;
       height: 36px;
       border: 0;
-      border-radius: 10px;
+      border-radius: 8px;
       background: transparent;
       color: var(--muted);
       transition: color 160ms ease;
@@ -451,9 +449,9 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .totp-status {
-      margin-top: 2px;
-      font-size: 12.5px;
-      font-weight: 600;
+      margin-top: 4px;
+      font-size: 12px;
+      font-weight: 500;
       line-height: 1.45;
       color: var(--brand-ink);
     }
@@ -466,13 +464,13 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     .status-error-callout {
       display: none;
       align-items: flex-start;
-      gap: 10px;
-      padding: 12px 14px;
+      gap: 8px;
+      padding: 12px 16px;
       border: 1px solid color-mix(in srgb, var(--danger) 38%, transparent);
-      border-radius: 10px;
+      border-radius: 8px;
       background: var(--danger-soft);
       color: var(--danger);
-      font-size: 12.5px;
+      font-size: 12px;
       line-height: 1.45;
     }
 
@@ -491,9 +489,9 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       align-items: center;
       justify-content: center;
       flex-wrap: wrap;
-      gap: 2px 6px;
+      gap: 4px 8px;
       margin-top: -4px;
-      font-size: 12.5px;
+      font-size: 12px;
       color: var(--muted);
       text-align: center;
     }
@@ -507,7 +505,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       background: transparent;
       color: var(--brand-link);
       font: inherit;
-      font-weight: 700;
+      font-weight: 500;
       text-decoration: underline;
       text-underline-offset: 3px;
       cursor: pointer;
@@ -520,16 +518,16 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      gap: 8px;
       width: 100%;
       height: 48px;
       border: 0;
-      border-radius: 10px;
+      border-radius: 8px;
       background: var(--brand);
       color: var(--on-brand);
       font-size: 14px;
-      font-weight: 700;
-      letter-spacing: 0.01em;
+      font-weight: 600;
+      letter-spacing: 0;
       transition: background-color 160ms ease, transform 120ms ease, opacity 160ms ease;
     }
 
@@ -579,19 +577,19 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       justify-content: space-between;
       gap: 12px;
       flex-wrap: wrap;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .quick-title {
-      font-size: 12.5px;
-      font-weight: 600;
+      font-size: 12px;
+      font-weight: 500;
       color: var(--ink);
     }
 
     .chips {
       display: grid;
       grid-template-columns: repeat(6, minmax(0, 1fr));
-      gap: 6px;
+      gap: 8px;
     }
 
     .chip {
@@ -602,10 +600,10 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       justify-content: center;
       padding: 0 8px;
       border: 1px solid var(--line);
-      border-radius: 10px;
+      border-radius: 8px;
       background: var(--surface);
       color: var(--ink);
-      font-weight: 600;
+      font-weight: 500;
       text-align: center;
       cursor: pointer;
       transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
@@ -629,16 +627,11 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       outline-offset: 2px;
     }
 
-    .chip:nth-child(4),
-    .chip:nth-child(5) {
-      grid-column: span 3;
-    }
-
     .chip:has(input:checked) {
       border-color: var(--brand);
       background: var(--brand-soft);
       color: var(--brand-ink);
-      font-weight: 700;
+      font-weight: 600;
     }
 
     .chip:has(input:disabled) {
@@ -652,7 +645,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     .foot {
       border-top: 1px solid var(--line);
-      font-size: 11.5px;
+      font-size: 12px;
       color: var(--muted);
       text-align: center;
     }
@@ -811,6 +804,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     .rec-head h2 {
       margin: 0;
+      font-weight: 500;
       font-size: 22px;
       line-height: 1.2;
       letter-spacing: -0.02em;
@@ -853,19 +847,19 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .rec-error {
-      padding: 10px 12px;
+      padding: 12px;
       border: 1px solid color-mix(in srgb, var(--danger) 38%, transparent);
-      border-radius: 10px;
+      border-radius: 8px;
       background: var(--danger-soft);
       color: var(--danger);
-      font-size: 12.5px;
+      font-size: 12px;
       line-height: 1.45;
       animation: login-reveal 150ms cubic-bezier(0.23, 1, 0.32, 1) both;
     }
 
     .rec-soporte {
-      margin-top: -2px;
-      font-size: 12.5px;
+      margin-top: -4px;
+      font-size: 12px;
       color: var(--muted);
     }
 
@@ -886,17 +880,17 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      margin: 18px 0;
-      padding: 12px 14px;
+      margin: 20px 0;
+      padding: 12px 16px;
       border: 1px dashed var(--line-2);
-      border-radius: 10px;
+      border-radius: 8px;
       background: var(--paper);
     }
 
     .rec-code span {
       font-family: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
       font-size: 20px;
-      font-weight: 800;
+      font-weight: 600;
       letter-spacing: 0.08em;
       color: var(--ink);
       font-variant-numeric: tabular-nums;
@@ -907,11 +901,11 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       min-width: 78px;
       padding: 0 12px;
       border: 1px solid var(--field-border);
-      border-radius: 10px;
+      border-radius: 8px;
       background: var(--surface);
       color: var(--brand-link);
-      font-size: 12.5px;
-      font-weight: 700;
+      font-size: 12px;
+      font-weight: 500;
       transition: border-color 160ms ease, background-color 160ms ease;
     }
 
@@ -974,13 +968,13 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       left: 16px;
       top: -60px;
       z-index: 50;
-      padding: 10px 14px;
-      border-radius: 10px;
+      padding: 12px 16px;
+      border-radius: 8px;
       background: var(--surface);
       color: var(--ink);
       box-shadow: var(--shadow-overlay);
-      font-size: 12.5px;
-      font-weight: 700;
+      font-size: 12px;
+      font-weight: 500;
       transition: top 160ms ease;
     }
 
@@ -990,11 +984,11 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     .top {
       width: min(calc(100% - 64px), 1040px);
-      padding: 26px 0 0;
+      padding: 28px 0 0;
     }
 
     .brand {
-      gap: 11px;
+      gap: 12px;
     }
 
     .brand .emblem {
@@ -1005,14 +999,14 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .brand strong {
-      font-size: 12.5px;
+      font-size: 12px;
     }
 
     .theme {
       min-width: 88px;
-      height: 38px;
-      padding: 0 11px;
-      font-size: 11.5px;
+      height: 40px;
+      padding: 0 12px;
+      font-size: 12px;
     }
 
     .stage {
@@ -1021,10 +1015,10 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       align-items: start;
       align-content: start;
       column-gap: 48px;
-      row-gap: 14px;
+      row-gap: 12px;
       width: min(calc(100% - 64px), 1040px);
       margin: 0 auto;
-      padding: 26px 0 0;
+      padding: 28px 0 0;
     }
 
     .plate {
@@ -1037,23 +1031,23 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     .plate h2 {
       color: var(--ink);
       font-size: 22px;
-      font-weight: 700;
+      font-weight: 500;
       line-height: 1.2;
       letter-spacing: -0.02em;
       text-wrap: balance;
     }
 
     .plate-desc {
-      margin-top: 10px;
+      margin-top: 12px;
       max-width: 72ch;
-      font-size: 13px;
+      font-size: 14px;
       line-height: 1.55;
     }
 
     .plate-modules {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      row-gap: 14px;
+      row-gap: 16px;
       margin: 24px 0 0;
       padding: 0;
       list-style: none;
@@ -1062,7 +1056,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     .plate-mod {
       min-width: 0;
-      padding: 11px 16px 11px 0;
+      padding: 12px 16px 12px 0;
       border-bottom: 1px solid var(--line);
     }
 
@@ -1071,21 +1065,21 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .plate-mod:nth-child(even) {
-      padding: 11px 0 11px 16px;
+      padding: 12px 0 12px 16px;
     }
 
     .plate-mod strong {
       display: block;
       color: var(--ink);
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 500;
     }
 
     .plate-mod span {
       display: block;
-      margin-top: 3px;
+      margin-top: 4px;
       color: var(--muted);
-      font-size: 11px;
+      font-size: 12px;
       line-height: 1.4;
     }
 
@@ -1098,7 +1092,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .card {
-      padding: 22px;
+      padding: 24px;
     }
 
     .card h1 {
@@ -1107,12 +1101,12 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     .sub {
       margin-top: 8px;
-      font-size: 13.5px;
+      font-size: 14px;
       line-height: 1.5;
     }
 
     .form {
-      gap: 14px;
+      gap: 16px;
       margin-top: 16px;
     }
 
@@ -1124,7 +1118,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       height: 44px;
       background: var(--action);
       color: var(--on-action);
-      font-size: 13.5px;
+      font-size: 14px;
     }
 
     .btn-spinner {
@@ -1140,7 +1134,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     .quick-head {
       justify-content: flex-start;
-      margin-bottom: 7px;
+      margin-bottom: 8px;
     }
 
     .quick-title {
@@ -1148,14 +1142,14 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .chip {
-      height: 34px;
-      font-size: 11.5px;
+      height: 36px;
+      font-size: 12px;
     }
 
     .foot {
       width: min(calc(100% - 64px), 1040px);
       margin: 20px auto 0;
-      padding: 14px 0 calc(24px + env(safe-area-inset-bottom));
+      padding: 12px 0 calc(24px + env(safe-area-inset-bottom));
     }
 
     .rec-dialog {
@@ -1165,7 +1159,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     .rec-card {
       min-height: 340px;
-      padding: 22px;
+      padding: 24px;
     }
 
     .rec-close {
@@ -1234,7 +1228,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     @media (max-width: 1080px) {
       .stage {
         grid-template-columns: 1fr;
-        gap: 22px;
+        gap: 24px;
       }
 
       .plate,
@@ -1273,11 +1267,11 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       }
 
       .plate-desc {
-        font-size: 12.5px;
+        font-size: 12px;
       }
 
       .plate-mod {
-        padding: 11px 12px 11px 0;
+        padding: 12px 12px 12px 0;
       }
 
       .plate-mod:nth-child(even) {
@@ -1285,7 +1279,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       }
 
       .plate-mod strong {
-        font-size: 11.5px;
+        font-size: 12px;
       }
 
       .access {
@@ -1295,7 +1289,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     @media (max-width: 520px) {
       .stage {
-        padding-top: 18px;
+        padding-top: 20px;
       }
 
       .plate {
@@ -1317,15 +1311,15 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       }
 
       .plate-mod {
-        padding: 6px 10px 6px 0;
+        padding: 8px 12px 8px 0;
       }
 
       .plate-mod:nth-child(even) {
-        padding-left: 10px;
+        padding-left: 12px;
       }
 
       .plate-mod strong {
-        font-size: 11.5px;
+        font-size: 12px;
       }
 
       .sub {
@@ -1341,25 +1335,19 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       }
 
       .quick {
-        padding-top: 10px;
+        padding-top: 12px;
       }
 
       .chips {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
-      .chip,
-      .chip:nth-child(4),
-      .chip:nth-child(5) {
+      .chip {
         grid-column: auto;
       }
 
-      .chip:last-child {
-        grid-column: 1 / -1;
-      }
-
       .foot {
-        margin-top: 14px;
+        margin-top: 12px;
         padding: 12px 0 calc(18px + env(safe-area-inset-bottom));
       }
 
@@ -1377,7 +1365,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       }
 
       .rec-dialog .form {
-        margin-top: 18px;
+        margin-top: 20px;
       }
 
       .top .brand span {
