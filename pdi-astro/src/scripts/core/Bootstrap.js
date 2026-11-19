@@ -85,6 +85,40 @@ function precargarBitacora(slug) {
  * forma selectiva por pagina solo produciria fallos del tipo "el filtro de sedes
  * se encuentra con la lista vacia" en cuanto alguien reordenara las llamadas.
  */
+/**
+ * Permite que la sección entrante llegue pintada al intercambio de página.
+ *
+ * Astro cambia de documento dentro de una View Transition, y lo que se anima
+ * durante el cambio es una instantánea del documento nuevo. Sin esto la
+ * instantánea solo puede llevar el marcado del servidor —el renglón de
+ * "Cargando usuarios…"— aunque los datos ya estén en memoria. Cada vista se
+ * registra por ruta y recibe `newDocument` durante `astro:before-swap`.
+ *
+ * La vista se importa en tiempo muerto: el padrón no tiene que pesar en la
+ * primera pintura del dashboard, pero su chunk ya se descarga en segundo plano.
+ */
+function prepararPreSwap() {
+  window.PDI = window.PDI || {};
+  if (window.PDI.preSwap) return;
+
+  const ganchos = new Map();
+  window.PDI.preSwap = (doc, destino) => {
+    try {
+      const url = new URL(destino, location.href);
+      const ruta = url.pathname.replace(/\/+$/, "") || "/";
+      ganchos.get(ruta)?.(doc, url);
+    } catch {
+      // Un gancho roto no puede impedir el cambio de página.
+    }
+  };
+
+  import("../views/BeneficiariosView.js")
+    .then(({ BeneficiariosView }) => {
+      ganchos.set("/padron", (doc, url) => BeneficiariosView.preSwap(doc, url));
+    })
+    .catch(() => {});
+}
+
 export function arrancarComun() {
   // 0. Sesión — si no hay sesión activa, ni siquiera ejecutamos PageGuard.
   if (!haySesion()) {
@@ -131,6 +165,7 @@ export function arrancarComun() {
   iniciarEstadoCarga();
   iniciarCapaDatos();
   precargarBitacora(slug);
+  prepararPreSwap();
 
   return slug;
 }

@@ -161,6 +161,16 @@ const impeccableLive =
             }
           } catch (e) {}
 
+          // El contenido de la página entrante se escribe aquí, antes del
+          // intercambio: la instantánea de la transición ya lleva las filas en
+          // vez del renglón de "cargando". Cada vista se registra sola
+          // (Bootstrap.prepararPreSwap); si no hay gancho, no pasa nada.
+          try {
+            if (window.PDI && typeof window.PDI.preSwap === "function") {
+              window.PDI.preSwap(ev.newDocument, ev.to);
+            }
+          } catch (e) {}
+
           try {
             var url = ev.to ? new URL(ev.to) : null;
             if (url && url.pathname.includes("/social")) {

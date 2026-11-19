@@ -1198,9 +1198,9 @@ export const BeneficiariosView = {
     }
   },
 
-  _renderFilteredList(beneficiarios, totalCount) {
-    const tbody = document.getElementById("tbodyBeneficiarios");
-    const mobileContainer = document.getElementById("mobileCardsBeneficiarios");
+  _renderFilteredList(beneficiarios, totalCount, root = document) {
+    const tbody = root.getElementById("tbodyBeneficiarios");
+    const mobileContainer = root.getElementById("mobileCardsBeneficiarios");
 
     // Solo se dibuja la variante que se va a ver. La otra se deja vacia a
     // proposito: en escritorio la lista de tarjetas ocupaba 546 de los 1794
@@ -1364,7 +1364,49 @@ export const BeneficiariosView = {
       }
     }
 
-    AnimationEngine.destacarCambio(enMovil ? mobileContainer : tbody);
+    // En el documento entrante (preSwap) no se anima nada: esa copia no se
+    // pinta, solo viaja en la instantánea del cambio de página.
+    if (root === document) {
+      AnimationEngine.destacarCambio(enMovil ? mobileContainer : tbody);
+    }
+  },
+
+  /**
+   * Pinta la tabla dentro del documento entrante, antes del intercambio.
+   *
+   * Astro cambia la pagina con una View Transition: durante los ~220 ms de la
+   * animacion lo que se ve es una instantanea del documento nuevo. Si en esa
+   * instantanea solo esta el renglon "Cargando usuarios...", ese texto es lo
+   * que entra a la pantalla, y las filas aparecen cuando la animacion termina.
+   * Escribir las filas en `newDocument` hace que la instantanea ya las lleve.
+   *
+   * Solo se adelanta la pagina que esta a la vista, tomada de la lista que ya
+   * esta en memoria. El render real reemplaza este marcado en cuanto corre, asi
+   * que si algo no coincide se corrige en el siguiente frame.
+   */
+  preSwap(doc, url) {
+    if (!doc || !doc.getElementById("tbodyBeneficiarios")) return false;
+    if (url) {
+      const ruta = new URL(url, location.href).pathname.replace(/\/+$/, "") || "/";
+      if (ruta !== "/padron") return false;
+    }
+
+    // El estado de la vista (filtros, orden, página y archivo) persiste en el
+    // módulo entre navegaciones: es el mismo que aplicará el render real, así
+    // que adelantar esta página no puede dejar filas de otra consulta.
+    const lista = this._filteredBeneficiarios?.length
+      ? this._filteredBeneficiarios
+      : BeneficiarioModel.getAll();
+    if (!lista || !lista.length) return false;
+
+    const tam = this._getEffectivePageSize();
+    const desde = (Math.max(1, this._currentPage || 1) - 1) * tam;
+    const pagina = lista.slice(desde, desde + tam);
+    if (!pagina.length) return false;
+
+    this._renderFilteredList(pagina, lista.length, doc);
+    doc.getElementById("padronCargando")?.remove();
+    return true;
   },
 
   toggleCard(id) {

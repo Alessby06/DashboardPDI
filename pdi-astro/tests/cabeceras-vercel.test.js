@@ -9,6 +9,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const RAIZ = new URL('../../vercel.json', import.meta.url);
@@ -40,4 +41,15 @@ test('las cabeceras de seguridad se conservan en la regla general', () => {
   assert.match(c['content-security-policy'], /default-src 'self'/);
   assert.equal(c['x-content-type-options'], 'nosniff');
   assert.equal(c['x-frame-options'], 'DENY');
+});
+
+// Un segundo vercel.json dentro del subdirectorio no lo lee Vercel (el proyecto
+// se construye desde la raíz), pero parece la configuración activa y hace
+// perder horas: las reglas de caché estuvieron ahí sin aplicarse nunca.
+test('no queda un vercel.json en el subdirectorio que Vercel no lee', () => {
+  assert.equal(
+    existsSync(fileURLToPath(new URL('../vercel.json', import.meta.url))),
+    false,
+    'pdi-astro/vercel.json no lo lee Vercel: las reglas van en el de la raíz',
+  );
 });

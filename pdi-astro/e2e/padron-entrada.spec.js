@@ -50,3 +50,50 @@ test('las filas del padrón no entran escalonadas al cambiar de sección', async
     'muestras con filas entrando en cascada',
   ).toEqual([]);
 });
+
+// La instantánea de la transición no debe llevar el aviso de carga: si el
+// documento entrante llega con "Cargando usuarios…", ese texto es lo que se
+// anima durante los 220 ms del cambio de página, aunque las filas lleguen justo
+// después. El primer frame de /padron tiene que traer ya la tabla pintada.
+test('la sección entrante ya trae las filas cuando se intercambia', async ({ page }) => {
+  await entrar(page, cuentas().coord);
+  await page.goto('/dashboard');
+  // Condición real del contrato: los datos ya están en memoria y la vista del
+  // padrón está registrada. Antes de eso no hay filas que adelantar y el aviso
+  // de carga es lo correcto.
+  await page.waitForFunction(
+    () => window.PDI?.__pdiDatosListos === true && typeof window.PDI?.BeneficiariosView?.preSwap === 'function',
+    null,
+    { timeout: 20_000 },
+  );
+  await page.waitForTimeout(300);
+
+  await page.evaluate(() => {
+    window.__m = [];
+    window.__fin = false;
+    const tick = () => {
+      if (location.pathname.replace(/\/+$/, '') === '/padron') {
+        window.__m.push({
+          ph: document.querySelectorAll('#padronCargando').length,
+          filas: document.querySelectorAll('#tbodyBeneficiarios > tr').length,
+        });
+      }
+      if (!window.__fin) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+
+  await page.click('a[href="/padron"]');
+  await page.waitForURL((url) => url.pathname === '/padron', { timeout: 20_000 });
+  await page.waitForTimeout(900);
+  await page.evaluate(() => { window.__fin = true; });
+
+  const muestras = await page.evaluate(() => window.__m);
+  expect(muestras.length).toBeGreaterThan(0);
+  console.log(`PADRON-PREPAINT muestras=${muestras.length} primera=${JSON.stringify(muestras[0])}`);
+  expect(muestras[0].filas, 'el primer frame de /padron llega sin filas').toBeGreaterThan(0);
+  expect(
+    muestras.filter((s) => s.ph > 0).map((s) => `ph=${s.ph} filas=${s.filas}`),
+    'frames con el aviso de carga',
+  ).toEqual([]);
+});
