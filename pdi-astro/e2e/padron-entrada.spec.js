@@ -97,3 +97,41 @@ test('la sección entrante ya trae las filas cuando se intercambia', async ({ pa
     'frames con el aviso de carga',
   ).toEqual([]);
 });
+
+// El repintado de entrada: preSwap deja las filas escritas en el documento
+// entrante, pero la vista, al arrancar su script, volvía a generarlas todas.
+// Si el nodo pintado antes del intercambio sobrevive, no hubo repintado.
+test('la vista no repinta las filas que ya llegaron pintadas', async ({ page }) => {
+  await entrar(page, cuentas().coord);
+  await page.goto('/dashboard');
+  await page.waitForFunction(() => window.PDI?.__pdiDatosListos === true, null, { timeout: 20_000 });
+
+  await page.evaluate(() => {
+    window.__nodo = null;
+    document.addEventListener('astro:after-swap', () => {
+      window.__nodo = document.querySelector('#tbodyBeneficiarios tr[data-id]')
+        || document.querySelector('#mobileCardsBeneficiarios > *');
+    }, { once: true });
+  });
+
+  await page.click('a[href="/padron"]');
+  await page.waitForURL((url) => url.pathname === '/padron', { timeout: 20_000 });
+  await page.waitForTimeout(700);
+
+  const resultado = await page.evaluate(() => {
+    const nodo = window.__nodo;
+    const contenedor = document.querySelector('#tbodyBeneficiarios')
+      || document.querySelector('#mobileCardsBeneficiarios');
+    return {
+      habiaNodo: !!nodo,
+      conectado: !!nodo?.isConnected,
+      primero: contenedor?.firstElementChild === nodo,
+    };
+  });
+
+  expect(resultado.habiaNodo, 'el documento entrante no traía filas pintadas').toBe(true);
+  expect(
+    resultado.conectado && resultado.primero,
+    'la vista repintó las filas que ya venían: el nodo pintado antes del intercambio desapareció',
+  ).toBe(true);
+});

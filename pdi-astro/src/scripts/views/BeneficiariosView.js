@@ -615,7 +615,10 @@ export const BeneficiariosView = {
     if (this._vista === "archivo" && this._puedeVerArchivo()) {
       return BeneficiarioModel.getRetirados();
     }
-    return this._allBeneficiarios;
+    // Antes del primer render (`_allBeneficiarios` vacío) la base es el modelo:
+    // así la precarga del documento entrante puede calcular la misma lista.
+    const propios = this._allBeneficiarios;
+    return propios && propios.length ? propios : BeneficiarioModel.getAll();
   },
 
   selectSexo(sexoVal) {
@@ -877,10 +880,13 @@ export const BeneficiariosView = {
     }
   },
 
-  applyFilters(resetPage = true, animar = false) {
-    if (resetPage) {
-      this._currentPage = 1;
-    }
+  /**
+   * Lista filtrada y ordenada para el estado actual de la vista. No toca el DOM:
+   * la usan tanto el render normal como la precarga del documento entrante, y
+   * los dos tienen que obtener exactamente la misma lista para que la segunda
+   * sirva de algo.
+   */
+  _calcularLista() {
     let list = [...this._obtenerBaseLista()];
 
     // 1. Buscador texto libre
@@ -927,9 +933,15 @@ export const BeneficiariosView = {
       list = list.filter(b => (b.sexo || "").toUpperCase() === this._filterSexo.toUpperCase());
     }
 
-    this._filteredBeneficiarios = this._ordenarLista(list);
+    return this._ordenarLista(list);
+  },
 
-    // Actualizar contador de filtros activos
+  applyFilters(resetPage = true, animar = false) {
+    if (resetPage) {
+      this._currentPage = 1;
+    }
+    this._filteredBeneficiarios = this._calcularLista();
+
     // El contador sale del store: facetas multiples suman una por opcion y las
     // simples una. La edad sigue fuera porque es un rango, no una opcion.
     let activeFiltersCount = this._obtenerStore().contarActivos();
@@ -965,6 +977,12 @@ export const BeneficiariosView = {
     this._sincronizarOrden();
   },
 
+  /** Clave de lo que hay pintado: vista, filtros, orden, página e ids. */
+  _serialDePagina(pageItems, enMovil, { pagina = this._currentPage, tam = this._pageSize } = {}) {
+    return `${enMovil ? 'M' : 'D'}|${this._vista}_${this._searchQuery}_${this._filterEstrategia.join(',')}_${this._filterSede.join(',')}_${this._filterAnemia.join(',')}_${this._filterEdadModo}_${this._filterEdadExacta}_${this._filterEdadRango.min}-${this._filterEdadRango.max}_${this._filterSexo}_${pagina}_${tam}_` +
+      pageItems.map(b => `${b.id}_${b.estado}`).join('|');
+  },
+
   _renderCurrentPage(animar = false) {
     const list = this._filteredBeneficiarios || [];
     const pageSize = this._getEffectivePageSize();
@@ -978,8 +996,7 @@ export const BeneficiariosView = {
     // seguia vacia. La tabla salia en blanco hasta el siguiente filtro.
     const enMovil = Responsive.esMovil();
 
-    const serial = `${enMovil ? 'M' : 'D'}|${this._vista}_${this._searchQuery}_${this._filterEstrategia.join(',')}_${this._filterSede.join(',')}_${this._filterAnemia.join(',')}_${this._filterEdadModo}_${this._filterEdadExacta}_${this._filterEdadRango.min}-${this._filterEdadRango.max}_${this._filterSexo}_${this._currentPage}_${this._pageSize}_` +
-      pageItems.map(b => `${b.id}_${b.estado}`).join('|');
+    const serial = this._serialDePagina(pageItems, enMovil);
 
     const tbody = document.getElementById("tbodyBeneficiarios");
     const mobileContainer = document.getElementById("mobileCardsBeneficiarios");
@@ -989,7 +1006,19 @@ export const BeneficiariosView = {
       ? (mobileContainer && mobileContainer.children.length > 0)
       : (tbody && tbody.children.length > 0);
 
-    if (!animar && this._lastRenderSerial === serial && hasContent) {
+    // Lo que dejó pintado preSwap vale una sola vez, y solo si la fuente del
+    // modelo es la misma: si los datos se refrescaron entre el intercambio y
+    // este render, hay que repintar. La comparación va contra la lista cruda
+    // (no la filtrada, que en preSwap todavía no existe) y se permite aunque
+    // `animar` sea true: la primera entrada de la sesión repintaba justo el
+    // caso que se quiere ahorrar.
+    const previo = this._pintadoPorPreSwap;
+    this._pintadoPorPreSwap = null;
+    const yaPintado = !!previo
+      && previo.serial === serial
+      && previo.fuente === BeneficiarioModel.getAll();
+    if (hasContent && (yaPintado || (!animar && this._lastRenderSerial === serial))) {
+      this._lastRenderSerial = serial;
       return;
     }
     this._lastRenderSerial = serial;
@@ -1394,18 +1423,29 @@ export const BeneficiariosView = {
     // El estado de la vista (filtros, orden, página y archivo) persiste en el
     // módulo entre navegaciones: es el mismo que aplicará el render real, así
     // que adelantar esta página no puede dejar filas de otra consulta.
-    const lista = this._filteredBeneficiarios?.length
-      ? this._filteredBeneficiarios
-      : BeneficiarioModel.getAll();
+    // La misma lista que va a querer el render: si se pinta otra (la cruda, sin
+    // filtros ni orden), la vista no la reconoce y la regenera, que es justo el
+    // trabajo que se quiere ahorrar.
+    const lista = this._calcularLista();
     if (!lista || !lista.length) return false;
 
     const tam = this._getEffectivePageSize();
-    const desde = (Math.max(1, this._currentPage || 1) - 1) * tam;
+    const paginaActual = Math.max(1, this._currentPage || 1);
+    const desde = (paginaActual - 1) * tam;
     const pagina = lista.slice(desde, desde + tam);
     if (!pagina.length) return false;
 
     this._renderFilteredList(pagina, lista.length, doc);
     doc.getElementById("padronCargando")?.remove();
+
+    // Deja constancia de lo pintado: el render real, al arrancar después del
+    // intercambio, reconoce que esta página ya está y no la genera otra vez.
+    // La página y el tamaño van explícitos porque en este punto la vista aún no
+    // se montó y sus campos conservan los valores por defecto.
+    this._pintadoPorPreSwap = {
+      serial: this._serialDePagina(pagina, Responsive.esMovil(), { pagina: paginaActual, tam }),
+      fuente: BeneficiarioModel.getAll(),
+    };
     return true;
   },
 
