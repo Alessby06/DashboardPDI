@@ -244,7 +244,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       gap: 8px;
       flex: 0 0 auto;
       border: 1px solid var(--line);
-      border-radius: 8px;
+      border-radius: 10px;
       background: var(--surface);
       color: var(--body);
       font-weight: 500;
@@ -311,6 +311,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .field label {
+      /* Excepcion de login al token label: 12px/500 sin tracking para no gritar en un formulario corto. */
       font-weight: 500;
       letter-spacing: 0;
       color: var(--ink);
@@ -322,7 +323,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       align-items: center;
       height: 36px;
       border: 0;
-      border-radius: 8px;
+      border-radius: 10px;
       background: var(--field-bg);
       box-shadow: inset 0 0 0 1px var(--field-border);
       transition: box-shadow 160ms ease;
@@ -348,11 +349,12 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     .control input {
       width: 100%;
       height: 100%;
-      padding: 0 16px;
+      padding: 0 14px;
       border: 0;
       background: transparent;
       color: var(--ink);
-      font-size: 16px;
+      /* Token body de DESIGN.md: el dato escrito no compite con la accion. */
+      font-size: 15px;
       outline: none;
     }
 
@@ -399,7 +401,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       margin-top: 16px;
       padding: 12px 16px;
       border: 1px solid var(--field-border);
-      border-radius: 8px;
+      border-radius: 10px;
       background: var(--field-bg);
       color: var(--body);
       font-size: 12px;
@@ -419,7 +421,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       width: 36px;
       height: 36px;
       border: 0;
-      border-radius: 8px;
+      border-radius: 10px;
       background: transparent;
       color: var(--muted);
       transition: color 160ms ease;
@@ -467,7 +469,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       gap: 8px;
       padding: 12px 16px;
       border: 1px solid color-mix(in srgb, var(--danger) 38%, transparent);
-      border-radius: 8px;
+      border-radius: 10px;
       background: var(--danger-soft);
       color: var(--danger);
       font-size: 12px;
@@ -522,7 +524,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       width: 100%;
       height: 48px;
       border: 0;
-      border-radius: 8px;
+      border-radius: 10px;
       background: var(--brand);
       color: var(--on-brand);
       font-size: 14px;
@@ -600,7 +602,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       justify-content: center;
       padding: 0 8px;
       border: 1px solid var(--line);
-      border-radius: 8px;
+      border-radius: 10px;
       background: var(--surface);
       color: var(--ink);
       font-weight: 500;
@@ -849,7 +851,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     .rec-error {
       padding: 12px;
       border: 1px solid color-mix(in srgb, var(--danger) 38%, transparent);
-      border-radius: 8px;
+      border-radius: 10px;
       background: var(--danger-soft);
       color: var(--danger);
       font-size: 12px;
@@ -883,7 +885,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       margin: 20px 0;
       padding: 12px 16px;
       border: 1px dashed var(--line-2);
-      border-radius: 8px;
+      border-radius: 10px;
       background: var(--paper);
     }
 
@@ -901,7 +903,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       min-width: 78px;
       padding: 0 12px;
       border: 1px solid var(--field-border);
-      border-radius: 8px;
+      border-radius: 10px;
       background: var(--surface);
       color: var(--brand-link);
       font-size: 12px;
@@ -969,7 +971,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       top: -60px;
       z-index: 50;
       padding: 12px 16px;
-      border-radius: 8px;
+      border-radius: 10px;
       background: var(--surface);
       color: var(--ink);
       box-shadow: var(--shadow-overlay);
@@ -1092,7 +1094,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     .card {
-      padding: 24px;
+      padding: 22px;
     }
 
     .card h1 {
@@ -1199,6 +1201,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       }
 
       .control input {
+        /* En pantallas tactiles 16px evita el zoom automatico de iOS al enfocar. */
         font-size: 16px;
       }
 
@@ -1585,7 +1588,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       <div id="recOk" role="status" hidden>
         <p class="rec-ok-desc" id="recOkDesc">Menciona este código cuando contactes a Administración TI. No compartas tu contraseña por ningún canal.</p>
         <div class="rec-code">
-          <span id="recCodigo">—</span>
+          <span id="recCodigo">······</span>
           <button type="button" class="rec-copy" id="btnRecCopiar">Copiar</button>
         </div>
         {soporteEmail && (
@@ -1969,7 +1972,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       if (recTitulo) recTitulo.textContent = 'Recuperar acceso';
       if (recCopiado) recCopiado.textContent = '';
       dialogRec?.setAttribute('aria-describedby', 'recDesc');
-      if (recCodigo) recCodigo.textContent = '—';
+      if (recCodigo) recCodigo.textContent = '······';
     });
 
     recForm?.addEventListener('submit', async (evento) => {
@@ -1999,7 +2002,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
         });
         const datos = await res.json().catch(() => ({}));
         if (res.ok && datos.ok) {
-          if (recCodigo) recCodigo.textContent = datos.codigo || '—';
+          if (recCodigo) recCodigo.textContent = datos.codigo || '······';
           if (recTitulo) recTitulo.textContent = 'Solicitud registrada';
           if (recFormWrap) recFormWrap.hidden = true;
           if (recDesc) recDesc.hidden = true;
@@ -2035,7 +2038,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     btnRecCopiar?.addEventListener('click', async () => {
       const codigo = (recCodigo?.textContent || '').trim();
-      if (!codigo || codigo === '—') return;
+      if (!codigo || codigo === '······') return;
       try {
         await navigator.clipboard.writeText(codigo);
         btnRecCopiar.textContent = 'Copiado';
