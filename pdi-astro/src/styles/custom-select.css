@@ -104,8 +104,9 @@
   border-color: var(--status-danger);
 }
 
-/* Menu: misma entrada que el panel de filtros (fundido + 6 px). Vive en
-   <body> con position:fixed para que ningún modal con overflow lo recorte. */
+/* Menu: solo fundido de entrada. La posición la fija customSelect.js con
+   top/left calculados desde el disparador; animar transform aquí hacía que
+   el menú apareciera 6 px arriba y bajara al terminar la transición. */
 .pdi-select-menu {
   position: fixed;
   z-index: 1200;
@@ -121,39 +122,23 @@
   flex-direction: column;
   gap: 2px;
   opacity: 0;
-  transform: translateY(-6px);
   transition: opacity var(--dur-fast) var(--ease-out),
-    transform var(--dur-fast) var(--ease-out),
     display var(--dur-fast) allow-discrete;
 }
 
 .pdi-select-menu.is-open {
   display: flex;
   opacity: 1;
-  transform: translateY(0);
   transition: opacity var(--dur-norm) var(--ease-out),
-    transform var(--dur-norm) var(--ease-out),
     display var(--dur-norm) allow-discrete;
 
   @starting-style {
     opacity: 0;
-    transform: translateY(-6px);
   }
 }
 
-/* Si no hay espacio debajo, el menu abre hacia arriba. */
-.pdi-select-menu--up {
-  transform: translateY(6px);
-}
-
-.pdi-select-menu--up.is-open {
-  transform: translateY(0);
-
-  @starting-style {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-}
+/* La clase --up sigue marcando el estado (el JS la usa al calcular `top`),
+   pero no mueve el menú: transform ya no participa en su posición. */
 
 .pdi-select-option {
   display: flex;

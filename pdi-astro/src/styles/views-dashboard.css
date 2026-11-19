@@ -119,6 +119,9 @@ body[data-page="dashboard"] #mainContent {
 .dash-acciones .pdi-select { display: inline-flex; }
 .dash-acciones .pdi-select-trigger {
   min-height: 38px;
+  /* Ancho estable: al cambiar de sede el texto variaba y el botón, alineado
+     a la derecha, movía su borde izquierdo 5 px y el menú lo seguía. */
+  min-width: 176px;
   padding: 0 32px 0 12px;
   border: 1px solid var(--dash-rule);
   border-radius: var(--radius-md);
