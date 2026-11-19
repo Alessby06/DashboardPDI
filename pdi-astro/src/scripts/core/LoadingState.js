@@ -47,7 +47,12 @@ function permitePrecarga() {
   return !/^(slow-2g|2g)$/.test(String(conexion.effectiveType || ""));
 }
 
-const rutasListas = new Set();
+// Se deja también en `window.PDI` porque es el estado que observan las pruebas
+// de navegación para saber que la sección ya está adelantada, y es lo único que
+// distingue "precargada" de "pedida al navegar".
+window.PDI = window.PDI || {};
+const rutasListas = (window.PDI.__pdiRutasListas =
+  window.PDI.__pdiRutasListas || new Set());
 const rutasEnCurso = new Map();
 const modulosEnCurso = new Map();
 const estilosEnCurso = new Set();
@@ -158,6 +163,10 @@ export function iniciarEstadoCarga() {
 
   // La precarga por intención se engancha una sola vez por carga.
   enlazarPrecargaPorIntencion();
+
+  // La ruta actual ya tiene su módulo ejecutándose: no hace falta volver a
+  // adelantarla ni enseñar su esqueleto al regresar.
+  rutasListas.add(normalizarRuta(location.href));
 
   // Si el controlador ya corrio en esta misma pagina, no dupliques listeners.
   if (shell.dataset.pdiCargaIniciada === "1") return;

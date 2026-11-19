@@ -11,8 +11,24 @@ async function esperarDatos(page) {
   );
 }
 
-/** Espera a que la ruta tenga su módulo precargado. */
+/** Espera a que la ruta tenga su módulo precargado.
+ *
+ * La precarga es por intención: se pasa el puntero por el enlace del menú,
+ * que es lo que hace el usuario antes de hacer clic. La ruta actual ya figura
+ * como lista porque su módulo se está ejecutando. Los enlaces del menú del
+ * avatar (/perfil, /ajustes) están ocultos hasta abrirlo, así que ahí se
+ * dispara la intención sin desplegar el menú. */
 async function esperarRuta(page, ruta) {
+  const enlace = page.locator(`a[href="${ruta}"]`).first();
+  if (await enlace.isVisible().catch(() => false)) {
+    await enlace.hover();
+  } else {
+    await page.evaluate((destino) => {
+      document
+        .querySelector(`a[href="${destino}"]`)
+        ?.dispatchEvent(new PointerEvent('pointerover', { bubbles: true }));
+    }, ruta);
+  }
   await page.waitForFunction(
     (destino) => !!window.PDI?.__pdiRutasListas?.has(destino),
     ruta,
@@ -22,43 +38,52 @@ async function esperarRuta(page, ruta) {
 
 /**
  * Observa el cambio de documento desde `astro:after-swap` y devuelve:
- *  - `cubierto`: la página entrante estaba tapada por el esqueleto (no se vio
- *    su marcado vacío).
+ *  - `cubierto`: la página entrante estaba tapada por el esqueleto.
+ *  - `yaPintado`: el dato pedido ya estaba en el documento entrante, porque la
+ *    vista lo adelantó antes del intercambio (preSwap).
  *  - `ms`: cuánto tardó en pintarse el dato pedido, o -1 si no llegó.
  */
 function observarSwap(page, selector, patron) {
   return page.evaluate(
     ({ selector, patron }) => new Promise((resolve) => {
       document.addEventListener('astro:after-swap', () => {
-        const contenido = document.querySelector('#pdiViewContent');
-        const esqueleto = document.querySelector('#pdiSkeleton');
-        const estiloContenido = contenido ? getComputedStyle(contenido) : null;
-        const estiloEsqueleto = esqueleto ? getComputedStyle(esqueleto) : null;
-        const contenidoOculto = !estiloContenido
-          || estiloContenido.visibility === 'hidden'
-          || Number(estiloContenido.opacity) === 0;
-        const esqueletoVisible = !!estiloEsqueleto
-          && estiloEsqueleto.display !== 'none'
-          && Number(estiloEsqueleto.opacity) > 0;
-        const cubierto = contenidoOculto || esqueletoVisible;
+        // Se mide en el primer frame pintado, no en el instante del evento:
+        // el usuario ve fotogramas, y entre el intercambio y el primer pintado
+        // todavía no hay nada que mirar.
+        requestAnimationFrame(() => {
+          const contenido = document.querySelector('#pdiViewContent');
+          const esqueleto = document.querySelector('#pdiSkeleton');
+          const estiloContenido = contenido ? getComputedStyle(contenido) : null;
+          const estiloEsqueleto = esqueleto ? getComputedStyle(esqueleto) : null;
+          const contenidoOculto = !estiloContenido
+            || estiloContenido.visibility === 'hidden'
+            || Number(estiloContenido.opacity) === 0;
+          const esqueletoVisible = !!estiloEsqueleto
+            && estiloEsqueleto.display !== 'none'
+            && Number(estiloEsqueleto.opacity) > 0;
+          const cubierto = contenidoOculto || esqueletoVisible;
+          const yaPintado = new RegExp(patron).test(
+            document.querySelector(selector)?.textContent?.trim() || '',
+          );
 
-        const inicio = performance.now();
-        const expresion = new RegExp(patron);
-        const revisar = () => {
-          const texto = document.querySelector(selector)?.textContent?.trim() || '';
-          if (expresion.test(texto)) {
+          const inicio = performance.now();
+          const expresion = new RegExp(patron);
+          const revisar = () => {
+            const texto = document.querySelector(selector)?.textContent?.trim() || '';
+            if (expresion.test(texto)) {
+              obs.disconnect();
+              clearTimeout(limite);
+              resolve({ cubierto, yaPintado, ms: Math.round(performance.now() - inicio) });
+            }
+          };
+          const obs = new MutationObserver(revisar);
+          obs.observe(document.body, { childList: true, subtree: true, characterData: true });
+          const limite = setTimeout(() => {
             obs.disconnect();
-            clearTimeout(limite);
-            resolve({ cubierto, ms: Math.round(performance.now() - inicio) });
-          }
-        };
-        const obs = new MutationObserver(revisar);
-        obs.observe(document.body, { childList: true, subtree: true, characterData: true });
-        const limite = setTimeout(() => {
-          obs.disconnect();
-          resolve({ cubierto, ms: -1 });
-        }, 4000);
-        revisar();
+            resolve({ cubierto, yaPintado, ms: -1 });
+          }, 4000);
+          revisar();
+        });
       }, { once: true });
     }),
     { selector, patron },
@@ -100,7 +125,12 @@ test.describe('navegación interna — sin estados vacíos', () => {
     await page.waitForURL(/\/padron/);
     await expect(page.locator('#tbodyBeneficiarios tr').first()).toBeVisible();
     const padronResultado = await padron;
-    expect(padronResultado.cubierto).toBe(true);
+    // Puede llegar tapado por el esqueleto (sin datos en memoria) o ya pintado
+    // por la vista antes del intercambio. Lo que no puede es verse vacío.
+    expect(
+      padronResultado.cubierto || padronResultado.yaPintado,
+      'el padrón entró vacío: ni esqueleto ni filas adelantadas',
+    ).toBe(true);
     expect(padronResultado.ms).toBeGreaterThanOrEqual(0);
     expect(padronResultado.ms).toBeLessThan(1500);
 
@@ -126,7 +156,10 @@ test.describe('navegación interna — sin estados vacíos', () => {
     await page.waitForURL(/\/dashboard/);
     await expect(page.locator('#dashAlimUsuarios')).toHaveText(/^\d+$/);
     const cifrasResultado = await cifras;
-    expect(cifrasResultado.cubierto).toBe(true);
+    expect(
+      cifrasResultado.cubierto || cifrasResultado.yaPintado,
+      'el dashboard entró sin cifras: ni esqueleto ni valores adelantados',
+    ).toBe(true);
     expect(cifrasResultado.ms).toBeGreaterThanOrEqual(0);
     expect(cifrasResultado.ms).toBeLessThan(1500);
   });
@@ -397,13 +430,35 @@ test.describe('navegación interna — sin estados vacíos', () => {
     const total = await filas.count();
     test.skip(total === 0, 'No hay usuarios en el archivo para verificar.');
 
-    const primera = filas.first();
-    const nombreFila = (await primera.locator('.padron-user-name').innerText()).replace(/\s+/g, ' ').trim();
-    const enlace = primera.locator('a.row-action').first();
-    expect(await enlace.getAttribute('href')).toContain('persona=');
+    // El archivo se repinta cuando termina de llegar el padrón completo, así que
+    // la primera fila cambia de identidad. Se espera a que se quede quieta: si
+    // no, se lee el nombre de una fila y se hace clic en el enlace de otra.
+    await page.waitForFunction(() => {
+      const id = document.querySelector('#tbodyBeneficiarios tr[data-id]')?.getAttribute('data-id');
+      const previo = window.__pdiPrimeraFila;
+      window.__pdiPrimeraFila = id;
+      return !!id && previo === id;
+    }, null, { timeout: 15_000, polling: 250 });
 
-    await enlace.click();
+    // Nombre y enlace se leen del mismo nodo: dos locutores separados pueden
+    // resolver a filas distintas si la tabla se repinta entre medio.
+    const primera = filas.first();
+    const { nombreFila, href } = await primera.evaluate((tr) => ({
+      nombreFila: (tr.querySelector('.padron-user-cell .padron-user-name')?.textContent || '')
+        .replace(/\s+/g, ' ').trim(),
+      href: tr.querySelector('a.row-action')?.getAttribute('href') || '',
+    }));
+    expect(href).toContain('persona=');
+
+    await page.click(`a.row-action[href="${href}"]`);
     await page.waitForURL(/\/expediente/);
+    // El expediente se hidrata después del intercambio: comparar antes de que
+    // sus campos tengan valor daría "" y un fallo falso.
+    await page.waitForFunction(
+      () => !!document.querySelector('#expNombres')?.value,
+      null,
+      { timeout: 20_000 },
+    );
     const nombreExp = `${await page.locator('#expNombres').inputValue()} ${await page.locator('#expApellidos').inputValue()}`
       .replace(/\s+/g, ' ').trim();
     expect(nombreExp).toBe(nombreFila);
