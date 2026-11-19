@@ -216,6 +216,51 @@ const impeccableLive =
           }
         } catch (e) {}
       });
+
+      // 4. Señal de navegación. Entre el clic y el documento nuevo no cambiaba
+      // nada en pantalla: el router espera el HTML (que se revalida) y el CSS
+      // del destino. La barra del topbar avanza en ese hueco y se completa en
+      // el intercambio. Es la misma idea que el indicador de una SPA: no
+      // acelera la carga, pero deja de parecer que el clic se perdió.
+      var barraNav = 0;
+      function barraDeNavegacion() {
+        if (!barraNav || !barraNav.isConnected) {
+          barraNav = document.getElementById("pdiNavProgress");
+        }
+        return barraNav;
+      }
+      function empezarNavegacion() {
+        var el = barraDeNavegacion();
+        if (!el) return;
+        clearTimeout(el.__pdiTope);
+        clearTimeout(el.__pdiReset);
+        el.dataset.estado = "corriendo";
+        el.style.transform = "scaleX(0.08)";
+        // Dos tramos: entra rápido y luego se frena, para que no llegue al
+        // final antes que la página.
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            el.style.transform = "scaleX(0.75)";
+          });
+        });
+        // Si la navegación se cancela sin llegar al intercambio, la barra no
+        // puede quedarse llena para siempre.
+        el.__pdiTope = setTimeout(terminarNavegacion, 12000);
+      }
+      function terminarNavegacion() {
+        var el = barraDeNavegacion();
+        if (!el) return;
+        clearTimeout(el.__pdiTope);
+        el.style.transform = "scaleX(1)";
+        el.dataset.estado = "listo";
+        el.__pdiReset = setTimeout(function () {
+          if (!el.isConnected) return;
+          el.dataset.estado = "";
+          el.style.transform = "scaleX(0)";
+        }, 340);
+      }
+      document.addEventListener("astro:before-preparation", empezarNavegacion);
+      document.addEventListener("astro:after-swap", terminarNavegacion);
     })();
   </script>
 

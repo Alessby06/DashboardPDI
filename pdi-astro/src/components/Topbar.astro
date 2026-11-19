@@ -6,6 +6,10 @@ import Icon from './Icon.astro';
 ---
 
 <header class="topbar" transition:persist="appTopbar">
+  <!-- Señal de navegación. El topbar es persistente, así que la barra sobrevive
+       al intercambio de página y puede completar su animación. La controla el
+       script del layout. -->
+  <div class="pdi-nav-progress" id="pdiNavProgress" aria-hidden="true"></div>
   <div class="topbar-left">
     <button
       type="button"
@@ -263,6 +267,39 @@ import Icon from './Icon.astro';
 </script>
 
 <style>
+  /* Señal de navegación. Astro no cambia de documento hasta tener el HTML y el
+     CSS del destino, y con el HTML revalidando cada navegación eso deja
+     cientos de milisegundos sin ningún cambio visible. La barra vive en el
+     topbar persistente, así que sobrevive al intercambio y puede completarse. */
+  .pdi-nav-progress {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 2px;
+    background: var(--action);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .pdi-nav-progress[data-estado="corriendo"] {
+    opacity: 1;
+    transition: transform 400ms var(--ease-smooth), opacity 120ms linear;
+  }
+
+  .pdi-nav-progress[data-estado="listo"] {
+    opacity: 0;
+    transition: transform 140ms linear, opacity 240ms linear 80ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pdi-nav-progress[data-estado="corriendo"],
+    .pdi-nav-progress[data-estado="listo"] {
+      transition: opacity 120ms linear;
+    }
+  }
+
   .topbar-right {
     display: flex;
     align-items: center;

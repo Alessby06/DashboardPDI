@@ -17,6 +17,12 @@ export default defineConfig({
     defaultStrategy: 'hover'
   },
 
+  // `experimental.clientPrerender` no se activa: el ClientRouter intercepta
+  // todo clic del mismo origen con `preventDefault()` y navega por JS, y una
+  // página prerenderizada solo se activa con una navegación del navegador, así
+  // que ese trabajo se descarta. Comprobado además que la regla inyectada al
+  // pasar el puntero no llega a crear la página en el navegador de pruebas.
+
   // En desarrollo, la primera visita a cada ruta compilaba su cadena de
   // módulos al vuelo (0,6–2,7 s). Vite pretransforma estas entradas al
   // arrancar el servidor para que la primera navegación no espere.
