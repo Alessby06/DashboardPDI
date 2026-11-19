@@ -84,7 +84,6 @@ import Icon from '../components/Icon.astro';
                 <span id="dashSinTamizaje" hidden></span>
               </p>
             </div>
-            <a href="/salud">Ver salud</a>
           </header>
 
           <div class="dash-clinica-resumen">
@@ -137,34 +136,31 @@ import Icon from '../components/Icon.astro';
           </header>
           <ul class="dash-atencion-lista">
             <li id="atencionFilaAnemia" hidden>
-              <a class="dash-atencion-fila" href="/salud">
+              <div class="dash-atencion-fila">
                 <span class="dash-punto is-rojo" aria-hidden="true"></span>
                 <span class="dash-atencion-texto">
                   <strong id="atencionAnemiaTexto">—</strong>
                   <span>Derivación y seguimiento clínico.</span>
                 </span>
-                <Icon name="accion.abrir" size={15} />
-              </a>
+              </div>
             </li>
             <li id="atencionFilaSinTamizaje" hidden>
-              <a class="dash-atencion-fila" href="/salud">
+              <div class="dash-atencion-fila">
                 <span class="dash-punto is-ambar" aria-hidden="true"></span>
                 <span class="dash-atencion-texto">
                   <strong id="atencionSinTamizajeTexto">—</strong>
                   <span>Cobertura de tamizaje pendiente.</span>
                 </span>
-                <Icon name="accion.abrir" size={15} />
-              </a>
+              </div>
             </li>
             <li id="atencionFilaVoluntarios" hidden>
-              <a class="dash-atencion-fila" href="/voluntariados">
+              <div class="dash-atencion-fila">
                 <span class="dash-punto is-naranja" aria-hidden="true"></span>
                 <span class="dash-atencion-texto">
                   <strong id="atencionVoluntariosTexto">—</strong>
                   <span>Servicios con usuarios pero sin equipo activo.</span>
                 </span>
-                <Icon name="accion.abrir" size={15} />
-              </a>
+              </div>
             </li>
           </ul>
           <p class="dash-atencion-vacio" id="atencionVacio" hidden></p>
@@ -182,7 +178,6 @@ import Icon from '../components/Icon.astro';
             <header class="dash-servicio-cab">
               <span class="dash-servicio-icon is-alim" aria-hidden="true"><Icon name="nav.alimentario" size={18} /></span>
               <h3>Alimentación</h3>
-              <a href="/salud">Ver</a>
             </header>
             <div class="dash-servicio-principal">
               <strong id="dashAlimUsuarios">—</strong>
@@ -199,7 +194,6 @@ import Icon from '../components/Icon.astro';
             <header class="dash-servicio-cab">
               <span class="dash-servicio-icon is-edu" aria-hidden="true"><Icon name="educacion.libro" size={18} /></span>
               <h3>Acompañamiento educativo</h3>
-              <a href="/educativo">Ver</a>
             </header>
             <div class="dash-servicio-principal">
               <strong id="dashEduActivos">—</strong>
@@ -216,7 +210,6 @@ import Icon from '../components/Icon.astro';
             <header class="dash-servicio-cab">
               <span class="dash-servicio-icon is-social" aria-hidden="true"><Icon name="modulo.social" size={18} /></span>
               <h3>Social pastoral (ASP)</h3>
-              <a href="/social">Ver</a>
             </header>
             <div class="dash-servicio-principal">
               <strong id="dashAspUsuarios">—</strong>
@@ -239,7 +232,6 @@ import Icon from '../components/Icon.astro';
               <h2 id="dashTerritorioTitle">Cobertura por distrito</h2>
               <p id="dashMatrixNote">Cargando territorio…</p>
             </div>
-            <a href="/sedes">Ver sedes</a>
           </header>
           <div class="dash-matrix-host" id="dashTerritoryMatrix">
             <p class="dash-cargando">Cargando territorio…</p>
@@ -252,7 +244,6 @@ import Icon from '../components/Icon.astro';
               <h2 id="dashVolTitle">Equipo en campo</h2>
               <p>Dotación activa por servicio</p>
             </div>
-            <a href="/voluntariados">Ver</a>
           </header>
           <div class="dash-vol-total">
             <strong id="dashVolTotal">—</strong>

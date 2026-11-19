@@ -199,15 +199,6 @@ body[data-page="dashboard"] #mainContent {
   font-weight: 600;
 }
 
-.dash-seccion-cab a,
-.dash-panel-cab a,
-.dash-clinica-cab a {
-  font-size: 11.5px;
-  font-weight: 700;
-  color: var(--dash-green);
-  white-space: nowrap;
-}
-
 /* --- Hero: tres cifras ---------------------------------------------------- */
 
 .dash-hero {
@@ -519,13 +510,12 @@ body[data-page="dashboard"] #mainContent {
 
 .dash-atencion-fila {
   display: grid;
-  grid-template-columns: 8px minmax(0, 1fr) 16px;
+  grid-template-columns: 8px minmax(0, 1fr);
   gap: 10px;
   align-items: center;
   padding: 12px 0;
   border-top: 1px solid var(--dash-rule);
   color: var(--dash-ink);
-  text-decoration: none;
 }
 
 .dash-atencion-lista > li:first-child .dash-atencion-fila { border-top: 0; }
@@ -551,12 +541,6 @@ body[data-page="dashboard"] #mainContent {
 
 .dash-atencion-texto span {
   font-size: 11px;
-  color: var(--dash-dim);
-}
-
-.dash-atencion-fila svg {
-  width: 15px;
-  height: 15px;
   color: var(--dash-dim);
 }
 
@@ -634,8 +618,6 @@ body[data-page="dashboard"] #mainContent {
   letter-spacing: -0.01em;
   color: var(--dash-ink);
 }
-
-.dash-servicio-cab a { margin-left: auto; }
 
 .dash-servicio-principal {
   display: flex;
@@ -954,15 +936,8 @@ body[data-page="dashboard"] #mainContent {
 @media (hover: hover) and (pointer: fine) {
   .dash-acciones .pdi-select-trigger:hover { border-color: var(--dash-rule-strong); }
   .dash-boton:hover { border-color: var(--dash-rule-strong); }
-  .dash-atencion-fila:hover { background: var(--dash-hover); }
-  .dash-atencion-fila:hover svg { color: var(--dash-green); }
   .dash-servicio { transition: border-color var(--dur-fast) var(--ease-out); }
   .dash-servicio:hover { border-color: var(--dash-rule-strong); }
-}
-
-.dash-atencion-fila:focus-visible {
-  outline: 2px solid var(--border-focus);
-  outline-offset: 2px;
 }
 
 /* --- Responsive ----------------------------------------------------------- */
