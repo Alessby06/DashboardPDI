@@ -1276,7 +1276,7 @@ export const BeneficiariosView = {
             </td>
             <td>
               <div class="row-actions">
-                <a href="${this._urlExpediente(b)}" class="row-action" data-astro-prefetch title="Ver expediente" aria-label="Ver expediente">
+                <a href="${this._urlExpediente(b)}" class="row-action" title="Ver expediente" aria-label="Ver expediente">
                   ${iconHtml("accion.ver", { size: 15 })}
                 </a>
               </div>
@@ -1346,7 +1346,7 @@ export const BeneficiariosView = {
                   <span class="datacard-value">${escapar(b.seguro || 'SIS Gratuito')}</span>
                 </div>
                 <div class="datacard-actions-footer">
-                  <a href="${this._urlExpediente(b)}" class="btn-action primary" style="width:100%; justify-content:center; text-decoration:none;" data-astro-prefetch onclick="event.stopPropagation();">
+                  <a href="${this._urlExpediente(b)}" class="btn-action primary" style="width:100%; justify-content:center; text-decoration:none;" onclick="event.stopPropagation();">
                     ${iconHtml("accion.ver", { size: 15, style: "margin-right:6px;" })}
                     Ver Expediente Completo
                   </a>

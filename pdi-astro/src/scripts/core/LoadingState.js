@@ -15,45 +15,18 @@
 //  window porque Astro reemplaza el <html> en cada transicion.
 // ===========================================================================
 import { suscribirEstado } from "./db.js";
-import { prefetch } from "astro:prefetch";
+import { extraerRecursos } from "./recursosDocumento.js";
 
 const MIN_VISIBLE_MS = 350;
 const ERROR_AFTER_MS = 7000;
 const FADE_MS = 240;
-const RUTAS_PREFETCH = [
-  "/dashboard",
-  "/padron",
-  "/salud",
-  "/social",
-  "/voluntariados",
-  "/auditoria",
-];
 
-/** Prefetch ocioso de los módulos principales.
- *
- * Con `hover` (la estrategia configurada) un enlace solo se adelanta cuando
- * hay puntero fino; en móvil el primer toque paga la descarga completa del
- * HTML. Una vez que los datos están en memoria y la pantalla ya se reveló, se
- * piden esas rutas en tiempo muerto. `prefetch()` respeta Data Saver y las
- * conexiones lentas. */
-function prefetchRutasPrincipales() {
-  if (window.__pdiPrefetchHecho) return;
-  window.__pdiPrefetchHecho = true;
-  const rutas = rutasDelMenu();
-  if (!rutas.length) return;
-  const lanzar = async () => {
-    rutas.forEach((ruta) => prefetch(ruta));
-    // El HTML por sí solo no basta: el chunk de la página se importa recién al
-    // navegar y eso es lo que dejaba un segundo de tabla vacía o de cifras en
-    // "…". Se importa ahora, en serie, para no competir con la hidratación.
-    for (const ruta of rutas) await precargarModulos(ruta);
-  };
-  if (typeof requestIdleCallback === "function") {
-    requestIdleCallback(lanzar, { timeout: 3000 });
-  } else {
-    setTimeout(lanzar, 1200);
-  }
-}
+// Ya no hay rastreo ocioso de todas las secciones. Descargaba el HTML y los
+// módulos de las seis rutas del menú apenas se revelaba el contenido, y en la
+// traza de producción todavía seguía pidiendo chunks (salud a los 187 ms,
+// educativo a los 720, social a los 1141…) mientras el usuario navegaba: en vez
+// de adelantar el destino, competía con él. Ahora solo se adelanta la sección
+// sobre la que hay intención (puntero o foco en el menú).
 
 /** Ruta comparable: sin barra final y sin query. */
 function normalizarRuta(valor) {
@@ -66,25 +39,6 @@ function normalizarRuta(valor) {
   }
 }
 
-/** Rutas que el rol puede ver en el menú, más las de la barra superior. */
-function rutasDelMenu() {
-  const rutas = new Set(["/perfil"]);
-  const sidebar = document.getElementById("sidebarNav");
-  try {
-    sidebar?.querySelectorAll('a[href^="/"]').forEach((a) => {
-      if (a.classList.contains("role-restricted")) return;
-      const ruta = normalizarRuta(a.getAttribute("href"));
-      if (ruta) rutas.add(ruta);
-    });
-  } catch {
-    // Sin sidebar (login, 404) se usan las rutas conocidas.
-  }
-  // Si el menú aún no está montado, se conserva la lista mínima histórica.
-  if (!sidebar) RUTAS_PREFETCH.forEach((ruta) => rutas.add(normalizarRuta(ruta)));
-  rutas.delete(normalizarRuta(location.href));
-  return [...rutas].filter(Boolean);
-}
-
 /** La precarga no debe gastar datos móviles ni competir en redes lentas. */
 function permitePrecarga() {
   const conexion = navigator.connection;
@@ -93,21 +47,25 @@ function permitePrecarga() {
   return !/^(slow-2g|2g)$/.test(String(conexion.effectiveType || ""));
 }
 
+const rutasListas = new Set();
 const rutasEnCurso = new Map();
 const modulosEnCurso = new Map();
+const estilosEnCurso = new Set();
 
 /**
- * Deja el módulo de una ruta en la caché del navegador. El HTML se lee una vez
- * y se marcan sus `script[type="module"]` con `modulepreload`: se descargan y
- * compilan, pero **no se ejecutan** hasta la navegación real. Importarlos aquí
- * ejecutaba el código de todas las secciones y podía bloquear el hilo principal
- * justo cuando el usuario cambiaba de página.
+ * Deja en la caché del navegador lo que la ruta destino necesita antes de
+ * navegar: sus módulos y sus hojas de estilo. Los módulos se marcan con
+ * `modulepreload` (se descargan y compilan, pero **no se ejecutan** hasta la
+ * navegación real; importarlos acá ejecutaba todas las secciones y bloqueaba el
+ * hilo justo cuando el usuario cambiaba de página).
+ *
+ * La hoja de estilo también se adelanta: Astro no cambia de documento hasta que
+ * el CSS del destino está cargado, y medido en producción eso costaba 168 ms de
+ * espera antes del intercambio.
  */
 async function precargarModulos(ruta) {
   if (!ruta || !permitePrecarga()) return;
-  window.PDI = window.PDI || {};
-  const listas = (window.PDI.__pdiRutasListas = window.PDI.__pdiRutasListas || new Set());
-  if (listas.has(ruta)) return;
+  if (rutasListas.has(ruta)) return;
   if (rutasEnCurso.has(ruta)) return rutasEnCurso.get(ruta);
 
   const tarea = (async () => {
@@ -117,14 +75,11 @@ async function precargarModulos(ruta) {
         credentials: "same-origin",
       });
       if (!respuesta.ok) return;
-      const doc = new DOMParser().parseFromString(await respuesta.text(), "text/html");
-      const fuentes = [...doc.querySelectorAll('script[type="module"][src]')]
-        .map((script) => script.getAttribute("src"))
-        .filter(Boolean)
-        .map((src) => new URL(src, location.origin).href);
+      const { modulos, estilos } = extraerRecursos(await respuesta.text(), location.origin);
 
-      const resultados = await Promise.all(fuentes.map(cargarModulo));
-      if (resultados.every(Boolean)) listas.add(ruta);
+      estilos.forEach(precargarEstilo);
+      const resultados = await Promise.all(modulos.map(cargarModulo));
+      if (resultados.every(Boolean)) rutasListas.add(ruta);
     } catch {
       // Red lenta o ruta no disponible: la página conserva su esqueleto.
     }
@@ -149,6 +104,17 @@ function cargarModulo(src) {
   return tarea;
 }
 
+/** Deja la hoja de estilo en la caché, sin aplicarla a esta página. */
+function precargarEstilo(href) {
+  if (!href || estilosEnCurso.has(href)) return;
+  estilosEnCurso.add(href);
+  const enlace = document.createElement("link");
+  enlace.rel = "preload";
+  enlace.as = "style";
+  enlace.href = href;
+  document.head.appendChild(enlace);
+}
+
 /** Adelanta la ruta al pasar el puntero o al enfocar un enlace del menú. */
 function enlazarPrecargaPorIntencion() {
   if (window.__pdiPrecargaIntencion) return;
@@ -157,7 +123,12 @@ function enlazarPrecargaPorIntencion() {
     const el = evento.target instanceof Element
       ? evento.target.closest('a[href^="/"]')
       : null;
-    if (!el || el.classList.contains("role-restricted")) return;
+    if (!el) return;
+    // Solo el menú y la barra superior. La tabla del padrón tiene una ficha
+    // distinta por fila: adelantarlas al pasar el puntero descargaba la sección
+    // entera una vez por fila, y esas URLs no se reutilizan nunca.
+    if (!el.closest("#sidebarNav, .topbar")) return;
+    if (el.classList.contains("role-restricted")) return;
     precargarModulos(normalizarRuta(el.getAttribute("href")));
   };
   document.addEventListener("pointerover", activar, { passive: true });
@@ -185,11 +156,7 @@ export function iniciarEstadoCarga() {
   const shell = document.getElementById("pdiViewShell");
   if (!shell) return;
 
-  // La ruta actual ya tiene su módulo ejecutándose: al volver a ella no hace
-  // falta enseñar el esqueleto. Se anota antes de cualquier salida temprana.
-  window.PDI = window.PDI || {};
-  const rutasListas = (window.PDI.__pdiRutasListas = window.PDI.__pdiRutasListas || new Set());
-  rutasListas.add(normalizarRuta(location.href));
+  // La precarga por intención se engancha una sola vez por carga.
   enlazarPrecargaPorIntencion();
 
   // Si el controlador ya corrio en esta misma pagina, no dupliques listeners.
@@ -337,8 +304,6 @@ export function iniciarEstadoCarga() {
       if (marcarListo) document.documentElement.dataset.pdiReady = "1";
       if (esqueleto) esqueleto.setAttribute("hidden", "");
     }, espera);
-
-    prefetchRutasPrincipales();
   }
 
   function mostrarError(mensaje) {

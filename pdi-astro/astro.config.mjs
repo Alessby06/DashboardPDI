@@ -7,8 +7,13 @@ export default defineConfig({
   build: {
     format: 'directory'
   },
+  // Solo se adelantan los enlaces marcados con `data-astro-prefetch` (el menú y
+  // "volver al padrón"). Con `prefetchAll` cualquier enlace prefetcheaba al
+  // pasar el puntero, incluidas las 10 fichas de fila del padrón, cada una una
+  // URL distinta: recorrer la tabla descargaba la sección entera. La precarga
+  // por intención del menú la completa LoadingState (módulos y CSS del destino).
   prefetch: {
-    prefetchAll: true,
+    prefetchAll: false,
     defaultStrategy: 'hover'
   },
 
