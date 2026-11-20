@@ -78,6 +78,21 @@ const impeccableLive =
 
   <script is:inline>
     (function () {
+      // El foco con ratón no dibuja anillo; el de teclado sí. Chromium marca
+      // el foco de un input de texto como focus-visible también al hacer clic,
+      // así que necesitamos saber qué dispositivo lo originó.
+      try {
+        var raizPuntero = document.documentElement;
+        raizPuntero.addEventListener("pointerdown", function () {
+          raizPuntero.setAttribute("data-pointer", "");
+        }, true);
+        raizPuntero.addEventListener("keydown", function (ev) {
+          if (ev.key === "Tab" || ev.key.indexOf("Arrow") === 0) {
+            raizPuntero.removeAttribute("data-pointer");
+          }
+        }, true);
+      } catch (e) {}
+
       // 0. Script perdido. Un despliegue puede servir el HTML nuevo antes que
       // su chunk, y un HTML cacheado puede pedir el chunk de la versión
       // anterior: en los dos casos el módulo da 404 y la página queda sin su

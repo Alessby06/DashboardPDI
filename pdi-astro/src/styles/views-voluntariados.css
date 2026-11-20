@@ -1328,8 +1328,9 @@
 }
 
 .padron-role-pill:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--border-focus);
+
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
 }
 
 .padron-mcard-phone-link {

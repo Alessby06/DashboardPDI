@@ -369,7 +369,7 @@
 
 /* Aparca teclado: los items del directorio son seleccionables con Tab + Enter. */
 .sedes-master-item:focus-visible {
-  outline: 2px solid var(--border-bright, var(--border-bright));
+  outline: 2px solid var(--border-focus);
   outline-offset: -2px;
 }
 
@@ -736,6 +736,8 @@
   }
 
   .sedes-sheet-close-sr:focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 2px;
     position: absolute !important;
     top: 8px !important;
     right: 10px !important;

@@ -79,7 +79,8 @@
 }
 
 .cuentas-search input:focus-visible {
-  box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--border-focus);
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
 }
 
 .cuentas-toolbar select,
@@ -613,7 +614,8 @@
 }
 
 .cuentas-field input:focus-visible {
-  box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--border-focus);
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
 }
 
 .cuentas-field small {

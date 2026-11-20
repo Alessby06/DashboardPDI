@@ -2146,7 +2146,7 @@
 
 .deriv-search input:focus {
   border-color: var(--border-focus);
-  box-shadow: 0 0 0 3px var(--brand-soft);
+
 }
 
 .deriv-search input:focus-visible {
@@ -2373,7 +2373,7 @@
 .deriv-full select:focus,
 .deriv-full textarea:focus {
   border-color: var(--border-focus);
-  box-shadow: 0 0 0 3px var(--brand-soft);
+
 }
 
 .deriv-full input:focus-visible,

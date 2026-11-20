@@ -257,11 +257,6 @@
     box-shadow var(--dur-fast) var(--ease-smooth);
 }
 
-.perfil-field input:focus {
-  border-color: var(--border-focus);
-  box-shadow: 0 0 0 3px var(--brand-soft);
-}
-
 .perfil-field input:focus-visible {
   outline: 2px solid var(--border-focus);
   outline-offset: 2px;
@@ -269,10 +264,6 @@
 
 .perfil-field.is-invalid input {
   border-color: var(--text-danger);
-}
-
-.perfil-field.is-invalid input:focus {
-  box-shadow: 0 0 0 3px var(--chart-blush-bg);
 }
 
 .perfil-field input::placeholder {
@@ -1006,8 +997,8 @@ html[data-theme="dark"] .perfil-btn--danger {
 .perfil-photo-item:focus-visible,
 .perfil-clave-toggle:focus-visible,
 .perfil-link:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--border-focus);
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
 }
 
 @media (max-width: 900px) {

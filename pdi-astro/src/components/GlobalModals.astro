@@ -2861,21 +2861,24 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
     opacity: 1;
   }
 
-  /* Neutralización de contornos y acentos agresivos (Impeccable UI) */
-  #modalNuevoUsuario .modal-box:focus,
-  #modalNuevoUsuario .modal-box:focus-visible {
+  /* El foco con ratón no dibuja nada; el de teclado conserva su anillo. */
+  #modalNuevoUsuario .modal-box:focus {
     outline: none !important;
   }
 
   #modalNuevoUsuario .form-control:focus,
-  #modalNuevoUsuario .form-control:focus-visible,
   #modalNuevoUsuario input:focus,
-  #modalNuevoUsuario input:focus-visible,
-  #modalNuevoUsuario select:focus,
-  #modalNuevoUsuario select:focus-visible {
-    outline: none !important;
+  #modalNuevoUsuario select:focus {
     border-color: var(--border-bright) !important;
     box-shadow: none !important;
+    outline: none !important;
+  }
+
+  #modalNuevoUsuario .form-control:focus-visible,
+  #modalNuevoUsuario input:focus-visible,
+  #modalNuevoUsuario select:focus-visible {
+    outline: 2px solid var(--border-focus) !important;
+    outline-offset: 2px;
   }
 
   #modalNuevoUsuario .croquis-box-title {

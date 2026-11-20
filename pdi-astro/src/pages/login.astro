@@ -326,11 +326,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       border-radius: 10px;
       background: var(--field-bg);
       box-shadow: inset 0 0 0 1px var(--field-border);
-      transition: box-shadow 160ms ease;
-    }
-
-    .control:focus-within {
-      box-shadow: inset 0 0 0 1px var(--field-border-strong);
     }
 
     .control:has(input:focus-visible) {
