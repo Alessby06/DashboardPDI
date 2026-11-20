@@ -7,30 +7,7 @@
    Una sola acción primaria (guardar datos); el resto son acciones de bloque.
    =========================================================================== */
 
-.perfil-shell {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  max-width: 1040px;
-  margin: 0 auto;
-  padding-bottom: 8px;
-}
-
 /* --- Cabecera: foto + título -------------------------------------------- */
-
-.perfil-head {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.perfil-photo {
-  position: relative;
-  flex-shrink: 0;
-}
 
 .perfil-avatar {
   position: relative;
@@ -81,10 +58,6 @@
   .perfil-avatar:hover .perfil-avatar-overlay {
     opacity: 1;
   }
-}
-
-.perfil-avatar:focus-visible .perfil-avatar-overlay {
-  opacity: 1;
 }
 
 .perfil-avatar:focus-visible {
@@ -182,51 +155,6 @@
   color: var(--text-danger, #dc2626);
 }
 
-.perfil-head-text {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
-  flex: 1 1 260px;
-}
-
-.perfil-title {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-  color: var(--text-main);
-}
-
-.perfil-meta {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 7px;
-  margin: 0;
-  font-size: 12.5px;
-  line-height: 1.4;
-  color: var(--text-muted);
-}
-
-.perfil-meta strong {
-  font-weight: 700;
-  color: var(--text-main);
-}
-
-.perfil-meta--dim {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.perfil-dot {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: var(--border-bright);
-}
-
 .perfil-estado {
   display: inline-flex;
   align-items: center;
@@ -243,15 +171,6 @@
 /* --- Avisos ------------------------------------------------------------- */
 
 .perfil-undo,
-.perfil-banner {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 11px 14px;
-  border-radius: var(--radius-md);
-  font-size: 12px;
-}
-
 .perfil-undo {
   align-items: center;
   justify-content: space-between;
@@ -261,10 +180,6 @@
 }
 
 .perfil-undo[hidden],
-.perfil-banner[hidden] {
-  display: none;
-}
-
 .perfil-undo button {
   border: 0;
   background: transparent;
@@ -279,82 +194,7 @@
 .perfil-undo button:focus-visible {
   outline: 2px solid var(--border-focus);
   outline-offset: 2px;
-}
-
-.perfil-banner {
-  border: 1px solid rgba(245, 158, 11, 0.35);
-  background: rgba(245, 158, 11, 0.1);
-  color: var(--text-main);
-}
-
-.perfil-banner svg {
-  flex-shrink: 0;
-  margin-top: 2px;
-  color: var(--text-warning, #b45309);
-}
-
-.perfil-banner div {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.perfil-banner strong {
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.perfil-banner span {
-  font-size: 11.5px;
-  line-height: 1.45;
-  color: var(--text-muted);
-}
-
-.perfil-banner a {
-  color: var(--text-brand);
-  font-weight: 700;
-}
-
-/* --- Filas y paneles ---------------------------------------------------- */
-
-.perfil-rows {
-  display: flex;
-  flex-direction: column;
-}
-
-.perfil-row {
-  display: grid;
-  grid-template-columns: minmax(200px, 0.7fr) minmax(0, 1.3fr);
-  gap: 36px;
-  padding: 24px 0;
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.perfil-row:last-child {
-  border-bottom: 0;
-  padding-bottom: 0;
-}
-
-.perfil-row[hidden] {
-  display: none;
-}
-
-.perfil-row-label h2 {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  color: var(--text-main);
-}
-
-.perfil-row-label p {
-  max-width: 280px;
-  margin: 6px 0 0;
-  font-size: 12.5px;
-  line-height: 1.5;
-  color: var(--text-muted);
-}
+}/* --- Filas y paneles ---------------------------------------------------- */
 
 .perfil-panel {
   min-width: 0;
@@ -1034,7 +874,195 @@ html[data-theme="dark"] .perfil-btn--danger {
 }
 
 @media (hover: none) {
+  /* En táctil no hay hover para descubrir el cambio de foto, pero una capa
+     oscura sobre el retrato lo esconde. Se resuelve con una insignia. */
   .perfil-avatar-overlay {
+    inset: auto 2px 2px auto;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(27, 26, 23, 0.82);
     opacity: 1;
   }
+  .perfil-avatar-overlay svg {
+    width: 14px;
+    height: 14px;
+  }
 }
+
+/* ===========================================================================
+   CREDENCIAL
+   ---------------------------------------------------------------------------
+   La pantalla es un objeto —el carnet— y a su lado un documento: secciones
+   separadas por reglas, sin tarjetas. Se lee primero; cada bloque se edita a
+   pedido. Una sola elevación (el carnet) y un solo borde por nivel.
+   =========================================================================== */
+
+.perfil-marco {
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-bottom: 8px;
+}
+
+.perfil-avisos { display: flex; flex-direction: column; gap: 10px; }
+
+.perfil-aviso-pagina {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: #f3e7cf;
+  border: 1px solid #e2cfa6;
+  color: #5a4520;
+}
+
+.perfil-aviso-pagina[hidden] { display: none; }
+
+.perfil-aviso-texto { flex: 1; min-width: 220px; font-size: 12.5px; }
+.perfil-aviso-texto strong { display: block; font-size: 13.5px; font-weight: 800; }
+
+.perfil-cuerpo {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 36px;
+  align-items: start;
+}
+
+/* El carnet es la única pieza elevada: sombra, sin borde. */
+.perfil-carnet {
+  position: sticky;
+  top: 78px;
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  background: var(--surface-1);
+  box-shadow: 0 18px 40px -30px rgba(27, 26, 23, 0.55);
+}
+
+.perfil-carnet-foto { position: relative; display: grid; place-items: center; padding: 4px 0 14px; }
+
+.perfil-carnet .perfil-avatar {
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  font-size: 34px;
+}
+
+.perfil-carnet-nombre {
+  margin: 0;
+  text-align: center;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.28;
+  letter-spacing: -0.02em;
+  color: var(--text-main);
+}
+
+.perfil-carnet-rol {
+  margin: 4px 0 0;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  min-height: 18px;
+}
+
+.perfil-carnet-datos {
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle);
+  display: grid;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.perfil-carnet-datos > div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.perfil-carnet-datos dt { color: var(--text-dim); }
+.perfil-carnet-datos dd { margin: 0; font-weight: 700; text-align: right; }
+
+.perfil-columna { display: flex; flex-direction: column; gap: 26px; min-width: 0; }
+
+.perfil-bloque { border-top: 1px solid var(--border-subtle); padding-top: 20px; }
+.perfil-bloque:first-child { border-top: 0; padding-top: 0; }
+.perfil-bloque[hidden] { display: none; }
+
+.perfil-bloque-cab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.perfil-bloque-cab h2 { margin: 0; font-size: 13px; font-weight: 800; color: var(--text-main); }
+
+.perfil-lectura { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 24px; }
+.perfil-lectura[hidden] { display: none; }
+.perfil-lectura > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.perfil-lectura span { font-size: 12px; color: var(--text-dim); }
+.perfil-lectura strong { font-size: 13.5px; font-weight: 600; overflow-wrap: anywhere; }
+
+/* El panel deja de ser tarjeta: dentro de un bloque es el formulario, sin caja. */
+.perfil-marco .perfil-panel { padding: 0; border: 0; border-radius: 0; background: transparent; }
+.perfil-marco .perfil-panel[hidden] { display: none; }
+
+.perfil-panel--en-linea {
+  margin-top: 4px;
+  margin-bottom: 14px;
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.perfil-fila {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.perfil-fila:last-of-type { border-bottom: 0; }
+.perfil-fila[hidden] { display: none; }
+
+.perfil-fila-que { flex: 1; min-width: 0; }
+.perfil-fila-que strong { display: block; font-size: 13px; font-weight: 700; }
+.perfil-fila-que span { font-size: 12px; color: var(--text-dim); }
+
+.perfil-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+
+.perfil-marco .perfil-totp[hidden] { display: none; }
+
+/* Un solo anillo de foco para todo lo que se pulsa en esta pantalla. */
+.perfil-btn:focus-visible,
+.perfil-avatar:focus-visible,
+.perfil-photo-item:focus-visible,
+.perfil-clave-toggle:focus-visible,
+.perfil-link:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--border-focus);
+}
+
+@media (max-width: 900px) {
+  .perfil-cuerpo { grid-template-columns: 1fr; gap: 20px; }
+  .perfil-carnet { position: static; }
+  .perfil-carnet .perfil-avatar { width: 88px; height: 88px; font-size: 28px; }
+  .perfil-lectura { grid-template-columns: 1fr; }
+}
+

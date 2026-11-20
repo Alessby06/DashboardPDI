@@ -6,256 +6,296 @@ import '../styles/views-perfil.css';
 
 <AppLayout title="Mi perfil" currentPage="perfil">
   <section class="app-view active" id="view-perfil">
-    <div class="perfil-shell">
-      <header class="perfil-head">
-      <div class="perfil-photo">
-        <button
-          type="button"
-          class="perfil-avatar"
-          id="btnCambiarFoto"
-          aria-label="Foto de perfil"
-          aria-haspopup="menu"
-          aria-expanded="false"
-          aria-controls="perfilFotoMenu"
-          title="Opciones de la foto"
-        >
-          <span id="perfilIniciales">?</span>
-          <img id="perfilFoto" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" hidden />
-          <span class="perfil-avatar-overlay" aria-hidden="true">
-            <Icon name="accion.foto" size={14} />
-          </span>
-        </button>
-        <input type="file" id="perfilFotoInput" accept="image/png,image/jpeg,image/webp" hidden />
+    <div class="perfil-marco">
 
-        <div class="perfil-photo-menu" id="perfilFotoMenu" role="menu" aria-label="Opciones de la foto de perfil" hidden>
-          <button type="button" role="menuitem" class="perfil-photo-item" id="btnVerFoto" disabled>
-            <Icon name="accion.ver" size={16} />
-            <span>Ver foto</span>
-          </button>
-          <button type="button" role="menuitem" class="perfil-photo-item" id="btnActualizarFoto">
-            <Icon name="accion.subir" size={16} />
-            <span>Actualizar foto</span>
-          </button>
-          <button type="button" role="menuitem" class="perfil-photo-item perfil-photo-item--danger" id="btnEliminarFoto" disabled>
-            <Icon name="accion.eliminar" size={16} />
-            <span>Eliminar foto</span>
-          </button>
+      <!-- Avisos: primero lo que bloquea o se puede deshacer. -->
+      <div class="perfil-avisos">
+        <div class="perfil-undo" id="perfilUndoFoto" role="status" hidden>
+          <span>Foto eliminada. Vuelven tus iniciales.</span>
+          <button type="button" id="btnDeshacerFoto">Deshacer</button>
         </div>
-      </div>
 
-        <div class="perfil-head-text">
-          <h1 class="perfil-title">Mi perfil</h1>
-          <p class="perfil-meta">
-            <strong id="perfilNombre">—</strong>
-            <span class="perfil-dot" aria-hidden="true"></span>
-            <span id="perfilIdentidadRol">—</span>
-            <span class="perfil-dot" aria-hidden="true"></span>
-            <span id="perfilIdentidadUsuario">@—</span>
-            <span class="perfil-dot" aria-hidden="true"></span>
-            <span class="perfil-estado"><i aria-hidden="true"></i><span id="perfilIdentidadEstado">Cargando…</span></span>
-          </p>
-          <p class="perfil-meta perfil-meta--dim">Alta <span id="perfilIdentidadDesde">—</span></p>
+        <div class="perfil-undo" id="perfilCargaError" role="alert" hidden>
+          <span>No se pudo cargar tu perfil. Los datos que ves no están completos.</span>
+          <button type="button" id="btnReintentarPerfil">Reintentar</button>
         </div>
-      </header>
 
-      <div class="perfil-undo" id="perfilUndoFoto" role="status" hidden>
-        <span>Foto eliminada. Vuelven tus iniciales.</span>
-        <button type="button" id="btnDeshacerFoto">Deshacer</button>
-      </div>
-
-      <div class="perfil-undo" id="perfilCargaError" role="alert" hidden>
-        <span>No se pudo cargar tu perfil. Los datos que ves no están completos.</span>
-        <button type="button" id="btnReintentarPerfil">Reintentar</button>
-      </div>
-
-      <div class="perfil-banner" id="perfilAvisoTemporal" hidden>
-        <Icon name="seguridad.candado" size={16} />
-        <div>
-          <strong>Tu contraseña es temporal</strong>
-          <span>Cámbiala ahora en <a href="#seguridad">Seguridad</a>, antes de seguir usando la cuenta.</span>
-        </div>
-      </div>
-
-      <div class="perfil-rows">
-        <section class="perfil-row" aria-labelledby="perfilDatosTitle">
-          <div class="perfil-row-label">
-            <h2 id="perfilDatosTitle">Datos personales</h2>
-            <p>Cómo te ven y cómo te contactamos.</p>
+        <!-- La clave temporal es el único bloqueo real de la cuenta, así que la
+             acción vive aquí y no en una fila dos bloques más abajo. -->
+        <div class="perfil-aviso-pagina" id="perfilAvisoTemporal" hidden>
+          <Icon name="seguridad.candado" size={16} />
+          <div class="perfil-aviso-texto">
+            <strong>Tu contraseña es temporal</strong>
+            <span>Es la que generó administración. Hasta que la cambies, la cuenta queda a medias.</span>
           </div>
+          <button type="button" class="perfil-btn perfil-btn--primary perfil-btn--mini" data-abrir="bloqueClave">
+            Cambiar ahora
+          </button>
+        </div>
+      </div>
 
-          <form class="perfil-panel perfil-form" id="formPerfil" novalidate>
-            <div class="perfil-fields">
-              <div class="perfil-field perfil-field--full">
-                <label for="perfilInputNombre">Nombre visible</label>
-                <input type="text" id="perfilInputNombre" name="nombre" maxlength="80" autocomplete="name" required aria-describedby="perfilErrorNombre" />
-                <span class="perfil-field-error" id="perfilErrorNombre" role="alert"></span>
-              </div>
-              <div class="perfil-field">
-                <label for="perfilInputCorreo">Correo</label>
-                <input type="email" id="perfilInputCorreo" name="correo" maxlength="120" autocomplete="email" placeholder="nombre@dominio.com" aria-describedby="perfilErrorCorreo" />
-                <span class="perfil-field-error" id="perfilErrorCorreo" role="alert"></span>
-              </div>
-              <div class="perfil-field">
-                <label for="perfilInputTelefono">Teléfono</label>
-                <input
-                  type="tel"
-                  id="perfilInputTelefono"
-                  name="telefono"
-                  maxlength="9"
-                  inputmode="numeric"
-                  pattern="9[0-9]{8}"
-                  autocomplete="tel"
-                  placeholder="987654321"
-                  data-tipo="telefono"
-                  aria-describedby="perfilTelefonoAyuda perfilErrorTelefono"
-                />
-                <span class="perfil-field-hint" id="perfilTelefonoAyuda">9 dígitos, empieza con 9. Opcional.</span>
-                <span class="perfil-field-error" id="perfilErrorTelefono" role="alert"></span>
-              </div>
-            </div>
-            <div class="perfil-form-foot">
-              <p class="perfil-feedback" id="perfilDatosFeedback" role="status"></p>
-              <button type="submit" class="perfil-btn perfil-btn--primary" id="btnGuardarPerfil" disabled>
-                Guardar datos
+      <div class="perfil-cuerpo">
+        <aside class="perfil-carnet">
+          <div class="perfil-carnet-foto">
+            <button
+              type="button"
+              class="perfil-avatar"
+              id="btnCambiarFoto"
+              aria-label="Foto de perfil"
+              aria-haspopup="menu"
+              aria-expanded="false"
+              aria-controls="perfilFotoMenu"
+              title="Opciones de la foto"
+            >
+              <span id="perfilIniciales">?</span>
+              <img id="perfilFoto" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" hidden />
+              <span class="perfil-avatar-overlay" aria-hidden="true">
+                <Icon name="accion.foto" size={14} />
+              </span>
+            </button>
+            <input type="file" id="perfilFotoInput" accept="image/png,image/jpeg,image/webp" hidden />
+
+            <div class="perfil-photo-menu" id="perfilFotoMenu" role="menu" aria-label="Opciones de la foto de perfil" hidden>
+              <button type="button" role="menuitem" class="perfil-photo-item" id="btnVerFoto" disabled>
+                <Icon name="accion.ver" size={16} />
+                <span>Ver foto</span>
+              </button>
+              <button type="button" role="menuitem" class="perfil-photo-item" id="btnActualizarFoto">
+                <Icon name="accion.subir" size={16} />
+                <span>Actualizar foto</span>
+              </button>
+              <button type="button" role="menuitem" class="perfil-photo-item perfil-photo-item--danger" id="btnEliminarFoto" disabled>
+                <Icon name="accion.eliminar" size={16} />
+                <span>Eliminar foto</span>
               </button>
             </div>
-          </form>
-        </section>
-
-        <section class="perfil-row" aria-labelledby="perfilAccesoTitle">
-          <div class="perfil-row-label">
-            <h2 id="perfilAccesoTitle">Acceso</h2>
-            <p>El identificador con el que entras al sistema y la clave que lo protege.</p>
           </div>
 
-          <form class="perfil-panel perfil-form" id="formUsuario" novalidate>
-            <div class="perfil-field">
-              <label for="perfilInputUsuario">Usuario</label>
-              <input type="text" id="perfilInputUsuario" name="usuario" maxlength="32" autocomplete="username" spellcheck="false" aria-describedby="perfilUsuarioAyuda" />
-              <span class="perfil-field-hint" id="perfilUsuarioAyuda">Este es tu usuario actual. Si lo cambias, entrarás con el nuevo. 3 a 32 caracteres: minúsculas, números, punto, guion o guion bajo.</span>
-            </div>
-            <div class="perfil-field">
-              <label for="perfilInputUsuarioClave">Contraseña actual</label>
-              <div class="perfil-clave-wrap">
-                <input type="password" id="perfilInputUsuarioClave" name="clave" autocomplete="current-password" />
-                <button type="button" class="perfil-clave-toggle" data-toggle-clave="perfilInputUsuarioClave" aria-label="Mostrar contraseña actual" aria-pressed="false"><Icon name="password.ver" size={17} /></button>
-              </div>
-            </div>
-            <div class="perfil-form-foot">
-              <p class="perfil-feedback" id="perfilUsuarioFeedback" role="status"></p>
-              <button type="submit" class="perfil-btn perfil-btn--soft" id="btnGuardarUsuario" disabled>Cambiar usuario</button>
-            </div>
-          </form>
-        </section>
+          <h1 class="perfil-carnet-nombre" id="perfilNombre">—</h1>
+          <p class="perfil-carnet-rol"><span id="perfilIdentidadRol">—</span></p>
 
-        <section class="perfil-row" id="seguridad" aria-labelledby="perfilClaveTitle">
-          <div class="perfil-row-label">
-            <h2 id="perfilClaveTitle">Contraseña</h2>
-            <p>Se recomienda una frase larga, distinta de la anterior.</p>
-          </div>
+          <dl class="perfil-carnet-datos">
+            <div><dt>Usuario</dt><dd id="perfilIdentidadUsuario">@—</dd></div>
+            <div><dt>Alta</dt><dd id="perfilIdentidadDesde">—</dd></div>
+            <div>
+              <dt>Cuenta</dt>
+              <dd>
+                <span class="perfil-estado"><i aria-hidden="true"></i><span id="perfilIdentidadEstado">Cargando…</span></span>
+              </dd>
+            </div>
+          </dl>
+        </aside>
 
-          <form class="perfil-panel perfil-form" id="formClave" novalidate>
-            <div class="perfil-fields">
-              <div class="perfil-field perfil-field--full">
-                <label for="perfilInputClaveActual">Contraseña actual</label>
-                <div class="perfil-clave-wrap">
-                  <input type="password" id="perfilInputClaveActual" name="actual" autocomplete="current-password" />
-                  <button type="button" class="perfil-clave-toggle" data-toggle-clave="perfilInputClaveActual" aria-label="Mostrar contraseña actual" aria-pressed="false"><Icon name="password.ver" size={17} /></button>
-                </div>
-              </div>
-              <div class="perfil-field">
-                <label for="perfilInputClaveNueva">Nueva contraseña</label>
-                <div class="perfil-clave-wrap">
-                  <input type="password" id="perfilInputClaveNueva" name="nueva" autocomplete="new-password" aria-describedby="perfilFuerzaTexto" />
-                  <button type="button" class="perfil-clave-toggle" data-toggle-clave="perfilInputClaveNueva" aria-label="Mostrar nueva contraseña" aria-pressed="false"><Icon name="password.ver" size={17} /></button>
-                </div>
-                <div class="perfil-strength" aria-hidden="true">
-                  <span class="perfil-strength-seg"></span>
-                  <span class="perfil-strength-seg"></span>
-                  <span class="perfil-strength-seg"></span>
-                  <span class="perfil-strength-seg"></span>
-                </div>
-                <span class="perfil-field-hint" id="perfilFuerzaTexto" aria-live="polite">Mínimo 10 caracteres. Se recomienda una frase larga.</span>
-              </div>
-              <div class="perfil-field">
-                <label for="perfilInputClaveRepetir">Repetir la nueva</label>
-                <div class="perfil-clave-wrap">
-                  <input type="password" id="perfilInputClaveRepetir" name="repetir" autocomplete="new-password" />
-                  <button type="button" class="perfil-clave-toggle" data-toggle-clave="perfilInputClaveRepetir" aria-label="Mostrar repetición de la contraseña" aria-pressed="false"><Icon name="password.ver" size={17} /></button>
-                </div>
-              </div>
-            </div>
-            <div class="perfil-form-foot">
-              <p class="perfil-feedback" id="perfilClaveFeedback" role="status"></p>
-              <button type="submit" class="perfil-btn perfil-btn--soft" id="btnGuardarClave" disabled>Cambiar contraseña</button>
-            </div>
-            <p class="perfil-note">
-              Si olvidas tu contraseña, administración puede generarte una temporal. El enlace por correo se
-              activará cuando el programa tenga dominio de envío.
-            </p>
-          </form>
-        </section>
+        <div class="perfil-columna">
 
-        <section class="perfil-row" id="perfilTotpFila" aria-labelledby="perfilTotpTitulo" hidden>
-          <div class="perfil-row-label">
-            <h2 id="perfilTotpTitulo">Verificación en dos pasos</h2>
-            <p>Una segunda prueba además de la contraseña. Disponible para todas las cuentas.</p>
-          </div>
+          <!-- Datos: se leen; se editan a pedido. -->
+          <section class="perfil-bloque" aria-labelledby="perfilDatosTitle">
+            <header class="perfil-bloque-cab">
+              <h2 id="perfilDatosTitle">Datos de contacto</h2>
+              <button
+                type="button"
+                class="perfil-btn perfil-btn--ghost perfil-btn--mini"
+                data-editar="formPerfil"
+                aria-expanded="false"
+              >Editar</button>
+            </header>
 
-          <div class="perfil-totp perfil-panel" id="perfilTotp" hidden>
-            <div class="perfil-totp-head">
-              <p class="perfil-field-hint">Protege tu cuenta con una aplicación de autenticación.</p>
-              <span class="perfil-totp-state" id="perfilTotpEstado">Desactivada</span>
+            <div class="perfil-lectura" data-lectura-de="formPerfil">
+              <div><span>Nombre visible</span><strong data-lectura="perfilInputNombre">—</strong></div>
+              <div><span>Correo</span><strong data-lectura="perfilInputCorreo">—</strong></div>
+              <div><span>Teléfono</span><strong data-lectura="perfilInputTelefono">—</strong></div>
             </div>
-            <div class="perfil-totp-actions">
-              <button type="button" class="perfil-btn perfil-btn--soft" id="btnTotpActivar">Activar</button>
-              <button type="button" class="perfil-link" id="btnTotpDesactivar" hidden>Desactivar</button>
-            </div>
-            <div class="perfil-totp-panel" id="perfilTotpPanel" hidden>
-              <p class="perfil-field-hint">Escanea el código con tu aplicación (Google Authenticator, Authy, 1Password) o copia el secreto, y escribe el código que genera.</p>
-              <div class="perfil-totp-qr" id="perfilTotpQr" hidden></div>
-              <div class="perfil-totp-secret-row">
-                <code class="perfil-totp-secreto" id="perfilTotpSecreto"></code>
-                <button type="button" class="perfil-btn perfil-btn--soft perfil-btn--mini" id="btnCopiarTotp">Copiar</button>
-              </div>
-              <div class="perfil-field">
-                <label for="perfilTotpCodigo">Código de 6 dígitos</label>
-                <input type="text" id="perfilTotpCodigo" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="123456" autocomplete="one-time-code" />
+
+            <form class="perfil-panel perfil-form" id="formPerfil" novalidate hidden>
+              <div class="perfil-fields">
+                <div class="perfil-field perfil-field--full">
+                  <label for="perfilInputNombre">Nombre visible</label>
+                  <input type="text" id="perfilInputNombre" name="nombre" maxlength="80" autocomplete="name" required aria-describedby="perfilErrorNombre" />
+                  <span class="perfil-field-error" id="perfilErrorNombre" role="alert"></span>
+                </div>
+                <div class="perfil-field">
+                  <label for="perfilInputCorreo">Correo</label>
+                  <input type="email" id="perfilInputCorreo" name="correo" maxlength="120" autocomplete="email" placeholder="nombre@dominio.com" aria-describedby="perfilErrorCorreo" />
+                  <span class="perfil-field-error" id="perfilErrorCorreo" role="alert"></span>
+                </div>
+                <div class="perfil-field">
+                  <label for="perfilInputTelefono">Teléfono</label>
+                  <input
+                    type="tel"
+                    id="perfilInputTelefono"
+                    name="telefono"
+                    maxlength="9"
+                    inputmode="numeric"
+                    pattern="9[0-9]{8}"
+                    autocomplete="tel"
+                    placeholder="987654321"
+                    data-tipo="telefono"
+                    aria-describedby="perfilTelefonoAyuda perfilErrorTelefono"
+                  />
+                  <span class="perfil-field-hint" id="perfilTelefonoAyuda">9 dígitos, empieza con 9. Opcional.</span>
+                  <span class="perfil-field-error" id="perfilErrorTelefono" role="alert"></span>
+                </div>
               </div>
               <div class="perfil-form-foot">
-                <p class="perfil-feedback" id="perfilTotpFeedback" role="status"></p>
-                <div class="perfil-form-actions">
-                  <button type="button" class="perfil-btn perfil-btn--ghost" id="btnTotpCancelar">Cancelar</button>
-                  <button type="button" class="perfil-btn perfil-btn--primary" id="btnTotpConfirmar">Confirmar y activar</button>
-                </div>
+                <p class="perfil-feedback" id="perfilDatosFeedback" role="status"></p>
+                <button type="submit" class="perfil-btn perfil-btn--primary" id="btnGuardarPerfil" disabled>Guardar datos</button>
               </div>
+            </form>
+          </section>
+
+          <!-- Acceso y seguridad: filas de estado; cada acción abre su panel. -->
+          <section class="perfil-bloque" aria-labelledby="perfilAccesoTitle">
+            <header class="perfil-bloque-cab">
+              <h2 id="perfilAccesoTitle">Acceso y seguridad</h2>
+            </header>
+
+            <div class="perfil-fila">
+              <div class="perfil-fila-que">
+                <strong>Usuario</strong>
+                <span data-lectura="perfilInputUsuario">—</span>
+              </div>
+              <button type="button" class="perfil-btn perfil-btn--ghost perfil-btn--mini" data-abrir="formUsuario" aria-expanded="false">
+                Cambiar
+              </button>
             </div>
-            <div class="perfil-totp-panel" id="perfilTotpDesactivarPanel" hidden>
+            <form class="perfil-panel perfil-panel--en-linea perfil-form" id="formUsuario" novalidate hidden>
               <div class="perfil-field">
-                <label for="perfilTotpClave">Contraseña actual</label>
-                <input type="password" id="perfilTotpClave" autocomplete="current-password" />
+                <label for="perfilInputUsuario">Usuario</label>
+                <input type="text" id="perfilInputUsuario" name="usuario" maxlength="32" autocomplete="username" spellcheck="false" aria-describedby="perfilUsuarioAyuda" />
+                <span class="perfil-field-hint" id="perfilUsuarioAyuda">Este es tu usuario actual. Si lo cambias, entrarás con el nuevo. 3 a 32 caracteres: minúsculas, números, punto, guion o guion bajo.</span>
               </div>
               <div class="perfil-field">
-                <label for="perfilTotpBajaCodigo">Código de 6 dígitos</label>
-                <input type="text" id="perfilTotpBajaCodigo" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="123456" autocomplete="one-time-code" />
+                <label for="perfilInputUsuarioClave">Contraseña actual</label>
+                <div class="perfil-clave-wrap">
+                  <input type="password" id="perfilInputUsuarioClave" name="clave" autocomplete="current-password" />
+                  <button type="button" class="perfil-clave-toggle" data-toggle-clave="perfilInputUsuarioClave" aria-label="Mostrar contraseña actual" aria-pressed="false"><Icon name="password.ver" size={17} /></button>
+                </div>
               </div>
               <div class="perfil-form-foot">
-                <p class="perfil-feedback" id="perfilTotpDesactivarFeedback" role="status"></p>
-                <div class="perfil-form-actions">
-                  <button type="button" class="perfil-btn perfil-btn--ghost" id="btnTotpCancelarBaja">Cancelar</button>
-                  <button type="button" class="perfil-btn perfil-btn--soft" id="btnTotpDesactivarConfirmar">Desactivar</button>
+                <p class="perfil-feedback" id="perfilUsuarioFeedback" role="status"></p>
+                <button type="submit" class="perfil-btn perfil-btn--soft" id="btnGuardarUsuario" disabled>Cambiar usuario</button>
+              </div>
+            </form>
+
+            <div class="perfil-fila">
+              <div class="perfil-fila-que">
+                <strong>Contraseña</strong>
+                <span>Podés cambiarla cuando quieras.</span>
+              </div>
+              <button type="button" class="perfil-btn perfil-btn--ghost perfil-btn--mini" data-abrir="bloqueClave" aria-expanded="false">
+                Cambiar
+              </button>
+            </div>
+
+            <div class="perfil-fila" id="perfilTotpFila" hidden>
+              <div class="perfil-fila-que">
+                <strong>Verificación en dos pasos</strong>
+                <span>Aplicación de autenticación</span>
+              </div>
+              <span class="perfil-chip" id="perfilTotpEstado">Desactivada</span>
+            </div>
+
+            <div class="perfil-totp" id="perfilTotp" hidden>
+              <div class="perfil-totp-head">
+                <p class="perfil-field-hint">Protege tu cuenta con una aplicación de autenticación.</p>
+              </div>
+              <div class="perfil-totp-actions">
+                <button type="button" class="perfil-btn perfil-btn--soft" id="btnTotpActivar">Activar</button>
+                <button type="button" class="perfil-link" id="btnTotpDesactivar" hidden>Desactivar</button>
+              </div>
+              <div class="perfil-totp-panel" id="perfilTotpPanel" hidden>
+                <p class="perfil-field-hint">Escanea el código con tu aplicación (Google Authenticator, Authy, 1Password) o copia el secreto, y escribe el código que genera.</p>
+                <div class="perfil-totp-qr" id="perfilTotpQr" hidden></div>
+                <div class="perfil-totp-secret-row">
+                  <code class="perfil-totp-secreto" id="perfilTotpSecreto"></code>
+                  <button type="button" class="perfil-btn perfil-btn--soft perfil-btn--mini" id="btnCopiarTotp">Copiar</button>
+                </div>
+                <div class="perfil-field">
+                  <label for="perfilTotpCodigo">Código de 6 dígitos</label>
+                  <input type="text" id="perfilTotpCodigo" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="123456" autocomplete="one-time-code" />
+                </div>
+                <div class="perfil-form-foot">
+                  <p class="perfil-feedback" id="perfilTotpFeedback" role="status"></p>
+                  <div class="perfil-form-actions">
+                    <button type="button" class="perfil-btn perfil-btn--ghost" id="btnTotpCancelar">Cancelar</button>
+                    <button type="button" class="perfil-btn perfil-btn--primary" id="btnTotpConfirmar">Confirmar y activar</button>
+                  </div>
+                </div>
+              </div>
+              <div class="perfil-totp-panel" id="perfilTotpDesactivarPanel" hidden>
+                <div class="perfil-field">
+                  <label for="perfilTotpClave">Contraseña actual</label>
+                  <input type="password" id="perfilTotpClave" autocomplete="current-password" />
+                </div>
+                <div class="perfil-field">
+                  <label for="perfilTotpBajaCodigo">Código de 6 dígitos</label>
+                  <input type="text" id="perfilTotpBajaCodigo" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="123456" autocomplete="one-time-code" />
+                </div>
+                <div class="perfil-form-foot">
+                  <p class="perfil-feedback" id="perfilTotpDesactivarFeedback" role="status"></p>
+                  <div class="perfil-form-actions">
+                    <button type="button" class="perfil-btn perfil-btn--ghost" id="btnTotpCancelarBaja">Cancelar</button>
+                    <button type="button" class="perfil-btn perfil-btn--soft" id="btnTotpDesactivarConfirmar">Desactivar</button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </section>
-      </div>
+          </section>
 
-      <div class="perfil-savebar" id="perfilSaveBar" hidden>
-        <span class="perfil-savebar-text">Cambios sin guardar</span>
-        <div class="perfil-savebar-actions">
-          <button type="button" class="perfil-btn perfil-btn--ghost" id="btnDescartarPerfil">Descartar</button>
-          <button type="button" class="perfil-btn perfil-btn--primary" id="btnGuardarPerfilBar">Guardar</button>
+          <!-- Cambiar contraseña: bloque que abre el aviso. -->
+          <section class="perfil-bloque" id="bloqueClave" aria-labelledby="perfilClaveTitle" hidden>
+            <header class="perfil-bloque-cab">
+              <h2 id="perfilClaveTitle">Cambiar contraseña</h2>
+            </header>
+            <form class="perfil-panel perfil-form" id="formClave" novalidate>
+              <div class="perfil-fields">
+                <div class="perfil-field perfil-field--full">
+                  <label for="perfilInputClaveActual">Contraseña actual</label>
+                  <div class="perfil-clave-wrap">
+                    <input type="password" id="perfilInputClaveActual" name="actual" autocomplete="current-password" />
+                    <button type="button" class="perfil-clave-toggle" data-toggle-clave="perfilInputClaveActual" aria-label="Mostrar contraseña actual" aria-pressed="false"><Icon name="password.ver" size={17} /></button>
+                  </div>
+                </div>
+                <div class="perfil-field">
+                  <label for="perfilInputClaveNueva">Nueva contraseña</label>
+                  <div class="perfil-clave-wrap">
+                    <input type="password" id="perfilInputClaveNueva" name="nueva" autocomplete="new-password" aria-describedby="perfilFuerzaTexto" />
+                    <button type="button" class="perfil-clave-toggle" data-toggle-clave="perfilInputClaveNueva" aria-label="Mostrar nueva contraseña" aria-pressed="false"><Icon name="password.ver" size={17} /></button>
+                  </div>
+                  <div class="perfil-strength" aria-hidden="true">
+                    <span class="perfil-strength-seg"></span>
+                    <span class="perfil-strength-seg"></span>
+                    <span class="perfil-strength-seg"></span>
+                    <span class="perfil-strength-seg"></span>
+                  </div>
+                  <span class="perfil-field-hint" id="perfilFuerzaTexto" aria-live="polite">Mínimo 10 caracteres. Se recomienda una frase larga.</span>
+                </div>
+                <div class="perfil-field">
+                  <label for="perfilInputClaveRepetir">Repetir la nueva</label>
+                  <div class="perfil-clave-wrap">
+                    <input type="password" id="perfilInputClaveRepetir" name="repetir" autocomplete="new-password" />
+                    <button type="button" class="perfil-clave-toggle" data-toggle-clave="perfilInputClaveRepetir" aria-label="Mostrar repetición de la contraseña" aria-pressed="false"><Icon name="password.ver" size={17} /></button>
+                  </div>
+                </div>
+              </div>
+              <div class="perfil-form-foot">
+                <p class="perfil-feedback" id="perfilClaveFeedback" role="status"></p>
+                <button type="submit" class="perfil-btn perfil-btn--soft" id="btnGuardarClave" disabled>Cambiar contraseña</button>
+              </div>
+              <p class="perfil-note">
+                Si olvidas tu contraseña, administración puede generarte una temporal. El enlace por correo se
+                activará cuando el programa tenga dominio de envío.
+              </p>
+            </form>
+          </section>
+
+          <div class="perfil-savebar" id="perfilSaveBar" hidden>
+            <span class="perfil-savebar-text">Cambios sin guardar</span>
+            <div class="perfil-savebar-actions">
+              <button type="button" class="perfil-btn perfil-btn--ghost" id="btnDescartarPerfil">Descartar</button>
+              <button type="button" class="perfil-btn perfil-btn--primary" id="btnGuardarPerfilBar">Guardar</button>
+            </div>
+          </div>
         </div>
       </div>
 
