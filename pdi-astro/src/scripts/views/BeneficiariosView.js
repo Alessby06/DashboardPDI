@@ -1292,10 +1292,8 @@ export const BeneficiariosView = {
               <div class="padron-contact-sub">${escapar(telefono)}</div>
             </td>
             <td>
-              <div class="padron-user-name" title="Apoderado">${escapar(apoderadoTxt)}</div>
-              <div class="padron-metric-item padron-metric-sub">
-                ${parentescoTxt ? `<span>${escapar(parentescoTxt)}</span>` : ''}
-              </div>
+              <div class="padron-apoderado-nombre" title="${escapar(apoderadoTxt)}">${escapar(apoderadoTxt)}</div>
+              ${parentescoTxt ? `<div class="padron-apoderado-sub">${escapar(parentescoTxt)}</div>` : ''}
             </td>
             <td>
               <div class="padron-status-tag ${estadoClase}">
@@ -1363,6 +1361,10 @@ export const BeneficiariosView = {
                 <div class="datacard-row">
                   <span class="datacard-label">Edad / Sexo</span>
                   <span class="datacard-value">${escapar(b.edad)} / ${escapar(b.sexo)}</span>
+                </div>
+                <div class="datacard-row">
+                  <span class="datacard-label">Apoderado</span>
+                  <span class="datacard-value">${escapar(b.apoderado || 'Sin apoderado')}${b.parentesco ? ` · ${escapar(b.parentesco)}` : ''}</span>
                 </div>
                 <div class="datacard-row">
                   <span class="datacard-label">Estrategias</span>

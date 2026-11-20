@@ -739,6 +739,28 @@
   white-space: nowrap;
 }
 
+/* Apoderado es dato de apoyo: Body Small, no la identidad de la fila. El nombre
+   completo vive en el title y se recorta a una linea para no cambiar el alto
+   de la tabla segun el dato. El parentesco usa la misma sublinea que el resto. */
+#tablaBeneficiarios .padron-apoderado-nombre {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--text-main);
+}
+
+#tablaBeneficiarios .padron-apoderado-sub {
+  margin-top: 2px;
+  font-size: 11.5px;
+  line-height: 1.3;
+  color: var(--text-muted);
+}
+
 /* Selector de orden propio: mismo lenguaje que el botón de filtros, pero
    como control secundario (sin el verde de acción). */
 .padron-sort-wrap {
