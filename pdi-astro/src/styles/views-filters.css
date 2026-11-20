@@ -860,7 +860,12 @@
   .audit-sheet-handle-row {
     display: none;
   }
+}
 
+/* La hoja móvil es su propio bloque y va en el nivel superior: al quedar
+   anidada dentro de `min-width: 769px`, las dos condiciones no se cruzan nunca
+   y toda la hoja quedaba muerta. Por debajo de 768 el panel salía como un
+   popover de 330 px al que además el JS le saltaba el posicionamiento. */
 @media (max-width: 768px) {
   /* El topbar es un flex item con z-index 40. El velo vive dentro de main y no
      podia taparlo: el menu hamburguesa seguia activo detras de la hoja. Mientras
