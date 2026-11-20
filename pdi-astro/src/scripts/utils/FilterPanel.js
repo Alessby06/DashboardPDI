@@ -714,6 +714,23 @@ function prepararPanel(panel) {
 
   menu.addEventListener('scroll', () => marcarDesborde(panel), { passive: true, capture: true });
 
+  // El ancho y la posición del panel se calculaban al abrir, al redimensionar
+  // la ventana y al hacer scroll. Si el disparador cambia de ancho por otra
+  // razón —la barra se reacomoda, aparece el badge, cambia una fuente— el panel
+  // se quedaba con la medida vieja y aparecía más angosto y corrido. El
+  // observador lo mantiene pegado al botón mientras está abierto.
+  if (typeof ResizeObserver === 'function') {
+    let pendiente = 0;
+    const observarAncho = new ResizeObserver(() => {
+      if (!panel.classList.contains('open') || pendiente) return;
+      pendiente = requestAnimationFrame(() => {
+        pendiente = 0;
+        posicionarPanel(panel);
+      });
+    });
+    observarAncho.observe(disparador);
+  }
+
   // Lenis escucha la rueda en el contenedor de la vista y se tragaba el
   // scroll del panel. Al cortar la propagacion, la rueda desplaza el cuerpo
   // del panel y no la pagina (que ademas bloquea el encadenamiento).
