@@ -855,7 +855,7 @@ export const DashboardView = {
     const estado = window.PDI?.DB?.estadoActual?.() || "ok";
     if (estado !== "ok") {
       if (window.PDI?.ToastView) {
-        window.PDI.ToastView.show("Los datos aún se están sincronizando...", "warning");
+        window.PDI.ToastView.show("Los datos aún se están sincronizando...", "", "warning");
       }
       return;
     }

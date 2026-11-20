@@ -40,6 +40,7 @@ test('exportar pasa por confirmar() antes de descargar', () => {
   assert.ok(iConfirmar > 0 && iDescarga > iConfirmar);
   assert.match(vista, /corte del .+ para /);
   assert.doesNotMatch(vista, /ToastView\.mostrar/);
+  assert.match(vista, /ToastView\.show\([^,]+,\s*"",\s*"warning"\)/);
 });
 
 test('el caret respeta movimiento reducido', () => {
