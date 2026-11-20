@@ -623,7 +623,7 @@ export const DashboardView = {
     const recon = document.getElementById("dashReconcile");
     if (recon) {
       recon.textContent = datosOk
-        ? `Población: ${usuarios.length} usuarios · ${alimentario} con ración · ${educativo} con acompañamiento · ${usuariosAsp.length} con caso ASP (${casosActivos} casos) · ${voluntarios.length} voluntarios.`
+        ? `Población: ${usuarios.length} usuarios · ${voluntarios.length} voluntarias activas.`
         : this._mensajeSinDatos("Sin datos para conciliar.");
     }
 
