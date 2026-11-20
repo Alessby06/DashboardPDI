@@ -67,6 +67,9 @@ body[data-page="dashboard"] #mainContent {
   font-weight: 700;
   letter-spacing: -0.03em;
   color: var(--dash-ink);
+  /* La fecha es texto largo: se parte en dos líneas equilibradas, no en una
+     línea larga y una palabra suelta. */
+  text-wrap: balance;
 }
 
 .dash-subtitulo {
