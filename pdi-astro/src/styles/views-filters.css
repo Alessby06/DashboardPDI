@@ -211,10 +211,6 @@
   animation: pdi-filtros-zona-in var(--dur-fast) var(--ease-drawer) calc(var(--dur-press) / 3) both;
 }
 
-.audit-filters-dropdown.open .audit-filters-menu > .audit-filters-footer {
-  animation: pdi-filtros-zona-in var(--dur-fast) var(--ease-drawer) calc(var(--dur-press) * 2 / 3) both;
-}
-
 .audit-filters-header {
   display: flex;
   align-items: center;
@@ -223,6 +219,49 @@
   border-bottom: 1px solid var(--border-subtle);
   padding-bottom: 10px;
   flex-shrink: 0;
+}
+
+/* «Restablecer» solo existe cuando hay filtros que restablecer: lo marca el
+   atributo `hidden` desde FilterPanel.js y esta regla le gana al inline-flex
+   de .btn-text-subtle. */
+.audit-filters-menu [data-fil-restablecer][hidden] {
+  display: none;
+}
+
+/* Con el ancho del botón, en barras angostas el panel baja de 240 px y el
+   título y «Restablecer» ya no entran en la misma línea. Lo marca
+   FilterPanel.js al medir el disparador. */
+.audit-filters-menu.is-angosto .audit-filters-header {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.audit-filters-menu.is-angosto .audit-filters-header-actions {
+  align-self: flex-end;
+}
+
+.audit-filters-menu.is-angosto .audit-field-label {
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+}
+
+/* A 162 px el rótulo largo partía en dos líneas dentro de una caja de 36 px y
+   empujaba el caret fuera del borde. Se corta con puntos suspensivos. */
+.audit-filters-menu.is-angosto .padron-inner-dropdown,
+.audit-filters-menu.is-angosto .padron-inner-dropdown-btn {
+  min-width: 0;
+}
+
+.audit-filters-menu.is-angosto .padron-inner-dropdown-btn > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.audit-filters-menu.is-angosto .padron-inner-dropdown-btn > svg {
+  flex: none;
 }
 
 .audit-filters-header-title {
@@ -722,8 +761,6 @@
 .audit-filter-btn:focus-visible,
 .padron-inner-dropdown-btn:focus-visible,
 .audit-filters-menu .btn-text-subtle:focus-visible,
-.audit-filters-menu .btn-close-sheet:focus-visible,
-.audit-filters-menu .btn-apply-filters:focus-visible,
 .audit-filters-menu input:focus-visible,
 .audit-filters-menu select:focus-visible,
 .audit-filters-menu textarea:focus-visible,
@@ -812,42 +849,11 @@
    --------------------------------------------------------------------------- */
 
 @media (min-width: 769px) {
-  .btn-close-sheet {
-    display: none ;
+  /* Asa de la hoja movil. Decorativa para el lector; el gesto se engancha en la
+     cabecera completa. En escritorio no existe. */
+  .audit-sheet-handle-row {
+    display: none;
   }
-
-  /* Pie de escritorio: estado, no confirmacion. El filtrado ya ocurrio, asi
-     que aqui se informa cuantas coincidencias quedan y se ofrece el cierre
-     explicito que antes solo existia en movil. */
-  .audit-filters-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    padding-top: 12px;
-    margin-top: 0;
-    border-top: 1px solid var(--border-subtle);
-  }
-
-  .audit-filters-footer .btn-apply-filters {
-  background: var(--action);
-  background-image: none;
-  color: var(--on-action);
-}
-
-.filter-count {
-  /* Caption del sistema: 12.5/400 en Ink Dim, cifras tabulares. */
-  font-size: 12.5px;
-  font-weight: 400;
-  color: var(--text-dim);
-  font-variant-numeric: tabular-nums;
-}
-
-/* Asa de la hoja movil. Decorativa para el lector; el gesto se engancha en la
-   cabecera completa. En escritorio no existe. */
-.audit-sheet-handle-row {
-  display: none;
-}
 
 @media (max-width: 768px) {
   /* El topbar es un flex item con z-index 40. El velo vive dentro de main y no
@@ -958,8 +964,7 @@
   /* El compás de escritorio no viaja a la hoja móvil: el contenido entra
      con la hoja, sin capas de opacidad ni retardos. */
   .audit-filters-dropdown.open .audit-filters-menu > .audit-filters-header,
-  .audit-filters-dropdown.open .audit-filters-menu > .audit-filters-body,
-  .audit-filters-dropdown.open .audit-filters-menu > .audit-filters-footer {
+  .audit-filters-dropdown.open .audit-filters-menu > .audit-filters-body {
     animation: none;
   }
 
@@ -1026,23 +1031,6 @@
     gap: 8px;
   }
 
-  .btn-close-sheet {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: var(--surface-2);
-    border: 1px solid var(--border-subtle);
-    color: var(--text-main);
-    cursor: pointer;
-    padding: 0;
-    touch-action: manipulation;
-    transition: background-color var(--dur-fast) var(--ease-smooth),
-      transform var(--dur-press) var(--ease-out);
-  }
-
   .audit-filters-body {
     flex: 1 1 auto;
     overflow-y: auto;
@@ -1068,45 +1056,6 @@
     color: var(--text-dim);
     text-transform: uppercase;
     letter-spacing: 0.1em;
-  }
-
-  .audit-filters-footer {
-    display: flex;
-    gap: 8px;
-    padding: 12px 18px calc(14px + env(safe-area-inset-bottom, 0px)) 18px;
-    background: var(--surface-1);
-    border-top: 1px solid var(--border-subtle);
-    position: sticky;
-    bottom: 0;
-    z-index: 20;
-  }
-
-  .audit-filters-footer .btn-apply-filters {
-    width: 100%;
-    height: 44px;
-    min-height: 44px;
-    font-size: 13.5px;
-    font-weight: 700;
-    border-radius: var(--radius-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    cursor: pointer;
-    touch-action: manipulation;
-    /* Sólido con la tinta de acción: crema en claro, casi negro en oscuro. */
-    background: var(--action);
-    background-image: none;
-    color: var(--on-action);
-  }
-
-  .audit-filters-footer .btn-apply-filters svg {
-    display: none;
-  }
-
-  .audit-filters-footer .filter-count,
-  .audit-filters-footer .btn-close-filter {
-    display: none;
   }
 
   .padron-inner-dropdown-btn {

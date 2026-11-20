@@ -8,6 +8,10 @@ import Icon from './Icon.astro';
 //  cada faceta va en el slot, normalmente como un <FilterField>.
 //
 //  Los ids siguen siendo los mismos: las vistas y sus scripts no cambian.
+//
+//  Sin pie. El filtrado ocurre en vivo, así que el botón «Ver resultados» no
+//  aplicaba nada: solo cerraba. Y sin X: en escritorio se cierra con clic
+//  fuera, Escape o el propio disparador, y en el teléfono con el asa o el velo.
 // ===========================================================================
 interface Props {
   /** id del contenedor .audit-filters-dropdown */
@@ -24,8 +28,6 @@ interface Props {
   reset: string;
   /** Texto del botón principal */
   buttonLabel?: string;
-  /** Texto del pie (el JS lo sustituye por "Ver resultados (N)" al abrir) */
-  applyLabel?: string;
 }
 
 const {
@@ -36,11 +38,9 @@ const {
   title,
   reset,
   buttonLabel = "Filtros",
-  applyLabel = "Aplicar Filtros",
 } = Astro.props;
 
 const toggle = `window.toggleCustomDropdown ? window.toggleCustomDropdown('${id}') : null`;
-const cerrar = "window.closeAllFilterSheets ? window.closeAllFilterSheets() : null";
 ---
 
 <div class="audit-filter-panel-wrap">
@@ -70,22 +70,16 @@ const cerrar = "window.closeAllFilterSheets ? window.closeAllFilterSheets() : nu
           <span>{title}</span>
         </div>
         <div class="audit-filters-header-actions">
-          <button type="button" class="btn-text-subtle" onclick={reset}>Restablecer</button>
-          <button type="button" class="btn-close-sheet" aria-label="Cerrar filtros" onclick={cerrar}>
-            <Icon name="accion.cerrar" size={15} />
+          <!-- Aparece solo cuando hay algo que restablecer; lo gobierna
+               FilterPanel.js mirando el contador de filtros activos. -->
+          <button type="button" class="btn-text-subtle" onclick={reset} data-fil-restablecer hidden>
+            Restablecer
           </button>
         </div>
       </div>
 
       <div class="audit-filters-body">
         <slot />
-      </div>
-
-      <div class="audit-filters-footer">
-        <button type="button" class="btn-action primary btn-apply-filters" onclick={cerrar}>
-          <Icon name="accion.confirmar" size={15} />
-          <span>{applyLabel}</span>
-        </button>
       </div>
     </div>
   </div>

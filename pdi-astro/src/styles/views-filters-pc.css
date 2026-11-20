@@ -49,6 +49,15 @@
     border-bottom-color: var(--border-bright);
   }
 
+  /* El panel mide lo que su botón (lo fija FilterPanel.js al abrir). En barras
+     angostas ese ancho baja de 300 px: se recorta el aire para que los dos
+     selects sigan entrando sin truncar. */
+  @media (max-width: 1100px) {
+    .audit-filters-menu {
+      padding: 12px;
+    }
+  }
+
   /* Desplegables internos (padrón): la entrada y la salida las resuelve la
      fuente unica con transiciones + @starting-style. Sin keyframes. */
   .padron-inner-dropdown-menu {

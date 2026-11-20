@@ -45,6 +45,12 @@ export function initSortMenu({ id, onSelect }) {
     // El menú vive dentro del panel con scroll de la vista, que recorta lo que
     // sobresale. Antes de pintarlo se decide hacia dónde cabe y cuánto.
     apartar();
+    // Orden y filtros no comparten espacio: con los dos abiertos se tapan y
+    // compiten por el foco. Abrir uno cierra el otro (y cualquier desplegable).
+    window.closeAllFilterSheets?.();
+    document.querySelectorAll(".custom-dropdown.open").forEach((otro) => {
+      if (otro !== dropdown) otro.classList.remove("open");
+    });
     dropdown.classList.add("open");
     boton.setAttribute("aria-expanded", "true");
     colocar();

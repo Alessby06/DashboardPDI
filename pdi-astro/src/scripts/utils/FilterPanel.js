@@ -169,18 +169,15 @@ function textoCifra(n) {
   return `${n} ${n === 1 ? 'coincidencia' : 'coincidencias'}`;
 }
 
-function actualizarEtiqueta(panel) {
-  const n = contarResultados();
-  const boton = panel.querySelector('.btn-apply-filters');
-  if (boton) {
-    const texto = boton.querySelector('span');
-    if (texto) texto.textContent = n === null ? 'Ver resultados' : `Ver resultados (${n})`;
-    boton.setAttribute('aria-label', n === null
-      ? 'Cerrar filtros y ver resultados'
-      : `Cerrar filtros y ver ${textoCifra(n)}`);
-  }
-  const cifra = panel.querySelector('.filter-count');
-  if (cifra) cifra.textContent = textoCifra(n);
+function actualizarRestablecer(panel) {
+  const boton = panel.querySelector('[data-fil-restablecer]');
+  if (!boton) return;
+  const contador = panel.querySelector('.filter-active-count');
+  // Sin contador en esa página no hay forma de saber cuántos filtros hay: se
+  // deja visible, que es el comportamiento de siempre. Con contador, manda él:
+  // escondido significa que no hay nada que restablecer.
+  const activos = contador ? contador.style.display !== 'none' : true;
+  boton.hidden = !activos;
 }
 
 function marcarOpcion(item) {
@@ -368,6 +365,8 @@ function posicionarPanel(panel) {
     menu.style.removeProperty('left');
     menu.style.removeProperty('bottom');
     menu.style.removeProperty('max-height');
+    // La hoja móvil ocupa el ancho de la pantalla: el ancho del botón no aplica.
+    menu.style.removeProperty('width');
     return;
   }
 
@@ -376,6 +375,19 @@ function posicionarPanel(panel) {
 
   const ancla = panel.closest('.audit-filter-panel-wrap') || boton;
   const r = ancla.getBoundingClientRect();
+
+  // El panel mide lo que su botón: se lee como su continuación y no como otra
+  // caja flotando encima. Se mide el botón, no el wrapper, porque en algunas
+  // barras el botón no ocupa toda la celda.
+  const anchoBoton = boton.getBoundingClientRect().width;
+  if (anchoBoton > 0) {
+    menu.style.width = `${Math.round(anchoBoton)}px`;
+    // Por debajo de 240 px el título y «Restablecer» ya no entran en la misma
+    // línea: la cabecera se apila. Se decide por el ancho real y no por el
+    // viewport, porque el botón depende de la barra de cada página.
+    menu.classList.toggle('is-angosto', anchoBoton < 240);
+  }
+
   const { usarArriba, disponible } = decidirDireccion(ancla);
   menu.classList.toggle('is-above', usarArriba);
   // La altura se recorta al hueco real del lado elegido; el resto se desplaza
@@ -444,6 +456,12 @@ function prepararApertura(panel) {
   const { usarArriba } = decidirDireccion(boton);
   menu.classList.toggle('is-above', usarArriba);
 
+  // El ancho va también aquí, no solo en posicionarPanel: este corre antes de
+  // que el panel se muestre en el top layer, y si esperara al otro el primer
+  // frame saldría a 330 px y saltaría al ancho real.
+  const ancho = boton.getBoundingClientRect().width;
+  if (ancho > 0) menu.style.width = `${Math.round(ancho)}px`;
+
   if (!SOPORTA_POPOVER) return;
   if (!menu.hasAttribute('popover')) menu.setAttribute('popover', 'manual');
   menu.style.display = 'flex';
@@ -490,7 +508,7 @@ function enlazarArrastreHoja(panel) {
   let historial = [];
   let animacion = null;
 
-  const esControl = (el) => !!el.closest?.('.btn-text-subtle, .btn-close-sheet');
+  const esControl = (el) => !!el.closest?.('.btn-text-subtle');
 
   /** Desplazamiento visible actual: si la hoja venía entrando, el dedo debe
    * agarrarla donde está, no donde acabaría. */
@@ -657,30 +675,14 @@ function prepararPanel(panel) {
 
   prepararEtiquetas(panel);
   prepararOpciones(menu);
-  actualizarEtiqueta(panel);
+  actualizarRestablecer(panel);
 
-  panel.addEventListener('change', () => actualizarEtiqueta(panel));
-  panel.addEventListener('input', () => actualizarEtiqueta(panel));
-
-  const pie = menu.querySelector('.audit-filters-footer');
-  if (pie) {
-    if (!pie.querySelector('.filter-count')) {
-      const cifra = document.createElement('span');
-      cifra.className = 'filter-count';
-      cifra.setAttribute('aria-live', 'polite');
-      pie.insertBefore(cifra, pie.firstChild);
-    }
-    if (!pie.querySelector('.btn-close-filter')) {
-      const cerrar = document.createElement('button');
-      cerrar.type = 'button';
-      cerrar.className = 'btn-text-subtle btn-close-filter';
-      cerrar.textContent = 'Cerrar';
-      cerrar.addEventListener('click', () => {
-        window.closeAllFilterSheets?.();
-        disparador.focus({ preventScroll: true });
-      });
-      pie.appendChild(cerrar);
-    }
+  // El contador de filtros activos es un <span> en el disparador que cada vista
+  // actualiza. Cuando cambia, se decide si «Restablecer» tiene algo que hacer.
+  const contador = panel.querySelector('.filter-active-count');
+  if (contador) {
+    new MutationObserver(() => actualizarRestablecer(panel))
+      .observe(contador, { attributes: true, attributeFilter: ['style', 'hidden', 'class'] });
   }
 
   let eraAbierto = panel.classList.contains('open');
@@ -695,7 +697,7 @@ function prepararPanel(panel) {
     if (abierto) {
       aperturaHasta = Date.now() + 450;
       abrirPopover(menu);
-      actualizarEtiqueta(panel);
+      actualizarRestablecer(panel);
       posicionarPanel(panel);
       marcarDesborde(panel);
       const primero = menu.querySelector('.audit-filters-body :is(' + FOCALIZABLES + ')');
@@ -740,7 +742,7 @@ function prepararPanel(panel) {
     if (!panel.classList.contains('open')) return;
     clearTimeout(observador._t);
     observador._t = setTimeout(() => {
-      actualizarEtiqueta(panel);
+      actualizarRestablecer(panel);
       marcarDesborde(panel);
       nombrarQuitarChips();
     }, 80);
@@ -754,7 +756,7 @@ function prepararPanel(panel) {
   if (panel.classList.contains('open')) {
     aperturaHasta = Date.now() + 450;
     abrirPopover(menu);
-    actualizarEtiqueta(panel);
+    actualizarRestablecer(panel);
     posicionarPanel(panel);
     const primero = menu.querySelector('.audit-filters-body :is(' + FOCALIZABLES + ')');
     setTimeout(() => (primero || menu).focus({ preventScroll: true }), 0);
