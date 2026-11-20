@@ -38,7 +38,7 @@ test('exportar pasa por confirmar() antes de descargar', () => {
   const iConfirmar = vista.indexOf('confirmar({');
   const iDescarga = vista.indexOf('CsvExporter._descargar');
   assert.ok(iConfirmar > 0 && iDescarga > iConfirmar);
-  assert.match(vista, /fecha de corte|Fecha de corte/);
+  assert.match(vista, /corte del .+ para /);
 });
 
 test('el caret respeta movimiento reducido', () => {

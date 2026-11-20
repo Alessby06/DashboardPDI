@@ -1,6 +1,7 @@
 import { AnimationEngine } from '../utils/AnimationEngine.js';
 import { CsvExporter } from '../utils/CsvExporter.js';
 import { escapar } from "../utils/HtmlHelper.js";
+import { confirmar } from '../ui/confirmacion.js';
 
 /**
  * Vista: Tablero Principal Dashboard (dashboard.astro)
@@ -835,8 +836,17 @@ export const DashboardView = {
 
     const btnExport = document.getElementById("btnExportarParte");
     if (btnExport) {
-      btnExport.addEventListener("click", () => {
-        this.exportarParteDiario();
+      btnExport.addEventListener("click", async () => {
+        const hoy = new Date().toISOString().slice(0, 10);
+        const ambito = this._filtroSede === "all" ? "Todas las sedes" : this._filtroSede;
+        const seguir = await confirmar({
+          titulo: "Exportar parte diario",
+          mensaje: "Se descargará un CSV con el corte del " + hoy + " para " + ambito + ".",
+          confirmar: "Descargar CSV",
+          cancelar: "Cancelar",
+          origen: btnExport,
+        });
+        if (seguir) this.exportarParteDiario();
       });
     }
   },
