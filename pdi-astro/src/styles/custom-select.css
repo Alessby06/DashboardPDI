@@ -57,9 +57,9 @@
 .pdi-select-trigger {
   padding-right: 32px;
   position: relative;
-  transition: border-color var(--dur-fast) var(--ease-smooth),
-    background-color var(--dur-fast) var(--ease-smooth),
-    box-shadow var(--dur-fast) var(--ease-smooth);
+  transition: border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -93,7 +93,7 @@
   transform: translateY(-50%);
   color: var(--text-muted);
   pointer-events: none;
-  transition: transform var(--dur-popover) var(--ease-out);
+  transition: transform var(--dur-fast) var(--ease-out);
 }
 
 .pdi-select.is-open .pdi-select-caret {
@@ -201,5 +201,14 @@
 
   .pdi-select-menu {
     max-height: 60vh;
+  }
+}
+
+/* La rotación del caret es decorativa: con movimiento reducido se queda quieta. */
+@media (prefers-reduced-motion: reduce) {
+  .pdi-select-caret,
+  .pdi-select.is-open .pdi-select-caret {
+    transition: none;
+    transform: translateY(-50%);
   }
 }
