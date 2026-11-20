@@ -78,7 +78,32 @@ const impeccableLive =
 
   <script is:inline>
     (function () {
-      // 0. Seguridad inmediata: si no hay sesión activa o expiró, redirigir al login antes de renderizar
+      // 0. Script perdido. Un despliegue puede servir el HTML nuevo antes que
+      // su chunk, y un HTML cacheado puede pedir el chunk de la versión
+      // anterior: en los dos casos el módulo da 404 y la página queda sin su
+      // vista. Se recarga una sola vez, con la URL marcada para no volver a
+      // recibir la misma copia del caché. Sin sessionStorage no se reintenta,
+      // para no arriesgar un bucle.
+      window.addEventListener("error", function (ev) {
+        var objetivo = ev.target;
+        if (!objetivo || objetivo.tagName !== "SCRIPT") return;
+        var src = objetivo.src || "";
+        if (!src || src.indexOf(location.origin) !== 0) return;
+        try {
+          var clave = "pdi_recarga_chunk";
+          var ahora = Date.now();
+          var previo = Number(sessionStorage.getItem(clave) || 0);
+          if (ahora - previo < 30000) return;
+          sessionStorage.setItem(clave, String(ahora));
+          var url = new URL(location.href);
+          url.searchParams.set("v", String(ahora));
+          location.replace(url.toString());
+        } catch (e) {
+          // sessionStorage bloqueado: mejor dejar la página como está.
+        }
+      }, true);
+
+      // 0.b Seguridad inmediata: si no hay sesión activa o expiró, redirigir al login antes de renderizar
       try {
         var sesionActiva = localStorage.getItem("pdi_sesion_activa");
         var login = localStorage.getItem("pdi_usuario_login");
