@@ -214,11 +214,17 @@
 .audit-filters-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  border-bottom: 1px solid var(--border-subtle);
-  padding-bottom: 10px;
+  /* Sin título visible: la cabecera queda como una fila mínima con la única
+     acción que no vive en el cuerpo, «Restablecer». El nombre del panel sigue
+     existiendo para lectores de pantalla (queda en `aria-labelledby`). */
+  justify-content: flex-end;
+  gap: 8px;
+  padding-bottom: 0;
   flex-shrink: 0;
+}
+
+.audit-filters-header-actions {
+  margin-left: auto;
 }
 
 /* «Restablecer» solo existe cuando hay filtros que restablecer: lo marca el
