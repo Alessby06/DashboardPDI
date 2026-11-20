@@ -321,7 +321,7 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       position: relative;
       display: flex;
       align-items: center;
-      height: 36px;
+      height: 32px;
       border: 0;
       border-radius: 10px;
       background: var(--field-bg);
@@ -353,8 +353,8 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       border: 0;
       background: transparent;
       color: var(--ink);
-      /* Token body de DESIGN.md: el dato escrito no compite con la accion. */
-      font-size: 15px;
+      /* 14px como el boton: el dato escrito no compite con la jerarquia. */
+      font-size: 14px;
       outline: none;
     }
 
@@ -418,8 +418,8 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       right: 0;
       display: grid;
       place-items: center;
-      width: 36px;
-      height: 36px;
+      width: 32px;
+      height: 32px;
       border: 0;
       border-radius: 10px;
       background: transparent;
@@ -1194,8 +1194,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     }
 
     @media (any-pointer: coarse) {
-      .control,
-      .eye,
       .theme {
         height: 44px;
       }
@@ -1203,10 +1201,6 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
       .control input {
         /* En pantallas tactiles 16px evita el zoom automatico de iOS al enfocar. */
         font-size: 16px;
-      }
-
-      .eye {
-        width: 44px;
       }
 
       .chip {
