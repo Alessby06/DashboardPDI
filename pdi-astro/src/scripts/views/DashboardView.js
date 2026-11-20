@@ -171,7 +171,7 @@ export const DashboardView = {
 
     const kpiTotalPadron = document.getElementById("kpiTotalPadron");
     if (kpiTotalPadron) {
-      this._cifra(kpiTotalPadron, datosOk ? totalPadron : "—", (n) => String(Math.round(n)), animarCifras);
+      this._cifra(kpiTotalPadron, datosOk ? totalPadron : 0, (n) => String(Math.round(n)), animarCifras);
     }
     const kpiTotalPadronSub = document.getElementById("kpiTotalPadronSub");
     if (kpiTotalPadronSub) {
@@ -182,7 +182,7 @@ export const DashboardView = {
 
     const kpiCobertura = document.getElementById("kpiCoberturaTamizaje");
     if (kpiCobertura) {
-      this._cifra(kpiCobertura, datosOk ? cobertura : "—", (n) => `${Math.round(n)} %`, animarCifras);
+      this._cifra(kpiCobertura, datosOk ? cobertura : 0, (n) => `${Math.round(n)} %`, animarCifras);
     }
     const kpiCoberturaSub = document.getElementById("kpiCoberturaTamizajeSub");
     if (kpiCoberturaSub) {
@@ -210,7 +210,7 @@ export const DashboardView = {
 
     const kpiTasaAnemia = document.getElementById("kpiTasaAnemia");
     if (kpiTasaAnemia) {
-      this._cifra(kpiTasaAnemia, datosOk ? (statsFiltradas.pctTotalAnemia ?? 0) : "—", (n) => `${Math.round(n)} %`, animarCifras);
+      this._cifra(kpiTasaAnemia, datosOk ? (statsFiltradas.pctTotalAnemia ?? 0) : 0, (n) => `${Math.round(n)} %`, animarCifras);
     }
     const kpiTasaAnemiaSub = document.getElementById("kpiTasaAnemiaSub");
     if (kpiTasaAnemiaSub) {
@@ -221,7 +221,7 @@ export const DashboardView = {
 
     const kpiCasosAsp = document.getElementById("kpiCasosAsp");
     if (kpiCasosAsp) {
-      this._cifra(kpiCasosAsp, datosOk ? casosActivos : "—", (n) => String(Math.round(n)), animarCifras);
+      this._cifra(kpiCasosAsp, datosOk ? casosActivos : 0, (n) => String(Math.round(n)), animarCifras);
     }
     const kpiCasosAspSub = document.getElementById("kpiCasosAspSub");
     if (kpiCasosAspSub) {
@@ -236,7 +236,7 @@ export const DashboardView = {
     const kpiSedesActivas = document.getElementById("kpiSedesActivas");
     if (kpiSedesActivas) {
       const sedesCount = window.PDI?.SedeModel?.getAll?.()?.length || 0;
-      this._cifra(kpiSedesActivas, datosOk ? sedesCount : "—", (n) => String(Math.round(n)), animarCifras);
+      this._cifra(kpiSedesActivas, datosOk ? sedesCount : 0, (n) => String(Math.round(n)), animarCifras);
     }
 
     // Franja clínica: cifras directas y conteo calibrado (Ficha A6)
@@ -257,12 +257,12 @@ export const DashboardView = {
         }
 
         const pctEl = document.getElementById(pctId);
-        if (pctEl) this._cifra(pctEl, datosOk ? pct : "—", (n) => `${Math.round(n)} %`, animarCifras);
+        if (pctEl) this._cifra(pctEl, datosOk ? pct : 0, (n) => `${Math.round(n)} %`, animarCifras);
         const casosEl = document.getElementById(casosId);
         if (casosEl) {
           this._cifra(
             casosEl,
-            datosOk ? casos : "—",
+            datosOk ? casos : 0,
             (n) => (n === 1 ? "1 caso" : `${Math.round(n)} casos`),
             animarCifras,
           );
@@ -458,7 +458,7 @@ export const DashboardView = {
     const claves = new Map(usuarios.map(b => [b, this._clavesServicio(b)]));
     const estado = window.PDI?.DB?.estadoActual?.() || "ok";
     const datosOk = estado === "ok";
-    const valor = (n) => (datosOk ? String(n) : "-");
+    const valor = (n) => (datosOk ? String(n) : "0");
     const contar = (clave) => usuarios.filter(b => claves.get(b).has(clave)).length;
 
     const desayuno = contar("desayuno");
@@ -488,7 +488,7 @@ export const DashboardView = {
 
     const poner = (id, n) => {
       const el = document.getElementById(id);
-      if (el) this._cifra(el, datosOk ? n : "—", (v) => String(Math.round(v)), animar);
+      if (el) this._cifra(el, datosOk ? n : 0, (v) => String(Math.round(v)), animar);
     };
 
     poner("dashAlimUsuarios", alimentario);
@@ -611,7 +611,7 @@ export const DashboardView = {
       }
 
       const totalEl = document.getElementById("dashVolTotal");
-      if (totalEl) this._cifra(totalEl, datosOk ? total : "—", (v) => String(Math.round(v)), animar);
+      if (totalEl) this._cifra(totalEl, datosOk ? total : 0, (v) => String(Math.round(v)), animar);
 
       const sinVoluntarios = datosOk
         ? filas.filter((f) => (grupos[f.clave] || 0) === 0 && (demanda[f.clave] || 0) > 0).length
@@ -651,7 +651,7 @@ export const DashboardView = {
     set("atencionAnemiaTexto", `${anemia} ${anemia === 1 ? "anemia moderada/severa" : "anemias moderadas/severas"}`);
     set("atencionSinTamizajeTexto", `${sinTamizaje} ${sinTamizaje === 1 ? "niño sin tamizaje" : "niños sin tamizaje"}`);
     set("atencionVoluntariosTexto", `${voluntarios} ${voluntarios === 1 ? "servicio sin voluntarios" : "servicios sin voluntarios"}`);
-    set("atencionFrentes", datosOk ? `${frentes} ${frentes === 1 ? "frente abierto" : "frentes abiertos"}` : "—");
+    set("atencionFrentes", datosOk ? `${frentes} ${frentes === 1 ? "frente abierto" : "frentes abiertos"}` : "0 frentes abiertos");
 
     const filas = [
       ["atencionFilaAnemia", anemia],

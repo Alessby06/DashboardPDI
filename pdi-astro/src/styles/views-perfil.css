@@ -459,20 +459,6 @@ html[data-theme="dark"] .perfil-btn--danger {
   display: none;
 }
 
-.perfil-totp-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.perfil-totp-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
 .perfil-totp-panel {
   display: flex;
   flex-direction: column;
@@ -524,12 +510,6 @@ html[data-theme="dark"] .perfil-btn--danger {
 
 .perfil-totp-qr path {
   fill: var(--qr-ink);
-}
-
-@media (max-width: 640px) {
-  .perfil-totp-head {
-    flex-direction: column;
-  }
 }
 
 .perfil-clave-wrap {
@@ -959,6 +939,19 @@ html[data-theme="dark"] .perfil-btn--danger {
 .perfil-lectura > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .perfil-lectura span { font-size: 12px; color: var(--text-dim); }
 .perfil-lectura strong { font-size: 13.5px; font-weight: 600; overflow-wrap: anywhere; }
+.perfil-lectura strong:empty { display: none; }
+
+.perfil-agregar {
+  align-self: flex-start;
+  padding: 0;
+  color: var(--text-brand);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.perfil-agregar[hidden] { display: none; }
 
 .perfil-panel--en-linea {
   margin-top: 4px;
@@ -983,6 +976,13 @@ html[data-theme="dark"] .perfil-btn--danger {
 .perfil-fila-que { flex: 1; min-width: 0; }
 .perfil-fila-que strong { display: block; font-size: 13px; font-weight: 700; }
 .perfil-fila-que span { font-size: 12px; color: var(--text-dim); }
+
+.perfil-fila-acciones {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
 
 .perfil-chip {
   display: inline-flex;

@@ -172,7 +172,7 @@ function textoCifra(n) {
   if (n === null) {
     const main = document.getElementById('mainContent');
     const cargando = main && Array.from(main.querySelectorAll('.pdi-skeleton')).some(esVisible);
-    return cargando ? 'Contando…' : '—';
+    return cargando ? 'Contando…' : 'No disponible';
   }
   if (n === 0) return 'Sin coincidencias';
   return `${n} ${n === 1 ? 'coincidencia' : 'coincidencias'}`;

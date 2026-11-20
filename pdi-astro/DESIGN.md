@@ -292,6 +292,8 @@ El logo conserva su verde propio (`#00b494`); no es un token de interfaz ni se u
 
 **The Action Ink Rule.** La tinta del primario neutral es `On Action` (crema en claro, casi negra en oscuro); la del azul de selección es `On Interactive` (la misma pareja). La tinta de un relleno saturado (rojo, ámbar, azul) sigue siendo `On Solid` (blanco en claro, casi negra en oscuro). No hay `On Brand` verde.
 
+**The Empty Value Rule.** Ningún valor ausente se escribe con un guion. En texto legible, mientras llega el dato se usa `Cargando…`; si el dato no existe y el usuario puede completarlo, se muestra una acción directa con nombre concreto (`Agregar correo`, `Agregar teléfono`) que abre el formulario y enfoca ese campo. Si el dato es de solo lectura o derivado, se usa `No disponible`. En cifras, el HTML trae `······` solo como marcador interno que se sustituye antes del primer pintado: si hay snapshot en caché se escribe el valor real sin animar, para que no aparezca un 0 de milisegundos; si no lo hay se escribe `0` con `data-contador-valor="0"` y `AnimationEngine.contar` anima la subida o la bajada cuando llegan los datos. El 0 es el estado de una cuenta sin fuente, no una estimación. Un texto no debe usar 0 en lugar de una acción o de `No disponible`.
+
 **The Contrast Per Theme Rule.** El contraste se verifica dos veces, una por tema. Un texto que pasa en claro puede fallar en oscuro porque los tokens de tinta cambian de valor.
 
 ## Typography
@@ -531,6 +533,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Do** usar `--border-focus` para todo anillo de teclado, con 2 px y offset 2; es el único indicador de foco y debe superar 3:1.
 - **Do** reservar el `h1` para el título de la vista y usar `h2` para sus secciones; la marca es texto.
 - **Do** dar 44 px de alto a toda acción táctil con puntero grueso.
+- **Do** escribir `Cargando…` mientras falta un dato de texto, una acción `Agregar X` si el usuario puede completarlo y `No disponible` si es de solo lectura; en cifras, dejar que el snapshot congelado gane antes del primer pintado y animar solo desde el 0 cuando no había caché.
 
 ### Don't:
 - **Don't** redeclarar tokens núcleo (color, superficie, borde, texto, sombra) en una hoja de vista. Los tokens de componente —`--filter-border`, `--sk-base`— viven en su hoja compartida y se declaran una sola vez por tema.
@@ -551,6 +554,7 @@ No se usan 4, 8, 12 ni 20 px en superficies, con dos excepciones documentadas: l
 - **Don't** quitar el `outline` de un control con `:focus-visible`: el borde de 1 px no es un indicador de foco suficiente.
 - **Don't** usar `h1` para la marca ni `h2` para el título de la página: rompe el árbol de navegación por encabezados.
 - **Don't** dejar una acción táctil por debajo de 44 px de alto, aunque en escritorio se vea a 30 o 34.
+- **Don't** usar `-`, `—` ni `······` como valor visible: el primero es texto ausente y los dos últimos son marcadores internos que deben desaparecer antes del primer pintado.
 - **Don't** dejar un `<select>` nativo visible ni estilizarlo por vista: todo desplegable de selección pasa por `customSelect.js` y `custom-select.css`. La única excepción es un control que no pueda mejorarse (por ejemplo, `multiple` o `size > 1`); se marca `data-pdi-select="native"` y se justifica en el código.
 
 ### CSS Debt Budget

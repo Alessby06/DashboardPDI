@@ -21,7 +21,9 @@ function montarVista() {
     document.querySelectorAll('[data-lectura]').forEach((destino) => {
       const origen = document.getElementById(destino.dataset.lectura);
       const valor = (origen?.value || '').trim();
-      destino.textContent = valor || '—';
+      destino.textContent = valor;
+      const agregar = document.querySelector(`[data-agregar="${destino.dataset.lectura}"]`);
+      if (agregar) agregar.hidden = Boolean(valor);
     });
   };
 
@@ -35,6 +37,23 @@ function montarVista() {
   };
 
   document.addEventListener('click', (e) => {
+    const agregar = e.target.closest('[data-agregar]');
+    if (agregar) {
+      const form = document.getElementById(agregar.dataset.form || 'formPerfil');
+      const input = document.getElementById(agregar.dataset.agregar);
+      if (!form || !input) return;
+      form.hidden = false;
+      const lectura = document.querySelector(`[data-lectura-de="${form.id}"]`);
+      if (lectura) lectura.hidden = true;
+      const editar = document.querySelector(`[data-editar="${form.id}"]`);
+      if (editar) {
+        editar.setAttribute('aria-expanded', 'true');
+        editar.textContent = 'Listo';
+      }
+      input.focus({ preventScroll: true });
+      return;
+    }
+
     const editar = e.target.closest('[data-editar]');
     if (editar) {
       const form = document.getElementById(editar.dataset.editar);

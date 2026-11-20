@@ -634,8 +634,8 @@ export const SaludCredView = {
           : "dot-gray";
 
         const hbTxt = b.hb != null ? `${escapar(b.hb)} g/dL` : "Sin dosaje";
-        const pesoTx = b.peso != null ? escapar(b.peso) : "—";
-        const tallaTx = b.talla != null ? escapar(b.talla) : "—";
+        const pesoTx = b.peso != null ? escapar(b.peso) : "No disponible";
+        const tallaTx = b.talla != null ? escapar(b.talla) : "No disponible";
 
         return `
           <tr class="padron-tr">
@@ -647,12 +647,12 @@ export const SaludCredView = {
                   <div class="padron-user-meta">
                     <span class="padron-code">${escapar(b.codigo)}</span>
                     <span class="padron-meta-sep">&bull;</span>
-                    <span>DNI ${escapar(b.dni || '—')}</span>
+                    <span>DNI ${escapar(b.dni || 'No disponible')}</span>
                   </div>
                 </div>
               </div>
             </td>
-            <td><div class="padron-location-title">${escapar(b.edad || "—")}</div></td>
+            <td><div class="padron-location-title">${escapar(b.edad || "No disponible")}</div></td>
             <td><div class="padron-location-title">${pesoTx} kg / ${tallaTx} cm</div></td>
             <td>
               <div class="padron-hb-linea">
@@ -960,7 +960,7 @@ export const SaludCredView = {
         ? fecha.toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" })
         : "Fecha no registrada";
       const ptTxt = (t.peso != null || t.talla != null)
-        ? `${t.peso != null ? `${escapar(t.peso)} kg` : '—'} / ${t.talla != null ? `${escapar(t.talla)} cm` : '—'}`
+        ? `${t.peso != null ? `${escapar(t.peso)} kg` : 'No disponible'} / ${t.talla != null ? `${escapar(t.talla)} cm` : 'No disponible'}`
         : "No registrados en la prueba";
       const borde = idx < registros.length - 1 ? " border-bottom:1px solid var(--border-subtle);" : "";
 
@@ -1058,7 +1058,7 @@ export const SaludCredView = {
 
     const calc = AnemiaCalculator.calculate(campo.value);
     const vacio = String(campo.value).trim() === "";
-    diagEl.textContent = vacio ? "—" : calc.label;
+    diagEl.textContent = vacio ? "No disponible" : calc.label;
     diagEl.style.color = vacio ? "var(--text-muted)" : calc.color;
     accionEl.textContent = vacio
       ? "Ingrese el valor de Hb para calcular la clasificación y la acción sugerida."

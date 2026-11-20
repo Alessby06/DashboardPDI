@@ -138,7 +138,7 @@ function select(label, path, valor, lista, opts = {}) {
   return `<div class="eval-field${opts.full ? ' eval-field--full' : ''}">
     <label for="${id}">${escapar(label)}</label>
     <select id="${id}" data-path="${attr(path)}">
-      <option value="">— Seleccionar —</option>${items}
+      <option value="">Seleccionar</option>${items}
     </select>
   </div>`;
 }
@@ -750,7 +750,7 @@ export const EvaluacionView = {
     const valor = document.getElementById('evalScoreValor');
     const clase = document.getElementById('evalScoreClase');
     const exo = document.getElementById('evalScoreExoneracion');
-    if (valor) valor.textContent = vacio ? '—' : `${r.puntaje}`;
+    if (valor) valor.textContent = vacio ? 'No disponible' : `${r.puntaje}`;
     if (clase) clase.textContent = vacio ? 'Sin evaluar' : r.clasificacion;
     if (exo) exo.textContent = vacio ? '' : `Exoneración sugerida: ${r.exoneracionSugerida}`;
     const contenedor = document.getElementById('evalDimensions');
@@ -775,7 +775,7 @@ export const EvaluacionView = {
       <div class="eval-history-row">
         <strong>v${e.version}</strong>
         <span>${escapar(e.fecha || '')} · ${escapar(e.clasificacion || 'Sin clasificar')}</span>
-        <span>${e.puntajeTotal != null ? `${e.puntajeTotal}/100` : '—'} · ${escapar(e.estado)}</span>
+        <span>${e.puntajeTotal != null ? `${e.puntajeTotal}/100` : 'No disponible'} · ${escapar(e.estado)}</span>
         <button type="button" data-eval-id="${attr(e._evalId)}">Abrir</button>
       </div>
     `).join('');

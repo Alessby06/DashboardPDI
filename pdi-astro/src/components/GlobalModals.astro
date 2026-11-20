@@ -950,7 +950,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
           <div>
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
               <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-main);"
-                id="modalCasoUsuarioNombre">—</h3>
+                id="modalCasoUsuarioNombre">No disponible</h3>
               <span class="status-mark status-mark--warn" id="modalCasoUrgenciaBadge">
                 <span class="status-mark-dot" aria-hidden="true"></span>
                 <span>Media</span>
@@ -958,8 +958,8 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
             </div>
             <p style="margin: 2px 0 0; font-size: 12px; color: var(--text-muted);">
               Código: <strong id="modalCasoCodigo"
-                style="font-family: var(--mono-font); color: var(--text-brand);">—</strong> &bull; Sede: <span
-                id="modalCasoSede">—</span>
+                style="font-family: var(--mono-font); color: var(--text-brand);">No disponible</strong> &bull; Sede: <span
+                id="modalCasoSede">No disponible</span>
             </p>
           </div>
         </div>
@@ -989,18 +989,14 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
             Diagnóstico & Situación Social Encontrada
           </div>
           <div style="font-size: 13px; color: var(--text-main); line-height: 1.5; font-weight: 600; margin-bottom: 6px;"
-            id="modalCasoProblematica">
-            —
-          </div>
+            id="modalCasoProblematica">No disponible</div>
           <div id="modalCasoEtiquetas" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px;"></div>
           <div style="font-size:11.5px; color:var(--text-dim); margin-bottom:8px;">
-            Fecha aproximada del suceso: <strong id="modalCasoFechaSuceso" style="color:var(--text-muted);">—</strong>
+            Fecha aproximada del suceso: <strong id="modalCasoFechaSuceso" style="color:var(--text-muted);">No disponible</strong>
           </div>
           <div
             style="font-size: 12.5px; color: var(--text-muted); line-height: 1.5; background: var(--surface-2); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);"
-            id="modalCasoSituacion">
-            —
-          </div>
+            id="modalCasoSituacion">No disponible</div>
         </div>
 
         <!-- Trazabilidad de Derivación & Acciones Previas -->
@@ -1010,11 +1006,10 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
             <div
               style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-dim); margin-bottom: 4px;">
               Quién Deriva:</div>
-            <strong style="font-size: 13px; color: var(--text-main);" id="modalCasoDerivadorNombre">—</strong>
-            <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;" id="modalCasoDerivadorCargo">
-              —</div>
+            <strong style="font-size: 13px; color: var(--text-main);" id="modalCasoDerivadorNombre">No disponible</strong>
+            <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;" id="modalCasoDerivadorCargo">No disponible</div>
             <div style="font-size: 11.5px; color: var(--text-dim); margin-top: 2px;" id="modalCasoDerivadorTel">Tel:
-              —</div>
+              No disponible</div>
           </div>
           <div
             style="background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px 14px;">
@@ -1022,7 +1017,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
               style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-dim); margin-bottom: 4px;">
               Fecha de Derivación:</div>
             <div style="font-size: 13px; color: var(--text-main); font-family: var(--mono-font); font-weight: 700;"
-              id="modalCasoFecha">—</div>
+              id="modalCasoFecha">No disponible</div>
             <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">Evaluación socioeconómica: <strong
                 id="modalCasoVulnerabilidadScore" style="color: var(--text-muted);">Sin evaluación</strong></div>
           </div>
@@ -1034,12 +1029,12 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
           <div
             style="font-size: 11.5px; text-transform: uppercase; font-weight: 700; color: var(--text-dim); margin-bottom: 4px;">
             Soporte Familiar Registrado:</div>
-          <div style="font-size: 12.5px; color: var(--text-main);" id="modalCasoSoporteFamiliar">—</div>
+          <div style="font-size: 12.5px; color: var(--text-main);" id="modalCasoSoporteFamiliar">No disponible</div>
 
           <div
             style="font-size: 11.5px; text-transform: uppercase; font-weight: 700; color: var(--text-dim); margin-top: 10px; margin-bottom: 4px;">
             Acciones Previas Tomadas:</div>
-          <div style="font-size: 12.5px; color: var(--text-muted);" id="modalCasoAccionesPrevias">—</div>
+          <div style="font-size: 12.5px; color: var(--text-muted);" id="modalCasoAccionesPrevias">No disponible</div>
         </div>
 
         <!-- Atenciones del caso (evento_caso) -->
@@ -1124,7 +1119,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
             <p style="margin: 2px 0 0; font-size: 12px; color: var(--text-muted);">
               Código: <strong id="histTamUsuarioCodigo"
                 style="font-family: var(--mono-font); color: var(--text-brand);">PDI-2026-000</strong>
-              &bull; Sede: <span id="histTamUsuarioSede">—</span>
+              &bull; Sede: <span id="histTamUsuarioSede">No disponible</span>
             </p>
           </div>
         </div>
@@ -1179,7 +1174,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
             <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-dim); margin-bottom: 4px;">
               Diagnóstico MINSA en vivo:
             </div>
-            <div id="nuevaPruebaPreviewDiagnostico" style="font-size: 14px; font-weight: 800; color: var(--text-muted);">—</div>
+            <div id="nuevaPruebaPreviewDiagnostico" style="font-size: 14px; font-weight: 800; color: var(--text-muted);">No disponible</div>
             <div id="nuevaPruebaPreviewAccion" style="font-size: 11.5px; color: var(--text-muted); margin-top: 3px;">
               Ingrese el valor de Hb para calcular la clasificación y la acción sugerida.
             </div>

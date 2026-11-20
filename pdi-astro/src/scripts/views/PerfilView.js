@@ -369,15 +369,15 @@ export const PerfilView = {
     // El esqueleto no debe aparentar un estado real: "Cargando…" solo tiene
     // sentido mientras hay una petición viva.
     const estado = porId('perfilIdentidadEstado');
-    if (estado) estado.textContent = '—';
+    if (estado) estado.textContent = 'No disponible';
   },
 
   render({ conservarTotp = false } = {}) {
     const cuenta = this.cuenta;
     if (!cuenta) return;
 
-    const nombre = cuenta.nombre || '—';
-    const rol = ROLES[cuenta.rol] || cuenta.rol || '—';
+    const nombre = cuenta.nombre || 'No disponible';
+    const rol = ROLES[cuenta.rol] || cuenta.rol || 'No disponible';
 
     const set = (id, valor) => {
       const el = porId(id);
@@ -385,9 +385,9 @@ export const PerfilView = {
     };
 
     set('perfilNombre', nombre);
-    set('perfilIdentidadUsuario', '@' + (cuenta.usuario || '—'));
+    set('perfilIdentidadUsuario', cuenta.usuario ? '@' + cuenta.usuario : 'No disponible');
     set('perfilIdentidadRol', rol);
-    set('perfilIdentidadDesde', fechaLarga(cuenta.creadoEl) || '—');
+    set('perfilIdentidadDesde', fechaLarga(cuenta.creadoEl) || 'No disponible');
     set('perfilIdentidadEstado', cuenta.activo === false ? 'Inactiva' : 'Activa');
 
     this._pintarAvatar();
@@ -1099,7 +1099,7 @@ export const PerfilView = {
       // Solo cambia el identificador: no se recargan los datos personales para
       // no borrar lo que el usuario tenga escrito sin guardar.
       const identidad = porId('perfilIdentidadUsuario');
-      if (identidad) identidad.textContent = '@' + (this.cuenta.usuario || '—');
+      if (identidad) identidad.textContent = this.cuenta.usuario ? '@' + this.cuenta.usuario : 'No disponible';
       aviso('perfilUsuarioFeedback', 'Usuario actualizado.', 'ok');
       toast('Usuario actualizado', 'La próxima vez entra con @' + this.cuenta.usuario + '.');
     } catch (err) {

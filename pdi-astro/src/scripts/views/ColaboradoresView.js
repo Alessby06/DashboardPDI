@@ -323,7 +323,7 @@ export const ColaboradoresView = {
           </td>
           <td>
             <div class="colab-estrategias">
-              ${estrategiasHtml || '<span style="font-size:11px; color:var(--text-dim);">—</span>'}
+              ${estrategiasHtml || '<span style="font-size:11px; color:var(--text-dim);">No disponible</span>'}
             </div>
           </td>
           <td>

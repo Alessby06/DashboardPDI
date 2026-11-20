@@ -199,7 +199,7 @@ export const DerivacionView = {
       telefono: v.celular || '',
     }));
 
-    const opciones = ['<option value="">— Escribir manualmente —</option>'];
+    const opciones = ['<option value="">Escribir manualmente</option>'];
     this._referentes.forEach((r, i) => {
       opciones.push(`<option value="${i}">${escapar(r.nombre)} · ${escapar(r.cargo)}</option>`);
     });
@@ -277,12 +277,12 @@ export const DerivacionView = {
         <button type="button" class="deriv-link" id="derivCambiarUsuario">Cambiar</button>
       </div>
       <div class="deriv-selected-grid">
-        <span><b>Sede</b>${escapar(b.sede || '—')}</span>
-        <span><b>Apoderado</b>${escapar(b.apoderado || '—')}</span>
-        <span><b>Parentesco</b>${escapar(b.parentesco || '—')}</span>
-        <span><b>Teléfono</b>${escapar(b.telefono || '—')}</span>
-        <span><b>Dirección</b>${escapar(b.direccion || '—')}</span>
-        <span><b>Distrito</b>${escapar(b.distrito || '—')}</span>
+        <span><b>Sede</b>${escapar(b.sede || 'No disponible')}</span>
+        <span><b>Apoderado</b>${escapar(b.apoderado || 'No disponible')}</span>
+        <span><b>Parentesco</b>${escapar(b.parentesco || 'No disponible')}</span>
+        <span><b>Teléfono</b>${escapar(b.telefono || 'No disponible')}</span>
+        <span><b>Dirección</b>${escapar(b.direccion || 'No disponible')}</span>
+        <span><b>Distrito</b>${escapar(b.distrito || 'No disponible')}</span>
       </div>
       ${activo ? `
         <div class="deriv-warning">
@@ -542,19 +542,19 @@ export const DerivacionView = {
 
   <h2>Datos del colaborador, voluntario o persona que deriva</h2>
   <div class="grid">
-    <div class="item"><b>Nombres y apellidos</b>${escapar(d.quienNombre || '—')}</div>
-    <div class="item"><b>Cargo</b>${escapar(d.quienCargo || '—')}</div>
-    <div class="item"><b>Teléfono</b>${escapar(d.quienTelefono || '—')}</div>
+    <div class="item"><b>Nombres y apellidos</b>${escapar(d.quienNombre || 'No disponible')}</div>
+    <div class="item"><b>Cargo</b>${escapar(d.quienCargo || 'No disponible')}</div>
+    <div class="item"><b>Teléfono</b>${escapar(d.quienTelefono || 'No disponible')}</div>
   </div>
 
   <h2>Datos del usuario derivado y apoderado</h2>
   <table>
-    <tr><th>Usuario</th><td>${escapar(d.usuario || '—')}</td><th>${escapar(d.tipoDocumento)}</th><td>${escapar(d.documento || '—')}</td></tr>
-    <tr><th>Edad</th><td>${escapar(d.edad || '—')}</td><th>Teléfono</th><td>${escapar(d.telefono || '—')}</td></tr>
-    <tr><th>Dirección</th><td colspan="3">${escapar(d.direccion || '—')}</td></tr>
-    <tr><th>Distrito</th><td>${escapar(d.distrito || '—')}</td><th>Referencia</th><td>${escapar(d.referencia || '—')}</td></tr>
-    <tr><th>Apoderado</th><td>${escapar(d.apoderado || '—')}</td><th>Parentesco</th><td>${escapar(d.apoderadoParentesco || '—')}</td></tr>
-    <tr><th>DNI apoderado</th><td>${escapar(d.apoderadoDocumento || '—')}</td><th>Teléfono</th><td>${escapar(d.apoderadoTelefono || '—')}</td></tr>
+    <tr><th>Usuario</th><td>${escapar(d.usuario || 'No disponible')}</td><th>${escapar(d.tipoDocumento)}</th><td>${escapar(d.documento || 'No disponible')}</td></tr>
+    <tr><th>Edad</th><td>${escapar(d.edad || 'No disponible')}</td><th>Teléfono</th><td>${escapar(d.telefono || 'No disponible')}</td></tr>
+    <tr><th>Dirección</th><td colspan="3">${escapar(d.direccion || 'No disponible')}</td></tr>
+    <tr><th>Distrito</th><td>${escapar(d.distrito || 'No disponible')}</td><th>Referencia</th><td>${escapar(d.referencia || 'No disponible')}</td></tr>
+    <tr><th>Apoderado</th><td>${escapar(d.apoderado || 'No disponible')}</td><th>Parentesco</th><td>${escapar(d.apoderadoParentesco || 'No disponible')}</td></tr>
+    <tr><th>DNI apoderado</th><td>${escapar(d.apoderadoDocumento || 'No disponible')}</td><th>Teléfono</th><td>${escapar(d.apoderadoTelefono || 'No disponible')}</td></tr>
   </table>
 
   <h2>Motivo de la derivación</h2>
@@ -564,14 +564,14 @@ export const DerivacionView = {
     ${etiquetas ? `<div style="margin-top:6px;">${etiquetas}</div>` : ''}
   </div>
   <div class="item" style="margin-top:8px;"><b>Breve situación encontrada y fecha aproximada del suceso</b>
-    <div class="box">${escapar(d.situacion || '—')}</div>
-    <div style="margin-top:4px;">Fecha aproximada: ${escapar(d.fechaSuceso || '—')}</div>
+    <div class="box">${escapar(d.situacion || 'No disponible')}</div>
+    <div style="margin-top:4px;">Fecha aproximada: ${escapar(d.fechaSuceso || 'No disponible')}</div>
   </div>
-  <div class="item"><b>Acciones realizadas por la usuaria / familia</b><div class="box">${escapar(d.acciones || '—')}</div></div>
+  <div class="item"><b>Acciones realizadas por la usuaria / familia</b><div class="box">${escapar(d.acciones || 'No disponible')}</div></div>
   <div class="item">
     <b>Cuenta con soporte familiar</b>
     ${siNo(d.soporteTiene)} Sí &nbsp; ${siNo(!d.soporteTiene)} No
-    ${d.soporteTiene ? `<div style="margin-top:4px;">${escapar(d.soporteNombre || '—')} · ${escapar(d.soporteParentesco || '—')}</div>` : ''}
+    ${d.soporteTiene ? `<div style="margin-top:4px;">${escapar(d.soporteNombre || 'No disponible')} · ${escapar(d.soporteParentesco || 'No disponible')}</div>` : ''}
     ${d.soporteDetalle ? `<div class="muted" style="margin-top:4px;">${escapar(d.soporteDetalle)}</div>` : ''}
   </div>
 

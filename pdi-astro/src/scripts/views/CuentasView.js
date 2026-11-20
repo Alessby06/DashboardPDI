@@ -1726,7 +1726,7 @@ function renderRecuperacion() {
     const cuenta = cuentas.find((c) => c.usuario === solicitud.usuario && c.activo !== false);
     const id = escapar(solicitud.id);
     const usuario = escapar(solicitud.usuario);
-    const codigo = escapar(solicitud.codigo || '—');
+    const codigo = escapar(solicitud.codigo || 'No disponible');
     const fecha = escapar(fechaSolicitud(solicitud.creado_el));
     const resolver = cuenta
       ? `<button type="button" class="btn-action" data-rec-accion="resolver" data-rec-id="${id}">Restablecer y resolver</button>`

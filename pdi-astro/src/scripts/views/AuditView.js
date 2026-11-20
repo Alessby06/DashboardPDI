@@ -846,8 +846,8 @@ export const AuditView = {
             <tbody>
               ${diff.map(d => {
                 const label = d.etiqueta || d.campo || 'Campo';
-                const antes = d.antes !== undefined && d.antes !== null ? String(d.antes) : (d.valorAnterior || '—');
-                const despues = d.despues !== undefined && d.despues !== null ? String(d.despues) : (d.valorNuevo || '—');
+                const antes = d.antes !== undefined && d.antes !== null ? String(d.antes) : (d.valorAnterior || 'No disponible');
+                const despues = d.despues !== undefined && d.despues !== null ? String(d.despues) : (d.valorNuevo || 'No disponible');
                 return `
                   <tr>
                     <td class="diff-td-field" style="text-align:left;">

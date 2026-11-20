@@ -1273,14 +1273,14 @@ export const BeneficiariosView = {
                   <div class="padron-user-meta">
                     <span class="padron-code">${escapar(b.codigo)}</span>
                     <span class="padron-meta-sep">&bull;</span>
-                    <span>DNI ${escapar(b.dni || '—')}</span>
+                    <span>DNI ${escapar(b.dni || 'No disponible')}</span>
                   </div>
                 </div>
               </div>
             </td>
             <td>
               <div class="padron-location-title">${escapar(b.sede || 'Sin sede')}</div>
-              <div class="padron-location-sub">${escapar(b.distrito || '—')} &bull; ${escapar(b.modalidad || '—')}</div>
+              <div class="padron-location-sub">${escapar(b.distrito || 'No disponible')} &bull; ${escapar(b.modalidad || 'No disponible')}</div>
             </td>
             <td>
               <div class="servicios-registro-group">
@@ -1298,7 +1298,7 @@ export const BeneficiariosView = {
             <td>
               <div class="padron-status-tag ${estadoClase}">
                 <span class="padron-dot ${estadoDot}"></span>
-                <span>${escapar(b.estado || '—')}</span>
+                <span>${escapar(b.estado || 'No disponible')}</span>
               </div>
             </td>
             <td>

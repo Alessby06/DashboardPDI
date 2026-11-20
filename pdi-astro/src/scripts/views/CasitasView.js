@@ -42,7 +42,7 @@ function gradoVisible(beneficiario) {
 
 function tipoAtencionVisible(beneficiario) {
   const valor = String(beneficiario?.tipoAtencion ?? '').trim();
-  return valor || '—';
+  return valor || 'No disponible';
 }
 
 function hoyLocal() {
@@ -1155,7 +1155,7 @@ export const CasitasView = {
                 <div class="padron-user-meta">
                   <span class="padron-code">${escapar(b.codigo)}</span>
                   <span class="padron-meta-sep">&bull;</span>
-                  <span>DNI ${escapar(b.dni || '—')}</span>
+                  <span>DNI ${escapar(b.dni || 'No disponible')}</span>
                 </div>
               </div>
             </div>

@@ -375,7 +375,7 @@ export async function iniciarCapaDatos() {
 async function intentarLevantar() {
   try {
     // Con una copia en pantalla no se baja a "conectando": las cifras se
-    // quedarían en "—" mientras la nube confirma.
+    // quedarían en "No disponible" mientras la nube confirma.
     if (!_snapshotAplicado) cambiarEstado(_hidratado ? 'sin_conexion' : 'conectando');
     await conectar();
     // El registro LIVE y la primera hidratación viajan en paralelo: el render
@@ -592,7 +592,7 @@ export async function hidratar(promedioSilencioso = false) {
   const primeraCarga = !_hidratado;
   _hidratando = (async () => {
     // Si hay copia de sesión, no se pasa a "cargando": las cifras ya están
-    // pintadas y se quedarían en "—" durante la revalidación.
+    // pintadas y se quedarían en "No disponible" durante la revalidación.
     if (!_snapshotAplicado) cambiarEstado('cargando');
     try {
       // Un solo viaje: el lote completo cuesta 1 RTT en lugar de 6-8.

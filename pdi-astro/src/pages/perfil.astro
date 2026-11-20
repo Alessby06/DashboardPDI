@@ -102,8 +102,16 @@ import '../styles/views-perfil.css';
 
             <div class="perfil-lectura" data-lectura-de="formPerfil">
               <div><span>Nombre visible</span><strong data-lectura="perfilInputNombre">Cargando…</strong></div>
-              <div><span>Correo</span><strong data-lectura="perfilInputCorreo">Cargando…</strong></div>
-              <div><span>Teléfono</span><strong data-lectura="perfilInputTelefono">Cargando…</strong></div>
+              <div>
+                <span>Correo</span>
+                <strong data-lectura="perfilInputCorreo">Cargando…</strong>
+                <button type="button" class="perfil-link perfil-agregar" data-agregar="perfilInputCorreo" data-form="formPerfil" hidden>Agregar correo</button>
+              </div>
+              <div>
+                <span>Teléfono</span>
+                <strong data-lectura="perfilInputTelefono">Cargando…</strong>
+                <button type="button" class="perfil-link perfil-agregar" data-agregar="perfilInputTelefono" data-form="formPerfil" hidden>Agregar teléfono</button>
+              </div>
             </div>
 
             <form class="perfil-panel perfil-form" id="formPerfil" novalidate hidden>
@@ -192,17 +200,14 @@ import '../styles/views-perfil.css';
                 <strong>Verificación en dos pasos</strong>
                 <span>Aplicación de autenticación</span>
               </div>
-              <span class="perfil-chip" id="perfilTotpEstado">Desactivada</span>
+              <div class="perfil-fila-acciones">
+                <span class="perfil-chip" id="perfilTotpEstado">Desactivada</span>
+                <button type="button" class="perfil-btn perfil-btn--soft perfil-btn--mini" id="btnTotpActivar">Activar</button>
+                <button type="button" class="perfil-link" id="btnTotpDesactivar" hidden>Desactivar</button>
+              </div>
             </div>
 
             <div class="perfil-totp" id="perfilTotp" hidden>
-              <div class="perfil-totp-head">
-                <p class="perfil-field-hint">Protege tu cuenta con una aplicación de autenticación.</p>
-              </div>
-              <div class="perfil-totp-actions">
-                <button type="button" class="perfil-btn perfil-btn--soft" id="btnTotpActivar">Activar</button>
-                <button type="button" class="perfil-link" id="btnTotpDesactivar" hidden>Desactivar</button>
-              </div>
               <div class="perfil-totp-panel" id="perfilTotpPanel" hidden>
                 <p class="perfil-field-hint">Escanea el código con tu aplicación (Google Authenticator, Authy, 1Password) o copia el secreto, y escribe el código que genera.</p>
                 <div class="perfil-totp-qr" id="perfilTotpQr" hidden></div>

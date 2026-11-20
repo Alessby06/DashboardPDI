@@ -87,7 +87,7 @@ export const AjustesView = {
     const ms = Number(window.PDI?.DB?.ultimaHidratacion?.() || 0);
     const fecha = new Date(ms);
     if (!ms || Number.isNaN(fecha.getTime())) {
-      etiqueta.textContent = '—';
+      etiqueta.textContent = 'No disponible';
       return;
     }
     const hora = fecha.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });

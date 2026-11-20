@@ -1996,7 +1996,7 @@ export const ExpedienteView = {
 
     const setTxt = (id, val) => {
       const el = document.getElementById(id);
-      if (el) el.textContent = (val !== undefined && val !== null && String(val).trim() !== "") ? String(val) : "—";
+      if (el) el.textContent = (val !== undefined && val !== null && String(val).trim() !== "") ? String(val) : "No disponible";
     };
 
     // Folio y Cabecera
@@ -2013,16 +2013,16 @@ export const ExpedienteView = {
     setTxt("a1TxtDerivadoAsp", b.derivadoAsp ? "[ SÍ ] Derivado Social Pastoral" : "[ NO ] Regular");
 
     // Bloque I: Datos Generales NNA
-    setTxt("a1ValApellidos", b.apellidos || "—");
-    setTxt("a1ValNombres", b.nombres || "—");
-    setTxt("a1ValDni", b.dni || "—");
-    setTxt("a1ValNacEdad", `${b.fechaNacimiento || "—"} (${b.edad || "—"})`);
-    setTxt("a1ValSexo", b.sexo === "F" ? "Femenino" : (b.sexo === "M" ? "Masculino" : (b.sexo || "—")));
-    setTxt("a1ValDireccion", b.direccion || "—");
+    setTxt("a1ValApellidos", b.apellidos || "No disponible");
+    setTxt("a1ValNombres", b.nombres || "No disponible");
+    setTxt("a1ValDni", b.dni || "No disponible");
+    setTxt("a1ValNacEdad", `${b.fechaNacimiento || "No disponible"} (${b.edad || "No disponible"})`);
+    setTxt("a1ValSexo", b.sexo === "F" ? "Femenino" : (b.sexo === "M" ? "Masculino" : (b.sexo || "No disponible")));
+    setTxt("a1ValDireccion", b.direccion || "No disponible");
     setTxt("a1ValReferencia", b.referencia || "Sin referencia adicional");
     setTxt("a1ValSeguro", b.seguro || "SIS Gratuito");
-    setTxt("a1ValColegio", b.colegio || "—");
-    setTxt("a1ValGrado", b.grado || "—");
+    setTxt("a1ValColegio", b.colegio || "No disponible");
+    setTxt("a1ValGrado", b.grado || "No disponible");
 
     let txtAlergias = "Ninguna reportada";
     if (b.alergias && Array.isArray(b.alergias) && b.alergias.length > 0) {
@@ -2033,25 +2033,25 @@ export const ExpedienteView = {
     setTxt("a1ValAlergias", txtAlergias);
 
     // Bloque II: Datos del Apoderado
-    setTxt("a1ValApodNombre", b.apoderado || "—");
-    setTxt("a1ValApodDni", b.apoderadoDni || "—");
+    setTxt("a1ValApodNombre", b.apoderado || "No disponible");
+    setTxt("a1ValApodDni", b.apoderadoDni || "No disponible");
     setTxt("a1ValApodParentesco", b.parentesco || "Madre");
-    setTxt("a1ValApodTelefono", b.telefono || "—");
+    setTxt("a1ValApodTelefono", b.telefono || "No disponible");
     setTxt("a1ValApodTelAlt", b.telefonoAlt || "No registrado");
 
     // Bloque III: Persona Quien Inscribe
     const inscribe = b.personaInscribe || null;
     const esMismo = !inscribe || inscribe.mismoApoderado !== false;
     if (esMismo) {
-      setTxt("a1ValInscNombre", b.apoderado || "—");
-      setTxt("a1ValInscDni", b.apoderadoDni || "—");
+      setTxt("a1ValInscNombre", b.apoderado || "No disponible");
+      setTxt("a1ValInscDni", b.apoderadoDni || "No disponible");
       setTxt("a1ValInscParentesco", `${b.parentesco || "Apoderado"} (Misma persona titular)`);
-      setTxt("a1ValInscTelefono", b.telefono || "—");
+      setTxt("a1ValInscTelefono", b.telefono || "No disponible");
     } else {
       setTxt("a1ValInscNombre", inscribe.nombre || b.apoderado);
-      setTxt("a1ValInscDni", inscribe.dni || b.apoderadoDni || "—");
+      setTxt("a1ValInscDni", inscribe.dni || b.apoderadoDni || "No disponible");
       setTxt("a1ValInscParentesco", inscribe.parentesco || "Tercero / Familiar");
-      setTxt("a1ValInscTelefono", inscribe.telefono || b.telefono || "—");
+      setTxt("a1ValInscTelefono", inscribe.telefono || b.telefono || "No disponible");
     }
 
     // Bloque IV: Modalidad de Salida y Personas Acreditadas
@@ -2062,10 +2062,10 @@ export const ExpedienteView = {
       ? b.retiroPadron
       : [{ nombre: b.apoderado, dni: b.apoderadoDni, parentesco: b.parentesco || "Apoderado" }];
 
-    setTxt("a1ValRetiroNombre1", listaRetiro[0] ? `${listaRetiro[0].nombre} (${listaRetiro[0].parentesco || "Apoderado"})` : "—");
-    setTxt("a1ValRetiroDni1", listaRetiro[0] ? (listaRetiro[0].dni || "—") : "—");
+    setTxt("a1ValRetiroNombre1", listaRetiro[0] ? `${listaRetiro[0].nombre} (${listaRetiro[0].parentesco || "Apoderado"})` : "No disponible");
+    setTxt("a1ValRetiroDni1", listaRetiro[0] ? (listaRetiro[0].dni || "No disponible") : "No disponible");
     setTxt("a1ValRetiroNombre2", listaRetiro[1] ? `${listaRetiro[1].nombre} (${listaRetiro[1].parentesco || "Familiar"})` : "No registrado");
-    setTxt("a1ValRetiroDni2", listaRetiro[1] ? (listaRetiro[1].dni || "—") : "—");
+    setTxt("a1ValRetiroDni2", listaRetiro[1] ? (listaRetiro[1].dni || "No disponible") : "No disponible");
 
     // Bloque V: Declaraciones y Consentimientos
     const c = b.consentimientos || {};
@@ -2074,8 +2074,8 @@ export const ExpedienteView = {
     setTxt("a1ValAporteSimb", c.aporteEconomico !== false ? "[ X ] CONFORME Y COMPROMETIDO" : "[  ] EXONERADO");
 
     // Pie de Firma
-    setTxt("a1ValApodFirmaNombre", b.apoderado || "—");
-    setTxt("a1ValApodFirmaDni", b.apoderadoDni || "—");
+    setTxt("a1ValApodFirmaNombre", b.apoderado || "No disponible");
+    setTxt("a1ValApodFirmaDni", b.apoderadoDni || "No disponible");
 
     const modal = document.getElementById("modalFichaA1Oficial");
     if (modal) {

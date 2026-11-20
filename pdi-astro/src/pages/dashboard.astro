@@ -268,10 +268,25 @@ import Icon from '../components/Icon.astro';
             }
           }
 
+          var CIFRAS = [
+            "kpiSedesActivas", "kpiTotalPadron", "kpiCoberturaTamizaje", "kpiCasosAsp",
+            "kpiTasaAnemia", "anemiaPctNormal", "anemiaPctRiesgo", "anemiaPctLeve",
+            "anemiaPctMod", "dashVolTotal"
+          ];
+          var prepararCifras = function () {
+            CIFRAS.forEach(function (id) {
+              var el = document.getElementById(id);
+              if (!el) return;
+              el.textContent = "0";
+              el.dataset.contadorValor = "0";
+            });
+          };
+
           var rawSnap = localStorage.getItem("pdi_snapshot_v1") || sessionStorage.getItem("pdi_snapshot_v1");
-          if (!rawSnap) return;
-          var snap = JSON.parse(rawSnap);
-          if (!snap || !snap.datos) return;
+          if (!rawSnap) { prepararCifras(); return; }
+          var snap;
+          try { snap = JSON.parse(rawSnap); } catch (e) { prepararCifras(); return; }
+          if (!snap || !snap.datos) { prepararCifras(); return; }
 
           var bList = snap.datos.beneficiarios || [];
           var casos = snap.datos.casos || [];
