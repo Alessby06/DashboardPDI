@@ -54,6 +54,15 @@ const nuevoId = (base) => `fil-${base}-${++idSeq}`;
 /** Separación entre el disparador y el panel, y margen con el borde. */
 const HUECO_PANEL = 8;
 const MARGEN_PANEL = 16;
+
+/**
+ * Corte de la hoja inferior. En 640 px o menos el panel es una hoja pegada
+ * abajo; por encima, un popover anclado a su botón. Tiene que coincidir con los
+ * `@media` de views-filters.css (max-width: 640 / min-width: 641): si los dos
+ * números se separan, el panel queda sin posicionar justo en la franja entre
+ * ellos.
+ */
+const CORTE_HOJA = 640;
 /** Por debajo de este hueco, el panel se abre hacia arriba. */
 const HUECO_MINIMO = 260;
 
@@ -295,7 +304,7 @@ function marcarDesborde(panel) {
  */
 function seguirAlBoton(panel) {
   // En movil el panel es una hoja inferior anclada al borde: no se reancla.
-  if (window.innerWidth <= 768) return;
+  if (window.innerWidth <= CORTE_HOJA) return;
   // Con anclaje CSS el panel sigue al boton solo: no hay nada que recolocar.
   if (SOPORTA_ANCLA) return;
   const menu = panel.querySelector('.audit-filters-menu');
@@ -335,7 +344,7 @@ function seguirAlBoton(panel) {
 
 /** Muestra el panel en el top layer (solo escritorio; la hoja movil es fija). */
 function abrirPopover(menu) {
-  if (!SOPORTA_POPOVER || window.innerWidth <= 768) return;
+  if (!SOPORTA_POPOVER || window.innerWidth <= CORTE_HOJA) return;
   if (!menu.hasAttribute("popover")) menu.setAttribute("popover", "manual");
   if (!menu.matches(":popover-open")) {
     try { menu.showPopover(); } catch {}
@@ -358,7 +367,7 @@ function posicionarPanel(panel) {
   const menu = panel.querySelector('.audit-filters-menu');
   if (!menu) return;
 
-  if (window.innerWidth <= 768) {
+  if (window.innerWidth <= CORTE_HOJA) {
     menu.classList.remove('is-above');
     menu.style.removeProperty('top');
     menu.style.removeProperty('right');
@@ -451,7 +460,7 @@ function prepararApertura(panel) {
   if (!panel || panel.classList.contains('open')) return;
   const boton = panel.querySelector('.audit-filter-btn');
   const menu = panel.querySelector('.audit-filters-menu');
-  if (!boton || !menu || window.innerWidth <= 768) return;
+  if (!boton || !menu || window.innerWidth <= CORTE_HOJA) return;
 
   const { usarArriba } = decidirDireccion(boton);
   menu.classList.toggle('is-above', usarArriba);
@@ -540,7 +549,7 @@ function enlazarArrastreHoja(panel) {
   // Puntero y captura, como el resto de hojas: el gesto sigue al dedo aunque
   // salga de la cabecera y Android no lo interpreta como scroll de la hoja.
   header.addEventListener('pointerdown', (e) => {
-    if (window.innerWidth > 768) return;
+    if (window.innerWidth > CORTE_HOJA) return;
     if (esControl(e.target)) return;
     if (e.pointerType === 'mouse' && e.button !== 0) return;
 
@@ -691,7 +700,7 @@ function prepararPanel(panel) {
     if (abierto === eraAbierto) return;
     eraAbierto = abierto;
     disparador.setAttribute('aria-expanded', abierto ? 'true' : 'false');
-    menu.setAttribute('aria-modal', abierto && window.innerWidth <= 768 ? 'true' : 'false');
+    menu.setAttribute('aria-modal', abierto && window.innerWidth <= CORTE_HOJA ? 'true' : 'false');
     menu.inert = !abierto;
 
     if (abierto) {

@@ -14,7 +14,7 @@
      2. Popover, cabecera, cuerpo y pie
      3. Chips y desplegables internos
      4. Estados de foco, contraste y tamano tactil
-     5. Hoja inferior movil (<= 768px)
+     5. Hoja inferior movil (<= 640px)
 
    Movimiento: la hoja se posa, no salta. El panel y los submenus entran
    bajando 6/4 px desde su disparador en 175 ms y salen en 120 ms, mas rapido
@@ -478,7 +478,7 @@
   letter-spacing: 0.1em;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 640px) {
   /* En móvil el rótulo y «Limpiar filtros» comparten la primera fila; los
      chips bajan a la segunda y ocupan todo el ancho. */
   .padron-active-chips-bar {
@@ -842,7 +842,7 @@
    dejarian fuera de pantalla (top calculado sobre un ancestro distinto).
    --------------------------------------------------------------------------- */
 
-@media (min-width: 769px) {
+@media (min-width: 641px) {
   #dropdownSocialFilterPanel .audit-filters-menu {
     width: 330px;
     max-width: calc(100vw - 28px);
@@ -854,7 +854,7 @@
    5. MOVIL: HOJA INFERIOR
    --------------------------------------------------------------------------- */
 
-@media (min-width: 769px) {
+@media (min-width: 641px) {
   /* Asa de la hoja movil. Decorativa para el lector; el gesto se engancha en la
      cabecera completa. En escritorio no existe. */
   .audit-sheet-handle-row {
@@ -863,10 +863,10 @@
 }
 
 /* La hoja móvil es su propio bloque y va en el nivel superior: al quedar
-   anidada dentro de `min-width: 769px`, las dos condiciones no se cruzan nunca
-   y toda la hoja quedaba muerta. Por debajo de 768 el panel salía como un
+   anidada dentro de `min-width: 641px`, las dos condiciones no se cruzan nunca
+   y toda la hoja quedaba muerta. Por debajo del corte el panel salía como un
    popover de 330 px al que además el JS le saltaba el posicionamiento. */
-@media (max-width: 768px) {
+@media (max-width: 640px) {
   /* El topbar es un flex item con z-index 40. El velo vive dentro de main y no
      podia taparlo: el menu hamburguesa seguia activo detras de la hoja. Mientras
      la hoja esta abierta, main sube por encima. */
@@ -1095,7 +1095,7 @@
   }
 }
 
-@media (min-width: 769px) {
+@media (min-width: 641px) {
   @supports (anchor-name: --x) and (position-anchor: --x) {
     /* El panel se ancla al wrapper, no al boton: asi el boton puede comprimirse
        en :active sin mover la referencia del ancla. Vive en el top layer: no

@@ -85,3 +85,48 @@ test('el panel sigue al botón si este cambia de ancho con el panel abierto', as
     expect(Math.abs(m.menu - m.boton), `el panel no siguió: ${JSON.stringify(m)}`).toBeLessThanOrEqual(1);
   }
 });
+
+// El corte de la hoja baja a 640: una ventana angosta de escritorio (641-768)
+// vuelve a ver el popover pegado a su botón, y solo el teléfono usa la hoja.
+test('entre 641 y 768 el panel sigue siendo popover y mide como su botón', async ({ page }) => {
+  await page.setViewportSize({ width: 700, height: 900 });
+  await entrar(page, cuentas().coord);
+  await page.goto('/sedes');
+  await page.waitForFunction(() => window.PDI?.__pdiDatosListos === true, null, { timeout: 20_000 });
+  await page.click('#btnDropdownSedesFilterPanel');
+  await page.waitForTimeout(350);
+
+  const m = await page.evaluate(() => {
+    const b = document.querySelector('#btnDropdownSedesFilterPanel').getBoundingClientRect();
+    const menu = document.querySelector('#dropdownSedesFilterPanel .audit-filters-menu');
+    const r = menu.getBoundingClientRect();
+    return {
+      pos: getComputedStyle(menu).position,
+      boton: Math.round(b.width),
+      panel: Math.round(r.width),
+      vw: window.innerWidth,
+    };
+  });
+
+  expect(m.pos, 'a 700 px debería ser popover, no hoja').toBe('absolute');
+  expect(Math.abs(m.panel - m.boton), `panel ${m.panel} vs botón ${m.boton}`).toBeLessThanOrEqual(1);
+});
+
+test('a 640 o menos el panel es la hoja inferior', async ({ page }) => {
+  await page.setViewportSize({ width: 640, height: 900 });
+  await entrar(page, cuentas().coord);
+  await page.goto('/sedes');
+  await page.waitForFunction(() => window.PDI?.__pdiDatosListos === true, null, { timeout: 20_000 });
+  await page.click('#btnDropdownSedesFilterPanel');
+  await page.waitForTimeout(350);
+
+  const m = await page.evaluate(() => {
+    const menu = document.querySelector('#dropdownSedesFilterPanel .audit-filters-menu');
+    const r = menu.getBoundingClientRect();
+    return { pos: getComputedStyle(menu).position, panel: Math.round(r.width), vw: innerWidth, hoja: document.body.classList.contains('filter-sheet-open') };
+  });
+
+  expect(m.pos, 'a 640 px debería ser hoja').toBe('fixed');
+  expect(m.panel).toBe(m.vw);
+  expect(m.hoja, 'la hoja no bloqueó el scroll del fondo').toBe(true);
+});

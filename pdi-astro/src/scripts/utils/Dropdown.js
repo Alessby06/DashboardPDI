@@ -21,6 +21,10 @@ export const Dropdown = {
    * abrir un desplegable dentro de otro no debe cerrar al contenedor.
    */
   alternar(dropdownId) {
+    // Debe coincidir con CORTE_HOJA en FilterPanel.js y con los @media de
+    // views-filters.css: la hoja bloquea el scroll del fondo solo cuando de
+    // verdad es una hoja.
+    const CORTE_HOJA = 640;
     const target = document.getElementById(dropdownId);
     const allDropdowns = document.querySelectorAll('.custom-dropdown');
     allDropdowns.forEach(d => {
@@ -38,7 +42,7 @@ export const Dropdown = {
       }
       target.classList.toggle('open');
       if (target.classList.contains('audit-filters-dropdown')) {
-        if (willOpen && typeof window !== 'undefined' && window.innerWidth <= 768) {
+        if (willOpen && typeof window !== 'undefined' && window.innerWidth <= CORTE_HOJA) {
           // El fondo no puede desplazarse bajo la hoja; el scroll del panel
           // vive en su propio contenedor y no depende del principal.
           window.__pdiScroll?.main?.stop?.();

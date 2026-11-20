@@ -1,7 +1,7 @@
 /* ===========================================================================
    FILTROS DE ESCRITORIO (PC)
    ===========================================================================
-   Reglas para viewports de escritorio (>= 769px). El comportamiento movil
+   Reglas para viewports de escritorio (>= 641px). El comportamiento movil
    (hoja inferior) queda intacto.
 
    Aporta:
@@ -13,7 +13,7 @@
    views-filters.css: esta hoja no las duplica.
    =========================================================================== */
 
-@media (min-width: 769px) {
+@media (min-width: 641px) {
   /* Botón principal: el hover solo cambia color y borde. Un parte clínico no
      se eleva ni hace saltar el icono. La pulsación tampoco mueve la caja: el
      panel se ancla a este botón (ver views-filters.css). */
