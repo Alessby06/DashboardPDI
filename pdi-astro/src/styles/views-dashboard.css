@@ -556,14 +556,6 @@ body[data-page="dashboard"] #mainContent {
   color: var(--dash-dim);
 }
 
-.dash-atencion-pie {
-  margin: auto 0 0;
-  padding: 10px 0 0;
-  border-top: 1px solid var(--dash-rule);
-  font-size: 10.5px;
-  color: var(--dash-dim);
-}
-
 /* --- Servicios ------------------------------------------------------------ */
 
 .dash-servicios {
