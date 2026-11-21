@@ -12,6 +12,10 @@ __pycache__/
 .vscode/
 .idea/
 .impeccable/
+.codex/
+.gemini/
+.superpowers/
+.astro/
 
 # Archivos de entorno y temporales
 .env
@@ -35,10 +39,18 @@ plans/
 .kiro/
 .taste-skill/
 skills-lock.json
+smoke-out.txt
+anti-slop/
+*_report.md
+concepts_brief.md
+perfil-variantes.html
+capturas/
+docs/superpowers/
 Proyecto Infancia Saludable/
 # Documentos institucionales de la raíz: respaldo local, no forman parte del
-# repositorio público (el Plan inicial ya versionado se queda como está).
+# repositorio público.
 PROGRAMA*.docx
+*.pdf
 
 # Dumps de base de datos SurrealDB: contienen datos personales de usuarios
 # (nombres, DNI, telefono, direccion) y hashes de credenciales. Este repositorio

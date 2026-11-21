@@ -2,6 +2,12 @@
 dist/
 # generated types
 .astro/
+skills-lock.json
+smoke-out.txt
+anti-slop/
+*_report.md
+concepts_brief.md
+capturas/
 
 # dependencies
 node_modules/
