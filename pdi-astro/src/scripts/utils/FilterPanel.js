@@ -674,7 +674,9 @@ function prepararPanel(panel) {
   }
   if (!menu.hasAttribute('tabindex')) menu.setAttribute('tabindex', '-1');
   // Cerrado, el panel no participa del orden de tabulacion ni del arbol.
-  menu.inert = !panel.classList.contains('open');
+  // Salvo en escritorio para paneles inline integrados en toolbar (padrón en PC).
+  const esInlineDesktop = panel.id === 'dropdownPadronFilterPanel' && window.innerWidth > CORTE_HOJA;
+  menu.inert = !panel.classList.contains('open') && !esInlineDesktop;
 
   prepararEtiquetas(panel);
   prepararOpciones(menu);
@@ -695,7 +697,7 @@ function prepararPanel(panel) {
     eraAbierto = abierto;
     disparador.setAttribute('aria-expanded', abierto ? 'true' : 'false');
     menu.setAttribute('aria-modal', abierto && window.innerWidth <= CORTE_HOJA ? 'true' : 'false');
-    menu.inert = !abierto;
+    menu.inert = !abierto && !(panel.id === 'dropdownPadronFilterPanel' && window.innerWidth > CORTE_HOJA);
 
     if (abierto) {
       clearTimeout(menu._cerrarTimer);
@@ -812,6 +814,17 @@ if (typeof document !== 'undefined') {
   // se recalcula con el scroll de la pagina: hacerlo redimensionaba el panel
   // mientras se desplazaba y producia el parpadeo de la parte superior.
   window.addEventListener('resize', () => {
+    const padronPanel = document.getElementById('dropdownPadronFilterPanel');
+    if (padronPanel) {
+      const menu = padronPanel.querySelector('.audit-filters-menu');
+      if (menu) {
+        if (window.innerWidth > CORTE_HOJA) {
+          menu.inert = false;
+        } else if (!padronPanel.classList.contains('open')) {
+          menu.inert = true;
+        }
+      }
+    }
     document.querySelectorAll('.audit-filters-dropdown.open').forEach((panel) => {
       posicionarPanel(panel);
       marcarDesborde(panel);

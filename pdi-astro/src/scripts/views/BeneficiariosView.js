@@ -200,6 +200,11 @@ export const BeneficiariosView = {
     const esPrimeraEntrada = !this._haEntrado || forzarAnimacion;
     this._haEntrado = true;
 
+    const menuFilterPanel = document.getElementById("menuPadronFilterPanel");
+    if (menuFilterPanel && window.innerWidth > 768) {
+      menuFilterPanel.removeAttribute("inert");
+    }
+
     this._leerFiltrosDeURL();
     this._pageSize = this._getEffectivePageSize();
     this._enlazarMenuOrden();

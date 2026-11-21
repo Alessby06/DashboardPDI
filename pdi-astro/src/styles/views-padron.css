@@ -1329,6 +1329,8 @@
     grid-row: 2;
     width: 100%;
     margin-top: 2px;
+    anchor-name: none;
+    overflow: visible;
   }
 
   /* 2. Ocultar el botón disparador del popover en escritorio */
@@ -1340,13 +1342,22 @@
   #mainContent #cardPadronBeneficiarios .audit-filters-dropdown {
     width: 100%;
     position: static;
+    display: flex;
+    overflow: visible;
   }
 
+  #mainContent #cardPadronBeneficiarios .audit-filter-panel-wrap .audit-filters-menu,
   #mainContent #cardPadronBeneficiarios .audit-filters-menu {
     display: flex;
     position: static;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    left: auto;
     width: 100%;
+    min-width: 0;
     max-width: none;
+    height: auto;
     max-height: none;
     background: transparent;
     border: none;
@@ -1354,10 +1365,16 @@
     padding: 0;
     margin: 0;
     opacity: 1;
+    visibility: visible;
     transform: none;
+    clip-path: none;
+    position-anchor: none;
+    anchor-name: none;
     z-index: 50;
     overflow: visible;
     box-sizing: border-box;
+    transition: none;
+    pointer-events: auto;
   }
 
   /* 4. Ocultar la cabecera de la hoja móvil */
@@ -1373,9 +1390,15 @@
     align-items: center;
     gap: 8px;
     padding: 0;
+    margin: 0;
     overflow: visible;
     box-shadow: none;
     width: 100%;
+    max-height: none;
+    clip-path: none;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
   }
 
   /* Indicador textual "Filtros:" */
