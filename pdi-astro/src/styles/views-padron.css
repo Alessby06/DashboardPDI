@@ -1297,40 +1297,45 @@
    =========================================================================== */
 
 @media (min-width: 769px) {
-  /* 1. Rejilla de 2 filas en la barra de herramientas del Padrón:
-        Fila 1: Buscador (ocupa el espacio) + Ordenar + Exportar CSV
-        Fila 2: Barra de Chips de Filtro integrada a todo lo ancho */
+  /* 1. Barra de herramientas del Padrón: 1 sola fila continua integrada (Variante 3 Linear) */
   #mainContent #cardPadronBeneficiarios .audit-toolbar.table-toolbar {
-    display: grid;
-    grid-template-columns: minmax(0, 1.7fr) auto auto;
-    grid-template-rows: auto auto;
-    gap: 12px 10px;
+    display: flex;
+    flex-direction: row;
     align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
   }
 
+  /* Buscador compacto y estilizado a la izquierda */
   #mainContent #cardPadronBeneficiarios .table-toolbar .audit-search-wrap {
-    grid-column: 1;
-    grid-row: 1;
+    order: 1;
+    flex: 0 1 240px;
+    min-width: 170px;
   }
 
-  #mainContent #cardPadronBeneficiarios .table-toolbar .padron-sort-wrap {
-    grid-column: 2;
-    grid-row: 1;
-    width: auto;
-  }
-
-  #mainContent #cardPadronBeneficiarios .table-toolbar .table-export-btn {
-    grid-column: 3;
-    grid-row: 1;
-  }
-
+  /* Filtros en el centro */
   #mainContent #cardPadronBeneficiarios .table-toolbar .audit-filter-panel-wrap {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    width: 100%;
-    margin-top: 2px;
+    order: 2;
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+    margin-top: 0;
     anchor-name: none;
     overflow: visible;
+  }
+
+  /* Ordenar alineado a la derecha */
+  #mainContent #cardPadronBeneficiarios .table-toolbar .padron-sort-wrap {
+    order: 3;
+    flex: 0 0 auto;
+    width: auto;
+    margin-left: auto;
+  }
+
+  /* Botón de exportación al extremo derecho */
+  #mainContent #cardPadronBeneficiarios .table-toolbar .table-export-btn {
+    order: 4;
+    flex: 0 0 auto;
   }
 
   /* 2. Ocultar el botón disparador del popover en escritorio */
@@ -1436,7 +1441,7 @@
     transition: color var(--dur-fast) var(--ease-smooth);
   }
 
-  /* 7. Botón Píldora del Chip */
+  /* 7. Botón Píldora del Chip y botones de acción (Emil Kowalski feedback) */
   #mainContent #cardPadronBeneficiarios .padron-inner-dropdown-btn {
     height: 32px;
     border-radius: var(--radius-full);
@@ -1454,7 +1459,24 @@
     transition: background-color var(--dur-fast) var(--ease-smooth),
       border-color var(--dur-fast) var(--ease-smooth),
       color var(--dur-fast) var(--ease-smooth),
+      transform 120ms cubic-bezier(0.16, 1, 0.3, 1),
       box-shadow var(--dur-fast) var(--ease-smooth);
+  }
+
+  #mainContent #cardPadronBeneficiarios .padron-inner-dropdown-btn:active,
+  #mainContent #cardPadronBeneficiarios .padron-sort-btn:active,
+  #mainContent #cardPadronBeneficiarios .table-export-btn:active {
+    transform: scale(0.96);
+  }
+
+  /* Flecha caret con rotación fluida al abrir */
+  #mainContent #cardPadronBeneficiarios .padron-inner-dropdown-btn .caret {
+    transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1);
+    display: inline-block;
+  }
+
+  #mainContent #cardPadronBeneficiarios .padron-inner-dropdown.open .padron-inner-dropdown-btn .caret {
+    transform: rotate(180deg);
   }
 
   /* Chip activo (con valor filtrado) */
@@ -1469,7 +1491,7 @@
     color: var(--brand-text, #0f766e);
   }
 
-  /* 8. Desplegable flotante contextual que se despliega bajo el chip */
+  /* 8. Desplegable flotante contextual que se despliega bajo el chip (Origin-Aware Emil Kowalski) */
   #mainContent #cardPadronBeneficiarios .padron-inner-dropdown {
     position: relative;
   }
@@ -1496,23 +1518,31 @@
     border-radius: var(--radius-md);
     background: var(--surface-2);
     padding: 6px;
-    transform: translateY(-4px);
-    transition: opacity var(--dur-fast) var(--ease-out),
-      transform var(--dur-fast) var(--ease-out);
+    transform-origin: top left;
+    opacity: 0;
+    transform: translateY(-6px) scale(0.96);
+    pointer-events: none;
+    visibility: hidden;
+    transition: opacity 160ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 160ms cubic-bezier(0.16, 1, 0.3, 1),
+      visibility 160ms allow-discrete;
   }
 
   #mainContent #cardPadronBeneficiarios .padron-inner-dropdown:not(.open) .padron-inner-dropdown-menu {
     display: none;
     opacity: 0;
     pointer-events: none;
+    visibility: hidden;
   }
 
   #mainContent #cardPadronBeneficiarios .padron-inner-dropdown.open .padron-inner-dropdown-menu {
     display: flex;
+    flex-direction: column;
     opacity: 1;
     pointer-events: auto;
+    visibility: visible;
     overflow-y: auto;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 
   /* Dropdown específico de Edad */
@@ -1550,6 +1580,16 @@
     border-color: var(--border-medium);
     color: var(--text-main);
     background: var(--surface-hover);
+  }
+
+  #mainContent #cardPadronBeneficiarios .padron-dropdown-item {
+    transition: background-color 100ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 100ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  #mainContent #cardPadronBeneficiarios .padron-dropdown-item:hover {
+    background: var(--surface-hover);
+    transform: translateX(2px);
   }
 }
 
