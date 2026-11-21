@@ -1297,49 +1297,51 @@
    =========================================================================== */
 
 @media (min-width: 769px) {
-  /* 1. Barra de herramientas del Padrón: Jerarquía de 2 Filas (Solución A)
-        Fila 1: Buscador amplio y desahogado (sin recortes de texto)
-        Fila 2: Filtros integrados a la izquierda + Ordenar y Exportar a la derecha */
+  /* 1. Barra de herramientas del Padrón: Jerarquía de 2 Filas
+        Fila 1: Buscador a la izquierda + Ordenar y Exportar a la derecha
+        Fila 2: Chips de filtros a todo lo ancho (1 / -1), sin saltos de línea */
   #mainContent #cardPadronBeneficiarios .audit-toolbar.table-toolbar {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto auto;
     grid-template-rows: auto auto;
-    gap: 14px 10px;
+    gap: 12px 10px;
     align-items: center;
   }
 
-  /* Buscador en Fila 1: amplio, respirando, sin recortar el texto */
+  /* Buscador en Fila 1 (Izquierda, columna 1) */
   #mainContent #cardPadronBeneficiarios .table-toolbar .audit-search-wrap {
-    grid-column: 1 / -1;
+    grid-column: 1;
     grid-row: 1;
     width: 100%;
     max-width: 440px;
   }
 
-  /* Filtros en Fila 2 (Izquierda, ocupando la columna 1) */
+  /* Ordenar en Fila 1 (Derecha, columna 2) */
+  #mainContent #cardPadronBeneficiarios .table-toolbar .padron-sort-wrap {
+    grid-column: 2;
+    grid-row: 1;
+    width: auto;
+    white-space: nowrap;
+    justify-self: end;
+  }
+
+  /* Botón de exportación en Fila 1 (Extremo derecho, columna 3) */
+  #mainContent #cardPadronBeneficiarios .table-toolbar .table-export-btn {
+    grid-column: 3;
+    grid-row: 1;
+    width: auto;
+    justify-self: end;
+  }
+
+  /* Filtros en Fila 2 (Abarca todo el ancho de la tarjeta: columnas 1 a 3) */
   #mainContent #cardPadronBeneficiarios .table-toolbar .audit-filter-panel-wrap {
-    grid-column: 1;
+    grid-column: 1 / -1;
     grid-row: 2;
     min-width: 0;
     width: 100%;
-    margin-top: 0;
+    margin-top: 2px;
     anchor-name: none;
     overflow: visible;
-  }
-
-  /* Ordenar en Fila 2 (Derecha, columna 2) */
-  #mainContent #cardPadronBeneficiarios .table-toolbar .padron-sort-wrap {
-    grid-column: 2;
-    grid-row: 2;
-    width: auto;
-    white-space: nowrap;
-  }
-
-  /* Botón de exportación en Fila 2 (Extremo derecho, columna 3) */
-  #mainContent #cardPadronBeneficiarios .table-toolbar .table-export-btn {
-    grid-column: 3;
-    grid-row: 2;
-    width: auto;
   }
 
   /* 2. Ocultar el botón disparador del popover en escritorio */
@@ -1397,7 +1399,7 @@
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     padding: 0;
     margin: 0;
     overflow: visible;
@@ -1449,7 +1451,7 @@
   #mainContent #cardPadronBeneficiarios .padron-inner-dropdown-btn {
     height: 32px;
     border-radius: var(--radius-full);
-    padding: 0 12px;
+    padding: 0 10px;
     font-size: 12px;
     font-weight: 500;
     background: var(--surface-2);
