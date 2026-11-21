@@ -1,4 +1,8 @@
-# Aplicación interna de gestión (PDI · Johannes Gutenberg)
-# No es un sitio público: mantenemos a los rastreadores fuera.
+# Aplicación interna de gestión (PDI · Johannes Gutenberg).
+# Solo la puerta de acceso es pública; el resto queda fuera del índice.
 User-agent: *
 Disallow: /
+Allow: /login
+Allow: /login/
+
+Sitemap: https://mvc-pdi.vercel.app/sitemap.xml

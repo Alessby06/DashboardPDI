@@ -12,14 +12,42 @@ const impeccableLive =
   String(import.meta.env.PUBLIC_IMPECCABLE_LIVE ?? 'true').toLowerCase() !== 'false';
 
 const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
+
+const siteUrl = Astro.site?.href?.replace(/\/$/, '') || 'https://mvc-pdi.vercel.app';
+const canonicalUrl = new URL(Astro.url.pathname, siteUrl + '/').href;
+const pageTitle = 'Ingreso al PDI | Johannes Gutenberg';
+const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cultural Johannes Gutenberg: coordinación, salud, educación y atención social.';
 ---
 <!doctype html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="description" content="Ingreso al Programa Infancia Saludable de la Asociación Cultural Johannes Gutenberg: coordinación, salud, educación y atención social." />
-  <title>Ingreso al PDI | Johannes Gutenberg</title>
+  <meta name="description" content={description} />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href={canonicalUrl} />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PDI Infancia Saludable" />
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonicalUrl} />
+  <meta property="og:image" content={`${siteUrl}/assets/og-image.webp`} />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={pageTitle} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={`${siteUrl}/assets/og-image.webp`} />
+  <meta name="theme-color" id="metaThemeColor" content="#f2ece1" />
+  <title>{pageTitle}</title>
+  <script type="application/ld+json" set:html={JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'PDI Infancia Saludable',
+    url: siteUrl,
+    publisher: {
+      '@type': 'Organization',
+      name: 'Asociación Cultural y Educativa Johannes Gutenberg'
+    }
+  })} />
   <link rel="icon" type="image/png" href="/assets/jg-icon.png" />
   <link rel="apple-touch-icon" href="/assets/jg-icon.png" />
   <meta name="theme-color" id="metaThemeColor" content="#f2ece1" />
@@ -220,6 +248,15 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
     .brand .emblem {
       border-radius: 10px;
+    }
+
+    .brand .emblem,
+    .brand .emblem img {
+      display: block;
+      width: 36px;
+      height: 36px;
+      object-fit: cover;
+      border-radius: inherit;
     }
 
     .brand strong {
@@ -1379,7 +1416,10 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
 
   <header class="top">
     <div class="brand">
-      <img class="emblem" src="/assets/jg-icon.png" alt="" width="36" height="36" />
+      <picture class="emblem">
+        <source srcset="/assets/jg-icon.webp" type="image/webp" />
+        <img src="/assets/jg-icon.png" alt="Logo de la Asociación Cultural Johannes Gutenberg" width="36" height="36" />
+      </picture>
       <div>
         <strong>Asociación Cultural Johannes Gutenberg</strong>
         <span>El Agustino y Comas</span>
@@ -1664,7 +1704,8 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     const inputUsuario = document.getElementById('inputUsuario');
 
     profilesGrid?.addEventListener('change', (e) => {
-      const radio = e.target.closest('input[name="perfilDemo"]');
+      const objetivo = e.target instanceof Element ? e.target : null;
+      const radio = objetivo?.closest('input[name="perfilDemo"]');
       if (!radio) return;
       if (inputUsuario) inputUsuario.value = radio.dataset.user || '';
       ocultarError();
@@ -1672,7 +1713,8 @@ const soporteEmail = String(import.meta.env.PUBLIC_SOPORTE_EMAIL || '').trim();
     });
 
     profilesGrid?.addEventListener('click', (e) => {
-      if (!e.target.closest('.chip')) return;
+      const objetivo = e.target instanceof Element ? e.target : null;
+      if (!objetivo?.closest('.chip')) return;
       if (e.detail > 0) requestAnimationFrame(() => inputClave?.focus());
     });
 

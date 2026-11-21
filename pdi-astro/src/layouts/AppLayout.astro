@@ -24,6 +24,12 @@ interface Props {
 
 const { title, currentPage, pageCss } = Astro.props;
 
+const siteUrl = Astro.site?.href?.replace(/\/$/, '') || 'https://mvc-pdi.vercel.app';
+const canonicalUrl = new URL(Astro.url.pathname, siteUrl + '/').href;
+const pageTitle = `${title} | Sistema PDI (Astro)`;
+const description = 'Sistema PDI: gestión del Programa de Desarrollo Infantil Infancia Saludable de la Asociación Cultural y Educativa Johannes Gutenberg.';
+const indexable = currentPage === 'login';
+
 const pdiAppSectionTransition = {
   // Navegación entre páginas en escritorio: profundidad contenida. El
   // contenido entra desde el 98,8 % y el saliente se retira al 100,4 %, sin
@@ -69,9 +75,31 @@ const impeccableLive =
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-  <meta name="description" content="Sistema PDI - Programa de Infancia Saludable de la Asociación Cultural Johannes Gutenberg. Gestión integral de usuarios, salud, educación y voluntariado." />
+  <meta name="description" content={description} />
+  <meta name="robots" content={indexable ? 'index, follow' : 'noindex, nofollow'} />
+  <link rel="canonical" href={canonicalUrl} />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PDI Infancia Saludable" />
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonicalUrl} />
+  <meta property="og:image" content={`${siteUrl}/assets/og-image.webp`} />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={pageTitle} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={`${siteUrl}/assets/og-image.webp`} />
   <meta name="theme-color" id="metaThemeColor" content="#f5f0e6" />
-  <title>{title} | Sistema PDI (Astro)</title>
+  <title>{pageTitle}</title>
+  <script type="application/ld+json" set:html={JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'PDI Infancia Saludable',
+    url: siteUrl,
+    publisher: {
+      '@type': 'Organization',
+      name: 'Asociación Cultural y Educativa Johannes Gutenberg'
+    }
+  })} />
   <link rel="icon" type="image/png" href="/assets/jg-icon.png" />
   <link rel="apple-touch-icon" href="/assets/jg-icon.png" />
   <link rel="preload" href="/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin />
