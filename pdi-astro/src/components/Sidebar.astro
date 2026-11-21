@@ -7,22 +7,22 @@ import Icon from './Icon.astro';
 
 const { currentPage } = Astro.props;
 
-// Semántica del menú → alias del registro de iconos. Un solo mapa evita
-// repetir condicionales con SVG por cada entrada.
+// Semántica del menú → clave del set (Hugeicons Free 4.4.0). Un solo mapa evita
+// repetir condicionales con SVG por cada entrada; los alias semánticos siguen
+// disponibles para el resto de vistas.
 const ICONO_DE_NAV = {
-  dashboard: 'nav.panel',
-  padron: 'nav.usuarios',
-  colaboradores: 'nav.grupo',
-  voluntariados: 'nav.voluntarios',
-  salud: 'salud.medico',
-  educativo: 'educacion.grado',
-  social: 'salud.escudo',
-  autorizaciones: 'estado.ok',
-  solicitudes: 'estado.pendiente',
-  sedes: 'lugar.ubicacion',
-  auditoria: 'archivo.documento',
-  cuentas: 'persona.usuario',
-  ajustes: 'nav.ajustes',
+  dashboard: 'chart-01',
+  padron: 'identity-card',
+  colaboradores: 'user-sharing',
+  voluntariados: 'heart-handshake',
+  salud: 'health',
+  educativo: 'mortarboard-01',
+  social: 'shield-check',
+  autorizaciones: 'clipboard-lista',
+  solicitudes: 'clock-01',
+  sedes: 'maps',
+  auditoria: 'file-01',
+  cuentas: 'lock',
 };
 
 const navItems = [

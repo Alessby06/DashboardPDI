@@ -14,8 +14,8 @@ import {
 
 test('el set está fijado a la versión elegida y completo', () => {
   assert.equal(HUGEICONS_VERSION, '4.4.0');
-  assert.equal(CLAVES.length, 64);
-  assert.equal(new Set(CLAVES).size, 64);
+  assert.equal(CLAVES.length, 66);
+  assert.equal(new Set(CLAVES).size, 66);
 });
 
 test('los paths no llevan grosor ni color incrustados', () => {
@@ -24,7 +24,7 @@ test('los paths no llevan grosor ni color incrustados', () => {
     assert.ok(Array.isArray(cuerpo) && cuerpo.length > 0, `${clave} vacío`);
     for (const [tag, attrs] of cuerpo) {
       assert.equal(typeof tag, 'string');
-      for (const prohibido of ['stroke', 'strokeWidth', 'strokeLinecap', 'strokeLinejoin', 'key']) {
+      for (const prohibido of ['stroke', 'strokeWidth', 'strokeLinecap', 'strokeLinejoin', 'key', 'fill']) {
         assert.equal(attrs[prohibido], undefined, `${clave} conserva ${prohibido}`);
       }
     }
@@ -35,6 +35,13 @@ test('todos los alias apuntan a un icono existente', () => {
   for (const [alias, clave] of Object.entries(ALIAS)) {
     assert.ok(ICONOS[clave] || PERSONALIZADOS[clave], `${alias} → ${clave} no existe`);
   }
+});
+
+test('el portapapeles de los listados es sólo contorno', () => {
+  assert.equal(ALIAS['archivo.lista'], 'clipboard-lista');
+  const cuerpo = PERSONALIZADOS['clipboard-lista'];
+  assert.ok(Array.isArray(cuerpo) && cuerpo.length > 0);
+  for (const [, attrs] of cuerpo) assert.equal(attrs.fill, undefined);
 });
 
 test('el ojo de contraseña no es el ojo genérico de las tablas', () => {

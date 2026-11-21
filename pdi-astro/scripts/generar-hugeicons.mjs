@@ -19,15 +19,16 @@ const ICONOS = [
   'Add01Icon', 'Activity01Icon', 'Alert02Icon', 'AlertCircleIcon', 'Archive01Icon', 'ArrowDown01Icon',
   'ArrowLeft01Icon', 'ArrowRight01Icon', 'BankIcon', 'BookOpen01Icon', 'Briefcase01Icon',
   'Calendar03Icon', 'CallIcon', 'Camera01Icon', 'Cancel01Icon', 'Chart01Icon',
-  'CheckmarkCircle02Icon', 'ClipboardListIcon', 'Clock01Icon', 'ComputerIcon', 'Cursor01Icon',
+  'CheckmarkCircle02Icon', 'Clock01Icon', 'ComputerIcon', 'Cursor01Icon',
   'DashboardSquare01Icon', 'Database01Icon', 'Delete02Icon', 'Download01Icon', 'EyeIcon',
   'EyeOffIcon', 'FavouriteIcon', 'File01Icon', 'FilterIcon', 'FireIcon', 'Folder01Icon',
-  'Gps01Icon', 'HealthIcon', 'Home01Icon', 'InboxIcon', 'InformationCircleIcon',
-  'ListViewIcon', 'Location01Icon', 'LockIcon', 'Logout01Icon', 'MapsIcon', 'Menu01Icon', 'Moon02Icon',
-  'Mortarboard01Icon', 'Mouse01Icon', 'PencilEdit02Icon', 'PieChartIcon', 'PrinterIcon',
-  'RefreshIcon', 'Route01Icon', 'Search01Icon', 'SentIcon', 'ServingFoodIcon', 'Settings01Icon',
-  'ShieldCheckIcon', 'SmartPhone01Icon', 'Sun03Icon', 'Tick02Icon', 'Upload01Icon',
-  'UserAdd01Icon', 'UserGroupIcon', 'UserIcon', 'UserMultipleIcon',
+  'Gps01Icon', 'HealthIcon', 'HeartHandshakeIcon', 'Home01Icon', 'IdentityCardIcon',
+  'InboxIcon', 'InformationCircleIcon', 'ListViewIcon', 'Location01Icon', 'LockIcon',
+  'Logout01Icon', 'MapsIcon', 'Menu01Icon', 'Moon02Icon', 'Mortarboard01Icon', 'Mouse01Icon',
+  'PencilEdit02Icon', 'PieChartIcon', 'PrinterIcon', 'RefreshIcon', 'Route01Icon',
+  'Search01Icon', 'SentIcon', 'ServingFoodIcon', 'Settings01Icon', 'ShieldCheckIcon',
+  'SmartPhone01Icon', 'Sun03Icon', 'Tick02Icon', 'Upload01Icon', 'UserAdd01Icon',
+  'UserGroupIcon', 'UserIcon', 'UserMultipleIcon', 'UserSharingIcon',
 ];
 
 /** Cancel01Icon → cancel-01; SmartPhone01Icon → smart-phone-01. */

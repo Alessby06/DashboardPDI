@@ -82,7 +82,7 @@ export const ALIAS = {
 
   'archivo.documento': 'file-01',
   'archivo.carpeta': 'folder-01',
-  'archivo.lista': 'clipboard-list',
+  'archivo.lista': 'clipboard-lista',
   'archivo.bandeja': 'inbox',
   'archivo.libro': 'book-open-01',
 
@@ -147,6 +147,17 @@ export const PERSONALIZADOS = {
   "copy-01": [
     ["rect", { x: "9", y: "9", width: "11", height: "11", rx: "2" }],
     ["path", { d: "M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" }],
+  ],
+  // El `clipboard-list` del set trae el tablero con fill="currentColor": a 18 px
+  // se lee más grueso que el resto de la familia (trazo 1.75) y se notaba en
+  // educativo y salud. Mismo gesto, sólo contorno, declarado aquí para no
+  // editar hugeicons.js, que es generado.
+  "clipboard-lista": [
+    ["path", { d: "M9 4.5V3.8a1.3 1.3 0 0 1 1.3-1.3h3.4A1.3 1.3 0 0 1 15 3.8v0.7" }],
+    ["path", { d: "M6 4.5h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2Z" }],
+    ["path", { d: "M9 11h6" }],
+    ["path", { d: "M9 15h6" }],
+    ["path", { d: "M9 19h3.5" }],
   ],
 };
 
