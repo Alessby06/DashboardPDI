@@ -345,7 +345,7 @@
   white-space: nowrap;
   transition: background-color var(--dur-fast) var(--ease-smooth),
     border-color var(--dur-fast) var(--ease-smooth),
-    transform var(--dur-fast) var(--ease-smooth);
+    transform var(--dur-press) var(--ease-spring);
 }
 
 .perfil-btn:active {
@@ -1007,4 +1007,69 @@ html[data-theme="dark"] .perfil-btn--danger {
   .perfil-carnet .perfil-avatar { width: 88px; height: 88px; font-size: 28px; }
   .perfil-lectura { grid-template-columns: 1fr; }
 }
+
+/* ===========================================================================
+   MOVIMIENTO DE ESTADO
+   ---------------------------------------------------------------------------
+   Los momentos que antes teletransportaban algo: la entrada del formulario de
+   edición, los paneles que abre una fila, la barra de cambios sin guardar y el menú de
+   la foto. `display ... allow-discrete` deja que el elemento siga pintado
+   mientras se va; si el navegador no la soporta, el cierre vuelve a ser
+   instantáneo y no se rompe nada.
+   La regla global de movimiento reducido (base.css) deja pasar solo opacidad y
+   color, así que el desplazamiento se cae solo.
+   =========================================================================== */
+
+.perfil-marco .perfil-panel,
+.perfil-savebar,
+.perfil-photo-menu {
+  transition:
+    opacity var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out),
+    display var(--dur-fast) allow-discrete;
+
+  /* Sin esto, un elemento que venía de `display: none` no tiene estado previo
+     desde el cual animar. */
+  @starting-style {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+.perfil-marco .perfil-panel[hidden],
+.perfil-savebar[hidden],
+.perfil-photo-menu[hidden] {
+  display: none;
+  opacity: 0;
+  transform: translateY(4px);
+}
+
+.perfil-savebar {
+  transition-duration: var(--dur-norm);
+}
+
+.perfil-savebar[hidden] {
+  transform: translateY(8px);
+}
+
+.perfil-photo-menu {
+  transform-origin: top left;
+}
+
+.perfil-photo-menu[hidden] {
+  transform: translateY(0) scale(0.96);
+}
+
+.perfil-dialog {
+  opacity: 0;
+  transition:
+    opacity 120ms var(--ease-out),
+    display 120ms allow-discrete,
+    overlay 120ms allow-discrete;
+}
+
+.perfil-dialog[open] {
+  opacity: 1;
+}
+
 
