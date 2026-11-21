@@ -213,10 +213,26 @@ const impeccableLive =
       // 1. Antiflash síncrono inmediato en carga inicial de la página
       aplicarTema(document);
 
+      // 1.b La llegada del dashboard se marca antes de pintar: la animación no
+      // puede empezar con el contenido ya visible. Completa la primera vez en
+      // la sesión; en las siguientes, un fundido corto.
+      function marcarEntradaDashboard(doc, destino) {
+        try {
+          var ruta = destino ? new URL(destino, location.href).pathname : location.pathname;
+          if ((ruta || "/").replace(/\/+$/, "") !== "/dashboard") return;
+          var primera = !sessionStorage.getItem("pdi_dash_entrada");
+          if (primera) sessionStorage.setItem("pdi_dash_entrada", "1");
+          doc.documentElement.setAttribute("data-dash-entrada", primera ? "completa" : "corta");
+        } catch (e) {}
+      }
+
+      marcarEntradaDashboard(document, null);
+
       // 2. ClientRouter: preparar el documento nuevo ANTES del intercambio
       document.addEventListener("astro:before-swap", function (ev) {
         if (ev.newDocument) {
           aplicarTema(ev.newDocument);
+          marcarEntradaDashboard(ev.newDocument, ev.to);
 
           // El chrome (badges del sidebar) sigue visible porque los datos ya
           // están en memoria; el contenido de la página entrante se tapa con

@@ -934,8 +934,21 @@ body[data-page="dashboard"] #mainContent {
 @media (hover: hover) and (pointer: fine) {
   .dash-acciones .pdi-select-trigger:hover { border-color: var(--dash-rule-strong); }
   .dash-boton:hover { border-color: var(--dash-rule-strong); }
-  .dash-servicio { transition: border-color var(--dur-fast) var(--ease-out); }
-  .dash-servicio:hover { border-color: var(--dash-rule-strong); }
+
+  /* Todas las tarjetas de la página comparten .dash-superficie —el bloque de
+     KPI, los paneles, los tres servicios—, así que la respuesta se declara una
+     vez y vale para todas, en los dos temas. Antes solo la tenían los servicios
+     y en claro no se notaba: el borde pasaba de 1,33 a 2,52:1. */
+  .dash-superficie {
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out);
+  }
+
+  .dash-superficie:hover {
+    background: var(--dash-hover);
+    border-color: var(--dash-rule-hover);
+  }
 }
 
 /* --- Responsive ----------------------------------------------------------- */
@@ -1084,4 +1097,71 @@ body[data-page="dashboard"] #mainContent {
   .dash-boton,
   .dash-servicio { transition: none; }
   .dash-boton:active { transform: none; }
+}
+
+/* ===========================================================================
+   MOVIMIENTO DEL DASHBOARD
+   ---------------------------------------------------------------------------
+   Tres familias: la llegada (completa la primera vez de la sesión, corta
+   después), la respuesta al puntero (arriba) y el cambio de datos al filtrar
+   por sede. Solo se animan opacidad y transform; el movimiento reducido apaga
+   el desplazamiento por la regla global de base.css.
+   =========================================================================== */
+
+@keyframes dash-entra {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@keyframes dash-entra-corta {
+  from {
+    opacity: 0;
+  }
+}
+
+[data-dash-entrada="completa"] .dash-hero,
+[data-dash-entrada="completa"] .dash-clinica,
+[data-dash-entrada="completa"] .dash-atencion,
+[data-dash-entrada="completa"] .dash-servicios-seccion,
+[data-dash-entrada="completa"] .dash-panel {
+  animation: dash-entra var(--dur-norm) var(--ease-out) both;
+}
+
+[data-dash-entrada="completa"] .dash-clinica,
+[data-dash-entrada="completa"] .dash-atencion {
+  animation-delay: 40ms;
+}
+
+[data-dash-entrada="completa"] .dash-servicios-seccion {
+  animation-delay: 80ms;
+}
+
+[data-dash-entrada="completa"] .dash-panel {
+  animation-delay: 120ms;
+}
+
+[data-dash-entrada="corta"] .dash-hero,
+[data-dash-entrada="corta"] .dash-clinica,
+[data-dash-entrada="corta"] .dash-atencion,
+[data-dash-entrada="corta"] .dash-servicios-seccion,
+[data-dash-entrada="corta"] .dash-panel {
+  animation: dash-entra-corta var(--dur-fast) var(--ease-out) both;
+}
+
+/* El punto de «en vivo» late despacio; en aviso o cargando se queda quieto. */
+@keyframes dash-late {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.dash-punto-vivo:not(.is-warn):not(.is-loading) .dash-estado-dot {
+  animation: dash-late 2.4s var(--ease-smooth) infinite;
+}
+
+/* Al cambiar de sede, Comas y Carabayllo se reacomodan en vez de saltar. */
+.dash-mini-barra span {
+  transition: flex-grow var(--dur-bar) var(--ease-spring);
 }
