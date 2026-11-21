@@ -1655,6 +1655,13 @@
     letter-spacing: 0.05em;
     color: var(--text-dim);
   }
+
+  /* 9. En escritorio (>= 769px), la barra de chips aplicados duplicados se oculta:
+        los chips de la Fila 2 ya muestran el estado activo y el botón Restablecer
+        elimina los filtros con un clic, evitando la redundancia y recuperando espacio vertical. */
+  #mainContent #cardPadronBeneficiarios .padron-active-chips-bar {
+    display: none;
+  }
 }
 
 @media (hover: hover) and (pointer: fine) {
