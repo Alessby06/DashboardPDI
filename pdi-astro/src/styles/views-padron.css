@@ -1297,45 +1297,49 @@
    =========================================================================== */
 
 @media (min-width: 769px) {
-  /* 1. Barra de herramientas del Padrón: 1 sola fila continua integrada (Variante 3 Linear) */
+  /* 1. Barra de herramientas del Padrón: Jerarquía de 2 Filas (Solución A)
+        Fila 1: Buscador amplio y desahogado (sin recortes de texto)
+        Fila 2: Filtros integrados a la izquierda + Ordenar y Exportar a la derecha */
   #mainContent #cardPadronBeneficiarios .audit-toolbar.table-toolbar {
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-rows: auto auto;
+    gap: 14px 10px;
     align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
   }
 
-  /* Buscador compacto y estilizado a la izquierda */
+  /* Buscador en Fila 1: amplio, respirando, sin recortar el texto */
   #mainContent #cardPadronBeneficiarios .table-toolbar .audit-search-wrap {
-    order: 1;
-    flex: 0 1 240px;
-    min-width: 170px;
+    grid-column: 1 / -1;
+    grid-row: 1;
+    width: 100%;
+    max-width: 440px;
   }
 
-  /* Filtros en el centro */
+  /* Filtros en Fila 2 (Izquierda, ocupando la columna 1) */
   #mainContent #cardPadronBeneficiarios .table-toolbar .audit-filter-panel-wrap {
-    order: 2;
-    flex: 1 1 auto;
+    grid-column: 1;
+    grid-row: 2;
     min-width: 0;
-    width: auto;
+    width: 100%;
     margin-top: 0;
     anchor-name: none;
     overflow: visible;
   }
 
-  /* Ordenar alineado a la derecha */
+  /* Ordenar en Fila 2 (Derecha, columna 2) */
   #mainContent #cardPadronBeneficiarios .table-toolbar .padron-sort-wrap {
-    order: 3;
-    flex: 0 0 auto;
+    grid-column: 2;
+    grid-row: 2;
     width: auto;
-    margin-left: auto;
+    white-space: nowrap;
   }
 
-  /* Botón de exportación al extremo derecho */
+  /* Botón de exportación en Fila 2 (Extremo derecho, columna 3) */
   #mainContent #cardPadronBeneficiarios .table-toolbar .table-export-btn {
-    order: 4;
-    flex: 0 0 auto;
+    grid-column: 3;
+    grid-row: 2;
+    width: auto;
   }
 
   /* 2. Ocultar el botón disparador del popover en escritorio */
