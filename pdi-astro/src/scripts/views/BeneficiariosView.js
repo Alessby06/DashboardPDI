@@ -330,7 +330,7 @@ export const BeneficiariosView = {
     const labelEl = document.getElementById("labelPadronEstrategiaSelect");
     if (labelEl) {
       if (isAll) {
-        labelEl.textContent = "Todas las Estrategias";
+        labelEl.textContent = "Todas";
       } else if (this._filterEstrategia.length === 1) {
         // La etiqueta se lee del propio menu, para que no haya dos listas.
         const item = document.querySelector(
@@ -341,6 +341,7 @@ export const BeneficiariosView = {
         labelEl.textContent = `${this._filterEstrategia.length} seleccionadas`;
       }
     }
+    document.getElementById("dropdownPadronEstrategia")?.classList.toggle("has-active-filter", !isAll);
   },
 
   toggleSede(val) {
@@ -377,6 +378,7 @@ export const BeneficiariosView = {
         labelEl.textContent = `${this._filterSede.length} seleccionadas`;
       }
     }
+    document.getElementById("dropdownPadronSede")?.classList.toggle("has-active-filter", !isAll);
   },
 
   toggleAnemia(val) {
@@ -402,7 +404,7 @@ export const BeneficiariosView = {
     const labelEl = document.getElementById("labelPadronAnemiaSelect");
     if (labelEl) {
       if (isAll) {
-        labelEl.textContent = "Todas las Condiciones";
+        labelEl.textContent = "Todas";
       } else if (this._filterAnemia.length === 1) {
         const a = this._filterAnemia[0];
         labelEl.textContent = a === "Moderada" ? "Mod / Severa" : a;
@@ -410,6 +412,7 @@ export const BeneficiariosView = {
         labelEl.textContent = `${this._filterAnemia.length} seleccionadas`;
       }
     }
+    document.getElementById("dropdownPadronAnemia")?.classList.toggle("has-active-filter", !isAll);
   },
 
   setEdadExacta(val) {
@@ -534,6 +537,22 @@ export const BeneficiariosView = {
       }
       if (labelSlider) labelSlider.textContent = "0 a 18 años";
     }
+
+    const labelSelect = document.getElementById("labelPadronEdadSelect");
+    const dropdownEdad = document.getElementById("dropdownPadronEdad");
+    if (labelSelect) {
+      if (isAll) {
+        labelSelect.textContent = "Todas";
+        dropdownEdad?.classList.remove("has-active-filter");
+      } else if (this._filterEdadModo === "exacta") {
+        labelSelect.textContent = `${this._filterEdadExacta} años`;
+        dropdownEdad?.classList.add("has-active-filter");
+      } else if (this._filterEdadModo === "rango") {
+        const { min, max } = this._filterEdadRango;
+        labelSelect.textContent = min === max ? `${min} años` : `${min} a ${max} a.`;
+        dropdownEdad?.classList.add("has-active-filter");
+      }
+    }
   },
 
   /** Roles que pueden consultar el archivo de usuarios desactivados. */
@@ -645,6 +664,7 @@ export const BeneficiariosView = {
       else if (this._filterSexo === "M") labelEl.textContent = "Masculino (M)";
       else if (this._filterSexo === "F") labelEl.textContent = "Femenino (F)";
     }
+    document.getElementById("dropdownPadronSexo")?.classList.toggle("has-active-filter", this._filterSexo !== "all");
   },
 
   removeFilter(filterKey, specificVal) {

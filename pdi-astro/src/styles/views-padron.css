@@ -1288,3 +1288,255 @@
 
 /* Filas uniformes como el resto de tablas; el hover lo aporta `.data-table`. */
 
+/* ===========================================================================
+   INLINE FILTER CHIPS (MODO ESCRITORIO > 768px)
+   ===========================================================================
+   En escritorio el popover de filtros se transforma en una barra de chips
+   horizontales limpios e interactivos (estilo Linear / GitHub).
+   En móvil (<= 768px) se conserva el botón compacto y la hoja inferior táctil.
+   =========================================================================== */
+
+@media (min-width: 769px) {
+  /* 1. Rejilla de 2 filas en la barra de herramientas del Padrón:
+        Fila 1: Buscador (ocupa el espacio) + Ordenar + Exportar CSV
+        Fila 2: Barra de Chips de Filtro integrada a todo lo ancho */
+  #mainContent #cardPadronBeneficiarios .audit-toolbar.table-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) auto auto;
+    grid-template-rows: auto auto;
+    gap: 12px 10px;
+    align-items: center;
+  }
+
+  #mainContent #cardPadronBeneficiarios .table-toolbar .audit-search-wrap {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  #mainContent #cardPadronBeneficiarios .table-toolbar .padron-sort-wrap {
+    grid-column: 2;
+    grid-row: 1;
+    width: auto;
+  }
+
+  #mainContent #cardPadronBeneficiarios .table-toolbar .table-export-btn {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  #mainContent #cardPadronBeneficiarios .table-toolbar .audit-filter-panel-wrap {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+    margin-top: 2px;
+  }
+
+  /* 2. Ocultar el botón disparador del popover en escritorio */
+  #mainContent #cardPadronBeneficiarios .audit-filter-btn {
+    display: none;
+  }
+
+  /* 3. El contenedor .audit-filters-menu en escritorio pasa de popover a barra inline */
+  #mainContent #cardPadronBeneficiarios .audit-filters-dropdown {
+    width: 100%;
+    position: static;
+  }
+
+  #mainContent #cardPadronBeneficiarios .audit-filters-menu {
+    display: flex;
+    position: static;
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+    opacity: 1;
+    transform: none;
+    z-index: 50;
+    overflow: visible;
+    box-sizing: border-box;
+  }
+
+  /* 4. Ocultar la cabecera de la hoja móvil */
+  #mainContent #cardPadronBeneficiarios .audit-filters-header {
+    display: none;
+  }
+
+  /* 5. Fila horizontal de chips con scroll si se requiere y espacio fluido */
+  #mainContent #cardPadronBeneficiarios .audit-filters-body {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    overflow: visible;
+    box-shadow: none;
+    width: 100%;
+  }
+
+  /* Indicador textual "Filtros:" */
+  #mainContent #cardPadronBeneficiarios .padron-inline-filters-lead {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-dim);
+    margin-right: 4px;
+    user-select: none;
+  }
+
+  /* 6. Cada campo es un chip individual */
+  #mainContent #cardPadronBeneficiarios .audit-filter-field {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
+  }
+
+  #mainContent #cardPadronBeneficiarios .audit-filter-field .audit-field-label {
+    display: none;
+  }
+
+  /* Prefijo visible en escritorio (ej: "Sede:", "Estrategia:") */
+  #mainContent #cardPadronBeneficiarios .padron-chip-prefix {
+    font-weight: 600;
+    color: var(--text-dim);
+    margin-right: 4px;
+    display: inline-block;
+    transition: color var(--dur-fast) var(--ease-smooth);
+  }
+
+  /* 7. Botón Píldora del Chip */
+  #mainContent #cardPadronBeneficiarios .padron-inner-dropdown-btn {
+    height: 32px;
+    border-radius: var(--radius-full);
+    padding: 0 12px;
+    font-size: 12px;
+    font-weight: 500;
+    background: var(--surface-2);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-muted);
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background-color var(--dur-fast) var(--ease-smooth),
+      border-color var(--dur-fast) var(--ease-smooth),
+      color var(--dur-fast) var(--ease-smooth),
+      box-shadow var(--dur-fast) var(--ease-smooth);
+  }
+
+  /* Chip activo (con valor filtrado) */
+  #mainContent #cardPadronBeneficiarios .padron-inner-dropdown.has-active-filter .padron-inner-dropdown-btn {
+    background: var(--brand-surface, rgba(13, 148, 136, 0.1));
+    border-color: var(--brand-border, rgba(13, 148, 136, 0.35));
+    color: var(--brand-text, #0f766e);
+    font-weight: 600;
+  }
+
+  #mainContent #cardPadronBeneficiarios .padron-inner-dropdown.has-active-filter .padron-chip-prefix {
+    color: var(--brand-text, #0f766e);
+  }
+
+  /* 8. Desplegable flotante contextual que se despliega bajo el chip */
+  #mainContent #cardPadronBeneficiarios .padron-inner-dropdown {
+    position: relative;
+  }
+
+  #mainContent #cardPadronBeneficiarios .padron-inner-dropdown-reveal {
+    display: block;
+    overflow: visible;
+    padding-top: 0;
+    grid-template-rows: none;
+    transition: none;
+  }
+
+  #mainContent #cardPadronBeneficiarios .padron-inner-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: auto;
+    min-width: 220px;
+    max-width: 320px;
+    max-height: 280px;
+    z-index: 500;
+    box-shadow: var(--shadow-overlay);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    background: var(--surface-2);
+    padding: 6px;
+    transform: translateY(-4px);
+    transition: opacity var(--dur-fast) var(--ease-out),
+      transform var(--dur-fast) var(--ease-out);
+  }
+
+  #mainContent #cardPadronBeneficiarios .padron-inner-dropdown:not(.open) .padron-inner-dropdown-menu {
+    display: none;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  #mainContent #cardPadronBeneficiarios .padron-inner-dropdown.open .padron-inner-dropdown-menu {
+    display: flex;
+    opacity: 1;
+    pointer-events: auto;
+    overflow-y: auto;
+    transform: translateY(0);
+  }
+
+  /* Dropdown específico de Edad */
+  #mainContent #cardPadronBeneficiarios .padron-edad-dropdown-menu {
+    width: 270px;
+    max-width: 90vw;
+    padding: 12px;
+  }
+
+  #mainContent #cardPadronBeneficiarios .padron-edad-dropdown-menu .facet-edad-card {
+    border: none;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  #mainContent #cardPadronBeneficiarios .padron-edad-dropdown-menu .facet-edad-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  #mainContent #cardPadronBeneficiarios .facet-edad-header-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-dim);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  #mainContent #cardPadronBeneficiarios .padron-inner-dropdown-btn:hover {
+    border-color: var(--border-medium);
+    color: var(--text-main);
+    background: var(--surface-hover);
+  }
+}
+
+/* En móvil (<= 768px): ocultar prefijo e indicador para conservar la apariencia nativa */
+@media (max-width: 768px) {
+  .padron-inline-filters-lead {
+    display: none;
+  }
+  .padron-chip-prefix {
+    display: none;
+  }
+}
+

@@ -96,7 +96,7 @@ const OPCIONES_SEXO = [
                 </div>
               </div>
 
-              <!-- Botón de Filtros y Panel Desplegable (Lado Derecho) -->
+              <!-- Botón de Filtros y Panel Desplegable (Lado Derecho / Barra de Chips en PC) -->
               <FilterPanel
                 id="dropdownPadronFilterPanel"
                 buttonId="btnDropdownPadronFilterPanel"
@@ -105,13 +105,20 @@ const OPCIONES_SEXO = [
                 title="Filtros de Padrón"
                 reset="window.resetPadronFilters ? window.resetPadronFilters() : null"
               >
+                      <!-- Indicador de sección para modo chips en PC -->
+                      <span class="padron-inline-filters-lead" aria-hidden="true">
+                        <Icon name="accion.filtrar" size={13} />
+                        <span>Filtros:</span>
+                      </span>
+
                       <!-- Filtro 1: Estrategia Asignada (multiseleccion con checkbox) -->
                       <FilterField
                         id="dropdownPadronEstrategia"
                         menuId="menuPadronEstrategia"
                         labelId="labelPadronEstrategiaSelect"
                         label="Estrategia Asignada"
-                        labelTodos="Todas las Estrategias"
+                        prefix="Estrategia:"
+                        labelTodos="Todas"
                         todosEtiqueta="Todas"
                         opciones={OPCIONES_ESTRATEGIA}
                         onSelect="window.togglePadronEstrategia"
@@ -125,6 +132,7 @@ const OPCIONES_SEXO = [
                         menuId="menuPadronSede"
                         labelId="labelPadronSedeSelect"
                         label="Sede Operativa"
+                        prefix="Sede:"
                         labelTodos="Todas las Sedes"
                         todosEtiqueta="Todas las Sedes"
                         opciones={OPCIONES_SEDE}
@@ -139,7 +147,8 @@ const OPCIONES_SEXO = [
                         menuId="menuPadronAnemia"
                         labelId="labelPadronAnemiaSelect"
                         label="Condición Nutricional (Anemia)"
-                        labelTodos="Todas las Condiciones"
+                        prefix="Condición:"
+                        labelTodos="Todas"
                         todosEtiqueta="Todos"
                         opciones={OPCIONES_ANEMIA}
                         onSelect="window.togglePadronAnemia"
@@ -147,42 +156,57 @@ const OPCIONES_SEXO = [
                         countPrefix="countFacetAnemia"
                       />
                       
-                      <!-- Filtro 4: Edad del Usuario (0 a 18 años con Cuadro de Edad Específica, Barra Slider de Rango 0-18 y Botón Todas) -->
-                      <div class="audit-filter-field">
-                        <div class="facet-edad-header">
-                          <label class="audit-field-label" style="margin-bottom:0;">Edad del Usuario</label>
-                          <button type="button" class="btn-facet-all-edad active" id="btnPadronEdadTodas"
-                            data-pdi-on="click" data-pdi-h="h124">
-                            Todas las edades
+                      <!-- Filtro 4: Edad del Usuario (0 a 18 años con Cuadro de Edad Específica y Slider de Rango) -->
+                      <div class="audit-filter-field padron-facet-field-edad">
+                        <label class="audit-field-label" style="margin-bottom:0;">Edad del Usuario</label>
+                        <div class="padron-inner-dropdown" id="dropdownPadronEdad">
+                          <button type="button" class="padron-inner-dropdown-btn"
+                            data-pdi-call="window.togglePadronInnerDropdown"
+                            data-pdi-args='["dropdownPadronEdad"]'
+                            aria-expanded="false" aria-controls="menuPadronEdad">
+                            <span class="padron-chip-prefix">Edad:</span>
+                            <span id="labelPadronEdadSelect">Todas</span>
+                            <Icon name="nav.desplegar" size={null} class="caret" />
                           </button>
-                        </div>
-                        <div class="facet-edad-card">
-                          <div class="facet-edad-input-row">
-                            <span class="facet-edad-input-label">Edad específica:</span>
-                            <div class="facet-edad-input-box">
-                              <input type="number" min="0" max="18" placeholder="7" id="numPadronEdad"
-                                class="facet-edad-num-input"
-                                data-pdi-on="input" data-pdi-h="h125">
-                              <span class="facet-edad-unit">años</span>
-                            </div>
-                          </div>
-                          <div class="facet-edad-slider-section">
-                            <div class="facet-edad-slider-labels">
-                              <span>0 años</span>
-                              <span id="labelPadronEdadSliderVal" style="font-weight:700; color:var(--text-brand);">0 a 18
-                                años</span>
-                              <span>18 años</span>
-                            </div>
-                            <div class="facet-range-slider-wrapper">
-                              <div class="facet-range-slider-track"></div>
-                              <div class="facet-range-slider-highlight" id="sliderPadronEdadHighlight"
-                                style="left:0%; right:0%;"></div>
-                              <input type="range" min="0" max="18" value="0" id="sliderPadronEdadMin"
-                                class="facet-range-slider-input"
-                                data-pdi-on="input" data-pdi-h="h126">
-                              <input type="range" min="0" max="18" value="18" id="sliderPadronEdadMax"
-                                class="facet-range-slider-input"
-                                data-pdi-on="input" data-pdi-h="h127">
+                          <div class="padron-inner-dropdown-reveal">
+                            <div class="padron-inner-dropdown-menu padron-edad-dropdown-menu" id="menuPadronEdad">
+                              <div class="facet-edad-header">
+                                <span class="facet-edad-header-title">Rango de Edad</span>
+                                <button type="button" class="btn-facet-all-edad active" id="btnPadronEdadTodas"
+                                  data-pdi-on="click" data-pdi-h="h124">
+                                  Todas
+                                </button>
+                              </div>
+                              <div class="facet-edad-card">
+                                <div class="facet-edad-input-row">
+                                  <span class="facet-edad-input-label">Edad específica:</span>
+                                  <div class="facet-edad-input-box">
+                                    <input type="number" min="0" max="18" placeholder="7" id="numPadronEdad"
+                                      class="facet-edad-num-input"
+                                      data-pdi-on="input" data-pdi-h="h125">
+                                    <span class="facet-edad-unit">años</span>
+                                  </div>
+                                </div>
+                                <div class="facet-edad-slider-section">
+                                  <div class="facet-edad-slider-labels">
+                                    <span>0 años</span>
+                                    <span id="labelPadronEdadSliderVal" style="font-weight:700; color:var(--text-brand);">0 a 18
+                                      años</span>
+                                    <span>18 años</span>
+                                  </div>
+                                  <div class="facet-range-slider-wrapper">
+                                    <div class="facet-range-slider-track"></div>
+                                    <div class="facet-range-slider-highlight" id="sliderPadronEdadHighlight"
+                                      style="left:0%; right:0%;"></div>
+                                    <input type="range" min="0" max="18" value="0" id="sliderPadronEdadMin"
+                                      class="facet-range-slider-input"
+                                      data-pdi-on="input" data-pdi-h="h126">
+                                    <input type="range" min="0" max="18" value="18" id="sliderPadronEdadMax"
+                                      class="facet-range-slider-input"
+                                      data-pdi-on="input" data-pdi-h="h127">
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -194,6 +218,7 @@ const OPCIONES_SEXO = [
                         menuId="menuPadronSexo"
                         labelId="labelPadronSexoSelect"
                         label="Sexo del Usuario"
+                        prefix="Sexo:"
                         labelTodos="Todos"
                         todosEtiqueta="Todos"
                         opciones={OPCIONES_SEXO}

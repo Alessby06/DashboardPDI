@@ -59,6 +59,8 @@ interface Props {
   onSelect: string;
   /** Pasa la etiqueta como segundo argumento: funcion('valor', 'Etiqueta') */
   conEtiqueta?: boolean;
+  /** Prefijo visible en modo chip (p. ej. 'Sede:') */
+  prefix?: string;
   /** Prefijo de los ids del contador, p. ej. `countFacetSede` */
   countPrefix?: string;
   /** Valor de la opción "todos" */
@@ -77,6 +79,7 @@ const {
   tipo = 'multi',
   onSelect,
   conEtiqueta = false,
+  prefix,
   countPrefix,
   todosValor = 'all',
 } = Astro.props;
@@ -113,6 +116,7 @@ const contadorDe = (opcion: Opcion) =>
     <button type="button" class="padron-inner-dropdown-btn"
       data-pdi-call={llamadaAbrir?.nombre}
       data-pdi-args={JSON.stringify(llamadaAbrir?.args ?? [])}>
+      {prefix && <span class="padron-chip-prefix">{prefix}</span>}
       <span id={labelId}>{labelTodos}</span>
       <Icon name="nav.desplegar" size={null} class="caret" />
     </button>
