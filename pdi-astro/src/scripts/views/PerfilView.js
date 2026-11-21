@@ -98,6 +98,30 @@ function leerCacheCuenta() {
   }
 }
 
+function cuentaDesdeAlmacenamientoLocal() {
+  try {
+    const usuario = localStorage.getItem('pdi_usuario_login') || '';
+    const nombre = localStorage.getItem('pdi_usuario_nombre') || '';
+    const rol = localStorage.getItem('pdi_active_role') || 'coord';
+    const foto = localStorage.getItem('pdi_usuario_foto') || '';
+    if (!usuario && !nombre) return null;
+    return {
+      usuario: usuario || 'usuario',
+      nombre: nombre || 'Usuario',
+      rol: rol || 'coord',
+      foto: foto || '',
+      correo: '',
+      telefono: '',
+      totpActivo: false,
+      debeCambiarClave: false,
+      creadoEl: '',
+      activo: true,
+    };
+  } catch {
+    return null;
+  }
+}
+
 function toast(titulo, mensaje, tipo = 'success') {
   try {
     if (window.PDI?.ToastView?.show) window.PDI.ToastView.show(titulo, mensaje, tipo);
@@ -298,9 +322,9 @@ export const PerfilView = {
     });
 
     // Al volver a la sección, la copia en memoria (o la última cuenta buena de
-    // esta pestaña) se pinta en el acto. La red solo confirma; así no
-    // reaparece "cargando" en cada entrada.
-    if (!this.cuenta) this.cuenta = leerCacheCuenta();
+    // esta pestaña o las marcas del login) se pinta en el acto. La red solo
+    // confirma; así no reaparece "cargando" en cada entrada.
+    if (!this.cuenta) this.cuenta = leerCacheCuenta() || cuentaDesdeAlmacenamientoLocal();
     if (this.cuenta) {
       this.render();
       this.actualizarEstado();
@@ -1351,4 +1375,77 @@ export const PerfilView = {
       }
     }
   },
+
+  preSwap(doc, url) {
+    if (!doc) return false;
+    if (url) {
+      try {
+        const ruta = new URL(url, location.href).pathname.replace(/\/+$/, '') || '/';
+        if (ruta !== '/perfil') return false;
+      } catch {
+        return false;
+      }
+    }
+    const form = doc.getElementById('formPerfil');
+    if (!form) return false;
+
+    if (!this.cuenta) this.cuenta = leerCacheCuenta() || cuentaDesdeAlmacenamientoLocal();
+    const c = this.cuenta;
+    if (!c) return false;
+
+    const nombre = c.nombre || 'Usuario';
+    const usuario = c.usuario ? `@${c.usuario}` : '';
+    const rol = ROLES[c.rol] || c.rol || 'Equipo PDI';
+    const iniciales = inicialesDe(nombre);
+
+    const elNombre = doc.getElementById('perfilNombre');
+    if (elNombre) elNombre.textContent = nombre;
+
+    const elRol = doc.getElementById('perfilIdentidadRol');
+    if (elRol) elRol.textContent = rol;
+
+    const elUsuario = doc.getElementById('perfilIdentidadUsuario');
+    if (elUsuario) elUsuario.textContent = usuario || 'No disponible';
+
+    const elIniciales = doc.getElementById('perfilIniciales');
+    if (elIniciales) elIniciales.textContent = iniciales;
+
+    const elFoto = doc.getElementById('perfilFoto');
+    if (elFoto) {
+      if (c.foto) {
+        elFoto.src = c.foto;
+        elFoto.hidden = false;
+        if (elIniciales) elIniciales.hidden = true;
+      } else {
+        elFoto.removeAttribute('src');
+        elFoto.hidden = true;
+        if (elIniciales) elIniciales.hidden = false;
+      }
+    }
+
+    const elEstado = doc.getElementById('perfilIdentidadEstado');
+    if (elEstado) elEstado.textContent = c.activo === false ? 'Inactiva' : 'Activa';
+
+    const setCampo = (id, valor) => {
+      const input = doc.getElementById(id);
+      if (input && valor) input.value = valor;
+      const lectura = doc.querySelector(`[data-lectura="${id}"]`);
+      if (lectura) lectura.textContent = valor || '';
+      const agregar = doc.querySelector(`[data-agregar="${id}"]`);
+      if (agregar) agregar.hidden = Boolean(valor);
+    };
+
+    setCampo('perfilInputNombre', nombre);
+    if (c.correo) setCampo('perfilInputCorreo', c.correo);
+    if (c.telefono) setCampo('perfilInputTelefono', c.telefono);
+    const inputUsuario = doc.getElementById('perfilInputUsuario');
+    if (inputUsuario && c.usuario) inputUsuario.value = c.usuario;
+
+    return true;
+  },
 };
+
+if (typeof window !== 'undefined') {
+  window.PDI = window.PDI || {};
+  window.PDI.PerfilView = PerfilView;
+}

@@ -120,10 +120,10 @@ function precargarEstilo(href) {
   document.head.appendChild(enlace);
 }
 
-/** Rutas que el menú lateral muestra a este rol, sin la actual. */
+/** Rutas que el menú lateral y la barra superior muestran a este rol, sin la actual. */
 function rutasDelMenu() {
   const rutas = new Set();
-  document.querySelectorAll('#sidebarNav a[href^="/"]').forEach((a) => {
+  document.querySelectorAll('#sidebarNav a[href^="/"], .topbar a[href^="/"]').forEach((a) => {
     if (a.classList.contains("role-restricted") || a.hidden) return;
     const ruta = normalizarRuta(a.getAttribute("href"));
     if (ruta) rutas.add(ruta);

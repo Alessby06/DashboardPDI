@@ -16,6 +16,7 @@ import {
   validarPermisosCuenta,
 } from '../utils/cuentasValidacion.js';
 import { fetchSedes } from '../core/db.js';
+import { SedeModel } from '../models/SedeModel.js';
 import { guardarCache, leerCache } from '../core/snapshot.js';
 import { confirmar } from '../ui/confirmacion.js';
 
@@ -450,6 +451,13 @@ function alternarTodasSedes(picker) {
 }
 
 async function cargarSedes({ forzar = false } = {}) {
+  if (!sedes.length) {
+    const enMemoria = SedeModel?.getAll?.() || [];
+    if (Array.isArray(enMemoria) && enMemoria.length) {
+      sedes = enMemoria;
+    }
+  }
+
   if (sedes.length && !forzar) {
     pintarSedesEnGrid('ctaSedes', []);
     sincronizarPickerSedes(PICKER_CREATE);
@@ -1813,34 +1821,87 @@ async function iniciar() {
     sincronizarPickerSedes(PICKER_CREATE);
   }
 
+  const cargaRec = cargarRecuperacion().catch(() => {});
   try {
     await Promise.all([cargarSedes(), cargar()]);
   } catch (err) {
     if (cuentas.length) {
       aviso('No se pudieron actualizar las cuentas', 'Se muestra la última copia cargada.', 'warning');
-      return;
-    }
-    const head = porId('cuentasListaHead');
-    const vacio = porId('cuentasVacio');
-    if (head) head.hidden = true;
-    if (vacio) {
-      vacio.innerHTML = `
-        <p class="cuentas-vacio-titulo">No se pudieron cargar las cuentas</p>
-        <p class="cuentas-vacio-sub">${escapar(err?.message || 'Revisa la conexión y vuelve a intentarlo.')}</p>
-        <button type="button" class="btn-action" id="btnReintentarCuentas">Reintentar</button>`;
-      vacio.hidden = false;
-      porId('btnReintentarCuentas')?.addEventListener('click', () => {
-        vacio.innerHTML = '<p class="cuentas-vacio-sub">Cargando cuentas…</p>';
-        iniciar();
-      });
+    } else {
+      const head = porId('cuentasListaHead');
+      const vacio = porId('cuentasVacio');
+      if (head) head.hidden = true;
+      if (vacio) {
+        vacio.innerHTML = `
+          <p class="cuentas-vacio-titulo">No se pudieron cargar las cuentas</p>
+          <p class="cuentas-vacio-sub">${escapar(err?.message || 'Revisa la conexión y vuelve a intentarlo.')}</p>
+          <button type="button" class="btn-action" id="btnReintentarCuentas">Reintentar</button>`;
+        vacio.hidden = false;
+        porId('btnReintentarCuentas')?.addEventListener('click', () => {
+          vacio.innerHTML = '<p class="cuentas-vacio-sub">Cargando cuentas…</p>';
+          iniciar();
+        });
+      }
     }
   }
 
   try {
-    await cargarRecuperacion();
+    await cargaRec;
   } catch {
     // La bandeja es complementaria: un fallo no debe tumbar la vista.
   }
 }
 
-export const CuentasView = { iniciar, cargar };
+function preSwap(doc, url) {
+  if (!doc) return false;
+  if (url) {
+    try {
+      const ruta = new URL(url, location.href).pathname.replace(/\/+$/, '') || '/';
+      if (ruta !== '/cuentas') return false;
+    } catch {
+      return false;
+    }
+  }
+  const lista = doc.getElementById('cuentasLista');
+  if (!lista) return false;
+
+  if (!cuentas.length) {
+    const cache = leerCache('cuentas', { ttlMs: 10 * 60 * 1000 });
+    if (Array.isArray(cache) && cache.length) cuentas = cache;
+  }
+  if (!sedes.length) {
+    const enMemoria = SedeModel?.getAll?.() || [];
+    if (Array.isArray(enMemoria) && enMemoria.length) sedes = enMemoria;
+  }
+
+  if (!cuentas.length) return false;
+
+  const visibles = cuentas.filter(coincide);
+  const head = doc.getElementById('cuentasListaHead');
+  const vacio = doc.getElementById('cuentasVacio');
+  const wrap = doc.getElementById('cuentasListaWrap');
+  const resumen = doc.getElementById('cuentasResumen');
+
+  if (vacio) {
+    vacio.hidden = true;
+    vacio.innerHTML = '';
+  }
+  if (wrap) wrap.removeAttribute('data-vacio');
+  if (head) head.hidden = false;
+
+  if (resumen) {
+    const total = cuentas.length;
+    const activas = cuentas.filter((c) => c.activo).length;
+    resumen.textContent = `${total} ${total === 1 ? 'cuenta' : 'cuentas'} (${activas} activas)`;
+  }
+
+  lista.innerHTML = visibles.map(filaHtml).join('');
+  return true;
+}
+
+export const CuentasView = { iniciar, cargar, preSwap };
+
+if (typeof window !== 'undefined') {
+  window.PDI = window.PDI || {};
+  window.PDI.CuentasView = CuentasView;
+}

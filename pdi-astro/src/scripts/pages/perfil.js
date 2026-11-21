@@ -4,6 +4,15 @@
 import { arrancarComun } from '../core/Bootstrap.js';
 import { PerfilView } from '../views/PerfilView.js';
 
+document.addEventListener('astro:before-swap', (ev) => {
+  try {
+    const ruta = new URL(ev.to, location.href).pathname.replace(/\/+$/, '') || '/';
+    if (ruta === '/perfil') {
+      PerfilView.preSwap?.(ev.newDocument, ev.to);
+    }
+  } catch {}
+});
+
 /**
  * Modo lectura de la ficha.
  *

@@ -43,11 +43,11 @@ import Icon from './Icon.astro';
       <!-- Popover de enlaces: se recorre con Tab y se cierra con Escape o al
            salir del foco. El foco vuelve al avatar al cerrar con Escape. -->
       <div class="topbar-menu" id="perfilMenu" aria-labelledby="btnPerfilMenu" hidden>
-        <a href="/perfil" class="topbar-menu-item">
+        <a href="/perfil" class="topbar-menu-item" data-astro-prefetch>
           <Icon name="nav.usuarios" size={16} />
           <span>Mi perfil</span>
         </a>
-        <a href="/ajustes" class="topbar-menu-item">
+        <a href="/ajustes" class="topbar-menu-item" data-astro-prefetch>
           <Icon name="nav.ajustes" size={16} />
           <span>Ajustes</span>
         </a>

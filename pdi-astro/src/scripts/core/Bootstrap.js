@@ -117,6 +117,18 @@ function prepararPreSwap() {
       ganchos.set("/padron", (doc, url) => BeneficiariosView.preSwap(doc, url));
     })
     .catch(() => {});
+
+  import("../views/CuentasView.js")
+    .then(({ CuentasView }) => {
+      ganchos.set("/cuentas", (doc, url) => CuentasView.preSwap?.(doc, url));
+    })
+    .catch(() => {});
+
+  import("../views/PerfilView.js")
+    .then(({ PerfilView }) => {
+      ganchos.set("/perfil", (doc, url) => PerfilView.preSwap?.(doc, url));
+    })
+    .catch(() => {});
 }
 
 export function arrancarComun() {

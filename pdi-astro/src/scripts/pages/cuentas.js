@@ -6,6 +6,15 @@
 import { arrancarComun } from '../core/Bootstrap.js';
 import { CuentasView } from '../views/CuentasView.js';
 
+document.addEventListener('astro:before-swap', (ev) => {
+  try {
+    const ruta = new URL(ev.to, location.href).pathname.replace(/\/+$/, '') || '/';
+    if (ruta === '/cuentas') {
+      CuentasView.preSwap?.(ev.newDocument, ev.to);
+    }
+  } catch {}
+});
+
 document.addEventListener('astro:page-load', () => {
   if (document.body?.getAttribute('data-page') !== 'cuentas') return;
   if (!arrancarComun()) return;
