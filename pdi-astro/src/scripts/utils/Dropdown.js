@@ -72,9 +72,9 @@ export const Dropdown = {
     document.querySelectorAll('.audit-filters-dropdown').forEach(d => {
       d.style.removeProperty('--filtro-velo');
       d.querySelectorAll('.audit-filters-menu').forEach(m => {
-        m.style.removeProperty('transform');
-        m.style.removeProperty('transition');
-        m.style.removeProperty('will-change');
+        if (m.style.transform) m.style.removeProperty('transform');
+        if (m.style.transition) m.style.removeProperty('transition');
+        if (m.style.willChange) m.style.removeProperty('will-change');
       });
     });
     if (typeof document !== 'undefined') {

@@ -140,15 +140,16 @@
   border-radius: var(--radius-md);
   box-shadow:
     var(--shadow-overlay);
-  padding: 16px;
+  padding: 14px 0 10px 0;
   z-index: 1000;
   display: none;
   opacity: 0;
   /* Cerrado se retira 6 px hacia su disparador: el cierre se lee como que la
      hoja vuelve al boton, no como que se apaga en el sitio. */
   transform: translateY(-6px);
+  transform-origin: top right;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
   overflow: hidden;
   overscroll-behavior: contain;
   /* Cerrado queda fuera del layout (display:none). Antes se mantenia en
@@ -214,12 +215,10 @@
 .audit-filters-header {
   display: flex;
   align-items: center;
-  /* Sin título visible: la cabecera queda como una fila mínima con la única
-     acción que no vive en el cuerpo, «Restablecer». El nombre del panel sigue
-     existiendo para lectores de pantalla (queda en `aria-labelledby`). */
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 8px;
-  padding-bottom: 0;
+  padding: 0 16px 10px 16px;
+  border-bottom: 1px solid var(--border-subtle);
   flex-shrink: 0;
 }
 
@@ -349,23 +348,20 @@
 .audit-filters-body {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  /* Barra propia y estable: sin `gutter`, al aparecer desplazaba el contenido
-     unos 15px, y la nativa clara desentonaba sobre superficie oscura. */
   scrollbar-width: thin;
   scrollbar-color: var(--border-bright) transparent;
-  scrollbar-gutter: stable;
-  padding-right: 0;
+  padding: 4px 10px 6px 16px;
   /* La sombra que avisa de mas campos abajo entra y sale con el scroll; sin
      transicion aparecia y desaparecia como una linea que parpadea. */
   transition: box-shadow var(--dur-fast) var(--ease-out);
 }
 
 .audit-filters-body::-webkit-scrollbar {
-  width: 10px;
+  width: 6px;
 }
 
 .audit-filters-body::-webkit-scrollbar-track {
@@ -375,14 +371,11 @@
 .audit-filters-body::-webkit-scrollbar-thumb {
   background: var(--border-bright);
   border-radius: var(--radius-full);
-  border: 2px solid transparent;
-  background-clip: padding-box;
 }
 
 @media (hover: hover) and (pointer: fine) {
   .audit-filters-body::-webkit-scrollbar-thumb:hover {
     background: var(--text-dim);
-    background-clip: padding-box;
   }
 }
 
@@ -848,7 +841,7 @@
   #dropdownSocialFilterPanel .audit-filters-menu {
     width: 330px;
     max-width: calc(100vw - 28px);
-    padding: 16px;
+    padding: 14px 0 10px 0;
   }
 }
 
@@ -1146,6 +1139,7 @@
   /* El cierre se retrae hacia el disparador, no siempre hacia arriba. */
   .audit-filters-menu.is-above {
     transform: translateY(6px);
+    transform-origin: bottom right;
     clip-path: inset(100% -56px -56px -56px round var(--radius-md));
   }
 

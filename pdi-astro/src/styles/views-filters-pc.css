@@ -54,7 +54,7 @@
      selects sigan entrando sin truncar. */
   @media (max-width: 1100px) {
     .audit-filters-menu {
-      padding: 12px;
+      padding: 12px 0 10px 0;
     }
   }
 

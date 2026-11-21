@@ -462,14 +462,8 @@ function prepararApertura(panel) {
   const menu = panel.querySelector('.audit-filters-menu');
   if (!boton || !menu || window.innerWidth <= CORTE_HOJA) return;
 
-  const { usarArriba } = decidirDireccion(boton);
-  menu.classList.toggle('is-above', usarArriba);
-
-  // El ancho va también aquí, no solo en posicionarPanel: este corre antes de
-  // que el panel se muestre en el top layer, y si esperara al otro el primer
-  // frame saldría a 330 px y saltaría al ancho real.
-  const ancho = boton.getBoundingClientRect().width;
-  if (ancho > 0) menu.style.width = `${Math.round(ancho)}px`;
+  clearTimeout(menu._cerrarTimer);
+  posicionarPanel(panel);
 
   if (!SOPORTA_POPOVER) return;
   if (!menu.hasAttribute('popover')) menu.setAttribute('popover', 'manual');
@@ -704,6 +698,7 @@ function prepararPanel(panel) {
     menu.inert = !abierto;
 
     if (abierto) {
+      clearTimeout(menu._cerrarTimer);
       aperturaHasta = Date.now() + 450;
       abrirPopover(menu);
       actualizarRestablecer(panel);
@@ -718,7 +713,14 @@ function prepararPanel(panel) {
     } else if (panel.contains(document.activeElement)) {
       disparador.focus({ preventScroll: true });
     }
-    if (!abierto) cerrarPopover(menu);
+    if (!abierto) {
+      clearTimeout(menu._cerrarTimer);
+      menu._cerrarTimer = setTimeout(() => {
+        if (!panel.classList.contains('open')) {
+          cerrarPopover(menu);
+        }
+      }, 160);
+    }
   }).observe(panel, { attributes: true, attributeFilter: ['class'] });
 
   menu.addEventListener('scroll', () => marcarDesborde(panel), { passive: true, capture: true });
