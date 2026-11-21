@@ -937,15 +937,14 @@
 }
 
 @keyframes pdiViewportEnter {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: none; }
   to { opacity: 1; transform: none; }
 }
 @keyframes pdiAppSectionIn {
-  /* La entrante nace opaca: el desplazamiento de 8 px basta para leer el
-     cambio sin dejar ver la captura saliente. */
+  /* Transición lateral consistente: sin desplazamiento vertical que hunda el contenido */
   from {
     opacity: 1;
-    transform: translateY(8px);
+    transform: translateX(var(--page-dx, 12%));
   }
   to {
     opacity: 1;
@@ -960,19 +959,16 @@
   }
   to {
     opacity: 0;
-    transform: translateY(-8px);
+    transform: translateX(calc(var(--page-dx, 12%) * -1.1));
   }
 }
 
-/* Navegación entre páginas en escritorio: profundidad contenida. El contenido
-   entra desde el 98,8 % y el saliente se retira al 100,4 %, sin desplazamiento.
-   El móvil conserva el fundido de 8 px de arriba. */
+/* Navegación entre páginas en escritorio: transición fluida y estable.
+   Sin escalado ni desplazamiento vertical, eliminando la sensación de hundimiento. */
 @keyframes pdiPageDepthIn {
-  /* Misma regla que pdiPagePushIn: la entrante nace opaca para que la
-     captura saliente no se vea ya con la URL de destino. */
   from {
-    opacity: 1;
-    transform: scale(0.988);
+    opacity: 0.85;
+    transform: none;
   }
   to {
     opacity: 1;
@@ -987,7 +983,7 @@
   }
   to {
     opacity: 0;
-    transform: scale(1.004);
+    transform: none;
   }
 }
 

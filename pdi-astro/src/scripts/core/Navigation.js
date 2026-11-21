@@ -506,13 +506,29 @@ if (typeof document !== "undefined") {
   };
 
   // --- Dirección del empuje de página -------------------------------
-  // El empuje lateral global vive en base.css y solo se activa con
-  // data-page-dir. Astro reemplaza todos los atributos de <html> en el swap,
-  // así que la dirección se escribe en el documento entrante (before-swap) y
-  // se confirma después del intercambio. No se retira hasta que la animación
-  // terminó: hacerlo en after-swap dejaría la transición a medias.
+  // El empuje lateral global vive en base.css y se activa con
+  // data-page-dir. Se fija desde before-preparation para que la instantánea
+  // saliente ya tenga la clase puesta, se transfiere al nuevo documento en
+  // before-swap y se limpia al terminar la animación.
   let tokenDirPagina = 0;
   let direccionPaginaPendiente = "";
+
+  const LISTA_PAGINAS_CANONICA = [
+    "dashboard",
+    "padron",
+    "colaboradores",
+    "voluntariados",
+    "salud",
+    "educativo",
+    "social",
+    "sedes",
+    "auditoria",
+    "cuentas",
+    "perfil",
+    "ajustes",
+    "expediente",
+    "evaluacion"
+  ];
 
   const paginaDeRuta = (url) => {
     try {
@@ -526,10 +542,13 @@ if (typeof document !== "undefined") {
 
   const ordenDePaginas = () => {
     const orden = [];
-    document.querySelectorAll(".nav-sections .nav-btn[data-page]:not([data-subview])").forEach((btn) => {
+    document.querySelectorAll(".nav-sections .nav-btn[data-page]").forEach((btn) => {
       if (btn.classList.contains("role-restricted")) return;
-      if (btn.offsetParent === null) return;
-      orden.push(btn.getAttribute("data-page"));
+      const p = btn.getAttribute("data-page");
+      if (p && !orden.includes(p)) orden.push(p);
+    });
+    LISTA_PAGINAS_CANONICA.forEach((p) => {
+      if (!orden.includes(p)) orden.push(p);
     });
     return orden;
   };
@@ -541,8 +560,14 @@ if (typeof document !== "undefined") {
     const orden = ordenDePaginas();
     const desde = orden.indexOf(actual);
     const hasta = orden.indexOf(destino);
-    if (desde < 0 || hasta < 0) return;
-    direccionPaginaPendiente = hasta < desde ? "prev" : "next";
+    if (desde >= 0 && hasta >= 0 && desde !== hasta) {
+      direccionPaginaPendiente = hasta < desde ? "prev" : "next";
+    } else {
+      direccionPaginaPendiente = "next";
+    }
+    try {
+      document.documentElement.setAttribute("data-page-dir", direccionPaginaPendiente);
+    } catch (e) {}
   };
 
   const marcarNuevoDocumento = (evento) => {
@@ -555,13 +580,14 @@ if (typeof document !== "undefined") {
   };
 
   const confirmarDireccionPagina = () => {
-    if (!direccionPaginaPendiente) return;
-    document.documentElement.dataset.pageDir = direccionPaginaPendiente;
-    direccionPaginaPendiente = "";
+    if (direccionPaginaPendiente) {
+      document.documentElement.setAttribute("data-page-dir", direccionPaginaPendiente);
+    }
     const token = ++tokenDirPagina;
     window.setTimeout(() => {
       if (tokenDirPagina !== token) return;
       document.documentElement.removeAttribute("data-page-dir");
+      direccionPaginaPendiente = "";
     }, 420);
   };
 

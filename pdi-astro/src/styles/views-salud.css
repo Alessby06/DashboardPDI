@@ -508,22 +508,6 @@
   color: var(--text-muted);
 }
 
-::view-transition-group(*) {
-  animation-duration: var(--dur-panel);
-  animation-timing-function: var(--ease-spring, cubic-bezier(0.16, 1, 0.3, 1));
-}
-
-::view-transition-old(*),
-::view-transition-new(*) {
-  animation-duration: var(--dur-popover);
-  animation-timing-function: var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
-}
-
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation: none;
-}
-
 /* ===========================================================================
    PESTAÑAS Y ACCIONES NUTRICIONALES COLECTIVAS (FICHA A6 DESAYUNO INFANTIL)
    =========================================================================== */
