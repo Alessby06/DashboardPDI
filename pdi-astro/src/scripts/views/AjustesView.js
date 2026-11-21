@@ -5,8 +5,9 @@ import { iconHtml } from '../../data/iconos.js';
 // arrastraba sus 11 KB a las diez paginas, porque el conmutador de la barra
 // superior es del chrome comun y llegaba a traves de legacy-globals. Aqui solo
 // queda la parte que es de esta pagina: los tres botones y la mascota de foco.
-// Los metodos setTheme y toggleFocoMode se mantienen porque ajustes.html los
-// invoca por window.PDI.AjustesView, y ahora delegan en Theme.
+// Los metodos setTheme y toggleFocoMode se mantienen porque otros modulos los
+// invocan por window.PDI.AjustesView; aqui se conectan los botones sin
+// atributos onclick inline, que la CSP del producto bloquea.
 import { Theme } from "../core/Theme.js";
 import { limpiarSnapshot } from "../core/snapshot.js";
 
@@ -21,6 +22,9 @@ export const AjustesView = {
     // El tema ya quedo restaurado por Theme.cargar() dentro de arrancarComun(),
     // que corre en todas las paginas. Aqui solo queda su parte propia.
     this.bindThemeButtons();
+
+    const btnFoco = document.getElementById('focoInteractiveTrigger');
+    if (btnFoco) btnFoco.onclick = (e) => this.toggleFocoMode(e);
 
     const btnSync = document.getElementById('btnTriggerSync');
     if (btnSync) btnSync.onclick = () => this.triggerSync();

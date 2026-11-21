@@ -100,7 +100,6 @@ import '../styles/views-ajustes.css';
                 <div class="foco-interactive-card" id="focoInteractiveCard">
                   <div class="foco-mascot-wrap">
                     <button type="button" class="foco-trigger-btn" id="focoInteractiveTrigger"
-                      onclick="window.PDI?.AjustesView?.toggleFocoMode ? window.PDI.AjustesView.toggleFocoMode(event) : (window.toggleFocoMode ? window.toggleFocoMode(event) : null)"
                       title="Haz clic sobre el foco para encender o apagar la luz">
                       <!-- SVG Foco Vectorial Interactivo - Rediseño Gordito & Limpio -->
                       <svg class="foco-svg" viewBox="0 0 160 170" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -187,8 +186,7 @@ import '../styles/views-ajustes.css';
 
                 <!-- Botones de Selección Rápida de Tema -->
                 <div class="settings-theme-selector">
-                  <button type="button" class="theme-option-btn" id="btnThemeLight"
-                    onclick="window.PDI?.AjustesView?.setTheme ? window.PDI.AjustesView.setTheme('light', false, event) : (window.setTheme ? window.setTheme('light', false, event) : null)">
+                  <button type="button" class="theme-option-btn" id="btnThemeLight">
                     <div class="theme-icon-box">
                       <Icon name="tema.claro" size={22} />
                     </div>
@@ -198,8 +196,7 @@ import '../styles/views-ajustes.css';
                     </span>
                   </button>
 
-                  <button type="button" class="theme-option-btn" id="btnThemeDark"
-                    onclick="window.PDI?.AjustesView?.setTheme ? window.PDI.AjustesView.setTheme('dark', false, event) : (window.setTheme ? window.setTheme('dark', false, event) : null)">
+                  <button type="button" class="theme-option-btn" id="btnThemeDark">
                     <div class="theme-icon-box">
                       <Icon name="tema.oscuro" size={22} />
                     </div>
@@ -209,8 +206,7 @@ import '../styles/views-ajustes.css';
                     </span>
                   </button>
 
-                  <button type="button" class="theme-option-btn" id="btnThemeSystem"
-                    onclick="window.PDI?.AjustesView?.setTheme ? window.PDI.AjustesView.setTheme('system', false, event) : (window.setTheme ? window.setTheme('system', false, event) : null)">
+                  <button type="button" class="theme-option-btn" id="btnThemeSystem">
                     <div class="theme-icon-box">
                       <Icon name="tema.sistema" size={22} />
                     </div>
