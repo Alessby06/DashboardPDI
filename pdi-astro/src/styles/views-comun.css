@@ -612,24 +612,24 @@
   margin-bottom: 16px;
 }
 
-/* Barra con descarga y orden: el buscador cede ancho, la descarga queda
-   compacta y ordenar/filtros comparten el mismo espacio a la derecha. */
+/* Barra con descarga y orden: el buscador cede ancho, ordenar y filtros
+   comparten el espacio central y la descarga queda al extremo derecho. */
 .audit-toolbar.table-toolbar {
   display: grid;
-  grid-template-columns: minmax(0, 1.7fr) auto minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr) minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px 8px;
 }
 
 .table-toolbar .audit-search-wrap { grid-column: 1; min-width: 0; }
-.table-toolbar .table-export-btn { grid-column: 2; }
-.table-toolbar .padron-sort-wrap { grid-column: 3; width: 100%; min-width: 0; }
+.table-toolbar .padron-sort-wrap { grid-column: 2; width: 100%; min-width: 0; }
 .table-toolbar .padron-sort-dropdown {
   display: flex;
   width: 100%;
 }
 .table-toolbar .padron-sort-btn { flex: 1 1 100%; }
-.table-toolbar .audit-filter-panel-wrap { grid-column: 4; width: 100%; min-width: 0; }
+.table-toolbar .audit-filter-panel-wrap { grid-column: 3; width: 100%; min-width: 0; }
+.table-toolbar .table-export-btn { grid-column: 4; }
 .table-toolbar .padron-sort-btn,
 .table-toolbar .audit-filter-btn {
   width: 100%;

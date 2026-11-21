@@ -72,12 +72,6 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                     data-pdi-on="input" data-pdi-h="h150">
                 </div>
 
-                <button type="button" class="btn-action-icon btn-audit-export-icon table-export-btn" id="btnExportSocialCSV"
-                  data-pdi-on="click" data-pdi-h="h151"
-                  aria-label="Descargar la bandeja ASP filtrada" title="Descargar la bandeja filtrada">
-                  <Icon name="accion.descargar" size={18} />
-                </button>
-
                 <!-- Botón de Filtros y Panel Desplegable (Lado Derecho) -->
                 <FilterPanel
                   id="dropdownSocialFilterPanel"
@@ -116,7 +110,13 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                         onSelect="window.PDI?.SocialKanbanView?.filterBySede"
                         abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownSocialSede') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSocialSede') : null)"
                       />
-                              </FilterPanel>
+              </FilterPanel>
+
+              <button type="button" class="btn-action-icon btn-audit-export-icon table-export-btn pdi-motion" id="btnExportSocialCSV"
+                data-pdi-on="click" data-pdi-h="h151"
+                aria-label="Descargar la bandeja ASP filtrada" title="Descargar la bandeja filtrada">
+                <Icon name="accion.descargar" size={18} />
+              </button>
             </div>
 
             <script is:inline>

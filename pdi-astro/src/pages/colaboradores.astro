@@ -140,17 +140,6 @@ const OPCIONES_ORDEN = [
           </button>
         </div>
 
-        <button
-          type="button"
-          class="btn-action-icon btn-audit-export-icon table-export-btn"
-          id="btnExportColabCSV"
-          data-pdi-on="click" data-pdi-h="h074"
-          aria-label="Descargar Padrón de Colaboradores en CSV"
-          title="Descargar directorio en CSV"
-        >
-          <Icon name="accion.descargar" size={16} />
-        </button>
-
         <SortMenu
           id="colabSort"
           options={OPCIONES_ORDEN}
@@ -189,6 +178,17 @@ const OPCIONES_ORDEN = [
             onSelect="window.setFilterColabEstrategia"
           />
         </FilterPanel>
+
+        <button
+          type="button"
+          class="btn-action-icon btn-audit-export-icon table-export-btn pdi-motion"
+          id="btnExportColabCSV"
+          data-pdi-on="click" data-pdi-h="h074"
+          aria-label="Descargar Padrón de Colaboradores en CSV"
+          title="Descargar directorio en CSV"
+        >
+          <Icon name="accion.descargar" size={16} />
+        </button>
       </div>
 
       <!-- Barra de Chips de Filtros Activos -->

@@ -61,12 +61,6 @@ const OPCIONES_SEXO = [
                 </button>
               </div>
 
-              <button type="button" class="btn-action-icon btn-audit-export-icon table-export-btn" id="btnExportPadronCSV"
-                data-pdi-on="click" data-pdi-h="h110"
-                aria-label="Descargar el padrón filtrado" title="Descargar el padrón filtrado">
-                <Icon name="accion.descargar" size={18} />
-              </button>
-
               <!-- Orden del padrón: apellido por defecto y fechas del registro -->
               <div class="padron-sort-wrap">
                 <div class="custom-dropdown padron-sort-dropdown" id="dropdownPadronSort">
@@ -208,7 +202,13 @@ const OPCIONES_SEXO = [
                         abrir="window.togglePadronInnerDropdown ? window.togglePadronInnerDropdown('dropdownPadronSexo') : null"
                         countPrefix="countFacetSexo"
                       />
-                              </FilterPanel>
+              </FilterPanel>
+
+              <button type="button" class="btn-action-icon btn-audit-export-icon table-export-btn pdi-motion" id="btnExportPadronCSV"
+                data-pdi-on="click" data-pdi-h="h110"
+                aria-label="Descargar el padrón filtrado" title="Descargar el padrón filtrado">
+                <Icon name="accion.descargar" size={18} />
+              </button>
             </div>
 
             <!-- Barra de Píldoras de Filtros Activos (Chips Descartables - Visible en PC/Tablets) -->

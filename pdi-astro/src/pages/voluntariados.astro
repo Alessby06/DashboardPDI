@@ -112,12 +112,6 @@ const OPCIONES_ORDEN_VOLUNTARIOS = [
                 </button>
               </div>
 
-              <button type="button" class="btn-action-icon btn-audit-export-icon table-export-btn" id="btnExportVoluntariosCSV"
-                data-pdi-on="click" data-pdi-h="h173"
-                aria-label="Descargar el padrón de voluntariados filtrado" title="Descargar el padrón filtrado">
-                <Icon name="accion.descargar" size={18} />
-              </button>
-
               <SortMenu id="VoluntariosSort" options={OPCIONES_ORDEN_VOLUNTARIOS} selected="apellido-asc" />
 
               <!-- Filtro Popover Dropdown -->
@@ -185,7 +179,13 @@ const OPCIONES_ORDEN_VOLUNTARIOS = [
                         onSelect="window.toggleVoluntariosEstado"
                         abrir="window.toggleVoluntariosInnerDropdown ? window.toggleVoluntariosInnerDropdown('dropdownVoluntariosEstado') : null"
                       />
-                              </FilterPanel>
+              </FilterPanel>
+
+              <button type="button" class="btn-action-icon btn-audit-export-icon table-export-btn pdi-motion" id="btnExportVoluntariosCSV"
+                data-pdi-on="click" data-pdi-h="h173"
+                aria-label="Descargar el padrón de voluntariados filtrado" title="Descargar el padrón filtrado">
+                <Icon name="accion.descargar" size={18} />
+              </button>
             </div>
 
             <!-- Chips Activos Bar -->

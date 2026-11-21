@@ -88,12 +88,6 @@ const OPCIONES_ORDEN_SALUD = [
           </button>
         </div>
 
-        <button type="button" class="btn-action-icon btn-audit-export-icon table-export-btn" id="btnExportSaludCSV"
-          data-pdi-on="click" data-pdi-h="h135"
-          aria-label="Descargar el reporte CRED filtrado" title="Descargar el reporte filtrado">
-          <Icon name="accion.descargar" size={18} />
-        </button>
-
         <SortMenu id="SaludSort" options={OPCIONES_ORDEN_SALUD} selected="apellido-asc" />
 
         <!-- Botonera de Filtros Salud (Lado Derecho) -->
@@ -148,7 +142,13 @@ const OPCIONES_ORDEN_SALUD = [
                   onSelect="window.selectSaludHb"
                   abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownSaludHb') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSaludHb') : null)"
                 />
-                        </FilterPanel>
+        </FilterPanel>
+
+        <button type="button" class="btn-action-icon btn-audit-export-icon table-export-btn pdi-motion" id="btnExportSaludCSV"
+          data-pdi-on="click" data-pdi-h="h135"
+          aria-label="Descargar el reporte CRED filtrado" title="Descargar el reporte filtrado">
+          <Icon name="accion.descargar" size={18} />
+        </button>
       </div>
 
       <!-- Barra de Filtros Aplicados Salud -->
