@@ -1,7 +1,6 @@
 import { AnimationEngine } from '../utils/AnimationEngine.js';
 import { CsvExporter } from '../utils/CsvExporter.js';
 import { escapar } from "../utils/HtmlHelper.js";
-import { confirmar } from '../ui/confirmacion.js';
 
 /**
  * Vista: Tablero Principal Dashboard (dashboard.astro)
@@ -836,17 +835,23 @@ export const DashboardView = {
 
     const btnExport = document.getElementById("btnExportarParte");
     if (btnExport) {
-      btnExport.addEventListener("click", async () => {
+      btnExport.addEventListener("click", () => {
         const hoy = new Date().toISOString().slice(0, 10);
         const ambito = this._filtroSede === "all" ? "Todas las sedes" : this._filtroSede;
-        const seguir = await confirmar({
-          titulo: "Exportar parte diario",
-          mensaje: "Se descargará un CSV con el corte del " + hoy + " para " + ambito + ".",
-          confirmar: "Descargar CSV",
-          cancelar: "Cancelar",
-          origen: btnExport,
+        const stats = window.PDI?.BeneficiarioModel?.getStats?.(this._filtroSede) || {};
+        const resaltado = 'style="font-family: var(--mono-font); color: var(--text-brand);"';
+
+        // Mismo modal de descarga que auditoría y las demás secciones: cabecera,
+        // resumen de registros, marco legal y aviso de confidencialidad.
+        window.openModalExportGeneric({
+          title: "Descarga del Parte Diario",
+          subtitle: "Confirmación de generación de reporte",
+          description: `Se generará un archivo <strong ${resaltado}>.CSV</strong> con el corte del <strong ${resaltado}>${escapar(hoy)}</strong> para <strong>${escapar(ambito)}</strong>.`,
+          count: stats.total ?? 0,
+          unit: "beneficiarios",
+          legal: "Ley N.° 29733 (Datos Personales)",
+          onConfirm: () => this.exportarParteDiario(),
         });
-        if (seguir) this.exportarParteDiario();
       });
     }
   },

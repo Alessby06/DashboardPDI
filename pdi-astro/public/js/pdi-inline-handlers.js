@@ -188,11 +188,13 @@
   };
 
   function despachar(ev) {
+    if (ev.__pdiDespachado) return;
+    ev.__pdiDespachado = true;
     var nodo = ev.target;
     while (nodo && nodo.nodeType === 1) {
       var id = nodo.getAttribute && nodo.getAttribute('data-pdi-h');
       var tipo = nodo.getAttribute && nodo.getAttribute('data-pdi-on');
-      if (tipo === ev.type) {
+      if (!tipo || tipo === ev.type) {
         if (nodo.getAttribute && nodo.getAttribute('data-pdi-stop')) ev.stopPropagation();
         var crudoLlamadas = nodo.getAttribute && nodo.getAttribute('data-pdi-llamadas');
         if (crudoLlamadas) {
@@ -233,5 +235,8 @@
   }
 
   var TIPOS = ["click","submit","change","input"];
-  TIPOS.forEach(function (tipo) { document.addEventListener(tipo, despachar); });
+  // Captura: los manejadores inline originales corrían en el propio objetivo,
+  // antes de que otros listeners pudieran cortar la propagación. Registrar en
+  // burbuja dejaba sin efecto los clics de filtros y orden.
+  TIPOS.forEach(function (tipo) { document.addEventListener(tipo, despachar, true); });
 })();

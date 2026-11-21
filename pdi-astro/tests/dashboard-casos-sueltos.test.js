@@ -33,12 +33,14 @@ test('las notas útiles se conservan', () => {
   assert.match(vista, /dashEduNota/);
 });
 
-test('exportar pasa por confirmar() antes de descargar', () => {
-  assert.match(vista, /import \{ confirmar \} from '\.\.\/ui\/confirmacion\.js'/);
-  const iConfirmar = vista.indexOf('confirmar({');
+test('exportar usa el modal de descarga compartido antes de descargar', () => {
+  assert.doesNotMatch(vista, /import \{ confirmar \}/);
+  const iConfirmar = vista.indexOf('window.openModalExportGeneric({');
   const iDescarga = vista.indexOf('CsvExporter._descargar');
   assert.ok(iConfirmar > 0 && iDescarga > iConfirmar);
+  assert.match(vista, /Descarga del Parte Diario/);
   assert.match(vista, /corte del .+ para /);
+  assert.match(vista, /onConfirm: \(\) => this\.exportarParteDiario\(\)/);
   assert.doesNotMatch(vista, /ToastView\.mostrar/);
   assert.match(vista, /ToastView\.show\([^,]+,\s*"",\s*"warning"\)/);
 });
