@@ -53,7 +53,7 @@ const OPCIONES_ORDEN_AUDIT = [
                   <!-- Icono de Ley N.° 29733 con Popover Informativo Interactivo -->
                   <div class="audit-legal-popover-wrapper" id="wrapAuditLegalPopover">
                     <button type="button" class="audit-legal-icon-btn" id="btnAuditLegalInfo"
-                      onclick="window.toggleAuditLegalInfo ? window.toggleAuditLegalInfo(event) : null"
+                      data-pdi-on="click" data-pdi-h="h050"
                       aria-label="Información legal Ley N.° 29733"
                       title="Registro inmutable de trazabilidad conforme a la Ley N.° 29733 de Protección de Datos Personales">
                       <Icon name="salud.escudo" size={15} />
@@ -107,15 +107,15 @@ const OPCIONES_ORDEN_AUDIT = [
                 <label for="inputAuditSearch" class="pdi-sr-only">Buscar en auditoría por DNI, código, usuario o acción</label>
                 <input type="search" id="inputAuditSearch" class="audit-search-input" aria-label="Buscar en auditoría por DNI, código, usuario o acción"
                   placeholder="Buscar por DNI, código, usuario o acción..."
-                  oninput="window.filterAuditSearch ? window.filterAuditSearch(this.value) : (window.PDI?.AuditView?.filterBySearch ? window.PDI.AuditView.filterBySearch(this.value) : (window.PDI?.DashboardView?.filterBySearch ? window.PDI.DashboardView.filterBySearch(this.value) : null))">
+                  data-pdi-on="input" data-pdi-h="h051">
                 <button type="button" class="audit-search-clear" id="btnAuditSearchClear" style="display:none;"
-                  onclick="window.clearAuditSearch ? window.clearAuditSearch() : null" title="Limpiar búsqueda">
+                  data-pdi-on="click" data-pdi-h="h052" title="Limpiar búsqueda">
                   <Icon name="accion.cerrar" size={12} />
                 </button>
               </div>
 
               <button type="button" class="btn-action-icon btn-audit-export-icon table-export-btn" id="btnExportAuditCSV"
-                onclick="window.openModalExportAudit ? window.openModalExportAudit() : null"
+                data-pdi-on="click" data-pdi-h="h053"
                 aria-label="Descargar la bitácora filtrada" title="Descargar la bitácora filtrada">
                 <Icon name="accion.descargar" size={18} />
               </button>
@@ -169,11 +169,11 @@ const OPCIONES_ORDEN_AUDIT = [
                             <div class="audit-input-with-icon">
                               <input type="text" id="inputAuditSpecificDate" class="audit-date-text-input"
                                 placeholder="DD/MM/AAAA (ej. 13/09/2026)" maxlength="10"
-                                oninput="window.handleAuditDateManualInput ? window.handleAuditDateManualInput('specific', this) : null">
+                                data-pdi-on="input" data-pdi-h="h056">
                               <input type="date" id="pickerAuditSpecificDate" class="audit-native-picker-hidden"
-                                onchange="window.handleAuditDatePickerChange ? window.handleAuditDatePickerChange('specific', this.value) : null">
+                                data-pdi-on="change" data-pdi-h="h057">
                               <button type="button" class="audit-calendar-icon-btn"
-                                onclick="document.getElementById('pickerAuditSpecificDate').showPicker ? document.getElementById('pickerAuditSpecificDate').showPicker() : document.getElementById('pickerAuditSpecificDate').focus()"
+                                data-pdi-on="click" data-pdi-h="h058"
                                 title="Abrir calendario">
                                 <Icon name="fecha.calendario" size={15} />
                               </button>
@@ -190,11 +190,11 @@ const OPCIONES_ORDEN_AUDIT = [
                               <div class="audit-input-with-icon">
                                 <input type="text" id="inputAuditRangeStart" class="audit-date-text-input"
                                   placeholder="DD/MM/AAAA" maxlength="10"
-                                  oninput="window.handleAuditDateManualInput ? window.handleAuditDateManualInput('range-start', this) : null">
+                                  data-pdi-on="input" data-pdi-h="h059">
                                 <input type="date" id="pickerAuditRangeStart" class="audit-native-picker-hidden"
-                                  onchange="window.handleAuditDatePickerChange ? window.handleAuditDatePickerChange('range-start', this.value) : null">
+                                  data-pdi-on="change" data-pdi-h="h060">
                                 <button type="button" class="audit-calendar-icon-btn"
-                                  onclick="document.getElementById('pickerAuditRangeStart').showPicker ? document.getElementById('pickerAuditRangeStart').showPicker() : document.getElementById('pickerAuditRangeStart').focus()"
+                                  data-pdi-on="click" data-pdi-h="h061"
                                   title="Abrir calendario">
                                   <Icon name="fecha.calendario" size={15} />
                                 </button>
@@ -205,11 +205,11 @@ const OPCIONES_ORDEN_AUDIT = [
                               <div class="audit-input-with-icon">
                                 <input type="text" id="inputAuditRangeEnd" class="audit-date-text-input"
                                   placeholder="DD/MM/AAAA" maxlength="10"
-                                  oninput="window.handleAuditDateManualInput ? window.handleAuditDateManualInput('range-end', this) : null">
+                                  data-pdi-on="input" data-pdi-h="h062">
                                 <input type="date" id="pickerAuditRangeEnd" class="audit-native-picker-hidden"
-                                  onchange="window.handleAuditDatePickerChange ? window.handleAuditDatePickerChange('range-end', this.value) : null">
+                                  data-pdi-on="change" data-pdi-h="h063">
                                 <button type="button" class="audit-calendar-icon-btn"
-                                  onclick="document.getElementById('pickerAuditRangeEnd').showPicker ? document.getElementById('pickerAuditRangeEnd').showPicker() : document.getElementById('pickerAuditRangeEnd').focus()"
+                                  data-pdi-on="click" data-pdi-h="h064"
                                   title="Abrir calendario">
                                   <Icon name="fecha.calendario" size={15} />
                                 </button>
@@ -255,7 +255,7 @@ const OPCIONES_ORDEN_AUDIT = [
               <div id="auditActiveChipsList" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
               </div>
               <button type="button" class="btn-text-subtle" style="margin-left: auto; font-size: 11.5px;"
-                onclick="window.resetAuditFilters ? window.resetAuditFilters() : null">
+                data-pdi-on="click" data-pdi-h="h067">
                 Limpiar filtros
               </button>
             </div>
@@ -299,7 +299,7 @@ const OPCIONES_ORDEN_AUDIT = [
                 <div class="padron-density-wrapper" style="display:flex; align-items:center; gap:6px;">
                   <span style="font-size:12px; color:var(--text-dim);">Mostrar:</span>
                   <select class="audit-density-select padron-density-select" id="selectAuditPageSize"
-                    onchange="window.changeAuditPageSize ? window.changeAuditPageSize(this.value) : (window.PDI?.AuditView?.changePageSize ? window.PDI.AuditView.changePageSize(this.value) : (window.PDI?.DashboardView?.changePageSize ? window.PDI.DashboardView.changePageSize(this.value) : null))">
+                    data-pdi-on="change" data-pdi-h="h068">
                     <option value="10" selected>10 por página</option>
                     <option value="25">25 por página</option>
                     <option value="50">50 por página (Máx)</option>
@@ -312,13 +312,13 @@ const OPCIONES_ORDEN_AUDIT = [
               </div>
               <div class="padron-pagination-right audit-pagination-right">
                 <button type="button" class="btn-page" id="btnAuditPagePrev"
-                  onclick="window.prevAuditPage ? window.prevAuditPage() : (window.PDI?.AuditView?.changePage ? window.PDI.AuditView.changePage((window.PDI.AuditView._auditCurrentPage || 1) - 1) : (window.PDI?.DashboardView?.changePage ? window.PDI.DashboardView.changePage((window.PDI.DashboardView._auditCurrentPage || 1) - 1) : null))">
+                  data-pdi-on="click" data-pdi-h="h069">
                   <Icon name="accion.volver" size={14} />
                   <span>Anterior</span>
                 </button>
                 <span class="audit-page-indicator" id="auditCurrentPageNum">Página 1</span>
                 <button type="button" class="btn-page" id="btnAuditPageNext"
-                  onclick="window.nextAuditPage ? window.nextAuditPage() : (window.PDI?.AuditView?.changePage ? window.PDI.AuditView.changePage((window.PDI.AuditView._auditCurrentPage || 1) + 1) : (window.PDI?.DashboardView?.changePage ? window.PDI.DashboardView.changePage((window.PDI.DashboardView._auditCurrentPage || 1) + 1) : null))">
+                  data-pdi-on="click" data-pdi-h="h070">
                   <span>Siguiente</span>
                   <Icon name="accion.abrir" size={14} />
                 </button>

@@ -1,3 +1,4 @@
+import { attrsDe } from '../core/inlineCall.js';
 // Vista: Padrón y Gestión de Voluntariados y Personal Comunitario (PDI)
 // Asociación Cultural Johannes Gutenberg - Lima Norte
 
@@ -548,7 +549,7 @@ export const VoluntariadosView = {
       list.innerHTML = chips.map(chip => `
         <span class="padron-chip">
           <span>${escapar(chip.label)}</span>
-          <button type="button" class="padron-chip-remove" onclick="window.removeVoluntarioChip ? window.removeVoluntarioChip('${escaparEnManejador(chip.id)}', '${escaparEnManejador(chip.val || '')}') : null" title="Eliminar filtro">
+          <button type="button" class="padron-chip-remove" ${attrsDe(`window.removeVoluntarioChip ? window.removeVoluntarioChip('${escaparEnManejador(chip.id)}', '${escaparEnManejador(chip.val || '')}') : null`)} title="Eliminar filtro">
             ${iconHtml("accion.cerrar", { size: 10 })}
           </button>
         </span>
@@ -681,10 +682,10 @@ export const VoluntariadosView = {
             </td>
             <td>
               <div class="row-actions">
-                <button type="button" class="row-action" onclick="window.openFichaVoluntario ? window.openFichaVoluntario(${escaparEnManejador(v.id)}) : null" title="Ver ficha y credencial" aria-label="Ver ficha y credencial">
+                <button type="button" class="row-action" ${attrsDe(`window.openFichaVoluntario ? window.openFichaVoluntario(${escaparEnManejador(v.id)}) : null`)} title="Ver ficha y credencial" aria-label="Ver ficha y credencial">
                   ${iconHtml("accion.ver", { size: 15 })}
                 </button>
-                <button type="button" class="row-action row-action--edit" onclick="window.openEditVoluntario ? window.openEditVoluntario(${escaparEnManejador(v.id)}) : null" title="Editar voluntario" aria-label="Editar voluntario">
+                <button type="button" class="row-action row-action--edit" ${attrsDe(`window.openEditVoluntario ? window.openEditVoluntario(${escaparEnManejador(v.id)}) : null`)} title="Editar voluntario" aria-label="Editar voluntario">
                   ${iconHtml("accion.editar", { size: 15 })}
                 </button>
               </div>
@@ -751,7 +752,7 @@ export const VoluntariadosView = {
 
               <div class="padron-mcard-detail-item">
                 <span class="padron-mcard-detail-label">Rol</span>
-                <button type="button" class="padron-role-pill" onclick="window.toggleVoluntariosRol ? window.toggleVoluntariosRol('${escaparEnManejador(v.rol)}') : null" title="Filtrar por rol: ${escapar(v.rol)}">
+                <button type="button" class="padron-role-pill" ${attrsDe(`window.toggleVoluntariosRol ? window.toggleVoluntariosRol('${escaparEnManejador(v.rol)}') : null`)} title="Filtrar por rol: ${escapar(v.rol)}">
                   ${escapar(v.rol)}
                 </button>
               </div>
@@ -772,10 +773,10 @@ export const VoluntariadosView = {
                 ` : ''}
               </div>
               <div class="padron-mcard-actions">
-                <button type="button" class="padron-btn-ficha" onclick="window.openFichaVoluntario ? window.openFichaVoluntario(${escaparEnManejador(v.id)}) : null">
+                <button type="button" class="padron-btn-ficha" ${attrsDe(`window.openFichaVoluntario ? window.openFichaVoluntario(${escaparEnManejador(v.id)}) : null`)}>
                   Ficha
                 </button>
-                <button type="button" class="padron-btn-edit" onclick="window.openEditVoluntario ? window.openEditVoluntario(${escaparEnManejador(v.id)}) : null">
+                <button type="button" class="padron-btn-edit" ${attrsDe(`window.openEditVoluntario ? window.openEditVoluntario(${escaparEnManejador(v.id)}) : null`)}>
                   Editar
                 </button>
               </div>

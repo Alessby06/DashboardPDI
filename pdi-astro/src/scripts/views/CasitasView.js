@@ -1,3 +1,4 @@
+import { attrsDe } from '../core/inlineCall.js';
 // Vista: Acompañamiento Educativo (Casita del Saber)
 //
 // La página ya no es "el pase de hoy": es una jornada de un día y una sede.
@@ -551,10 +552,10 @@ export const CasitasView = {
             <ul class="jornada-conflicto-lista">${filas}${resto}</ul>
           </div>
           <div class="jornada-aviso-acciones">
-            <button type="button" class="btn-action btn-secondary" onclick="window.casitasRecargarJornada ? window.casitasRecargarJornada() : null">
+            <button type="button" class="btn-action btn-secondary" ${attrsDe(`window.casitasRecargarJornada ? window.casitasRecargarJornada() : null`)}>
               Recargar jornada
             </button>
-            <button type="button" class="btn-action primary" onclick="window.casitasSobrescribirJornada ? window.casitasSobrescribirJornada() : null">
+            <button type="button" class="btn-action primary" ${attrsDe(`window.casitasSobrescribirJornada ? window.casitasSobrescribirJornada() : null`)}>
               Sobrescribir con mis cambios
             </button>
           </div>
@@ -568,7 +569,7 @@ export const CasitasView = {
             <p>Puedes seguir marcando: al guardar se comprobarán las diferencias antes de sobrescribir.</p>
           </div>
           <div class="jornada-aviso-acciones">
-            <button type="button" class="btn-action btn-secondary" onclick="window.casitasDescartarAviso ? window.casitasDescartarAviso() : null">
+            <button type="button" class="btn-action btn-secondary" ${attrsDe(`window.casitasDescartarAviso ? window.casitasDescartarAviso() : null`)}>
               Entendido
             </button>
           </div>
@@ -1077,7 +1078,7 @@ export const CasitasView = {
         <span class="padron-chip">
           <span>${escapar(chip.label)}</span>
           <button type="button" class="padron-chip-remove"
-            onclick="window.removeCasitasChip ? window.removeCasitasChip('${escaparEnManejador(chip.id)}') : null"
+            ${attrsDe(`window.removeCasitasChip ? window.removeCasitasChip('${escaparEnManejador(chip.id)}') : null`)}
             title="Eliminar filtro">
             ${iconHtml("accion.cerrar", { size: 10 })}
           </button>
@@ -1238,7 +1239,7 @@ export const CasitasView = {
             </div>
 
             <button type="button" class="datacard-toggle-btn" id="btnToggleCasita-${escapar(b.id)}"
-              onclick="window.PDI ? window.PDI.CasitasView.toggleCard(${escaparEnManejador(b.id)}) : null">
+              ${attrsDe(`window.PDI ? window.PDI.CasitasView.toggleCard(${escaparEnManejador(b.id)}) : null`)}>
               <span class="btn-text">Ver más</span>
               ${iconHtml("nav.desplegar", { size: null })}
             </button>

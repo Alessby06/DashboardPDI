@@ -69,11 +69,11 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                     data-placeholder-largo="Buscar por usuario, código, situación o sede..."
                     aria-label="Buscar caso por usuario, código, situación o sede"
                     title="Buscar caso por usuario, código, situación o sede"
-                    oninput="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.handleSearch(this.value) : null">
+                    data-pdi-on="input" data-pdi-h="h150">
                 </div>
 
                 <button type="button" class="btn-action-icon btn-audit-export-icon table-export-btn" id="btnExportSocialCSV"
-                  onclick="window.openModalExportSocial ? window.openModalExportSocial() : null"
+                  data-pdi-on="click" data-pdi-h="h151"
                   aria-label="Descargar la bandeja ASP filtrada" title="Descargar la bandeja filtrada">
                   <Icon name="accion.descargar" size={18} />
                 </button>
@@ -144,7 +144,7 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                     style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
                   </div>
                   <button type="button" class="btn-text-subtle" style="margin-left: auto; font-size: 11.5px;"
-                    onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.clearFilters() : null">
+                    data-pdi-on="click" data-pdi-h="h154">
                     Limpiar filtros
                   </button>
                 </div>
@@ -153,25 +153,25 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
               <!-- Segmented Control Móvil (1-tap switcher táctil para pantallas pequeñas) -->
               <div class="social-mobile-stage-segmented-wrap" id="socialMobileStageSegmented" role="tablist" aria-label="Etapas del tablero kanban">
                 <button type="button" class="stage-seg-btn active" data-stage="pendiente" role="tab" aria-selected="true"
-                  onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.setMobileActiveStage('pendiente') : null">
+                  data-pdi-on="click" data-pdi-h="h155">
                   <span class="stage-dot" style="background: var(--gt-red);"></span>
                   <span class="stage-seg-label">Alerta</span>
                   <span class="count" id="mobileSegCountPendientes">0</span>
                 </button>
                 <button type="button" class="stage-seg-btn" data-stage="evaluacion" role="tab" aria-selected="false"
-                  onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.setMobileActiveStage('evaluacion') : null">
+                  data-pdi-on="click" data-pdi-h="h156">
                   <span class="stage-dot" style="background: var(--gt-yellow);"></span>
                   <span class="stage-seg-label">Evaluación</span>
                   <span class="count" id="mobileSegCountEvaluacion">0</span>
                 </button>
                 <button type="button" class="stage-seg-btn" data-stage="canalizado" role="tab" aria-selected="false"
-                  onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.setMobileActiveStage('canalizado') : null">
+                  data-pdi-on="click" data-pdi-h="h157">
                   <span class="stage-dot" style="background: var(--gt-blue);"></span>
                   <span class="stage-seg-label">Canalizados</span>
                   <span class="count" id="mobileSegCountCanalizados">0</span>
                 </button>
                 <button type="button" class="stage-seg-btn" data-stage="cerrado" role="tab" aria-selected="false"
-                  onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.setMobileActiveStage('cerrado') : null">
+                  data-pdi-on="click" data-pdi-h="h158">
                   <span class="stage-dot" style="background: var(--gt-green);"></span>
                   <span class="stage-seg-label">Cerrados</span>
                   <span class="count" id="mobileSegCountCerrados">0</span>
@@ -233,7 +233,7 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
               <div class="cred-calc-accordion socio-calc-accordion" id="cardSimuladorVulnerabilidad"
                 style="margin-top: 16px;">
                 <button type="button" class="cred-calc-toggle-btn socio-calc-toggle-btn" id="btnToggleSimuladorSocio"
-                  onclick="window.PDI?.SocialKanbanView?.toggleSimulador ? window.PDI.SocialKanbanView.toggleSimulador() : null">
+                  data-pdi-on="click" data-pdi-h="h159">
                   <div class="cred-calc-header-left">
                     <div class="cred-calc-icon-box socio-icon-box"
                       style="background: rgba(239, 68, 68, 0.12); color: var(--text-danger); border: 1px solid rgba(239, 68, 68, 0.25);">
@@ -264,7 +264,7 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                         style="font-size:11.5px; color:var(--text-dim); font-weight:600;">Cargar Usuario:</label>
                       <select id="selBeneficiarioSimulador" class="form-control"
                         style="font-size:12px; padding:4px 8px; max-width:240px;"
-                        onchange="window.cargarCasoEnSimulador ? window.cargarCasoEnSimulador(this.value) : (window.PDI?.SocialController?.cargarCasoEnSimulador ? window.PDI.SocialController.cargarCasoEnSimulador(this.value) : null)">
+                        data-pdi-on="change" data-pdi-h="h160">
                         <option value="custom">-- Calificación Manual / Libre --</option>
                         <!-- Los usuarios se cargan desde BeneficiarioModel en
                              SocialKanbanView._poblarSelectSimulador(). Las
@@ -288,10 +288,10 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                       </div>
                       <div class="socio-input-row">
                         <input type="range" min="0" max="28" value="24" id="sliderIngreso"
-                          oninput="window.syncScoreSimulador('Ingreso', this.value)">
+                          data-pdi-on="input" data-pdi-h="h161">
                         <input type="number" min="0" max="28" value="24" id="scoreIngreso"
                           class="form-control socio-num-input"
-                          oninput="window.syncScoreSimulador('Ingreso', this.value)">
+                          data-pdi-on="input" data-pdi-h="h161">
                       </div>
                       <div class="socio-guide-box">
                         <div class="socio-guide-title">
@@ -322,10 +322,10 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                       </div>
                       <div class="socio-input-row">
                         <input type="range" min="0" max="20" value="18" id="sliderVivienda"
-                          oninput="window.syncScoreSimulador('Vivienda', this.value)">
+                          data-pdi-on="input" data-pdi-h="h162">
                         <input type="number" min="0" max="20" value="18" id="scoreVivienda"
                           class="form-control socio-num-input"
-                          oninput="window.syncScoreSimulador('Vivienda', this.value)">
+                          data-pdi-on="input" data-pdi-h="h162">
                       </div>
                       <div class="socio-guide-box">
                         <div class="socio-guide-title">
@@ -356,10 +356,10 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                       </div>
                       <div class="socio-input-row">
                         <input type="range" min="0" max="19" value="16" id="sliderSoporte"
-                          oninput="window.syncScoreSimulador('Soporte', this.value)">
+                          data-pdi-on="input" data-pdi-h="h163">
                         <input type="number" min="0" max="19" value="16" id="scoreSoporte"
                           class="form-control socio-num-input"
-                          oninput="window.syncScoreSimulador('Soporte', this.value)">
+                          data-pdi-on="input" data-pdi-h="h163">
                       </div>
                       <div class="socio-guide-box">
                         <div class="socio-guide-title">
@@ -389,10 +389,10 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                       </div>
                       <div class="socio-input-row">
                         <input type="range" min="0" max="16" value="14" id="sliderEmpleo"
-                          oninput="window.syncScoreSimulador('Empleo', this.value)">
+                          data-pdi-on="input" data-pdi-h="h164">
                         <input type="number" min="0" max="16" value="14" id="scoreEmpleo"
                           class="form-control socio-num-input"
-                          oninput="window.syncScoreSimulador('Empleo', this.value)">
+                          data-pdi-on="input" data-pdi-h="h164">
                       </div>
                       <div class="socio-guide-box">
                         <div class="socio-guide-title">
@@ -423,10 +423,10 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                       </div>
                       <div class="socio-input-row">
                         <input type="range" min="0" max="10" value="8" id="sliderInstruccion"
-                          oninput="window.syncScoreSimulador('Instruccion', this.value)">
+                          data-pdi-on="input" data-pdi-h="h165">
                         <input type="number" min="0" max="10" value="8" id="scoreInstruccion"
                           class="form-control socio-num-input"
-                          oninput="window.syncScoreSimulador('Instruccion', this.value)">
+                          data-pdi-on="input" data-pdi-h="h165">
                       </div>
                       <div class="socio-guide-box">
                         <div class="socio-guide-title">
@@ -456,10 +456,10 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                       </div>
                       <div class="socio-input-row">
                         <input type="range" min="0" max="7" value="6" id="sliderSaludFam"
-                          oninput="window.syncScoreSimulador('SaludFam', this.value)">
+                          data-pdi-on="input" data-pdi-h="h166">
                         <input type="number" min="0" max="7" value="6" id="scoreSaludFam"
                           class="form-control socio-num-input"
-                          oninput="window.syncScoreSimulador('SaludFam', this.value)">
+                          data-pdi-on="input" data-pdi-h="h166">
                       </div>
                       <div class="socio-guide-box">
                         <div class="socio-guide-title">
@@ -484,7 +484,7 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                   <!-- Botón de Ejecución de Cálculo -->
                   <div style="margin-top: 16px; display: flex; justify-content: flex-end;">
                     <button type="button" class="btn-action primary" id="btnCalcularSocio"
-                      onclick="window.calcularEvaluacionSocioeconomica()"
+                      data-pdi-on="click" data-pdi-h="h167"
                       style="padding: 10px 22px; font-size: 13.5px; font-weight: 700;">
                       <Icon name="persona.agregar" size={18} />
                       <span>Calcular Evaluación Socioeconómica</span>
@@ -581,11 +581,11 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                   </div>
                 </div>
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                  <button type="button" class="btn-action" onclick="window.PDI?.SocialKanbanView?.switchSocialTab('kanban')">
+                  <button type="button" class="btn-action" data-pdi-on="click" data-pdi-h="h168">
                     <Icon name="accion.volver" size={14} />
                     <span>Volver al Tablero</span>
                   </button>
-                  <button type="button" class="btn-action" onclick="window.PDI?.SocialKanbanView?.renderVistaAutorizaciones()">
+                  <button type="button" class="btn-action" data-pdi-on="click" data-pdi-h="h169">
                     <Icon name="accion.actualizar" size={14} />
                     <span>Actualizar</span>
                   </button>
@@ -617,11 +617,11 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                   </div>
                 </div>
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                  <button type="button" class="btn-action" onclick="window.PDI?.SocialKanbanView?.switchSocialTab('kanban')">
+                  <button type="button" class="btn-action" data-pdi-on="click" data-pdi-h="h168">
                     <Icon name="accion.volver" size={14} />
                     <span>Volver al Tablero</span>
                   </button>
-                  <button type="button" class="btn-action" onclick="window.PDI?.SocialKanbanView?.renderVistaMisSolicitudes()">
+                  <button type="button" class="btn-action" data-pdi-on="click" data-pdi-h="h170">
                     <Icon name="accion.actualizar" size={14} />
                     <span>Actualizar</span>
                   </button>

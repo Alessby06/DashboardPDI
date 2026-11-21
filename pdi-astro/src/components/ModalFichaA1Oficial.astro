@@ -16,11 +16,11 @@ import Icon from './Icon.astro';
         </div>
       </div>
       <div class="a1-toolbar-actions">
-        <button type="button" class="btn-action primary" id="btnEjecutarPrintA1" onclick="window.imprimirDocumentoA1 ? window.imprimirDocumentoA1() : window.print()">
+        <button type="button" class="btn-action primary" id="btnEjecutarPrintA1" data-pdi-on="click" data-pdi-h="h047">
           <Icon name="accion.imprimir" size={15} />
           <span>Imprimir Hoja A4</span>
         </button>
-        <button type="button" class="btn-action btn-secondary" onclick="window.cerrarModalFichaA1 ? window.cerrarModalFichaA1() : null">
+        <button type="button" class="btn-action btn-secondary" data-pdi-on="click" data-pdi-h="h048">
           <Icon name="accion.cerrar" size={15} />
           <span>Cerrar</span>
         </button>

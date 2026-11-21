@@ -74,14 +74,14 @@ const OPCIONES_ORDEN_SALUD = [
             class="audit-search-input"
             id="inputSaludSearch"
             placeholder="Buscar usuario por nombre, código, DNI, apoderado o sede..."
-            oninput="window.filterSaludSearch ? window.filterSaludSearch(this.value) : (window.PDI?.SaludCredView ? window.PDI.SaludCredView.filterBySearch(this.value) : null)"
+            data-pdi-on="input" data-pdi-h="h133"
           />
           <button
             type="button"
             class="audit-search-clear"
             id="btnSaludSearchClear"
             style="display:none;"
-            onclick="window.clearSaludSearch ? window.clearSaludSearch() : (window.PDI?.SaludCredView ? window.PDI.SaludCredView.clearSearch() : null)"
+            data-pdi-on="click" data-pdi-h="h134"
             title="Limpiar búsqueda"
           >
             <Icon name="accion.cerrar" size={12} />
@@ -89,7 +89,7 @@ const OPCIONES_ORDEN_SALUD = [
         </div>
 
         <button type="button" class="btn-action-icon btn-audit-export-icon table-export-btn" id="btnExportSaludCSV"
-          onclick="window.openModalExportSalud ? window.openModalExportSalud() : null"
+          data-pdi-on="click" data-pdi-h="h135"
           aria-label="Descargar el reporte CRED filtrado" title="Descargar el reporte filtrado">
           <Icon name="accion.descargar" size={18} />
         </button>
@@ -160,7 +160,7 @@ const OPCIONES_ORDEN_SALUD = [
           type="button"
           class="btn-text-subtle"
           style="margin-left: auto; font-size: 11.5px;"
-          onclick="window.resetSaludFilters ? window.resetSaludFilters() : null"
+          data-pdi-on="click" data-pdi-h="h139"
           >Limpiar filtros</button
         >
       </div>
@@ -201,7 +201,7 @@ const OPCIONES_ORDEN_SALUD = [
             style="display:flex; align-items:center; gap:6px;">
             <span style="font-size:12px; color:var(--text-dim);">Mostrar:</span>
             <select class="audit-density-select padron-density-select" id="selectSaludPageSize"
-              onchange="window.saludSetPageSize ? window.saludSetPageSize(this.value) : (window.PDI?.SaludCredView?.setPageSize ? window.PDI.SaludCredView.setPageSize(this.value) : null)">
+              data-pdi-on="change" data-pdi-h="h140">
               <option value="10">10 por página</option>
               <option value="20" selected>20 por página</option>
               <option value="50">50 por página (Máx)</option>
@@ -210,13 +210,13 @@ const OPCIONES_ORDEN_SALUD = [
         </div>
         <div class="padron-pagination-right">
           <button type="button" class="btn-page" id="btnSaludPagePrev"
-            onclick="window.saludPrevPage ? window.saludPrevPage() : (window.PDI?.SaludCredView?.prevPage ? window.PDI.SaludCredView.prevPage() : null)">
+            data-pdi-on="click" data-pdi-h="h141">
             <Icon name="accion.volver" size={14} />
             <span>Anterior</span>
           </button>
           <span class="audit-page-indicator" id="saludCurrentPageNum">Página 1</span>
           <button type="button" class="btn-page" id="btnSaludPageNext"
-            onclick="window.saludNextPage ? window.saludNextPage() : (window.PDI?.SaludCredView?.nextPage ? window.PDI.SaludCredView.nextPage() : null)">
+            data-pdi-on="click" data-pdi-h="h142">
             <span>Siguiente</span>
             <Icon name="accion.abrir" size={14} />
           </button>

@@ -63,13 +63,13 @@ const OPCIONES_ORDEN_CASITAS = [
               <div class="jornada-campo">
                 <label class="jornada-label" for="inputJornadaFecha">Día de la jornada</label>
                 <input type="date" id="inputJornadaFecha" class="jornada-input"
-                  onchange="window.casitasCambiarDia ? window.casitasCambiarDia(this.value) : null">
+                  data-pdi-on="change" data-pdi-h="h079">
               </div>
 
               <div class="jornada-campo jornada-campo-sede">
                 <label class="jornada-label" for="selectJornadaSede">Casita / Sede</label>
                 <select id="selectJornadaSede" class="jornada-input"
-                  onchange="window.casitasCambiarSede ? window.casitasCambiarSede(this.value) : null">
+                  data-pdi-on="change" data-pdi-h="h080">
                   <option value="">Elige una sede…</option>
                   {OPCIONES_SEDE.map((sede) => (
                     <option value={sede.valor}>{sede.etiqueta}</option>
@@ -84,13 +84,13 @@ const OPCIONES_ORDEN_CASITAS = [
               <div class="jornada-acciones">
                 <span class="jornada-estado" id="jornadaEstadoGuardado">Jornada sin iniciar</span>
                 <button type="button" class="btn-action" id="btnRecargarJornada"
-                  onclick="window.casitasRecargarJornada ? window.casitasRecargarJornada() : null"
+                  data-pdi-on="click" data-pdi-h="h081"
                   title="Volver a leer la jornada desde SurrealDB">
                   <Icon name="accion.actualizar" size={15} />
                   <span>Recargar</span>
                 </button>
                 <button type="button" class="btn-action primary" id="btnGuardarJornada" disabled
-                  onclick="window.casitasGuardarJornada ? window.casitasGuardarJornada() : null">
+                  data-pdi-on="click" data-pdi-h="h082">
                   <Icon name="accion.confirmar" size={15} />
                   <span class="btn-label">Guardar jornada</span>
                 </button>
@@ -107,15 +107,15 @@ const OPCIONES_ORDEN_CASITAS = [
                 <Icon name="accion.buscar" size={2} class="audit-search-icon" />
                 <input type="text" class="audit-search-input" id="inputCasitasSearch"
                   placeholder="Buscar usuario por nombre, código, colegio, apoderado..."
-                  oninput="window.filterCasitasSearch ? window.filterCasitasSearch(this.value) : (window.PDI?.CasitasView ? window.PDI.CasitasView.filterBySearch(this.value) : null)">
+                  data-pdi-on="input" data-pdi-h="h083">
                 <button type="button" class="audit-search-clear" id="btnCasitasSearchClear" style="display:none;"
-                  onclick="window.clearCasitasSearch ? window.clearCasitasSearch() : (window.PDI?.CasitasView ? window.PDI.CasitasView.clearSearch() : null)" title="Limpiar búsqueda">
+                  data-pdi-on="click" data-pdi-h="h084" title="Limpiar búsqueda">
                   <Icon name="accion.cerrar" size={12} />
                 </button>
               </div>
 
               <button type="button" class="btn-action-icon btn-audit-export-icon table-export-btn" id="btnExportEducativoCSV"
-                onclick="window.openModalExportEducativo ? window.openModalExportEducativo() : null"
+                data-pdi-on="click" data-pdi-h="h085"
                 aria-label="Descargar la jornada de asistencia" title="Descargar la jornada">
                 <Icon name="accion.descargar" size={18} />
               </button>
@@ -155,7 +155,7 @@ const OPCIONES_ORDEN_CASITAS = [
               <div id="casitasActiveChipsList" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
               </div>
               <button type="button" class="btn-text-subtle" style="margin-left: auto; font-size: 11.5px;"
-                onclick="window.resetCasitasFilters ? window.resetCasitasFilters() : null">Limpiar filtros</button>
+                data-pdi-on="click" data-pdi-h="h087">Limpiar filtros</button>
             </div>
 
             <div class="table-container desktop-table-view">
@@ -194,7 +194,7 @@ const OPCIONES_ORDEN_CASITAS = [
                   style="display:flex; align-items:center; gap:6px;">
                   <span style="font-size:12px; color:var(--text-dim);">Mostrar:</span>
                   <select class="audit-density-select padron-density-select" id="selectCasitasPageSize"
-                    onchange="window.casitasSetPageSize ? window.casitasSetPageSize(this.value) : (window.PDI?.CasitasView?.setPageSize ? window.PDI.CasitasView.setPageSize(this.value) : null)">
+                    data-pdi-on="change" data-pdi-h="h088">
                     <option value="10">10 por página</option>
                     <option value="20" selected>20 por página</option>
                     <option value="50">50 por página (Máx)</option>
@@ -203,13 +203,13 @@ const OPCIONES_ORDEN_CASITAS = [
               </div>
               <div class="padron-pagination-right">
                 <button type="button" class="btn-page" id="btnCasitasPagePrev"
-                  onclick="window.casitasPrevPage ? window.casitasPrevPage() : (window.PDI?.CasitasView?.prevPage ? window.PDI.CasitasView.prevPage() : null)">
+                  data-pdi-on="click" data-pdi-h="h089">
                   <Icon name="accion.volver" size={14} />
                   <span>Anterior</span>
                 </button>
                 <span class="audit-page-indicator" id="casitasCurrentPageNum">Página 1</span>
                 <button type="button" class="btn-page" id="btnCasitasPageNext"
-                  onclick="window.casitasNextPage ? window.casitasNextPage() : (window.PDI?.CasitasView?.nextPage ? window.PDI.CasitasView.nextPage() : null)">
+                  data-pdi-on="click" data-pdi-h="h090">
                   <span>Siguiente</span>
                   <Icon name="accion.abrir" size={14} />
                 </button>
@@ -228,7 +228,7 @@ const OPCIONES_ORDEN_CASITAS = [
                   <p class="modal-title-desc">El motivo queda en el registro de la jornada y en el CSV.</p>
                 </div>
                 <button type="button" class="btn-close-modal"
-                  onclick="window.casitasCerrarMotivoFJ ? window.casitasCerrarMotivoFJ() : null"
+                  data-pdi-on="click" data-pdi-h="h091"
                   aria-label="Cerrar el motivo de la falta justificada">
                   <Icon name="accion.cerrar" size={18} />
                 </button>
@@ -239,18 +239,18 @@ const OPCIONES_ORDEN_CASITAS = [
                   <label for="inputMotivoFJ">Motivo <span class="req">*</span></label>
                   <textarea id="inputMotivoFJ" class="form-control" rows="3" maxlength="120"
                     placeholder="Ej. Cita médica, trámite familiar, enfermedad…"
-                    oninput="window.PDI?.CasitasView?._actualizarContadorMotivo?.()"></textarea>
+                    data-pdi-on="input" data-pdi-h="h092"></textarea>
                   <div class="motivo-contador"><span id="motivoFJContador">0</span>/120</div>
                 </div>
                 <p class="motivo-error" id="motivoFJError" hidden></p>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn-action"
-                  onclick="window.casitasCerrarMotivoFJ ? window.casitasCerrarMotivoFJ() : null">
+                  data-pdi-on="click" data-pdi-h="h091">
                   Cancelar
                 </button>
                 <button type="button" class="btn-action primary"
-                  onclick="window.casitasConfirmarMotivoFJ ? window.casitasConfirmarMotivoFJ() : null">
+                  data-pdi-on="click" data-pdi-h="h093">
                   Marcar falta justificada
                 </button>
               </div>

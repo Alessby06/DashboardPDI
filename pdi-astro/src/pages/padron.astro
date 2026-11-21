@@ -31,14 +31,14 @@ const OPCIONES_SEXO = [
             </div>
             <div class="view-actions">
               <button type="button" class="btn-action" id="btnPadronArchivo"
-                onclick="window.togglePadronArchivo ? window.togglePadronArchivo() : null"
+                data-pdi-on="click" data-pdi-h="h106"
                 title="Ver usuarios desactivados (Solo Dirección / Admin)" aria-pressed="false" style="display: none;">
                 <Icon name="accion.archivar" size={15} />
                 <span id="padronArchivoLabel">Archivo</span>
                 <span class="count" id="padronArchivoCount">0</span>
               </button>
               <button type="button" class="btn-action primary" id="btnNuevoBeneficiario"
-                onclick="window.openModalNuevoBeneficiario ? window.openModalNuevoBeneficiario() : (window.openModalNuevoUsuario ? window.openModalNuevoUsuario() : null)" title="Registrar nuevo usuario">
+                data-pdi-on="click" data-pdi-h="h107" title="Registrar nuevo usuario">
                 <Icon name="accion.agregar" size={15} />
                 <span>Nuevo Usuario</span>
               </button>
@@ -54,15 +54,15 @@ const OPCIONES_SEXO = [
                 <Icon name="accion.buscar" size={15} class="audit-search-icon" />
                 <input type="text" id="inputPadronSearch" class="audit-search-input"
                   placeholder="Buscar por Nombre, Apellidos, DNI o Código..."
-                  oninput="window.filterPadronSearch ? window.filterPadronSearch(this.value) : null">
+                  data-pdi-on="input" data-pdi-h="h108">
                 <button type="button" class="audit-search-clear" id="btnPadronSearchClear" style="display:none;"
-                  onclick="window.clearPadronSearch ? window.clearPadronSearch() : null" title="Limpiar búsqueda">
+                  data-pdi-on="click" data-pdi-h="h109" title="Limpiar búsqueda">
                   <Icon name="accion.cerrar" size={12} />
                 </button>
               </div>
 
               <button type="button" class="btn-action-icon btn-audit-export-icon table-export-btn" id="btnExportPadronCSV"
-                onclick="window.openModalExportPadron ? window.openModalExportPadron() : window.exportDataCSV()"
+                data-pdi-on="click" data-pdi-h="h110"
                 aria-label="Descargar el padrón filtrado" title="Descargar el padrón filtrado">
                 <Icon name="accion.descargar" size={18} />
               </button>
@@ -73,7 +73,7 @@ const OPCIONES_SEXO = [
                   <button type="button" class="btn-action padron-sort-btn"
                     id="btnPadronSort" aria-haspopup="listbox" aria-expanded="false"
                     aria-controls="menuPadronSort"
-                    onclick="window.togglePadronSortMenu ? window.togglePadronSortMenu() : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownPadronSort') : null)">
+                    data-pdi-on="click" data-pdi-h="h111">
                     <span class="padron-sort-prefix">Ordenar:</span>
                     <span class="padron-sort-value" id="padronSortValue">Modificación (reciente)</span>
                     <Icon name="nav.desplegar" size={12} class="filter-caret" />
@@ -81,23 +81,23 @@ const OPCIONES_SEXO = [
                   <div class="custom-dropdown-menu padron-sort-menu" id="menuPadronSort"
                     role="listbox" aria-labelledby="btnPadronSort">
                     <button type="button" role="option" aria-selected="false" data-sort-value="apellido-asc"
-                      onclick="window.sortPadronOpcion ? window.sortPadronOpcion('apellido-asc') : null">Apellido (A-Z)</button>
+                      data-pdi-on="click" data-pdi-h="h112">Apellido (A-Z)</button>
                     <button type="button" role="option" aria-selected="false" data-sort-value="apellido-desc"
-                      onclick="window.sortPadronOpcion ? window.sortPadronOpcion('apellido-desc') : null">Apellido (Z-A)</button>
+                      data-pdi-on="click" data-pdi-h="h113">Apellido (Z-A)</button>
                     <button type="button" role="option" aria-selected="false" data-sort-value="sede-asc"
-                      onclick="window.sortPadronOpcion ? window.sortPadronOpcion('sede-asc') : null">Sede (A-Z)</button>
+                      data-pdi-on="click" data-pdi-h="h114">Sede (A-Z)</button>
                     <button type="button" role="option" aria-selected="false" data-sort-value="edad-asc"
-                      onclick="window.sortPadronOpcion ? window.sortPadronOpcion('edad-asc') : null">Edad (menor a mayor)</button>
+                      data-pdi-on="click" data-pdi-h="h115">Edad (menor a mayor)</button>
                     <button type="button" role="option" aria-selected="false" data-sort-value="edad-desc"
-                      onclick="window.sortPadronOpcion ? window.sortPadronOpcion('edad-desc') : null">Edad (mayor a menor)</button>
+                      data-pdi-on="click" data-pdi-h="h116">Edad (mayor a menor)</button>
                     <button type="button" role="option" aria-selected="false" data-sort-value="creado-desc"
-                      onclick="window.sortPadronOpcion ? window.sortPadronOpcion('creado-desc') : null">Creación (reciente)</button>
+                      data-pdi-on="click" data-pdi-h="h117">Creación (reciente)</button>
                     <button type="button" role="option" aria-selected="false" data-sort-value="creado-asc"
-                      onclick="window.sortPadronOpcion ? window.sortPadronOpcion('creado-asc') : null">Creación (antigua)</button>
+                      data-pdi-on="click" data-pdi-h="h118">Creación (antigua)</button>
                     <button type="button" role="option" aria-selected="true" data-sort-value="actualizado-desc"
-                      onclick="window.sortPadronOpcion ? window.sortPadronOpcion('actualizado-desc') : null">Modificación (reciente)</button>
+                      data-pdi-on="click" data-pdi-h="h119">Modificación (reciente)</button>
                     <button type="button" role="option" aria-selected="false" data-sort-value="actualizado-asc"
-                      onclick="window.sortPadronOpcion ? window.sortPadronOpcion('actualizado-asc') : null">Modificación (antigua)</button>
+                      data-pdi-on="click" data-pdi-h="h120">Modificación (antigua)</button>
                   </div>
                 </div>
               </div>
@@ -158,7 +158,7 @@ const OPCIONES_SEXO = [
                         <div class="facet-edad-header">
                           <label class="audit-field-label" style="margin-bottom:0;">Edad del Usuario</label>
                           <button type="button" class="btn-facet-all-edad active" id="btnPadronEdadTodas"
-                            onclick="window.clearPadronEdad ? window.clearPadronEdad() : null">
+                            data-pdi-on="click" data-pdi-h="h124">
                             Todas las edades
                           </button>
                         </div>
@@ -168,7 +168,7 @@ const OPCIONES_SEXO = [
                             <div class="facet-edad-input-box">
                               <input type="number" min="0" max="18" placeholder="7" id="numPadronEdad"
                                 class="facet-edad-num-input"
-                                oninput="window.setPadronEdadExacta ? window.setPadronEdadExacta(this.value) : null">
+                                data-pdi-on="input" data-pdi-h="h125">
                               <span class="facet-edad-unit">años</span>
                             </div>
                           </div>
@@ -185,10 +185,10 @@ const OPCIONES_SEXO = [
                                 style="left:0%; right:0%;"></div>
                               <input type="range" min="0" max="18" value="0" id="sliderPadronEdadMin"
                                 class="facet-range-slider-input"
-                                oninput="window.syncPadronEdadRango ? window.syncPadronEdadRango('min', this.value) : null">
+                                data-pdi-on="input" data-pdi-h="h126">
                               <input type="range" min="0" max="18" value="18" id="sliderPadronEdadMax"
                                 class="facet-range-slider-input"
-                                oninput="window.syncPadronEdadRango ? window.syncPadronEdadRango('max', this.value) : null">
+                                data-pdi-on="input" data-pdi-h="h127">
                             </div>
                           </div>
                         </div>
@@ -217,7 +217,7 @@ const OPCIONES_SEXO = [
               <div id="padronActiveChipsList" style="display: flex; align-items: center; flex-wrap: wrap; gap: 6px;">
               </div>
               <button type="button" class="btn-text-subtle" style="margin-left: auto; font-size: 11.5px;"
-                onclick="window.resetPadronFilters ? window.resetPadronFilters() : null">
+                data-pdi-on="click" data-pdi-h="h129">
                 Limpiar filtros
               </button>
             </div>
@@ -261,7 +261,7 @@ const OPCIONES_SEXO = [
                   style="display:flex; align-items:center; gap:6px;">
                   <span style="font-size:12px; color:var(--text-dim);">Mostrar:</span>
                   <select class="audit-density-select padron-density-select" id="selectPadronPageSize"
-                    onchange="window.padronSetPageSize ? window.padronSetPageSize(this.value) : (window.PDI?.BeneficiariosView?.setPageSize ? window.PDI.BeneficiariosView.setPageSize(this.value) : null)">
+                    data-pdi-on="change" data-pdi-h="h130">
                     <option value="10">10 por página</option>
                     <option value="20" selected>20 por página</option>
                     <option value="50">50 por página (Máx)</option>
@@ -270,13 +270,13 @@ const OPCIONES_SEXO = [
               </div>
               <div class="padron-pagination-right">
                 <button type="button" class="btn-page" id="btnPadronPagePrev"
-                  onclick="window.padronPrevPage ? window.padronPrevPage() : (window.PDI?.BeneficiariosView?.prevPage ? window.PDI.BeneficiariosView.prevPage() : null)">
+                  data-pdi-on="click" data-pdi-h="h131">
                   <Icon name="accion.volver" size={14} />
                   <span>Anterior</span>
                 </button>
                 <span class="audit-page-indicator" id="padronCurrentPageNum">Página 1</span>
                 <button type="button" class="btn-page" id="btnPadronPageNext"
-                  onclick="window.padronNextPage ? window.padronNextPage() : (window.PDI?.BeneficiariosView?.nextPage ? window.PDI.BeneficiariosView.nextPage() : null)">
+                  data-pdi-on="click" data-pdi-h="h132">
                   <span>Siguiente</span>
                   <Icon name="accion.abrir" size={14} />
                 </button>

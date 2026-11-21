@@ -1,3 +1,4 @@
+import { attrsDe } from '../core/inlineCall.js';
 // Vista: Padrón de Usuarios
 import { crear as crearFiltros } from "../utils/Filters.js";
 import { crearStore } from "../utils/FilterStore.js";
@@ -1219,7 +1220,7 @@ export const BeneficiariosView = {
       list.innerHTML = chips.map(chip => `
         <span class="padron-chip">
           <span>${escapar(chip.label)}</span>
-          <button type="button" class="padron-chip-remove" onclick="window.removePadronChip ? window.removePadronChip('${escaparEnManejador(chip.id)}', '${escaparEnManejador(chip.val || '')}') : null" title="Eliminar filtro">
+          <button type="button" class="padron-chip-remove" ${attrsDe(`window.removePadronChip ? window.removePadronChip('${escaparEnManejador(chip.id)}', '${escaparEnManejador(chip.val || '')}') : null`)} title="Eliminar filtro">
             ${iconHtml("accion.cerrar", { size: 10 })}
           </button>
         </span>
@@ -1377,7 +1378,7 @@ export const BeneficiariosView = {
                   <span class="datacard-value">${escapar(b.seguro || 'SIS Gratuito')}</span>
                 </div>
                 <div class="datacard-actions-footer">
-                  <a href="${this._urlExpediente(b)}" class="btn-action primary" style="width:100%; justify-content:center; text-decoration:none;" onclick="event.stopPropagation();">
+                  <a href="${this._urlExpediente(b)}" class="btn-action primary" style="width:100%; justify-content:center; text-decoration:none;" ${attrsDe(`event.stopPropagation();`)}>
                     ${iconHtml("accion.ver", { size: 15, style: "margin-right:6px;" })}
                     Ver Expediente Completo
                   </a>
@@ -1385,7 +1386,7 @@ export const BeneficiariosView = {
               </div>
 
               <!-- Botón Ver más / Ver menos -->
-              <button type="button" class="datacard-toggle-btn" id="btnToggleCard-${escapar(b.id)}" onclick="window.PDI ? window.PDI.BeneficiariosView.toggleCard(${escaparEnManejador(b.id)}) : BeneficiariosView.toggleCard(${escaparEnManejador(b.id)})">
+              <button type="button" class="datacard-toggle-btn" id="btnToggleCard-${escapar(b.id)}" ${attrsDe(`window.PDI ? window.PDI.BeneficiariosView.toggleCard(${escaparEnManejador(b.id)}) : BeneficiariosView.toggleCard(${escaparEnManejador(b.id)})`)}>
                 <span class="btn-text">Ver más</span>
                 ${iconHtml("nav.desplegar", { size: null })}
               </button>

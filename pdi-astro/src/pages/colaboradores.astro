@@ -48,7 +48,7 @@ const OPCIONES_ORDEN = [
         <p>Directorio operativo de directores escolares, docentes enlace, pastores eclesiales y facilitadoras PDI (Fichas A4 y A5).</p>
       </div>
       <div class="view-actions">
-        <button type="button" class="btn-action primary" onclick="window.openNuevoColaborador ? window.openNuevoColaborador() : null" title="Registrar nuevo colaborador o institución aliada">
+        <button type="button" class="btn-action primary" data-pdi-on="click" data-pdi-h="h071" title="Registrar nuevo colaborador o institución aliada">
           <Icon name="accion.agregar" size={15} />
           <span>Nuevo Colaborador</span>
         </button>
@@ -126,14 +126,14 @@ const OPCIONES_ORDEN = [
             class="audit-search-input"
             id="inputColabSearch"
             placeholder="Buscar por nombre, I.E., iglesia, DNI, teléfono o distrito..."
-            oninput="window.filterColabSearch ? window.filterColabSearch(this.value) : null"
+            data-pdi-on="input" data-pdi-h="h072"
           />
           <button
             type="button"
             class="audit-search-clear"
             id="btnColabSearchClear"
             style="display:none;"
-            onclick="window.clearColabSearch ? window.clearColabSearch() : null"
+            data-pdi-on="click" data-pdi-h="h073"
             title="Limpiar búsqueda"
           >
             <Icon name="accion.cerrar" size={12} />
@@ -144,7 +144,7 @@ const OPCIONES_ORDEN = [
           type="button"
           class="btn-action-icon btn-audit-export-icon table-export-btn"
           id="btnExportColabCSV"
-          onclick="window.exportColaboradoresCSV ? window.exportColaboradoresCSV() : null"
+          data-pdi-on="click" data-pdi-h="h074"
           aria-label="Descargar Padrón de Colaboradores en CSV"
           title="Descargar directorio en CSV"
         >
@@ -195,7 +195,7 @@ const OPCIONES_ORDEN = [
       <div class="padron-active-chips-bar" id="colabActiveChipsBar" style="display:none;">
         <span class="padron-active-chips-label">Filtros aplicados:</span>
         <div id="colabActiveChipsList" style="display:inline-flex; flex-wrap:wrap; gap:6px;"></div>
-        <button type="button" class="btn-text-subtle" onclick="window.resetColabFilters ? window.resetColabFilters() : null" style="font-size:11.5px; margin-left:8px; cursor:pointer;">
+        <button type="button" class="btn-text-subtle" data-pdi-on="click" data-pdi-h="h077" style="font-size:11.5px; margin-left:8px; cursor:pointer;">
           Limpiar filtros
         </button>
       </div>
@@ -240,7 +240,7 @@ const OPCIONES_ORDEN = [
           <h3 id="modalColabTitle" style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-main);">Ficha de Colaborador e Institución</h3>
           <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-muted);">Registro oficial de contrapartes territoriales (Fichas A4 y A5)</p>
         </div>
-        <button type="button" class="btn-action-icon" onclick="window.cerrarModalColaborador ? window.cerrarModalColaborador() : null" title="Cerrar modal">
+        <button type="button" class="btn-action-icon" data-pdi-on="click" data-pdi-h="h078" title="Cerrar modal">
           <Icon name="accion.cerrar" size={14} />
         </button>
       </div>
@@ -389,7 +389,7 @@ const OPCIONES_ORDEN = [
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; border-top: 1px solid var(--border-subtle); padding-top: 16px;">
-          <button type="button" class="btn-action secondary" onclick="window.cerrarModalColaborador ? window.cerrarModalColaborador() : null">
+          <button type="button" class="btn-action secondary" data-pdi-on="click" data-pdi-h="h078">
             Cancelar
           </button>
           <button type="submit" class="btn-action primary">

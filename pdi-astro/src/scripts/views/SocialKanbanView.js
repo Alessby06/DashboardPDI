@@ -1,3 +1,4 @@
+import { attrsDe } from '../core/inlineCall.js';
 // Vista: Tablero Kanban de Casos Sociales (ASP), Filtros y Ficha Detallada
 import { CasoSocialModel } from '../models/CasoSocialModel.js';
 import { AnimationEngine } from '../utils/AnimationEngine.js';
@@ -341,7 +342,7 @@ export const SocialKanbanView = {
         actionsHtml = `
           <div class="kanban-actions-row">
             <button type="button" class="kanban-btn primary full-width"
-              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso('${escaparEnManejador(claveCaso(c))}', 'evaluacion') : (window.app?.socialController?.moverCaso('${escaparEnManejador(claveCaso(c))}', 'evaluacion'))">
+              ${attrsDe(`event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso('${escaparEnManejador(claveCaso(c))}', 'evaluacion') : (window.app?.socialController?.moverCaso('${escaparEnManejador(claveCaso(c))}', 'evaluacion'))`)}>
               ${iconHtml("accion.editar", { size: 13 })}
               <span>Iniciar Evaluación</span>
             </button>
@@ -351,12 +352,12 @@ export const SocialKanbanView = {
         actionsHtml = `
           <div class="kanban-actions-row">
             <button type="button" class="kanban-btn secondary flex-1"
-              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso('${escaparEnManejador(claveCaso(c))}', 'pendiente') : (window.app?.socialController?.moverCaso('${escaparEnManejador(claveCaso(c))}', 'pendiente'))">
+              ${attrsDe(`event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso('${escaparEnManejador(claveCaso(c))}', 'pendiente') : (window.app?.socialController?.moverCaso('${escaparEnManejador(claveCaso(c))}', 'pendiente'))`)}>
               ${iconHtml("accion.volver", { size: null })}
               <span>Alerta</span>
             </button>
             <button type="button" class="kanban-btn primary flex-1"
-              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso('${escaparEnManejador(claveCaso(c))}', 'canalizado') : (window.app?.socialController?.moverCaso('${escaparEnManejador(claveCaso(c))}', 'canalizado'))">
+              ${attrsDe(`event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso('${escaparEnManejador(claveCaso(c))}', 'canalizado') : (window.app?.socialController?.moverCaso('${escaparEnManejador(claveCaso(c))}', 'canalizado'))`)}>
               ${iconHtml("comunicacion.enviar", { size: null })}
               <span>Canalizar</span>
             </button>
@@ -366,12 +367,12 @@ export const SocialKanbanView = {
         actionsHtml = `
           <div class="kanban-actions-row">
             <button type="button" class="kanban-btn secondary flex-1"
-              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso('${escaparEnManejador(claveCaso(c))}', 'evaluacion') : (window.app?.socialController?.moverCaso('${escaparEnManejador(claveCaso(c))}', 'evaluacion'))">
+              ${attrsDe(`event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso('${escaparEnManejador(claveCaso(c))}', 'evaluacion') : (window.app?.socialController?.moverCaso('${escaparEnManejador(claveCaso(c))}', 'evaluacion'))`)}>
               ${iconHtml("accion.volver", { size: null })}
               <span>Evaluar</span>
             </button>
             <button type="button" class="kanban-btn success flex-1"
-              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso('${escaparEnManejador(claveCaso(c))}', 'cerrado') : (window.app?.socialController?.moverCaso('${escaparEnManejador(claveCaso(c))}', 'cerrado'))">
+              ${attrsDe(`event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso('${escaparEnManejador(claveCaso(c))}', 'cerrado') : (window.app?.socialController?.moverCaso('${escaparEnManejador(claveCaso(c))}', 'cerrado'))`)}>
               ${iconHtml("accion.confirmar", { size: null })}
               <span>Cerrar</span>
             </button>
@@ -381,7 +382,7 @@ export const SocialKanbanView = {
         actionsHtml = `
           <div class="kanban-actions-row">
             <button type="button" class="kanban-btn warning full-width"
-              onclick="event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso('${escaparEnManejador(claveCaso(c))}', 'canalizado') : (window.app?.socialController?.moverCaso('${escaparEnManejador(claveCaso(c))}', 'canalizado'))">
+              ${attrsDe(`event.stopPropagation(); window.PDI?.SocialController ? window.PDI.SocialController.moverCaso('${escaparEnManejador(claveCaso(c))}', 'canalizado') : (window.app?.socialController?.moverCaso('${escaparEnManejador(claveCaso(c))}', 'canalizado'))`)}>
               ${iconHtml("accion.actualizar", { size: null })}
               <span>Reabrir Caso</span>
             </button>
@@ -395,7 +396,7 @@ export const SocialKanbanView = {
           ${marcaEstado(escapar(c.urgencia), TONO_URGENCIA[c.urgencia] || 'idle')}
         </div>
         <div class="kanban-card-meta">
-          <button type="button" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(c.codigo)}')" class="kanban-card-code-link" title="Abrir expediente">
+          <button type="button" ${attrsDe(`event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(c.codigo)}')`)} class="kanban-card-code-link" title="Abrir expediente">
             ${escapar(c.codigo)}
           </button>
           <span class="kanban-card-sede" title="${escapar(c.sede)}">
@@ -806,7 +807,7 @@ export const SocialKanbanView = {
       if (tieneSolicitud) {
         if (puedeResolver) {
           dynamicBox.innerHTML = `
-            <button type="button" class="btn-action warning" onclick="window.PDI?.SocialKanbanView?.abrirModalResolverSolicitud('${escaparEnManejador(claveCaso(caso))}')">
+            <button type="button" class="btn-action warning" ${attrsDe(`window.PDI?.SocialKanbanView?.abrirModalResolverSolicitud('${escaparEnManejador(claveCaso(caso))}')`)}>
               ${iconHtml("estado.ok", { size: 15 })}
               <span>Gestionar Autorización (Coordinación)</span>
             </button>
@@ -822,36 +823,36 @@ export const SocialKanbanView = {
         }
       } else if (caso.etapa === "pendiente") {
         dynamicBox.innerHTML = `
-          <button type="button" class="btn-action primary" onclick="window.PDI?.SocialKanbanView?.moverCasoFromModal('evaluacion')">
+          <button type="button" class="btn-action primary" ${attrsDe(`window.PDI?.SocialKanbanView?.moverCasoFromModal('evaluacion')`)}>
             ${iconHtml("accion.editar", { size: 15 })}
             <span>Iniciar Evaluación</span>
           </button>
         `;
       } else if (caso.etapa === "evaluacion") {
         dynamicBox.innerHTML = `
-          <button type="button" class="btn-action btn-secondary" onclick="window.PDI?.SocialKanbanView?.moverCasoFromModal('pendiente')">
+          <button type="button" class="btn-action btn-secondary" ${attrsDe(`window.PDI?.SocialKanbanView?.moverCasoFromModal('pendiente')`)}>
             ${iconHtml("accion.volver", { size: 15 })}
             <span>Regresar a Alerta</span>
           </button>
-          <button type="button" class="btn-action primary" onclick="window.PDI?.SocialKanbanView?.moverCasoFromModal('canalizado')">
+          <button type="button" class="btn-action primary" ${attrsDe(`window.PDI?.SocialKanbanView?.moverCasoFromModal('canalizado')`)}>
             ${iconHtml("comunicacion.enviar", { size: 15 })}
             <span>Canalizar Caso</span>
           </button>
         `;
       } else if (caso.etapa === "canalizado") {
         dynamicBox.innerHTML = `
-          <button type="button" class="btn-action btn-secondary" onclick="window.PDI?.SocialKanbanView?.moverCasoFromModal('evaluacion')">
+          <button type="button" class="btn-action btn-secondary" ${attrsDe(`window.PDI?.SocialKanbanView?.moverCasoFromModal('evaluacion')`)}>
             ${iconHtml("accion.volver", { size: 15 })}
             <span>Regresar a Evaluación</span>
           </button>
-          <button type="button" class="btn-action success" onclick="window.PDI?.SocialKanbanView?.moverCasoFromModal('cerrado')">
+          <button type="button" class="btn-action success" ${attrsDe(`window.PDI?.SocialKanbanView?.moverCasoFromModal('cerrado')`)}>
             ${iconHtml("accion.confirmar", { size: 15 })}
             <span>Cerrar Caso con Informe</span>
           </button>
         `;
       } else if (caso.etapa === "cerrado") {
         dynamicBox.innerHTML = `
-          <button type="button" class="btn-action btn-secondary" onclick="window.PDI?.SocialKanbanView?.moverCasoFromModal('canalizado')">
+          <button type="button" class="btn-action btn-secondary" ${attrsDe(`window.PDI?.SocialKanbanView?.moverCasoFromModal('canalizado')`)}>
             ${iconHtml("accion.actualizar", { size: 15 })}
             <span>Reabrir Caso</span>
           </button>
@@ -1307,12 +1308,12 @@ export const SocialKanbanView = {
               <div class="social-request-card-header">
                 <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                   <strong style="font-size: 14.5px; color: var(--text-main); cursor: pointer;"
-                    onclick="window.PDI?.SocialKanbanView?.openDetalleCaso(${escaparEnManejador(claveCaso(caso))})"
+                    ${attrsDe(`window.PDI?.SocialKanbanView?.openDetalleCaso(${escaparEnManejador(claveCaso(caso))})`)}
                     title="Clic para ver expediente completo">
                     ${escapar(caso.usuario)}
                   </strong>
                   <span class="kanban-card-code-link" style="cursor: pointer;"
-                    onclick="window.PDI?.SocialKanbanView?.openDetalleCaso(${escaparEnManejador(claveCaso(caso))})">
+                    ${attrsDe(`window.PDI?.SocialKanbanView?.openDetalleCaso(${escaparEnManejador(claveCaso(caso))})`)}>
                     ${escapar(caso.codigo)}
                   </span>
                   ${marcaEstado(escapar(caso.urgencia || 'Media'), TONO_URGENCIA[caso.urgencia] || 'idle')}
@@ -1352,12 +1353,12 @@ export const SocialKanbanView = {
               <!-- Botones de Acción de Coordinación -->
               <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 6px; padding-top: 8px; border-top: 1px solid var(--border-subtle);">
                 <button type="button" class="btn-action" style="font-size: 12px; padding: 6px 12px;"
-                  onclick="window.PDI?.SocialKanbanView?.openDetalleCaso(${escaparEnManejador(claveCaso(caso))})">
+                  ${attrsDe(`window.PDI?.SocialKanbanView?.openDetalleCaso(${escaparEnManejador(claveCaso(caso))})`)}>
                   ${iconHtml("accion.ver", { size: 13 })}
                   <span>Ver Ficha</span>
                 </button>
                 <button type="button" class="btn-action primary" style="font-size: 12px; padding: 6px 16px; font-weight: 700;"
-                  onclick="window.PDI?.SocialKanbanView?.abrirModalResolverSolicitud(${escaparEnManejador(claveCaso(caso))})">
+                  ${attrsDe(`window.PDI?.SocialKanbanView?.abrirModalResolverSolicitud(${escaparEnManejador(claveCaso(caso))})`)}>
                   ${iconHtml("estado.ok", { size: 14 })}
                   <span>Revisar y Resolver</span>
                 </button>
@@ -1438,11 +1439,11 @@ export const SocialKanbanView = {
               <div class="social-request-card-header">
                 <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                   <strong style="font-size: 14.5px; color: var(--text-main); cursor: pointer;"
-                    onclick="window.PDI?.SocialKanbanView?.openDetalleCaso(${escaparEnManejador(sol.casoId)})">
+                    ${attrsDe(`window.PDI?.SocialKanbanView?.openDetalleCaso(${escaparEnManejador(sol.casoId)})`)}>
                     ${escapar(sol.usuario)}
                   </strong>
                   <span class="kanban-card-code-link" style="cursor: pointer;"
-                    onclick="window.PDI?.SocialKanbanView?.openDetalleCaso(${escaparEnManejador(sol.casoId)})">
+                    ${attrsDe(`window.PDI?.SocialKanbanView?.openDetalleCaso(${escaparEnManejador(sol.casoId)})`)}>
                     ${escapar(sol.codigo)}
                   </span>
                   ${badgeEstado}
@@ -1507,7 +1508,7 @@ export const SocialKanbanView = {
               <!-- Botón rápido para ver caso -->
               <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
                 <button type="button" class="btn-action" style="font-size: 11.5px; padding: 4px 10px;"
-                  onclick="window.PDI?.SocialKanbanView?.openDetalleCaso(${escaparEnManejador(sol.casoId)})">
+                  ${attrsDe(`window.PDI?.SocialKanbanView?.openDetalleCaso(${escaparEnManejador(sol.casoId)})`)}>
                   ${iconHtml("accion.ver", { size: 12 })}
                   <span>Ver Ficha del Caso</span>
                 </button>

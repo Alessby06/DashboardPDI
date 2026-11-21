@@ -1,3 +1,4 @@
+import { attrsDe } from '../core/inlineCall.js';
 
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
 // Vista: Modales (Registro Nuevo Usuario, Informe Ejecutivo, Detalle de Auditoria)
@@ -231,7 +232,7 @@ export const ModalView = {
     if (entityContainer) {
       if (log.entity && log.entity.startsWith("PDI-")) {
         entityContainer.innerHTML = `
-          <button type="button" onclick="window.openExpedienteByCodigo('${escaparEnManejador(log.entity)}')" class="audit-entity-link" title="Abrir expediente del usuario">
+          <button type="button" ${attrsDe(`window.openExpedienteByCodigo('${escaparEnManejador(log.entity)}')`)} class="audit-entity-link" title="Abrir expediente del usuario">
             <code style="font-family:var(--mono-font); font-size:13px; font-weight:700; color:var(--text-brand); text-decoration:underline;">${escapar(log.entity)}</code>
             <span style="font-size:11px; margin-left:4px; color:var(--text-brand); font-weight:600;">(Ver Expediente &rarr;)</span>
           </button>

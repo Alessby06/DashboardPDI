@@ -34,13 +34,13 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
           <h3 id="fichaInscripcionTitulo">Ficha de Inscripción de Usuario</h3>
           <p class="modal-title-desc">Matrícula consolidada. Los campos con asterisco (<span class="req">*</span>) son obligatorios para guardar la ficha.</p>
         </div>
-        <button type="button" class="btn-close-modal" onclick="closeModalNuevoUsuario()" aria-label="Cerrar modal de inscripción">
+        <button type="button" class="btn-close-modal" data-pdi-on="click" data-pdi-h="h001" aria-label="Cerrar modal de inscripción">
           <Icon name="accion.cerrar" size={20} />
         </button>
       </div>
 
       <div class="modal-body">
-        <form id="formNuevoUsuario" onsubmit="guardarNuevoUsuario(event)">
+        <form id="formNuevoUsuario" data-pdi-on="submit" data-pdi-h="h002">
 
           <!-- ========================================================
                SECCIÓN 1: DATOS BIOGRÁFICOS Y DOMICILIO DEL USUARIO
@@ -56,7 +56,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
               <div class="ficha-photo-column">
                 <div class="photo-uploader-box ficha-photo ficha-photo--profile" data-caja-archivo="regFotoUsuarioInput" role="button" tabindex="0"
                   aria-label="Subir foto del usuario"
-                  onclick="document.getElementById('regFotoUsuarioInput').click()"
+                  data-pdi-on="click" data-pdi-h="h003"
                   title="Haga clic para subir foto del usuario">
                   <div id="regFotoUsuarioPreview" class="ficha-photo-preview">
                     <div class="ficha-photo-icon-wrap">
@@ -66,7 +66,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
                     <span class="ficha-photo-hint">Subir imagen</span>
                   </div>
                   <input type="file" id="regFotoUsuarioInput" accept="image/*" style="display:none;"
-                    onchange="handleFotoUpload(this, 'regFotoUsuarioPreview', 'usuario')">
+                    data-pdi-on="change" data-pdi-h="h004">
                 </div>
               </div>
 
@@ -112,7 +112,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
                   <div class="form-group">
                     <label for="regFechaNacimiento">Fecha de Nacimiento <span class="req">*</span></label>
                     <input type="date" id="regFechaNacimiento" name="fecha_nacimiento" autocomplete="bday" class="form-control" required
-                      onchange="calcularEdadAutomatica()">
+                      data-pdi-on="change" data-pdi-h="h005">
                   </div>
                   <div class="form-group">
                     <label for="regEdad">Edad</label>
@@ -133,7 +133,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
                   <label for="regDireccion">Dirección Actual Domiciliaria <span class="req">*</span></label>
                   <input type="text" id="regDireccion" name="direccion" autocomplete="street-address" class="form-control" maxlength="180"
                     placeholder="Ej. Mz. 4W Lt. 30, Comité 12, San Benito" required
-                    oninput="window.handleAddressInputDebounce ? window.handleAddressInputDebounce('reg') : null">
+                    data-pdi-on="input" data-pdi-h="h006">
                 </div>
                 <div class="form-group">
                   <label for="regReferencia">Referencia de Ubicación</label>
@@ -151,7 +151,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
                   </div>
                   <div class="croquis-box-actions">
                     <button type="button" class="btn-action btn-gps-capture"
-                      onclick="window.capturarGpsCampo ? window.capturarGpsCampo('reg') : null"
+                      data-pdi-on="click" data-pdi-h="h007"
                       title="Obtener coordenadas GPS del dispositivo">
                       <Icon name="lugar.gps" size={13} />
                       <span>Usar GPS del dispositivo</span>
@@ -195,7 +195,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
                       </div>
                     </div>
                     <input type="file" id="regFotoFachadaInput" accept="image/*" style="display:none;"
-                      onchange="window.handleFotoUpload ? window.handleFotoUpload(this, 'regFachadaPreview', 'fachada') : null">
+                      data-pdi-on="change" data-pdi-h="h008">
                   </div>
                 </div>
               </div>
@@ -392,7 +392,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
               <div class="ficha-photo-column">
                 <div class="photo-uploader-box ficha-photo ficha-photo--guardian" data-caja-archivo="regFotoApoderadoInput" role="button" tabindex="0"
                   aria-label="Subir foto del apoderado titular"
-                  onclick="document.getElementById('regFotoApoderadoInput').click()"
+                  data-pdi-on="click" data-pdi-h="h009"
                   title="Haga clic para subir foto del apoderado titular">
                   <div id="regFotoApoderadoPreview" class="ficha-photo-preview">
                     <div class="ficha-photo-icon-wrap">
@@ -402,7 +402,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
                     <span class="ficha-photo-hint">Subir imagen</span>
                   </div>
                   <input type="file" id="regFotoApoderadoInput" accept="image/*" style="display:none;"
-                    onchange="handleFotoUpload(this, 'regFotoApoderadoPreview', 'apoderado')">
+                    data-pdi-on="change" data-pdi-h="h010">
                 </div>
               </div>
 
@@ -472,10 +472,10 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
                   </p>
                 </div>
                 <div class="alergia-segmented" role="group" aria-label="Persona que inscribe" style="display: inline-flex; border: 1px solid var(--border-default); border-radius: var(--radius-sm); overflow: hidden; background: var(--surface-2);">
-                  <button type="button" class="alergia-seg-btn is-active" id="btnInscribeMismo" style="padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; background: var(--accent); color: var(--accent-contrast);" onclick="window.cambiarPersonaInscribe ? window.cambiarPersonaInscribe('mismo') : null">
+                  <button type="button" class="alergia-seg-btn is-active" id="btnInscribeMismo" style="padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; background: var(--accent); color: var(--accent-contrast);" data-pdi-on="click" data-pdi-h="h011">
                     Sí, es el apoderado
                   </button>
-                  <button type="button" class="alergia-seg-btn" id="btnInscribeOtro" style="padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: pointer; border: none; background: transparent; color: var(--text-muted);" onclick="window.cambiarPersonaInscribe ? window.cambiarPersonaInscribe('otro') : null">
+                  <button type="button" class="alergia-seg-btn" id="btnInscribeOtro" style="padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: pointer; border: none; background: transparent; color: var(--text-muted);" data-pdi-on="click" data-pdi-h="h012">
                     No, es otra persona
                   </button>
                 </div>
@@ -520,10 +520,10 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
                     <span class="alergia-toggle-sub" style="display: block; font-size: 11.5px; color: var(--text-muted);">Declaración del padre/madre/cuidador según Ficha A2</span>
                   </div>
                   <div class="alergia-segmented" role="group" aria-label="Modalidad de retiro" style="display: inline-flex; border: 1px solid var(--border-default); border-radius: var(--radius-sm); overflow: hidden; background: var(--surface-2);">
-                    <button type="button" class="alergia-seg-btn is-active" id="btnRetiroAcompanado" style="padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; background: var(--accent); color: var(--accent-contrast);" onclick="window.cambiarModalidadRetiro ? window.cambiarModalidadRetiro('acompanado') : null">
+                    <button type="button" class="alergia-seg-btn is-active" id="btnRetiroAcompanado" style="padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; background: var(--accent); color: var(--accent-contrast);" data-pdi-on="click" data-pdi-h="h013">
                       En compañía de adulto
                     </button>
-                    <button type="button" class="alergia-seg-btn" id="btnRetiroSolo" style="padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: pointer; border: none; background: transparent; color: var(--text-muted);" onclick="window.cambiarModalidadRetiro ? window.cambiarModalidadRetiro('solo') : null">
+                    <button type="button" class="alergia-seg-btn" id="btnRetiroSolo" style="padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: pointer; border: none; background: transparent; color: var(--text-muted);" data-pdi-on="click" data-pdi-h="h014">
                       Autorizado a salir solo
                     </button>
                   </div>
@@ -543,7 +543,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
                   <div class="ficha-retiro-title">
                     <span class="ficha-retiro-nombre">Persona Autorizada 1 (Principal)</span>
                     <label class="check-apoderado-label">
-                      <input type="checkbox" id="checkMismoApoderado1" onchange="toggleMismoApoderado(this.checked)"
+                      <input type="checkbox" id="checkMismoApoderado1" data-pdi-on="change" data-pdi-h="h015"
                         style="cursor:pointer;">
                       <span>Copiar datos del Apoderado Titular</span>
                     </label>
@@ -551,7 +551,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
                   <div class="photo-uploader-box ficha-photo ficha-photo--sm" id="boxFotoRetiro1"
                     data-caja-archivo="regFotoRetiro1Input" role="button" tabindex="0"
                     aria-label="Subir foto de la Persona Autorizada 1"
-                    onclick="document.getElementById('regFotoRetiro1Input').click()" title="Haga clic para subir foto">
+                    data-pdi-on="click" data-pdi-h="h016" title="Haga clic para subir foto">
                     <div id="regFotoRetiro1Preview" class="ficha-photo-preview ficha-photo-preview--compact">
                       <div class="ficha-photo-icon-wrap ficha-photo-icon-wrap--sm">
                         <Icon name="accion.foto" size={15} />
@@ -559,7 +559,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
                       <span class="ficha-photo-title">Foto P1</span>
                     </div>
                     <input type="file" id="regFotoRetiro1Input" accept="image/*" style="display:none;"
-                      onchange="handleFotoUpload(this, 'regFotoRetiro1Preview', 'retiro1')">
+                      data-pdi-on="change" data-pdi-h="h017">
                   </div>
                 </div>
 
@@ -616,7 +616,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
                     <div class="photo-uploader-box ficha-photo ficha-photo--sm"
                       data-caja-archivo="regFotoRetiro2Input" role="button" tabindex="0"
                       aria-label="Subir foto de la Persona Autorizada 2"
-                      onclick="document.getElementById('regFotoRetiro2Input').click()" title="Haga clic para subir foto">
+                      data-pdi-on="click" data-pdi-h="h018" title="Haga clic para subir foto">
                       <div id="regFotoRetiro2Preview" class="ficha-photo-preview ficha-photo-preview--compact">
                         <div class="ficha-photo-icon-wrap ficha-photo-icon-wrap--sm">
                           <Icon name="accion.foto" size={15} />
@@ -624,7 +624,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
                         <span class="ficha-photo-title">Foto P2</span>
                       </div>
                       <input type="file" id="regFotoRetiro2Input" accept="image/*" style="display:none;"
-                        onchange="handleFotoUpload(this, 'regFotoRetiro2Preview', 'retiro2')">
+                        data-pdi-on="change" data-pdi-h="h019">
                     </div>
                   </div>
 
@@ -712,9 +712,9 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
                     <span>Subir archivo</span>
                   </label>
                   <input type="file" id="inputUploadFirma" accept="image/*" style="display:none;"
-                    onchange="subirImagenFirma(event)">
+                    data-pdi-on="change" data-pdi-h="h020">
                   <button type="button" class="btn-action btn-clear-signature" id="btnLimpiarFirma"
-                    onclick="clearSignatureCanvas()">
+                    data-pdi-on="click" data-pdi-h="h021">
                     <span>Limpiar</span>
                   </button>
                 </div>
@@ -742,7 +742,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
              cambia con cada tecla y un lector de pantalla no puede leer eso. -->
         <span class="sr-only" id="fichaEstadoAnuncio" role="status" aria-live="polite"></span>
         <div class="ficha-acciones">
-          <button type="button" class="btn-action" onclick="closeModalNuevoUsuario()">Cancelar</button>
+          <button type="button" class="btn-action" data-pdi-on="click" data-pdi-h="h001">Cancelar</button>
           <button type="submit" class="btn-action primary" id="btnGuardarFicha"
             form="formNuevoUsuario" aria-describedby="fichaEstadoDatos" disabled>Guardar Ficha de Inscripción</button>
         </div>
@@ -799,7 +799,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
             </div>
           </div>
         </div>
-        <button type="button" class="btn-close-modal" onclick="closeModalAuditDetail()" aria-label="Cerrar detalle de auditoría">
+        <button type="button" class="btn-close-modal" data-pdi-on="click" data-pdi-h="h022" aria-label="Cerrar detalle de auditoría">
           <Icon name="accion.cerrar" size={20} />
         </button>
       </div>
@@ -863,7 +863,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
           <Icon name="trabajo.maletin" size={12} />
           Información verificada
         </span>
-        <button type="button" class="btn-action" onclick="closeModalAuditDetail()">Cerrar Detalle</button>
+        <button type="button" class="btn-action" data-pdi-on="click" data-pdi-h="h022">Cerrar Detalle</button>
       </div>
     </div>
   </div>
@@ -887,7 +887,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
           </div>
         </div>
         <button type="button" class="btn-close-modal"
-          onclick="window.closeModalExportAudit ? window.closeModalExportAudit() : null"
+          data-pdi-on="click" data-pdi-h="h023"
           aria-label="Cerrar modal de exportación">
           <Icon name="accion.cerrar" size={18} />
         </button>
@@ -928,9 +928,9 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
       <div class="modal-footer"
         style="padding: 14px 20px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: flex-end; gap: 10px; background: var(--surface-1);">
         <button type="button" class="btn-action btn-secondary"
-          onclick="window.closeModalExportAudit ? window.closeModalExportAudit() : null">Cancelar</button>
+          data-pdi-on="click" data-pdi-h="h023">Cancelar</button>
         <button type="button" class="btn-action primary" id="btnConfirmExportAudit"
-          onclick="window.confirmExportAuditCSV ? window.confirmExportAuditCSV() : null">Descargar CSV</button>
+          data-pdi-on="click" data-pdi-h="h024">Descargar CSV</button>
       </div>
     </div>
   </div>
@@ -964,7 +964,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
           </div>
         </div>
         <button type="button" class="btn-close-modal"
-          onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.closeModalDetalleCaso() : null"
+          data-pdi-on="click" data-pdi-h="h025"
           aria-label="Cerrar detalle de caso social">
           <Icon name="accion.cerrar" size={18} />
         </button>
@@ -1046,7 +1046,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
               style="font-size: 11.5px; text-transform: uppercase; font-weight: 700; color: var(--text-dim);">
               Atenciones del caso</div>
             <button type="button" class="btn-action btn-secondary" style="height:30px; padding:0 10px; font-size:11.5px;"
-              onclick="window.PDI?.DerivacionView?.abrirAtencion(window.PDI?.SocialKanbanView?._activeCaso)">
+              data-pdi-on="click" data-pdi-h="h026">
               <Icon name="accion.editar" size={13} />
               <span>Registrar atención</span>
             </button>
@@ -1077,17 +1077,17 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
       <div class="modal-footer modal-caso-footer">
         <div class="modal-caso-footer-left">
           <button type="button" class="btn-action btn-secondary" id="btnModalCasoExpediente"
-            onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.openExpedienteFromModal() : null">
+            data-pdi-on="click" data-pdi-h="h027">
             <Icon name="persona.grupo" size={15} />
             <span>Ver en Padrón</span>
           </button>
           <button type="button" class="btn-action btn-secondary" id="btnModalCasoEvaluacion"
-            onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.abrirEvaluacionCaso() : null">
+            data-pdi-on="click" data-pdi-h="h028">
             <Icon name="grafico.torta" size={15} />
             <span>Evaluación</span>
           </button>
           <button type="button" class="btn-action btn-secondary" id="btnModalCasoImprimir"
-            onclick="window.PDI?.DerivacionView ? window.PDI.DerivacionView.imprimir(window.PDI?.SocialKanbanView?._activeCaso) : null">
+            data-pdi-on="click" data-pdi-h="h029">
             <Icon name="accion.descargar" size={15} />
             <span>Imprimir ficha</span>
           </button>
@@ -1124,7 +1124,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
           </div>
         </div>
         <button type="button" class="btn-close-modal"
-          onclick="window.PDI?.SaludCredView ? window.PDI.SaludCredView.closeModalHistorialTamizaje() : (window.closeHistorialTamizaje ? window.closeHistorialTamizaje() : null)"
+          data-pdi-on="click" data-pdi-h="h030"
           aria-label="Cerrar historial de tamizajes">
           <Icon name="accion.cerrar" size={18} />
         </button>
@@ -1154,7 +1154,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
               <label for="nuevaPruebaHb">Hemoglobina (g/dL) <span class="req">*</span></label>
               <input type="number" step="0.1" min="3" max="20" inputmode="decimal" class="form-control" id="nuevaPruebaHb"
                 placeholder="Ej. 10.4"
-                oninput="window.actualizarPreviewNuevaPrueba ? window.actualizarPreviewNuevaPrueba() : null" />
+                data-pdi-on="input" data-pdi-h="h031" />
               <small class="form-help">Valor válido: de 3.0 a 20.0 g/dL.</small>
             </div>
             <div class="form-group" style="margin: 0;">
@@ -1181,9 +1181,9 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
           </div>
           <div style="display: flex; justify-content: flex-end; gap: 10px;">
             <button type="button" class="btn-action btn-secondary"
-              onclick="window.ocultarFormularioNuevaPrueba ? window.ocultarFormularioNuevaPrueba() : null">Cancelar</button>
+              data-pdi-on="click" data-pdi-h="h032">Cancelar</button>
             <button type="button" class="btn-action primary"
-              onclick="window.guardarNuevaPrueba ? window.guardarNuevaPrueba() : null">
+              data-pdi-on="click" data-pdi-h="h033">
               <Icon name="accion.agregar" size={15} />
               Registrar dosaje
             </button>
@@ -1195,18 +1195,18 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
         style="padding: 14px 20px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; gap: 10px; background: var(--surface-1);">
         <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
           <button type="button" class="btn-action primary"
-            onclick="window.mostrarFormularioNuevaPrueba ? window.mostrarFormularioNuevaPrueba() : null">
+            data-pdi-on="click" data-pdi-h="h034">
             <Icon name="accion.agregar" size={15} />
             Añadir prueba
           </button>
           <button type="button" class="btn-action btn-secondary"
-            onclick="window.exportarHistorialCsv ? window.exportarHistorialCsv() : null">
+            data-pdi-on="click" data-pdi-h="h035">
             <Icon name="accion.descargar" size={15} />
             Exportar CSV
           </button>
         </div>
         <button type="button" class="btn-action btn-secondary"
-          onclick="window.PDI?.SaludCredView ? window.PDI.SaludCredView.closeModalHistorialTamizaje() : (window.closeHistorialTamizaje ? window.closeHistorialTamizaje() : null)">Cerrar</button>
+          data-pdi-on="click" data-pdi-h="h030">Cerrar</button>
       </div>
     </div>
   </div>
@@ -1233,7 +1233,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
           </div>
         </div>
         <button type="button" class="btn-close-modal"
-          onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.cerrarModalSolicitarCambio() : null"
+          data-pdi-on="click" data-pdi-h="h036"
           aria-label="Cerrar modal">
           <Icon name="accion.cerrar" size={18} />
         </button>
@@ -1279,11 +1279,11 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
 
       <div class="modal-footer modal-footer-end modal-footer-responsive">
         <button type="button" class="btn-action btn-secondary"
-          onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.cerrarModalSolicitarCambio() : null">
+          data-pdi-on="click" data-pdi-h="h036">
           Cancelar
         </button>
         <button type="button" class="btn-action primary"
-          onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.confirmarSolicitudCambio() : null">
+          data-pdi-on="click" data-pdi-h="h037">
           <Icon name="comunicacion.enviar" size={15} />
           <span>Enviar Solicitud a Coordinación</span>
         </button>
@@ -1313,7 +1313,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
           </div>
         </div>
         <button type="button" class="btn-close-modal"
-          onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.cerrarModalResolverSolicitud() : null"
+          data-pdi-on="click" data-pdi-h="h038"
           aria-label="Cerrar modal">
           <Icon name="accion.cerrar" size={18} />
         </button>
@@ -1373,17 +1373,17 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
 
       <div class="modal-footer modal-footer-split modal-footer-responsive">
         <button type="button" class="btn-action btn-secondary"
-          onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.cerrarModalResolverSolicitud() : null">
+          data-pdi-on="click" data-pdi-h="h038">
           Cancelar
         </button>
         <div class="modal-footer-acciones">
           <button type="button" class="btn-action btn-danger"
-            onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.ejecutarResolucion('rechazada') : null">
+            data-pdi-on="click" data-pdi-h="h039">
             <Icon name="accion.cerrar" size={15} />
             <span>Rechazar Solicitud</span>
           </button>
           <button type="button" class="btn-action success modal-footer-principal"
-            onclick="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.ejecutarResolucion('aprobada') : null">
+            data-pdi-on="click" data-pdi-h="h040">
             <Icon name="accion.confirmar" size={15} />
             <span>Aprobar y Cambiar Fase</span>
           </button>
@@ -1412,12 +1412,12 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
             </p>
           </div>
         </div>
-        <button type="button" class="btn-close-modal" onclick="window.closeModalInscripcionVoluntario ? window.closeModalInscripcionVoluntario() : null" aria-label="Cerrar ficha de inscripción de voluntario">
+        <button type="button" class="btn-close-modal" data-pdi-on="click" data-pdi-h="h041" aria-label="Cerrar ficha de inscripción de voluntario">
           <Icon name="accion.cerrar" size={18} />
         </button>
       </div>
 
-      <form id="formInscripcionVoluntario" onsubmit="window.saveInscripcionVoluntario ? window.saveInscripcionVoluntario(event) : null">
+      <form id="formInscripcionVoluntario" data-pdi-on="submit" data-pdi-h="h042">
         <div class="modal-body" style="padding: 20px; display: flex; flex-direction: column; gap: 16px;">
           <!-- Sección 1: Datos Personales -->
           <div style="background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px;">
@@ -1460,7 +1460,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px;">
               <div>
                 <label for="volSelectDistrito" style="display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">Distrito de Intervención</label>
-                <select id="volSelectDistrito" aria-label="Distrito de Intervención" onchange="window.PDI && window.PDI.VoluntariadosView ? window.PDI.VoluntariadosView.handleDistritoChange(this.value) : null" style="width: 100%; height: 36px; padding: 0 10px; background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); color: var(--text-main); font-size: 13px;">
+                <select id="volSelectDistrito" aria-label="Distrito de Intervención" data-pdi-on="change" data-pdi-h="h043" style="width: 100%; height: 36px; padding: 0 10px; background: var(--surface-2); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); color: var(--text-main); font-size: 13px;">
                   {Object.keys(SEDES_POR_DISTRITO).map((distrito) => (
                     <option value={distrito}>{distrito}</option>
                   ))}
@@ -1529,7 +1529,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
         </div>
 
         <div class="modal-footer" style="padding: 14px 20px; background: var(--surface-1); display: flex; justify-content: flex-end; gap: 10px;">
-          <button type="button" class="btn-action btn-secondary" onclick="window.closeModalInscripcionVoluntario ? window.closeModalInscripcionVoluntario() : null">
+          <button type="button" class="btn-action btn-secondary" data-pdi-on="click" data-pdi-h="h041">
             Cancelar
           </button>
           <button type="submit" class="btn-action primary">
@@ -1567,7 +1567,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
             </p>
           </div>
         </div>
-        <button type="button" class="btn-close-modal" onclick="window.closeModalFichaVoluntario ? window.closeModalFichaVoluntario() : null" aria-label="Cerrar ficha de voluntario">
+        <button type="button" class="btn-close-modal" data-pdi-on="click" data-pdi-h="h044" aria-label="Cerrar ficha de voluntario">
           <Icon name="accion.cerrar" size={18} />
         </button>
       </div>
@@ -1639,7 +1639,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
           </button>
         </div>
         <div class="modal-caso-footer-right">
-          <button type="button" class="btn-action btn-secondary" onclick="window.closeModalFichaVoluntario ? window.closeModalFichaVoluntario() : null">
+          <button type="button" class="btn-action btn-secondary" data-pdi-on="click" data-pdi-h="h044">
             Cerrar
           </button>
           <button type="button" class="btn-action primary" id="btnFichaVolEditar">
@@ -1671,7 +1671,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
             </p>
           </div>
         </div>
-        <button type="button" class="btn-close-modal" onclick="window.closeModalCapacitacionVoluntarias ? window.closeModalCapacitacionVoluntarias() : null" aria-label="Cerrar modal de capacitación">
+        <button type="button" class="btn-close-modal" data-pdi-on="click" data-pdi-h="h045" aria-label="Cerrar modal de capacitación">
           <Icon name="accion.cerrar" size={18} />
         </button>
       </div>
@@ -1695,10 +1695,10 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
       </div>
 
       <div class="modal-footer" style="padding: 14px 20px; background: var(--surface-1); display: flex; justify-content: flex-end; gap: 10px;">
-        <button type="button" class="btn-action btn-secondary" onclick="window.closeModalCapacitacionVoluntarias ? window.closeModalCapacitacionVoluntarias() : null">
+        <button type="button" class="btn-action btn-secondary" data-pdi-on="click" data-pdi-h="h045">
           Cancelar
         </button>
-        <button type="button" class="btn-action primary" id="btnGuardarCapacitacion" onclick="window.saveCapacitacionVoluntaria ? window.saveCapacitacionVoluntaria() : null">
+        <button type="button" class="btn-action primary" id="btnGuardarCapacitacion" data-pdi-on="click" data-pdi-h="h046">
           <Icon name="accion.confirmar" size={15} />
           <span>Registrar Asistencia</span>
         </button>

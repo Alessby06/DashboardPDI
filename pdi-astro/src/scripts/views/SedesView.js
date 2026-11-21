@@ -1,3 +1,4 @@
+import { attrsDe } from '../core/inlineCall.js';
 // Vista: Directorio Territorial de Sedes, Iglesias y Redes Aliadas
 import { SedeModel } from '../models/SedeModel.js';
 import { AnimationEngine } from '../utils/AnimationEngine.js';
@@ -311,7 +312,7 @@ export const SedesView = {
       chipsHTML.push(`
         <span class="padron-chip">
           <span>Distrito: ${escapar(this._filterDistrito)}</span>
-          <button type="button" class="padron-chip-remove" onclick="window.PDI?.SedesView?.removeFilterChip('distrito')" title="Eliminar filtro">
+          <button type="button" class="padron-chip-remove" ${attrsDe(`window.PDI?.SedesView?.removeFilterChip('distrito')`)} title="Eliminar filtro">
             ${iconHtml("accion.cerrar", { size: 10 })}
           </button>
         </span>
@@ -324,7 +325,7 @@ export const SedesView = {
       chipsHTML.push(`
         <span class="padron-chip">
           <span>Servicio: ${escapar(programa ? programa.etiqueta : this._filterServicio)}</span>
-          <button type="button" class="padron-chip-remove" onclick="window.PDI?.SedesView?.removeFilterChip('servicio')" title="Eliminar filtro">
+          <button type="button" class="padron-chip-remove" ${attrsDe(`window.PDI?.SedesView?.removeFilterChip('servicio')`)} title="Eliminar filtro">
             ${iconHtml("accion.cerrar", { size: 10 })}
           </button>
         </span>
@@ -686,7 +687,7 @@ export const SedesView = {
       else if (pct >= 80) aforoColor = "var(--gt-yellow)";
 
       return `
-        <div class="sedes-master-item ${isSelected ? 'active' : ''}" data-sede-id="${escapar(s.id)}" role="button" tabindex="0" aria-current="${isSelected ? 'true' : 'false'}" onclick="window.PDI?.SedesView?.selectSede('${escaparEnManejador(s.id)}')" onkeydown="var k=(event.key||'');if(k==='Enter'||k===' '){event.preventDefault();window.PDI?.SedesView?.selectSede('${escaparEnManejador(s.id)}')}">
+        <div class="sedes-master-item ${isSelected ? 'active' : ''}" data-sede-id="${escapar(s.id)}" role="button" tabindex="0" aria-current="${isSelected ? 'true' : 'false'}" ${attrsDe(`window.PDI?.SedesView?.selectSede('${escaparEnManejador(s.id)}')`)} onkeydown="var k=(event.key||'');if(k==='Enter'||k===' '){event.preventDefault();window.PDI?.SedesView?.selectSede('${escaparEnManejador(s.id)}')}">
           <div class="sedes-master-item-top">
             <span class="sedes-master-item-distrito">${escapar(s.distrito)}</span>
             <span class="sedes-master-item-aforo"><i style="background:${aforoColor};"></i>${pct}%</span>
@@ -775,7 +776,7 @@ export const SedesView = {
           <span class="sedes-sheet-pill"></span>
         </div>
         <button type="button" class="sedes-sheet-close"
-          onclick="window.PDI?.SedesView?.cerrarDetalleMovil()"
+          ${attrsDe(`window.PDI?.SedesView?.cerrarDetalleMovil()`)}
           aria-label="Cerrar ficha de sede" title="Cerrar ficha de sede">
           ${iconHtml("accion.cerrar", { size: 16 })}
         </button>
@@ -801,7 +802,7 @@ export const SedesView = {
               ${iconHtml("nav.voluntarios", { size: 14 })}
               <span>Equipo Territorial</span>
             </a>
-            <button type="button" class="btn-action primary" onclick="window.filterPadronBySede ? window.filterPadronBySede('${escaparEnManejador(sede.nombre)}') : null">
+            <button type="button" class="btn-action primary" ${attrsDe(`window.filterPadronBySede ? window.filterPadronBySede('${escaparEnManejador(sede.nombre)}') : null`)}>
               ${iconHtml("persona.grupo", { size: 14 })}
               <span>Ver Usuarios</span>
             </button>

@@ -236,13 +236,13 @@ import Icon from '../components/Icon.astro';
       <!-- Navegación secuencial entre usuarios (agrupada para móvil y desktop) -->
       <div class="expediente-nav-group-paging">
         <button type="button" class="btn-action btn-secondary btn-icon-mobile" id="expPrevBtn"
-          onclick="window.desplazarExpediente ? window.desplazarExpediente(-1) : null"
+          data-pdi-on="click" data-pdi-h="h094"
           title="Expediente anterior" aria-label="Expediente anterior">
           <Icon name="accion.volver" size={15} />
           <span class="btn-text-responsive">Anterior</span>
         </button>
         <button type="button" class="btn-action btn-secondary btn-icon-mobile" id="expNextBtn"
-          onclick="window.desplazarExpediente ? window.desplazarExpediente(1) : null"
+          data-pdi-on="click" data-pdi-h="h095"
           title="Expediente siguiente" aria-label="Expediente siguiente">
           <span class="btn-text-responsive">Siguiente</span>
           <Icon name="accion.abrir" size={15} />
@@ -252,12 +252,12 @@ import Icon from '../components/Icon.astro';
       <!-- Acciones del expediente (imprimir y retorno al padrón) -->
       <div class="expediente-nav-group-actions">
         <button type="button" class="btn-action btn-secondary btn-icon-mobile" id="expPrintFichaA1Btn"
-          onclick="window.abrirModalFichaA1 ? window.abrirModalFichaA1() : null" title="Ver e imprimir Ficha Oficial A1 (2026)" aria-label="Ficha A1 Oficial">
+          data-pdi-on="click" data-pdi-h="h096" title="Ver e imprimir Ficha Oficial A1 (2026)" aria-label="Ficha A1 Oficial">
           <Icon name="archivo.documento" size={15} />
           <span class="btn-text-responsive">Ficha A1</span>
         </button>
         <button type="button" class="btn-action btn-secondary btn-icon-mobile" id="expPrintBtn"
-          onclick="window.print()" title="Imprimir el expediente completo" aria-label="Imprimir expediente">
+          data-pdi-on="click" data-pdi-h="h097" title="Imprimir el expediente completo" aria-label="Imprimir expediente">
           <Icon name="accion.imprimir" size={15} />
           <span class="btn-text-responsive">Imprimir</span>
         </button>
@@ -368,7 +368,7 @@ import Icon from '../components/Icon.astro';
             <div style="border-top:1px dashed var(--border-subtle); width:100%; padding-top:8px; margin-top:4px;">
               <div class="exp-foto-acciones">
                 <button type="button" class="btn-action"
-                  onclick="window.verFotoExpediente ? window.verFotoExpediente() : null"
+                  data-pdi-on="click" data-pdi-h="h098"
                   style="font-size:11px; padding:5px 8px; width:100%; justify-content:center; cursor:pointer;"
                   title="Ver la fotografia del usuario en una ventana grande">
                   <Icon name="accion.ver" size={13} />
@@ -381,7 +381,7 @@ import Icon from '../components/Icon.astro';
                   <span>Actualizar Foto</span>
                 </label>
                 <button type="button" class="btn-action"
-                  onclick="window.eliminarFotoExpediente ? window.eliminarFotoExpediente() : null"
+                  data-pdi-on="click" data-pdi-h="h099"
                   style="font-size:11px; padding:5px 8px; width:100%; justify-content:center; cursor:pointer; color:var(--text-danger);"
                   title="Eliminar la fotografia registrada de este usuario">
                   <Icon name="accion.eliminar" size={13} />
@@ -430,7 +430,7 @@ import Icon from '../components/Icon.astro';
               <div class="form-group" style="grid-column: span 2;">
                 <label>Dirección Actual Domiciliaria:</label>
                 <input type="text" class="form-control" id="expDireccion" aria-label="Dirección actual domiciliaria" readonly maxlength="180"
-                  oninput="window.handleAddressInputDebounce ? window.handleAddressInputDebounce('exp') : null">
+                  data-pdi-on="input" data-pdi-h="h100">
               </div>
               <div class="form-group">
                 <label>Referencia de Ubicación:</label>
@@ -798,7 +798,7 @@ import Icon from '../components/Icon.astro';
                 Seguimiento socio-educativo individualizado registrado por el equipo pastoral en campo.
               </p>
             </div>
-            <button type="button" class="btn-action btn-secondary" id="btnExpRegistrarAtencion" onclick="window.abrirRegistroAtencionExpediente ? window.abrirRegistroAtencionExpediente() : null">
+            <button type="button" class="btn-action btn-secondary" id="btnExpRegistrarAtencion" data-pdi-on="click" data-pdi-h="h101">
               <Icon name="persona.agregar" size={14} />
               <span>Nueva Atención / Visita</span>
             </button>
@@ -818,12 +818,12 @@ import Icon from '../components/Icon.astro';
     <div>
       <!-- Botón Eliminar: solo visible y permitido para Coordinador General o Admin TI -->
       <button type="button" class="btn-action danger" id="btnDeleteBeneficiario"
-        onclick="deleteBeneficiarioExpediente()" title="Desactivar al usuario; dejará de aparecer en el padrón (Solo Dirección / Admin)">
+        data-pdi-on="click" data-pdi-h="h102" title="Desactivar al usuario; dejará de aparecer en el padrón (Solo Dirección / Admin)">
         <Icon name="accion.desactivar" size={15} />
         <span>Desactivar usuario</span>
       </button>
       <button type="button" class="btn-action" id="btnReactivarBeneficiario" style="display: none;"
-        onclick="reactivarBeneficiarioExpediente()" title="Devolver al usuario al padrón (Solo Dirección / Admin)">
+        data-pdi-on="click" data-pdi-h="h103" title="Devolver al usuario al padrón (Solo Dirección / Admin)">
         <Icon name="accion.reactivar" size={15} />
         <span>Reactivar usuario</span>
       </button>
@@ -831,14 +831,14 @@ import Icon from '../components/Icon.astro';
 
     <div style="display: flex; gap: 10px; align-items: center;">
       <!-- Botón Editar Datos -->
-      <button type="button" class="btn-action" id="btnToggleEditExp" onclick="toggleEditExpediente()">
+      <button type="button" class="btn-action" id="btnToggleEditExp" data-pdi-on="click" data-pdi-h="h104">
         <Icon name="accion.editar" size={15} />
         <span>Editar Datos</span>
       </button>
 
       <!-- Botón Guardar Cambios -->
       <button type="button" class="btn-action primary" id="btnSaveExpChanges" style="display: none;"
-        onclick="saveExpedienteChanges()">
+        data-pdi-on="click" data-pdi-h="h105">
         <Icon name="accion.confirmar" size={15} />
         <span>Guardar Cambios</span>
       </button>

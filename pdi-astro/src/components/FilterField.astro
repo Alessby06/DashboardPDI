@@ -1,4 +1,6 @@
 ---
+import { parsearLlamada } from '../scripts/core/inlineCall.js';
+
 // ===========================================================================
 //  CAMPO DE FILTRO (faceta estándar)
 // ===========================================================================
@@ -98,6 +100,9 @@ function alSeleccionar(valor: string, etiqueta: string): string {
   return `${onSelect}(${args})`;
 }
 
+const llamadaAbrir = parsearLlamada(abrirAttr);
+const llamadaDe = (valor: string, etiqueta: string) => parsearLlamada(alSeleccionar(valor, etiqueta));
+
 const contadorDe = (opcion: Opcion) =>
   countPrefix && opcion.contador !== false ? `${countPrefix}-${opcion.valor}` : null;
 ---
@@ -105,7 +110,9 @@ const contadorDe = (opcion: Opcion) =>
 <div class="audit-filter-field">
   <label class="audit-field-label">{label}</label>
   <div class="padron-inner-dropdown" id={id}>
-    <button type="button" class="padron-inner-dropdown-btn" onclick={abrirAttr}>
+    <button type="button" class="padron-inner-dropdown-btn"
+      data-pdi-call={llamadaAbrir?.nombre}
+      data-pdi-args={JSON.stringify(llamadaAbrir?.args ?? [])}>
       <span id={labelId}>{labelTodos}</span>
       <Icon name="nav.desplegar" size={null} class="caret" />
     </button>
@@ -115,7 +122,8 @@ const contadorDe = (opcion: Opcion) =>
         <div
           class="padron-dropdown-item selected"
           data-value={todosValor}
-          onclick={alSeleccionar(todosValor, todosEtiqueta)}
+          data-pdi-call={llamadaDe(todosValor, todosEtiqueta)?.nombre}
+          data-pdi-args={JSON.stringify(llamadaDe(todosValor, todosEtiqueta)?.args ?? [])}
         >
           <div class="padron-item-left">
             {tipo === 'multi' ? (
@@ -138,7 +146,8 @@ const contadorDe = (opcion: Opcion) =>
             <div
               class="padron-dropdown-item"
               data-value={opcion.valor}
-              onclick={alSeleccionar(opcion.valor, opcion.etiqueta ?? opcion.valor)}
+              data-pdi-call={llamadaDe(opcion.valor, opcion.etiqueta ?? opcion.valor)?.nombre}
+              data-pdi-args={JSON.stringify(llamadaDe(opcion.valor, opcion.etiqueta ?? opcion.valor)?.args ?? [])}
             >
               <div class="padron-item-left">
                 {tipo === 'multi' ? (

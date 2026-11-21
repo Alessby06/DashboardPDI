@@ -1,3 +1,4 @@
+import { attrsDe } from '../core/inlineCall.js';
 // Vista: Padrón y Directorio de Colaboradores e Instituciones Aliadas (PDI)
 // Asociación Cultural y Educativa Johannes Gutenberg - Lima Norte
 
@@ -244,7 +245,7 @@ export const ColaboradoresView = {
     list.innerHTML = chips.map(c => `
       <span class="padron-filter-chip">
         <span>${escapar(c.label)}</span>
-        <button type="button" class="padron-chip-remove" onclick="window.removeColabFilterChip('${c.tipo}')" title="Quitar filtro">×</button>
+        <button type="button" class="padron-chip-remove" ${attrsDe(`window.removeColabFilterChip('${c.tipo}')`)} title="Quitar filtro">×</button>
       </span>
     `).join('');
   },
@@ -343,10 +344,10 @@ export const ColaboradoresView = {
           </td>
           <td style="text-align: right;">
             <div style="display: inline-flex; align-items: center; gap: 6px;">
-              <button type="button" class="btn-action-icon" onclick="window.editarColaborador('${escapar(c.id)}')" title="Editar ficha del colaborador">
+              <button type="button" class="btn-action-icon" ${attrsDe(`window.editarColaborador('${escapar(c.id)}')`)} title="Editar ficha del colaborador">
                 ✏️
               </button>
-              <button type="button" class="btn-action-icon text-danger" onclick="window.eliminarColaborador('${escapar(c.id)}')" title="Eliminar del directorio">
+              <button type="button" class="btn-action-icon text-danger" ${attrsDe(`window.eliminarColaborador('${escapar(c.id)}')`)} title="Eliminar del directorio">
                 🗑️
               </button>
             </div>
@@ -418,7 +419,7 @@ export const ColaboradoresView = {
                 💬 WhatsApp
               </a>
             ` : ''}
-            <button type="button" class="btn-mobile-touch btn-mobile-edit" onclick="window.editarColaborador('${escapar(c.id)}')">
+            <button type="button" class="btn-mobile-touch btn-mobile-edit" ${attrsDe(`window.editarColaborador('${escapar(c.id)}')`)}>
               ✏️ Ficha
             </button>
           </div>

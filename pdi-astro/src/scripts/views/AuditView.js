@@ -1,3 +1,4 @@
+import { attrsDe } from '../core/inlineCall.js';
 import { crear as crearFiltros } from '../utils/Filters.js';
 import { crearStore } from '../utils/FilterStore.js';
 import { Dropdown } from '../utils/Dropdown.js';
@@ -749,7 +750,7 @@ export const AuditView = {
       list.innerHTML = chips.map(chip => `
         <span class="padron-chip">
           <span>${escapar(chip.label)}</span>
-          <button type="button" class="padron-chip-remove" onclick="window.removeAuditChip ? window.removeAuditChip('${escaparEnManejador(chip.id)}', '${escaparEnManejador(chip.val || '')}') : null" title="Eliminar filtro">
+          <button type="button" class="padron-chip-remove" ${attrsDe(`window.removeAuditChip ? window.removeAuditChip('${escaparEnManejador(chip.id)}', '${escaparEnManejador(chip.val || '')}') : null`)} title="Eliminar filtro">
             ${iconHtml("accion.cerrar", { size: 10 })}
           </button>
         </span>
@@ -897,7 +898,7 @@ export const AuditView = {
             <tr class="audit-row-interactive" id="audit-row-${escapar(logIdStr)}"
               tabindex="0" role="button" aria-expanded="false"
               aria-describedby="auditRowHint"
-              onclick="window.PDI?.AuditView?.toggleAuditRow('${escaparEnManejador(logIdStr)}')"
+              ${attrsDe(`window.PDI?.AuditView?.toggleAuditRow('${escaparEnManejador(logIdStr)}')`)}
               onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.PDI?.AuditView?.toggleAuditRow('${escaparEnManejador(logIdStr)}'); }">
               <td>${getSeveridadBadge(l.severidad, l.status)}</td>
               <td>
@@ -921,7 +922,7 @@ export const AuditView = {
               <td style="text-align:center;">
                 <button type="button" class="audit-row-toggle-btn" id="btn-toggle-${escapar(logIdStr)}"
                   aria-expanded="false" aria-label="Expandir detalles" title="Expandir detalles"
-                  onclick="event.stopPropagation(); window.PDI?.AuditView?.toggleAuditRow('${escaparEnManejador(logIdStr)}')">
+                  ${attrsDe(`event.stopPropagation(); window.PDI?.AuditView?.toggleAuditRow('${escaparEnManejador(logIdStr)}')`)}>
                   ${iconHtml("nav.desplegar", { size: 14 })}
                 </button>
               </td>
@@ -935,13 +936,13 @@ export const AuditView = {
                       <span class="audit-meta-chip">Entidad: <code>${escapar(l.entity || 'N/A')}</code></span>
                       ${l.submodulo ? `<span class="audit-meta-chip">Área: <strong>${escapar(l.submodulo)}</strong></span>` : ''}
                       ${isUsuario ? `
-                        <button type="button" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(l.entity)}')" class="audit-entity-link">
+                        <button type="button" ${attrsDe(`event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(l.entity)}')`)} class="audit-entity-link">
                           Abrir Expediente →
                         </button>
                       ` : ''}
                     </div>
                     <div class="audit-expanded-actions">
-                      <button type="button" class="btn-action btn-action-sm secondary" onclick="event.stopPropagation(); window.openAuditDetail ? window.openAuditDetail('${escaparEnManejador(logIdStr)}') : null">
+                      <button type="button" class="btn-action btn-action-sm secondary" ${attrsDe(`event.stopPropagation(); window.openAuditDetail ? window.openAuditDetail('${escaparEnManejador(logIdStr)}') : null`)}>
                         ${iconHtml("accion.ver", { size: 13, style: "margin-right:4px;" })} Ver Ficha
                       </button>
                     </div>
@@ -966,7 +967,7 @@ export const AuditView = {
         mobileContainer.innerHTML = logs.map((l, index) => {
           const isUsuario = (l.entity && l.entity.startsWith("PDI-"));
           const entityHtml = isUsuario 
-            ? `<button type="button" onclick="event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(l.entity)}')" class="audit-entity-link audit-entity-link--usuario" title="Abrir expediente del usuario"><code class="audit-entity-code audit-entity-code--usuario">${escapar(l.entity)}</code></button>`
+            ? `<button type="button" ${attrsDe(`event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(l.entity)}')`)} class="audit-entity-link audit-entity-link--usuario" title="Abrir expediente del usuario"><code class="audit-entity-code audit-entity-code--usuario">${escapar(l.entity)}</code></button>`
             : `<code class="audit-entity-code" title="${escapar(l.entity)}">${escapar(l.entity)}</code>`;
 
           const logIdStr = l.id || "";
@@ -1017,14 +1018,14 @@ export const AuditView = {
                     ${renderDiffTable(l.diff)}
                   </div>
                   <div class="datacard-actions-footer" style="margin-top:12px;">
-                    <button type="button" class="btn-action secondary" style="width:100%; justify-content:center;" onclick="event.stopPropagation(); window.openAuditDetail ? window.openAuditDetail('${escaparEnManejador(logIdStr)}') : null">
+                    <button type="button" class="btn-action secondary" style="width:100%; justify-content:center;" ${attrsDe(`event.stopPropagation(); window.openAuditDetail ? window.openAuditDetail('${escaparEnManejador(logIdStr)}') : null`)}>
                       ${iconHtml("accion.ver", { size: 14, style: "margin-right:6px;" })}
                       Ver Ficha Completa de Auditoría
                     </button>
                   </div>
                 </div>
 
-                <button type="button" class="datacard-toggle-btn" id="btnToggleAudit-${index}" onclick="window.PDI?.AuditView?.toggleAuditCard(${escaparEnManejador(index)})">
+                <button type="button" class="datacard-toggle-btn" id="btnToggleAudit-${index}" ${attrsDe(`window.PDI?.AuditView?.toggleAuditCard(${escaparEnManejador(index)})`)}>
                   <span class="btn-text">Ver más</span>
                   ${iconHtml("nav.desplegar", { size: null })}
                 </button>

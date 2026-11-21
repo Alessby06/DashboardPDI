@@ -1,3 +1,4 @@
+import { attrsDe } from '../core/inlineCall.js';
 // Vista: Módulo de Salud y Nutrición CRED
 import { crear as crearFiltros } from '../utils/Filters.js';
 import { crearStore } from '../utils/FilterStore.js';
@@ -556,7 +557,7 @@ export const SaludCredView = {
       list.innerHTML = chips.map(chip => `
         <span class="padron-chip">
           <span>${escapar(chip.label)}</span>
-          <button type="button" class="padron-chip-remove" onclick="window.removeSaludChip ? window.removeSaludChip('${escaparEnManejador(chip.id)}', '${escaparEnManejador(chip.val || '')}') : null" title="Eliminar filtro">
+          <button type="button" class="padron-chip-remove" ${attrsDe(`window.removeSaludChip ? window.removeSaludChip('${escaparEnManejador(chip.id)}', '${escaparEnManejador(chip.val || '')}') : null`)} title="Eliminar filtro">
             ${iconHtml("accion.cerrar", { size: 10 })}
           </button>
         </span>
@@ -668,13 +669,13 @@ export const SaludCredView = {
             <td><div class="padron-location-sub">${b.anemia !== "Normal" ? "Sulfato Ferroso 1 dosis/día" : "Dieta Preventiva"}</div></td>
             <td>
               <div class="row-actions">
-                <button type="button" class="row-action" onclick="window.registrarDosaje ? window.registrarDosaje(${escaparEnManejador(b.id)}) : null" title="Registrar dosaje" aria-label="Registrar un dosaje de hemoglobina">
+                <button type="button" class="row-action" ${attrsDe(`window.registrarDosaje ? window.registrarDosaje(${escaparEnManejador(b.id)}) : null`)} title="Registrar dosaje" aria-label="Registrar un dosaje de hemoglobina">
                   ${iconHtml("accion.agregar", { size: 15 })}
                 </button>
-                <button type="button" class="row-action" onclick="window.openHistorialTamizaje ? window.openHistorialTamizaje(${escaparEnManejador(b.id)}) : window.openExpediente(${escaparEnManejador(b.id)})" title="Historial de tamizajes de hemoglobina" aria-label="Ver historial de tamizajes de hemoglobina">
+                <button type="button" class="row-action" ${attrsDe(`window.openHistorialTamizaje ? window.openHistorialTamizaje(${escaparEnManejador(b.id)}) : window.openExpediente(${escaparEnManejador(b.id)})`)} title="Historial de tamizajes de hemoglobina" aria-label="Ver historial de tamizajes de hemoglobina">
                   ${iconHtml("accion.ver", { size: 15 })}
                 </button>
-                <button type="button" class="row-action" onclick="window.openExpediente(${escaparEnManejador(b.id)})" title="Abrir expediente integral" aria-label="Abrir expediente integral">
+                <button type="button" class="row-action" ${attrsDe(`window.openExpediente(${escaparEnManejador(b.id)})`)} title="Abrir expediente integral" aria-label="Abrir expediente integral">
                   ${iconHtml("archivo.documento", { size: 15 })}
                 </button>
               </div>
@@ -744,11 +745,11 @@ export const SaludCredView = {
                   <span class="datacard-value">${nTamizajes} prueba${nTamizajes === 1 ? "" : "s"} · ${ultimaTxt}</span>
                 </div>
                 <div class="datacard-actions-footer">
-                  <button type="button" class="btn-action primary" style="width:100%; justify-content:center; margin-bottom:6px;" onclick="event.stopPropagation(); window.registrarDosaje ? window.registrarDosaje(${escaparEnManejador(b.id)}) : null">
+                  <button type="button" class="btn-action primary" style="width:100%; justify-content:center; margin-bottom:6px;" ${attrsDe(`event.stopPropagation(); window.registrarDosaje ? window.registrarDosaje(${escaparEnManejador(b.id)}) : null`)}>
                     ${iconHtml("accion.agregar", { size: 15, style: "margin-right:6px;" })}
                     Registrar dosaje
                   </button>
-                  <button type="button" class="btn-action primary" style="width:100%; justify-content:center;" onclick="event.stopPropagation(); window.openHistorialTamizaje ? window.openHistorialTamizaje(${escaparEnManejador(b.id)}) : window.openExpediente(${escaparEnManejador(b.id)})">
+                  <button type="button" class="btn-action primary" style="width:100%; justify-content:center;" ${attrsDe(`event.stopPropagation(); window.openHistorialTamizaje ? window.openHistorialTamizaje(${escaparEnManejador(b.id)}) : window.openExpediente(${escaparEnManejador(b.id)})`)}>
                     ${iconHtml("accion.ver", { size: 15, style: "margin-right:6px;" })}
                     Historial de Tamizajes (Hb)
                   </button>
@@ -756,7 +757,7 @@ export const SaludCredView = {
               </div>
 
               <!-- Botón Ver más / Ver menos -->
-              <button type="button" class="datacard-toggle-btn" id="btnToggleSalud-${escapar(b.id)}" onclick="window.PDI ? window.PDI.SaludCredView.toggleCard(${escaparEnManejador(b.id)}) : SaludCredView.toggleCard(${escaparEnManejador(b.id)})">
+              <button type="button" class="datacard-toggle-btn" id="btnToggleSalud-${escapar(b.id)}" ${attrsDe(`window.PDI ? window.PDI.SaludCredView.toggleCard(${escaparEnManejador(b.id)}) : SaludCredView.toggleCard(${escaparEnManejador(b.id)})`)}>
                 <span class="btn-text">Ver más</span>
                 ${iconHtml("nav.desplegar", { size: null })}
               </button>
@@ -980,7 +981,7 @@ export const SaludCredView = {
             ${t._tamizajeId ? `
               <div style="margin-top:6px;">
                 <button type="button"
-                  onclick="window.abrirMotivoDesactivar ? window.abrirMotivoDesactivar(${idx}) : null"
+                  ${attrsDe(`window.abrirMotivoDesactivar ? window.abrirMotivoDesactivar(${idx}) : null`)}
                   style="background:none; border:none; padding:0; color:var(--text-danger); font-size:11px; cursor:pointer; text-decoration:underline dotted;">
                   Desactivar esta prueba
                 </button>
@@ -991,9 +992,9 @@ export const SaludCredView = {
                   placeholder="Motivo (obligatorio), p. ej. captura errónea"
                   onkeydown="if (event.key === 'Enter' &amp;&amp; window.confirmarDesactivarPrueba) window.confirmarDesactivarPrueba(${idx});" />
                 <button type="button" class="btn-action primary" style="font-size:11.5px;"
-                  onclick="window.confirmarDesactivarPrueba ? window.confirmarDesactivarPrueba(${idx}) : null">Confirmar</button>
+                  ${attrsDe(`window.confirmarDesactivarPrueba ? window.confirmarDesactivarPrueba(${idx}) : null`)}>Confirmar</button>
                 <button type="button" class="btn-action btn-secondary" style="font-size:11.5px;"
-                  onclick="window.ocultarMotivoDesactivar ? window.ocultarMotivoDesactivar(${idx}) : null">Cancelar</button>
+                  ${attrsDe(`window.ocultarMotivoDesactivar ? window.ocultarMotivoDesactivar(${idx}) : null`)}>Cancelar</button>
               </div>` : ""}
           </div>
           <div style="flex-shrink:0; text-align:right; font-size:11.5px; color:var(--text-muted); font-family:var(--mono-font); line-height:1.5;">

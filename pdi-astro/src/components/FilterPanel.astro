@@ -1,5 +1,6 @@
 ---
 import Icon from './Icon.astro';
+import { parsearLlamada } from '../scripts/core/inlineCall.js';
 // ===========================================================================
 //  PANEL DE FILTROS (esqueleto común)
 // ===========================================================================
@@ -41,6 +42,8 @@ const {
 } = Astro.props;
 
 const toggle = `window.toggleCustomDropdown ? window.toggleCustomDropdown('${id}') : null`;
+const llamadaToggle = parsearLlamada(toggle);
+const llamadaReset = reset ? parsearLlamada(reset) : null;
 ---
 
 <div class="audit-filter-panel-wrap">
@@ -49,7 +52,8 @@ const toggle = `window.toggleCustomDropdown ? window.toggleCustomDropdown('${id}
       type="button"
       class="btn-action audit-filter-btn"
       id={buttonId}
-      onclick={toggle}
+      data-pdi-call={llamadaToggle?.nombre}
+      data-pdi-args={JSON.stringify(llamadaToggle?.args ?? [])}
       aria-controls={menuId}
       aria-haspopup="dialog"
       aria-expanded="false"
@@ -72,7 +76,8 @@ const toggle = `window.toggleCustomDropdown ? window.toggleCustomDropdown('${id}
         <div class="audit-filters-header-actions">
           <!-- Aparece solo cuando hay algo que restablecer; lo gobierna
                FilterPanel.js mirando el contador de filtros activos. -->
-          <button type="button" class="btn-text-subtle" onclick={reset} data-fil-restablecer hidden>
+          <button type="button" class="btn-text-subtle" data-pdi-call={llamadaReset?.nombre}
+            data-pdi-args={JSON.stringify(llamadaReset?.args ?? [])} data-fil-restablecer hidden>
             Restablecer
           </button>
         </div>
