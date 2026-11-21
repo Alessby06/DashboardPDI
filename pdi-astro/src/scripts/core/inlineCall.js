@@ -72,11 +72,8 @@ export function attrsDe(codigo) {
 }
 
 export function parsearLlamada(codigo) {
-  const limpio = String(codigo ?? '').trim()
-    .replace(/^window\.([A-Za-z_$][\w$]*)\s*\?\s*/, '')
-    .replace(/\s*:\s*null$/, '')
-    .trim();
-  const m = /^(?:window\.)?([A-Za-z_$][\w$]*)\s*\(([\s\S]*)\)$/.exec(limpio);
-  if (!m) return null;
-  return { nombre: m[1], args: m[2].trim() ? separarArgs(m[2]).map(valorArg) : [] };
+  const desc = parsearManejador(codigo);
+  if (!desc || !desc.llamadas || !desc.llamadas.length) return null;
+  const primera = desc.llamadas[0];
+  return { nombre: primera.ruta, args: primera.args };
 }

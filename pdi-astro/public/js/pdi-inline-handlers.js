@@ -220,14 +220,19 @@
           if (fn) fn.call(nodo, ev);
         }
         var nombre = nodo.getAttribute && nodo.getAttribute('data-pdi-call');
-        if (nombre && typeof window[nombre] === 'function') {
-          var crudo = nodo.getAttribute('data-pdi-args') || '[]';
-          var args;
-          try { args = JSON.parse(crudo); } catch (e) { args = []; }
-          var resueltos = args.map(function (a) {
-            return a === '@event' ? ev : a === '@this' ? nodo : a;
-          });
-          window[nombre].apply(nodo, resueltos);
+        if (nombre) {
+          var objetivoCall = window;
+          var partesCall = nombre.split('.');
+          for (var p = 0; p < partesCall.length && objetivoCall; p++) objetivoCall = objetivoCall[partesCall[p]];
+          if (typeof objetivoCall === 'function') {
+            var crudo = nodo.getAttribute('data-pdi-args') || '[]';
+            var args;
+            try { args = JSON.parse(crudo); } catch (e) { args = []; }
+            var resueltos = args.map(function (a) {
+              return a === '@event' ? ev : a === '@this' ? nodo : a;
+            });
+            objetivoCall.apply(nodo, resueltos);
+          }
         }
       }
       nodo = nodo.parentElement;
