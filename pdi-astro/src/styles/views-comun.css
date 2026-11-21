@@ -725,29 +725,12 @@
   position: relative;
 }
 
+/* El disparador de orden comparte el alto de la barra: el buscador, la descarga
+   y filtros miden 38 px. La geometría (relleno, fuente, borde) viene de
+   .btn-action, que es la misma en todas las páginas; acá solo se fija el alto
+   para que la fila quede alineada. */
 .padron-sort-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
   height: 38px;
-  padding: 0 12px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-subtle);
-  background: var(--surface-2);
-  color: var(--text-main);
-  font-size: 13px;
-  font-weight: 600;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: background-color var(--dur-fast) var(--ease-smooth),
-    border-color var(--dur-fast) var(--ease-smooth);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .padron-sort-btn:hover {
-    background: var(--surface-hover);
-    border-color: var(--text-dim);
-  }
 }
 
 .padron-sort-btn:focus-visible {
