@@ -16,10 +16,8 @@
    =========================================================================== */
 
 .pdi-motion.pdi-motion.pdi-motion.pdi-motion {
-  translate: 0 0;
-  scale: 1;
-  transition: scale 220ms cubic-bezier(0.25, 1, 0.5, 1),
-    translate var(--dur-fast) var(--ease-spring),
+  transform: translateY(0) scale(1);
+  transition: transform 160ms cubic-bezier(0.25, 1, 0.5, 1),
     background-color 160ms ease-out,
     border-color var(--dur-fast) var(--ease-smooth),
     color var(--dur-fast) var(--ease-smooth),
@@ -30,17 +28,15 @@
    después del toque y el botón parece activo cuando ya no lo está. */
 @media (hover: hover) and (pointer: fine) {
   .pdi-motion.pdi-motion.pdi-motion.pdi-motion:hover:not(:disabled):not([aria-disabled="true"]) {
-    translate: 0 -1.5px;
+    transform: translateY(-1.5px) scale(1);
   }
 }
 
 /* Cushion Pill (Variante 03): Deformación suave de almohadilla viscoelástica */
 .pdi-motion.pdi-motion.pdi-motion.pdi-motion:active:not(:disabled):not([aria-disabled="true"]) {
-  translate: 0 0;
-  scale: 0.992 0.955;
+  transform: translateY(0) scale(0.992, 0.955);
   background-color: var(--surface-3);
-  transition: scale 80ms cubic-bezier(0.16, 1, 0.3, 1),
-    translate 80ms cubic-bezier(0.16, 1, 0.3, 1),
+  transition: transform 80ms cubic-bezier(0.16, 1, 0.3, 1),
     background-color 80ms ease-out;
 }
 
