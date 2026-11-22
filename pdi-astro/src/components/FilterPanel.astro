@@ -85,7 +85,26 @@ const llamadaReset = reset ? parsearLlamada(reset) : null;
       </div>
 
       <div class="audit-filters-body">
+        <span class="padron-inline-filters-lead" aria-hidden="true">
+          <Icon name="accion.filtrar" size={13} />
+          <span>Filtros:</span>
+        </span>
         <slot />
+        {reset && (
+          <div class="padron-filters-meta-end">
+            <button
+              type="button"
+              class="padron-btn-reset-inline"
+              data-pdi-call={llamadaReset?.nombre}
+              data-pdi-args={JSON.stringify(llamadaReset?.args ?? [])}
+              aria-label="Restablecer filtros"
+              title="Restablecer todos los filtros"
+            >
+              <Icon name="accion.cerrar" size={11} />
+              <span>Restablecer</span>
+            </button>
+          </div>
+        )}
       </div>
     </div>
   </div>

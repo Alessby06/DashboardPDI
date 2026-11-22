@@ -105,12 +105,6 @@ const OPCIONES_SEXO = [
                 title="Filtros de Padrón"
                 reset="window.resetPadronFilters ? window.resetPadronFilters() : null"
               >
-                      <!-- Indicador de sección para modo chips en PC -->
-                      <span class="padron-inline-filters-lead" aria-hidden="true">
-                        <Icon name="accion.filtrar" size={13} />
-                        <span>Filtros:</span>
-                      </span>
-
                       <!-- Filtro 1: Estrategia Asignada (multiseleccion con checkbox) -->
                       <FilterField
                         id="dropdownPadronEstrategia"
@@ -227,16 +221,6 @@ const OPCIONES_SEXO = [
                         abrir="window.togglePadronInnerDropdown ? window.togglePadronInnerDropdown('dropdownPadronSexo') : null"
                         countPrefix="countFacetSexo"
                       />
-
-                      <!-- Contrapeso en Fila 2: Botón de Restablecer interactivo para equilibrio visual -->
-                      <div class="padron-filters-meta-end">
-                        <button type="button" class="padron-btn-reset-inline" id="btnPadronResetInline"
-                          data-pdi-call="window.resetPadronFilters"
-                          aria-label="Restablecer filtros" title="Restablecer todos los filtros">
-                          <Icon name="accion.cerrar" size={11} />
-                          <span>Restablecer</span>
-                        </button>
-                      </div>
               </FilterPanel>
 
               <button type="button" class="btn-action-icon btn-audit-export-icon table-export-btn pdi-motion" id="btnExportPadronCSV"

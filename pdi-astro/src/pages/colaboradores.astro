@@ -118,7 +118,7 @@ const OPCIONES_ORDEN = [
       </div>
 
       <!-- Barra de Filtros y Búsqueda -->
-      <div class="audit-toolbar table-toolbar" style="margin-bottom: 16px;">
+      <div class="audit-toolbar table-toolbar">
         <div class="audit-search-wrap">
           <Icon name="accion.buscar" size={15} class="audit-search-icon" />
           <input
@@ -159,6 +159,7 @@ const OPCIONES_ORDEN = [
             menuId="menuColabDistrito"
             labelId="labelColabDistritoSelect"
             label="Distrito Asignado"
+            prefix="Distrito:"
             labelTodos="Todos los Distritos"
             todosEtiqueta="Todos los Distritos"
             opciones={OPCIONES_DISTRITO}
@@ -171,6 +172,7 @@ const OPCIONES_ORDEN = [
             menuId="menuColabEstrategia"
             labelId="labelColabEstrategiaSelect"
             label="Estrategia / Programa"
+            prefix="Programa:"
             labelTodos="Todos los Programas"
             todosEtiqueta="Todos los Programas"
             opciones={OPCIONES_ESTRATEGIA}

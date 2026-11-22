@@ -178,15 +178,25 @@ function textoCifra(n) {
   return `${n} ${n === 1 ? 'coincidencia' : 'coincidencias'}`;
 }
 
+function actualizarInnerDropdownEstado(dropdown) {
+  if (!dropdown) return;
+  const items = Array.from(dropdown.querySelectorAll('.padron-dropdown-item.selected'));
+  const tieneNoAll = items.some((it) => it.dataset.value && it.dataset.value !== 'all');
+  dropdown.classList.toggle('has-active-filter', tieneNoAll);
+}
+
 function actualizarRestablecer(panel) {
   const boton = panel.querySelector('[data-fil-restablecer]');
-  if (!boton) return;
+  const btnInline = panel.querySelector('.padron-btn-reset-inline');
   const contador = panel.querySelector('.filter-active-count');
   // Sin contador en esa página no hay forma de saber cuántos filtros hay: se
   // deja visible, que es el comportamiento de siempre. Con contador, manda él:
   // escondido significa que no hay nada que restablecer.
   const activos = contador ? contador.style.display !== 'none' : true;
-  boton.hidden = !activos;
+  if (boton) boton.hidden = !activos;
+  if (btnInline) {
+    btnInline.classList.toggle('is-active', activos);
+  }
 }
 
 function marcarOpcion(item) {
@@ -199,6 +209,7 @@ function marcarOpcion(item) {
     item.removeAttribute('aria-disabled');
     item.setAttribute('tabindex', '0');
   }
+  actualizarInnerDropdownEstado(item.closest('.padron-inner-dropdown'));
 }
 
 function prepararOpciones(menu) {
@@ -249,6 +260,7 @@ function prepararSubpaneles(panel) {
       menu.inert = !abierto;
     };
     sincronizar();
+    actualizarInnerDropdownEstado(sub);
     if (!sub.dataset.filSub) {
       sub.dataset.filSub = '1';
       new MutationObserver(sincronizar).observe(sub, { attributes: true, attributeFilter: ['class'] });
@@ -674,8 +686,8 @@ function prepararPanel(panel) {
   }
   if (!menu.hasAttribute('tabindex')) menu.setAttribute('tabindex', '-1');
   // Cerrado, el panel no participa del orden de tabulacion ni del arbol.
-  // Salvo en escritorio para paneles inline integrados en toolbar (padrón en PC).
-  const esInlineDesktop = panel.id === 'dropdownPadronFilterPanel' && window.innerWidth > CORTE_HOJA;
+  // Salvo en escritorio para paneles inline integrados en toolbar (modo PC).
+  const esInlineDesktop = window.innerWidth > CORTE_HOJA;
   menu.inert = !panel.classList.contains('open') && !esInlineDesktop;
 
   prepararEtiquetas(panel);
@@ -697,7 +709,7 @@ function prepararPanel(panel) {
     eraAbierto = abierto;
     disparador.setAttribute('aria-expanded', abierto ? 'true' : 'false');
     menu.setAttribute('aria-modal', abierto && window.innerWidth <= CORTE_HOJA ? 'true' : 'false');
-    menu.inert = !abierto && !(panel.id === 'dropdownPadronFilterPanel' && window.innerWidth > CORTE_HOJA);
+    menu.inert = !abierto && !esInlineDesktop;
 
     if (abierto) {
       clearTimeout(menu._cerrarTimer);
@@ -814,17 +826,16 @@ if (typeof document !== 'undefined') {
   // se recalcula con el scroll de la pagina: hacerlo redimensionaba el panel
   // mientras se desplazaba y producia el parpadeo de la parte superior.
   window.addEventListener('resize', () => {
-    const padronPanel = document.getElementById('dropdownPadronFilterPanel');
-    if (padronPanel) {
-      const menu = padronPanel.querySelector('.audit-filters-menu');
+    document.querySelectorAll('.audit-filters-dropdown').forEach((panel) => {
+      const menu = panel.querySelector('.audit-filters-menu');
       if (menu) {
         if (window.innerWidth > CORTE_HOJA) {
           menu.inert = false;
-        } else if (!padronPanel.classList.contains('open')) {
+        } else if (!panel.classList.contains('open')) {
           menu.inert = true;
         }
       }
-    }
+    });
     document.querySelectorAll('.audit-filters-dropdown.open').forEach((panel) => {
       posicionarPanel(panel);
       marcarDesborde(panel);

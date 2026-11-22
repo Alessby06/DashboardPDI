@@ -60,7 +60,7 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
             <!-- Barra de Búsqueda y Filtros de Casos Sociales (Estándar Padrón) -->
             <div class="card"
               style="margin-bottom: 14px; padding: 12px 16px; position: relative; z-index: 80; overflow: visible;">
-              <div class="audit-toolbar" style="margin-bottom: 0;">
+              <div class="audit-toolbar table-toolbar" style="margin-bottom: 0;">
                 <!-- Buscador de Casos Sociales (Lado Izquierdo) -->
                 <div class="audit-search-wrap">
                   <Icon name="accion.buscar" size={2} class="audit-search-icon" />
@@ -87,6 +87,7 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                         menuId="menuSocialUrgencia"
                         labelId="labelSocialUrgenciaSelect"
                         label="Nivel de Urgencia"
+                        prefix="Urgencia:"
                         labelTodos="Todas las Urgencias"
                         todosEtiqueta="Todas las Urgencias"
                         opciones={OPCIONES_URGENCIA}
@@ -102,6 +103,7 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                         menuId="menuSocialSede"
                         labelId="labelSocialSedeSelect"
                         label="Sede Territorial"
+                        prefix="Sede:"
                         labelTodos="Todas las Sedes"
                         todosEtiqueta="Todas las Sedes"
                         opciones={OPCIONES_SEDE}
