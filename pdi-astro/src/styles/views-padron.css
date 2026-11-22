@@ -488,7 +488,8 @@
 }
 
 .facet-edad-num-input:focus {
-  border-color: var(--border-focus);
+  outline: none;
+  box-shadow: none;
 }
 
 .facet-edad-num-input:focus-visible {
@@ -1332,16 +1333,14 @@
       transform 160ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  #mainContent #cardPadronBeneficiarios .table-toolbar .audit-search-wrap:focus-within .audit-search-icon {
-    color: var(--brand-primary, #0d9488);
-    transform: translateY(-50%) scale(1.08);
+  #mainContent #cardPadronBeneficiarios .table-toolbar .audit-search-input:focus {
+    outline: none;
+    box-shadow: none;
   }
 
-  #mainContent #cardPadronBeneficiarios .table-toolbar .audit-search-input:focus {
-    border-color: var(--brand-primary, #0d9488);
-    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.14);
-    background: var(--surface-1);
-    outline: none;
+  #mainContent #cardPadronBeneficiarios .table-toolbar .audit-search-input:focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 2px;
   }
 
   /* Ordenar en Fila 1 (Derecha, columna 2) */

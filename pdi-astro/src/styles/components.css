@@ -721,21 +721,15 @@
       border-color: var(--border-medium);
     }
 
-    .form-control:focus {
-      border-color: var(--border-bright, var(--border-bright));
-      box-shadow: none;
-      outline: none;
-    }
-
+    .form-control:focus,
     .form-control:focus-visible,
+    input.form-control:focus,
     input.form-control:focus-visible,
+    select.form-control:focus,
     select.form-control:focus-visible,
+    textarea.form-control:focus,
     textarea.form-control:focus-visible {
-      /* El teclado conserva un anillo real: el cambio de borde de 1 px daba
-         2,35:1 y no cumple WCAG 1.4.11. El anillo de accion da 5,97:1. */
-      outline: 2px solid var(--border-focus);
-      outline-offset: 2px;
-      border-color: var(--border-bright);
+      outline: none;
       box-shadow: none;
     }
 

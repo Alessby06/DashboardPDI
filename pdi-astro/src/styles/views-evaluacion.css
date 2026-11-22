@@ -309,8 +309,8 @@
 .eval-field input:focus,
 .eval-field select:focus,
 .eval-field textarea:focus {
-  border-color: var(--border-focus);
-
+  outline: none;
+  box-shadow: none;
 }
 
 .eval-field input:focus-visible,

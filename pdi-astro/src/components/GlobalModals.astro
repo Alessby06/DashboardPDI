@@ -2867,18 +2867,16 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
   }
 
   #modalNuevoUsuario .form-control:focus,
+  #modalNuevoUsuario .form-control:focus-visible,
   #modalNuevoUsuario input:focus,
-  #modalNuevoUsuario select:focus {
-    border-color: var(--border-bright) !important;
+  #modalNuevoUsuario input:focus-visible,
+  #modalNuevoUsuario select:focus,
+  #modalNuevoUsuario select:focus-visible,
+  #modalNuevoUsuario textarea:focus,
+  #modalNuevoUsuario textarea:focus-visible {
+    border-color: var(--border-subtle) !important;
     box-shadow: none !important;
     outline: none !important;
-  }
-
-  #modalNuevoUsuario .form-control:focus-visible,
-  #modalNuevoUsuario input:focus-visible,
-  #modalNuevoUsuario select:focus-visible {
-    outline: 2px solid var(--border-focus) !important;
-    outline-offset: 2px;
   }
 
   #modalNuevoUsuario .croquis-box-title {

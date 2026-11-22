@@ -75,7 +75,7 @@
 
 .cuentas-search input:focus {
   outline: none;
-  border-color: var(--border-focus);
+  box-shadow: none;
 }
 
 .cuentas-search input:focus-visible {
@@ -609,8 +609,7 @@
 
 .cuentas-field input:focus {
   outline: none;
-  border-color: var(--border-focus);
-  background: var(--surface-1);
+  box-shadow: none;
 }
 
 .cuentas-field input:focus-visible {
