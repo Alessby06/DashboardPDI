@@ -18,12 +18,12 @@
 .pdi-motion.pdi-motion.pdi-motion.pdi-motion {
   translate: 0 0;
   scale: 1;
-  transition: translate var(--dur-fast) var(--ease-spring),
-    scale var(--dur-fast) var(--ease-spring),
-    background-color var(--dur-fast) var(--ease-smooth),
+  transition: translate 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    scale 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    background-color 140ms ease-out,
     border-color var(--dur-fast) var(--ease-smooth),
     color var(--dur-fast) var(--ease-smooth),
-    box-shadow var(--dur-fast) var(--ease-smooth),
+    box-shadow 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
     opacity var(--dur-fast) var(--ease-smooth);
 }
 
@@ -35,9 +35,16 @@
   }
 }
 
+/* Tactile Key Sink: respuesta inmediata (70ms) y retorno amortiguado (180ms) */
 .pdi-motion.pdi-motion.pdi-motion.pdi-motion:active:not(:disabled):not([aria-disabled="true"]) {
-  translate: 0 0;
-  scale: 0.97;
+  translate: 0 1.5px;
+  scale: 0.984;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
+  background-color: var(--surface-3);
+  transition: translate 70ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    scale 70ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 70ms ease-out,
+    background-color 70ms ease-out;
 }
 
 /* Con movimiento reducido el botón no se desplaza ni se comprime, pero los
