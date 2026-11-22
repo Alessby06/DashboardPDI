@@ -179,9 +179,11 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      padding: 11px 14px;
+      padding: 7px 14px;
       border-bottom: 1px solid var(--border-subtle);
-      white-space: nowrap;
+      white-space: normal;
+      line-height: 1.25;
+      vertical-align: middle;
       text-align: left;
     }
 

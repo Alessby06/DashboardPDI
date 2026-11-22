@@ -848,7 +848,7 @@
 }
 
 #cardVoluntariosPadron .data-table thead th {
-  padding: 11px 14px;
+  padding: 7px 14px;
   font-size: 11.5px;
   font-weight: 700;
   text-transform: uppercase;
@@ -856,7 +856,9 @@
   color: var(--text-muted);
   border-bottom: 1px solid var(--border-subtle);
   background: var(--surface-2);
-  white-space: nowrap;
+  white-space: normal;
+  line-height: 1.25;
+  vertical-align: middle;
 }
 
 /* Anchos, límites y alineación contextual profesional: texto a la izquierda, badges/números/acciones centrados */
