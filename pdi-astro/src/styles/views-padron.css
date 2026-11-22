@@ -717,11 +717,15 @@
   border-spacing: 0;
 }
 
-/* La tabla hereda de `.data-table` el padding, el borde y el hover. La única
-   excepción local es permitir que los encabezados largos partan en dos líneas
-   dentro de las siete columnas. */
+/* La tabla hereda de `.data-table` el padding horizontal, el borde y el hover.
+   Los encabezados largos parten dinámicamente según el texto más alto, con
+   padding vertical compacto y altura dinámica proporcionada. */
 #tablaBeneficiarios thead th {
   white-space: normal;
+  padding-top: 7px;
+  padding-bottom: 7px;
+  line-height: 1.25;
+  vertical-align: middle;
 }
 
 /* Anchos para las 7 columnas actuales. La suma da 100 %; Estado y Acciones
