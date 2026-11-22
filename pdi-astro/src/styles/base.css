@@ -18,6 +18,22 @@
       font-family: inherit;
     }
 
+    /* Regla Quiet Focus: los campos de texto y selección nunca se iluminan,
+       no muestran halos, brillos ni outline con foco ni con puntero. */
+    input, select, textarea {
+      outline: none;
+    }
+
+    input:focus,
+    input:focus-visible,
+    select:focus,
+    select:focus-visible,
+    textarea:focus,
+    textarea:focus-visible {
+      outline: none;
+      box-shadow: none;
+    }
+
     body {
       background-color: var(--bg-canvas);
       background-image: 

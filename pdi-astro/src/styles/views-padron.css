@@ -493,8 +493,8 @@
 }
 
 .facet-edad-num-input:focus-visible {
-  outline: 2px solid var(--border-focus);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: none;
 }
 
 .facet-edad-unit {
@@ -1339,8 +1339,8 @@
   }
 
   #mainContent #cardPadronBeneficiarios .table-toolbar .audit-search-input:focus-visible {
-    outline: 2px solid var(--border-focus);
-    outline-offset: 2px;
+    outline: none;
+    box-shadow: none;
   }
 
   /* Ordenar en Fila 1 (Derecha, columna 2) */

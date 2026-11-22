@@ -2150,8 +2150,8 @@
 }
 
 .deriv-search input:focus-visible {
-  outline: 2px solid var(--border-focus);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: none;
 }
 
 .deriv-results {
@@ -2379,8 +2379,8 @@
 .deriv-full input:focus-visible,
 .deriv-full select:focus-visible,
 .deriv-full textarea:focus-visible {
-  outline: 2px solid var(--border-focus);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: none;
 }
 
 .deriv-tags {

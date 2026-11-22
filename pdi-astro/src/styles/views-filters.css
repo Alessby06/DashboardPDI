@@ -760,13 +760,20 @@
 .audit-filter-btn:focus-visible,
 .padron-inner-dropdown-btn:focus-visible,
 .audit-filters-menu .btn-text-subtle:focus-visible,
-.audit-filters-menu input:focus-visible,
-.audit-filters-menu select:focus-visible,
-.audit-filters-menu textarea:focus-visible,
 .padron-chip-remove:focus-visible {
 
   outline: 2px solid var(--border-focus);
   outline-offset: 2px;
+}
+
+.audit-filters-menu input:focus,
+.audit-filters-menu input:focus-visible,
+.audit-filters-menu select:focus,
+.audit-filters-menu select:focus-visible,
+.audit-filters-menu textarea:focus,
+.audit-filters-menu textarea:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 
 /* Salida del estado vacio: el filtro que dejo la tabla a cero se quita desde

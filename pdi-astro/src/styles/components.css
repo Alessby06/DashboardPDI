@@ -1170,20 +1170,16 @@
       outline-offset: 2px;
     }
 
+    input:focus,
     input:focus-visible,
+    select:focus,
     select:focus-visible,
+    textarea:focus,
     textarea:focus-visible,
+    .form-control:focus,
     .form-control:focus-visible {
-      outline: 2px solid var(--border-focus);
-      outline-offset: 2px;
-    }
-
-    /* Si el foco lo abrió el puntero, el anillo no aparece: el caret basta.
-       Al pulsar Tab se retira el marcador y el teclado vuelve a verlo. */
-    html[data-pointer] input:focus-visible,
-    html[data-pointer] select:focus-visible,
-    html[data-pointer] textarea:focus-visible {
       outline: none;
+      box-shadow: none;
     }
 
     /* ===========================================================================
