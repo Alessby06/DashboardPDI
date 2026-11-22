@@ -1056,7 +1056,14 @@
   transition: background-color var(--dur-fast) var(--ease-smooth),
               border-color var(--dur-fast) var(--ease-smooth),
               color var(--dur-fast) var(--ease-smooth),
-              transform var(--dur-fast) var(--ease-spring);
+              transform 160ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.btn-page:active:not(:disabled) {
+  transform: translateY(0) scale(0.992, 0.955);
+  background-color: var(--surface-3);
+  transition: transform 80ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 80ms ease-out;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -1220,8 +1227,22 @@
   padding: 0;
   flex-shrink: 0;
   box-sizing: border-box;
-  transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), box-shadow var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth), filter var(--dur-fast) var(--ease-smooth), outline-color var(--dur-fast) var(--ease-smooth), translate var(--dur-fast) var(--ease-smooth), scale var(--dur-fast) var(--ease-smooth);
+  transition: background-color var(--dur-fast) var(--ease-smooth),
+    border-color var(--dur-fast) var(--ease-smooth),
+    color var(--dur-fast) var(--ease-smooth),
+    box-shadow var(--dur-fast) var(--ease-smooth),
+    transform 160ms cubic-bezier(0.25, 1, 0.5, 1),
+    opacity var(--dur-fast) var(--ease-smooth),
+    filter var(--dur-fast) var(--ease-smooth),
+    outline-color var(--dur-fast) var(--ease-smooth);
   -webkit-tap-highlight-color: transparent;
+}
+
+.btn-action-icon.btn-audit-export-icon:active {
+  transform: translateY(0) scale(0.992, 0.955);
+  background-color: var(--surface-3);
+  transition: transform 80ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 80ms ease-out;
 }
 
 .view-actions .btn-action-icon.btn-audit-export-icon,

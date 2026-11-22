@@ -699,12 +699,16 @@
     cursor: pointer;
     z-index: 2;
     transition: background-color var(--dur-fast) var(--ease-smooth),
-      color var(--dur-fast) var(--ease-smooth);
+      color var(--dur-fast) var(--ease-smooth),
+      transform 160ms cubic-bezier(0.25, 1, 0.5, 1);
   }
 
   .sedes-sheet-close:active {
+    transform: translateY(0) scale(0.992, 0.955);
     background: var(--surface-hover);
     color: var(--text-main);
+    transition: transform 80ms cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 80ms ease-out;
   }
 
   @media (hover: hover) and (pointer: fine) {

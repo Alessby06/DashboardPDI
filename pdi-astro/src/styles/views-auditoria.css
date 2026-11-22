@@ -623,11 +623,21 @@
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-spring);
+      transition: background-color var(--dur-fast) var(--ease-smooth),
+        border-color var(--dur-fast) var(--ease-smooth),
+        color var(--dur-fast) var(--ease-smooth),
+        transform 160ms cubic-bezier(0.25, 1, 0.5, 1);
       /* Sin will-change: aqui solo hay transform en :hover. El aviso permanente
          le costaba una capa propia para siempre, y como esto vive dentro de
          la columna de contenido, al plegar el menu habia que rasterizar
          todas esas capas en cada fotograma. */
+    }
+
+    .btn-action-sm:active:not(:disabled) {
+      transform: translateY(0) scale(0.992, 0.955);
+      background-color: var(--surface-3);
+      transition: transform 80ms cubic-bezier(0.16, 1, 0.3, 1),
+        background-color 80ms ease-out;
     }
 
     @media (hover: hover) and (pointer: fine) {
@@ -743,11 +753,21 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-spring);
+      transition: background-color var(--dur-fast) var(--ease-smooth),
+        border-color var(--dur-fast) var(--ease-smooth),
+        color var(--dur-fast) var(--ease-smooth),
+        transform 160ms cubic-bezier(0.25, 1, 0.5, 1);
       /* Sin will-change: aqui solo hay transform en :hover. El aviso permanente
          le costaba una capa propia para siempre, y como esto vive dentro de
          la columna de contenido, al plegar el menu habia que rasterizar
          todas esas capas en cada fotograma. */
+    }
+
+    .btn-action-sm:active:not(:disabled) {
+      transform: translateY(0) scale(0.992, 0.955);
+      background-color: var(--surface-3);
+      transition: transform 80ms cubic-bezier(0.16, 1, 0.3, 1),
+        background-color 80ms ease-out;
     }
 
     .btn-page:disabled {

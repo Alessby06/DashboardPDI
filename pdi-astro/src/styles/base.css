@@ -146,12 +146,18 @@
     .btn-action:active:not(:disabled):not(.primary),
     .btn-action-icon:active:not(:disabled),
     .row-action:active {
+      transform: translateY(0) scale(0.992, 0.955);
       background: var(--surface-hover);
       border-color: var(--text-dim);
+      transition: transform 80ms cubic-bezier(0.16, 1, 0.3, 1),
+        background-color 80ms ease-out;
     }
 
     .btn-action.primary:active:not(:disabled) {
+      transform: translateY(0) scale(0.992, 0.955);
       filter: brightness(0.96);
+      transition: transform 80ms cubic-bezier(0.16, 1, 0.3, 1),
+        filter 80ms ease-out;
     }
 
     /* View Transitions API (Circular Ripple Reveal Animation) */
@@ -703,7 +709,10 @@
       border: 1px solid var(--border-subtle);
       background: var(--surface-2);
       color: var(--text-main);
-      transition: background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth), transform var(--dur-fast) var(--ease-spring), opacity var(--dur-fast) var(--ease-smooth);
+      transition: background-color var(--dur-fast) var(--ease-smooth),
+        border-color var(--dur-fast) var(--ease-smooth),
+        transform 160ms cubic-bezier(0.25, 1, 0.5, 1),
+        opacity var(--dur-fast) var(--ease-smooth);
       white-space: nowrap;
     }
 
