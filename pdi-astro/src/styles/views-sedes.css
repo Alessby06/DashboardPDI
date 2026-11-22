@@ -903,11 +903,12 @@
   text-decoration: none;
   margin-top: 6px;
   touch-action: manipulation;
-  transition: background var(--dur-fast), transform var(--dur-fast);
+  transition: background var(--dur-fast), transform 220ms cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .sede-tel-link:active {
-  transform: scale(0.97);
+  transform: scale(0.992, 0.955);
+  transition: transform 80ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .sede-servicios-wrap {

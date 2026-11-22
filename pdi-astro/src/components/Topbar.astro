@@ -330,7 +330,8 @@ import Icon from './Icon.astro';
     cursor: pointer;
     overflow: hidden;
     transition: border-color var(--dur-fast) var(--ease-smooth),
-      background-color var(--dur-fast) var(--ease-smooth);
+      background-color var(--dur-fast) var(--ease-smooth),
+      transform 220ms cubic-bezier(0.25, 1, 0.5, 1);
   }
 
   @media (hover: hover) and (pointer: fine) {
@@ -341,7 +342,8 @@ import Icon from './Icon.astro';
   }
 
   .topbar-avatar:active {
-    transform: scale(0.97);
+    transform: scale(0.992, 0.955);
+    transition: transform 80ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .topbar-avatar:focus-visible {
@@ -454,6 +456,9 @@ import Icon from './Icon.astro';
     text-align: left;
     text-decoration: none;
     cursor: pointer;
+    transition: background-color var(--dur-fast) var(--ease-smooth),
+      color var(--dur-fast) var(--ease-smooth),
+      transform 220ms cubic-bezier(0.25, 1, 0.5, 1);
   }
 
   @media (hover: hover) and (pointer: fine) {
@@ -464,7 +469,8 @@ import Icon from './Icon.astro';
   }
 
   .topbar-menu-item:active {
-    transform: scale(0.98);
+    transform: scale(0.992, 0.955);
+    transition: transform 80ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .topbar-menu-item svg {
