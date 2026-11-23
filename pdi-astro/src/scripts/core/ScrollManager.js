@@ -121,7 +121,7 @@ export const ScrollManager = {
     this.main = new Lenis({
       wrapper,
       ...(content ? { content } : {}),
-      lerp: 0.09,
+      lerp: 0.1,
       smoothWheel: true,
       syncTouch: this.touch,
       wheelMultiplier: 1,
@@ -130,51 +130,19 @@ export const ScrollManager = {
       autoRaf: false
     });
 
-    // Solo dos medidas tempranas, antes de que nadie pueda estar scrolleando.
-    // Lenis ya observa el wrapper con autoResize: medir de nuevo mas tarde
-    // (antes habia un bucle de 16 reintentos cada 250 ms) reinicia
-    // targetScroll al animatedScroll actual y corta el impulso de la rueda a
-    // mitad del gesto: el scroll se frenaba y volvia a arrancar solo.
-    this._filtrarRebote();
-
     const remide = () => this.main?.resize();
     requestAnimationFrame(remide);
     setTimeout(remide, 120);
-  },
+    setTimeout(remide, 800);
+    window.addEventListener('load', remide, { once: true });
 
-  /**
-   * El raton emite rafagas de deltas en los dos sentidos (±167 px en el log
-   * reproducido). La rafaga inversa que empieza justo despues de bajar hace
-   * que Lenis retroceda el viewport: parece otra rueda que obliga a subir.
-   * Se descarta toda la rafaga inversa, no solo sus primeros eventos; se
-   * termina con un delta hacia abajo o con una pausa de 400 ms, asi que
-   * subir deliberadamente despues de parar sigue funcionando.
-   */
-  _filtrarRebote() {
-    const wrapper = this.mainWrapper;
-    if (!wrapper || wrapper.__pdiRebote) return;
-    wrapper.__pdiRebote = true;
-    let ultimoAbajo = 0;
-    let ultimoEvento = 0;
-    let enRebote = false;
-    wrapper.addEventListener('wheel', (evento) => {
-      const ahora = performance.now();
-      if (evento.deltaY > 0) {
-        ultimoAbajo = ahora;
-        ultimoEvento = ahora;
-        enRebote = false;
-        return;
-      }
-      if (evento.deltaY < 0) {
-        if (!enRebote && ahora - ultimoAbajo < 400) enRebote = true;
-        if (ahora - ultimoEvento > 400) enRebote = false;
-        ultimoEvento = ahora;
-        if (enRebote) {
-          evento.preventDefault();
-          evento.stopPropagation();
-        }
-      }
-    }, { capture: true, passive: false });
+    let intentos = 0;
+    const insistir = () => {
+      if (!this.main) return;
+      this.main.resize();
+      if (intentos++ < 16) setTimeout(insistir, 250);
+    };
+    insistir();
   },
 
   _tick() {

@@ -46,7 +46,7 @@ function attach(wrapper) {
   const lenis = new Lenis({
     wrapper,
     content,
-    lerp: 0.11,
+    lerp: 0.12,
     smoothWheel: true,
     syncTouch: true,
     allowNestedScroll: true,
