@@ -339,7 +339,10 @@ export const PerfilView = {
     let fallos = 0;
     while (true) {
       try {
-        cuenta = await sincronizarSesion({ forzar: true });
+        // En segundo plano (ya hay datos en pantalla) se respeta la caché de
+        // sesión: entrar de nuevo a /perfil no debe pagar una consulta obligatoria.
+        // Solo el primer arranque y el botón Reintentar fuerzan una sesión fresca.
+        cuenta = await sincronizarSesion({ forzar: !fondo });
         // Una respuesta 200 sin identificador no es una sesión válida: se
         // trata como fallo y se reintenta, nunca como cuenta real.
         if (cuenta && !cuenta.usuario) cuenta = undefined;

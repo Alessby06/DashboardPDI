@@ -20,6 +20,11 @@ import { SedeModel } from '../models/SedeModel.js';
 import { guardarCache, leerCache } from '../core/snapshot.js';
 import { confirmar } from '../ui/confirmacion.js';
 
+// La lista de cuentas no vive en el snapshot clínico: se cachea aparte. Un TTL
+// más largo que antes evita que cada entrada pasados unos minutos vuelva a
+// quedarse en blanco esperando la red. LoadingState precarga con este mismo TTL.
+const TTL_CUENTAS_MS = 30 * 60 * 1000;
+
 const ROLES = {
   facilitadora: 'Facilitadora',
   promotora: 'Promotora',
@@ -738,7 +743,7 @@ async function cargar() {
   actualId = String(res.datos.actualId || '');
   cuentas = Array.isArray(res.datos.cuentas) ? res.datos.cuentas : [];
   render();
-  guardarCache('cuentas', cuentas, { ttlMs: 10 * 60 * 1000 });
+  guardarCache('cuentas', cuentas, { ttlMs: TTL_CUENTAS_MS });
 }
 
 // --- Menú contextual accesible por fila ------------------------------------
@@ -1812,10 +1817,22 @@ async function iniciar() {
   if (!lista) return;
 
   if (!cuentas.length) {
-    const cache = leerCache('cuentas', { ttlMs: 10 * 60 * 1000 });
+    const cache = leerCache('cuentas', { ttlMs: TTL_CUENTAS_MS });
     if (Array.isArray(cache) && cache.length) cuentas = cache;
   }
-  if (cuentas.length) render();
+  if (cuentas.length) {
+    render();
+  } else {
+    // Sin datos todavía: feedback inmediato en vez de un área en blanco mientras
+    // llega la red (o la precarga por intención deja la caché lista).
+    const vacio = porId('cuentasVacio');
+    const head = porId('cuentasListaHead');
+    if (head) head.hidden = true;
+    if (vacio) {
+      vacio.innerHTML = '<p class="cuentas-vacio-sub">Cargando cuentas…</p>';
+      vacio.hidden = false;
+    }
+  }
   if (sedes.length) {
     pintarSedesEnGrid('ctaSedes', []);
     sincronizarPickerSedes(PICKER_CREATE);
@@ -1866,7 +1883,7 @@ function preSwap(doc, url) {
   if (!lista) return false;
 
   if (!cuentas.length) {
-    const cache = leerCache('cuentas', { ttlMs: 10 * 60 * 1000 });
+    const cache = leerCache('cuentas', { ttlMs: TTL_CUENTAS_MS });
     if (Array.isArray(cache) && cache.length) cuentas = cache;
   }
   if (!sedes.length) {

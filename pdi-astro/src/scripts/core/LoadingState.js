@@ -16,6 +16,7 @@
 // ===========================================================================
 import { suscribirEstado } from "./db.js";
 import { extraerRecursos } from "./recursosDocumento.js";
+import { guardarCache } from "./snapshot.js";
 
 const MIN_VISIBLE_MS = 350;
 const ERROR_AFTER_MS = 7000;
@@ -83,6 +84,7 @@ async function precargarModulos(ruta) {
       const { modulos, estilos } = extraerRecursos(await respuesta.text(), location.origin);
 
       estilos.forEach(precargarEstilo);
+      precargarDatosDeRuta(ruta);
       const resultados = await Promise.all(modulos.map(cargarModulo));
       if (resultados.every(Boolean)) rutasListas.add(ruta);
     } catch {
@@ -118,6 +120,40 @@ function precargarEstilo(href) {
   enlace.as = "style";
   enlace.href = href;
   document.head.appendChild(enlace);
+}
+
+// Mismo TTL que CuentasView (la lista de cuentas se cachea aparte del snapshot).
+const TTL_CUENTAS_MS = 30 * 60 * 1000;
+
+/**
+ * Cuentas y perfil no están en el snapshot clínico: piden su propio endpoint.
+ * Para que no se queden en blanco al entrar, se adelanta el dato de cuentas
+ * cuando hay intención de navegación (igual que los módulos). Solo admin: el
+ * endpoint rechaza a otros roles y no queremos gastar una petición inútil.
+ */
+async function precargarDatosDeRuta(ruta) {
+  if (ruta !== "/cuentas") return;
+  if (!permitePrecarga()) return;
+  if (window.__pdiCuentasPrecargadas) return;
+  try {
+    if ((localStorage.getItem("pdi_active_role") || "") !== "admin") return;
+  } catch {
+    return;
+  }
+  window.__pdiCuentasPrecargadas = true;
+  try {
+    const res = await fetch("/api/cuenta/admin", {
+      credentials: "same-origin",
+      headers: { Accept: "application/json" },
+    });
+    if (!res.ok) return;
+    const datos = await res.json().catch(() => null);
+    if (datos?.ok && Array.isArray(datos.cuentas)) {
+      guardarCache("cuentas", datos.cuentas, { ttlMs: TTL_CUENTAS_MS });
+    }
+  } catch {
+    // Sin red o sin permiso: la vista pedirá el dato al entrar.
+  }
 }
 
 /** Rutas que el menú lateral y la barra superior muestran a este rol, sin la actual. */
