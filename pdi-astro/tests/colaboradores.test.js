@@ -7,6 +7,7 @@ import {
   validarDatosColaborador,
   normalizarColaborador,
   mapearColaboradores,
+  COLABORADORES_SEMILLA,
   ColaboradorModel
 } from '../src/scripts/models/ColaboradorModel.js';
 
@@ -293,4 +294,27 @@ test('ColaboradorModel.delete y update gestionan el estado en memoria y preserva
   const borrado = await ColaboradorModel.delete(50);
   assert.equal(borrado, true);
   assert.equal(ColaboradorModel.getById(50), null);
+});
+
+test('COLABORADORES_SEMILLA contiene las 7 facilitadoras territoriales y sedes operativas', () => {
+  ColaboradorModel._data = null;
+  ColaboradorModel.init();
+  const todos = ColaboradorModel.getAll();
+
+  assert.ok(todos.length >= 18, `Se esperaban al menos 18 colaboradores semilla, se obtuvieron ${todos.length}`);
+
+  const pdi = todos.filter(c => c.categoria === 'pdi');
+  assert.equal(pdi.length, 7, 'Deben existir exactamente 7 facilitadoras oficiales PDI');
+
+  const sedesRequeridas = ['Año Nuevo', 'Carmen Alto', 'El Progreso', 'La Libertad', 'Los Bendecidos', 'San Pedro', 'Santa Rosa'];
+  sedesRequeridas.forEach(sede => {
+    const existeEnPdi = pdi.some(c => c.sedeInstitucion === sede);
+    assert.ok(existeEnPdi, `La sede ${sede} debe contar con su facilitadora comunitaria oficial PDI`);
+  });
+
+  const iglesias = todos.filter(c => c.categoria === 'iglesias');
+  assert.ok(iglesias.length >= 6, 'Deben existir al menos 6 aliados eclesiales');
+
+  const colegios = todos.filter(c => c.categoria === 'colegios');
+  assert.ok(colegios.length >= 4, 'Deben existir al menos 4 directores o docentes de colegios aliados');
 });

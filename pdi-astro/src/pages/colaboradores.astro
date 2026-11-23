@@ -163,8 +163,10 @@ const OPCIONES_ORDEN = [
             labelTodos="Todos los Distritos"
             todosEtiqueta="Todos los Distritos"
             opciones={OPCIONES_DISTRITO}
+            tipo="single"
             countPrefix="countFacetColabDistrito"
             onSelect="window.setFilterColabDistrito"
+            abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownColabDistrito') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownColabDistrito') : null)"
           />
 
           <FilterField
@@ -176,8 +178,10 @@ const OPCIONES_ORDEN = [
             labelTodos="Todos los Programas"
             todosEtiqueta="Todos los Programas"
             opciones={OPCIONES_ESTRATEGIA}
+            tipo="single"
             countPrefix="countFacetColabEstrategia"
             onSelect="window.setFilterColabEstrategia"
+            abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownColabEstrategia') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownColabEstrategia') : null)"
           />
         </FilterPanel>
 

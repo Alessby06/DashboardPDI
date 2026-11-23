@@ -74,6 +74,34 @@ export const ColaboradoresView = {
       });
     }
 
+    // Autocompletar distrito al seleccionar o escribir sede en el modal
+    const inputSede = document.getElementById('colabSede');
+    const selectDistrito = document.getElementById('colabDistrito');
+    if (inputSede && selectDistrito) {
+      const mapeoSedesDistrito = {
+        'año nuevo': 'Comas',
+        'ano nuevo': 'Comas',
+        'carmen alto': 'Comas',
+        'la libertad': 'Comas',
+        'el progreso': 'Carabayllo',
+        'los bendecidos': 'Carabayllo',
+        'san pedro': 'Carabayllo',
+        'santa rosa': 'Carabayllo',
+        'el agustino': 'El Agustino'
+      };
+      const autoSyncDistrito = () => {
+        const val = inputSede.value.toLowerCase().trim();
+        for (const [sNombre, dist] of Object.entries(mapeoSedesDistrito)) {
+          if (val.includes(sNombre)) {
+            selectDistrito.value = dist;
+            break;
+          }
+        }
+      };
+      inputSede.addEventListener('input', autoSyncDistrito);
+      inputSede.addEventListener('change', autoSyncDistrito);
+    }
+
     // Submit del formulario
     const form = document.getElementById('formColaborador');
     if (form) {
@@ -309,29 +337,31 @@ export const ColaboradoresView = {
       return cat === categoriaTabActual;
     });
 
-    const countDistAll = document.getElementById('countFacetColabDistrito-all');
-    if (countDistAll) countDistAll.textContent = `(${todos.length})`;
-
-    ['Comas', 'Carabayllo', 'El Agustino'].forEach(dist => {
-      const el = document.getElementById(`countFacetColabDistrito-${dist}`);
-      if (el) {
-        const count = todos.filter(c => c.distrito === dist).length;
-        el.textContent = `(${count})`;
+    // Actualizar contadores en desplegable de Distrito
+    const distItems = document.querySelectorAll('#menuColabDistrito .padron-dropdown-item[data-value]');
+    distItems.forEach(item => {
+      const val = item.getAttribute('data-value');
+      const countSpan = item.querySelector('.padron-item-count');
+      if (!countSpan) return;
+      if (val === 'all') {
+        countSpan.textContent = `(${todos.length})`;
+      } else {
+        const count = todos.filter(c => c.distrito === val).length;
+        countSpan.textContent = `(${count})`;
       }
     });
 
-    const countEstAll = document.getElementById('countFacetColabEstrategia-all');
-    if (countEstAll) countEstAll.textContent = `(${todos.length})`;
-
+    // Actualizar contadores en desplegable de Estrategia / Programa
     const estItems = document.querySelectorAll('#menuColabEstrategia .padron-dropdown-item[data-value]');
     estItems.forEach(item => {
       const val = item.getAttribute('data-value');
-      if (val && val !== 'all') {
-        const countSpan = item.querySelector('.padron-item-count');
-        if (countSpan) {
-          const count = todos.filter(c => Array.isArray(c.estrategias) && c.estrategias.includes(val)).length;
-          countSpan.textContent = `(${count})`;
-        }
+      const countSpan = item.querySelector('.padron-item-count');
+      if (!countSpan) return;
+      if (val === 'all') {
+        countSpan.textContent = `(${todos.length})`;
+      } else {
+        const count = todos.filter(c => Array.isArray(c.estrategias) && c.estrategias.includes(val)).length;
+        countSpan.textContent = `(${count})`;
       }
     });
   },
@@ -575,11 +605,13 @@ export const ColaboradoresView = {
 
   setFilterDistrito(d) {
     filtroDistritoActual = (d === 'all' || !d) ? '' : d;
+    document.getElementById('dropdownColabDistrito')?.classList.remove('open');
     this.aplicarFiltrosYOrden();
   },
 
   setFilterEstrategia(e) {
     filtroEstrategiaActual = (e === 'all' || !e) ? '' : e;
+    document.getElementById('dropdownColabEstrategia')?.classList.remove('open');
     this.aplicarFiltrosYOrden();
   },
 
@@ -609,7 +641,18 @@ export const ColaboradoresView = {
   actualizarDatalistSedes() {
     const datalist = document.getElementById('listaSedesDisponibles');
     if (!datalist) return;
-    const sedes = window.PDI?.SedeModel?.getAll?.() || [];
+    let sedes = window.PDI?.SedeModel?.getAll?.() || [];
+    if (!sedes || sedes.length === 0) {
+      sedes = [
+        { nombre: 'Año Nuevo', distrito: 'Comas' },
+        { nombre: 'Carmen Alto', distrito: 'Comas' },
+        { nombre: 'El Progreso', distrito: 'Carabayllo' },
+        { nombre: 'La Libertad', distrito: 'Comas' },
+        { nombre: 'Los Bendecidos', distrito: 'Carabayllo' },
+        { nombre: 'San Pedro', distrito: 'Carabayllo' },
+        { nombre: 'Santa Rosa', distrito: 'Carabayllo' }
+      ];
+    }
     datalist.innerHTML = sedes.map(s =>
       `<option value="${escapar(s.nombre)}">Sede ${escapar(s.nombre)} (${escapar(s.distrito || '')})</option>`
     ).join('');
