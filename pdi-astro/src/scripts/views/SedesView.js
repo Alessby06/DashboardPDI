@@ -766,6 +766,10 @@ export const SedesView = {
     const mapQuery = encodeURIComponent(`${direccion}, ${sede.distrito || 'Comas'}, Lima, Peru`);
     const mapsNavUrl = `https://www.google.com/maps/dir/?api=1&destination=${mapQuery}`;
 
+    const colabsSede = (typeof window !== "undefined" && window.PDI?.ColaboradorModel?.getBySede)
+      ? window.PDI.ColaboradorModel.getBySede(sede.nombre)
+      : [];
+
     const serviciosList = Array.isArray(sede.servicios) && sede.servicios.length > 0
       ? sede.servicios
       : ["Desayuno Infantil", "Casita del Saber"];
@@ -868,6 +872,32 @@ export const SedesView = {
             ${pastorTelLink}
           </div>
         </div>
+        <!-- Equipo Territorial y Red de Colaboradores Vinculados -->
+        <div class="sedes-detail-section" style="margin-top:16px;">
+          <div class="sedes-section-title" style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:6px;">
+              ${iconHtml("nav.voluntarios", { size: 15 })}
+              <span>Equipo Territorial Vinculado (${colabsSede.length})</span>
+            </div>
+            <a href="/colaboradores?sede=${encodeURIComponent(sede.nombre)}" class="colab-sede-link" style="font-size:12px; text-decoration:none; color:var(--pdi-primary); font-weight:600;">
+              Ver en directorio →
+            </a>
+          </div>
+          ${colabsSede.length > 0 ? `
+            <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;">
+              ${colabsSede.slice(0, 6).map(c => `
+                <div style="background:var(--surface-2); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); padding:6px 10px; font-size:12px; display:flex; align-items:center; gap:6px;">
+                  <strong style="color:var(--text-main);">${escapar(c.apellidos)}, ${escapar(c.nombres)}</strong>
+                  <span style="color:var(--text-muted); font-size:11px;">(${escapar(c.tipoColaborador)})</span>
+                </div>
+              `).join('')}
+              ${colabsSede.length > 6 ? `<span style="font-size:11.5px; color:var(--text-muted); align-self:center;">+${colabsSede.length - 6} más...</span>` : ''}
+            </div>
+          ` : `
+            <p style="margin:8px 0 0 0; font-size:12px; color:var(--text-muted);">Sin colaboradores específicos asignados directamente en el directorio.</p>
+          `}
+        </div>
+
         <!-- Dirección Territorial y Referencia -->
         <div class="sedes-detail-section" style="margin-top:16px;">
           <div class="sedes-section-title">
