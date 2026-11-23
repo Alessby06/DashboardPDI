@@ -299,7 +299,7 @@ export const ColaboradoresView = {
       const telefonoPrincipal = c.celular || c.telefonoFijo || '';
 
       const sedeNombre = c.sedeInstitucion || 'Por asignar';
-      const sedeUrl = `/sedes?filtro=${encodeURIComponent(sedeNombre)}`;
+      const sedeUrl = `/sedes?q=${encodeURIComponent(sedeNombre)}`;
 
       return `
         <tr data-id="${escapar(c.id)}">
@@ -378,7 +378,7 @@ export const ColaboradoresView = {
       const cat = c.categoria || clasificarCategoria(c.tipoColaborador);
       const iniciales = `${(c.nombres || '')[0] || ''}${(c.apellidos || '')[0] || ''}`.toUpperCase();
       const sedeNombre = c.sedeInstitucion || 'Por asignar';
-      const sedeUrl = `/sedes?filtro=${encodeURIComponent(sedeNombre)}`;
+      const sedeUrl = `/sedes?q=${encodeURIComponent(sedeNombre)}`;
       const tieneCelular = esCelularValido(c.celular);
       const telefonoPrincipal = c.celular || c.telefonoFijo || '';
 

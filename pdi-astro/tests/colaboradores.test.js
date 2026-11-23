@@ -218,3 +218,78 @@ test('ColaboradorModel.aplicarDatos y getBySede localizan colaboradores por sede
   const noMatch = ColaboradorModel.getBySede('Inexistente');
   assert.equal(noMatch.length, 0);
 });
+
+test('validarDatosColaborador y normalizarColaborador limpian prefijo +51 de celular peruano', () => {
+  const conPrefijo = validarDatosColaborador({
+    nombres: 'Esther',
+    apellidos: 'Mendoza',
+    sedeInstitucion: 'Sede Comas',
+    celular: '+51 987 654 321'
+  });
+  assert.equal(conPrefijo.valido, true);
+
+  const normalizado = normalizarColaborador({
+    nombres: 'Esther',
+    apellidos: 'Mendoza',
+    sedeInstitucion: 'Sede Comas',
+    celular: '+51 987 654 321'
+  });
+  assert.equal(normalizado.celular, '987654321');
+});
+
+test('validarDatosColaborador tolera campos opcionales con espacios en blanco', () => {
+  const res = validarDatosColaborador({
+    nombres: 'Esther',
+    apellidos: 'Mendoza',
+    sedeInstitucion: 'Sede Comas',
+    dni: '   ',
+    codigoModular: '   '
+  });
+  assert.equal(res.valido, true);
+});
+
+test('ColaboradorModel.getBySede es insensible a tildes y mayúsculas', () => {
+  ColaboradorModel.aplicarDatos([
+    {
+      id: 10,
+      codigo: 'COL-2026-010',
+      nombres: 'Lucas',
+      apellidos: 'Bustamante',
+      sedeInstitucion: 'Sede San José Obrero',
+      tipoColaborador: 'Director(a) I.E.',
+      categoria: 'colegios'
+    }
+  ]);
+
+  const matchSinTilde = ColaboradorModel.getBySede('san jose');
+  assert.equal(matchSinTilde.length, 1);
+  assert.equal(matchSinTilde[0].codigo, 'COL-2026-010');
+
+  const matchConTilde = ColaboradorModel.getBySede('SAN JOSÉ');
+  assert.equal(matchConTilde.length, 1);
+  assert.equal(matchConTilde[0].codigo, 'COL-2026-010');
+});
+
+test('ColaboradorModel.delete y update gestionan el estado en memoria y preservan _qid', async () => {
+  ColaboradorModel.aplicarDatos([
+    {
+      id: 50,
+      _qid: 'colaborador:⟨record_50⟩',
+      codigo: 'COL-2026-050',
+      nombres: 'Mario',
+      apellidos: 'Vargas',
+      sedeInstitucion: 'Sede Carabayllo',
+      tipoColaborador: 'Facilitador(a) Comunitario(a)',
+      categoria: 'pdi',
+      estado: 'Activo'
+    }
+  ]);
+
+  const actualizado = await ColaboradorModel.update(50, { nombres: 'Mario Paul' });
+  assert.equal(actualizado.nombres, 'Mario Paul');
+  assert.equal(actualizado._qid, 'colaborador:⟨record_50⟩');
+
+  const borrado = await ColaboradorModel.delete(50);
+  assert.equal(borrado, true);
+  assert.equal(ColaboradorModel.getById(50), null);
+});

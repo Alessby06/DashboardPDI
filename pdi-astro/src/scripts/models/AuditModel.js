@@ -163,6 +163,17 @@ export const AuditModel = {
         subtitulo: entry.subtitulo,
       }
     );
+  },
+
+  /**
+   * Helper estándar para registrar acciones operativas desde cualquier vista o modelo.
+   */
+  registrarAccion(accion, detalle, entidad = 'Colaborador') {
+    return this.addLog({
+      action: accion,
+      detail: detalle,
+      entity: entidad,
+    });
   }
 };
 

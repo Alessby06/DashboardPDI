@@ -36,6 +36,18 @@ export const PROGRAMAS_ARTICULADOS = [
   'Área Social Pastoral'
 ];
 
+export function limpiarCelularPeru(val) {
+  let num = String(val || '').replace(/\D/g, '');
+  if (num.length === 11 && num.startsWith('51')) {
+    num = num.slice(2);
+  }
+  return num;
+}
+
+function quitarDiacriticos(str) {
+  return String(str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+}
+
 export function clasificarCategoria(tipo) {
   const t = String(tipo || '').toLowerCase();
   if (t.includes('director') || t.includes('docente')) return CATEGORIAS_COLABORADOR.COLEGIO;
@@ -49,21 +61,23 @@ export function validarDatosColaborador(c = {}) {
   const nombres = String(c.nombres || '').trim();
   const apellidos = String(c.apellidos || '').trim();
   const sede = String(c.sedeInstitucion || '').trim();
-  const celular = String(c.celular || '').replace(/\D/g, '');
-  const dni = String(c.dni || '').replace(/\D/g, '');
-  const modular = String(c.codigoModular || '').replace(/\D/g, '');
+  const celular = limpiarCelularPeru(c.celular);
+  const rawDni = String(c.dni || '').trim();
+  const dni = rawDni.replace(/\D/g, '');
+  const rawModular = String(c.codigoModular || '').trim();
+  const modular = rawModular.replace(/\D/g, '');
 
   if (nombres.length < 2) errores.push('Los nombres deben tener al menos 2 caracteres.');
   if (apellidos.length < 2) errores.push('Los apellidos deben tener al menos 2 caracteres.');
   if (!sede) errores.push('La sede o institución vinculada es obligatoria.');
 
-  if (c.celular && (celular.length !== 9 || !celular.startsWith('9'))) {
+  if (c.celular && String(c.celular).trim().length > 0 && (celular.length !== 9 || !celular.startsWith('9'))) {
     errores.push('El celular debe tener 9 dígitos y comenzar con 9.');
   }
-  if (c.dni && dni.length !== 8) {
+  if (rawDni && dni.length !== 8) {
     errores.push('El DNI debe tener exactamente 8 dígitos.');
   }
-  if (c.codigoModular && modular.length !== 7) {
+  if (rawModular && modular.length !== 7) {
     errores.push('El código modular debe tener exactamente 7 dígitos.');
   }
 
@@ -89,7 +103,7 @@ export function normalizarColaborador(c = {}) {
     nombres: String(c.nombres || '').trim(),
     apellidos: String(c.apellidos || '').trim(),
     dni: String(c.dni || '').replace(/\D/g, '').slice(0, 8),
-    celular: String(c.celular || '').replace(/\D/g, '').slice(0, 9),
+    celular: limpiarCelularPeru(c.celular).slice(0, 9),
     telefonoFijo: String(c.telefonoFijo || '').trim(),
     email: String(c.email || '').trim().toLowerCase(),
     fechaNacimiento: c.fechaNacimiento || '',
@@ -209,9 +223,9 @@ export const ColaboradorModel = {
   getBySede(sedeNombre) {
     if (!this._data) this.init();
     if (!sedeNombre) return [];
-    const term = String(sedeNombre).toLowerCase().trim();
+    const term = quitarDiacriticos(sedeNombre);
     return this._data.filter(c => {
-      const s = String(c.sedeInstitucion || '').toLowerCase();
+      const s = quitarDiacriticos(c.sedeInstitucion);
       return s.includes(term) || term.includes(s);
     });
   },
@@ -248,7 +262,10 @@ export const ColaboradorModel = {
     if (typeof window !== 'undefined' && window.PDI?.DB?.crearColaborador) {
       try {
         const ok = await window.PDI.DB.crearColaborador(nuevo);
-        if (ok && ok.qid) nuevo._qid = ok.qid;
+        if (ok && ok.qid) {
+          nuevo._qid = ok.qid;
+          this._guardar();
+        }
       } catch (err) {
         console.warn('[PDI] Error al persistir colaborador en la nube:', err);
       }

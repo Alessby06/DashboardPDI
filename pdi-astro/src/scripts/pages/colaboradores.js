@@ -22,8 +22,7 @@ function montar() {
 function iniciar() {
   if (!arrancarComun()) return;
 
-  enlazar();
-  montar();
+  ColaboradoresView.init();
 
   publicarRefresco(montar);
   console.log('[PDI] Red Territorial de Colaboradores lista (colaboradores.astro).');
