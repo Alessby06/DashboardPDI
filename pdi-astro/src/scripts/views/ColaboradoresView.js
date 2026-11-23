@@ -237,7 +237,9 @@ export const ColaboradoresView = {
         (c.codigo || '').toLowerCase().includes(q) ||
         (c.codigoModular || '').includes(q) ||
         quitarDiacriticos(c.tipoColaborador).includes(q) ||
-        quitarDiacriticos(c.distrito).includes(q)
+        quitarDiacriticos(c.distrito).includes(q) ||
+        quitarDiacriticos(c.observaciones).includes(q) ||
+        (c.email || '').toLowerCase().includes(q)
       );
     }
 
@@ -703,6 +705,9 @@ export const ColaboradoresView = {
       this.actualizarCamposContextualesModal(selectTipo.value);
     }
 
+    const modalContent = modal.querySelector('.modal-content');
+    if (modalContent) modalContent.scrollTop = 0;
+
     modal.classList.add('active');
     modal.style.display = 'flex';
   },
@@ -744,6 +749,9 @@ export const ColaboradoresView = {
     form.querySelectorAll('input[name="colabEstrategias"]').forEach(cb => {
       cb.checked = ests.includes(cb.value);
     });
+
+    const modalContent = modal.querySelector('.modal-content');
+    if (modalContent) modalContent.scrollTop = 0;
 
     modal.classList.add('active');
     modal.style.display = 'flex';
