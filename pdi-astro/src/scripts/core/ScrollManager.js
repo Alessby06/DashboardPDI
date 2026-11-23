@@ -135,9 +135,38 @@ export const ScrollManager = {
     // (antes habia un bucle de 16 reintentos cada 250 ms) reinicia
     // targetScroll al animatedScroll actual y corta el impulso de la rueda a
     // mitad del gesto: el scroll se frenaba y volvia a arrancar solo.
+    this._filtrarRebote();
+
     const remide = () => this.main?.resize();
     requestAnimationFrame(remide);
     setTimeout(remide, 120);
+  },
+
+  /** La rueda de un trackpad emite pequenos deltas inversos al terminar el
+   *  gesto. Lenis los suma y el viewport retrocede: parece otra rueda que
+   *  obliga a subir. Se descartan solo los reversos pequenos y recientes, con
+   *  un presupuesto para no bloquear un gesto ascendente deliberado. */
+  _filtrarRebote() {
+    const wrapper = this.mainWrapper;
+    if (!wrapper || wrapper.__pdiRebote) return;
+    wrapper.__pdiRebote = true;
+    let ultimoAbajo = 0;
+    let presupuesto = 160;
+    wrapper.addEventListener('wheel', (evento) => {
+      const ahora = performance.now();
+      if (evento.deltaY > 0) {
+        ultimoAbajo = ahora;
+        presupuesto = 160;
+        return;
+      }
+      const magnitud = -evento.deltaY;
+      if (evento.deltaY < 0 && magnitud <= 45
+        && ahora - ultimoAbajo < 500 && presupuesto >= magnitud) {
+        presupuesto -= magnitud;
+        evento.preventDefault();
+        evento.stopPropagation();
+      }
+    }, { capture: true, passive: false });
   },
 
   _tick() {
