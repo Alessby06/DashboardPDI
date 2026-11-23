@@ -183,19 +183,22 @@ function actualizarInnerDropdownEstado(dropdown) {
   const items = Array.from(dropdown.querySelectorAll('.padron-dropdown-item.selected'));
   const tieneNoAll = items.some((it) => it.dataset.value && it.dataset.value !== 'all');
   dropdown.classList.toggle('has-active-filter', tieneNoAll);
+  const panel = dropdown.closest('.audit-filters-dropdown');
+  if (panel) actualizarRestablecer(panel);
 }
 
 function actualizarRestablecer(panel) {
   const boton = panel.querySelector('[data-fil-restablecer]');
   const btnInline = panel.querySelector('.padron-btn-reset-inline');
   const contador = panel.querySelector('.filter-active-count');
-  // Sin contador en esa página no hay forma de saber cuántos filtros hay: se
-  // deja visible, que es el comportamiento de siempre. Con contador, manda él:
-  // escondido significa que no hay nada que restablecer.
-  const activos = contador ? contador.style.display !== 'none' : true;
+  const tieneFiltros = panel.querySelector('.has-active-filter') !== null;
+  // Con contador, manda él; si no hay o está oculto, manda la presencia de filtros activos
+  const activos = (contador && contador.style.display !== 'none' && contador.textContent.trim() !== '0') || tieneFiltros;
   if (boton) boton.hidden = !activos;
   if (btnInline) {
     btnInline.classList.toggle('is-active', activos);
+    btnInline.setAttribute('aria-disabled', activos ? 'false' : 'true');
+    btnInline.tabIndex = activos ? 0 : -1;
   }
 }
 
