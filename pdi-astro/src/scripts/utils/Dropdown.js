@@ -93,10 +93,8 @@ export const Dropdown = {
       if (d !== dropdown) d.classList.remove('open');
     });
     dropdown.classList.toggle('open', abrir);
-    // En el panel las facetas ya no flotan: crecen dentro del cuerpo. El
-    // desplazamiento espera a que la altura termine (190 ms) y se hace suave;
-    // en el mismo clic se sentía como un tirón.
-    if (abrir && dropdown.closest('.audit-filters-menu')) {
+    // En la hoja móvil las facetas crecen dentro del cuerpo. En escritorio flotan.
+    if (abrir && dropdown.closest('.audit-filters-menu') && typeof window !== 'undefined' && window.innerWidth <= 640) {
       const lista = dropdown.querySelector('.padron-inner-dropdown-menu');
       window.setTimeout(() => {
         if (!dropdown.classList.contains('open') || !lista?.isConnected) return;
