@@ -121,7 +121,7 @@ export const ScrollManager = {
     this.main = new Lenis({
       wrapper,
       ...(content ? { content } : {}),
-      lerp: 0.1,
+      lerp: 0.09,
       smoothWheel: true,
       syncTouch: this.touch,
       wheelMultiplier: 1,
@@ -130,19 +130,14 @@ export const ScrollManager = {
       autoRaf: false
     });
 
+    // Solo dos medidas tempranas, antes de que nadie pueda estar scrolleando.
+    // Lenis ya observa el wrapper con autoResize: medir de nuevo mas tarde
+    // (antes habia un bucle de 16 reintentos cada 250 ms) reinicia
+    // targetScroll al animatedScroll actual y corta el impulso de la rueda a
+    // mitad del gesto: el scroll se frenaba y volvia a arrancar solo.
     const remide = () => this.main?.resize();
     requestAnimationFrame(remide);
     setTimeout(remide, 120);
-    setTimeout(remide, 800);
-    window.addEventListener('load', remide, { once: true });
-
-    let intentos = 0;
-    const insistir = () => {
-      if (!this.main) return;
-      this.main.resize();
-      if (intentos++ < 16) setTimeout(insistir, 250);
-    };
-    insistir();
   },
 
   _tick() {
