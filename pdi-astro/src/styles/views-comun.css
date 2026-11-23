@@ -731,6 +731,7 @@
    para que la fila quede alineada. */
 .padron-sort-btn {
   height: 38px;
+  font-size: 13px;
 }
 
 .padron-sort-btn:focus-visible {
