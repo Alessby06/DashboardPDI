@@ -26,7 +26,7 @@ const OPCIONES_ESTRATEGIA = [
   { valor: 'Desayuno Infantil', etiqueta: 'Desayuno Infantil' },
   { valor: 'Casita del Saber', etiqueta: 'Casita del Saber' },
   { valor: 'Buen Trato en Familia (BTF)', etiqueta: 'Buen Trato en Familia (BTF)' },
-  { valor: 'Jóvenes en Acción Comunitaria (JAC)', etiqueta: 'Jóvenes en Acción Comunitaria (JAC)' },
+  { valor: 'Juntos Aprendemos en Cristo (JAC)', etiqueta: 'Juntos Aprendemos en Cristo (JAC)' },
   { valor: 'Repostería', etiqueta: 'Repostería' },
   { valor: 'Área Social Pastoral', etiqueta: 'Área Social Pastoral' },
 ];
@@ -271,7 +271,8 @@ const OPCIONES_ORDEN = [
             </div>
             <div>
               <label for="colabSede" style="display:block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Nombre de la I.E., Iglesia o Sede *</label>
-              <input type="text" id="colabSede" required placeholder="Ej. I.E. 3088 Los Ángeles o Iglesia Alianza" class="audit-search-input" style="width: 100%; border: 1px solid var(--border-default); border-radius: var(--radius-sm); padding: 8px 12px;" />
+              <input type="text" id="colabSede" list="listaSedesDisponibles" required placeholder="Selecciona una sede o escribe el colegio/institución..." class="audit-search-input" style="width: 100%; border: 1px solid var(--border-default); border-radius: var(--radius-sm); padding: 8px 12px;" autocomplete="off" />
+              <datalist id="listaSedesDisponibles"></datalist>
             </div>
           </div>
 
@@ -279,7 +280,7 @@ const OPCIONES_ORDEN = [
           <div id="colabCamposColegio" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
             <div>
               <label for="colabCodigoModular" style="display:block; font-size: 11.5px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Cód. Modular</label>
-              <input type="text" id="colabCodigoModular" placeholder="Ej. 0584920" class="audit-search-input" style="width: 100%; border: 1px solid var(--border-default); border-radius: var(--radius-sm); padding: 6px 10px; font-size: 12px;" />
+              <input type="text" id="colabCodigoModular" maxlength="7" placeholder="Ej. 0584920" class="audit-search-input" style="width: 100%; border: 1px solid var(--border-default); border-radius: var(--radius-sm); padding: 6px 10px; font-size: 12px;" />
             </div>
             <div>
               <label for="colabNivel" style="display:block; font-size: 11.5px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Nivel</label>
@@ -374,7 +375,7 @@ const OPCIONES_ORDEN = [
               <input type="checkbox" name="colabEstrategias" value="Buen Trato en Familia (BTF)" /> BTF
             </label>
             <label style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-main); cursor: pointer;">
-              <input type="checkbox" name="colabEstrategias" value="Jóvenes en Acción Comunitaria (JAC)" /> JAC
+              <input type="checkbox" name="colabEstrategias" value="Juntos Aprendemos en Cristo (JAC)" /> JAC (Juntos Aprendemos en Cristo)
             </label>
             <label style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-main); cursor: pointer;">
               <input type="checkbox" name="colabEstrategias" value="Repostería" /> Repostería

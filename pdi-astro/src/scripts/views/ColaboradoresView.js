@@ -2,7 +2,7 @@ import { attrsDe } from '../core/inlineCall.js';
 // Vista: Padrón y Directorio de Colaboradores e Instituciones Aliadas (PDI)
 // Asociación Cultural y Educativa Johannes Gutenberg - Lima Norte
 
-import { ColaboradorModel, clasificarCategoria, CATEGORIAS_COLABORADOR } from '../models/ColaboradorModel.js';
+import { ColaboradorModel, clasificarCategoria, CATEGORIAS_COLABORADOR, validarDatosColaborador } from '../models/ColaboradorModel.js';
 import { ToastView } from './ToastView.js';
 import { AuditModel } from '../models/AuditModel.js';
 import { escapar } from '../utils/HtmlHelper.js';
@@ -24,6 +24,7 @@ function esCelularValido(num) {
 export const ColaboradoresView = {
   init() {
     this.enlazarEventos();
+    this.actualizarDatalistSedes();
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       const qSede = params.get('sede') || params.get('buscar') || '';
@@ -33,6 +34,13 @@ export const ColaboradoresView = {
         busquedaActual = qSede.toLowerCase();
         const clearBtn = document.getElementById('btnColabSearchClear');
         if (clearBtn) clearBtn.style.display = 'flex';
+
+        // Auto-seleccionar la pestaña de la categoría del colaborador vinculado si aplica
+        const todos = ColaboradorModel.getAll();
+        const match = todos.find(c => String(c.sedeInstitucion || '').toLowerCase().includes(busquedaActual));
+        if (match && match.categoria) {
+          this.setTabCategoria(match.categoria);
+        }
       }
     }
     this.render();
@@ -487,7 +495,17 @@ export const ColaboradoresView = {
     this.aplicarFiltrosYOrden();
   },
 
+  actualizarDatalistSedes() {
+    const datalist = document.getElementById('listaSedesDisponibles');
+    if (!datalist) return;
+    const sedes = window.PDI?.SedeModel?.getAll?.() || [];
+    datalist.innerHTML = sedes.map(s =>
+      `<option value="${escapar(s.nombre)}">Sede ${escapar(s.nombre)} (${escapar(s.distrito || '')})</option>`
+    ).join('');
+  },
+
   openModalNuevo() {
+    this.actualizarDatalistSedes();
     const modal = document.getElementById('modalColaborador');
     const form = document.getElementById('formColaborador');
     const title = document.getElementById('modalColabTitle');
@@ -516,6 +534,7 @@ export const ColaboradoresView = {
   },
 
   openModalEditar(id) {
+    this.actualizarDatalistSedes();
     const colab = ColaboradorModel.getById(id);
     if (!colab) return;
 
@@ -564,7 +583,7 @@ export const ColaboradoresView = {
     }
   },
 
-  guardar() {
+  async guardar() {
     const idInput = document.getElementById('colabEditId');
     const isEdit = idInput && idInput.value;
 
@@ -582,16 +601,6 @@ export const ColaboradoresView = {
     const turno = document.getElementById('colabTurno').value;
     const estado = document.getElementById('colabEstado').value;
     const observaciones = document.getElementById('colabObservaciones').value.trim();
-
-    if (!nombres || !apellidos) {
-      ToastView.show('Datos Incompletos', 'Por favor ingresa los nombres y apellidos de la persona de contacto.', 'error');
-      return;
-    }
-
-    if (!sedeInstitucion) {
-      ToastView.show('Sede Requerida', 'Por favor ingresa el nombre de la I.E., Iglesia o Sede vinculada.', 'error');
-      return;
-    }
 
     const form = document.getElementById('formColaborador');
     const estrategias = [];
@@ -619,8 +628,14 @@ export const ColaboradoresView = {
       observaciones
     };
 
+    const validacion = validarDatosColaborador(payload);
+    if (!validacion.valido) {
+      ToastView.show('Datos Incompletos o Inválidos', validacion.errores[0], 'error');
+      return;
+    }
+
     if (isEdit) {
-      const act = ColaboradorModel.update(idInput.value, payload);
+      const act = await ColaboradorModel.update(idInput.value, payload);
       if (act) {
         ToastView.show('Ficha Actualizada', `${act.apellidos}, ${act.nombres} ha sido actualizado con éxito.`, 'success');
         if (AuditModel && typeof AuditModel.registrarAccion === 'function') {
@@ -628,7 +643,7 @@ export const ColaboradoresView = {
         }
       }
     } else {
-      const creado = ColaboradorModel.create(payload);
+      const creado = await ColaboradorModel.create(payload);
       ToastView.show('Colaborador Registrado', `${creado.codigo}: ${creado.apellidos}, ${creado.nombres} fue añadido a la red.`, 'success');
       if (AuditModel && typeof AuditModel.registrarAccion === 'function') {
         AuditModel.registrarAccion('Alta Colaborador', `Registró a ${creado.codigo} (${creado.apellidos})`);
@@ -651,10 +666,10 @@ export const ColaboradoresView = {
       peligro: true,
     });
     if (aceptar) {
-      ColaboradorModel.delete(id);
-      ToastView.show('Ficha Eliminada', `Se eliminó el registro de ${colab.codigo}.`, 'info');
+      await ColaboradorModel.delete(id);
+      ToastView.show('Ficha Eliminada', `Se dio de baja el registro de ${colab.codigo}.`, 'info');
       if (AuditModel && typeof AuditModel.registrarAccion === 'function') {
-        AuditModel.registrarAccion('Baja Colaborador', `Eliminó ficha de ${colab.codigo}`);
+        AuditModel.registrarAccion('Baja Colaborador', `Dio de baja la ficha de ${colab.codigo}`);
       }
       this.render();
     }
