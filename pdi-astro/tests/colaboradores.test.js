@@ -318,3 +318,14 @@ test('COLABORADORES_SEMILLA contiene las 7 facilitadoras territoriales y sedes o
   const colegios = todos.filter(c => c.categoria === 'colegios');
   assert.ok(colegios.length >= 4, 'Deben existir al menos 4 directores o docentes de colegios aliados');
 });
+
+test('ColaboradorModel.aplicarDatos([]) no sobreescribe ni borra los colaboradores cargados', () => {
+  ColaboradorModel.init();
+  const antes = ColaboradorModel.getAll().length;
+  assert.ok(antes > 0);
+
+  ColaboradorModel.aplicarDatos([]);
+  const despues = ColaboradorModel.getAll().length;
+  assert.equal(despues, antes, 'aplicarDatos([]) debe preservar los datos existentes');
+});
+

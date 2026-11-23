@@ -466,37 +466,39 @@ export const ColaboradorModel = {
   _data: null,
 
   init() {
-    if (!this._data) {
-      const almacenados = StorageService.getItem(STORAGE_KEY, null);
-      if (Array.isArray(almacenados) && almacenados.length > 0) {
-        this._data = almacenados;
-      } else {
-        this._data = COLABORADORES_SEMILLA.map((c, idx) => normalizarColaborador({
-          ...c,
-          id: idx + 1,
-          codigo: `COL-${new Date().getFullYear()}-${String(idx + 1).padStart(3, '0')}`,
-        }));
-        this._guardar();
-      }
+    const almacenados = StorageService.getItem(STORAGE_KEY, null);
+    if (Array.isArray(almacenados) && almacenados.length > 0) {
+      this._data = almacenados;
+    } else {
+      this._data = COLABORADORES_SEMILLA.map((c, idx) => normalizarColaborador({
+        ...c,
+        id: idx + 1,
+        codigo: `COL-${new Date().getFullYear()}-${String(idx + 1).padStart(3, '0')}`,
+      }));
+      this._guardar();
     }
   },
 
   /** La capa de datos entrega el padrón hidratado de la nube. */
   aplicarDatos(lista) {
     if (!Array.isArray(lista)) return;
-    this._data = lista;
-    this._guardar();
+    if (lista.length > 0) {
+      this._data = lista;
+      this._guardar();
+    } else if (!this._data || this._data.length === 0) {
+      this.init();
+    }
   },
 
   _guardar() {
-    if (this._data) {
+    if (this._data && this._data.length > 0) {
       StorageService.setItem(STORAGE_KEY, this._data);
     }
   },
 
   getAll() {
-    if (!this._data) this.init();
-    return [...this._data];
+    if (!this._data || this._data.length === 0) this.init();
+    return [...(this._data || [])];
   },
 
   getByCategoria(categoria) {

@@ -348,7 +348,7 @@ export function aplicarSnapshotInicial() {
       snap.datos.voluntarios,
       snap.datos.asistencia,
       snap.datos.retirados,
-      snap.datos.colaboradores,
+      (snap.datos.colaboradores && snap.datos.colaboradores.length > 0) ? snap.datos.colaboradores : undefined,
     );
     _snapshotAplicado = true;
     _ultimaHidratacion = snap.ts;
@@ -611,15 +611,19 @@ export async function hidratar(promedioSilencioso = false) {
       const voluntarios = mapearVoluntarios(voluntariosRaw);
 
       // 8 · colaboradores: consulta resiliente. Si la tabla aún no existe en la nube
-      // (pendiente de migración DDL), no interrumpe la hidratación del resto del sistema.
+      // o está vacía (pendiente de migración DDL), no interrumpe ni pisa los datos locales.
       let colaboradores = [];
       try {
         const resColab = await ejecutar('SELECT * FROM colaborador WHERE activo = true ORDER BY creado_el DESC;');
-        colaboradores = mapearColaboradores(comoLista(resColab));
+        const mapeados = mapearColaboradores(comoLista(resColab));
+        if (mapeados && mapeados.length > 0) {
+          colaboradores = mapeados;
+        } else {
+          colaboradores = (typeof window !== 'undefined' && window.PDI?.ColaboradorModel?.getAll?.()) || [];
+        }
       } catch (errColab) {
         // Tolerancia a fallos: fallback a datos en memoria o local storage
-        const existentes = (typeof window !== 'undefined' && window.PDI?.ColaboradorModel?.getAll?.()) || [];
-        colaboradores = existentes;
+        colaboradores = (typeof window !== 'undefined' && window.PDI?.ColaboradorModel?.getAll?.()) || [];
       }
 
       // Solo para el KPI del panel general. La jornada de educativo tiene su
@@ -691,7 +695,11 @@ function aplicarDatasets(beneficiarios, sedes, casos, voluntarios, asistencia, r
   pdi.SedeModel?.aplicarDatos?.(sedes);
   pdi.CasoSocialModel?.aplicarDatos?.(casos);
   pdi.VoluntarioModel?.aplicarDatos?.(voluntarios);
-  pdi.ColaboradorModel?.aplicarDatos?.(colaboradores || []);
+  if (Array.isArray(colaboradores) && colaboradores.length > 0) {
+    pdi.ColaboradorModel?.aplicarDatos?.(colaboradores);
+  } else if (!pdi.ColaboradorModel?.getAll?.()?.length) {
+    pdi.ColaboradorModel?.init?.();
+  }
   // Solo alimenta el KPI del panel general. CasitasController guarda este
   // mapa aparte de la jornada: no puede pisar el borrador de educativo.
   pdi.CasitasController?.aplicarDatosAsistencia?.(asistencia);

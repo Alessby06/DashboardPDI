@@ -8,6 +8,7 @@ import { AuditModel } from '../models/AuditModel.js';
 import { escapar } from '../utils/HtmlHelper.js';
 import { confirmar } from '../ui/confirmacion.js';
 import { initSortMenu } from '../ui/SortMenu.js';
+import { iconHtml } from '../../data/iconos.js';
 
 let busquedaActual = '';
 let categoriaTabActual = 'colegios';
@@ -15,6 +16,10 @@ let filtroDistritoActual = '';
 let filtroEstrategiaActual = '';
 let ordenActual = 'apellido-asc';
 let listenersEnlazados = false;
+
+function quitarDiacriticos(str) {
+  return String(str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+}
 
 function esCelularValido(num) {
   const limpio = String(num || '').replace(/\D/g, '');
@@ -31,13 +36,17 @@ export const ColaboradoresView = {
       if (qSede) {
         const input = document.getElementById('inputColabSearch');
         if (input) input.value = qSede;
-        busquedaActual = qSede.toLowerCase();
+        busquedaActual = qSede.trim();
         const clearBtn = document.getElementById('btnColabSearchClear');
         if (clearBtn) clearBtn.style.display = 'flex';
 
         // Auto-seleccionar la pestaña de la categoría del colaborador vinculado si aplica
         const todos = ColaboradorModel.getAll();
-        const match = todos.find(c => String(c.sedeInstitucion || '').toLowerCase().includes(busquedaActual));
+        const qNorm = quitarDiacriticos(busquedaActual);
+        const match = todos.find(c => {
+          const s = quitarDiacriticos(c.sedeInstitucion);
+          return s.includes(qNorm) || qNorm.includes(s);
+        });
         if (match && match.categoria) {
           this.setTabCategoria(match.categoria);
         }
@@ -110,6 +119,11 @@ export const ColaboradoresView = {
         this.guardar();
       });
     }
+
+    // Re-renderizar si la capa de datos sincroniza con la nube
+    document.addEventListener('pdi:datos-actualizados', () => {
+      this.render();
+    });
   },
 
   setTabCategoria(cat) {
@@ -211,18 +225,18 @@ export const ColaboradoresView = {
 
     // 2. Filtro por búsqueda de texto
     if (busquedaActual) {
-      const q = busquedaActual.toLowerCase().trim();
+      const q = quitarDiacriticos(busquedaActual);
       res = res.filter(c =>
-        (c.nombres || '').toLowerCase().includes(q) ||
-        (c.apellidos || '').toLowerCase().includes(q) ||
-        (c.dni || '').toLowerCase().includes(q) ||
-        (c.celular || '').toLowerCase().includes(q) ||
-        (c.telefonoFijo || '').toLowerCase().includes(q) ||
-        (c.sedeInstitucion || '').toLowerCase().includes(q) ||
+        quitarDiacriticos(c.nombres).includes(q) ||
+        quitarDiacriticos(c.apellidos).includes(q) ||
+        (c.dni || '').includes(q) ||
+        (c.celular || '').includes(q) ||
+        (c.telefonoFijo || '').includes(q) ||
+        quitarDiacriticos(c.sedeInstitucion).includes(q) ||
         (c.codigo || '').toLowerCase().includes(q) ||
-        (c.codigoModular || '').toLowerCase().includes(q) ||
-        (c.tipoColaborador || '').toLowerCase().includes(q) ||
-        (c.distrito || '').toLowerCase().includes(q)
+        (c.codigoModular || '').includes(q) ||
+        quitarDiacriticos(c.tipoColaborador).includes(q) ||
+        quitarDiacriticos(c.distrito).includes(q)
       );
     }
 
@@ -480,13 +494,15 @@ export const ColaboradoresView = {
             <div class="colab-contact-actions">
               ${telefonoPrincipal ? `
                 <a href="tel:${escapar(telefonoPrincipal)}" class="btn-contact-action btn-contact-call" title="Llamar a ${escapar(telefonoPrincipal)}">
-                  <span>📞 ${escapar(telefonoPrincipal)}</span>
+                  ${iconHtml('comunicacion.llamar', { size: 13 })}
+                  <span>${escapar(telefonoPrincipal)}</span>
                 </a>
               ` : '<span class="text-muted" style="font-size:11.5px;">Sin teléfono</span>'}
 
               ${tieneCelular ? `
                 <a href="https://wa.me/51${escapar(c.celular)}?text=Hola%20${encodeURIComponent(c.nombres)}%2C%20le%20escribimos%20del%20Programa%20Desarrollo%20Infantil%20PDI" target="_blank" rel="noopener noreferrer" class="btn-contact-action btn-contact-wa" title="Escribir por WhatsApp">
-                  <span>💬 WhatsApp</span>
+                  ${iconHtml('dispositivo.movil', { size: 13 })}
+                  <span>WhatsApp</span>
                 </a>
               ` : ''}
             </div>
@@ -494,10 +510,10 @@ export const ColaboradoresView = {
           <td style="text-align: right;">
             <div style="display: inline-flex; align-items: center; gap: 6px;">
               <button type="button" class="btn-action-icon" ${attrsDe(`window.editarColaborador('${escapar(c.id)}')`)} title="Editar ficha del colaborador">
-                ✏️
+                ${iconHtml('accion.editar', { size: 14 })}
               </button>
               <button type="button" class="btn-action-icon text-danger" ${attrsDe(`window.eliminarColaborador('${escapar(c.id)}')`)} title="Eliminar del directorio">
-                🗑️
+                ${iconHtml('accion.eliminar', { size: 14 })}
               </button>
             </div>
           </td>
@@ -547,10 +563,10 @@ export const ColaboradoresView = {
           </div>
 
           <div class="colab-card-meta">
-            <div>📍 <strong>${escapar(c.distrito)}</strong> · <a href="${sedeUrl}" class="colab-sede-link">${escapar(sedeNombre)}</a></div>
-            ${c.turno ? `<div>⏰ Turno: <strong>${escapar(c.turno)}</strong></div>` : ''}
-            ${c.codigoModular ? `<div>🏛️ Código Modular: <strong>${escapar(c.codigoModular)}</strong></div>` : ''}
-            <div>🪪 DNI: ${escapar(c.dni || 'Sin DNI')} · ${escapar(c.codigo)}</div>
+            <div>${iconHtml('lugar.ubicacion', { size: 12 })} <strong>${escapar(c.distrito)}</strong> · <a href="${sedeUrl}" class="colab-sede-link">${escapar(sedeNombre)}</a></div>
+            ${c.turno ? `<div>${iconHtml('estado.pendiente', { size: 12 })} Turno: <strong>${escapar(c.turno)}</strong></div>` : ''}
+            ${c.codigoModular ? `<div>${iconHtml('educacion.libro', { size: 12 })} Modular: <strong>${escapar(c.codigoModular)}</strong></div>` : ''}
+            <div>${iconHtml('persona.usuario', { size: 12 })} DNI: ${escapar(c.dni || 'Sin DNI')} · ${escapar(c.codigo)}</div>
           </div>
 
           <div class="colab-card-estrategias">
@@ -560,16 +576,19 @@ export const ColaboradoresView = {
           <div class="colab-card-actions">
             ${telefonoPrincipal ? `
               <a href="tel:${escapar(telefonoPrincipal)}" class="btn-mobile-touch btn-mobile-call">
-                📞 Llamar
+                ${iconHtml('comunicacion.llamar', { size: 14 })}
+                <span>Llamar</span>
               </a>
             ` : ''}
             ${tieneCelular ? `
               <a href="https://wa.me/51${escapar(c.celular)}?text=Hola%20${encodeURIComponent(c.nombres)}%2C%20le%20escribimos%20del%20Programa%20Desarrollo%20Infantil%20PDI" target="_blank" rel="noopener noreferrer" class="btn-mobile-touch btn-mobile-wa">
-                💬 WhatsApp
+                ${iconHtml('dispositivo.movil', { size: 14 })}
+                <span>WhatsApp</span>
               </a>
             ` : ''}
             <button type="button" class="btn-mobile-touch btn-mobile-edit" ${attrsDe(`window.editarColaborador('${escapar(c.id)}')`)}>
-              ✏️ Ficha
+              ${iconHtml('accion.editar', { size: 14 })}
+              <span>Ficha</span>
             </button>
           </div>
         </article>
