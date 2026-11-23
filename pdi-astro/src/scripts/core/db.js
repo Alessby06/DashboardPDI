@@ -51,6 +51,7 @@ import { consultaCapacitacion } from './consultasVoluntario.js';
 import { conReintentos } from '../utils/reintento.js';
 import { diaEnZona, construirGuardadoJornada } from './jornadaAsistencia.js';
 import { calcularEvaluacion, VERSION_INSTRUMENTO } from '../utils/EvaluacionSocioeconomica.js';
+import { mapearColaboradores } from '../models/ColaboradorModel.js';
 
 const URL = import.meta.env.PUBLIC_SURREAL_URL;
 const NS = import.meta.env.PUBLIC_SURREAL_NS;
@@ -347,6 +348,7 @@ export function aplicarSnapshotInicial() {
       snap.datos.voluntarios,
       snap.datos.asistencia,
       snap.datos.retirados,
+      snap.datos.colaboradores,
     );
     _snapshotAplicado = true;
     _ultimaHidratacion = snap.ts;
@@ -578,6 +580,8 @@ const SQL_LOTE_HIDRATACION = [
   'SELECT * FROM sede ORDER BY creado_el;',
   // 7 · archivo de retirados
   SQL_RETIRADOS,
+  // 8 · colaboradores activos
+  'SELECT * FROM colaborador WHERE activo = true ORDER BY creado_el DESC;',
 ].join('\n');
 
 export async function hidratar(promedioSilencioso = false) {
@@ -596,7 +600,7 @@ export async function hidratar(promedioSilencioso = false) {
     if (!_snapshotAplicado) cambiarEstado('cargando');
     try {
       // Un solo viaje: el lote completo cuesta 1 RTT en lugar de 6-8.
-      const [sedesRaw, personasRaw, casosRaw, solicitudesRaw, voluntariosRaw, asistenciaRaw, sedesTodasRaw, retiradosRaw] =
+      const [sedesRaw, personasRaw, casosRaw, solicitudesRaw, voluntariosRaw, asistenciaRaw, sedesTodasRaw, retiradosRaw, colaboradoresRaw] =
         await ejecutarLote(SQL_LOTE_HIDRATACION);
 
       const sedes = mapearSedes(sedesRaw);
@@ -607,6 +611,7 @@ export async function hidratar(promedioSilencioso = false) {
       const retirados = filtrarPorSede(mapearRetirados(retiradosRaw, mapearSedes(sedesTodasRaw)));
       const casos = filtrarCasos(mapearCasos(casosRaw, solicitudesRaw));
       const voluntarios = mapearVoluntarios(voluntariosRaw);
+      const colaboradores = mapearColaboradores(colaboradoresRaw || []);
       // Solo para el KPI del panel general. La jornada de educativo tiene su
       // propia consulta por día y sede y no se sobrescribe con esta.
       const asistencia = mapearAsistencia(asistenciaRaw, beneficiarios);
@@ -618,14 +623,14 @@ export async function hidratar(promedioSilencioso = false) {
         return;
       }
 
-      aplicarDatasets(beneficiarios, sedes, casos, voluntarios, asistencia, retirados);
+      aplicarDatasets(beneficiarios, sedes, casos, voluntarios, asistencia, retirados, colaboradores);
       _hidratado = true;
       _ultimaHidratacion = Date.now();
       _snapshotAplicado = false;
       // La copia de sesión se actualiza con lo que acaba de confirmar la nube.
       // La primera carga se guarda en el acto; las siguientes esperan un poco
       // para no escribir en cada evento LIVE.
-      const datosSnapshot = { beneficiarios, sedes, casos, voluntarios, asistencia, retirados };
+      const datosSnapshot = { beneficiarios, sedes, casos, voluntarios, asistencia, retirados, colaboradores };
       if (primeraCarga) guardarSnapshot(datosSnapshot);
       else programarSnapshot(datosSnapshot);
       _jsonDeReintento = 5000;
@@ -638,7 +643,8 @@ export async function hidratar(promedioSilencioso = false) {
       if (!promedioSilencioso) {
         console.log('[PDI] Sincronización completa con SurrealDB Cloud.',
           beneficiarios.length, 'usuarios ·', sedes.length, 'sedes ·',
-          casos.length, 'casos ·', voluntarios.length, 'voluntarios.');
+          casos.length, 'casos ·', voluntarios.length, 'voluntarios ·',
+          colaboradores.length, 'colaboradores.');
       }
     } catch (err) {
       _ultimoError = {
@@ -668,13 +674,14 @@ function programarSnapshot(datos) {
   _snapshotTimer = setTimeout(() => guardarSnapshot(datos), 1500);
 }
 
-function aplicarDatasets(beneficiarios, sedes, casos, voluntarios, asistencia, retirados) {
+function aplicarDatasets(beneficiarios, sedes, casos, voluntarios, asistencia, retirados, colaboradores) {
   const pdi = (typeof window !== 'undefined' && window.PDI) || {};
   pdi.BeneficiarioModel?.aplicarDatos?.(beneficiarios);
   pdi.BeneficiarioModel?.aplicarRetirados?.(retirados || []);
   pdi.SedeModel?.aplicarDatos?.(sedes);
   pdi.CasoSocialModel?.aplicarDatos?.(casos);
   pdi.VoluntarioModel?.aplicarDatos?.(voluntarios);
+  pdi.ColaboradorModel?.aplicarDatos?.(colaboradores || []);
   // Solo alimenta el KPI del panel general. CasitasController guarda este
   // mapa aparte de la jornada: no puede pisar el borrador de educativo.
   pdi.CasitasController?.aplicarDatosAsistencia?.(asistencia);
@@ -682,7 +689,7 @@ function aplicarDatasets(beneficiarios, sedes, casos, voluntarios, asistencia, r
   // le permite calcular el KPI sin arrastrar toda la vista.
   pdi.asistenciaHoy = asistencia || {};
   // AjustesView y las páginas leen Restaurar desde aqui.
-  pdi.recopilacionNube = { beneficiarios, sedes, casos, voluntarios, asistencia };
+  pdi.recopilacionNube = { beneficiarios, sedes, casos, voluntarios, asistencia, colaboradores };
 }
 
 function refrescarVistaActual() {
@@ -3163,10 +3170,157 @@ export async function crearBitacora(entry) {
   }
 }
 
+// ---------------------------------------------------------------------------
+//  Colaboradores e Instituciones Aliadas (Fichas A4 y A5)
+// ---------------------------------------------------------------------------
+export async function crearColaborador(c) {
+  try {
+    if (c.dni) {
+      const dup = comoLista(await ejecutar(
+        'SELECT id FROM colaborador WHERE numero_documento = $doc AND activo = true LIMIT 1;',
+        { doc: (c.dni || '').trim() }
+      ));
+      if (dup.length) {
+        return avisarFallo('Documento duplicado', `El colaborador con DNI ${c.dni} ya está registrado.`) === null ? null : null;
+      }
+    }
+
+    const res = await ejecutar(`CREATE colaborador CONTENT {
+      codigo: $codigo,
+      nombres: $nom,
+      apellidos: $ape,
+      numero_documento: $doc ?? NONE,
+      telefono_celular: $cel ?? NONE,
+      telefono_fijo: $fijo ?? NONE,
+      email: $email ?? NONE,
+      fecha_nacimiento: IF string::len($fnac) = 0 { NONE } ELSE { type::datetime($fnac) },
+      direccion: $dir ?? NONE,
+      distrito: $distrito,
+      sede_nombre: $sede,
+      tipo_colaborador: $tipo,
+      categoria: $cat,
+      codigo_modular: $modular ?? NONE,
+      nivel: $nivel ?? NONE,
+      turno: $turno ?? NONE,
+      denominacion: $denominacion ?? NONE,
+      estrategias: $estrategias,
+      fecha_ingreso: type::datetime($ingreso),
+      estado: $estado,
+      observaciones: $obs ?? NONE,
+      activo: true,
+      creado_el: time::now()
+    };`, {
+      codigo: c.codigo,
+      nom: c.nombres,
+      ape: c.apellidos,
+      doc: c.dni || null,
+      cel: c.celular || null,
+      fijo: c.telefonoFijo || null,
+      email: c.email || null,
+      fnac: c.fechaNacimiento || '',
+      dir: c.direccion || null,
+      distrito: c.distrito || distritoDeSede(c.sedeInstitucion) || 'Comas',
+      sede: c.sedeInstitucion || '',
+      tipo: c.tipoColaborador || 'Director(a) I.E.',
+      cat: c.categoria || 'pdi',
+      modular: c.codigoModular || null,
+      nivel: c.nivel || null,
+      turno: c.turno || null,
+      denominacion: c.denominacion || null,
+      estrategias: Array.isArray(c.estrategias) ? c.estrategias : ['Desayuno Infantil'],
+      ingreso: c.fechaIngreso || new Date().toISOString().slice(0, 10),
+      estado: c.estado || 'Activo',
+      obs: c.observaciones || null,
+    });
+    const arr = comoLista(res);
+    const qid = arr.length ? String(arr[0]?.id ?? arr[0]) : null;
+    return { ok: true, qid };
+  } catch (err) {
+    return avisarFallo('Alta de colaborador', err);
+  }
+}
+
+export async function actualizarColaborador(c) {
+  const rid = String(c._qid || '').trim();
+  if (!rid) return false;
+  try {
+    const res = await ejecutar(`UPDATE colaborador SET
+      nombres = $nom,
+      apellidos = $ape,
+      numero_documento = $doc ?? NONE,
+      telefono_celular = $cel ?? NONE,
+      telefono_fijo = $fijo ?? NONE,
+      email = $email ?? NONE,
+      fecha_nacimiento = IF string::len($fnac) = 0 { NONE } ELSE { type::datetime($fnac) },
+      direccion = $dir ?? NONE,
+      distrito = $distrito,
+      sede_nombre = $sede,
+      tipo_colaborador = $tipo,
+      categoria = $cat,
+      codigo_modular = $modular ?? NONE,
+      nivel = $nivel ?? NONE,
+      turno = $turno ?? NONE,
+      denominacion = $denominacion ?? NONE,
+      estrategias = $estrategias,
+      estado = $estado,
+      observaciones = $obs ?? NONE
+    WHERE id = type::record($rid)
+    RETURN AFTER;`, {
+      rid,
+      nom: c.nombres,
+      ape: c.apellidos,
+      doc: c.dni || null,
+      cel: c.celular || null,
+      fijo: c.telefonoFijo || null,
+      email: c.email || null,
+      fnac: c.fechaNacimiento || '',
+      dir: c.direccion || null,
+      distrito: c.distrito || distritoDeSede(c.sedeInstitucion) || 'Comas',
+      sede: c.sedeInstitucion || '',
+      tipo: c.tipoColaborador || 'Director(a) I.E.',
+      cat: c.categoria || 'pdi',
+      modular: c.codigoModular || null,
+      nivel: c.nivel || null,
+      turno: c.turno || null,
+      denominacion: c.denominacion || null,
+      estrategias: Array.isArray(c.estrategias) ? c.estrategias : ['Desayuno Infantil'],
+      estado: c.estado || 'Activo',
+      obs: c.observaciones || null,
+    });
+    if (!comoLista(res).length) {
+      avisarFallo('Actualización de colaborador', `No se encontró el registro ${c.codigo || rid} en la base de datos.`);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    return avisarFallo('Actualización de colaborador', err) !== null;
+  }
+}
+
+/** Baja en la nube: estado Inactivo + activo=false (Ley 29733: sin borrado físico). */
+export async function darBajaColaborador(c) {
+  const rid = String(c._qid || '').trim();
+  if (!rid) return false;
+  try {
+    const res = await ejecutar(
+      `UPDATE colaborador SET estado = 'Inactivo', activo = false WHERE id = type::record($rid) RETURN AFTER;`,
+      { rid }
+    );
+    if (!comoLista(res).length) {
+      avisarFallo('Baja de colaborador', `No se encontró el registro ${c.codigo || rid} en la base de datos.`);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    return avisarFallo('Baja de colaborador', err) !== null;
+  }
+}
+
 if (typeof window !== 'undefined') {
   window.PDI = window.PDI || {};
   window.PDI.DB = {
     iniciarCapaDatos, suscribirEstado, estadoActual, aplicarSnapshotInicial,
     hidratarDesdeSurreal, refrescarDesdeNube, reintentarAhora, ultimoError, ultimaHidratacion,
+    crearColaborador, actualizarColaborador, darBajaColaborador
   };
 }

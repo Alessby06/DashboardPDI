@@ -109,12 +109,84 @@ export function normalizarColaborador(c = {}) {
   };
 }
 
+export function extraerNumeroId(codigo, idStr, fallbackIdx) {
+  if (codigo) {
+    const parts = String(codigo).split('-');
+    const last = parseInt(parts[parts.length - 1], 10);
+    if (!isNaN(last)) return last;
+  }
+  if (typeof idStr === 'string') {
+    const num = parseInt(idStr.replace(/\D/g, ''), 10);
+    if (!isNaN(num)) return num;
+  }
+  return fallbackIdx;
+}
+
+export function isoFecha(v) {
+  if (!v) return '';
+  if (typeof v === 'string') return v.slice(0, 10);
+  if (v instanceof Date) return v.toISOString().slice(0, 10);
+  return '';
+}
+
+export function mapearColaboradores(colabRaw) {
+  if (!Array.isArray(colabRaw)) return [];
+  return colabRaw.map((c, idx) => {
+    const tipo = c.tipo_colaborador || c.tipoColaborador || c.rol || 'Director(a) I.E.';
+    const cat = c.categoria || clasificarCategoria(tipo);
+    const sede = c.sede_nombre || c.sedeInstitucion || c.sede_institucion || '';
+    const ests = Array.isArray(c.estrategias) ? c.estrategias : (c.estrategia ? [c.estrategia] : ['Desayuno Infantil']);
+    const estrategias = ests.map(e => {
+      const s = String(e || '').trim();
+      if (s.toLowerCase().includes('jóvenes') || s.toLowerCase().includes('jovenes') || s.toUpperCase() === 'JAC') {
+        return 'Juntos Aprendemos en Cristo (JAC)';
+      }
+      return s;
+    });
+
+    return {
+      _qid: String(c.id || c._qid || ''),
+      id: extraerNumeroId(c.codigo, String(c.id), idx + 1),
+      codigo: c.codigo || `COL-${new Date().getFullYear()}-${String(idx + 1).padStart(3, '0')}`,
+      nombres: String(c.nombres || '').trim(),
+      apellidos: String(c.apellidos || '').trim(),
+      dni: String(c.numero_documento || c.dni || '').replace(/\D/g, '').slice(0, 8),
+      celular: String(c.telefono_celular || c.telefono || c.celular || '').replace(/\D/g, '').slice(0, 9),
+      telefonoFijo: String(c.telefono_fijo || c.telefonoFijo || '').trim(),
+      email: String(c.email || '').trim().toLowerCase(),
+      fechaNacimiento: isoFecha(c.fecha_nacimiento || c.fechaNacimiento),
+      direccion: String(c.direccion || '').trim(),
+      distrito: c.distrito || 'Comas',
+      sedeInstitucion: sede,
+      tipoColaborador: tipo,
+      categoria: cat,
+      codigoModular: String(c.codigo_modular || c.codigoModular || '').replace(/\D/g, '').slice(0, 7),
+      nivel: c.nivel || '',
+      turno: c.turno || '',
+      denominacion: String(c.denominacion || '').trim(),
+      estrategias: estrategias.length > 0 ? estrategias : ['Desayuno Infantil'],
+      fechaIngreso: isoFecha(c.fecha_ingreso || c.fechaIngreso) || new Date().toISOString().split('T')[0],
+      estado: c.estado || 'Activo',
+      observaciones: String(c.observaciones || '').trim()
+    };
+  });
+}
+
 export const ColaboradorModel = {
   _data: null,
 
   init() {
-    const almacenados = StorageService.getItem(STORAGE_KEY, null);
-    this._data = Array.isArray(almacenados) ? almacenados : [];
+    if (!this._data) {
+      const almacenados = StorageService.getItem(STORAGE_KEY, null);
+      this._data = Array.isArray(almacenados) ? almacenados : [];
+    }
+  },
+
+  /** La capa de datos entrega el padrón hidratado de la nube. */
+  aplicarDatos(lista) {
+    if (!Array.isArray(lista)) return;
+    this._data = lista;
+    this._guardar();
   },
 
   _guardar() {
@@ -134,6 +206,16 @@ export const ColaboradorModel = {
     return this._data.filter(c => (c.categoria || clasificarCategoria(c.tipoColaborador)) === categoria);
   },
 
+  getBySede(sedeNombre) {
+    if (!this._data) this.init();
+    if (!sedeNombre) return [];
+    const term = String(sedeNombre).toLowerCase().trim();
+    return this._data.filter(c => {
+      const s = String(c.sedeInstitucion || '').toLowerCase();
+      return s.includes(term) || term.includes(s);
+    });
+  },
+
   getById(id) {
     if (!this._data) this.init();
     return this._data.find(c => String(c.id) === String(id) || String(c.codigo) === String(id)) || null;
@@ -141,51 +223,41 @@ export const ColaboradorModel = {
 
   getByDni(dni) {
     if (!this._data) this.init();
-    const dniLimpio = String(dni || '').trim();
-    return this._data.find(c => String(c.dni).trim() === dniLimpio) || null;
+    const dniLimpio = String(dni || '').replace(/\D/g, '');
+    return this._data.find(c => String(c.dni).replace(/\D/g, '') === dniLimpio) || null;
   },
 
-  create(colabData) {
+  async create(colabData) {
     if (!this._data) this.init();
     const maxId = this._data.reduce((max, c) => Math.max(max, Number(c.id) || 0), 0);
     const nextId = maxId + 1;
     const year = new Date().getFullYear();
     const padded = String(nextId).padStart(3, '0');
 
-    const tipo = colabData.tipoColaborador || 'Director(a) I.E.';
-    const categoria = colabData.categoria || clasificarCategoria(tipo);
-
+    const normal = normalizarColaborador(colabData);
     const nuevo = {
+      ...normal,
       id: nextId,
-      codigo: `COL-${year}-${padded}`,
-      nombres: (colabData.nombres || '').trim(),
-      apellidos: (colabData.apellidos || '').trim(),
-      dni: (colabData.dni || '').trim(),
-      celular: (colabData.celular || '').trim(),
-      telefonoFijo: (colabData.telefonoFijo || '').trim(),
-      email: (colabData.email || '').trim(),
-      fechaNacimiento: colabData.fechaNacimiento || '',
-      direccion: (colabData.direccion || '').trim(),
-      distrito: colabData.distrito || 'Comas',
-      sedeInstitucion: (colabData.sedeInstitucion || '').trim(),
-      tipoColaborador: tipo,
-      categoria,
-      codigoModular: (colabData.codigoModular || '').trim(),
-      nivel: colabData.nivel || '',
-      turno: colabData.turno || '',
-      denominacion: (colabData.denominacion || '').trim(),
-      estrategias: Array.isArray(colabData.estrategias) ? colabData.estrategias : (colabData.estrategia ? [colabData.estrategia] : ['Desayuno Infantil']),
-      fechaIngreso: colabData.fechaIngreso || new Date().toISOString().split('T')[0],
-      estado: colabData.estado || 'Activo',
-      observaciones: (colabData.observaciones || '').trim()
+      codigo: normal.codigo || `COL-${year}-${padded}`,
     };
 
     this._data.unshift(nuevo);
     this._guardar();
+
+    // Sincronizar con SurrealDB si la capa de datos está activa
+    if (typeof window !== 'undefined' && window.PDI?.DB?.crearColaborador) {
+      try {
+        const ok = await window.PDI.DB.crearColaborador(nuevo);
+        if (ok && ok.qid) nuevo._qid = ok.qid;
+      } catch (err) {
+        console.warn('[PDI] Error al persistir colaborador en la nube:', err);
+      }
+    }
+
     return nuevo;
   },
 
-  update(id, updates) {
+  async update(id, updates) {
     if (!this._data) this.init();
     const index = this._data.findIndex(c => String(c.id) === String(id));
     if (index === -1) return null;
@@ -194,27 +266,21 @@ export const ColaboradorModel = {
     const tipo = updates.tipoColaborador !== undefined ? updates.tipoColaborador : actual.tipoColaborador;
     const categoria = updates.categoria || clasificarCategoria(tipo);
 
-    const actualizado = {
+    const normal = normalizarColaborador({
       ...actual,
       ...updates,
       id: actual.id,
       codigo: actual.codigo,
-      nombres: updates.nombres !== undefined ? updates.nombres.trim() : actual.nombres,
-      apellidos: updates.apellidos !== undefined ? updates.apellidos.trim() : actual.apellidos,
-      dni: updates.dni !== undefined ? updates.dni.trim() : actual.dni,
-      celular: updates.celular !== undefined ? updates.celular.trim() : actual.celular,
-      telefonoFijo: updates.telefonoFijo !== undefined ? updates.telefonoFijo.trim() : actual.telefonoFijo,
-      email: updates.email !== undefined ? updates.email.trim() : actual.email,
-      direccion: updates.direccion !== undefined ? updates.direccion.trim() : actual.direccion,
-      sedeInstitucion: updates.sedeInstitucion !== undefined ? updates.sedeInstitucion.trim() : actual.sedeInstitucion,
-      codigoModular: updates.codigoModular !== undefined ? updates.codigoModular.trim() : actual.codigoModular,
-      nivel: updates.nivel !== undefined ? updates.nivel : actual.nivel,
-      turno: updates.turno !== undefined ? updates.turno : actual.turno,
-      denominacion: updates.denominacion !== undefined ? updates.denominacion.trim() : actual.denominacion,
-      observaciones: updates.observaciones !== undefined ? updates.observaciones.trim() : actual.observaciones,
-      estrategias: Array.isArray(updates.estrategias) ? updates.estrategias : actual.estrategias,
       tipoColaborador: tipo,
-      categoria,
+      categoria
+    });
+
+    const actualizado = {
+      ...actual,
+      ...normal,
+      id: actual.id,
+      codigo: actual.codigo,
+      _qid: actual._qid
     };
 
     // Asegurar remoción de campos de login heredados
@@ -223,16 +289,37 @@ export const ColaboradorModel = {
 
     this._data[index] = actualizado;
     this._guardar();
+
+    // Sincronizar con SurrealDB si la capa de datos está activa
+    if (typeof window !== 'undefined' && window.PDI?.DB?.actualizarColaborador) {
+      try {
+        await window.PDI.DB.actualizarColaborador(actualizado);
+      } catch (err) {
+        console.warn('[PDI] Error al actualizar colaborador en la nube:', err);
+      }
+    }
+
     return actualizado;
   },
 
-  delete(id) {
+  async delete(id) {
     if (!this._data) this.init();
     const index = this._data.findIndex(c => String(c.id) === String(id));
     if (index === -1) return false;
 
+    const colab = this._data[index];
     this._data.splice(index, 1);
     this._guardar();
+
+    // Sincronizar baja lógica en SurrealDB si la capa de datos está activa
+    if (typeof window !== 'undefined' && window.PDI?.DB?.darBajaColaborador) {
+      try {
+        await window.PDI.DB.darBajaColaborador(colab);
+      } catch (err) {
+        console.warn('[PDI] Error al dar de baja colaborador en la nube:', err);
+      }
+    }
+
     return true;
   }
 };

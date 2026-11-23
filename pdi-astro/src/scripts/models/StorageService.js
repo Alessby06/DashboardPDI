@@ -2,6 +2,7 @@
 export const StorageService = {
   getItem(key, defaultValue = null) {
     try {
+      if (typeof localStorage === 'undefined') return defaultValue;
       const data = localStorage.getItem(key);
       return data ? JSON.parse(data) : defaultValue;
     } catch (e) {
@@ -11,6 +12,7 @@ export const StorageService = {
   },
   setItem(key, value) {
     try {
+      if (typeof localStorage === 'undefined') return;
       localStorage.setItem(key, JSON.stringify(value));
     } catch (e) {
       console.error("Error al escribir StorageService:", e);
@@ -18,6 +20,7 @@ export const StorageService = {
   },
   removeItem(key) {
     try {
+      if (typeof localStorage === 'undefined') return;
       localStorage.removeItem(key);
     } catch (e) {
       console.error("Error al eliminar StorageService:", e);

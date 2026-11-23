@@ -5,7 +5,9 @@ import {
   CATEGORIAS_COLABORADOR,
   PROGRAMAS_ARTICULADOS,
   validarDatosColaborador,
-  normalizarColaborador
+  normalizarColaborador,
+  mapearColaboradores,
+  ColaboradorModel
 } from '../src/scripts/models/ColaboradorModel.js';
 
 test('clasificarCategoria asigna correctamente colegios, iglesias y pdi', () => {
@@ -128,4 +130,91 @@ test('normalizarColaborador limpia espacios y asegura estrategias válidas', () 
   // Debe convertir el nombre obsoleto de JAC al canónico
   assert.ok(normal.estrategias.includes('Juntos Aprendemos en Cristo (JAC)'));
   assert.ok(!normal.estrategias.includes('Jóvenes en Acción Comunitaria (JAC)'));
+});
+
+test('mapearColaboradores transforma registros crudos de SurrealDB con tipos canónicos', () => {
+  const crudos = [
+    {
+      id: 'colaborador:⟨abc123⟩',
+      codigo: 'COL-2026-001',
+      nombres: 'Rosa',
+      apellidos: 'Flores',
+      numero_documento: '40123456',
+      telefono: '999888777',
+      sede_nombre: 'Casita El Ángel',
+      tipo_colaborador: 'Facilitador(a) Comunitario(a)',
+      distrito: 'Comas',
+      estrategias: ['Casita del Saber', 'JAC'],
+      activo: true
+    },
+    {
+      id: 'colaborador:⟨xyz890⟩',
+      codigo: 'COL-2026-002',
+      nombres: 'Alberto',
+      apellidos: 'Quispe',
+      numero_documento: '10987654',
+      telefono_celular: '987111222',
+      sede_nombre: 'I.E. 3088 Los Ángeles',
+      tipo_colaborador: 'Director(a) I.E.',
+      codigo_modular: '0584920',
+      nivel: 'Primaria',
+      turno: 'Mañana',
+      distrito: 'Carabayllo',
+      estrategias: ['Desayuno Infantil'],
+      activo: true
+    }
+  ];
+
+  const mapeados = mapearColaboradores(crudos);
+  assert.equal(mapeados.length, 2);
+
+  const col1 = mapeados[0];
+  assert.equal(col1._qid, 'colaborador:⟨abc123⟩');
+  assert.equal(col1.codigo, 'COL-2026-001');
+  assert.equal(col1.nombres, 'Rosa');
+  assert.equal(col1.dni, '40123456');
+  assert.equal(col1.celular, '999888777');
+  assert.equal(col1.sedeInstitucion, 'Casita El Ángel');
+  assert.equal(col1.categoria, CATEGORIAS_COLABORADOR.PDI);
+  assert.ok(col1.estrategias.includes('Juntos Aprendemos en Cristo (JAC)'));
+
+  const col2 = mapeados[1];
+  assert.equal(col2.codigoModular, '0584920');
+  assert.equal(col2.nivel, 'Primaria');
+  assert.equal(col2.turno, 'Mañana');
+  assert.equal(col2.categoria, CATEGORIAS_COLABORADOR.COLEGIO);
+});
+
+test('ColaboradorModel.aplicarDatos y getBySede localizan colaboradores por sede', () => {
+  ColaboradorModel.aplicarDatos([
+    {
+      id: 1,
+      codigo: 'COL-2026-001',
+      nombres: 'Carmen',
+      apellidos: 'Vega',
+      sedeInstitucion: 'Sede Comas San Juan',
+      tipoColaborador: 'Facilitador(a) Comunitario(a)',
+      categoria: 'pdi'
+    },
+    {
+      id: 2,
+      codigo: 'COL-2026-002',
+      nombres: 'Pedro',
+      apellidos: 'Soto',
+      sedeInstitucion: 'Iglesia Alianza Cristiana',
+      tipoColaborador: 'Pastor(a) / Líder Comunitario',
+      categoria: 'iglesias'
+    }
+  ]);
+
+  const porSede1 = ColaboradorModel.getBySede('Comas San Juan');
+  assert.equal(porSede1.length, 1);
+  assert.equal(porSede1[0].codigo, 'COL-2026-001');
+
+  const porSede2 = ColaboradorModel.getBySede('alianza');
+  assert.equal(porSede2.length, 1);
+  assert.equal(porSede2[0].codigo, 'COL-2026-002');
+
+  const noMatch = ColaboradorModel.getBySede('Inexistente');
+  assert.equal(noMatch.length, 0);
 });
