@@ -528,16 +528,18 @@
   position: absolute;
   width: 100%;
   height: 6px;
-  background: var(--surface-hover);
-  border-radius: 3px;
+  background: var(--surface-2);
+  border-radius: 999px;
   border: 1px solid var(--border-subtle);
+  box-shadow: inset 0 1px 2px rgba(27, 26, 23, 0.1);
 }
 
 .facet-range-slider-highlight {
   position: absolute;
   height: 6px;
   background: var(--gt-green);
-  border-radius: 3px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px var(--gt-green-border);
   pointer-events: none;
 }
 
@@ -553,6 +555,9 @@
   outline: none;
 }
 
+/* El halo en reposo separa los mangos del track; al arrastrar crece y el
+   encoge confirma el gesto. left/right del highlight NO se transicionan:
+   los fija JS en cada evento y animarlos retrasaria el filtro. */
 .facet-range-slider-input::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
@@ -563,14 +568,26 @@
   border: 2px solid var(--gt-green);
   cursor: pointer;
   pointer-events: auto;
-  box-shadow: var(--shadow-sm);
-  transition: transform var(--dur-press) ease;
+  box-shadow: 0 0 0 3px var(--gt-green-bg), var(--shadow-sm);
+  transition: transform 130ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 130ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .facet-range-slider-input::-webkit-slider-thumb:hover {
-    transform: scale(1.15);
+    transform: scale(1.12);
+    box-shadow: 0 0 0 5px var(--gt-green-bg), var(--shadow-sm);
   }
+}
+
+.facet-range-slider-input:active::-webkit-slider-thumb {
+  transform: scale(0.96);
+  box-shadow: 0 0 0 6px var(--gt-green-bg), var(--shadow-sm);
+}
+
+.facet-range-slider-input:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--gt-green);
+  outline-offset: 3px;
 }
 
 .facet-range-slider-input::-moz-range-thumb {
@@ -581,7 +598,26 @@
   border: 2px solid var(--gt-green);
   cursor: pointer;
   pointer-events: auto;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 0 0 3px var(--gt-green-bg), var(--shadow-sm);
+  transition: transform 130ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 130ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .facet-range-slider-input::-moz-range-thumb:hover {
+    transform: scale(1.12);
+    box-shadow: 0 0 0 5px var(--gt-green-bg), var(--shadow-sm);
+  }
+}
+
+.facet-range-slider-input:active::-moz-range-thumb {
+  transform: scale(0.96);
+  box-shadow: 0 0 0 6px var(--gt-green-bg), var(--shadow-sm);
+}
+
+.facet-range-slider-input:focus-visible::-moz-range-thumb {
+  outline: 2px solid var(--gt-green);
+  outline-offset: 3px;
 }
 
 .padron-dropdown-item {
