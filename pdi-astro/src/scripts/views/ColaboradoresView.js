@@ -56,9 +56,6 @@ export const ColaboradoresView = {
   },
 
   enlazarEventos() {
-    if (listenersEnlazados) return;
-    listenersEnlazados = true;
-
     // Tabs de categoría
     const tabs = [
       { id: 'tabBtnColabColegios', cat: 'colegios' },
@@ -69,18 +66,19 @@ export const ColaboradoresView = {
     tabs.forEach(({ id, cat }) => {
       const btn = document.getElementById(id);
       if (btn) {
-        btn.addEventListener('click', () => {
+        btn.onclick = (e) => {
+          e.preventDefault();
           this.setTabCategoria(cat);
-        });
+        };
       }
     });
 
     // Toggle de campos de colegio según el rol en el modal
     const selectTipo = document.getElementById('colabTipo');
     if (selectTipo) {
-      selectTipo.addEventListener('change', () => {
+      selectTipo.onchange = () => {
         this.actualizarCamposContextualesModal(selectTipo.value);
-      });
+      };
     }
 
     // Autocompletar distrito al seleccionar o escribir sede en el modal
@@ -107,23 +105,26 @@ export const ColaboradoresView = {
           }
         }
       };
-      inputSede.addEventListener('input', autoSyncDistrito);
-      inputSede.addEventListener('change', autoSyncDistrito);
+      inputSede.oninput = autoSyncDistrito;
+      inputSede.onchange = autoSyncDistrito;
     }
 
     // Submit del formulario
     const form = document.getElementById('formColaborador');
     if (form) {
-      form.addEventListener('submit', (e) => {
+      form.onsubmit = (e) => {
         e.preventDefault();
         this.guardar();
-      });
+      };
     }
 
-    // Re-renderizar si la capa de datos sincroniza con la nube
-    document.addEventListener('pdi:datos-actualizados', () => {
-      this.render();
-    });
+    // Re-renderizar si la capa de datos sincroniza con la nube (listener global único)
+    if (!listenersEnlazados) {
+      listenersEnlazados = true;
+      document.addEventListener('pdi:datos-actualizados', () => {
+        this.render();
+      });
+    }
   },
 
   setTabCategoria(cat) {
@@ -910,6 +911,7 @@ if (typeof window !== 'undefined') {
   window.exportColaboradoresCSV = () => ColaboradoresView.exportCSV();
   window.setFilterColabDistrito = d => ColaboradoresView.setFilterDistrito(d);
   window.setFilterColabEstrategia = e => ColaboradoresView.setFilterEstrategia(e);
+  window.setColabTab = cat => ColaboradoresView.setTabCategoria(cat);
   window.resetColabFilters = () => ColaboradoresView.resetFilters();
   window.removeColabFilterChip = t => ColaboradoresView.removeChip(t);
   window.sortColaboradores = s => ColaboradoresView.sort(s);

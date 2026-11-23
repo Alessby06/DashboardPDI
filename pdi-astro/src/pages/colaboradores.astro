@@ -93,17 +93,17 @@ const OPCIONES_ORDEN = [
 
     <!-- Barra de Pestañas de Red Territorial -->
     <div class="colab-view-tabs" role="tablist" aria-label="Categorías de la Red Territorial">
-      <button type="button" class="colab-tab-btn active" id="tabBtnColabColegios" data-categoria="colegios" role="tab" aria-selected="true">
+      <button type="button" class="colab-tab-btn active" id="tabBtnColabColegios" data-categoria="colegios" role="tab" aria-selected="true" data-pdi-on="click" data-pdi-call="setColabTab" data-pdi-args='["colegios"]'>
         <Icon name="educacion.libro" size={16} />
         <span>Colegios Aliados (I.E.)</span>
         <span class="colab-tab-badge" id="badgeCountColegios">0</span>
       </button>
-      <button type="button" class="colab-tab-btn" id="tabBtnColabIglesias" data-categoria="iglesias" role="tab" aria-selected="false">
+      <button type="button" class="colab-tab-btn" id="tabBtnColabIglesias" data-categoria="iglesias" role="tab" aria-selected="false" data-pdi-on="click" data-pdi-call="setColabTab" data-pdi-args='["iglesias"]'>
         <Icon name="modulo.social" size={16} />
         <span>Iglesias y Puntos Pastorales</span>
         <span class="colab-tab-badge" id="badgeCountIglesias">0</span>
       </button>
-      <button type="button" class="colab-tab-btn" id="tabBtnColabPDI" data-categoria="pdi" role="tab" aria-selected="false">
+      <button type="button" class="colab-tab-btn" id="tabBtnColabPDI" data-categoria="pdi" role="tab" aria-selected="false" data-pdi-on="click" data-pdi-call="setColabTab" data-pdi-args='["pdi"]'>
         <Icon name="persona.grupo" size={16} />
         <span>Facilitadoras y Promotoras PDI</span>
         <span class="colab-tab-badge" id="badgeCountPDI">0</span>
