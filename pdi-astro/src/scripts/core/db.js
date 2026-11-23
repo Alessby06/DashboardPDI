@@ -580,8 +580,6 @@ const SQL_LOTE_HIDRATACION = [
   'SELECT * FROM sede ORDER BY creado_el;',
   // 7 · archivo de retirados
   SQL_RETIRADOS,
-  // 8 · colaboradores activos
-  'SELECT * FROM colaborador WHERE activo = true ORDER BY creado_el DESC;',
 ].join('\n');
 
 export async function hidratar(promedioSilencioso = false) {
@@ -600,7 +598,7 @@ export async function hidratar(promedioSilencioso = false) {
     if (!_snapshotAplicado) cambiarEstado('cargando');
     try {
       // Un solo viaje: el lote completo cuesta 1 RTT en lugar de 6-8.
-      const [sedesRaw, personasRaw, casosRaw, solicitudesRaw, voluntariosRaw, asistenciaRaw, sedesTodasRaw, retiradosRaw, colaboradoresRaw] =
+      const [sedesRaw, personasRaw, casosRaw, solicitudesRaw, voluntariosRaw, asistenciaRaw, sedesTodasRaw, retiradosRaw] =
         await ejecutarLote(SQL_LOTE_HIDRATACION);
 
       const sedes = mapearSedes(sedesRaw);
@@ -611,7 +609,19 @@ export async function hidratar(promedioSilencioso = false) {
       const retirados = filtrarPorSede(mapearRetirados(retiradosRaw, mapearSedes(sedesTodasRaw)));
       const casos = filtrarCasos(mapearCasos(casosRaw, solicitudesRaw));
       const voluntarios = mapearVoluntarios(voluntariosRaw);
-      const colaboradores = mapearColaboradores(colaboradoresRaw || []);
+
+      // 8 · colaboradores: consulta resiliente. Si la tabla aún no existe en la nube
+      // (pendiente de migración DDL), no interrumpe la hidratación del resto del sistema.
+      let colaboradores = [];
+      try {
+        const resColab = await ejecutar('SELECT * FROM colaborador WHERE activo = true ORDER BY creado_el DESC;');
+        colaboradores = mapearColaboradores(comoLista(resColab));
+      } catch (errColab) {
+        // Tolerancia a fallos: fallback a datos en memoria o local storage
+        const existentes = (typeof window !== 'undefined' && window.PDI?.ColaboradorModel?.getAll?.()) || [];
+        colaboradores = existentes;
+      }
+
       // Solo para el KPI del panel general. La jornada de educativo tiene su
       // propia consulta por día y sede y no se sobrescribe con esta.
       const asistencia = mapearAsistencia(asistenciaRaw, beneficiarios);
