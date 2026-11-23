@@ -130,19 +130,13 @@ export const ScrollManager = {
       autoRaf: false
     });
 
+    // Solo medidas tempranas: Lenis ya observa el wrapper con autoResize.
+    // Medir mas tarde reinicia targetScroll al animatedScroll actual y se
+    // come parte del giro del raton, sobre todo al querer subir desde el
+    // fondo (los 16 reintentos cada 250 ms hacian que no respondiera).
     const remide = () => this.main?.resize();
     requestAnimationFrame(remide);
     setTimeout(remide, 120);
-    setTimeout(remide, 800);
-    window.addEventListener('load', remide, { once: true });
-
-    let intentos = 0;
-    const insistir = () => {
-      if (!this.main) return;
-      this.main.resize();
-      if (intentos++ < 16) setTimeout(insistir, 250);
-    };
-    insistir();
   },
 
   _tick() {
