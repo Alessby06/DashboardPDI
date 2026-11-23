@@ -27,11 +27,86 @@ export const TIPOS_COLABORADOR = [
 
 export const DISTRITOS_COLABORADOR = ['Comas', 'Carabayllo', 'El Agustino'];
 
+export const PROGRAMAS_ARTICULADOS = [
+  'Desayuno Infantil',
+  'Casita del Saber',
+  'Buen Trato en Familia (BTF)',
+  'Juntos Aprendemos en Cristo (JAC)',
+  'Repostería',
+  'Área Social Pastoral'
+];
+
 export function clasificarCategoria(tipo) {
   const t = String(tipo || '').toLowerCase();
   if (t.includes('director') || t.includes('docente')) return CATEGORIAS_COLABORADOR.COLEGIO;
-  if (t.includes('iglesia') || t.includes('parroquial') || t.includes('pastor') || t.includes('comunitario')) return CATEGORIAS_COLABORADOR.IGLESIA;
+  if (t.includes('facilitador') || t.includes('promotor')) return CATEGORIAS_COLABORADOR.PDI;
+  if (t.includes('iglesia') || t.includes('parroquial') || t.includes('pastor') || t.includes('líder') || t.includes('lider')) return CATEGORIAS_COLABORADOR.IGLESIA;
   return CATEGORIAS_COLABORADOR.PDI;
+}
+
+export function validarDatosColaborador(c = {}) {
+  const errores = [];
+  const nombres = String(c.nombres || '').trim();
+  const apellidos = String(c.apellidos || '').trim();
+  const sede = String(c.sedeInstitucion || '').trim();
+  const celular = String(c.celular || '').replace(/\D/g, '');
+  const dni = String(c.dni || '').replace(/\D/g, '');
+  const modular = String(c.codigoModular || '').replace(/\D/g, '');
+
+  if (nombres.length < 2) errores.push('Los nombres deben tener al menos 2 caracteres.');
+  if (apellidos.length < 2) errores.push('Los apellidos deben tener al menos 2 caracteres.');
+  if (!sede) errores.push('La sede o institución vinculada es obligatoria.');
+
+  if (c.celular && (celular.length !== 9 || !celular.startsWith('9'))) {
+    errores.push('El celular debe tener 9 dígitos y comenzar con 9.');
+  }
+  if (c.dni && dni.length !== 8) {
+    errores.push('El DNI debe tener exactamente 8 dígitos.');
+  }
+  if (c.codigoModular && modular.length !== 7) {
+    errores.push('El código modular debe tener exactamente 7 dígitos.');
+  }
+
+  return { valido: errores.length === 0, errores };
+}
+
+export function normalizarColaborador(c = {}) {
+  const tipo = c.tipoColaborador || 'Director(a) I.E.';
+  const categoria = c.categoria || clasificarCategoria(tipo);
+
+  // Normalizar estrategias (convirtiendo cualquier mención obsoleta de JAC al nombre canónico)
+  const estsRaw = Array.isArray(c.estrategias) ? c.estrategias : (c.estrategia ? [c.estrategia] : ['Desayuno Infantil']);
+  const estrategias = estsRaw.map(e => {
+    const s = String(e || '').trim();
+    if (s.toLowerCase().includes('jóvenes') || s.toLowerCase().includes('jovenes') || s.toUpperCase() === 'JAC') {
+      return 'Juntos Aprendemos en Cristo (JAC)';
+    }
+    return s;
+  });
+
+  return {
+    ...c,
+    nombres: String(c.nombres || '').trim(),
+    apellidos: String(c.apellidos || '').trim(),
+    dni: String(c.dni || '').replace(/\D/g, '').slice(0, 8),
+    celular: String(c.celular || '').replace(/\D/g, '').slice(0, 9),
+    telefonoFijo: String(c.telefonoFijo || '').trim(),
+    email: String(c.email || '').trim().toLowerCase(),
+    fechaNacimiento: c.fechaNacimiento || '',
+    direccion: String(c.direccion || '').trim(),
+    distrito: c.distrito || 'Comas',
+    sedeInstitucion: String(c.sedeInstitucion || '').trim(),
+    tipoColaborador: tipo,
+    categoria,
+    codigoModular: String(c.codigoModular || '').replace(/\D/g, '').slice(0, 7),
+    nivel: c.nivel || '',
+    turno: c.turno || '',
+    denominacion: String(c.denominacion || '').trim(),
+    estrategias: estrategias.length > 0 ? estrategias : ['Desayuno Infantil'],
+    fechaIngreso: c.fechaIngreso || new Date().toISOString().split('T')[0],
+    estado: c.estado || 'Activo',
+    observaciones: String(c.observaciones || '').trim()
+  };
 }
 
 export const ColaboradorModel = {
