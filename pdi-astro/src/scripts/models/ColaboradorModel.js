@@ -165,7 +165,7 @@ export function mapearColaboradores(colabRaw) {
       nombres: String(c.nombres || '').trim(),
       apellidos: String(c.apellidos || '').trim(),
       dni: String(c.numero_documento || c.dni || '').replace(/\D/g, '').slice(0, 8),
-      celular: String(c.telefono_celular || c.telefono || c.celular || '').replace(/\D/g, '').slice(0, 9),
+      celular: limpiarCelularPeru(c.telefono_celular || c.telefono || c.celular),
       telefonoFijo: String(c.telefono_fijo || c.telefonoFijo || '').trim(),
       email: String(c.email || '').trim().toLowerCase(),
       fechaNacimiento: isoFecha(c.fecha_nacimiento || c.fechaNacimiento),

@@ -233,7 +233,8 @@ export const ColaboradoresView = {
   renderChipsActivos() {
     const bar = document.getElementById('colabActiveChipsBar');
     const list = document.getElementById('colabActiveChipsList');
-    if (!bar || !list) return;
+    const contador = document.getElementById('colabActiveFiltersCount');
+    const trigger = document.getElementById('btnDropdownColabFilterPanel');
 
     const chips = [];
     if (filtroDistritoActual) {
@@ -242,6 +243,50 @@ export const ColaboradoresView = {
     if (filtroEstrategiaActual) {
       chips.push({ tipo: 'estrategia', label: `Programa: ${filtroEstrategiaActual}` });
     }
+
+    const activeCount = chips.length;
+
+    if (contador) {
+      if (activeCount > 0) {
+        contador.textContent = activeCount;
+        contador.style.display = 'inline-flex';
+      } else {
+        contador.style.display = 'none';
+      }
+    }
+
+    if (trigger) {
+      trigger.classList.toggle('has-filters', activeCount > 0);
+    }
+
+    // Sincronizar etiquetas de desplegables
+    const labelDistrito = document.getElementById('labelColabDistritoSelect');
+    if (labelDistrito) {
+      labelDistrito.textContent = filtroDistritoActual || 'Todos los Distritos';
+    }
+    const labelEstrategia = document.getElementById('labelColabEstrategiaSelect');
+    if (labelEstrategia) {
+      labelEstrategia.textContent = filtroEstrategiaActual || 'Todos los Programas';
+    }
+
+    // Sincronizar clase .selected en ítems de desplegable
+    const distritoItems = document.querySelectorAll('#menuColabDistrito .padron-dropdown-item');
+    distritoItems.forEach(item => {
+      const val = item.getAttribute('data-value') || '';
+      const isSelected = (!filtroDistritoActual && val === 'all') || (val === filtroDistritoActual);
+      item.classList.toggle('selected', isSelected);
+    });
+
+    const estrategiaItems = document.querySelectorAll('#menuColabEstrategia .padron-dropdown-item');
+    estrategiaItems.forEach(item => {
+      const val = item.getAttribute('data-value') || '';
+      const isSelected = (!filtroEstrategiaActual && val === 'all') || (val === filtroEstrategiaActual);
+      item.classList.toggle('selected', isSelected);
+    });
+
+    this.actualizarContadoresFacetas();
+
+    if (!bar || !list) return;
 
     if (chips.length === 0) {
       bar.style.display = 'none';
@@ -258,9 +303,45 @@ export const ColaboradoresView = {
     `).join('');
   },
 
+  actualizarContadoresFacetas() {
+    const todos = ColaboradorModel.getAll().filter(c => {
+      const cat = c.categoria || clasificarCategoria(c.tipoColaborador);
+      return cat === categoriaTabActual;
+    });
+
+    const countDistAll = document.getElementById('countFacetColabDistrito-all');
+    if (countDistAll) countDistAll.textContent = `(${todos.length})`;
+
+    ['Comas', 'Carabayllo', 'El Agustino'].forEach(dist => {
+      const el = document.getElementById(`countFacetColabDistrito-${dist}`);
+      if (el) {
+        const count = todos.filter(c => c.distrito === dist).length;
+        el.textContent = `(${count})`;
+      }
+    });
+
+    const countEstAll = document.getElementById('countFacetColabEstrategia-all');
+    if (countEstAll) countEstAll.textContent = `(${todos.length})`;
+
+    const estItems = document.querySelectorAll('#menuColabEstrategia .padron-dropdown-item[data-value]');
+    estItems.forEach(item => {
+      const val = item.getAttribute('data-value');
+      if (val && val !== 'all') {
+        const countSpan = item.querySelector('.padron-item-count');
+        if (countSpan) {
+          const count = todos.filter(c => Array.isArray(c.estrategias) && c.estrategias.includes(val)).length;
+          countSpan.textContent = `(${count})`;
+        }
+      }
+    });
+  },
+
   renderTable(datos) {
     const tbody = document.getElementById('tbodyColaboradores');
     const emptyState = document.getElementById('emptyColaboradores');
+    const emptyTitle = document.getElementById('emptyColaboradoresTitle');
+    const emptyText = document.getElementById('emptyColaboradoresText');
+    const emptyActions = document.getElementById('emptyColaboradoresActions');
     const counterEl = document.getElementById('colaboradoresCount');
 
     if (counterEl) {
@@ -271,7 +352,37 @@ export const ColaboradoresView = {
 
     if (!datos || datos.length === 0) {
       tbody.innerHTML = '';
-      if (emptyState) emptyState.style.display = 'block';
+      if (emptyState) {
+        emptyState.style.display = 'block';
+        const tieneFiltros = Boolean(busquedaActual || filtroDistritoActual || filtroEstrategiaActual);
+        if (tieneFiltros) {
+          if (emptyTitle) emptyTitle.textContent = 'Sin resultados para los filtros aplicados';
+          if (emptyText) {
+            const detalles = [];
+            if (busquedaActual) detalles.push(`búsqueda "${busquedaActual}"`);
+            if (filtroDistritoActual) detalles.push(`distrito "${filtroDistritoActual}"`);
+            if (filtroEstrategiaActual) detalles.push(`programa "${filtroEstrategiaActual}"`);
+            emptyText.textContent = `No se encontraron colaboradores coincidentes con ${detalles.join(', ')} en esta categoría.`;
+          }
+          if (emptyActions) {
+            emptyActions.innerHTML = `
+              <button type="button" class="btn btn-secondary btn-sm" ${attrsDe('window.resetColabFilters()')}>
+                Limpiar búsqueda y filtros
+              </button>
+            `;
+          }
+        } else {
+          if (emptyTitle) emptyTitle.textContent = 'No hay colaboradores en esta categoría';
+          if (emptyText) emptyText.textContent = 'Aún no se han registrado colaboradores o instituciones para esta pestaña.';
+          if (emptyActions) {
+            emptyActions.innerHTML = `
+              <button type="button" class="btn btn-primary btn-sm" ${attrsDe('window.openNuevoColaborador()')}>
+                + Registrar Colaborador
+              </button>
+            `;
+          }
+        }
+      }
       return;
     }
 
@@ -463,12 +574,12 @@ export const ColaboradoresView = {
   },
 
   setFilterDistrito(d) {
-    filtroDistritoActual = d || '';
+    filtroDistritoActual = (d === 'all' || !d) ? '' : d;
     this.aplicarFiltrosYOrden();
   },
 
   setFilterEstrategia(e) {
-    filtroEstrategiaActual = e || '';
+    filtroEstrategiaActual = (e === 'all' || !e) ? '' : e;
     this.aplicarFiltrosYOrden();
   },
 

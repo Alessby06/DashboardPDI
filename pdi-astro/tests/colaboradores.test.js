@@ -153,7 +153,7 @@ test('mapearColaboradores transforma registros crudos de SurrealDB con tipos can
       nombres: 'Alberto',
       apellidos: 'Quispe',
       numero_documento: '10987654',
-      telefono_celular: '987111222',
+      telefono_celular: '+51 987 111 222',
       sede_nombre: 'I.E. 3088 Los Ángeles',
       tipo_colaborador: 'Director(a) I.E.',
       codigo_modular: '0584920',
@@ -179,6 +179,7 @@ test('mapearColaboradores transforma registros crudos de SurrealDB con tipos can
   assert.ok(col1.estrategias.includes('Juntos Aprendemos en Cristo (JAC)'));
 
   const col2 = mapeados[1];
+  assert.equal(col2.celular, '987111222');
   assert.equal(col2.codigoModular, '0584920');
   assert.equal(col2.nivel, 'Primaria');
   assert.equal(col2.turno, 'Mañana');
