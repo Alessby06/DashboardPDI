@@ -304,10 +304,10 @@
     transition: color var(--dur-fast) var(--ease-smooth);
   }
 
-  /* 7. Botón Píldora del Chip y botones de acción (Cushion Pill Variante 03) */
+  /* 7. Botón Píldora del Chip y botones de acción (Variante Apple Spring Refinada) */
   .padron-inner-dropdown-btn,
   .padron-sort-btn {
-    transition: transform 160ms cubic-bezier(0.25, 1, 0.5, 1),
+    transition: transform 180ms cubic-bezier(0.34, 1.25, 0.64, 1),
       background-color 160ms ease-out,
       border-color var(--dur-fast) var(--ease-smooth),
       color var(--dur-fast) var(--ease-smooth);
@@ -330,18 +330,18 @@
     cursor: pointer;
   }
 
-  /* Cushion Pill (Variante 03): Deformación elástica de almohadilla */
+  /* Compresión táctil con rebote elástico Apple */
   .padron-inner-dropdown-btn:active,
   .padron-sort-btn:active {
-    transform: scale(0.992, 0.955);
+    transform: scale(0.965);
     background-color: var(--surface-3);
-    transition: transform 80ms cubic-bezier(0.16, 1, 0.3, 1),
-      background-color 80ms ease-out;
+    transition: transform 70ms cubic-bezier(0.32, 0.72, 0, 1),
+      background-color 70ms ease-out;
   }
 
-  /* Flecha caret con rotación fluida al abrir */
+  /* Flecha caret con rotación elástica y desaceleración fluida */
   .padron-inner-dropdown-btn .caret {
-    transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 240ms cubic-bezier(0.34, 1.4, 0.64, 1);
     display: inline-block;
   }
 
@@ -392,23 +392,25 @@
     max-width: 340px;
     max-height: 320px;
     z-index: 1000;
-    box-shadow: var(--shadow-overlay);
-    border: 1px solid var(--border-subtle);
+    box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.12), 0 4px 12px -2px rgba(0, 0, 0, 0.06);
+    border: 1px solid color-mix(in srgb, var(--border-subtle) 80%, transparent);
     border-radius: var(--radius-md);
-    background: var(--surface-2);
+    background: color-mix(in srgb, var(--surface-2) 90%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(1.8);
+    backdrop-filter: blur(20px) saturate(1.8);
     padding: 6px;
     outline: none;
     transform-origin: top left;
     margin-top: 0;
     opacity: 0;
-    transform: translateY(-6px) scale(0.96);
+    transform: translateY(-6px) scale(0.97);
     pointer-events: none;
     visibility: hidden;
     overflow-y: auto;
     overscroll-behavior: contain;
-    transition: opacity 160ms cubic-bezier(0.16, 1, 0.3, 1),
-      transform 160ms cubic-bezier(0.16, 1, 0.3, 1),
-      visibility 160ms allow-discrete;
+    transition: opacity 140ms ease-in,
+      transform 140ms ease-in,
+      visibility 140ms allow-discrete;
   }
 
   /* Si el chip está hacia el final de la fila, alinear el menú a la derecha para no desbordar */
@@ -435,12 +437,39 @@
     visibility: visible;
     overflow-y: auto;
     transform: translateY(0) scale(1);
+    transition: opacity 180ms ease-out,
+      transform 240ms cubic-bezier(0.34, 1.28, 0.64, 1),
+      visibility 240ms allow-discrete;
 
     @starting-style {
       opacity: 0;
-      transform: translateY(-6px) scale(0.96);
+      transform: translateY(-6px) scale(0.97);
     }
   }
+
+  /* Cascada micro-escalonada de opciones al abrir (Variante Apple) */
+  @keyframes padronItemAppleEnter {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .audit-filters-menu .padron-inner-dropdown.open .padron-inner-dropdown-menu > .padron-dropdown-item,
+  .padron-inner-dropdown.open .padron-inner-dropdown-menu > .padron-dropdown-item {
+    animation: padronItemAppleEnter 180ms cubic-bezier(0.2, 0.9, 0.3, 1) both;
+  }
+
+  .padron-inner-dropdown.open .padron-inner-dropdown-menu > .padron-dropdown-item:nth-child(1) { animation-delay: 15ms; }
+  .padron-inner-dropdown.open .padron-inner-dropdown-menu > .padron-dropdown-item:nth-child(2) { animation-delay: 35ms; }
+  .padron-inner-dropdown.open .padron-inner-dropdown-menu > .padron-dropdown-item:nth-child(3) { animation-delay: 55ms; }
+  .padron-inner-dropdown.open .padron-inner-dropdown-menu > .padron-dropdown-item:nth-child(4) { animation-delay: 75ms; }
+  .padron-inner-dropdown.open .padron-inner-dropdown-menu > .padron-dropdown-item:nth-child(5) { animation-delay: 95ms; }
+  .padron-inner-dropdown.open .padron-inner-dropdown-menu > .padron-dropdown-item:nth-child(n+6) { animation-delay: 115ms; }
 
   /* Paneles de fecha específicos de auditoría en modo flotante PC */
   .audit-filter-panel-wrap .audit-filter-field {
@@ -541,11 +570,11 @@
   }
 
   .padron-dropdown-item {
-    transition: background-color 100ms cubic-bezier(0.16, 1, 0.3, 1),
-      transform 100ms cubic-bezier(0.16, 1, 0.3, 1);
+    transition: background-color 120ms ease,
+      transform 120ms cubic-bezier(0.2, 0.9, 0.3, 1);
   }
 
-  .padron-dropdown-item:hover {
+  .padron-dropdown-item:hover:not(.zero-facet) {
     background: var(--surface-hover);
     transform: translateX(2px);
   }
