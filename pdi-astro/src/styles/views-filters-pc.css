@@ -545,13 +545,17 @@
     background: var(--surface-hover);
   }
 
+  .padron-inner-dropdown-menu .padron-dropdown-item,
+  .custom-dropdown-menu .custom-dropdown-item,
   .padron-dropdown-item {
-    transition: background-color 120ms ease,
-      transform 120ms cubic-bezier(0.2, 0.9, 0.3, 1);
+    transition: background-color 130ms cubic-bezier(0.16, 1, 0.3, 1),
+      color 130ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
+  .padron-inner-dropdown-menu .padron-dropdown-item:hover:not(.zero-facet),
+  .custom-dropdown-menu .custom-dropdown-item:hover:not(.zero-facet),
   .padron-dropdown-item:hover:not(.zero-facet) {
     background: var(--surface-hover);
-    transform: translateX(2px);
+    color: var(--text-main);
   }
 }
