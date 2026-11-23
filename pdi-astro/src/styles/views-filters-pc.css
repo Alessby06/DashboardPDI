@@ -403,7 +403,7 @@
     transform-origin: top left;
     margin-top: 0;
     opacity: 0;
-    transform: translateY(-6px) scale(0.97);
+    transform: translateY(-6px);
     pointer-events: none;
     visibility: hidden;
     overflow-y: auto;
@@ -436,40 +436,16 @@
     pointer-events: auto;
     visibility: visible;
     overflow-y: auto;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
     transition: opacity 180ms ease-out,
-      transform 240ms cubic-bezier(0.34, 1.28, 0.64, 1),
-      visibility 240ms allow-discrete;
+      transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+      visibility 200ms allow-discrete;
 
     @starting-style {
       opacity: 0;
-      transform: translateY(-6px) scale(0.97);
+      transform: translateY(-6px);
     }
   }
-
-  /* Cascada micro-escalonada de opciones al abrir (Variante Apple) */
-  @keyframes padronItemAppleEnter {
-    from {
-      opacity: 0;
-      transform: translateY(4px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .audit-filters-menu .padron-inner-dropdown.open .padron-inner-dropdown-menu > .padron-dropdown-item,
-  .padron-inner-dropdown.open .padron-inner-dropdown-menu > .padron-dropdown-item {
-    animation: padronItemAppleEnter 180ms cubic-bezier(0.2, 0.9, 0.3, 1) both;
-  }
-
-  .padron-inner-dropdown.open .padron-inner-dropdown-menu > .padron-dropdown-item:nth-child(1) { animation-delay: 15ms; }
-  .padron-inner-dropdown.open .padron-inner-dropdown-menu > .padron-dropdown-item:nth-child(2) { animation-delay: 35ms; }
-  .padron-inner-dropdown.open .padron-inner-dropdown-menu > .padron-dropdown-item:nth-child(3) { animation-delay: 55ms; }
-  .padron-inner-dropdown.open .padron-inner-dropdown-menu > .padron-dropdown-item:nth-child(4) { animation-delay: 75ms; }
-  .padron-inner-dropdown.open .padron-inner-dropdown-menu > .padron-dropdown-item:nth-child(5) { animation-delay: 95ms; }
-  .padron-inner-dropdown.open .padron-inner-dropdown-menu > .padron-dropdown-item:nth-child(n+6) { animation-delay: 115ms; }
 
   /* Paneles de fecha específicos de auditoría en modo flotante PC */
   .audit-filter-panel-wrap .audit-filter-field {
