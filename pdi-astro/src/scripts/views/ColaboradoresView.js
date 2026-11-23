@@ -32,6 +32,11 @@ export const ColaboradoresView = {
     this.actualizarDatalistSedes();
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab') || params.get('categoria');
+      if (tabParam && ['colegios', 'iglesias', 'pdi'].includes(tabParam)) {
+        categoriaTabActual = tabParam;
+      }
+
       const qSede = params.get('sede') || params.get('buscar') || '';
       if (qSede) {
         const input = document.getElementById('inputColabSearch');
@@ -40,23 +45,70 @@ export const ColaboradoresView = {
         const clearBtn = document.getElementById('btnColabSearchClear');
         if (clearBtn) clearBtn.style.display = 'flex';
 
-        // Auto-seleccionar la pestaña de la categoría del colaborador vinculado si aplica
+        // Auto-seleccionar la pestaña adecuada según los colaboradores de esa sede
         const todos = ColaboradorModel.getAll();
         const qNorm = quitarDiacriticos(busquedaActual);
-        const match = todos.find(c => {
+
+        // Si la pestaña actual no tiene matches para esta sede, buscar la primera categoría que sí tenga
+        const tieneEnActual = todos.some(c => {
+          const cat = c.categoria || clasificarCategoria(c.tipoColaborador);
           const s = quitarDiacriticos(c.sedeInstitucion);
-          return s.includes(qNorm) || qNorm.includes(s);
+          return cat === categoriaTabActual && (s.includes(qNorm) || qNorm.includes(s));
         });
-        if (match && match.categoria) {
-          this.setTabCategoria(match.categoria);
+
+        if (!tieneEnActual) {
+          const match = todos.find(c => {
+            const s = quitarDiacriticos(c.sedeInstitucion);
+            return s.includes(qNorm) || qNorm.includes(s);
+          });
+          if (match && (match.categoria || clasificarCategoria(match.tipoColaborador))) {
+            categoriaTabActual = match.categoria || clasificarCategoria(match.tipoColaborador);
+          }
         }
       }
     }
     this.render();
   },
 
+  sincronizarPestañas() {
+    const tabs = [
+      { id: 'tabBtnColabColegios', cat: 'colegios' },
+      { id: 'tabBtnColabIglesias', cat: 'iglesias' },
+      { id: 'tabBtnColabPDI', cat: 'pdi' }
+    ];
+
+    tabs.forEach(({ id, cat: c }) => {
+      const btn = document.getElementById(id);
+      if (btn) {
+        const activo = c === categoriaTabActual;
+        btn.classList.toggle('active', activo);
+        btn.setAttribute('aria-selected', activo ? 'true' : 'false');
+      }
+    });
+
+    const titleEl = document.getElementById('colaboradoresHeaderTitle');
+    if (titleEl) {
+      if (categoriaTabActual === 'colegios') titleEl.textContent = 'Directorio de Colegios Aliados (I.E.)';
+      else if (categoriaTabActual === 'iglesias') titleEl.textContent = 'Directorio de Iglesias y Puntos Pastorales';
+      else titleEl.textContent = 'Equipo Técnico y Facilitadoras PDI';
+    }
+  },
+
   enlazarEventos() {
-    // Tabs de categoría
+    // Delegación limpia en el contenedor de pestañas para máxima robustez
+    const tabContainer = document.querySelector('.colab-view-tabs');
+    if (tabContainer) {
+      tabContainer.onclick = (e) => {
+        const btn = e.target.closest('[data-categoria]');
+        if (btn) {
+          e.preventDefault();
+          const cat = btn.getAttribute('data-categoria');
+          if (cat) this.setTabCategoria(cat);
+        }
+      };
+    }
+
+    // Tabs de categoría (enlace directo adicional de respaldo)
     const tabs = [
       { id: 'tabBtnColabColegios', cat: 'colegios' },
       { id: 'tabBtnColabIglesias', cat: 'iglesias' },
@@ -129,36 +181,13 @@ export const ColaboradoresView = {
 
   setTabCategoria(cat) {
     categoriaTabActual = cat;
-
-    // Actualizar estado visual de los botones de pestañas
-    const tabs = [
-      { id: 'tabBtnColabColegios', cat: 'colegios' },
-      { id: 'tabBtnColabIglesias', cat: 'iglesias' },
-      { id: 'tabBtnColabPDI', cat: 'pdi' }
-    ];
-
-    tabs.forEach(({ id, cat: c }) => {
-      const btn = document.getElementById(id);
-      if (btn) {
-        const activo = c === cat;
-        btn.classList.toggle('active', activo);
-        btn.setAttribute('aria-selected', activo ? 'true' : 'false');
-      }
-    });
-
-    // Actualizar título de la tarjeta
-    const titleEl = document.getElementById('colaboradoresHeaderTitle');
-    if (titleEl) {
-      if (cat === 'colegios') titleEl.textContent = 'Directorio de Colegios Aliados (I.E.)';
-      else if (cat === 'iglesias') titleEl.textContent = 'Directorio de Iglesias y Puntos Pastorales';
-      else titleEl.textContent = 'Equipo Técnico y Facilitadoras PDI';
-    }
-
+    this.sincronizarPestañas();
     this.aplicarFiltrosYOrden();
   },
 
   render() {
     const todos = ColaboradorModel.getAll();
+    this.sincronizarPestañas();
     this._initSort();
     this.renderStats(todos);
     this.aplicarFiltrosYOrden();
@@ -334,11 +363,13 @@ export const ColaboradoresView = {
     if (!bar || !list) return;
 
     if (chips.length === 0) {
+      bar.classList.remove('is-visible');
       bar.style.display = 'none';
       list.innerHTML = '';
       return;
     }
 
+    bar.classList.add('is-visible');
     bar.style.display = 'flex';
     list.innerHTML = chips.map(c => `
       <span class="padron-filter-chip">
@@ -622,6 +653,9 @@ export const ColaboradoresView = {
     if (input) input.value = '';
     const btnClear = document.getElementById('btnColabSearchClear');
     if (btnClear) btnClear.style.display = 'none';
+    if (typeof window !== 'undefined' && window.location.search) {
+      window.history.replaceState({}, '', window.location.pathname);
+    }
     this.aplicarFiltrosYOrden();
   },
 
@@ -651,6 +685,9 @@ export const ColaboradoresView = {
     if (input) input.value = '';
     const btnClear = document.getElementById('btnColabSearchClear');
     if (btnClear) btnClear.style.display = 'none';
+    if (typeof window !== 'undefined' && window.location.search) {
+      window.history.replaceState({}, '', window.location.pathname);
+    }
     this.aplicarFiltrosYOrden();
   },
 
@@ -705,11 +742,16 @@ export const ColaboradoresView = {
       this.actualizarCamposContextualesModal(selectTipo.value);
     }
 
-    const modalContent = modal.querySelector('.modal-content');
-    if (modalContent) modalContent.scrollTop = 0;
-
-    modal.classList.add('active');
     modal.style.display = 'flex';
+    modal.classList.add('active');
+
+    const modalBody = modal.querySelector('.modal-body') || modal.querySelector('.modal-content');
+    if (modalBody) {
+      modalBody.scrollTop = 0;
+      requestAnimationFrame(() => {
+        modalBody.scrollTop = 0;
+      });
+    }
   },
 
   openModalEditar(id) {
@@ -750,11 +792,16 @@ export const ColaboradoresView = {
       cb.checked = ests.includes(cb.value);
     });
 
-    const modalContent = modal.querySelector('.modal-content');
-    if (modalContent) modalContent.scrollTop = 0;
-
-    modal.classList.add('active');
     modal.style.display = 'flex';
+    modal.classList.add('active');
+
+    const modalBody = modal.querySelector('.modal-body') || modal.querySelector('.modal-content');
+    if (modalBody) {
+      modalBody.scrollTop = 0;
+      requestAnimationFrame(() => {
+        modalBody.scrollTop = 0;
+      });
+    }
   },
 
   cerrarModal() {

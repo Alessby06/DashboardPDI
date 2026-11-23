@@ -574,6 +574,18 @@
   flex-shrink: 0;
 }
 
+/* Barra de Chips de Filtros Activos */
+#cardColaboradores .padron-active-chips-bar {
+  margin-bottom: 12px;
+}
+
+#cardColaboradores .padron-active-chips-bar.is-visible {
+  display: flex;
+  visibility: visible;
+  opacity: 1;
+  height: auto;
+}
+
 /* ===========================================================================
    MODAL FICHA DE COLABORADORES E INSTITUCIONES
    =========================================================================== */
@@ -608,26 +620,31 @@
   box-shadow: var(--shadow-overlay);
   width: 100%;
   max-width: 640px;
-  max-height: 90vh;
-  overflow-y: auto;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   overscroll-behavior: contain;
   transform: scale(0.98) translateY(8px);
   transition: transform var(--dur-norm) var(--ease-drawer);
 }
 
 .modal-content .modal-header {
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  flex-shrink: 0;
   background: var(--surface-1);
   border-bottom: 1px solid var(--border-subtle);
   padding: 16px 20px;
 }
 
+.modal-content .modal-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
 .modal-content .modal-footer {
-  position: sticky;
-  bottom: 0;
-  z-index: 10;
+  flex-shrink: 0;
   background: var(--surface-1);
   border-top: 1px solid var(--border-subtle);
   padding: 14px 20px;

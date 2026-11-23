@@ -198,7 +198,7 @@ const OPCIONES_ORDEN = [
       </div>
 
       <!-- Barra de Chips de Filtros Activos -->
-      <div class="padron-active-chips-bar" id="colabActiveChipsBar" style="display:none;">
+      <div class="padron-active-chips-bar" id="colabActiveChipsBar">
         <span class="padron-active-chips-label">Filtros aplicados:</span>
         <div id="colabActiveChipsList" style="display:inline-flex; flex-wrap:wrap; gap:6px;"></div>
         <button type="button" class="btn-text-subtle" data-pdi-on="click" data-pdi-h="h077" style="font-size:11.5px; margin-left:8px; cursor:pointer;">
@@ -241,8 +241,8 @@ const OPCIONES_ORDEN = [
 
   <!-- Modal Ficha Técnica de Colaborador e Institución Aliada -->
   <div class="modal-overlay" id="modalColaborador" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="modalColabTitle">
-    <div class="modal-content" style="max-width: 640px; max-height: 90vh; overflow-y: auto;">
-      <div class="modal-header" style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-subtle); padding: 16px 20px;">
+    <div class="modal-content" style="max-width: 640px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; background: var(--surface-1); border-radius: var(--radius-md); box-shadow: var(--shadow-overlay);">
+      <div class="modal-header" style="flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-subtle); padding: 16px 20px; background: var(--surface-1);">
         <div>
           <h3 id="modalColabTitle" style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-main);">Ficha de Colaborador e Institución</h3>
           <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-muted);">Registro oficial de contrapartes territoriales (Fichas A4 y A5)</p>
@@ -252,8 +252,9 @@ const OPCIONES_ORDEN = [
         </button>
       </div>
 
-      <form id="formColaborador" style="padding: 20px; display: flex; flex-direction: column; gap: 16px;">
-        <input type="hidden" id="colabEditId" value="" />
+      <form id="formColaborador" style="display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; margin: 0;">
+        <div class="modal-body" id="modalColabBody" style="padding: 20px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 16px;">
+          <input type="hidden" id="colabEditId" value="" />
 
         <!-- Sección 1: Rol y Entidad -->
         <div style="background: var(--surface-2); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 12px;">
@@ -395,18 +396,19 @@ const OPCIONES_ORDEN = [
           <label for="colabObservaciones" style="display:block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Observaciones y Acuerdos de Coordinación</label>
           <textarea id="colabObservaciones" rows="2" class="audit-search-input" style="width: 100%; border: 1px solid var(--border-default); border-radius: var(--radius-sm); padding: 8px 12px; resize: vertical;" placeholder="Detalles de horarios de acceso, acuerdos de uso de patio o entrega de raciones..."></textarea>
         </div>
+      </div><!-- /.modal-body -->
 
-        <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; border-top: 1px solid var(--border-subtle); padding-top: 16px;">
-          <button type="button" class="btn-action secondary" data-pdi-on="click" data-pdi-h="h078">
-            Cancelar
-          </button>
-          <button type="submit" class="btn-action primary">
-            Guardar Ficha
-          </button>
-        </div>
-      </form>
-    </div>
+      <div class="modal-footer" style="flex-shrink: 0; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--border-subtle); padding: 14px 20px; background: var(--surface-1);">
+        <button type="button" class="btn-action secondary" data-pdi-on="click" data-pdi-h="h078">
+          Cancelar
+        </button>
+        <button type="submit" class="btn-action primary" id="btnGuardarColab">
+          Guardar Ficha
+        </button>
+      </div>
+    </form>
   </div>
+</div>
 
   <script>
     import '../scripts/pages/colaboradores.js';

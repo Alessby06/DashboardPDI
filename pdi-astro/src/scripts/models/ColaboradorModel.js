@@ -467,8 +467,14 @@ export const ColaboradorModel = {
 
   init() {
     const almacenados = StorageService.getItem(STORAGE_KEY, null);
-    if (Array.isArray(almacenados) && almacenados.length > 0) {
-      this._data = almacenados;
+    const esValido = Array.isArray(almacenados) &&
+      almacenados.length >= 10 &&
+      almacenados.some(c => (c.categoria || clasificarCategoria(c.tipoColaborador)) === 'colegios') &&
+      almacenados.some(c => (c.categoria || clasificarCategoria(c.tipoColaborador)) === 'iglesias') &&
+      almacenados.some(c => (c.categoria || clasificarCategoria(c.tipoColaborador)) === 'pdi');
+
+    if (esValido) {
+      this._data = almacenados.map(c => normalizarColaborador(c));
     } else {
       this._data = COLABORADORES_SEMILLA.map((c, idx) => normalizarColaborador({
         ...c,
@@ -483,7 +489,7 @@ export const ColaboradorModel = {
   aplicarDatos(lista) {
     if (!Array.isArray(lista)) return;
     if (lista.length > 0) {
-      this._data = lista;
+      this._data = lista.map(c => normalizarColaborador(c));
       this._guardar();
     } else if (!this._data || this._data.length === 0) {
       this.init();

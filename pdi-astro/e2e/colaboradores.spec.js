@@ -75,12 +75,10 @@ test.describe('módulo colaboradores — red territorial PDI', () => {
   });
 
   test('filtra por distrito usando el desplegable y chips activos', async ({ page }) => {
-    // Abrir panel general de filtros
-    await page.locator('#btnDropdownColabFilterPanel').click();
-    await expect(page.locator('#menuColabFilterPanel')).toBeVisible();
-
-    // Abrir desplegable interno de distrito
-    await page.locator('#dropdownColabDistrito .padron-inner-dropdown-btn').click();
+    // Abrir desplegable de distrito (accesible directamente en la barra de herramientas)
+    const btnDistrito = page.locator('#dropdownColabDistrito .padron-inner-dropdown-btn');
+    await expect(btnDistrito).toBeVisible();
+    await btnDistrito.click();
     await expect(page.locator('#menuColabDistrito')).toBeVisible();
 
     // Seleccionar Comas
@@ -108,7 +106,7 @@ test.describe('módulo colaboradores — red territorial PDI', () => {
 
     // Verificar que el scroll esté arriba
     const scrollTopNuevo = await page.evaluate(() => {
-      const el = document.querySelector('#modalColaborador .modal-content');
+      const el = document.querySelector('#modalColaborador .modal-body') || document.querySelector('#modalColaborador .modal-content');
       return el ? el.scrollTop : -1;
     });
     expect(scrollTopNuevo).toBe(0);
@@ -128,7 +126,7 @@ test.describe('módulo colaboradores — red territorial PDI', () => {
 
     // Verificar que el scroll esté arriba también en edición
     const scrollTopEdicion = await page.evaluate(() => {
-      const el = document.querySelector('#modalColaborador .modal-content');
+      const el = document.querySelector('#modalColaborador .modal-body') || document.querySelector('#modalColaborador .modal-content');
       return el ? el.scrollTop : -1;
     });
     expect(scrollTopEdicion).toBe(0);
@@ -165,5 +163,29 @@ test.describe('módulo colaboradores — red territorial PDI', () => {
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth
     );
     expect(overflow).toBeLessThanOrEqual(1);
+  });
+
+  test('filtra automáticamente al acceder por parámetro ?sede=Año Nuevo y permite limpiar', async ({ page }) => {
+    await page.goto('/colaboradores?sede=A%C3%B1o%20Nuevo');
+    await expect(page).toHaveURL(/sede=/);
+
+    // Los KPIs globales deben mantenerse consistentes (19 total)
+    await expect(page.locator('#statColabTotal')).toContainText('19');
+
+    // El input de búsqueda debe tener el valor "Año Nuevo"
+    await expect(page.locator('#inputColabSearch')).toHaveValue('Año Nuevo');
+
+    // Debe mostrar al menos un colaborador de Año Nuevo
+    await expect(page.locator('#tbodyColaboradores tr')).toHaveCount(1);
+    await expect(page.locator('#tbodyColaboradores')).toContainText('Año Nuevo');
+
+    // El botón limpiar búsqueda debe estar visible y al presionarlo debe mostrar todo el padrón de la categoría
+    const btnClear = page.locator('#btnColabSearchClear');
+    await expect(btnClear).toBeVisible();
+    await btnClear.click();
+
+    await expect(page.locator('#inputColabSearch')).toHaveValue('');
+    const rows = await page.locator('#tbodyColaboradores tr').count();
+    expect(rows).toBeGreaterThanOrEqual(5);
   });
 });
