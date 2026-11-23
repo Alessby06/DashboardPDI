@@ -1057,15 +1057,22 @@ html[data-page-dir]::view-transition-new(root) {
   animation: none !important;
 }
 
-html[data-page-dir]::view-transition-new(pdi-main-section) {
-  /* El saliente ya sale en --dur-fast; si el entrante dura --dur-panel
-     (260ms) se superponen dos páginas: shuttering/doble imagen. El push
-     del entrante con --dur-fast consume el solape de transición. */
-  animation: pdiPagePushIn var(--dur-fast) var(--ease-spring) both !important;
+/* Solo viaja la entrante. Antes se movían las dos en sentidos opuestos y la
+   saliente fundía durante todo el recorrido: a media transición el borde de
+   la nueva dejaba ver una franja fantasma de la anterior. */
+html[data-page-dir]::view-transition-old(pdi-main-section) {
+  animation: none !important;
+  z-index: 1;
 }
 
-html[data-page-dir]::view-transition-old(pdi-main-section) {
-  animation: pdiPagePushOut var(--dur-fast) var(--ease-out) both !important;
+html[data-page-dir]::view-transition-new(pdi-main-section) {
+  /* Por encima de la saliente: si no, la capa vieja, que queda opaca, tapa
+     el deslizamiento. */
+  z-index: 2;
+  /* --ease-spring en --dur-fast gastaba 33 px en el primer fotograma a 60 Hz
+     y luego avanzaba de 1 a 2 px: tirón y arrastre. --dur-norm con una curva
+     que reparte el recorrido deja pasos de 13 px como máximo. */
+  animation: pdiPagePushIn var(--dur-norm) cubic-bezier(0.22, 0.61, 0.36, 1) both !important;
 }
 
 @media (max-width: 900px) {
@@ -1074,16 +1081,9 @@ html[data-page-dir]::view-transition-old(pdi-main-section) {
 }
 
 @keyframes pdiPagePushIn {
-  /* La entrante nace opaca: si empieza en 0, la captura saliente queda
-     visible durante los primeros frames ya con la URL de destino. */
+  /* La entrante nace opaca: la saliente queda debajo y no debe asomar. */
   from { opacity: 1; transform: translateX(var(--page-dx, 12%)); }
-  30% { opacity: 1; }
   to { opacity: 1; transform: none; }
-}
-
-@keyframes pdiPagePushOut {
-  from { opacity: 1; transform: none; }
-  to { opacity: 0; transform: translateX(calc(var(--page-dx, 12%) * -1.1)); }
 }
 
 @keyframes pdiMobileSectionFadeIn {
