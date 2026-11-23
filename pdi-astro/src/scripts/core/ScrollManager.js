@@ -142,29 +142,37 @@ export const ScrollManager = {
     setTimeout(remide, 120);
   },
 
-  /** La rueda de un trackpad emite pequenos deltas inversos al terminar el
-   *  gesto. Lenis los suma y el viewport retrocede: parece otra rueda que
-   *  obliga a subir. Se descartan solo los reversos pequenos y recientes, con
-   *  un presupuesto para no bloquear un gesto ascendente deliberado. */
+  /**
+   * El raton emite rafagas de deltas en los dos sentidos (±167 px en el log
+   * reproducido). La rafaga inversa que empieza justo despues de bajar hace
+   * que Lenis retroceda el viewport: parece otra rueda que obliga a subir.
+   * Se descarta toda la rafaga inversa, no solo sus primeros eventos; se
+   * termina con un delta hacia abajo o con una pausa de 400 ms, asi que
+   * subir deliberadamente despues de parar sigue funcionando.
+   */
   _filtrarRebote() {
     const wrapper = this.mainWrapper;
     if (!wrapper || wrapper.__pdiRebote) return;
     wrapper.__pdiRebote = true;
     let ultimoAbajo = 0;
-    let presupuesto = 160;
+    let ultimoEvento = 0;
+    let enRebote = false;
     wrapper.addEventListener('wheel', (evento) => {
       const ahora = performance.now();
       if (evento.deltaY > 0) {
         ultimoAbajo = ahora;
-        presupuesto = 160;
+        ultimoEvento = ahora;
+        enRebote = false;
         return;
       }
-      const magnitud = -evento.deltaY;
-      if (evento.deltaY < 0 && magnitud <= 45
-        && ahora - ultimoAbajo < 500 && presupuesto >= magnitud) {
-        presupuesto -= magnitud;
-        evento.preventDefault();
-        evento.stopPropagation();
+      if (evento.deltaY < 0) {
+        if (!enRebote && ahora - ultimoAbajo < 400) enRebote = true;
+        if (ahora - ultimoEvento > 400) enRebote = false;
+        ultimoEvento = ahora;
+        if (enRebote) {
+          evento.preventDefault();
+          evento.stopPropagation();
+        }
       }
     }, { capture: true, passive: false });
   },
