@@ -1,6 +1,7 @@
 import { AnimationEngine } from '../utils/AnimationEngine.js';
 import { CsvExporter } from '../utils/CsvExporter.js';
 import { escapar } from "../utils/HtmlHelper.js";
+import { TallerBtfModel } from "../models/TallerBtfModel.js";
 
 /**
  * Vista: Tablero Principal Dashboard (dashboard.astro)
@@ -730,6 +731,16 @@ export const DashboardView = {
       const c = mapaClaves.get(b);
       todosProgramas.forEach(p => { if (c.has(p.clave)) resumen[clave].servicios[p.clave] += 1; });
     });
+
+    // Sumar cobertura real de Talleres BTF (padres/cuidadores asistentes por distrito)
+    try {
+      const btfResumen = TallerBtfModel.resumenPorDistrito();
+      resumen.comas.servicios.btf += btfResumen.comas || 0;
+      resumen.carabayllo.servicios.btf += btfResumen.carabayllo || 0;
+      resumen.otras.servicios.btf += btfResumen.otras || 0;
+    } catch {
+      // Sin talleres locales registrados
+    }
 
     const totalUsuarios = usuarios.length;
     const basePct = totalUsuarios || 1;

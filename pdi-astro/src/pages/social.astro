@@ -25,13 +25,16 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                 var activeTab = 'kanban';
                 if (tab === 'autorizaciones' && (rol === 'coord' || rol === 'admin')) activeTab = 'autorizaciones';
                 if (tab === 'mis-solicitudes' && rol === 'social') activeTab = 'mis-solicitudes';
+                if (tab === 'btf') activeTab = 'btf';
 
                 var k = document.getElementById('viewSocialKanban');
                 var a = document.getElementById('viewSocialAutorizaciones');
                 var m = document.getElementById('viewSocialMisSolicitudes');
+                var b = document.getElementById('viewSocialBtf');
                 if (k) k.classList.toggle('active', activeTab === 'kanban');
                 if (a) a.classList.toggle('active', activeTab === 'autorizaciones');
                 if (m) m.classList.toggle('active', activeTab === 'mis-solicitudes');
+                if (b) b.classList.toggle('active', activeTab === 'btf');
 
                 var btnSocial = document.querySelector('#sidebarNav .nav-btn[data-page="social"]');
                 var btnAut = document.querySelector('#sidebarNav .nav-btn[data-subview="autorizaciones"]');
@@ -51,7 +54,11 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                 <p>Bandeja de casos sociales clasificados, solicitudes de cambio de estado y simulador socioeconómico paramétrico (0-100%).</p>
               </div>
               <div class="view-actions">
-                <button type="button" class="btn-action primary" id="btnNuevaDerivacion">
+                <button type="button" class="btn-action secondary pdi-motion" id="btnIrTalleresBtf">
+                  <Icon name="nav.grupo" size={16} />
+                  <span>Talleres BTF</span>
+                </button>
+                <button type="button" class="btn-action primary pdi-motion" id="btnNuevaDerivacion">
                   <Icon name="accion.agregar" size={16} />
                   <span>Abrir derivación</span>
                 </button>
@@ -545,8 +552,7 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                           <div class="socio-rec-icon">
                             <Icon name="accion.confirmar" size={14} />
                           </div>
-                          <span>Asignación prioritaria de Canasta Nutricional complementaria (Banco de Alimentos
-                            BTF).</span>
+                          <span>Asignación prioritaria de Canasta Nutricional complementaria (Área Social Pastoral) y derivación a talleres Buen Trato en Familia (BTF).</span>
                         </li>
                         <li class="socio-recommendation-item">
                           <div class="socio-rec-icon">
@@ -652,6 +658,145 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
 
               <!-- Lista dinámica del historial de solicitudes -->
               <div id="containerListaMisSolicitudes"></div>
+            </div>
+          </div>
+
+          <!-- ======================================================== -->
+          <!-- SUBVISTA 4: Talleres BTF (Buen Trato en Familia)         -->
+          <!-- ======================================================== -->
+          <div class="social-subview-panel" id="viewSocialBtf">
+            <div class="social-subview-card">
+              <div class="social-subview-header">
+                <div class="social-subview-title-group">
+                  <div class="social-subview-icon-box blue">
+                    <Icon name="nav.grupo" size={20} />
+                  </div>
+                  <div>
+                    <h3 style="font-size: 15px; font-weight: 700; color: var(--text-main); margin: 0;">
+                      Talleres Buen Trato en Familia (BTF) — Escuelas para Padres
+                    </h3>
+                    <p style="font-size: 12px; color: var(--text-muted); margin: 2px 0 0 0;">
+                      Registro de sesiones vivenciales de crianza positiva y prevención del maltrato en articulación con iglesias y colegios aliados.
+                    </p>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <button type="button" class="btn-action secondary pdi-motion" id="btnVolverKanbanDesdeBtf">
+                    <Icon name="accion.volver" size={14} />
+                    <span>Volver al Tablero</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Resumen de impacto BTF -->
+              <div class="social-stats-row">
+                <div class="social-stat-card">
+                  <span class="social-stat-label">Sesiones BTF Realizadas</span>
+                  <span class="social-stat-val" id="statBtfSesiones">0</span>
+                </div>
+                <div class="social-stat-card">
+                  <span class="social-stat-label">Padres / Cuidadores Asistentes</span>
+                  <span class="social-stat-val text-favorable" id="statBtfPadres">0</span>
+                </div>
+                <div class="social-stat-card">
+                  <span class="social-stat-label">Familias del Padrón PDI</span>
+                  <span class="social-stat-val" id="statBtfFamilias">0</span>
+                </div>
+                <div class="social-stat-card">
+                  <span class="social-stat-label">Aliados BTF Activos</span>
+                  <span class="social-stat-val" id="statBtfAliados">0</span>
+                </div>
+              </div>
+
+              <!-- Formulario de registro de sesión BTF -->
+              <form id="formTallerBtf" class="btf-form-grid" novalidate>
+                <div class="btf-form-row-3">
+                  <div class="form-group">
+                    <label for="btfFecha" class="form-label">Fecha de Sesión <span class="req">*</span></label>
+                    <input type="date" id="btfFecha" class="form-control" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="btfSede" class="form-label">Sede Territorial <span class="req">*</span></label>
+                    <select id="btfSede" class="form-control" required>
+                      <option value="">Seleccionar sede...</option>
+                      {SEDES_OPERATIVAS.map((s) => (
+                        <option value={s.nombre}>{s.etiqueta}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="btfAliado" class="form-label">Aliado / Local Anfitrión</label>
+                    <input type="text" id="btfAliado" class="form-control" list="datalistAliadosBtf" placeholder="Buscar iglesia, colegio o local..." autocomplete="off" />
+                    <datalist id="datalistAliadosBtf"></datalist>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Sesión del Ciclo BTF (4 módulos) <span class="req">*</span></label>
+                  <div class="btf-sesiones-grid">
+                    <label class="btf-sesion-pill">
+                      <input type="radio" name="btfSesion" value="1" checked />
+                      <span>S1 · Crianza Positiva y Apego</span>
+                    </label>
+                    <label class="btf-sesion-pill">
+                      <input type="radio" name="btfSesion" value="2" />
+                      <span>S2 · Disciplina sin Violencia</span>
+                    </label>
+                    <label class="btf-sesion-pill">
+                      <input type="radio" name="btfSesion" value="3" />
+                      <span>S3 · Comunicación en el Hogar</span>
+                    </label>
+                    <label class="btf-sesion-pill">
+                      <input type="radio" name="btfSesion" value="4" />
+                      <span>S4 · Prevención y Protección</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="btf-form-row-3">
+                  <div class="form-group">
+                    <label for="btfPadres" class="form-label"># Padres / Cuidadores Asistentes</label>
+                    <input type="number" id="btfPadres" class="form-control" min="0" value="0" />
+                  </div>
+                  <div class="form-group">
+                    <label for="btfFamilias" class="form-label"># Familias del Padrón PDI</label>
+                    <input type="number" id="btfFamilias" class="form-control" min="0" value="0" />
+                  </div>
+                  <div class="form-group">
+                    <label for="btfResponsable" class="form-label">Responsable (ASP / Facilitadora)</label>
+                    <input type="text" id="btfResponsable" class="form-control" placeholder="Trabajadora social o facilitadora" />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="btfObservaciones" class="form-label">Acuerdos, Derivaciones y Observaciones</label>
+                  <textarea id="btfObservaciones" class="form-control" rows="2" maxlength="300" placeholder="Compromisos asumidos por las familias o casos detectados para seguimiento ASP..."></textarea>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end;">
+                  <button type="submit" class="btn-action primary pdi-motion">
+                    <Icon name="accion.confirmar" size={16} />
+                    <span>Registrar Sesión BTF</span>
+                  </button>
+                </div>
+              </form>
+
+              <!-- Historial de Talleres BTF -->
+              <div class="table-container desktop-table-view" style="margin-top: 20px;">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 11%;">Fecha</th>
+                      <th style="width: 16%;">Sede & Distrito</th>
+                      <th style="width: 31%;">Sesión del Ciclo BTF</th>
+                      <th style="width: 18%;">Aliado / Anfitrión</th>
+                      <th style="width: 12%; text-align: center;">Asistentes</th>
+                      <th style="width: 12%;">Responsable</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbodyTalleresBtf"></tbody>
+                </table>
+              </div>
             </div>
           </div>
         </section>

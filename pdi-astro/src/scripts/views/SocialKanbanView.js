@@ -10,6 +10,7 @@ import { KanbanDrag } from '../utils/KanbanDrag.js';
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
 import { SEDES_NOMBRES } from "../core/catalogos.js";
 import { iconHtml } from '../../data/iconos.js';
+import { TalleresBtfView } from './TalleresBtfView.js';
 
 /** Clave única del caso. El id numérico es heredado del código de usuario y
  *  puede repetirse entre un caso cerrado y uno nuevo de la misma persona. */
@@ -64,6 +65,7 @@ const TITULOS_TAB = {
   kanban: "Área Social Pastoral",
   autorizaciones: "Autorizaciones ASP",
   "mis-solicitudes": "Mis Solicitudes ASP",
+  btf: "Talleres BTF (Buen Trato en Familia)",
 };
 
 const FACETAS_SOCIAL = {
@@ -1146,13 +1148,15 @@ export const SocialKanbanView = {
     if (panelKanban) panelKanban.classList.toggle("active", tabKey === "kanban");
     if (panelAutorizaciones) panelAutorizaciones.classList.toggle("active", tabKey === "autorizaciones");
     if (panelMisSolicitudes) panelMisSolicitudes.classList.toggle("active", tabKey === "mis-solicitudes");
+    const panelBtf = document.getElementById("viewSocialBtf");
+    if (panelBtf) panelBtf.classList.toggle("active", tabKey === "btf");
 
     // Sincronizar botones del sidebar
     const btnSocial = document.querySelector('#sidebarNav .nav-btn[data-page="social"]');
     const btnAutorizaciones = document.querySelector('#sidebarNav .nav-btn[data-subview="autorizaciones"]');
     const btnMisSolicitudes = document.querySelector('#sidebarNav .nav-btn[data-subview="mis-solicitudes"]');
 
-    if (btnSocial) btnSocial.classList.toggle("active", tabKey === "kanban");
+    if (btnSocial) btnSocial.classList.toggle("active", tabKey === "kanban" || tabKey === "btf");
     if (btnAutorizaciones) btnAutorizaciones.classList.toggle("active", tabKey === "autorizaciones");
     if (btnMisSolicitudes) btnMisSolicitudes.classList.toggle("active", tabKey === "mis-solicitudes");
 
@@ -1190,6 +1194,8 @@ export const SocialKanbanView = {
         this.renderVistaAutorizaciones();
       } else if (tabKey === "mis-solicitudes") {
         this.renderVistaMisSolicitudes();
+      } else if (tabKey === "btf") {
+        TalleresBtfView.render();
       } else {
         this.renderKanban();
       }
@@ -1198,13 +1204,13 @@ export const SocialKanbanView = {
     // Dirección del empuje: avanzar en el orden de las pestañas empuja hacia la
     // izquierda y retroceder hacia la derecha. La mecánica es única: la misma
     // en escritorio y en móvil, solo cambia el recorrido (--social-dx).
-    const ORDEN_TABS = ["kanban", "autorizaciones", "mis-solicitudes"];
+    const ORDEN_TABS = ["kanban", "autorizaciones", "mis-solicitudes", "btf"];
     const panelActivo = document.querySelector(".social-subview-panel.active");
     const tabActual = panelActivo?.id === "viewSocialAutorizaciones"
       ? "autorizaciones"
       : panelActivo?.id === "viewSocialMisSolicitudes"
         ? "mis-solicitudes"
-        : "kanban";
+        : panelActivo?.id === "viewSocialBtf" ? "btf" : "kanban";
     const desde = ORDEN_TABS.indexOf(tabActual);
     const hasta = ORDEN_TABS.indexOf(tabKey);
     document.documentElement.dataset.socialDir =
