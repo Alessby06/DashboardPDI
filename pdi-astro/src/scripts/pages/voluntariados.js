@@ -31,6 +31,11 @@ function alternarPanelReposteria(abrir) {
   if (btn) btn.setAttribute("aria-expanded", mostrar ? "true" : "false");
   if (mostrar) {
     TalleresReposteriaView.render();
+    const reduce = typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    panel.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" });
+    const sede = document.getElementById("repSede");
+    if (sede && !sede.value) sede.focus({ preventScroll: true });
   }
 }
 

@@ -4,6 +4,7 @@ import { escapar } from "../utils/HtmlHelper.js";
 import { TallerBtfModel } from "../models/TallerBtfModel.js";
 import { EncuentroJacModel } from "../models/EncuentroJacModel.js";
 import { TallerReposteriaModel } from "../models/TallerReposteriaModel.js";
+import { AccionEducativaModel } from "../models/AccionEducativaModel.js";
 
 /**
  * Vista: Tablero Principal Dashboard (dashboard.astro)
@@ -513,8 +514,14 @@ export const DashboardView = {
     poner("dashAlimDesayuno", desayuno);
     poner("dashAlimLonchera", lonchera);
     poner("dashAlimCred", stats.tamizados ?? 0);
+    const biblioLocal = this._resumenBibliotecaPorDistrito();
+    const biblioTotalLocal = biblioLocal.comas + biblioLocal.carabayllo + biblioLocal.otras;
+    const repTotalLocal = (() => {
+      try { return TallerReposteriaModel.resumenPorDistrito().totalMadres || 0; } catch { return 0; }
+    })();
+
     poner("dashEduCasita", casita);
-    poner("dashEduBiblioteca", biblioteca);
+    poner("dashEduBiblioteca", biblioteca + biblioTotalLocal);
     const notaEdu = document.getElementById("dashEduNota");
     if (notaEdu) {
       notaEdu.textContent = datosOk
@@ -569,9 +576,9 @@ export const DashboardView = {
         desayuno,
         lonchera,
         casita,
-        biblioteca,
+        biblioteca: biblioteca + biblioTotalLocal,
         asp: usuariosAsp.length,
-        reposteria: contar("reposteria"),
+        reposteria: contar("reposteria") + repTotalLocal,
       };
       listaVol.innerHTML = filas.map(f => {
         const n = grupos[f.clave] || 0;
@@ -676,6 +683,29 @@ export const DashboardView = {
     }
   },
 
+  _resumenBibliotecaPorDistrito() {
+    const out = { comas: 0, carabayllo: 0, otras: 0 };
+    try {
+      const lista = AccionEducativaModel.getAllAcciones();
+      lista.forEach(item => {
+        const acciones = Array.isArray(item.acciones) ? item.acciones : [];
+        const esBiblio = acciones.some(a => {
+          const low = String(a || "").toLowerCase();
+          return low.includes("biblioteca") || low.includes("cuento");
+        });
+        if (!esBiblio) return;
+        const total = (Number(item.participantesNinos) || 0) + (Number(item.participantesAdultos) || 0);
+        const dist = String(item.distrito || "").trim().toLowerCase();
+        if (dist === "comas") out.comas += total;
+        else if (dist === "carabayllo") out.carabayllo += total;
+        else out.otras += total;
+      });
+    } catch {
+      // Sin acciones educativas registradas
+    }
+    return out;
+  },
+
   renderTerritorio(usuarios, claves) {
     const container = document.getElementById("dashTerritoryMatrix");
     if (!container) return;
@@ -734,24 +764,26 @@ export const DashboardView = {
       todosProgramas.forEach(p => { if (c.has(p.clave)) resumen[clave].servicios[p.clave] += 1; });
     });
 
-    // Sumar cobertura real de Talleres BTF y Encuentros JAC por distrito
+    // Sumar cobertura real de Biblioteca Comunitaria, Talleres BTF, Encuentros JAC y Repostería
     try {
-      const btfResumen = TallerBtfModel.resumenPorDistrito();
-      resumen.comas.servicios.btf += btfResumen.comas || 0;
-      resumen.carabayllo.servicios.btf += btfResumen.carabayllo || 0;
-      resumen.otras.servicios.btf += btfResumen.otras || 0;
+      const biblio = this._resumenBibliotecaPorDistrito();
+      resumen.comas.servicios.biblioteca += biblio.comas;
+      resumen.carabayllo.servicios.biblioteca += biblio.carabayllo;
+      resumen.otras.servicios.biblioteca += biblio.otras;
 
-      const jacResumen = EncuentroJacModel.resumenPorDistrito();
-      resumen.comas.servicios.jac += jacResumen.comas || 0;
-      resumen.carabayllo.servicios.jac += jacResumen.carabayllo || 0;
-      resumen.otras.servicios.jac += jacResumen.otras || 0;
-
-      const repResumen = TallerReposteriaModel.resumenPorDistrito();
-      resumen.comas.servicios.reposteria += repResumen.comas || 0;
-      resumen.carabayllo.servicios.reposteria += repResumen.carabayllo || 0;
-      resumen.otras.servicios.reposteria += repResumen.otras || 0;
+      const fuentesTerritoriales = [
+        ["btf", TallerBtfModel],
+        ["jac", EncuentroJacModel],
+        ["reposteria", TallerReposteriaModel],
+      ];
+      fuentesTerritoriales.forEach(([clave, modelo]) => {
+        const datos = modelo.resumenPorDistrito();
+        resumen.comas.servicios[clave] += datos.comas || 0;
+        resumen.carabayllo.servicios[clave] += datos.carabayllo || 0;
+        resumen.otras.servicios[clave] += datos.otras || 0;
+      });
     } catch {
-      // Sin registros locales de BTF/JAC/Repostería
+      // Sin registros locales complementarios
     }
 
     const totalUsuarios = usuarios.length;
