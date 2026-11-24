@@ -41,6 +41,7 @@ export const Dropdown = {
         window.PDI?.FilterPanel?.prepararApertura?.(target);
       }
       target.classList.toggle('open');
+      if (!willOpen) this._limpiarSubpaneles(target);
       if (target.classList.contains('audit-filters-dropdown')) {
         if (willOpen && typeof window !== 'undefined' && window.innerWidth <= CORTE_HOJA) {
           // El fondo no puede desplazarse bajo la hoja; el scroll del panel
@@ -62,6 +63,7 @@ export const Dropdown = {
     // el bloqueo de la hoja de sedes o de una ficha.
     const habiaHoja = document.body.classList.contains('filter-sheet-open');
     document.querySelectorAll('.custom-dropdown.open, .audit-filters-dropdown.open').forEach(d => {
+      this._limpiarSubpaneles(d);
       d.classList.remove('open');
     });
     // El cierre por arrastre puede dejar el disparador marcado como abierto y
@@ -81,6 +83,14 @@ export const Dropdown = {
       document.body.classList.remove('filter-sheet-open');
       if (habiaHoja) window.__pdiScroll?.main?.start?.();
     }
+  },
+
+  /** Los subpaneles de fecha se muestran con display inline: si el panel se
+   *  cierra con la faceta desplegada, quedan flotando en el top layer. */
+  _limpiarSubpaneles(dropdown) {
+    if (!dropdown?.classList?.contains('audit-filters-dropdown')) return;
+    dropdown.querySelectorAll('.audit-date-custom-panel').forEach(p => { p.style.display = 'none'; });
+    dropdown.querySelectorAll('.padron-inner-dropdown.open').forEach(d => d.classList.remove('open'));
   },
 
   /** Alterna un .padron-inner-dropdown y cierra los de su misma familia. */

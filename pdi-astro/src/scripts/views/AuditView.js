@@ -357,6 +357,7 @@ export const AuditView = {
       } else if (this._filterAuditStatus.length === 1) {
         const s = this._filterAuditStatus[0];
         if (s === "Registrado") labelEl.textContent = "Registrado / Conforme";
+        else if (s === "Importante") labelEl.textContent = "Importante / Relevante";
         else if (s === "Sensible") labelEl.textContent = "Sensible / Confidencial";
         else if (s === "Observado") labelEl.textContent = "Observado / Revisión";
       } else {
@@ -711,7 +712,7 @@ export const AuditView = {
 
     const forStatus = getFilteredExcluding("status");
     setFacetBadge("countFacetAuditStatus-all", `(${forStatus.length})`, forStatus.length === 0);
-    const statusesList = ["Registrado", "Sensible", "Observado"];
+    const statusesList = ["Rutinario", "Importante", "Sensible"];
     statusesList.forEach(s => {
       const c = forStatus.filter(log => this._matchesAuditStatus(log, [s])).length;
       setFacetBadge(`countFacetAuditStatus-${s}`, `(${c})`, c === 0);
