@@ -3,6 +3,7 @@ import { CsvExporter } from '../utils/CsvExporter.js';
 import { escapar } from "../utils/HtmlHelper.js";
 import { TallerBtfModel } from "../models/TallerBtfModel.js";
 import { EncuentroJacModel } from "../models/EncuentroJacModel.js";
+import { TallerReposteriaModel } from "../models/TallerReposteriaModel.js";
 
 /**
  * Vista: Tablero Principal Dashboard (dashboard.astro)
@@ -744,8 +745,13 @@ export const DashboardView = {
       resumen.comas.servicios.jac += jacResumen.comas || 0;
       resumen.carabayllo.servicios.jac += jacResumen.carabayllo || 0;
       resumen.otras.servicios.jac += jacResumen.otras || 0;
+
+      const repResumen = TallerReposteriaModel.resumenPorDistrito();
+      resumen.comas.servicios.reposteria += repResumen.comas || 0;
+      resumen.carabayllo.servicios.reposteria += repResumen.carabayllo || 0;
+      resumen.otras.servicios.reposteria += repResumen.otras || 0;
     } catch {
-      // Sin registros locales de BTF/JAC
+      // Sin registros locales de BTF/JAC/Repostería
     }
 
     const totalUsuarios = usuarios.length;

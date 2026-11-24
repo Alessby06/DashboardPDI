@@ -1825,3 +1825,158 @@ Oscuro (ya cumplía 5.77–8.28): #2dd4bf 9.88 · #fcd34d 12.76 · #7dd3fc 11.03
     flex: none;
   }
 }
+
+/* ===========================================================================
+   TALLERES PRODUCTIVOS DE REPOSTERÍA (Emil Kowalski Craft)
+   =========================================================================== */
+.rep-panel[hidden] {
+  display: none;
+}
+
+.rep-panel {
+  margin-bottom: 18px;
+}
+
+.rep-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.rep-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.rep-stat-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rep-stat-label {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.rep-stat-val {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.rep-form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.rep-form-row-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.rep-tematicas-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.rep-tematica-pill {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+  transition: transform 150ms var(--ease-out),
+              background-color 150ms var(--ease-out),
+              border-color 150ms var(--ease-out),
+              color 150ms var(--ease-out),
+              box-shadow 150ms var(--ease-out);
+}
+
+.rep-tematica-pill:active {
+  transform: scale(0.97);
+}
+
+.rep-tematica-pill input[type="radio"] {
+  accent-color: var(--brand-primary);
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.rep-tematica-pill:has(input[type="radio"]:checked) {
+  background: var(--brand-dim, rgba(var(--brand-rgb), 0.1));
+  border-color: var(--brand-primary);
+  color: var(--text-main);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.rep-tematica-pill:has(input[type="radio"]:focus-visible) {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .rep-tematica-pill:hover {
+    border-color: var(--border-focus);
+    background: var(--surface-hover);
+    color: var(--text-main);
+  }
+}
+
+@media (max-width: 960px) {
+  .rep-tematicas-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .rep-stats-row,
+  .rep-form-row-3,
+  .rep-tematicas-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rep-tematica-pill {
+    min-height: 40px;
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rep-tematica-pill {
+    transition: background-color var(--dur-fast) ease,
+                border-color var(--dur-fast) ease,
+                color var(--dur-fast) ease;
+  }
+
+  .rep-tematica-pill:active {
+    transform: none;
+  }
+}

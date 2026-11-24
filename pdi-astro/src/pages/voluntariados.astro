@@ -3,7 +3,7 @@ import AppLayout from '../layouts/AppLayout.astro';
 import FilterPanel from '../components/FilterPanel.astro';
 import FilterField from '../components/FilterField.astro';
 import SortMenu from '../components/SortMenu.astro';
-import { OPCIONES_VOLUNTARIADO } from '../data/opcionesBeneficiario.js';
+import { OPCIONES_VOLUNTARIADO, SEDES_OPERATIVAS } from '../data/opcionesBeneficiario.js';
 import '../styles/views-voluntariados.css';
 import '../styles/views-actions-buttons.css';
 import '../styles/views-export-icon.css';
@@ -44,7 +44,11 @@ const OPCIONES_ORDEN_VOLUNTARIOS = [
               <p>Gestión de voluntarias de sede, promotoras de apoyo, capacitaciones oficiales y asignación territorial (Fichas A4, A5 y A6).</p>
             </div>
             <div class="view-actions">
-              <button type="button" class="btn-action primary" data-pdi-on="click" data-pdi-h="h171" title="Registrar nueva voluntaria o personal de apoyo">
+              <button type="button" class="btn-action secondary pdi-motion" id="btnToggleTalleresReposteria" aria-expanded="false" aria-controls="panelTalleresReposteria">
+                <Icon name="nav.alimentario" size={15} />
+                <span>Talleres de Repostería</span>
+              </button>
+              <button type="button" class="btn-action primary pdi-motion" data-pdi-on="click" data-pdi-h="h171" title="Registrar nueva voluntaria o personal de apoyo">
                 <Icon name="accion.agregar" size={15} />
                 <span>Nueva Inscripción</span>
               </button>
@@ -101,6 +105,138 @@ const OPCIONES_ORDEN_VOLUNTARIOS = [
               <p class="vol-reparto-note"><span id="volRepartoCanastas">18</span> canastas de estímulo por labor comunitaria</p>
             </footer>
           </section>
+
+          <!-- Panel de Talleres Productivos de Repostería -->
+          <section class="card rep-panel" id="panelTalleresReposteria" hidden aria-labelledby="repPanelTitle">
+            <div class="rep-panel-header">
+              <div>
+                <h2 class="card-title" id="repPanelTitle" style="margin: 0; font-size: 16px;">
+                  Talleres Productivos de Repostería y Panadería
+                </h2>
+                <p style="font-size: 12.5px; color: var(--text-muted); margin: 4px 0 0 0;">
+                  Registro de sesiones prácticas con comités de madres, maestras reposteras y producción de refrigerios saludables.
+                </p>
+              </div>
+              <button type="button" class="btn-action secondary pdi-motion" id="btnCerrarTalleresReposteria">
+                <Icon name="accion.cerrar" size={14} />
+                <span>Ocultar</span>
+              </button>
+            </div>
+
+            <div class="rep-stats-row">
+              <div class="rep-stat-card">
+                <span class="rep-stat-label">Talleres Realizados</span>
+                <span class="rep-stat-val" id="statRepTalleres">0</span>
+              </div>
+              <div class="rep-stat-card">
+                <span class="rep-stat-label">Madres / Participantes</span>
+                <span class="rep-stat-val" id="statRepMadres">0</span>
+              </div>
+              <div class="rep-stat-card">
+                <span class="rep-stat-label">Porciones / Refrigerios</span>
+                <span class="rep-stat-val" id="statRepPorciones">0</span>
+              </div>
+            </div>
+
+            <form id="formTallerReposteria" class="rep-form-grid" novalidate>
+              <div class="rep-form-row-3">
+                <div class="form-group">
+                  <label for="repFecha" class="form-label">Fecha de Taller <span class="req">*</span></label>
+                  <input type="date" id="repFecha" class="form-control" required />
+                </div>
+                <div class="form-group">
+                  <label for="repSede" class="form-label">Sede Territorial <span class="req">*</span></label>
+                  <select id="repSede" class="form-control" required>
+                    <option value="">Seleccionar sede...</option>
+                    {SEDES_OPERATIVAS.map((s) => (
+                      <option value={s.nombre}>{s.etiqueta}</option>
+                    ))}
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="repComite" class="form-label">Comité / Local Anfitrión</label>
+                  <input type="text" id="repComite" class="form-control" list="datalistComitesRep" placeholder="Buscar comedor, iglesia o comité..." autocomplete="off" />
+                  <datalist id="datalistComitesRep"></datalist>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Línea Productiva del Taller <span class="req">*</span></label>
+                <div class="rep-tematicas-grid">
+                  <label class="rep-tematica-pill">
+                    <input type="radio" name="repTematica" value="panaderia" checked />
+                    <span>Panadería y Masas Saludables</span>
+                  </label>
+                  <label class="rep-tematica-pill">
+                    <input type="radio" name="repTematica" value="reposteria_nutritiva" />
+                    <span>Repostería Nutritiva (Hierro)</span>
+                  </label>
+                  <label class="rep-tematica-pill">
+                    <input type="radio" name="repTematica" value="higiene" />
+                    <span>Higiene Alimentaria</span>
+                  </label>
+                  <label class="rep-tematica-pill">
+                    <input type="radio" name="repTematica" value="emprendimiento" />
+                    <span>Costos y Emprendimiento</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="rep-form-row-3">
+                <div class="form-group">
+                  <label for="repMadres" class="form-label"># Madres / Participantes</label>
+                  <input type="number" id="repMadres" class="form-control" min="0" value="0" />
+                </div>
+                <div class="form-group">
+                  <label for="repPorciones" class="form-label"># Porciones / Refrigerios</label>
+                  <input type="number" id="repPorciones" class="form-control" min="0" value="0" />
+                </div>
+                <div class="form-group">
+                  <label for="repDestino" class="form-label">Destino de Producción</label>
+                  <select id="repDestino" class="form-control">
+                    <option value="Consumo Desayuno PDI">Consumo Desayuno PDI</option>
+                    <option value="Emprendimiento / Venta">Emprendimiento / Venta</option>
+                    <option value="Mixto (PDI y Emprendimiento)">Mixto (PDI y Emprendimiento)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="repMaestra" class="form-label">Maestra Repostera / Responsable</label>
+                <input type="text" id="repMaestra" class="form-control" list="datalistMaestrasRep" placeholder="Buscar voluntaria repostera o facilitadora..." autocomplete="off" />
+                <datalist id="datalistMaestrasRep"></datalist>
+              </div>
+
+              <div class="form-group">
+                <label for="repObservaciones" class="form-label">Insumos y Observaciones</label>
+                <textarea id="repObservaciones" class="form-control" rows="2" maxlength="300" placeholder="Receta elaborada, insumos utilizados o acuerdos del comité de madres..."></textarea>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end;">
+                <button type="submit" class="btn-action primary pdi-motion">
+                  <Icon name="accion.confirmar" size={16} />
+                  <span>Registrar Taller de Repostería</span>
+                </button>
+              </div>
+            </form>
+
+            <div class="table-container desktop-table-view" style="margin-top: 18px;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th style="width: 11%;">Fecha</th>
+                    <th style="width: 15%;">Sede & Distrito</th>
+                    <th style="width: 31%;">Línea Productiva y Destino</th>
+                    <th style="width: 19%;">Comité / Local</th>
+                    <th style="width: 12%; text-align: center;">Producción</th>
+                    <th style="width: 12%;">Maestra</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyTalleresReposteria"></tbody>
+              </table>
+            </div>
+          </section>
+
           <!-- Barra de Filtros y Búsqueda Rápida de Voluntariados -->
           <div class="card" id="cardVoluntariosPadron" style="position: relative; z-index: 80;">
             <div class="audit-toolbar table-toolbar">

@@ -20,6 +20,19 @@
 import "../core/legacy-globals.js";
 import { arrancarComun, publicarRefresco } from "../core/Bootstrap.js";
 import { VoluntariadosView } from '../views/VoluntariadosView.js';
+import { TalleresReposteriaView } from '../views/TalleresReposteriaView.js';
+
+function alternarPanelReposteria(abrir) {
+  const panel = document.getElementById("panelTalleresReposteria");
+  const btn = document.getElementById("btnToggleTalleresReposteria");
+  if (!panel) return;
+  const mostrar = typeof abrir === "boolean" ? abrir : panel.hidden;
+  panel.hidden = !mostrar;
+  if (btn) btn.setAttribute("aria-expanded", mostrar ? "true" : "false");
+  if (mostrar) {
+    TalleresReposteriaView.render();
+  }
+}
 
 let enlazado = false;
 
@@ -31,11 +44,26 @@ function enlazar() {
   // unico y no en montar(): si se llamara en cada repintado, cada guardado
   // acumularia un listener mas.
   VoluntariadosView.init();
+
+  const btnToggle = document.getElementById("btnToggleTalleresReposteria");
+  if (btnToggle) {
+    btnToggle.addEventListener("click", () => alternarPanelReposteria());
+  }
+
+  const btnCerrar = document.getElementById("btnCerrarTalleresReposteria");
+  if (btnCerrar) {
+    btnCerrar.addEventListener("click", () => alternarPanelReposteria(false));
+  }
 }
 
 /** Dibuja lo propio de esta pagina. Es idempotente. */
 function montar() {
   VoluntariadosView.render();
+  TalleresReposteriaView.init();
+  const tab = new URLSearchParams(window.location.search).get("tab");
+  if (tab === "reposteria") {
+    alternarPanelReposteria(true);
+  }
 }
 
 function iniciar() {
