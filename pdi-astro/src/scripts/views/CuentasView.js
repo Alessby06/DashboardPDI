@@ -986,6 +986,10 @@ function actualizarEstadoCopia(copiada, mensaje = '') {
   if (textoBoton) {
     textoBoton.textContent = claveCopiada ? 'Copiada' : 'Copiar';
   }
+  const btn = porId('btnCopiarClave');
+  if (btn) {
+    btn.classList.toggle('is-copied', claveCopiada);
+  }
 }
 
 function mostrarClave(titulo, usuarioEtiqueta, clave, origen = null, alCerrar = null) {
