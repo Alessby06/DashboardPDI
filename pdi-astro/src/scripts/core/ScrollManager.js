@@ -108,25 +108,14 @@ export const ScrollManager = {
       if (node.classList?.contains('lenis-pane')) return true;
       if (node.closest?.('.lenis-pane, [data-lenis-prevent], [data-scroll-native]')) return true;
 
-      // Recorre la cadena de ancestros hasta el wrapper para detectar cualquier contenedor
-      // interno que tenga scroll vertical activo y esté desbordando actualmente.
-      let actual = node;
-      while (actual && actual !== wrapper && actual !== document.body) {
-        if (actual.nodeType === 1) {
-          if (actual.matches?.(PANE_SELECTOR)) {
-            if (puedeScrollear(actual)) return true;
-          }
-          if (actual.matches?.('pre, code, textarea, input, select, .table-container, .table-responsive, .expediente-sidebar, .sidebar')) {
-            if (actual.scrollWidth > actual.clientWidth + 2 || actual.scrollHeight > actual.clientHeight + 2) return true;
-          }
-          const cs = window.getComputedStyle(actual);
-          const ovY = cs.overflowY;
-          if ((ovY === 'auto' || ovY === 'scroll') && actual.scrollHeight > actual.clientHeight + 2) {
-            return true;
-          }
-        }
-        actual = actual.parentElement;
-      }
+      // Contenedores registrados en PANE_SELECTOR con scroll vertical activo
+      const elScroll = node.closest?.(PANE_SELECTOR);
+      if (elScroll && puedeScrollear(elScroll)) return true;
+
+      // Textareas o bloques preformateados con desbordamiento vertical
+      const elTexto = node.closest?.('textarea, pre, code');
+      if (elTexto && elTexto.scrollHeight > elTexto.clientHeight + 2) return true;
+
       return false;
     };
 
