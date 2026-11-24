@@ -51,6 +51,7 @@ function pintar(control) {
 
 function alternar(control, item) {
   if (control.deshabilitado) return;
+  if (item?.dataset?.inhabilitado === "true") return;
   const valor = item?.dataset?.value;
   if (!valor) return;
   if (control.seleccion.has(valor)) control.seleccion.delete(valor);
@@ -151,9 +152,45 @@ export function setDisabled(id, deshabilitado) {
   pintar(control);
 }
 
+/**
+ * Inhabilita o habilita una opción individual según criterios de edad o nivel escolar.
+ * Si estaba marcada, se desmarca de forma limpia y automática.
+ */
+export function setOptionDisabled(id, valor, deshabilitado, razon = "") {
+  const control = controles.get(id);
+  if (!control) return;
+  const item = itemsDe(control).find((el) => el.dataset.value === valor);
+  if (!item) return;
+
+  const estabaInhabilitado = item.dataset.inhabilitado === "true";
+  const razonActual = item.getAttribute("title") || "";
+  if (estabaInhabilitado === !!deshabilitado && razonActual === razon) return;
+
+  if (deshabilitado) {
+    item.dataset.inhabilitado = "true";
+    item.setAttribute("aria-disabled", "true");
+    if (razon) {
+      item.setAttribute("title", razon);
+      const infoEl = item.querySelector(".estr-chip-info");
+      if (infoEl) infoEl.setAttribute("title", razon);
+    }
+    // Desmarcar fluidamente si estaba seleccionada
+    if (control.seleccion.has(valor)) {
+      control.seleccion.delete(valor);
+      pintar(control);
+    }
+  } else {
+    delete item.dataset.inhabilitado;
+    item.removeAttribute("aria-disabled");
+    item.removeAttribute("title");
+    const infoEl = item.querySelector(".estr-chip-info");
+    if (infoEl) infoEl.removeAttribute("title");
+  }
+}
+
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
-  window.PDI.EstrategiaMultiSelect = { initEstrategiaMultiSelect, setValues, getValues, setDisabled };
+  window.PDI.EstrategiaMultiSelect = { initEstrategiaMultiSelect, setValues, getValues, setDisabled, setOptionDisabled };
 }
 
 // El ClientRouter reemplaza el marcado sin recargar el documento. Hay que

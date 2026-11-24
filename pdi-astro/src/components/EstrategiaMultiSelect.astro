@@ -25,6 +25,7 @@ const { id, label = 'Estrategia Asignada', disabled = false } = Astro.props;
           <Icon name="accion.confirmar" size={14} />
         </span>
         <span class="estr-chip-name">{opcion.etiqueta}</span>
+        <span class="estr-chip-info" aria-hidden="true">i</span>
       </button>
     ))}
   </div>
@@ -68,7 +69,45 @@ const { id, label = 'Estrategia Asignada', disabled = false } = Astro.props;
     user-select: none;
     transition: background-color var(--dur-fast) var(--ease-smooth),
       border-color var(--dur-fast) var(--ease-smooth),
-      color var(--dur-fast) var(--ease-smooth);
+      color var(--dur-fast) var(--ease-smooth),
+      opacity var(--dur-fast) var(--ease-smooth);
+  }
+
+  .estr-chip[data-inhabilitado='true'] {
+    opacity: 0.38;
+    background: var(--surface-2);
+    border-color: var(--border-subtle);
+    cursor: not-allowed;
+  }
+
+  .estr-chip-info {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--surface-3, rgba(0, 0, 0, 0.08));
+    color: var(--text-dim, #777);
+    font-size: 10.5px;
+    font-weight: 700;
+    font-family: var(--ui-font);
+    line-height: 1;
+    margin-left: 2px;
+    flex-shrink: 0;
+    pointer-events: none;
+    transition: transform var(--dur-fast) var(--ease-smooth), color var(--dur-fast) var(--ease-smooth);
+  }
+
+  .estr-chip[data-inhabilitado='true'] .estr-chip-info {
+    display: inline-flex;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .estr-chip[data-inhabilitado='true']:hover .estr-chip-info {
+      transform: scale(1.15);
+      color: var(--text-main);
+    }
   }
 
     @media (hover: hover) and (pointer: fine) {

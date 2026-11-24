@@ -197,6 +197,81 @@ function refrescarAtencion() {
   select.disabled = !esCasita();
 }
 
+/** Calcula la cantidad de años cumplidos a partir de una fecha YYYY-MM-DD local. */
+export function calcularAniosDesdeFecha(fechaStr) {
+  if (!fechaStr) return null;
+  const partes = String(fechaStr).split("-").map(Number);
+  if (partes.length < 3 || isNaN(partes[0])) return null;
+  const [anio, mes, dia] = partes;
+  const nacimiento = new Date(anio, mes - 1, dia);
+  if (isNaN(nacimiento.getTime())) return null;
+
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  if (nacimiento > hoy) return null;
+
+  let anios = hoy.getFullYear() - nacimiento.getFullYear();
+  const cumpleEsteAnio =
+    hoy.getMonth() > nacimiento.getMonth() ||
+    (hoy.getMonth() === nacimiento.getMonth() && hoy.getDate() >= nacimiento.getDate());
+  if (!cumpleEsteAnio) anios--;
+  return anios >= 0 ? anios : 0;
+}
+
+/**
+ * Aplica las reglas canónicas del Programa Infancia Saludable:
+ * 1. Desayuno Infantil y Lonchera Infantil: Exclusivo de 3 a 12 años cumplidos.
+ * 2. Casita del Saber: Exclusivo de nivel Primaria (1.° a 6.° grado).
+ * 3. Si ningún servicio resulta aplicable, muestra un aviso suave y no permite guardar.
+ */
+export function refrescarRestriccionesEstrategia() {
+  const multi = window.PDI?.EstrategiaMultiSelect;
+  if (!multi?.setOptionDisabled) return;
+
+  const fechaNac = valorDe("regFechaNacimiento");
+  const anios = calcularAniosDesdeFecha(fechaNac);
+
+  // 1. Restricción de Desayuno y Lonchera por edad (3 a 12 años)
+  if (anios !== null) {
+    const fueraDeEdad = anios < 3 || anios > 12;
+    const razonEdad = fueraDeEdad
+      ? `Disponible solo para niños y niñas de 3 a 12 años (edad calculada: ${anios} ${anios === 1 ? 'año' : 'años'})`
+      : "";
+    multi.setOptionDisabled("regEstrategia", "Desayuno Infantil", fueraDeEdad, razonEdad);
+    multi.setOptionDisabled("regEstrategia", "Lonchera Infantil", fueraDeEdad, razonEdad);
+  } else {
+    // Si aún no ingresa fecha, no inhabilitamos preventivamente por edad
+    multi.setOptionDisabled("regEstrategia", "Desayuno Infantil", false);
+    multi.setOptionDisabled("regEstrategia", "Lonchera Infantil", false);
+  }
+
+  // 2. Restricción de Casita del Saber por nivel educativo (solo Primaria)
+  const nivel = valorDe("regNivelEducativo");
+  const noEsPrimaria = nivel ? nivel !== "Primaria" : false;
+  const razonCasita = noEsPrimaria
+    ? `Casita del Saber es refuerzo escolar exclusivo para nivel Primaria (nivel actual: ${nivel || "No asignado"})`
+    : "";
+  multi.setOptionDisabled("regEstrategia", "Casita del Saber", noEsPrimaria, razonCasita);
+
+  // 3. Aviso contextual si ninguna estrategia de atención directa es elegible
+  const callout = document.getElementById("regAvisoBloqueoEstrategias");
+  if (callout) {
+    const sinEdad = anios !== null && (anios < 3 || anios > 12);
+    const sinNivel = noEsPrimaria;
+    const sinServiciosPosibles = sinEdad && sinNivel;
+
+    callout.style.display = sinServiciosPosibles ? "flex" : "none";
+    if (sinServiciosPosibles) {
+      callout.innerHTML = `
+        <span class="ficha-aviso-icon" aria-hidden="true">i</span>
+        <div class="ficha-aviso-cuerpo">
+          <strong>Sin servicios directos disponibles:</strong> El usuario (${anios} años, nivel ${nivel || "N.A."}) no cumple los criterios de edad (3 a 12 años) ni escolaridad (Primaria) para Desayuno, Lonchera o Casita del Saber. Para atención prioritaria o protección familiar, canalice mediante <em>Solicitud de Caso Social (ASP)</em>.
+        </div>
+      `;
+    }
+  }
+}
+
 /** Sin Documento no exige número; DNI exige ocho dígitos; el resto, que haya número. */
 function documentoInvalido() {
   const tipo = tipoDocumentoActual();
@@ -297,7 +372,14 @@ export function evaluarFicha() {
     PERSONA_2.forEach(comprobar);
   }
 
-  if (!window.PDI?.EstrategiaMultiSelect?.getValues("regEstrategia")?.length) {
+  const aniosCalculados = calcularAniosDesdeFecha(fechaNacimiento);
+  const nivelActual = valorDe("regNivelEducativo");
+  const sinEdad = aniosCalculados !== null && (aniosCalculados < 3 || aniosCalculados > 12);
+  const sinNivel = nivelActual ? nivelActual !== "Primaria" : false;
+
+  if (sinEdad && sinNivel) {
+    faltantes.push("Perfil fuera de rango para atención directa");
+  } else if (!window.PDI?.EstrategiaMultiSelect?.getValues("regEstrategia")?.length) {
     faltantes.push("Estrategia asignada");
   }
 
@@ -332,6 +414,9 @@ export function refrescarEstadoFicha(pedidoDeAnuncio = false) {
   const boton = document.getElementById("btnGuardarFicha");
   const estado = document.getElementById("fichaEstadoDatos");
   if (!boton) return;
+
+  // Sincroniza restricciones de negocio (edad y nivel escolar)
+  refrescarRestriccionesEstrategia();
 
   const { listo, faltantes } = evaluarFicha();
   boton.disabled = !listo;

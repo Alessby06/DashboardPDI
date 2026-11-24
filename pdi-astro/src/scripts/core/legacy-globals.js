@@ -421,6 +421,7 @@ window.calcularEdadAutomatica = () => {
   if (anios < 0) anios = 0;
 
   inputEdad.value = anios === 1 ? "1 año" : `${anios} años`;
+  window.PDI?.Ficha?.refrescarEstadoFicha?.();
 };
 
 // ---------------------------------------------------------------------------

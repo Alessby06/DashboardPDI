@@ -236,6 +236,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
               <!-- Estrategia y sus derivaciones inmediatas -->
               <div class="form-group" style="margin-top: 10px;">
                 <EstrategiaMultiSelect id="regEstrategia" label="Estrategia(s) Asignada(s)" />
+                <div id="regAvisoBloqueoEstrategias" class="ficha-aviso-bloqueo" style="display:none;" role="alert"></div>
               </div>
 
               <div class="ficha-form-row ficha-form-row--2col" style="margin-top: 10px;">
@@ -1950,6 +1951,65 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
     color: var(--text-dim);
     margin: 0;
     line-height: 1.3;
+  }
+
+  /* Aviso informativo de bloqueo o deshabilitación contextual de estrategias */
+  .ficha-aviso-bloqueo {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: var(--surface-2);
+    border: 1px solid var(--border-medium);
+    border-left: 3px solid var(--pdi-accent, #eab308);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--text-main);
+    animation: fadeInBloqueo 200ms var(--ease-out);
+  }
+
+  .ficha-aviso-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--pdi-accent-subtle, rgba(234, 179, 8, 0.15));
+    color: var(--pdi-accent-text, #ca8a04);
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .ficha-aviso-cuerpo {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .ficha-aviso-cuerpo strong {
+    color: var(--text-main);
+    font-weight: 700;
+  }
+
+  .ficha-aviso-cuerpo em {
+    font-style: normal;
+    font-weight: 600;
+    color: var(--pdi-primary);
+  }
+
+  @keyframes fadeInBloqueo {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   /* ========================================================
