@@ -1009,9 +1009,9 @@
   }
 
   .audit-sheet-handle {
-    width: 40px;
-    height: 4.5px;
-    border-radius: var(--radius-full);
+    width: 44px;
+    height: 5px;
+    border-radius: 999px;
     background: var(--border-bright);
     opacity: 0.8;
     transition: transform var(--dur-fast) var(--ease-smooth), background var(--dur-fast) var(--ease-smooth);

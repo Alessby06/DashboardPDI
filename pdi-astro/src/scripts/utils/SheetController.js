@@ -146,7 +146,8 @@ export function conectarHoja({
     activo = false;
 
     const arrastre = Number(hoja.dataset.sheetArrastre || "0");
-    const total = Math.max(0, baseY + arrastre);
+    const visible = transformActual();
+    const total = visible;
 
     // Velocidad media del último tramo, como en la hoja de filtros: el último
     // sample aislado puede ser un temblor del dedo.
@@ -157,7 +158,7 @@ export function conectarHoja({
       if (dt > 0) velocidad = (ultimo.y - primero.y) / dt;
     }
 
-    const cerrarPorGesto = arrastre >= umbral || velocidad >= umbralVelocidad;
+    const cerrarPorGesto = arrastre >= umbral || (arrastre > 0 && velocidad >= umbralVelocidad);
     telon?.classList.remove("is-dragging");
 
     if (!abierta()) {
@@ -216,12 +217,15 @@ export function conectarHoja({
     yAnterior = evento.clientY;
     tAnterior = ahora;
 
-    const dedo = Math.max(0, evento.clientY - yInicio);
-    const total = baseY + dedo;
+    const dedo = evento.clientY - yInicio;
+    let total = baseY + dedo;
+    // Resistencia elástica logarítmica si se tira hacia arriba (damping natural)
+    if (total < 0) {
+      total = -Math.pow(Math.abs(total), 0.72) * 1.5;
+    }
     hoja.dataset.sheetArrastre = String(dedo);
-    // Hacia arriba no hay gesto que completar: la hoja no se mueve.
-    hoja.style.transform = total > 0 ? `translateY(${total}px)` : "";
-    if (velo) pintarVelo(Math.max(0, 1 - total / velo.rango));
+    hoja.style.transform = `translateY(${total}px)`;
+    if (velo) pintarVelo(Math.max(0, Math.min(1, 1 - total / velo.rango)));
 
     historial.push({ y: evento.clientY, t: ahora });
     if (historial.length > 5) historial.shift();
