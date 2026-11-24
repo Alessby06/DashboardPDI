@@ -25,6 +25,7 @@ import { SocialKanbanView } from '../views/SocialKanbanView.js';
 import { SocialController } from '../controllers/SocialController.js';
 import { DerivacionView } from '../views/DerivacionView.js';
 import { TalleresBtfView } from '../views/TalleresBtfView.js';
+import { EncuentrosJacView } from '../views/EncuentrosJacView.js';
 // El boton de exportar la bandeja ASP abre el modal de confirmacion, y su
 // handler resuelve la descarga por window.PDI.AppController.
 import { AppController } from '../controllers/AppController.js';
@@ -77,15 +78,31 @@ function enlazar() {
       SocialKanbanView.switchSocialTab("kanban");
     });
   }
+
+  const btnIrJac = document.getElementById("btnIrEncuentrosJac");
+  if (btnIrJac) {
+    btnIrJac.addEventListener("click", () => {
+      SocialKanbanView.switchSocialTab("jac");
+    });
+  }
+
+  const btnVolverJac = document.getElementById("btnVolverKanbanDesdeJac");
+  if (btnVolverJac) {
+    btnVolverJac.addEventListener("click", () => {
+      SocialKanbanView.switchSocialTab("kanban");
+    });
+  }
 }
 
 /** Dibuja lo propio de esta pagina. Es idempotente. */
 function montar() {
   const urlParams = new URLSearchParams(window.location.search);
   const tab = urlParams.get("tab");
+  const sedeParam = urlParams.get("sede") || "";
   const rol = localStorage.getItem("pdi_active_role") || "coord";
 
   TalleresBtfView.init();
+  EncuentrosJacView.init(sedeParam);
 
   if (tab === "autorizaciones" && (rol === "coord" || rol === "admin")) {
     SocialKanbanView.activarPanelDirecto("autorizaciones");
@@ -96,6 +113,9 @@ function montar() {
   } else if (tab === "btf") {
     SocialKanbanView.activarPanelDirecto("btf");
     TalleresBtfView.render();
+  } else if (tab === "jac") {
+    SocialKanbanView.activarPanelDirecto("jac");
+    EncuentrosJacView.render();
   } else {
     SocialKanbanView.activarPanelDirecto("kanban");
     SocialKanbanView.renderKanban(CasoSocialModel.getAll());

@@ -2,6 +2,7 @@ import { AnimationEngine } from '../utils/AnimationEngine.js';
 import { CsvExporter } from '../utils/CsvExporter.js';
 import { escapar } from "../utils/HtmlHelper.js";
 import { TallerBtfModel } from "../models/TallerBtfModel.js";
+import { EncuentroJacModel } from "../models/EncuentroJacModel.js";
 
 /**
  * Vista: Tablero Principal Dashboard (dashboard.astro)
@@ -732,14 +733,19 @@ export const DashboardView = {
       todosProgramas.forEach(p => { if (c.has(p.clave)) resumen[clave].servicios[p.clave] += 1; });
     });
 
-    // Sumar cobertura real de Talleres BTF (padres/cuidadores asistentes por distrito)
+    // Sumar cobertura real de Talleres BTF y Encuentros JAC por distrito
     try {
       const btfResumen = TallerBtfModel.resumenPorDistrito();
       resumen.comas.servicios.btf += btfResumen.comas || 0;
       resumen.carabayllo.servicios.btf += btfResumen.carabayllo || 0;
       resumen.otras.servicios.btf += btfResumen.otras || 0;
+
+      const jacResumen = EncuentroJacModel.resumenPorDistrito();
+      resumen.comas.servicios.jac += jacResumen.comas || 0;
+      resumen.carabayllo.servicios.jac += jacResumen.carabayllo || 0;
+      resumen.otras.servicios.jac += jacResumen.otras || 0;
     } catch {
-      // Sin talleres locales registrados
+      // Sin registros locales de BTF/JAC
     }
 
     const totalUsuarios = usuarios.length;

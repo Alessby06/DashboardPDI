@@ -807,6 +807,10 @@ export const SedesView = {
               ${iconHtml("nav.voluntarios", { size: 14 })}
               <span>Equipo Territorial</span>
             </a>
+            <a href="/social?tab=jac&sede=${encodeURIComponent(sede.nombre)}" class="btn-action btn-secondary pdi-motion" title="Registrar o ver encuentros Juntos Aprendemos en Cristo (JAC) en esta sede">
+              ${iconHtml("modulo.social", { size: 14 })}
+              <span>Encuentros JAC</span>
+            </a>
             <button type="button" class="btn-action primary" ${attrsDe(`window.filterPadronBySede ? window.filterPadronBySede('${escaparEnManejador(sede.nombre)}') : null`)}>
               ${iconHtml("persona.grupo", { size: 14 })}
               <span>Ver Usuarios</span>

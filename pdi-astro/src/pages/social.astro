@@ -26,15 +26,18 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                 if (tab === 'autorizaciones' && (rol === 'coord' || rol === 'admin')) activeTab = 'autorizaciones';
                 if (tab === 'mis-solicitudes' && rol === 'social') activeTab = 'mis-solicitudes';
                 if (tab === 'btf') activeTab = 'btf';
+                if (tab === 'jac') activeTab = 'jac';
 
                 var k = document.getElementById('viewSocialKanban');
                 var a = document.getElementById('viewSocialAutorizaciones');
                 var m = document.getElementById('viewSocialMisSolicitudes');
                 var b = document.getElementById('viewSocialBtf');
+                var j = document.getElementById('viewSocialJac');
                 if (k) k.classList.toggle('active', activeTab === 'kanban');
                 if (a) a.classList.toggle('active', activeTab === 'autorizaciones');
                 if (m) m.classList.toggle('active', activeTab === 'mis-solicitudes');
                 if (b) b.classList.toggle('active', activeTab === 'btf');
+                if (j) j.classList.toggle('active', activeTab === 'jac');
 
                 var btnSocial = document.querySelector('#sidebarNav .nav-btn[data-page="social"]');
                 var btnAut = document.querySelector('#sidebarNav .nav-btn[data-subview="autorizaciones"]');
@@ -57,6 +60,10 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                 <button type="button" class="btn-action secondary pdi-motion" id="btnIrTalleresBtf">
                   <Icon name="nav.grupo" size={16} />
                   <span>Talleres BTF</span>
+                </button>
+                <button type="button" class="btn-action secondary pdi-motion" id="btnIrEncuentrosJac">
+                  <Icon name="modulo.social" size={16} />
+                  <span>Encuentros JAC</span>
                 </button>
                 <button type="button" class="btn-action primary pdi-motion" id="btnNuevaDerivacion">
                   <Icon name="accion.agregar" size={16} />
@@ -795,6 +802,150 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                     </tr>
                   </thead>
                   <tbody id="tbodyTalleresBtf"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- ======================================================== -->
+          <!-- SUBVISTA 5: Encuentros JAC (Juntos Aprendemos en Cristo) -->
+          <!-- ======================================================== -->
+          <div class="social-subview-panel" id="viewSocialJac">
+            <div class="social-subview-card">
+              <div class="social-subview-header">
+                <div class="social-subview-title-group">
+                  <div class="social-subview-icon-box blue">
+                    <Icon name="modulo.social" size={20} />
+                  </div>
+                  <div>
+                    <h3 style="font-size: 15px; font-weight: 700; color: var(--text-main); margin: 0;">
+                      Encuentros JAC — Juntos Aprendemos en Cristo
+                    </h3>
+                    <p style="font-size: 12px; color: var(--text-muted); margin: 2px 0 0 0;">
+                      Registro territorial de círculos formativos y discipulado infantil en iglesias aliadas (registrado por la Facilitadora PDI).
+                    </p>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <button type="button" class="btn-action secondary pdi-motion" id="btnVolverKanbanDesdeJac">
+                    <Icon name="accion.volver" size={14} />
+                    <span>Volver al Tablero</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Resumen de impacto JAC -->
+              <div class="social-stats-row">
+                <div class="social-stat-card">
+                  <span class="social-stat-label">Encuentros JAC Realizados</span>
+                  <span class="social-stat-val" id="statJacEncuentros">0</span>
+                </div>
+                <div class="social-stat-card">
+                  <span class="social-stat-label">NNA Participantes (Total)</span>
+                  <span class="social-stat-val text-favorable" id="statJacParticipantes">0</span>
+                </div>
+                <div class="social-stat-card">
+                  <span class="social-stat-label">Preadolescentes (13+)</span>
+                  <span class="social-stat-val" id="statJacPreadolescentes">0</span>
+                </div>
+                <div class="social-stat-card">
+                  <span class="social-stat-label">Iglesias / Aliados JAC</span>
+                  <span class="social-stat-val" id="statJacAliados">0</span>
+                </div>
+              </div>
+
+              <!-- Formulario de registro de encuentro JAC -->
+              <form id="formEncuentroJac" class="btf-form-grid" novalidate>
+                <div class="btf-form-row-3">
+                  <div class="form-group">
+                    <label for="jacFecha" class="form-label">Fecha de Encuentro <span class="req">*</span></label>
+                    <input type="date" id="jacFecha" class="form-control" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="jacSede" class="form-label">Sede Territorial <span class="req">*</span></label>
+                    <select id="jacSede" class="form-control" required>
+                      <option value="">Seleccionar sede...</option>
+                      {SEDES_OPERATIVAS.map((s) => (
+                        <option value={s.nombre}>{s.etiqueta}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="jacIglesia" class="form-label">Iglesia / Pastor Aliado</label>
+                    <input type="text" id="jacIglesia" class="form-control" list="datalistAliadosJac" placeholder="Buscar iglesia o pastor aliado..." autocomplete="off" />
+                    <datalist id="datalistAliadosJac"></datalist>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Modalidad del Encuentro JAC <span class="req">*</span></label>
+                  <div class="btf-sesiones-grid">
+                    <label class="btf-sesion-pill">
+                      <input type="radio" name="jacTipo" value="circulo_formativo" checked />
+                      <span>Círculo Formativo y Valores</span>
+                    </label>
+                    <label class="btf-sesion-pill">
+                      <input type="radio" name="jacTipo" value="discipulado" />
+                      <span>Discipulado Infantil</span>
+                    </label>
+                    <label class="btf-sesion-pill">
+                      <input type="radio" name="jacTipo" value="escuela_biblica" />
+                      <span>Escuela Bíblica</span>
+                    </label>
+                    <label class="btf-sesion-pill">
+                      <input type="radio" name="jacTipo" value="integracion_familiar" />
+                      <span>Integración Comunitaria</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="btf-form-row-3">
+                  <div class="form-group">
+                    <label for="jacNinos" class="form-label"># Niños/as (3 a 12 años)</label>
+                    <input type="number" id="jacNinos" class="form-control" min="0" value="0" />
+                  </div>
+                  <div class="form-group">
+                    <label for="jacPreadolescentes" class="form-label"># Preadolescentes (13+)</label>
+                    <input type="number" id="jacPreadolescentes" class="form-control" min="0" value="0" />
+                  </div>
+                  <div class="form-group">
+                    <label for="jacLideres" class="form-label"># Líderes / Maestros Iglesia</label>
+                    <input type="number" id="jacLideres" class="form-control" min="0" value="1" />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="jacFacilitadora" class="form-label">Facilitadora PDI Enlace (Quien registra)</label>
+                  <input type="text" id="jacFacilitadora" class="form-control" placeholder="Facilitadora territorial o equipo ASP" />
+                </div>
+
+                <div class="form-group">
+                  <label for="jacObservaciones" class="form-label">Temática y Acuerdos Pastorales</label>
+                  <textarea id="jacObservaciones" class="form-control" rows="2" maxlength="300" placeholder="Tema trabajado, acuerdos con el pastor/líder o necesidades detectadas..."></textarea>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end;">
+                  <button type="submit" class="btn-action primary pdi-motion">
+                    <Icon name="accion.confirmar" size={16} />
+                    <span>Registrar Encuentro JAC</span>
+                  </button>
+                </div>
+              </form>
+
+              <!-- Historial de Encuentros JAC -->
+              <div class="table-container desktop-table-view" style="margin-top: 20px;">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 11%;">Fecha</th>
+                      <th style="width: 16%;">Sede & Distrito</th>
+                      <th style="width: 30%;">Modalidad JAC</th>
+                      <th style="width: 19%;">Iglesia / Pastor Aliado</th>
+                      <th style="width: 12%; text-align: center;">Asistentes NNA</th>
+                      <th style="width: 12%;">Facilitadora</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbodyEncuentrosJac"></tbody>
                 </table>
               </div>
             </div>
