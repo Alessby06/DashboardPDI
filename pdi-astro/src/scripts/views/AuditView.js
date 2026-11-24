@@ -268,16 +268,6 @@ export const AuditView = {
     this.applyAuditFilters();
   },
 
-  /** Los subpaneles de fecha solo deben verse con el panel de filtros abierto:
-   *  una URL con ?fecha=specific los pintaba al cargar, flotando sobre la tabla. */
-  _sincronizarPanelesFecha() {
-    const abierto = document.getElementById("dropdownAuditFilterPanel")?.classList.contains("open");
-    const specific = document.getElementById("panelAuditDateSpecific");
-    const range = document.getElementById("panelAuditDateRange");
-    if (specific) specific.style.display = (abierto && this._filterAuditDate === "specific") ? "flex" : "none";
-    if (range) range.style.display = (abierto && this._filterAuditDate === "range") ? "flex" : "none";
-  },
-
   _updateDateUI(alternativa) {
     const items = document.querySelectorAll("#menuAuditDate .padron-dropdown-item");
     let texto = null;
@@ -295,7 +285,12 @@ export const AuditView = {
       labelEl.textContent = texto || alternativa || "Todas las Fechas";
     }
 
-    this._sincronizarPanelesFecha();
+    // Los paneles viven dentro del menú: si el subdesplegable está cerrado no
+    // se ven, así que basta la opción elegida para decidir su display.
+    const panelSpecific = document.getElementById("panelAuditDateSpecific");
+    const panelRange = document.getElementById("panelAuditDateRange");
+    if (panelSpecific) panelSpecific.style.display = (this._filterAuditDate === "specific") ? "flex" : "none";
+    if (panelRange) panelRange.style.display = (this._filterAuditDate === "range") ? "flex" : "none";
 
     const inputSpecific = document.getElementById("inputAuditDateSpecific");
     if (inputSpecific) inputSpecific.value = this._customDateSpecific || "";

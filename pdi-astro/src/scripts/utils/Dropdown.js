@@ -41,18 +41,16 @@ export const Dropdown = {
         window.PDI?.FilterPanel?.prepararApertura?.(target);
       }
       target.classList.toggle('open');
-      if (willOpen) window.PDI?.AuditView?._sincronizarPanelesFecha?.();
       if (!willOpen) this._limpiarSubpaneles(target);
       if (target.classList.contains('audit-filters-dropdown')) {
         if (willOpen && typeof window !== 'undefined' && window.innerWidth <= CORTE_HOJA) {
           // El fondo no puede desplazarse bajo la hoja; el scroll del panel
           // vive en su propio contenedor y no depende del principal.
-          window.__pdiScroll?.main?.stop?.();
           document.body.classList.add('filter-sheet-open');
         } else {
           document.body.classList.remove('filter-sheet-open');
-          window.__pdiScroll?.main?.start?.();
         }
+        window.__pdiScroll?.syncLock?.();
       }
     }
   },
@@ -82,15 +80,14 @@ export const Dropdown = {
     });
     if (typeof document !== 'undefined') {
       document.body.classList.remove('filter-sheet-open');
-      if (habiaHoja) window.__pdiScroll?.main?.start?.();
+      if (habiaHoja) window.__pdiScroll?.syncLock?.();
     }
   },
 
-  /** Los subpaneles de fecha se muestran con display inline: si el panel se
-   *  cierra con la faceta desplegada, quedan flotando en el top layer. */
+  /** Al cerrar se cierran las facetas abiertas; los paneles de fecha viven
+   *  dentro del menú y ya quedan ocultos con él. */
   _limpiarSubpaneles(dropdown) {
     if (!dropdown?.classList?.contains('audit-filters-dropdown')) return;
-    dropdown.querySelectorAll('.audit-date-custom-panel').forEach(p => { p.style.display = 'none'; });
     dropdown.querySelectorAll('.padron-inner-dropdown.open').forEach(d => d.classList.remove('open'));
   },
 
