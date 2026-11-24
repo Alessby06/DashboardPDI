@@ -179,9 +179,10 @@ const contadorDe = (opcion: Opcion) =>
             </div>
           );
         })}
+        <!-- Los paneles propios (fechas de auditoría) deben vivir dentro del
+             menú: fuera de él se posicionan contra el chip y quedan ocultos. -->
+        <slot />
       </div>
     </div>
   </div>
-
-  <slot />
 </div>
