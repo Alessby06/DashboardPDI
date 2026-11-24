@@ -41,6 +41,7 @@ export const Dropdown = {
         window.PDI?.FilterPanel?.prepararApertura?.(target);
       }
       target.classList.toggle('open');
+      if (willOpen) window.PDI?.AuditView?._sincronizarPanelesFecha?.();
       if (!willOpen) this._limpiarSubpaneles(target);
       if (target.classList.contains('audit-filters-dropdown')) {
         if (willOpen && typeof window !== 'undefined' && window.innerWidth <= CORTE_HOJA) {

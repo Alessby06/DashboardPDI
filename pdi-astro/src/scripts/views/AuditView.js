@@ -268,6 +268,16 @@ export const AuditView = {
     this.applyAuditFilters();
   },
 
+  /** Los subpaneles de fecha solo deben verse con el panel de filtros abierto:
+   *  una URL con ?fecha=specific los pintaba al cargar, flotando sobre la tabla. */
+  _sincronizarPanelesFecha() {
+    const abierto = document.getElementById("dropdownAuditFilterPanel")?.classList.contains("open");
+    const specific = document.getElementById("panelAuditDateSpecific");
+    const range = document.getElementById("panelAuditDateRange");
+    if (specific) specific.style.display = (abierto && this._filterAuditDate === "specific") ? "flex" : "none";
+    if (range) range.style.display = (abierto && this._filterAuditDate === "range") ? "flex" : "none";
+  },
+
   _updateDateUI(alternativa) {
     const items = document.querySelectorAll("#menuAuditDate .padron-dropdown-item");
     let texto = null;
@@ -285,10 +295,7 @@ export const AuditView = {
       labelEl.textContent = texto || alternativa || "Todas las Fechas";
     }
 
-    const panelSpecific = document.getElementById("panelAuditDateSpecific");
-    const panelRange = document.getElementById("panelAuditDateRange");
-    if (panelSpecific) panelSpecific.style.display = (this._filterAuditDate === "specific") ? "flex" : "none";
-    if (panelRange) panelRange.style.display = (this._filterAuditDate === "range") ? "flex" : "none";
+    this._sincronizarPanelesFecha();
 
     const inputSpecific = document.getElementById("inputAuditDateSpecific");
     if (inputSpecific) inputSpecific.value = this._customDateSpecific || "";
@@ -689,10 +696,14 @@ export const AuditView = {
 
     const forAction = getFilteredExcluding("action");
     setFacetBadge("countFacetAuditAction-all", `(${forAction.length})`, forAction.length === 0);
-    const actionsList = ["salud", "social", "educativo", "padron"];
-    actionsList.forEach(act => {
-      const c = forAction.filter(log => this._matchesAuditAction(log, [act])).length;
-      setFacetBadge(`countFacetAuditAction-${act}`, `(${c})`, c === 0);
+    // Los ids llevan el valor completo de la opción ("Padrón de Usuarios"...),
+    // no las claves cortas: se derivan del DOM para no perder el contador cuando
+    // cambian las opciones del FilterField.
+    document.querySelectorAll('[id^="countFacetAuditAction-"]').forEach((el) => {
+      const valor = el.id.slice("countFacetAuditAction-".length);
+      if (valor === "all") return;
+      const c = forAction.filter(log => this._matchesAuditAction(log, [valor])).length;
+      setFacetBadge(el.id, `(${c})`, c === 0);
     });
 
     const forDate = getFilteredExcluding("date");
