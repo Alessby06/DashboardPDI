@@ -494,7 +494,6 @@ export const VoluntariadosView = {
     this._updateActiveFilterBadge();
     this._renderActiveChips();
     this._renderTableAndCards(list);
-    window.__pdiScroll?.main?.resize();
 
     // La entrada se dispara solo cuando corresponde (primera carga o filtro manual)
     if (animar) {
