@@ -81,6 +81,12 @@ test.describe('módulo colaboradores — red territorial PDI', () => {
     await btnDistrito.click();
     await expect(page.locator('#menuColabDistrito')).toBeVisible();
 
+    // Validar contadores de faceta para la pestaña activa (Colegios: 5 total, 1 Comas, 3 Carabayllo, 1 El Agustino)
+    await expect(page.locator('#countFacetColabDistrito-all')).toHaveText('(5)');
+    await expect(page.locator('#countFacetColabDistrito-Comas')).toHaveText('(1)');
+    await expect(page.locator('#countFacetColabDistrito-Carabayllo')).toHaveText('(3)');
+    await expect(page.locator('[id="countFacetColabDistrito-El Agustino"]')).toHaveText('(1)');
+
     // Seleccionar Comas
     await page.locator('#menuColabDistrito .padron-dropdown-item[data-value="Comas"]').click();
 

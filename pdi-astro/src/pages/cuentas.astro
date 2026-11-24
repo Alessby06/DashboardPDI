@@ -48,7 +48,50 @@ import '../styles/views-cuentas.css';
       </select>
     </div>
 
-    <div class="cuentas-resumen" id="cuentasResumen" aria-live="polite"></div>
+    <div class="audit-summary-bar" id="cuentasResumen" aria-live="polite">
+      <div class="audit-kpi-chip">
+        <div class="audit-kpi-icon-box total">
+          <Icon name="persona.grupo" size={14} />
+        </div>
+        <div class="audit-kpi-info">
+          <span class="audit-kpi-label">Total Cuentas</span>
+          <strong class="audit-kpi-value" id="kpiCuentasTotal">0</strong>
+        </div>
+      </div>
+
+      <div class="audit-kpi-chip">
+        <div class="audit-kpi-icon-box activas">
+          <Icon name="estado.ok" size={14} />
+        </div>
+        <div class="audit-kpi-info">
+          <span class="audit-kpi-label">Activas</span>
+          <strong class="audit-kpi-value text-activas" id="kpiCuentasActivas">0</strong>
+        </div>
+      </div>
+
+      <div class="audit-kpi-chip">
+        <div class="audit-kpi-icon-box desactivadas">
+          <Icon name="seguridad.candado" size={14} />
+        </div>
+        <div class="audit-kpi-info">
+          <span class="audit-kpi-label">Desactivadas</span>
+          <strong class="audit-kpi-value text-desactivadas" id="kpiCuentasDesactivadas">0</strong>
+        </div>
+      </div>
+
+      <div class="audit-kpi-chip" id="kpiChipPruebas" style="display: none;">
+        <div class="audit-kpi-icon-box sensibles">
+          <Icon name="estado.alerta" size={14} />
+        </div>
+        <div class="audit-kpi-info">
+          <span class="audit-kpi-label" id="kpiLabelPruebas">Cuentas de prueba</span>
+          <strong class="audit-kpi-value text-sensibles" id="kpiCuentasPruebas">0</strong>
+        </div>
+        <button type="button" class="cuentas-resumen-link" id="btnRevisarPruebas" title="Revisar cuentas de prueba">
+          Revisar
+        </button>
+      </div>
+    </div>
 
     <div class="cuentas-lista-wrap" id="cuentasListaWrap">
       <div class="cuentas-lista-head" id="cuentasListaHead" hidden>

@@ -631,6 +631,9 @@
 
 .modal-content .modal-header {
   flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 5;
   background: var(--surface-1);
   border-bottom: 1px solid var(--border-subtle);
   padding: 16px 20px;
@@ -645,6 +648,9 @@
 
 .modal-content .modal-footer {
   flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
   background: var(--surface-1);
   border-top: 1px solid var(--border-subtle);
   padding: 14px 20px;

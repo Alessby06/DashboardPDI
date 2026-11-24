@@ -300,8 +300,47 @@ export const ColaboradoresView = {
     });
 
     this.renderChipsActivos();
+    this.actualizarFacetas();
     this.renderTable(res);
     this.renderMobileCards(res);
+  },
+
+  actualizarFacetas() {
+    const todos = ColaboradorModel.getAll();
+    const deCategoria = todos.filter(c => {
+      const cat = c.categoria || clasificarCategoria(c.tipoColaborador);
+      return cat === categoriaTabActual;
+    });
+
+    const setBadge = (id, count) => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.textContent = `(${count})`;
+        el.classList.toggle('is-zero', count === 0);
+      }
+    };
+
+    // 1. Facetas de Distrito
+    setBadge('countFacetColabDistrito-all', deCategoria.length);
+    ['Comas', 'Carabayllo', 'El Agustino'].forEach(dist => {
+      const count = deCategoria.filter(c => c.distrito === dist).length;
+      setBadge(`countFacetColabDistrito-${dist}`, count);
+    });
+
+    // 2. Facetas de Estrategia
+    setBadge('countFacetColabEstrategia-all', deCategoria.length);
+    const estrategias = [
+      'Desayuno Infantil',
+      'Casita del Saber',
+      'Buen Trato en Familia (BTF)',
+      'Juntos Aprendemos en Cristo (JAC)',
+      'Repostería',
+      'Área Social Pastoral'
+    ];
+    estrategias.forEach(est => {
+      const count = deCategoria.filter(c => Array.isArray(c.estrategias) && c.estrategias.includes(est)).length;
+      setBadge(`countFacetColabEstrategia-${est}`, count);
+    });
   },
 
   renderChipsActivos() {
@@ -745,12 +784,20 @@ export const ColaboradoresView = {
     modal.style.display = 'flex';
     modal.classList.add('active');
 
-    const modalBody = modal.querySelector('.modal-body') || modal.querySelector('.modal-content');
-    if (modalBody) {
-      modalBody.scrollTop = 0;
-      requestAnimationFrame(() => {
-        modalBody.scrollTop = 0;
-      });
+    const resetScroll = () => {
+      modal.scrollTop = 0;
+      const modalContent = modal.querySelector('.modal-content');
+      if (modalContent) modalContent.scrollTop = 0;
+      const modalBody = modal.querySelector('.modal-body');
+      if (modalBody) modalBody.scrollTop = 0;
+    };
+    resetScroll();
+    requestAnimationFrame(resetScroll);
+    setTimeout(resetScroll, 60);
+
+    const primerCampo = document.getElementById('colabTipo');
+    if (primerCampo) {
+      primerCampo.focus({ preventScroll: true });
     }
   },
 
@@ -795,12 +842,20 @@ export const ColaboradoresView = {
     modal.style.display = 'flex';
     modal.classList.add('active');
 
-    const modalBody = modal.querySelector('.modal-body') || modal.querySelector('.modal-content');
-    if (modalBody) {
-      modalBody.scrollTop = 0;
-      requestAnimationFrame(() => {
-        modalBody.scrollTop = 0;
-      });
+    const resetScroll = () => {
+      modal.scrollTop = 0;
+      const modalContent = modal.querySelector('.modal-content');
+      if (modalContent) modalContent.scrollTop = 0;
+      const modalBody = modal.querySelector('.modal-body');
+      if (modalBody) modalBody.scrollTop = 0;
+    };
+    resetScroll();
+    requestAnimationFrame(resetScroll);
+    setTimeout(resetScroll, 60);
+
+    const primerCampo = document.getElementById('colabTipo');
+    if (primerCampo) {
+      primerCampo.focus({ preventScroll: true });
     }
   },
 
@@ -808,7 +863,12 @@ export const ColaboradoresView = {
     const modal = document.getElementById('modalColaborador');
     if (modal) {
       modal.classList.remove('active');
+      modal.classList.remove('open');
       modal.style.display = 'none';
+      const content = modal.querySelector('.modal-content');
+      if (content) content.scrollTop = 0;
+      const body = modal.querySelector('.modal-body');
+      if (body) body.scrollTop = 0;
     }
   },
 

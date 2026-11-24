@@ -663,8 +663,20 @@ function renderLoteBar() {
 function renderResumen() {
   const resumen = porId('cuentasResumen');
   if (!resumen) return;
+
+  const totalEl = porId('kpiCuentasTotal');
+  const activasEl = porId('kpiCuentasActivas');
+  const desactEl = porId('kpiCuentasDesactivadas');
+  const chipPruebas = porId('kpiChipPruebas');
+  const pruebasEl = porId('kpiCuentasPruebas');
+  const labelPruebas = porId('kpiLabelPruebas');
+  const btnRevisar = porId('btnRevisarPruebas');
+
   if (!cuentas.length) {
-    resumen.innerHTML = '';
+    if (totalEl) totalEl.textContent = '0';
+    if (activasEl) activasEl.textContent = '0';
+    if (desactEl) desactEl.textContent = '0';
+    if (chipPruebas) chipPruebas.style.display = 'none';
     return;
   }
 
@@ -673,25 +685,98 @@ function renderResumen() {
   const detectadas = cuentasDetectadas().length;
   const enRevision = filtro.estado === 'sospechosas';
 
-  let accionPruebas = '';
+  if (totalEl && activasEl && desactEl) {
+    totalEl.textContent = String(cuentas.length);
+    activasEl.textContent = String(activas);
+    desactEl.textContent = String(desactivadas);
+
+    if (chipPruebas) {
+      if (enRevision) {
+        chipPruebas.style.display = 'inline-flex';
+        if (labelPruebas) labelPruebas.textContent = 'En revisión';
+        if (pruebasEl) pruebasEl.textContent = String(detectadas);
+        if (btnRevisar) {
+          btnRevisar.textContent = 'Salir de revisión';
+          btnRevisar.title = 'Mostrar todas las cuentas';
+        }
+      } else if (detectadas > 0) {
+        chipPruebas.style.display = 'inline-flex';
+        if (labelPruebas) labelPruebas.textContent = detectadas === 1 ? 'Cuenta de prueba' : 'Cuentas de prueba';
+        if (pruebasEl) pruebasEl.textContent = String(detectadas);
+        if (btnRevisar) {
+          btnRevisar.textContent = 'Revisar';
+          btnRevisar.title = 'Filtrar cuentas de prueba';
+        }
+      } else {
+        chipPruebas.style.display = 'none';
+      }
+    }
+    return;
+  }
+
+  let chipPruebasHtml = '';
   if (enRevision) {
-    accionPruebas = `
-      <button type="button" class="cuentas-resumen-link" id="btnRevisarPruebas">
-        Salir de revisión
-      </button>`;
+    chipPruebasHtml = `
+      <div class="audit-kpi-chip" id="kpiChipPruebas">
+        <div class="audit-kpi-icon-box sensibles">
+          ${iconHtml('estado.alerta', { size: 14 })}
+        </div>
+        <div class="audit-kpi-info">
+          <span class="audit-kpi-label" id="kpiLabelPruebas">En revisión</span>
+          <strong class="audit-kpi-value text-sensibles" id="kpiCuentasPruebas">${detectadas}</strong>
+        </div>
+        <button type="button" class="cuentas-resumen-link" id="btnRevisarPruebas" title="Mostrar todas las cuentas">
+          Salir de revisión
+        </button>
+      </div>`;
   } else if (detectadas > 0) {
-    accionPruebas = `
-      <button type="button" class="cuentas-resumen-link" id="btnRevisarPruebas">
-        ${iconHtml('estado.alerta', { size: 13 })}
-        <span>Revisar ${detectadas} ${detectadas === 1 ? 'cuenta de prueba' : 'cuentas de prueba'}</span>
-      </button>`;
+    chipPruebasHtml = `
+      <div class="audit-kpi-chip" id="kpiChipPruebas">
+        <div class="audit-kpi-icon-box sensibles">
+          ${iconHtml('estado.alerta', { size: 14 })}
+        </div>
+        <div class="audit-kpi-info">
+          <span class="audit-kpi-label" id="kpiLabelPruebas">${detectadas === 1 ? 'Cuenta de prueba' : 'Cuentas de prueba'}</span>
+          <strong class="audit-kpi-value text-sensibles" id="kpiCuentasPruebas">${detectadas}</strong>
+        </div>
+        <button type="button" class="cuentas-resumen-link" id="btnRevisarPruebas" title="Filtrar cuentas de prueba">
+          Revisar
+        </button>
+      </div>`;
   }
 
   resumen.innerHTML = `
-    <span><strong>${cuentas.length}</strong> ${cuentas.length === 1 ? 'cuenta' : 'cuentas'}</span>
-    <span><strong>${activas}</strong> activas</span>
-    <span><strong>${desactivadas}</strong> desactivadas</span>
-    ${accionPruebas}`;
+    <div class="audit-kpi-chip">
+      <div class="audit-kpi-icon-box total">
+        ${iconHtml('persona.grupo', { size: 14 })}
+      </div>
+      <div class="audit-kpi-info">
+        <span class="audit-kpi-label">Total Cuentas</span>
+        <strong class="audit-kpi-value" id="kpiCuentasTotal">${cuentas.length}</strong>
+      </div>
+    </div>
+
+    <div class="audit-kpi-chip">
+      <div class="audit-kpi-icon-box activas">
+        ${iconHtml('estado.ok', { size: 14 })}
+      </div>
+      <div class="audit-kpi-info">
+        <span class="audit-kpi-label">Activas</span>
+        <strong class="audit-kpi-value text-activas" id="kpiCuentasActivas">${activas}</strong>
+      </div>
+    </div>
+
+    <div class="audit-kpi-chip">
+      <div class="audit-kpi-icon-box desactivadas">
+        ${iconHtml('seguridad.candado', { size: 14 })}
+      </div>
+      <div class="audit-kpi-info">
+        <span class="audit-kpi-label">Desactivadas</span>
+        <strong class="audit-kpi-value text-desactivadas" id="kpiCuentasDesactivadas">${desactivadas}</strong>
+      </div>
+    </div>
+
+    ${chipPruebasHtml}`;
 }
 
 function render() {
@@ -1909,7 +1994,13 @@ function preSwap(doc, url) {
   if (resumen) {
     const total = cuentas.length;
     const activas = cuentas.filter((c) => c.activo).length;
-    resumen.textContent = `${total} ${total === 1 ? 'cuenta' : 'cuentas'} (${activas} activas)`;
+    const desactivadas = total - activas;
+    const elTotal = doc.getElementById('kpiCuentasTotal');
+    const elActivas = doc.getElementById('kpiCuentasActivas');
+    const elDesact = doc.getElementById('kpiCuentasDesactivadas');
+    if (elTotal) elTotal.textContent = String(total);
+    if (elActivas) elActivas.textContent = String(activas);
+    if (elDesact) elDesact.textContent = String(desactivadas);
   }
 
   lista.innerHTML = visibles.map(filaHtml).join('');
