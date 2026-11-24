@@ -371,24 +371,36 @@ const OPCIONES_ORDEN = [
         <!-- Programas Articulados -->
         <div>
           <label style="display:block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 6px;">Programas que articula esta institución o persona</label>
-          <div style="display: flex; flex-wrap: wrap; gap: 10px; padding: 10px; background: var(--surface-2); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
-            <label style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-main); cursor: pointer;">
-              <input type="checkbox" name="colabEstrategias" value="Desayuno Infantil" /> Desayuno Infantil
+          <div class="colab-programas-container">
+            <label class="colab-chip-pill">
+              <input type="checkbox" name="colabEstrategias" value="Desayuno Infantil" />
+              <span class="colab-chip-icon" aria-hidden="true">🍏</span>
+              <span>Desayuno Infantil</span>
             </label>
-            <label style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-main); cursor: pointer;">
-              <input type="checkbox" name="colabEstrategias" value="Casita del Saber" /> Casita del Saber
+            <label class="colab-chip-pill">
+              <input type="checkbox" name="colabEstrategias" value="Casita del Saber" />
+              <span class="colab-chip-icon" aria-hidden="true">📖</span>
+              <span>Casita del Saber</span>
             </label>
-            <label style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-main); cursor: pointer;">
-              <input type="checkbox" name="colabEstrategias" value="Buen Trato en Familia (BTF)" /> BTF
+            <label class="colab-chip-pill">
+              <input type="checkbox" name="colabEstrategias" value="Buen Trato en Familia (BTF)" />
+              <span class="colab-chip-icon" aria-hidden="true">👨‍👩‍👧</span>
+              <span>BTF (Buen Trato en Familia)</span>
             </label>
-            <label style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-main); cursor: pointer;">
-              <input type="checkbox" name="colabEstrategias" value="Juntos Aprendemos en Cristo (JAC)" /> JAC (Juntos Aprendemos en Cristo)
+            <label class="colab-chip-pill">
+              <input type="checkbox" name="colabEstrategias" value="Juntos Aprendemos en Cristo (JAC)" />
+              <span class="colab-chip-icon" aria-hidden="true">🤝</span>
+              <span>JAC (Juntos Aprendemos en Cristo)</span>
             </label>
-            <label style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-main); cursor: pointer;">
-              <input type="checkbox" name="colabEstrategias" value="Repostería" /> Repostería
+            <label class="colab-chip-pill">
+              <input type="checkbox" name="colabEstrategias" value="Repostería" />
+              <span class="colab-chip-icon" aria-hidden="true">🍞</span>
+              <span>Talleres de Repostería</span>
             </label>
-            <label style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-main); cursor: pointer;">
-              <input type="checkbox" name="colabEstrategias" value="Área Social Pastoral" /> Área Social Pastoral
+            <label class="colab-chip-pill">
+              <input type="checkbox" name="colabEstrategias" value="Área Social Pastoral" />
+              <span class="colab-chip-icon" aria-hidden="true">🕊️</span>
+              <span>Área Social Pastoral</span>
             </label>
           </div>
         </div>
@@ -400,10 +412,10 @@ const OPCIONES_ORDEN = [
       </div><!-- /.modal-body -->
 
       <div class="modal-footer" style="flex-shrink: 0; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--border-subtle); padding: 14px 20px; background: var(--surface-1);">
-        <button type="button" class="btn-action secondary" data-pdi-on="click" data-pdi-h="h078">
+        <button type="button" class="btn-action secondary pdi-motion" data-pdi-on="click" data-pdi-h="h078">
           Cancelar
         </button>
-        <button type="submit" class="btn-action primary" id="btnGuardarColab">
+        <button type="submit" class="btn-action primary pdi-motion" id="btnGuardarColab">
           Guardar Ficha
         </button>
       </div>

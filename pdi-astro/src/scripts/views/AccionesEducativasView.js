@@ -7,6 +7,8 @@
 // ===========================================================================
 import { AccionEducativaModel } from '../models/AccionEducativaModel.js';
 import { BeneficiarioModel } from '../models/BeneficiarioModel.js';
+import { VoluntarioModel } from '../models/VoluntarioModel.js';
+import { ColaboradorModel } from '../models/ColaboradorModel.js';
 import { ToastView } from './ToastView.js';
 import { escapar } from '../utils/HtmlHelper.js';
 import { CsvExporter } from '../utils/CsvExporter.js';
@@ -138,11 +140,54 @@ export const AccionesEducativasView = {
     if (secSeguimiento) secSeguimiento.style.display = sub === 'seguimiento' ? '' : 'none';
   },
 
+  poblarDatalistVoluntarias() {
+    const datalist = porId('datalistVoluntariasEdu');
+    if (!datalist || datalist.children.length > 0) return;
+    try {
+      const voluntarias = typeof VoluntarioModel?.getAll === 'function' ? VoluntarioModel.getAll() : [];
+      const colaboradores = typeof ColaboradorModel?.getAll === 'function' ? ColaboradorModel.getAll() : [];
+      const opciones = [];
+      const nombresVistos = new Set();
+
+      // Voluntarias de Biblioteca y Casita
+      voluntarias.forEach(v => {
+        if (v.estado === 'Activo') {
+          const nombreCompleto = `${v.nombres || ''} ${v.apellidos || ''}`.trim();
+          if (nombreCompleto && !nombresVistos.has(nombreCompleto.toLowerCase())) {
+            nombresVistos.add(nombreCompleto.toLowerCase());
+            const servicio = v.servicio || 'Voluntaria';
+            const sede = v.sede || v.distrito || '';
+            opciones.push(`<option value="${escapar(nombreCompleto)}">${escapar(servicio)}${sede ? ` · ${escapar(sede)}` : ''}</option>`);
+          }
+        }
+      });
+
+      // Facilitadoras PDI
+      colaboradores.forEach(c => {
+        if (c.categoria === 'pdi' && c.estado === 'Activo') {
+          const nombreCompleto = `${c.nombres || ''} ${c.apellidos || ''}`.trim();
+          if (nombreCompleto && !nombresVistos.has(nombreCompleto.toLowerCase())) {
+            nombresVistos.add(nombreCompleto.toLowerCase());
+            const cargo = c.tipoColaborador || 'Facilitadora';
+            const sede = c.sedeInstitucion || c.distrito || '';
+            opciones.push(`<option value="${escapar(nombreCompleto)}">${escapar(cargo)}${sede ? ` · ${escapar(sede)}` : ''}</option>`);
+          }
+        }
+      });
+
+      datalist.innerHTML = opciones.join('');
+    } catch (err) {
+      console.warn('[AccionesEducativasView] Error al poblar datalist de voluntarias:', err);
+    }
+  },
+
   // --- FORMULARIO ACCIONES COLECTIVAS (HOJA 3) ---
   enlazarFormularioAcciones() {
     const form = porId('formAccionSocioeducativa');
     if (!form || form.dataset.bound === 'true') return;
     form.dataset.bound = 'true';
+
+    this.poblarDatalistVoluntarias();
 
     // Precargar fecha y facilitadora
     const inputFecha = porId('aseFecha');
@@ -170,12 +215,14 @@ export const AccionesEducativasView = {
         return;
       }
 
-      const adultos = parseInt(porId('aseAdultos')?.value || '0', 10);
-      const ninos = parseInt(porId('aseNinos')?.value || '0', 10);
-      const canastas = parseInt(porId('aseCanastas')?.value || '0', 10);
+      const adultos = Math.max(0, parseInt(porId('aseAdultos')?.value, 10) || 0);
+      const ninos = Math.max(0, parseInt(porId('aseNinos')?.value, 10) || 0);
+      const libros = Math.max(0, parseInt(porId('aseLibros')?.value, 10) || 0);
+      const canastas = Math.max(0, parseInt(porId('aseCanastas')?.value, 10) || 0);
       const distrito = porId('aseDistrito')?.value || 'Comas';
       const modalidad = porId('aseModalidad')?.value || 'Comunitaria';
       const estrategia = porId('aseEstrategia')?.value || 'Atención fija';
+      const grupoEtario = porId('aseGrupoEtario')?.value || 'Comunidad / Todos';
       const facilitadora = porId('aseFacilitadora')?.value || usuarioActivo().nombre;
       const fecha = porId('aseFecha')?.value || hoyISO();
       const obs = porId('aseObservaciones')?.value || '';
@@ -186,18 +233,25 @@ export const AccionesEducativasView = {
         distrito,
         modalidad,
         estrategia,
+        grupoEtario,
         facilitadora,
         acciones,
         participantesAdultos: adultos,
         participantesNinos: ninos,
+        libros,
         canastas,
         observaciones: obs,
       });
 
-      ToastView.show('Acción registrada', `Se guardó la actividad con ${ninos} niños y ${canastas} canastas en ${sede}`, 'success');
+      const detalleLibros = libros > 0 ? ` (${libros} libros prestados)` : '';
+      ToastView.show('Acción registrada', `Se guardó la actividad en ${sede} con ${ninos} niños${detalleLibros} y ${canastas} canastas`, 'success');
       form.reset();
       if (inputFecha) inputFecha.value = hoyISO();
       if (inputFac) inputFac.value = usuarioActivo().nombre;
+      if (porId('aseAdultos')) porId('aseAdultos').value = '0';
+      if (porId('aseNinos')) porId('aseNinos').value = '0';
+      if (porId('aseLibros')) porId('aseLibros').value = '0';
+      if (porId('aseCanastas')) porId('aseCanastas').value = '0';
       this.renderTablaAcciones();
     });
   },
@@ -374,8 +428,16 @@ export const AccionesEducativasView = {
           <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">${escapar(item.distrito)} · ${escapar(item.modalidad)}</div>
         </td>
         <td>
-          <div style="display: flex; flex-wrap: wrap; gap: 4px;">
-            ${(item.acciones || []).map(a => `<span class="badge" style="background: var(--gt-green-bg); color: var(--gt-green); font-size: 11px; padding: 2px 6px; border-radius: 4px;">${escapar(a)}</span>`).join('')}
+          <div style="display: flex; flex-wrap: wrap; gap: 4px; align-items: center;">
+            ${(item.acciones || []).map(a => {
+              const esBiblio = a.toLowerCase().includes('biblioteca') || a.toLowerCase().includes('cuento');
+              const bg = esBiblio ? 'var(--chart-blue-bg)' : 'var(--gt-green-bg)';
+              const col = esBiblio ? 'var(--chart-blue-ink)' : 'var(--gt-green)';
+              const icon = esBiblio ? '📚 ' : '';
+              return `<span class="badge" style="background: ${bg}; color: ${col}; font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: 500;">${icon}${escapar(a)}</span>`;
+            }).join('')}
+            ${item.grupoEtario && item.grupoEtario !== 'Comunidad / Todos' ? `<span class="badge" style="background: var(--surface-2); color: var(--text-muted); font-size: 10.5px; padding: 2px 5px; border-radius: 4px; border: 1px solid var(--border-subtle);">🎯 ${escapar(item.grupoEtario)}</span>` : ''}
+            ${item.libros > 0 ? `<span class="badge" style="background: var(--gt-yellow-bg); color: var(--text-main); font-size: 10.5px; padding: 2px 5px; border-radius: 4px; font-weight: 600; border: 1px solid var(--border-subtle);">📖 ${item.libros} libros</span>` : ''}
           </div>
           ${item.observaciones ? `<div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px; font-style: italic;">${escapar(item.observaciones)}</div>` : ''}
         </td>

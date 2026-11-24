@@ -319,21 +319,32 @@ const OPCIONES_ORDEN_CASITAS = [
                   <div class="form-group">
                     <label for="aseModalidad" class="form-label">Modalidad de Intervención</label>
                     <select id="aseModalidad" class="form-control">
-                      <option value="Comunitaria">Comunitaria</option>
-                      <option value="Institución Educativa">Institución Educativa</option>
+                      <option value="Comunitaria">Comunitaria (Casita / Espacio Comunal)</option>
+                      <option value="Institución Educativa">Convenio I.E. / Colegio Aliado</option>
                     </select>
                   </div>
                   <div class="form-group">
                     <label for="aseEstrategia" class="form-label">Estrategia de Intervención</label>
                     <select id="aseEstrategia" class="form-control">
-                      <option value="Atención fija">Atención fija</option>
-                      <option value="Atención itinerante">Atención itinerante</option>
+                      <option value="Atención fija">Atención fija (Jornada regular)</option>
+                      <option value="Atención itinerante">Atención itinerante (Jornada móvil)</option>
                     </select>
                   </div>
                   <div class="form-group">
-                    <label for="aseFacilitadora" class="form-label">Facilitadora / Responsable</label>
-                    <input type="text" id="aseFacilitadora" class="form-control" placeholder="Nombre de la facilitadora" />
+                    <label for="aseGrupoEtario" class="form-label">Grupo Etario / Población</label>
+                    <select id="aseGrupoEtario" class="form-control">
+                      <option value="Comunidad / Todos">Comunidad / Todos los grupos</option>
+                      <option value="Inicial (3-5 años)">Inicial (3 a 5 años - Cuentacuentos)</option>
+                      <option value="Primaria (6-12 años)">Primaria (6 a 12 años - Acompañamiento)</option>
+                      <option value="Familias y Cuidadores">Familias y Cuidadores</option>
+                    </select>
                   </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 10px;">
+                  <label for="aseFacilitadora" class="form-label">Responsable / Voluntaria Asignada</label>
+                  <input type="text" id="aseFacilitadora" class="form-control" list="datalistVoluntariasEdu" placeholder="Buscar voluntaria asignada o facilitadora territorial..." autocomplete="off" />
+                  <datalist id="datalistVoluntariasEdu"></datalist>
                 </div>
 
                 <div class="form-group" style="margin-top: 10px;">
@@ -366,7 +377,7 @@ const OPCIONES_ORDEN_CASITAS = [
                   </div>
                 </div>
 
-                <div class="form-row form-row-3" style="margin-top: 14px;">
+                <div class="form-row form-row-4" style="margin-top: 14px;">
                   <div class="form-group">
                     <label for="aseAdultos" class="form-label">Participantes Adultos</label>
                     <input type="number" id="aseAdultos" class="form-control" min="0" value="0" />
@@ -374,6 +385,10 @@ const OPCIONES_ORDEN_CASITAS = [
                   <div class="form-group">
                     <label for="aseNinos" class="form-label">Participantes Niños/as</label>
                     <input type="number" id="aseNinos" class="form-control" min="0" value="0" />
+                  </div>
+                  <div class="form-group">
+                    <label for="aseLibros" class="form-label"># Libros Prestados / Leídos</label>
+                    <input type="number" id="aseLibros" class="form-control" min="0" value="0" />
                   </div>
                   <div class="form-group">
                     <label for="aseCanastas" class="form-label"># Canastas Alimentarias Donadas</label>
@@ -387,7 +402,7 @@ const OPCIONES_ORDEN_CASITAS = [
                 </div>
 
                 <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
-                  <button type="submit" class="btn-action primary">
+                  <button type="submit" class="btn-action primary pdi-motion">
                     <Icon name="accion.confirmar" size={16} />
                     <span>Guardar Acción Socio-Educativa</span>
                   </button>

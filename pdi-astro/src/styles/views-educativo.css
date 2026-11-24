@@ -1002,6 +1002,12 @@
   gap: 12px;
 }
 
+.form-row-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
 /* Grid de Checkboxes interactivos */
 .educativo-checkbox-grid {
   display: grid;
@@ -1023,7 +1029,19 @@
   color: var(--text-main);
   cursor: pointer;
   user-select: none;
-  transition: color var(--dur-fast) var(--ease-smooth), background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth);
+  transition: transform 150ms var(--ease-out),
+              color var(--dur-fast) var(--ease-smooth),
+              background-color var(--dur-fast) var(--ease-smooth),
+              border-color var(--dur-fast) var(--ease-smooth);
+}
+
+.educativo-check-card:active {
+  transform: scale(0.98);
+}
+
+.educativo-check-card:has(input:focus-visible) {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -1059,11 +1077,18 @@
 
 @media (max-width: 768px) {
   .form-row-2,
-  .form-row-3 {
+  .form-row-3,
+  .form-row-4 {
     grid-template-columns: 1fr;
   }
   .educativo-checkbox-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .educativo-check-card:active {
+    transform: none;
   }
 }
 

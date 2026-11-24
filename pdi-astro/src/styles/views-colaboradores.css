@@ -682,3 +682,96 @@
     transform: translateY(0);
   }
 }
+
+/* Chips interactivos de programas articulados (Emil Kowalski craft) */
+.colab-programas-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px;
+  background: var(--surface-2);
+  border-radius: var(--radius-md, 8px);
+  border: 1px solid var(--border-subtle);
+}
+
+.colab-chip-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--surface-1);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm, 6px);
+  cursor: pointer;
+  user-select: none;
+  transition: transform 150ms var(--ease-out),
+              background-color 150ms var(--ease-out),
+              border-color 150ms var(--ease-out),
+              color 150ms var(--ease-out),
+              box-shadow 150ms var(--ease-out);
+}
+
+.colab-chip-pill:active {
+  transform: scale(0.97);
+}
+
+.colab-chip-pill input[type="checkbox"] {
+  accent-color: var(--brand-primary);
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.colab-chip-pill:has(input[type="checkbox"]:checked) {
+  background: var(--brand-dim, rgba(var(--brand-rgb), 0.1));
+  border-color: var(--brand-primary);
+  color: var(--text-main);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.colab-chip-pill:has(input[type="checkbox"]:focus-visible) {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.colab-chip-icon {
+  font-size: 13.5px;
+  line-height: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .colab-chip-pill:hover {
+    border-color: var(--border-focus);
+    background: var(--surface-2);
+    color: var(--text-main);
+  }
+}
+
+@media (max-width: 768px) {
+  .colab-programas-container {
+    gap: 10px;
+  }
+  .colab-chip-pill {
+    padding: 8px 14px;
+    font-size: 13px;
+    min-height: 40px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .colab-chip-pill {
+    transition: background-color var(--dur-fast) ease,
+                border-color var(--dur-fast) ease,
+                color var(--dur-fast) ease;
+  }
+  .colab-chip-pill:active {
+    transform: none;
+  }
+}
+
