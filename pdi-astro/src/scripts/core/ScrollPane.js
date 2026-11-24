@@ -30,7 +30,7 @@ function attach(wrapper) {
   if (cs.overflowY !== 'auto' && cs.overflowY !== 'scroll') return null;
   if (!puedeScrollear(wrapper)) return null;
 
-  wrapper.classList.add('lenis-pane');
+  wrapper.classList.add('pdi-scroll-pane');
 
   const content = wrapper.querySelector(':scope > [data-scroll-content]') || wrapper;
 
@@ -92,7 +92,7 @@ function detach(wrapper) {
   state.mo?.disconnect();
   state.ro?.disconnect();
   state.lenis.destroy();
-  wrapper.classList.remove('lenis-pane');
+  wrapper.classList.remove('pdi-scroll-pane');
   panes.delete(wrapper);
 }
 

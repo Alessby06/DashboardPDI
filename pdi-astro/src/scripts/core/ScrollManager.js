@@ -136,8 +136,8 @@ export const ScrollManager = {
     const preventNested = (node) => {
       if (!node || node === wrapper) return false;
       if (node.hasAttribute?.('data-lenis-prevent') || node.hasAttribute?.('data-scroll-native')) return true;
-      if (node.classList?.contains('lenis-pane')) return true;
-      if (node.closest?.('.lenis-pane, [data-lenis-prevent], [data-scroll-native]')) return true;
+      if (node.classList?.contains('pdi-scroll-pane')) return true;
+      if (node.closest?.('.pdi-scroll-pane, [data-lenis-prevent], [data-scroll-native]')) return true;
 
       // Contenedores registrados en PANE_SELECTOR con scroll vertical activo
       const elScroll = node.closest?.(PANE_SELECTOR);
@@ -232,12 +232,18 @@ export const ScrollManager = {
         });
         objetivos.forEach((el) => {
           if (el.matches?.(PANE_SELECTOR)) {
-            if (puedeScrollear(el)) ScrollPane.attach(el);
-            else ScrollPane.detach(el);
+            if (el.closest('[data-lenis-prevent], [data-scroll-native]') || enModalCerrado(el)) {
+              ScrollPane.detach(el);
+            } else if (puedeScrollear(el)) {
+              ScrollPane.attach(el);
+            } else {
+              ScrollPane.detach(el);
+            }
           } else {
             this.autoAttach(el);
           }
         });
+        this.main?.dimensions?.resize?.();
         this._cleanup();
       });
     });
@@ -250,7 +256,7 @@ export const ScrollManager = {
     // El menu lateral scrollea nativo: su Lenis anidado reiniciaba la
     // posicion al mover el <aside> en cada navegacion del ClientRouter.
     if (el.closest('.sidebar')) return;
-    if (el.classList.contains('lenis-pane') || el.closest('[data-lenis-prevent], [data-scroll-native]')) return;
+    if (el.classList.contains('pdi-scroll-pane') || el.closest('[data-lenis-prevent], [data-scroll-native]')) return;
     if (enModalCerrado(el)) return;
     if (el.matches('pre, code, textarea, input, select, .table-container, .table-responsive, .kanban-board, .expediente-sidebar, .sidebar')) return;
     if (el.clientHeight < 40 || el.scrollHeight <= el.clientHeight + 4) return;
@@ -325,8 +331,13 @@ export const ScrollManager = {
     if (abiertos.length) {
       abiertos.forEach((b) => this.discover(b));
       // El modal acaba de cambiar a visible: se repite en el siguiente frame
-      // para medir con el layout ya aplicado.
+      // y tras la transición de apertura para medir con el layout ya aplicado.
       requestAnimationFrame(() => abiertos.forEach((b) => this.discover(b)));
+      setTimeout(() => abiertos.forEach((b) => {
+        if (b.isConnected && (b.classList.contains('open') || b.getAttribute('aria-hidden') === 'false')) {
+          this.discover(b);
+        }
+      }), 320);
     }
 
     this.syncLock();
