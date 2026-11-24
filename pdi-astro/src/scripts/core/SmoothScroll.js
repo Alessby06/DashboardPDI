@@ -42,7 +42,12 @@ function scrollToHash(hash) {
     + box.scrollTop
     + offsetSuperior());
 
-  ScrollManager.main?.resize();
+  if (ScrollManager.enabled && ScrollManager.main) {
+    ScrollManager.main.resize();
+    ScrollManager.main.scrollTo(destino);
+    return true;
+  }
+
   animarScroll(box, destino);
   return true;
 }

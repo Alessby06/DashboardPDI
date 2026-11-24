@@ -391,6 +391,7 @@ export const SedesView = {
         panel.style.transform = "";
         panel.style.transition = "";
         // Cada sede se lee desde arriba, no desde donde quedó la anterior.
+        window.__pdiScroll?.resetEl?.(panel);
         panel.scrollTop = 0;
         // La hoja es un diálogo modal mientras está abierta en móvil.
         panel.setAttribute("role", "dialog");
@@ -405,7 +406,7 @@ export const SedesView = {
       panel?.classList.add("open");
       backdrop?.classList.add("open");
       document.body.classList.add("sedes-sheet-open");
-      window.__pdiScroll?.main?.stop?.();
+      window.__pdiScroll?.syncLock?.();
       this._enlazarGestosHoja();
       // El foco entra en la hoja para que el lector anuncie el diálogo.
       if (panel && !yaAbierta) panel.focus({ preventScroll: true });
@@ -433,7 +434,7 @@ export const SedesView = {
     backdrop?.classList.remove("open");
     if (typeof window !== "undefined") {
       document.body.classList.remove("sedes-sheet-open");
-      window.__pdiScroll?.main?.start?.();
+      window.__pdiScroll?.syncLock?.();
       if (estabaAbierta) {
         const destino = this._focoAntesHoja?.isConnected
           ? this._focoAntesHoja

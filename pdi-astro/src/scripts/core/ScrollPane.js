@@ -41,38 +41,46 @@ function attach(wrapper) {
     smoothWheel: true,
     syncTouch: true,
     allowNestedScroll: false,
-    autoRaf: false,
-    overscroll: false
+    autoRaf: false
   });
 
+  let resizeTimer = null;
+  const programarResize = () => {
+    if (!puedeScrollear(wrapper)) {
+      clearTimeout(resizeTimer);
+      detach(wrapper);
+      return;
+    }
+    if (lenis.isScrolling === 'smooth') {
+      lenis.dimensions?.resize();
+      return;
+    }
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (!wrapper.isConnected || !panes.has(wrapper)) return;
+      if (!puedeScrollear(wrapper)) {
+        detach(wrapper);
+        return;
+      }
+      if (lenis.isScrolling === 'smooth') lenis.dimensions?.resize();
+      else lenis.resize();
+    }, 100);
+  };
+
   const ro = typeof ResizeObserver === 'function'
-    ? new ResizeObserver(() => {
-        // Si el panel deja de desbordar (o aún no tiene contenido), se suelta
-        // para no bloquear la rueda del viewport.
-        if (!puedeScrollear(wrapper)) {
-          detach(wrapper);
-          return;
-        }
-        lenis.resize();
-      })
+    ? new ResizeObserver(programarResize)
     : null;
   ro?.observe(wrapper);
   if (content !== wrapper) ro?.observe(content);
 
   const mo = typeof MutationObserver === 'function'
-    ? new MutationObserver(() => {
-        if (!puedeScrollear(wrapper)) {
-          detach(wrapper);
-          return;
-        }
-        lenis.resize();
-      })
+    ? new MutationObserver(programarResize)
     : null;
   mo?.observe(wrapper, { childList: true, subtree: true });
 
   requestAnimationFrame(() => lenis.resize());
 
-  const state = { lenis, content, ro, mo };
+  const state = { lenis, content, ro, mo, clearResize: () => clearTimeout(resizeTimer) };
   panes.set(wrapper, state);
   return state;
 }
@@ -80,6 +88,7 @@ function attach(wrapper) {
 function detach(wrapper) {
   const state = panes.get(wrapper);
   if (!state) return;
+  state.clearResize?.();
   state.mo?.disconnect();
   state.ro?.disconnect();
   state.lenis.destroy();

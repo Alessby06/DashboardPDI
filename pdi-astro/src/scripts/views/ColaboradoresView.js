@@ -789,7 +789,10 @@ export const ColaboradoresView = {
       const modalContent = modal.querySelector('.modal-content');
       if (modalContent) modalContent.scrollTop = 0;
       const modalBody = modal.querySelector('.modal-body');
-      if (modalBody) modalBody.scrollTop = 0;
+      if (modalBody) {
+        window.__pdiScroll?.resetEl?.(modalBody);
+        modalBody.scrollTop = 0;
+      }
     };
     resetScroll();
     requestAnimationFrame(resetScroll);
@@ -847,7 +850,10 @@ export const ColaboradoresView = {
       const modalContent = modal.querySelector('.modal-content');
       if (modalContent) modalContent.scrollTop = 0;
       const modalBody = modal.querySelector('.modal-body');
-      if (modalBody) modalBody.scrollTop = 0;
+      if (modalBody) {
+        window.__pdiScroll?.resetEl?.(modalBody);
+        modalBody.scrollTop = 0;
+      }
     };
     resetScroll();
     requestAnimationFrame(resetScroll);
@@ -868,7 +874,10 @@ export const ColaboradoresView = {
       const content = modal.querySelector('.modal-content');
       if (content) content.scrollTop = 0;
       const body = modal.querySelector('.modal-body');
-      if (body) body.scrollTop = 0;
+      if (body) {
+        window.__pdiScroll?.resetEl?.(body);
+        body.scrollTop = 0;
+      }
     }
   },
 

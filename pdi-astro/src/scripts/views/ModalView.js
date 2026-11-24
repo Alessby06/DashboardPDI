@@ -104,7 +104,10 @@ export const ModalView = {
 
     // El borrador conserva los datos, pero la lectura empieza arriba.
     const cuerpo = modal.querySelector(".modal-body");
-    if (cuerpo) cuerpo.scrollTop = 0;
+    if (cuerpo) {
+      window.__pdiScroll?.resetEl?.(cuerpo);
+      cuerpo.scrollTop = 0;
+    }
 
     // El lienzo se prepara una vez por carga. Re-inicializarlo en cada apertura
     // añadía cinco oyentes duplicados y repintaba la firma mientras la hoja se

@@ -55,10 +55,7 @@ export const ScrollManager = {
   touch: false,
   _bound: false,
 
-  init() {
-    if (this._bound) return;
-    this._bound = true;
-
+  _evaluarModo() {
     const optIn = document.documentElement.hasAttribute('data-smooth-touch')
       || new URLSearchParams(location.search).get('smoothTouch') === '1'
       || localStorage.getItem('pdi:smooth-touch') === '1';
@@ -74,24 +71,58 @@ export const ScrollManager = {
     });
     this.touch = !punteroFino || optIn;
     this.enabled = !this.native;
+  },
 
-    if (!this.enabled) {
-      window.__pdiScroll = this;
-      return;
-    }
-
+  _montar() {
     this._createMain();
     this.discover();
     this._observe();
     this._observeModales();
     this._syncModales();
     this._tick();
+  },
+
+  _desmontar() {
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+    this.observer?.disconnect();
+    this.observer = null;
+    this.modalObserver?.disconnect();
+    this.modalObserver = null;
+    ScrollPane.detachAll();
+    this.main?.destroy();
+    this.main = null;
+    this.mainWrapper = null;
+    this.locked = false;
+  },
+
+  init() {
+    if (this._bound) return;
+    this._bound = true;
+
+    this._evaluarModo();
+
+    if (this.enabled) {
+      this._montar();
+    }
 
     // Al cambiar el tamaño de la ventana pueden aparecer o desaparecer
-    // desbordamientos: se vuelve a decidir qué paneles merecen Lenis.
+    // desbordamientos, o cruzarse el corte entre scroll nativo y Lenis.
     this._onResize = () => {
       if (this._resizeId) clearTimeout(this._resizeId);
-      this._resizeId = setTimeout(() => this.refresh(), 180);
+      this._resizeId = setTimeout(() => {
+        const estabaActivo = this.enabled;
+        this._evaluarModo();
+        if (estabaActivo && !this.enabled) {
+          this._desmontar();
+        } else if (!estabaActivo && this.enabled) {
+          this._montar();
+        } else if (this.enabled) {
+          this.refresh();
+        }
+      }, 180);
     };
     window.addEventListener('resize', this._onResize);
 
@@ -110,7 +141,11 @@ export const ScrollManager = {
 
       // Contenedores registrados en PANE_SELECTOR con scroll vertical activo
       const elScroll = node.closest?.(PANE_SELECTOR);
-      if (elScroll && puedeScrollear(elScroll)) return true;
+      if (elScroll && !enModalCerrado(elScroll) && puedeScrollear(elScroll)) return true;
+
+      // Índice lateral del expediente (scroll nativo propio)
+      const elSidebarExp = node.closest?.('.expediente-sidebar');
+      if (elSidebarExp && puedeScrollear(elSidebarExp)) return true;
 
       // Textareas o bloques preformateados con desbordamiento vertical
       const elTexto = node.closest?.('textarea, pre, code');
@@ -140,8 +175,7 @@ export const ScrollManager = {
 
     this.mainWrapper = wrapper;
 
-    const content = wrapper.querySelector(':scope > .app-view.active')
-      || document.querySelector('.smooth-content');
+    const content = wrapper.querySelector('.smooth-content') || wrapper.firstElementChild;
 
     this.main = new Lenis({
       wrapper,
@@ -153,8 +187,7 @@ export const ScrollManager = {
       touchMultiplier: 1.6,
       allowNestedScroll: false,
       prevent: preventNested,
-      autoRaf: false,
-      overscroll: false
+      autoRaf: false
     });
 
     // Solo medidas tempranas: Lenis ya observa el wrapper con autoResize.
@@ -164,7 +197,6 @@ export const ScrollManager = {
     const remide = () => this.main?.resize();
     requestAnimationFrame(remide);
     setTimeout(remide, 120);
-    setTimeout(remide, 350);
   },
 
   _tick() {
@@ -218,7 +250,7 @@ export const ScrollManager = {
     // El menu lateral scrollea nativo: su Lenis anidado reiniciaba la
     // posicion al mover el <aside> en cada navegacion del ClientRouter.
     if (el.closest('.sidebar')) return;
-    if (el.closest('.lenis-pane, [data-lenis-prevent], [data-scroll-native]')) return;
+    if (el.classList.contains('lenis-pane') || el.closest('[data-lenis-prevent], [data-scroll-native]')) return;
     if (enModalCerrado(el)) return;
     if (el.matches('pre, code, textarea, input, select, .table-container, .table-responsive, .kanban-board, .expediente-sidebar, .sidebar')) return;
     if (el.clientHeight < 40 || el.scrollHeight <= el.clientHeight + 4) return;
@@ -230,9 +262,8 @@ export const ScrollManager = {
   discover(root = document) {
     if (!this.enabled) return;
     root.querySelectorAll(PANE_SELECTOR).forEach((el) => {
-      if (el.closest('[data-lenis-prevent]')) return;
+      if (el.closest('[data-lenis-prevent], [data-scroll-native]')) return;
       if (el === this.mainWrapper) return;
-      if (el.closest('.lenis-pane')) return;
       if (enModalCerrado(el)) return;
       ScrollPane.attach(el);
     });
@@ -292,19 +323,42 @@ export const ScrollManager = {
       || b.getAttribute('aria-hidden') === 'false');
 
     if (abiertos.length) {
-      this.lock();
       abiertos.forEach((b) => this.discover(b));
       // El modal acaba de cambiar a visible: se repite en el siguiente frame
       // para medir con el layout ya aplicado.
       requestAnimationFrame(() => abiertos.forEach((b) => this.discover(b)));
-    } else {
-      this.unlock();
     }
+
+    this.syncLock();
 
     backdrops.forEach((b) => {
       if (b.classList.contains('open') || b.getAttribute('aria-hidden') === 'false') return;
       b.querySelectorAll(PANE_SELECTOR).forEach((el) => ScrollPane.detach(el));
     });
+  },
+
+  /** Única fuente de verdad para bloquear o reanudar el scroll principal según modales u hojas abiertas. */
+  syncLock() {
+    if (!this.enabled) return;
+    const hayModal = [...document.querySelectorAll('.modal-backdrop')].some(
+      (b) => b.classList.contains('open') || b.getAttribute('aria-hidden') === 'false'
+    );
+    const hayHoja = Boolean(
+      document.body?.classList?.contains('filter-sheet-open')
+      || document.body?.classList?.contains('sedes-sheet-open')
+      || document.body?.classList?.contains('pdi-drawer-open')
+    );
+    if (hayModal || hayHoja) this.lock();
+    else this.unlock();
+  },
+
+  resetEl(el) {
+    if (!el) return;
+    const pane = ScrollPane.panes.get(el);
+    try {
+      pane?.lenis?.scrollTo(0, { immediate: true, force: true });
+    } catch {}
+    el.scrollTop = 0;
   },
 
   lock() {

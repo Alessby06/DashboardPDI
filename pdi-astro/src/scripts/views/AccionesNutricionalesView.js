@@ -113,6 +113,7 @@ export const AccionesNutricionalesView = {
     if (tab === 'colectiva') {
       this.renderTodasLasTablas();
     }
+    window.__pdiScroll?.main?.resize?.();
   },
 
   enlazarSubsecciones() {
@@ -152,6 +153,7 @@ export const AccionesNutricionalesView = {
       if (botones[k]) botones[k].classList.toggle('active', k === sub);
       if (secciones[k]) secciones[k].style.display = k === sub ? '' : 'none';
     });
+    window.__pdiScroll?.main?.resize?.();
   },
 
   // --- 1. MONITOREO DE REPARTO E INOCUIDAD (HOJA 1) ---

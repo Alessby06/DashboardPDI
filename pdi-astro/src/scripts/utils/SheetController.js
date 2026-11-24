@@ -302,8 +302,7 @@ function actualizarBloqueoFondo() {
   // Solo la clase: el telón cubre la pantalla y el body no necesita overflow
   // oculto. Cambiarlo al cerrar repintaba la tabla y se veía un parpadeo.
   document.body.classList.toggle("pdi-drawer-open", abierta);
-  if (abierta) window.__pdiScroll?.main?.stop?.();
-  else window.__pdiScroll?.main?.start?.();
+  window.__pdiScroll?.syncLock?.();
 }
 
 function observarFondo() {
