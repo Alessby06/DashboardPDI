@@ -153,7 +153,8 @@ export const ScrollManager = {
       touchMultiplier: 1.6,
       allowNestedScroll: false,
       prevent: preventNested,
-      autoRaf: false
+      autoRaf: false,
+      overscroll: false
     });
 
     // Solo medidas tempranas: Lenis ya observa el wrapper con autoResize.
@@ -163,6 +164,7 @@ export const ScrollManager = {
     const remide = () => this.main?.resize();
     requestAnimationFrame(remide);
     setTimeout(remide, 120);
+    setTimeout(remide, 350);
   },
 
   _tick() {

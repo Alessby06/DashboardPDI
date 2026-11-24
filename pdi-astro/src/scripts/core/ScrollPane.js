@@ -41,7 +41,8 @@ function attach(wrapper) {
     smoothWheel: true,
     syncTouch: true,
     allowNestedScroll: false,
-    autoRaf: false
+    autoRaf: false,
+    overscroll: false
   });
 
   const ro = typeof ResizeObserver === 'function'

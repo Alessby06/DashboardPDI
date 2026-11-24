@@ -512,6 +512,7 @@ export const SaludCredView = {
 
     this._renderActiveChips();
     this._renderTableAndCards(list);
+    window.__pdiScroll?.main?.resize();
   },
 
   _renderActiveChips() {
