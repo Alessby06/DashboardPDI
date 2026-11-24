@@ -348,10 +348,22 @@
       border: 1px solid var(--gt-green-border);
     }
 
+    .audit-kpi-icon-box.rutinario {
+      background: var(--chip-green-bg);
+      color: var(--gt-green);
+      border: 1px solid var(--gt-green-border);
+    }
+
+    .audit-kpi-icon-box.importante {
+      background: var(--chip-yellow-bg);
+      color: var(--text-warning);
+      border: 1px solid var(--gt-yellow-border);
+    }
+
     .audit-kpi-icon-box.sensibles {
-      background: rgba(220, 38, 38, 0.12);
+      background: var(--chip-red-bg);
       color: var(--text-danger);
-      border: 1px solid rgba(220, 38, 38, 0.25);
+      border: 1px solid var(--gt-red-border);
     }
 
     .audit-kpi-info {
@@ -1198,12 +1210,12 @@
   color: var(--text-brand);
   border: 1px solid var(--gt-green-border);
 }
-.audit-sev-badge.sev-sensible {
+.audit-sev-badge.sev-importante {
   background: var(--chip-yellow-bg);
   color: var(--text-warning);
   border: 1px solid var(--gt-yellow-border);
 }
-.audit-sev-badge.sev-critico {
+.audit-sev-badge.sev-sensible {
   background: var(--chip-red-bg);
   color: var(--text-danger);
   border: 1px solid var(--gt-red-border);
@@ -1221,8 +1233,8 @@
 /* La severidad se lee como marca de estado: punto + palabra, sin píldora. */
 .audit-sev-badge,
 .audit-sev-badge.sev-rutinario,
-.audit-sev-badge.sev-sensible,
-.audit-sev-badge.sev-critico {
+.audit-sev-badge.sev-importante,
+.audit-sev-badge.sev-sensible {
   padding: 0;
   border: 0;
   border-radius: 0;

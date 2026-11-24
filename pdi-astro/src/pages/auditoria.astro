@@ -31,8 +31,8 @@ const OPCIONES_ROL_AUDIT = [
 ].map((rol) => ({ valor: rol, etiqueta: rol }));
 const OPCIONES_ESTADO_AUDIT = [
   { valor: 'Rutinario', chip: { texto: 'Rutinario', tono: 'green', compacta: true }, etiqueta: 'Rutinario / Operativo' },
-  { valor: 'Sensible', chip: { texto: 'Sensible', tono: 'yellow', compacta: true }, etiqueta: 'Sensible / Confidencial' },
-  { valor: 'Crítico/Legal', chip: { texto: 'Crítico', tono: 'red', compacta: true }, etiqueta: 'Crítico / Legal' },
+  { valor: 'Importante', chip: { texto: 'Importante', tono: 'yellow', compacta: true }, etiqueta: 'Importante / Relevante' },
+  { valor: 'Sensible', chip: { texto: 'Sensible', tono: 'red', compacta: true }, etiqueta: 'Sensible / Confidencial' },
 ];
 const OPCIONES_ORDEN_AUDIT = [
   { valor: 'reciente-desc', etiqueta: 'Más reciente' },
@@ -88,11 +88,31 @@ const OPCIONES_ORDEN_AUDIT = [
             </div>
 
             <div class="audit-kpi-chip">
+              <div class="audit-kpi-icon-box rutinario">
+                <Icon name="estado.ok" size={14} />
+              </div>
+              <div class="audit-kpi-info">
+                <span class="audit-kpi-label">Rutinario</span>
+                <strong class="audit-kpi-value" id="auditKpiRutinario">0</strong>
+              </div>
+            </div>
+
+            <div class="audit-kpi-chip">
+              <div class="audit-kpi-icon-box importante">
+                <Icon name="estado.info" size={14} />
+              </div>
+              <div class="audit-kpi-info">
+                <span class="audit-kpi-label">Importante</span>
+                <strong class="audit-kpi-value" id="auditKpiImportante">0</strong>
+              </div>
+            </div>
+
+            <div class="audit-kpi-chip">
               <div class="audit-kpi-icon-box sensibles">
                 <Icon name="estado.alerta" size={14} />
               </div>
               <div class="audit-kpi-info">
-                <span class="audit-kpi-label">Acciones Sensibles</span>
+                <span class="audit-kpi-label">Sensible</span>
                 <strong class="audit-kpi-value text-sensibles" id="auditKpiSensibles">0</strong>
               </div>
             </div>

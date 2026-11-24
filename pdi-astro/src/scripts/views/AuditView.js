@@ -27,7 +27,7 @@ const FILTROS_AUDITORIA = {
   rangoDesde:      { valor: "" },
   rangoHasta:      { valor: "" },
   rol:     { valor: [], valores: ["Coordinación", "Facilitadora", "Promotora", "Trabajadora Social"], multiple: true },
-  estado:  { valor: [], valores: ["Rutinario", "Sensible", "Crítico/Legal", "Registrado", "Observado"], multiple: true },
+  estado:  { valor: [], valores: ["Rutinario", "Importante", "Sensible", "Registrado", "Observado"], multiple: true },
   pagina:  { valor: 1, numeros: { min: 1, max: 10000 } },
   tam:     { valor: 10, numeros: { min: 5, max: 100 } },
 };
@@ -167,32 +167,51 @@ export const AuditView = {
     });
   },
 
+  /** Coordinación y Admin ven la bitácora completa; el resto, solo su área. */
+  _auditLogsDelRol(logs) {
+    const rol = localStorage.getItem('pdi_active_role') || 'coord';
+    if (rol === 'coord' || rol === 'admin') return logs || [];
+    const areas = {
+      facilitadora: ['alimentario', 'nutricional'],
+      promotora: ['educativo', 'casitas'],
+      social: ['social', 'pastoral'],
+    };
+    const claves = areas[rol];
+    if (!claves) return logs || [];
+    return (logs || []).filter((l) => {
+      const texto = `${l?.modulo || ''} ${l?.submodulo || ''}`.toLowerCase();
+      return claves.some((clave) => texto.includes(clave));
+    });
+  },
+
   renderAuditLogs(logs) {
     this._leerFiltrosDeURL();
     this._initAuditSort();
-    this._currentAuditLogs = logs || [];
-    this._filteredAuditLogs = logs || [];
-    this.updateAuditKpis(this._currentAuditLogs);
+    const visibles = this._auditLogsDelRol(logs);
+    this._currentAuditLogs = visibles;
+    this._filteredAuditLogs = visibles;
+    this.updateAuditKpis(visibles);
     this.applyAuditFilters();
   },
 
   updateAuditKpis(logs) {
     const totalEl = document.getElementById("auditKpiTotal");
+    const rutEl = document.getElementById("auditKpiRutinario");
+    const impEl = document.getElementById("auditKpiImportante");
     const sensEl = document.getElementById("auditKpiSensibles");
     const exportCountEl = document.getElementById("exportAuditCountBadge");
 
-    const totalCount = (logs && logs.length) || 0;
+    const lista = logs || [];
+    const severidad = (l) => String(l?.severidad || l?.status || '').toLowerCase();
+    const contar = (expresion) => lista.filter((l) => expresion.test(severidad(l))).length;
+    const sinSeveridad = lista.filter((l) => !severidad(l)).length;
+    const totalCount = lista.length;
+
     if (totalEl) AnimationEngine.escribir(totalEl, totalCount, { formato: (n) => String(Math.round(n)) });
     if (exportCountEl) AnimationEngine.escribir(exportCountEl, totalCount, { formato: (n) => `${Math.round(n)} eventos` });
-    
-    if (sensEl) {
-      const sensibles = logs ? logs.filter(l => 
-        (l.action && l.action.toLowerCase().includes("derivaci")) || 
-        (l.detail && l.detail.toLowerCase().includes("demuna")) ||
-        (l.status && l.status.toLowerCase().includes("sensible"))
-      ) : [];
-      AnimationEngine.escribir(sensEl, sensibles.length, { formato: (n) => String(Math.round(n)) });
-    }
+    if (rutEl) AnimationEngine.escribir(rutEl, contar(/rutinario|operativo/) + sinSeveridad, { formato: (n) => String(Math.round(n)) });
+    if (impEl) AnimationEngine.escribir(impEl, contar(/importante|cr[ií]tico|critico|legal/), { formato: (n) => String(Math.round(n)) });
+    if (sensEl) AnimationEngine.escribir(sensEl, contar(/sensible|confidencial|observado|revisi[oó]n/), { formato: (n) => String(Math.round(n)) });
   },
 
   toggleInnerDropdown(dropdownId) {
@@ -338,7 +357,7 @@ export const AuditView = {
       } else if (this._filterAuditStatus.length === 1) {
         const s = this._filterAuditStatus[0];
         if (s === "Registrado") labelEl.textContent = "Registrado / Conforme";
-        else if (s === "Sensible") labelEl.textContent = "Sensible / Crítico";
+        else if (s === "Sensible") labelEl.textContent = "Sensible / Confidencial";
         else if (s === "Observado") labelEl.textContent = "Observado / Revisión";
       } else {
         labelEl.textContent = `${this._filterAuditStatus.length} seleccionados`;
@@ -516,9 +535,9 @@ export const AuditView = {
       const key = s.toLowerCase();
       const sev = (log.severidad || "").toLowerCase();
       const stat = (log.status || "").toLowerCase();
-      if (key.includes("rutinario") && (sev.includes("rutinario") || stat.includes("registrado"))) return true;
-      if (key.includes("sensible") && (sev.includes("sensible") || stat.includes("sensible") || stat.includes("observado"))) return true;
-      if ((key.includes("crítico") || key.includes("critico") || key.includes("legal")) && (sev.includes("crítico") || sev.includes("critico") || sev.includes("legal"))) return true;
+      if (key.includes("rutinario") && (sev.includes("rutinario") || sev.includes("operativo") || stat.includes("registrado"))) return true;
+      if (key.includes("importante") && (sev.includes("importante") || sev.includes("crítico") || sev.includes("critico") || sev.includes("legal"))) return true;
+      if (key.includes("sensible") && (sev.includes("sensible") || sev.includes("confidencial") || sev.includes("observado") || stat.includes("sensible"))) return true;
       return sev.includes(key) || stat.includes(key);
     });
   },
@@ -736,7 +755,7 @@ export const AuditView = {
       this._filterAuditStatus.forEach(s => {
         let sLabel = s;
         if (s === "Registrado") sLabel = "Conforme";
-        if (s === "Sensible") sLabel = "Sensible / Crítico";
+        if (s === "Sensible") sLabel = "Sensible / Confidencial";
         if (s === "Observado") sLabel = "En Revisión";
         chips.push({ id: "status", val: s, label: `Estado: ${sLabel}` });
       });
@@ -807,11 +826,11 @@ export const AuditView = {
 
     const getSeveridadBadge = (sev, status) => {
       const s = String(sev || status || 'Rutinario').toLowerCase();
-      if (s.includes('crítico') || s.includes('critico') || s.includes('legal')) {
-        return `<span class="audit-sev-badge sev-critico" title="Crítico / Legal: Bajas, cambios de rol o casos de relevancia legal"><span class="audit-sev-dot dot-red"></span>Crítico</span>`;
+      if (s.includes('sensible') || s.includes('confidencial') || s.includes('observado') || s.includes('revisión')) {
+        return `<span class="audit-sev-badge sev-sensible" title="Sensible / Confidencial: Evaluaciones CRED, salud, nutrición o datos protegidos"><span class="audit-sev-dot dot-red"></span>Sensible</span>`;
       }
-      if (s.includes('sensible') || s.includes('observado') || s.includes('revisión')) {
-        return `<span class="audit-sev-badge sev-sensible" title="Sensible / Confidencial: Evaluaciones CRED, salud, nutrición o datos protegidos"><span class="audit-sev-dot dot-amber"></span>Sensible</span>`;
+      if (s.includes('importante') || s.includes('crítico') || s.includes('critico') || s.includes('legal')) {
+        return `<span class="audit-sev-badge sev-importante" title="Importante: bajas, cambios de rol o casos de relevancia institucional"><span class="audit-sev-dot dot-amber"></span>Importante</span>`;
       }
       return `<span class="audit-sev-badge sev-rutinario" title="Rutinario / Operativo: Asistencias, talleres o actualizaciones regulares"><span class="audit-sev-dot dot-green"></span>Rutinario</span>`;
     };
@@ -923,7 +942,7 @@ export const AuditView = {
                 <button type="button" class="audit-row-toggle-btn" id="btn-toggle-${escapar(logIdStr)}"
                   aria-expanded="false" aria-label="Expandir detalles" title="Expandir detalles"
                   ${attrsDe(`event.stopPropagation(); window.PDI?.AuditView?.toggleAuditRow('${escaparEnManejador(logIdStr)}')`)}>
-                  ${iconHtml("nav.desplegar", { size: 14 })}
+                  ${iconHtml("accion.ver", { size: 14 })}
                 </button>
               </td>
             </tr>
@@ -1027,7 +1046,7 @@ export const AuditView = {
 
                 <button type="button" class="datacard-toggle-btn" id="btnToggleAudit-${index}" ${attrsDe(`window.PDI?.AuditView?.toggleAuditCard(${escaparEnManejador(index)})`)}>
                   <span class="btn-text">Ver más</span>
-                  ${iconHtml("nav.desplegar", { size: null })}
+                  ${iconHtml("accion.ver", { size: null })}
                 </button>
               </div>
             </div>
