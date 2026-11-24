@@ -3,15 +3,13 @@ import 'lenis/dist/lenis.css';
 import { ScrollPane, puedeScrollear, resizeLenis } from './ScrollPane.js';
 import { esScrollNativo } from './scrollMode.js';
 
-// Interruptor temporal de diagnóstico: permite comparar el scroll nativo con
-// Lenis sin quitar su integración ni cambiar las vistas individualmente.
-const FORZAR_SCROLL_NATIVO = true;
+// Primera fase de diagnóstico: solo una instancia en el viewport principal.
+const HABILITAR_LENIS_EN_PANELES = false;
 
 /**
- * Lenis en el viewport principal y en cada panel con scroll vertical. Los
- * paneles usan ScrollPane. En móvil (puntero grueso o ventana <= 900 px) no
- * se monta nada: el navegador lleva el scroll de forma nativa. El opt-in
- * `?smoothTouch=1` / `data-smooth-touch` / localStorage recupera Lenis.
+ * Lenis en el viewport principal. Durante la prueba, los paneles internos
+ * conservan el scroll nativo para evitar instancias anidadas. En móvil
+ * (puntero grueso o ventana <= 900 px) el navegador lleva el scroll nativo.
  */
 const PANE_SELECTOR = [
   '[data-smooth-scroll]',
@@ -68,7 +66,7 @@ export const ScrollManager = {
     // En móvil el navegador es el que scrollea. El opt-in permite comparar y
     // volver a Lenis sin desplegar. `touch` conserva el significado anterior
     // para el caso en que Lenis sí se monte (tablet con ratón, opt-in).
-    this.native = FORZAR_SCROLL_NATIVO || esScrollNativo({
+    this.native = esScrollNativo({
       punteroFino,
       ancho: window.innerWidth,
       optIn,
@@ -79,9 +77,11 @@ export const ScrollManager = {
 
   _montar() {
     this._createMain();
-    this.discover();
-    this._observe();
-    this._observeModales();
+    if (HABILITAR_LENIS_EN_PANELES) {
+      this.discover();
+      this._observe();
+      this._observeModales();
+    }
     this._syncModales();
     this._tick();
   },
@@ -255,7 +255,7 @@ export const ScrollManager = {
   },
 
   autoAttach(el) {
-    if (!this.enabled || !el || el.nodeType !== 1) return;
+    if (!HABILITAR_LENIS_EN_PANELES || !this.enabled || !el || el.nodeType !== 1) return;
     if (el === this.mainWrapper) return;
     // El menu lateral scrollea nativo: su Lenis anidado reiniciaba la
     // posicion al mover el <aside> en cada navegacion del ClientRouter.
@@ -270,7 +270,7 @@ export const ScrollManager = {
   },
 
   discover(root = document) {
-    if (!this.enabled) return;
+    if (!HABILITAR_LENIS_EN_PANELES || !this.enabled) return;
     root.querySelectorAll(PANE_SELECTOR).forEach((el) => {
       if (el.closest('[data-lenis-prevent], [data-scroll-native]')) return;
       if (el === this.mainWrapper) return;
@@ -332,7 +332,7 @@ export const ScrollManager = {
     const abiertos = backdrops.filter((b) => b.classList.contains('open')
       || b.getAttribute('aria-hidden') === 'false');
 
-    if (abiertos.length) {
+    if (HABILITAR_LENIS_EN_PANELES && abiertos.length) {
       abiertos.forEach((b) => this.discover(b));
       // El modal acaba de cambiar a visible: se repite en el siguiente frame
       // y tras la transición de apertura para medir con el layout ya aplicado.
@@ -346,10 +346,12 @@ export const ScrollManager = {
 
     this.syncLock();
 
-    backdrops.forEach((b) => {
-      if (b.classList.contains('open') || b.getAttribute('aria-hidden') === 'false') return;
-      b.querySelectorAll(PANE_SELECTOR).forEach((el) => ScrollPane.detach(el));
-    });
+    if (HABILITAR_LENIS_EN_PANELES) {
+      backdrops.forEach((b) => {
+        if (b.classList.contains('open') || b.getAttribute('aria-hidden') === 'false') return;
+        b.querySelectorAll(PANE_SELECTOR).forEach((el) => ScrollPane.detach(el));
+      });
+    }
   },
 
   /** Única fuente de verdad para bloquear o reanudar el scroll principal según modales u hojas abiertas. */
