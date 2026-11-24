@@ -1,6 +1,6 @@
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
-import { ScrollPane } from './ScrollPane.js';
+import { ScrollPane, puedeScrollear } from './ScrollPane.js';
 import { esScrollNativo } from './scrollMode.js';
 
 /**
@@ -16,6 +16,10 @@ const PANE_SELECTOR = [
   // del ClientRouter. El menu scrollea nativo y conserva la posicion.
   '.modal-body',
   '.modal-box',
+  '.drawer-body',
+  '.sheet-body',
+  '.filter-panel-body',
+  '.notificaciones-lista',
   '.audit-filters-body',
   '.padron-inner-dropdown-menu',
   '.sedes-master-list',
@@ -95,6 +99,16 @@ export const ScrollManager = {
     if (!this.enabled) return;
     const wrapper = document.querySelector('.content-viewport');
 
+    const preventNested = (node) => {
+      if (!node || node === wrapper) return false;
+      if (node.hasAttribute?.('data-lenis-prevent') || node.hasAttribute?.('data-scroll-native')) return true;
+      if (node.classList?.contains('lenis-pane')) return true;
+      if (node.closest?.('.lenis-pane, [data-lenis-prevent], [data-scroll-native]')) return true;
+      const elScroll = node.closest?.(PANE_SELECTOR) || node.closest?.('pre, code, textarea, .table-container, .table-responsive');
+      if (elScroll && puedeScrollear(elScroll)) return true;
+      return false;
+    };
+
     // Login e index no usan AppLayout: Lenis va sobre la ventana.
     if (!wrapper) {
       this.mainWrapper = null;
@@ -104,7 +118,8 @@ export const ScrollManager = {
         syncTouch: this.touch,
         wheelMultiplier: 1,
         touchMultiplier: 1.6,
-        allowNestedScroll: true,
+        allowNestedScroll: false,
+        prevent: preventNested,
         autoRaf: false
       });
       const remide = () => this.main?.resize();
@@ -126,7 +141,8 @@ export const ScrollManager = {
       syncTouch: this.touch,
       wheelMultiplier: 1,
       touchMultiplier: 1.6,
-      allowNestedScroll: true,
+      allowNestedScroll: false,
+      prevent: preventNested,
       autoRaf: false
     });
 
@@ -156,10 +172,27 @@ export const ScrollManager = {
       if (raf !== null) return;
       raf = requestAnimationFrame(() => {
         raf = null;
+        const objetivos = new Set();
         mutaciones.forEach((m) => {
+          if (m.target && m.target.nodeType === 1) {
+            const pane = m.target.closest(PANE_SELECTOR);
+            if (pane) objetivos.add(pane);
+            else objetivos.add(m.target);
+          }
           m.addedNodes.forEach((n) => {
-            if (n.nodeType === 1) this.discover(n);
+            if (n.nodeType === 1) {
+              objetivos.add(n);
+              n.querySelectorAll?.(PANE_SELECTOR)?.forEach((p) => objetivos.add(p));
+            }
           });
+        });
+        objetivos.forEach((el) => {
+          if (el.matches?.(PANE_SELECTOR)) {
+            if (puedeScrollear(el)) ScrollPane.attach(el);
+            else ScrollPane.detach(el);
+          } else {
+            this.autoAttach(el);
+          }
         });
         this._cleanup();
       });

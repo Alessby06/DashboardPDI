@@ -479,6 +479,7 @@ export const SocialKanbanView = {
     }
 
     AnimationEngine.destacarCambio(document.getElementById("kanbanCasosSociales"));
+    window.__pdiScroll?.refresh?.();
   },
 
   handleSearch(query) {

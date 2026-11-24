@@ -748,11 +748,15 @@ export const AuditView = {
       });
     }
 
-    if (this._filterAuditDate !== "all") {
+    // Elegir "Fecha específica" o "Rango" sin escribir una fecha no filtra
+    // nada: no debe contar como filtro aplicado.
+    const fechaSinValor = (this._filterAuditDate === "specific" && !this._customDateSpecific)
+      || (this._filterAuditDate === "range" && !this._customDateRangeStart && !this._customDateRangeEnd);
+    if (this._filterAuditDate !== "all" && !fechaSinValor) {
       let dateLabel = this._filterAuditDate;
       if (this._filterAuditDate === "today") dateLabel = "Fecha: Hoy";
       if (this._filterAuditDate === "week") dateLabel = "Fecha: Últimos 7 días";
-      if (this._filterAuditDate === "specific") dateLabel = `Fecha: ${this._customDateSpecific || "Específica"}`;
+      if (this._filterAuditDate === "specific") dateLabel = `Fecha: ${this._customDateSpecific}`;
       if (this._filterAuditDate === "range") dateLabel = `Rango: ${this._customDateRangeStart || "..."} a ${this._customDateRangeEnd || "..."}`;
       chips.push({ id: "date", label: dateLabel });
     }

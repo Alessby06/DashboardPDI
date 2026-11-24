@@ -56,10 +56,33 @@ export function parsearManejador(codigo) {
   }
 
   const llamadas = [];
-  const expresion = /((?:window\.)?(?:[A-Za-z_$][\w$]*\?*\.)*[A-Za-z_$][\w$]*)\s*\(([^()]*)\)/g;
-  for (const m of resto.matchAll(expresion)) {
-    const ruta = m[1].replace(/^window\./, '').replace(/\?\./g, '.').replace(/\.$/, '');
-    llamadas.push({ ruta, args: m[2].trim() ? separarArgs(m[2]).map(valorArg) : [] });
+  const ident = /(?:window\.)?(?:[A-Za-z_$][\w$]*\?*\.)*[A-Za-z_$][\w$]*/g;
+  for (const m of resto.matchAll(ident)) {
+    const despues = resto.slice(m.index + m[0].length);
+    if (!/^\s*\(/.test(despues)) continue;
+    // Los argumentos pueden contener cadenas con paréntesis
+    // ("Hoy (Jornada en curso)"): se escanean con balance, no con [^()]*.
+    const inicio = m.index + m[0].length + despues.indexOf('(');
+    let profundidad = 0;
+    let comilla = null;
+    let fin = -1;
+    for (let i = inicio; i < resto.length; i++) {
+      const ch = resto[i];
+      if (comilla) {
+        if (ch === comilla && resto[i - 1] !== '\\') comilla = null;
+      } else if (ch === "'" || ch === '"') {
+        comilla = ch;
+      } else if (ch === '(') {
+        profundidad++;
+      } else if (ch === ')') {
+        profundidad--;
+        if (profundidad === 0) { fin = i; break; }
+      }
+    }
+    if (fin < 0) continue;
+    const argsTexto = resto.slice(inicio + 1, fin);
+    const ruta = m[0].replace(/^window\./, '').replace(/\?\./g, '.').replace(/\.$/, '');
+    llamadas.push({ ruta, args: argsTexto.trim() ? separarArgs(argsTexto).map(valorArg) : [] });
   }
   return { stop, llamadas };
 }

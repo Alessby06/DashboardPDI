@@ -437,7 +437,7 @@ export const DashboardView = {
       if (low.includes("lonchera")) claves.add("lonchera");
       if (low.includes("casita")) claves.add("casita");
       if (low.includes("biblioteca")) claves.add("biblioteca");
-      if (/(^|\s)jac(\s|$)/.test(low)) claves.add("jac");
+      if (/(^|\s)jac(\s|$)/.test(low) || low.includes("juntos aprendemos")) claves.add("jac");
       if (low.includes("btf") || low.includes("buen trato")) claves.add("btf");
       if (low.includes("reposter")) claves.add("reposteria");
       if (low.includes("pastoral") || low.includes("asp")) claves.add("asp");
@@ -630,7 +630,7 @@ export const DashboardView = {
   },
 
   /**
-   * Matriz territorial clasificada: Tríada Troncal e Iniciativas Comunitarias.
+   * Matriz territorial clasificada: Servicios Principales e Iniciativas Territoriales Comunitarias.
    * Organizada en escritorio como tabla semántica con encabezados de categoría;
    * en móvil, en bloques por distrito con subtítulos de sección.
    */
@@ -697,7 +697,7 @@ export const DashboardView = {
 
     const taxonomiaProgramas = [
       {
-        grupo: "Tríada Troncal (Infancia Saludable)",
+        grupo: "Servicios Principales de Atención Directa",
         items: [
           { clave: "desayuno", nombre: "Desayuno infantil" },
           { clave: "lonchera", nombre: "Lonchera infantil" },
@@ -706,11 +706,11 @@ export const DashboardView = {
         ]
       },
       {
-        grupo: "Iniciativas Comunitarias Complementarias",
+        grupo: "Iniciativas Territoriales y Comunitarias",
         items: [
-          { clave: "jac", nombre: "Juegos y aprendizaje comunitario (JAC)" },
-          { clave: "btf", nombre: "Bienestar y terapia familiar (BTF)" },
-          { clave: "reposteria", nombre: "Talleres de repostería" },
+          { clave: "jac", nombre: "Juntos Aprendemos en Cristo (JAC)" },
+          { clave: "btf", nombre: "Buen Trato en Familia (BTF)" },
+          { clave: "reposteria", nombre: "Talleres Productivos de Repostería" },
         ]
       }
     ];

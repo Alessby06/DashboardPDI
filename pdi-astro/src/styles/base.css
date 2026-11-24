@@ -833,6 +833,25 @@
       overflow-y: auto;
     }
 
+    /* Contención de scroll en paneles internos: al llegar al límite superior
+       o inferior, la rueda y el gesto táctil no se encadenan al viewport principal. */
+    .lenis-pane,
+    .modal-body,
+    .modal-box,
+    .drawer-body,
+    .sheet-body,
+    .filter-panel-body,
+    .notificaciones-lista,
+    .audit-filters-body,
+    .padron-inner-dropdown-menu,
+    .sedes-master-list,
+    .sedes-detail-column,
+    .expediente-content-area,
+    .kanban-col-body,
+    [data-smooth-scroll] {
+      overscroll-behavior: contain;
+    }
+
     /* Con un drawer abierto el fondo no acepta gestos. El drawer vive fuera
        de #mainContent; su propio velo bloquea el resto. Las hojas de filtros
        y sedes NO usan esta regla: viven dentro del contenido y su scroll
