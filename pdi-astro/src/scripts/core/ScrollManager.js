@@ -3,6 +3,10 @@ import 'lenis/dist/lenis.css';
 import { ScrollPane, puedeScrollear, resizeLenis } from './ScrollPane.js';
 import { esScrollNativo } from './scrollMode.js';
 
+// Interruptor temporal de diagnóstico: permite comparar el scroll nativo con
+// Lenis sin quitar su integración ni cambiar las vistas individualmente.
+const FORZAR_SCROLL_NATIVO = true;
+
 /**
  * Lenis en el viewport principal y en cada panel con scroll vertical. Los
  * paneles usan ScrollPane. En móvil (puntero grueso o ventana <= 900 px) no
@@ -64,7 +68,7 @@ export const ScrollManager = {
     // En móvil el navegador es el que scrollea. El opt-in permite comparar y
     // volver a Lenis sin desplegar. `touch` conserva el significado anterior
     // para el caso en que Lenis sí se monte (tablet con ratón, opt-in).
-    this.native = esScrollNativo({
+    this.native = FORZAR_SCROLL_NATIVO || esScrollNativo({
       punteroFino,
       ancho: window.innerWidth,
       optIn,
