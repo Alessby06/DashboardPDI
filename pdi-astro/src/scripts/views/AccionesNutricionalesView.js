@@ -11,6 +11,7 @@ import { ToastView } from './ToastView.js';
 import { escapar } from '../utils/HtmlHelper.js';
 import { CsvExporter } from '../utils/CsvExporter.js';
 import { confirmar } from '../ui/confirmacion.js';
+import { resizeLenis } from '../core/ScrollPane.js';
 
 function porId(id) {
   return document.getElementById(id);
@@ -113,7 +114,7 @@ export const AccionesNutricionalesView = {
     if (tab === 'colectiva') {
       this.renderTodasLasTablas();
     }
-    window.__pdiScroll?.main?.resize?.();
+    resizeLenis(window.__pdiScroll?.main);
   },
 
   enlazarSubsecciones() {
@@ -153,7 +154,7 @@ export const AccionesNutricionalesView = {
       if (botones[k]) botones[k].classList.toggle('active', k === sub);
       if (secciones[k]) secciones[k].style.display = k === sub ? '' : 'none';
     });
-    window.__pdiScroll?.main?.resize?.();
+    resizeLenis(window.__pdiScroll?.main);
   },
 
   // --- 1. MONITOREO DE REPARTO E INOCUIDAD (HOJA 1) ---

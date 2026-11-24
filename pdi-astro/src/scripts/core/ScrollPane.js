@@ -15,8 +15,9 @@ export function puedeScrollear(el) {
 }
 
 /** Recalcula medidas sin cancelar el destino de un scroll en curso. */
-function resizeLenis(lenis) {
-  if (lenis.isScrolling === 'smooth') lenis.dimensions?.resize();
+export function resizeLenis(lenis) {
+  if (!lenis) return;
+  if (lenis.isScrolling) lenis.dimensions?.resize();
   else lenis.resize();
 }
 
@@ -83,7 +84,7 @@ function attach(wrapper) {
     : null;
   mo?.observe(wrapper, { childList: true, subtree: true });
 
-  requestAnimationFrame(() => lenis.resize());
+  requestAnimationFrame(() => resizeLenis(lenis));
 
   const state = { lenis, content, ro, mo, clearResize: () => clearTimeout(resizeTimer) };
   panes.set(wrapper, state);
@@ -119,7 +120,7 @@ export const ScrollPane = {
     [...panes.keys()].forEach((el) => {
       const state = panes.get(el);
       if (!state) return;
-      if (puedeScrollear(el)) state.lenis.resize();
+      if (puedeScrollear(el)) resizeLenis(state.lenis);
       else detach(el);
     });
   },

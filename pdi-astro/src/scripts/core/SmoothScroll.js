@@ -1,4 +1,5 @@
 import { ScrollManager } from './ScrollManager.js';
+import { resizeLenis } from './ScrollPane.js';
 
 function contenedor() {
   return document.querySelector('.content-viewport');
@@ -43,7 +44,7 @@ function scrollToHash(hash) {
     + offsetSuperior());
 
   if (ScrollManager.enabled && ScrollManager.main) {
-    ScrollManager.main.resize();
+    resizeLenis(ScrollManager.main);
     ScrollManager.main.scrollTo(destino);
     return true;
   }

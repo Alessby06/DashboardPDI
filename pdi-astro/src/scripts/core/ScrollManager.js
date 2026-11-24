@@ -1,6 +1,6 @@
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
-import { ScrollPane, puedeScrollear } from './ScrollPane.js';
+import { ScrollPane, puedeScrollear, resizeLenis } from './ScrollPane.js';
 import { esScrollNativo } from './scrollMode.js';
 
 /**
@@ -167,7 +167,7 @@ export const ScrollManager = {
         prevent: preventNested,
         autoRaf: false
       });
-      const remide = () => this.main?.resize();
+      const remide = () => resizeLenis(this.main);
       requestAnimationFrame(remide);
       setTimeout(remide, 200);
       return;
@@ -194,7 +194,7 @@ export const ScrollManager = {
     // Medir mas tarde reinicia targetScroll al animatedScroll actual y se
     // come parte del giro del raton, sobre todo al querer subir desde el
     // fondo (los 16 reintentos cada 250 ms hacian que no respondiera).
-    const remide = () => this.main?.resize();
+    const remide = () => resizeLenis(this.main);
     requestAnimationFrame(remide);
     setTimeout(remide, 120);
   },
@@ -396,7 +396,7 @@ export const ScrollManager = {
 
   refresh() {
     this._cleanup();
-    this.main?.resize();
+    resizeLenis(this.main);
     ScrollPane.refresh();
     this.discover();
   },
