@@ -73,6 +73,10 @@
         }
       }
 
+      .stage-seg-btn:active {
+        transform: scale(0.96);
+      }
+
       .stage-seg-btn.active {
         background: var(--surface-1);
         border-color: var(--border-subtle);
@@ -81,11 +85,43 @@
         box-shadow: var(--shadow-sm);
       }
 
+      .stage-seg-btn[data-stage="pendiente"].active {
+        border-color: rgba(239, 68, 68, 0.4);
+      }
+
+      .stage-seg-btn[data-stage="evaluacion"].active {
+        border-color: rgba(245, 158, 11, 0.4);
+      }
+
+      .stage-seg-btn[data-stage="canalizado"].active {
+        border-color: rgba(59, 130, 246, 0.4);
+      }
+
+      .stage-seg-btn[data-stage="cerrado"].active {
+        border-color: rgba(16, 185, 129, 0.4);
+      }
+
       [data-theme="dark"] .stage-seg-btn.active {
         background: var(--surface-hover);
         border-color: var(--border-bright);
         color: var(--text-main);
         box-shadow: var(--shadow-sm);
+      }
+
+      [data-theme="dark"] .stage-seg-btn[data-stage="pendiente"].active {
+        border-color: rgba(239, 68, 68, 0.5);
+      }
+
+      [data-theme="dark"] .stage-seg-btn[data-stage="evaluacion"].active {
+        border-color: rgba(245, 158, 11, 0.5);
+      }
+
+      [data-theme="dark"] .stage-seg-btn[data-stage="canalizado"].active {
+        border-color: rgba(59, 130, 246, 0.5);
+      }
+
+      [data-theme="dark"] .stage-seg-btn[data-stage="cerrado"].active {
+        border-color: rgba(16, 185, 129, 0.5);
       }
 
       .stage-seg-btn .stage-dot {
@@ -370,6 +406,24 @@
         max-height: none;
         min-height: 0;
         overflow: visible;
+        animation: kanbanColEnter 180ms cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      @keyframes kanbanColEnter {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .kanban-col {
+          animation: none;
+        }
       }
 
       .kanban-col-header .count {
@@ -387,12 +441,20 @@
         padding: 12px;
       }
 
+      .kanban-card:active {
+        transform: scale(0.985);
+      }
+
       .kanban-btn {
         height: 42px !important;
         font-size: 13px !important;
         font-weight: 700 !important;
         gap: 8px !important;
         border-radius: var(--radius-md) !important;
+      }
+
+      .kanban-btn:active {
+        transform: scale(0.96);
       }
 
       .kanban-btn svg {
@@ -1231,6 +1293,10 @@
       width: 12px;
       height: 12px;
       flex-shrink: 0;
+    }
+
+    .kanban-btn:active {
+      transform: scale(0.96);
     }
 
     /* Primary: tinta solida; el azul queda para seleccion/interaccion. */
