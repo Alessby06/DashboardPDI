@@ -844,10 +844,15 @@
     .notificaciones-lista,
     .audit-filters-body,
     .padron-inner-dropdown-menu,
+    .padron-sort-menu,
     .sedes-master-list,
     .sedes-detail-column,
     .expediente-content-area,
+    .expediente-sidebar,
     .kanban-col-body,
+    .cuentas-sedes-grid,
+    .deriv-body,
+    .rec-dialog,
     [data-smooth-scroll] {
       overscroll-behavior: contain;
     }

@@ -22,10 +22,13 @@ const PANE_SELECTOR = [
   '.notificaciones-lista',
   '.audit-filters-body',
   '.padron-inner-dropdown-menu',
+  '.padron-sort-menu',
   '.sedes-master-list',
   '.sedes-detail-column',
   '.expediente-content-area',
-  '.kanban-col-body'
+  '.kanban-col-body',
+  '.cuentas-sedes-grid',
+  '.deriv-body'
 ].join(',');
 
 function esFino() {
@@ -104,8 +107,26 @@ export const ScrollManager = {
       if (node.hasAttribute?.('data-lenis-prevent') || node.hasAttribute?.('data-scroll-native')) return true;
       if (node.classList?.contains('lenis-pane')) return true;
       if (node.closest?.('.lenis-pane, [data-lenis-prevent], [data-scroll-native]')) return true;
-      const elScroll = node.closest?.(PANE_SELECTOR) || node.closest?.('pre, code, textarea, .table-container, .table-responsive');
-      if (elScroll && puedeScrollear(elScroll)) return true;
+
+      // Recorre la cadena de ancestros hasta el wrapper para detectar cualquier contenedor
+      // interno que tenga scroll vertical activo y esté desbordando actualmente.
+      let actual = node;
+      while (actual && actual !== wrapper && actual !== document.body) {
+        if (actual.nodeType === 1) {
+          if (actual.matches?.(PANE_SELECTOR)) {
+            if (puedeScrollear(actual)) return true;
+          }
+          if (actual.matches?.('pre, code, textarea, input, select, .table-container, .table-responsive, .expediente-sidebar, .sidebar')) {
+            if (actual.scrollWidth > actual.clientWidth + 2 || actual.scrollHeight > actual.clientHeight + 2) return true;
+          }
+          const cs = window.getComputedStyle(actual);
+          const ovY = cs.overflowY;
+          if ((ovY === 'auto' || ovY === 'scroll') && actual.scrollHeight > actual.clientHeight + 2) {
+            return true;
+          }
+        }
+        actual = actual.parentElement;
+      }
       return false;
     };
 
