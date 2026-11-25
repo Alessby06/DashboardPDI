@@ -607,24 +607,175 @@ export const BeneficiariosView = {
   /** Cambia entre el padrón operativo y el archivo de desactivados. */
   cambiarVista(vista) {
     const destino = vista === "archivo" && this._puedeVerArchivo() ? "archivo" : "activos";
-    if (destino === this._vista) return;
-    // El contenido cambia de dataset: se atenúa el contenedor antes del
-    // recambio y vuelve a su opacidad normal en el siguiente fotograma. Sin
-    // esto la tabla se sustituía de golpe y se percibía como un salto.
+    if (destino === this._vista || this._cambiandoVista) return;
+
     const contenedores = [
       document.querySelector("#cardPadronBeneficiarios .table-container"),
       document.getElementById("mobileCardsBeneficiarios"),
     ].filter(Boolean);
-    contenedores.forEach((c) => c.classList.add("padron-cambio-vista"));
-    this._vista = destino;
-    this._currentPage = 1;
-    this._persistirFiltros();
-    this.applyFilters();
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        contenedores.forEach((c) => c.classList.remove("padron-cambio-vista"));
+
+    const aplicar = () => {
+      this._vista = destino;
+      this._currentPage = 1;
+      this._persistirFiltros();
+      // El contenedor ya lleva la transición de vista; las filas no repiten.
+      this._animacionVista = true;
+      this.applyFilters();
+      this._animacionVista = false;
+    };
+
+    if (!contenedores.length || this._movimientoReducido()) {
+      aplicar();
+      return;
+    }
+
+    const dir = destino === "archivo" ? 1 : -1;
+    const easing = "cubic-bezier(0.23, 1, 0.32, 1)";
+    this._cambiandoVista = true;
+
+    const salidas = contenedores.map((c) => c.animate(
+      [
+        { opacity: 1, transform: "translateX(0)" },
+        { opacity: 0, transform: `translateX(${-16 * dir}px)` },
+      ],
+      { duration: 120, easing, fill: "forwards" },
+    ));
+
+    Promise.all(salidas.map((a) => a.finished))
+      .then(() => {
+        salidas.forEach((a) => a.cancel());
+        aplicar();
+        contenedores.forEach((c) => {
+          c.animate(
+            [
+              { opacity: 0, transform: `translateX(${16 * dir}px)` },
+              { opacity: 1, transform: "translateX(0)" },
+            ],
+            { duration: 180, easing },
+          );
+        });
+      })
+      .catch(() => {
+        salidas.forEach((a) => a.cancel());
+        aplicar();
+      })
+      .finally(() => {
+        this._cambiandoVista = false;
       });
+  },
+
+  /** Movimiento reducido: las vistas y las filas cambian de golpe. */
+  _movimientoReducido() {
+    return typeof window.matchMedia === "function"
+      && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  },
+
+  /**
+   * Clona las filas que salen en una capa absoluta sobre el contenedor.
+   * En la tabla se clona la tabla completa y se ocultan las que sobreviven
+   * con `visibility`, para que las salientes conserven su posición exacta.
+   */
+  _capaDeSalidas(contenedor, filas, clavesNuevas, enMovil) {
+    const salidas = filas.filter((f) => !clavesNuevas.has(f.dataset.id));
+    if (!salidas.length) return null;
+
+    // En escritorio el contenedor activo es el tbody; la capa va sobre el
+    // contenedor de la tabla, no dentro del tbody (un div no es válido ahí).
+    let destino = contenedor;
+    if (!enMovil) {
+      const tabla = contenedor.closest("table");
+      if (!tabla || !tabla.parentElement) return null;
+      destino = tabla.parentElement;
+    }
+
+    destino.querySelectorAll(".padron-exit-layer").forEach((capa) => capa.remove());
+    if (getComputedStyle(destino).position === "static") {
+      destino.style.position = "relative";
+    }
+
+    const capa = document.createElement("div");
+    capa.className = "padron-exit-layer";
+
+    if (enMovil) {
+      const contRect = contenedor.getBoundingClientRect();
+      salidas.forEach((fila) => {
+        const r = fila.getBoundingClientRect();
+        const clon = fila.cloneNode(true);
+        clon.removeAttribute("id");
+        clon.style.position = "absolute";
+        clon.style.left = "0";
+        clon.style.right = "0";
+        clon.style.top = `${r.top - contRect.top + contenedor.scrollTop}px`;
+        clon.style.height = `${r.height}px`;
+        clon.style.margin = "0";
+        capa.appendChild(clon);
+      });
+    } else {
+      const tabla = contenedor.closest("table");
+      if (!tabla) return null;
+      const claves = new Set(salidas.map((f) => f.dataset.id));
+      const clon = tabla.cloneNode(true);
+      clon.querySelectorAll("tbody tr").forEach((tr) => {
+        if (claves.has(tr.dataset.id)) tr.classList.add("padron-fila-salida");
+        else tr.style.visibility = "hidden";
+      });
+      capa.appendChild(clon);
+    }
+
+    destino.appendChild(capa);
+    return capa;
+  },
+
+  /** FLIP: las que siguen suben, las nuevas entran y las salientes se van. */
+  _animarFilas(contenedor, selector, rectsPrevios, capa, enMovil) {
+    const easing = "cubic-bezier(0.23, 1, 0.32, 1)";
+    // En móvil, las tarjetas clonadas viven dentro de la capa; solo cuentan
+    // las tarjetas nuevas, que son hijas directas del contenedor.
+    const nuevas = enMovil
+      ? [...contenedor.children].filter((el) => el.matches(".mobile-card-item[data-id]"))
+      : [...contenedor.querySelectorAll(selector)];
+
+    let i = 0;
+    nuevas.forEach((el) => {
+      const previo = rectsPrevios.get(el.dataset.id);
+      if (previo) {
+        const r = el.getBoundingClientRect();
+        const delta = previo.top - r.top;
+        if (Math.abs(delta) > 1) {
+          el.animate(
+            [{ transform: `translateY(${delta}px)` }, { transform: "translateY(0)" }],
+            { duration: 220, easing, delay: i * 10 },
+          );
+        }
+      } else {
+        el.animate(
+          [
+            { opacity: 0, transform: "translateY(8px)" },
+            { opacity: 1, transform: "translateY(0)" },
+          ],
+          { duration: 200, easing, delay: i * 16 },
+        );
+      }
+      i++;
     });
+
+    if (!capa) return;
+    // El pintado de las tarjetas reemplaza el innerHTML del contenedor y se
+    // lleva la capa por delante; se vuelve a colgar para animar las salidas.
+    if (!capa.isConnected) contenedor.appendChild(capa);
+    const salidas = enMovil
+      ? [...capa.querySelectorAll(".mobile-card-item")]
+      : [...capa.querySelectorAll(".padron-fila-salida")];
+    salidas.forEach((el, idx) => {
+      el.animate(
+        [
+          { opacity: 1, transform: "translateY(0)" },
+          { opacity: 0, transform: "translateY(-10px)" },
+        ],
+        { duration: 160, easing, fill: "forwards", delay: idx * 6 },
+      );
+    });
+    setTimeout(() => capa.remove(), 280);
   },
 
   /**
@@ -1297,6 +1448,28 @@ export const BeneficiariosView = {
     // del buscador. Al cruzar el corte, _vigilarVariante() repinta.
     const enMovil = Responsive.esMovil();
 
+    // B1: antes de sustituir el cuerpo, guarda dónde estaba cada fila y clona
+    // las que salen. Después del pintado, las que siguen se deslizan desde su
+    // posición anterior, las nuevas entran desde abajo y las salientes se van.
+    const contenedorActivo = enMovil ? mobileContainer : tbody;
+    const selectorFila = enMovil ? ".mobile-card-item[data-id]" : "tr[data-id]";
+    let filasPrevias = [];
+    let rectsPrevios = new Map();
+    let capaSalidas = null;
+    let animarFilas = false;
+    if (root === document
+      && !this._animacionVista
+      && !this._movimientoReducido()
+      && contenedorActivo) {
+      filasPrevias = [...contenedorActivo.querySelectorAll(selectorFila)];
+      animarFilas = filasPrevias.length > 0;
+      if (animarFilas) {
+        rectsPrevios = new Map(filasPrevias.map((f) => [f.dataset.id, f.getBoundingClientRect()]));
+        const clavesNuevas = new Set(beneficiarios.map((b) => String(b.id)));
+        capaSalidas = this._capaDeSalidas(contenedorActivo, filasPrevias, clavesNuevas, enMovil);
+      }
+    }
+
     // La que no se dibuja se vacia, y no se deja con lo que hubiera de antes.
     // Sin esto, girar el movil con la ventana sola dejaria las dos variantes
     // pintadas y se perderia justo el ahorro que motiva esto.
@@ -1453,6 +1626,10 @@ export const BeneficiariosView = {
           </div>
         `).join("");
       }
+    }
+
+    if (animarFilas) {
+      this._animarFilas(contenedorActivo, selectorFila, rectsPrevios, capaSalidas, enMovil);
     }
 
     // En el documento entrante (preSwap) no se anima nada: esa copia no se
