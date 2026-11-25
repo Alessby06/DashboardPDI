@@ -59,21 +59,10 @@ export const ScrollManager = {
   _bound: false,
 
   _evaluarModo() {
-    const optIn = document.documentElement.hasAttribute('data-smooth-touch')
-      || new URLSearchParams(location.search).get('smoothTouch') === '1'
-      || localStorage.getItem('pdi:smooth-touch') === '1';
-    const punteroFino = esFino();
-
-    // En móvil el navegador es el que scrollea. El opt-in permite comparar y
-    // volver a Lenis sin desplegar. `touch` conserva el significado anterior
-    // para el caso en que Lenis sí se monte (tablet con ratón, opt-in).
-    this.native = esScrollNativo({
-      punteroFino,
-      ancho: window.innerWidth,
-      optIn,
-    });
-    this.touch = !punteroFino || optIn;
-    this.enabled = !this.native;
+    // Smooth scroll (Lenis) forzado en toda la aplicación, sin fallback a nativo.
+    this.native = false;
+    this.touch = true;
+    this.enabled = true;
   },
 
   _montar() {
