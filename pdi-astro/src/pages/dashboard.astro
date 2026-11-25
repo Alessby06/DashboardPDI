@@ -74,95 +74,123 @@ import Icon from '../components/Icon.astro';
         </div>
       </section>
 
-      <div class="dash-grid-clinica">
-        <section class="dash-clinica dash-superficie" aria-labelledby="dashClinicaTitle">
-          <header class="dash-clinica-cab">
-            <div>
-              <h2 id="dashClinicaTitle">Anemia infantil (Hb)</h2>
-              <p>
-                <span id="dashTamizados">Cargando tamizajes…</span>
-                <span id="dashSinTamizaje" hidden></span>
-              </p>
-            </div>
-          </header>
+      <section class="dash-prioridades" aria-labelledby="dashAtencionTitle">
+        <div class="dash-seccion-cab">
+          <h2 id="dashAtencionTitle">Prioridades del día</h2>
+          <span>Solo lo que exige una acción hoy</span>
+        </div>
 
-          <div class="dash-clinica-resumen">
-            <div class="dash-prevalencia">
-              <strong id="kpiTasaAnemia">······</strong>
-              <p id="kpiTasaAnemiaSub">En población tamizada</p>
-            </div>
-            <div class="dash-barra-clinica" id="dashAnemiaBarra" aria-hidden="true">
-              <span class="dash-seg-normal" id="segAnemiaNormal"></span>
-              <span class="dash-seg-riesgo" id="segAnemiaRiesgo"></span>
-              <span class="dash-seg-leve" id="segAnemiaLeve"></span>
-              <span class="dash-seg-mod" id="segAnemiaMod"></span>
-            </div>
+        <ul class="dash-prioridades-lista">
+          <li class="dash-prioridad" id="atencionFilaAnemia" hidden>
+            <a class="dash-prioridad-link dash-superficie" href="/salud">
+              <span class="dash-prioridad-area">Salud · Nutrición</span>
+              <span class="dash-prioridad-titulo">Anemia moderada o severa</span>
+              <span class="dash-prioridad-cifra">
+                <strong id="atencionAnemiaTexto">······</strong>
+                <span id="atencionAnemiaUnidad">niños</span>
+              </span>
+              <span class="dash-prioridad-meta" id="atencionAnemiaMeta">de los niños tamizados</span>
+              <span class="dash-prioridad-track" aria-hidden="true">
+                <span class="dash-prioridad-fill is-rojo" id="atencionAnemiaBarra"></span>
+              </span>
+              <span class="dash-prioridad-go" aria-hidden="true"><Icon name="accion.abrir" size={14} /></span>
+            </a>
+          </li>
+
+          <li class="dash-prioridad" id="atencionFilaSinTamizaje" hidden>
+            <a class="dash-prioridad-link dash-superficie" href="/salud">
+              <span class="dash-prioridad-area">Salud · Tamizaje</span>
+              <span class="dash-prioridad-titulo">Niños sin tamizaje</span>
+              <span class="dash-prioridad-cifra">
+                <strong id="atencionSinTamizajeTexto">······</strong>
+                <span id="atencionSinTamizajeUnidad">niños</span>
+              </span>
+              <span class="dash-prioridad-meta" id="atencionSinTamizajeMeta">del padrón</span>
+              <span class="dash-prioridad-track" aria-hidden="true">
+                <span class="dash-prioridad-fill is-ambar" id="atencionSinTamizajeBarra"></span>
+              </span>
+              <span class="dash-prioridad-go" aria-hidden="true"><Icon name="accion.abrir" size={14} /></span>
+            </a>
+          </li>
+
+          <li class="dash-prioridad" id="atencionFilaVoluntarios" hidden>
+            <a class="dash-prioridad-link dash-superficie" href="/voluntariados">
+              <span class="dash-prioridad-area">Equipo en campo</span>
+              <span class="dash-prioridad-titulo">Servicios sin voluntarias</span>
+              <span class="dash-prioridad-cifra">
+                <strong id="atencionVoluntariosTexto">······</strong>
+                <span id="atencionVoluntariosUnidad">servicios</span>
+              </span>
+              <span class="dash-prioridad-meta" id="atencionVoluntariosMeta">con demanda de usuarios</span>
+              <span class="dash-prioridad-detalle" id="atencionVoluntariosDetalle" hidden></span>
+              <span class="dash-prioridad-track" aria-hidden="true">
+                <span class="dash-prioridad-fill is-naranja" id="atencionVoluntariosBarra"></span>
+              </span>
+              <span class="dash-prioridad-go" aria-hidden="true"><Icon name="accion.abrir" size={14} /></span>
+            </a>
+          </li>
+        </ul>
+
+        <p class="dash-sr-only" id="atencionResumen" aria-live="polite"></p>
+
+        <div class="dash-prioridades-vacio" id="atencionVacio" data-estado="cargando">
+          <p id="atencionVacioTexto">Revisando pendientes…</p>
+        </div>
+      </section>
+
+      <section class="dash-clinica dash-superficie" aria-labelledby="dashClinicaTitle">
+        <header class="dash-clinica-cab">
+          <div>
+            <h2 id="dashClinicaTitle">Anemia infantil (Hb)</h2>
+            <p>
+              <span id="dashTamizados">Cargando tamizajes…</span>
+              <span id="dashSinTamizaje" hidden></span>
+            </p>
           </div>
+        </header>
 
-          <ul class="dash-bandas" id="dashAnemiaTable">
-            <li class="dash-banda" data-banda="normal">
-              <span class="dash-punto" aria-hidden="true"></span>
-              <span class="dash-banda-texto"><strong>Sin anemia</strong><span>≥ 11,5 g/dL</span></span>
-              <strong class="dash-banda-pct" id="anemiaPctNormal">······</strong>
-              <span class="dash-banda-casos" id="anemiaCasosNormal">······</span>
-            </li>
-            <li class="dash-banda" data-banda="riesgo">
-              <span class="dash-punto" aria-hidden="true"></span>
-              <span class="dash-banda-texto"><strong>En riesgo</strong><span>11,0 – 11,4 g/dL</span></span>
-              <strong class="dash-banda-pct" id="anemiaPctRiesgo">······</strong>
-              <span class="dash-banda-casos" id="anemiaCasosRiesgo">······</span>
-            </li>
-            <li class="dash-banda" data-banda="leve">
-              <span class="dash-punto" aria-hidden="true"></span>
-              <span class="dash-banda-texto"><strong>Anemia leve</strong><span>10,0 – 10,9 g/dL</span></span>
-              <strong class="dash-banda-pct" id="anemiaPctLeve">······</strong>
-              <span class="dash-banda-casos" id="anemiaCasosLeve">······</span>
-            </li>
-            <li class="dash-banda" data-banda="mod">
-              <span class="dash-punto" aria-hidden="true"></span>
-              <span class="dash-banda-texto"><strong>Moderada / severa</strong><span>&lt; 10,0 g/dL</span></span>
-              <strong class="dash-banda-pct" id="anemiaPctMod">······</strong>
-              <span class="dash-banda-casos" id="anemiaCasosMod">······</span>
-            </li>
-          </ul>
+        <div class="dash-clinica-resumen">
+          <div class="dash-prevalencia">
+            <strong id="kpiTasaAnemia">······</strong>
+            <p id="kpiTasaAnemiaSub">En población tamizada</p>
+          </div>
+          <div class="dash-barra-clinica" id="dashAnemiaBarra" aria-hidden="true">
+            <span class="dash-seg-normal" id="segAnemiaNormal"></span>
+            <span class="dash-seg-riesgo" id="segAnemiaRiesgo"></span>
+            <span class="dash-seg-leve" id="segAnemiaLeve"></span>
+            <span class="dash-seg-mod" id="segAnemiaMod"></span>
+          </div>
+        </div>
 
-          <p class="dash-clinica-pie">Porcentajes calculados sobre niños tamizados, no sobre el padrón completo.</p>
-        </section>
+        <ul class="dash-bandas" id="dashAnemiaTable">
+          <li class="dash-banda" data-banda="normal">
+            <span class="dash-punto" aria-hidden="true"></span>
+            <span class="dash-banda-texto"><strong>Sin anemia</strong><span>≥ 11,5 g/dL</span></span>
+            <strong class="dash-banda-pct" id="anemiaPctNormal">······</strong>
+            <span class="dash-banda-casos" id="anemiaCasosNormal">······</span>
+          </li>
+          <li class="dash-banda" data-banda="riesgo">
+            <span class="dash-punto" aria-hidden="true"></span>
+            <span class="dash-banda-texto"><strong>En riesgo</strong><span>11,0 – 11,4 g/dL</span></span>
+            <strong class="dash-banda-pct" id="anemiaPctRiesgo">······</strong>
+            <span class="dash-banda-casos" id="anemiaCasosRiesgo">······</span>
+          </li>
+          <li class="dash-banda" data-banda="leve">
+            <span class="dash-punto" aria-hidden="true"></span>
+            <span class="dash-banda-texto"><strong>Anemia leve</strong><span>10,0 – 10,9 g/dL</span></span>
+            <strong class="dash-banda-pct" id="anemiaPctLeve">······</strong>
+            <span class="dash-banda-casos" id="anemiaCasosLeve">······</span>
+          </li>
+          <li class="dash-banda" data-banda="mod">
+            <span class="dash-punto" aria-hidden="true"></span>
+            <span class="dash-banda-texto"><strong>Moderada / severa</strong><span>&lt; 10,0 g/dL</span></span>
+            <strong class="dash-banda-pct" id="anemiaPctMod">······</strong>
+            <span class="dash-banda-casos" id="anemiaCasosMod">······</span>
+          </li>
+        </ul>
 
-        <aside class="dash-atencion dash-superficie" aria-labelledby="dashAtencionTitle">
-          <header class="dash-atencion-cab">
-            <h2 id="dashAtencionTitle">Requiere atención</h2>
-            <span id="atencionFrentes">······</span>
-          </header>
-          <ul class="dash-atencion-lista">
-            <li id="atencionFilaAnemia" hidden>
-              <div class="dash-atencion-fila">
-                <span class="dash-punto is-rojo" aria-hidden="true"></span>
-                <span class="dash-atencion-texto">
-                  <strong id="atencionAnemiaTexto">······</strong>
-                </span>
-              </div>
-            </li>
-            <li id="atencionFilaSinTamizaje" hidden>
-              <div class="dash-atencion-fila">
-                <span class="dash-punto is-ambar" aria-hidden="true"></span>
-                <span class="dash-atencion-texto">
-                  <strong id="atencionSinTamizajeTexto">······</strong>
-                </span>
-              </div>
-            </li>
-            <li id="atencionFilaVoluntarios" hidden>
-              <div class="dash-atencion-fila">
-                <span class="dash-punto is-naranja" aria-hidden="true"></span>
-                <span class="dash-atencion-texto">
-                  <strong id="atencionVoluntariosTexto">······</strong>
-                </span>
-              </div>
-            </li>
-          </ul>
-          <p class="dash-atencion-vacio" id="atencionVacio" hidden></p>
-        </aside>
-      </div>
+        <p class="dash-clinica-pie">Porcentajes calculados sobre niños tamizados, no sobre el padrón completo.</p>
+      </section>
 
       <section class="dash-servicios-seccion" aria-labelledby="dashServiciosTitle">
         <div class="dash-seccion-cab">
@@ -336,6 +364,7 @@ import Icon from '../components/Icon.astro';
           var pctRiesgo = tamizados > 0 ? Math.round((riesgo / tamizados) * 100) : 0;
           var pctLeve = tamizados > 0 ? Math.round((leves / tamizados) * 100) : 0;
           var pctMod = tamizados > 0 ? Math.round((moderadas / tamizados) * 100) : 0;
+          var pctSinTamizaje = total > 0 ? Math.round((sinTamizaje / total) * 100) : 0;
           var pctAnemia = tamizados > 0 ? Math.round(((leves + moderadas) / tamizados) * 100) : 0;
           var cobertura = total > 0 ? Math.round((tamizados / total) * 100) : 0;
           var casosActivos = casos.filter(function (c) { return c && c.etapa !== "cerrado"; }).length;
@@ -351,6 +380,10 @@ import Icon from '../components/Icon.astro';
           var setFlex = function (id, valor) {
             var el = document.getElementById(id);
             if (el) el.style.flexGrow = String(Math.max(0, valor));
+          };
+          var setAncho = function (id, pct) {
+            var el = document.getElementById(id);
+            if (el) el.style.width = Math.max(0, Math.min(100, pct)) + "%";
           };
 
           setTxt("kpiTotalPadron", String(total));
@@ -400,12 +433,26 @@ import Icon from '../components/Icon.astro';
 
           setTxt("dashVolTotal", String(voluntarios.length));
 
-          setTxt("atencionAnemiaTexto", moderadas + " " + (moderadas === 1 ? "anemia moderada/severa" : "anemias moderadas/severas"));
-          setTxt("atencionSinTamizajeTexto", sinTamizaje + " " + (sinTamizaje === 1 ? "niño sin tamizaje" : "niños sin tamizaje"));
+          setTxt("atencionAnemiaTexto", String(moderadas));
+          setTxt("atencionAnemiaUnidad", moderadas === 1 ? "niño" : "niños");
+          setTxt("atencionAnemiaMeta", tamizados > 0
+            ? pctMod + " % de los " + tamizados + " niños tamizados"
+            : "Sin tamizajes registrados");
+          setAncho("atencionAnemiaBarra", pctMod);
+
+          setTxt("atencionSinTamizajeTexto", String(sinTamizaje));
+          setTxt("atencionSinTamizajeUnidad", sinTamizaje === 1 ? "niño" : "niños");
+          setTxt("atencionSinTamizajeMeta", total > 0
+            ? pctSinTamizaje + " % de los " + total + " niños del padrón"
+            : "Sin padrón registrado");
+          setAncho("atencionSinTamizajeBarra", pctSinTamizaje);
+
           var filaA = document.getElementById("atencionFilaAnemia");
           var filaS = document.getElementById("atencionFilaSinTamizaje");
           if (filaA) filaA.hidden = moderadas <= 0;
           if (filaS) filaS.hidden = sinTamizaje <= 0;
+          var vacio = document.getElementById("atencionVacio");
+          if (vacio) vacio.hidden = moderadas > 0 || sinTamizaje > 0;
         } catch (e) {
           // Pre-hidratación silenciosa.
         }

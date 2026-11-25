@@ -622,10 +622,15 @@ export const DashboardView = {
       const totalEl = document.getElementById("dashVolTotal");
       if (totalEl) this._cifra(totalEl, datosOk ? total : 0, (v) => String(Math.round(v)), animar);
 
-      const sinVoluntarios = datosOk
-        ? filas.filter((f) => (grupos[f.clave] || 0) === 0 && (demanda[f.clave] || 0) > 0).length
-        : 0;
-      this._renderAtencion(stats, sinVoluntarios);
+      const serviciosConDemanda = filas.filter((f) => (demanda[f.clave] || 0) > 0);
+      const serviciosSinVoluntarios = datosOk
+        ? serviciosConDemanda.filter((f) => (grupos[f.clave] || 0) === 0)
+        : [];
+      this._renderAtencion(stats, {
+        brecha: serviciosSinVoluntarios.length,
+        base: datosOk ? serviciosConDemanda.length : 0,
+        nombres: serviciosSinVoluntarios.map((f) => f.nombre),
+      });
     }
 
     // Línea de conciliación de población y servicios
@@ -639,47 +644,112 @@ export const DashboardView = {
     this.renderTerritorio(usuarios, claves);
   },
 
-  /**
-   * Matriz territorial clasificada: Servicios Principales e Iniciativas Territoriales Comunitarias.
-   * Organizada en escritorio como tabla semántica con encabezados de categoría;
-   * en móvil, en bloques por distrito con subtítulos de sección.
-   */
-  /** Franja de prioridades: solo muestra los frentes que existen. */
-  _renderAtencion(stats = {}, sinVoluntarios = 0) {
+  /** Prioridades del día: tres frentes accionables con su proporción real. */
+  _renderAtencion(stats = {}, equipo = {}) {
     const estado = window.PDI?.DB?.estadoActual?.() || "ok";
     const datosOk = estado === "ok";
+
     const anemia = Number(stats?.moderadas) || 0;
+    const tamizados = Number(stats?.tamizados) || 0;
     const sinTamizaje = Number(stats?.sinTamizaje) || 0;
-    const voluntarios = Number(sinVoluntarios) || 0;
-    const frentes = [anemia, sinTamizaje, voluntarios].filter((n) => n > 0).length;
+    const padron = Number(stats?.total) || 0;
+    const brecha = Number(equipo?.brecha) || 0;
+    const baseEquipo = Number(equipo?.base) || 0;
+
+    const pct = (parte, base) => (base > 0 ? Math.round((parte / base) * 100) : 0);
+    const pctAnemia = pct(anemia, tamizados);
+    const pctSinTamizaje = pct(sinTamizaje, padron);
+    const pctBrecha = pct(brecha, baseEquipo);
 
     const set = (id, texto) => {
       const el = document.getElementById(id);
       if (el) el.textContent = texto;
     };
-    set("atencionAnemiaTexto", `${anemia} ${anemia === 1 ? "anemia moderada/severa" : "anemias moderadas/severas"}`);
-    set("atencionSinTamizajeTexto", `${sinTamizaje} ${sinTamizaje === 1 ? "niño sin tamizaje" : "niños sin tamizaje"}`);
-    set("atencionVoluntariosTexto", `${voluntarios} ${voluntarios === 1 ? "servicio sin voluntarios" : "servicios sin voluntarios"}`);
-    set("atencionFrentes", datosOk ? `${frentes} ${frentes === 1 ? "frente abierto" : "frentes abiertos"}` : "0 frentes abiertos");
+    const barra = (id, valor) => {
+      const el = document.getElementById(id);
+      if (el) el.style.width = `${datosOk ? Math.max(0, Math.min(100, valor)) : 0}%`;
+    };
+
+    set("atencionAnemiaTexto", String(anemia));
+    set("atencionAnemiaUnidad", anemia === 1 ? "niño" : "niños");
+    set("atencionAnemiaMeta", tamizados > 0
+      ? `${pctAnemia} % de los ${tamizados} niños tamizados`
+      : "Sin tamizajes registrados");
+    barra("atencionAnemiaBarra", pctAnemia);
+
+    set("atencionSinTamizajeTexto", String(sinTamizaje));
+    set("atencionSinTamizajeUnidad", sinTamizaje === 1 ? "niño" : "niños");
+    set("atencionSinTamizajeMeta", padron > 0
+      ? `${pctSinTamizaje} % de los ${padron} niños del padrón`
+      : "Sin padrón registrado");
+    barra("atencionSinTamizajeBarra", pctSinTamizaje);
+
+    set("atencionVoluntariosTexto", String(brecha));
+    set("atencionVoluntariosUnidad", brecha === 1 ? "servicio" : "servicios");
+    set("atencionVoluntariosMeta", baseEquipo > 0
+      ? `${brecha} de ${baseEquipo} servicios con demanda`
+      : "Sin servicios con demanda");
+    barra("atencionVoluntariosBarra", pctBrecha);
+
+    const detalle = document.getElementById("atencionVoluntariosDetalle");
+    if (detalle) {
+      const nombres = Array.isArray(equipo?.nombres) ? equipo.nombres : [];
+      const visibles = nombres.slice(0, 2);
+      const resto = nombres.length - visibles.length;
+      detalle.textContent = visibles.join(" · ") + (resto > 0 ? ` · +${resto}` : "");
+      detalle.hidden = !datosOk || visibles.length === 0;
+    }
 
     const filas = [
       ["atencionFilaAnemia", anemia],
       ["atencionFilaSinTamizaje", sinTamizaje],
-      ["atencionFilaVoluntarios", voluntarios],
+      ["atencionFilaVoluntarios", brecha],
     ];
     filas.forEach(([id, n]) => {
       const el = document.getElementById(id);
       if (el) el.hidden = !datosOk || n <= 0;
     });
 
+    const frentes = datosOk ? filas.filter(([, n]) => n > 0).length : 0;
+
+    const resumen = document.getElementById("atencionResumen");
+    if (resumen) {
+      if (!datosOk) {
+        resumen.textContent = estado === "sin_conexion"
+          ? "Sin conexión con la base de datos."
+          : "Revisando prioridades.";
+      } else {
+        const partes = [];
+        const ninos = anemia + sinTamizaje;
+        if (ninos > 0) partes.push(`${ninos} ${ninos === 1 ? "niño" : "niños"}`);
+        if (brecha > 0) partes.push(`${brecha} ${brecha === 1 ? "servicio" : "servicios"}`);
+        resumen.textContent = partes.length
+          ? `Pendientes: ${partes.join(" y ")}.`
+          : "Sin pendientes abiertos.";
+      }
+    }
+
     const vacio = document.getElementById("atencionVacio");
-    if (vacio) {
-      vacio.hidden = datosOk && frentes > 0;
-      vacio.textContent = estado === "sin_conexion"
-        ? "Sin conexión con la base de datos. Reintentando…"
-        : datosOk
-          ? "Sin pendientes abiertos."
-          : "Cargando datos…";
+    const vacioTexto = document.getElementById("atencionVacioTexto");
+    if (vacio && vacioTexto) {
+      vacio.hidden = frentes > 0;
+      vacio.dataset.estado = !datosOk
+        ? (estado === "sin_conexion" ? "error" : "cargando")
+        : "ok";
+
+      if (frentes <= 0) {
+        if (estado === "sin_conexion") {
+          vacioTexto.textContent = "Sin conexión con la base de datos. Reintentando…";
+        } else if (!datosOk) {
+          vacioTexto.textContent = "Revisando pendientes…";
+        } else if (padron === 0 && baseEquipo === 0) {
+          vacioTexto.textContent = "Aún no hay datos del padrón para priorizar.";
+        } else {
+          const serviciosConEquipo = Math.max(0, baseEquipo - brecha);
+          vacioTexto.innerHTML = `Todo al día: <b>${tamizados} de ${padron}</b> niños tamizados`
+            + (baseEquipo > 0 ? ` y <b>${serviciosConEquipo} de ${baseEquipo}</b> servicios con equipo.` : ".");
+        }
+      }
     }
   },
 
@@ -706,6 +776,11 @@ export const DashboardView = {
     return out;
   },
 
+  /**
+   * Matriz territorial clasificada: Servicios Principales e Iniciativas Territoriales Comunitarias.
+   * Organizada en escritorio como tabla semántica con encabezados de categoría;
+   * en móvil, en bloques por distrito con subtítulos de sección.
+   */
   renderTerritorio(usuarios, claves) {
     const container = document.getElementById("dashTerritoryMatrix");
     if (!container) return;

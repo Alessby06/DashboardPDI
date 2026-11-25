@@ -195,8 +195,7 @@ body[data-page="dashboard"] #mainContent {
 
 .dash-seccion-cab h2,
 .dash-panel-cab h2,
-.dash-clinica-cab h2,
-.dash-atencion-cab h2 {
+.dash-clinica-cab h2 {
   margin: 0;
   font-size: 14px;
   font-weight: 800;
@@ -323,14 +322,7 @@ body[data-page="dashboard"] #mainContent {
   background: var(--gt-yellow);
 }
 
-/* --- Clínica + atención --------------------------------------------------- */
-
-.dash-grid-clinica {
-  display: grid;
-  grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.75fr);
-  gap: 20px;
-  align-items: stretch;
-}
+/* --- Clínica -------------------------------------------------------------- */
 
 .dash-clinica {
   padding: 20px 22px 18px;
@@ -490,75 +482,146 @@ body[data-page="dashboard"] #mainContent {
   color: var(--dash-dim);
 }
 
-/* Atención */
+/* --- Prioridades del día --------------------------------------------------- */
 
-.dash-atencion {
-  display: flex;
-  flex-direction: column;
-  padding: 18px 20px 12px;
-  min-width: 0;
-}
+.dash-prioridades { min-width: 0; }
 
-.dash-atencion-cab {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 4px;
-}
-
-.dash-atencion-cab span {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--dash-dim);
-}
-
-.dash-atencion-lista {
+.dash-prioridades-lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.dash-atencion-fila {
-  display: grid;
-  grid-template-columns: 8px minmax(0, 1fr);
-  gap: 10px;
-  align-items: center;
-  padding: 12px 0;
-  border-top: 1px solid var(--dash-rule);
-  color: var(--dash-ink);
-}
+.dash-prioridad[hidden] { display: none; }
 
-.dash-atencion-lista > li:first-child .dash-atencion-fila { border-top: 0; }
-
-.dash-atencion-fila .dash-punto { margin-top: 0; }
-.dash-atencion-fila .is-rojo { background: var(--gt-red); }
-.dash-atencion-fila .is-ambar { background: var(--gt-yellow); }
-.dash-atencion-fila .is-naranja { background: var(--gt-orange); }
-
-.dash-atencion-texto {
+.dash-prioridad-link {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  min-width: 0;
+  gap: 4px;
+  height: 100%;
+  padding: 16px 18px 15px;
+  color: inherit;
+  text-decoration: none;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    transform 160ms cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-.dash-atencion-texto strong {
+.dash-prioridad-link:active { transform: scale(0.994, 0.985); }
+
+.dash-prioridad-area {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dash-dim);
+}
+
+.dash-prioridad-titulo {
+  padding-right: 22px;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--dash-ink);
 }
 
-.dash-atencion-texto span {
-  font-size: 11px;
+.dash-prioridad-cifra {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  margin-top: 6px;
+  color: var(--dash-ink);
+}
+
+.dash-prioridad-cifra strong {
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-prioridad-cifra span {
+  font-size: 11.5px;
+  font-weight: 600;
   color: var(--dash-dim);
 }
 
-.dash-atencion-vacio {
-  margin: 14px 0 0;
-  font-size: 12.5px;
+.dash-prioridad-meta,
+.dash-prioridad-detalle {
+  font-size: 11px;
   color: var(--dash-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-prioridad-detalle {
+  margin-top: 2px;
+  color: var(--dash-muted);
+}
+
+.dash-prioridad-detalle[hidden] { display: none; }
+
+.dash-prioridad-track {
+  display: block;
+  height: 4px;
+  margin-top: 10px;
+  border-radius: var(--radius-full);
+  background: var(--chart-track);
+  overflow: hidden;
+}
+
+.dash-prioridad-fill {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--dash-rule-strong);
+  transition: width var(--dur-norm) var(--ease-out);
+}
+
+.dash-prioridad-fill.is-rojo { background: var(--gt-red); }
+.dash-prioridad-fill.is-ambar { background: var(--gt-yellow); }
+.dash-prioridad-fill.is-naranja { background: var(--gt-orange); }
+
+.dash-prioridad-go {
+  position: absolute;
+  top: 15px;
+  right: 16px;
+  color: var(--dash-dim);
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.dash-prioridades-vacio {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  border: 1px dashed var(--dash-rule-strong);
+  border-left-width: 3px;
+  border-radius: var(--radius-md);
+  font-size: 12.5px;
+  color: var(--dash-muted);
+}
+
+.dash-prioridades-vacio[hidden] { display: none; }
+
+.dash-prioridades-vacio[data-estado="ok"] {
+  border-left-color: var(--gt-green);
+}
+
+.dash-prioridades-vacio[data-estado="error"] { border-left-color: var(--gt-red); }
+
+.dash-prioridades-vacio p { margin: 0; }
+
+.dash-prioridades-vacio b {
+  font-weight: 700;
+  color: var(--dash-ink);
 }
 
 /* --- Servicios ------------------------------------------------------------ */
@@ -954,6 +1017,11 @@ body[data-page="dashboard"] #mainContent {
     background: var(--dash-hover);
     border-color: var(--dash-rule-hover);
   }
+
+  .dash-prioridad-link:hover .dash-prioridad-go {
+    color: var(--dash-ink);
+    transform: translateX(2px);
+  }
 }
 
 /* --- Responsive ----------------------------------------------------------- */
@@ -965,9 +1033,7 @@ body[data-page="dashboard"] #mainContent {
     border-bottom: 1px solid var(--dash-rule);
   }
   .dash-hero .dash-kpi:nth-child(2) { border-left: 0; }
-  .dash-grid-clinica,
   .dash-grid-territorio { grid-template-columns: 1fr; }
-  .dash-atencion { order: -1; }
 }
 
 @media (max-width: 900px) {
@@ -1080,9 +1146,9 @@ body[data-page="dashboard"] #mainContent {
     color: var(--dash-ink);
     font-variant-numeric: tabular-nums;
   }
+  .dash-prioridad-link { padding-left: 16px; padding-right: 16px; }
   .dash-clinica,
   .dash-panel,
-  .dash-atencion,
   .dash-servicio { padding-left: 16px; padding-right: 16px; }
   .dash-conciliacion { font-size: 11px; }
 }
@@ -1100,8 +1166,10 @@ body[data-page="dashboard"] #mainContent {
   .dash-barra-clinica { transform: none; }
   .dash-barra-cobertura i { transform: none; }
   .dash-boton,
-  .dash-servicio { transition: none; }
-  .dash-boton:active { transform: none; }
+  .dash-servicio,
+  .dash-prioridad-link { transition: none; }
+  .dash-boton:active,
+  .dash-prioridad-link:active { transform: none; }
 }
 
 /* ===========================================================================
@@ -1127,15 +1195,15 @@ body[data-page="dashboard"] #mainContent {
 }
 
 [data-dash-entrada="completa"] .dash-hero,
+[data-dash-entrada="completa"] .dash-prioridades,
 [data-dash-entrada="completa"] .dash-clinica,
-[data-dash-entrada="completa"] .dash-atencion,
 [data-dash-entrada="completa"] .dash-servicios-seccion,
 [data-dash-entrada="completa"] .dash-panel {
   animation: dash-entra var(--dur-norm) var(--ease-out) both;
 }
 
-[data-dash-entrada="completa"] .dash-clinica,
-[data-dash-entrada="completa"] .dash-atencion {
+[data-dash-entrada="completa"] .dash-prioridades,
+[data-dash-entrada="completa"] .dash-clinica {
   animation-delay: 40ms;
 }
 
@@ -1148,8 +1216,8 @@ body[data-page="dashboard"] #mainContent {
 }
 
 [data-dash-entrada="corta"] .dash-hero,
+[data-dash-entrada="corta"] .dash-prioridades,
 [data-dash-entrada="corta"] .dash-clinica,
-[data-dash-entrada="corta"] .dash-atencion,
 [data-dash-entrada="corta"] .dash-servicios-seccion,
 [data-dash-entrada="corta"] .dash-panel {
   animation: dash-entra-corta var(--dur-fast) var(--ease-out) both;

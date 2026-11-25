@@ -21,9 +21,11 @@ test('la sección de servicios usa nombres reales', () => {
   assert.doesNotMatch(pagina, /Tríada de servicios/);
 });
 
-test('la tarjeta de atención no lleva texto del sistema', () => {
-  assert.match(pagina, /Requiere atención/);
-  assert.match(vista, /Sin pendientes abiertos/);
+test('la franja de prioridades no lleva texto del sistema', () => {
+  assert.match(pagina, /Prioridades del día/);
+  assert.match(vista, /Todo al día/);
+  assert.match(pagina, /href="\/salud"/);
+  assert.match(pagina, /href="\/voluntariados"/);
   assert.doesNotMatch(pagina, /Se actualiza con la hidratación clínica/);
   assert.doesNotMatch(pagina, /Derivación y seguimiento clínico/);
 });
