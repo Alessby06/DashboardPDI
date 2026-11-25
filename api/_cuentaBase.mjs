@@ -272,12 +272,17 @@ export function validarTelefono(valor) {
 
 // --- SurrealDB --------------------------------------------------------------
 
-let cacheToken = null;
+// Un token por configuración (url + ns + db + usuario). Antes había una sola
+// entrada: al alternar la base de cuentas y la clínica, cada viaje invalidaba
+// el token del otro y se pagaba un `/signin` extra por petición.
+const cacheTokens = new Map();
+const MAX_TOKENS_CACHEADOS = 8;
 
 async function tokenDe(cfg) {
   const claveCache = cfg.url + '|' + cfg.ns + '|' + cfg.db + '|' + cfg.user;
-  if (cacheToken && cacheToken.clave === claveCache && cacheToken.exp > Date.now() + 60_000) {
-    return cacheToken.token;
+  const guardado = cacheTokens.get(claveCache);
+  if (guardado && guardado.exp > Date.now() + 60_000) {
+    return guardado.token;
   }
   const res = await fetch(cfg.url + '/signin', {
     method: 'POST',
@@ -288,8 +293,44 @@ async function tokenDe(cfg) {
   const datos = await res.json();
   if (!datos?.token) throw new Error('La base no devolvió un token de servicio.');
   // El token de `pdi_auth` vive 15 minutos: se renueva a los 10, no a los 20.
-  cacheToken = { token: datos.token, exp: Date.now() + 10 * 60 * 1000, clave: claveCache };
+  cacheTokens.set(claveCache, { token: datos.token, exp: Date.now() + 10 * 60 * 1000 });
+  if (cacheTokens.size > MAX_TOKENS_CACHEADOS) {
+    const ahora = Date.now();
+    for (const [clave, valor] of cacheTokens) {
+      if (valor.exp <= ahora) cacheTokens.delete(clave);
+    }
+    while (cacheTokens.size > MAX_TOKENS_CACHEADOS) {
+      cacheTokens.delete(cacheTokens.keys().next().value);
+    }
+  }
   return datos.token;
+}
+
+/** Configuración de la base clínica (personas, inscripciones, etc.). */
+export function configClinicaDe(env = {}) {
+  const url = String(
+    env.SURREAL_URL || env.PUBLIC_SURREAL_URL || '',
+  )
+    .trim()
+    .replace(/^ws:/, 'http:')
+    .replace(/^wss:/, 'https:')
+    .replace(/\/+$/, '');
+  const cfg = {
+    url,
+    ns: env.SURREAL_NS || env.PUBLIC_SURREAL_NS,
+    db: env.SURREAL_DB || env.PUBLIC_SURREAL_DB,
+    user: env.SURREAL_USER,
+    pass: env.SURREAL_PASS,
+  };
+  if (!cfg.url || !cfg.ns || !cfg.db || !cfg.user || !cfg.pass) {
+    throw new Error('Faltan credenciales clínicas en el servidor.');
+  }
+  return cfg;
+}
+
+/** Sesión autenticada para endpoints que necesitan rol y sedes. */
+export async function sesionDeRequest(request, env = {}) {
+  return sesionDe(request, configDe(env));
 }
 
 /**
@@ -1131,6 +1172,10 @@ export async function handleAuditoria(request, env = {}) {
       const severidad = String(entrada.severidad || 'Rutinario').slice(0, 30);
       const titulo = String(entrada.titulo || `${accion} · ${registro || entidad}`).slice(0, 200);
       const subtitulo = String(entrada.subtitulo || detalle).slice(0, 300);
+      const eventoId = String(entrada.evento_id || '').trim();
+      if (eventoId && !/^[A-Za-z0-9-]{8,64}$/.test(eventoId)) {
+        return json({ ok: false, error: 'Identificador de evento no válido.' }, 400);
+      }
 
       const diffValido = Array.isArray(entrada.diff) && entrada.diff.length
         ? JSON.stringify(entrada.diff.map(d => ({
@@ -1141,25 +1186,37 @@ export async function handleAuditoria(request, env = {}) {
           })))
         : 'NONE';
 
-      await consulta(cfg, `CREATE bitacora_auditoria CONTENT {
-        titulo: ${lit(titulo)},
-        subtitulo: ${lit(subtitulo)},
-        modulo: ${lit(modulo)},
-        submodulo: ${lit(submodulo)},
-        severidad: ${lit(severidad)},
-        entidad_codigo: ${lit(registro)},
-        usuario_nombre: ${lit(actual.cuenta.nombre || 'Sistema')},
-        rol: ${lit(actual.cuenta.rol || 'Sistema')},
-        autor_usuario_id: ${lit(String(actual.cuenta.id || ''))},
-        accion: ${lit(accion)},
-        entidad: ${lit(entidad)},
-        registro_id: ${lit(registro)},
-        detalle: ${lit(detalle)},
-        ip_origen: ${lit(ipDe(request))},
-        sede_nombre: ${lit(sede)},
-        timestamp: time::now(),
-        diff: ${diffValido}
-      };`);
+      try {
+        await consulta(cfg, `CREATE bitacora_auditoria CONTENT {
+          evento_id: ${eventoId ? lit(eventoId) : 'NONE'},
+          titulo: ${lit(titulo)},
+          subtitulo: ${lit(subtitulo)},
+          modulo: ${lit(modulo)},
+          submodulo: ${lit(submodulo)},
+          severidad: ${lit(severidad)},
+          entidad_codigo: ${lit(registro)},
+          usuario_nombre: ${lit(actual.cuenta.nombre || 'Sistema')},
+          rol: ${lit(actual.cuenta.rol || 'Sistema')},
+          autor_usuario_id: ${lit(String(actual.cuenta.id || ''))},
+          accion: ${lit(accion)},
+          entidad: ${lit(entidad)},
+          registro_id: ${lit(registro)},
+          detalle: ${lit(detalle)},
+          ip_origen: ${lit(ipDe(request))},
+          sede_nombre: ${lit(sede)},
+          timestamp: time::now(),
+          diff: ${diffValido}
+        };`);
+      } catch (err) {
+        // El índice único de `evento_id` es la garantía de idempotencia. Si el
+        // reintento llega después de un envío cuyo ACK se perdió, la base
+        // rechaza el duplicado y el cliente debe darlo por bueno.
+        const texto = String(err?.message || err);
+        if (eventoId && /idx_bitacora_evento|already contains/i.test(texto)) {
+          return json({ ok: true, duplicado: true });
+        }
+        throw err;
+      }
       return json({ ok: true });
     }
 

@@ -22,10 +22,11 @@
 //  viene de mezclar datos ficticios con reales; esa mezcla está eliminada.
 // ===========================================================================
 import { Surreal } from 'surrealdb';
-import { filtrarPorSede, filtrarCasos } from '../auth/alcance.js';
+import { filtrarPorSede, filtrarCasos, sedePermitida } from '../auth/alcance.js';
 import { AnemiaCalculator } from '../utils/AnemiaCalculator.js';
 import { ToastView } from '../views/ToastView.js';
 import { guardarSnapshot, leerSnapshot, borrarCachesSesionPrefijo } from './snapshot.js';
+import { normalizarCola, encolar, listos, registrarFallo, quitar, resumenCola } from '../utils/colaAuditoria.js';
 import { estrategiasDesdePrograma, SERVICIOS_VOLUNTARIADO, nombreServicioVisible } from '../../data/opcionesBeneficiario.js';
 import {
   normalizarParentesco,
@@ -748,17 +749,18 @@ function camposActor(actor) {
   return { actorId: a.id, actorNombre: a.nombre, actorRol: a.rol };
 }
 
-/** Regla única de alcance para ver un expediente: rol + área + sede. */
+/**
+ * Regla única de alcance para ver un expediente: rol + área + sede.
+ * El rol puede venir explícito; la sede la resuelve `alcance.js` a partir de
+ * `pdi_usuario_sedes`, igual que el padrón. Sin rol no hay acceso.
+ */
 export function puedeVerExpediente(b, alcance = null) {
   let rol = alcance?.rol;
-  let sedes = alcance?.sedes;
   if (rol == null) {
     try { rol = localStorage.getItem('pdi_active_role') || ''; } catch { rol = ''; }
   }
-  if (sedes == null) {
-    try { sedes = JSON.parse(localStorage.getItem('pdi_usuario_sedes') || '[]'); } catch { sedes = []; }
-  }
-  if (!rol || rol === 'coord' || rol === 'admin') return true;
+  if (!rol) return false;
+  if (rol === 'coord' || rol === 'admin') return true;
   const areas = {
     facilitadora: /alimentari|nutricion|nutrici|desayuno|lonchera|comedor|salud|cred/i,
     promotora: /educativ|casita|saber/i,
@@ -768,8 +770,10 @@ export function puedeVerExpediente(b, alcance = null) {
   if (!patron) return false;
   const texto = `${b?.sede || ''} ${(b?.servicios || []).join(' ')} ${b?.estrategia || ''}`;
   if (!patron.test(texto)) return false;
-  if (!Array.isArray(sedes) || !sedes.length) return true;
-  return sedes.some(s => texto.toLowerCase().includes(String(s).toLowerCase()));
+  // `pdi_usuario_sedes` guarda identificadores de registro (sede:xxx), no
+  // nombres: compararlos contra el texto libre siempre daba falso y ocultaba
+  // el expediente a cualquier cuenta con sedes asignadas.
+  return sedePermitida(b?._sedeRawId);
 }
 
 export function actorLocal() {
@@ -997,10 +1001,8 @@ export async function fetchBeneficiarios() {
   return filtrarPorSede(mapearBeneficiarios(comoLista(await ejecutar(SQL_PADRON)), sedes));
 }
 
-/** Consulta puntual de un expediente: no espera a la hidratación completa. */
-export async function fetchExpediente(personaId, { inactivo = false } = {}) {
-  const pid = claveRegistro(personaId);
-  if (!pid) return null;
+/** Consulta directa, solo para desarrollo local sin Functions. */
+async function fetchExpedienteDirecto(pid, inactivo) {
   const estadoIns = inactivo ? 'false' : 'true';
   const filas = comoLista(await ejecutar(`SELECT *,
     centro_salud.nombre AS centro_salud_nombre,
@@ -1015,8 +1017,40 @@ export async function fetchExpediente(personaId, { inactivo = false } = {}) {
   if (!filas.length) return null;
   const sedes = mapearSedes(comoLista(await ejecutar('SELECT * FROM sede ORDER BY creado_el;')));
   const mapeado = inactivo ? mapearRetirados(filas, sedes) : mapearBeneficiarios(filas, sedes);
-  const registro = mapeado[0] || null;
-  return registro && puedeVerExpediente(registro) ? registro : null;
+  return mapeado[0] || null;
+}
+
+/** Consulta puntual de un expediente: la API valida sesión y ámbito. */
+export async function fetchExpediente(personaId, { inactivo = false } = {}) {
+  const pid = claveRegistro(personaId);
+  if (!pid) return null;
+
+  const local = typeof location !== 'undefined'
+    && (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+  // En desarrollo no hay Function: se consulta la base directo, pero se
+  // mantiene la misma regla de alcance que aplicaría el servidor.
+  const directo = async () => {
+    const registro = await fetchExpedienteDirecto(pid, inactivo);
+    return registro && puedeVerExpediente(registro) ? registro : null;
+  };
+  try {
+    const params = new URLSearchParams({ persona: pid });
+    if (inactivo) params.set('inactivo', '1');
+    const res = await fetch(`/api/expediente?${params.toString()}`, { credentials: 'same-origin' });
+    if (res.ok) {
+      // En `astro dev` la ruta puede devolver HTML con 200.
+      const datos = await res.json().catch(() => null);
+      if (!datos?.fila) return local ? directo() : null;
+      const sedes = Array.isArray(datos.sedes) ? datos.sedes : [];
+      const mapeado = inactivo ? mapearRetirados([datos.fila], sedes) : mapearBeneficiarios([datos.fila], sedes);
+      return mapeado[0] || null;
+    }
+    if (res.status === 403 || res.status === 401) return null;
+    if (res.status === 404 && local) return directo();
+  } catch {
+    if (local) return directo();
+  }
+  return null;
 }
 
 /** Convierte los registros crudos de persona en objetos del modelo (requiere sedes ya mapeadas). */
@@ -3270,12 +3304,26 @@ function leerColaAuditoria() {
   catch { return []; }
 }
 
-function encolarBitacora(payload) {
+function guardarColaAuditoria(cola) {
   try {
-    const cola = leerColaAuditoria();
-    cola.push({ payload, intentos: 0 });
-    localStorage.setItem(CLAVE_COL_AUDITORIA, JSON.stringify(cola.slice(-50)));
+    if (cola.length) localStorage.setItem(CLAVE_COL_AUDITORIA, JSON.stringify(cola));
+    else localStorage.removeItem(CLAVE_COL_AUDITORIA);
   } catch {}
+}
+
+function encolarBitacora(payload) {
+  const { cola, descartado, duplicado } = encolar(leerColaAuditoria(), payload);
+  guardarColaAuditoria(cola);
+  if (descartado) {
+    try {
+      ToastView.show(
+        'Auditoría local',
+        `${descartado} evento(s) antiguo(s) se descartaron de la cola sin enviarse. Avisa a coordinación.`,
+        'danger',
+      );
+    } catch {}
+  }
+  return { descartado, duplicado };
 }
 
 async function enviarBitacora(payload) {
@@ -3285,26 +3333,54 @@ async function enviarBitacora(payload) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
-  if (!res.ok) {
-    const datos = await res.json().catch(() => ({}));
-    throw new Error(datos.error || 'No se pudo registrar.');
-  }
+  if (res.ok) return;
+  const datos = await res.json().catch(() => ({}));
+  const error = new Error(datos.error || 'No se pudo registrar.');
+  // 429 sí se reintenta; un 400/403 no va a cambiar solo.
+  error.permanente = res.status >= 400 && res.status < 500 && res.status !== 429;
+  throw error;
+}
+
+/** Estado de la cola para el indicador de la interfaz. */
+export function auditoriaPendiente() {
+  return resumenCola(leerColaAuditoria());
 }
 
 /** Reintenta los eventos que no se pudieron auditar. Idempotente por evento. */
 export async function reintentarBitacorasPendientes() {
-  let cola = leerColaAuditoria();
-  if (!cola.length) return;
-  const pendientes = [];
-  for (const item of cola) {
+  let cola = normalizarCola(leerColaAuditoria());
+  const pendientes = listos(cola);
+  if (!pendientes.length) {
+    // Aprovecha para limpiar duplicados o basura que haya quedado guardada.
+    guardarColaAuditoria(cola);
+    return resumenCola(cola);
+  }
+
+  for (const item of pendientes) {
+    const id = String(item.payload?.evento_id || '');
     try {
       await enviarBitacora(item.payload);
-    } catch {
-      item.intentos = Number(item.intentos || 0) + 1;
-      if (item.intentos < 10) pendientes.push(item);
+      cola = quitar(cola, id);
+    } catch (err) {
+      const fallido = registrarFallo(item, Date.now(), err?.permanente === true);
+      cola = cola.map((actual) => (
+        String(actual.payload?.evento_id || '') === id ? fallido : actual
+      ));
     }
   }
-  try { localStorage.setItem(CLAVE_COL_AUDITORIA, JSON.stringify(pendientes)); } catch {}
+
+  guardarColaAuditoria(cola);
+  const resumen = resumenCola(cola);
+  if (resumen.agotados) {
+    try {
+      ToastView.show(
+        'Auditoría pendiente',
+        `${resumen.agotados} evento(s) no se pudieron enviar. No cierres sesión; avisa a coordinación.`,
+        'danger',
+      );
+    } catch {}
+  }
+  return resumen;
 }
 
 export async function crearBitacora(entry) {
@@ -3313,7 +3389,12 @@ export async function crearBitacora(entry) {
   const diffValido = entry.diff && typeof entry.diff === 'object' && !Array.isArray(entry.diff)
     ? [entry.diff]
     : (Array.isArray(entry.diff) ? entry.diff : null);
+  const eventoId = entry.evento_id || (() => {
+    try { return crypto.randomUUID(); } catch {}
+    return `evt-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  })();
   const payload = {
+    evento_id: eventoId,
     titulo: entry.titulo || '',
     subtitulo: entry.subtitulo || '',
     modulo: entry.modulo || 'General',

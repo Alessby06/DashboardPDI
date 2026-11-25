@@ -77,4 +77,8 @@ DEFINE FIELD IF NOT EXISTS motivo_normalizacion ON bitacora_auditoria TYPE optio
 DEFINE FIELD IF NOT EXISTS normalizado_el ON bitacora_auditoria TYPE option<datetime>;
 DEFINE FIELD IF NOT EXISTS normalizado_por ON bitacora_auditoria TYPE option<string>;
 DEFINE FIELD IF NOT EXISTS usuario_id ON bitacora_auditoria TYPE option<record<persona>>;
+-- Idempotencia de los reintentos: el cliente manda un `evento_id` estable y el
+-- índice único impide que un ACK perdido se convierta en un duplicado.
+DEFINE FIELD IF NOT EXISTS evento_id ON bitacora_auditoria TYPE option<string>;
+DEFINE INDEX IF NOT EXISTS idx_bitacora_evento ON bitacora_auditoria FIELDS evento_id UNIQUE;
 DEFINE INDEX IF NOT EXISTS idx_bitacora_marca ON bitacora_auditoria FIELDS timestamp;
