@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { sedePermitida, filtrarPorSede } from '../src/scripts/auth/alcance.js';
+import { sedePermitida, filtrarPorSede, evaluarSede } from '../src/scripts/auth/alcance.js';
 
 function almacen(datos) {
   const mapa = new Map(Object.entries(datos));
@@ -49,4 +49,19 @@ test('filtrarPorSede respeta un selector de sede alternativo', () => {
     filtrarPorSede(filas, (fila) => fila.sede_id).map((f) => f.sede_id),
     ['sede:a'],
   );
+});
+
+test('evaluarSede con la bandera apagada deja pasar una cuenta sin sedes', () => {
+  assert.equal(evaluarSede('sede:x', [], false), true);
+  assert.equal(evaluarSede('', [], false), true);
+});
+
+test('evaluarSede con la bandera activa niega una cuenta sin sedes', () => {
+  assert.equal(evaluarSede('sede:x', [], true), false);
+  assert.equal(evaluarSede('', [], true), false);
+});
+
+test('evaluarSede nunca deja pasar un registro sin sede si la cuenta está limitada', () => {
+  assert.equal(evaluarSede('', ['sede:a'], false), false);
+  assert.equal(evaluarSede('', ['sede:a'], true), false);
 });

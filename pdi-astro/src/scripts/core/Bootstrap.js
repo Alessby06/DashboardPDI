@@ -33,7 +33,7 @@ import { Theme } from "./Theme.js";
 import { ToastView } from "../views/ToastView.js";
 import {
   iniciarCapaDatos, refrescarDesdeNube, hidratarDesdeSurreal, aplicarSnapshotInicial,
-  fetchBitacora, LIMITE_BITACORA, reintentarBitacorasPendientes,
+  fetchBitacora, LIMITE_BITACORA, reintentarBitacorasPendientes, prepararSelloAuditoria,
 } from "./db.js";
 import { guardarCache, leerCache } from "./snapshot.js";
 import { iniciarEstadoCarga } from "./LoadingState.js";
@@ -143,6 +143,8 @@ export function arrancarComun() {
 
   // Eventos de auditoría que no se pudieron escribir en un intento anterior.
   reintentarBitacorasPendientes().catch(() => {});
+  // Deja un sello listo para poder escribir la outbox si la API cae luego.
+  prepararSelloAuditoria().catch(() => {});
 
   // 1. La conexión con la nube es silenciosa: la capa de datos (db.js) carga
   //    y rehidrata por su cuenta; en caso de fallo solo avisos (toasts).

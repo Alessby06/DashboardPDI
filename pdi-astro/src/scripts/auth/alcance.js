@@ -30,7 +30,14 @@ function texto(valor) {
   }
 }
 
-/** Sedes asignadas a la cuenta activa. Lista vacía = todas. */
+// Se activa solo después de asignar sedes a las cuentas existentes. Con la
+// bandera apagada, una cuenta sin sedes conserva alcance completo (comporta-
+// miento histórico y visible en la pantalla de cuentas como «Sin sede»).
+let OBLIGATORIAS = false;
+try { OBLIGATORIAS = import.meta.env.PUBLIC_SEDES_OBLIGATORIAS === '1'; } catch {}
+export const SEDES_OBLIGATORIAS_ACTIVAS = OBLIGATORIAS;
+
+/** Sedes asignadas a la cuenta activa. Lista vacía = todas (salvo bandera). */
 export function sedesDeCuenta() {
   const crudo = texto(CLAVE_SEDES);
   if (crudo === cacheCrudo && cache) return cache;
@@ -48,14 +55,26 @@ export function sedesDeCuenta() {
 
 /** ¿La cuenta ve todas las sedes? */
 export function alcanceCompleto() {
+  if (OBLIGATORIAS) return false;
   return sedesDeCuenta().length === 0;
+}
+
+/**
+ * Regla pura, para poder probarla con y sin la bandera.
+ * @param {string} idSede
+ * @param {string[]} sedes
+ * @param {boolean} obligatorias
+ */
+export function evaluarSede(idSede, sedes, obligatorias = OBLIGATORIAS) {
+  const lista = Array.isArray(sedes) ? sedes.filter(Boolean) : [];
+  if (!lista.length) return !obligatorias;
+  if (!idSede) return false;
+  return lista.includes(String(idSede));
 }
 
 /** ¿Puede ver un registro de esta sede? Con alcance limitado, un registro sin sede queda fuera. */
 export function sedePermitida(idSede) {
-  if (alcanceCompleto()) return true;
-  if (!idSede) return false;
-  return sedesDeCuenta().includes(String(idSede));
+  return evaluarSede(idSede, sedesDeCuenta(), OBLIGATORIAS);
 }
 
 /**

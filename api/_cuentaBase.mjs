@@ -17,6 +17,7 @@
 //    - La recuperación es una clave temporal generada desde administración.
 // ===========================================================================
 import crypto from 'node:crypto';
+import { crearLimite } from './_limite.mjs';
 
 const DURACION_SESION_MS = 8 * 60 * 60 * 1000;
 // La cookie se renueva con la actividad, pero ninguna sesión puede superar
@@ -191,6 +192,38 @@ export function verificarSesion(token, secreto) {
   try {
     const datos = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
     if (!datos || !datos.sub || !datos.exp || Number(datos.exp) <= Date.now()) return null;
+    return datos;
+  } catch {
+    return null;
+  }
+}
+
+// --- Sello de eventos de auditoría ------------------------------------------
+//  Cuando la API no responde, el navegador puede dejar el evento en la outbox
+//  clínica. El sello es lo que mantiene la autoría en el servidor: attests
+//  identidad, rol, IP y momento con un HMAC que el cliente no puede fabricar.
+//  Va ligado a un lote, no a un evento concreto, para poder cachearlo y
+//  usarlo sin red.
+
+const DURACION_SELLO_MS = 7 * 24 * 60 * 60 * 1000;
+
+export function firmarSello(datos, secreto) {
+  const payload = Buffer.from(JSON.stringify(datos), 'utf8').toString('base64url');
+  return `${payload}.${firma(payload, secreto)}`;
+}
+
+export function verificarSello(sello, secreto, ahora = Date.now()) {
+  const partes = String(sello || '').split('.');
+  if (partes.length !== 2) return null;
+  const [payload, recibida] = partes;
+  const esperada = firma(payload, secreto);
+  const a = Buffer.from(recibida);
+  const b = Buffer.from(esperada);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
+  try {
+    const datos = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
+    if (!datos || datos.v !== 1 || !datos.sub || !datos.exp) return null;
+    if (Number(datos.exp) <= ahora) return null;
     return datos;
   } catch {
     return null;
@@ -1099,6 +1132,197 @@ async function logout(request) {
  * namespace, así que toda lectura y escritura pasa por aquí, con cookie de
  * sesión. No hay ruta de actualización ni borrado: solo alta y consulta.
  */
+// --- Outbox de auditoría -----------------------------------------------------
+//  Tabla `auditoria_outbox` en la base clínica. El navegador la escribe solo
+//  cuando el POST directo falla, junto con un sello del servidor. El drenaje
+//  es perezoso: cada POST de auditoría intenta vaciar un lote pequeño.
+
+const MAX_DRENAJE = 20;
+const MAX_INTENTOS_OUTBOX = 10;
+const DRENAJE_MS = 60_000;
+let ultimoDrenaje = 0;
+
+async function marcarOutbox(clinica, id, campos) {
+  try {
+    await consulta(clinica, `UPDATE ${idRegistro(String(id))} SET ${campos};`);
+  } catch (err) {
+    console.error('[outbox] no se pudo actualizar', id, err?.message || err);
+  }
+}
+
+/** Marca un lote completo en un solo viaje. Si falla, se reenvía: es idempotente. */
+async function marcarLoteEnviado(clinica, ids) {
+  const limpios = [];
+  for (const id of ids) {
+    try { limpios.push(idRegistro(String(id))); } catch {}
+  }
+  if (!limpios.length) return;
+  try {
+    await consulta(clinica, `UPDATE auditoria_outbox SET enviado_el = time::now() WHERE id IN [${limpios.join(', ')}];`);
+  } catch (err) {
+    console.error('[outbox] no se pudo marcar el lote:', err?.message || err);
+  }
+}
+
+/**
+ * Vacía hasta 20 eventos pendientes. Devuelve un resumen; nunca lanza.
+ * `forzar` ignora el freno de un minuto (pruebas y tareas manuales).
+ */
+export async function drenarOutboxAuditoria(env = {}, { forzar = false } = {}) {
+  const ahora = Date.now();
+  if (!forzar && ahora - ultimoDrenaje < DRENAJE_MS) return { omitido: true, procesados: 0 };
+  ultimoDrenaje = ahora;
+
+  let clinica;
+  let cuentas;
+  let secreto;
+  try {
+    clinica = configClinicaDe(env);
+    cuentas = configDe(env);
+    secreto = secretoDe(env);
+  } catch (err) {
+    console.error('[outbox] configuración:', err?.message || err);
+    return { error: 'configuracion', procesados: 0 };
+  }
+
+  let filas;
+  try {
+    filas = await consulta(
+      clinica,
+      `SELECT * FROM auditoria_outbox WHERE enviado_el = NONE AND intentos < ${MAX_INTENTOS_OUTBOX} ORDER BY creado_el LIMIT ${MAX_DRENAJE};`,
+    );
+  } catch (err) {
+    console.error('[outbox] lectura:', err?.message || err);
+    return { error: 'lectura', procesados: 0 };
+  }
+  if (!Array.isArray(filas) || !filas.length) return { procesados: 0, enviados: 0, fallidos: 0 };
+
+  const recortar = (valor, max) => String(valor ?? '').slice(0, max);
+  const validas = [];
+  const rechazadas = [];
+
+  for (const fila of filas) {
+    const id = String(fila?.id || '');
+    const datos = verificarSello(fila?.sello, secreto, ahora);
+    if (!datos) {
+      rechazadas.push({ id, error: 'sello inválido o vencido' });
+      continue;
+    }
+
+    const p = fila.payload && typeof fila.payload === 'object' ? fila.payload : {};
+    const eventoId = recortar(fila.evento_id, 64);
+    if (!/^[A-Za-z0-9-]{8,64}$/.test(eventoId)) {
+      rechazadas.push({ id, error: 'evento_id inválido' });
+      continue;
+    }
+
+    const diffValido = Array.isArray(p.diff) && p.diff.length
+      ? JSON.stringify(p.diff.slice(0, 50).map((d) => ({
+          campo: recortar(d?.campo, 80),
+          etiqueta: recortar(d?.etiqueta || d?.campo, 120),
+          antes: d?.antes ?? null,
+          despues: d?.despues ?? null,
+        })))
+      : 'NONE';
+    const cuando = Number(datos.iat) > 0 ? new Date(Number(datos.iat)).toISOString() : null;
+
+    validas.push({
+      id,
+      sql: `INSERT INTO bitacora_auditoria {
+        evento_id: ${lit(eventoId)},
+        titulo: ${lit(recortar(p.titulo || `${recortar(p.action, 160)} · ${recortar(p.entity, 120)}`, 200))},
+        subtitulo: ${lit(recortar(p.subtitulo || p.detail || '', 300))},
+        modulo: ${lit(recortar(p.modulo || 'General', 80))},
+        submodulo: ${lit(recortar(p.submodulo || '', 80))},
+        severidad: ${lit(recortar(p.severidad || 'Rutinario', 30))},
+        entidad_codigo: ${lit(recortar(p.entity || '', 120))},
+        usuario_nombre: ${lit(recortar(datos.nombre || 'Sistema', 120))},
+        rol: ${lit(recortar(datos.rol || 'Sistema', 40))},
+        autor_usuario_id: ${lit(String(datos.sub || ''))},
+        accion: ${lit(recortar(p.action, 160))},
+        entidad: ${lit(recortar(p.entity || 'PDI · Sistema', 120))},
+        registro_id: ${lit(recortar(p.entity || '', 120))},
+        detalle: ${lit(recortar(p.detail || '', 1000))},
+        ip_origen: ${lit(recortar(datos.ip || 'local', 80))},
+        sede_nombre: ${lit(recortar(p.sede || 'Central', 80))},
+        timestamp: ${cuando ? `type::datetime(${lit(cuando)})` : 'time::now()'},
+        diff: ${diffValido}
+      } ON DUPLICATE KEY UPDATE evento_id = evento_id;`,
+    });
+  }
+
+  let enviados = 0;
+  let fallidos = 0;
+
+  if (validas.length) {
+    try {
+      // Un solo viaje a cuentas para todo el lote. `ON DUPLICATE` absorbe los
+      // eventos que el POST directo ya escribió y cuyo ACK se perdió.
+      await consultaLote(cuentas, validas.map((v) => v.sql));
+      await marcarLoteEnviado(clinica, validas.map((v) => v.id));
+      enviados = validas.length;
+    } catch {
+      // Aislar: una fila con un problema de esquema no debe bloquear al resto.
+      for (const v of validas) {
+        try {
+          await consulta(cuentas, v.sql);
+          await marcarOutbox(clinica, v.id, 'enviado_el = time::now()');
+          enviados += 1;
+        } catch (err) {
+          await marcarOutbox(clinica, v.id, `intentos = intentos + 1, ultimo_error = ${lit(recortar(err?.message || err, 200))}`);
+          fallidos += 1;
+        }
+      }
+    }
+  }
+
+  for (const r of rechazadas) {
+    await marcarOutbox(clinica, r.id, `intentos = intentos + 1, ultimo_error = ${lit(r.error)}`);
+    fallidos += 1;
+  }
+
+  return { procesados: filas.length, enviados, fallidos };
+}
+
+// --- Sello para la outbox ----------------------------------------------------
+
+const limiteSellos = crearLimite({ maximo: 120, ventanaMs: 60 * 60 * 1000 });
+
+/** Entrega un sello de identidad para los eventos que se escriban sin red. */
+export async function handleSello(request, env = {}) {
+  if (request.method !== 'POST') return json({ ok: false, error: 'Método no permitido.' }, 405);
+  if (!origenValido(request)) return json({ ok: false, error: 'Origen no permitido.' }, 403);
+
+  let actual;
+  let cfg;
+  try {
+    cfg = configDe(env);
+    actual = await sesionDe(request, cfg);
+  } catch (err) {
+    console.error('[sello] sesión:', err?.message || err);
+    return json({ ok: false, error: 'No se pudo verificar la sesión.' }, 503);
+  }
+  if (!actual?.cuenta) return json({ ok: false, error: 'Sesión requerida.' }, 401);
+
+  const cupo = limiteSellos.permitir(String(actual.cuenta.id || 'anon'));
+  if (!cupo.ok) {
+    return json({ ok: false, error: 'Demasiadas solicitudes de sello. Intenta más tarde.' }, 429);
+  }
+
+  const ahora = Date.now();
+  const datos = {
+    v: 1,
+    sub: String(actual.cuenta.id || ''),
+    rol: String(actual.cuenta.rol || ''),
+    nombre: String(actual.cuenta.nombre || ''),
+    ip: ipDe(request),
+    iat: ahora,
+    exp: ahora + DURACION_SELLO_MS,
+    lote: crypto.randomUUID(),
+  };
+  return json({ ok: true, sello: firmarSello(datos, cfg.secreto), exp: datos.exp });
+}
+
 export async function handleAuditoria(request, env = {}) {
   try {
     const cfg = configDe(env);
@@ -1213,10 +1437,14 @@ export async function handleAuditoria(request, env = {}) {
         // rechaza el duplicado y el cliente debe darlo por bueno.
         const texto = String(err?.message || err);
         if (eventoId && /idx_bitacora_evento|already contains/i.test(texto)) {
+          await drenarOutboxAuditoria(env);
           return json({ ok: true, duplicado: true });
         }
         throw err;
       }
+      // Aprovecha el tráfico normal para vaciar la outbox clínica (frenada a
+      // un intento por minuto e instancia).
+      await drenarOutboxAuditoria(env);
       return json({ ok: true });
     }
 

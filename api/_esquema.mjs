@@ -1,14 +1,23 @@
 // ===========================================================================
-//  ESQUEMA DE DATOS: PUENTE DE MIGRACIÓN
+//  BANDERAS DE DESPLIEGUE: ESQUEMA Y ALCANCE
 // ===========================================================================
-//  El cliente decide con `PUBLIC_ESQUEMA_USUARIO` en tiempo de build; el
-//  servidor lo lee en tiempo de ejecución. Si ambos valores no coinciden, la
-//  API consultaría columnas que el navegador no usa. `ESQUEMA_USUARIO` (sin
-//  prefijo PUBLIC_) permite fijar el valor del servidor sin depender del build.
+//  El cliente decide con `PUBLIC_*` en tiempo de build; el servidor lo lee en
+//  tiempo de ejecución. Si ambos valores no coinciden, la API y el navegador
+//  consultan cosas distintas. Las variables sin prefijo permiten fijar el
+//  valor del servidor sin depender del build.
 // ===========================================================================
 
-/** @returns {boolean} `true` si se usa usuario_id / usuario_vinculado. */
-export function resolverEsquema(env = {}) {
-  const crudo = env.ESQUEMA_USUARIO ?? env.PUBLIC_ESQUEMA_USUARIO ?? '0';
+function bandera(env, nombre) {
+  const crudo = env[nombre] ?? env[`PUBLIC_${nombre}`] ?? '0';
   return String(crudo).trim() === '1';
+}
+
+/** `true` si se usa usuario_id / usuario_vinculado. */
+export function resolverEsquema(env = {}) {
+  return bandera(env, 'ESQUEMA_USUARIO');
+}
+
+/** `true` si una cuenta sin sedes deja de tener alcance completo. */
+export function resolverSedesObligatorias(env = {}) {
+  return bandera(env, 'SEDES_OBLIGATORIAS');
 }

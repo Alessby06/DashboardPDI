@@ -130,6 +130,43 @@ test('si el almacenamiento está lleno, lo informa en vez de fingir que guardó'
   assert.equal(cola.resumen().total, 0);
 });
 
+test('si la outbox acepta el evento, no se guarda en el navegador', async () => {
+  const almacen = crearAlmacen();
+  const caido = async () => { throw new Error('sin red'); };
+  let respaldo = 0;
+  const cola = crearColaAuditoria({ almacen, enviar: caido });
+
+  const resultado = await cola.registrar(ev('evt-1'), async () => { respaldo += 1; return true; });
+
+  assert.equal(resultado.enOutbox, true);
+  assert.equal(resultado.guardado, true);
+  assert.equal(cola.resumen().total, 0);
+  assert.equal(respaldo, 1);
+});
+
+test('si la outbox falla, cae a la cola local', async () => {
+  const almacen = crearAlmacen();
+  const caido = async () => { throw new Error('sin red'); };
+  const cola = crearColaAuditoria({ almacen, enviar: caido });
+
+  const resultado = await cola.registrar(ev('evt-1'), async () => false);
+
+  assert.equal(resultado.enOutbox, false);
+  assert.equal(resultado.guardado, true);
+  assert.equal(cola.resumen().total, 1);
+});
+
+test('si la outbox lanza, no se pierde: cae a la cola local', async () => {
+  const almacen = crearAlmacen();
+  const caido = async () => { throw new Error('sin red'); };
+  const cola = crearColaAuditoria({ almacen, enviar: caido });
+
+  const resultado = await cola.registrar(ev('evt-1'), async () => { throw new Error('base caída'); });
+
+  assert.equal(resultado.enOutbox, false);
+  assert.equal(cola.resumen().total, 1);
+});
+
 test('confirmar quita solo los identificadores indicados', async () => {
   const almacen = crearAlmacen();
   const caido = async () => { throw new Error('sin red'); };

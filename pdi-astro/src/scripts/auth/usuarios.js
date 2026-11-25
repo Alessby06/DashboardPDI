@@ -169,6 +169,9 @@ export function cerrarSesion() {
     localStorage.removeItem(CLAVE_USUARIO_FOTO);
     localStorage.removeItem(CLAVE_SESSION_EXP);
     localStorage.removeItem(CLAVE_SEDES);
+    // El sello de la outbox está ligado a la identidad: no debe sobrevivir al
+    // cierre de sesión ni reutilizarse con otra cuenta.
+    localStorage.removeItem("pdi_auditoria_sello");
     sessionStorage.clear();
   } catch (e) {
     console.warn("[Auth] Error al cerrar sesión:", e);

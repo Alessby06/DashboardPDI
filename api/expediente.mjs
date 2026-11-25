@@ -13,13 +13,16 @@
 // ===========================================================================
 import { sesionDeRequest, consultaLote, configClinicaDe } from './_cuentaBase.mjs';
 import { crearLimite } from './_limite.mjs';
-import { resolverEsquema } from './_esquema.mjs';
+import { resolverEsquema, resolverSedesObligatorias } from './_esquema.mjs';
 
 const CLAVE_VALIDA = /^[A-Za-z0-9_-]{1,64}$/;
 
 // Puente de migración compartido con el cliente (db.js). Si producción cambia
 // la bandera, la Function y el navegador deben leer las mismas columnas.
 const ESQUEMA_NUEVO = resolverEsquema(process.env);
+// Con la bandera activa, una cuenta sin sedes deja de ver todo. Se activa
+// solo después de asignar sedes a las cuentas existentes.
+const SEDES_OBLIGATORIAS = resolverSedesObligatorias(process.env);
 const F_USUARIO = ESQUEMA_NUEVO ? 'usuario_id' : 'persona_id';
 const T_VINCULO = ESQUEMA_NUEVO ? 'usuario_vinculado' : 'persona_vinculada';
 const F_MENOR = ESQUEMA_NUEVO ? 'usuario_id' : 'menor_id';
@@ -53,7 +56,7 @@ function serviciosDe(programa) {
  * `puedeVerExpediente` del cliente, pero aquí no se puede manipular.
  * Coordinación y administración ven todo.
  */
-export function puedeVer(fila, sede, cuenta) {
+export function puedeVer(fila, sede, cuenta, obligatorias = SEDES_OBLIGATORIAS) {
   // Sin inscripción no hay área ni sede que evaluar: nunca es visible.
   if (!fila?.ins) return false;
   const rol = cuenta?.rol;
@@ -77,7 +80,7 @@ export function puedeVer(fila, sede, cuenta) {
   // Si la cuenta está limitada y el registro no declara sede, no se puede
   // demostrar que pertenezca a su ámbito: se niega.
   const sedes = Array.isArray(cuenta.sedes) ? cuenta.sedes : [];
-  if (!sedes.length) return true;
+  if (!sedes.length) return !obligatorias;
   const sedeId = String(fila?.ins?.sede_id || '');
   if (!sedeId) return false;
   return sedes.includes(sedeId);
@@ -152,6 +155,7 @@ export default {
       return json({
         ok: true,
         esquema: ESQUEMA_NUEVO ? 1 : 0,
+        sedesObligatorias: SEDES_OBLIGATORIAS ? 1 : 0,
         fila,
         sedes: sede ? [{
           _rawId: String(sede.id || ''),

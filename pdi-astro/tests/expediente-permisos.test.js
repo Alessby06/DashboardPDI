@@ -51,7 +51,14 @@ test('una cuenta sin sedes asignadas conserva el alcance por área', () => {
   // Es el comportamiento actual de la vista; se prueba para que no cambie por
   // accidente. Endurecerlo a «sin sedes = sin acceso» debe ser una decisión
   // explícita, no un efecto colateral.
-  assert.equal(puedeVer(fila(), sede, { rol: 'facilitadora', sedes: [] }), true);
+  assert.equal(puedeVer(fila(), sede, { rol: 'facilitadora', sedes: [] }, false), true);
+});
+
+test('con sedes obligatorias, una cuenta sin sedes no ve nada', () => {
+  assert.equal(puedeVer(fila(), sede, { rol: 'facilitadora', sedes: [] }, true), false);
+  // Coordinación y administración siguen exentas.
+  assert.equal(puedeVer(fila(), sede, { rol: 'coord', sedes: [] }, true), true);
+  assert.equal(puedeVer(fila(), sede, { rol: 'admin', sedes: [] }, true), true);
 });
 
 test('sin inscripción nunca es visible, ni para administración', () => {

@@ -80,15 +80,23 @@ export function crearColaAuditoria({ almacen, enviar, ahora = () => Date.now() }
 
     /**
      * Intenta enviar ahora y, si falla, guarda el evento para el reintento.
-     * Es el camino que usa `crearBitacora` en producción.
+     * `respaldo` es la outbox del servidor: si la acepta, no hace falta la
+     * cola del navegador. Es el camino que usa `crearBitacora` en producción.
      */
-    async registrar(payload) {
+    async registrar(payload, respaldo = null) {
       try {
         await enviar(payload);
         return { ok: true, error: null };
       } catch (err) {
+        if (typeof respaldo === 'function') {
+          try {
+            if (await respaldo(payload)) {
+              return { ok: false, error: err, enOutbox: true, guardado: true, descartado: 0, duplicado: false };
+            }
+          } catch {}
+        }
         const guardado = this.encolar(payload);
-        return { ok: false, error: err, ...guardado };
+        return { ok: false, error: err, enOutbox: false, ...guardado };
       }
     },
 

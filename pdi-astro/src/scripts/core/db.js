@@ -22,11 +22,12 @@
 //  viene de mezclar datos ficticios con reales; esa mezcla está eliminada.
 // ===========================================================================
 import { Surreal } from 'surrealdb';
-import { filtrarPorSede, filtrarCasos, sedePermitida } from '../auth/alcance.js';
+import { filtrarPorSede, filtrarCasos, sedePermitida, SEDES_OBLIGATORIAS_ACTIVAS } from '../auth/alcance.js';
 import { AnemiaCalculator } from '../utils/AnemiaCalculator.js';
 import { ToastView } from '../views/ToastView.js';
 import { guardarSnapshot, leerSnapshot, borrarCachesSesionPrefijo } from './snapshot.js';
 import { crearColaAuditoria } from './auditoriaEnvio.js';
+import { crearSelloAuditoria } from './selloAuditoria.js';
 import { estrategiasDesdePrograma, SERVICIOS_VOLUNTARIADO, nombreServicioVisible } from '../../data/opcionesBeneficiario.js';
 import {
   normalizarParentesco,
@@ -1047,6 +1048,13 @@ export async function fetchExpediente(personaId, { inactivo = false } = {}) {
         console.error(
           `[PDI] Esquema distinto entre API (${datos.esquema}) y cliente (${ESQUEMA_USUARIO ? 1 : 0}). ` +
           'Revisa ESQUEMA_USUARIO/PUBLIC_ESQUEMA_USUARIO en el despliegue.',
+        );
+      }
+      if (datos.sedesObligatorias != null
+        && Boolean(Number(datos.sedesObligatorias)) !== SEDES_OBLIGATORIAS_ACTIVAS) {
+        console.error(
+          `[PDI] Sedes obligatorias distinto entre API (${datos.sedesObligatorias}) y cliente ` +
+          `(${SEDES_OBLIGATORIAS_ACTIVAS ? 1 : 0}). Revisa SEDES_OBLIGATORIAS/PUBLIC_SEDES_OBLIGATORIAS.`,
         );
       }
       const sedes = Array.isArray(datos.sedes) ? datos.sedes : [];
@@ -3335,13 +3343,63 @@ const colaAuditoria = (() => {
   }
 })();
 
+// El sello lo firma el servidor: permite escribir la outbox clínica sin cookie
+// y sin que el cliente pueda inventar la autoría.
+const selloAuditoria = (() => {
+  try {
+    const almacen = typeof localStorage !== 'undefined' ? localStorage : null;
+    if (!almacen || typeof fetch !== 'function') return null;
+    return crearSelloAuditoria({ almacen, fetchImpl: fetch });
+  } catch {
+    return null;
+  }
+})();
+
+/**
+ * Escribe el evento en la outbox de la base clínica. Es el respaldo durable:
+ * sobrevive a que el navegador no vuelva a abrirse. Devuelve `true` si quedó
+ * guardado allí.
+ */
+async function guardarEnOutbox(payload) {
+  if (!selloAuditoria || !payload?.evento_id) return false;
+  // Sin red no se puede escribir en la base: ir directo a la cola local.
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) return false;
+  const sello = await selloAuditoria.obtener();
+  if (!sello) return false;
+  try {
+    await ejecutar(
+      `CREATE auditoria_outbox CONTENT {
+        evento_id: $eid,
+        sello: $sello,
+        payload: $payload,
+        creado_el: time::now()
+      };`,
+      { eid: payload.evento_id, sello, payload },
+    );
+    return true;
+  } catch (err) {
+    // Si el evento ya estaba en la outbox (reintento), no es un fallo.
+    if (/idx_outbox_evento|already contains/i.test(String(err?.message || err))) return true;
+    console.warn('[PDI] No se pudo escribir la outbox de auditoría:', err?.message || err);
+    return false;
+  }
+}
+
+/** Deja un sello listo antes de que haga falta (se llama al arrancar). */
+export async function prepararSelloAuditoria() {
+  if (!selloAuditoria) return null;
+  // Forzar al arrancar: el sello va ligado a la identidad y una pestaña pudo
+  // quedar abierta con otra cuenta.
+  try { return await selloAuditoria.obtener({ forzar: true }); } catch { return null; }
+}
+
 /** Avisa como máximo una vez por sesión: un toast en cada arranque estorba. */
-function avisarUnaVez(clave, titulo, mensaje) {
+function avisarUnaVez(clave, titulo, mensaje, tipo = 'danger') {
   try {
     if (sessionStorage.getItem(clave) === '1') return;
     sessionStorage.setItem(clave, '1');
   } catch {}
-  try { ToastView.show(titulo, mensaje, 'danger'); } catch {}
+  try { ToastView.show(titulo, mensaje, tipo); } catch {}
 }
 
 /** Estado de la cola para el indicador de la interfaz. */
@@ -3427,8 +3485,17 @@ export async function crearBitacora(entry) {
     diff: diffValido,
   };
   if (colaAuditoria) {
-    const resultado = await colaAuditoria.registrar(payload);
+    const resultado = await colaAuditoria.registrar(payload, guardarEnOutbox);
     if (resultado.ok) return true;
+    if (resultado.enOutbox) {
+      avisarUnaVez(
+        'pdi_auditoria_en_outbox',
+        'Auditoría',
+        'El evento quedó en la cola segura y se enviará solo.',
+        'warning',
+      );
+      return false;
+    }
     if (resultado.guardado === false) {
       avisarUnaVez(
         'pdi_auditoria_sin_almacen',
@@ -3453,6 +3520,15 @@ export async function crearBitacora(entry) {
     await enviarBitacora(payload);
     return true;
   } catch (err) {
+    if (await guardarEnOutbox(payload)) {
+      avisarUnaVez(
+        'pdi_auditoria_en_outbox',
+        'Auditoría',
+        'El evento quedó en la cola segura y se enviará solo.',
+        'warning',
+      );
+      return false;
+    }
     avisarFallo('Bitácora de auditoría', err);
     return false;
   }
