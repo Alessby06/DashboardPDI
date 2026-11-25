@@ -2,6 +2,7 @@ import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 import { ScrollPane, puedeScrollear, resizeLenis } from './ScrollPane.js';
 import { esScrollNativo } from './scrollMode.js';
+import { crearFiltroReversaRueda } from './scrollWheelGuard.js';
 
 // Primera fase de diagnóstico: solo una instancia en el viewport principal.
 const HABILITAR_LENIS_EN_PANELES = false;
@@ -158,6 +159,28 @@ export const ScrollManager = {
       return false;
     };
 
+    const filtrarReversaRueda = crearFiltroReversaRueda();
+    const virtualScroll = ({ deltaY, event }) => {
+      if (event.type !== 'wheel') return true;
+
+      const root = wrapper || document.documentElement;
+      const path = event.composedPath?.() || [];
+      const rootIndex = path.indexOf(root);
+      const nodes = rootIndex < 0 ? path : path.slice(0, rootIndex);
+      if (nodes.some((node) => node instanceof HTMLElement && preventNested(node))) return true;
+
+      const ignorar = filtrarReversaRueda({
+        deltaY,
+        ahora: performance.now(),
+        isScrolling: this.main?.isScrolling,
+        direction: this.main?.direction,
+      });
+      if (!ignorar) return true;
+
+      event.preventDefault();
+      return false;
+    };
+
     // Login e index no usan AppLayout: Lenis va sobre la ventana.
     if (!wrapper) {
       this.mainWrapper = null;
@@ -169,6 +192,7 @@ export const ScrollManager = {
         touchMultiplier: 1.6,
         allowNestedScroll: false,
         prevent: preventNested,
+        virtualScroll,
         autoRaf: false
       });
       const remide = () => resizeLenis(this.main);
@@ -191,6 +215,7 @@ export const ScrollManager = {
       touchMultiplier: 1.6,
       allowNestedScroll: false,
       prevent: preventNested,
+      virtualScroll,
       autoRaf: false
     });
 
