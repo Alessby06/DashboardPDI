@@ -101,7 +101,11 @@ if (!window.__pdiSmoothScrollBound) {
     ScrollManager.start();
     ScrollManager._syncModales?.();
   });
-  document.addEventListener('astro:page-load', () => ScrollManager.refresh());
+  document.addEventListener('astro:page-load', () => {
+    ScrollManager.rebind();
+    ScrollManager.refresh();
+    ScrollManager.start();
+  });
 
   enlazarAnclas();
 
