@@ -9,6 +9,7 @@ import { AccionNutricionalModel } from '../models/AccionNutricionalModel.js';
 import { BeneficiarioModel } from '../models/BeneficiarioModel.js';
 import { ToastView } from './ToastView.js';
 import { escapar } from '../utils/HtmlHelper.js';
+import { pintarFilas } from '../utils/FlipTabla.js';
 import { CsvExporter } from '../utils/CsvExporter.js';
 import { confirmar } from '../ui/confirmacion.js';
 import { resizeLenis } from '../core/ScrollPane.js';
@@ -431,17 +432,17 @@ export const AccionesNutricionalesView = {
 
     const lista = AccionNutricionalModel.getAllMonitoreos();
     if (!lista.length) {
-      tbody.innerHTML = `
+      pintarFilas(tbody, `
         <tr>
           <td colspan="6" style="text-align: center; padding: 24px; color: var(--text-dim);">
             No hay registros de monitoreo de reparto. Utiliza el formulario superior para registrar la supervisión de un punto de entrega.
           </td>
         </tr>
-      `;
+      `);
       return;
     }
 
-    tbody.innerHTML = lista.map(item => {
+    pintarFilas(tbody, lista.map(item => {
       const o = item.observacionesItems || {};
       const hallazgos = [];
       if (o.incidenteAlimentos) hallazgos.push('<span class="badge" style="background:var(--gt-red-bg); color:var(--gt-red); font-size:11px;">Incidente Alimentos</span>');
@@ -466,7 +467,7 @@ export const AccionesNutricionalesView = {
           <td style="font-size: 12px; color: var(--text-muted);">${escapar(item.facilitadora || item.creadoPor)}</td>
         </tr>
       `;
-    }).join('');
+    }).join(''));
   },
 
   renderTablaCapacitaciones() {
@@ -475,17 +476,17 @@ export const AccionesNutricionalesView = {
 
     const lista = AccionNutricionalModel.getAllCapacitaciones();
     if (!lista.length) {
-      tbody.innerHTML = `
+      pintarFilas(tbody, `
         <tr>
           <td colspan="6" style="text-align: center; padding: 24px; color: var(--text-dim);">
             No hay capacitaciones a voluntarias registradas.
           </td>
         </tr>
-      `;
+      `);
       return;
     }
 
-    tbody.innerHTML = lista.map(item => `
+    pintarFilas(tbody, lista.map(item => `
       <tr class="padron-tr">
         <td style="font-weight: 600; color: var(--text-main);">${escapar(item.fecha)}</td>
         <td>
@@ -502,7 +503,7 @@ export const AccionesNutricionalesView = {
         <td style="text-align: center; font-weight: 700; color: var(--gt-yellow);">${item.canastas}</td>
         <td style="font-size: 12px; color: var(--text-muted);">${escapar(item.creadoPor)}</td>
       </tr>
-    `).join('');
+    `).join(''));
   },
 
   renderTablaSesionesFamilias() {
@@ -511,17 +512,17 @@ export const AccionesNutricionalesView = {
 
     const lista = AccionNutricionalModel.getAllSesionesFamilias();
     if (!lista.length) {
-      tbody.innerHTML = `
+      pintarFilas(tbody, `
         <tr>
           <td colspan="7" style="text-align: center; padding: 24px; color: var(--text-dim);">
             No hay sesiones educativas a familias registradas.
           </td>
         </tr>
-      `;
+      `);
       return;
     }
 
-    tbody.innerHTML = lista.map(item => `
+    pintarFilas(tbody, lista.map(item => `
       <tr class="padron-tr">
         <td style="font-weight: 600; color: var(--text-main);">${escapar(item.fecha)}</td>
         <td>
@@ -539,7 +540,7 @@ export const AccionesNutricionalesView = {
         <td style="text-align: center; font-weight: 700; color: var(--gt-yellow);">${item.canastas}</td>
         <td style="font-size: 12px; color: var(--text-muted);">${escapar(item.facilitadora || item.creadoPor)}</td>
       </tr>
-    `).join('');
+    `).join(''));
   },
 
   renderTablaCampanasSalud() {
@@ -548,17 +549,17 @@ export const AccionesNutricionalesView = {
 
     const lista = AccionNutricionalModel.getAllCampanasSalud();
     if (!lista.length) {
-      tbody.innerHTML = `
+      pintarFilas(tbody, `
         <tr>
           <td colspan="6" style="text-align: center; padding: 24px; color: var(--text-dim);">
             No hay atenciones de campañas CRED registradas.
           </td>
         </tr>
-      `;
+      `);
       return;
     }
 
-    tbody.innerHTML = lista.map(item => {
+    pintarFilas(tbody, lista.map(item => {
       let badgeHb = 'var(--gt-green)';
       let bgHb = 'var(--gt-green-bg)';
       if (item.resultadoHb === 'En riesgo') { badgeHb = 'var(--gt-yellow)'; bgHb = 'var(--gt-yellow-bg)'; }
@@ -592,7 +593,7 @@ export const AccionesNutricionalesView = {
           <td style="font-size: 12px; color: var(--text-muted);">${escapar(item.creadoPor)}</td>
         </tr>
       `;
-    }).join('');
+    }).join(''));
   },
 
   // --- EXPORTACIONES A CSV ---

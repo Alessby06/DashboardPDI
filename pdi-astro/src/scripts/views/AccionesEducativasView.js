@@ -11,6 +11,7 @@ import { VoluntarioModel } from '../models/VoluntarioModel.js';
 import { ColaboradorModel } from '../models/ColaboradorModel.js';
 import { ToastView } from './ToastView.js';
 import { escapar } from '../utils/HtmlHelper.js';
+import { pintarFilas } from '../utils/FlipTabla.js';
 import { CsvExporter } from '../utils/CsvExporter.js';
 import { confirmar } from '../ui/confirmacion.js';
 
@@ -410,17 +411,17 @@ export const AccionesEducativasView = {
 
     const lista = AccionEducativaModel.getAllAcciones();
     if (!lista.length) {
-      tbody.innerHTML = `
+      pintarFilas(tbody, `
         <tr>
           <td colspan="7" style="text-align: center; padding: 24px; color: var(--text-dim);">
             No hay acciones socio-educativas comunitarias registradas. Utiliza el formulario superior para registrar una sesión.
           </td>
         </tr>
-      `;
+      `);
       return;
     }
 
-    tbody.innerHTML = lista.map(item => `
+    pintarFilas(tbody, lista.map(item => `
       <tr class="padron-tr">
         <td style="font-weight: 600; color: var(--text-main);">${escapar(item.fecha)}</td>
         <td>
@@ -446,7 +447,7 @@ export const AccionesEducativasView = {
         <td style="text-align: center; font-weight: 700; color: var(--gt-yellow);">${item.canastas}</td>
         <td style="font-size: 12px; color: var(--text-muted);">${escapar(item.facilitadora || item.creadoPor)}</td>
       </tr>
-    `).join('');
+    `).join(''));
   },
 
   renderTablaMonitoreos() {
@@ -455,17 +456,17 @@ export const AccionesEducativasView = {
 
     const lista = AccionEducativaModel.getAllMonitoreos();
     if (!lista.length) {
-      tbody.innerHTML = `
+      pintarFilas(tbody, `
         <tr>
           <td colspan="5" style="text-align: center; padding: 24px; color: var(--text-dim);">
             No hay monitoreos de sedes registrados. Utiliza el formulario para registrar la supervisión de un espacio.
           </td>
         </tr>
-      `;
+      `);
       return;
     }
 
-    tbody.innerHTML = lista.map(item => {
+    pintarFilas(tbody, lista.map(item => {
       const items = item.observacionesItems || {};
       return `
         <tr class="padron-tr">
@@ -486,7 +487,7 @@ export const AccionesEducativasView = {
           <td style="font-size: 12px; color: var(--text-muted);">${escapar(item.facilitadora || item.creadoPor)}</td>
         </tr>
       `;
-    }).join('');
+    }).join(''));
   },
 
   renderTablaSeguimiento() {
@@ -495,17 +496,17 @@ export const AccionesEducativasView = {
 
     const lista = AccionEducativaModel.getAllSeguimientos();
     if (!lista.length) {
-      tbody.innerHTML = `
+      pintarFilas(tbody, `
         <tr>
           <td colspan="5" style="text-align: center; padding: 24px; color: var(--text-dim);">
             No hay registros de seguimiento socio-educativo individual.
           </td>
         </tr>
-      `;
+      `);
       return;
     }
 
-    tbody.innerHTML = lista.map(item => `
+    pintarFilas(tbody, lista.map(item => `
       <tr class="padron-tr">
         <td style="font-weight: 600; color: var(--text-main);">${escapar(item.fecha)}</td>
         <td style="font-weight: 600; color: var(--text-main);">${escapar(item.beneficiarioNombre)}</td>
@@ -526,7 +527,7 @@ export const AccionesEducativasView = {
         </td>
         <td style="font-size: 12px; color: var(--text-muted);">${escapar(item.facilitadora || item.creadoPor)}</td>
       </tr>
-    `).join('');
+    `).join(''));
   },
 
   exportarAccionesCSV() {

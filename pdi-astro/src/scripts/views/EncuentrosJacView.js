@@ -8,6 +8,7 @@ import { EncuentroJacModel } from '../models/EncuentroJacModel.js';
 import { ColaboradorModel } from '../models/ColaboradorModel.js';
 import { ToastView } from './ToastView.js';
 import { escapar } from '../utils/HtmlHelper.js';
+import { pintarFilas } from '../utils/FlipTabla.js';
 import { distritoDeSede } from '../core/catalogos.js';
 
 function porId(id) {
@@ -167,17 +168,17 @@ export const EncuentrosJacView = {
     if (!tbody) return;
 
     if (!lista.length) {
-      tbody.innerHTML = `
+      pintarFilas(tbody, `
         <tr>
           <td colspan="6" style="text-align: center; padding: 24px; color: var(--text-dim);">
             Aún no hay encuentros JAC registrados. Utiliza el formulario superior para registrar un círculo formativo o actividad con iglesias aliadas.
           </td>
         </tr>
-      `;
+      `);
       return;
     }
 
-    tbody.innerHTML = lista.map(item => {
+    pintarFilas(tbody, lista.map(item => {
       const totalNna = (item.participantesNinos || 0) + (item.participantesPreadolescentes || 0);
       return `
         <tr class="padron-tr">
@@ -205,7 +206,7 @@ export const EncuentrosJacView = {
           <td style="font-size: 12px; color: var(--text-muted);">${escapar(item.facilitadora)}</td>
         </tr>
       `;
-    }).join('');
+    }).join(''));
   },
 };
 

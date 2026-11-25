@@ -1,4 +1,5 @@
 import { attrsDe } from '../core/inlineCall.js';
+import { prepararFilas, animarFilas } from '../utils/FlipTabla.js';
 // Vista: Padrón y Directorio de Colaboradores e Instituciones Aliadas (PDI)
 // Asociación Cultural y Educativa Johannes Gutenberg - Lima Norte
 
@@ -483,8 +484,11 @@ export const ColaboradoresView = {
 
     if (!tbody) return;
 
+    const flip = prepararFilas(tbody);
+
     if (!datos || datos.length === 0) {
       tbody.innerHTML = '';
+      animarFilas(tbody, flip);
       if (emptyState) {
         emptyState.style.display = 'block';
         const tieneFiltros = Boolean(busquedaActual || filtroDistritoActual || filtroEstrategiaActual);
@@ -609,6 +613,7 @@ export const ColaboradoresView = {
         </tr>
       `;
     }).join('');
+    animarFilas(tbody, flip);
   },
 
   renderMobileCards(datos) {

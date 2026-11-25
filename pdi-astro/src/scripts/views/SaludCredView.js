@@ -1,4 +1,5 @@
 import { attrsDe } from '../core/inlineCall.js';
+import { prepararFilas, animarFilas } from '../utils/FlipTabla.js';
 // Vista: Módulo de Salud y Nutrición CRED
 import { crear as crearFiltros } from '../utils/Filters.js';
 import { crearStore } from '../utils/FilterStore.js';
@@ -592,6 +593,8 @@ export const SaludCredView = {
     if (enMovil) { if (tbody) tbody.innerHTML = ""; }
     else { if (mobileContainer) mobileContainer.innerHTML = ""; }
 
+    const flip = tbody && !enMovil ? prepararFilas(tbody) : null;
+
     if (beneficiarios.length === 0) {
       const emptyHtml = `
         <tr>
@@ -617,6 +620,7 @@ export const SaludCredView = {
           </div>
         `;
       }
+      animarFilas(tbody, flip);
       return;
     }
 
@@ -683,6 +687,7 @@ export const SaludCredView = {
           </tr>
         `;
       }).join("");
+      animarFilas(tbody, flip);
     }
 
     if (mobileContainer && enMovil) {

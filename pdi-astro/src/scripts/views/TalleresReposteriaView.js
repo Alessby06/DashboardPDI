@@ -6,6 +6,7 @@ import { VoluntarioModel } from '../models/VoluntarioModel.js';
 import { ColaboradorModel } from '../models/ColaboradorModel.js';
 import { ToastView } from './ToastView.js';
 import { escapar } from '../utils/HtmlHelper.js';
+import { pintarFilas } from '../utils/FlipTabla.js';
 import { distritoDeSede } from '../core/catalogos.js';
 
 function porId(id) {
@@ -170,17 +171,17 @@ export const TalleresReposteriaView = {
     if (!tbody) return;
 
     if (!lista.length) {
-      tbody.innerHTML = `
+      pintarFilas(tbody, `
         <tr>
           <td colspan="6" style="text-align: center; padding: 24px; color: var(--text-dim);">
             Aún no hay talleres productivos de repostería registrados. Utiliza el formulario superior para registrar una sesión.
           </td>
         </tr>
-      `;
+      `);
       return;
     }
 
-    tbody.innerHTML = lista.map(item => `
+    pintarFilas(tbody, lista.map(item => `
       <tr class="padron-tr">
         <td style="font-weight: 600; color: var(--text-main);">${escapar(item.fecha)}</td>
         <td>
@@ -205,7 +206,7 @@ export const TalleresReposteriaView = {
         </td>
         <td style="font-size: 12px; color: var(--text-muted);">${escapar(item.maestra)}</td>
       </tr>
-    `).join('');
+    `).join(''));
   },
 };
 

@@ -8,6 +8,7 @@ import { TallerBtfModel } from '../models/TallerBtfModel.js';
 import { ColaboradorModel } from '../models/ColaboradorModel.js';
 import { ToastView } from './ToastView.js';
 import { escapar } from '../utils/HtmlHelper.js';
+import { pintarFilas } from '../utils/FlipTabla.js';
 import { distritoDeSede } from '../core/catalogos.js';
 
 function porId(id) {
@@ -158,17 +159,17 @@ export const TalleresBtfView = {
     if (!tbody) return;
 
     if (!lista.length) {
-      tbody.innerHTML = `
+      pintarFilas(tbody, `
         <tr>
           <td colspan="6" style="text-align: center; padding: 24px; color: var(--text-dim);">
             Aún no hay sesiones de Buen Trato en Familia (BTF) registradas. Utiliza el formulario superior para registrar la primera escuela para padres.
           </td>
         </tr>
-      `;
+      `);
       return;
     }
 
-    tbody.innerHTML = lista.map(item => `
+    pintarFilas(tbody, lista.map(item => `
       <tr class="padron-tr">
         <td style="font-weight: 600; color: var(--text-main);">${escapar(item.fecha)}</td>
         <td>
@@ -190,7 +191,7 @@ export const TalleresBtfView = {
         </td>
         <td style="font-size: 12px; color: var(--text-muted);">${escapar(item.responsable)}</td>
       </tr>
-    `).join('');
+    `).join(''));
   },
 };
 

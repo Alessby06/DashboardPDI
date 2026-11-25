@@ -1,4 +1,5 @@
 import { attrsDe } from '../core/inlineCall.js';
+import { prepararFilas, animarFilas } from '../utils/FlipTabla.js';
 import { crear as crearFiltros } from '../utils/Filters.js';
 import { crearStore } from '../utils/FilterStore.js';
 import { Dropdown } from '../utils/Dropdown.js';
@@ -907,6 +908,7 @@ export const AuditView = {
     };
 
     if (tbody && !enMovil) {
+      const flip = prepararFilas(tbody);
       if (logs.length === 0) {
         tbody.innerHTML = `
           <tr>
@@ -984,6 +986,7 @@ export const AuditView = {
           `;
         }).join("");
       }
+      animarFilas(tbody, flip);
     }
 
     if (mobileContainer && enMovil) {

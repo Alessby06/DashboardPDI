@@ -1,4 +1,5 @@
 import { attrsDe } from '../core/inlineCall.js';
+import { prepararFilas, animarFilas } from '../utils/FlipTabla.js';
 // Vista: Padrón y Gestión de Voluntariados y Personal Comunitario (PDI)
 // Asociación Cultural Johannes Gutenberg - Lima Norte
 
@@ -586,6 +587,8 @@ export const VoluntariadosView = {
     if (enMovil) { if (tbody) tbody.innerHTML = ""; }
     else { if (mobileContainer) mobileContainer.innerHTML = ""; }
 
+    const flip = tbody && !enMovil ? prepararFilas(tbody) : null;
+
     if (voluntarios.length === 0) {
       const emptyHtml = `
         <tr>
@@ -611,6 +614,7 @@ export const VoluntariadosView = {
           </div>
         `;
       }
+      animarFilas(tbody, flip);
       return;
     }
 
@@ -693,6 +697,7 @@ export const VoluntariadosView = {
           </tr>
         `;
       }).join("");
+      animarFilas(tbody, flip);
     }
 
     // Render Cards (Mobile)

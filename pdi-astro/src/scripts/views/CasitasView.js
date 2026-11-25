@@ -1,4 +1,5 @@
 import { attrsDe } from '../core/inlineCall.js';
+import { prepararFilas, animarFilas } from '../utils/FlipTabla.js';
 // Vista: Acompañamiento Educativo (Casita del Saber)
 //
 // La página ya no es "el pase de hoy": es una jornada de un día y una sede.
@@ -1112,6 +1113,8 @@ export const CasitasView = {
     if (enMovil) { if (tbody) tbody.innerHTML = ""; }
     else { if (mobileContainer) mobileContainer.innerHTML = ""; }
 
+    const flip = tbody && !enMovil ? prepararFilas(tbody) : null;
+
     if (casitaList.length === 0) {
       const mensaje = !this._jornadaSede
         ? { titulo: "Elige una sede", detalle: "La jornada se abre con un día y una sede." }
@@ -1139,6 +1142,7 @@ export const CasitasView = {
           </div>
         `;
       }
+      animarFilas(tbody, flip);
       return;
     }
 
@@ -1187,6 +1191,7 @@ export const CasitasView = {
         </tr>
       `;
       }).join("");
+      animarFilas(tbody, flip);
     }
 
     if (mobileContainer && enMovil) {
