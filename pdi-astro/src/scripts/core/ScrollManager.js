@@ -419,7 +419,8 @@ export const ScrollManager = {
     if (!this.enabled) return;
     const wrapper = document.querySelector('.content-viewport');
     if (!wrapper) return;
-    if (this.main && this.mainWrapper === wrapper) return;
+    const content = wrapper.querySelector('.smooth-content') || wrapper.firstElementChild;
+    if (this.main && this.mainWrapper === wrapper && this.main.options?.content === content) return;
     this.main?.destroy();
     this.main = null;
     this._createMain();

@@ -91,6 +91,7 @@ if (!window.__pdiSmoothScrollBound) {
   ScrollManager.init();
 
   document.addEventListener('astro:before-swap', () => {
+    document.body?.classList?.remove('filter-sheet-open', 'sedes-sheet-open', 'pdi-drawer-open');
     ScrollManager.stop();
   });
   document.addEventListener('astro:after-swap', () => {
