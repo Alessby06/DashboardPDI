@@ -1179,7 +1179,7 @@ body[data-page="dashboard"] #mainContent {
   /* Cabecera: la fecha deja de ser el titular; el dato manda. */
   .dash-eyebrow {
     margin-bottom: 6px;
-    font-size: 10px;
+    font-size: 11px;
     letter-spacing: 0.08em;
   }
   .dash-eyebrow-app { display: none; }
@@ -1194,6 +1194,11 @@ body[data-page="dashboard"] #mainContent {
     gap: 6px 10px;
   }
   .dash-punto-vivo { font-size: 11px; }
+  .dash-select { min-height: 44px; }
+  .dash-boton {
+    min-width: 44px;
+    min-height: 44px;
+  }
 
   /* Hero: una cifra protagonista y dos secundarias, no tres bloques. */
   .dash-hero {
@@ -1341,8 +1346,20 @@ body[data-page="dashboard"] #mainContent {
   .dash-fold .dash-clinica,
   .dash-fold .dash-panel { padding: 14px 2px 16px; }
   .dash-fold .dash-servicios-seccion { padding: 12px 2px 4px; }
+  /* La cabecera se oculta a la vista, no del árbol: el h2 sigue nombrando
+     la sección plegada para lectores de pantalla. */
   .dash-fold .dash-clinica-cab,
-  .dash-fold .dash-seccion-cab { display: none; }
+  .dash-fold .dash-seccion-cab {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
   .dash-fold .dash-servicios {
     grid-template-columns: 1fr;
     gap: 0;
@@ -1391,7 +1408,14 @@ body[data-page="dashboard"] #mainContent {
   .dash-clinica-pie {
     margin-top: 12px;
     padding-top: 10px;
+    font-size: 11px;
   }
+  .dash-banda-texto span,
+  .dash-banda-casos,
+  .dash-servicio-extra,
+  .dash-servicio-nota,
+  .dash-vol-flag,
+  .dash-matrix-mobile-total { font-size: 11px; }
   /* La cabecera del pliegue ya da el total; dentro no se repite. */
   .dash-fold .dash-prevalencia { display: none; }
   .dash-fold .dash-clinica-resumen {
@@ -1407,6 +1431,11 @@ body[data-page="dashboard"] #mainContent {
     margin-top: 0;
     padding-top: 12px;
   }
+}
+
+/* A 320 px la unidad empuja el título a dos líneas; el contexto ya la dice. */
+@media (max-width: 360px) {
+  .dash-prioridad-cifra span { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
