@@ -403,6 +403,9 @@ export const SedesView = {
         backdrop.classList.remove("is-dragging");
         backdrop.style.removeProperty("--sedes-velo");
       }
+      if (panel && !yaAbierta) {
+        void panel.offsetWidth;
+      }
       panel?.classList.add("open");
       backdrop?.classList.add("open");
       document.body.classList.add("sedes-sheet-open");
@@ -780,11 +783,9 @@ export const SedesView = {
         <div class="sedes-sheet-pill-wrap" aria-hidden="true">
           <span class="sedes-sheet-pill"></span>
         </div>
-        <button type="button" class="sedes-sheet-close"
+        <button type="button" class="sedes-sheet-close-sr sr-only"
           ${attrsDe(`window.PDI?.SedesView?.cerrarDetalleMovil()`)}
-          aria-label="Cerrar ficha de sede" title="Cerrar ficha de sede">
-          ${iconHtml("accion.cerrar", { size: 16 })}
-        </button>
+          aria-label="Cerrar ficha de sede" title="Cerrar ficha de sede">Cerrar ficha de sede</button>
       </div>
       <div class="sedes-detail-card">
         <!-- Header de la Ficha Técnica -->
@@ -943,6 +944,7 @@ if (typeof window !== "undefined") {
     if (window.PDI?.SedesView) window.PDI.SedesView.resetFilters();
   };
   window.toggleSedesInnerDropdown = function (dropdownId) {
+    if (window.toggleInnerFilterDropdown) { window.toggleInnerFilterDropdown(dropdownId); return; }
     const el = document.getElementById(dropdownId);
     if (el) el.classList.toggle("open");
   };

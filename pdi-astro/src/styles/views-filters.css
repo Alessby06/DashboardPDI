@@ -961,7 +961,6 @@
     transform-origin: 50% 100%;
     transform: var(--sheet-closed);
     backface-visibility: hidden;
-    will-change: transform;
     animation: pdi-sheet-hide 0s linear var(--sheet-out) both;
     transition: transform var(--sheet-in) var(--ease-drawer);
     overflow: hidden;
@@ -969,6 +968,7 @@
 
   .audit-filter-panel-wrap .audit-filters-dropdown.open .audit-filters-menu {
     visibility: visible;
+    will-change: transform;
     transform: var(--sheet-open);
     animation: none;
     transition: transform var(--sheet-in) var(--ease-drawer);

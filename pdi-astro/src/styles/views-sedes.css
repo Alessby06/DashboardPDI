@@ -563,9 +563,15 @@
 
 /* === ADAPTACIÓN RESPONSIVA MÓVIL (MASTER-DETAIL Y BOTTOM SHEET) === */
 @media (max-width: 840px) {
-  /* Anular contain: layout del ancestro para que position: fixed ancle a la pantalla real */
-  #mainContent.content-viewport {
+  body.sedes-sheet-open #mainContent {
+    z-index: 60;
+  }
+
+  /* Anular contain: layout y content-visibility del ancestro para que position: fixed ancle a la pantalla real */
+  #mainContent.content-viewport,
+  #mainContent .app-view.active {
     contain: none;
+    content-visibility: visible;
   }
 
   .sedes-split-wrapper {
@@ -613,7 +619,7 @@
   }
 
   /* Detalle de sede en móvil: Bottom Sheet Drawer con altura dinámica */
-  .sedes-detail-column {
+  #sedesDetailPanel.sedes-detail-column {
     position: fixed !important;
     left: 0 !important;
     right: 0 !important;
@@ -637,13 +643,13 @@
     visibility: hidden;
     animation: pdi-sheet-hide 0s linear var(--sheet-out) both;
     transition: transform var(--sheet-in) var(--ease-drawer);
-    will-change: transform;
     z-index: 1200 !important;
     padding-bottom: max(24px, env(safe-area-inset-bottom, 24px)) !important;
   }
 
-  .sedes-detail-column.open {
+  #sedesDetailPanel.sedes-detail-column.open {
     transform: var(--sheet-open);
+    will-change: transform;
     visibility: visible;
     animation: none;
     transition: transform var(--sheet-in) var(--ease-drawer);
