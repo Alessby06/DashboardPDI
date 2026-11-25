@@ -159,28 +159,9 @@ export const ScrollManager = {
       return false;
     };
 
-    const filtrarReversaRueda = crearFiltroReversaRueda();
-    const virtualScroll = ({ deltaY, event }) => {
+    const virtualScroll = ({ event }) => {
       if (event.type !== 'wheel') return true;
-
-      const root = wrapper || document.documentElement;
-      const path = event.composedPath?.() || [];
-      const rootIndex = path.indexOf(root);
-      const nodes = rootIndex < 0 ? path : path.slice(0, rootIndex);
-      if (nodes.some((node) => node instanceof HTMLElement && preventNested(node))) return true;
-
-      const enFondo = this.main && typeof this.main.limit === 'number'
-        && this.main.scroll >= this.main.limit - 2;
-      const ignorar = !enFondo && filtrarReversaRueda({
-        deltaY,
-        ahora: performance.now(),
-        isScrolling: this.main?.isScrolling,
-        direction: this.main?.direction,
-      });
-      if (!ignorar) return true;
-
-      event.preventDefault();
-      return false;
+      return true;
     };
 
     // Login e index no usan AppLayout: Lenis va sobre la ventana.
@@ -426,6 +407,7 @@ export const ScrollManager = {
     this.main?.destroy();
     this.main = null;
     this._createMain();
+    this._tick();
   },
 
   refresh() {
