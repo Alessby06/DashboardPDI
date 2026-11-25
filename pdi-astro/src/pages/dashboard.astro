@@ -12,7 +12,7 @@ import Icon from '../components/Icon.astro';
           <p class="dash-eyebrow"><span class="dash-eyebrow-app">Infancia Saludable · </span>Comas y Carabayllo</p>
           <h1 class="dash-titulo"><time id="dashFolioFecha">hoy</time></h1>
           <p class="dash-subtitulo">
-            <span><strong id="kpiSedesActivas">······</strong> sedes activas</span>
+            <span><strong id="kpiSedesActivas">······</strong> sedes <span class="dash-sedes-largo">activas</span></span>
             <span class="dash-punto-vivo" id="dashEstado" role="status" aria-label="Estado de conexión">
               <span class="dash-estado-dot" aria-hidden="true"></span>
               <span id="dashEstadoTexto">Cargando…</span>
@@ -220,12 +220,12 @@ import Icon from '../components/Icon.astro';
             </header>
             <div class="dash-servicio-principal">
               <strong id="dashAlimUsuarios">······</strong>
-              <span>usuarios con ración</span>
+              <span>usuarios <span class="dash-servicio-unidad-largo">con ración</span></span>
             </div>
             <dl class="dash-filas">
-              <div><dt>Desayuno infantil</dt><dd id="dashAlimDesayuno">······</dd></div>
-              <div><dt>Lonchera infantil</dt><dd id="dashAlimLonchera">······</dd></div>
-              <div><dt>Tamizajes CRED</dt><dd id="dashAlimCred">······</dd></div>
+              <div><dt>Desayuno <span class="dash-filas-largo">infantil</span></dt><dd id="dashAlimDesayuno">······</dd></div>
+              <div><dt>Lonchera <span class="dash-filas-largo">infantil</span></dt><dd id="dashAlimLonchera">······</dd></div>
+              <div><dt><span class="dash-filas-largo">Tamizajes </span>CRED</dt><dd id="dashAlimCred">······</dd></div>
             </dl>
           </article>
 
@@ -236,11 +236,11 @@ import Icon from '../components/Icon.astro';
             </header>
             <div class="dash-servicio-principal">
               <strong id="dashEduActivos">······</strong>
-              <span>usuarios acompañados</span>
+              <span>usuarios <span class="dash-servicio-unidad-largo">acompañados</span></span>
             </div>
             <dl class="dash-filas">
-              <div><dt>Casita del Saber</dt><dd id="dashEduCasita">······</dd></div>
-              <div><dt>Biblioteca comunitaria</dt><dd id="dashEduBiblioteca">······</dd></div>
+              <div><dt>Casita <span class="dash-filas-largo">del Saber</span></dt><dd id="dashEduCasita">······</dd></div>
+              <div><dt>Biblioteca <span class="dash-filas-largo">comunitaria</span></dt><dd id="dashEduBiblioteca">······</dd></div>
             </dl>
             <p class="dash-servicio-nota" id="dashEduNota"></p>
           </article>
@@ -252,13 +252,13 @@ import Icon from '../components/Icon.astro';
             </header>
             <div class="dash-servicio-principal">
               <strong id="dashAspUsuarios">······</strong>
-              <span>usuarios en seguimiento</span>
+              <span>usuarios <span class="dash-servicio-unidad-largo">en seguimiento</span></span>
             </div>
             <p class="dash-servicio-extra"><span id="dashAspCasosMicro">······</span></p>
             <dl class="dash-filas">
-              <div><dt>Con caso en desayuno</dt><dd id="dashAspDesayuno">······</dd></div>
-              <div><dt>Con caso en lonchera</dt><dd id="dashAspLonchera">······</dd></div>
-              <div><dt>Con caso en Casita</dt><dd id="dashAspCasita">······</dd></div>
+              <div><dt><span class="dash-filas-largo">Con caso en </span>Desayuno</dt><dd id="dashAspDesayuno">······</dd></div>
+              <div><dt><span class="dash-filas-largo">Con caso en </span>Lonchera</dt><dd id="dashAspLonchera">······</dd></div>
+              <div><dt><span class="dash-filas-largo">Con caso en </span>Casita</dt><dd id="dashAspCasita">······</dd></div>
             </dl>
           </article>
         </div>

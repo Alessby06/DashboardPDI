@@ -1194,7 +1194,44 @@ body[data-page="dashboard"] #mainContent {
     gap: 6px 10px;
   }
   .dash-punto-vivo { font-size: 11px; }
-  .dash-select { min-height: 44px; }
+
+  /* A: el estado, el filtro y el export comparten fila. */
+  .dash-cabecera {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "eyebrow eyebrow"
+      "title title"
+      "status actions";
+    align-items: center;
+    gap: 6px 10px;
+  }
+  .dash-cabecera-texto { display: contents; }
+  .dash-eyebrow { grid-area: eyebrow; }
+  .dash-titulo { grid-area: title; }
+  .dash-subtitulo {
+    grid-area: status;
+    margin: 0;
+  }
+  .dash-sedes-largo { display: none; }
+  .dash-acciones {
+    grid-area: actions;
+    width: auto;
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+  .dash-selector-wrap { flex: 0 1 auto; }
+  .dash-acciones .pdi-select { width: auto; }
+  .dash-acciones .pdi-select-trigger {
+    width: 176px;
+    min-width: 176px;
+    max-width: 176px;
+  }
+
+  .dash-select {
+    width: 176px;
+    min-height: 44px;
+  }
   .dash-boton {
     min-width: 44px;
     min-height: 44px;
@@ -1364,8 +1401,17 @@ body[data-page="dashboard"] #mainContent {
     grid-template-columns: 1fr;
     gap: 0;
   }
+  /* S1: cada servicio es una fila con el número y el desglose a la vista. */
   .dash-fold .dash-servicio {
-    padding: 14px 0;
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr) auto;
+    grid-template-areas:
+      "icon name num"
+      "icon detail detail"
+      "icon extra extra";
+    gap: 3px 10px;
+    align-items: start;
+    padding: 13px 0;
     background: transparent;
     border: 0;
     border-top: 1px solid var(--dash-rule);
@@ -1373,8 +1419,82 @@ body[data-page="dashboard"] #mainContent {
     box-shadow: none;
   }
   .dash-fold .dash-servicio:first-child { border-top: 0; }
-  .dash-fold .dash-servicio-cab { margin-bottom: 10px; }
-  .dash-fold .dash-filas { margin-top: 10px; }
+  .dash-fold .dash-servicio-cab {
+    display: contents;
+    margin: 0;
+  }
+  .dash-fold .dash-servicio-icon {
+    grid-area: icon;
+    align-self: start;
+  }
+  .dash-fold .dash-servicio-cab h3 {
+    grid-area: name;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+  .dash-fold .dash-servicio-principal {
+    grid-area: num;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1px;
+  }
+  .dash-fold .dash-servicio-principal strong {
+    font-size: 16px;
+    line-height: 1.1;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .dash-fold .dash-servicio-principal span {
+    font-size: 11px;
+    line-height: 1.15;
+    font-weight: 500;
+    color: var(--dash-dim);
+    text-align: right;
+  }
+  .dash-fold .dash-servicio-unidad-largo { display: none; }
+  .dash-fold .dash-filas {
+    grid-area: detail;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 0;
+    margin: 2px 0 0;
+  }
+  .dash-fold .dash-filas > div {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+    padding: 0;
+    border: 0;
+  }
+  .dash-fold .dash-filas > div:not(:last-child)::after {
+    content: "·";
+    margin-left: 7px;
+    color: var(--dash-rule-strong);
+  }
+  .dash-fold .dash-filas dt {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--dash-muted);
+  }
+  .dash-fold .dash-filas dd {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--dash-ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .dash-fold .dash-filas-largo { display: none; }
+  .dash-fold .dash-servicio-extra,
+  .dash-fold .dash-servicio-nota {
+    grid-area: extra;
+    margin: 2px 0 0;
+    font-size: 11px;
+    line-height: 1.35;
+    color: var(--dash-dim);
+  }
   .dash-fold .dash-grid-territorio {
     grid-template-columns: 1fr;
     gap: 0;
@@ -1435,6 +1555,7 @@ body[data-page="dashboard"] #mainContent {
 
 /* A 320 px la unidad empuja el título a dos líneas; el contexto ya la dice. */
 @media (max-width: 360px) {
+  .dash-sedes-largo { display: none; }
   .dash-prioridad-cifra span { display: none; }
 }
 
