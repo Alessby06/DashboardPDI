@@ -355,21 +355,21 @@ export const SedesView = {
 
   selectSede(id) {
     // Asegurar que la lista de sedes este disponible
-    if (!this._allSedes || this._allSedes.length === 0) {
-      this._allSedes = window.PDI?.SedeModel?.getAll ? window.PDI.SedeModel.getAll() : SedeModel.getAll();
+    if (!SedesView._allSedes || SedesView._allSedes.length === 0) {
+      SedesView._allSedes = window.PDI?.SedeModel?.getAll ? window.PDI.SedeModel.getAll() : SedeModel.getAll();
     }
-    const sede = this._allSedes.find(s => this._mismoId(s.id, id));
+    const sede = SedesView._allSedes.find(s => SedesView._mismoId(s.id, id));
     if (!sede) return;
 
-    this._selectedSedeId = sede.id;
+    SedesView._selectedSedeId = sede.id;
 
     // Solo se mueve la marca activa: repintar la lista entera aqui volvia a
     // lanzar la cascada de entrada con cada clic, haciendo que toda la
     // columna parpadeara al cambiar de sede.
-    this._marcarActivoEnLista();
-    this.renderDetailPanel();
-    this._abrirHoja();
-    this._persistirFiltros();
+    SedesView._marcarActivoEnLista();
+    SedesView.renderDetailPanel();
+    SedesView._abrirHoja();
+    SedesView._persistirFiltros();
   },
 
   /**
