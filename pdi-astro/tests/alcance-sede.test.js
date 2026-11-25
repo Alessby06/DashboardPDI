@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { sedePermitida, filtrarPorSede, evaluarSede } from '../src/scripts/auth/alcance.js';
+import { sedePermitida, filtrarPorSede, evaluarSede, evaluarAlcanceCompleto } from '../src/scripts/auth/alcance.js';
 
 function almacen(datos) {
   const mapa = new Map(Object.entries(datos));
@@ -64,4 +64,15 @@ test('evaluarSede con la bandera activa niega una cuenta sin sedes', () => {
 test('evaluarSede nunca deja pasar un registro sin sede si la cuenta está limitada', () => {
   assert.equal(evaluarSede('', ['sede:a'], false), false);
   assert.equal(evaluarSede('', ['sede:a'], true), false);
+});
+
+test('coordinación y administración conservan alcance completo aunque la bandera esté activa', () => {
+  assert.equal(evaluarAlcanceCompleto('admin', [], true), true);
+  assert.equal(evaluarAlcanceCompleto('coord', [], true), true);
+  assert.equal(evaluarAlcanceCompleto('facilitadora', [], true), false);
+});
+
+test('sin la bandera, una cuenta de área sin sedes conserva alcance completo', () => {
+  assert.equal(evaluarAlcanceCompleto('facilitadora', [], false), true);
+  assert.equal(evaluarAlcanceCompleto('facilitadora', ['sede:a'], false), false);
 });

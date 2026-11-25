@@ -53,10 +53,19 @@ export function sedesDeCuenta() {
   return cache;
 }
 
+/**
+ * ¿La cuenta ve todas las sedes? Coordinación y administración siempre ven
+ * todo; la bandera solo afecta a los roles de área sin sedes asignadas.
+ */
+export function evaluarAlcanceCompleto(rol, sedes, obligatorias = OBLIGATORIAS) {
+  if (rol === 'coord' || rol === 'admin') return true;
+  if (!obligatorias) return (Array.isArray(sedes) ? sedes : []).length === 0;
+  return false;
+}
+
 /** ¿La cuenta ve todas las sedes? */
 export function alcanceCompleto() {
-  if (OBLIGATORIAS) return false;
-  return sedesDeCuenta().length === 0;
+  return evaluarAlcanceCompleto(texto(CLAVE_ROL), sedesDeCuenta(), OBLIGATORIAS);
 }
 
 /**
@@ -74,6 +83,8 @@ export function evaluarSede(idSede, sedes, obligatorias = OBLIGATORIAS) {
 
 /** ¿Puede ver un registro de esta sede? Con alcance limitado, un registro sin sede queda fuera. */
 export function sedePermitida(idSede) {
+  // Coordinación, administración y cuentas sin restricción conservan todo.
+  if (alcanceCompleto()) return true;
   return evaluarSede(idSede, sedesDeCuenta(), OBLIGATORIAS);
 }
 
