@@ -735,30 +735,6 @@
   overflow-x: auto;
 }
 
-/* B1: capa de filas que salen al filtrar. Se clona la tabla o las tarjetas
-   para que las salientes conserven su posición mientras las demás suben. */
-.padron-exit-layer {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.padron-exit-layer table {
-  width: 100%;
-  table-layout: fixed;
-  border-collapse: separate;
-  border-spacing: 0;
-}
-
-.padron-exit-layer thead { visibility: hidden; }
-
-.padron-exit-layer tbody tr.padron-fila-salida,
-.padron-exit-layer tbody tr.padron-fila-salida td {
-  background: var(--surface-1);
-}
-
 #tablaBeneficiarios {
   width: 100%;
   min-width: 0;

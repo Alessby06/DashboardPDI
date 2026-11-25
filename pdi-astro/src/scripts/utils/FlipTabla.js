@@ -17,7 +17,8 @@
 
 const EASE = "cubic-bezier(0.23, 1, 0.32, 1)";
 
-function reducido() {
+/** Preferencia del sistema: sin movimiento, los cambios son instantáneos. */
+export function movimientoReducido() {
   return typeof window.matchMedia === "function"
     && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
@@ -38,7 +39,7 @@ function clave(el) {
 }
 
 export function prepararFilas(tbody) {
-  if (!tbody || !tbody.isConnected || tbody.ownerDocument !== document || reducido()) return null;
+  if (!tbody || !tbody.isConnected || tbody.ownerDocument !== document || movimientoReducido()) return null;
 
   const tabla = tbody.closest("table");
   const contenedor = tabla && tabla.parentElement;
@@ -176,7 +177,7 @@ export function pintarFilas(tbody, html) {
 // estaba (el nodo desmontado se conserva entero) y se desvanece ahí.
 
 export function prepararTarjetas(contenedor) {
-  if (!contenedor || !contenedor.isConnected || contenedor.ownerDocument !== document || reducido()) {
+  if (!contenedor || !contenedor.isConnected || contenedor.ownerDocument !== document || movimientoReducido()) {
     return null;
   }
   if (!soportaAnimacion()) return null;
@@ -215,7 +216,7 @@ export function animarTarjetas(contenedor, ctx) {
 
     const capa = document.createElement("div");
     capa.className = "flip-exit-layer";
-    capa.style.cssText = "position:absolute;inset:0;z-index:3;pointer-events:none;";
+    capa.style.cssText = "position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden;";
 
     salidas.forEach(({ el, top, alto }) => {
       if (el.isConnected) return;

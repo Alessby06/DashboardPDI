@@ -13,6 +13,13 @@ import { claseLineaServicio, nombreServicioVisible } from "../../data/opcionesBe
 import { BeneficiarioModel } from "../models/BeneficiarioModel.js";
 import { fetchExpediente } from "../core/db.js";
 import { guardarCacheSesion, leerCacheSesion } from "../core/snapshot.js";
+import {
+  animarFilas,
+  animarTarjetas,
+  movimientoReducido,
+  prepararFilas,
+  prepararTarjetas,
+} from "../utils/FlipTabla.js";
 // Qué filtros del padrón viajan en la URL, con qué valores y cuáles son los
 // defectos. La lista de valores no se inventa: es la misma que admiten los
 // desplegables de padron.html. Si algún día se añade un filtro
@@ -624,7 +631,7 @@ export const BeneficiariosView = {
       this._animacionVista = false;
     };
 
-    if (!contenedores.length || this._movimientoReducido()) {
+    if (!contenedores.length || movimientoReducido()) {
       aplicar();
       return;
     }
@@ -662,120 +669,6 @@ export const BeneficiariosView = {
       .finally(() => {
         this._cambiandoVista = false;
       });
-  },
-
-  /** Movimiento reducido: las vistas y las filas cambian de golpe. */
-  _movimientoReducido() {
-    return typeof window.matchMedia === "function"
-      && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  },
-
-  /**
-   * Clona las filas que salen en una capa absoluta sobre el contenedor.
-   * En la tabla se clona la tabla completa y se ocultan las que sobreviven
-   * con `visibility`, para que las salientes conserven su posición exacta.
-   */
-  _capaDeSalidas(contenedor, filas, clavesNuevas, enMovil) {
-    const salidas = filas.filter((f) => !clavesNuevas.has(f.dataset.id));
-    if (!salidas.length) return null;
-
-    // En escritorio el contenedor activo es el tbody; la capa va sobre el
-    // contenedor de la tabla, no dentro del tbody (un div no es válido ahí).
-    let destino = contenedor;
-    if (!enMovil) {
-      const tabla = contenedor.closest("table");
-      if (!tabla || !tabla.parentElement) return null;
-      destino = tabla.parentElement;
-    }
-
-    destino.querySelectorAll(".padron-exit-layer").forEach((capa) => capa.remove());
-    if (getComputedStyle(destino).position === "static") {
-      destino.style.position = "relative";
-    }
-
-    const capa = document.createElement("div");
-    capa.className = "padron-exit-layer";
-
-    if (enMovil) {
-      const contRect = contenedor.getBoundingClientRect();
-      salidas.forEach((fila) => {
-        const r = fila.getBoundingClientRect();
-        const clon = fila.cloneNode(true);
-        clon.removeAttribute("id");
-        clon.style.position = "absolute";
-        clon.style.left = "0";
-        clon.style.right = "0";
-        clon.style.top = `${r.top - contRect.top + contenedor.scrollTop}px`;
-        clon.style.height = `${r.height}px`;
-        clon.style.margin = "0";
-        capa.appendChild(clon);
-      });
-    } else {
-      const tabla = contenedor.closest("table");
-      if (!tabla) return null;
-      const claves = new Set(salidas.map((f) => f.dataset.id));
-      const clon = tabla.cloneNode(true);
-      clon.querySelectorAll("tbody tr").forEach((tr) => {
-        if (claves.has(tr.dataset.id)) tr.classList.add("padron-fila-salida");
-        else tr.style.visibility = "hidden";
-      });
-      capa.appendChild(clon);
-    }
-
-    destino.appendChild(capa);
-    return capa;
-  },
-
-  /** FLIP: las que siguen suben, las nuevas entran y las salientes se van. */
-  _animarFilas(contenedor, selector, rectsPrevios, capa, enMovil) {
-    const easing = "cubic-bezier(0.23, 1, 0.32, 1)";
-    // En móvil, las tarjetas clonadas viven dentro de la capa; solo cuentan
-    // las tarjetas nuevas, que son hijas directas del contenedor.
-    const nuevas = enMovil
-      ? [...contenedor.children].filter((el) => el.matches(".mobile-card-item[data-id]"))
-      : [...contenedor.querySelectorAll(selector)];
-
-    let i = 0;
-    nuevas.forEach((el) => {
-      const previo = rectsPrevios.get(el.dataset.id);
-      if (previo) {
-        const r = el.getBoundingClientRect();
-        const delta = previo.top - r.top;
-        if (Math.abs(delta) > 1) {
-          el.animate(
-            [{ transform: `translateY(${delta}px)` }, { transform: "translateY(0)" }],
-            { duration: 220, easing, delay: i * 10 },
-          );
-        }
-      } else {
-        el.animate(
-          [
-            { opacity: 0, transform: "translateY(8px)" },
-            { opacity: 1, transform: "translateY(0)" },
-          ],
-          { duration: 200, easing, delay: i * 16 },
-        );
-      }
-      i++;
-    });
-
-    if (!capa) return;
-    // El pintado de las tarjetas reemplaza el innerHTML del contenedor y se
-    // lleva la capa por delante; se vuelve a colgar para animar las salidas.
-    if (!capa.isConnected) contenedor.appendChild(capa);
-    const salidas = enMovil
-      ? [...capa.querySelectorAll(".mobile-card-item")]
-      : [...capa.querySelectorAll(".padron-fila-salida")];
-    salidas.forEach((el, idx) => {
-      el.animate(
-        [
-          { opacity: 1, transform: "translateY(0)" },
-          { opacity: 0, transform: "translateY(-10px)" },
-        ],
-        { duration: 160, easing, fill: "forwards", delay: idx * 6 },
-      );
-    });
-    setTimeout(() => capa.remove(), 280);
   },
 
   /**
@@ -1448,26 +1341,13 @@ export const BeneficiariosView = {
     // del buscador. Al cruzar el corte, _vigilarVariante() repinta.
     const enMovil = Responsive.esMovil();
 
-    // B1: antes de sustituir el cuerpo, guarda dónde estaba cada fila y clona
-    // las que salen. Después del pintado, las que siguen se deslizan desde su
+    // B1: antes de sustituir el contenido se guarda dónde estaba cada fila o
+    // tarjeta. Después del pintado, las que siguen se deslizan desde su
     // posición anterior, las nuevas entran desde abajo y las salientes se van.
     const contenedorActivo = enMovil ? mobileContainer : tbody;
-    const selectorFila = enMovil ? ".mobile-card-item[data-id]" : "tr[data-id]";
-    let filasPrevias = [];
-    let rectsPrevios = new Map();
-    let capaSalidas = null;
-    let animarFilas = false;
-    if (root === document
-      && !this._animacionVista
-      && !this._movimientoReducido()
-      && contenedorActivo) {
-      filasPrevias = [...contenedorActivo.querySelectorAll(selectorFila)];
-      animarFilas = filasPrevias.length > 0;
-      if (animarFilas) {
-        rectsPrevios = new Map(filasPrevias.map((f) => [f.dataset.id, f.getBoundingClientRect()]));
-        const clavesNuevas = new Set(beneficiarios.map((b) => String(b.id)));
-        capaSalidas = this._capaDeSalidas(contenedorActivo, filasPrevias, clavesNuevas, enMovil);
-      }
+    let movimiento = null;
+    if (root === document && !this._animacionVista && contenedorActivo) {
+      movimiento = enMovil ? prepararTarjetas(contenedorActivo) : prepararFilas(tbody);
     }
 
     // La que no se dibuja se vacia, y no se deja con lo que hubiera de antes.
@@ -1628,8 +1508,9 @@ export const BeneficiariosView = {
       }
     }
 
-    if (animarFilas) {
-      this._animarFilas(contenedorActivo, selectorFila, rectsPrevios, capaSalidas, enMovil);
+    if (movimiento) {
+      if (enMovil) animarTarjetas(contenedorActivo, movimiento);
+      else animarFilas(tbody, movimiento);
     }
 
     // En el documento entrante (preSwap) no se anima nada: esa copia no se
