@@ -253,20 +253,20 @@ const OPCIONES_ORDEN = [
         </button>
       </div>
 
-      <form id="formColaborador" style="display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; margin: 0;">
-        <div class="modal-body" id="modalColabBody" style="padding: 20px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 16px;">
+      <form id="formColaborador" class="colab-modal-form">
+        <div class="modal-body colab-modal-body" id="modalColabBody">
           <input type="hidden" id="colabEditId" value="" />
 
         <!-- Sección 1: Rol y Entidad -->
-        <div style="background: var(--surface-2); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 12px;">
-          <strong style="font-size: 12.5px; color: var(--text-main); display: flex; align-items: center; gap: 6px;">
+        <div class="colab-form-section">
+          <strong class="colab-form-section-title">
             <Icon name="educacion.libro" size={14} /> Rol Institucional & Entidad Vinculada
           </strong>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="colab-form-grid-2">
             <div>
-              <label for="colabTipo" style="display:block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Rol / Cargo *</label>
-              <select id="colabTipo" required style="width: 100%; height: 38px; border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--surface-1); color: var(--text-main); padding: 0 10px;">
+              <label for="colabTipo" class="colab-form-label">Rol / Cargo *</label>
+              <select id="colabTipo" required class="form-control colab-form-select">
                 <option value="Director(a) I.E.">Director(a) I.E.</option>
                 <option value="Docente Enlace">Docente Enlace</option>
                 <option value="Enlace Parroquial / Iglesia">Enlace Parroquial / Iglesia</option>
@@ -277,21 +277,21 @@ const OPCIONES_ORDEN = [
               </select>
             </div>
             <div>
-              <label for="colabSede" style="display:block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Nombre de la I.E., Iglesia o Sede *</label>
-              <input type="text" id="colabSede" list="listaSedesDisponibles" required placeholder="Selecciona una sede o escribe el colegio/institución..." class="audit-search-input" style="width: 100%; border: 1px solid var(--border-default); border-radius: var(--radius-sm); padding: 8px 12px;" autocomplete="off" />
+              <label for="colabSede" class="colab-form-label">Nombre de la I.E., Iglesia o Sede *</label>
+              <input type="text" id="colabSede" list="listaSedesDisponibles" required placeholder="Selecciona una sede o escribe el colegio/institución..." class="form-control" autocomplete="off" />
               <datalist id="listaSedesDisponibles"></datalist>
             </div>
           </div>
 
           <!-- Campos Específicos para Colegios -->
-          <div id="colabCamposColegio" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+          <div id="colabCamposColegio" class="colab-form-grid-3">
             <div>
-              <label for="colabCodigoModular" style="display:block; font-size: 11.5px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Cód. Modular</label>
-              <input type="text" id="colabCodigoModular" maxlength="7" placeholder="Ej. 0584920" class="audit-search-input" style="width: 100%; border: 1px solid var(--border-default); border-radius: var(--radius-sm); padding: 6px 10px; font-size: 12px;" />
+              <label for="colabCodigoModular" class="colab-form-label colab-form-label--sm">Cód. Modular</label>
+              <input type="text" id="colabCodigoModular" maxlength="7" placeholder="Ej. 0584920" class="form-control colab-form-input--sm" />
             </div>
             <div>
-              <label for="colabNivel" style="display:block; font-size: 11.5px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Nivel</label>
-              <select id="colabNivel" style="width: 100%; height: 34px; border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--surface-1); color: var(--text-main); padding: 0 8px; font-size: 12px;">
+              <label for="colabNivel" class="colab-form-label colab-form-label--sm">Nivel</label>
+              <select id="colabNivel" class="form-control colab-form-select colab-form-select--sm">
                 <option value="">-- Seleccionar --</option>
                 <option value="Inicial">Inicial</option>
                 <option value="Primaria">Primaria</option>
@@ -300,8 +300,8 @@ const OPCIONES_ORDEN = [
               </select>
             </div>
             <div>
-              <label for="colabTurno" style="display:block; font-size: 11.5px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Turno</label>
-              <select id="colabTurno" style="width: 100%; height: 34px; border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--surface-1); color: var(--text-main); padding: 0 8px; font-size: 12px;">
+              <label for="colabTurno" class="colab-form-label colab-form-label--sm">Turno</label>
+              <select id="colabTurno" class="form-control colab-form-select colab-form-select--sm">
                 <option value="">-- Seleccionar --</option>
                 <option value="Mañana">Mañana</option>
                 <option value="Tarde">Tarde</option>
@@ -312,25 +312,25 @@ const OPCIONES_ORDEN = [
         </div>
 
         <!-- Sección 2: Datos de la Persona de Contacto -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="colab-form-grid-2">
           <div>
-            <label for="colabNombres" style="display:block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Nombres de la Persona *</label>
-            <input type="text" id="colabNombres" required class="audit-search-input" style="width: 100%; border: 1px solid var(--border-default); border-radius: var(--radius-sm); padding: 8px 12px;" />
+            <label for="colabNombres" class="colab-form-label">Nombres de la Persona *</label>
+            <input type="text" id="colabNombres" required class="form-control" />
           </div>
           <div>
-            <label for="colabApellidos" style="display:block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Apellidos de la Persona *</label>
-            <input type="text" id="colabApellidos" required class="audit-search-input" style="width: 100%; border: 1px solid var(--border-default); border-radius: var(--radius-sm); padding: 8px 12px;" />
+            <label for="colabApellidos" class="colab-form-label">Apellidos de la Persona *</label>
+            <input type="text" id="colabApellidos" required class="form-control" />
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="colab-form-grid-2">
           <div>
-            <label for="colabDni" style="display:block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">DNI</label>
-            <input type="text" id="colabDni" maxlength="8" class="audit-search-input" placeholder="8 dígitos" style="width: 100%; border: 1px solid var(--border-default); border-radius: var(--radius-sm); padding: 8px 12px;" />
+            <label for="colabDni" class="colab-form-label">DNI</label>
+            <input type="text" id="colabDni" maxlength="8" class="form-control" placeholder="8 dígitos" />
           </div>
           <div>
-            <label for="colabDistrito" style="display:block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Distrito *</label>
-            <select id="colabDistrito" required style="width: 100%; height: 38px; border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--surface-1); color: var(--text-main); padding: 0 10px;">
+            <label for="colabDistrito" class="colab-form-label">Distrito *</label>
+            <select id="colabDistrito" required class="form-control colab-form-select">
               <option value="Comas">Comas</option>
               <option value="Carabayllo">Carabayllo</option>
               <option value="El Agustino">El Agustino</option>
@@ -339,29 +339,25 @@ const OPCIONES_ORDEN = [
         </div>
 
         <!-- Canales de Comunicación Diferenciados -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="colab-form-grid-2">
           <div>
-            <label for="colabCelular" style="display:block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">
-              📱 Celular / WhatsApp (9 dígitos)
-            </label>
-            <input type="tel" id="colabCelular" maxlength="9" placeholder="Ej. 987654321" class="audit-search-input" style="width: 100%; border: 1px solid var(--border-default); border-radius: var(--radius-sm); padding: 8px 12px;" />
+            <label for="colabCelular" class="colab-form-label">Celular / WhatsApp (9 dígitos)</label>
+            <input type="tel" id="colabCelular" maxlength="9" placeholder="Ej. 987654321" class="form-control" />
           </div>
           <div>
-            <label for="colabTelefonoFijo" style="display:block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">
-              ☎️ Teléfono Fijo de Secretaría (7 dígitos)
-            </label>
-            <input type="tel" id="colabTelefonoFijo" placeholder="Ej. 01-5421234" class="audit-search-input" style="width: 100%; border: 1px solid var(--border-default); border-radius: var(--radius-sm); padding: 8px 12px;" />
+            <label for="colabTelefonoFijo" class="colab-form-label">Teléfono Fijo de Secretaría (7 dígitos)</label>
+            <input type="tel" id="colabTelefonoFijo" placeholder="Ej. 01-5421234" class="form-control" />
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="colab-form-grid-2">
           <div>
-            <label for="colabEmail" style="display:block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Correo Institucional / Personal</label>
-            <input type="email" id="colabEmail" placeholder="contacto@colegio.edu.pe" class="audit-search-input" style="width: 100%; border: 1px solid var(--border-default); border-radius: var(--radius-sm); padding: 8px 12px;" />
+            <label for="colabEmail" class="colab-form-label">Correo Institucional / Personal</label>
+            <input type="email" id="colabEmail" placeholder="contacto@colegio.edu.pe" class="form-control" />
           </div>
           <div>
-            <label for="colabEstado" style="display:block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Estado Operativo de la Alianza</label>
-            <select id="colabEstado" style="width: 100%; height: 38px; border: 1px solid var(--border-default); border-radius: var(--radius-sm); background: var(--surface-1); color: var(--text-main); padding: 0 10px;">
+            <label for="colabEstado" class="colab-form-label">Estado Operativo de la Alianza</label>
+            <select id="colabEstado" class="form-control colab-form-select">
               <option value="Activo">Activo (Vigente)</option>
               <option value="Inactivo">Inactivo / Rotado</option>
             </select>
@@ -370,48 +366,48 @@ const OPCIONES_ORDEN = [
 
         <!-- Programas Articulados -->
         <div>
-          <label style="display:block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 6px;">Programas que articula esta institución o persona</label>
+          <label class="colab-form-label colab-form-label--group">Programas que articula esta institución o persona</label>
           <div class="colab-programas-container">
             <label class="colab-chip-pill">
               <input type="checkbox" name="colabEstrategias" value="Desayuno Infantil" />
-              <span class="colab-chip-icon" aria-hidden="true">🍏</span>
+              <span class="colab-chip-icon" aria-hidden="true"><Icon name="modulo.social" size={14} /></span>
               <span>Desayuno Infantil</span>
             </label>
             <label class="colab-chip-pill">
               <input type="checkbox" name="colabEstrategias" value="Casita del Saber" />
-              <span class="colab-chip-icon" aria-hidden="true">📖</span>
+              <span class="colab-chip-icon" aria-hidden="true"><Icon name="educacion.libro" size={14} /></span>
               <span>Casita del Saber</span>
             </label>
             <label class="colab-chip-pill">
               <input type="checkbox" name="colabEstrategias" value="Buen Trato en Familia (BTF)" />
-              <span class="colab-chip-icon" aria-hidden="true">👨‍👩‍👧</span>
+              <span class="colab-chip-icon" aria-hidden="true"><Icon name="persona.grupo" size={14} /></span>
               <span>BTF (Buen Trato en Familia)</span>
             </label>
             <label class="colab-chip-pill">
               <input type="checkbox" name="colabEstrategias" value="Juntos Aprendemos en Cristo (JAC)" />
-              <span class="colab-chip-icon" aria-hidden="true">🤝</span>
+              <span class="colab-chip-icon" aria-hidden="true"><Icon name="modulo.social" size={14} /></span>
               <span>JAC (Juntos Aprendemos en Cristo)</span>
             </label>
             <label class="colab-chip-pill">
               <input type="checkbox" name="colabEstrategias" value="Repostería" />
-              <span class="colab-chip-icon" aria-hidden="true">🍞</span>
+              <span class="colab-chip-icon" aria-hidden="true"><Icon name="educacion.libro" size={14} /></span>
               <span>Talleres de Repostería</span>
             </label>
             <label class="colab-chip-pill">
               <input type="checkbox" name="colabEstrategias" value="Área Social Pastoral" />
-              <span class="colab-chip-icon" aria-hidden="true">🕊️</span>
+              <span class="colab-chip-icon" aria-hidden="true"><Icon name="modulo.social" size={14} /></span>
               <span>Área Social Pastoral</span>
             </label>
           </div>
         </div>
 
         <div>
-          <label for="colabObservaciones" style="display:block; font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 4px;">Observaciones y Acuerdos de Coordinación</label>
-          <textarea id="colabObservaciones" rows="2" class="audit-search-input" style="width: 100%; border: 1px solid var(--border-default); border-radius: var(--radius-sm); padding: 8px 12px; resize: vertical;" placeholder="Detalles de horarios de acceso, acuerdos de uso de patio o entrega de raciones..."></textarea>
+          <label for="colabObservaciones" class="colab-form-label">Observaciones y Acuerdos de Coordinación</label>
+          <textarea id="colabObservaciones" rows="2" class="form-control colab-form-textarea" placeholder="Detalles de horarios de acceso, acuerdos de uso de patio o entrega de raciones..."></textarea>
         </div>
       </div><!-- /.modal-body -->
 
-      <div class="modal-footer" style="flex-shrink: 0; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--border-subtle); padding: 14px 20px; background: var(--surface-1);">
+      <div class="modal-footer colab-modal-footer">
         <button type="button" class="btn-action secondary pdi-motion" data-pdi-on="click" data-pdi-h="h078">
           Cancelar
         </button>
