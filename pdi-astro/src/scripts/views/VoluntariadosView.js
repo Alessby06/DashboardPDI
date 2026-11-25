@@ -1,5 +1,5 @@
 import { attrsDe } from '../core/inlineCall.js';
-import { prepararFilas, animarFilas } from '../utils/FlipTabla.js';
+import { prepararFilas, animarFilas, pintarTarjetas } from '../utils/FlipTabla.js';
 // Vista: Padrón y Gestión de Voluntariados y Personal Comunitario (PDI)
 // Asociación Cultural Johannes Gutenberg - Lima Norte
 
@@ -604,7 +604,7 @@ export const VoluntariadosView = {
       if (tbody && !enMovil) tbody.innerHTML = emptyHtml;
 
       if (mobileContainer && enMovil) {
-        mobileContainer.innerHTML = `
+        pintarTarjetas(mobileContainer, `
           <div style="text-align: center; padding: 36px 16px; background: var(--surface-1); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-top: 8px;">
             <div style="width: 48px; height: 48px; margin: 0 auto 12px; border-radius: 50%; background: var(--gt-green-bg); display: flex; align-items: center; justify-content: center; color: var(--gt-green);">
               ${iconHtml("persona.grupo", { size: 24 })}
@@ -612,7 +612,7 @@ export const VoluntariadosView = {
             <div style="font-weight: 700; color: var(--text-main); font-size: 14px;">No se encontraron registros</div>
             <div style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">No hay voluntarias que coincidan con la búsqueda o filtros.</div>
           </div>
-        `;
+        `);
       }
       animarFilas(tbody, flip);
       return;
@@ -702,7 +702,7 @@ export const VoluntariadosView = {
 
     // Render Cards (Mobile)
     if (mobileContainer && enMovil) {
-      mobileContainer.innerHTML = pageItems.map(v => {
+      pintarTarjetas(mobileContainer, pageItems.map(v => {
         const servColorClass = claseAvatarServicio(v.servicio);
         const servClaseLinea = claseLineaServicio(v.servicio);
         const servNombre = nombreServicioVisible(v.servicio);
@@ -788,7 +788,7 @@ export const VoluntariadosView = {
             </div>
           </div>
         `;
-      }).join("");
+      }).join(""));
     }
 
     AnimationEngine.destacarCambio(enMovil ? mobileContainer : tbody);

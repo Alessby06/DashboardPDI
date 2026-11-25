@@ -1,5 +1,5 @@
 import { attrsDe } from '../core/inlineCall.js';
-import { prepararFilas, animarFilas } from '../utils/FlipTabla.js';
+import { prepararFilas, animarFilas, pintarTarjetas } from '../utils/FlipTabla.js';
 import { crear as crearFiltros } from '../utils/Filters.js';
 import { crearStore } from '../utils/FilterStore.js';
 import { Dropdown } from '../utils/Dropdown.js';
@@ -991,13 +991,13 @@ export const AuditView = {
 
     if (mobileContainer && enMovil) {
       if (logs.length === 0) {
-        mobileContainer.innerHTML = `
+        pintarTarjetas(mobileContainer, `
           <div style="text-align:center; padding:32px; color:var(--text-dim); background:var(--surface-1); border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
             No se encontraron eventos con los filtros seleccionados.
           </div>
-        `;
+        `);
       } else {
-        mobileContainer.innerHTML = logs.map((l, index) => {
+        pintarTarjetas(mobileContainer, logs.map((l, index) => {
           const isUsuario = (l.entity && l.entity.startsWith("PDI-"));
           const entityHtml = isUsuario 
             ? `<button type="button" ${attrsDe(`event.stopPropagation(); window.openExpedienteByCodigo('${escaparEnManejador(l.entity)}')`)} class="audit-entity-link audit-entity-link--usuario" title="Abrir expediente del usuario"><code class="audit-entity-code audit-entity-code--usuario">${escapar(l.entity)}</code></button>`
@@ -1009,7 +1009,7 @@ export const AuditView = {
           const moduloText = l.modulo || 'General';
 
           return `
-            <div class="mobile-card-item" id="mobile-audit-${index}">
+            <div class="mobile-card-item" id="mobile-audit-${index}" data-id="${escapar(logIdStr)}">
               <div class="datacard-header">
                 <div class="datacard-id">
                   <span>REG:</span> ${escapar(l.timestamp)}
@@ -1065,7 +1065,7 @@ export const AuditView = {
               </div>
             </div>
           `;
-        }).join("");
+        }).join(""));
       }
     }
   },

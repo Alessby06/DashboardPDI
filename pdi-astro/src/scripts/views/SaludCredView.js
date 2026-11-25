@@ -1,5 +1,5 @@
 import { attrsDe } from '../core/inlineCall.js';
-import { prepararFilas, animarFilas } from '../utils/FlipTabla.js';
+import { prepararFilas, animarFilas, pintarTarjetas } from '../utils/FlipTabla.js';
 // Vista: Módulo de Salud y Nutrición CRED
 import { crear as crearFiltros } from '../utils/Filters.js';
 import { crearStore } from '../utils/FilterStore.js';
@@ -610,7 +610,7 @@ export const SaludCredView = {
       if (tbody && !enMovil) tbody.innerHTML = emptyHtml;
 
       if (mobileContainer && enMovil) {
-        mobileContainer.innerHTML = `
+        pintarTarjetas(mobileContainer, `
           <div style="text-align: center; padding: 36px 16px; background: var(--surface-1); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-top: 8px;">
             <div style="width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; background: var(--gt-green-bg); display: flex; align-items: center; justify-content: center; color: var(--text-brand);">
               ${iconHtml("salud.corazon", { size: 24 })}
@@ -618,7 +618,7 @@ export const SaludCredView = {
             <div style="font-weight: 700; color: var(--text-main); font-size: 14px;">No se encontraron evaluaciones</div>
             <div style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">No hay registros que coincidan con la búsqueda o filtros.</div>
           </div>
-        `;
+        `);
       }
       animarFilas(tbody, flip);
       return;
@@ -691,7 +691,7 @@ export const SaludCredView = {
     }
 
     if (mobileContainer && enMovil) {
-      mobileContainer.innerHTML = pageItems.map(b => {
+      pintarTarjetas(mobileContainer, pageItems.map(b => {
         const tams = Array.isArray(b.tamizajes) ? b.tamizajes : [];
         const nTamizajes = tams.length;
         const fechaUltima = tams[0]?.fecha ? new Date(tams[0].fecha) : null;
@@ -769,7 +769,7 @@ export const SaludCredView = {
             </div>
           </div>
         `;
-      }).join("");
+      }).join(""));
     }
   },
 

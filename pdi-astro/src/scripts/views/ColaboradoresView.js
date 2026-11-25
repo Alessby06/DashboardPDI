@@ -1,5 +1,5 @@
 import { attrsDe } from '../core/inlineCall.js';
-import { prepararFilas, animarFilas } from '../utils/FlipTabla.js';
+import { prepararFilas, animarFilas, pintarTarjetas } from '../utils/FlipTabla.js';
 // Vista: Padrón y Directorio de Colaboradores e Instituciones Aliadas (PDI)
 // Asociación Cultural y Educativa Johannes Gutenberg - Lima Norte
 
@@ -621,11 +621,11 @@ export const ColaboradoresView = {
     if (!container) return;
 
     if (!datos || datos.length === 0) {
-      container.innerHTML = '';
+      pintarTarjetas(container, '');
       return;
     }
 
-    container.innerHTML = datos.map(c => {
+    pintarTarjetas(container, datos.map(c => {
       const cat = c.categoria || clasificarCategoria(c.tipoColaborador);
       const iniciales = `${(c.nombres || '')[0] || ''}${(c.apellidos || '')[0] || ''}`.toUpperCase();
       const sedeNombre = c.sedeInstitucion || 'Por asignar';
@@ -642,7 +642,7 @@ export const ColaboradoresView = {
       ).join('');
 
       return `
-        <article class="colab-mobile-card">
+        <article class="colab-mobile-card" data-id="${escapar(c.id)}">
           <div class="colab-card-header">
             <div style="display: flex; align-items: center; gap: 10px;">
               <div class="user-avatar colab-avatar colab-avatar--${cat}" style="width: 38px; height: 38px; font-size: 13px;">
@@ -687,7 +687,7 @@ export const ColaboradoresView = {
           </div>
         </article>
       `;
-    }).join('');
+    }).join(''));
   },
 
   actualizarCamposContextualesModal(tipo) {

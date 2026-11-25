@@ -1,5 +1,5 @@
 import { attrsDe } from '../core/inlineCall.js';
-import { prepararFilas, animarFilas } from '../utils/FlipTabla.js';
+import { prepararFilas, animarFilas, pintarTarjetas } from '../utils/FlipTabla.js';
 // Vista: Acompañamiento Educativo (Casita del Saber)
 //
 // La página ya no es "el pase de hoy": es una jornada de un día y una sede.
@@ -1134,13 +1134,13 @@ export const CasitasView = {
       if (tbody && !enMovil) tbody.innerHTML = vacioHtml;
 
       if (mobileContainer && enMovil) {
-        mobileContainer.innerHTML = `
+        pintarTarjetas(mobileContainer, `
           <div class="jornada-empty-mobile">
             <div class="jornada-empty-icon">${iconHtml("archivo.libro", { size: 24 })}</div>
             <div class="jornada-empty-title">${escapar(mensaje.titulo)}</div>
             <div class="jornada-empty-text">${escapar(mensaje.detalle)}</div>
           </div>
-        `;
+        `);
       }
       animarFilas(tbody, flip);
       return;
@@ -1195,7 +1195,7 @@ export const CasitasView = {
     }
 
     if (mobileContainer && enMovil) {
-      mobileContainer.innerHTML = pageItems.map(b => `
+      pintarTarjetas(mobileContainer, pageItems.map(b => `
         <div class="mobile-card-item" id="mobile-casita-${escapar(b.id)}">
           <div class="datacard-header">
             <div class="datacard-id"><span>ID:</span> ${escapar(b.codigo)}</div>
@@ -1250,7 +1250,7 @@ export const CasitasView = {
             </button>
           </div>
         </div>
-      `).join("");
+      `).join(""));
     }
   },
 
