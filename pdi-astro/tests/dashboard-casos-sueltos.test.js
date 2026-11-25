@@ -35,6 +35,17 @@ test('las notas útiles se conservan', () => {
   assert.match(vista, /dashEduNota/);
 });
 
+test('el detalle se pliega en móvil y se abre en escritorio', () => {
+  assert.match(pagina, /<details class="dash-fold" open>/);
+  assert.equal((pagina.match(/class="dash-fold"/g) || []).length, 3);
+  assert.match(pagina, /foldAnemiaValor/);
+  assert.match(pagina, /foldServiciosValor/);
+  assert.match(pagina, /foldTerritorioValor/);
+  assert.match(pagina, /max-width: 700px/);
+  assert.match(vista, /_sincronizarPliegues/);
+  assert.match(vista, /detalle\.open = modo === "escritorio"/);
+});
+
 test('exportar usa el modal de descarga compartido antes de descargar', () => {
   assert.doesNotMatch(vista, /import \{ confirmar \}/);
   const iConfirmar = vista.indexOf('window.openModalExportGeneric({');

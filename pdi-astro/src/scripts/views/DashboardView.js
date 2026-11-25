@@ -14,6 +14,7 @@ export const DashboardView = {
   _haEntrado: false,
   _filtroSede: "all",
   _enlazado: false,
+  _plieguesEnlazados: false,
 
   _sello: null,
   _selloTimer: null,
@@ -24,6 +25,7 @@ export const DashboardView = {
   reiniciarEntrada() {
     this._haEntrado = false;
     this._enlazado = false;
+    this._modoPliegues = null;
     const desdeUrl = this._leerFiltroSedeDeURL();
     if (desdeUrl && desdeUrl !== "all") {
       this._filtroSede = desdeUrl;
@@ -63,6 +65,7 @@ export const DashboardView = {
   render(stats) {
     const esPrimeraEntrada = !this._haEntrado;
     this._haEntrado = true;
+    this._sincronizarPliegues();
 
     const estado = window.PDI?.DB?.estadoActual?.() || "ok";
     const ultima = window.PDI?.DB?.ultimaHidratacion?.() || 0;
@@ -306,6 +309,35 @@ export const DashboardView = {
     if (datosOk) this._cifrasPintadas = true;
   },
 
+  /** Pliegues del detalle: abiertos en escritorio, cerrados en móvil. */
+  _sincronizarPliegues() {
+    const movil = window.matchMedia && window.matchMedia("(max-width: 700px)");
+    const modo = movil && movil.matches ? "movil" : "escritorio";
+
+    // Solo se fuerza al cambiar de modo: así un pliegue abierto a mano no se
+    // cierra cada vez que llega un dato nuevo.
+    if (this._modoPliegues !== modo) {
+      this._modoPliegues = modo;
+      document.querySelectorAll("details.dash-fold").forEach((detalle) => {
+        detalle.open = modo === "escritorio";
+      });
+    }
+
+    if (movil && movil.addEventListener && !this._plieguesEnlazados) {
+      this._plieguesEnlazados = true;
+      movil.addEventListener("change", () => {
+        this._modoPliegues = null;
+        this._sincronizarPliegues();
+      });
+    }
+  },
+
+  /** Valor visible en la cabecera de un pliegue. */
+  _fold(id, texto) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = texto;
+  },
+
   _cifra(elemento, valor, formato, animar) {
     if (!elemento) return;
     const numero = Number(valor);
@@ -488,6 +520,16 @@ export const DashboardView = {
     const aspDesayuno = usuariosAsp.filter(b => claves.get(b).has("desayuno")).length;
     const aspLonchera = usuariosAsp.filter(b => claves.get(b).has("lonchera")).length;
     const aspCasita = usuariosAsp.filter(b => claves.get(b).has("casita")).length;
+
+    // Cifra de cabecera de cada pliegue: resume sin abrir.
+    const pctAnemiaFold = Number(stats.pctTotalAnemia) || 0;
+    const totalAnemiaFold = Number(stats.totalAnemia) || 0;
+    const tamizadosFold = Number(stats.tamizados) || 0;
+    const comasFold = Number(stats.comasCount) || 0;
+    const carabaylloFold = Number(stats.carabaylloCount) || 0;
+    this._fold("foldAnemiaValor", datosOk ? `${pctAnemiaFold} % · ${totalAnemiaFold}/${tamizadosFold}` : "······");
+    this._fold("foldServiciosValor", datosOk ? `${alimentario} · ${educativo} · ${usuariosAsp.length}` : "······");
+    this._fold("foldTerritorioValor", datosOk ? `${comasFold} y ${carabaylloFold} · ${voluntarios.length} activas` : "······");
 
     const poner = (id, n) => {
       const el = document.getElementById(id);
