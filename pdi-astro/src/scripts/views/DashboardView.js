@@ -15,11 +15,6 @@ export const DashboardView = {
   _filtroSede: "all",
   _enlazado: false,
   _plieguesEnlazados: false,
-
-  _sello: null,
-  _selloTimer: null,
-  _selloLimpieza: false,
-  _selloAnterior: 0,
   _cifrasPintadas: false,
 
   reiniciarEntrada() {
@@ -68,7 +63,6 @@ export const DashboardView = {
     this._sincronizarPliegues();
 
     const estado = window.PDI?.DB?.estadoActual?.() || "ok";
-    const ultima = window.PDI?.DB?.ultimaHidratacion?.() || 0;
 
     // Sincronización del selector de sede con URL y memoria
     if (!this._filtroSede || this._filtroSede === "all") {
@@ -160,11 +154,6 @@ export const DashboardView = {
       }
       respEl.textContent = nombre || "Sesión no identificada";
     }
-
-    // Sello de frescura
-    this._sello = { estado, ultima };
-    this._pintarSello();
-    this._iniciarSello();
 
     // Hero: tres cifras y su contexto.
     const totalPadron = Number(statsFiltradas.total ?? 0);
@@ -352,102 +341,6 @@ export const DashboardView = {
       return;
     }
     AnimationEngine.contar(elemento, numero, { formato });
-  },
-
-  _hace(ms) {
-    const min = Math.floor(Math.max(0, ms) / 60000);
-    if (min < 1) return "";
-    if (min < 60) return `(hace ${min} min)`;
-    const h = Math.floor(min / 60);
-    const resto = min % 60;
-    if (h < 24) return resto ? `(hace ${h} h ${resto} min)` : `(hace ${h} h)`;
-    const dias = Math.floor(h / 24);
-    return dias === 1 ? "(hace 1 día)" : `(hace ${dias} días)`;
-  },
-
-  _pintarSello() {
-    const chip = document.getElementById("dashEstado");
-    const texto = document.getElementById("dashEstadoTexto");
-    const haceEl = document.getElementById("dashEstadoHace");
-    if (!chip || !texto) return;
-
-    const { estado = "ok", ultima = 0 } = this._sello || {};
-    const anterior = this._selloAnterior;
-    this._selloAnterior = ultima;
-    const refrescado = Boolean(anterior && ultima && ultima !== anterior);
-    chip.classList.remove("is-warn", "is-loading");
-    if (haceEl) haceEl.textContent = "";
-
-    const poner = (mensaje) => {
-      if (texto.textContent !== mensaje) texto.textContent = mensaje;
-    };
-
-    if (estado === "sin_conexion" && !ultima) {
-      chip.classList.add("is-warn");
-      poner("Sin conexión");
-      return;
-    }
-    if (estado !== "ok" && !ultima) {
-      chip.classList.add("is-loading");
-      poner("Sincronizando…");
-      return;
-    }
-    if (!ultima) {
-      poner("En vivo");
-      return;
-    }
-
-    let fecha;
-    try {
-      fecha = new Date(ultima);
-    } catch {
-      fecha = null;
-    }
-    if (!fecha || Number.isNaN(fecha.getTime())) {
-      poner("En vivo");
-      return;
-    }
-
-    const ahora = new Date();
-    const mismoDia = fecha.getFullYear() === ahora.getFullYear()
-      && fecha.getMonth() === ahora.getMonth()
-      && fecha.getDate() === ahora.getDate();
-
-    let horaTexto = "-";
-    let diaTexto = "";
-    try {
-      horaTexto = new Intl.DateTimeFormat("es-PE", { hour: "2-digit", minute: "2-digit" }).format(fecha);
-      diaTexto = new Intl.DateTimeFormat("es-PE", { day: "numeric", month: "short" }).format(fecha);
-    } catch {
-      // Ignorar fallos de formato
-    }
-
-    const detalleSinc = mismoDia ? `hoy a las ${horaTexto}` : `${diaTexto} a las ${horaTexto}`;
-
-    if (estado === "sin_conexion") {
-      chip.classList.add("is-warn");
-      poner("Sin conexión");
-    } else if (estado !== "ok") {
-      chip.classList.add("is-loading");
-      poner("Sincronizando…");
-    } else {
-      poner("En vivo");
-    }
-    const edad = Math.max(0, Date.now() - fecha.getTime());
-    if (edad > 30 * 60 * 1000) chip.classList.add("is-warn");
-    if (refrescado) AnimationEngine.destacar(chip);
-  },
-
-  _iniciarSello() {
-    if (this._selloTimer) return;
-    this._selloTimer = setInterval(() => this._pintarSello(), 60000);
-    if (!this._selloLimpieza) {
-      this._selloLimpieza = true;
-      document.addEventListener("astro:before-swap", () => {
-        clearInterval(this._selloTimer);
-        this._selloTimer = null;
-      });
-    }
   },
 
   _mensajeSinDatos(textoVacio) {

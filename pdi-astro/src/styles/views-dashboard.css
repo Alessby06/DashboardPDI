@@ -87,27 +87,6 @@ body[data-page="dashboard"] #mainContent {
   font-weight: 700;
 }
 
-.dash-punto-vivo {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--dash-muted);
-}
-
-.dash-estado-dot {
-  width: 6px;
-  height: 6px;
-  flex: none;
-  border-radius: var(--radius-full);
-  background: var(--gt-green);
-}
-
-.dash-punto-vivo.is-warn .dash-estado-dot { background: var(--gt-yellow); }
-/* Cargando no es "en vivo": vuelve al neutro de la regla, no al azul de datos. */
-.dash-punto-vivo.is-loading .dash-estado-dot { background: var(--dash-rule-strong); }
-
 .dash-acciones {
   display: flex;
   align-items: center;
@@ -1193,7 +1172,6 @@ body[data-page="dashboard"] #mainContent {
     font-size: 11px;
     gap: 6px 10px;
   }
-  .dash-punto-vivo { font-size: 11px; }
 
   /* A: el estado, el filtro y el export comparten fila. */
   .dash-cabecera {
@@ -1622,17 +1600,6 @@ body[data-page="dashboard"] #mainContent {
 [data-dash-entrada="corta"] .dash-servicios-seccion,
 [data-dash-entrada="corta"] .dash-panel {
   animation: dash-entra-corta var(--dur-fast) var(--ease-out) both;
-}
-
-/* El punto de «en vivo» late despacio; en aviso o cargando se queda quieto. */
-@keyframes dash-late {
-  50% {
-    opacity: 0.45;
-  }
-}
-
-.dash-punto-vivo:not(.is-warn):not(.is-loading) .dash-estado-dot {
-  animation: dash-late 2.4s var(--ease-smooth) infinite;
 }
 
 /* Al cambiar de sede, Comas y Carabayllo se reacomodan en vez de saltar. */
