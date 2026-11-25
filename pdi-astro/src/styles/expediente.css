@@ -115,13 +115,11 @@
    #view-expediente[data-sin-expediente="true"] .modal-body-split,
    #view-expediente[data-sin-expediente="true"] .expediente-page-actions,
    #view-expediente[data-sin-expediente="true"] .expediente-nav-group-paging,
-   #view-expediente[data-sin-expediente="true"] #expPrintFichaA1Btn,
    #view-expediente[data-sin-expediente="true"] #expPrintBtn,
    #view-expediente[data-cargando="true"] .expediente-page-body,
    #view-expediente[data-cargando="true"] .modal-body-split,
    #view-expediente[data-cargando="true"] .expediente-page-actions,
    #view-expediente[data-cargando="true"] .expediente-nav-group-paging,
-   #view-expediente[data-cargando="true"] #expPrintFichaA1Btn,
    #view-expediente[data-cargando="true"] #expPrintBtn {
      display: none !important;
    }

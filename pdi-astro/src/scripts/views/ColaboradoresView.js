@@ -170,6 +170,22 @@ export const ColaboradoresView = {
       };
     }
 
+    // Cerrar drawer al hacer clic fuera de la caja o presionar Escape
+    const modalEl = document.getElementById('modalColaborador');
+    if (modalEl && !modalEl._pdiDrawerBound) {
+      modalEl._pdiDrawerBound = true;
+      modalEl.addEventListener('click', (e) => {
+        if (e.target === modalEl) {
+          this.cerrarModal();
+        }
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modalEl.classList.contains('open')) {
+          this.cerrarModal();
+        }
+      });
+    }
+
     // Re-renderizar si la capa de datos sincroniza con la nube (listener global único)
     if (!listenersEnlazados) {
       listenersEnlazados = true;
@@ -781,13 +797,15 @@ export const ColaboradoresView = {
       this.actualizarCamposContextualesModal(selectTipo.value);
     }
 
-    modal.style.display = 'flex';
+    modal.removeAttribute('inert');
+    modal.removeAttribute('aria-hidden');
+    modal.classList.add('open');
     modal.classList.add('active');
 
     const resetScroll = () => {
       modal.scrollTop = 0;
-      const modalContent = modal.querySelector('.modal-content');
-      if (modalContent) modalContent.scrollTop = 0;
+      const drawerBox = modal.querySelector('.drawer-box');
+      if (drawerBox) drawerBox.scrollTop = 0;
       const modalBody = modal.querySelector('.modal-body');
       if (modalBody) {
         window.__pdiScroll?.resetEl?.(modalBody);
@@ -842,13 +860,15 @@ export const ColaboradoresView = {
       cb.checked = ests.includes(cb.value);
     });
 
-    modal.style.display = 'flex';
+    modal.removeAttribute('inert');
+    modal.removeAttribute('aria-hidden');
+    modal.classList.add('open');
     modal.classList.add('active');
 
     const resetScroll = () => {
       modal.scrollTop = 0;
-      const modalContent = modal.querySelector('.modal-content');
-      if (modalContent) modalContent.scrollTop = 0;
+      const drawerBox = modal.querySelector('.drawer-box');
+      if (drawerBox) drawerBox.scrollTop = 0;
       const modalBody = modal.querySelector('.modal-body');
       if (modalBody) {
         window.__pdiScroll?.resetEl?.(modalBody);
@@ -870,9 +890,10 @@ export const ColaboradoresView = {
     if (modal) {
       modal.classList.remove('active');
       modal.classList.remove('open');
-      modal.style.display = 'none';
-      const content = modal.querySelector('.modal-content');
-      if (content) content.scrollTop = 0;
+      modal.setAttribute('inert', '');
+      modal.setAttribute('aria-hidden', 'true');
+      const drawerBox = modal.querySelector('.drawer-box');
+      if (drawerBox) drawerBox.scrollTop = 0;
       const body = modal.querySelector('.modal-body');
       if (body) {
         window.__pdiScroll?.resetEl?.(body);
