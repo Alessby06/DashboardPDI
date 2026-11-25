@@ -6,10 +6,11 @@
 //  revisar las siete.
 //
 //  Honestidad sobre el alcance: esto es un filtro de trabajo, no una barrera
-//  de seguridad. El navegador consulta SurrealDB con un token clínico
-//  compartido, así que una persona con la consola abierta puede leer la base
-//  completa. La barrera real es la bitácora y, más adelante, mover las
-//  lecturas al servidor.
+//  de seguridad. Las listas y tableros siguen consultando SurrealDB con un
+//  token clínico compartido, así que una persona con la consola abierta puede
+//  leer la base completa. La ficha puntual ya se lee por /api/expediente, que
+//  valida rol, área y sede en el servidor; mover el resto de lecturas es el
+//  paso pendiente.
 //
 //  Una lista vacía significa «sin restricción»: la cuenta ve todas las sedes.
 //  Se eligió así para no vaciar la vista de las cuentas que ya existían; la
@@ -50,10 +51,10 @@ export function alcanceCompleto() {
   return sedesDeCuenta().length === 0;
 }
 
-/** ¿Puede ver un registro de esta sede? Sin sede asignada en el registro, se deja pasar. */
+/** ¿Puede ver un registro de esta sede? Con alcance limitado, un registro sin sede queda fuera. */
 export function sedePermitida(idSede) {
-  if (!idSede) return true;
   if (alcanceCompleto()) return true;
+  if (!idSede) return false;
   return sedesDeCuenta().includes(String(idSede));
 }
 
@@ -66,10 +67,7 @@ export function filtrarPorSede(filas, obtenerId = (fila) => fila._sedeRawId) {
   if (!Array.isArray(filas)) return [];
   if (alcanceCompleto()) return filas;
   const permitidas = new Set(sedesDeCuenta());
-  return filas.filter((fila) => {
-    const id = obtenerId(fila);
-    return !id || permitidas.has(String(id));
-  });
+  return filas.filter((fila) => permitidas.has(String(obtenerId(fila) || '')));
 }
 
 /**

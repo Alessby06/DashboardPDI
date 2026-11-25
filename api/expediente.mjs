@@ -12,20 +12,31 @@
 //  inscripción en `sedes`. El cliente no vuelve a consultar la base.
 // ===========================================================================
 import { sesionDeRequest, consultaLote, configClinicaDe } from './_cuentaBase.mjs';
+import { crearLimite } from './_limite.mjs';
+import { resolverEsquema } from './_esquema.mjs';
 
 const CLAVE_VALIDA = /^[A-Za-z0-9_-]{1,64}$/;
 
 // Puente de migración compartido con el cliente (db.js). Si producción cambia
 // la bandera, la Function y el navegador deben leer las mismas columnas.
-const ESQUEMA_NUEVO = String(process.env.PUBLIC_ESQUEMA_USUARIO || '0') === '1';
+const ESQUEMA_NUEVO = resolverEsquema(process.env);
 const F_USUARIO = ESQUEMA_NUEVO ? 'usuario_id' : 'persona_id';
 const T_VINCULO = ESQUEMA_NUEVO ? 'usuario_vinculado' : 'persona_vinculada';
 const F_MENOR = ESQUEMA_NUEVO ? 'usuario_id' : 'menor_id';
 
-function json(datos, status = 200) {
+// 40 peticiones por minuto y cuenta. La precarga de la ficha usa ~1 por fila,
+// así que el uso normal queda muy por debajo; un script se frena aquí.
+const MAX_POR_VENTANA = Math.max(1, Number(process.env.EXPEDIENTE_MAX_POR_VENTANA) || 600);
+const limite = crearLimite({ maximo: MAX_POR_VENTANA, ventanaMs: 15 * 60 * 1000 });
+
+function json(datos, status = 200, extra = {}) {
   return new Response(JSON.stringify(datos), {
     status,
-    headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' },
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'no-store',
+      ...extra,
+    },
   });
 }
 
@@ -63,12 +74,12 @@ export function puedeVer(fila, sede, cuenta) {
   if (!patron.test(texto)) return false;
 
   // `cuenta.sedes` guarda identificadores de registro (sede:xxx), no nombres.
-  // Un registro sin sede se deja pasar: es la misma regla que `alcance.js`
-  // aplica al padrón.
+  // Si la cuenta está limitada y el registro no declara sede, no se puede
+  // demostrar que pertenezca a su ámbito: se niega.
   const sedes = Array.isArray(cuenta.sedes) ? cuenta.sedes : [];
   if (!sedes.length) return true;
   const sedeId = String(fila?.ins?.sede_id || '');
-  if (!sedeId) return true;
+  if (!sedeId) return false;
   return sedes.includes(sedeId);
 }
 
@@ -90,6 +101,15 @@ export default {
       return json({ ok: false, error: 'No se pudo verificar la sesión.' }, 503);
     }
     if (!sesion?.cuenta) return json({ ok: false, error: 'Sesión requerida.' }, 401);
+
+    const cupo = limite.permitir(String(sesion.cuenta.id || 'anon'));
+    if (!cupo.ok) {
+      return json(
+        { ok: false, error: 'Demasiadas consultas. Intenta de nuevo en un momento.' },
+        429,
+        { 'Retry-After': String(cupo.reintentarEn) },
+      );
+    }
 
     try {
       const cfg = configClinicaDe(process.env);
@@ -119,11 +139,19 @@ export default {
         .find((s) => String(s.id) === sedeId) || null;
 
       if (!puedeVer(fila, sede, sesion.cuenta)) {
-        return json({ ok: false, error: 'Sin acceso a este expediente.' }, 403);
+        // Mismo cuerpo y estado que «no existe»: una cuenta autenticada no
+        // debe poder confirmar qué expedientes existen fuera de su ámbito.
+        console.warn('[expediente] sin acceso', {
+          persona: clave,
+          rol: sesion.cuenta.rol,
+          sede: String(fila.ins?.sede_id || ''),
+        });
+        return json({ ok: false, error: 'No encontrado.' }, 404);
       }
 
       return json({
         ok: true,
+        esquema: ESQUEMA_NUEVO ? 1 : 0,
         fila,
         sedes: sede ? [{
           _rawId: String(sede.id || ''),

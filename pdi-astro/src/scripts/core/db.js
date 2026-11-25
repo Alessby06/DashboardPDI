@@ -26,7 +26,7 @@ import { filtrarPorSede, filtrarCasos, sedePermitida } from '../auth/alcance.js'
 import { AnemiaCalculator } from '../utils/AnemiaCalculator.js';
 import { ToastView } from '../views/ToastView.js';
 import { guardarSnapshot, leerSnapshot, borrarCachesSesionPrefijo } from './snapshot.js';
-import { normalizarCola, encolar, listos, registrarFallo, quitar, resumenCola } from '../utils/colaAuditoria.js';
+import { crearColaAuditoria } from './auditoriaEnvio.js';
 import { estrategiasDesdePrograma, SERVICIOS_VOLUNTARIADO, nombreServicioVisible } from '../../data/opcionesBeneficiario.js';
 import {
   normalizarParentesco,
@@ -1041,12 +1041,21 @@ export async function fetchExpediente(personaId, { inactivo = false } = {}) {
       // En `astro dev` la ruta puede devolver HTML con 200.
       const datos = await res.json().catch(() => null);
       if (!datos?.fila) return local ? directo() : null;
+      // El build del cliente y el runtime del servidor deben usar el mismo
+      // puente de esquema. Si no, la ficha llega incompleta sin un error claro.
+      if (datos.esquema != null && Number(datos.esquema) !== Number(ESQUEMA_USUARIO ? 1 : 0)) {
+        console.error(
+          `[PDI] Esquema distinto entre API (${datos.esquema}) y cliente (${ESQUEMA_USUARIO ? 1 : 0}). ` +
+          'Revisa ESQUEMA_USUARIO/PUBLIC_ESQUEMA_USUARIO en el despliegue.',
+        );
+      }
       const sedes = Array.isArray(datos.sedes) ? datos.sedes : [];
       const mapeado = inactivo ? mapearRetirados([datos.fila], sedes) : mapearBeneficiarios([datos.fila], sedes);
       return mapeado[0] || null;
     }
-    if (res.status === 403 || res.status === 401) return null;
-    if (res.status === 404 && local) return directo();
+    if (res.status === 401 || res.status === 403) return null;
+    if (res.status === 404) return local ? directo() : null;
+    if (local) return directo();
   } catch {
     if (local) return directo();
   }
@@ -3297,34 +3306,7 @@ export async function registrarAsistencia(beneficiario, estadoClave, observacion
 // ---------------------------------------------------------------------------
 //  CRUD · Bitácora de auditoría
 // ---------------------------------------------------------------------------
-const CLAVE_COL_AUDITORIA = 'pdi_auditoria_pendiente';
-
-function leerColaAuditoria() {
-  try { return JSON.parse(localStorage.getItem(CLAVE_COL_AUDITORIA) || '[]') || []; }
-  catch { return []; }
-}
-
-function guardarColaAuditoria(cola) {
-  try {
-    if (cola.length) localStorage.setItem(CLAVE_COL_AUDITORIA, JSON.stringify(cola));
-    else localStorage.removeItem(CLAVE_COL_AUDITORIA);
-  } catch {}
-}
-
-function encolarBitacora(payload) {
-  const { cola, descartado, duplicado } = encolar(leerColaAuditoria(), payload);
-  guardarColaAuditoria(cola);
-  if (descartado) {
-    try {
-      ToastView.show(
-        'Auditoría local',
-        `${descartado} evento(s) antiguo(s) se descartaron de la cola sin enviarse. Avisa a coordinación.`,
-        'danger',
-      );
-    } catch {}
-  }
-  return { descartado, duplicado };
-}
+const CLAVE_AVISO_AUDITORIA = 'pdi_auditoria_aviso';
 
 async function enviarBitacora(payload) {
   const res = await fetch('/api/auditoria', {
@@ -3341,46 +3323,84 @@ async function enviarBitacora(payload) {
   throw error;
 }
 
+// Una sola instancia por pestaña. Las pruebas construyen la suya con un
+// almacén y un emisor falsos.
+const colaAuditoria = (() => {
+  try {
+    const almacen = typeof localStorage !== 'undefined' ? localStorage : null;
+    if (!almacen) return null;
+    return crearColaAuditoria({ almacen, enviar: enviarBitacora });
+  } catch {
+    return null;
+  }
+})();
+
+/** Avisa como máximo una vez por sesión: un toast en cada arranque estorba. */
+function avisarUnaVez(clave, titulo, mensaje) {
+  try {
+    if (sessionStorage.getItem(clave) === '1') return;
+    sessionStorage.setItem(clave, '1');
+  } catch {}
+  try { ToastView.show(titulo, mensaje, 'danger'); } catch {}
+}
+
 /** Estado de la cola para el indicador de la interfaz. */
 export function auditoriaPendiente() {
-  return resumenCola(leerColaAuditoria());
+  return colaAuditoria ? colaAuditoria.resumen() : { total: 0, listos: 0, agotados: 0 };
 }
 
 /** Reintenta los eventos que no se pudieron auditar. Idempotente por evento. */
 export async function reintentarBitacorasPendientes() {
-  let cola = normalizarCola(leerColaAuditoria());
-  const pendientes = listos(cola);
-  if (!pendientes.length) {
-    // Aprovecha para limpiar duplicados o basura que haya quedado guardada.
-    guardarColaAuditoria(cola);
-    return resumenCola(cola);
-  }
+  if (!colaAuditoria) return { total: 0, listos: 0, agotados: 0, enviados: 0, guardado: true };
 
-  for (const item of pendientes) {
-    const id = String(item.payload?.evento_id || '');
-    try {
-      await enviarBitacora(item.payload);
-      cola = quitar(cola, id);
-    } catch (err) {
-      const fallido = registrarFallo(item, Date.now(), err?.permanente === true);
-      cola = cola.map((actual) => (
-        String(actual.payload?.evento_id || '') === id ? fallido : actual
-      ));
-    }
-  }
-
-  guardarColaAuditoria(cola);
-  const resumen = resumenCola(cola);
+  const resumen = await colaAuditoria.reintentar();
   if (resumen.agotados) {
-    try {
-      ToastView.show(
-        'Auditoría pendiente',
-        `${resumen.agotados} evento(s) no se pudieron enviar. No cierres sesión; avisa a coordinación.`,
-        'danger',
-      );
-    } catch {}
+    avisarUnaVez(
+      CLAVE_AVISO_AUDITORIA,
+      'Auditoría pendiente',
+      `${resumen.agotados} evento(s) no se pudieron enviar. No cierres sesión; avisa a coordinación.`,
+    );
+  } else if (resumen.total) {
+    avisarUnaVez(
+      CLAVE_AVISO_AUDITORIA,
+      'Auditoría pendiente',
+      `${resumen.total} evento(s) esperan envío. Se reintentará al volver a abrir la aplicación.`,
+    );
   }
   return resumen;
+}
+
+/**
+ * Al cerrar u ocultar la pestaña se disparan los pendientes con `sendBeacon`.
+ * El servidor es idempotente, así que un envío repetido no duplica; la cola no
+ * se borra hasta confirmar en el siguiente arranque.
+ */
+let ultimoBeacon = 0;
+
+function vaciarColaConBeacon() {
+  if (!colaAuditoria) return;
+  if (typeof navigator === 'undefined' || typeof navigator.sendBeacon !== 'function') return;
+  // `sendBeacon` no confirma: la cola se queda y el próximo arranque reenvía
+  // (el servidor deduplica). El freno evita repetir el mismo envío cada vez
+  // que se cambia de pestaña.
+  const ahora = Date.now();
+  if (ahora - ultimoBeacon < 60_000) return;
+  ultimoBeacon = ahora;
+  for (const item of colaAuditoria.listos()) {
+    try {
+      const cuerpo = new Blob([JSON.stringify(item.payload)], { type: 'application/json' });
+      navigator.sendBeacon('/api/auditoria', cuerpo);
+    } catch {}
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('pagehide', vaciarColaConBeacon);
+  if (typeof document !== 'undefined') {
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') vaciarColaConBeacon();
+    });
+  }
 }
 
 export async function crearBitacora(entry) {
@@ -3406,11 +3426,33 @@ export async function crearBitacora(entry) {
     sede: entry.sede || 'Central',
     diff: diffValido,
   };
+  if (colaAuditoria) {
+    const resultado = await colaAuditoria.registrar(payload);
+    if (resultado.ok) return true;
+    if (resultado.guardado === false) {
+      avisarUnaVez(
+        'pdi_auditoria_sin_almacen',
+        'Auditoría',
+        'No se pudo guardar el evento en este equipo. Avisa a coordinación antes de cerrar sesión.',
+      );
+    }
+    if (resultado.descartado) {
+      try {
+        ToastView.show(
+          'Auditoría local',
+          `${resultado.descartado} evento(s) antiguo(s) se descartaron de la cola sin enviarse. Avisa a coordinación.`,
+          'danger',
+        );
+      } catch {}
+    }
+    avisarFallo('Bitácora de auditoría', resultado.error);
+    return false;
+  }
+
   try {
     await enviarBitacora(payload);
     return true;
   } catch (err) {
-    if (!entry._desdeCola) encolarBitacora(payload);
     avisarFallo('Bitácora de auditoría', err);
     return false;
   }

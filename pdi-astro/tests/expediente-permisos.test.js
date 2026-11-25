@@ -41,10 +41,10 @@ test('una cuenta con sedes asignadas no ve otra sede', () => {
   assert.equal(puedeVer(fila(), sede, { rol: 'facilitadora', sedes: ['sede:a'] }), true);
 });
 
-test('un registro sin sede se deja pasar, igual que en el padrón', () => {
-  // `alcance.js` ya aplica esta regla al listado; el servidor la replica para
-  // que una fila visible no termine en un 403 al abrirla.
-  assert.equal(puedeVer(fila({ sede_id: '' }), null, { rol: 'facilitadora', sedes: ['sede:a'] }), true);
+test('un registro sin sede queda fuera para una cuenta limitada', () => {
+  assert.equal(puedeVer(fila({ sede_id: '' }), null, { rol: 'facilitadora', sedes: ['sede:a'] }), false);
+  // Sin sedes asignadas la cuenta conserva alcance completo (decisión actual).
+  assert.equal(puedeVer(fila({ sede_id: '' }), null, { rol: 'facilitadora', sedes: [] }), true);
 });
 
 test('una cuenta sin sedes asignadas conserva el alcance por área', () => {
