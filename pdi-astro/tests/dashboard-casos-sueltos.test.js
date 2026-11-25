@@ -31,7 +31,7 @@ test('la franja de prioridades no lleva texto del sistema', () => {
 });
 
 test('las notas útiles se conservan', () => {
-  assert.match(pagina, /Porcentajes calculados sobre niños tamizados/);
+  assert.match(pagina, /Porcentajes calculados sobre usuarios tamizados/);
   assert.match(vista, /dashEduNota/);
 });
 

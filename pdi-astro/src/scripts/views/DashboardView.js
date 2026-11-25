@@ -190,7 +190,7 @@ export const DashboardView = {
     const kpiCoberturaSub = document.getElementById("kpiCoberturaTamizajeSub");
     if (kpiCoberturaSub) {
       kpiCoberturaSub.innerHTML = datosOk
-        ? `<strong>${tamizados} de ${totalPadron}</strong> niños con hemoglobina registrada`
+        ? `<strong>${tamizados} de ${totalPadron}</strong> usuarios con hemoglobina registrada`
         : "Cargando tamizajes…";
     }
     const barraCobertura = document.getElementById("dashBarraCobertura");
@@ -232,7 +232,7 @@ export const DashboardView = {
         kpiCasosAspSub.textContent = "Cargando seguimiento…";
       } else {
         const ninos = usuariosAsp.length;
-        kpiCasosAspSub.innerHTML = `<strong>${ninos} ${ninos === 1 ? "niño" : "niños"}</strong> en acompañamiento · <strong>${casosActivos} ${casosActivos === 1 ? "caso" : "casos"}</strong> abiertos`;
+        kpiCasosAspSub.innerHTML = `<strong>${ninos} ${ninos === 1 ? "usuario" : "usuarios"}</strong> en acompañamiento · <strong>${casosActivos} ${casosActivos === 1 ? "caso" : "casos"}</strong> abiertos`;
       }
     }
 
@@ -525,7 +525,7 @@ export const DashboardView = {
     const notaEdu = document.getElementById("dashEduNota");
     if (notaEdu) {
       notaEdu.textContent = datosOk
-        ? `${educativo} de ${usuarios.length} niños del padrón con al menos un acompañamiento.`
+        ? `${educativo} de ${usuarios.length} usuarios del padrón con al menos un acompañamiento.`
         : "";
     }
     poner("dashAspDesayuno", aspDesayuno);
@@ -671,16 +671,16 @@ export const DashboardView = {
     };
 
     set("atencionAnemiaTexto", String(anemia));
-    set("atencionAnemiaUnidad", anemia === 1 ? "niño" : "niños");
+    set("atencionAnemiaUnidad", anemia === 1 ? "usuario" : "usuarios");
     set("atencionAnemiaMeta", tamizados > 0
-      ? `${pctAnemia} % de los ${tamizados} niños tamizados`
+      ? `${pctAnemia} % de los ${tamizados} usuarios tamizados`
       : "Sin tamizajes registrados");
     barra("atencionAnemiaBarra", pctAnemia);
 
     set("atencionSinTamizajeTexto", String(sinTamizaje));
-    set("atencionSinTamizajeUnidad", sinTamizaje === 1 ? "niño" : "niños");
+    set("atencionSinTamizajeUnidad", sinTamizaje === 1 ? "usuario" : "usuarios");
     set("atencionSinTamizajeMeta", padron > 0
-      ? `${pctSinTamizaje} % de los ${padron} niños del padrón`
+      ? `${pctSinTamizaje} % de los ${padron} usuarios del padrón`
       : "Sin padrón registrado");
     barra("atencionSinTamizajeBarra", pctSinTamizaje);
 
@@ -721,7 +721,7 @@ export const DashboardView = {
       } else {
         const partes = [];
         const ninos = anemia + sinTamizaje;
-        if (ninos > 0) partes.push(`${ninos} ${ninos === 1 ? "niño" : "niños"}`);
+        if (ninos > 0) partes.push(`${ninos} ${ninos === 1 ? "usuario" : "usuarios"}`);
         if (brecha > 0) partes.push(`${brecha} ${brecha === 1 ? "servicio" : "servicios"}`);
         resumen.textContent = partes.length
           ? `Pendientes: ${partes.join(" y ")}.`
@@ -746,7 +746,7 @@ export const DashboardView = {
           vacioTexto.textContent = "Aún no hay datos del padrón para priorizar.";
         } else {
           const serviciosConEquipo = Math.max(0, baseEquipo - brecha);
-          vacioTexto.innerHTML = `Todo al día: <b>${tamizados} de ${padron}</b> niños tamizados`
+          vacioTexto.innerHTML = `Todo al día: <b>${tamizados} de ${padron}</b> usuarios tamizados`
             + (baseEquipo > 0 ? ` y <b>${serviciosConEquipo} de ${baseEquipo}</b> servicios con equipo.` : ".");
         }
       }

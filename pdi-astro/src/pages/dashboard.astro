@@ -48,7 +48,7 @@ import Icon from '../components/Icon.astro';
 
       <section class="dash-hero dash-superficie" aria-label="Indicadores principales">
         <div class="dash-kpi">
-          <span class="dash-rotulo">Niños acompañados</span>
+          <span class="dash-rotulo">Usuarios acompañados</span>
           <strong class="dash-cifra" id="kpiTotalPadron">······</strong>
           <p class="dash-kpi-sub" id="kpiTotalPadronSub">Cargando padrón…</p>
           <span class="dash-mini-barra" aria-hidden="true">
@@ -87,9 +87,9 @@ import Icon from '../components/Icon.astro';
               <span class="dash-prioridad-titulo">Anemia moderada o severa</span>
               <span class="dash-prioridad-cifra">
                 <strong id="atencionAnemiaTexto">······</strong>
-                <span id="atencionAnemiaUnidad">niños</span>
+                <span id="atencionAnemiaUnidad">usuarios</span>
               </span>
-              <span class="dash-prioridad-meta" id="atencionAnemiaMeta">de los niños tamizados</span>
+              <span class="dash-prioridad-meta" id="atencionAnemiaMeta">de los usuarios tamizados</span>
               <span class="dash-prioridad-track" aria-hidden="true">
                 <span class="dash-prioridad-fill is-rojo" id="atencionAnemiaBarra"></span>
               </span>
@@ -100,10 +100,10 @@ import Icon from '../components/Icon.astro';
           <li class="dash-prioridad" id="atencionFilaSinTamizaje" hidden>
             <a class="dash-prioridad-link dash-superficie" href="/salud">
               <span class="dash-prioridad-area">Salud · Tamizaje</span>
-              <span class="dash-prioridad-titulo">Niños sin tamizaje</span>
+              <span class="dash-prioridad-titulo">Usuarios sin tamizaje</span>
               <span class="dash-prioridad-cifra">
                 <strong id="atencionSinTamizajeTexto">······</strong>
-                <span id="atencionSinTamizajeUnidad">niños</span>
+                <span id="atencionSinTamizajeUnidad">usuarios</span>
               </span>
               <span class="dash-prioridad-meta" id="atencionSinTamizajeMeta">del padrón</span>
               <span class="dash-prioridad-track" aria-hidden="true">
@@ -189,7 +189,7 @@ import Icon from '../components/Icon.astro';
           </li>
         </ul>
 
-        <p class="dash-clinica-pie">Porcentajes calculados sobre niños tamizados, no sobre el padrón completo.</p>
+        <p class="dash-clinica-pie">Porcentajes calculados sobre usuarios tamizados, no sobre el padrón completo.</p>
       </section>
 
       <section class="dash-servicios-seccion" aria-labelledby="dashServiciosTitle">
@@ -205,7 +205,7 @@ import Icon from '../components/Icon.astro';
             </header>
             <div class="dash-servicio-principal">
               <strong id="dashAlimUsuarios">······</strong>
-              <span>niños con ración</span>
+              <span>usuarios con ración</span>
             </div>
             <dl class="dash-filas">
               <div><dt>Desayuno infantil</dt><dd id="dashAlimDesayuno">······</dd></div>
@@ -221,7 +221,7 @@ import Icon from '../components/Icon.astro';
             </header>
             <div class="dash-servicio-principal">
               <strong id="dashEduActivos">······</strong>
-              <span>niños acompañados</span>
+              <span>usuarios acompañados</span>
             </div>
             <dl class="dash-filas">
               <div><dt>Casita del Saber</dt><dd id="dashEduCasita">······</dd></div>
@@ -237,7 +237,7 @@ import Icon from '../components/Icon.astro';
             </header>
             <div class="dash-servicio-principal">
               <strong id="dashAspUsuarios">······</strong>
-              <span>niños en seguimiento</span>
+              <span>usuarios en seguimiento</span>
             </div>
             <p class="dash-servicio-extra"><span id="dashAspCasosMicro">······</span></p>
             <dl class="dash-filas">
@@ -391,7 +391,7 @@ import Icon from '../components/Icon.astro';
           setTxt("kpiCasosAsp", String(casosActivos));
           setTxt("kpiSedesActivas", String(sedes.length));
           setHtml("kpiTotalPadronSub", "<strong>" + comas + "</strong> en Comas · <strong>" + carabayllo + "</strong> en Carabayllo · <strong>" + otras + "</strong> en otras sedes");
-          setHtml("kpiCoberturaTamizajeSub", "<strong>" + tamizados + " de " + total + "</strong> niños con hemoglobina registrada");
+          setHtml("kpiCoberturaTamizajeSub", "<strong>" + tamizados + " de " + total + "</strong> usuarios con hemoglobina registrada");
           setTxt("kpiTasaAnemia", pctAnemia + " %");
           setTxt("kpiTasaAnemiaSub", (leves + moderadas) + " de " + tamizados + " tamizados con anemia");
           setTxt("kpiCasosAspSub", (casosActivos > 0 ? "Casos abiertos en el programa" : "Sin casos abiertos"));
@@ -434,16 +434,16 @@ import Icon from '../components/Icon.astro';
           setTxt("dashVolTotal", String(voluntarios.length));
 
           setTxt("atencionAnemiaTexto", String(moderadas));
-          setTxt("atencionAnemiaUnidad", moderadas === 1 ? "niño" : "niños");
+          setTxt("atencionAnemiaUnidad", moderadas === 1 ? "usuario" : "usuarios");
           setTxt("atencionAnemiaMeta", tamizados > 0
-            ? pctMod + " % de los " + tamizados + " niños tamizados"
+            ? pctMod + " % de los " + tamizados + " usuarios tamizados"
             : "Sin tamizajes registrados");
           setAncho("atencionAnemiaBarra", pctMod);
 
           setTxt("atencionSinTamizajeTexto", String(sinTamizaje));
-          setTxt("atencionSinTamizajeUnidad", sinTamizaje === 1 ? "niño" : "niños");
+          setTxt("atencionSinTamizajeUnidad", sinTamizaje === 1 ? "usuario" : "usuarios");
           setTxt("atencionSinTamizajeMeta", total > 0
-            ? pctSinTamizaje + " % de los " + total + " niños del padrón"
+            ? pctSinTamizaje + " % de los " + total + " usuarios del padrón"
             : "Sin padrón registrado");
           setAncho("atencionSinTamizajeBarra", pctSinTamizaje);
 
