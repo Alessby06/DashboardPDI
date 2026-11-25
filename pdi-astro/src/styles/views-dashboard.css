@@ -1171,15 +1171,35 @@ body[data-page="dashboard"] #mainContent {
 
 .dash-fold > summary::-webkit-details-marker { display: none; }
 
-@media (min-width: 701px) {
+@media (min-width: 821px) {
   .dash-fold > summary { display: none; }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 820px) {
+  /* Cabecera: la fecha deja de ser el titular; el dato manda. */
+  .dash-eyebrow {
+    margin-bottom: 6px;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+  }
+  .dash-eyebrow-app { display: none; }
+  .dash-titulo {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .dash-subtitulo {
+    margin-top: 6px;
+    font-size: 11px;
+    gap: 6px 10px;
+  }
+  .dash-punto-vivo { font-size: 11px; }
+
   /* Hero: una cifra protagonista y dos secundarias, no tres bloques. */
   .dash-hero {
     grid-template-columns: 1fr 1fr;
     padding: 16px;
+    box-shadow: none;
   }
   .dash-hero .dash-kpi { padding: 0; }
   .dash-hero .dash-kpi:first-child {
@@ -1195,9 +1215,13 @@ body[data-page="dashboard"] #mainContent {
   .dash-rotulo {
     margin-bottom: 4px;
     font-size: 11px;
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: 0;
     text-transform: none;
+  }
+  .dash-hero .dash-kpi + .dash-kpi .dash-rotulo {
+    font-weight: 500;
+    color: var(--dash-muted);
   }
   .dash-cifra {
     font-size: 34px;
@@ -1211,6 +1235,11 @@ body[data-page="dashboard"] #mainContent {
 
   /* Prioridades: filas dentro de una sola superficie. */
   .dash-seccion-cab { margin-bottom: 8px; }
+  .dash-prioridades > .dash-seccion-cab h2 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--dash-muted);
+  }
   .dash-prioridades-lista {
     grid-template-columns: 1fr;
     gap: 0;
@@ -1218,6 +1247,7 @@ body[data-page="dashboard"] #mainContent {
     border: 1px solid var(--dash-rule);
     border-radius: var(--radius-lg);
     overflow: hidden;
+    box-shadow: none;
   }
   .dash-prioridad:not([hidden]) + .dash-prioridad:not([hidden]) {
     border-top: 1px solid var(--dash-rule);
@@ -1284,10 +1314,10 @@ body[data-page="dashboard"] #mainContent {
   .dash-fold-titulo {
     flex: 1;
     min-width: 0;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     letter-spacing: -0.01em;
-    color: var(--dash-ink);
+    color: var(--dash-muted);
   }
   .dash-fold-valor {
     font-size: 12px;
@@ -1361,6 +1391,16 @@ body[data-page="dashboard"] #mainContent {
   .dash-clinica-pie {
     margin-top: 12px;
     padding-top: 10px;
+  }
+  /* La cabecera del pliegue ya da el total; dentro no se repite. */
+  .dash-fold .dash-prevalencia { display: none; }
+  .dash-fold .dash-clinica-resumen {
+    display: block;
+    margin-top: 2px;
+  }
+  .dash-fold .dash-barra-clinica {
+    width: 100%;
+    margin: 0;
   }
 
   .dash-conciliacion {

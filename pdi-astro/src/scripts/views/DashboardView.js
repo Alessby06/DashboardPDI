@@ -311,7 +311,7 @@ export const DashboardView = {
 
   /** Pliegues del detalle: abiertos en escritorio, cerrados en móvil. */
   _sincronizarPliegues() {
-    const movil = window.matchMedia && window.matchMedia("(max-width: 700px)");
+    const movil = window.matchMedia && window.matchMedia("(max-width: 820px)");
     const modo = movil && movil.matches ? "movil" : "escritorio";
 
     // Solo se fuerza al cambiar de modo: así un pliegue abierto a mano no se
@@ -528,7 +528,7 @@ export const DashboardView = {
     const comasFold = Number(stats.comasCount) || 0;
     const carabaylloFold = Number(stats.carabaylloCount) || 0;
     this._fold("foldAnemiaValor", datosOk ? `${pctAnemiaFold} % · ${totalAnemiaFold}/${tamizadosFold}` : "······");
-    this._fold("foldServiciosValor", datosOk ? `${alimentario} · ${educativo} · ${usuariosAsp.length}` : "······");
+    this._fold("foldServiciosValor", datosOk ? `${alimentario}, ${educativo} y ${usuariosAsp.length} usuarios` : "······");
     this._fold("foldTerritorioValor", datosOk ? `${comasFold} y ${carabaylloFold} · ${voluntarios.length} activas` : "······");
 
     const poner = (id, n) => {

@@ -9,7 +9,7 @@ import Icon from '../components/Icon.astro';
     <div class="dash-page">
       <header class="dash-cabecera">
         <div class="dash-cabecera-texto">
-          <p class="dash-eyebrow">Infancia Saludable · Comas y Carabayllo</p>
+          <p class="dash-eyebrow"><span class="dash-eyebrow-app">Infancia Saludable · </span>Comas y Carabayllo</p>
           <h1 class="dash-titulo"><time id="dashFolioFecha">hoy</time></h1>
           <p class="dash-subtitulo">
             <span><strong id="kpiSedesActivas">······</strong> sedes activas</span>
@@ -77,7 +77,6 @@ import Icon from '../components/Icon.astro';
       <section class="dash-prioridades" aria-labelledby="dashAtencionTitle">
         <div class="dash-seccion-cab">
           <h2 id="dashAtencionTitle">Prioridades del día</h2>
-          <span>Solo lo que exige una acción hoy</span>
         </div>
 
         <ul class="dash-prioridades-lista">
@@ -313,7 +312,7 @@ import Icon from '../components/Icon.astro';
       (function () {
         try {
           // En móvil el detalle arranca plegado; en escritorio, abierto.
-          if (window.matchMedia && window.matchMedia("(max-width: 700px)").matches) {
+          if (window.matchMedia && window.matchMedia("(max-width: 820px)").matches) {
             var pliegues = document.querySelectorAll("details.dash-fold");
             for (var p = 0; p < pliegues.length; p++) pliegues[p].open = false;
           }

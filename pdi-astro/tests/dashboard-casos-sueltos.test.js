@@ -41,7 +41,7 @@ test('el detalle se pliega en móvil y se abre en escritorio', () => {
   assert.match(pagina, /foldAnemiaValor/);
   assert.match(pagina, /foldServiciosValor/);
   assert.match(pagina, /foldTerritorioValor/);
-  assert.match(pagina, /max-width: 700px/);
+  assert.match(pagina, /max-width: 820px/);
   assert.match(vista, /_sincronizarPliegues/);
   assert.match(vista, /detalle\.open = modo === "escritorio"/);
 });
