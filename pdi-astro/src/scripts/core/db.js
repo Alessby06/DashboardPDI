@@ -25,7 +25,7 @@ import { Surreal } from 'surrealdb';
 import { filtrarPorSede, filtrarCasos } from '../auth/alcance.js';
 import { AnemiaCalculator } from '../utils/AnemiaCalculator.js';
 import { ToastView } from '../views/ToastView.js';
-import { guardarSnapshot, leerSnapshot } from './snapshot.js';
+import { guardarSnapshot, leerSnapshot, borrarCachesSesionPrefijo } from './snapshot.js';
 import { estrategiasDesdePrograma, SERVICIOS_VOLUNTARIADO, nombreServicioVisible } from '../../data/opcionesBeneficiario.js';
 import {
   normalizarParentesco,
@@ -471,6 +471,7 @@ async function suscribirLive() {
         if (_estado !== 'ok') return;
         clearTimeout(_tempDebounceLive);
         _tempDebounceLive = setTimeout(() => {
+          borrarCachesSesionPrefijo('expediente:');
           if (_estado === 'ok') hidratar(true);
         }, 400);
       });
@@ -738,6 +739,73 @@ function claveRegistro(rid) {
   return String(rid == null ? '' : rid).split(':').pop().replace(/^⟨/, '').replace(/⟩$/, '');
 }
 
+/**
+ * Autor de la sesión para el resumen estructurado. Solo es una proyección para
+ * la vista: la autoría legal la calcula el servidor al escribir bitacora_auditoria.
+ */
+function camposActor(actor) {
+  const a = actor || actorLocal();
+  return { actorId: a.id, actorNombre: a.nombre, actorRol: a.rol };
+}
+
+/** Regla única de alcance para ver un expediente: rol + área + sede. */
+export function puedeVerExpediente(b, alcance = null) {
+  let rol = alcance?.rol;
+  let sedes = alcance?.sedes;
+  if (rol == null) {
+    try { rol = localStorage.getItem('pdi_active_role') || ''; } catch { rol = ''; }
+  }
+  if (sedes == null) {
+    try { sedes = JSON.parse(localStorage.getItem('pdi_usuario_sedes') || '[]'); } catch { sedes = []; }
+  }
+  if (!rol || rol === 'coord' || rol === 'admin') return true;
+  const areas = {
+    facilitadora: /alimentari|nutricion|nutrici|desayuno|lonchera|comedor|salud|cred/i,
+    promotora: /educativ|casita|saber/i,
+    social: /social|pastoral|asp/i,
+  };
+  const patron = areas[rol];
+  if (!patron) return false;
+  const texto = `${b?.sede || ''} ${(b?.servicios || []).join(' ')} ${b?.estrategia || ''}`;
+  if (!patron.test(texto)) return false;
+  if (!Array.isArray(sedes) || !sedes.length) return true;
+  return sedes.some(s => texto.toLowerCase().includes(String(s).toLowerCase()));
+}
+
+export function actorLocal() {
+  let nombre = '';
+  let login = '';
+  try {
+    nombre = localStorage.getItem('pdi_usuario_nombre') || '';
+    login = localStorage.getItem('pdi_usuario_login') || '';
+  } catch {}
+  return {
+    id: login || nombre || 'Sistema',
+    nombre: nombre || login || 'Sistema',
+    rol: (() => { try { return localStorage.getItem('pdi_active_role') || 'Sistema'; } catch { return 'Sistema'; } })(),
+  };
+}
+
+/** Proyección de trazabilidad que viaja con cada beneficiario mapeado. */
+function trazabilidadDe(m) {
+  const ins = m?.ins || {};
+  return {
+    creadoPorId: ins.creado_por_id || '',
+    creadoPorNombre: ins.creado_por_nombre || '',
+    creadoPorRol: ins.creado_por_rol || '',
+    actualizadoPorId: ins.actualizado_por_id || '',
+    actualizadoPorNombre: ins.actualizado_por_nombre || '',
+    actualizadoPorRol: ins.actualizado_por_rol || '',
+    fechaBaja: isoFecha(ins.fecha_baja),
+    dadoBajaPorNombre: ins.dado_baja_por_nombre || '',
+    dadoBajaPorRol: ins.dado_baja_por_rol || '',
+    fechaReactivacion: isoFecha(ins.fecha_reactivacion),
+    motivoReactivacion: ins.motivo_reactivacion || '',
+    reactivadoPorNombre: ins.reactivado_por_nombre || '',
+    reactivadoPorRol: ins.reactivado_por_rol || '',
+  };
+}
+
 function extraerNumeroId(codigo, idStr, fallbackIdx) {
   if (codigo) {
     const parts = String(codigo).split('-');
@@ -929,6 +997,28 @@ export async function fetchBeneficiarios() {
   return filtrarPorSede(mapearBeneficiarios(comoLista(await ejecutar(SQL_PADRON)), sedes));
 }
 
+/** Consulta puntual de un expediente: no espera a la hidratación completa. */
+export async function fetchExpediente(personaId, { inactivo = false } = {}) {
+  const pid = claveRegistro(personaId);
+  if (!pid) return null;
+  const estadoIns = inactivo ? 'false' : 'true';
+  const filas = comoLista(await ejecutar(`SELECT *,
+    centro_salud.nombre AS centro_salud_nombre,
+    institucion_origen.nombre AS institucion_origen_nombre,
+    (SELECT * FROM alergia WHERE persona_id = $parent.id) AS alergias,
+    (SELECT * FROM inscripcion WHERE ${F_USUARIO} = $parent.id AND activo = ${estadoIns} LIMIT 1)[0] AS ins,
+    (SELECT * FROM tamizaje_hemoglobina WHERE ${F_USUARIO} = $parent.id AND activo = true ORDER BY fecha_tamizaje DESC) AS tams,
+    (SELECT cuidador_id.nombres AS c_nom, cuidador_id.apellidos AS c_ape, cuidador_id.numero_documento AS c_dni, cuidador_id.sexo AS c_sexo, parentesco FROM ${T_VINCULO} WHERE ${F_MENOR} = $parent.id LIMIT 1)[0] AS apo,
+    (SELECT VALUE pct_exoneracion FROM aporte WHERE inscripcion_id.${F_USUARIO} = $parent.id ORDER BY periodo DESC, mes DESC LIMIT 1)[0] AS pct
+  FROM persona
+  WHERE id = type::record('persona', $pid) LIMIT 1;`, { pid }));
+  if (!filas.length) return null;
+  const sedes = mapearSedes(comoLista(await ejecutar('SELECT * FROM sede ORDER BY creado_el;')));
+  const mapeado = inactivo ? mapearRetirados(filas, sedes) : mapearBeneficiarios(filas, sedes);
+  const registro = mapeado[0] || null;
+  return registro && puedeVerExpediente(registro) ? registro : null;
+}
+
 /** Convierte los registros crudos de persona en objetos del modelo (requiere sedes ya mapeadas). */
 function mapearBeneficiarios(personasRes, sedes) {
   const sedesMap = new Map(sedes.map(s => [s._rawId, s]));
@@ -1015,6 +1105,7 @@ function mapearBeneficiarios(personasRes, sedes) {
       telefonoAlt: m.telefono_alt || '',
       estado: m.ins?.estado || 'Activo',
       motivoBaja: m.ins?.motivo_baja || '',
+      ...trazabilidadDe(m),
       hb: tam?.hb_valor != null ? Number(tam.hb_valor) : null,
       peso: tam?.peso_kg != null ? Number(tam.peso_kg) : null,
       talla: tam?.talla_cm != null ? Number(tam.talla_cm) : null,
@@ -1555,7 +1646,7 @@ async function tipoAtencionGuardable(valor) {
   return valor || 'Atención fija';
 }
 
-export async function crearBeneficiario(m) {
+export async function crearBeneficiario(m, actor = null) {
   const documento = (m.dni || '').trim();
   if (documento) {
     try {
@@ -1699,6 +1790,12 @@ export async function crearBeneficiario(m) {
         facilitadora_nombre: $facilitadora ?? NONE,
         derivado_asp: $derivadoAsp ?? false,
         persona_inscribe: $inscribePersona ?? NONE,
+        creado_por_id: $actorId ?? NONE,
+        creado_por_nombre: $actorNombre ?? NONE,
+        creado_por_rol: $actorRol ?? NONE,
+        actualizado_por_id: $actorId ?? NONE,
+        actualizado_por_nombre: $actorNombre ?? NONE,
+        actualizado_por_rol: $actorRol ?? NONE,
         activo: true
       } RETURN VALUE id));
       IF string::len($cuiId) > 0 {
@@ -1746,6 +1843,7 @@ export async function crearBeneficiario(m) {
       pct,
       res: resultadoDesdeAnemia(m.anemia),
       hbStr: hb != null ? String(hb) : '',
+      ...camposActor(actor),
     });
 
     const lista = comoLista(res);
@@ -2096,7 +2194,10 @@ export async function actualizarBeneficiario(b) {
       UPDATE inscripcion SET
         programa = $prog, estrategias = $estrategias, estado = $estado,
         modalidad = $modalidadGuardable,
-        tipo_atencion = $tipoAtencionGuardable ?? NONE
+        tipo_atencion = $tipoAtencionGuardable ?? NONE,
+        actualizado_por_id = $actorId ?? NONE,
+        actualizado_por_nombre = $actorNombre ?? NONE,
+        actualizado_por_rol = $actorRol ?? NONE
       WHERE ${F_USUARIO} = $usuario AND activo = true;
       IF string::len($fnac) > 0 {
         UPDATE $usuario SET fecha_nacimiento = type::datetime($fnac);
@@ -2133,6 +2234,7 @@ export async function actualizarBeneficiario(b) {
         };
       };`, {
       pid, cuiId,
+      ...camposActor(b._actor),
       periodoAporte: new Date().getFullYear(),
       mesAporte: new Date().getMonth() + 1,
       nom: b.nombres, ape: b.apellidos,
@@ -2205,10 +2307,13 @@ export async function darBajaBeneficiario(b, motivo = 'Baja administrativa') {
       LET $usuario = type::record('persona', $pid);
       UPDATE inscripcion SET
         activo = false, estado = 'Inactivo',
-        motivo_baja = $motivo
+        motivo_baja = $motivo, fecha_baja = time::now(),
+        dado_baja_por_id = $actorId ?? NONE,
+        dado_baja_por_nombre = $actorNombre ?? NONE,
+        dado_baja_por_rol = $actorRol ?? NONE
       WHERE ${F_USUARIO} = $usuario AND activo = true;
       UPDATE $usuario SET activo = false;`, {
-      pid, motivo,
+      pid, motivo, ...camposActor(b._actor),
     });
     return true;
   } catch (err) {
@@ -2222,7 +2327,7 @@ export async function darBajaBeneficiario(b, motivo = 'Baja administrativa') {
  * anterior. La inscripción se enciende otra vez para que el usuario recupere
  * su sede y su servicio; la vista valida antes que ambos sigan operativos.
  */
-export async function reactivarBeneficiario(b) {
+export async function reactivarBeneficiario(b, motivo = 'Reactivación administrativa') {
   // Igual que la baja: el id canónico manda. El código no es único y puede
   // reactivar a otra persona con el mismo código.
   let pid = claveRegistro(b?._personaId);
@@ -2244,10 +2349,14 @@ export async function reactivarBeneficiario(b) {
       LET $usuario = type::record('persona', $pid);
       UPDATE inscripcion SET
         activo = true, estado = 'Activo',
-        motivo_baja = NONE
+        fecha_reactivacion = time::now(),
+        motivo_reactivacion = $motivo,
+        reactivado_por_id = $actorId ?? NONE,
+        reactivado_por_nombre = $actorNombre ?? NONE,
+        reactivado_por_rol = $actorRol ?? NONE
       WHERE ${F_USUARIO} = $usuario AND activo = false;
       UPDATE $usuario SET activo = true;`, {
-      pid,
+      pid, motivo, ...camposActor(b._actor),
     });
     return true;
   } catch (err) {
@@ -3154,37 +3263,75 @@ export async function registrarAsistencia(beneficiario, estadoClave, observacion
 // ---------------------------------------------------------------------------
 //  CRUD · Bitácora de auditoría
 // ---------------------------------------------------------------------------
-export async function crearBitacora(entry) {
+const CLAVE_COL_AUDITORIA = 'pdi_auditoria_pendiente';
+
+function leerColaAuditoria() {
+  try { return JSON.parse(localStorage.getItem(CLAVE_COL_AUDITORIA) || '[]') || []; }
+  catch { return []; }
+}
+
+function encolarBitacora(payload) {
   try {
-    // El servidor deriva usuario, rol e IP de la cookie de sesión: el cliente
-    // no puede falsificar la autoría. Solo envía la acción y su contexto.
-    const diffValido = entry.diff && typeof entry.diff === 'object' && !Array.isArray(entry.diff)
-      ? [entry.diff]
-      : (Array.isArray(entry.diff) ? entry.diff : null);
-    const res = await fetch('/api/auditoria', {
-      method: 'POST',
-      credentials: 'same-origin',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        titulo: entry.titulo || '',
-        subtitulo: entry.subtitulo || '',
-        modulo: entry.modulo || 'General',
-        submodulo: entry.submodulo || null,
-        severidad: entry.severidad || 'Rutinario',
-        action: entry.action || '',
-        entity: entry.entity || '',
-        detail: entry.detail || '',
-        sede: entry.sede || 'Central',
-        diff: diffValido,
-      }),
-    });
-    if (!res.ok) {
-      const datos = await res.json().catch(() => ({}));
-      return avisarFallo('Bitácora de auditoría', datos.error || 'No se pudo registrar.') !== null;
+    const cola = leerColaAuditoria();
+    cola.push({ payload, intentos: 0 });
+    localStorage.setItem(CLAVE_COL_AUDITORIA, JSON.stringify(cola.slice(-50)));
+  } catch {}
+}
+
+async function enviarBitacora(payload) {
+  const res = await fetch('/api/auditoria', {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const datos = await res.json().catch(() => ({}));
+    throw new Error(datos.error || 'No se pudo registrar.');
+  }
+}
+
+/** Reintenta los eventos que no se pudieron auditar. Idempotente por evento. */
+export async function reintentarBitacorasPendientes() {
+  let cola = leerColaAuditoria();
+  if (!cola.length) return;
+  const pendientes = [];
+  for (const item of cola) {
+    try {
+      await enviarBitacora(item.payload);
+    } catch {
+      item.intentos = Number(item.intentos || 0) + 1;
+      if (item.intentos < 10) pendientes.push(item);
     }
+  }
+  try { localStorage.setItem(CLAVE_COL_AUDITORIA, JSON.stringify(pendientes)); } catch {}
+}
+
+export async function crearBitacora(entry) {
+  // El servidor deriva usuario, rol e IP de la cookie de sesión: el cliente
+  // no puede falsificar la autoría. Solo envía la acción y su contexto.
+  const diffValido = entry.diff && typeof entry.diff === 'object' && !Array.isArray(entry.diff)
+    ? [entry.diff]
+    : (Array.isArray(entry.diff) ? entry.diff : null);
+  const payload = {
+    titulo: entry.titulo || '',
+    subtitulo: entry.subtitulo || '',
+    modulo: entry.modulo || 'General',
+    submodulo: entry.submodulo || null,
+    severidad: entry.severidad || 'Rutinario',
+    action: entry.action || '',
+    entity: entry.entity || '',
+    detail: entry.detail || '',
+    sede: entry.sede || 'Central',
+    diff: diffValido,
+  };
+  try {
+    await enviarBitacora(payload);
     return true;
   } catch (err) {
-    return avisarFallo('Bitácora de auditoría', err) !== null;
+    if (!entry._desdeCola) encolarBitacora(payload);
+    avisarFallo('Bitácora de auditoría', err);
+    return false;
   }
 }
 

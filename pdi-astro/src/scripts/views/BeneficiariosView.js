@@ -11,6 +11,8 @@ import { iconHtml } from '../../data/iconos.js';
 import { avatarHtml } from "../utils/Avatar.js";
 import { claseLineaServicio, nombreServicioVisible } from "../../data/opcionesBeneficiario.js";
 import { BeneficiarioModel } from "../models/BeneficiarioModel.js";
+import { fetchExpediente } from "../core/db.js";
+import { guardarCacheSesion, leerCacheSesion } from "../core/snapshot.js";
 // Qué filtros del padrón viajan en la URL, con qué valores y cuáles son los
 // defectos. La lista de valores no se inventa: es la misma que admiten los
 // desplegables de padron.html. Si algún día se añade un filtro
@@ -188,7 +190,39 @@ export const BeneficiariosView = {
     this._pageSize = this._getEffectivePageSize();
     this._syncPageSizeSelectUI();
     this._enlazarMenuOrden();
+    this._enlazarPrecargaExpediente();
     this.applyFilters(false);
+  },
+
+  /** Precarga la ficha al apuntar a una fila: el clic la encuentra en sessionStorage. */
+  _enlazarPrecargaExpediente() {
+    if (this._precargaExpedienteLista) return;
+    this._precargaExpedienteLista = true;
+    let temporizador = null;
+    const lanzar = (fila) => {
+      clearTimeout(temporizador);
+      temporizador = setTimeout(() => {
+        const b = BeneficiarioModel.getById(fila.dataset.id);
+        const pid = b?._personaId;
+        if (!pid) return;
+        const clave = `expediente:${String(pid).split(':').pop()}`;
+        if (leerCacheSesion(clave, { ttlMs: 15 * 60 * 1000 })) return;
+        fetchExpediente(pid, { inactivo: false })
+          .then((datos) => {
+            if (datos) guardarCacheSesion(clave, datos, { ttlMs: 15 * 60 * 1000, maxBytes: 512000 });
+          })
+          .catch(() => {});
+      }, 140);
+    };
+    document.addEventListener("pointerover", (e) => {
+      const fila = e.target?.closest?.("tr[data-id], .mobile-card-item[data-id]");
+      if (fila) lanzar(fila);
+    });
+    document.addEventListener("focusin", (e) => {
+      const fila = e.target?.closest?.("tr[data-id], .mobile-card-item[data-id]");
+      if (fila) lanzar(fila);
+    });
+    document.addEventListener("pointerout", () => clearTimeout(temporizador));
   },
 
   /**

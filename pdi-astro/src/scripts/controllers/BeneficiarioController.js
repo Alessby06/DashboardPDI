@@ -11,6 +11,7 @@ import { AnimationEngine } from '../utils/AnimationEngine.js';
 import { CanvasHelper } from '../utils/CanvasHelper.js';
 import { SEDES_OPERATIVAS } from '../../data/opcionesBeneficiario.js';
 import { distritoDeSede, resumenAlergias } from '../core/catalogos.js';
+import { actorLocal } from '../core/db.js';
 
 import { escapar } from "../utils/HtmlHelper.js";;
 import { marcarError } from "../utils/FieldError.js";
@@ -668,7 +669,7 @@ export const BeneficiarioController = {
 
     let creado = null;
     try {
-      creado = await bModel.add(nuevoObj);
+      creado = await bModel.add(nuevoObj, actorLocal());
     } catch (error) {
       console.error("[PDI] No se pudo completar el alta:", error);
     } finally {
@@ -686,14 +687,16 @@ export const BeneficiarioController = {
     // Registro en Log de Auditoría Inviolable
     const audit = window.PDI?.AuditModel || AuditModel;
     if (audit) {
-      audit.log(
-        "Usuario Activo",
-        "Coordinación",
-        "Inscripción de Usuario",
-        creado.codigo || nuevoObj.codigo,
-        `Alta integral con Ficha A1/A3 Ley 29733: ${nombres} ${apellidos} (DNI ${dni})`,
-        "Válido"
-      );
+      const alta = actorLocal();
+      await audit.addLog({
+        user: alta.nombre,
+        role: alta.rol,
+        action: "Inscripción de Usuario",
+        entity: creado.codigo || nuevoObj.codigo,
+        detail: `Alta integral con Ficha A1/A3 Ley 29733: ${nombres} ${apellidos} (DNI ${dni})`,
+        status: "Ejecutado",
+        modulo: "Padrón de Usuarios",
+      });
     }
 
     toast.show(

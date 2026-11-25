@@ -6,7 +6,9 @@
 import {
   crearBeneficiario, actualizarBeneficiario, darBajaBeneficiario,
   reactivarBeneficiario, crearTamizaje, actualizarTamizaje, desactivarTamizaje,
+  actorLocal,
 } from '../core/db.js';
+import { borrarCacheSesion } from '../core/snapshot.js';
 import { AnemiaCalculator } from '../utils/AnemiaCalculator.js';
 import { AnimationEngine } from '../utils/AnimationEngine.js';
 
@@ -75,6 +77,11 @@ export function normalizeBeneficiarioServicios(b) {
 
   b.servicios = Array.from(normalized);
   return b;
+}
+
+function invalidarCacheExpediente(b) {
+  const pid = b?._personaId || b?.personaId;
+  if (pid) borrarCacheSesion(`expediente:${String(pid).split(':').pop()}`);
 }
 
 export const BeneficiarioModel = {
@@ -150,14 +157,14 @@ export const BeneficiarioModel = {
    * rechaza, db.js notifica el error y la próxima hidratación realinea los
    * estados; no se toca ningun almacen local.
    */
-  async add(nuevoUsuario) {
+  async add(nuevoUsuario, actor = null) {
     const list = this.getAll();
     normalizeBeneficiarioServicios(nuevoUsuario);
     list.unshift(nuevoUsuario);
 
     let res = null;
     try {
-      res = await crearBeneficiario(nuevoUsuario);
+      res = await crearBeneficiario(nuevoUsuario, actor || actorLocal());
     } catch (error) {
       console.error("[PDI] Alta de usuario rechazada:", error);
     }
@@ -180,17 +187,19 @@ export const BeneficiarioModel = {
    * muestra un éxito falso. Las actualizaciones secundarias (fotos, servicios)
    * siguen usando `update` para no bloquear la interfaz.
    */
-  async updateConfirmado(id, updatedData) {
+  async updateConfirmado(id, updatedData, actor = null) {
     const list = this.getAll();
     const idx = list.findIndex(b => String(b.id) === String(id) || b.id === Number(id));
     if (idx === -1) return null;
 
     const previo = list[idx];
     const actualizado = normalizeBeneficiarioServicios({ ...previo, ...updatedData });
+    actualizado._actor = actor || actorLocal();
     const ok = await actualizarBeneficiario(actualizado);
     if (!ok) return null;
 
     list[idx] = actualizado;
+    invalidarCacheExpediente(actualizado);
     AnimationEngine.marcarCambio(actualizado.id);
     return actualizado;
   },
@@ -354,7 +363,7 @@ export const BeneficiarioModel = {
    * antes de auditar y redirigir. Si la escritura falla, el usuario vuelve a
    * la lista para que la pantalla no muestre una baja que no ocurrió.
    */
-  async delete(idOCodigo) {
+  async delete(idOCodigo, actor = null) {
     const list = this.getAll();
     const idx = list.findIndex(b =>
       String(b.id) === String(idOCodigo)
@@ -362,6 +371,7 @@ export const BeneficiarioModel = {
       || String(b.codigo || "") === String(idOCodigo));
     if (idx === -1) return false;
     const removed = list.splice(idx, 1)[0];
+    removed._actor = actor || actorLocal();
     const bajaOk = await darBajaBeneficiario(removed);
     if (!bajaOk) {
       list.splice(idx, 0, removed);
@@ -370,6 +380,7 @@ export const BeneficiarioModel = {
     // El archivo se actualiza al momento; la hidratación confirmará la fecha y
     // el estado reales. La sede estaba operativa cuando se dio la baja.
     this._retirados = [{ ...removed, estado: 'Inactivo', sedeActiva: true }, ...this._retirados];
+    invalidarCacheExpediente(removed);
     AnimationEngine.marcarCambio(removed.id);
     return true;
   },
@@ -379,10 +390,11 @@ export const BeneficiarioModel = {
    * Activo y conserva su inscripción, sede y servicio. La vista valida antes
    * que la sede y el servicio sigan operativos.
    */
-  async reactivar(idOCodigo) {
+  async reactivar(idOCodigo, motivo = 'Reactivación administrativa', actor = null) {
     const item = this.getRetiradoById(idOCodigo) || this.getRetiradoByCodigo(idOCodigo);
     if (!item) return false;
-    const ok = await reactivarBeneficiario(item);
+    item._actor = actor || actorLocal();
+    const ok = await reactivarBeneficiario(item, motivo);
     if (!ok) return false;
     const reactivado = { ...item, estado: 'Activo', sedeActiva: true };
     const clave = String(reactivado.codigo || reactivado.id);
@@ -391,8 +403,27 @@ export const BeneficiarioModel = {
     // el archivo y el padrón activo.
     if (!list.some(b => String(b.codigo || b.id) === clave)) list.push(reactivado);
     this._retirados = this._retirados.filter(b => String(b.codigo || b.id) !== clave);
+    invalidarCacheExpediente(reactivado);
     AnimationEngine.marcarCambio(reactivado.id);
     return true;
+  },
+
+  /** Reemplaza un registro con la versión puntual traída de la nube. */
+  reemplazarDesdeNube(datos) {
+    if (!datos) return null;
+    const pid = String(datos._personaId || datos.personaId || '').split(':').pop();
+    const list = this.getAll();
+    const coincide = (b) => String(b._personaId || '').split(':').pop() === pid
+      || String(b.id) === String(datos.id)
+      || (datos.codigo && String(b.codigo) === String(datos.codigo));
+    const indices = list.map((b, i) => (coincide(b) ? i : -1)).filter(i => i >= 0);
+    if (!indices.length) return null;
+    let normalizado = null;
+    indices.forEach((i) => {
+      normalizado = normalizeBeneficiarioServicios({ ...list[i], ...datos });
+      list[i] = normalizado;
+    });
+    return normalizado;
   },
 
   search(query) {

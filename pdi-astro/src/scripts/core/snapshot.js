@@ -33,7 +33,10 @@ function leerClave(nombre) {
 }
 
 /** Acceso transparente y seguro a almacenamiento: intenta localStorage y luego sessionStorage. */
-function leerItemStorage(clave) {
+function leerItemStorage(clave, opciones = {}) {
+  if (opciones.storage === 'session') {
+    try { return sessionStorage.getItem(clave); } catch { return null; }
+  }
   try {
     const valLocal = localStorage.getItem(clave);
     if (valLocal) return valLocal;
@@ -45,7 +48,10 @@ function leerItemStorage(clave) {
   return null;
 }
 
-function guardarItemStorage(clave, valor) {
+function guardarItemStorage(clave, valor, opciones = {}) {
+  if (opciones.storage === 'session') {
+    try { sessionStorage.setItem(clave, valor); return true; } catch { return false; }
+  }
   let guardado = false;
   try {
     localStorage.setItem(clave, valor);
@@ -58,7 +64,11 @@ function guardarItemStorage(clave, valor) {
   return guardado;
 }
 
-function removerItemStorage(clave) {
+function removerItemStorage(clave, opciones = {}) {
+  if (opciones.storage === 'session') {
+    try { sessionStorage.removeItem(clave); } catch {}
+    return;
+  }
   try { localStorage.removeItem(clave); } catch {}
   try { sessionStorage.removeItem(clave); } catch {}
 }
@@ -179,7 +189,7 @@ export function guardarCache(clave, datos, opciones = {}) {
       datos,
     });
     if (texto.length > maxBytes) return;
-    guardarItemStorage(PREFIJO_CACHE + clave, texto);
+    guardarItemStorage(PREFIJO_CACHE + clave, texto, opciones);
   } catch (e) {
     // Cuota llena o almacenamiento deshabilitado: se ignora.
   }
@@ -188,7 +198,7 @@ export function guardarCache(clave, datos, opciones = {}) {
 /** Devuelve la copia válida de una respuesta, o null. */
 export function leerCache(clave, opciones = {}) {
   try {
-    const bruto = leerItemStorage(PREFIJO_CACHE + clave);
+    const bruto = leerItemStorage(PREFIJO_CACHE + clave, opciones);
     if (!bruto) return null;
 
     const cache = JSON.parse(bruto);
@@ -202,10 +212,39 @@ export function leerCache(clave, opciones = {}) {
     if (alcance && cache.alcance && alcance !== cache.alcance) return null;
 
     const ttlMs = opciones.ttlMs || cache.ttlMs || 30 * 60 * 1000;
-    if (!Number.isFinite(cache.ts) || Date.now() - cache.ts > ttlMs) return null;
+    const vencido = Number.isFinite(cache.ts) && Date.now() - cache.ts > ttlMs;
+    if (!Number.isFinite(cache.ts) || (vencido && !opciones.permitirVencido)) return null;
 
-    return cache.datos;
+    return opciones.conMeta ? { datos: cache.datos, ts: cache.ts, vencido } : cache.datos;
   } catch (e) {
     return null;
   }
+}
+
+/** Caché de expediente: solo sessionStorage, con el mismo alcance que el snapshot. */
+export function guardarCacheSesion(clave, datos, opciones = {}) {
+  return guardarCache(clave, datos, { ...opciones, storage: 'session' });
+}
+
+export function leerCacheSesion(clave, opciones = {}) {
+  return leerCache(clave, { ...opciones, storage: 'session' });
+}
+
+export function borrarCacheSesion(clave) {
+  removerItemStorage(PREFIJO_CACHE + clave, { storage: 'session' });
+}
+
+/** Borra todas las copias de sesión cuyo prefijo coincida. */
+export function borrarCachesSesionPrefijo(prefijo) {
+  try {
+    for (let i = sessionStorage.length - 1; i >= 0; i--) {
+      const clave = sessionStorage.key(i);
+      if (clave && clave.startsWith(PREFIJO_CACHE + prefijo)) sessionStorage.removeItem(clave);
+    }
+  } catch {}
+}
+
+/** Igual que leerCacheSesion, pero dice si la copia superó el TTL. */
+export function leerCacheSesionDetalle(clave, opciones = {}) {
+  return leerCache(clave, { ...opciones, storage: 'session', permitirVencido: true, conMeta: true });
 }

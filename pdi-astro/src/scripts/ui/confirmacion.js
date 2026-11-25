@@ -12,6 +12,7 @@
 let resolverActual = null;
 let focoAntes = null;
 let tecladoListo = false;
+let pedirTexto = false;
 
 function referencias() {
   return {
@@ -62,6 +63,21 @@ function terminar(valor) {
   focoAntes = null;
   modal.setAttribute("inert", "");
   modal.setAttribute("aria-hidden", "true");
+
+  if (pedirTexto && valor === true) {
+    const input = document.getElementById("confirmacionTexto");
+    const texto = String(input?.value || '').trim();
+    if (!texto) {
+      try { input?.focus({ preventScroll: true }); } catch {}
+      return;
+    }
+    pedirTexto = false;
+    const resolverTexto = resolverActual;
+    resolverActual = null;
+    if (resolverTexto) resolverTexto(texto);
+    return;
+  }
+  pedirTexto = false;
 
   const resolver = resolverActual;
   resolverActual = null;
@@ -126,6 +142,7 @@ export function iniciarConfirmacion() {
 
 /**
  * Abre el modal y resuelve `true` si se confirma, `false` si se cancela.
+ * Con `campo`, muestra un texto obligatorio y resuelve con lo escrito.
  * Si el marcado no está en la página, la acción se cancela.
  */
 export function confirmar({
@@ -135,6 +152,7 @@ export function confirmar({
   cancelar: textoCancelar = "Cancelar",
   peligro = false,
   origen = null,
+  campo = null,
 } = {}) {
   const activoAntes = document.activeElement;
   const {
@@ -149,6 +167,17 @@ export function confirmar({
   }
 
   iniciarConfirmacion();
+
+  const envoltorioCampo = document.getElementById("confirmacionCampo");
+  const etiquetaCampo = document.getElementById("confirmacionCampoEtiqueta");
+  const inputCampo = document.getElementById("confirmacionTexto");
+  pedirTexto = Boolean(campo && envoltorioCampo && inputCampo);
+  if (envoltorioCampo) envoltorioCampo.style.display = pedirTexto ? "block" : "none";
+  if (pedirTexto) {
+    if (etiquetaCampo) etiquetaCampo.textContent = campo.etiqueta || "Motivo";
+    if (campo.placeholder) inputCampo.placeholder = campo.placeholder;
+    inputCampo.value = campo.valor || "";
+  }
 
   // Si había otra confirmación abierta, se cierra como cancelada.
   if (resolverActual) {
@@ -175,7 +204,7 @@ export function confirmar({
   modal.classList.add("open");
 
   try {
-    cancelar.focus({ preventScroll: true });
+    (pedirTexto ? inputCampo : cancelar)?.focus({ preventScroll: true });
   } catch {
     // Sin foco programático, el teclado sigue entrando por el primer control.
   }

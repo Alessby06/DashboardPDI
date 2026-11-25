@@ -26,7 +26,8 @@ import { ToastView } from "./ToastView.js";
 import { confirmar } from "../ui/confirmacion.js";
 import { confirmarEnToast } from "../ui/toastConfirmacion.js";
 import { crear as crearFiltros } from "../utils/Filters.js";
-import { edadDesdeFecha, estadoActual } from "../core/db.js";
+import { edadDesdeFecha, estadoActual, fetchExpediente, actorLocal, puedeVerExpediente } from "../core/db.js";
+import { guardarCacheSesion, leerCacheSesionDetalle, borrarCacheSesion } from "../core/snapshot.js";
 import { PARENTESCOS, PROGRAMAS, valoresDeGrado } from "../../data/opcionesBeneficiario.js";
 import {
   severidadAlergiaCanonico,
@@ -41,6 +42,9 @@ import { escapar } from "../utils/HtmlHelper.js";
 import { marcarError } from "../utils/FieldError.js";
 import { avatarSeed, claseServicio, esFemenino, inicialesDe, retratoFemenino } from "../utils/Avatar.js";
 import { validarTipo } from "../ui/tiposCampo.js";
+
+const TTL_EXPEDIENTE_MS = 15 * 60 * 1000;
+const claveCacheExpediente = (pid) => `expediente:${String(pid || '').split(':').pop()}`;
 
 /** Estado de anemia con las mismas etiquetas que usan los filtros y tableros. */
 function estadoAnemia(hb) {
@@ -430,6 +434,7 @@ export const ExpedienteView = {
 
     if (!usuario) {
       this._id = null;
+      this._pidHidratado = null;
       this._usuarioActual = null;
       this._esArchivo = false;
       this.isEditing = false;
@@ -537,11 +542,45 @@ export const ExpedienteView = {
     const pageNav = document.querySelector(".expediente-page-nav");
     if (pageNav) pageNav.style.removeProperty("display");
 
+    this._aplicarCacheExpediente(usuario);
     const casos = CasoSocialModel.getAll();
     const caso = casos.find(c => c.codigo === usuario.codigo);
 
+    this._hidratarExpediente(usuario);
     this._pintar(usuario, caso);
     this._pintarPosicion();
+  },
+
+  /** Aplica la copia de sesión sobre el objeto que se va a pintar. */
+  _aplicarCacheExpediente(usuario) {
+    const pid = usuario?._personaId;
+    if (!pid) return;
+    const copia = leerCacheSesionDetalle(claveCacheExpediente(pid), { ttlMs: TTL_EXPEDIENTE_MS });
+    if (!copia?.datos) return;
+    Object.assign(usuario, copia.datos);
+    usuario._trazVencida = Boolean(copia.vencido);
+  },
+
+  /** Consulta puntual en segundo plano: el expediente no espera al lote global. */
+  async _hidratarExpediente(usuario) {
+    const pid = usuario?._personaId;
+    if (!pid) return;
+    if (this._pidHidratado === pid) return;
+    this._pidHidratado = pid;
+
+    const clave = claveCacheExpediente(pid);
+    try {
+      const fresco = await fetchExpediente(pid, {
+        inactivo: Boolean(usuario.estado === 'Inactivo' || usuario.estado === 'Retirado'),
+      });
+      if (!fresco) return;
+      fresco._trazVencida = false;
+      const actual = BeneficiarioModel.reemplazarDesdeNube(fresco);
+      guardarCacheSesion(clave, fresco, { ttlMs: TTL_EXPEDIENTE_MS, maxBytes: 512000 });
+      if (actual && this._id === actual.id) this.render();
+    } catch (err) {
+      console.warn('[PDI] No se pudo refrescar el expediente puntual:', err?.message || err);
+    }
   },
 
   _pintar(b, caso) {
@@ -566,6 +605,7 @@ export const ExpedienteView = {
     this._pintarEntornoFamiliar(b);
     this._pintarConsentimiento(b);
     this._pintarSocial(b, caso);
+    this._pintarTrazabilidad(b);
     this.renderProgramasInscritos(b.servicios, false);
     this._pintarCroquisYFachada(b);
     // Al repintar se sale de edicion: los campos vuelven a quedar bloqueados.
@@ -729,6 +769,37 @@ export const ExpedienteView = {
 
   // --- secciones ------------------------------------------------------------
 
+  /** Coordinación y Admin ven todo; el resto, solo área + sede. */
+  _puedeVerTrazabilidad(b) {
+    return puedeVerExpediente(b);
+  },
+
+  _pintarTrazabilidad(b) {
+    const boton = document.getElementById("tabBtn-trazabilidad");
+    const permitido = this._puedeVerTrazabilidad(b);
+    if (boton) boton.style.display = permitido ? "" : "none";
+
+    const aviso = document.getElementById("expTrazAviso");
+    if (aviso) {
+      aviso.style.display = permitido && b?._trazVencida ? "block" : "none";
+      aviso.textContent = "Copia local antigua: los datos pueden estar desactualizados. Guardar está desactivado hasta reconectar.";
+    }
+    if (!permitido) return;
+
+    const autor = (nombre, id, rol) => [nombre || id || 'No registrado', rol ? `(${rol})` : ''].filter(Boolean).join(' ');
+    this._set("expTrazCreadoPor", autor(b?.creadoPorNombre, b?.creadoPorId, b?.creadoPorRol));
+    this._set("expTrazCreadoFecha", b?.creadoEl || "No registrado");
+    this._set("expTrazActualizadoPor", autor(b?.actualizadoPorNombre, b?.actualizadoPorId, b?.actualizadoPorRol));
+    this._set("expTrazActualizadoFecha", b?.actualizadoEl || "No registrado");
+    this._set("expTrazEstado", b?.estado || "Activo");
+    this._set("expTrazBajaFecha", b?.fechaBaja || "No registrado");
+    this._set("expTrazBajaPor", autor(b?.dadoBajaPorNombre, '', b?.dadoBajaPorRol));
+    this._set("expTrazBajaMotivo", b?.motivoBaja || "No registrado");
+    this._set("expTrazReactivacionFecha", b?.fechaReactivacion || "No registrado");
+    this._set("expTrazReactivadoPor", autor(b?.reactivadoPorNombre, '', b?.reactivadoPorRol));
+    this._set("expTrazReactivacionMotivo", b?.motivoReactivacion || "No registrado");
+  },
+
   /** Asigna un valor a un campo, o "-" si el dato no existe. */
   _set(id, valor) {
     const el = document.getElementById(id);
@@ -759,7 +830,7 @@ export const ExpedienteView = {
         lector.onload = async (ev) => {
           const anterior = b.fotoUrl;
           b.fotoUrl = ev.target.result;
-          const guardado = await BeneficiarioModel.updateConfirmado(b.id, b);
+          const guardado = await BeneficiarioModel.updateConfirmado(b.id, b, actorLocal());
           if (!guardado) {
             // La nube rechazó la foto: se conserva la anterior y db.js ya avisó.
             b.fotoUrl = anterior;
@@ -1192,7 +1263,7 @@ export const ExpedienteView = {
         lector.onload = async (ev) => {
           const anterior = b.fotoFachada;
           b.fotoFachada = ev.target.result;
-          const guardado = await BeneficiarioModel.updateConfirmado(b.id, b);
+          const guardado = await BeneficiarioModel.updateConfirmado(b.id, b, actorLocal());
           if (!guardado) {
             // La nube rechazó la foto: se conserva la anterior y db.js ya avisó.
             b.fotoFachada = anterior;
@@ -1293,7 +1364,12 @@ export const ExpedienteView = {
     // están en el padrón operativo. No se busca por id: puede coincidir con el
     // de un activo y abriría el expediente equivocado.
     if (this._esArchivo) return;
-    if (!BeneficiarioModel.getById(this._id)) return;
+    const actualExp = BeneficiarioModel.getById(this._id);
+    if (!actualExp) return;
+    if (actualExp._trazVencida || this._usuarioActual?._trazVencida) {
+      ToastView.show("Copia desactualizada", "Reconecta para actualizar el expediente antes de editarlo.", "warning");
+      return;
+    }
 
     // Cancelar la edición descarta cualquier cambio no confirmado. El respaldo
     // se toma al entrar; si el guardado falló, la vista no puede quedarse
@@ -1489,6 +1565,10 @@ export const ExpedienteView = {
     if (this._guardandoExpediente) return;
     const b = BeneficiarioModel.getById(this._id);
     if (!b) return;
+    if (b._trazVencida || this._usuarioActual?._trazVencida) {
+      ToastView.show("Copia desactualizada", "Reconecta para actualizar el expediente antes de guardar cambios.", "warning");
+      return;
+    }
     const antesAntropometria = { peso: b.peso, talla: b.talla, hb: b.hb };
 
     this._guardandoExpediente = true;
@@ -1705,7 +1785,7 @@ export const ExpedienteView = {
 
     // Se espera la confirmación de la nube: sin ella no hay éxito ni auditoría.
     // Si falla, la ficha sigue en edición con los datos para poder reintentar.
-    const guardado = await BeneficiarioModel.updateConfirmado(b.id, b);
+    const guardado = await BeneficiarioModel.updateConfirmado(b.id, b, actorLocal());
     if (!guardado) return;
 
     // Activar el Area Social Pastoral implica que el usuario tiene caso social. Si
@@ -1738,7 +1818,24 @@ export const ExpedienteView = {
     const cambioAlergia = alergiaAntes.descripcion !== (b.alergiaDescripcion || "")
       || alergiaAntes.severidad !== (b.alergiaSeveridad || "");
     if (AuditModel && AuditModel.addLog) {
-      AuditModel.addLog({
+      const etiquetas = {
+        nombres: 'Nombres', apellidos: 'Apellidos', dni: 'DNI', fechaNacimiento: 'Fecha de nacimiento',
+        sexo: 'Sexo', direccion: 'Dirección', referencia: 'Referencia', telefono: 'Teléfono',
+        sede: 'Sede', servicios: 'Servicios', estrategia: 'Estrategia', modalidad: 'Modalidad',
+        apoderado: 'Apoderado', parentesco: 'Parentesco', centroSalud: 'Centro de salud',
+        colegio: 'Institución de origen', exoneracionAporte: 'Exoneración de aporte',
+        alergiaDescripcion: 'Alergia', alergiaSeveridad: 'Gravedad de alergia',
+      };
+      const antes = {};
+      const despues = {};
+      Object.keys(etiquetas).forEach((k) => {
+        antes[k] = this._snapshotEdicion?.[k];
+        despues[k] = b[k];
+      });
+      const diffEdicion = AuditModel.calcularDiff
+        ? AuditModel.calcularDiff(antes, despues, etiquetas)
+        : null;
+      await AuditModel.addLog({
         user: usuarioActivo,
         role: "Direccion",
         action: "Edicion de Expediente",
@@ -1748,6 +1845,7 @@ export const ExpedienteView = {
             ? ` | Alergia: ${alergiaAntes.descripcion || "Ninguna"} (${alergiaAntes.severidad || "sin gravedad"}) -> ${b.alergiaDescripcion || "Ninguna"} (${b.alergiaSeveridad || "sin gravedad"})`
             : ""),
         status: "Auditado",
+        diff: diffEdicion,
       });
     }
 
@@ -1830,7 +1928,7 @@ export const ExpedienteView = {
 
     const anterior = b.fotoUrl;
     b.fotoUrl = "";
-    const guardado = await BeneficiarioModel.updateConfirmado(b.id, b);
+    const guardado = await BeneficiarioModel.updateConfirmado(b.id, b, actorLocal());
     if (!guardado) {
       b.fotoUrl = anterior;
       return;
@@ -1880,7 +1978,7 @@ export const ExpedienteView = {
     this._eliminando = true;
     let bajaOk = false;
     try {
-      bajaOk = await BeneficiarioModel.delete(b.id);
+      bajaOk = await BeneficiarioModel.delete(b.id, actorLocal());
     } finally {
       this._eliminando = false;
     }
@@ -1951,10 +2049,23 @@ export const ExpedienteView = {
       return;
     }
 
+    const motivo = await confirmar({
+      titulo: "Reactivar expediente",
+      mensaje: `¿Reactivar a ${b.nombres} ${b.apellidos} (${b.codigo})? Volverá al padrón activo. El motivo quedará registrado en la trazabilidad.`,
+      confirmar: "Reactivar",
+      cancelar: "Cancelar",
+      origen: document.getElementById("btnReactivarBeneficiario"),
+      campo: {
+        etiqueta: "Motivo de la reactivación (obligatorio)",
+        placeholder: "Ej. Regularización de sede y servicios",
+      },
+    });
+    if (!motivo) return;
+
     this._reactivando = true;
     let ok = false;
     try {
-      ok = await BeneficiarioModel.reactivar(b.codigo);
+      ok = await BeneficiarioModel.reactivar(b.codigo, motivo, actorLocal());
     } finally {
       this._reactivando = false;
     }
@@ -1975,7 +2086,7 @@ export const ExpedienteView = {
         role: "Direccion / Admin",
         action: "Reactivación de Usuario",
         entity: b.codigo,
-        detail: `Reactivación del usuario ${b.nombres} ${b.apellidos} en la sede ${b.sede || "sin sede"}; vuelve como Activo. Motivo de la baja: ${b.motivoBaja || "no registrado"}`,
+        detail: `Reactivación del usuario ${b.nombres} ${b.apellidos} en la sede ${b.sede || "sin sede"}; vuelve como Activo. Motivo: ${motivo}. Motivo de la baja: ${b.motivoBaja || "no registrado"}`,
         status: "Ejecutado",
       });
     }

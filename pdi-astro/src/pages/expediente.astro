@@ -339,6 +339,12 @@ import Icon from '../components/Icon.astro';
         <Icon name="salud.escudo" size={null} />
         <span>6. Social ASP</span>
       </button>
+
+      <button type="button" class="modal-tab-btn expediente-nav-item" data-tab="tab-trazabilidad"
+        id="tabBtn-trazabilidad" role="tab" aria-controls="tab-trazabilidad" aria-selected="false" tabindex="-1" style="display:none;">
+        <Icon name="estado.pendiente" size={null} />
+        <span>7. Trazabilidad</span>
+      </button>
     </aside>
 
     <!-- Contenedor de Contenido de la Sección Activa -->
@@ -807,6 +813,74 @@ import Icon from '../components/Icon.astro';
             <div style="font-size:12.5px; color:var(--text-muted); text-align:center; padding:12px;">Cargando historial de atenciones...</div>
           </div>
         </div>
+      </div>
+
+      <!-- SECCIÓN 7: TRAZABILIDAD -->
+      <div class="modal-tab-pane" id="tab-trazabilidad" role="tabpanel" aria-labelledby="tabBtn-trazabilidad" style="display: none;">
+        <p id="expTrazAviso" style="display:none; font-size:12.5px; color:var(--text-warning); margin:0 0 12px;"></p>
+
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:14px;">
+          <div class="form-group">
+            <label>Inscrito en el sistema por:</label>
+            <input type="text" class="form-control" id="expTrazCreadoPor" readonly>
+          </div>
+          <div class="form-group">
+            <label>Fecha de alta:</label>
+            <input type="text" class="form-control" id="expTrazCreadoFecha" readonly>
+          </div>
+          <div class="form-group">
+            <label>Última modificación por:</label>
+            <input type="text" class="form-control" id="expTrazActualizadoPor" readonly>
+          </div>
+          <div class="form-group">
+            <label>Fecha de última modificación:</label>
+            <input type="text" class="form-control" id="expTrazActualizadoFecha" readonly>
+          </div>
+          <div class="form-group">
+            <label>Estado del expediente:</label>
+            <input type="text" class="form-control" id="expTrazEstado" readonly>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid var(--border-subtle); padding-top:14px; margin-top:6px;">
+          <h4 style="margin:0 0 10px; font-size:13.5px; font-weight:700; color:var(--text-main);">Última baja</h4>
+          <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap:12px;">
+            <div class="form-group">
+              <label>Fecha:</label>
+              <input type="text" class="form-control" id="expTrazBajaFecha" readonly>
+            </div>
+            <div class="form-group">
+              <label>Autorizada por:</label>
+              <input type="text" class="form-control" id="expTrazBajaPor" readonly>
+            </div>
+            <div class="form-group" style="grid-column:1 / -1;">
+              <label>Motivo:</label>
+              <input type="text" class="form-control" id="expTrazBajaMotivo" readonly>
+            </div>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid var(--border-subtle); padding-top:14px; margin-top:14px;">
+          <h4 style="margin:0 0 10px; font-size:13.5px; font-weight:700; color:var(--text-main);">Última reactivación</h4>
+          <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap:12px;">
+            <div class="form-group">
+              <label>Fecha:</label>
+              <input type="text" class="form-control" id="expTrazReactivacionFecha" readonly>
+            </div>
+            <div class="form-group">
+              <label>Realizada por:</label>
+              <input type="text" class="form-control" id="expTrazReactivadoPor" readonly>
+            </div>
+            <div class="form-group" style="grid-column:1 / -1;">
+              <label>Motivo:</label>
+              <input type="text" class="form-control" id="expTrazReactivacionMotivo" readonly>
+            </div>
+          </div>
+        </div>
+
+        <p style="margin:16px 0 0; font-size:11.5px; color:var(--text-muted);">
+          La autoría definitiva de cada acción se conserva en la bitácora de auditoría, donde el servidor valida la sesión.
+        </p>
       </div>
 
     </div>

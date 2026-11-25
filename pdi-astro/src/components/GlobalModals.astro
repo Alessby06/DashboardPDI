@@ -1721,6 +1721,11 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
       </div>
       <div class="modal-body">
         <p id="confirmacionMensaje" class="confirm-message"></p>
+        <div id="confirmacionCampo" style="display:none; margin-top:10px;">
+          <label id="confirmacionCampoEtiqueta" for="confirmacionTexto"
+            style="display:block; font-size:11.5px; font-weight:700; color:var(--text-dim); margin-bottom:4px;"></label>
+          <input type="text" id="confirmacionTexto" class="form-control" maxlength="200" autocomplete="off">
+        </div>
       </div>
       <div class="modal-footer confirm-actions">
         <button type="button" class="btn-action" id="btnConfirmacionCancelar">Cancelar</button>

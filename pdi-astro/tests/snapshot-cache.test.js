@@ -35,6 +35,10 @@ import {
   limpiarSnapshot,
   guardarCache,
   leerCache,
+  guardarCacheSesion,
+  leerCacheSesion,
+  leerCacheSesionDetalle,
+  borrarCacheSesion,
   CLAVE_SNAPSHOT,
 } from "../src/scripts/core/snapshot.js";
 
@@ -153,4 +157,52 @@ test("snapshot: limpiarSnapshot borra tanto localStorage como sessionStorage", (
   assert.equal(sessionStorage.getItem(CLAVE_SNAPSHOT), null);
   assert.equal(leerSnapshot(), null);
   assert.equal(leerCache("bitacora"), null);
+});
+
+test("caché de expediente: vive solo en sessionStorage y respeta su TTL", () => {
+  localStorage.clear();
+  sessionStorage.clear();
+  localStorage.setItem("pdi_usuario_login", "coord_juan");
+  localStorage.setItem("pdi_active_role", "coord");
+  localStorage.setItem("pdi_usuario_sedes", "[]");
+
+  guardarCacheSesion("expediente:abc", { id: 1, nombres: "Ana" }, { ttlMs: 15 * 60 * 1000 });
+
+  assert.equal(localStorage.getItem("pdi_cache_v1:expediente:abc"), null, "No debe tocar localStorage");
+  assert.ok(sessionStorage.getItem("pdi_cache_v1:expediente:abc"), "Debe guardar en sessionStorage");
+  assert.deepEqual(leerCacheSesion("expediente:abc", { ttlMs: 15 * 60 * 1000 }), { id: 1, nombres: "Ana" });
+
+  borrarCacheSesion("expediente:abc");
+  assert.equal(leerCacheSesion("expediente:abc", { ttlMs: 15 * 60 * 1000 }), null);
+});
+
+test("caché de expediente: informa cuando la copia venció", () => {
+  localStorage.clear();
+  sessionStorage.clear();
+  localStorage.setItem("pdi_usuario_login", "coord_juan");
+  localStorage.setItem("pdi_active_role", "coord");
+  localStorage.setItem("pdi_usuario_sedes", "[]");
+
+  guardarCacheSesion("expediente:viejo", { id: 2 }, { ttlMs: 1 });
+  const crudo = JSON.parse(sessionStorage.getItem("pdi_cache_v1:expediente:viejo"));
+  crudo.ts = Date.now() - 60_000;
+  sessionStorage.setItem("pdi_cache_v1:expediente:viejo", JSON.stringify(crudo));
+
+  assert.equal(leerCacheSesion("expediente:viejo", { ttlMs: 1 }), null);
+  const detalle = leerCacheSesionDetalle("expediente:viejo", { ttlMs: 1 });
+  assert.equal(detalle.vencido, true);
+  assert.deepEqual(detalle.datos, { id: 2 });
+});
+
+test("caché de expediente: descarta copia de otro alcance", () => {
+  localStorage.clear();
+  sessionStorage.clear();
+  localStorage.setItem("pdi_usuario_login", "coord_juan");
+  localStorage.setItem("pdi_active_role", "coord");
+  localStorage.setItem("pdi_usuario_sedes", "[]");
+
+  guardarCacheSesion("expediente:alcance", { id: 3 }, { ttlMs: 60000 });
+  localStorage.setItem("pdi_active_role", "admin");
+
+  assert.equal(leerCacheSesion("expediente:alcance", { ttlMs: 60000 }), null);
 });
