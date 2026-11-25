@@ -169,7 +169,9 @@ export const ScrollManager = {
       const nodes = rootIndex < 0 ? path : path.slice(0, rootIndex);
       if (nodes.some((node) => node instanceof HTMLElement && preventNested(node))) return true;
 
-      const ignorar = filtrarReversaRueda({
+      const enFondo = this.main && typeof this.main.limit === 'number'
+        && this.main.scroll >= this.main.limit - 2;
+      const ignorar = !enFondo && filtrarReversaRueda({
         deltaY,
         ahora: performance.now(),
         isScrolling: this.main?.isScrolling,
