@@ -9,7 +9,8 @@ const EASE = "cubic-bezier(0.16, 1, 0.3, 1)";
 
 /** Preferencia del sistema: sin movimiento, los cambios son instantáneos. */
 export function movimientoReducido() {
-  return typeof window.matchMedia === "function"
+  return typeof window !== "undefined"
+    && typeof window.matchMedia === "function"
     && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
@@ -45,7 +46,7 @@ function clave(el) {
 }
 
 export function prepararFilas(tbody) {
-  if (!tbody || !tbody.isConnected || tbody.ownerDocument !== document || movimientoReducido()) return null;
+  if (typeof document === "undefined" || !tbody || !tbody.isConnected || tbody.ownerDocument !== document || movimientoReducido()) return null;
 
   const tabla = tbody.closest("table");
   const contenedor = tabla && tabla.parentElement;
@@ -201,15 +202,17 @@ export function pintarFilas(tbody, html) {
   animarFilas(tbody, flip);
 }
 
-// --- Tarjetas móviles -------------------------------------------------------
+// --- Tarjetas y listas FLIP (móviles y vistas modulares) --------------------
 
 export function prepararTarjetas(contenedor) {
-  if (!contenedor || !contenedor.isConnected || contenedor.ownerDocument !== document || movimientoReducido()) {
+  if (typeof document === "undefined" || !contenedor || !contenedor.isConnected || contenedor.ownerDocument !== document || movimientoReducido()) {
     return null;
   }
   if (!soportaAnimacion()) return null;
 
-  const items = [...contenedor.children].filter(visible);
+  contenedor.querySelectorAll(".flip-exit-layer").forEach((capa) => capa.remove());
+
+  const items = [...contenedor.children].filter((el) => visible(el) && !el.classList.contains("flip-exit-layer"));
   if (!items.length || items.some(esPlaceholder)) return null;
 
   const contRect = contenedor.getBoundingClientRect();
@@ -223,13 +226,13 @@ export function prepararTarjetas(contenedor) {
     salidas.push({ el, key, top: r.top - contRect.top + contenedor.scrollTop, alto: r.height });
   });
 
-  return { rects, items: salidas };
+  return { rects, items: salidas, altoPrevio: contRect.height };
 }
 
 export function animarTarjetas(contenedor, ctx) {
   if (!ctx || !contenedor || !soportaAnimacion() || movimientoReducido()) return;
 
-  const nuevas = [...contenedor.children].filter(visible);
+  const nuevas = [...contenedor.children].filter((el) => visible(el) && !el.classList.contains("flip-exit-layer"));
   const clavesNuevas = new Set(nuevas.map(clave));
   const salidas = ctx.items.filter(({ key }) => !clavesNuevas.has(key));
 
@@ -241,7 +244,7 @@ export function animarTarjetas(contenedor, ctx) {
 
     const capa = document.createElement("div");
     capa.className = "flip-exit-layer";
-    capa.style.cssText = "position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden;";
+    capa.style.cssText = `position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden;min-height:${ctx.altoPrevio || 0}px;`;
 
     salidas.forEach(({ el, top, alto }) => {
       if (el.isConnected) return;

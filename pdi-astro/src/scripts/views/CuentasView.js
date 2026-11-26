@@ -19,6 +19,7 @@ import { fetchSedes } from '../core/db.js';
 import { SedeModel } from '../models/SedeModel.js';
 import { guardarCache, leerCache } from '../core/snapshot.js';
 import { confirmar } from '../ui/confirmacion.js';
+import { prepararTarjetas, animarTarjetas } from '../utils/FlipTabla.js';
 
 // La lista de cuentas no vive en el snapshot clínico: se cachea aparte. Un TTL
 // más largo que antes evita que cada entrada pasados unos minutos vuelva a
@@ -793,6 +794,7 @@ function render() {
   renderLoteBar();
 
   if (!visibles.length) {
+    const flip = prepararTarjetas(lista);
     lista.innerHTML = '';
     if (head) head.hidden = true;
     if (wrap) wrap.setAttribute('data-vacio', 'true');
@@ -806,6 +808,7 @@ function render() {
            <p class="cuentas-vacio-sub">Crea la primera cuenta con el botón «Nueva cuenta».</p>`;
       vacio.hidden = false;
     }
+    if (flip) animarTarjetas(lista, flip);
     return;
   }
 
@@ -816,7 +819,9 @@ function render() {
   if (wrap) wrap.removeAttribute('data-vacio');
   if (head) head.hidden = false;
 
+  const flip = prepararTarjetas(lista);
   lista.innerHTML = visibles.map(filaHtml).join('');
+  if (flip) animarTarjetas(lista, flip);
   AnimationEngine.destacarCambio(lista);
 }
 
