@@ -14,13 +14,11 @@ export const DashboardView = {
   _haEntrado: false,
   _filtroSede: "all",
   _enlazado: false,
-  _plieguesEnlazados: false,
   _cifrasPintadas: false,
 
   reiniciarEntrada() {
     this._haEntrado = false;
     this._enlazado = false;
-    this._modoPliegues = null;
     const desdeUrl = this._leerFiltroSedeDeURL();
     if (desdeUrl && desdeUrl !== "all") {
       this._filtroSede = desdeUrl;
@@ -60,7 +58,6 @@ export const DashboardView = {
   render(stats) {
     const esPrimeraEntrada = !this._haEntrado;
     this._haEntrado = true;
-    this._sincronizarPliegues();
 
     const estado = window.PDI?.DB?.estadoActual?.() || "ok";
 
@@ -298,35 +295,6 @@ export const DashboardView = {
     if (datosOk) this._cifrasPintadas = true;
   },
 
-  /** Pliegues del detalle: abiertos en escritorio, cerrados en móvil. */
-  _sincronizarPliegues() {
-    const movil = window.matchMedia && window.matchMedia("(max-width: 820px)");
-    const modo = movil && movil.matches ? "movil" : "escritorio";
-
-    // Solo se fuerza al cambiar de modo: así un pliegue abierto a mano no se
-    // cierra cada vez que llega un dato nuevo.
-    if (this._modoPliegues !== modo) {
-      this._modoPliegues = modo;
-      document.querySelectorAll("details.dash-fold").forEach((detalle) => {
-        detalle.open = modo === "escritorio";
-      });
-    }
-
-    if (movil && movil.addEventListener && !this._plieguesEnlazados) {
-      this._plieguesEnlazados = true;
-      movil.addEventListener("change", () => {
-        this._modoPliegues = null;
-        this._sincronizarPliegues();
-      });
-    }
-  },
-
-  /** Valor visible en la cabecera de un pliegue. */
-  _fold(id, texto) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = texto;
-  },
-
   _cifra(elemento, valor, formato, animar) {
     if (!elemento) return;
     const numero = Number(valor);
@@ -415,15 +383,6 @@ export const DashboardView = {
     const aspCasita = usuariosAsp.filter(b => claves.get(b).has("casita")).length;
 
     // Cifra de cabecera de cada pliegue: resume sin abrir.
-    const pctAnemiaFold = Number(stats.pctTotalAnemia) || 0;
-    const totalAnemiaFold = Number(stats.totalAnemia) || 0;
-    const tamizadosFold = Number(stats.tamizados) || 0;
-    const comasFold = Number(stats.comasCount) || 0;
-    const carabaylloFold = Number(stats.carabaylloCount) || 0;
-    this._fold("foldAnemiaValor", datosOk ? `${pctAnemiaFold} % · ${totalAnemiaFold}/${tamizadosFold}` : "······");
-    this._fold("foldServiciosValor", datosOk ? `${alimentario}, ${educativo} y ${usuariosAsp.length} usuarios` : "······");
-    this._fold("foldTerritorioValor", datosOk ? `${comasFold} y ${carabaylloFold} · ${voluntarios.length} activas` : "······");
-
     const poner = (id, n) => {
       const el = document.getElementById(id);
       if (el) this._cifra(el, datosOk ? n : 0, (v) => String(Math.round(v)), animar);
@@ -713,8 +672,8 @@ export const DashboardView = {
 
   /**
    * Matriz territorial clasificada: Servicios Principales e Iniciativas Territoriales Comunitarias.
-   * Organizada en escritorio como tabla semántica con encabezados de categoría;
-   * en móvil, en bloques por distrito con subtítulos de sección.
+   * Una sola tabla semántica: en móvil cada fila se recompone en servicio + barra
+   * + distritos, en vez de duplicar el marcado por distrito.
    */
   renderTerritorio(usuarios, claves) {
     const container = document.getElementById("dashTerritoryMatrix");
@@ -811,67 +770,67 @@ export const DashboardView = {
         : `${ubicados} de ${totalUsuarios} ${sustantivo} ${participio} en Comas o Carabayllo.`;
     }
 
+    const sustantivoTotal = totalUsuarios === 1 ? "usuario" : "usuarios";
+
     const cabeceras = visibles.map(d => {
       const info = resumen[d.clave];
       const pct = Math.round((info.total / basePct) * 100);
       return `<th scope="col" data-dist="${d.clave}">
         <span class="dash-matrix-dist">${escapar(d.nombre)}</span>
-        <span class="dash-matrix-total">${info.total} usuarios · ${pct} %</span>
+        <span class="dash-matrix-total">${info.total} ${sustantivoTotal}</span>
+        <span class="dash-matrix-share">${pct} %</span>
       </th>`;
     }).join("");
+
+    // El total por servicio y la barra de móvil se miden contra el servicio
+    // con más cobertura: así las barras comparan filas entre sí.
+    const totalServicio = (p) => visibles.reduce((suma, d) => suma + resumen[d.clave].servicios[p.clave], 0);
+    const mayorServicio = Math.max(1, ...todosProgramas.map(totalServicio));
+    const cuota = (n) => `${((n / mayorServicio) * 100).toFixed(1)}%`;
 
     const tbodyGrupos = taxonomiaProgramas.map(g => {
       const filasGrupo = g.items.map(p => {
         const celdas = visibles
-          .map(d => `<td>${resumen[d.clave].servicios[p.clave]}</td>`)
+          .map(d => `<td data-k="${escapar(d.nombre)}">${resumen[d.clave].servicios[p.clave]}</td>`)
           .join("");
-        return `<tr><th scope="row">${escapar(p.nombre)}</th>${celdas}</tr>`;
+        const comas = resumen.comas.servicios[p.clave];
+        const carabayllo = resumen.carabayllo.servicios[p.clave];
+        const total = totalServicio(p);
+        return `<tr style="--a:${cuota(comas)};--b:${cuota(comas + carabayllo)};--c:${cuota(total)}">
+          <th scope="row">${escapar(p.nombre)}</th>${celdas}
+          <td data-k="Total" class="dash-matrix-total-cell">${total}</td>
+        </tr>`;
       }).join("");
       return `
         <tbody>
           <tr class="dash-matrix-group-row">
-            <th colspan="${visibles.length + 1}">${escapar(g.grupo)}</th>
+            <th colspan="${visibles.length + 2}" scope="rowgroup">
+              <span class="dash-matrix-group-inner">
+                <span>${escapar(g.grupo)}</span>
+                <span class="dash-matrix-group-count">${g.items.length} servicios</span>
+              </span>
+            </th>
           </tr>
           ${filasGrupo}
         </tbody>
       `;
     }).join("");
 
-    const bloques = visibles.map(d => {
-      const info = resumen[d.clave];
-      const pct = Math.round((info.total / basePct) * 100);
-      const gruposMovil = taxonomiaProgramas.map(g => {
-        const filasMovil = g.items.map(p => `
-          <div class="dash-matrix-mobile-row">
-            <dt>${escapar(p.nombre)}</dt>
-            <dd>${info.servicios[p.clave]}</dd>
-          </div>`).join("");
-        return `
-          <h4 class="dash-matrix-mobile-subtitle">${escapar(g.grupo)}</h4>
-          <dl class="dash-matrix-mobile-list">${filasMovil}</dl>
-        `;
-      }).join("");
-      const etiqueta = d.clave === "otras" ? "Otras sedes o sin distrito" : `Distrito de ${d.nombre}`;
-      return `
-        <section class="dash-matrix-mobile-district" data-dist="${d.clave}" aria-label="${escapar(etiqueta)}">
-          <h3>
-            <span>${escapar(d.largo)}</span>
-            <span class="dash-matrix-mobile-total">${info.total} usuarios · ${pct} %</span>
-          </h3>
-          ${gruposMovil}
-        </section>`;
-    }).join("");
-
-    const firma = JSON.stringify({ cabeceras, tbodyGrupos, bloques });
+    const firma = JSON.stringify({ cabeceras, tbodyGrupos });
     if (container.dataset.firma === firma) return;
     container.dataset.firma = firma;
     container.innerHTML = `
       <table class="dash-matrix">
         <caption class="dash-sr-only">Cobertura territorial por distrito y servicio</caption>
-        <thead><tr><th scope="col">Servicio</th>${cabeceras}</tr></thead>
+        <thead>
+          <tr>
+            <th scope="col">Servicio</th>
+            ${cabeceras}
+            <th scope="col" class="dash-matrix-col-total">Total</th>
+          </tr>
+        </thead>
         ${tbodyGrupos}
       </table>
-      <div class="dash-matrix-mobile">${bloques}</div>
     `;
   },
 

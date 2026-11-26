@@ -132,13 +132,6 @@ import Icon from '../components/Icon.astro';
         </div>
       </section>
 
-      <details class="dash-fold" open>
-        <summary class="dash-fold-cab">
-          <span class="dash-fold-titulo">Anemia</span>
-          <span class="dash-fold-valor" id="foldAnemiaValor">······</span>
-          <Icon name="accion.abrir" size={14} class="dash-fold-icono" />
-        </summary>
-
       <section class="dash-clinica dash-superficie" aria-labelledby="dashClinicaTitle">
         <header class="dash-clinica-cab">
           <div>
@@ -192,15 +185,6 @@ import Icon from '../components/Icon.astro';
 
         <p class="dash-clinica-pie">Porcentajes calculados sobre usuarios tamizados, no sobre el padrón completo.</p>
       </section>
-
-      </details>
-
-      <details class="dash-fold" open>
-        <summary class="dash-fold-cab">
-          <span class="dash-fold-titulo">Servicios</span>
-          <span class="dash-fold-valor" id="foldServiciosValor">······</span>
-          <Icon name="accion.abrir" size={14} class="dash-fold-icono" />
-        </summary>
 
       <section class="dash-servicios-seccion" aria-labelledby="dashServiciosTitle">
         <div class="dash-seccion-cab">
@@ -259,15 +243,6 @@ import Icon from '../components/Icon.astro';
         </div>
       </section>
 
-      </details>
-
-      <details class="dash-fold" open>
-        <summary class="dash-fold-cab">
-          <span class="dash-fold-titulo">Territorio y equipo</span>
-          <span class="dash-fold-valor" id="foldTerritorioValor">······</span>
-          <Icon name="accion.abrir" size={14} class="dash-fold-icono" />
-        </summary>
-
       <div class="dash-grid-territorio">
         <section class="dash-panel dash-superficie" aria-labelledby="dashTerritorioTitle">
           <header class="dash-panel-cab">
@@ -298,20 +273,12 @@ import Icon from '../components/Icon.astro';
         </aside>
       </div>
 
-      </details>
-
       <p class="dash-conciliacion" id="dashReconcile" aria-live="polite"></p>
     </div>
 
     <script is:inline>
       (function () {
         try {
-          // En móvil el detalle arranca plegado; en escritorio, abierto.
-          if (window.matchMedia && window.matchMedia("(max-width: 820px)").matches) {
-            var pliegues = document.querySelectorAll("details.dash-fold");
-            for (var p = 0; p < pliegues.length; p++) pliegues[p].open = false;
-          }
-
           var fechaEl = document.getElementById("dashFolioFecha");
           var ahora = new Date();
           if (fechaEl) {

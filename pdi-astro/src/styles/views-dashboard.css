@@ -283,13 +283,16 @@ body[data-page="dashboard"] #mainContent {
 }
 
 .dash-alerta-hero {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-top: 9px;
-  font-size: 11.5px;
-  font-weight: 700;
-  color: var(--dash-amber);
+  margin-top: 10px;
+  padding: 3px 9px 3px 7px;
+  font-size: 10.5px;
+  font-weight: 650;
+  color: var(--chart-butter-ink);
+  background: var(--gt-yellow-bg);
+  border-radius: var(--radius-full);
 }
 
 .dash-alerta-hero::before {
@@ -328,9 +331,8 @@ body[data-page="dashboard"] #mainContent {
 }
 
 .dash-clinica-resumen {
-  display: flex;
-  align-items: flex-end;
-  gap: 22px;
+  display: grid;
+  gap: 14px;
 }
 
 .dash-prevalencia { flex: none; }
@@ -354,9 +356,8 @@ body[data-page="dashboard"] #mainContent {
 
 .dash-barra-clinica {
   display: flex;
-  flex: 1;
-  height: 10px;
-  margin-bottom: 4px;
+  width: 100%;
+  height: 12px;
   border-radius: var(--radius-full);
   background: var(--chart-track);
   overflow: hidden;
@@ -727,7 +728,7 @@ body[data-page="dashboard"] #mainContent {
 
 .dash-grid-territorio {
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(290px, 0.75fr);
+  grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.85fr);
   gap: 20px;
   align-items: start;
 }
@@ -810,6 +811,14 @@ body[data-page="dashboard"] #mainContent {
   color: var(--dash-dim);
 }
 
+.dash-matrix-share {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--dash-dim);
+  font-variant-numeric: tabular-nums;
+}
+
 .dash-matrix tbody th,
 .dash-matrix tbody td {
   padding: 9px 8px;
@@ -844,7 +853,27 @@ body[data-page="dashboard"] #mainContent {
   color: var(--dash-dim);
 }
 
-.dash-matrix-mobile { display: none; }
+.dash-matrix-group-inner {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dash-matrix-group-count {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--dash-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-matrix-col-total,
+.dash-matrix-total-cell { color: var(--dash-dim); }
+.dash-matrix-total-cell { font-weight: 600; }
+
+.dash-matrix tbody tr:not(.dash-matrix-group-row) { transition: background-color 120ms ease; }
 
 .dash-empty,
 .dash-cargando {
@@ -881,12 +910,15 @@ body[data-page="dashboard"] #mainContent {
   margin: 0;
   padding: 0;
   list-style: none;
+  max-width: 560px;
 }
 
 .dash-vol-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 4px 10px;
+  grid-template-columns: minmax(0, 1fr) 72px auto;
+  grid-template-areas: "name track count";
+  align-items: center;
+  gap: 10px;
   padding: 9px 0;
   border-top: 1px solid var(--dash-rule);
 }
@@ -894,6 +926,7 @@ body[data-page="dashboard"] #mainContent {
 .dash-vol-row:first-child { border-top: 0; }
 
 .dash-vol-name {
+  grid-area: name;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -904,6 +937,9 @@ body[data-page="dashboard"] #mainContent {
 }
 
 .dash-vol-count {
+  grid-area: count;
+  min-width: 20px;
+  text-align: right;
   font-size: 13px;
   font-weight: 800;
   color: var(--dash-ink);
@@ -911,9 +947,9 @@ body[data-page="dashboard"] #mainContent {
 }
 
 .dash-vol-track {
-  grid-column: 1 / -1;
+  grid-area: track;
   display: block;
-  height: 2px;
+  height: 4px;
   border-radius: var(--radius-full);
   background: var(--chart-track);
   overflow: hidden;
@@ -924,6 +960,7 @@ body[data-page="dashboard"] #mainContent {
   height: 100%;
   border-radius: var(--radius-full);
   background: var(--chart-blue-fill);
+  transition: width var(--dur-norm) var(--ease-out);
 }
 
 .dash-vol-flag {
@@ -997,6 +1034,10 @@ body[data-page="dashboard"] #mainContent {
     border-color: var(--dash-rule-hover);
   }
 
+  .dash-matrix tbody tr:not(.dash-matrix-group-row):hover {
+    background: var(--dash-hover);
+  }
+
   .dash-prioridad-link:hover .dash-prioridad-go {
     color: var(--dash-ink);
     transform: translateX(2px);
@@ -1035,14 +1076,6 @@ body[data-page="dashboard"] #mainContent {
   .dash-acciones .pdi-select { width: 100%; }
   .dash-acciones .pdi-select-trigger { width: 100%; }
   .dash-servicios { grid-template-columns: 1fr; }
-  .dash-clinica-resumen {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 14px;
-  }
-  /* En columna, flex: 1 con flex-basis 0% colapsaba la barra a 0 px de alto. */
-  .dash-barra-clinica { flex: none; height: 10px; margin-bottom: 0; }
-  .dash-bandas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 640px) {
@@ -1051,79 +1084,92 @@ body[data-page="dashboard"] #mainContent {
     padding: 12px 10px;
     min-height: calc(100% + 24px);
   }
-  .dash-hero { grid-template-columns: 1fr; }
   .dash-hero .dash-kpi + .dash-kpi {
     border-left: 0;
     border-top: 1px solid var(--dash-rule);
   }
-  .dash-cifra { font-size: 40px; }
+  /* Matriz: una fila por servicio con barra por distrito. */
   .dash-matrix-host { overflow: visible; }
-  .dash-matrix { display: none; }
-  .dash-matrix-mobile { display: block; margin-top: 10px; }
-  .dash-matrix-mobile-district {
+  .dash-matrix thead { display: none; }
+  .dash-matrix,
+  .dash-matrix tbody { display: block; }
+  .dash-matrix tbody tr:not(.dash-matrix-group-row) {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px 10px;
     padding: 12px 0;
     border-top: 1px solid var(--dash-rule);
   }
-  .dash-matrix-mobile-district:first-child { border-top: 0; }
-  .dash-matrix-mobile-district h3 {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 10px;
-    margin: 0 0 6px;
-    font-size: 13px;
-    font-weight: 800;
-    color: var(--dash-ink);
+  .dash-matrix tbody tr:not(.dash-matrix-group-row) th {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    padding: 0;
+    font-size: 12.5px;
   }
-  .dash-matrix-mobile-district h3 > span:first-child::before {
-    content: "";
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    margin-right: 6px;
-    border-radius: var(--radius-full);
-    background: var(--dash-rule-strong);
-    vertical-align: middle;
+  .dash-matrix tbody tr:not(.dash-matrix-group-row) td {
+    padding: 0;
+    border-bottom: 0;
+    text-align: left;
+    font-size: 12.5px;
   }
-  .dash-matrix-mobile-district[data-dist="comas"] h3 > span:first-child::before {
-    background: var(--chart-blue);
-  }
-  .dash-matrix-mobile-district[data-dist="carabayllo"] h3 > span:first-child::before {
-    background: var(--chart-butter);
-  }
-  .dash-matrix-mobile-total {
+  .dash-matrix tbody tr:not(.dash-matrix-group-row) td::before {
+    content: attr(data-k);
+    display: inline;
+    margin-right: 5px;
+    padding-left: 10px;
     font-size: 10.5px;
+    font-weight: 650;
+    color: var(--dash-dim);
+    background-image: radial-gradient(circle, var(--dot, var(--dash-rule-strong)) 0 2.5px, transparent 2.6px);
+    background-repeat: no-repeat;
+    background-position: 0 50%;
+    background-size: 6px 6px;
+  }
+  .dash-matrix tbody td[data-k="Comas"] {
+    --dot: var(--chart-blue);
+    grid-column: 1;
+    grid-row: 3;
+  }
+  .dash-matrix tbody tr:not(.dash-matrix-group-row) td[data-k="Comas"]::before { color: var(--chart-blue-ink); }
+  .dash-matrix tbody td[data-k="Carabayllo"] {
+    --dot: var(--chart-butter);
+    grid-column: 2;
+    grid-row: 3;
+  }
+  .dash-matrix tbody tr:not(.dash-matrix-group-row) td[data-k="Carabayllo"]::before { color: var(--chart-butter-ink); }
+  .dash-matrix tbody td[data-k="Total"] {
+    grid-column: 3;
+    grid-row: 3;
+    color: var(--dash-dim);
     font-weight: 600;
-    color: var(--dash-dim);
   }
-  .dash-matrix-mobile-subtitle {
-    margin: 10px 0 2px;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--dash-dim);
+  .dash-matrix tbody td[data-k="Otras sedes"] {
+    grid-column: 1 / -1;
+    grid-row: 4;
   }
-  .dash-matrix-mobile-list { margin: 0; }
-  .dash-matrix-mobile-row {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 6px 0;
+  .dash-matrix tbody tr:not(.dash-matrix-group-row)::after {
+    content: "";
+    grid-column: 1 / -1;
+    grid-row: 2;
+    height: 4px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(
+      90deg,
+      var(--chart-blue-fill) 0 var(--a, 0%),
+      var(--chart-butter-fill) var(--a, 0%) var(--b, 0%),
+      var(--dash-rule-strong) var(--b, 0%) var(--c, 0%),
+      var(--chart-track) var(--c, 0%) 100%
+    );
+  }
+  .dash-matrix tbody tr.dash-matrix-group-row th {
+    padding: 16px 0 4px;
+    border-top: 0;
+    font-size: 10.5px;
+  }
+  .dash-matrix tbody:first-of-type tr.dash-matrix-group-row th { padding-top: 2px; }
+  .dash-matrix tbody + tbody tr.dash-matrix-group-row th {
     border-top: 1px solid var(--dash-rule);
-  }
-  .dash-matrix-mobile-row:first-of-type { border-top: 0; }
-  .dash-matrix-mobile-row dt {
-    font-size: 11.5px;
-    color: var(--dash-muted);
-  }
-  .dash-matrix-mobile-row dd {
-    margin: 0;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--dash-ink);
-    font-variant-numeric: tabular-nums;
+    padding-top: 14px;
   }
   .dash-prioridad-link { padding-left: 16px; padding-right: 16px; }
   .dash-clinica,
@@ -1139,20 +1185,7 @@ body[data-page="dashboard"] #mainContent {
   .dash-boton { min-width: 38px; padding: 0 10px; }
 }
 
-/* --- Pliegues y densidad móvil -------------------------------------------- */
-
-.dash-fold { min-width: 0; }
-
-.dash-fold > summary {
-  list-style: none;
-  cursor: pointer;
-}
-
-.dash-fold > summary::-webkit-details-marker { display: none; }
-
-@media (min-width: 821px) {
-  .dash-fold > summary { display: none; }
-}
+/* --- Densidad móvil ------------------------------------------------------- */
 
 @media (max-width: 820px) {
   /* Cabecera: la fecha deja de ser el titular; el dato manda. */
@@ -1254,7 +1287,12 @@ body[data-page="dashboard"] #mainContent {
   .dash-barra-cobertura { display: none; }
 
   /* Prioridades: filas dentro de una sola superficie. */
-  .dash-seccion-cab { margin-bottom: 8px; }
+  .dash-seccion-cab {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    margin-bottom: 8px;
+  }
   .dash-prioridades > .dash-seccion-cab h2 {
     font-size: 13px;
     font-weight: 600;
@@ -1276,9 +1314,11 @@ body[data-page="dashboard"] #mainContent {
     display: grid;
     grid-template-columns: 7px minmax(0, 1fr) auto 14px;
     grid-template-areas:
+      "dot area count go"
       "dot title count go"
-      "dot meta count go";
-    gap: 1px 10px;
+      "dot meta count go"
+      "dot track track go";
+    gap: 2px 10px;
     min-height: 64px;
     padding: 12px 14px;
     background: transparent;
@@ -1299,8 +1339,17 @@ body[data-page="dashboard"] #mainContent {
   #atencionFilaAnemia .dash-prioridad-link::before { background: var(--gt-red); }
   #atencionFilaSinTamizaje .dash-prioridad-link::before { background: var(--gt-yellow); }
   #atencionFilaVoluntarios .dash-prioridad-link::before { background: var(--gt-orange); }
-  .dash-prioridad-area,
-  .dash-prioridad-track,
+  .dash-prioridad-area {
+    grid-area: area;
+    font-size: 10px;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    color: var(--dash-dim);
+  }
+  .dash-prioridad-track {
+    grid-area: track;
+    margin-top: 7px;
+  }
   .dash-prioridad-detalle { display: none; }
   .dash-prioridad-titulo {
     grid-area: title;
@@ -1321,66 +1370,21 @@ body[data-page="dashboard"] #mainContent {
     transform: none;
   }
 
-  /* Pliegues: la cabecera resume y el detalle se abre a un toque. */
-  .dash-fold > summary {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    min-height: 52px;
-    padding: 0 2px;
-    border-bottom: 1px solid var(--dash-rule);
+  /* Sin pliegues: cada sección se separa con una línea fina. */
+  .dash-clinica,
+  .dash-servicios-seccion,
+  .dash-grid-territorio {
+    border-top: 1px solid var(--dash-rule);
   }
-  .dash-fold[open] > summary { border-bottom-color: transparent; }
-  .dash-fold-titulo {
-    flex: 1;
-    min-width: 0;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    color: var(--dash-muted);
-  }
-  .dash-fold-valor {
-    font-size: 12px;
-    color: var(--dash-dim);
-    font-variant-numeric: tabular-nums;
-  }
-  .dash-fold-icono {
-    width: 14px;
-    height: 14px;
-    color: var(--dash-dim);
-    transition: transform var(--dur-fast) var(--ease-out);
-  }
-  .dash-fold[open] .dash-fold-icono { transform: rotate(90deg); }
-
-  .dash-fold .dash-superficie {
-    background: transparent;
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
-  }
-  .dash-fold .dash-clinica,
-  .dash-fold .dash-panel { padding: 14px 2px 16px; }
-  .dash-fold .dash-servicios-seccion { padding: 12px 2px 4px; }
-  /* La cabecera se oculta a la vista, no del árbol: el h2 sigue nombrando
-     la sección plegada para lectores de pantalla. */
-  .dash-fold .dash-clinica-cab,
-  .dash-fold .dash-seccion-cab {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    padding: 0;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
-    border: 0;
-  }
-  .dash-fold .dash-servicios {
+  .dash-clinica,
+  .dash-panel { padding: 14px 2px 16px; }
+  .dash-servicios-seccion { padding: 16px 2px 4px; }
+  .dash-servicios {
     grid-template-columns: 1fr;
     gap: 0;
   }
   /* S1: cada servicio es una fila con el número y el desglose a la vista. */
-  .dash-fold .dash-servicio {
+  .dash-servicio {
     display: grid;
     grid-template-columns: 30px minmax(0, 1fr) auto;
     grid-template-areas:
@@ -1396,88 +1400,88 @@ body[data-page="dashboard"] #mainContent {
     border-radius: 0;
     box-shadow: none;
   }
-  .dash-fold .dash-servicio:first-child { border-top: 0; }
-  .dash-fold .dash-servicio-cab {
+  .dash-servicio:first-child { border-top: 0; }
+  .dash-servicio-cab {
     display: contents;
     margin: 0;
   }
-  .dash-fold .dash-servicio-icon {
+  .dash-servicio-icon {
     grid-area: icon;
     align-self: start;
   }
-  .dash-fold .dash-servicio-cab h3 {
+  .dash-servicio-cab h3 {
     grid-area: name;
     font-size: 13px;
     font-weight: 600;
     line-height: 1.25;
     letter-spacing: -0.01em;
   }
-  .dash-fold .dash-servicio-principal {
+  .dash-servicio-principal {
     grid-area: num;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     gap: 1px;
   }
-  .dash-fold .dash-servicio-principal strong {
+  .dash-servicio-principal strong {
     font-size: 16px;
     line-height: 1.1;
     font-weight: 600;
     letter-spacing: -0.02em;
   }
-  .dash-fold .dash-servicio-principal span {
+  .dash-servicio-principal span {
     font-size: 11px;
     line-height: 1.15;
     font-weight: 500;
     color: var(--dash-dim);
     text-align: right;
   }
-  .dash-fold .dash-servicio-unidad-largo { display: none; }
-  .dash-fold .dash-filas {
+  .dash-servicio-unidad-largo { display: none; }
+  .dash-filas {
     grid-area: detail;
     display: flex;
     flex-wrap: wrap;
     gap: 2px 0;
     margin: 2px 0 0;
   }
-  .dash-fold .dash-filas > div {
+  .dash-filas > div {
     display: inline-flex;
     align-items: baseline;
     gap: 4px;
     padding: 0;
     border: 0;
   }
-  .dash-fold .dash-filas > div:not(:last-child)::after {
+  .dash-filas > div:not(:last-child)::after {
     content: "·";
     margin-left: 7px;
     color: var(--dash-rule-strong);
   }
-  .dash-fold .dash-filas dt {
+  .dash-filas dt {
     font-size: 12px;
     font-weight: 400;
     color: var(--dash-muted);
   }
-  .dash-fold .dash-filas dd {
+  .dash-filas dd {
     margin: 0;
     font-size: 12px;
     font-weight: 600;
     color: var(--dash-ink);
     font-variant-numeric: tabular-nums;
   }
-  .dash-fold .dash-filas-largo { display: none; }
-  .dash-fold .dash-servicio-extra,
-  .dash-fold .dash-servicio-nota {
+  .dash-filas-largo { display: none; }
+  .dash-servicio-extra,
+  .dash-servicio-nota {
     grid-area: extra;
     margin: 2px 0 0;
     font-size: 11px;
     line-height: 1.35;
     color: var(--dash-dim);
   }
-  .dash-fold .dash-grid-territorio {
+  .dash-grid-territorio {
     grid-template-columns: 1fr;
     gap: 0;
   }
-  .dash-fold .dash-grid-territorio .dash-panel + .dash-panel {
+  .dash-grid-territorio .dash-panel + .dash-panel {
     border-top: 1px solid var(--dash-rule);
   }
 
@@ -1493,16 +1497,10 @@ body[data-page="dashboard"] #mainContent {
     font-size: 19px;
   }
   .dash-clinica-resumen {
-    flex-direction: row;
-    align-items: center;
-    gap: 14px;
+    gap: 12px;
   }
   .dash-prevalencia strong { font-size: 26px; }
-  .dash-barra-clinica {
-    flex: 1;
-    height: 6px;
-    margin-bottom: 0;
-  }
+  .dash-barra-clinica { height: 9px; }
   .dash-clinica-pie {
     margin-top: 12px;
     padding-top: 10px;
@@ -1512,18 +1510,7 @@ body[data-page="dashboard"] #mainContent {
   .dash-banda-casos,
   .dash-servicio-extra,
   .dash-servicio-nota,
-  .dash-vol-flag,
-  .dash-matrix-mobile-total { font-size: 11px; }
-  /* La cabecera del pliegue ya da el total; dentro no se repite. */
-  .dash-fold .dash-prevalencia { display: none; }
-  .dash-fold .dash-clinica-resumen {
-    display: block;
-    margin-top: 2px;
-  }
-  .dash-fold .dash-barra-clinica {
-    width: 100%;
-    margin: 0;
-  }
+  .dash-vol-flag { font-size: 11px; }
 
   .dash-conciliacion {
     margin-top: 0;
@@ -1539,16 +1526,16 @@ body[data-page="dashboard"] #mainContent {
 
 @media (prefers-reduced-motion: reduce) {
   .dash-barra-clinica,
-  .dash-barra-cobertura i { transition: none; }
+  .dash-barra-cobertura i,
+  .dash-prioridad-fill,
+  .dash-vol-fill { transition: none; }
   .dash-barra-clinica { transform: none; }
   .dash-barra-cobertura i { transform: none; }
   .dash-boton,
   .dash-servicio,
-  .dash-prioridad-link,
-  .dash-fold-icono { transition: none; }
+  .dash-prioridad-link { transition: none; }
   .dash-boton:active,
   .dash-prioridad-link:active { transform: none; }
-  .dash-fold[open] .dash-fold-icono { transform: none; }
 }
 
 /* ===========================================================================
