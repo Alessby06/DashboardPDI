@@ -487,6 +487,9 @@ async function suscribirLive() {
 
 /** Re-hidratación por evento LIVE: una sola pasada, artistas equivalents. */
 let _hidratando = null;
+// La tabla colaborador puede no existir en la nube: el aviso sale una vez por
+// sesión en lugar de en cada hidratación.
+let _avisoColaboradores = false;
 
 // Escrituras en vuelo. Las mutaciones son optimistas: el modelo cambia al
 // instante y la nube confirma despues. Si una suscripcion LIVE dispara una
@@ -608,7 +611,11 @@ export async function hidratar(promedioSilencioso = false) {
         ejecutarLote(SQL_LOTE_HIDRATACION),
         ejecutar('SELECT * FROM colaborador WHERE activo = true ORDER BY creado_el DESC;')
           .catch((err) => {
-            console.warn('[PDI] Colaboradores no disponibles:', err?.message || err);
+            // Una vez por sesión: la tabla falta y no cambia entre hidrataciones.
+            if (!_avisoColaboradores) {
+              _avisoColaboradores = true;
+              console.warn('[PDI] La tabla colaborador no está en la nube; se usa la copia local.', err?.message || err);
+            }
             return null;
           }),
       ]);
@@ -623,14 +630,18 @@ export async function hidratar(promedioSilencioso = false) {
       const casos = filtrarCasos(mapearCasos(casosRaw, solicitudesRaw));
       const voluntarios = mapearVoluntarios(voluntariosRaw);
 
-      // 8 · colaboradores: llega en paralelo con el lote. Si la tabla aún no
-      // existe en la nube o está vacía (pendiente de migración DDL), no
-      // interrumpe ni pisa los datos locales.
+      // 8 · colaboradores: llega en paralelo con el lote. Mientras la tabla no
+      // exista en la nube se trabaja con la copia local del modelo (semilla de
+      // 19 registros); por eso se marca de dónde vino y no se cuenta como dato
+      // sincronizado. Cuando la tabla exista, la nube manda y la semilla deja
+      // de usarse sin tocar este código.
       let colaboradores = [];
+      let colaboradoresDeNube = false;
       try {
         const mapeados = mapearColaboradores(comoLista(resColab));
         if (mapeados && mapeados.length > 0) {
           colaboradores = mapeados;
+          colaboradoresDeNube = true;
         } else {
           colaboradores = (typeof window !== 'undefined' && window.PDI?.ColaboradorModel?.getAll?.()) || [];
         }
@@ -671,7 +682,7 @@ export async function hidratar(promedioSilencioso = false) {
         console.log('[PDI] Sincronización completa con SurrealDB Cloud.',
           beneficiarios.length, 'usuarios ·', sedes.length, 'sedes ·',
           casos.length, 'casos ·', voluntarios.length, 'voluntarios ·',
-          colaboradores.length, 'colaboradores.');
+          colaboradores.length, colaboradoresDeNube ? 'colaboradores.' : 'colaboradores locales.');
       }
     } catch (err) {
       _ultimoError = {
