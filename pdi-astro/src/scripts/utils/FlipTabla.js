@@ -40,6 +40,8 @@ function esPlaceholder(el) {
 
 function clave(el) {
   return el.dataset.id
+    || el.dataset.sedeId
+    || el.dataset.casoId
     || el.dataset.flipKey
     || el.id
     || `t:${(el.textContent || "").replace(/\s+/g, " ").trim()}`;

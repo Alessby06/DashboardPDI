@@ -67,3 +67,30 @@ test('prepararTarjetas extrae rectángulos y claves de filas con data-id', () =>
   assert.equal(ctx.items.length, 2);
   assert.equal(ctx.altoPrevio, 100);
 });
+
+test('prepararTarjetas reconoce data-sede-id como clave estable', () => {
+  const fakeDoc = {};
+  globalThis.document = fakeDoc;
+
+  const sede1 = {
+    dataset: { sedeId: 'sede-ano-nuevo' },
+    getClientRects: () => [{ width: 280, height: 72 }],
+    getBoundingClientRect: () => ({ top: 80, height: 72, width: 280 }),
+    classList: { contains: () => false },
+    animate: () => ({ onfinish: null })
+  };
+
+  const mockContainer = {
+    isConnected: true,
+    ownerDocument: fakeDoc,
+    scrollTop: 0,
+    style: {},
+    getBoundingClientRect: () => ({ top: 80, height: 72, width: 280 }),
+    querySelectorAll: () => [],
+    children: [sede1]
+  };
+
+  const ctx = prepararTarjetas(mockContainer);
+  assert.ok(ctx);
+  assert.ok(ctx.rects.has('sede-ano-nuevo'));
+});

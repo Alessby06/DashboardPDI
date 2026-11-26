@@ -11,6 +11,7 @@ import { conectarHoja } from '../utils/SheetController.js';
 
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
 import { iconHtml } from '../../data/iconos.js';
+import { prepararTarjetas, animarTarjetas } from '../utils/FlipTabla.js';
 // Filtros del directorio que viajan en la URL. Valores tomados de los
 // desplegables de sedes.html. El servicio valida contra el catálogo único
 // de programas: un programa nuevo no exige tocar esta lista.
@@ -674,13 +675,17 @@ export const SedesView = {
     if (!listContainer) return;
 
     if (this._filteredSedes.length === 0) {
+      const flip = prepararTarjetas(listContainer);
       listContainer.innerHTML = `
         <div class="sedes-empty-state">
           <div style="font-size:13px; color:var(--text-muted);">Sin resultados</div>
         </div>
       `;
+      if (flip) animarTarjetas(listContainer, flip);
       return;
     }
+
+    const flip = listContainer === this._contenedorLista ? prepararTarjetas(listContainer) : null;
 
     listContainer.innerHTML = this._filteredSedes.map(s => {
       const isSelected = this._mismoId(s.id, this._selectedSedeId);
@@ -691,7 +696,7 @@ export const SedesView = {
       else if (pct >= 80) aforoColor = "var(--gt-yellow)";
 
       return `
-        <div class="sedes-master-item ${isSelected ? 'active' : ''}" data-sede-id="${escapar(s.id)}" role="button" tabindex="0" aria-current="${isSelected ? 'true' : 'false'}" ${attrsDe(`window.PDI?.SedesView?.selectSede('${escaparEnManejador(s.id)}')`)} onkeydown="var k=(event.key||'');if(k==='Enter'||k===' '){event.preventDefault();window.PDI?.SedesView?.selectSede('${escaparEnManejador(s.id)}')}">
+        <div class="sedes-master-item ${isSelected ? 'active' : ''}" data-id="${escapar(s.id)}" data-sede-id="${escapar(s.id)}" role="button" tabindex="0" aria-current="${isSelected ? 'true' : 'false'}" ${attrsDe(`window.PDI?.SedesView?.selectSede('${escaparEnManejador(s.id)}')`)} onkeydown="var k=(event.key||'');if(k==='Enter'||k===' '){event.preventDefault();window.PDI?.SedesView?.selectSede('${escaparEnManejador(s.id)}')}">
           <div class="sedes-master-item-top">
             <span class="sedes-master-item-distrito">${escapar(s.distrito)}</span>
             <span class="sedes-master-item-aforo"><i style="background:${aforoColor};"></i>${pct}%</span>
@@ -705,10 +710,9 @@ export const SedesView = {
       `;
     }).join("");
 
-    // La entrada corre al montar la lista: primera carga o vuelta a la pagina
-    // (navegacion interna, nodo nuevo). Filtrar, buscar o sincronizar datos
-    // repinta el mismo nodo, asi que la cascada no se relanza en cada tecla.
-    if (listContainer !== this._contenedorLista) {
+    if (flip) {
+      animarTarjetas(listContainer, flip);
+    } else if (listContainer !== this._contenedorLista) {
       AnimationEngine.entradaEscalonada(listContainer, ":scope > .sedes-master-item", {
         paso: 30,
         maxDesfase: 12,
