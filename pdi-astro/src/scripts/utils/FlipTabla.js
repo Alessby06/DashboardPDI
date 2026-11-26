@@ -31,6 +31,22 @@ function visible(el) {
   return el.getClientRects().length > 0;
 }
 
+/** Detecta filas o tarjetas de carga/placeholder que no deben participar en FLIP. */
+function esPlaceholder(el) {
+  if (!el) return true;
+  const id = (el.id || "").toLowerCase();
+  const cl = (el.className || "").toLowerCase();
+  if (id.includes("cargando") || id.includes("loading") || cl.includes("cargando") || cl.includes("loading")) return true;
+  if (cl.includes("pdi-loading") || cl.includes("pdi-sk") || cl.includes("skeleton")) return true;
+  if (el.tagName === "TR") {
+    const celdas = el.querySelectorAll("td");
+    if (celdas.length === 1 && (celdas[0].colSpan > 1 || (celdas[0].textContent || "").toLowerCase().includes("cargando"))) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function clave(el) {
   return el.dataset.id
     || el.dataset.flipKey
@@ -46,7 +62,7 @@ export function prepararFilas(tbody) {
   if (!tabla || !contenedor) return null;
 
   const filas = [...tbody.querySelectorAll(":scope > tr")].filter(visible);
-  if (!filas.length) return null;
+  if (!filas.length || filas.some(esPlaceholder)) return null;
 
   const rects = new Map();
   filas.forEach((tr) => rects.set(clave(tr), tr.getBoundingClientRect()));
@@ -79,8 +95,13 @@ export function prepararFilas(tbody) {
     return { tr, key: clave(tr) };
   });
 
+  const tablaId = tabla.id;
   clon.removeAttribute("id");
-  clon.querySelectorAll("[id]").forEach((n) => n.removeAttribute("id"));
+  if (tablaId) clon.classList.add(tablaId, `clone-of-${tablaId}`, "is-flip-clone");
+  clon.querySelectorAll("[id]").forEach((n) => {
+    n.classList.add(`clone-id-${n.id}`);
+    n.removeAttribute("id");
+  });
 
   capa.appendChild(clon);
   contenedor.appendChild(capa);
@@ -98,16 +119,16 @@ function animarItems(nuevas, rects) {
       if (Math.abs(delta) > 1) {
         el.animate(
           [{ transform: `translateY(${delta}px)` }, { transform: "translateY(0)" }],
-          { duration: 220, easing: EASE, delay: i * 10 },
+          { duration: 180, easing: EASE },
         );
       }
     } else {
       el.animate(
         [
-          { opacity: 0, transform: "translateY(8px)" },
+          { opacity: 0, transform: "translateY(6px)" },
           { opacity: 1, transform: "translateY(0)" },
         ],
-        { duration: 200, easing: EASE, delay: i * 16 },
+        { duration: 160, easing: EASE, delay: Math.min(i * 6, 60) },
       );
     }
     i++;
@@ -183,7 +204,7 @@ export function prepararTarjetas(contenedor) {
   if (!soportaAnimacion()) return null;
 
   const items = [...contenedor.children].filter(visible);
-  if (!items.length) return null;
+  if (!items.length || items.some(esPlaceholder)) return null;
 
   const contRect = contenedor.getBoundingClientRect();
   const rects = new Map();

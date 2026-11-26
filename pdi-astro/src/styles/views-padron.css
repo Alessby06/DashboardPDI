@@ -1051,7 +1051,10 @@
   min-width: 0;
 }
 
-#tablaBeneficiarios .padron-avatar {
+.padron-avatar,
+#tablaBeneficiarios .padron-avatar,
+.is-flip-clone .padron-avatar,
+.flip-exit-layer .padron-avatar {
   width: 36px;
   height: 36px;
   border-radius: var(--radius-full);
@@ -1065,12 +1068,15 @@
   border: 1px solid transparent;
 }
 
+.padron-avatar.serv-desayuno,
 #tablaBeneficiarios .padron-avatar.serv-desayuno {
   background: rgba(var(--brand-rgb), 0.12);
   color: var(--text-brand);
   border-color: rgba(var(--brand-rgb), 0.25);
 }
 
+.padron-avatar.serv-casita,
+.padron-avatar.serv-biblioteca,
 #tablaBeneficiarios .padron-avatar.serv-casita,
 #tablaBeneficiarios .padron-avatar.serv-biblioteca {
   background: rgba(245, 158, 11, 0.12);
@@ -1078,12 +1084,14 @@
   border-color: rgba(245, 158, 11, 0.25);
 }
 
+.padron-avatar.serv-pastoral,
 #tablaBeneficiarios .padron-avatar.serv-pastoral {
   background: rgba(2, 132, 199, 0.12);
   color: var(--text-info);
   border-color: rgba(2, 132, 199, 0.25);
 }
 
+.padron-avatar.serv-otro,
 #tablaBeneficiarios .padron-avatar.serv-otro {
   background: var(--surface-2);
   color: var(--text-dim);
@@ -1091,13 +1099,19 @@
 }
 
 /* Retrato de las chicas dentro del circulo del padron. */
-#tablaBeneficiarios .padron-avatar.is-retrato {
+.padron-avatar.is-retrato,
+#tablaBeneficiarios .padron-avatar.is-retrato,
+.is-flip-clone .padron-avatar.is-retrato,
+.flip-exit-layer .padron-avatar.is-retrato {
   padding: 0;
   overflow: hidden;
   background: var(--surface-2);
 }
 
-#tablaBeneficiarios .padron-avatar.is-retrato img {
+.padron-avatar.is-retrato img,
+#tablaBeneficiarios .padron-avatar.is-retrato img,
+.is-flip-clone .padron-avatar.is-retrato img,
+.flip-exit-layer .padron-avatar.is-retrato img {
   width: 100%;
   height: 100%;
   object-fit: cover;
