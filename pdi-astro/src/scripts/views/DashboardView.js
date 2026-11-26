@@ -872,7 +872,7 @@ export const DashboardView = {
           subtitle: "Confirmación de generación de reporte",
           description: `Se generará un archivo <strong ${resaltado}>.CSV</strong> con el corte del <strong ${resaltado}>${escapar(hoy)}</strong> para <strong>${escapar(ambito)}</strong>.`,
           count: stats.total ?? 0,
-          unit: "beneficiarios",
+          unit: "usuarios",
           legal: "Ley N.° 29733 (Datos Personales)",
           onConfirm: () => this.exportarParteDiario(),
         });
