@@ -733,6 +733,7 @@
 /* --- TABLA PRINCIPAL DEL PADRÓN: ESTABILIDAD Y ZERO LAYOUT SHIFT --- */
 #cardPadronBeneficiarios .table-container {
   overflow-x: auto;
+  overflow-y: hidden;
 }
 
 #tablaBeneficiarios {

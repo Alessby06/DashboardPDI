@@ -1356,6 +1356,8 @@
   #cardPadronBeneficiarios .table-container,
   #view-auditoria .card .table-container {
     margin-inline: -22px;
+    overflow-x: auto;
+    overflow-y: hidden;
   }
 
   /* Filtros aplicados: banda full-bleed */

@@ -67,59 +67,35 @@ export function prepararFilas(tbody) {
   const rects = new Map();
   filas.forEach((tr) => rects.set(clave(tr), tr.getBoundingClientRect()));
 
+  // Limpia cualquier capa huérfana
   contenedor.querySelectorAll(".flip-exit-layer").forEach((capa) => capa.remove());
-  if (getComputedStyle(contenedor).position === "static") {
-    contenedor.style.position = "relative";
-  }
 
-  const capa = document.createElement("div");
-  capa.className = "flip-exit-layer";
-  capa.style.cssText = "position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden;";
-
-  const clon = tabla.cloneNode(true);
-  clon.style.width = `${tabla.getBoundingClientRect().width}px`;
-  clon.style.tableLayout = "fixed";
-  clon.style.borderCollapse = "separate";
-  clon.style.borderSpacing = "0";
-
-  const clonThead = clon.querySelector("thead");
-  if (clonThead) clonThead.style.visibility = "hidden";
-
-  const clonTbody = clon.querySelector("tbody");
-  if (!clonTbody) return null;
-
-  // Se apunta la clave de cada fila clonada antes de quitarle los id: si no,
-  // la capa dejaría id repetidos en el documento mientras vive.
-  const clonadas = [...clonTbody.querySelectorAll(":scope > tr")].map((tr) => {
-    tr.style.visibility = "hidden";
-    return { tr, key: clave(tr) };
-  });
-
-  const tablaId = tabla.id;
-  clon.removeAttribute("id");
-  if (tablaId) clon.classList.add(tablaId, `clone-of-${tablaId}`, "is-flip-clone");
-  clon.querySelectorAll("[id]").forEach((n) => {
-    n.classList.add(`clone-id-${n.id}`);
-    n.removeAttribute("id");
-  });
-
-  capa.appendChild(clon);
-  contenedor.appendChild(capa);
-
-  return { capa, clonadas, rects };
+  return { rects };
 }
 
-/** Las que siguen suben desde su posición anterior; las nuevas entran. */
+/** Las que siguen suben desde su posición anterior si estaban cerca;
+ *  si vienen de lejos o son nuevas, entran con un fade suave sin saltos violentos ni scrollbars. */
 function animarItems(nuevas, rects) {
   let i = 0;
   nuevas.forEach((el) => {
     const previo = rects.get(clave(el));
     if (previo) {
       const delta = previo.top - el.getBoundingClientRect().top;
-      if (Math.abs(delta) > 1) {
+      // Desplazamiento corto (filas contiguas, <= 48px): deslizamiento suave
+      if (Math.abs(delta) > 1 && Math.abs(delta) <= 48) {
         el.animate(
           [{ transform: `translateY(${delta}px)` }, { transform: "translateY(0)" }],
-          { duration: 180, easing: EASE },
+          { duration: 160, easing: EASE },
+        );
+      } else if (Math.abs(delta) > 48) {
+        // Desplazamiento largo (salto de muchas filas): entrada sutil para evitar
+        // temblores violentos y desbordamientos en el contenedor
+        el.animate(
+          [
+            { opacity: 0, transform: `translateY(${Math.sign(delta) * 6}px)` },
+            { opacity: 1, transform: "translateY(0)" },
+          ],
+          { duration: 150, easing: EASE, delay: Math.min(i * 8, 48) },
         );
       }
     } else {
@@ -128,7 +104,7 @@ function animarItems(nuevas, rects) {
           { opacity: 0, transform: "translateY(6px)" },
           { opacity: 1, transform: "translateY(0)" },
         ],
-        { duration: 160, easing: EASE, delay: Math.min(i * 6, 60) },
+        { duration: 150, easing: EASE, delay: Math.min(i * 8, 48) },
       );
     }
     i++;
@@ -150,36 +126,13 @@ function animarSalidas(salidas) {
 }
 
 export function animarFilas(tbody, ctx) {
-  if (!ctx || !tbody) return;
+  if (!ctx || !tbody || !soportaAnimacion()) return;
 
-  const { capa, clonadas, rects } = ctx;
-
-  // Sin Web Animations la tabla ya está pintada: solo se retira la capa.
-  if (!soportaAnimacion()) {
-    capa.remove();
-    return;
-  }
+  const { rects } = ctx;
+  if (!rects || !rects.size) return;
 
   const nuevas = [...tbody.querySelectorAll(":scope > tr")].filter(visible);
-  const clavesNuevas = new Set(nuevas.map(clave));
-
-  // Filas que ya no están: se revelan en el clon con su fondo para tapar la
-  // tabla nueva que hay debajo, y se van hacia arriba.
-  const salidas = clonadas.filter(({ tr, key }) => rects.has(key) && !clavesNuevas.has(key));
-
-  if (!salidas.length) {
-    capa.remove();
-  } else {
-    const trs = salidas.map(({ tr }) => {
-      tr.style.visibility = "visible";
-      tr.style.background = "var(--surface-1)";
-      tr.querySelectorAll("td").forEach((td) => {
-        td.style.background = "var(--surface-1)";
-      });
-      return tr;
-    });
-    setTimeout(() => capa.remove(), animarSalidas(trs));
-  }
+  if (!nuevas.length || nuevas.some(esPlaceholder)) return;
 
   animarItems(nuevas, rects);
 }

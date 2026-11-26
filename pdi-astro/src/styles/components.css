@@ -162,6 +162,7 @@
        Las acciones de fila viven en .row-action (views-comun.css). */
     .table-container {
       overflow-x: auto;
+      overflow-y: hidden;
     }
 
     .data-table {

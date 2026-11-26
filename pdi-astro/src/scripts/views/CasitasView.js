@@ -1151,7 +1151,7 @@ export const CasitasView = {
         const colegio = colegioOrigenVisible(b);
         const atencion = tipoAtencionVisible(b);
         return `
-        <tr class="padron-tr">
+        <tr class="padron-tr" data-id="${escapar(b.id)}">
           <td>
             <div class="padron-user-cell">
               ${avatarHtml(b)}
@@ -1196,7 +1196,7 @@ export const CasitasView = {
 
     if (mobileContainer && enMovil) {
       pintarTarjetas(mobileContainer, pageItems.map(b => `
-        <div class="mobile-card-item" id="mobile-casita-${escapar(b.id)}">
+        <div class="mobile-card-item" id="mobile-casita-${escapar(b.id)}" data-id="${escapar(b.id)}">
           <div class="datacard-header">
             <div class="datacard-id"><span>ID:</span> ${escapar(b.codigo)}</div>
             <div class="datacard-header-right">${this._tagAsistencia(b.id, "badgeAsistMob_")}</div>

@@ -643,7 +643,7 @@ export const SaludCredView = {
         const tallaTx = b.talla != null ? escapar(b.talla) : "No disponible";
 
         return `
-          <tr class="padron-tr">
+          <tr class="padron-tr" data-id="${escapar(b.id)}">
             <td>
               <div class="padron-user-cell">
                 ${avatarHtml(b)}
@@ -705,7 +705,7 @@ export const SaludCredView = {
           : "dot-gray";
 
         return `
-          <div class="mobile-card-item" id="mobile-salud-${escapar(b.id)}">
+          <div class="mobile-card-item" id="mobile-salud-${escapar(b.id)}" data-id="${escapar(b.id)}">
             <!-- Cabecera: ID + punto de diagnóstico -->
             <div class="datacard-header">
               <div class="datacard-id">
