@@ -1,21 +1,19 @@
-// FLIP de filas y tarjetas para las tablas y sus listas móviles.
+// Transición fluida de resultados para tablas y tarjetas en modo Operate.
+// Cumple con DESIGN.md: «Al filtrar no se relanza la cascada de filas: los resultados cambian en el sitio».
 //
 //   pintarFilas(tbody, html);            // tabla, html ya armado
 //   pintarTarjetas(contenedor, html);    // tarjetas móviles, html ya armado
 //
-//   const flip = prepararFilas(tbody);   // tabla, cuando hay que armar el html
+//   const ctx = prepararFilas(tbody);    // tabla, cuando se arma el html antes
 //   tbody.innerHTML = ...;
-//   animarFilas(tbody, flip);
+//   animarFilas(tbody, ctx);
 //
-//   const flip = prepararTarjetas(contenedor);
+//   const ctx = prepararTarjetas(contenedor);
 //   contenedor.innerHTML = ...;
-//   animarTarjetas(contenedor, flip);
-//
-// preparar* guarda dónde estaba cada fila o tarjeta. animar* mueve las que
-// siguen desde su posición anterior, hace entrar las nuevas desde abajo y
-// desvanece hacia arriba las que salen, clonadas en una capa absoluta.
+//   animarTarjetas(contenedor, ctx);
 
-const EASE = "cubic-bezier(0.23, 1, 0.32, 1)";
+const EASE_SMOOTH = "cubic-bezier(0.16, 1, 0.3, 1)";
+const DUR_MS = 140;
 
 /** Preferencia del sistema: sin movimiento, los cambios son instantáneos. */
 export function movimientoReducido() {
@@ -28,10 +26,10 @@ function soportaAnimacion() {
 }
 
 function visible(el) {
-  return el.getClientRects().length > 0;
+  return el && el.getClientRects && el.getClientRects().length > 0;
 }
 
-/** Detecta filas o tarjetas de carga/placeholder que no deben participar en FLIP. */
+/** Detecta filas o tarjetas de carga/placeholder que no deben participar en animaciones. */
 function esPlaceholder(el) {
   if (!el) return true;
   const id = (el.id || "").toLowerCase();
@@ -47,108 +45,48 @@ function esPlaceholder(el) {
   return false;
 }
 
-function clave(el) {
-  return el.dataset.id
-    || el.dataset.flipKey
-    || el.id
-    || `t:${(el.textContent || "").replace(/\s+/g, " ").trim()}`;
-}
-
 export function prepararFilas(tbody) {
   if (!tbody || !tbody.isConnected || tbody.ownerDocument !== document || movimientoReducido()) return null;
-
-  const tabla = tbody.closest("table");
-  const contenedor = tabla && tabla.parentElement;
-  if (!tabla || !contenedor) return null;
 
   const filas = [...tbody.querySelectorAll(":scope > tr")].filter(visible);
   if (!filas.length || filas.some(esPlaceholder)) return null;
 
-  const rects = new Map();
-  filas.forEach((tr) => rects.set(clave(tr), tr.getBoundingClientRect()));
+  const tabla = tbody.closest("table");
+  const contenedor = tabla && tabla.parentElement;
+  if (contenedor) {
+    contenedor.querySelectorAll(".flip-exit-layer").forEach((capa) => capa.remove());
+  }
 
-  // Limpia cualquier capa huérfana
-  contenedor.querySelectorAll(".flip-exit-layer").forEach((capa) => capa.remove());
-
-  return { rects };
-}
-
-/** Las que siguen suben desde su posición anterior si estaban cerca;
- *  si vienen de lejos o son nuevas, entran con un fade suave sin saltos violentos ni scrollbars. */
-function animarItems(nuevas, rects) {
-  let i = 0;
-  nuevas.forEach((el) => {
-    const previo = rects.get(clave(el));
-    if (previo) {
-      const delta = previo.top - el.getBoundingClientRect().top;
-      // Desplazamiento corto (filas contiguas, <= 48px): deslizamiento suave
-      if (Math.abs(delta) > 1 && Math.abs(delta) <= 48) {
-        el.animate(
-          [{ transform: `translateY(${delta}px)` }, { transform: "translateY(0)" }],
-          { duration: 160, easing: EASE },
-        );
-      } else if (Math.abs(delta) > 48) {
-        // Desplazamiento largo (salto de muchas filas): entrada sutil para evitar
-        // temblores violentos y desbordamientos en el contenedor
-        el.animate(
-          [
-            { opacity: 0, transform: `translateY(${Math.sign(delta) * 6}px)` },
-            { opacity: 1, transform: "translateY(0)" },
-          ],
-          { duration: 150, easing: EASE, delay: Math.min(i * 8, 48) },
-        );
-      }
-    } else {
-      el.animate(
-        [
-          { opacity: 0, transform: "translateY(6px)" },
-          { opacity: 1, transform: "translateY(0)" },
-        ],
-        { duration: 150, easing: EASE, delay: Math.min(i * 8, 48) },
-      );
-    }
-    i++;
-  });
-}
-
-/** Desvanece hacia arriba lo que salió. */
-function animarSalidas(salidas) {
-  salidas.forEach((el, i) => {
-    el.animate(
-      [
-        { opacity: 1, transform: "translateY(0)" },
-        { opacity: 0, transform: "translateY(-10px)" },
-      ],
-      { duration: 160, easing: EASE, fill: "forwards", delay: i * 6 },
-    );
-  });
-  return 280;
+  return { animar: true };
 }
 
 export function animarFilas(tbody, ctx) {
-  if (!ctx || !tbody || !soportaAnimacion()) return;
-
-  const { rects } = ctx;
-  if (!rects || !rects.size) return;
+  if (!ctx || !ctx.animar || !tbody || !soportaAnimacion() || movimientoReducido()) return;
 
   const nuevas = [...tbody.querySelectorAll(":scope > tr")].filter(visible);
   if (!nuevas.length || nuevas.some(esPlaceholder)) return;
 
-  animarItems(nuevas, rects);
+  // Transición suave in-situ a nivel de tbody: rápida, reactiva y sin layout thrashing ni temblores
+  try {
+    tbody.animate(
+      [
+        { opacity: 0.65 },
+        { opacity: 1 }
+      ],
+      { duration: DUR_MS, easing: EASE_SMOOTH }
+    );
+  } catch (_) {}
 }
 
-/** Pinta el html de un tbody y anima el cambio de filas. */
+/** Pinta el html de un tbody y aplica una transición suave. */
 export function pintarFilas(tbody, html) {
   if (!tbody) return;
-  const flip = prepararFilas(tbody);
+  const ctx = prepararFilas(tbody);
   tbody.innerHTML = html;
-  animarFilas(tbody, flip);
+  animarFilas(tbody, ctx);
 }
 
 // --- Tarjetas móviles -------------------------------------------------------
-// Mismo criterio que las filas, pero sobre los hijos directos del contenedor:
-// no hay tabla que clonar, así que la tarjeta que sale se recoloca donde
-// estaba (el nodo desmontado se conserva entero) y se desvanece ahí.
 
 export function prepararTarjetas(contenedor) {
   if (!contenedor || !contenedor.isConnected || contenedor.ownerDocument !== document || movimientoReducido()) {
@@ -159,60 +97,32 @@ export function prepararTarjetas(contenedor) {
   const items = [...contenedor.children].filter(visible);
   if (!items.length || items.some(esPlaceholder)) return null;
 
-  const contRect = contenedor.getBoundingClientRect();
-  const rects = new Map();
-  const salidas = [];
+  contenedor.querySelectorAll(".flip-exit-layer").forEach((capa) => capa.remove());
 
-  // Se guarda la referencia, no un clon: al reemplazar el innerHTML el nodo
-  // queda desmontado pero entero, y solo se recoloca si de verdad sale.
-  items.forEach((el) => {
-    const key = clave(el);
-    const r = el.getBoundingClientRect();
-    rects.set(key, r);
-    salidas.push({ el, key, top: r.top - contRect.top + contenedor.scrollTop, alto: r.height });
-  });
-
-  return { rects, items: salidas };
+  return { animar: true };
 }
 
 export function animarTarjetas(contenedor, ctx) {
-  if (!ctx || !contenedor) return;
+  if (!ctx || !ctx.animar || !contenedor || !soportaAnimacion() || movimientoReducido()) return;
 
   const nuevas = [...contenedor.children].filter(visible);
-  const clavesNuevas = new Set(nuevas.map(clave));
-  const salidas = ctx.items.filter(({ key }) => !clavesNuevas.has(key));
+  if (!nuevas.length || nuevas.some(esPlaceholder)) return;
 
-  if (salidas.length) {
-    contenedor.querySelectorAll(".flip-exit-layer").forEach((capa) => capa.remove());
-    if (getComputedStyle(contenedor).position === "static") {
-      contenedor.style.position = "relative";
-    }
-
-    const capa = document.createElement("div");
-    capa.className = "flip-exit-layer";
-    capa.style.cssText = "position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden;";
-
-    salidas.forEach(({ el, top, alto }) => {
-      if (el.isConnected) return;
-      el.removeAttribute("id");
-      el.querySelectorAll("[id]").forEach((n) => n.removeAttribute("id"));
-      el.style.cssText += `;position:absolute;left:0;right:0;top:${top}px;height:${alto}px;margin:0;pointer-events:none;`;
-      capa.appendChild(el);
-    });
-
-    if (capa.childElementCount) {
-      contenedor.appendChild(capa);
-      setTimeout(() => capa.remove(), animarSalidas([...capa.children]));
-    }
-  }
-
-  animarItems(nuevas, ctx.rects);
+  try {
+    contenedor.animate(
+      [
+        { opacity: 0.7, transform: "translateY(4px)" },
+        { opacity: 1, transform: "translateY(0)" }
+      ],
+      { duration: DUR_MS + 20, easing: EASE_SMOOTH }
+    );
+  } catch (_) {}
 }
 
-/** Pinta el html de una lista de tarjetas y anima el cambio. */
+/** Pinta el html de una lista de tarjetas y aplica una transición suave. */
 export function pintarTarjetas(contenedor, html) {
   if (!contenedor) return;
-  const flip = prepararTarjetas(contenedor);
+  const ctx = prepararTarjetas(contenedor);
   contenedor.innerHTML = html;
-  animarTarjetas(contenedor, flip);
+  animarTarjetas(contenedor, ctx);
 }
