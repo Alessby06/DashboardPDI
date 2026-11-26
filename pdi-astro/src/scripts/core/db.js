@@ -12,7 +12,7 @@
 //      tablas reales: persona, inscripcion, tamizaje_hemoglobina,
 //      usuario_vinculado, sede, caso_social, solicitud_caso, voluntario,
 //      asistencia_diaria y bitacora_auditoria.
-//    - SINCRONIZACIÓN: suscripciones LIVE SELECT a las diez tablas; cualquier
+//    - SINCRONIZACIÓN: suscripciones LIVE SELECT a las nueve tablas; cualquier
 //      cambio de otro usuario dispara una re-hidratación con debounce y
 //      refresco de la vista activa. Si la conexión cae, hay reintentos con
 //      backoff hasta recuperarse.
@@ -441,7 +441,7 @@ export async function reintentarAhora() {
 }
 
 /**
- * Suscripciones LIVE manuales, los 10 registros en UNA ida y vuelta. La ruta
+ * Suscripciones LIVE manuales, los 9 registros en UNA ida y vuelta. La ruta
  * "managed" de SDK 2.0.10 compila la tabla como valor ligado (FROM $what) y
  * SurrealDB 3.3.2 la rechaza con "Cannot execute LIVE statement using value:
  * ..." — así que emitimos los LIVE SELECT con el nombre de la tabla en línea,
@@ -459,7 +459,7 @@ async function suscribirLive() {
       const h = _liveHandle.pop();
       try { await h.kill(); } catch (e) { /* lo viejo ya murió */ }
     }
-    // 10 LIVE SELECT en un lote: 1 RTT en lugar de 10.
+    // 9 LIVE SELECT en un lote: 1 RTT en lugar de 9.
     const ql = TABLAS_LIVE.map(tabla => `LIVE SELECT * FROM ${tabla};`).join('\n');
     const res = await _db.query(ql);
     const ids = (Array.isArray(res) ? res : []).map(b =>
@@ -600,9 +600,19 @@ export async function hidratar(promedioSilencioso = false) {
     // pintadas y se quedarían en "No disponible" durante la revalidación.
     if (!_snapshotAplicado) cambiarEstado('cargando');
     try {
-      // Un solo viaje: el lote completo cuesta 1 RTT en lugar de 6-8.
-      const [sedesRaw, personasRaw, casosRaw, solicitudesRaw, voluntariosRaw, asistenciaRaw, sedesTodasRaw, retiradosRaw] =
-        await ejecutarLote(SQL_LOTE_HIDRATACION);
+      // Dos consultas en el mismo instante: el WebSocket multiplexa, así que la
+      // hidratación espera un viaje y no dos. Medido en Lima contra Azure Brazil
+      // South: ~400 ms con dos viajes en serie, ~200 ms con uno. La consulta de
+      // colaboradores conserva su tolerancia a fallos por separado.
+      const [lote, resColab] = await Promise.all([
+        ejecutarLote(SQL_LOTE_HIDRATACION),
+        ejecutar('SELECT * FROM colaborador WHERE activo = true ORDER BY creado_el DESC;')
+          .catch((err) => {
+            console.warn('[PDI] Colaboradores no disponibles:', err?.message || err);
+            return null;
+          }),
+      ]);
+      const [sedesRaw, personasRaw, casosRaw, solicitudesRaw, voluntariosRaw, asistenciaRaw, sedesTodasRaw, retiradosRaw] = lote;
 
       const sedes = mapearSedes(sedesRaw);
       // El alcance por sede recorta después de mapear: los nombres de sede se
@@ -613,11 +623,11 @@ export async function hidratar(promedioSilencioso = false) {
       const casos = filtrarCasos(mapearCasos(casosRaw, solicitudesRaw));
       const voluntarios = mapearVoluntarios(voluntariosRaw);
 
-      // 8 · colaboradores: consulta resiliente. Si la tabla aún no existe en la nube
-      // o está vacía (pendiente de migración DDL), no interrumpe ni pisa los datos locales.
+      // 8 · colaboradores: llega en paralelo con el lote. Si la tabla aún no
+      // existe en la nube o está vacía (pendiente de migración DDL), no
+      // interrumpe ni pisa los datos locales.
       let colaboradores = [];
       try {
-        const resColab = await ejecutar('SELECT * FROM colaborador WHERE activo = true ORDER BY creado_el DESC;');
         const mapeados = mapearColaboradores(comoLista(resColab));
         if (mapeados && mapeados.length > 0) {
           colaboradores = mapeados;
