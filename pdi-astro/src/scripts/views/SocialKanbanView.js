@@ -12,6 +12,7 @@ import { SEDES_NOMBRES } from "../core/catalogos.js";
 import { iconHtml } from '../../data/iconos.js';
 import { TalleresBtfView } from './TalleresBtfView.js';
 import { EncuentrosJacView } from './EncuentrosJacView.js';
+import { prepararTarjetas, animarTarjetas } from '../utils/FlipTabla.js';
 
 /** Clave única del caso. El id numérico es heredado del código de usuario y
  *  puede repetirse entre un caso cerrado y uno nuevo de la misma persona. */
@@ -289,17 +290,20 @@ export const SocialKanbanView = {
     // exactamente lo que se esta viendo y no la bandeja entera.
     this._filteredCasos = filtered;
 
-    const esPrimeraEntrada = !this._haEntrado || forzarAnimacion;
+    const esPrimeraEntrada = !this._haEntrado;
     this._haEntrado = true;
 
     // Si no es primera entrada y los datos no cambiaron, evitar parpadeo y no reconstruir el DOM
     const serial = `${this._searchQuery}_${this._filterUrgencia}_${this._filterSede}_` + 
       filtered.map(c => `${c._casoId || c.id}_${c.etapa}_${c.urgencia}_${c.solicitudCambio ? c.solicitudCambio.estado : 'none'}`).join("|");
 
-    if (!esPrimeraEntrada && this._lastRenderSerial === serial && (pCol.children.length > 0 || eCol.children.length > 0 || cCol.children.length > 0 || zCol.children.length > 0)) {
+    if (!esPrimeraEntrada && !forzarAnimacion && this._lastRenderSerial === serial && (pCol.children.length > 0 || eCol.children.length > 0 || cCol.children.length > 0 || zCol.children.length > 0)) {
       return;
     }
     this._lastRenderSerial = serial;
+
+    const columnas = [pCol, eCol, cCol, zCol];
+    const flips = !esPrimeraEntrada ? columnas.map(col => prepararTarjetas(col)) : null;
 
     pCol.innerHTML = "";
     eCol.innerHTML = "";
@@ -314,6 +318,7 @@ export const SocialKanbanView = {
     filtered.forEach(c => {
       const card = document.createElement("div");
       card.className = "kanban-card";
+      card.dataset.id = claveCaso(c);
       card.dataset.casoId = claveCaso(c);
       card.dataset.etapa = c.etapa;
       const tieneSolicitud = !!(c.solicitudCambio && c.solicitudCambio.estado === "pendiente");
@@ -457,8 +462,12 @@ export const SocialKanbanView = {
     this._syncMobileStageSelector();
 
     // Las tarjetas entran en cascada solo al montar por primera vez o al interactuar con filtros
-    if (esPrimeraEntrada) {
-      for (const col of [pCol, eCol, cCol, zCol]) {
+    if (flips) {
+      columnas.forEach((col, idx) => {
+        if (flips[idx]) animarTarjetas(col, flips[idx]);
+      });
+    } else if (esPrimeraEntrada) {
+      for (const col of columnas) {
         AnimationEngine.entradaEscalonada(col, ":scope > .kanban-card", { paso: 24, maxDesfase: 8 });
       }
     }

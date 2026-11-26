@@ -94,3 +94,30 @@ test('prepararTarjetas reconoce data-sede-id como clave estable', () => {
   assert.ok(ctx);
   assert.ok(ctx.rects.has('sede-ano-nuevo'));
 });
+
+test('prepararTarjetas reconoce data-caso-id en tarjetas kanban', () => {
+  const fakeDoc = {};
+  globalThis.document = fakeDoc;
+
+  const caso1 = {
+    dataset: { casoId: 'CASO-2026-001' },
+    getClientRects: () => [{ width: 260, height: 110 }],
+    getBoundingClientRect: () => ({ top: 120, height: 110, width: 260 }),
+    classList: { contains: () => false },
+    animate: () => ({ onfinish: null })
+  };
+
+  const mockCol = {
+    isConnected: true,
+    ownerDocument: fakeDoc,
+    scrollTop: 0,
+    style: {},
+    getBoundingClientRect: () => ({ top: 120, height: 220, width: 260 }),
+    querySelectorAll: () => [],
+    children: [caso1]
+  };
+
+  const ctx = prepararTarjetas(mockCol);
+  assert.ok(ctx);
+  assert.ok(ctx.rects.has('CASO-2026-001'));
+});
