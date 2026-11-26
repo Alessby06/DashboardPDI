@@ -135,6 +135,11 @@ export const SocialKanbanView = {
     this._filterSede = f.sede;
     this._mobileActiveStage = f.etapa;
 
+    this._obtenerStore().cargar({
+      urgencia: f.urgencia,
+      sede: f.sede,
+    });
+
     const input = document.getElementById("inputSearchCasosSociales");
     if (input) input.value = f.q;
 
@@ -501,11 +506,12 @@ export const SocialKanbanView = {
   },
 
   filterByUrgencia(urgencia) {
-    this._obtenerStore().fijar("urgencia", urgencia);
-    this._espejarStore();
-    this._updateUrgenciaUI();
+    const view = window.PDI?.SocialKanbanView || SocialKanbanView;
+    view._obtenerStore().fijar("urgencia", urgencia);
+    view._espejarStore();
+    view._updateUrgenciaUI();
     document.getElementById("dropdownSocialUrgencia")?.classList.remove("open");
-    this.renderKanban(null, true);
+    view.renderKanban(null, true);
   },
 
   _updateUrgenciaUI() {
@@ -521,11 +527,12 @@ export const SocialKanbanView = {
   },
 
   filterBySede(sede) {
-    this._obtenerStore().fijar("sede", sede);
-    this._espejarStore();
-    this._updateSedeUI();
+    const view = window.PDI?.SocialKanbanView || SocialKanbanView;
+    view._obtenerStore().fijar("sede", sede);
+    view._espejarStore();
+    view._updateSedeUI();
     document.getElementById("dropdownSocialSede")?.classList.remove("open");
-    this.renderKanban(null, true);
+    view.renderKanban(null, true);
   },
 
   _updateSedeUI() {
@@ -541,19 +548,20 @@ export const SocialKanbanView = {
   },
 
   clearFilters() {
-    this._searchQuery = "";
-    this._obtenerStore().limpiar();
-    this._espejarStore();
+    const view = window.PDI?.SocialKanbanView || SocialKanbanView;
+    view._searchQuery = "";
+    view._obtenerStore().limpiar();
+    view._espejarStore();
 
     const searchInput = document.getElementById("inputSearchCasosSociales");
     if (searchInput) searchInput.value = "";
 
     document.querySelectorAll("#menuSocialFilterPanel .padron-inner-dropdown.open").forEach(d => d.classList.remove("open"));
 
-    this._updateUrgenciaUI();
-    this._updateSedeUI();
+    view._updateUrgenciaUI();
+    view._updateSedeUI();
 
-    this.renderKanban(null, true);
+    view.renderKanban(null, true);
   },
 
   _updateFilterChips() {
@@ -1546,4 +1554,17 @@ export const SocialKanbanView = {
 if (typeof window !== "undefined") {
   window.PDI = window.PDI || {};
   window.PDI.SocialKanbanView = SocialKanbanView;
+
+  window.filterSocialByUrgencia = function (urg) {
+    if (window.PDI?.SocialKanbanView) window.PDI.SocialKanbanView.filterByUrgencia(urg);
+    else SocialKanbanView.filterByUrgencia(urg);
+  };
+  window.filterSocialBySede = function (sede) {
+    if (window.PDI?.SocialKanbanView) window.PDI.SocialKanbanView.filterBySede(sede);
+    else SocialKanbanView.filterBySede(sede);
+  };
+  window.clearSocialFilters = function () {
+    if (window.PDI?.SocialKanbanView) window.PDI.SocialKanbanView.clearFilters();
+    else SocialKanbanView.clearFilters();
+  };
 }

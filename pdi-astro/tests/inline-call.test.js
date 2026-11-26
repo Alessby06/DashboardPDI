@@ -29,3 +29,35 @@ test('parsearLlamada: rutas con propiedades anidadas y optional chaining (social
   const r3 = parsearLlamada("window.PDI?.SedesView ? window.PDI.SedesView.resetFilters() : null");
   assert.deepEqual(r3, { nombre: 'PDI.SedesView.resetFilters', args: [] });
 });
+
+test('despacho de llamadas compuestas preserva el contexto del objeto contenedor', () => {
+  let contextReceived = null;
+  let argsReceived = null;
+  const mockView = {
+    filterByUrgencia(urg) {
+      contextReceived = this;
+      argsReceived = urg;
+    }
+  };
+  globalThis.PDI = { SocialKanbanView: mockView };
+
+  const parsed = parsearLlamada("window.PDI?.SocialKanbanView?.filterByUrgencia('alta')");
+  assert.equal(parsed.nombre, 'PDI.SocialKanbanView.filterByUrgencia');
+
+  // Simular la resolución de contexto implementada en pdi-inline-handlers.js
+  const partes = parsed.nombre.split('.');
+  let objetivo = globalThis;
+  let contexto = null;
+  for (let p = 0; p < partes.length && objetivo; p++) {
+    if (p === partes.length - 1 && objetivo !== globalThis) contexto = objetivo;
+    objetivo = objetivo[partes[p]];
+  }
+
+  assert.equal(typeof objetivo, 'function');
+  objetivo.apply(contexto, parsed.args);
+
+  assert.equal(contextReceived, mockView);
+  assert.equal(argsReceived, 'alta');
+
+  delete globalThis.PDI;
+});

@@ -204,13 +204,17 @@
             for (var i = 0; i < desc.llamadas.length; i++) {
               var llamada = desc.llamadas[i];
               var objetivo = window;
+              var contexto = nodo;
               var partes = llamada.ruta.split('.');
-              for (var j = 0; j < partes.length && objetivo; j++) objetivo = objetivo[partes[j]];
+              for (var j = 0; j < partes.length && objetivo; j++) {
+                if (j === partes.length - 1 && objetivo !== window) contexto = objetivo;
+                objetivo = objetivo[partes[j]];
+              }
               if (typeof objetivo !== 'function') continue;
               var parametros = llamada.args.map(function (a) {
                 return a === '@event' ? ev : a === '@this' ? nodo : a;
               });
-              objetivo.apply(nodo, parametros);
+              objetivo.apply(contexto, parametros);
               break;
             }
           }
@@ -222,8 +226,12 @@
         var nombre = nodo.getAttribute && nodo.getAttribute('data-pdi-call');
         if (nombre) {
           var objetivoCall = window;
+          var contextoCall = nodo;
           var partesCall = nombre.split('.');
-          for (var p = 0; p < partesCall.length && objetivoCall; p++) objetivoCall = objetivoCall[partesCall[p]];
+          for (var p = 0; p < partesCall.length && objetivoCall; p++) {
+            if (p === partesCall.length - 1 && objetivoCall !== window) contextoCall = objetivoCall;
+            objetivoCall = objetivoCall[partesCall[p]];
+          }
           if (typeof objetivoCall === 'function') {
             var crudo = nodo.getAttribute('data-pdi-args') || '[]';
             var args;
@@ -231,7 +239,7 @@
             var resueltos = args.map(function (a) {
               return a === '@event' ? ev : a === '@this' ? nodo : a;
             });
-            objetivoCall.apply(nodo, resueltos);
+            objetivoCall.apply(contextoCall, resueltos);
           }
         }
       }

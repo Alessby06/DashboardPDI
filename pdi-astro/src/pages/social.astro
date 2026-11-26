@@ -93,7 +93,7 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                   menuId="menuSocialFilterPanel"
                   countId="socialActiveFiltersCount"
                   title="Filtros de Casos Sociales"
-                  reset="window.PDI?.SocialKanbanView ? window.PDI.SocialKanbanView.clearFilters() : null"
+                  reset="window.clearSocialFilters ? window.clearSocialFilters() : null"
                 >
                       <!-- Filtro 1: Nivel de urgencia (seleccion unica con radio) -->
                       <FilterField
@@ -107,7 +107,7 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                         opciones={OPCIONES_URGENCIA}
                         tipo="single"
                         countPrefix="countFacetSocialUrgencia"
-                        onSelect="window.PDI?.SocialKanbanView?.filterByUrgencia"
+                        onSelect="window.filterSocialByUrgencia"
                         abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownSocialUrgencia') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSocialUrgencia') : null)"
                       />
                       
@@ -123,7 +123,7 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                         opciones={OPCIONES_SEDE}
                         tipo="single"
                         countPrefix="countFacetSocialSede"
-                        onSelect="window.PDI?.SocialKanbanView?.filterBySede"
+                        onSelect="window.filterSocialBySede"
                         abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownSocialSede') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSocialSede') : null)"
                       />
               </FilterPanel>
