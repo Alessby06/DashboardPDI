@@ -67,10 +67,16 @@ export const BeneficiariosView = {
   _filterSexo: "all",   // "all" | "M" | "F"
   _haEntrado: false,
   _lastRenderSerial: "",
+  // Tarjetas del padrón que el usuario dejó abiertas. Vive aquí y no en el DOM
+  // porque cada rehidratación (un evento LIVE de otra persona, por ejemplo)
+  // reconstruye las tarjetas: sin este registro, la ficha abierta se cerraba
+  // sola mientras se estaba leyendo.
+  _expandidos: new Set(),
 
   reiniciarEntrada() {
     this._haEntrado = false;
     this._lastRenderSerial = "";
+    this._expandidos.clear();
   },
 
   // Controlador de filtros en la URL. Se crea la primera vez porque el objeto
@@ -1437,7 +1443,7 @@ export const BeneficiariosView = {
         `;
       } else {
         mobileContainer.innerHTML = beneficiarios.map(b => `
-          <div class="mobile-card-item" id="mobile-card-${escapar(b.id)}" data-id="${escapar(b.id)}">
+          <div class="mobile-card-item${this._expandidos.has(String(b.id)) ? ' expanded' : ''}" id="mobile-card-${escapar(b.id)}" data-id="${escapar(b.id)}">
             <!-- Cabecera: avatar + ID + marca de estado -->
             <div class="datacard-header">
               <div class="datacard-header-left">
@@ -1499,7 +1505,7 @@ export const BeneficiariosView = {
 
               <!-- Botón Ver más / Ver menos -->
               <button type="button" class="datacard-toggle-btn" id="btnToggleCard-${escapar(b.id)}" ${attrsDe(`window.PDI ? window.PDI.BeneficiariosView.toggleCard(${escaparEnManejador(b.id)}) : BeneficiariosView.toggleCard(${escaparEnManejador(b.id)})`)}>
-                <span class="btn-text">Ver más</span>
+                <span class="btn-text">${this._expandidos.has(String(b.id)) ? 'Ver menos' : 'Ver más'}</span>
                 ${iconHtml("nav.desplegar", { size: null })}
               </button>
             </div>
@@ -1570,10 +1576,15 @@ export const BeneficiariosView = {
   },
 
   toggleCard(id) {
+    const clave = String(id);
     const card = document.getElementById(`mobile-card-${id}`);
     const btn = document.getElementById(`btnToggleCard-${id}`);
     if (card) {
       const isExp = card.classList.toggle("expanded");
+      // El estado se guarda para sobrevivir al próximo render: las tarjetas se
+      // reconstruyen enteras en cada rehidratación.
+      if (isExp) this._expandidos.add(clave);
+      else this._expandidos.delete(clave);
       if (btn) {
         const textSpan = btn.querySelector(".btn-text");
         if (textSpan) textSpan.textContent = isExp ? "Ver menos" : "Ver más";
