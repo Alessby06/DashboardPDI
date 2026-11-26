@@ -62,7 +62,7 @@ body[data-page="dashboard"] #mainContent {
 
 .dash-titulo {
   margin: 0;
-  font-size: clamp(24px, 3vw, 30px);
+  font-size: 30px;
   line-height: 1.1;
   font-weight: 700;
   letter-spacing: -0.03em;
@@ -535,7 +535,7 @@ body[data-page="dashboard"] #mainContent {
 .dash-prioridad-link:active { transform: scale(0.994, 0.985); }
 
 .dash-prioridad-area {
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -559,7 +559,7 @@ body[data-page="dashboard"] #mainContent {
 }
 
 .dash-prioridad-cifra strong {
-  font-size: 28px;
+  font-size: 26px;
   line-height: 1;
   font-weight: 800;
   letter-spacing: -0.04em;
@@ -589,7 +589,7 @@ body[data-page="dashboard"] #mainContent {
 .dash-prioridad-track {
   display: block;
   height: 4px;
-  margin-top: 10px;
+  margin-top: auto;
   border-radius: var(--radius-full);
   background: var(--chart-track);
   overflow: hidden;
@@ -623,7 +623,7 @@ body[data-page="dashboard"] #mainContent {
   align-items: center;
   padding: 14px 16px;
   border: 1px dashed var(--dash-rule-strong);
-  border-left-width: 3px;
+  border-left-width: 1px;
   border-radius: var(--radius-md);
   font-size: 12.5px;
   color: var(--dash-muted);
@@ -642,6 +642,20 @@ body[data-page="dashboard"] #mainContent {
 .dash-prioridades-vacio b {
   font-weight: 700;
   color: var(--dash-ink);
+}
+
+/* Alineación de la fila de columnas: cabecera de dos líneas, filas al pie y
+   chevron centrado en la tarjeta. Solo escritorio: en móvil manda la rejilla. */
+@media (min-width: 821px) {
+  .dash-servicio-cab {
+    min-height: 2.6em;
+    align-items: flex-start;
+  }
+  .dash-servicio-nota { margin-top: auto; }
+  .dash-prioridad-go {
+    top: 50%;
+    transform: translateY(-50%);
+  }
 }
 
 /* --- Servicios ------------------------------------------------------------ */
@@ -795,6 +809,8 @@ body[data-page="dashboard"] #mainContent {
 
 .dash-matrix-host { margin-top: 8px; overflow-x: auto; }
 
+.dash-matrix-mobile { display: none; }
+
 .dash-matrix {
   width: 100%;
   border-collapse: collapse;
@@ -844,7 +860,7 @@ body[data-page="dashboard"] #mainContent {
 .dash-matrix-total {
   display: block;
   margin-top: 3px;
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 600;
   letter-spacing: 0;
   text-transform: none;
@@ -853,7 +869,7 @@ body[data-page="dashboard"] #mainContent {
 
 .dash-matrix-share {
   display: block;
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 600;
   color: var(--dash-dim);
   font-variant-numeric: tabular-nums;
@@ -901,7 +917,7 @@ body[data-page="dashboard"] #mainContent {
 }
 
 .dash-matrix-group-count {
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 600;
   letter-spacing: 0;
   text-transform: none;
@@ -1004,7 +1020,7 @@ body[data-page="dashboard"] #mainContent {
 }
 
 .dash-vol-flag {
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 700;
   color: var(--dash-amber);
 }
@@ -1012,9 +1028,9 @@ body[data-page="dashboard"] #mainContent {
 .dash-vol-flag::before {
   content: "";
   display: inline-block;
-  width: 4px;
-  height: 4px;
-  margin-right: 4px;
+  width: 6px;
+  height: 6px;
+  margin-right: 5px;
   border-radius: var(--radius-full);
   background: var(--chart-butter);
   vertical-align: 1px;
@@ -1092,6 +1108,7 @@ body[data-page="dashboard"] #mainContent {
 /* --- Responsive ----------------------------------------------------------- */
 
 @media (max-width: 1080px) {
+  .dash-vol-lista { max-width: none; }
   .dash-hero { grid-template-columns: 1fr 1fr; }
   .dash-hero .dash-kpi:first-child {
     grid-column: 1 / -1;
@@ -1133,70 +1150,40 @@ body[data-page="dashboard"] #mainContent {
     border-left: 0;
     border-top: 1px solid var(--dash-rule);
   }
-  /* Matriz: una fila por servicio con barra por distrito. */
+  /* Matriz en móvil: lista con etiquetas reales y una barra por servicio. */
   .dash-matrix-host { overflow: visible; }
-  .dash-matrix thead { display: none; }
-  .dash-matrix,
-  .dash-matrix tbody { display: block; }
-  .dash-matrix tbody tr:not(.dash-matrix-group-row) {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 7px 10px;
-    padding: 12px 0;
+  .dash-matrix { display: none; }
+  .dash-matrix-mobile { display: block; }
+
+  .dash-matrix-mob-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 0 5px;
+    font-size: 10.5px;
+    font-weight: 750;
+    color: var(--dash-dim);
+  }
+  .dash-matrix-mob--sep .dash-matrix-mob-head {
+    border-top: 1px solid var(--dash-rule);
+    padding-top: 14px;
+  }
+  .dash-matrix-mob-head span:last-child { font-weight: 600; }
+  .dash-matrix-mob-row {
+    padding: 10px 0;
     border-top: 1px solid var(--dash-rule);
   }
-  .dash-matrix tbody tr:not(.dash-matrix-group-row) th {
-    grid-column: 1 / -1;
-    grid-row: 1;
-    padding: 0;
+  .dash-matrix-mob-name {
+    margin: 0;
     font-size: 12.5px;
-  }
-  .dash-matrix tbody tr:not(.dash-matrix-group-row) td {
-    padding: 0;
-    border-bottom: 0;
-    text-align: left;
-    font-size: 12.5px;
-  }
-  .dash-matrix tbody tr:not(.dash-matrix-group-row) td::before {
-    content: attr(data-k);
-    display: inline;
-    margin-right: 5px;
-    padding-left: 10px;
-    font-size: 10.5px;
-    font-weight: 650;
-    color: var(--dash-dim);
-    background-image: radial-gradient(circle, var(--dot, var(--dash-rule-strong)) 0 2.5px, transparent 2.6px);
-    background-repeat: no-repeat;
-    background-position: 0 50%;
-    background-size: 6px 6px;
-  }
-  .dash-matrix tbody td[data-k="Comas"] {
-    --dot: var(--chart-blue);
-    grid-column: 1;
-    grid-row: 3;
-  }
-  .dash-matrix tbody tr:not(.dash-matrix-group-row) td[data-k="Comas"]::before { color: var(--chart-blue-ink); }
-  .dash-matrix tbody td[data-k="Carabayllo"] {
-    --dot: var(--chart-butter);
-    grid-column: 2;
-    grid-row: 3;
-  }
-  .dash-matrix tbody tr:not(.dash-matrix-group-row) td[data-k="Carabayllo"]::before { color: var(--chart-butter-ink); }
-  .dash-matrix tbody td[data-k="Total"] {
-    grid-column: 3;
-    grid-row: 3;
-    color: var(--dash-dim);
     font-weight: 600;
+    color: var(--dash-ink);
   }
-  .dash-matrix tbody td[data-k="Otras sedes"] {
-    grid-column: 1 / -1;
-    grid-row: 4;
-  }
-  .dash-matrix tbody tr:not(.dash-matrix-group-row)::after {
-    content: "";
-    grid-column: 1 / -1;
-    grid-row: 2;
+  .dash-matrix-mob-bar {
+    display: block;
     height: 4px;
+    margin-top: 7px;
     border-radius: var(--radius-full);
     background: linear-gradient(
       90deg,
@@ -1206,15 +1193,23 @@ body[data-page="dashboard"] #mainContent {
       var(--chart-track) var(--c, 0%) 100%
     );
   }
-  .dash-matrix tbody tr.dash-matrix-group-row th {
-    padding: 16px 0 4px;
-    border-top: 0;
-    font-size: 10.5px;
+  .dash-matrix-mob-stats {
+    display: grid;
+    grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr));
+    gap: 8px;
+    margin: 8px 0 0;
   }
-  .dash-matrix tbody:first-of-type tr.dash-matrix-group-row th { padding-top: 2px; }
-  .dash-matrix tbody + tbody tr.dash-matrix-group-row th {
-    border-top: 1px solid var(--dash-rule);
-    padding-top: 14px;
+  .dash-matrix-mob-stats dt {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--dash-dim);
+  }
+  .dash-matrix-mob-stats dd {
+    margin: 0;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--dash-ink);
+    font-variant-numeric: tabular-nums;
   }
   .dash-prioridad-link { padding-left: 16px; padding-right: 16px; }
   .dash-clinica,
@@ -1241,7 +1236,7 @@ body[data-page="dashboard"] #mainContent {
   }
   .dash-eyebrow-app { display: none; }
   .dash-titulo {
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 600;
     letter-spacing: -0.01em;
   }
@@ -1389,9 +1384,9 @@ body[data-page="dashboard"] #mainContent {
   .dash-prioridad-link::before {
     content: "";
     grid-area: dot;
-    width: 7px;
-    height: 7px;
-    margin-top: 6px;
+    width: 6px;
+    height: 6px;
+    margin-top: 5px;
     border-radius: var(--radius-full);
     background: var(--dash-rule-strong);
   }
@@ -1400,7 +1395,7 @@ body[data-page="dashboard"] #mainContent {
   #atencionFilaVoluntarios .dash-prioridad-link::before { background: var(--gt-orange); }
   .dash-prioridad-area {
     grid-area: area;
-    font-size: 10px;
+    font-size: 10.5px;
     letter-spacing: 0.02em;
     text-transform: none;
     color: var(--dash-dim);
@@ -1502,7 +1497,7 @@ body[data-page="dashboard"] #mainContent {
     grid-area: detail;
     display: flex;
     flex-wrap: wrap;
-    gap: 2px 0;
+    gap: 2px 14px;
     margin: 2px 0 0;
   }
   .dash-filas > div {
@@ -1511,11 +1506,6 @@ body[data-page="dashboard"] #mainContent {
     gap: 4px;
     padding: 0;
     border: 0;
-  }
-  .dash-filas > div:not(:last-child)::after {
-    content: "·";
-    margin-left: 7px;
-    color: var(--dash-rule-strong);
   }
   .dash-filas dt {
     font-size: 12px;
@@ -1555,7 +1545,7 @@ body[data-page="dashboard"] #mainContent {
   }
   .dash-banda-pct {
     margin-top: 5px;
-    font-size: 19px;
+    font-size: 20px;
   }
   .dash-clinica-resumen {
     gap: 12px;

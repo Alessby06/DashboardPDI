@@ -35,15 +35,14 @@ test('las notas útiles se conservan', () => {
   assert.match(vista, /dashEduNota/);
 });
 
-test('el detalle se pliega en móvil y se abre en escritorio', () => {
-  assert.match(pagina, /<details class="dash-fold" open>/);
-  assert.equal((pagina.match(/class="dash-fold"/g) || []).length, 3);
-  assert.match(pagina, /foldAnemiaValor/);
-  assert.match(pagina, /foldServiciosValor/);
-  assert.match(pagina, /foldTerritorioValor/);
-  assert.match(pagina, /max-width: 820px/);
-  assert.match(vista, /_sincronizarPliegues/);
-  assert.match(vista, /detalle\.open = modo === "escritorio"/);
+test('el detalle no se pliega: las secciones quedan siempre visibles', () => {
+  assert.doesNotMatch(pagina, /<details class="dash-fold"/);
+  assert.doesNotMatch(pagina, /foldAnemiaValor|foldServiciosValor|foldTerritorioValor/);
+  assert.doesNotMatch(vista, /_sincronizarPliegues/);
+  assert.doesNotMatch(vista, /detalle\.open = modo/);
+  assert.match(pagina, /dash-clinica-bloque/);
+  assert.match(pagina, /dash-clinica-cab/);
+  assert.match(cssVista, /dash-clinica-bloque/);
 });
 
 test('exportar usa el modal de descarga compartido antes de descargar', () => {
