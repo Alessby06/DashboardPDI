@@ -1,6 +1,7 @@
 ---
 import Icon from '../components/Icon.astro';
 import '../styles/fonts.css';
+import '../styles/variables.css';
 // Login page — ingreso al PDI. Composición de 1040 px: placa de programa y
 // tarjeta de 400. La autenticación y la recuperación viven en la API; aquí
 // solo se compone la superficie.
@@ -50,7 +51,6 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
   })} />
   <link rel="icon" type="image/png" href="/assets/jg-icon.png" />
   <link rel="apple-touch-icon" href="/assets/jg-icon.png" />
-  <meta name="theme-color" id="metaThemeColor" content="#f2ece1" />
   <link rel="preload" href="/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin />
 
   <script is:inline>
@@ -101,76 +101,12 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
 
   <style>
     /* =========================================================================
-       ACCESO · placa + tarjeta
-       El login comparte la gramática del sistema: papel cálido, tarjeta plana,
-       campos en caja, radios 10/16 y una única sombra ambiente.
+       ACCESO · tarjeta + placa
+       Una sola capa, mobile-first. Los tokens vienen de variables.css: la
+       página no declara color propio, solo lo usa.
+       Escala de la pantalla: 13 (secundario) · 15 (cuerpo) · 22 (placa) ·
+       26 (título). Cuatro pasos; cada uno separado del siguiente por 2 px.
        ========================================================================= */
-
-    :root {
-      --paper: #f2ece1;
-      --surface: #fbf8f1;
-      --surface-2: #efe8db;
-      --ink: #1b1a17;
-      --body: #5c574d;
-      --muted: #6f685c;
-      --line: #e0d8c9;
-      --line-2: #c8bfae;
-      --brand: #2f5c6b;
-      --brand-hover: #244b58;
-      --brand-soft: #dfe9ed;
-      --brand-ink: #2f5c6b;
-      --brand-link: #2f5c6b;
-      --brand-link-hover: #244b58;
-      --action: #1b1a17;
-      --action-hover: #2b2a26;
-      --on-action: #f4efe5;
-      --on-brand: #f4efe5;
-      --danger: #8a3d32;
-      --danger-soft: #f3ded6;
-      --focus: #1b1a17;
-      --field-border: #c8bfae;
-      --field-border-strong: #a89d8b;
-      --field-bg: #efe8db;
-      --hover: #ece4d6;
-      --line-strong: #a89d8b;
-      --scrim: rgba(18, 17, 15, 0.65);
-      --shadow-ambient: 0 4px 16px -2px rgba(27, 26, 23, 0.08), 0 1px 3px 0 rgba(27, 26, 23, 0.05);
-      --shadow-overlay: 0 16px 40px -8px rgba(15, 23, 42, 0.18), 0 6px 16px -8px rgba(15, 23, 42, 0.12);
-      color-scheme: light;
-    }
-
-    [data-theme="dark"] {
-      --paper: #12110f;
-      --surface: #1b1915;
-      --surface-2: #191713;
-      --ink: #f4efe5;
-      --body: #c9c2b4;
-      --muted: #a39b8c;
-      --line: #2f2b25;
-      --line-2: #4a443a;
-      --brand: #9fc4d0;
-      --brand-hover: #b7d6df;
-      --brand-soft: #1c2a31;
-      --brand-ink: #cfe2e8;
-      --brand-link: #9fc4d0;
-      --brand-link-hover: #b7d6df;
-      --action: #f4efe5;
-      --action-hover: #ffffff;
-      --on-action: #12110f;
-      --on-brand: #12110f;
-      --danger: #f0d0cb;
-      --danger-soft: #33201f;
-      --focus: #f4efe5;
-      --field-border: #4a443a;
-      --field-border-strong: #8a8172;
-      --field-bg: #191713;
-      --hover: rgba(244, 239, 229, 0.08);
-      --line-strong: #8a8172;
-      --scrim: rgba(18, 17, 15, 0.65);
-      --shadow-ambient: 0 0 0 1px rgba(244, 239, 229, 0.05);
-      --shadow-overlay: 0 0 0 1px rgba(255, 255, 255, 0.05), 0 20px 40px -16px rgba(0, 0, 0, 0.9);
-      color-scheme: dark;
-    }
 
     *,
     *::before,
@@ -186,12 +122,13 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
       display: flex;
       flex-direction: column;
       min-height: 100vh;
+      min-height: 100dvh;
       margin: 0;
-      background: var(--paper);
-      color: var(--body);
-      font-family: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
-      font-size: 14px;
-      line-height: 1.55;
+      background: var(--bg-canvas);
+      color: var(--text-muted);
+      font-family: var(--ui-font);
+      font-size: 15px;
+      line-height: 1.5;
       -webkit-font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
     }
@@ -222,8 +159,52 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
     }
 
     :focus-visible {
-      outline: 2px solid var(--focus);
+      outline: 2px solid var(--border-focus);
       outline-offset: 2px;
+    }
+
+    button,
+    a,
+    label,
+    input {
+      touch-action: manipulation;
+    }
+
+    button,
+    a,
+    label {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .skip-link {
+      position: fixed;
+      left: 16px;
+      top: -64px;
+      z-index: 50;
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      background: var(--surface-1);
+      color: var(--text-main);
+      box-shadow: var(--shadow-overlay);
+      font-size: 13px;
+      font-weight: 600;
+      transition: top var(--dur-fast) var(--ease-out);
+    }
+
+    .skip-link:focus {
+      top: 12px;
     }
 
     /* --- Cabecera --------------------------------------------------------- */
@@ -232,7 +213,9 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
       align-items: center;
       justify-content: space-between;
       gap: 16px;
+      width: calc(100% - 40px);
       margin: 0 auto;
+      padding: calc(20px + env(safe-area-inset-top)) 0 0;
     }
 
     .brand {
@@ -247,31 +230,33 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
     }
 
     .brand .emblem {
-      border-radius: 10px;
-    }
-
-    .brand .emblem,
-    .brand .emblem img {
-      display: block;
+      flex: 0 0 36px;
       width: 36px;
       height: 36px;
+      overflow: hidden;
+      border-radius: var(--radius-md);
+    }
+
+    .brand .emblem img {
+      width: 100%;
+      height: 100%;
       object-fit: cover;
-      border-radius: inherit;
     }
 
     .brand strong {
       display: block;
-      font-weight: 500;
+      font-size: 13px;
+      font-weight: 600;
       line-height: 1.3;
-      color: var(--ink);
+      color: var(--text-main);
     }
 
     .brand span {
       display: block;
-      margin-top: 4px;
-      font-size: 12px;
+      margin-top: 2px;
+      font-size: 13px;
       font-weight: 400;
-      color: var(--muted);
+      color: var(--text-dim);
     }
 
     .theme {
@@ -280,12 +265,19 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
       justify-content: center;
       gap: 8px;
       flex: 0 0 auto;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: var(--surface);
-      color: var(--body);
+      min-width: 84px;
+      height: 40px;
+      padding: 0 12px;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      background: var(--surface-1);
+      color: var(--text-muted);
+      font-size: 13px;
       font-weight: 500;
-      transition: border-color 160ms ease, color 160ms ease, background-color 160ms ease;
+      transition:
+        border-color var(--dur-fast) var(--ease-out),
+        background-color var(--dur-fast) var(--ease-out),
+        color var(--dur-fast) var(--ease-out);
     }
 
     .theme-icon,
@@ -310,35 +302,52 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
 
     /* --- Composición ------------------------------------------------------ */
     .stage {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 28px;
       flex: 1 0 auto;
+      width: calc(100% - 40px);
+      margin: 0 auto;
+      padding: 20px 0 0;
+    }
+
+    .access,
+    .plate {
+      min-width: 0;
     }
 
     .card {
       width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: var(--surface);
+      padding: 20px;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      background: var(--surface-1);
       box-shadow: var(--shadow-ambient);
-      animation: login-rise 320ms cubic-bezier(0.23, 1, 0.32, 1) both;
+      animation: login-rise var(--dur-norm) var(--ease-out) both;
     }
 
     .card h1 {
-      line-height: 1.1;
-      letter-spacing: -0.03em;
-      font-weight: 500;
-      color: var(--ink);
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
       text-wrap: balance;
     }
 
     .sub {
       margin-top: 8px;
-      line-height: 1.55;
+      font-size: 15px;
+      line-height: 1.5;
+      color: var(--text-muted);
     }
 
     /* --- Formulario ------------------------------------------------------ */
     .form {
       display: flex;
       flex-direction: column;
+      gap: 14px;
+      margin-top: 18px;
     }
 
     .field {
@@ -348,29 +357,32 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
     }
 
     .field label {
-      /* Excepcion de login al token label: 12px/500 sin tracking para no gritar en un formulario corto. */
-      font-weight: 500;
+      font-size: 13px;
+      font-weight: 600;
       letter-spacing: 0;
-      color: var(--ink);
+      color: var(--text-main);
     }
 
     .control {
       position: relative;
       display: flex;
       align-items: center;
-      height: 32px;
-      border: 0;
-      border-radius: 10px;
-      background: var(--field-bg);
-      box-shadow: inset 0 0 0 1px var(--field-border);
+      height: 36px;
+      border-radius: var(--radius-md);
+      background: var(--surface-2);
+      box-shadow: inset 0 0 0 1px var(--rule-mid);
+      transition: box-shadow var(--dur-fast) var(--ease-out);
     }
 
+    /* El anillo de teclado vive en la caja, no en el input: el campo nunca
+       pierde el contorno al enfocarse con Tab (Quiet Focus, DESIGN.md). */
     .control:has(input:focus-visible) {
-      outline: none;
+      outline: 2px solid var(--border-focus);
+      outline-offset: 2px;
     }
 
     .control:has(input[aria-invalid="true"]) {
-      box-shadow: inset 0 0 0 1px var(--danger);
+      box-shadow: inset 0 0 0 1px var(--text-danger);
     }
 
     .control input {
@@ -379,14 +391,23 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
       padding: 0 14px;
       border: 0;
       background: transparent;
-      color: var(--ink);
-      /* 14px como el boton: el dato escrito no compite con la jerarquia. */
-      font-size: 14px;
+      color: var(--text-main);
+      font-size: 15px;
       outline: none;
     }
 
     .control:has(.eye) input {
-      padding-right: 40px;
+      padding-right: 44px;
+    }
+
+    /* Chrome pinta el autocompletado de blanco azulado y rompe el papel. El
+       relleno va en un inset grande; el aro de 1 px se repinta encima. */
+    .control input:-webkit-autofill {
+      -webkit-text-fill-color: var(--text-main);
+      -webkit-box-shadow:
+        inset 0 0 0 1px var(--rule-mid),
+        inset 0 0 0 1000px var(--surface-2);
+      caret-color: var(--text-main);
     }
 
     /* El navegador pinta su propio ojo y su botón de credenciales dentro del
@@ -398,60 +419,49 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
     }
 
     .control input::placeholder {
-      color: var(--muted);
+      color: var(--text-dim);
       opacity: 1;
     }
 
     .field-error {
-      font-size: 12px;
+      font-size: 13px;
       line-height: 1.45;
-      color: var(--danger);
+      color: var(--text-danger);
     }
 
     .field-error:not([hidden]) {
-      animation: login-reveal 150ms cubic-bezier(0.23, 1, 0.32, 1) both;
-    }
-
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0 0 0 0);
-      white-space: nowrap;
-      border: 0;
+      animation: login-reveal var(--dur-fast) var(--ease-out) both;
     }
 
     .noscript {
       margin-top: 16px;
-      padding: 12px 16px;
-      border: 1px solid var(--field-border);
-      border-radius: 10px;
-      background: var(--field-bg);
-      color: var(--body);
-      font-size: 12px;
+      padding: 12px 14px;
+      border: 1px solid var(--rule-mid);
+      border-radius: var(--radius-md);
+      background: var(--surface-2);
+      color: var(--text-muted);
+      font-size: 13px;
       line-height: 1.5;
     }
 
     .noscript a {
-      color: var(--brand-link);
-      font-weight: 500;
+      color: var(--text-brand);
+      font-weight: 600;
     }
 
     .eye {
       position: absolute;
       right: 0;
+      top: 0;
       display: grid;
       place-items: center;
-      width: 32px;
-      height: 32px;
+      width: 36px;
+      height: 36px;
       border: 0;
-      border-radius: 10px;
+      border-radius: var(--radius-md);
       background: transparent;
-      color: var(--muted);
-      transition: color 160ms ease;
+      color: var(--text-dim);
+      transition: color var(--dur-fast) var(--ease-out);
     }
 
     .eye:focus-visible {
@@ -462,8 +472,8 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
       grid-area: 1 / 1;
       display: flex;
       transition:
-        opacity 150ms cubic-bezier(0.23, 1, 0.32, 1),
-        transform 150ms cubic-bezier(0.23, 1, 0.32, 1);
+        opacity var(--dur-fast) var(--ease-out),
+        transform var(--dur-fast) var(--ease-out);
     }
 
     .eye-off,
@@ -478,15 +488,15 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
     }
 
     .totp-status {
-      margin-top: 4px;
-      font-size: 12px;
+      margin-top: 2px;
+      font-size: 13px;
       font-weight: 500;
       line-height: 1.45;
-      color: var(--brand-ink);
+      color: var(--text-brand);
     }
 
     #filaCodigoTotp:not([hidden]) {
-      animation: login-reveal 180ms cubic-bezier(0.23, 1, 0.32, 1) both;
+      animation: login-reveal var(--dur-norm) var(--ease-out) both;
     }
 
     /* --- Error ----------------------------------------------------------- */
@@ -494,18 +504,18 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
       display: none;
       align-items: flex-start;
       gap: 8px;
-      padding: 12px 16px;
-      border: 1px solid color-mix(in srgb, var(--danger) 38%, transparent);
-      border-radius: 10px;
-      background: var(--danger-soft);
-      color: var(--danger);
-      font-size: 12px;
+      padding: 12px 14px;
+      border: 1px solid color-mix(in srgb, var(--text-danger) 38%, transparent);
+      border-radius: var(--radius-md);
+      background: var(--chart-blush-bg);
+      color: var(--text-danger);
+      font-size: 13px;
       line-height: 1.45;
     }
 
     .status-error-callout.visible {
       display: flex;
-      animation: login-reveal 150ms cubic-bezier(0.23, 1, 0.32, 1) both;
+      animation: login-reveal var(--dur-fast) var(--ease-out) both;
     }
 
     .status-error-callout svg {
@@ -518,27 +528,26 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
       align-items: center;
       justify-content: center;
       flex-wrap: wrap;
-      gap: 4px 8px;
-      margin-top: -4px;
-      font-size: 12px;
-      color: var(--muted);
+      gap: 2px 6px;
+      font-size: 13px;
+      color: var(--text-dim);
       text-align: center;
     }
 
     .recovery-link {
       display: inline-flex;
       align-items: center;
-      min-height: 32px;
+      min-height: 36px;
       padding: 0 2px;
       border: 0;
       background: transparent;
-      color: var(--brand-link);
+      color: var(--text-brand);
       font: inherit;
-      font-weight: 500;
+      font-weight: 600;
       text-decoration: underline;
       text-underline-offset: 3px;
       cursor: pointer;
-      transition: color 160ms ease;
+      transition: color var(--dur-fast) var(--ease-out);
     }
 
     /* --- Botón ----------------------------------------------------------- */
@@ -549,20 +558,22 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
       justify-content: center;
       gap: 8px;
       width: 100%;
-      height: 48px;
+      height: 44px;
       border: 0;
-      border-radius: 10px;
-      background: var(--brand);
-      color: var(--on-brand);
-      font-size: 14px;
+      border-radius: var(--radius-md);
+      background: var(--action);
+      color: var(--on-action);
+      font-size: 15px;
       font-weight: 600;
       letter-spacing: 0;
-      transition: background-color 160ms ease, transform 160ms cubic-bezier(0.25, 1, 0.5, 1), opacity 160ms ease;
+      transition:
+        background-color var(--dur-fast) var(--ease-out),
+        transform var(--dur-press) var(--ease-spring),
+        opacity var(--dur-fast) var(--ease-out);
     }
 
     .btn-primary-action:active {
-      transform: scale(0.992, 0.955);
-      transition: transform 80ms cubic-bezier(0.16, 1, 0.3, 1);
+      transform: scale(0.97);
     }
 
     .btn-primary-action:disabled {
@@ -571,7 +582,7 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
     }
 
     .btn-label {
-      transition: opacity 160ms ease;
+      transition: opacity var(--dur-fast) var(--ease-out);
     }
 
     .btn-spinner {
@@ -582,8 +593,8 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
       width: 16px;
       height: 16px;
       margin-top: -8px;
-      border: 2px solid color-mix(in srgb, var(--on-brand) 30%, transparent);
-      border-top-color: var(--on-brand);
+      border: 2px solid color-mix(in srgb, var(--on-action) 30%, transparent);
+      border-top-color: var(--on-action);
       border-radius: 50%;
       animation: login-spin 0.7s linear infinite;
     }
@@ -596,87 +607,70 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
       opacity: 0.85;
     }
 
-    /* --- Usuarios de prueba ---------------------------------------------- */
-    .quick {
-      border-top: 1px solid var(--line);
-    }
-
-    .quick-head {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 8px;
-    }
-
-    .quick-title {
-      font-size: 12px;
+    /* --- Placa del programa ---------------------------------------------- */
+    .plate h2 {
+      color: var(--text-main);
+      font-size: 22px;
       font-weight: 500;
-      color: var(--ink);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      text-wrap: balance;
     }
 
-    .chips {
-      display: grid;
-      grid-template-columns: repeat(6, minmax(0, 1fr));
-      gap: 8px;
+    .plate-desc {
+      margin-top: 10px;
+      max-width: 60ch;
+      font-size: 15px;
+      line-height: 1.5;
+      color: var(--text-muted);
     }
 
-    .chip {
-      position: relative;
-      grid-column: span 2;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 8px;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: var(--surface);
-      color: var(--ink);
-      font-weight: 500;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
+    .plate-modules {
+      display: none;
+      grid-template-columns: 1fr 1fr;
+      margin: 20px 0 0;
+      padding: 0;
+      list-style: none;
+      border-top: 1px solid var(--border-subtle);
     }
 
-    .chip input {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      margin: 0;
-      opacity: 0;
-      pointer-events: none;
+    .plate-mod {
+      min-width: 0;
+      padding: 12px 14px 12px 0;
+      border-bottom: 1px solid var(--border-subtle);
     }
 
-    .chip input:focus-visible {
-      outline: none;
+    .plate-mod:nth-child(odd) {
+      border-right: 1px solid var(--border-subtle);
     }
 
-    .chip:has(input:focus-visible) {
-      outline: 2px solid var(--focus);
-      outline-offset: 2px;
+    .plate-mod:nth-child(even) {
+      padding: 12px 0 12px 14px;
     }
 
-    .chip:has(input:checked) {
-      border-color: var(--brand);
-      background: var(--brand-soft);
-      color: var(--brand-ink);
+    .plate-mod strong {
+      display: block;
+      color: var(--text-main);
+      font-size: 13px;
       font-weight: 600;
     }
 
-    .chip:has(input:disabled) {
-      opacity: 0.55;
-      cursor: not-allowed;
+    .plate-mod span {
+      display: block;
+      margin-top: 2px;
+      color: var(--text-dim);
+      font-size: 13px;
+      line-height: 1.4;
     }
 
-    .stage.is-totp .quick {
-      display: none;
-    }
-
+    /* --- Pie ------------------------------------------------------------- */
     .foot {
-      border-top: 1px solid var(--line);
-      font-size: 12px;
-      color: var(--muted);
+      width: calc(100% - 40px);
+      margin: 24px auto 0;
+      padding: 12px 0 calc(18px + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--border-subtle);
+      font-size: 13px;
+      color: var(--text-dim);
       text-align: center;
     }
 
@@ -701,128 +695,54 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
       }
     }
 
-    @media (hover: hover) and (pointer: fine) {
-      .theme:hover {
-        border-color: var(--line-strong);
-        background: var(--hover);
-        color: var(--ink);
-      }
-
-      .eye:hover {
-        color: var(--ink);
-      }
-
-      .chip:not(:has(input:checked)):not(:has(input:disabled)):hover {
-        border-color: var(--line-strong);
-        background: var(--hover);
-      }
-
-      .btn-primary-action:hover {
-        background: var(--brand-hover);
-      }
-
-      .recovery-link:hover {
-        color: var(--brand-link-hover);
-      }
-
-      .rec-close:hover {
-        background: var(--hover);
-        color: var(--ink);
-      }
-
-      .rec-copy:hover {
-        border-color: var(--line-strong);
-        background: var(--hover);
-      }
-
-      .rec-soporte a:hover {
-        color: var(--brand-link-hover);
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .card,
-      .status-error-callout.visible,
-      .field-error:not([hidden]),
-      #filaCodigoTotp:not([hidden]),
-      .rec-dialog.is-opening,
-      .rec-dialog.is-closing,
-      .rec-dialog.is-opening::backdrop,
-      .rec-dialog.is-closing::backdrop,
-      #recOk.is-entering,
-      .rec-error {
-        animation: none;
-      }
-
-      .btn-primary-action,
-      .btn-label,
-      .eye,
-      .eye-icon,
-      .theme,
-      .chip,
-      .control,
-      .rec-close,
-      .rec-copy,
-      .recovery-link {
-        transition-duration: 0.01ms;
-      }
-
-      .btn-spinner,
-      .btn-primary-action.loading .btn-spinner {
-        display: none;
-        animation: none;
-      }
-    }
-
-    @media (any-pointer: coarse) {
-      .recovery-link {
-        min-height: 44px;
-      }
-
-      .chip {
-        height: 44px;
+    @keyframes login-ok-in {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
       }
     }
 
     /* --- Recuperación de acceso ------------------------------------------ */
     .rec-dialog {
-      width: min(calc(100% - 48px), 480px);
-      max-height: calc(100dvh - 48px);
+      width: calc(100% - 40px);
+      max-width: 440px;
+      max-height: calc(100dvh - 40px);
       padding: 0;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: var(--surface);
-      color: var(--body);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      background: var(--surface-1);
+      color: var(--text-muted);
       box-shadow: var(--shadow-overlay);
       overflow: auto;
+      overscroll-behavior: contain;
     }
 
     .rec-dialog.is-opening {
-      animation: login-dialog-in 220ms cubic-bezier(0.23, 1, 0.32, 1) both;
+      animation: login-dialog-in var(--dur-norm) var(--ease-out) both;
     }
 
     .rec-dialog.is-closing {
-      animation: login-dialog-out 160ms cubic-bezier(0.23, 1, 0.32, 1) both;
+      animation: login-dialog-out var(--dur-fast) var(--ease-out) both;
     }
 
     .rec-dialog::backdrop {
-      background: var(--scrim);
+      background: var(--modal-overlay-bg);
       backdrop-filter: blur(2px);
     }
 
     .rec-dialog.is-opening::backdrop {
-      animation: login-backdrop-in 220ms ease both;
+      animation: login-backdrop-in var(--dur-norm) ease both;
     }
 
     .rec-dialog.is-closing::backdrop {
-      animation: login-backdrop-out 160ms ease both;
+      animation: login-backdrop-out var(--dur-fast) ease both;
     }
 
     .rec-card {
       display: flex;
       flex-direction: column;
-      min-height: 360px;
-      padding: 24px;
+      min-height: 340px;
+      padding: 20px;
     }
 
     .rec-head {
@@ -834,38 +754,40 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
 
     .rec-head h2 {
       margin: 0;
-      font-weight: 500;
       font-size: 22px;
+      font-weight: 600;
       line-height: 1.2;
       letter-spacing: -0.02em;
-      color: var(--ink);
+      color: var(--text-main);
     }
 
     .rec-close {
       display: grid;
       place-items: center;
-      flex: 0 0 44px;
-      width: 44px;
-      height: 44px;
+      flex: 0 0 40px;
+      width: 40px;
+      height: 40px;
       border: 0;
-      border-radius: 9999px;
+      border-radius: var(--radius-full);
       background: transparent;
-      color: var(--muted);
-      transition: background-color 160ms ease, color 160ms ease;
+      color: var(--text-dim);
+      transition:
+        background-color var(--dur-fast) var(--ease-out),
+        color var(--dur-fast) var(--ease-out);
     }
 
     .rec-desc {
-      margin-top: 12px;
-      font-size: 14px;
-      line-height: 1.6;
+      margin-top: 10px;
+      font-size: 15px;
+      line-height: 1.55;
     }
 
     .rec-dialog .form {
-      margin-top: 20px;
+      margin-top: 18px;
     }
 
     .rec-dialog .control {
-      background: var(--paper);
+      background: var(--bg-base);
     }
 
     .rec-hp {
@@ -878,30 +800,30 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
 
     .rec-error {
       padding: 12px;
-      border: 1px solid color-mix(in srgb, var(--danger) 38%, transparent);
-      border-radius: 10px;
-      background: var(--danger-soft);
-      color: var(--danger);
-      font-size: 12px;
+      border: 1px solid color-mix(in srgb, var(--text-danger) 38%, transparent);
+      border-radius: var(--radius-md);
+      background: var(--chart-blush-bg);
+      color: var(--text-danger);
+      font-size: 13px;
       line-height: 1.45;
-      animation: login-reveal 150ms cubic-bezier(0.23, 1, 0.32, 1) both;
+      animation: login-reveal var(--dur-fast) var(--ease-out) both;
     }
 
     .rec-soporte {
-      margin-top: -4px;
-      font-size: 12px;
-      color: var(--muted);
+      margin-top: 2px;
+      font-size: 13px;
+      color: var(--text-dim);
     }
 
     .rec-soporte a {
-      color: var(--brand-link);
+      color: var(--text-brand);
       text-underline-offset: 2px;
-      transition: color 160ms ease;
+      transition: color var(--dur-fast) var(--ease-out);
     }
 
     .rec-ok-desc {
       margin-top: 8px;
-      font-size: 14px;
+      font-size: 15px;
       line-height: 1.55;
     }
 
@@ -910,11 +832,11 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      margin: 20px 0;
-      padding: 12px 16px;
-      border: 1px dashed var(--line-2);
-      border-radius: 10px;
-      background: var(--paper);
+      margin: 18px 0;
+      padding: 12px 14px;
+      border: 1px dashed var(--border-bright);
+      border-radius: var(--radius-md);
+      background: var(--bg-base);
     }
 
     .rec-code span {
@@ -922,21 +844,23 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
       font-size: 20px;
       font-weight: 600;
       letter-spacing: 0.08em;
-      color: var(--ink);
+      color: var(--text-main);
       font-variant-numeric: tabular-nums;
     }
 
     .rec-copy {
-      height: 44px;
+      height: 40px;
       min-width: 78px;
       padding: 0 12px;
-      border: 1px solid var(--field-border);
-      border-radius: 10px;
-      background: var(--surface);
-      color: var(--brand-link);
-      font-size: 12px;
-      font-weight: 500;
-      transition: border-color 160ms ease, background-color 160ms ease;
+      border: 1px solid var(--border-bright);
+      border-radius: var(--radius-md);
+      background: var(--surface-1);
+      color: var(--text-brand);
+      font-size: 13px;
+      font-weight: 600;
+      transition:
+        border-color var(--dur-fast) var(--ease-out),
+        background-color var(--dur-fast) var(--ease-out);
     }
 
     #recOk:not([hidden]) {
@@ -954,7 +878,7 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
     }
 
     #recOk.is-entering {
-      animation: login-ok-in 180ms cubic-bezier(0.23, 1, 0.32, 1) both;
+      animation: login-ok-in var(--dur-fast) var(--ease-out) both;
     }
 
     @keyframes login-dialog-in {
@@ -974,265 +898,174 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
     @keyframes login-backdrop-in {
       from {
         opacity: 0;
-        backdrop-filter: blur(0);
       }
     }
 
     @keyframes login-backdrop-out {
       to {
         opacity: 0;
-        backdrop-filter: blur(0);
       }
     }
 
-    @keyframes login-ok-in {
-      from {
-        opacity: 0;
-        transform: translateY(4px);
+    /* --- Escritorio ------------------------------------------------------ */
+    @media (min-width: 521px) {
+      .top,
+      .stage,
+      .foot {
+        width: calc(100% - 48px);
+      }
+
+      .stage {
+        justify-items: center;
+        padding-top: 24px;
+      }
+
+      .access {
+        width: 100%;
+        max-width: 400px;
+      }
+
+      .plate {
+        width: 100%;
+        max-width: 560px;
+      }
+
+      .card {
+        padding: 22px;
+      }
+
+      .plate-mod {
+        padding: 12px 16px 12px 0;
+      }
+
+      .plate-modules {
+        display: grid;
+      }
+
+      .plate-mod:nth-child(even) {
+        padding-left: 16px;
       }
     }
 
-    /* --- Composición B ---------------------------------------------------- */
-    .skip-link {
-      position: fixed;
-      left: 16px;
-      top: -60px;
-      z-index: 50;
-      padding: 12px 16px;
-      border-radius: 10px;
-      background: var(--surface);
-      color: var(--ink);
-      box-shadow: var(--shadow-overlay);
-      font-size: 12px;
-      font-weight: 500;
-      transition: top 160ms ease;
+    @media (min-width: 821px) {
+      .top,
+      .stage,
+      .foot {
+        width: calc(100% - 64px);
+      }
+
+      .top {
+        padding-top: calc(28px + env(safe-area-inset-top));
+      }
+
+      .stage {
+        gap: 32px;
+        padding-top: 28px;
+      }
+
+      .plate {
+        max-width: 592px;
+      }
+
+      .rec-card {
+        padding: 24px;
+      }
+
+      .rec-dialog {
+        max-height: calc(100dvh - 48px);
+      }
     }
 
-    .skip-link:focus {
-      top: 12px;
+    @media (min-width: 1081px) {
+      .top,
+      .stage,
+      .foot {
+        width: min(calc(100% - 64px), 1040px);
+      }
+
+      .stage {
+        grid-template-columns: minmax(0, 1fr) 400px;
+        column-gap: 48px;
+        row-gap: 0;
+        align-items: start;
+        justify-items: stretch;
+        padding-top: 28px;
+      }
+
+      .access {
+        grid-column: 2;
+        grid-row: 1;
+        max-width: none;
+      }
+
+      .plate {
+        grid-column: 1;
+        grid-row: 1;
+        max-width: none;
+      }
     }
 
-    .top {
-      width: min(calc(100% - 64px), 1040px);
-      padding: 28px 0 0;
-    }
-
-    .brand {
-      gap: 12px;
-    }
-
-    .brand .emblem {
-      width: 36px;
-      height: 36px;
-      flex: 0 0 36px;
-      border-radius: 10px;
-    }
-
-    .brand strong {
-      font-size: 12px;
-    }
-
-    .theme {
-      min-width: 88px;
-      height: 40px;
-      padding: 0 12px;
-      font-size: 12px;
-    }
-
-    .stage {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 400px;
-      align-items: start;
-      align-content: start;
-      column-gap: 48px;
-      row-gap: 12px;
-      width: min(calc(100% - 64px), 1040px);
-      margin: 0 auto;
-      padding: 28px 0 0;
-    }
-
-    .plate {
-      min-width: 0;
-      padding-top: 4px;
-      grid-column: 1;
-      grid-row: 1 / span 2;
-    }
-
-    .plate h2 {
-      color: var(--ink);
-      font-size: 22px;
-      font-weight: 500;
-      line-height: 1.2;
-      letter-spacing: -0.02em;
-      text-wrap: balance;
-    }
-
-    .plate-desc {
-      margin-top: 12px;
-      max-width: 72ch;
-      font-size: 14px;
-      line-height: 1.55;
-    }
-
-    .plate-modules {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      row-gap: 16px;
-      margin: 24px 0 0;
-      padding: 0;
-      list-style: none;
-      border-top: 1px solid var(--line);
-    }
-
-    .plate-mod {
-      min-width: 0;
-      padding: 12px 16px 12px 0;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .plate-mod:nth-child(odd) {
-      border-right: 1px solid var(--line);
-    }
-
-    .plate-mod:nth-child(even) {
-      padding: 12px 0 12px 16px;
-    }
-
-    .plate-mod strong {
-      display: block;
-      color: var(--ink);
-      font-size: 12px;
-      font-weight: 500;
-    }
-
-    .plate-mod span {
-      display: block;
-      margin-top: 4px;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.4;
-    }
-
-    .access {
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-      grid-column: 2;
-      grid-row: 1;
-    }
-
-    .card {
-      padding: 22px;
-    }
-
-    .card h1 {
-      font-size: 26px;
-    }
-
-    .sub {
-      margin-top: 8px;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .form {
-      gap: 16px;
-      margin-top: 16px;
-    }
-
-    .field label {
-      font-size: 12px;
-    }
-
-    .btn-primary-action {
-      height: 44px;
-      background: var(--action);
-      color: var(--on-action);
-      font-size: 14px;
-    }
-
-    .btn-spinner {
-      border-color: color-mix(in srgb, var(--on-action) 30%, transparent);
-      border-top-color: var(--on-action);
-    }
-
-    .quick {
-      grid-column: 2;
-      grid-row: 2;
-      padding-top: 12px;
-    }
-
-    .quick-head {
-      justify-content: flex-start;
-      margin-bottom: 8px;
-    }
-
-    .quick-title {
-      font-size: 12px;
-    }
-
-    .chip {
-      height: 36px;
-      font-size: 12px;
-    }
-
-    .foot {
-      width: min(calc(100% - 64px), 1040px);
-      margin: 20px auto 0;
-      padding: 12px 0 calc(24px + env(safe-area-inset-bottom));
-    }
-
-    .rec-dialog {
-      width: min(calc(100% - 48px), 440px);
-      overscroll-behavior: contain;
-    }
-
-    .rec-card {
-      min-height: 340px;
-      padding: 24px;
-    }
-
-    .rec-close {
-      width: 40px;
-      height: 40px;
-      flex: 0 0 40px;
-    }
-
-    .rec-copy {
-      height: 40px;
-    }
-
-    button,
-    a,
-    label,
-    input {
-      touch-action: manipulation;
-    }
-
-    button,
-    a,
-    label {
-      -webkit-tap-highlight-color: transparent;
-    }
-
+    /* --- Puntero fino ---------------------------------------------------- */
     @media (hover: hover) and (pointer: fine) {
+      .theme:hover {
+        border-color: var(--border-bright);
+        background: var(--surface-hover);
+        color: var(--text-main);
+      }
+
+      .eye:hover {
+        color: var(--text-main);
+      }
+
       .btn-primary-action:hover {
         background: var(--action-hover);
       }
+
+      .recovery-link:hover {
+        color: var(--interactive-hover);
+      }
+
+      .rec-close:hover {
+        background: var(--surface-hover);
+        color: var(--text-main);
+      }
+
+      .rec-copy:hover {
+        border-color: var(--border-bright);
+        background: var(--surface-hover);
+      }
+
+      .rec-soporte a:hover {
+        color: var(--interactive-hover);
+      }
     }
 
+    /* --- Puntero grueso -------------------------------------------------- */
     @media (any-pointer: coarse) {
       .theme {
         height: 44px;
       }
 
+      .control {
+        height: 44px;
+      }
+
       .control input {
-        /* En pantallas tactiles 16px evita el zoom automatico de iOS al enfocar. */
+        /* 16 px evita el zoom automático de iOS al enfocar. */
         font-size: 16px;
       }
 
-      .chip {
+      .control:has(.eye) input {
+        padding-right: 48px;
+      }
+
+      .eye {
+        width: 44px;
         height: 44px;
+      }
+
+      .recovery-link {
+        min-height: 44px;
       }
 
       .rec-close {
@@ -1244,167 +1077,46 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
       .rec-copy {
         height: 44px;
       }
-
-      .recovery-link {
-        min-height: 44px;
-      }
     }
 
-    @media (max-width: 1080px) {
-      .stage {
-        grid-template-columns: 1fr;
-        gap: 24px;
-      }
-
-      .plate,
-      .access,
-      .quick {
-        grid-column: 1;
-        grid-row: auto;
-      }
-
-      .plate {
-        max-width: 560px;
-      }
-
-      .access {
-        max-width: 400px;
-      }
-
-      .quick {
-        max-width: 400px;
-      }
-    }
-
-    @media (max-width: 820px) {
-      .top,
-      .stage,
-      .foot {
-        width: calc(100% - 40px);
-      }
-
-      .stage {
-        padding-top: 20px;
-      }
-
-      .plate h2 {
-        font-size: 20px;
-      }
-
-      .plate-desc {
-        font-size: 12px;
-      }
-
-      .plate-mod {
-        padding: 12px 12px 12px 0;
-      }
-
-      .plate-mod:nth-child(even) {
-        padding-left: 12px;
-      }
-
-      .plate-mod strong {
-        font-size: 12px;
-      }
-
-      .access {
-        max-width: 400px;
-      }
-    }
-
-    @media (max-width: 520px) {
-      .stage {
-        padding-top: 20px;
-      }
-
-      .plate {
-        max-width: none;
-      }
-
-      .plate h2 {
-        font-size: 20px;
-      }
-
-      .plate-desc,
-      .plate-mod span {
-        display: none;
-      }
-
-      .plate-modules {
-        margin-top: 8px;
-        row-gap: 8px;
-      }
-
-      .plate-mod {
-        padding: 8px 12px 8px 0;
-      }
-
-      .plate-mod:nth-child(even) {
-        padding-left: 12px;
-      }
-
-      .plate-mod strong {
-        font-size: 12px;
-      }
-
-      .sub {
-        display: none;
-      }
-
-      .card {
-        padding: 20px;
-      }
-
-      .quick-head {
-        align-items: flex-start;
-      }
-
-      .quick {
-        padding-top: 12px;
-      }
-
-      .chips {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .chip {
-        grid-column: auto;
-      }
-
-      .foot {
-        margin-top: 12px;
-        padding: 12px 0 calc(18px + env(safe-area-inset-bottom));
-      }
-
-      .rec-dialog {
-        width: calc(100% - 40px);
-      }
-
-      .rec-card {
-        min-height: 340px;
-        padding: 20px;
-      }
-
-      .rec-head h2 {
-        font-size: 20px;
-      }
-
-      .rec-dialog .form {
-        margin-top: 20px;
-      }
-
-      .top .brand span {
-        display: block;
-      }
-    }
-
+    /* --- Movimiento reducido --------------------------------------------- */
     @media (prefers-reduced-motion: reduce) {
+      .card,
+      .status-error-callout.visible,
+      .field-error:not([hidden]),
+      #filaCodigoTotp:not([hidden]),
+      .rec-dialog.is-opening,
+      .rec-dialog.is-closing,
+      .rec-dialog.is-opening::backdrop,
+      .rec-dialog.is-closing::backdrop,
+      #recOk.is-entering,
+      .rec-error {
+        animation: none;
+      }
+
       .skip-link {
         transition: none;
       }
+
+      .btn-primary-action,
+      .btn-label,
+      .eye,
+      .eye-icon,
+      .theme,
+      .control,
+      .rec-close,
+      .rec-copy,
+      .recovery-link {
+        transition-duration: 0.01ms;
+      }
+
+      .btn-spinner {
+        display: none;
+        animation: none;
+      }
     }
 
-  </style>
+</style>
 </head>
 <body>
 
@@ -1437,7 +1149,6 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
 
       <noscript>
         <style>
-          .quick.quick,
           .recovery.recovery {
             display: none;
           }
@@ -1523,7 +1234,7 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
         </div>
         <p class="sr-only" id="loginStatus" role="status" aria-live="polite"></p>
 
-        <button type="submit" class="btn-primary-action" id="btnLogin" disabled>
+        <button type="submit" class="btn-primary-action" id="btnLogin">
           <span class="btn-spinner" aria-hidden="true"></span>
           <span class="btn-label">Ingresar al sistema</span>
         </button>
@@ -1546,34 +1257,6 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
         <li class="plate-mod"><strong>Salud preventiva</strong><span>Desarrollo, vacunas y derivaciones.</span></li>
       </ul>
     </aside>
-
-    <section class="quick" aria-label="Usuarios de prueba">
-      <div class="quick-head">
-        <span class="quick-title">Usuarios de prueba</span>
-      </div>
-      <div class="chips" id="profilesGrid" role="radiogroup" aria-label="Usuarios de prueba">
-        <label class="profile-card-btn chip">
-          <input type="radio" name="perfilDemo" value="coordinacion" data-user="coordinacion" />
-          Coordinación
-        </label>
-        <label class="profile-card-btn chip">
-          <input type="radio" name="perfilDemo" value="facilitadora" data-user="facilitadora" />
-          Desayuno
-        </label>
-        <label class="profile-card-btn chip">
-          <input type="radio" name="perfilDemo" value="promotora" data-user="promotora" />
-          Educación
-        </label>
-        <label class="profile-card-btn chip">
-          <input type="radio" name="perfilDemo" value="social" data-user="social" />
-          Atención social
-        </label>
-        <label class="profile-card-btn chip">
-          <input type="radio" name="perfilDemo" value="admin" data-user="admin" />
-          Administración TI
-        </label>
-      </div>
-    </section>
   </main>
 
   <footer class="foot">
@@ -1662,10 +1345,8 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
     const inputClave = document.getElementById('inputClave');
     const filaCodigoTotp = document.getElementById('filaCodigoTotp');
     const inputCodigoTotp = document.getElementById('inputCodigoTotp');
-    const stage = document.querySelector('.stage');
     const loginForm = document.getElementById('loginForm');
     const btnLogin = document.getElementById('btnLogin');
-    if (btnLogin) btnLogin.disabled = false;
 
     function textoBotonLogin() {
       return filaCodigoTotp && !filaCodigoTotp.hidden ? 'Verificar código' : 'Ingresar al sistema';
@@ -1677,7 +1358,6 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
 
     function mostrarTotp(visible) {
       if (filaCodigoTotp) filaCodigoTotp.hidden = !visible;
-      stage?.classList.toggle('is-totp', visible);
       if (!visible && inputCodigoTotp) inputCodigoTotp.value = '';
       const label = btnLogin?.querySelector('.btn-label');
       if (label && !btnLogin?.classList.contains('loading')) {
@@ -1693,34 +1373,8 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
       btnTogglePass.setAttribute('aria-pressed', String(isPass));
     });
 
-    // 4. Selector de Perfiles (Directorio Rápido)
-    // Los radios solo rellenan el usuario: las contraseñas no viven en el HTML
-    // ni en el bundle. La tira es un atajo, no una credencial completa.
-    const profilesGrid = document.getElementById('profilesGrid');
+    // 4. Campos del acceso
     const inputUsuario = document.getElementById('inputUsuario');
-
-    profilesGrid?.addEventListener('change', (e) => {
-      const objetivo = e.target instanceof Element ? e.target : null;
-      const radio = objetivo?.closest('input[name="perfilDemo"]');
-      if (!radio) return;
-      if (inputUsuario) inputUsuario.value = radio.dataset.user || '';
-      ocultarError();
-      mostrarTotp(false);
-    });
-
-    profilesGrid?.addEventListener('click', (e) => {
-      const objetivo = e.target instanceof Element ? e.target : null;
-      if (!objetivo?.closest('.chip')) return;
-      if (e.detail > 0) requestAnimationFrame(() => inputClave?.focus());
-    });
-
-    const demoExpira = Date.parse('2026-12-06T00:00:00-05:00');
-    if (Number.isFinite(demoExpira) && Date.now() >= demoExpira) {
-      profilesGrid?.querySelectorAll('input[name="perfilDemo"]').forEach((radio) => {
-        radio.disabled = true;
-      });
-      document.querySelector('.quick')?.setAttribute('hidden', '');
-    }
 
     // 5. Errores y Alertas
     function mostrarError(msg) {
@@ -1785,13 +1439,6 @@ const description = 'Ingreso al Programa Infancia Saludable de la Asociación Cu
         const status = document.getElementById('loginStatus');
         if (status) status.textContent = '';
       });
-    });
-
-    inputUsuario?.addEventListener('input', () => {
-      const seleccionado = profilesGrid?.querySelector('input[name="perfilDemo"]:checked');
-      if (seleccionado && seleccionado.dataset.user !== inputUsuario.value) {
-        seleccionado.checked = false;
-      }
     });
 
     // 6. Envío del Formulario
