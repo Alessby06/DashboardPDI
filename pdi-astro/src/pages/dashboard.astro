@@ -41,6 +41,8 @@ import Icon from '../components/Icon.astro';
         </div>
       </header>
 
+      <nav class="dash-ambito" id="dashChips" aria-label="Ámbito del tablero"></nav>
+
       <section class="dash-hero dash-superficie" aria-label="Indicadores principales">
         <div class="dash-kpi">
           <span class="dash-rotulo">Usuarios acompañados</span>
@@ -132,17 +134,18 @@ import Icon from '../components/Icon.astro';
         </div>
       </section>
 
-      <section class="dash-clinica dash-superficie" aria-labelledby="dashClinicaTitle">
-        <header class="dash-clinica-cab">
-          <div>
-            <h2 id="dashClinicaTitle">Anemia infantil (Hb)</h2>
-            <p>
-              <span id="dashTamizados">Cargando tamizajes…</span>
-              <span id="dashSinTamizaje" hidden></span>
-            </p>
-          </div>
-        </header>
+      <div class="dash-clinica-bloque">
+      <header class="dash-clinica-cab">
+        <div>
+          <h2 id="dashClinicaTitle">Anemia infantil (Hb)</h2>
+          <p>
+            <span id="dashTamizados">Cargando tamizajes…</span>
+            <span id="dashSinTamizaje" hidden></span>
+          </p>
+        </div>
+      </header>
 
+      <section class="dash-clinica dash-superficie" aria-labelledby="dashClinicaTitle">
         <div class="dash-clinica-resumen">
           <div class="dash-prevalencia">
             <strong id="kpiTasaAnemia">······</strong>
@@ -185,6 +188,7 @@ import Icon from '../components/Icon.astro';
 
         <p class="dash-clinica-pie">Porcentajes calculados sobre usuarios tamizados, no sobre el padrón completo.</p>
       </section>
+      </div>
 
       <section class="dash-servicios-seccion" aria-labelledby="dashServiciosTitle">
         <div class="dash-seccion-cab">

@@ -295,8 +295,41 @@ export const DashboardView = {
     if (datosOk) this._cifrasPintadas = true;
   },
 
-  _cifra(elemento, valor, formato, animar) {
-    if (!elemento) return;
+  /** Chips de ámbito: relevan al select, que queda como soporte del filtro. */
+  _pintarChips(select) {
+    const host = document.getElementById("dashChips");
+    if (!host || !select) return;
+
+    const etiqueta = (texto) => String(texto || "").trim()
+      .replace(/^(Distrito|Sede)\s+/i, "")
+      .replace(/^Todas las sedes$/i, "Todas");
+
+    host.innerHTML = [...select.options].map((opcion) => `
+      <button type="button" class="dash-chip" data-value="${escapar(opcion.value)}" aria-pressed="${select.value === opcion.value}">
+        ${escapar(etiqueta(opcion.textContent))}
+      </button>
+    `).join("");
+
+    host.addEventListener("click", (evento) => {
+      const chip = evento.target.closest(".dash-chip");
+      if (!chip || select.value === chip.dataset.value) return;
+      select.value = chip.dataset.value;
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+
+    const cabecera = select.closest(".dash-cabecera");
+    if (cabecera) cabecera.classList.add("is-chips");
+    this._sincronizarChips(select);
+  },
+
+  _sincronizarChips(select) {
+    if (!select) return;
+    document.querySelectorAll("#dashChips .dash-chip").forEach((chip) => {
+      chip.setAttribute("aria-pressed", String(chip.dataset.value === select.value));
+    });
+  },
+
+  _cifra(elemento, valor, formato, animar) {    if (!elemento) return;
     const numero = Number(valor);
     if (!Number.isFinite(numero)) {
       elemento.textContent = String(valor);
@@ -848,6 +881,7 @@ export const DashboardView = {
       selectSede.addEventListener("change", (e) => {
         this._filtroSede = e.target.value;
         this._escribirFiltroSedeAURL(this._filtroSede);
+        this._sincronizarChips(selectSede);
         if (typeof alCambiar === "function") {
           alCambiar();
         } else {
@@ -855,6 +889,7 @@ export const DashboardView = {
           this.render(stats);
         }
       });
+      this._pintarChips(selectSede);
     }
 
     const btnExport = document.getElementById("btnExportarParte");

@@ -188,6 +188,46 @@ body[data-page="dashboard"] #mainContent {
   font-weight: 600;
 }
 
+.dash-ambito {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: -4px;
+}
+
+.dash-ambito:empty { display: none; }
+
+.dash-chip {
+  flex: none;
+  min-height: 34px;
+  padding: 0 12px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--dash-muted);
+  background: transparent;
+  border: 1px solid var(--dash-rule);
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-press) var(--ease-out);
+}
+
+.dash-chip:active { transform: scale(0.97); }
+
+.dash-chip[aria-pressed="true"] {
+  color: var(--dash-paper);
+  background: var(--dash-ink);
+  border-color: var(--dash-ink);
+}
+
+/* Con chips activos, el select queda como soporte del filtro, no a la vista. */
+.dash-cabecera.is-chips .dash-selector-wrap { display: none; }
+
 /* --- Hero: tres cifras ---------------------------------------------------- */
 
 .dash-hero {
@@ -1038,6 +1078,11 @@ body[data-page="dashboard"] #mainContent {
     background: var(--dash-hover);
   }
 
+  .dash-chip:hover {
+    background: var(--dash-surface);
+    border-color: var(--dash-rule-strong);
+  }
+
   .dash-prioridad-link:hover .dash-prioridad-go {
     color: var(--dash-ink);
     transform: translateX(2px);
@@ -1282,9 +1327,23 @@ body[data-page="dashboard"] #mainContent {
   }
   .dash-hero .dash-kpi + .dash-kpi .dash-cifra { font-size: 20px; }
   .dash-kpi-sub { margin-top: 4px; font-size: 11px; }
-  .dash-kpi-nota,
-  .dash-mini-barra,
-  .dash-barra-cobertura { display: none; }
+
+  .dash-ambito {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 2px;
+    margin-inline: -2px;
+    padding-bottom: 2px;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+  .dash-ambito::-webkit-scrollbar { display: none; }
+  .dash-chip {
+    scroll-snap-align: start;
+    min-height: 32px;
+    font-size: 12px;
+  }
 
   /* Prioridades: filas dentro de una sola superficie. */
   .dash-seccion-cab {
@@ -1371,12 +1430,14 @@ body[data-page="dashboard"] #mainContent {
   }
 
   /* Sin pliegues: cada sección se separa con una línea fina. */
-  .dash-clinica,
+  .dash-clinica-bloque,
   .dash-servicios-seccion,
   .dash-grid-territorio {
     border-top: 1px solid var(--dash-rule);
+    padding-top: 14px;
   }
-  .dash-clinica,
+  .dash-clinica { padding: 0 2px 12px; }
+  .dash-clinica-cab { margin-bottom: 12px; }
   .dash-panel { padding: 14px 2px 16px; }
   .dash-servicios-seccion { padding: 16px 2px 4px; }
   .dash-servicios {
@@ -1522,6 +1583,23 @@ body[data-page="dashboard"] #mainContent {
 @media (max-width: 360px) {
   .dash-sedes-largo { display: none; }
   .dash-prioridad-cifra span { display: none; }
+}
+
+/* En teléfono el hero se lee en una columna: una cifra por fila. */
+@media (max-width: 640px) {
+  .dash-hero { grid-template-columns: 1fr; }
+  .dash-hero .dash-kpi { padding: 14px 0; }
+  .dash-hero .dash-kpi:first-child {
+    grid-column: auto;
+    padding-top: 0;
+    border-bottom: 0;
+  }
+  .dash-hero .dash-kpi:last-child { padding-bottom: 0; }
+  .dash-hero .dash-kpi + .dash-kpi {
+    border-left: 0;
+    border-top: 1px solid var(--dash-rule);
+  }
+  .dash-hero .dash-kpi + .dash-kpi .dash-cifra { font-size: 26px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
