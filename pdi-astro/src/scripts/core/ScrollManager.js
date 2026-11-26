@@ -1,8 +1,11 @@
 import Lenis from 'lenis';
-import 'lenis/dist/lenis.css';
+// import 'lenis/dist/lenis.css'; // Desactivado hasta nuevo aviso
 import { ScrollPane, puedeScrollear, resizeLenis } from './ScrollPane.js';
 import { esScrollNativo } from './scrollMode.js';
 import { crearFiltroReversaRueda } from './scrollWheelGuard.js';
+
+// Bandera para desactivar Lenis por completo en todo el sistema hasta nuevo aviso.
+export const DESACTIVAR_LENIS = true;
 
 // Primera fase de diagnóstico: solo una instancia en el viewport principal.
 const HABILITAR_LENIS_EN_PANELES = false;
@@ -59,6 +62,12 @@ export const ScrollManager = {
   _bound: false,
 
   _evaluarModo() {
+    if (DESACTIVAR_LENIS) {
+      this.native = true;
+      this.touch = false;
+      this.enabled = false;
+      return;
+    }
     // Smooth scroll (Lenis) forzado en toda la aplicación, sin fallback a nativo.
     this.native = false;
     this.touch = true;
@@ -66,6 +75,7 @@ export const ScrollManager = {
   },
 
   _montar() {
+    if (DESACTIVAR_LENIS || !this.enabled) return;
     this._createMain();
     if (HABILITAR_LENIS_EN_PANELES) {
       this.discover();
@@ -97,6 +107,11 @@ export const ScrollManager = {
     this._bound = true;
 
     this._evaluarModo();
+
+    if (DESACTIVAR_LENIS) {
+      if (typeof window !== 'undefined') window.__pdiScroll = this;
+      return;
+    }
 
     if (this.enabled) {
       this._montar();
@@ -201,6 +216,7 @@ export const ScrollManager = {
   },
 
   _tick() {
+    if (DESACTIVAR_LENIS || !this.enabled) return;
     if (this.rafId !== null) return;
     const loop = (time) => {
       this.main?.raf(time);
@@ -388,7 +404,7 @@ export const ScrollManager = {
   },
 
   rebind() {
-    if (!this.enabled) return;
+    if (DESACTIVAR_LENIS || !this.enabled) return;
     const wrapper = document.querySelector('.content-viewport');
     if (!wrapper) return;
     const content = wrapper.querySelector('.smooth-content') || wrapper.firstElementChild;
@@ -400,6 +416,7 @@ export const ScrollManager = {
   },
 
   refresh() {
+    if (DESACTIVAR_LENIS || !this.enabled) return;
     this._cleanup();
     resizeLenis(this.main);
     ScrollPane.refresh();
@@ -420,12 +437,21 @@ export const ScrollManager = {
     try {
       this.main?.scrollTo(0, { immediate: true });
     } catch {}
-    document.querySelector('.content-viewport')?.scrollTo({ top: 0, behavior: 'auto' });
-    window.scrollTo(0, 0);
+    if (typeof document !== 'undefined') {
+      document.querySelector('.content-viewport')?.scrollTo({ top: 0, behavior: 'auto' });
+    }
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+    }
   },
 
   onScroll(cb) {
-    this.main?.on('scroll', cb);
+    if (this.main) {
+      this.main.on('scroll', cb);
+    } else {
+      const vp = document.querySelector('.content-viewport') || window;
+      vp.addEventListener('scroll', cb);
+    }
   },
 
   destroy() {

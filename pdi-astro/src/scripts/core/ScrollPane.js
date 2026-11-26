@@ -1,5 +1,8 @@
 import Lenis from 'lenis';
 
+/** Desactivación de Lenis por completo hasta nuevo aviso */
+export const DESACTIVAR_LENIS = true;
+
 /**
  * Pane con Lenis conservando la barra nativa. El wrapper sigue siendo el que
  * scrollea (overflow-y: auto); Lenis mueve su scrollTop y la barra del
@@ -17,11 +20,12 @@ export function puedeScrollear(el) {
 /** Recalcula medidas sin cancelar el destino de un scroll en curso. */
 export function resizeLenis(lenis) {
   if (!lenis) return;
-  if (lenis.isScrolling) lenis.dimensions?.resize();
-  else lenis.resize();
+  if (lenis.isScrolling) lenis.dimensions?.resize?.();
+  else lenis.resize?.();
 }
 
 function attach(wrapper) {
+  if (DESACTIVAR_LENIS) return null;
   if (!wrapper) return null;
   const existing = panes.get(wrapper);
   if (existing) {
