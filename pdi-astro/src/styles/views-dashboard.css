@@ -802,7 +802,7 @@ body[data-page="dashboard"] #mainContent {
   align-items: flex-start;
   justify-content: space-between;
   gap: 14px;
-  margin-bottom: 6px;
+  margin-bottom: 12px;
 }
 
 .dash-panel-cab p {
@@ -1448,10 +1448,11 @@ body[data-page="dashboard"] #mainContent {
     border-top: 1px solid var(--dash-rule);
     padding-top: 14px;
   }
-  .dash-clinica { padding: 0 2px 12px; }
+  /* El relleno del hero (16 px) es el modelo: las demás superficies lo igualan. */
+  .dash-clinica { padding: 16px; }
   .dash-clinica-cab { margin-bottom: 12px; }
-  .dash-panel { padding: 14px 2px 16px; }
-  .dash-servicios-seccion { padding: 16px 2px 4px; }
+  .dash-panel { padding: 16px; }
+  .dash-servicios-seccion { padding: 16px 16px 4px; }
   .dash-servicios {
     grid-template-columns: 1fr;
     gap: 0;
@@ -1466,7 +1467,7 @@ body[data-page="dashboard"] #mainContent {
       "icon extra extra";
     gap: 3px 10px;
     align-items: start;
-    padding: 13px 0;
+    padding: 14px 0;
     background: transparent;
     border: 0;
     border-top: 1px solid var(--dash-rule);
