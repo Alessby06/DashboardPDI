@@ -19,6 +19,10 @@ const OPCIONES_HB = [
   { valor: 'normal', etiqueta: 'Hb ≥ 11.0 g/dL (Normal)' },
   { valor: 'critico', etiqueta: 'Hb < 10.0 g/dL (Crítico)' },
 ];
+const OPCIONES_TAMIZAJE = [
+  { valor: 'sin', etiqueta: 'Sin tamizaje' },
+  { valor: 'vencido', etiqueta: 'Vencido (> 6 meses)' },
+];
 const OPCIONES_ORDEN_SALUD = [
   { valor: 'apellido-asc', etiqueta: 'Apellido (A-Z)' },
   { valor: 'apellido-desc', etiqueta: 'Apellido (Z-A)' },
@@ -144,6 +148,22 @@ const OPCIONES_ORDEN_SALUD = [
                   conEtiqueta={true}
                   onSelect="window.selectSaludHb"
                   abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownSaludHb') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSaludHb') : null)"
+                />
+
+                <!-- Filtro 4: Estado del tamizaje -->
+                <FilterField
+                  id="dropdownSaludTamizaje"
+                  menuId="menuSaludTamizaje"
+                  labelId="labelSaludTamizajeSelect"
+                  label="Estado del Tamizaje"
+                  prefix="Tamizaje:"
+                  labelTodos="Todos"
+                  todosEtiqueta="Todos"
+                  opciones={OPCIONES_TAMIZAJE}
+                  tipo="single"
+                  countPrefix="countFacetSaludTamizaje"
+                  onSelect="window.selectSaludTamizaje"
+                  abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownSaludTamizaje') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSaludTamizaje') : null)"
                 />
         </FilterPanel>
 

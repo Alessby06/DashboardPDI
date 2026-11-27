@@ -25,3 +25,8 @@ test('Padrón expone modalidad y seguro', () => {
   assert.match(pagina, /menuId="menuPadronModalidad"/);
   assert.match(pagina, /menuId="menuPadronSeguro"/);
 });
+
+test('Salud expone el filtro de tamizaje', () => {
+  const pagina = leer('src/pages/salud.astro');
+  assert.match(pagina, /menuId="menuSaludTamizaje"/);
+});

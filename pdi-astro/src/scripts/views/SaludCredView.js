@@ -16,6 +16,7 @@ import { initSortMenu } from "../ui/SortMenu.js";
 import { iconHtml } from '../../data/iconos.js';
 import { avatarHtml } from "../utils/Avatar.js";
 import { elegirReenganche, moverFocoFueraDeModal } from "../utils/focoModal.js";
+import { coincideTamizaje } from "../utils/tamizaje.js";
 // Filtros del modulo CRED que viajan en la URL. Valores tomados de los
 // desplegables de salud.html.
 const FILTROS_SALUD = {
@@ -23,12 +24,14 @@ const FILTROS_SALUD = {
   anemia:  { valor: [], valores: ["Normal", "Leve", "Moderada"], multiple: true },
   sede:    { valor: [], valores: [...SEDES_NOMBRES], multiple: true },
   hb:      { valor: "all", valores: ["all", "anemia", "normal", "critico"] },
+  tamizaje: { valor: "all", valores: ["all", "sin", "vencido"] },
 };
 
 const FACETAS_SALUD = {
   anemia: { tipo: "multi", opciones: FILTROS_SALUD.anemia.valores, defecto: [] },
   sede: { tipo: "multi", opciones: FILTROS_SALUD.sede.valores, defecto: [] },
   hb: { tipo: "single", opciones: FILTROS_SALUD.hb.valores, defecto: "all" },
+  tamizaje: { tipo: "single", opciones: FILTROS_SALUD.tamizaje.valores, defecto: "all" },
 };
 
 export const SaludCredView = {
@@ -38,6 +41,7 @@ export const SaludCredView = {
   _filterAnemia: [],
   _filterSede: [],
   _filterHbNivel: "all",
+  _filterTamizaje: "all",
   _currentPage: 1,
   _pageSize: 20,
   _sortKey: "apellido",
@@ -61,6 +65,7 @@ export const SaludCredView = {
     this._filterAnemia = s.anemia;
     this._filterSede = s.sede;
     this._filterHbNivel = s.hb;
+    this._filterTamizaje = s.tamizaje;
   },
 
   _obtenerFiltros() {
@@ -161,6 +166,7 @@ export const SaludCredView = {
       anemia: this._filterAnemia,
       sede: this._filterSede,
       hb: this._filterHbNivel,
+      tamizaje: this._filterTamizaje,
       ...(extra || {}),
     });
   },
@@ -171,7 +177,7 @@ export const SaludCredView = {
 
     const f = this._obtenerFiltros().leer();
     this._searchQuery = (f.q || "").toLowerCase();
-    this._obtenerStore().cargar({ anemia: f.anemia, sede: f.sede, hb: f.hb });
+    this._obtenerStore().cargar({ anemia: f.anemia, sede: f.sede, hb: f.hb, tamizaje: f.tamizaje });
     this._espejarStore();
 
     const input = document.getElementById("inputSaludSearch");
@@ -182,6 +188,7 @@ export const SaludCredView = {
     this._updateAnemiaDropdownUI();
     this._updateSedeDropdownUI();
     this._updateHbUI();
+    this._updateTamizajeUI();
   },
 
   _initSort() {
@@ -383,6 +390,29 @@ export const SaludCredView = {
     }
   },
 
+  selectTamizaje(valor) {
+    this._obtenerStore().fijar("tamizaje", valor || "all");
+    this._espejarStore();
+    this._updateTamizajeUI();
+    document.getElementById("dropdownSaludTamizaje")?.classList.remove("open");
+    this.applyFilters();
+    this._persistirFiltros();
+  },
+
+  _updateTamizajeUI() {
+    const items = document.querySelectorAll("#menuSaludTamizaje .padron-dropdown-item");
+    items.forEach(item => {
+      item.classList.toggle("selected", item.getAttribute("data-value") === this._filterTamizaje);
+    });
+    const labelEl = document.getElementById("labelSaludTamizajeSelect");
+    if (labelEl) {
+      if (this._filterTamizaje === "all") labelEl.textContent = "Todos";
+      else if (this._filterTamizaje === "sin") labelEl.textContent = "Sin tamizaje";
+      else labelEl.textContent = "Vencido (> 6 meses)";
+    }
+    document.getElementById("dropdownSaludTamizaje")?.classList.toggle("has-active-filter", this._filterTamizaje !== "all");
+  },
+
   removeFilter(filterKey, specificVal) {
     if (filterKey === "search") this.clearSearch();
     if (filterKey === "anemia") {
@@ -395,6 +425,9 @@ export const SaludCredView = {
     }
     if (filterKey === "hb") {
       this.selectHbNivel("all", "Todos los Niveles");
+    }
+    if (filterKey === "tamizaje") {
+      this.selectTamizaje("all");
     }
   },
 
@@ -411,6 +444,7 @@ export const SaludCredView = {
     this._updateAnemiaDropdownUI();
     this._updateSedeDropdownUI();
     this._updateHbUI();
+    this._updateTamizajeUI();
 
     document.querySelectorAll(".padron-inner-dropdown.open").forEach(d => d.classList.remove("open"));
 
@@ -461,15 +495,18 @@ export const SaludCredView = {
       (b.sede && this._filterSede.some(s => b.sede.toLowerCase().includes(s.toLowerCase())));
     const anemiaOk = (b) => this._filterAnemia.length === 0 || this._matchesAnemia(b, this._filterAnemia);
     const hbOk = (b) => this._filterHbNivel === "all" || this._matchesHbNivel(b, this._filterHbNivel);
+    const tamOk = (b) => coincideTamizaje(b, this._filterTamizaje);
 
-    const sinAnemia = base.filter(b => sedeOk(b) && hbOk(b));
-    const sinSede = base.filter(b => anemiaOk(b) && hbOk(b));
-    const sinHb = base.filter(b => anemiaOk(b) && sedeOk(b));
+    const sinAnemia = base.filter(b => sedeOk(b) && hbOk(b) && tamOk(b));
+    const sinSede = base.filter(b => anemiaOk(b) && hbOk(b) && tamOk(b));
+    const sinHb = base.filter(b => anemiaOk(b) && sedeOk(b) && tamOk(b));
+    const sinTam = base.filter(b => anemiaOk(b) && sedeOk(b) && hbOk(b));
 
     contarOpciones("menuSaludAnemia", sinAnemia, (b, valor) => this._matchesAnemia(b, [valor]));
     contarOpciones("menuSaludSede", sinSede, (b, valor) =>
       !!b.sede && b.sede.toLowerCase().includes(valor.toLowerCase()));
     contarOpciones("menuSaludHb", sinHb, (b, valor) => this._matchesHbNivel(b, valor));
+    contarOpciones("menuSaludTamizaje", sinTam, (b, valor) => coincideTamizaje(b, valor));
   },
 
   applyFilters() {
@@ -491,6 +528,11 @@ export const SaludCredView = {
     // 4. Rango Hemoglobina
     if (this._filterHbNivel !== "all") {
       list = list.filter(b => this._matchesHbNivel(b, this._filterHbNivel));
+    }
+
+    // 5. Estado del tamizaje
+    if (this._filterTamizaje !== "all") {
+      list = list.filter(b => coincideTamizaje(b, this._filterTamizaje));
     }
 
     list = this._ordenarLista(list);
@@ -550,6 +592,13 @@ export const SaludCredView = {
       chips.push({
         id: "hb",
         label: `Nivel: ${hbLabel}`
+      });
+    }
+
+    if (this._filterTamizaje !== "all") {
+      chips.push({
+        id: "tamizaje",
+        label: `Tamizaje: ${this._filterTamizaje === "sin" ? "Sin tamizaje" : "Vencido (> 6 meses)"}`
       });
     }
 
@@ -1375,6 +1424,7 @@ if (typeof window !== "undefined") {
   window.toggleSaludAnemia = (val) => SaludCredView.toggleAnemia(val);
   window.toggleSaludSede = (val) => SaludCredView.toggleSede(val);
   window.selectSaludHb = (val, label) => SaludCredView.selectHbNivel(val, label);
+  window.selectSaludTamizaje = (val) => SaludCredView.selectTamizaje(val);
   window.removeSaludChip = (key, val) => SaludCredView.removeFilter(key, val);
   window.resetSaludFilters = () => SaludCredView.resetFilters();
   window.saludSetPageSize = (size) => SaludCredView.setPageSize(size);
