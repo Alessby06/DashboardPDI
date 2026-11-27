@@ -183,6 +183,27 @@ const OPCIONES_ORDEN = [
             onSelect="window.setFilterColabEstrategia"
             abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownColabEstrategia') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownColabEstrategia') : null)"
           />
+
+          <FilterField
+            id="dropdownColabRol"
+            menuId="menuColabRol"
+            labelId="labelColabRolSelect"
+            label="Rol / Cargo"
+            prefix="Rol:"
+            labelTodos="Todos los Roles"
+            todosEtiqueta="Todos los Roles"
+            opciones={OPCIONES_ROL}
+            tipo="single"
+            countPrefix="countFacetColabRol"
+            onSelect="window.setFilterColabRol"
+            abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownColabRol') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownColabRol') : null)"
+          />
+
+          <label class="audit-filter-field" style="flex-direction:row; align-items:center; gap:8px; cursor:pointer;">
+            <input type="checkbox" id="chkColabInactivos"
+              data-pdi-on="change" data-pdi-call="window.setColabIncluirInactivos" />
+            <span>Incluir inactivos</span>
+          </label>
         </FilterPanel>
 
         <button

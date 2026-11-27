@@ -13,3 +13,9 @@ test('Social expone orden, rango de fechas y DNI en el buscador', () => {
   assert.match(pagina, /id="socialFechaHasta"/);
   assert.match(pagina, /DNI/);
 });
+
+test('Colaboradores expone rol e incluir inactivos', () => {
+  const pagina = leer('src/pages/colaboradores.astro');
+  assert.match(pagina, /menuId="menuColabRol"/);
+  assert.match(pagina, /id="chkColabInactivos"/);
+});

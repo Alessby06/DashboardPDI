@@ -3,7 +3,8 @@ import { prepararFilas, animarFilas, pintarTarjetas } from '../utils/FlipTabla.j
 // Vista: Padrón y Directorio de Colaboradores e Instituciones Aliadas (PDI)
 // Asociación Cultural y Educativa Johannes Gutenberg - Lima Norte
 
-import { ColaboradorModel, clasificarCategoria, CATEGORIAS_COLABORADOR, validarDatosColaborador } from '../models/ColaboradorModel.js';
+import { ColaboradorModel, clasificarCategoria, CATEGORIAS_COLABORADOR, validarDatosColaborador, TIPOS_COLABORADOR } from '../models/ColaboradorModel.js';
+import { filtrarColaboradores, ordenarColaboradores } from '../utils/filtrosColaboradores.js';
 import { ToastView } from './ToastView.js';
 import { AuditModel } from '../models/AuditModel.js';
 import { escapar } from '../utils/HtmlHelper.js';
@@ -15,6 +16,8 @@ let busquedaActual = '';
 let categoriaTabActual = 'colegios';
 let filtroDistritoActual = '';
 let filtroEstrategiaActual = '';
+let filtroRolActual = '';
+let incluirInactivos = false;
 let ordenActual = 'apellido-asc';
 let listenersEnlazados = false;
 
@@ -198,6 +201,7 @@ export const ColaboradoresView = {
 
   setTabCategoria(cat) {
     categoriaTabActual = cat;
+    filtroRolActual = '';
     this.sincronizarPestañas();
     this.aplicarFiltrosYOrden();
   },
@@ -262,59 +266,21 @@ export const ColaboradoresView = {
   },
 
   aplicarFiltrosYOrden() {
-    let res = ColaboradorModel.getAll();
+    const normalizados = ColaboradorModel.getAll().map((c) => ({
+      ...c,
+      categoria: c.categoria || clasificarCategoria(c.tipoColaborador),
+    }));
 
-    // 1. Filtrar por la Pestaña Activa
-    res = res.filter(c => {
-      const cat = c.categoria || clasificarCategoria(c.tipoColaborador);
-      return cat === categoriaTabActual;
+    let res = filtrarColaboradores(normalizados, {
+      categoria: categoriaTabActual,
+      q: busquedaActual,
+      distrito: filtroDistritoActual,
+      estrategia: filtroEstrategiaActual,
+      rol: filtroRolActual,
+      incluirInactivos,
     });
 
-    // 2. Filtro por búsqueda de texto
-    if (busquedaActual) {
-      const q = quitarDiacriticos(busquedaActual);
-      res = res.filter(c =>
-        quitarDiacriticos(c.nombres).includes(q) ||
-        quitarDiacriticos(c.apellidos).includes(q) ||
-        (c.dni || '').includes(q) ||
-        (c.celular || '').includes(q) ||
-        (c.telefonoFijo || '').includes(q) ||
-        quitarDiacriticos(c.sedeInstitucion).includes(q) ||
-        (c.codigo || '').toLowerCase().includes(q) ||
-        (c.codigoModular || '').includes(q) ||
-        quitarDiacriticos(c.tipoColaborador).includes(q) ||
-        quitarDiacriticos(c.distrito).includes(q) ||
-        quitarDiacriticos(c.observaciones).includes(q) ||
-        (c.email || '').toLowerCase().includes(q)
-      );
-    }
-
-    // 3. Filtro por Distrito
-    if (filtroDistritoActual) {
-      res = res.filter(c => c.distrito === filtroDistritoActual);
-    }
-
-    // 4. Filtro por Estrategia
-    if (filtroEstrategiaActual) {
-      res = res.filter(c => Array.isArray(c.estrategias) && c.estrategias.includes(filtroEstrategiaActual));
-    }
-
-    // 5. Ordenación
-    res.sort((a, b) => {
-      switch (ordenActual) {
-        case 'apellido-desc':
-          return (b.apellidos || '').localeCompare(a.apellidos || '');
-        case 'sede-asc':
-          return (a.sedeInstitucion || '').localeCompare(b.sedeInstitucion || '');
-        case 'distrito-asc':
-          return (a.distrito || '').localeCompare(b.distrito || '');
-        case 'tipo-asc':
-          return (a.tipoColaborador || '').localeCompare(b.tipoColaborador || '');
-        case 'apellido-asc':
-        default:
-          return (a.apellidos || '').localeCompare(b.apellidos || '');
-      }
-    });
+    res = ordenarColaboradores(res, ordenActual);
 
     this.renderChipsActivos();
     this.actualizarFacetas();
@@ -323,17 +289,21 @@ export const ColaboradoresView = {
   },
 
   actualizarFacetas() {
-    const todos = ColaboradorModel.getAll();
-    const deCategoria = todos.filter(c => {
-      const cat = c.categoria || clasificarCategoria(c.tipoColaborador);
-      return cat === categoriaTabActual;
-    });
+    const todos = ColaboradorModel.getAll().map((c) => ({
+      ...c,
+      categoria: c.categoria || clasificarCategoria(c.tipoColaborador),
+    }));
+    const deCategoria = todos.filter(c => c.categoria === categoriaTabActual);
 
     const setBadge = (id, count) => {
       const el = document.getElementById(id);
       if (el) {
         el.textContent = `(${count})`;
         el.classList.toggle('is-zero', count === 0);
+        const item = el.closest('.padron-dropdown-item');
+        if (item && item.getAttribute('data-value') !== 'all') {
+          item.classList.toggle('zero-facet', count === 0);
+        }
       }
     };
 
@@ -358,6 +328,19 @@ export const ColaboradoresView = {
       const count = deCategoria.filter(c => Array.isArray(c.estrategias) && c.estrategias.includes(est)).length;
       setBadge(`countFacetColabEstrategia-${est}`, count);
     });
+
+    // 3. Facetas de Rol: se cuentan sin la propia faceta.
+    const baseRol = filtrarColaboradores(deCategoria, {
+      categoria: categoriaTabActual,
+      q: busquedaActual,
+      distrito: filtroDistritoActual,
+      estrategia: filtroEstrategiaActual,
+      incluirInactivos,
+    });
+    setBadge('countFacetColabRol-all', baseRol.length);
+    TIPOS_COLABORADOR.forEach((rol) => {
+      setBadge(`countFacetColabRol-${rol}`, baseRol.filter(c => c.tipoColaborador === rol).length);
+    });
   },
 
   renderChipsActivos() {
@@ -372,6 +355,12 @@ export const ColaboradoresView = {
     }
     if (filtroEstrategiaActual) {
       chips.push({ tipo: 'estrategia', label: `Programa: ${filtroEstrategiaActual}` });
+    }
+    if (filtroRolActual) {
+      chips.push({ tipo: 'rol', label: `Rol: ${filtroRolActual}` });
+    }
+    if (incluirInactivos) {
+      chips.push({ tipo: 'inactivos', label: 'Incluye inactivos' });
     }
 
     const activeCount = chips.length;
@@ -398,6 +387,12 @@ export const ColaboradoresView = {
     if (labelEstrategia) {
       labelEstrategia.textContent = filtroEstrategiaActual || 'Todos los Programas';
     }
+    const labelRol = document.getElementById('labelColabRolSelect');
+    if (labelRol) {
+      labelRol.textContent = filtroRolActual || 'Todos los Roles';
+    }
+    const chkInactivos = document.getElementById('chkColabInactivos');
+    if (chkInactivos) chkInactivos.checked = incluirInactivos;
 
     // Sincronizar clase .selected en ítems de desplegable
     const distritoItems = document.querySelectorAll('#menuColabDistrito .padron-dropdown-item');
@@ -411,6 +406,13 @@ export const ColaboradoresView = {
     estrategiaItems.forEach(item => {
       const val = item.getAttribute('data-value') || '';
       const isSelected = (!filtroEstrategiaActual && val === 'all') || (val === filtroEstrategiaActual);
+      item.classList.toggle('selected', isSelected);
+    });
+
+    const rolItems = document.querySelectorAll('#menuColabRol .padron-dropdown-item');
+    rolItems.forEach(item => {
+      const val = item.getAttribute('data-value') || '';
+      const isSelected = (!filtroRolActual && val === 'all') || (val === filtroRolActual);
       item.classList.toggle('selected', isSelected);
     });
 
@@ -731,9 +733,26 @@ export const ColaboradoresView = {
     this.aplicarFiltrosYOrden();
   },
 
+  setFilterRol(r) {
+    filtroRolActual = (r === 'all' || !r) ? '' : r;
+    document.getElementById('dropdownColabRol')?.classList.remove('open');
+    this.aplicarFiltrosYOrden();
+  },
+
+  setIncluirInactivos(activo) {
+    incluirInactivos = Boolean(activo);
+    this.aplicarFiltrosYOrden();
+  },
+
   removeChip(tipo) {
     if (tipo === 'distrito') filtroDistritoActual = '';
     if (tipo === 'estrategia') filtroEstrategiaActual = '';
+    if (tipo === 'rol') filtroRolActual = '';
+    if (tipo === 'inactivos') {
+      incluirInactivos = false;
+      const chk = document.getElementById('chkColabInactivos');
+      if (chk) chk.checked = false;
+    }
     this.aplicarFiltrosYOrden();
   },
 
@@ -741,6 +760,10 @@ export const ColaboradoresView = {
     busquedaActual = '';
     filtroDistritoActual = '';
     filtroEstrategiaActual = '';
+    filtroRolActual = '';
+    incluirInactivos = false;
+    const chk = document.getElementById('chkColabInactivos');
+    if (chk) chk.checked = false;
     const input = document.getElementById('inputColabSearch');
     if (input) input.value = '';
     const btnClear = document.getElementById('btnColabSearchClear');
@@ -1061,6 +1084,10 @@ if (typeof window !== 'undefined') {
   window.exportColaboradoresCSV = () => ColaboradoresView.exportCSV();
   window.setFilterColabDistrito = d => ColaboradoresView.setFilterDistrito(d);
   window.setFilterColabEstrategia = e => ColaboradoresView.setFilterEstrategia(e);
+  window.setFilterColabRol = r => ColaboradoresView.setFilterRol(r);
+  window.setColabIncluirInactivos = function () {
+    ColaboradoresView.setIncluirInactivos(this && this.checked);
+  };
   window.setColabTab = cat => ColaboradoresView.setTabCategoria(cat);
   window.resetColabFilters = () => ColaboradoresView.resetFilters();
   window.removeColabFilterChip = t => ColaboradoresView.removeChip(t);
