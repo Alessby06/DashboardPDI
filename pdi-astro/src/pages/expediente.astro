@@ -395,7 +395,7 @@ import Icon from '../components/Icon.astro';
 
           <!-- Formulario de Datos Normativos -->
           <div style="flex:1;">
-            <div class="form-grid" style="grid-template-columns: repeat(2, 1fr); gap:12px;">
+            <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap:12px;">
               <div class="form-group">
                 <label>Código Correlativo:</label>
                 <input type="text" class="form-control" id="expCodigo" aria-label="Código correlativo" readonly
@@ -678,7 +678,7 @@ import Icon from '../components/Icon.astro';
             <h4 style="margin:0; font-size:13.5px; font-weight:700; color:var(--text-main);">Apoderado(a) Principal
               Titular</h4>
           </div>
-          <div class="form-grid" style="grid-template-columns: repeat(3, 1fr); gap:12px;">
+          <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap:12px;">
             <div class="form-group">
               <label>Nombres y Apellidos:</label>
               <input type="text" class="form-control" id="expApoderadoNombre" data-tipo="nombre" readonly maxlength="80">
@@ -708,7 +708,7 @@ import Icon from '../components/Icon.astro';
               <label>Celular Principal del Apoderado:</label>
               <input type="text" class="form-control" id="expApoderadoTel" data-tipo="celular" readonly maxlength="9" pattern="9[0-9]{8}" inputmode="numeric" placeholder="987654321">
             </div>
-            <div class="form-group" style="grid-column: span 2;">
+            <div class="form-group">
               <label>Teléfono Alternativo / Emergencia:</label>
               <input type="text" class="form-control" id="expTelefonoAlt" data-tipo="celular" readonly maxlength="9" pattern="9[0-9]{8}" inputmode="numeric" placeholder="912345678">
             </div>
@@ -726,7 +726,7 @@ import Icon from '../components/Icon.astro';
             </div>
             <span id="expInscribeEsMismoBadge" style="font-size:11.5px; padding:2px 8px; border-radius:12px; background:var(--surface-2); color:var(--text-muted); font-weight:600;"></span>
           </div>
-          <div class="form-grid" style="grid-template-columns: repeat(2, 1fr); gap:12px;">
+          <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap:12px;">
             <div class="form-group">
               <label>Nombres y Apellidos:</label>
               <input type="text" class="form-control" id="expInscribeNombre" readonly>

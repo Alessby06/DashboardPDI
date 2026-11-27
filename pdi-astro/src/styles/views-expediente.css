@@ -626,17 +626,10 @@
       border-bottom: 1px solid var(--border-subtle);
       border-radius: 0;
       box-shadow: none;
-      transition: background var(--dur-fast) var(--ease-smooth);
     }
 
     .retiro-person-card:last-child {
       border-bottom: 0;
-    }
-
-    @media (hover: hover) and (pointer: fine) {
-      .retiro-person-card:hover {
-        background: var(--surface-hover);
-      }
     }
 
     .retiro-person-photo {
@@ -717,6 +710,14 @@
     @media (max-width: 768px) {
       .retiro-padron-grid {
         padding: 0 12px;
+      }
+
+      .retiro-person-fields {
+        grid-template-columns: 1fr;
+      }
+
+      .retiro-person-fields .retiro-person-field--ancho {
+        grid-column: span 1;
       }
 
       .retiro-person-card {
