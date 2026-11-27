@@ -1932,6 +1932,186 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
           </div>
         </div>
 
+  <!-- Drawer Ficha Técnica de Colaborador e Institución Aliada -->
+  <div class="modal-backdrop drawer" id="modalColaborador" role="dialog" aria-modal="true" aria-labelledby="modalColabTitle" aria-hidden="true" inert>
+    <div class="modal-box drawer-box">
+      <div class="sheet-grab" aria-hidden="true"><span class="sheet-pill"></span></div>
+      <div class="modal-header">
+        <div>
+          <h3 id="modalColabTitle" style="margin: 0; font-size: 16px; font-weight: 700; color: var(--text-main);">Ficha de Colaborador e Institución</h3>
+          <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text-muted);">Registro oficial de contrapartes territoriales (Fichas A4 y A5)</p>
+        </div>
+        <button type="button" class="btn-close-modal" data-pdi-on="click" data-pdi-h="h078" aria-label="Cerrar modal">
+          <Icon name="accion.cerrar" size={18} />
+        </button>
+      </div>
+
+      <form id="formColaborador" class="colab-modal-form">
+        <div class="modal-body colab-modal-body" id="modalColabBody">
+          <input type="hidden" id="colabEditId" value="" />
+
+          <!-- Sección 1: Rol y Entidad -->
+          <div class="colab-form-section">
+            <strong class="colab-form-section-title">
+              <Icon name="educacion.libro" size={14} /> Rol Institucional & Entidad Vinculada
+            </strong>
+
+            <div class="colab-form-grid-2">
+              <div>
+                <label for="colabTipo" class="colab-form-label">Rol / Cargo *</label>
+                <select id="colabTipo" required class="form-control colab-form-select">
+                  <option value="Director(a) I.E.">Director(a) I.E.</option>
+                  <option value="Docente Enlace">Docente Enlace</option>
+                  <option value="Enlace Parroquial / Iglesia">Enlace Parroquial / Iglesia</option>
+                  <option value="Pastor(a) / Líder Comunitario">Pastor(a) / Líder Comunitario</option>
+                  <option value="Facilitador(a) Comunitario(a)">Facilitador(a) Comunitario(a)</option>
+                  <option value="Promotora Social">Promotora Social</option>
+                  <option value="Promotora Educativa">Promotora Educativa</option>
+                </select>
+              </div>
+              <div>
+                <label for="colabSede" class="colab-form-label">Nombre de la I.E., Iglesia o Sede *</label>
+                <input type="text" id="colabSede" list="listaSedesDisponibles" required placeholder="Selecciona una sede o escribe el colegio/institución..." class="form-control" autocomplete="off" />
+                <datalist id="listaSedesDisponibles"></datalist>
+              </div>
+            </div>
+
+            <!-- Campos Específicos para Colegios -->
+            <div id="colabCamposColegio" class="colab-form-grid-3">
+              <div>
+                <label for="colabCodigoModular" class="colab-form-label colab-form-label--sm">Cód. Modular</label>
+                <input type="text" id="colabCodigoModular" maxlength="7" placeholder="Ej. 0584920" class="form-control colab-form-input--sm" />
+              </div>
+              <div>
+                <label for="colabNivel" class="colab-form-label colab-form-label--sm">Nivel</label>
+                <select id="colabNivel" class="form-control colab-form-select colab-form-select--sm">
+                  <option value="">-- Seleccionar --</option>
+                  <option value="Inicial">Inicial</option>
+                  <option value="Primaria">Primaria</option>
+                  <option value="Secundaria">Secundaria</option>
+                  <option value="Integrado">Integrado</option>
+                </select>
+              </div>
+              <div>
+                <label for="colabTurno" class="colab-form-label colab-form-label--sm">Turno</label>
+                <select id="colabTurno" class="form-control colab-form-select colab-form-select--sm">
+                  <option value="">-- Seleccionar --</option>
+                  <option value="Mañana">Mañana</option>
+                  <option value="Tarde">Tarde</option>
+                  <option value="Completo">Completo</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sección 2: Datos de la Persona de Contacto -->
+          <div class="colab-form-grid-2">
+            <div>
+              <label for="colabNombres" class="colab-form-label">Nombres de la Persona *</label>
+              <input type="text" id="colabNombres" required class="form-control" />
+            </div>
+            <div>
+              <label for="colabApellidos" class="colab-form-label">Apellidos de la Persona *</label>
+              <input type="text" id="colabApellidos" required class="form-control" />
+            </div>
+          </div>
+
+          <div class="colab-form-grid-2">
+            <div>
+              <label for="colabDni" class="colab-form-label">DNI</label>
+              <input type="text" id="colabDni" maxlength="8" class="form-control" placeholder="8 dígitos" />
+            </div>
+            <div>
+              <label for="colabDistrito" class="colab-form-label">Distrito *</label>
+              <select id="colabDistrito" required class="form-control colab-form-select">
+                <option value="Comas">Comas</option>
+                <option value="Carabayllo">Carabayllo</option>
+                <option value="El Agustino">El Agustino</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Canales de Comunicación Diferenciados -->
+          <div class="colab-form-grid-2">
+            <div>
+              <label for="colabCelular" class="colab-form-label">Celular / WhatsApp (9 dígitos)</label>
+              <input type="tel" id="colabCelular" maxlength="9" placeholder="Ej. 987654321" class="form-control" />
+            </div>
+            <div>
+              <label for="colabTelefonoFijo" class="colab-form-label">Teléfono Fijo de Secretaría (7 dígitos)</label>
+              <input type="tel" id="colabTelefonoFijo" placeholder="Ej. 01-5421234" class="form-control" />
+            </div>
+          </div>
+
+          <div class="colab-form-grid-2">
+            <div>
+              <label for="colabEmail" class="colab-form-label">Correo Institucional / Personal</label>
+              <input type="email" id="colabEmail" placeholder="contacto@colegio.edu.pe" class="form-control" />
+            </div>
+            <div>
+              <label for="colabEstado" class="colab-form-label">Estado Operativo de la Alianza</label>
+              <select id="colabEstado" class="form-control colab-form-select">
+                <option value="Activo">Activo (Vigente)</option>
+                <option value="Inactivo">Inactivo / Rotado</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Programas Articulados -->
+          <div>
+            <label class="colab-form-label colab-form-label--group">Programas que articula esta institución o persona</label>
+            <div class="colab-programas-container">
+              <label class="colab-chip-pill">
+                <input type="checkbox" name="colabEstrategias" value="Desayuno Infantil" />
+                <span class="colab-chip-icon" aria-hidden="true"><Icon name="modulo.social" size={14} /></span>
+                <span>Desayuno Infantil</span>
+              </label>
+              <label class="colab-chip-pill">
+                <input type="checkbox" name="colabEstrategias" value="Casita del Saber" />
+                <span class="colab-chip-icon" aria-hidden="true"><Icon name="educacion.libro" size={14} /></span>
+                <span>Casita del Saber</span>
+              </label>
+              <label class="colab-chip-pill">
+                <input type="checkbox" name="colabEstrategias" value="Buen Trato en Familia (BTF)" />
+                <span class="colab-chip-icon" aria-hidden="true"><Icon name="persona.grupo" size={14} /></span>
+                <span>BTF (Buen Trato en Familia)</span>
+              </label>
+              <label class="colab-chip-pill">
+                <input type="checkbox" name="colabEstrategias" value="Juntos Aprendemos en Cristo (JAC)" />
+                <span class="colab-chip-icon" aria-hidden="true"><Icon name="modulo.social" size={14} /></span>
+                <span>JAC (Juntos Aprendemos en Cristo)</span>
+              </label>
+              <label class="colab-chip-pill">
+                <input type="checkbox" name="colabEstrategias" value="Repostería" />
+                <span class="colab-chip-icon" aria-hidden="true"><Icon name="educacion.libro" size={14} /></span>
+                <span>Talleres de Repostería</span>
+              </label>
+              <label class="colab-chip-pill">
+                <input type="checkbox" name="colabEstrategias" value="Área Social Pastoral" />
+                <span class="colab-chip-icon" aria-hidden="true"><Icon name="modulo.social" size={14} /></span>
+                <span>Área Social Pastoral</span>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label for="colabObservaciones" class="colab-form-label">Observaciones y Acuerdos de Coordinación</label>
+            <textarea id="colabObservaciones" rows="2" class="form-control colab-form-textarea" placeholder="Detalles de horarios de acceso, acuerdos de uso de patio o entrega de raciones..."></textarea>
+          </div>
+        </div><!-- /.modal-body -->
+
+        <div class="modal-footer colab-modal-footer">
+          <button type="button" class="btn-action secondary pdi-motion" data-pdi-on="click" data-pdi-h="h078">
+            Cancelar
+          </button>
+          <button type="submit" class="btn-action primary pdi-motion" id="btnGuardarColab">
+            Guardar Ficha
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Modal Oficial Ficha A1 Imprimible (2026) -->
   <ModalFichaA1Oficial />
 

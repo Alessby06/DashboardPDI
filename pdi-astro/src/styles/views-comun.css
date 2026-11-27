@@ -49,8 +49,12 @@
          el fundido para no cortar la salida. */
       visibility: hidden;
       pointer-events: none;
+      backdrop-filter: blur(0px);
+      -webkit-backdrop-filter: blur(0px);
       transition: opacity var(--dur-norm) var(--ease-drawer),
                   background-color var(--dur-norm) var(--ease-drawer),
+                  backdrop-filter var(--dur-norm) var(--ease-drawer),
+                  -webkit-backdrop-filter var(--dur-norm) var(--ease-drawer),
                   visibility 0s linear var(--dur-norm);
       padding: 20px;
     }
@@ -70,12 +74,14 @@
          brusco que el otro. La visibilidad entra sin espera. */
       transition: opacity var(--dur-norm) var(--ease-drawer),
                   background-color var(--dur-norm) var(--ease-drawer),
+                  backdrop-filter var(--dur-norm) var(--ease-drawer),
+                  -webkit-backdrop-filter var(--dur-norm) var(--ease-drawer),
                   visibility 0s;
-      /* Velo de modal: mismo de las hojas, sin desenfoque, con foco radial
-         detras de la ventana. Longhands a proposito: un shorthand con capas
-         y var() es fragil y, si el parser lo descarta, el telon desaparece. */
+      /* Velo de modal: con foco radial detras de la ventana y desenfoque suave sobre el fondo. */
       background-color: var(--sheet-veil-margen);
       background-image: radial-gradient(ellipse 70% 60% at 50% 42%, var(--sheet-veil-borde), transparent 70%);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
     }
 
     /* Capa transparente que captura el gesto fuera de la caja. No es un velo
@@ -149,12 +155,16 @@
       /* El velo se apaga con la hoja y con su misma curva de salida: así la
          página no reaparece mientras la hoja todavía baja. */
       transition: opacity var(--dur-norm) var(--ease-drawer),
-                  background-color var(--dur-norm) var(--ease-drawer);
+                  background-color var(--dur-norm) var(--ease-drawer),
+                  backdrop-filter var(--dur-norm) var(--ease-drawer),
+                  -webkit-backdrop-filter var(--dur-norm) var(--ease-drawer);
     }
 
     .modal-backdrop.drawer.open {
       transition: opacity var(--dur-norm) var(--ease-drawer),
-                  background-color var(--dur-norm) var(--ease-drawer);
+                  background-color var(--dur-norm) var(--ease-drawer),
+                  backdrop-filter var(--dur-norm) var(--ease-drawer),
+                  -webkit-backdrop-filter var(--dur-norm) var(--ease-drawer);
     }
 
     .modal-box.drawer-box {
