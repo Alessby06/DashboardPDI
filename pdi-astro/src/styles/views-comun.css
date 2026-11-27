@@ -1699,12 +1699,6 @@ input[type="range"] {
         gap: 12px;
         margin-bottom: 16px;
       }
-@media (hover: hover) and (pointer: fine) {
-  .ley-consent-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-ambient);
-  }
-}
 .ley-card-header {
         display: flex;
         align-items: center;
@@ -1725,24 +1719,21 @@ input[type="range"] {
         line-height: 1.4;
       }
 .ley-cert-box {
-        border: 1.5px dashed var(--gt-green);
-        border-radius: 10px;
-        padding: 14px 16px;
-        background: rgba(var(--brand-rgb), 0.05);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-md);
+        padding: 12px 14px;
+        background: var(--surface-2);
         display: flex;
-        align-items: center;
-        gap: 14px;
+        align-items: flex-start;
+        gap: 10px;
       }
 .ley-cert-icon {
-        width: 42px;
-        height: 42px;
-        border-radius: 8px;
-        background: var(--brand-fill);
-        color: var(--on-brand);
+        color: var(--text-brand);
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
+        margin-top: 2px;
       }
 .ley-cert-text {
         flex: 1;
