@@ -2,7 +2,9 @@
 import AppLayout from '../layouts/AppLayout.astro';
 import FilterPanel from '../components/FilterPanel.astro';
 import FilterField from '../components/FilterField.astro';
+import SortMenu from '../components/SortMenu.astro';
 import { SEDES_OPERATIVAS } from '../data/opcionesBeneficiario.js';
+import { ORDEN_SOCIAL } from '../scripts/utils/filtrosSocial.js';
 import '../styles/views-social.css';
 import '../styles/views-export-icon.css';
 import Icon from '../components/Icon.astro';
@@ -80,11 +82,13 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                   <Icon name="accion.buscar" size={2} class="audit-search-icon" />
                   <input type="text" class="audit-search-input" id="inputSearchCasosSociales"
                     placeholder="Buscar caso..."
-                    data-placeholder-largo="Buscar por usuario, código, situación o sede..."
-                    aria-label="Buscar caso por usuario, código, situación o sede"
-                    title="Buscar caso por usuario, código, situación o sede"
+                    data-placeholder-largo="Buscar por usuario, DNI, código, situación o sede..."
+                    aria-label="Buscar caso por usuario, DNI, código, situación o sede"
+                    title="Buscar caso por usuario, DNI, código, situación o sede"
                     data-pdi-on="input" data-pdi-h="h150">
                 </div>
+
+                <SortMenu id="SocialSort" options={ORDEN_SOCIAL} selected="urgencia" />
 
                 <!-- Botón de Filtros y Panel Desplegable (Lado Derecho) -->
                 <FilterPanel
@@ -126,6 +130,23 @@ const OPCIONES_SEDE = SEDES_OPERATIVAS.map((sede) => ({ valor: sede.nombre, etiq
                         onSelect="window.filterSocialBySede"
                         abrir="window.toggleInnerFilterDropdown ? window.toggleInnerFilterDropdown('dropdownSocialSede') : (window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownSocialSede') : null)"
                       />
+
+                      <div class="audit-filter-field">
+                        <label class="audit-field-label" for="socialFechaDesde">Fecha de derivación</label>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                          <input type="date" id="socialFechaDesde" class="form-control" style="flex:1; min-width:0;"
+                            aria-label="Fecha de derivación desde"
+                            data-pdi-on="change" data-pdi-call="window.setSocialFechaDesde">
+                          <span style="font-size:12px; color:var(--text-muted);">a</span>
+                          <input type="date" id="socialFechaHasta" class="form-control" style="flex:1; min-width:0;"
+                            aria-label="Fecha de derivación hasta"
+                            data-pdi-on="change" data-pdi-call="window.setSocialFechaHasta">
+                        </div>
+                        <button type="button" class="btn-text-subtle" style="align-self:flex-start; margin-top:8px; font-size:11.5px;"
+                          data-pdi-on="click" data-pdi-call="window.clearSocialFechas">
+                          Limpiar fechas
+                        </button>
+                      </div>
               </FilterPanel>
 
               <button type="button" class="btn-action-icon btn-audit-export-icon table-export-btn pdi-motion" id="btnExportSocialCSV"

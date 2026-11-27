@@ -6,6 +6,8 @@ import { crear as crearFiltros } from '../utils/Filters.js';
 import { crearStore } from '../utils/FilterStore.js';
 import { contarOpciones } from '../utils/FacetCounts.js';
 import { KanbanDrag } from '../utils/KanbanDrag.js';
+import { initSortMenu } from '../ui/SortMenu.js';
+import { filtrarCasosSociales, ordenarCasosSociales } from '../utils/filtrosSocial.js';
 
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";;
 import { SEDES_NOMBRES } from "../core/catalogos.js";
@@ -32,6 +34,9 @@ const FILTROS_SOCIAL = {
   q:        { valor: "" },
   urgencia: { valor: "all", valores: ["all", "Alta", "Media", "Baja"] },
   sede:     { valor: "all", valores: ["all", ...SEDES_NOMBRES] },
+  desde:    { valor: "" },
+  hasta:    { valor: "" },
+  orden:    { valor: "urgencia", valores: ["urgencia", "fecha", "nombre"] },
   // En movil el tablero muestra una etapa por vez. Tambien es estado de vista,
   // asi que va en la URL: compartir un enlace debe mostrar la misma columna.
   etapa:    { valor: "pendiente", valores: ["pendiente", "evaluacion", "canalizado", "cerrado"] },
@@ -80,6 +85,10 @@ export const SocialKanbanView = {
   _searchQuery: "",
   _filterUrgencia: "all",
   _filterSede: "all",
+  _filterDesde: "",
+  _filterHasta: "",
+  _orden: "urgencia",
+  _sortMenu: null,
   _activeCaso: null,
   _filteredCasos: [],
   _mobileActiveStage: "pendiente",
@@ -120,6 +129,9 @@ export const SocialKanbanView = {
       q: this._searchQuery,
       urgencia: this._filterUrgencia,
       sede: this._filterSede,
+      desde: this._filterDesde,
+      hasta: this._filterHasta,
+      orden: this._orden,
       etapa: this._mobileActiveStage,
       ...(extra || {}),
     });
@@ -133,6 +145,9 @@ export const SocialKanbanView = {
     this._searchQuery = f.q;
     this._filterUrgencia = f.urgencia;
     this._filterSede = f.sede;
+    this._filterDesde = f.desde;
+    this._filterHasta = f.hasta;
+    this._orden = f.orden;
     this._mobileActiveStage = f.etapa;
 
     this._obtenerStore().cargar({
@@ -142,6 +157,17 @@ export const SocialKanbanView = {
 
     const input = document.getElementById("inputSearchCasosSociales");
     if (input) input.value = f.q;
+
+    const desde = document.getElementById("socialFechaDesde");
+    if (desde) desde.value = f.desde;
+    const hasta = document.getElementById("socialFechaHasta");
+    if (hasta) hasta.value = f.hasta;
+
+    this._sortMenu = initSortMenu({
+      id: "SocialSort",
+      onSelect: (valor) => (window.PDI?.SocialKanbanView || SocialKanbanView).setOrden(valor),
+    }) || this._sortMenu;
+    this._sortMenu?.sync(this._orden);
 
     this._updateUrgenciaUI();
     this._updateSedeUI();
@@ -159,15 +185,11 @@ export const SocialKanbanView = {
 
   /** Busqueda comun a la lista y a los contadores de faceta. */
   _aplicaBusqueda(lista) {
-    const q = this._searchQuery.toLowerCase().trim();
-    if (!q) return lista;
-    return lista.filter(c =>
-      (c.usuario && c.usuario.toLowerCase().includes(q)) ||
-      (c.codigo && c.codigo.toLowerCase().includes(q)) ||
-      (c.sede && c.sede.toLowerCase().includes(q)) ||
-      (c.situacionEncontrada && c.situacionEncontrada.toLowerCase().includes(q)) ||
-      (c.tipoProblematica && c.tipoProblematica.toLowerCase().includes(q))
-    );
+    return filtrarCasosSociales(lista, {
+      q: this._searchQuery,
+      desde: this._filterDesde,
+      hasta: this._filterHasta,
+    });
   },
 
   /**
@@ -282,12 +304,14 @@ export const SocialKanbanView = {
     const model = window.PDI?.CasoSocialModel || CasoSocialModel;
     const allCasos = casos || (model.getAll ? model.getAll() : []);
 
-    // Aplicar filtros de búsqueda, urgencia y sede
-    const filtered = this._aplicaBusqueda(allCasos).filter(c => {
-      const matchUrgencia = (this._filterUrgencia === "all") || (c.urgencia === this._filterUrgencia);
-      const matchSede = (this._filterSede === "all") || (c.sede && c.sede.includes(this._filterSede));
-      return matchUrgencia && matchSede;
-    });
+    // Aplicar búsqueda, urgencia, sede, rango de fechas y orden
+    const filtered = ordenarCasosSociales(filtrarCasosSociales(allCasos, {
+      q: this._searchQuery,
+      urgencia: this._filterUrgencia,
+      sede: this._filterSede,
+      desde: this._filterDesde,
+      hasta: this._filterHasta,
+    }), this._orden);
 
     this._updateFacetCounts(allCasos);
 
@@ -299,7 +323,7 @@ export const SocialKanbanView = {
     this._haEntrado = true;
 
     // Si no es primera entrada y los datos no cambiaron, evitar parpadeo y no reconstruir el DOM
-    const serial = `${this._searchQuery}_${this._filterUrgencia}_${this._filterSede}_` + 
+    const serial = `${this._searchQuery}_${this._filterUrgencia}_${this._filterSede}_${this._filterDesde}_${this._filterHasta}_${this._orden}_` + 
       filtered.map(c => `${c._casoId || c.id}_${c.etapa}_${c.urgencia}_${c.solicitudCambio ? c.solicitudCambio.estado : 'none'}`).join("|");
 
     if (!esPrimeraEntrada && !forzarAnimacion && this._lastRenderSerial === serial && (pCol.children.length > 0 || eCol.children.length > 0 || cCol.children.length > 0 || zCol.children.length > 0)) {
@@ -551,17 +575,61 @@ export const SocialKanbanView = {
   clearFilters() {
     const view = window.PDI?.SocialKanbanView || SocialKanbanView;
     view._searchQuery = "";
+    view._filterDesde = "";
+    view._filterHasta = "";
+    view._orden = "urgencia";
     view._obtenerStore().limpiar();
     view._espejarStore();
 
     const searchInput = document.getElementById("inputSearchCasosSociales");
     if (searchInput) searchInput.value = "";
+    const desde = document.getElementById("socialFechaDesde");
+    if (desde) desde.value = "";
+    const hasta = document.getElementById("socialFechaHasta");
+    if (hasta) hasta.value = "";
+    view._sortMenu?.sync("urgencia");
 
     document.querySelectorAll("#menuSocialFilterPanel .padron-inner-dropdown.open").forEach(d => d.classList.remove("open"));
 
     view._updateUrgenciaUI();
     view._updateSedeUI();
 
+    view.renderKanban(null, true);
+  },
+
+  setSocialFechas(desde, hasta) {
+    const view = window.PDI?.SocialKanbanView || SocialKanbanView;
+    let d = String(desde || "").slice(0, 10);
+    let h = String(hasta || "").slice(0, 10);
+    if (d && h && d > h) [d, h] = [h, d];
+    view._filterDesde = d;
+    view._filterHasta = h;
+    const inputD = document.getElementById("socialFechaDesde");
+    if (inputD) inputD.value = d;
+    const inputH = document.getElementById("socialFechaHasta");
+    if (inputH) inputH.value = h;
+    view.renderKanban(null, true);
+  },
+
+  setSocialFechaDesde(valor) {
+    const view = window.PDI?.SocialKanbanView || SocialKanbanView;
+    view.setSocialFechas(valor, view._filterHasta);
+  },
+
+  setSocialFechaHasta(valor) {
+    const view = window.PDI?.SocialKanbanView || SocialKanbanView;
+    view.setSocialFechas(view._filterDesde, valor);
+  },
+
+  clearSocialFechas() {
+    const view = window.PDI?.SocialKanbanView || SocialKanbanView;
+    view.setSocialFechas("", "");
+  },
+
+  setOrden(orden) {
+    const view = window.PDI?.SocialKanbanView || SocialKanbanView;
+    view._orden = ["urgencia", "fecha", "nombre"].includes(orden) ? orden : "urgencia";
+    view._sortMenu?.sync(view._orden);
     view.renderKanban(null, true);
   },
 
@@ -586,6 +654,14 @@ export const SocialKanbanView = {
       chips.push({
         label: `Sede: ${this._filterSede}`,
         clear: () => this.filterBySede("all")
+      });
+    }
+
+    if (this._filterDesde || this._filterHasta) {
+      activeCount++;
+      chips.push({
+        label: `Fechas: ${this._filterDesde || "…"} a ${this._filterHasta || "…"}`,
+        clear: () => this.setSocialFechas("", "")
       });
     }
 
@@ -1567,5 +1643,17 @@ if (typeof window !== "undefined") {
   window.clearSocialFilters = function () {
     if (window.PDI?.SocialKanbanView) window.PDI.SocialKanbanView.clearFilters();
     else SocialKanbanView.clearFilters();
+  };
+  window.setSocialFechaDesde = function () {
+    const view = window.PDI?.SocialKanbanView || SocialKanbanView;
+    view.setSocialFechaDesde(this && this.value);
+  };
+  window.setSocialFechaHasta = function () {
+    const view = window.PDI?.SocialKanbanView || SocialKanbanView;
+    view.setSocialFechaHasta(this && this.value);
+  };
+  window.clearSocialFechas = function () {
+    const view = window.PDI?.SocialKanbanView || SocialKanbanView;
+    view.clearSocialFechas();
   };
 }
