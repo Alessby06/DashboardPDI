@@ -2,7 +2,7 @@
 import AppLayout from '../layouts/AppLayout.astro';
 import FilterPanel from '../components/FilterPanel.astro';
 import FilterField from '../components/FilterField.astro';
-import { ESTRATEGIAS, SEDES_OPERATIVAS } from '../data/opcionesBeneficiario.js';
+import { ESTRATEGIAS, SEDES_OPERATIVAS, MODALIDADES, SEGUROS } from '../data/opcionesBeneficiario.js';
 import '../styles/views-padron.css';
 import '../styles/views-actions-buttons.css';
 import '../styles/views-export-icon.css';
@@ -19,6 +19,8 @@ const OPCIONES_SEXO = [
   { valor: 'M', etiqueta: 'Masculino (M)' },
   { valor: 'F', etiqueta: 'Femenino (F)' },
 ];
+const OPCIONES_MODALIDAD = MODALIDADES;
+const OPCIONES_SEGURO = SEGUROS;
 ---
 
 <AppLayout title="Padrón Único de Usuarios" currentPage="padron">
@@ -220,6 +222,38 @@ const OPCIONES_SEXO = [
                         onSelect="window.selectPadronSexo"
                         abrir="window.togglePadronInnerDropdown ? window.togglePadronInnerDropdown('dropdownPadronSexo') : null"
                         countPrefix="countFacetSexo"
+                      />
+
+                      <!-- Filtro 6: Modalidad de atención (seleccion unica con radio) -->
+                      <FilterField
+                        id="dropdownPadronModalidad"
+                        menuId="menuPadronModalidad"
+                        labelId="labelPadronModalidadSelect"
+                        label="Modalidad de Atención"
+                        prefix="Modalidad:"
+                        labelTodos="Todas"
+                        todosEtiqueta="Todas"
+                        opciones={OPCIONES_MODALIDAD}
+                        tipo="single"
+                        onSelect="window.selectPadronModalidad"
+                        abrir="window.togglePadronInnerDropdown ? window.togglePadronInnerDropdown('dropdownPadronModalidad') : null"
+                        countPrefix="countFacetModalidad"
+                      />
+
+                      <!-- Filtro 7: Seguro de salud (seleccion unica con radio) -->
+                      <FilterField
+                        id="dropdownPadronSeguro"
+                        menuId="menuPadronSeguro"
+                        labelId="labelPadronSeguroSelect"
+                        label="Seguro de Salud"
+                        prefix="Seguro:"
+                        labelTodos="Todos"
+                        todosEtiqueta="Todos"
+                        opciones={OPCIONES_SEGURO}
+                        tipo="single"
+                        onSelect="window.selectPadronSeguro"
+                        abrir="window.togglePadronInnerDropdown ? window.togglePadronInnerDropdown('dropdownPadronSeguro') : null"
+                        countPrefix="countFacetSeguro"
                       />
               </FilterPanel>
 

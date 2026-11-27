@@ -9,7 +9,7 @@ import { Dropdown } from "../utils/Dropdown.js";
 import { SEDES_NOMBRES } from "../core/catalogos.js";
 import { iconHtml } from '../../data/iconos.js';
 import { avatarHtml } from "../utils/Avatar.js";
-import { claseLineaServicio, nombreServicioVisible } from "../../data/opcionesBeneficiario.js";
+import { claseLineaServicio, nombreServicioVisible, MODALIDADES, SEGUROS } from "../../data/opcionesBeneficiario.js";
 import { BeneficiarioModel } from "../models/BeneficiarioModel.js";
 import { fetchExpediente } from "../core/db.js";
 import { guardarCacheSesion, leerCacheSesion } from "../core/snapshot.js";
@@ -36,6 +36,8 @@ const FILTROS_PADRON = {
   edadMax:   { valor: 18, numeros: { min: 0, max: 18 } },
   vista:     { valor: "activos", valores: ["activos", "archivo"] },
   sexo:      { valor: "all", valores: ["all", "M", "F"] },
+  modalidad: { valor: "all", valores: ["all", ...MODALIDADES.map((m) => m.valor)] },
+  seguro:    { valor: "all", valores: ["all", ...SEGUROS.map((s) => s.valor)] },
   pagina:    { valor: 1, numeros: { min: 1, max: 1000 } },
   tam:       { valor: 20, numeros: { min: 5, max: 50 } },
 };
@@ -45,6 +47,8 @@ const FACETAS_PADRON = {
   sede: { tipo: "multi", opciones: FILTROS_PADRON.sede.valores, defecto: [] },
   anemia: { tipo: "multi", opciones: FILTROS_PADRON.anemia.valores, defecto: [] },
   sexo: { tipo: "single", opciones: FILTROS_PADRON.sexo.valores, defecto: "all" },
+  modalidad: { tipo: "single", opciones: FILTROS_PADRON.modalidad.valores, defecto: "all" },
+  seguro: { tipo: "single", opciones: FILTROS_PADRON.seguro.valores, defecto: "all" },
 };
 
 export const BeneficiariosView = {
@@ -65,6 +69,8 @@ export const BeneficiariosView = {
   _filterEdadRango: { min: 0, max: 18 },
   _vista: "activos", // "activos" | "archivo"
   _filterSexo: "all",   // "all" | "M" | "F"
+  _filterModalidad: "all",
+  _filterSeguro: "all",
   _haEntrado: false,
   _lastRenderSerial: "",
   // Tarjetas del padrón que el usuario dejó abiertas. Vive aquí y no en el DOM
@@ -102,6 +108,8 @@ export const BeneficiariosView = {
     this._filterSede = s.sede;
     this._filterAnemia = s.anemia;
     this._filterSexo = s.sexo;
+    this._filterModalidad = s.modalidad;
+    this._filterSeguro = s.seguro;
   },
 
   // El estado de la URL se lee una sola vez por carga. Sin este guardia,
@@ -140,6 +148,8 @@ export const BeneficiariosView = {
       edadMax: this._filterEdadRango.max,
       vista: this._vista,
       sexo: this._filterSexo,
+      modalidad: this._filterModalidad,
+      seguro: this._filterSeguro,
       pagina: this._currentPage,
       tam: this._pageSize,
       ...(extra || {}),
@@ -168,6 +178,8 @@ export const BeneficiariosView = {
       sede: f.sede,
       anemia: f.anemia,
       sexo: f.sexo,
+      modalidad: f.modalidad,
+      seguro: f.seguro,
     });
     this._espejarStore();
     // El archivo solo se abre para dirección. Una URL compartida no puede
@@ -195,6 +207,8 @@ export const BeneficiariosView = {
     this._updateAnemiaDropdownUI();
     this._updateEdadUI();
     this._updateSexoDropdownUI();
+    this._updateModalidadDropdownUI();
+    this._updateSeguroDropdownUI();
   },
 
   init(beneficiarios) {
@@ -756,6 +770,56 @@ export const BeneficiariosView = {
     document.getElementById("dropdownPadronSexo")?.classList.toggle("has-active-filter", this._filterSexo !== "all");
   },
 
+  selectModalidad(valor) {
+    this._obtenerStore().fijar("modalidad", valor || "all");
+    this._espejarStore();
+    this._updateModalidadDropdownUI();
+    document.getElementById("dropdownPadronModalidad")?.classList.remove("open");
+    this.applyFilters();
+    this._persistirFiltros();
+  },
+
+  _updateModalidadDropdownUI() {
+    const items = document.querySelectorAll("#menuPadronModalidad .padron-dropdown-item");
+    items.forEach(item => {
+      item.classList.toggle("selected", item.getAttribute("data-value") === this._filterModalidad);
+    });
+    const labelEl = document.getElementById("labelPadronModalidadSelect");
+    if (labelEl) {
+      if (this._filterModalidad === "all") labelEl.textContent = "Todas";
+      else {
+        const item = document.querySelector(`#menuPadronModalidad .padron-dropdown-item[data-value="${this._filterModalidad}"] .padron-item-label`);
+        labelEl.textContent = item ? item.textContent.trim() : this._filterModalidad;
+      }
+    }
+    document.getElementById("dropdownPadronModalidad")?.classList.toggle("has-active-filter", this._filterModalidad !== "all");
+  },
+
+  selectSeguro(valor) {
+    this._obtenerStore().fijar("seguro", valor || "all");
+    this._espejarStore();
+    this._updateSeguroDropdownUI();
+    document.getElementById("dropdownPadronSeguro")?.classList.remove("open");
+    this.applyFilters();
+    this._persistirFiltros();
+  },
+
+  _updateSeguroDropdownUI() {
+    const items = document.querySelectorAll("#menuPadronSeguro .padron-dropdown-item");
+    items.forEach(item => {
+      item.classList.toggle("selected", item.getAttribute("data-value") === this._filterSeguro);
+    });
+    const labelEl = document.getElementById("labelPadronSeguroSelect");
+    if (labelEl) {
+      if (this._filterSeguro === "all") labelEl.textContent = "Todos";
+      else {
+        const item = document.querySelector(`#menuPadronSeguro .padron-dropdown-item[data-value="${this._filterSeguro}"] .padron-item-label`);
+        labelEl.textContent = item ? item.textContent.trim() : this._filterSeguro;
+      }
+    }
+    document.getElementById("dropdownPadronSeguro")?.classList.toggle("has-active-filter", this._filterSeguro !== "all");
+  },
+
   removeFilter(filterKey, specificVal) {
     if (filterKey === "search") this.clearSearch();
     if (filterKey === "estrategia") {
@@ -781,6 +845,8 @@ export const BeneficiariosView = {
     }
     if (filterKey === "edad") this.clearEdad();
     if (filterKey === "sexo") this.selectSexo("all");
+    if (filterKey === "modalidad") this.selectModalidad("all");
+    if (filterKey === "seguro") this.selectSeguro("all");
   },
 
   resetFilters() {
@@ -801,6 +867,8 @@ export const BeneficiariosView = {
     this._updateAnemiaDropdownUI();
     this._updateEdadUI();
     this._updateSexoDropdownUI();
+    this._updateModalidadDropdownUI();
+    this._updateSeguroDropdownUI();
 
     // Cerrar cualquier dropdown interno que haya quedado abierto
     document.querySelectorAll(".padron-inner-dropdown.open").forEach(d => d.classList.remove("open"));
@@ -1043,6 +1111,16 @@ export const BeneficiariosView = {
       list = list.filter(b => (b.sexo || "").toUpperCase() === this._filterSexo.toUpperCase());
     }
 
+    // 7. Modalidad de atención
+    if (this._filterModalidad !== "all") {
+      list = list.filter(b => b.modalidad === this._filterModalidad);
+    }
+
+    // 8. Seguro de salud
+    if (this._filterSeguro !== "all") {
+      list = list.filter(b => b.seguro === this._filterSeguro);
+    }
+
     return this._ordenarLista(list);
   },
 
@@ -1089,7 +1167,7 @@ export const BeneficiariosView = {
 
   /** Clave de lo que hay pintado: vista, filtros, orden, página e ids. */
   _serialDePagina(pageItems, enMovil, { pagina = this._currentPage, tam = this._pageSize } = {}) {
-    return `${enMovil ? 'M' : 'D'}|${this._vista}_${this._searchQuery}_${this._filterEstrategia.join(',')}_${this._filterSede.join(',')}_${this._filterAnemia.join(',')}_${this._filterEdadModo}_${this._filterEdadExacta}_${this._filterEdadRango.min}-${this._filterEdadRango.max}_${this._filterSexo}_${pagina}_${tam}_` +
+    return `${enMovil ? 'M' : 'D'}|${this._vista}_${this._searchQuery}_${this._filterEstrategia.join(',')}_${this._filterSede.join(',')}_${this._filterAnemia.join(',')}_${this._filterEdadModo}_${this._filterEdadExacta}_${this._filterEdadRango.min}-${this._filterEdadRango.max}_${this._filterSexo}_${this._filterModalidad}_${this._filterSeguro}_${pagina}_${tam}_` +
       pageItems.map(b => `${b.id}_${b.estado}`).join('|');
   },
 
@@ -1205,6 +1283,12 @@ export const BeneficiariosView = {
       if (excludeKey !== "sexo" && this._filterSexo !== "all") {
         l = l.filter(b => (b.sexo || "").toUpperCase() === this._filterSexo.toUpperCase());
       }
+      if (excludeKey !== "modalidad" && this._filterModalidad !== "all") {
+        l = l.filter(b => b.modalidad === this._filterModalidad);
+      }
+      if (excludeKey !== "seguro" && this._filterSeguro !== "all") {
+        l = l.filter(b => b.seguro === this._filterSeguro);
+      }
       return l;
     };
 
@@ -1242,6 +1326,22 @@ export const BeneficiariosView = {
     this._setFacetBadge("countFacetSexo-all", `(${forSexo.length})`, forSexo.length === 0);
     this._setFacetBadge("countFacetSexo-M", `(${forSexo.filter(b => (b.sexo || '').toUpperCase() === 'M').length})`, forSexo.filter(b => (b.sexo || '').toUpperCase() === 'M').length === 0);
     this._setFacetBadge("countFacetSexo-F", `(${forSexo.filter(b => (b.sexo || '').toUpperCase() === 'F').length})`, forSexo.filter(b => (b.sexo || '').toUpperCase() === 'F').length === 0);
+
+    // 5. Facetas de Modalidad
+    const forModalidad = getFilteredExcluding("modalidad");
+    this._setFacetBadge("countFacetModalidad-all", `(${forModalidad.length})`, forModalidad.length === 0);
+    MODALIDADES.forEach(({ valor }) => {
+      const n = forModalidad.filter(b => b.modalidad === valor).length;
+      this._setFacetBadge(`countFacetModalidad-${valor}`, `(${n})`, n === 0);
+    });
+
+    // 6. Facetas de Seguro
+    const forSeguro = getFilteredExcluding("seguro");
+    this._setFacetBadge("countFacetSeguro-all", `(${forSeguro.length})`, forSeguro.length === 0);
+    SEGUROS.forEach(({ valor }) => {
+      const n = forSeguro.filter(b => b.seguro === valor).length;
+      this._setFacetBadge(`countFacetSeguro-${valor}`, `(${n})`, n === 0);
+    });
   },
 
   _setFacetBadge(id, text, isZero) {
@@ -1318,6 +1418,20 @@ export const BeneficiariosView = {
       chips.push({
         id: "sexo",
         label: `Sexo: ${this._filterSexo === "F" ? "Femenino (F)" : "Masculino (M)"}`,
+      });
+    }
+
+    if (this._filterModalidad !== "all") {
+      chips.push({
+        id: "modalidad",
+        label: `Modalidad: ${this._filterModalidad}`,
+      });
+    }
+
+    if (this._filterSeguro !== "all") {
+      chips.push({
+        id: "seguro",
+        label: `Seguro: ${this._filterSeguro}`,
       });
     }
 
@@ -1601,6 +1715,8 @@ if (typeof window !== "undefined") {
   window.padronPrevPage = () => BeneficiariosView.prevPage();
   window.padronNextPage = () => BeneficiariosView.nextPage();
   window.selectPadronSexo = (sexo) => BeneficiariosView.selectSexo(sexo);
+  window.selectPadronModalidad = (modalidad) => BeneficiariosView.selectModalidad(modalidad);
+  window.selectPadronSeguro = (seguro) => BeneficiariosView.selectSeguro(seguro);
   window.sortPadron = (valor) => BeneficiariosView.sortPadron(valor);
   window.togglePadronSortMenu = () => BeneficiariosView.abrirMenuOrden();
   window.sortPadronOpcion = (valor) => BeneficiariosView.sortPadronOpcion(valor);

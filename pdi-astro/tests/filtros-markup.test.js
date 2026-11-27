@@ -19,3 +19,9 @@ test('Colaboradores expone rol e incluir inactivos', () => {
   assert.match(pagina, /menuId="menuColabRol"/);
   assert.match(pagina, /id="chkColabInactivos"/);
 });
+
+test('Padrón expone modalidad y seguro', () => {
+  const pagina = leer('src/pages/padron.astro');
+  assert.match(pagina, /menuId="menuPadronModalidad"/);
+  assert.match(pagina, /menuId="menuPadronSeguro"/);
+});
