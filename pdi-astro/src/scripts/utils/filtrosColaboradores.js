@@ -42,20 +42,57 @@ export function filtrarColaboradores(lista, {
 /** Ordena una copia con los criterios actuales del directorio. */
 export function ordenarColaboradores(lista, orden = 'apellido-asc') {
   const res = [...(Array.isArray(lista) ? lista : [])];
+  const porNombre = (a, b) =>
+    (a.apellidos || '').localeCompare(b.apellidos || '', 'es')
+    || (a.nombres || '').localeCompare(b.nombres || '', 'es');
+
   res.sort((a, b) => {
     switch (orden) {
       case 'apellido-desc':
-        return (b.apellidos || '').localeCompare(a.apellidos || '');
+        return (b.apellidos || '').localeCompare(a.apellidos || '', 'es') || porNombre(a, b);
       case 'sede-asc':
-        return (a.sedeInstitucion || '').localeCompare(b.sedeInstitucion || '');
+        return (a.sedeInstitucion || '').localeCompare(b.sedeInstitucion || '', 'es') || porNombre(a, b);
       case 'distrito-asc':
-        return (a.distrito || '').localeCompare(b.distrito || '');
+        return (a.distrito || '').localeCompare(b.distrito || '', 'es') || porNombre(a, b);
       case 'tipo-asc':
-        return (a.tipoColaborador || '').localeCompare(b.tipoColaborador || '');
+        return (a.tipoColaborador || '').localeCompare(b.tipoColaborador || '', 'es') || porNombre(a, b);
       case 'apellido-asc':
       default:
-        return (a.apellidos || '').localeCompare(b.apellidos || '');
+        return porNombre(a, b);
     }
   });
   return res;
+}
+
+/**
+ * Cuenta cada faceta con el resto de filtros aplicados, sin la propia faceta.
+ * Devuelve totales y mapas valor→conteo para rol, distrito y programa.
+ */
+export function contarFacetasColaboradores(lista, filtros = {}) {
+  const contar = (items, campo) => items.reduce((acc, c) => {
+    const valor = c[campo];
+    if (valor) acc[valor] = (acc[valor] || 0) + 1;
+    return acc;
+  }, {});
+
+  const rolBase = filtrarColaboradores(lista, { ...filtros, rol: '' });
+  const distritoBase = filtrarColaboradores(lista, { ...filtros, distrito: '' });
+  const estrategiaBase = filtrarColaboradores(lista, { ...filtros, estrategia: '' });
+
+  const porEstrategia = estrategiaBase.reduce((acc, c) => {
+    const estrategias = Array.isArray(c.estrategias) ? c.estrategias : [];
+    estrategias.forEach((valor) => {
+      acc[valor] = (acc[valor] || 0) + 1;
+    });
+    return acc;
+  }, {});
+
+  return {
+    total: rolBase.length,
+    porRol: contar(rolBase, 'tipoColaborador'),
+    totalDistrito: distritoBase.length,
+    porDistrito: contar(distritoBase, 'distrito'),
+    totalEstrategia: estrategiaBase.length,
+    porEstrategia,
+  };
 }

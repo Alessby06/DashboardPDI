@@ -30,7 +30,8 @@ test('Colaboradores: rol e inactivos', async ({ page }) => {
   await page.click('#btnDropdownColabFilterPanel');
   await page.check('#chkColabInactivos');
   await page.keyboard.press('Escape');
-  await expect(page.locator('#colabActiveChipsList')).toContainText('Inactivos');
+  await expect(page.locator('#chkColabInactivos')).toBeChecked();
+  await expect(page.locator('#colabActiveChipsList')).toContainText(/inactivos/i);
 });
 
 test('Padrón: modalidad y seguro', async ({ page }) => {

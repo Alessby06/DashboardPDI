@@ -4,7 +4,7 @@ import { prepararFilas, animarFilas, pintarTarjetas } from '../utils/FlipTabla.j
 // Asociación Cultural y Educativa Johannes Gutenberg - Lima Norte
 
 import { ColaboradorModel, clasificarCategoria, CATEGORIAS_COLABORADOR, validarDatosColaborador, TIPOS_COLABORADOR } from '../models/ColaboradorModel.js';
-import { filtrarColaboradores, ordenarColaboradores } from '../utils/filtrosColaboradores.js';
+import { filtrarColaboradores, ordenarColaboradores, contarFacetasColaboradores } from '../utils/filtrosColaboradores.js';
 import { ToastView } from './ToastView.js';
 import { AuditModel } from '../models/AuditModel.js';
 import { escapar } from '../utils/HtmlHelper.js';
@@ -247,6 +247,12 @@ export const ColaboradoresView = {
     const iglesias = datos.filter(c => (c.categoria || clasificarCategoria(c.tipoColaborador)) === 'iglesias').length;
     const pdi = datos.filter(c => (c.categoria || clasificarCategoria(c.tipoColaborador)) === 'pdi').length;
 
+    // Los badges de pestaña acompañan a la lista, que por defecto solo muestra
+    // activos; las tarjetas de cobertura conservan el total.
+    const activosDe = (cat) => datos.filter(c =>
+      (c.categoria || clasificarCategoria(c.tipoColaborador)) === cat && c.estado === 'Activo'
+    ).length;
+
     const enComas = datos.filter(c => c.distrito === 'Comas').length;
     const enCarabayllo = datos.filter(c => c.distrito === 'Carabayllo').length;
     const enAgustino = datos.filter(c => c.distrito === 'El Agustino').length;
@@ -256,9 +262,9 @@ export const ColaboradoresView = {
     if (iglesiasEl) iglesiasEl.textContent = iglesias;
     if (pdiEl) pdiEl.textContent = pdi;
 
-    if (badgeCol) badgeCol.textContent = colegios;
-    if (badgeIgl) badgeIgl.textContent = iglesias;
-    if (badgePdi) badgePdi.textContent = pdi;
+    if (badgeCol) badgeCol.textContent = activosDe('colegios');
+    if (badgeIgl) badgeIgl.textContent = activosDe('iglesias');
+    if (badgePdi) badgePdi.textContent = activosDe('pdi');
 
     if (comasEl) comasEl.textContent = enComas;
     if (carabaylloEl) carabaylloEl.textContent = enCarabayllo;
@@ -307,15 +313,23 @@ export const ColaboradoresView = {
       }
     };
 
-    // 1. Facetas de Distrito
-    setBadge('countFacetColabDistrito-all', deCategoria.length);
+    // 1. Facetas de Distrito: se cuentan sin la propia faceta, con rol,
+    // búsqueda, programa e inactivos aplicados.
+    const facetas = contarFacetasColaboradores(deCategoria, {
+      categoria: categoriaTabActual,
+      q: busquedaActual,
+      distrito: filtroDistritoActual,
+      estrategia: filtroEstrategiaActual,
+      rol: filtroRolActual,
+      incluirInactivos,
+    });
+    setBadge('countFacetColabDistrito-all', facetas.totalDistrito);
     ['Comas', 'Carabayllo', 'El Agustino'].forEach(dist => {
-      const count = deCategoria.filter(c => c.distrito === dist).length;
-      setBadge(`countFacetColabDistrito-${dist}`, count);
+      setBadge(`countFacetColabDistrito-${dist}`, facetas.porDistrito[dist] || 0);
     });
 
     // 2. Facetas de Estrategia
-    setBadge('countFacetColabEstrategia-all', deCategoria.length);
+    setBadge('countFacetColabEstrategia-all', facetas.totalEstrategia);
     const estrategias = [
       'Desayuno Infantil',
       'Casita del Saber',
@@ -325,21 +339,13 @@ export const ColaboradoresView = {
       'Área Social Pastoral'
     ];
     estrategias.forEach(est => {
-      const count = deCategoria.filter(c => Array.isArray(c.estrategias) && c.estrategias.includes(est)).length;
-      setBadge(`countFacetColabEstrategia-${est}`, count);
+      setBadge(`countFacetColabEstrategia-${est}`, facetas.porEstrategia[est] || 0);
     });
 
-    // 3. Facetas de Rol: se cuentan sin la propia faceta.
-    const baseRol = filtrarColaboradores(deCategoria, {
-      categoria: categoriaTabActual,
-      q: busquedaActual,
-      distrito: filtroDistritoActual,
-      estrategia: filtroEstrategiaActual,
-      incluirInactivos,
-    });
-    setBadge('countFacetColabRol-all', baseRol.length);
+    // 3. Facetas de Rol: el total es la base sin rol.
+    setBadge('countFacetColabRol-all', facetas.total);
     TIPOS_COLABORADOR.forEach((rol) => {
-      setBadge(`countFacetColabRol-${rol}`, baseRol.filter(c => c.tipoColaborador === rol).length);
+      setBadge(`countFacetColabRol-${rol}`, facetas.porRol[rol] || 0);
     });
   },
 
@@ -416,8 +422,6 @@ export const ColaboradoresView = {
       item.classList.toggle('selected', isSelected);
     });
 
-    this.actualizarContadoresFacetas();
-
     if (!bar || !list) return;
 
     if (chips.length === 0) {
@@ -435,41 +439,6 @@ export const ColaboradoresView = {
         <button type="button" class="padron-chip-remove" ${attrsDe(`window.removeColabFilterChip('${c.tipo}')`)} title="Quitar filtro">×</button>
       </span>
     `).join('');
-  },
-
-  actualizarContadoresFacetas() {
-    const todos = ColaboradorModel.getAll().filter(c => {
-      const cat = c.categoria || clasificarCategoria(c.tipoColaborador);
-      return cat === categoriaTabActual;
-    });
-
-    // Actualizar contadores en desplegable de Distrito
-    const distItems = document.querySelectorAll('#menuColabDistrito .padron-dropdown-item[data-value]');
-    distItems.forEach(item => {
-      const val = item.getAttribute('data-value');
-      const countSpan = item.querySelector('.padron-item-count');
-      if (!countSpan) return;
-      if (val === 'all') {
-        countSpan.textContent = `(${todos.length})`;
-      } else {
-        const count = todos.filter(c => c.distrito === val).length;
-        countSpan.textContent = `(${count})`;
-      }
-    });
-
-    // Actualizar contadores en desplegable de Estrategia / Programa
-    const estItems = document.querySelectorAll('#menuColabEstrategia .padron-dropdown-item[data-value]');
-    estItems.forEach(item => {
-      const val = item.getAttribute('data-value');
-      const countSpan = item.querySelector('.padron-item-count');
-      if (!countSpan) return;
-      if (val === 'all') {
-        countSpan.textContent = `(${todos.length})`;
-      } else {
-        const count = todos.filter(c => Array.isArray(c.estrategias) && c.estrategias.includes(val)).length;
-        countSpan.textContent = `(${count})`;
-      }
-    });
   },
 
   renderTable(datos) {

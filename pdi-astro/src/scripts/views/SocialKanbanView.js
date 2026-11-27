@@ -145,8 +145,11 @@ export const SocialKanbanView = {
     this._searchQuery = f.q;
     this._filterUrgencia = f.urgencia;
     this._filterSede = f.sede;
-    this._filterDesde = f.desde;
-    this._filterHasta = f.hasta;
+    let desdeUrl = f.desde;
+    let hastaUrl = f.hasta;
+    if (desdeUrl && hastaUrl && desdeUrl > hastaUrl) [desdeUrl, hastaUrl] = [hastaUrl, desdeUrl];
+    this._filterDesde = desdeUrl;
+    this._filterHasta = hastaUrl;
     this._orden = f.orden;
     this._mobileActiveStage = f.etapa;
 
@@ -159,9 +162,9 @@ export const SocialKanbanView = {
     if (input) input.value = f.q;
 
     const desde = document.getElementById("socialFechaDesde");
-    if (desde) desde.value = f.desde;
+    if (desde) desde.value = desdeUrl;
     const hasta = document.getElementById("socialFechaHasta");
-    if (hasta) hasta.value = f.hasta;
+    if (hasta) hasta.value = hastaUrl;
 
     this._sortMenu = initSortMenu({
       id: "SocialSort",

@@ -4,17 +4,10 @@ import FilterPanel from '../components/FilterPanel.astro';
 import FilterField from '../components/FilterField.astro';
 import SortMenu from '../components/SortMenu.astro';
 import Icon from '../components/Icon.astro';
+import { TIPOS_COLABORADOR } from '../scripts/models/ColaboradorModel.js';
 import '../styles/views-colaboradores.css';
 
-const OPCIONES_ROL = [
-  { valor: 'Director(a) I.E.', etiqueta: 'Director(a) I.E.' },
-  { valor: 'Docente Enlace', etiqueta: 'Docente Enlace' },
-  { valor: 'Enlace Parroquial / Iglesia', etiqueta: 'Enlace Parroquial / Iglesia' },
-  { valor: 'Pastor(a) / Líder Comunitario', etiqueta: 'Pastor(a) / Líder Comunitario' },
-  { valor: 'Facilitador(a) Comunitario(a)', etiqueta: 'Facilitador(a) Comunitario(a)' },
-  { valor: 'Promotora Social', etiqueta: 'Promotora Social' },
-  { valor: 'Promotora Educativa', etiqueta: 'Promotora Educativa' },
-];
+const OPCIONES_ROL = TIPOS_COLABORADOR.map((valor) => ({ valor, etiqueta: valor }));
 
 const OPCIONES_DISTRITO = [
   { valor: 'Comas', etiqueta: 'Comas' },
