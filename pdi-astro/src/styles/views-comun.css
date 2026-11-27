@@ -2502,3 +2502,10 @@ html.pdi-cambiando-tema::view-transition-new(root) {
     transform: translateY(6px);
   }
 }
+
+/* Campos de solo lectura: permiten seleccionar/copiar sin mostrar cursor de escritura */
+.form-control[readonly],
+input[readonly],
+textarea[readonly] {
+  caret-color: transparent;
+}
