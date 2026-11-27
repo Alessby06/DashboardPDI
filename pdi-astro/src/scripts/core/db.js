@@ -571,6 +571,7 @@ const SQL_LOTE_HIDRATACION = [
     ${F_CASO}.nombres AS p_nom,
     ${F_CASO}.apellidos AS p_ape,
     ${F_CASO}.codigo AS p_cod,
+    ${F_CASO}.numero_documento AS p_dni,
     sede_id.nombre AS s_nom
   FROM caso_social WHERE activo = true ORDER BY creado_el DESC;`,
   // 3 · solicitudes de cambio de etapa
@@ -1246,7 +1247,7 @@ function mapearRetirados(personasRes, sedesTodas) {
 /** Obtiene los Casos Sociales (ASP) y sus solicitudes de cambio de etapa. */
 export async function fetchCasosSociales() {
   const [casos, solicitudes, evaluaciones, eventos, personasConExpediente] = await ejecutarLote([
-    `SELECT *, ${F_CASO}.nombres AS p_nom, ${F_CASO}.apellidos AS p_ape, ${F_CASO}.codigo AS p_cod, sede_id.nombre AS s_nom FROM caso_social WHERE activo = true ORDER BY creado_el DESC;`,
+    `SELECT *, ${F_CASO}.nombres AS p_nom, ${F_CASO}.apellidos AS p_ape, ${F_CASO}.codigo AS p_cod, ${F_CASO}.numero_documento AS p_dni, sede_id.nombre AS s_nom FROM caso_social WHERE activo = true ORDER BY creado_el DESC;`,
     'SELECT * FROM solicitud_caso WHERE activo = true ORDER BY fecha_solicitud DESC;',
     'SELECT * FROM evaluacion_socioeconomica WHERE activo = true AND estado = \'aprobada\' ORDER BY fecha_evaluacion DESC;',
     'SELECT * FROM evento_caso ORDER BY fecha DESC;',
@@ -1372,6 +1373,7 @@ function mapearCasos(casosRaw, solicitudesRaw, evaluacionesRaw = [], eventosRaw 
       beneficiarioId: idNum,
       usuario: usuarioNom,
       codigo: c.p_cod || c.codigo_caso || '',
+      dni: c.p_dni || '',
       folio: c.codigo_caso || '',
       etapa: etapaUi(c.etapa),
       urgencia: c.urgencia || 'Media',
