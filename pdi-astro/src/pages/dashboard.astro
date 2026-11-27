@@ -9,12 +9,14 @@ import Icon from '../components/Icon.astro';
     <div class="dash-page">
       <header class="dash-cabecera">
         <div class="dash-cabecera-texto">
-          <p class="dash-eyebrow"><span class="dash-eyebrow-app">Infancia Saludable · </span>Comas y Carabayllo</p>
-          <h1 class="dash-titulo"><time id="dashFolioFecha">hoy</time></h1>
-          <p class="dash-subtitulo">
-            <span><strong id="kpiSedesActivas">······</strong> sedes <span class="dash-sedes-largo">activas</span></span>
+          <p class="dash-eyebrow">
+            <span class="dash-eyebrow-app">Infancia Saludable · </span>Comas y Carabayllo
+            <span class="dash-eyebrow-sep" aria-hidden="true">·</span>
+            <span class="dash-eyebrow-sedes"><strong id="kpiSedesActivas">······</strong> sedes</span>
           </p>
+          <h1 class="dash-titulo"><time id="dashFolioFecha">hoy</time></h1>
         </div>
+        <nav class="dash-ambito" id="dashChips" aria-label="Ámbito del tablero"></nav>
         <div class="dash-acciones">
           <div class="dash-selector-wrap">
             <label for="dashSelectSede" class="dash-sr-only">Filtrar por sede o distrito</label>
@@ -40,8 +42,6 @@ import Icon from '../components/Icon.astro';
           </button>
         </div>
       </header>
-
-      <nav class="dash-ambito" id="dashChips" aria-label="Ámbito del tablero"></nav>
 
       <section class="dash-hero dash-superficie" aria-label="Indicadores principales">
         <div class="dash-kpi">
@@ -248,32 +248,36 @@ import Icon from '../components/Icon.astro';
       </section>
 
       <div class="dash-grid-territorio">
-        <section class="dash-panel dash-superficie" aria-labelledby="dashTerritorioTitle">
+        <section class="dash-panel-bloque" aria-labelledby="dashTerritorioTitle">
           <header class="dash-panel-cab">
             <div>
               <h2 id="dashTerritorioTitle">Cobertura por distrito</h2>
               <p id="dashMatrixNote">Cargando territorio…</p>
             </div>
           </header>
-          <div class="dash-matrix-host" id="dashTerritoryMatrix">
-            <p class="dash-cargando">Cargando territorio…</p>
+          <div class="dash-panel dash-superficie">
+            <div class="dash-matrix-host" id="dashTerritoryMatrix">
+              <p class="dash-cargando">Cargando territorio…</p>
+            </div>
           </div>
         </section>
 
-        <aside class="dash-panel dash-voluntarios dash-superficie" aria-labelledby="dashVolTitle">
+        <aside class="dash-panel-bloque dash-voluntarios" aria-labelledby="dashVolTitle">
           <header class="dash-panel-cab">
             <div>
               <h2 id="dashVolTitle">Equipo en campo</h2>
               <p>Dotación activa por servicio</p>
             </div>
           </header>
-          <div class="dash-vol-total">
-            <strong id="dashVolTotal">······</strong>
-            <span>voluntarias activas</span>
+          <div class="dash-panel dash-superficie">
+            <div class="dash-vol-total">
+              <strong id="dashVolTotal">······</strong>
+              <span>voluntarias activas</span>
+            </div>
+            <ul class="dash-vol-lista" id="dashVoluntariosList">
+              <li class="dash-cargando">Cargando equipo…</li>
+            </ul>
           </div>
-          <ul class="dash-vol-lista" id="dashVoluntariosList">
-            <li class="dash-cargando">Cargando equipo…</li>
-          </ul>
         </aside>
       </div>
 

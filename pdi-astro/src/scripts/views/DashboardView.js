@@ -250,6 +250,8 @@ export const DashboardView = {
 
         const pctEl = document.getElementById(pctId);
         if (pctEl) this._cifra(pctEl, datosOk ? pct : 0, (n) => `${Math.round(n)} %`, animarCifras);
+        const bandaEl = pctEl?.closest(".dash-banda");
+        if (bandaEl) bandaEl.classList.toggle("is-cero", datosOk && Number(pct) === 0);
         const casosEl = document.getElementById(casosId);
         if (casosEl) {
           this._cifra(
@@ -820,6 +822,13 @@ export const DashboardView = {
     const totalServicio = (p) => visibles.reduce((suma, d) => suma + resumen[d.clave].servicios[p.clave], 0);
     const mayorServicio = Math.max(1, ...todosProgramas.map(totalServicio));
     const cuota = (n) => `${((n / mayorServicio) * 100).toFixed(1)}%`;
+    const totalColumnas = visibles.length + 1;
+    const cabeceraGrupo = `
+      <tr class="dash-matrix-col-row" aria-hidden="true">
+        <th class="dash-matrix-col-servicio">Servicio</th>
+        ${visibles.map(d => `<th>${escapar(d.nombre)}</th>`).join("")}
+        <th>Total</th>
+      </tr>`;
 
     const tbodyGrupos = taxonomiaProgramas.map(g => {
       const filasGrupo = g.items.map(p => {
@@ -829,7 +838,7 @@ export const DashboardView = {
         const comas = resumen.comas.servicios[p.clave];
         const carabayllo = resumen.carabayllo.servicios[p.clave];
         const total = totalServicio(p);
-        return `<tr style="--a:${cuota(comas)};--b:${cuota(comas + carabayllo)};--c:${cuota(total)}">
+        return `<tr${total === 0 ? ' class="is-vacio"' : ""} style="--a:${cuota(comas)};--b:${cuota(comas + carabayllo)};--c:${cuota(total)}">
           <th scope="row">${escapar(p.nombre)}</th>${celdas}
           <td data-k="Total" class="dash-matrix-total-cell"><span class="dash-matrix-label">Total</span>${total}</td>
         </tr>`;
@@ -844,6 +853,7 @@ export const DashboardView = {
               </span>
             </th>
           </tr>
+          ${cabeceraGrupo}
           ${filasGrupo}
         </tbody>
       `;
@@ -853,7 +863,7 @@ export const DashboardView = {
     if (container.dataset.firma === firma) return;
     container.dataset.firma = firma;
     container.innerHTML = `
-      <table class="dash-matrix">
+      <table class="dash-matrix" style="--cols:${totalColumnas}">
         <caption class="dash-sr-only">Cobertura territorial por distrito y servicio</caption>
         <thead>
           <tr>
