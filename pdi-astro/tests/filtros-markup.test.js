@@ -30,3 +30,8 @@ test('Salud expone el filtro de tamizaje', () => {
   const pagina = leer('src/pages/salud.astro');
   assert.match(pagina, /menuId="menuSaludTamizaje"/);
 });
+
+test('Padrón usa el menú de orden compartido', () => {
+  const pagina = leer('src/pages/padron.astro');
+  assert.match(pagina, /<SortMenu[^>]*id="PadronSort"/s);
+});

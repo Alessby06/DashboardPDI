@@ -6,6 +6,7 @@ import { Responsive } from "../utils/Responsive.js";
 import { AnimationEngine } from "../utils/AnimationEngine.js";
 import { escapar, escaparEnManejador } from "../utils/HtmlHelper.js";
 import { Dropdown } from "../utils/Dropdown.js";
+import { initSortMenu } from "../ui/SortMenu.js";
 import { SEDES_NOMBRES } from "../core/catalogos.js";
 import { iconHtml } from '../../data/iconos.js';
 import { avatarHtml } from "../utils/Avatar.js";
@@ -57,8 +58,7 @@ export const BeneficiariosView = {
   _currentPage: 1,
   _sortKey: 'actualizado',
   _sortDir: 'desc',
-  _menuOrdenEnlazado: false,
-  _menuOrdenPorTeclado: false,
+  _sortMenu: null,
   _pageSize: 20,
   _searchQuery: "",
   _filterEstrategia: [], // array de estrategias seleccionadas (vacío = todas)
@@ -957,105 +957,18 @@ export const BeneficiariosView = {
     this.applyFilters();
   },
 
-  /** Refleja el orden activo en el desplegable y en su etiqueta. */
+  /** Refleja el orden activo en el menú compartido. */
   _sincronizarOrden() {
-    const valor = `${this._sortKey}-${this._sortDir}`;
-    const menu = document.getElementById('menuPadronSort');
-    const opciones = menu ? [...menu.querySelectorAll('[role="option"]')] : [];
-    let etiqueta = '';
-    opciones.forEach(opcion => {
-      const activo = opcion.dataset.sortValue === valor;
-      opcion.setAttribute('aria-selected', activo ? 'true' : 'false');
-      if (activo) etiqueta = opcion.textContent.trim();
-    });
-    const val = document.getElementById('padronSortValue');
-    if (val && etiqueta) val.textContent = etiqueta;
+    this._sortMenu?.sync(`${this._sortKey}-${this._sortDir}`);
   },
 
-  /** Enlaza el botón y el menú de orden una sola vez por carga. */
+  /** Enlaza el menú de orden compartido una sola vez por carga. */
   _enlazarMenuOrden() {
-    if (this._menuOrdenEnlazado) return;
-    const btn = document.getElementById('btnPadronSort');
-    const menu = document.getElementById('menuPadronSort');
-    if (!btn || !menu) return;
-    this._menuOrdenEnlazado = true;
-
-    btn.addEventListener('keydown', (evento) => {
-      if (evento.key === 'ArrowDown' || evento.key === 'Enter' || evento.key === ' ') {
-        evento.preventDefault();
-        this.abrirMenuOrden(true);
-      }
-    });
-
-    menu.addEventListener('keydown', (evento) => this._tecladoMenuOrden(evento));
-
-    // El cierre por clic fuera lo resuelve el escuchador global; este sincroniza
-    // el aria-expanded cuando el menú ya se cerró.
-    document.addEventListener('click', (evento) => {
-      const dd = document.getElementById('dropdownPadronSort');
-      if (!dd || dd.contains(evento.target)) return;
-      btn.setAttribute('aria-expanded', dd.classList.contains('open') ? 'true' : 'false');
-    });
-  },
-
-  /** Abre o cierra el menú de orden y lleva el foco a la opción activa. */
-  abrirMenuOrden(porTeclado = false) {
-    const dd = document.getElementById('dropdownPadronSort');
-    const btn = document.getElementById('btnPadronSort');
-    if (!dd || !btn) return;
-    this._menuOrdenPorTeclado = Boolean(porTeclado);
-    const abrir = !dd.classList.contains('open');
-    window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownPadronSort') : dd.classList.toggle('open', abrir);
-    btn.setAttribute('aria-expanded', abrir ? 'true' : 'false');
-    if (abrir) {
-      const opciones = [...dd.querySelectorAll('[role="option"]')];
-      const activa = opciones.find(o => o.getAttribute('aria-selected') === 'true') || opciones[0];
-      activa?.focus();
-    }
-  },
-
-  /** Cierra el menú. Con teclado devuelve el foco; con ratón no deja el anillo. */
-  cerrarMenuOrden() {
-    const dd = document.getElementById('dropdownPadronSort');
-    const btn = document.getElementById('btnPadronSort');
-    if (!dd) return;
-    if (dd.classList.contains('open')) {
-      window.toggleCustomDropdown ? window.toggleCustomDropdown('dropdownPadronSort') : dd.classList.remove('open');
-    }
-    btn?.setAttribute('aria-expanded', 'false');
-    if (this._menuOrdenPorTeclado) btn?.focus();
-    else btn?.blur();
-  },
-
-  /** Selecciona una opción del menú, aplica el orden y cierra. */
-  sortPadronOpcion(valor) {
-    if (!valor) return;
-    this.sortPadron(valor);
-    this.cerrarMenuOrden();
-  },
-
-  /** Navegación por teclado dentro del menú. */
-  _tecladoMenuOrden(evento) {
-    this._menuOrdenPorTeclado = true;
-    const opciones = [...document.querySelectorAll('#menuPadronSort [role="option"]')];
-    if (!opciones.length) return;
-    const idx = opciones.indexOf(document.activeElement);
-    if (evento.key === 'ArrowDown') {
-      evento.preventDefault();
-      opciones[Math.min(idx + 1, opciones.length - 1)]?.focus();
-    } else if (evento.key === 'ArrowUp') {
-      evento.preventDefault();
-      opciones[Math.max(idx - 1, 0)]?.focus();
-    } else if (evento.key === 'Home') {
-      evento.preventDefault();
-      opciones[0]?.focus();
-    } else if (evento.key === 'End') {
-      evento.preventDefault();
-      opciones[opciones.length - 1]?.focus();
-    } else if (evento.key === 'Escape') {
-      evento.preventDefault();
-      this.cerrarMenuOrden();
-    }
+    this._sortMenu = initSortMenu({
+      id: "PadronSort",
+      onSelect: (valor) => this.sortPadron(valor),
+    }) || this._sortMenu;
+    this._sincronizarOrden();
   },
 
   /**
@@ -1718,8 +1631,6 @@ if (typeof window !== "undefined") {
   window.selectPadronModalidad = (modalidad) => BeneficiariosView.selectModalidad(modalidad);
   window.selectPadronSeguro = (seguro) => BeneficiariosView.selectSeguro(seguro);
   window.sortPadron = (valor) => BeneficiariosView.sortPadron(valor);
-  window.togglePadronSortMenu = () => BeneficiariosView.abrirMenuOrden();
-  window.sortPadronOpcion = (valor) => BeneficiariosView.sortPadronOpcion(valor);
 
   window.addEventListener("resize", () => {
     BeneficiariosView._syncPageSizeSelectUI();

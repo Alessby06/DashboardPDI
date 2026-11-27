@@ -2,6 +2,7 @@
 import AppLayout from '../layouts/AppLayout.astro';
 import FilterPanel from '../components/FilterPanel.astro';
 import FilterField from '../components/FilterField.astro';
+import SortMenu from '../components/SortMenu.astro';
 import { ESTRATEGIAS, SEDES_OPERATIVAS, MODALIDADES, SEGUROS } from '../data/opcionesBeneficiario.js';
 import '../styles/views-padron.css';
 import '../styles/views-actions-buttons.css';
@@ -21,6 +22,17 @@ const OPCIONES_SEXO = [
 ];
 const OPCIONES_MODALIDAD = MODALIDADES;
 const OPCIONES_SEGURO = SEGUROS;
+const OPCIONES_ORDEN_PADRON = [
+  { valor: 'apellido-asc', etiqueta: 'Apellido (A-Z)' },
+  { valor: 'apellido-desc', etiqueta: 'Apellido (Z-A)' },
+  { valor: 'sede-asc', etiqueta: 'Sede (A-Z)' },
+  { valor: 'edad-asc', etiqueta: 'Edad (menor a mayor)' },
+  { valor: 'edad-desc', etiqueta: 'Edad (mayor a menor)' },
+  { valor: 'creado-desc', etiqueta: 'Creación (reciente)' },
+  { valor: 'creado-asc', etiqueta: 'Creación (antigua)' },
+  { valor: 'actualizado-desc', etiqueta: 'Modificación (reciente)' },
+  { valor: 'actualizado-asc', etiqueta: 'Modificación (antigua)' },
+];
 ---
 
 <AppLayout title="Padrón Único de Usuarios" currentPage="padron">
@@ -64,39 +76,7 @@ const OPCIONES_SEGURO = SEGUROS;
               </div>
 
               <!-- Orden del padrón: apellido por defecto y fechas del registro -->
-              <div class="padron-sort-wrap">
-                <div class="custom-dropdown padron-sort-dropdown" id="dropdownPadronSort">
-                  <button type="button" class="btn-action padron-sort-btn"
-                    id="btnPadronSort" aria-haspopup="listbox" aria-expanded="false"
-                    aria-controls="menuPadronSort"
-                    data-pdi-on="click" data-pdi-h="h111">
-                    <span class="padron-sort-prefix">Ordenar:</span>
-                    <span class="padron-sort-value" id="padronSortValue">Modificación (reciente)</span>
-                    <Icon name="nav.desplegar" size={12} class="filter-caret" />
-                  </button>
-                  <div class="custom-dropdown-menu padron-sort-menu" id="menuPadronSort"
-                    role="listbox" aria-labelledby="btnPadronSort">
-                    <button type="button" role="option" aria-selected="false" data-sort-value="apellido-asc"
-                      data-pdi-on="click" data-pdi-h="h112">Apellido (A-Z)</button>
-                    <button type="button" role="option" aria-selected="false" data-sort-value="apellido-desc"
-                      data-pdi-on="click" data-pdi-h="h113">Apellido (Z-A)</button>
-                    <button type="button" role="option" aria-selected="false" data-sort-value="sede-asc"
-                      data-pdi-on="click" data-pdi-h="h114">Sede (A-Z)</button>
-                    <button type="button" role="option" aria-selected="false" data-sort-value="edad-asc"
-                      data-pdi-on="click" data-pdi-h="h115">Edad (menor a mayor)</button>
-                    <button type="button" role="option" aria-selected="false" data-sort-value="edad-desc"
-                      data-pdi-on="click" data-pdi-h="h116">Edad (mayor a menor)</button>
-                    <button type="button" role="option" aria-selected="false" data-sort-value="creado-desc"
-                      data-pdi-on="click" data-pdi-h="h117">Creación (reciente)</button>
-                    <button type="button" role="option" aria-selected="false" data-sort-value="creado-asc"
-                      data-pdi-on="click" data-pdi-h="h118">Creación (antigua)</button>
-                    <button type="button" role="option" aria-selected="true" data-sort-value="actualizado-desc"
-                      data-pdi-on="click" data-pdi-h="h119">Modificación (reciente)</button>
-                    <button type="button" role="option" aria-selected="false" data-sort-value="actualizado-asc"
-                      data-pdi-on="click" data-pdi-h="h120">Modificación (antigua)</button>
-                  </div>
-                </div>
-              </div>
+              <SortMenu id="PadronSort" options={OPCIONES_ORDEN_PADRON} selected="actualizado-desc" />
 
               <!-- Botón de Filtros y Panel Desplegable (Lado Derecho / Barra de Chips en PC) -->
               <FilterPanel
