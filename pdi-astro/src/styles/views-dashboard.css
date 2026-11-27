@@ -1212,6 +1212,12 @@ body[data-page="dashboard"] #mainContent {
     border-top: 0;
     font-size: 10.5px;
   }
+  /* Nombre y conteo en dos líneas: en una sola, el conteo se parte. */
+  .dash-matrix-group-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+  }
   .dash-matrix tbody:first-of-type tr.dash-matrix-group-row th { padding-top: 2px; }
   .dash-matrix tbody + tbody tr.dash-matrix-group-row th {
     border-top: 1px solid var(--dash-rule);
@@ -1336,8 +1342,13 @@ body[data-page="dashboard"] #mainContent {
     scroll-padding-inline: 2px;
     margin-inline: -2px;
     padding-bottom: 2px;
+    /* El degradado del borde derecho avisa de que la fila sigue; el relleno
+       evita que el último chip quede bajo la transparencia al llegar al final. */
+    padding-right: 26px;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(90deg, black calc(100% - 26px), transparent);
+    mask-image: linear-gradient(90deg, black calc(100% - 26px), transparent);
   }
   .dash-ambito::-webkit-scrollbar { display: none; }
   .dash-chip {
@@ -1513,7 +1524,11 @@ body[data-page="dashboard"] #mainContent {
     padding: 0;
     border: 0;
   }
-  .dash-filas > div:not(:last-child) { margin-right: 14px; }
+  .dash-filas > div:not(:last-child) {
+    margin-right: 12px;
+    padding-right: 12px;
+    border-right: 1px solid var(--dash-rule);
+  }
   .dash-filas dt {
     font-size: 12px;
     font-weight: 400;
