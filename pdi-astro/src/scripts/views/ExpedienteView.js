@@ -808,12 +808,71 @@ export const ExpedienteView = {
     else el.textContent = valor || "-";
   },
 
+  _cacheFotos: new Map(),
+
+  _precargarFoto(url) {
+    if (!url || typeof Image === "undefined" || this._cacheFotos.has(url)) return;
+    if (this._cacheFotos.size >= 40) {
+      const primera = this._cacheFotos.keys().next().value;
+      if (primera !== undefined) this._cacheFotos.delete(primera);
+    }
+    const img = new Image();
+    img.decoding = "async";
+    img.src = url;
+    this._cacheFotos.set(url, img);
+  },
+
+  _comprimirFoto(archivo) {
+    return new Promise((resolve, reject) => {
+      const lector = new FileReader();
+      lector.onerror = () => reject(new Error("No se pudo leer la imagen"));
+      lector.onload = (ev) => {
+        const dataUrl = ev.target?.result;
+        if (!dataUrl || typeof Image === "undefined") {
+          resolve(dataUrl);
+          return;
+        }
+        const img = new Image();
+        img.onerror = () => resolve(dataUrl);
+        img.onload = () => {
+          const maxLado = 480;
+          let { width, height } = img;
+          if (width > maxLado || height > maxLado) {
+            const escala = maxLado / Math.max(width, height);
+            width = Math.round(width * escala);
+            height = Math.round(height * escala);
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            resolve(dataUrl);
+            return;
+          }
+          ctx.drawImage(img, 0, 0, width, height);
+          const webp = canvas.toDataURL("image/webp", 0.82);
+          if (webp.startsWith("data:image/webp")) {
+            resolve(webp);
+          } else {
+            resolve(canvas.toDataURL("image/jpeg", 0.82));
+          }
+        };
+        img.src = dataUrl;
+      };
+      lector.readAsDataURL(archivo);
+    });
+  },
+
   _pintarIdentidad(b) {
     const marco = document.getElementById("expChildPhotoFrame");
     if (marco) {
-      marco.innerHTML = b.fotoUrl
-        ? `<img src="${escapar(b.fotoUrl)}" alt="Foto de ${escapar(b.nombres)}">`
-        : portadaInfantil(b);
+      if (b.fotoUrl) {
+        this._precargarFoto(b.fotoUrl);
+        marco.innerHTML = `<img src="${escapar(b.fotoUrl)}" alt="Foto de ${escapar(b.nombres)}" decoding="async" fetchpriority="high">`;
+      } else {
+        marco.innerHTML = portadaInfantil(b);
+      }
     }
     this._set("expPhotoName", `${b.nombres} ${b.apellidos}`);
     this._set("expPhotoCode", b.codigo);
@@ -823,23 +882,25 @@ export const ExpedienteView = {
     // archivo, no un campo, y el guardado de datos no tiene por que arrastrarlo.
     const input = document.getElementById("childPhotoInput");
     if (input) {
-      input.onchange = (e) => {
+      input.onchange = async (e) => {
         const archivo = e.target.files && e.target.files[0];
         if (!archivo) return;
-        const lector = new FileReader();
-        lector.onload = async (ev) => {
-          const anterior = b.fotoUrl;
-          b.fotoUrl = ev.target.result;
-          const guardado = await BeneficiarioModel.updateConfirmado(b.id, b, actorLocal());
-          if (!guardado) {
-            // La nube rechazó la foto: se conserva la anterior y db.js ya avisó.
-            b.fotoUrl = anterior;
-            return;
-          }
-          if (marco) marco.innerHTML = `<img src="${escapar(b.fotoUrl)}" alt="Foto de ${escapar(b.nombres)}">`;
-
-        };
-        lector.readAsDataURL(archivo);
+        const anterior = b.fotoUrl;
+        try {
+          b.fotoUrl = await this._comprimirFoto(archivo);
+        } catch {
+          return;
+        }
+        const guardado = await BeneficiarioModel.updateConfirmado(b.id, b, actorLocal());
+        if (!guardado) {
+          // La nube rechazó la foto: se conserva la anterior y db.js ya avisó.
+          b.fotoUrl = anterior;
+          return;
+        }
+        this._precargarFoto(b.fotoUrl);
+        if (marco) {
+          marco.innerHTML = `<img src="${escapar(b.fotoUrl)}" alt="Foto de ${escapar(b.nombres)}" decoding="async" fetchpriority="high">`;
+        }
       };
     }
 

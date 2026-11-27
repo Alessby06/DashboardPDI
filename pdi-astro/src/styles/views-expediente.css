@@ -776,6 +776,11 @@
       /* Barra de Pestañas Deslizable Horizontal (Pill Tabs) */
 
       /* Carnet de Identidad en formato Horizontal Compacto */
+      .child-photo-card {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+      }
 
       /* La linea completa que antes ocupaba un solo boton se reparte entre los
          tres: misma altura, mismo ritmo, sin que ninguno jale mas que otro. */
