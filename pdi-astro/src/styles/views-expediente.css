@@ -578,23 +578,13 @@
     /* Rediseño Sección 5: Ley N.° 29733 (PC & Móvil) */
 
     .ley-consent-card {
-      /* Antes era #ffffff fijo. En tema oscuro las cuatro tarjetas quedaban
-         blancas con el texto claro encima: texto casi blanco sobre blanco,
-         ilegible. --surface-1 es la superficie de tarjeta en ambos temas. */
       background: var(--surface-1);
       border: 1px solid var(--border-subtle);
-      border-left: 1px solid var(--gt-green);
       border-radius: 10px;
       padding: 12px 14px;
       display: flex;
       flex-direction: column;
       gap: 6px;
-      box-shadow: var(--shadow-sm);
-      transition: transform var(--dur-fast) var(--ease-spring), box-shadow var(--dur-fast) var(--ease-smooth);
-      /* Sin will-change: aqui solo hay transform en :hover. El aviso permanente
-         le costaba una capa propia para siempre, y como esto vive dentro de
-         la columna de contenido, al plegar el menu habia que rasterizar
-         todas esas capas en cada fotograma. */
     }
 
     .ley-card-art {
