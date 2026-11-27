@@ -534,20 +534,27 @@ import Icon from '../components/Icon.astro';
                       <span>Fachada y Entorno Real</span>
                     </div>
                     <div class="croquis-fachada-preview-box" id="expFachadaPreview"
-                      title="Fotografía de la vivienda del usuario">
+                      title="Clic para ampliar o gestionar fotografía">
                       <div class="croquis-fachada-placeholder">
                         <Icon name="nav.inicio" size={24} />
                         <span>Sin foto de fachada</span>
                       </div>
                     </div>
-                    <div id="expFachadaUploadControls" style="display:none; margin-top:6px;">
-                      <label for="expFotoFachadaInput" class="btn-action"
-                        style="font-size:11px; padding:4px 8px; width:100%; justify-content:center; cursor:pointer;">
-                        <Icon name="accion.foto" size={13} />
-                        <span>Actualizar Fachada</span>
-                      </label>
-                      <input type="file" id="expFotoFachadaInput" accept="image/*" style="display:none;">
+                    <div class="croquis-fachada-menu" id="expFachadaMenu" role="menu" hidden>
+                      <button type="button" class="croquis-fachada-menu-item" data-fachada-accion="ver" role="menuitem">
+                        <Icon name="accion.ver" size={14} />
+                        <span>Ver foto</span>
+                      </button>
+                      <button type="button" class="croquis-fachada-menu-item" data-fachada-accion="cambiar" role="menuitem">
+                        <Icon name="accion.foto" size={14} />
+                        <span>Cambiar foto</span>
+                      </button>
+                      <button type="button" class="croquis-fachada-menu-item croquis-fachada-menu-item--danger" data-fachada-accion="eliminar" role="menuitem">
+                        <Icon name="accion.eliminar" size={14} />
+                        <span>Eliminar foto</span>
+                      </button>
                     </div>
+                    <input type="file" id="expFotoFachadaInput" accept="image/*" style="display:none;">
                   </div>
                 </div>
               </div>

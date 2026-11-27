@@ -1304,36 +1304,104 @@ export const ExpedienteView = {
       enlace.removeAttribute("aria-disabled");
     }
 
-    const vista = document.getElementById("expFachadaPreview");
-    if (vista) {
-      vista.innerHTML = b.fotoFachada
-        ? `<img src="${escapar(b.fotoFachada)}" alt="Fachada de vivienda de ${escapar(b.nombres)}">`
-        : `
+    const renderizarFachada = (url) => {
+      if (!vista) return;
+      if (url) {
+        this._precargarFoto(url);
+        vista.innerHTML = `<img src="${escapar(url)}" alt="Fachada de vivienda de ${escapar(b.nombres)}" decoding="async" fetchpriority="high">`;
+      } else {
+        vista.innerHTML = `
           <div class="croquis-fachada-placeholder">
             ${iconHtml("nav.inicio", { size: 24 })}
             <span>Sin foto de fachada</span>
           </div>`;
+      }
+    };
+
+    const vista = document.getElementById("expFachadaPreview");
+    const menu = document.getElementById("expFachadaMenu");
+    const input = document.getElementById("expFotoFachadaInput");
+    renderizarFachada(b.fotoFachada);
+
+    const cerrarMenuFachada = () => {
+      if (menu) menu.hidden = true;
+    };
+
+    if (vista) {
+      vista.onclick = (e) => {
+        e.stopPropagation();
+        const actual = BeneficiarioModel.getById(this._id) || b;
+        if (!this._editando) {
+          if (actual.fotoFachada) {
+            this._abrirLightbox(actual.fotoFachada, `Fachada de vivienda de ${actual.nombres} ${actual.apellidos}`);
+          } else {
+            ToastView.show("Sin Fotografía", "Este usuario no tiene foto de fachada registrada.", "info");
+          }
+          return;
+        }
+        if (!menu) return;
+        const btnVer = menu.querySelector('[data-fachada-accion="ver"]');
+        const btnEliminar = menu.querySelector('[data-fachada-accion="eliminar"]');
+        if (btnVer) btnVer.hidden = !actual.fotoFachada;
+        if (btnEliminar) btnEliminar.hidden = !actual.fotoFachada;
+        menu.hidden = !menu.hidden;
+      };
     }
 
-    const input = document.getElementById("expFotoFachadaInput");
-    if (input) {
-      input.onchange = (e) => {
-        const archivo = e.target.files && e.target.files[0];
-        if (!archivo) return;
-        const lector = new FileReader();
-        lector.onload = async (ev) => {
-          const anterior = b.fotoFachada;
-          b.fotoFachada = ev.target.result;
-          const guardado = await BeneficiarioModel.updateConfirmado(b.id, b, actorLocal());
+    if (menu) {
+      menu.onclick = async (e) => {
+        const btn = e.target.closest("[data-fachada-accion]");
+        if (!btn) return;
+        e.stopPropagation();
+        const accion = btn.dataset.fachadaAccion;
+        cerrarMenuFachada();
+        const actual = BeneficiarioModel.getById(this._id) || b;
+
+        if (accion === "ver" && actual.fotoFachada) {
+          this._abrirLightbox(actual.fotoFachada, `Fachada de vivienda de ${actual.nombres} ${actual.apellidos}`);
+        } else if (accion === "cambiar" && input) {
+          input.value = "";
+          input.click();
+        } else if (accion === "eliminar" && actual.fotoFachada) {
+          const anterior = actual.fotoFachada;
+          actual.fotoFachada = "";
+          const guardado = await BeneficiarioModel.updateConfirmado(actual.id, actual, actorLocal());
           if (!guardado) {
-            // La nube rechazó la foto: se conserva la anterior y db.js ya avisó.
-            b.fotoFachada = anterior;
+            actual.fotoFachada = anterior;
             return;
           }
-          if (vista) vista.innerHTML = `<img src="${escapar(b.fotoFachada)}" alt="Fachada de vivienda de ${escapar(b.nombres)}">`;
+          renderizarFachada("");
+          ToastView.show("Fachada Eliminada", "La fotografía de fachada fue retirada del expediente.", "info");
+        }
+      };
+    }
 
-        };
-        lector.readAsDataURL(archivo);
+    if (!this._fachadaClickFueraBound) {
+      this._fachadaClickFueraBound = true;
+      document.addEventListener("click", () => {
+        const m = document.getElementById("expFachadaMenu");
+        if (m) m.hidden = true;
+      });
+    }
+
+    if (input) {
+      input.onchange = async (e) => {
+        const archivo = e.target.files && e.target.files[0];
+        if (!archivo) return;
+        const actual = BeneficiarioModel.getById(this._id) || b;
+        const anterior = actual.fotoFachada;
+        try {
+          actual.fotoFachada = await this._comprimirFoto(archivo);
+        } catch {
+          return;
+        }
+        const guardado = await BeneficiarioModel.updateConfirmado(actual.id, actual, actorLocal());
+        if (!guardado) {
+          // La nube rechazó la foto: se conserva la anterior y db.js ya avisó.
+          actual.fotoFachada = anterior;
+          return;
+        }
+        renderizarFachada(actual.fotoFachada);
       };
     }
   },
@@ -1949,13 +2017,7 @@ export const ExpedienteView = {
    * Acciones de la foto del carnet. Como la actualizacion, viven fuera del
    * "Guardar Cambios": la foto es un archivo, no un campo del formulario.
    */
-  verFoto() {
-    const b = BeneficiarioModel.getById(this._id);
-    if (!b) return;
-    if (!b.fotoUrl) {
-      ToastView.show("Sin Fotografia", "El usuario no tiene foto registrada. Use Actualizar Foto para agregarla.", "info");
-      return;
-    }
+  _abrirLightbox(url, alt = "") {
     let caja = document.getElementById("pdiFotoLightbox");
     if (!caja) {
       caja = document.createElement("div");
@@ -1964,9 +2026,19 @@ export const ExpedienteView = {
       caja.addEventListener("click", () => { caja.style.display = "none"; });
       document.body.appendChild(caja);
     }
-    caja.innerHTML = `<img src="${escapar(b.fotoUrl)}" alt="Foto de ${escapar(b.nombres)} ${escapar(b.apellidos)}"
+    caja.innerHTML = `<img src="${escapar(url)}" alt="${escapar(alt)}"
       style="max-width:92vw; max-height:92vh; border-radius:10px; box-shadow:0 12px 44px rgba(0,0,0,0.65);">`;
     caja.style.display = "flex";
+  },
+
+  verFoto() {
+    const b = BeneficiarioModel.getById(this._id);
+    if (!b) return;
+    if (!b.fotoUrl) {
+      ToastView.show("Sin Fotografia", "El usuario no tiene foto registrada. Use Actualizar Foto para agregarla.", "info");
+      return;
+    }
+    this._abrirLightbox(b.fotoUrl, `Foto de ${b.nombres} ${b.apellidos}`);
   },
 
   async eliminarFoto() {
