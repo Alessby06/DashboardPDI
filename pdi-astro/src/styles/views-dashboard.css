@@ -236,6 +236,11 @@ body[data-page="dashboard"] #mainContent {
   overflow: hidden;
 }
 
+/* Las tres placas comparten el borde inferior: el último elemento de cada una
+   se ancla abajo, así la medida (barra, aviso o nota) cae a la misma altura. */
+.dash-hero .dash-kpi { display: flex; flex-direction: column; }
+.dash-hero .dash-kpi > :last-child { margin-top: auto; }
+
 .dash-kpi {
   min-width: 0;
   padding: 22px 24px 20px;
@@ -618,6 +623,14 @@ body[data-page="dashboard"] #mainContent {
     transform var(--dur-fast) var(--ease-out);
 }
 
+/* El chevron acompaña al bloque, no a la primera línea. */
+@media (min-width: 821px) {
+  .dash-prioridad-go {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
+
 .dash-prioridades-vacio {
   display: flex;
   align-items: center;
@@ -644,20 +657,6 @@ body[data-page="dashboard"] #mainContent {
   color: var(--dash-ink);
 }
 
-/* Alineación de la fila de columnas: cabecera de dos líneas, filas al pie y
-   chevron centrado en la tarjeta. Solo escritorio: en móvil manda la rejilla. */
-@media (min-width: 821px) {
-  .dash-servicio-cab {
-    min-height: 2.6em;
-    align-items: flex-start;
-  }
-  .dash-servicio-nota { margin-top: auto; }
-  .dash-prioridad-go {
-    top: 50%;
-    transform: translateY(-50%);
-  }
-}
-
 /* --- Servicios ------------------------------------------------------------ */
 
 .dash-servicios {
@@ -677,6 +676,7 @@ body[data-page="dashboard"] #mainContent {
   display: flex;
   align-items: center;
   gap: 9px;
+  min-height: 2.6em;
   margin-bottom: 16px;
 }
 
@@ -748,6 +748,11 @@ body[data-page="dashboard"] #mainContent {
 
 .dash-filas { margin: 15px 0 0; }
 
+/* La nota o el conteo extra se ancla al pie: las tres listas de filas
+   arrancan a la misma altura. */
+.dash-servicio-extra,
+.dash-servicio-nota { margin-top: auto; padding-top: 10px; }
+
 .dash-filas > div {
   display: flex;
   align-items: baseline;
@@ -808,8 +813,6 @@ body[data-page="dashboard"] #mainContent {
 }
 
 .dash-matrix-host { margin-top: 8px; overflow-x: auto; }
-
-.dash-matrix-mobile { display: none; }
 
 .dash-matrix {
   width: 100%;
@@ -928,6 +931,9 @@ body[data-page="dashboard"] #mainContent {
 .dash-matrix-col-total,
 .dash-matrix-total-cell { color: var(--dash-dim); }
 .dash-matrix-total-cell { font-weight: 600; }
+
+/* Etiqueta de distrito: solo se ve cuando la matriz se recompone en móvil. */
+.dash-matrix-label { display: none; }
 
 .dash-matrix tbody tr:not(.dash-matrix-group-row) { transition: background-color 120ms ease; }
 
@@ -1108,7 +1114,6 @@ body[data-page="dashboard"] #mainContent {
 /* --- Responsive ----------------------------------------------------------- */
 
 @media (max-width: 1080px) {
-  .dash-vol-lista { max-width: none; }
   .dash-hero { grid-template-columns: 1fr 1fr; }
   .dash-hero .dash-kpi:first-child {
     grid-column: 1 / -1;
@@ -1116,6 +1121,8 @@ body[data-page="dashboard"] #mainContent {
   }
   .dash-hero .dash-kpi:nth-child(2) { border-left: 0; }
   .dash-grid-territorio { grid-template-columns: 1fr; }
+  /* Apilado, el equipo usa el ancho del panel; antes quedaba a 560 px. */
+  .dash-vol-lista { max-width: none; }
 }
 
 @media (max-width: 900px) {
@@ -1150,40 +1157,47 @@ body[data-page="dashboard"] #mainContent {
     border-left: 0;
     border-top: 1px solid var(--dash-rule);
   }
-  /* Matriz en móvil: lista con etiquetas reales y una barra por servicio. */
+  /* Matriz: una fila por servicio, cuatro cifras con etiqueta real y barra. */
   .dash-matrix-host { overflow: visible; }
-  .dash-matrix { display: none; }
-  .dash-matrix-mobile { display: block; }
-
-  .dash-matrix-mob-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 14px 0 5px;
+  .dash-matrix thead { display: none; }
+  .dash-matrix,
+  .dash-matrix tbody { display: block; }
+  .dash-matrix tbody tr:not(.dash-matrix-group-row) {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 7px 10px;
+    padding: 12px 0;
+    border-top: 1px solid var(--dash-rule);
+  }
+  .dash-matrix tbody tr:not(.dash-matrix-group-row) th {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    padding: 0;
+    font-size: 12.5px;
+  }
+  .dash-matrix tbody tr:not(.dash-matrix-group-row) td {
+    grid-row: 3;
+    padding: 0;
+    border-bottom: 0;
+    text-align: left;
+    font-size: 12.5px;
+  }
+  .dash-matrix-label {
+    display: block;
+    margin-bottom: 2px;
     font-size: 10.5px;
-    font-weight: 750;
+    font-weight: 600;
     color: var(--dash-dim);
   }
-  .dash-matrix-mob--sep .dash-matrix-mob-head {
-    border-top: 1px solid var(--dash-rule);
-    padding-top: 14px;
-  }
-  .dash-matrix-mob-head span:last-child { font-weight: 600; }
-  .dash-matrix-mob-row {
-    padding: 10px 0;
-    border-top: 1px solid var(--dash-rule);
-  }
-  .dash-matrix-mob-name {
-    margin: 0;
-    font-size: 12.5px;
+  .dash-matrix tbody td[data-k="Total"] {
+    color: var(--dash-dim);
     font-weight: 600;
-    color: var(--dash-ink);
   }
-  .dash-matrix-mob-bar {
-    display: block;
+  .dash-matrix tbody tr:not(.dash-matrix-group-row)::after {
+    content: "";
+    grid-column: 1 / -1;
+    grid-row: 2;
     height: 4px;
-    margin-top: 7px;
     border-radius: var(--radius-full);
     background: linear-gradient(
       90deg,
@@ -1193,23 +1207,15 @@ body[data-page="dashboard"] #mainContent {
       var(--chart-track) var(--c, 0%) 100%
     );
   }
-  .dash-matrix-mob-stats {
-    display: grid;
-    grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr));
-    gap: 8px;
-    margin: 8px 0 0;
-  }
-  .dash-matrix-mob-stats dt {
+  .dash-matrix tbody tr.dash-matrix-group-row th {
+    padding: 16px 0 4px;
+    border-top: 0;
     font-size: 10.5px;
-    font-weight: 600;
-    color: var(--dash-dim);
   }
-  .dash-matrix-mob-stats dd {
-    margin: 0;
-    font-size: 12.5px;
-    font-weight: 700;
-    color: var(--dash-ink);
-    font-variant-numeric: tabular-nums;
+  .dash-matrix tbody:first-of-type tr.dash-matrix-group-row th { padding-top: 2px; }
+  .dash-matrix tbody + tbody tr.dash-matrix-group-row th {
+    border-top: 1px solid var(--dash-rule);
+    padding-top: 14px;
   }
   .dash-prioridad-link { padding-left: 16px; padding-right: 16px; }
   .dash-clinica,
@@ -1236,7 +1242,7 @@ body[data-page="dashboard"] #mainContent {
   }
   .dash-eyebrow-app { display: none; }
   .dash-titulo {
-    font-size: 16px;
+    font-size: 22px;
     font-weight: 600;
     letter-spacing: -0.01em;
   }
@@ -1317,7 +1323,7 @@ body[data-page="dashboard"] #mainContent {
     color: var(--dash-muted);
   }
   .dash-cifra {
-    font-size: 34px;
+    font-size: 30px;
     font-weight: 600;
   }
   .dash-hero .dash-kpi + .dash-kpi .dash-cifra { font-size: 20px; }
@@ -1386,7 +1392,7 @@ body[data-page="dashboard"] #mainContent {
     grid-area: dot;
     width: 6px;
     height: 6px;
-    margin-top: 5px;
+    margin-top: 6px;
     border-radius: var(--radius-full);
     background: var(--dash-rule-strong);
   }
@@ -1497,7 +1503,7 @@ body[data-page="dashboard"] #mainContent {
     grid-area: detail;
     display: flex;
     flex-wrap: wrap;
-    gap: 2px 14px;
+    gap: 2px 0;
     margin: 2px 0 0;
   }
   .dash-filas > div {
@@ -1507,6 +1513,7 @@ body[data-page="dashboard"] #mainContent {
     padding: 0;
     border: 0;
   }
+  .dash-filas > div:not(:last-child) { margin-right: 14px; }
   .dash-filas dt {
     font-size: 12px;
     font-weight: 400;

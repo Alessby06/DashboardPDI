@@ -824,14 +824,14 @@ export const DashboardView = {
     const tbodyGrupos = taxonomiaProgramas.map(g => {
       const filasGrupo = g.items.map(p => {
         const celdas = visibles
-          .map(d => `<td data-k="${escapar(d.nombre)}">${resumen[d.clave].servicios[p.clave]}</td>`)
+          .map(d => `<td data-k="${escapar(d.nombre)}"><span class="dash-matrix-label">${escapar(d.nombre)}</span>${resumen[d.clave].servicios[p.clave]}</td>`)
           .join("");
         const comas = resumen.comas.servicios[p.clave];
         const carabayllo = resumen.carabayllo.servicios[p.clave];
         const total = totalServicio(p);
         return `<tr style="--a:${cuota(comas)};--b:${cuota(comas + carabayllo)};--c:${cuota(total)}">
           <th scope="row">${escapar(p.nombre)}</th>${celdas}
-          <td data-k="Total" class="dash-matrix-total-cell">${total}</td>
+          <td data-k="Total" class="dash-matrix-total-cell"><span class="dash-matrix-label">Total</span>${total}</td>
         </tr>`;
       }).join("");
       return `
@@ -849,33 +849,7 @@ export const DashboardView = {
       `;
     }).join("");
 
-    const bloquesMovil = taxonomiaProgramas.map((g, i) => {
-      const filas = g.items.map((p) => {
-        const comas = resumen.comas.servicios[p.clave];
-        const carabayllo = resumen.carabayllo.servicios[p.clave];
-        const total = totalServicio(p);
-        const celdas = visibles
-          .map((d) => `<div><dt>${escapar(d.nombre)}</dt><dd>${resumen[d.clave].servicios[p.clave]}</dd></div>`)
-          .join("");
-        return `<div class="dash-matrix-mob-row">
-          <p class="dash-matrix-mob-name">${escapar(p.nombre)}</p>
-          <span class="dash-matrix-mob-bar" style="--a:${cuota(comas)};--b:${cuota(comas + carabayllo)};--c:${cuota(total)}"></span>
-          <dl class="dash-matrix-mob-stats" style="--cols:${visibles.length + 1}">
-            ${celdas}
-            <div><dt>Total</dt><dd>${total}</dd></div>
-          </dl>
-        </div>`;
-      }).join("");
-      return `<section class="dash-matrix-mob${i ? " dash-matrix-mob--sep" : ""}">
-        <header class="dash-matrix-mob-head">
-          <span>${escapar(g.grupo)}</span>
-          <span>${g.items.length} servicios</span>
-        </header>
-        ${filas}
-      </section>`;
-    }).join("");
-
-    const firma = JSON.stringify({ cabeceras, tbodyGrupos, bloquesMovil });
+    const firma = JSON.stringify({ cabeceras, tbodyGrupos });
     if (container.dataset.firma === firma) return;
     container.dataset.firma = firma;
     container.innerHTML = `
@@ -890,7 +864,6 @@ export const DashboardView = {
         </thead>
         ${tbodyGrupos}
       </table>
-      <div class="dash-matrix-mobile">${bloquesMovil}</div>
     `;
   },
 
