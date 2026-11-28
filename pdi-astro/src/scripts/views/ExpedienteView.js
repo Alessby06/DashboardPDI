@@ -1186,7 +1186,7 @@ export const ExpedienteView = {
     const quien = caso.quienDeriva
       ? `${caso.quienDeriva.nombre} (${caso.quienDeriva.cargo})`
       : "Personal Operativo";
-    const telefono = caso.quienDeriva ? caso.quienDeriva.telefono : "-";
+    const telefono = caso.quienDeriva ? String(caso.quienDeriva.telefono || "-").replace(/-/g, "") : "-";
     const tipo = caso.tipoProblematica ? caso.tipoProblematica.toUpperCase() : "SOCIAL";
     const soporte = caso.soporteFamiliar
       ? (caso.soporteFamiliar.tiene ? "Si cuenta con soporte familiar" : "No cuenta con soporte: " + caso.soporteFamiliar.detalle)
