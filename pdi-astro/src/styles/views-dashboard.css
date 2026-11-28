@@ -1192,11 +1192,12 @@ body[data-page="dashboard"] #mainContent {
   .dash-matrix-host { overflow: visible; }
   .dash-matrix thead { display: none; }
   .dash-matrix,
-  .dash-matrix tbody { display: block; }
+  .dash-matrix tbody { display: block; width: 100%; }
   .dash-matrix tbody tr:not(.dash-matrix-group-row):not(.dash-matrix-col-row) {
     display: grid;
     grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr));
     gap: 6px 10px;
+    width: 100%;
     padding: 9px 0;
     border-top: 1px solid var(--dash-rule);
   }
@@ -1226,9 +1227,11 @@ body[data-page="dashboard"] #mainContent {
     white-space: nowrap;
     border: 0;
   }
-  .dash-matrix tbody td[data-k="Total"] {
+  .dash-matrix tbody td[data-k="Total"],
+  .dash-matrix tbody tr:not(.dash-matrix-group-row):not(.dash-matrix-col-row) td:last-child {
     color: var(--dash-dim);
     font-weight: 600;
+    text-align: right;
   }
   .dash-matrix tbody tr:not(.dash-matrix-group-row):not(.dash-matrix-col-row)::after {
     content: "";
@@ -1259,6 +1262,7 @@ body[data-page="dashboard"] #mainContent {
     display: grid;
     grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr));
     gap: 0 10px;
+    width: 100%;
     padding: 2px 0 4px;
   }
   .dash-matrix tbody .dash-matrix-col-row th {
@@ -1270,8 +1274,12 @@ body[data-page="dashboard"] #mainContent {
     text-align: left;
     line-height: 1.3;
   }
+  .dash-matrix tbody .dash-matrix-col-row th:last-child { text-align: right; }
   .dash-matrix tbody .dash-matrix-col-row .dash-matrix-col-servicio { display: none; }
+  .dash-matrix tbody tr.dash-matrix-group-row { display: block; width: 100%; }
   .dash-matrix tbody tr.dash-matrix-group-row th {
+    display: block;
+    width: 100%;
     padding: 14px 0 2px;
     border-top: 0;
     font-size: 11.5px;
@@ -1881,9 +1889,9 @@ body[data-page="dashboard"] #mainContent {
     color: inherit;
     text-align: left;
     cursor: pointer;
-    transition: transform 120ms var(--ease-out), background-color 180ms var(--ease-out), border-color 180ms var(--ease-out);
+    transition: transform 140ms var(--ease-out), background-color 180ms var(--ease-out), border-color 180ms var(--ease-out);
   }
-  .dash-b2-mod:active { transform: scale(.99); }
+  .dash-b2-mod:active { transform: scale(.97); }
   .dash-b2-label { font-size: 11.5px; font-weight: 700; color: var(--dash-dim); }
   .dash-b2-num {
     margin-top: 6px;
@@ -1922,7 +1930,7 @@ body[data-page="dashboard"] #mainContent {
   .dash-b2-stack i[data-b2-seg="mod"] { background: var(--chart-blush-fill); }
   .dash-b2-stack i[data-b2-terr="otras"] { background: var(--dash-rule-strong); }
   .dash-b2-bars { display: flex; align-items: flex-end; gap: 3px; height: 18px; margin-top: 8px; }
-  .dash-b2-bars i { flex: 1; border-radius: 2px 2px 0 0; background: var(--chart-blue-fill); }
+  .dash-b2-bars i { flex: 1; min-height: 2px; border-radius: 2px 2px 0 0; background: var(--chart-blue-fill); }
 }
 
 /* La hoja del dashboard reutiliza el drawer estÃ¡ndar; el contenido clonado
