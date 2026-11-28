@@ -863,6 +863,21 @@
        nativo quedaría bloqueado. */
     body.pdi-drawer-open #mainContent {
       touch-action: none;
+      /* `contain: layout` hace de #mainContent el bloque contenedor de los
+         position:fixed de dentro: el velo de las hojas que viven en el slot
+         (la del dashboard) quedaba recortado justo debajo de la topbar.
+         Sin contención el velo es del viewport. Además, la topbar vive fuera
+         de #mainContent con z 40; elevar el contenido por encima (1001) hace
+         que el velo la tape en lugar de quedar por debajo. */
+      contain: none;
+      z-index: 1001;
+    }
+
+    @media (max-width: 768px) {
+      /* La cabecera no compite con la hoja: se oculta mientras hay una abierta. */
+      body.pdi-drawer-open .topbar {
+        visibility: hidden;
+      }
     }
 
     /* Al cerrar por arrastre la hoja ya está fuera de pantalla; el paso al

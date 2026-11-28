@@ -1089,7 +1089,42 @@ export const DashboardView = {
       if (ultimoDisparador instanceof HTMLElement) ultimoDisparador.focus({ preventScroll: true });
     };
 
-    disparadores.forEach((btn) => btn.addEventListener("click", () => abrir(btn.dataset.dashSheet, btn)));
+    disparadores.forEach((btn) => {
+      let x0 = 0, y0 = 0, t0 = 0, pendiente = 0;
+
+      const abrirBoton = () => {
+        if (pendiente) {
+          cancelAnimationFrame(pendiente);
+          pendiente = 0;
+        }
+        abrir(btn.dataset.dashSheet, btn);
+      };
+
+      btn.addEventListener("pointerdown", (e) => {
+        if (e.pointerType === "mouse") return;
+        x0 = e.clientX;
+        y0 = e.clientY;
+        t0 = performance.now();
+      });
+
+      // Tras arrastrar una hoja, el navegador puede no sintetizar el click del
+      // primer toque (lo encadena al gesto anterior). Se abre en el siguiente
+      // frame: si el click llega, él abre y cancela este; si no llega, abre
+      // igualmente. No se abre en el acto para que el click no caiga sobre el
+      // velo recién mostrado y lo cierre en el mismo toque.
+      btn.addEventListener("pointerup", (e) => {
+        if (e.pointerType === "mouse") return;
+        if (Math.abs(e.clientX - x0) > 10 || Math.abs(e.clientY - y0) > 10) return;
+        if (performance.now() - t0 > 700) return;
+        if (pendiente) cancelAnimationFrame(pendiente);
+        pendiente = requestAnimationFrame(() => {
+          pendiente = 0;
+          if (!modal.classList.contains("open")) abrir(btn.dataset.dashSheet, btn);
+        });
+      });
+
+      btn.addEventListener("click", abrirBoton);
+    });
     cerrar?.addEventListener("click", cerrarHoja);
 
     document.addEventListener("keydown", (e) => {

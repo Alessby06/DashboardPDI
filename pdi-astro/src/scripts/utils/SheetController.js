@@ -25,6 +25,9 @@ function esMovil() {
 /** Cierre propio de cada hoja, para Escape. */
 const cerradores = new WeakMap();
 
+/** Hasta cuándo ignorar un click sobre el velo recién mostrado. */
+const aperturas = new WeakMap();
+
 /**
  * Engancha el arrastre de una hoja por su asa.
  *
@@ -104,6 +107,10 @@ export function conectarHoja({
   if (typeof MutationObserver === "function") {
     new MutationObserver(() => {
       if (!abierta()) return;
+      // Un toque que abre la hoja puede dejar su click sobre el velo recién
+      // mostrado (sobre todo si el navegador lo sintetiza tarde): no debe
+      // cerrarla en el mismo gesto.
+      aperturas.set(telonDeEstado, performance.now() + 500);
       detenerAnimacion();
       limpiar();
       if (telon) telon.style.removeProperty("visibility");
@@ -320,6 +327,8 @@ function conectarFondo() {
     if (!esMovil()) return;
     const telon = evento.target.closest?.(".modal-backdrop.drawer");
     if (!telon || evento.target !== telon || !telon.classList.contains("open")) return;
+    const hasta = aperturas.get(telon);
+    if (hasta && performance.now() < hasta) return;
     evento.preventDefault();
     evento.stopPropagation();
     const caja = telon.querySelector(".modal-box");
