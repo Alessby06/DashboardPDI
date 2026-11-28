@@ -1088,7 +1088,7 @@ export const ExpedienteView = {
             <div class="form-group retiro-person-field retiro-person-field--ancho">
               <label>Nombres y Apellidos</label>
               <input type="text" class="form-control" data-retiro-campo="nombre" data-tipo="nombre" maxlength="80"
-                value="${escapar(p.nombre || "")}">
+                value="${escapar(p.nombre || (idx === 0 ? b.apoderado : "") || "")}">
             </div>
             <div class="form-group retiro-person-field">
               <label>DNI (8 dígitos)</label>
@@ -1101,7 +1101,7 @@ export const ExpedienteView = {
                 ${opcionesParentescoHtml(p.parentesco)}
               </select>
             </div>
-            <div class="form-group retiro-person-field retiro-person-field--ancho">
+            <div class="form-group retiro-person-field">
               <label>Teléfono</label>
               <input type="text" class="form-control" data-retiro-campo="telefono" data-tipo="telefono" maxlength="9" inputmode="numeric"
                 value="${escapar(p.telefono || "")}">
