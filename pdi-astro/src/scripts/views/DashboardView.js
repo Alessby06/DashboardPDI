@@ -461,6 +461,16 @@ export const DashboardView = {
     poner("dashAspLonchera", aspLonchera);
     poner("dashAspCasita", aspCasita);
 
+    const b2ServNum = document.getElementById("b2ServiciosNum");
+    if (b2ServNum) b2ServNum.textContent = datosOk ? String(alimentario) : "—";
+    const cred = Number(stats.tamizados) || 0;
+    const maxServicio = Math.max(1, alimentario, desayuno, lonchera, cred);
+    const valoresBarras = { desayuno, lonchera, cred };
+    document.querySelectorAll("[data-b2-serv]").forEach((el) => {
+      const valor = Number(valoresBarras[el.dataset.b2Serv]) || 0;
+      el.style.height = `${datosOk ? Math.round((valor / maxServicio) * 100) : 0}%`;
+    });
+
     // Voluntarios por servicio con soporte de tooltips abreviados
     const listaVol = document.getElementById("dashVoluntariosList");
     if (listaVol) {
@@ -555,6 +565,17 @@ export const DashboardView = {
       const serviciosSinVoluntarios = datosOk
         ? serviciosConDemanda.filter((f) => (grupos[f.clave] || 0) === 0)
         : [];
+      const brechasB2 = filas.filter((f) => {
+        const n = grupos[f.clave] || 0;
+        const us = demanda[f.clave] || 0;
+        return (n === 0 && us > 0) || (n > 0 && us === 0);
+      }).length;
+      const b2EquipoNum = document.getElementById("b2EquipoNum");
+      if (b2EquipoNum) b2EquipoNum.textContent = datosOk ? String(total) : "—";
+      const b2EquipoSub = document.getElementById("b2EquipoSub");
+      if (b2EquipoSub) b2EquipoSub.textContent = datosOk
+        ? `${brechasB2} ${brechasB2 === 1 ? "brecha" : "brechas"}`
+        : "—";
       this._renderAtencion(stats, {
         brecha: serviciosSinVoluntarios.length,
         base: datosOk ? serviciosConDemanda.length : 0,
@@ -680,6 +701,24 @@ export const DashboardView = {
         }
       }
     }
+
+    // Resumen B2: prevalencia total (leve + moderada) para el módulo de contexto.
+    const anemiaTotal = anemia + (Number(stats?.leves) || 0);
+    const pctAnemiaTotal = pct(anemiaTotal, tamizados);
+    const b2AnemiaPct = document.getElementById("b2AnemiaPct");
+    if (b2AnemiaPct) b2AnemiaPct.textContent = datosOk ? `${pctAnemiaTotal} %` : "—";
+    const b2AnemiaSub = document.getElementById("b2AnemiaSub");
+    if (b2AnemiaSub) b2AnemiaSub.textContent = datosOk ? `${anemiaTotal} de ${tamizados}` : "—";
+    const segmentosB2 = {
+      normal: Number(stats?.pctNormal) || 0,
+      riesgo: Number(stats?.pctRiesgo) || 0,
+      leve: Number(stats?.pctLeve) || 0,
+      mod: Number(stats?.pctMod) || 0,
+    };
+    document.querySelectorAll("[data-b2-seg]").forEach((el) => {
+      const valor = Number(segmentosB2[el.dataset.b2Seg]) || 0;
+      el.style.width = `${datosOk ? Math.max(0, Math.min(100, valor)) : 0}%`;
+    });
   },
 
   _resumenBibliotecaPorDistrito() {
@@ -795,6 +834,20 @@ export const DashboardView = {
     const ubicados = resumen.comas.total + resumen.carabayllo.total;
     const resto = resumen.otras.total;
     const visibles = resto > 0 ? [...distritos, otras] : distritos;
+
+    const b2TerrUbicados = document.getElementById("b2TerritorioUbicados");
+    if (b2TerrUbicados) b2TerrUbicados.textContent = String(ubicados);
+    const b2TerrTotal = document.getElementById("b2TerritorioTotal");
+    if (b2TerrTotal) b2TerrTotal.textContent = String(totalUsuarios);
+    const distritosB2 = {
+      comas: resumen.comas.total,
+      carabayllo: resumen.carabayllo.total,
+      otras: resumen.otras.total,
+    };
+    document.querySelectorAll("[data-b2-terr]").forEach((el) => {
+      const valor = Number(distritosB2[el.dataset.b2Terr]) || 0;
+      el.style.width = `${Math.round((valor / basePct) * 100)}%`;
+    });
 
     const nota = document.getElementById("dashMatrixNote");
     if (nota) {
@@ -923,6 +976,139 @@ export const DashboardView = {
         });
       });
     }
+
+    this._conectarB2Sheets();
+  },
+
+  /**
+   * B2 móvil: los cuatro módulos de contexto abren una hoja estándar de la app
+   * con el contenido ya renderizado de su sección. No se duplica la lógica de
+   * datos ni el marcado: se clona la sección, se le quitan los ids y se muestra
+   * en la hoja. El SheetController global aporta arrastre, velo y Escape.
+   */
+  _conectarB2Sheets() {
+    if (this._b2SheetsListo) return;
+    this._b2SheetsListo = true;
+
+    const modal = document.getElementById("modalDashboardDetalle");
+    if (!modal) return;
+    const caja = modal.querySelector(".modal-box");
+    const cuerpo = document.getElementById("dashDetalleBody");
+    const titulo = document.getElementById("dashDetalleTitle");
+    const meta = document.getElementById("dashDetalleMeta");
+    const cerrar = document.getElementById("btnCerrarDashboardDetalle");
+    const disparadores = [...document.querySelectorAll("[data-dash-sheet]")];
+    let ultimoDisparador = null;
+    let abierto = false;
+
+    const fuentes = {
+      anemia: {
+        titulo: "Anemia infantil (Hb)",
+        fuente: () => document.querySelector(".dash-clinica"),
+        meta: () => {
+          const parrafo = document.querySelector(".dash-clinica-cab p");
+          if (!parrafo) return "";
+          return [...parrafo.querySelectorAll("span")]
+            .map((span) => span.textContent.trim())
+            .filter(Boolean)
+            .join(" · ");
+        },
+      },
+      services: {
+        titulo: "Servicios del programa",
+        fuente: () => document.querySelector(".dash-servicios"),
+        meta: () => document.querySelector(".dash-servicios-seccion > .dash-seccion-cab span")?.textContent.trim() || "",
+      },
+      territory: {
+        titulo: "Cobertura por distrito",
+        fuente: () => document.querySelector(".dash-panel-bloque:not(.dash-voluntarios) .dash-panel"),
+        meta: () => document.getElementById("dashMatrixNote")?.textContent.trim() || "",
+      },
+      team: {
+        titulo: "Equipo en campo",
+        fuente: () => document.querySelector(".dash-voluntarios .dash-panel"),
+        meta: () => document.querySelector(".dash-voluntarios .dash-panel-cab p")?.textContent.trim() || "",
+      },
+    };
+
+    const abrir = (tipo, disparador) => {
+      const cfg = fuentes[tipo];
+      if (!cfg || !cuerpo) return;
+      ultimoDisparador = disparador || document.activeElement;
+      cuerpo.replaceChildren();
+      if (meta) meta.textContent = cfg.meta ? cfg.meta() : "";
+      if (titulo) titulo.textContent = cfg.titulo;
+
+      const origen = cfg.fuente ? cfg.fuente() : null;
+      if (origen) {
+        const clon = origen.cloneNode(true);
+        clon.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
+        clon.querySelectorAll("[aria-labelledby], [aria-describedby]").forEach((el) => {
+          el.removeAttribute("aria-labelledby");
+          el.removeAttribute("aria-describedby");
+        });
+        const contenedor = document.createElement("div");
+        contenedor.className = "dash-detail-content";
+        contenedor.append(clon);
+        cuerpo.append(contenedor);
+      } else {
+        const vacio = document.createElement("p");
+        vacio.className = "dash-detail-empty";
+        vacio.textContent = "Cargando detalle…";
+        cuerpo.append(vacio);
+      }
+
+      if (tipo === "team") {
+        const recon = document.getElementById("dashReconcile")?.textContent.trim();
+        if (recon) {
+          const nota = document.createElement("p");
+          nota.className = "dash-detail-note";
+          nota.textContent = recon;
+          cuerpo.append(nota);
+        }
+      }
+
+      cuerpo.scrollTop = 0;
+      modal.removeAttribute("inert");
+      modal.setAttribute("aria-hidden", "false");
+      modal.classList.add("open");
+      abierto = true;
+      if (caja) caja.focus({ preventScroll: true });
+    };
+
+    const cerrarHoja = () => {
+      if (!abierto) return;
+      abierto = false;
+      modal.classList.remove("open");
+      modal.setAttribute("inert", "");
+      modal.setAttribute("aria-hidden", "true");
+      if (ultimoDisparador instanceof HTMLElement) ultimoDisparador.focus({ preventScroll: true });
+    };
+
+    disparadores.forEach((btn) => btn.addEventListener("click", () => abrir(btn.dataset.dashSheet, btn)));
+    cerrar?.addEventListener("click", cerrarHoja);
+
+    document.addEventListener("keydown", (e) => {
+      if (!abierto || e.key !== "Tab") return;
+      const enfocables = [...modal.querySelectorAll("a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])")]
+        .filter((el) => el.getClientRects().length > 0);
+      if (!enfocables.length) {
+        e.preventDefault();
+        caja?.focus({ preventScroll: true });
+        return;
+      }
+      const primero = enfocables[0];
+      const ultimo = enfocables[enfocables.length - 1];
+      if (e.shiftKey && (document.activeElement === primero || document.activeElement === caja)) {
+        e.preventDefault();
+        ultimo.focus();
+      } else if (!e.shiftKey && document.activeElement === ultimo) {
+        e.preventDefault();
+        primero.focus();
+      }
+    });
+
+    this._b2Cerrar = cerrarHoja;
   },
 
   exportarParteDiario() {

@@ -134,6 +134,48 @@ import Icon from '../components/Icon.astro';
         </div>
       </section>
 
+      <section class="dash-b2-context" aria-labelledby="dashB2ContextTitle">
+        <div class="dash-seccion-cab">
+          <h2 id="dashB2ContextTitle">Contexto</h2>
+          <span>4 módulos</span>
+        </div>
+        <div class="dash-b2-grid">
+          <button type="button" class="dash-b2-mod" data-dash-sheet="anemia" aria-haspopup="dialog" aria-controls="modalDashboardDetalle">
+            <span class="dash-b2-label">Anemia</span>
+            <strong class="dash-b2-num" id="b2AnemiaPct">······</strong>
+            <span class="dash-b2-sub" id="b2AnemiaSub">······</span>
+            <span class="dash-b2-stack" aria-hidden="true">
+              <i data-b2-seg="normal"></i><i data-b2-seg="riesgo"></i><i data-b2-seg="leve"></i><i data-b2-seg="mod"></i>
+            </span>
+            <span class="dash-b2-link">Ver bandas <Icon name="accion.abrir" size={12} /></span>
+          </button>
+          <button type="button" class="dash-b2-mod" data-dash-sheet="services" aria-haspopup="dialog" aria-controls="modalDashboardDetalle">
+            <span class="dash-b2-label">Servicios</span>
+            <strong class="dash-b2-num" id="b2ServiciosNum">······</strong>
+            <span class="dash-b2-sub">alimentario</span>
+            <span class="dash-b2-bars" aria-hidden="true">
+              <i data-b2-serv="desayuno"></i><i data-b2-serv="lonchera"></i><i data-b2-serv="cred"></i>
+            </span>
+            <span class="dash-b2-link">Ver desglose <Icon name="accion.abrir" size={12} /></span>
+          </button>
+          <button type="button" class="dash-b2-mod" data-dash-sheet="territory" aria-haspopup="dialog" aria-controls="modalDashboardDetalle">
+            <span class="dash-b2-label">Territorio</span>
+            <strong class="dash-b2-num"><span id="b2TerritorioUbicados">······</span><small>/<span id="b2TerritorioTotal">······</span></small></strong>
+            <span class="dash-b2-sub">ubicados</span>
+            <span class="dash-b2-stack" aria-hidden="true">
+              <i data-b2-terr="comas"></i><i data-b2-terr="carabayllo"></i><i data-b2-terr="otras"></i>
+            </span>
+            <span class="dash-b2-link">Ver distritos <Icon name="accion.abrir" size={12} /></span>
+          </button>
+          <button type="button" class="dash-b2-mod" data-dash-sheet="team" aria-haspopup="dialog" aria-controls="modalDashboardDetalle">
+            <span class="dash-b2-label">Equipo</span>
+            <strong class="dash-b2-num" id="b2EquipoNum">······</strong>
+            <span class="dash-b2-sub" id="b2EquipoSub">······</span>
+            <span class="dash-b2-link">Ver equipo <Icon name="accion.abrir" size={12} /></span>
+          </button>
+        </div>
+      </section>
+
       <div class="dash-clinica-bloque">
       <header class="dash-clinica-cab">
         <div>
@@ -461,6 +503,22 @@ import Icon from '../components/Icon.astro';
       })();
     </script>
   </section>
+
+  <div class="modal-backdrop drawer" id="modalDashboardDetalle" inert aria-hidden="true">
+    <div class="modal-box drawer-box drawer-read dash-detail-sheet" role="dialog" aria-modal="true" aria-labelledby="dashDetalleTitle" tabindex="-1">
+      <div class="sheet-grab" aria-hidden="true"><span class="sheet-pill"></span></div>
+      <div class="modal-header">
+        <div class="modal-title-stack">
+          <h3 id="dashDetalleTitle">Detalle</h3>
+          <p class="modal-title-desc" id="dashDetalleMeta"></p>
+        </div>
+        <button type="button" class="btn-close-modal" id="btnCerrarDashboardDetalle" aria-label="Cerrar detalle">
+          <Icon name="accion.cerrar" size={18} />
+        </button>
+      </div>
+      <div class="modal-body dash-detail-body" id="dashDetalleBody"></div>
+    </div>
+  </div>
 
   <script>
     import '../scripts/pages/dashboard.js';

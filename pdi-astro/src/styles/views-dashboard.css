@@ -1,8 +1,8 @@
 /* ===========================================================================
-   DASHBOARD — SALA DE SITUACIÓN (registro cálido)
+   DASHBOARD â€” SALA DE SITUACIÃ“N (registro cÃ¡lido)
    ===========================================================================
-   La estructura es la de la maqueta elegida: tres cifras, clínica y atención,
-   tríada de servicios y territorio con equipo. La paleta cálida vive en los
+   La estructura es la de la maqueta elegida: tres cifras, clÃ­nica y atenciÃ³n,
+   trÃ­ada de servicios y territorio con equipo. La paleta cÃ¡lida vive en los
    tokens --dash-* de variables.css para que el resto de la app no cambie.
    =========================================================================== */
 
@@ -15,7 +15,7 @@
   min-height: calc(100% + 48px);
 }
 
-/* El viewport tiene su propio fondo frío; en el dashboard se pinta completo
+/* El viewport tiene su propio fondo frÃ­o; en el dashboard se pinta completo
    para que el papel llegue hasta el borde inferior al hacer scroll. */
 body[data-page="dashboard"] #mainContent {
   background: var(--dash-paper);
@@ -82,8 +82,8 @@ body[data-page="dashboard"] #mainContent {
   font-weight: 700;
   letter-spacing: -0.03em;
   color: var(--dash-ink);
-  /* La fecha es texto largo: se parte en dos líneas equilibradas, no en una
-     línea larga y una palabra suelta. */
+  /* La fecha es texto largo: se parte en dos lÃ­neas equilibradas, no en una
+     lÃ­nea larga y una palabra suelta. */
   text-wrap: balance;
 }
 
@@ -113,12 +113,12 @@ body[data-page="dashboard"] #mainContent {
 .dash-selector-wrap { display: inline-flex; }
 
 /* El select nativo queda oculto por customSelect; el disparador hereda las
-   clases del select y se pinta con la superficie cálida. */
+   clases del select y se pinta con la superficie cÃ¡lida. */
 .dash-acciones .pdi-select { display: inline-flex; }
 .dash-acciones .pdi-select-trigger {
   min-height: 38px;
-  /* Ancho estable: al cambiar de sede el texto variaba y el botón, alineado
-     a la derecha, movía su borde izquierdo 5 px y el menú lo seguía. */
+  /* Ancho estable: al cambiar de sede el texto variaba y el botÃ³n, alineado
+     a la derecha, movÃ­a su borde izquierdo 5 px y el menÃº lo seguÃ­a. */
   min-width: 176px;
   padding: 0 32px 0 12px;
   border: 1px solid var(--dash-rule);
@@ -254,8 +254,8 @@ body[data-page="dashboard"] #mainContent {
   overflow: hidden;
 }
 
-/* Las tres placas comparten el borde inferior: el último elemento de cada una
-   se ancla abajo, así la medida (barra, aviso o nota) cae a la misma altura. */
+/* Las tres placas comparten el borde inferior: el Ãºltimo elemento de cada una
+   se ancla abajo, asÃ­ la medida (barra, aviso o nota) cae a la misma altura. */
 .dash-hero .dash-kpi { display: flex; flex-direction: column; }
 .dash-hero .dash-kpi > :last-child { margin-top: auto; }
 
@@ -368,7 +368,7 @@ body[data-page="dashboard"] #mainContent {
   background: var(--gt-yellow);
 }
 
-/* --- Clínica -------------------------------------------------------------- */
+/* --- ClÃ­nica -------------------------------------------------------------- */
 
 .dash-clinica {
   padding: 20px 22px 18px;
@@ -390,7 +390,7 @@ body[data-page="dashboard"] #mainContent {
 }
 
 .dash-clinica-cab p span + span::before {
-  content: " · ";
+  content: " Â· ";
   color: var(--dash-rule-strong);
 }
 
@@ -533,7 +533,7 @@ body[data-page="dashboard"] #mainContent {
   color: var(--dash-dim);
 }
 
-/* --- Prioridades del día --------------------------------------------------- */
+/* --- Prioridades del dÃ­a --------------------------------------------------- */
 
 .dash-prioridades { min-width: 0; }
 
@@ -649,7 +649,7 @@ body[data-page="dashboard"] #mainContent {
     transform var(--dur-fast) var(--ease-out);
 }
 
-/* El chevron acompaña al bloque, no a la primera línea. */
+/* El chevron acompaÃ±a al bloque, no a la primera lÃ­nea. */
 @media (min-width: 821px) {
   .dash-prioridad-go {
     top: 50%;
@@ -964,7 +964,7 @@ body[data-page="dashboard"] #mainContent {
 .dash-matrix-total-cell { color: var(--dash-dim); }
 .dash-matrix-total-cell { font-weight: 600; }
 
-/* Etiqueta de distrito: solo se ve cuando la matriz se recompone en móvil. */
+/* Etiqueta de distrito: solo se ve cuando la matriz se recompone en mÃ³vil. */
 .dash-matrix-label { display: none; }
 .dash-matrix-col-row { display: none; }
 
@@ -1087,7 +1087,7 @@ body[data-page="dashboard"] #mainContent {
   font-weight: 700;
 }
 
-/* La brecha es atención: texto, punto y barra en mantequilla (DESIGN.md). */
+/* La brecha es atenciÃ³n: texto, punto y barra en mantequilla (DESIGN.md). */
 .dash-vol-row.is-gap .dash-vol-fill { background: var(--chart-butter-fill); }
 /* Sin usuarios: gris, no una fila deshabilitada. */
 .dash-vol-row.is-idle .dash-vol-fill { background: var(--dash-dim); }
@@ -1110,15 +1110,15 @@ body[data-page="dashboard"] #mainContent {
   font-weight: 700;
 }
 
-/* --- Interacción --------------------------------------------------------- */
+/* --- InteracciÃ³n --------------------------------------------------------- */
 
 @media (hover: hover) and (pointer: fine) {
   .dash-acciones .pdi-select-trigger:hover { border-color: var(--dash-rule-strong); }
   .dash-boton:hover { border-color: var(--dash-rule-strong); }
 
-  /* Todas las tarjetas de la página comparten .dash-superficie —el bloque de
-     KPI, los paneles, los tres servicios—, así que la respuesta se declara una
-     vez y vale para todas, en los dos temas. Antes solo la tenían los servicios
+  /* Todas las tarjetas de la pÃ¡gina comparten .dash-superficie â€”el bloque de
+     KPI, los paneles, los tres serviciosâ€”, asÃ­ que la respuesta se declara una
+     vez y vale para todas, en los dos temas. Antes solo la tenÃ­an los servicios
      y en claro no se notaba: el borde pasaba de 1,33 a 2,52:1. */
   .dash-superficie {
     transition:
@@ -1276,7 +1276,7 @@ body[data-page="dashboard"] #mainContent {
     border-top: 0;
     font-size: 11.5px;
   }
-  /* Nombre y conteo en dos líneas: en una sola, el conteo se parte. */
+  /* Nombre y conteo en dos lÃ­neas: en una sola, el conteo se parte. */
   .dash-matrix-group-inner {
     flex-direction: column;
     align-items: flex-start;
@@ -1300,9 +1300,13 @@ body[data-page="dashboard"] #mainContent {
   .dash-boton { min-width: 38px; padding: 0 10px; }
 }
 
-/* --- Densidad móvil ------------------------------------------------------- */
+/* --- Densidad mÃ³vil de las secciones --------------------------------------
+   Las secciones completas no se ven en el dashboard mÃ³vil, pero la hoja de
+   detalle las clona. AquÃ­ viven la cabecera, la matriz y las filas de servicio
+   que la hoja necesita a 768 px o menos. El orden del dashboard lo define el
+   bloque B2 siguiente. */
 
-@media (max-width: 820px) {
+@media (max-width: 768px) {
   /* Cabecera: la fecha deja de ser el titular; el dato manda. */
   .dash-eyebrow {
     margin-bottom: 6px;
@@ -1316,7 +1320,7 @@ body[data-page="dashboard"] #mainContent {
     letter-spacing: -0.01em;
   }
 
-  /* La cabecera termina en la fila de chips: el export comparte esa línea. */
+  /* La cabecera termina en la fila de chips: el export comparte esa lÃ­nea. */
   .dash-cabecera {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
@@ -1358,46 +1362,6 @@ body[data-page="dashboard"] #mainContent {
     min-height: 44px;
   }
 
-  /* Hero: una cifra protagonista y dos secundarias, no tres bloques. */
-  .dash-hero {
-    grid-template-columns: 1fr 1fr;
-    padding: 16px;
-    box-shadow: none;
-  }
-  .dash-hero .dash-kpi { padding: 0; }
-  .dash-hero .dash-kpi:first-child {
-    grid-column: 1 / -1;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--dash-rule);
-  }
-  .dash-hero .dash-kpi:nth-child(2) { border-left: 0; }
-  .dash-hero .dash-kpi:nth-child(3) {
-    padding-left: 14px;
-    border-left: 1px solid var(--dash-rule);
-  }
-  /* En móvil el hero se resuelve con las cifras y la píldora: las barras
-     y la nota quedan para el escritorio. */
-  .dash-kpi-nota,
-  .dash-mini-barra,
-  .dash-barra-cobertura { display: none; }
-  .dash-rotulo {
-    margin-bottom: 4px;
-    font-size: 11.5px;
-    font-weight: 600;
-    letter-spacing: 0;
-    text-transform: none;
-  }
-  .dash-hero .dash-kpi + .dash-kpi .dash-rotulo {
-    font-weight: 500;
-    color: var(--dash-muted);
-  }
-  .dash-cifra {
-    font-size: 34px;
-    font-weight: 600;
-  }
-  .dash-hero .dash-kpi + .dash-kpi .dash-cifra { font-size: 20px; }
-  .dash-kpi-sub { margin-top: 4px; font-size: 11.5px; }
-
   .dash-ambito {
     flex-wrap: nowrap;
     overflow-x: auto;
@@ -1406,7 +1370,7 @@ body[data-page="dashboard"] #mainContent {
     margin-inline: -2px;
     padding-bottom: 2px;
     /* El degradado del borde derecho avisa de que la fila sigue; el relleno
-       evita que el último chip quede bajo la transparencia al llegar al final. */
+       evita que el Ãºltimo chip quede bajo la transparencia al llegar al final. */
     padding-right: 26px;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
@@ -1427,86 +1391,14 @@ body[data-page="dashboard"] #mainContent {
     gap: 2px;
     margin-bottom: 12px;
   }
-  .dash-prioridades-lista {
-    grid-template-columns: 1fr;
-    gap: 0;
-    background: var(--dash-surface);
-    border: 1px solid var(--dash-rule);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    box-shadow: none;
-  }
-  .dash-prioridad:not([hidden]) + .dash-prioridad:not([hidden]) {
-    border-top: 1px solid var(--dash-rule);
-  }
-  .dash-prioridad-link {
-    display: grid;
-    grid-template-columns: 7px minmax(0, 1fr) auto 14px;
-    grid-template-areas:
-      "dot area count go"
-      "dot title count go"
-      "dot meta count go"
-      "dot track track go";
-    gap: 2px 10px;
-    min-height: 64px;
-    padding: 12px 14px;
-    background: transparent;
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
-    transform: none;
-  }
-  .dash-prioridad-link::before {
-    content: "";
-    grid-area: dot;
-    width: 6px;
-    height: 6px;
-    margin-top: 6px;
-    border-radius: var(--radius-full);
-    background: var(--dash-rule-strong);
-  }
-  #atencionFilaAnemia .dash-prioridad-link::before { background: var(--gt-red); }
-  #atencionFilaSinTamizaje .dash-prioridad-link::before { background: var(--gt-yellow); }
-  #atencionFilaVoluntarios .dash-prioridad-link::before { background: var(--gt-orange); }
-  .dash-prioridad-area {
-    grid-area: area;
-    font-size: 11.5px;
-    letter-spacing: 0.02em;
-    text-transform: none;
-    color: var(--dash-dim);
-  }
-  .dash-prioridad-track {
-    grid-area: track;
-    margin-top: 7px;
-  }
-  .dash-prioridad-detalle { display: none; }
-  .dash-prioridad-titulo {
-    grid-area: title;
-    padding-right: 0;
-    font-size: 14px;
-    font-weight: 600;
-  }
-  .dash-prioridad-meta { grid-area: meta; font-size: 11.5px; }
-  .dash-prioridad-cifra { grid-area: count; margin-top: 0; }
-  .dash-prioridad-cifra strong { font-size: 20px; }
-  .dash-prioridad-go {
-    position: static;
-    grid-area: go;
-    align-self: center;
-  }
-  .dash-prioridad-link:active {
-    background: var(--dash-hover);
-    transform: none;
-  }
-
-  /* Sin pliegues: cada sección se separa con una línea fina. */
+  /* Sin pliegues: cada secciÃ³n se separa con una lÃ­nea fina. */
   .dash-clinica-bloque,
   .dash-servicios-seccion,
   .dash-grid-territorio {
     border-top: 1px solid var(--dash-rule);
     padding-top: 14px;
   }
-  /* El relleno del hero (16 px) es el modelo: las demás superficies lo igualan. */
+  /* El relleno del hero (16 px) es el modelo: las demÃ¡s superficies lo igualan. */
   .dash-clinica { padding: 16px; }
   .dash-clinica-cab { margin-bottom: 12px; }
   .dash-panel { padding: 16px; }
@@ -1523,7 +1415,7 @@ body[data-page="dashboard"] #mainContent {
     box-shadow: var(--dash-shadow);
     overflow: hidden;
   }
-  /* S1: cada servicio es una fila con el número y el desglose a la vista. */
+  /* S1: cada servicio es una fila con el nÃºmero y el desglose a la vista. */
   .dash-servicio {
     display: grid;
     grid-template-columns: 30px minmax(0, 1fr) auto;
@@ -1623,7 +1515,7 @@ body[data-page="dashboard"] #mainContent {
     gap: 12px;
   }
 
-  /* Anemia: banda 2x2 y resumen en una línea. */
+  /* Anemia: banda 2x2 y resumen en una lÃ­nea. */
   .dash-bandas {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px 14px;
@@ -1656,7 +1548,7 @@ body[data-page="dashboard"] #mainContent {
   }
 }
 
-/* A 320 px la unidad empuja el título a dos líneas; el contexto ya la dice. */
+/* A 320 px la unidad empuja el tÃ­tulo a dos lÃ­neas; el contexto ya la dice. */
 @media (max-width: 360px) {
   .dash-prioridad-cifra span { display: none; }
 }
@@ -1678,8 +1570,8 @@ body[data-page="dashboard"] #mainContent {
 /* ===========================================================================
    MOVIMIENTO DEL DASHBOARD
    ---------------------------------------------------------------------------
-   Tres familias: la llegada (completa la primera vez de la sesión, corta
-   después), la respuesta al puntero (arriba) y el cambio de datos al filtrar
+   Tres familias: la llegada (completa la primera vez de la sesiÃ³n, corta
+   despuÃ©s), la respuesta al puntero (arriba) y el cambio de datos al filtrar
    por sede. Solo se animan opacidad y transform; el movimiento reducido apaga
    el desplazamiento por la regla global de base.css.
    =========================================================================== */
@@ -1730,3 +1622,339 @@ body[data-page="dashboard"] #mainContent {
 .dash-mini-barra span {
   transition: flex-grow var(--dur-bar) var(--ease-spring);
 }
+
+/* ===========================================================================
+   B2 MÃ“VIL
+   ---------------------------------------------------------------------------
+   La urgencia, las prioridades, el pulso y cuatro mÃ³dulos. Las secciones
+   completas siguen en el DOM para el escritorio y para el detalle de la hoja;
+   en mÃ³vil se ocultan y se abren desde los mÃ³dulos. El bottom sheet es el
+   estÃ¡ndar de la app: asa, velo, arrastre y Escape, sin X en mÃ³vil.
+   =========================================================================== */
+
+.dash-b2-context { display: none; }
+
+@media (max-width: 768px) {
+  .dash-page > .dash-cabecera { order: 0; }
+  .dash-page > .dash-prioridades { order: 1; }
+  .dash-page > .dash-hero { order: 2; }
+  .dash-page > .dash-b2-context { order: 3; display: block; }
+  .dash-page > .dash-clinica-bloque,
+  .dash-page > .dash-servicios-seccion,
+  .dash-page > .dash-grid-territorio,
+  .dash-page > .dash-conciliacion { display: none; }
+
+  /* --- Prioridades: urgencia + dos filas ---------------------------------- */
+  .dash-prioridades > .dash-seccion-cab { display: none; }
+  .dash-prioridades-lista {
+    display: block;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: visible;
+  }
+  .dash-prioridad { border: 0; }
+  .dash-prioridad:not([hidden]) + .dash-prioridad:not([hidden]) { border-top: 0; }
+  .dash-prioridad-area {
+    font-size: 11.5px;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    color: var(--dash-dim);
+  }
+
+  .dash-prioridad:not([hidden]):first-of-type .dash-prioridad-link {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr) 16px;
+    grid-template-areas:
+      "count area go"
+      "count title go"
+      "count meta go"
+      "track track track";
+    gap: 2px 10px;
+    min-height: 0;
+    margin-bottom: 4px;
+    padding: 16px;
+    background: var(--chart-blush-bg);
+    border: 1px solid var(--chart-blush-border);
+    border-radius: var(--radius-lg);
+    box-shadow: none;
+  }
+  .dash-prioridad:not([hidden]):first-of-type .dash-prioridad-link::before { display: none; }
+  .dash-prioridad:not([hidden]):first-of-type .dash-prioridad-area {
+    grid-area: area;
+    color: var(--chart-blush-ink);
+  }
+  .dash-prioridad:not([hidden]):first-of-type .dash-prioridad-titulo {
+    grid-area: title;
+    font-size: 13.5px;
+    line-height: 1.25;
+  }
+  .dash-prioridad:not([hidden]):first-of-type .dash-prioridad-cifra {
+    grid-area: count;
+    display: flex;
+    flex-direction: column;
+    align-self: start;
+    align-items: flex-start;
+    gap: 2px;
+    margin: 0;
+  }
+  .dash-prioridad:not([hidden]):first-of-type .dash-prioridad-cifra strong {
+    font-size: 40px;
+    line-height: .95;
+    font-weight: 600;
+    letter-spacing: -.055em;
+  }
+  .dash-prioridad:not([hidden]):first-of-type .dash-prioridad-cifra span {
+    font-size: 11.5px;
+    color: var(--chart-blush-ink);
+  }
+  .dash-prioridad:not([hidden]):first-of-type .dash-prioridad-meta {
+    grid-area: meta;
+    font-size: 11.5px;
+    color: var(--chart-blush-ink);
+  }
+  .dash-prioridad:not([hidden]):first-of-type .dash-prioridad-track {
+    grid-area: track;
+    height: 4px;
+    margin-top: 9px;
+  }
+  .dash-prioridad:not([hidden]):first-of-type .dash-prioridad-go {
+    grid-area: go;
+    align-self: center;
+  }
+
+  .dash-prioridad:not([hidden]) ~ .dash-prioridad:not([hidden]) .dash-prioridad-link {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr) 16px;
+    grid-template-areas:
+      "count area go"
+      "count title go"
+      "count meta go"
+      "count track track";
+    gap: 2px 10px;
+    min-height: 0;
+    padding: 13px 2px;
+    background: transparent;
+    border: 0;
+    border-top: 1px solid var(--dash-rule);
+    border-radius: 0;
+    box-shadow: none;
+    transform: none;
+  }
+  .dash-prioridad:not([hidden]) ~ .dash-prioridad:not([hidden]) .dash-prioridad-link::before { display: none; }
+  .dash-prioridad:not([hidden]) ~ .dash-prioridad:not([hidden]) .dash-prioridad-cifra {
+    grid-area: count;
+    display: flex;
+    flex-direction: column;
+    align-self: start;
+    align-items: flex-start;
+    gap: 1px;
+    margin: 0;
+  }
+  .dash-prioridad:not([hidden]) ~ .dash-prioridad:not([hidden]) .dash-prioridad-cifra strong {
+    font-size: 24px;
+    line-height: 1;
+    font-weight: 600;
+  }
+  .dash-prioridad:not([hidden]) ~ .dash-prioridad:not([hidden]) .dash-prioridad-cifra span {
+    font-size: 11px;
+  }
+  .dash-prioridad:not([hidden]) ~ .dash-prioridad:not([hidden]) .dash-prioridad-area {
+    grid-area: area;
+    font-size: 11.5px;
+  }
+  .dash-prioridad:not([hidden]) ~ .dash-prioridad:not([hidden]) .dash-prioridad-titulo {
+    grid-area: title;
+    font-size: 13.5px;
+    line-height: 1.25;
+  }
+  .dash-prioridad:not([hidden]) ~ .dash-prioridad:not([hidden]) .dash-prioridad-meta {
+    grid-area: meta;
+    font-size: 11.5px;
+  }
+  .dash-prioridad:not([hidden]) ~ .dash-prioridad:not([hidden]) .dash-prioridad-track {
+    grid-area: track;
+    height: 4px;
+    margin-top: 5px;
+  }
+  .dash-prioridad:not([hidden]) ~ .dash-prioridad:not([hidden]) .dash-prioridad-go {
+    grid-area: go;
+    align-self: center;
+  }
+  .dash-prioridad-detalle { display: none; }
+  .dash-prioridad-link:active {
+    background: var(--dash-hover);
+    transform: none;
+  }
+
+  /* --- Pulso: una cifra por fila, con su serie ----------------------------- */
+  .dash-hero {
+    display: block;
+    padding: 12px 0 0;
+    background: transparent;
+    border: 0;
+    border-top: 1px solid var(--dash-rule);
+    border-radius: 0;
+    box-shadow: none;
+    overflow: visible;
+  }
+  .dash-hero .dash-kpi {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: end;
+    gap: 2px 9px;
+    padding: 12px 0;
+    border-top: 1px solid var(--dash-rule);
+  }
+  .dash-hero .dash-kpi:first-child {
+    grid-column: auto;
+    padding-top: 0;
+    border-top: 0;
+    border-bottom: 0;
+  }
+  .dash-hero .dash-kpi:last-child { padding-bottom: 0; }
+  .dash-hero .dash-kpi > :last-child { margin-top: 0; }
+  .dash-hero .dash-kpi:nth-child(2) { border-left: 0; }
+  .dash-hero .dash-kpi:nth-child(3) { padding-left: 0; border-left: 0; }
+  .dash-rotulo {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: end;
+    margin: 0 0 3px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--dash-muted);
+  }
+  .dash-hero .dash-kpi + .dash-kpi .dash-rotulo { color: var(--dash-muted); font-weight: 600; }
+  .dash-cifra,
+  .dash-hero .dash-kpi + .dash-kpi .dash-cifra {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -.045em;
+  }
+  .dash-kpi-sub {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin: 2px 0 0;
+    font-size: 11.5px;
+  }
+  .dash-mini-barra,
+  .dash-barra-cobertura {
+    grid-column: 1 / -1;
+    margin-top: 8px;
+  }
+  .dash-mini-barra { display: flex; }
+  .dash-barra-cobertura { display: block; }
+  .dash-alerta-hero {
+    grid-column: 1 / -1;
+    align-self: start;
+    justify-self: start;
+    margin-top: 8px;
+  }
+  .dash-kpi-nota { display: none; }
+
+  /* --- MÃ³dulos de contexto ------------------------------------------------ */
+  .dash-b2-context { margin-top: 4px; }
+  .dash-b2-context .dash-seccion-cab {
+    flex-direction: row;
+    align-items: baseline;
+    margin-bottom: 12px;
+  }
+  .dash-b2-context .dash-seccion-cab h2 { font-size: 14px; }
+  .dash-b2-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .dash-b2-mod {
+    display: flex;
+    flex-direction: column;
+    min-height: 146px;
+    padding: 14px;
+    background: var(--dash-surface);
+    border: 1px solid var(--dash-rule);
+    border-radius: var(--radius-lg);
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: transform 120ms var(--ease-out), background-color 180ms var(--ease-out), border-color 180ms var(--ease-out);
+  }
+  .dash-b2-mod:active { transform: scale(.99); }
+  .dash-b2-label { font-size: 11.5px; font-weight: 700; color: var(--dash-dim); }
+  .dash-b2-num {
+    margin-top: 6px;
+    font-size: 30px;
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: -.045em;
+    color: var(--dash-ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .dash-b2-num small { font-size: 13px; font-weight: 500; letter-spacing: 0; color: var(--dash-dim); }
+  .dash-b2-sub { margin-top: 2px; font-size: 11.5px; color: var(--dash-dim); }
+  .dash-b2-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: auto;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--dash-muted);
+  }
+  .dash-b2-stack {
+    display: flex;
+    height: 6px;
+    margin-top: 10px;
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    background: var(--chart-track);
+  }
+  .dash-b2-stack i { display: block; height: 100%; }
+  .dash-b2-stack i[data-b2-seg="normal"],
+  .dash-b2-stack i[data-b2-terr="comas"] { background: var(--chart-blue-fill); }
+  .dash-b2-stack i[data-b2-seg="riesgo"],
+  .dash-b2-stack i[data-b2-terr="carabayllo"] { background: var(--chart-butter-fill); }
+  .dash-b2-stack i[data-b2-seg="leve"] { background: var(--chart-peach-fill); }
+  .dash-b2-stack i[data-b2-seg="mod"] { background: var(--chart-blush-fill); }
+  .dash-b2-stack i[data-b2-terr="otras"] { background: var(--dash-rule-strong); }
+  .dash-b2-bars { display: flex; align-items: flex-end; gap: 3px; height: 18px; margin-top: 8px; }
+  .dash-b2-bars i { flex: 1; border-radius: 2px 2px 0 0; background: var(--chart-blue-fill); }
+}
+
+/* La hoja del dashboard reutiliza el drawer estÃ¡ndar; el contenido clonado
+   se aplana para que la secciÃ³n no parezca una tarjeta dentro de otra. */
+.dash-detail-body { padding: 16px 20px 24px; }
+.dash-detail-content .dash-superficie {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.dash-detail-content .dash-clinica,
+.dash-detail-content .dash-panel,
+.dash-detail-content .dash-servicios { padding: 0; }
+.dash-detail-content .dash-servicios {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+.dash-detail-content .dash-servicio { padding-left: 0; padding-right: 0; }
+.dash-detail-content .dash-matrix-host { overflow-x: auto; }
+.dash-sheet-meta {
+  margin: 0 0 14px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--dash-dim);
+}
+.dash-detail-note {
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--dash-rule);
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--dash-dim);
+}
+.dash-detail-empty { margin: 0; padding: 18px 0; font-size: 12.5px; color: var(--dash-dim); }
