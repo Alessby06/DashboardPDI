@@ -52,6 +52,10 @@ async function cargarCasosCompletos() {
     const casos = await fetchCasosSociales();
     CasoSocialModel.aplicarDatos(casos);
     SocialKanbanView.renderKanban(casos);
+    const casoParam = new URLSearchParams(window.location.search).get("caso");
+    if (casoParam) {
+      SocialKanbanView.openDetalleCaso?.(casoParam);
+    }
   } catch {
     // La capa base ya reintenta y avisa; aquí se conserva lo que haya.
   } finally {

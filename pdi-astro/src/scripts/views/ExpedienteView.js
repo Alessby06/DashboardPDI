@@ -18,6 +18,7 @@
 //  clases modal-tab-btn y modal-tab-pane siguen llamandose asi: las selecciona
 //  css/views.css y renombrarlas no compensaba el riesgo.
 import { PageGuard } from "../auth/PageGuard.js";
+import { puedeAcceder } from "../auth/RouteMap.js";
 import { moverFocoFueraDeModal } from "../utils/focoModal.js";
 import { BeneficiarioModel } from "../models/BeneficiarioModel.js";
 import { CasoSocialModel } from "../models/CasoSocialModel.js";
@@ -1164,21 +1165,37 @@ export const ExpedienteView = {
 
   _pintarSocial(b, caso) {
     this._set("expVulnerabilidad", `${b.vulnerabilidad || 60}/100`);
+    this._set(
+      "expEstadoCasoSocial",
+      caso ? `Derivación Activa · Urgencia ${caso.urgencia || "Media"}` : "Sin derivación activa"
+    );
     const cont = document.getElementById("expCasoSocialDetail");
     if (!cont) return;
 
+    const rol = PageGuard.leerRol();
+    const puedeSocial = puedeAcceder("social", rol);
+    const puedeEval = puedeAcceder("evaluacion", rol);
+
     const urlEval = `/evaluacion?persona=${encodeURIComponent(b._personaId || b.codigo || "")}&codigo=${encodeURIComponent(b.codigo || "")}${caso?._casoId ? `&caso=${encodeURIComponent(caso._casoId)}` : ""}`;
-    const botonEval = `<a class="btn-action btn-secondary" style="margin-top:10px; display:inline-flex; text-decoration:none;" href="${urlEval}">Evaluación socioeconómica</a>`;
+    const botonEval = puedeEval
+      ? `<a class="btn-action btn-secondary" style="display:inline-flex; text-decoration:none;" href="${urlEval}">Evaluación socioeconómica</a>`
+      : "";
+    const botonSocial = (puedeSocial && caso?._casoId)
+      ? `<a class="btn-action btn-secondary" style="display:inline-flex; text-decoration:none;" href="/social?caso=${encodeURIComponent(caso._casoId)}">Gestionar caso en Área Social →</a>`
+      : "";
+    const accionesHtml = (botonEval || botonSocial)
+      ? `<div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:12px;">${botonSocial}${botonEval}</div>`
+      : "";
 
     if (!caso) {
       cont.innerHTML = `
         <div style="background:var(--surface-hover); padding:12px; border-radius:var(--radius-sm); font-size:12px; color:var(--text-muted);">
           El usuario no registra derivaciones activas a DEMUNA ni alertas de vulnerabilidad extrema. Monitoreo regular activo.
         </div>
-        ${botonEval}`;
+        ${accionesHtml}`;
       const timeElVacio = document.getElementById("expAtencionesTimeline");
       if (timeElVacio) {
-        timeElVacio.innerHTML = `<div style="font-size:12.5px; color:var(--text-muted); text-align:center; padding:12px;">Sin atenciones ni visitas domiciliarias registradas. Para registrar intervenciones tipificadas (DEMUNA, BTF, Canastas), el usuario puede derivarse en el Área Social.</div>`;
+        timeElVacio.innerHTML = `<div style="font-size:12.5px; color:var(--text-muted); text-align:center; padding:12px;">Sin atenciones ni visitas domiciliarias registradas.</div>`;
       }
       return;
     }
@@ -1207,14 +1224,14 @@ export const ExpedienteView = {
         <div style="font-size:12.5px; color:var(--text-main); margin-bottom:6px;"><strong>Situacion Encontrada:</strong> ${escapar(caso.situacionEncontrada || caso.detalle)}</div>
         <div style="font-size:12px; color:var(--text-dim); margin-bottom:4px;"><strong>Acciones Realizadas:</strong> ${escapar(caso.accionesPrevias || "Seguimiento domiciliario programado.")}</div>
         <div style="font-size:12px; color:var(--text-dim);"><strong>Soporte Familiar:</strong> ${escapar(soporte)}</div>
-        ${botonEval}
-      </div>`;
+      </div>
+      ${accionesHtml}`;
 
     const timeEl = document.getElementById("expAtencionesTimeline");
     if (timeEl) {
       const eventos = Array.isArray(caso.eventos) ? caso.eventos : [];
       if (eventos.length === 0) {
-        timeEl.innerHTML = `<div style="font-size:12.5px; color:var(--text-muted); text-align:center; padding:12px;">El caso social está activo pero no cuenta con atenciones o visitas registradas aún. Haz clic en "Nueva Atención / Visita" arriba para registrar la primera intervención.</div>`;
+        timeEl.innerHTML = `<div style="font-size:12.5px; color:var(--text-muted); text-align:center; padding:12px;">El caso social está activo, pero aún no registra atenciones o visitas en el Área Social.</div>`;
       } else {
         timeEl.innerHTML = eventos.map(ev => {
           const isVisita = (ev.tipo || ev.tipo_evento || '').toLowerCase().includes('visita');
