@@ -8,9 +8,10 @@
 //  tamizajes, los casos sociales y los aportes. No escribe en la base.
 //  Cada campo lleva su fuente; lo que no tiene evidencia queda en `faltantes`.
 // ===========================================================================
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { Surreal } from 'surrealdb';
+import { campoUsuario } from './_guardas.mjs';
 
 function leerEnv(ruta = '.env') {
   const env = {};
@@ -70,13 +71,23 @@ function estrategiasDesde(programa) {
 }
 
 const salida = resolve(argumento('--out', '../backups/incidente-2026-11-27'));
+const force = process.argv.includes('--force');
+for (const nombre of ['manifiesto.json', 'manifiesto.csv']) {
+  const ruta = join(salida, nombre);
+  if (existsSync(ruta) && !force) {
+    console.error(`[manifiesto] Ya existe ${ruta}. Usa --force o un --out nuevo; no se pisa la evidencia.`);
+    process.exit(2);
+  }
+}
 const fixtureRuta = resolve(argumento(
   '--fixture',
   '../backups/incidente-2026-11-27/fixture-pre-ee1da5b.js',
 ));
+mkdirSync(salida, { recursive: true });
 const fixture = leerFixture(fixtureRuta);
 
 const env = leerEnv();
+const campo = campoUsuario(env);
 const db = new Surreal();
 await db.connect(env.PUBLIC_SURREAL_URL);
 await db.signin({
@@ -90,12 +101,12 @@ await db.use({ namespace: env.PUBLIC_SURREAL_NS, database: env.PUBLIC_SURREAL_DB
 const [personasRes, tamizajesRes, casosRes, aportesRes, inscripcionesRes, sedesRes] = await Promise.all([
   db.query(`SELECT id, codigo, nombres, apellidos, numero_documento AS dni,
     activo, creado_el FROM persona
-    WHERE activo = true AND codigo CONTAINS '-IS'
-      AND id NOT IN (SELECT VALUE persona_id FROM inscripcion WHERE activo = true);`),
-  db.query('SELECT id, persona_id, sede_id, inscripcion_id, fecha_tamizaje FROM tamizaje_hemoglobina WHERE activo = true;'),
+    WHERE activo = true AND string::lowercase(codigo) CONTAINS '-is'
+      AND id NOT IN (SELECT VALUE ${campo} FROM inscripcion WHERE activo = true);`),
+  db.query(`SELECT id, ${campo} AS persona_id, sede_id, inscripcion_id, fecha_tamizaje FROM tamizaje_hemoglobina WHERE activo = true;`),
   db.query('SELECT id, usuario_id AS persona_id, sede_id, codigo_caso, etapa FROM caso_social WHERE activo = true;'),
   db.query('SELECT id, inscripcion_id, periodo, mes FROM aporte;'),
-  db.query('SELECT id, persona_id, activo, estado, periodo, programa, sede_id FROM inscripcion;'),
+  db.query(`SELECT id, ${campo} AS persona_id, activo, estado, periodo, programa, sede_id FROM inscripcion;`),
   db.query('SELECT id, nombre, distrito, activo FROM sede;'),
 ]);
 const filas = (res) => {

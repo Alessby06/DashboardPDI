@@ -13,7 +13,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { Surreal } from 'surrealdb';
-import { exigirPermiso } from './_guardas.mjs';
+import { exigirPermiso, campoUsuario } from './_guardas.mjs';
 
 function leerEnv(ruta = '.env') {
   const env = {};
@@ -36,6 +36,7 @@ const lista = (res) => {
 
 const apply = process.argv.includes('--apply');
 const env = leerEnv();
+const campo = campoUsuario(env);
 const db = new Surreal();
 let cambios = [];
 
@@ -53,8 +54,8 @@ try {
   const sedesValidas = new Set(sedes.map(String));
 
   const [tamRes, insRes, aportesRes, asistenciasRes] = await Promise.all([
-    db.query('SELECT id, persona_id, inscripcion_id, sede_id FROM tamizaje_hemoglobina;'),
-    db.query('SELECT id, persona_id, activo FROM inscripcion;'),
+    db.query(`SELECT id, ${campo} AS persona_id, inscripcion_id, sede_id FROM tamizaje_hemoglobina;`),
+    db.query(`SELECT id, ${campo} AS persona_id, activo FROM inscripcion;`),
     db.query('SELECT id, inscripcion_id FROM aporte;'),
     db.query('SELECT id, inscripcion_id FROM asistencia_diaria;'),
   ]);
@@ -128,17 +129,19 @@ try {
       console.error(`[normalizar] Rechazado (${permiso.motivo}): ${permiso.detalle}`);
       process.exitCode = 2;
     } else {
-      for (const c of cambios) {
+      const sentencias = cambios.map((c) => {
         if (c.tipo === 'tamizaje_inscripcion') {
-          await db.query(`UPDATE ${c.id} SET inscripcion_id = ${c.despues};`);
-        } else if (c.tipo === 'aporte_inscripcion') {
-          await db.query(`UPDATE ${c.id} SET inscripcion_id = ${c.despues};`);
-        } else if (c.tipo === 'asistencia_inscripcion') {
-          await db.query(`UPDATE ${c.id} SET inscripcion_id = ${c.despues};`);
-        } else if (c.tipo === 'tamizaje_sede') {
-          await db.query(`UPDATE ${c.id} SET sede_id = ${c.despues};`);
+          return `UPDATE ${c.id} SET inscripcion_id = ${c.despues};`;
         }
-      }
+        if (c.tipo === 'aporte_inscripcion') {
+          return `UPDATE ${c.id} SET inscripcion_id = ${c.despues};`;
+        }
+        if (c.tipo === 'asistencia_inscripcion') {
+          return `UPDATE ${c.id} SET inscripcion_id = ${c.despues};`;
+        }
+        return `UPDATE ${c.id} SET sede_id = ${c.despues};`;
+      });
+      await db.query(`BEGIN;\n${sentencias.join('\n')}\nCOMMIT;`);
       const logRuta = join(
         dirname(resolve(argumento('--backup', '../backups/incidente-2026-11-27/export'))),
         `normalizacion-${Date.now()}.json`,

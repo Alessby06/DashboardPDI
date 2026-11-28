@@ -11,6 +11,7 @@
 import { readFileSync } from 'node:fs';
 import { Surreal } from 'surrealdb';
 import { auditar } from './_integridad-core.mjs';
+import { campoUsuario } from './_guardas.mjs';
 
 function leerEnv(ruta = '.env') {
   const env = {};
@@ -39,21 +40,24 @@ try {
   });
   await db.use({ namespace: env.PUBLIC_SURREAL_NS, database: env.PUBLIC_SURREAL_DB });
 
-  const [personasRes, inscripcionesRes, casosRes, tamizajesRes, aportesRes, asistenciasRes, evaluacionesRes] =
+  const campo = campoUsuario(env);
+  const [personasRes, inscripcionesRes, casosRes, tamizajesRes, aportesRes, asistenciasRes, evaluacionesRes, esquemaRes] =
     await Promise.all([
       db.query('SELECT id, activo, codigo FROM persona;'),
-      db.query('SELECT id, persona_id, activo FROM inscripcion;'),
+      db.query(`SELECT id, ${campo} AS persona_id, activo FROM inscripcion;`),
       db.query('SELECT id, usuario_id AS persona_id, activo FROM caso_social;'),
       db.query('SELECT id, persona_id, inscripcion_id, activo FROM tamizaje_hemoglobina;'),
       db.query('SELECT id, inscripcion_id FROM aporte;'),
       db.query('SELECT id, inscripcion_id FROM asistencia_diaria;'),
       db.query('SELECT id, persona_id, activo FROM evaluacion_socioeconomica;'),
+      db.query('INFO FOR TABLE inscripcion; INFO FOR TABLE caso_social;'),
     ]);
 
   const filas = (res) => {
     const primera = Array.isArray(res) ? res[0] : res;
     return Array.isArray(primera) ? primera : [];
   };
+  const info = (Array.isArray(esquemaRes) ? esquemaRes : []).map(x => (Array.isArray(x) ? x[0] : x));
 
   resultado = auditar({
     personas: filas(personasRes),
@@ -63,6 +67,7 @@ try {
     aportes: filas(aportesRes),
     asistencias: filas(asistenciasRes),
     evaluaciones: filas(evaluacionesRes),
+    esquema: { inscripcion: info[0], caso_social: info[1] },
   });
 } catch (err) {
   console.error('[audit] Fallo:', err?.message || err);

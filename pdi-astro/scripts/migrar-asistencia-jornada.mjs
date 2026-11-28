@@ -13,16 +13,39 @@
 // El archivo de respaldo se escribe en el directorio temporal del sistema; no
 // se versiona porque contiene datos de menores.
 
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { exigirPermiso, backupDeEntorno } from './_guardas.mjs';
 
 const { conectarMigracion } = await import(pathToFileURL(
   join(process.cwd(), 'scripts', 'conexion-migracion.mjs'),
 ).href);
 
 const APLICAR = process.argv.includes('--apply');
+const env = {};
+for (const l of readFileSync('.env', 'utf8').split(/\r?\n/)) {
+  const m = l.match(/^([A-Za-z0-9_]+)=(.*)$/);
+  if (m) env[m[1]] = m[2].trim().replace(/^"|"$/g, '');
+}
+if (APLICAR) {
+  const permiso = exigirPermiso({
+    apply: true,
+    backup: backupDeEntorno(env),
+    env: process.env,
+    ns: env.PUBLIC_SURREAL_NS,
+    db: env.PUBLIC_SURREAL_DB,
+  });
+  if (!permiso.ok) {
+    console.error(`[migrar-asistencia] Rechazado (${permiso.motivo}): ${permiso.detalle}`);
+    process.exit(2);
+  }
+  if (!process.argv.includes('--forzar-obsoleto')) {
+    console.error('[migrar-asistencia] DEPRECADO: el esquema actual ya tiene dia/indices y el DELETE esta bloqueado por previene_delete_asistencia. No se aplica; usa --forzar-obsoleto solo si retiras el evento antes.');
+    process.exit(2);
+  }
+}
 const db = await conectarMigracion({ esquema: false });
 
 async function contar(tabla) {

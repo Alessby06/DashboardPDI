@@ -11,6 +11,7 @@ import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { Surreal } from 'surrealdb';
+import { destinoSeguro } from './_guardas.mjs';
 
 function leerEnv(ruta = '.env') {
   const env = {};
@@ -35,6 +36,13 @@ function serializar(fila) {
 }
 
 const salida = resolve(argumento('--out', '../backups/incidente-2026-11-27/export'));
+const force = process.argv.includes('--force');
+const destino = destinoSeguro(salida, { force });
+if (!destino.ok) {
+  console.error(`[export] Destino rechazado (${destino.motivo}): ${destino.detalle || salida}`);
+  console.error('[export] Usa un --out nuevo o --force si de verdad quieres sobrescribir la evidencia.');
+  process.exit(2);
+}
 const env = leerEnv();
 if (!env.PUBLIC_SURREAL_URL || !env.SURREAL_USER || !env.SURREAL_PASS) {
   console.error('[export] Faltan PUBLIC_SURREAL_URL, SURREAL_USER o SURREAL_PASS en .env');

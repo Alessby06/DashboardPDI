@@ -7,6 +7,7 @@ import {
   clasificarDuplicado,
   resumirExpedientesIncompletos,
   tieneCasoAbierto,
+  puedeVerIntegridad,
 } from '../src/scripts/core/integridad.js';
 
 test('marca caso cuya persona no esta en el padron', () => {
@@ -56,4 +57,11 @@ test('resume personas activas sin inscripcion', () => {
 test('detecta caso abierto y no caso cerrado', () => {
   assert.equal(tieneCasoAbierto([{ _personaId: 'persona:a', etapa: 'evaluacion' }], 'persona:a'), true);
   assert.equal(tieneCasoAbierto([{ _personaId: 'persona:a', etapa: 'cerrado' }], 'persona:a'), false);
+});
+
+test('solo coordinacion y administracion ven integridad global', () => {
+  assert.equal(puedeVerIntegridad('coord'), true);
+  assert.equal(puedeVerIntegridad('admin'), true);
+  assert.equal(puedeVerIntegridad('facilitadora'), false);
+  assert.equal(puedeVerIntegridad('social'), false);
 });

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { auditar } from '../scripts/_integridad-core.mjs';
+import { auditar, verificarEsquema } from '../scripts/_integridad-core.mjs';
 
 const base = {
   personas: [], inscripciones: [], casos: [], tamizajes: [],
@@ -90,4 +90,24 @@ test('dataset consistente queda ok', () => {
   });
   assert.equal(r.ok, true);
   assert.deepEqual(r.violaciones, []);
+});
+
+test('el esquema sin protecciones no puede dar OK', () => {
+  const r = auditar({ ...base, esquema: {} });
+  assert.equal(r.ok, false);
+  assert.equal(r.violaciones.filter(v => v.codigo === 'ESQUEMA_SIN_PROTECCION').length, 4);
+});
+
+test('verificarEsquema acepta las protecciones aplicadas', () => {
+  const esquema = {
+    inscripcion: {
+      events: {
+        previene_delete_inscripcion: 'x',
+        una_inscripcion_activa: 'x',
+      },
+      indexes: { idx_inscripcion_persona_activo: 'x' },
+    },
+    caso_social: { events: { previene_delete_caso_social: 'x' } },
+  };
+  assert.deepEqual(verificarEsquema(esquema), []);
 });

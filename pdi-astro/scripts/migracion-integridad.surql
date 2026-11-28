@@ -34,6 +34,9 @@ DEFINE EVENT IF NOT EXISTS previene_delete_asistencia ON asistencia_diaria
   THEN { THROW 'Operacion rechazada: la asistencia no se borra.' };
 
 -- 2. Una sola inscripcion activa por persona.
+--    Esquema 0 (PUBLIC_ESQUEMA_USUARIO=0): persona_id.
+--    Esquema 1 (PUBLIC_ESQUEMA_USUARIO=1): reemplazar persona_id por usuario_id
+--    en este evento y en idx_inscripcion_persona_activo antes de aplicar.
 DEFINE EVENT IF NOT EXISTS una_inscripcion_activa ON inscripcion
   WHEN $event IN ['CREATE', 'UPDATE'] AND $after.activo = true
   THEN {

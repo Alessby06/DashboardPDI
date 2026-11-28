@@ -100,6 +100,28 @@ fue un `DELETE` directo sobre `inscripcion`.
   `ColaboradorModel.js` está siendo editado por otra sesión.
 - Vincular `caso_social` y evaluaciones a `inscripcion_id` (fase 3).
 
+## Correcciones tras la revisión independiente
+
+- `exportar-base` y `construir-manifiesto` ya no pisan evidencia: abortan si el
+  destino tiene archivos, salvo `--force`.
+- El archivo de retirados filtra `codigo` de beneficiario (`-is`) y no inventa
+  programa/modalidad para quien no tiene inscripción.
+- `sinExpediente` se calcula contra el padrón completo, no contra la lista
+  recortada por sede; `fetchCasosSociales` también marca los casos.
+- `db:audit` verifica `INFO FOR TABLE`: si faltan los eventos o el índice,
+  devuelve `ESQUEMA_SIN_PROTECCION` y no certifica OK.
+- Las reparaciones (`normalizar`, `limpiar`, `resolver`) son transaccionales y
+  fallan si el registro no existe.
+- Los scripts destructivos detienen la ejecución si un `DELETE` es rechazado;
+  ya no siguen borrando tablas.
+- `migrar-asistencia-jornada` queda deprecado y con guarda; el arnés de QA
+  tolera el evento de protección.
+- Los scripts respetan `PUBLIC_ESQUEMA_USUARIO` (`persona_id`/`usuario_id`).
+- El panel de Ajustes es solo para coordinación/administración.
+- La reactivación de un retirado sin inscripción ya no diagnostica "sede
+  inactiva": dice qué falta y el backend puede crear la inscripción si recibe
+  sede, programa y modalidad. El modal de la UI sigue pendiente.
+
 ## Rulings
 
 - **0011:** se prioriza tamizaje + fixture (Carmen Alto) sobre la sede del caso

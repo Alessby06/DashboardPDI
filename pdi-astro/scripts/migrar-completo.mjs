@@ -8,7 +8,7 @@
 
 import { readFileSync } from 'node:fs';
 import { Surreal } from 'surrealdb';
-import { exigirPermiso } from './_guardas.mjs';
+import { exigirPermiso, backupDeEntorno } from './_guardas.mjs';
 
 // 1. Cargar variables de entorno desde .env
 const env = {};
@@ -27,7 +27,7 @@ if (!apply) {
 }
 const permiso = exigirPermiso({
   apply: true,
-  backup: process.env.PDI_BACKUP || '',
+  backup: backupDeEntorno(env),
   env: process.env,
   ns: env.PUBLIC_SURREAL_NS,
   db: env.PUBLIC_SURREAL_DB,
@@ -65,7 +65,8 @@ for (const t of tablas) {
     await db.query(`DELETE ${t};`);
     console.log(`[Migración] Tabla limpiada: ${t}`);
   } catch (err) {
-    console.warn(`[Migración] Aviso al limpiar ${t}:`, err.message?.split('\n')[0]);
+    console.error(`[Migración] DELETE rechazado en ${t}:`, err.message?.split('\n')[0]);
+    throw err;
   }
 }
 

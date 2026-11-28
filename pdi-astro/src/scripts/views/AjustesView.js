@@ -11,6 +11,8 @@ import { iconHtml } from '../../data/iconos.js';
 import { Theme } from "../core/Theme.js";
 import { limpiarSnapshot } from "../core/snapshot.js";
 import { fetchExpedientesIncompletos } from "../core/db.js";
+import { puedeVerIntegridad } from "../core/integridad.js";
+import { rolDeCuenta } from "../auth/alcance.js";
 
 const ESTADOS_BD = {
   ok: { clase: 'status-mark--ok', texto: 'En Línea' },
@@ -87,6 +89,12 @@ export const AjustesView = {
     const texto = document.getElementById('labelIntegridad');
     const marca = document.getElementById('integridadMark');
     if (!texto || !marca) return;
+    if (!puedeVerIntegridad(rolDeCuenta())) {
+      texto.textContent = 'Solo coordinación y administración';
+      marca.className = 'status-mark';
+      marca.innerHTML = '<span class="status-mark-dot" aria-hidden="true"></span><span>Restringido</span>';
+      return;
+    }
     try {
       const filas = await fetchExpedientesIncompletos();
       if (!filas.length) {

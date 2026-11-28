@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { Surreal } from 'surrealdb';
-import { exigirPermiso } from './_guardas.mjs';
+import { exigirPermiso, backupDeEntorno } from './_guardas.mjs';
 
 const env = {};
 for (const l of readFileSync('.env', 'utf8').split(/\r?\n/)) {
@@ -16,7 +16,7 @@ if (!apply) {
 }
 const permiso = exigirPermiso({
   apply: true,
-  backup: process.env.PDI_BACKUP || '',
+  backup: backupDeEntorno(env),
   env: process.env,
   ns: env.PUBLIC_SURREAL_NS,
   db: env.PUBLIC_SURREAL_DB,
@@ -51,7 +51,8 @@ for (const t of ['inscripcion', 'caso_social', 'sede']) {
     await db.query(`DELETE ${t};`);
     console.log(`[OK] Limpiada tabla: ${t}`);
   } catch (e) {
-    console.log(`[Aviso] ${t}:`, e.message?.split('\n')[0]);
+    console.error(`[seed-clean] DELETE ${t} rechazado:`, e.message?.split('\n')[0]);
+    throw e;
   }
 }
 

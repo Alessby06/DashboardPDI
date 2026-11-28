@@ -26,11 +26,12 @@ export function tieneCasoAbierto(casos = [], personaId) {
  * de beneficiarios activos (padron). No filtra: la vista decide como mostrarlo.
  */
 export function marcarCasosHuerfanos(casos = [], beneficiarios = []) {
+  const lista = Array.isArray(casos) ? casos : [];
+  if (!Array.isArray(beneficiarios)) return lista;
   const conExpediente = new Set(
-    (Array.isArray(beneficiarios) ? beneficiarios : [])
-      .map(b => claveRegistro(b?._personaId || b?.personaId || b?.id)),
+    beneficiarios.map(b => claveRegistro(b?._personaId || b?.personaId || b?.id)),
   );
-  return (Array.isArray(casos) ? casos : []).map(caso => ({
+  return lista.map(caso => ({
     ...caso,
     sinExpediente: !conExpediente.has(claveRegistro(caso?._personaId || caso?.personaId)),
   }));
@@ -65,6 +66,11 @@ export function clasificarDuplicado({ persona, inscripcionActiva } = {}) {
   if (inscripcionActiva) return 'ACTIVO';
   if (persona && persona.activo === false) return 'RETIRADO';
   return 'SIN_INSCRIPCION';
+}
+
+/** ¿La cuenta puede ver el panel global de integridad? */
+export function puedeVerIntegridad(rol) {
+  return rol === 'coord' || rol === 'admin';
 }
 
 /**

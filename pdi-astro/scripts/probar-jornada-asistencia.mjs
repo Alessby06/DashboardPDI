@@ -48,7 +48,11 @@ async function filasDeSede(nombreSede) {
 
 try {
   // 0. Limpieza de restos de una ejecución anterior.
-  await db.query('DELETE asistencia_diaria WHERE dia = $dia;', { dia: DIA });
+  try {
+    await db.query('DELETE asistencia_diaria WHERE dia = $dia;', { dia: DIA });
+  } catch (err) {
+    console.warn('[QA] No se pudo limpiar la asistencia previa (evento de proteccion):', err?.message?.split('\n')[0]);
+  }
 
   // 1. Dos inscripciones activas de la misma sede.
   const [inscripciones] = await db.query(

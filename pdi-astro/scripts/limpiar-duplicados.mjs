@@ -12,7 +12,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { Surreal } from 'surrealdb';
-import { exigirPermiso } from './_guardas.mjs';
+import { exigirPermiso, campoUsuario } from './_guardas.mjs';
 
 function leerEnv(ruta = '.env') {
   const env = {};
@@ -28,6 +28,8 @@ function argumento(nombre, defecto = '') {
   return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : defecto;
 }
 
+const q = (valor) => `'${String(valor ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+
 const TEST = [
   { id: 'persona:⟨2qqms3i961ebhhtlxm11⟩', codigo: 'QA-PRUEBA-0014-A' },
   { id: 'persona:⟨2x3xjahrtdffehi47ozu⟩', codigo: 'QA-PRUEBA-0014-B' },
@@ -41,6 +43,7 @@ const TEST = [
 
 const apply = process.argv.includes('--apply');
 const env = leerEnv();
+const campo = campoUsuario(env);
 const db = new Surreal();
 let log = [];
 
@@ -58,7 +61,7 @@ try {
   for (const item of TEST) {
     const res = await db.query(`SELECT
       (SELECT count() FROM caso_social WHERE usuario_id = $id AND activo = true) AS casos,
-      (SELECT count() FROM inscripcion WHERE persona_id = $id AND activo = true) AS activas
+      (SELECT count() FROM inscripcion WHERE ${campo} = $id AND activo = true) AS activas
       FROM ONLY $id;`, { id: item.id });
     const fila = (Array.isArray(res) ? res[0] : res)?.[0] || {};
     const casos = Number(fila.casos?.[0]?.count ?? fila.casos ?? 0);
@@ -84,15 +87,16 @@ try {
       console.error(`[limpieza] Rechazado (${permiso.motivo}): ${permiso.detalle}`);
       process.exitCode = 2;
     } else {
-      for (const item of TEST) {
-        await db.query(`
-          UPDATE ${item.id} SET
+      const sentencias = TEST.map((item, i) => {
+        const variable = `$r${i}`;
+        return `LET ${variable} = (UPDATE ${item.id} SET
             activo = false,
-            codigo = $codigo,
+            codigo = ${q(item.codigo)},
             eliminado_el = time::now()
-          RETURN AFTER;
-        `, { codigo: item.codigo });
-      }
+          RETURN AFTER);
+        IF array::len(${variable}) = 0 { THROW 'No existe ${item.id}: no se aplico la baja.'; };`;
+      });
+      await db.query(`BEGIN;\n${sentencias.join('\n')}\nCOMMIT;`);
       const logRuta = join(
         dirname(resolve(argumento('--backup', '../backups/incidente-2026-11-27/export'))),
         `limpieza-${Date.now()}.json`,

@@ -390,11 +390,11 @@ export const BeneficiarioModel = {
    * Activo y conserva su inscripción, sede y servicio. La vista valida antes
    * que la sede y el servicio sigan operativos.
    */
-  async reactivar(idOCodigo, motivo = 'Reactivación administrativa', actor = null) {
+  async reactivar(idOCodigo, motivo = 'Reactivación administrativa', actor = null, datos = null) {
     const item = this.getRetiradoById(idOCodigo) || this.getRetiradoByCodigo(idOCodigo);
     if (!item) return false;
     item._actor = actor || actorLocal();
-    const ok = await reactivarBeneficiario(item, motivo);
+    const ok = await reactivarBeneficiario(item, motivo, datos);
     if (!ok) return false;
     const reactivado = { ...item, estado: 'Activo', sedeActiva: true };
     const clave = String(reactivado.codigo || reactivado.id);

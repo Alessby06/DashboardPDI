@@ -6,7 +6,7 @@
 import {
   crearCasoSocial, cambiarEtapaCaso, crearSolicitudCaso, resolverSolicitudCaso,
 } from '../core/db.js';
-import { marcarCasosHuerfanos, claveRegistro, tieneCasoAbierto } from '../core/integridad.js';
+import { marcarCasosHuerfanos, tieneCasoAbierto } from '../core/integridad.js';
 
 export const CasoSocialModel = {
   _data: null,

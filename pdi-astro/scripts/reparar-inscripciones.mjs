@@ -13,7 +13,7 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { Surreal } from 'surrealdb';
-import { exigirPermiso } from './_guardas.mjs';
+import { exigirPermiso, campoUsuario } from './_guardas.mjs';
 
 function leerEnv(ruta = '.env') {
   const env = {};
@@ -73,6 +73,7 @@ for (const fila of filas) {
 }
 
 const env = leerEnv();
+const campo = campoUsuario(env);
 if (apply) {
   const permiso = exigirPermiso({
     apply,
@@ -105,7 +106,7 @@ try {
   await db.use({ namespace: env.PUBLIC_SURREAL_NS, database: env.PUBLIC_SURREAL_DB });
 
   // Idempotencia: nunca crear una segunda inscripcion activa para la misma persona.
-  const activasRes = await db.query('SELECT VALUE persona_id FROM inscripcion WHERE activo = true;');
+  const activasRes = await db.query(`SELECT VALUE ${campo} FROM inscripcion WHERE activo = true;`);
   const conActiva = new Set(listaQuery(activasRes).map(String));
   const efectivas = [];
   for (const fila of plan) {
@@ -131,7 +132,7 @@ try {
     const sentencias = efectivas.map((fila) => {
       const destino = fila.idFinal ? fila.idFinal : 'inscripcion';
       return `CREATE ${destino} CONTENT {
-        persona_id: ${fila.personaId},
+        ${campo}: ${fila.personaId},
         sede_id: ${fila.sedeId},
         programa: ${q(fila.programa)},
         estrategias: [${fila.estrategias.map(q).join(', ')}],

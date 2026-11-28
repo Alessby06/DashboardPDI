@@ -26,6 +26,38 @@ function ordenar(lista) {
 }
 
 /**
+ * Verifica que la base tenga las protecciones que el código asume. No mira
+ * datos: mira INFO FOR TABLE. Si falta un evento, el auditor no puede decir OK.
+ */
+export function verificarEsquema(esquema = {}) {
+  const violaciones = [];
+  const exigirEvento = (tabla, evento) => {
+    const eventos = esquema?.[tabla]?.events || {};
+    if (!eventos[evento]) {
+      violaciones.push({
+        codigo: 'ESQUEMA_SIN_PROTECCION',
+        entidad: tabla,
+        id: evento,
+        detalle: `Falta el evento ${evento} en ${tabla}.`,
+      });
+    }
+  };
+  exigirEvento('inscripcion', 'previene_delete_inscripcion');
+  exigirEvento('inscripcion', 'una_inscripcion_activa');
+  exigirEvento('caso_social', 'previene_delete_caso_social');
+  const indices = esquema?.inscripcion?.indexes || {};
+  if (!indices.idx_inscripcion_persona_activo) {
+    violaciones.push({
+      codigo: 'ESQUEMA_SIN_PROTECCION',
+      entidad: 'inscripcion',
+      id: 'idx_inscripcion_persona_activo',
+      detalle: 'Falta el indice de persona/activo en inscripcion.',
+    });
+  }
+  return violaciones;
+}
+
+/**
  * @param {{
  *   personas: Array<{id:string, activo:boolean, codigo:string}>,
  *   inscripciones: Array<{id:string, persona_id:string, activo:boolean}>,
@@ -34,6 +66,7 @@ function ordenar(lista) {
  *   aportes: Array<{id:string, inscripcion_id:string}>,
  *   asistencias: Array<{id:string, inscripcion_id:string}>,
  *   evaluaciones: Array<{id:string, persona_id:string, activo:boolean}>,
+ *   esquema?: object,
  * }} datos
  */
 export function auditar(datos = {}) {
@@ -47,6 +80,7 @@ export function auditar(datos = {}) {
 
   const violaciones = [];
   const advertencias = [];
+  if (datos.esquema) violaciones.push(...verificarEsquema(datos.esquema));
 
   const personasPorId = new Map(personas.map(p => [claveRegistro(p.id), p]));
   const inscripcionesPorId = new Map(inscripciones.map(i => [claveRegistro(i.id), i]));

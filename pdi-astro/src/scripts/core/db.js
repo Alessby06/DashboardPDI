@@ -28,7 +28,7 @@ import { ToastView } from '../views/ToastView.js';
 import { guardarSnapshot, leerSnapshot, borrarCachesSesionPrefijo } from './snapshot.js';
 import { crearColaAuditoria } from './auditoriaEnvio.js';
 import { crearSelloAuditoria } from './selloAuditoria.js';
-import { clasificarDuplicado } from './integridad.js';
+import { clasificarDuplicado, marcarCasosHuerfanos } from './integridad.js';
 import { estrategiasDesdePrograma, SERVICIOS_VOLUNTARIADO, nombreServicioVisible } from '../../data/opcionesBeneficiario.js';
 import {
   normalizarParentesco,
@@ -530,7 +530,7 @@ const SQL_PADRON = `SELECT *,
   centro_salud.nombre AS centro_salud_nombre,
   institucion_origen.nombre AS institucion_origen_nombre,
   (SELECT * FROM alergia WHERE persona_id = $parent.id) AS alergias,
-  (SELECT * FROM inscripcion WHERE ${F_USUARIO} = $parent.id AND activo = true LIMIT 1)[0] AS ins,
+  (SELECT * FROM inscripcion WHERE ${F_USUARIO} = $parent.id AND activo = true ORDER BY creado_el DESC LIMIT 1)[0] AS ins,
   (SELECT * FROM tamizaje_hemoglobina WHERE ${F_USUARIO} = $parent.id AND activo = true ORDER BY fecha_tamizaje DESC) AS tams,
   (SELECT cuidador_id.nombres AS c_nom, cuidador_id.apellidos AS c_ape, cuidador_id.numero_documento AS c_dni, cuidador_id.sexo AS c_sexo, parentesco FROM ${T_VINCULO} WHERE ${F_MENOR} = $parent.id LIMIT 1)[0] AS apo,
   (SELECT VALUE pct_exoneracion FROM aporte WHERE inscripcion_id.${F_USUARIO} = $parent.id ORDER BY periodo DESC, mes DESC LIMIT 1)[0] AS pct
@@ -553,7 +553,8 @@ const SQL_RETIRADOS = `SELECT *,
   (SELECT cuidador_id.nombres AS c_nom, cuidador_id.apellidos AS c_ape, cuidador_id.numero_documento AS c_dni, cuidador_id.sexo AS c_sexo, parentesco FROM ${T_VINCULO} WHERE ${F_MENOR} = $parent.id LIMIT 1)[0] AS apo,
   (SELECT VALUE pct_exoneracion FROM aporte WHERE inscripcion_id.${F_USUARIO} = $parent.id ORDER BY periodo DESC, mes DESC LIMIT 1)[0] AS pct
 FROM persona
-WHERE activo = false;`;
+WHERE activo = false
+  AND string::lowercase(codigo) CONTAINS '-is';`;
 
 /**
  * Lote de consultas del padrón completo. Van pegadas para que la hidratación
@@ -625,9 +626,15 @@ export async function hidratar(promedioSilencioso = false) {
       // El alcance por sede recorta después de mapear: los nombres de sede se
       // resuelven con el directorio completo y solo se ocultan los registros
       // de sedes ajenas. El equipo ASP conserva las derivaciones de todas.
-      const beneficiarios = filtrarPorSede(mapearBeneficiarios(personasRaw, sedes));
+      const beneficiariosTodos = mapearBeneficiarios(personasRaw, sedes);
+      const beneficiarios = filtrarPorSede(beneficiariosTodos);
       const retirados = filtrarPorSede(mapearRetirados(retiradosRaw, mapearSedes(sedesTodasRaw)));
-      const casos = filtrarCasos(mapearCasos(casosRaw, solicitudesRaw));
+      // La marca se calcula contra el padrón completo: un caso de otra sede
+      // sigue teniendo expediente aunque el alcance de la cuenta lo recorte.
+      const casos = marcarCasosHuerfanos(
+        filtrarCasos(mapearCasos(casosRaw, solicitudesRaw)),
+        beneficiariosTodos,
+      );
       const voluntarios = mapearVoluntarios(voluntariosRaw);
 
       // 8 · colaboradores: llega en paralelo con el lote. Mientras la tabla no
@@ -717,7 +724,7 @@ function aplicarDatasets(beneficiarios, sedes, casos, voluntarios, asistencia, r
   pdi.BeneficiarioModel?.aplicarDatos?.(beneficiarios);
   pdi.BeneficiarioModel?.aplicarRetirados?.(retirados || []);
   pdi.SedeModel?.aplicarDatos?.(sedes);
-  pdi.CasoSocialModel?.aplicarDatos?.(casos, beneficiarios);
+  pdi.CasoSocialModel?.aplicarDatos?.(casos);
   pdi.VoluntarioModel?.aplicarDatos?.(voluntarios);
   if (Array.isArray(colaboradores) && colaboradores.length > 0) {
     pdi.ColaboradorModel?.aplicarDatos?.(colaboradores);
@@ -1030,7 +1037,7 @@ export async function fetchBeneficiarios() {
 export async function fetchExpedientesIncompletos() {
   const filas = comoLista(await ejecutar(`
     SELECT id, codigo, nombres, apellidos FROM persona
-    WHERE activo = true AND codigo CONTAINS '-IS'
+    WHERE activo = true AND string::lowercase(codigo) CONTAINS '-is'
       AND id NOT IN (SELECT VALUE ${F_USUARIO} FROM inscripcion WHERE activo = true);`));
   return filas.map(p => ({
     personaId: String(p.id),
@@ -1118,16 +1125,18 @@ function mapearBeneficiarios(personasRes, sedes, { permitirSinInscripcion = fals
   return personasRaw.map((m, idx) => {
     const idNum = extraerNumeroId(m.codigo, String(m.id), idx + 1);
     const sedeObj = sedesMap.get(String(m.ins?.sede_id)) || null;
-    const prog = m.ins?.programa || 'Desayuno Infantil';
+    // Un retirado sin historial no debe heredar un programa inventado.
+    const sinInscripcion = permitirSinInscripcion && !m.ins;
+    const prog = m.ins?.programa || (sinInscripcion ? '' : 'Desayuno Infantil');
 
     // La estrategia son varias. La nube las guarda como arreglo; si el dato
     // es anterior a ese cambio, se reconstruyen desde el programa guardado.
     const estrategias = Array.isArray(m.ins?.estrategias) && m.ins.estrategias.length
       ? m.ins.estrategias
-      : estrategiasDesdePrograma(prog);
+      : (prog ? estrategiasDesdePrograma(prog) : []);
     const estrategia = estrategias.join(' + ');
 
-    let servicios = ['Desayuno Infantil'];
+    let servicios = prog ? ['Desayuno Infantil'] : [];
     if (prog === 'Mixto') {
       servicios = ['Desayuno Infantil', 'Casita del Saber'];
     } else if (prog === 'Casita del Saber') {
@@ -1171,7 +1180,8 @@ function mapearBeneficiarios(personasRes, sedes, { permitirSinInscripcion = fals
       referencia: m.referencia || '',
       distrito: sedeObj?.distrito || m.distrito || '',
       sede: sedeObj?.nombre || '',
-      modalidad: modalidadDbAUi(m.ins?.modalidad),
+      modalidad: m.ins ? modalidadDbAUi(m.ins.modalidad) : (sinInscripcion ? '' : 'Comunitaria'),
+      programa: prog,
       estrategia,
       estrategias,
       exoneracionAporte: exoneracionDesdePct(m.pct),
@@ -1193,7 +1203,7 @@ function mapearBeneficiarios(personasRes, sedes, { permitirSinInscripcion = fals
       sexoApoderado: m.apo?.c_sexo || '',
       telefono: m.telefono || '',
       telefonoAlt: m.telefono_alt || '',
-      estado: m.ins?.estado || 'Activo',
+      estado: m.ins?.estado || (sinInscripcion ? 'Inactivo' : 'Activo'),
       motivoBaja: m.ins?.motivo_baja || '',
       ...trazabilidadDe(m),
       hb: tam?.hb_valor != null ? Number(tam.hb_valor) : null,
@@ -1235,13 +1245,18 @@ function mapearRetirados(personasRes, sedesTodas) {
 
 /** Obtiene los Casos Sociales (ASP) y sus solicitudes de cambio de etapa. */
 export async function fetchCasosSociales() {
-  const [casos, solicitudes, evaluaciones, eventos] = await ejecutarLote([
+  const [casos, solicitudes, evaluaciones, eventos, personasConExpediente] = await ejecutarLote([
     `SELECT *, ${F_CASO}.nombres AS p_nom, ${F_CASO}.apellidos AS p_ape, ${F_CASO}.codigo AS p_cod, sede_id.nombre AS s_nom FROM caso_social WHERE activo = true ORDER BY creado_el DESC;`,
     'SELECT * FROM solicitud_caso WHERE activo = true ORDER BY fecha_solicitud DESC;',
     'SELECT * FROM evaluacion_socioeconomica WHERE activo = true AND estado = \'aprobada\' ORDER BY fecha_evaluacion DESC;',
     'SELECT * FROM evento_caso ORDER BY fecha DESC;',
+    'SELECT VALUE persona_id FROM inscripcion WHERE activo = true;',
   ].join('\n'));
-  return filtrarCasos(mapearCasos(casos, solicitudes, evaluaciones, eventos));
+  const conExpediente = (personasConExpediente || []).map(id => ({ _personaId: String(id) }));
+  return filtrarCasos(marcarCasosHuerfanos(
+    mapearCasos(casos, solicitudes, evaluaciones, eventos),
+    conExpediente,
+  ));
 }
 
 /** Marca del bloque JSON que guarda la ficha mientras el esquema V2 no esté
@@ -1754,7 +1769,7 @@ export async function crearBeneficiario(m, actor = null) {
         const mensaje = clase === 'RETIRADO'
           ? `El documento ${documento} pertenece a un usuario retirado. Búscalo en el filtro «Inactivo» del padrón y usa Reactivar.`
           : clase === 'SIN_INSCRIPCION'
-            ? `El documento ${documento} existe sin inscripción vigente. Un administrador debe reparar el expediente desde Ajustes > Integridad.`
+            ? `El documento ${documento} existe sin inscripción vigente. Un administrador debe reparar el expediente con el manifiesto de recuperación (scripts/reparar-inscripciones.mjs).`
             : `El documento ${documento} ya está registrado y activo en el Padrón.`;
         avisarFallo('DNI duplicado', mensaje);
         return null;
@@ -2433,7 +2448,7 @@ export async function darBajaBeneficiario(b, motivo = 'Baja administrativa') {
  * anterior. La inscripción se enciende otra vez para que el usuario recupere
  * su sede y su servicio; la vista valida antes que ambos sigan operativos.
  */
-export async function reactivarBeneficiario(b, motivo = 'Reactivación administrativa') {
+export async function reactivarBeneficiario(b, motivo = 'Reactivación administrativa', datos = null) {
   // Igual que la baja: el id canónico manda. El código no es único y puede
   // reactivar a otra persona con el mismo código.
   let pid = claveRegistro(b?._personaId);
@@ -2450,6 +2465,14 @@ export async function reactivarBeneficiario(b, motivo = 'Reactivación administr
   }
   if (!pid) return false;
 
+  const sedeId = datos?.sedeId ? claveRegistro(datos.sedeId) : null;
+  const programa = datos?.programa || null;
+  const modalidad = datos?.modalidad || null;
+  const estrategias = Array.isArray(datos?.estrategias) && datos.estrategias.length
+    ? datos.estrategias
+    : (programa ? estrategiasDesdePrograma(programa) : null);
+  const periodo = Number(datos?.periodo) || new Date().getFullYear();
+
   try {
     await ejecutar(`
       LET $usuario = type::record('persona', $pid);
@@ -2462,10 +2485,25 @@ export async function reactivarBeneficiario(b, motivo = 'Reactivación administr
         reactivado_por_rol = $actorRol ?? NONE
       WHERE ${F_USUARIO} = $usuario AND activo = false RETURN AFTER);
       IF array::len($rea) = 0 {
-        THROW 'No hay inscripcion para reactivar: repara el expediente antes de reactivar a la persona.';
+        IF $sedeId = NONE OR $programa = NONE OR $modalidad = NONE {
+          THROW 'No hay inscripcion para reactivar: repara el expediente antes de reactivar a la persona.';
+        };
+        CREATE inscripcion CONTENT {
+          ${F_USUARIO}: $usuario,
+          sede_id: type::record('sede', $sedeId),
+          programa: $programa,
+          estrategias: $estrategias,
+          modalidad: $modalidad,
+          periodo: $periodo,
+          estado: 'Activo',
+          activo: true,
+          reconstruida_el: time::now(),
+          origen_reconstruccion: 'reactivacion'
+        };
       };
       UPDATE $usuario SET activo = true;`, {
-      pid, motivo, ...camposActor(b._actor),
+      pid, motivo, sedeId, programa, modalidad, estrategias, periodo,
+      ...camposActor(b._actor),
     });
     return true;
   } catch (err) {

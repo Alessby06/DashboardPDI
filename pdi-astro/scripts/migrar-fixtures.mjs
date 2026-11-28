@@ -2,7 +2,7 @@
 // Uso: node scripts/migrar-fixtures.mjs
 import { readFileSync } from 'node:fs';
 import { Surreal } from 'surrealdb';
-import { exigirPermiso } from './_guardas.mjs';
+import { exigirPermiso, backupDeEntorno } from './_guardas.mjs';
 
 // Lee .env manualmente (sin dependencia de dotenv)
 const env = {};
@@ -24,7 +24,7 @@ if (!apply) {
 }
 const permiso = exigirPermiso({
   apply: true,
-  backup: process.env.PDI_BACKUP || '',
+  backup: backupDeEntorno(env),
   env: process.env,
   ns: env.PUBLIC_SURREAL_NS,
   db: env.PUBLIC_SURREAL_DB,
@@ -44,7 +44,10 @@ const id = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '_');
 // Limpia tablas que vamos a poblar (los registros demo previos se reemplazan).
 for (const t of ['inscripcion', 'caso_social', 'evento_caso', 'evaluacion_socioeconomica', 'aporte', 'atencion_usuario', 'persona_rol', 'persona', 'sede', 'institucion']) {
   try { await db.query(`DELETE ${t};`); console.log('limpia tabla', t); }
-  catch (e) { console.log('omitida', t, '-', e.message?.split('\n')[0]); }
+  catch (e) {
+    console.error('[migrar-fixtures] DELETE rechazado en', t, '-', e.message?.split('\n')[0]);
+    throw e;
+  }
 }
 
 const programaDesde = (b) => {

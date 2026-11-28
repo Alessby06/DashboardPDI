@@ -18,6 +18,7 @@
 //  clases modal-tab-btn y modal-tab-pane siguen llamandose asi: las selecciona
 //  css/views.css y renombrarlas no compensaba el riesgo.
 import { PageGuard } from "../auth/PageGuard.js";
+import { puedeReactivar } from "../core/integridad.js";
 import { puedeAcceder } from "../auth/RouteMap.js";
 import { moverFocoFueraDeModal } from "../utils/focoModal.js";
 import { BeneficiarioModel } from "../models/BeneficiarioModel.js";
@@ -2178,6 +2179,19 @@ export const ExpedienteView = {
       ? this._usuarioActual
       : BeneficiarioModel.getRetiradoById(this._id);
     if (!b) return;
+
+    // Sin inscripcion no hay sede ni servicio que encender. Es un expediente
+    // incompleto, no una sede inactiva: se dice tal cual y se manda a reparar.
+    const estadoReactivacion = puedeReactivar(b);
+    if (!estadoReactivacion.ok) {
+      const falta = estadoReactivacion.faltan.join(", ");
+      ToastView.show(
+        "Expediente incompleto",
+        `No hay inscripción vigente para ${b.nombres} ${b.apellidos}. Falta: ${falta}. Un administrador debe repararla con el manifiesto de recuperación (scripts/reparar-inscripciones.mjs).`,
+        "warning",
+      );
+      return;
+    }
 
     if (!b.sedeActiva) {
       ToastView.show(
