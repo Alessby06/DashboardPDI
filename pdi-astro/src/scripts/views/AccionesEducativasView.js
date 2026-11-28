@@ -216,10 +216,10 @@ export const AccionesEducativasView = {
         return;
       }
 
-      const adultos = Math.max(0, parseInt(porId('aseAdultos')?.value, 10) || 0);
-      const ninos = Math.max(0, parseInt(porId('aseNinos')?.value, 10) || 0);
-      const libros = Math.max(0, parseInt(porId('aseLibros')?.value, 10) || 0);
-      const canastas = Math.max(0, parseInt(porId('aseCanastas')?.value, 10) || 0);
+      const adultos = Math.max(0, parseInt(porId('aseAdultos')?.value || '0', 10) || 0);
+      const ninos = Math.max(0, parseInt(porId('aseNinos')?.value || '0', 10) || 0);
+      const libros = Math.max(0, parseInt(porId('aseLibros')?.value || '0', 10) || 0);
+      const canastas = Math.max(0, parseInt(porId('aseCanastas')?.value || '0', 10) || 0);
       const distrito = porId('aseDistrito')?.value || 'Comas';
       const modalidad = porId('aseModalidad')?.value || 'Comunitaria';
       const estrategia = porId('aseEstrategia')?.value || 'Atención fija';
@@ -249,10 +249,6 @@ export const AccionesEducativasView = {
       form.reset();
       if (inputFecha) inputFecha.value = hoyISO();
       if (inputFac) inputFac.value = usuarioActivo().nombre;
-      if (porId('aseAdultos')) porId('aseAdultos').value = '0';
-      if (porId('aseNinos')) porId('aseNinos').value = '0';
-      if (porId('aseLibros')) porId('aseLibros').value = '0';
-      if (porId('aseCanastas')) porId('aseCanastas').value = '0';
       this.renderTablaAcciones();
     });
   },
@@ -432,13 +428,13 @@ export const AccionesEducativasView = {
           <div style="display: flex; flex-wrap: wrap; gap: 4px; align-items: center;">
             ${(item.acciones || []).map(a => {
               const esBiblio = a.toLowerCase().includes('biblioteca') || a.toLowerCase().includes('cuento');
-              const bg = esBiblio ? 'var(--chart-blue-bg)' : 'var(--gt-green-bg)';
-              const col = esBiblio ? 'var(--chart-blue-ink)' : 'var(--gt-green)';
+              const bg = esBiblio ? 'rgba(59, 130, 246, 0.12)' : 'var(--gt-green-bg)';
+              const col = esBiblio ? '#2563eb' : 'var(--gt-green)';
               const icon = esBiblio ? '📚 ' : '';
-              return `<span class="badge" style="background: ${bg}; color: ${col}; font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: 500;">${icon}${escapar(a)}</span>`;
+              return `<span class="badge" style="background: ${bg}; color: ${col}; font-size: 11px; padding: 2px 6px; border-radius: 4px;">${icon}${escapar(a)}</span>`;
             }).join('')}
             ${item.grupoEtario && item.grupoEtario !== 'Comunidad / Todos' ? `<span class="badge" style="background: var(--surface-2); color: var(--text-muted); font-size: 10.5px; padding: 2px 5px; border-radius: 4px; border: 1px solid var(--border-subtle);">🎯 ${escapar(item.grupoEtario)}</span>` : ''}
-            ${item.libros > 0 ? `<span class="badge" style="background: var(--gt-yellow-bg); color: var(--text-main); font-size: 10.5px; padding: 2px 5px; border-radius: 4px; font-weight: 600; border: 1px solid var(--border-subtle);">📖 ${item.libros} libros</span>` : ''}
+            ${item.libros > 0 ? `<span class="badge" style="background: rgba(245, 158, 11, 0.12); color: #d97706; font-size: 10.5px; padding: 2px 5px; border-radius: 4px; font-weight: 600;">📖 ${item.libros} libros</span>` : ''}
           </div>
           ${item.observaciones ? `<div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px; font-style: italic;">${escapar(item.observaciones)}</div>` : ''}
         </td>

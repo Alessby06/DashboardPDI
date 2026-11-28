@@ -1029,19 +1029,7 @@
   color: var(--text-main);
   cursor: pointer;
   user-select: none;
-  transition: transform 150ms var(--ease-out),
-              color var(--dur-fast) var(--ease-smooth),
-              background-color var(--dur-fast) var(--ease-smooth),
-              border-color var(--dur-fast) var(--ease-smooth);
-}
-
-.educativo-check-card:active {
-  transform: scale(0.98);
-}
-
-.educativo-check-card:has(input:focus-visible) {
-  outline: 2px solid var(--border-focus);
-  outline-offset: 2px;
+  transition: color var(--dur-fast) var(--ease-smooth), background-color var(--dur-fast) var(--ease-smooth), border-color var(--dur-fast) var(--ease-smooth);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -1064,6 +1052,11 @@
   color: var(--text-danger);
 }
 
+.educativo-check-card:has(input:focus-visible) {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
 .educativo-check-card input[type="checkbox"] {
   width: 16px;
   height: 16px;
@@ -1083,12 +1076,6 @@
   }
   .educativo-checkbox-grid {
     grid-template-columns: 1fr;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .educativo-check-card:active {
-    transform: none;
   }
 }
 
