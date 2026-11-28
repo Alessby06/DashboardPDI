@@ -1028,3 +1028,11 @@ html[data-seccion-dir="arriba"]::view-transition-new(expediente-seccion) {
     transform: translateY(4px);
   }
 }
+
+/* En modo edición, los dropdowns editables pasan a fondo claro (--surface-1) para
+   indicar que se pueden desplegar y cambiar. */
+body.pdi-editando #view-expediente select.form-control:not(:disabled),
+body.pdi-editando #view-expediente .pdi-select:not(.is-disabled) .pdi-select-trigger {
+  background: var(--surface-1);
+  border-color: var(--border-medium);
+}
