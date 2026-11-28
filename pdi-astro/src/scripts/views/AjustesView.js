@@ -10,6 +10,7 @@ import { iconHtml } from '../../data/iconos.js';
 // atributos onclick inline, que la CSP del producto bloquea.
 import { Theme } from "../core/Theme.js";
 import { limpiarSnapshot } from "../core/snapshot.js";
+import { fetchExpedientesIncompletos } from "../core/db.js";
 
 const ESTADOS_BD = {
   ok: { clase: 'status-mark--ok', texto: 'En Línea' },
@@ -63,6 +64,7 @@ export const AjustesView = {
     // fijos ("En Linea", "Hoy a las 10:45 AM") que no decian la verdad.
     this._pintarEstadoBD(window.PDI?.DB?.estadoActual?.() ?? null);
     this._pintarUltimaSync();
+    this._pintarIntegridad();
   },
 
   /**
@@ -75,6 +77,33 @@ export const AjustesView = {
     const DB = window.PDI?.DB;
     if (!DB?.suscribirEstado) return;
     this._desuscribirBD = DB.suscribirEstado((estado) => this._pintarEstadoBD(estado));
+  },
+
+  /**
+   * Panel de integridad: personas activas sin inscripcion. Es una lectura
+   * aparte y tolerante a fallos; si la nube no responde no rompe Ajustes.
+   */
+  async _pintarIntegridad() {
+    const texto = document.getElementById('labelIntegridad');
+    const marca = document.getElementById('integridadMark');
+    if (!texto || !marca) return;
+    try {
+      const filas = await fetchExpedientesIncompletos();
+      if (!filas.length) {
+        texto.textContent = 'Sin expedientes incompletos';
+        marca.className = 'status-mark status-mark--ok';
+        marca.innerHTML = '<span class="status-mark-dot" aria-hidden="true"></span><span>OK</span>';
+      } else {
+        const nombres = filas.slice(0, 3).map(f => f.codigo || f.nombres).join(', ');
+        texto.textContent = `${filas.length} persona${filas.length === 1 ? '' : 's'} activa${filas.length === 1 ? '' : 's'} sin inscripción: ${nombres}${filas.length > 3 ? '…' : ''}`;
+        marca.className = 'status-mark status-mark--warn';
+        marca.innerHTML = '<span class="status-mark-dot" aria-hidden="true"></span><span>Revisar</span>';
+      }
+    } catch {
+      texto.textContent = 'No se pudo comprobar la integridad';
+      marca.className = 'status-mark status-mark--warn';
+      marca.innerHTML = '<span class="status-mark-dot" aria-hidden="true"></span><span>Sin datos</span>';
+    }
   },
 
   _pintarEstadoBD(estado) {

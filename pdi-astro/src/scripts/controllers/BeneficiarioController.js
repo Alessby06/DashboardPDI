@@ -748,6 +748,20 @@ export const BeneficiarioController = {
       return s === canonicalName;
     });
 
+    // Retirar ASP con un caso abierto dejaria el caso sin servicio de origen.
+    // Se exige cerrar el caso primero; no se bloquea el alta del servicio.
+    if (idx !== -1 && (low.includes("pastoral") || low.includes("social") || low.includes("asp"))) {
+      const socialModel = window.PDI?.CasoSocialModel || CasoSocialModel;
+      if (socialModel?.tieneCasoAbierto?.(usuario._personaId || usuario.id)) {
+        ToastView.show(
+          "Caso social abierto",
+          "Cierra el caso en Social antes de retirar el servicio de Área Social Pastoral.",
+          "warning",
+        );
+        return;
+      }
+    }
+
     let isAdded = false;
     if (idx !== -1) {
       usuario.servicios.splice(idx, 1);

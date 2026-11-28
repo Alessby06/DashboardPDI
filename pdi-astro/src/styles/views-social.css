@@ -2695,3 +2695,20 @@ body.pdi-derivacion-open {
     transform: none;
   }
 }
+
+/* Caso cuya persona no tiene inscripcion activa en el padron. */
+.kanban-card-alerta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.4;
+  white-space: nowrap;
+  color: var(--text-warning);
+  background: var(--surface-2);
+  border: 1px solid color-mix(in srgb, var(--text-warning) 35%, transparent);
+}
+

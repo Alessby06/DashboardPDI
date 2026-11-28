@@ -6,6 +6,7 @@
 import {
   crearCasoSocial, cambiarEtapaCaso, crearSolicitudCaso, resolverSolicitudCaso,
 } from '../core/db.js';
+import { marcarCasosHuerfanos, claveRegistro, tieneCasoAbierto } from '../core/integridad.js';
 
 export const CasoSocialModel = {
   _data: null,
@@ -19,7 +20,7 @@ export const CasoSocialModel = {
   },
 
   /** La capa de datos entrega los casos con sus solicitudes ya adjuntas. */
-  aplicarDatos(lista) {
+  aplicarDatos(lista, beneficiarios = null) {
     if (!Array.isArray(lista)) return;
 
     // Un snapshot puede ser anterior a una escritura recien confirmada (LIVE
@@ -44,7 +45,9 @@ export const CasoSocialModel = {
       }
     }
 
-    this._data = lista;
+    this._data = Array.isArray(beneficiarios)
+      ? marcarCasosHuerfanos(lista, beneficiarios)
+      : lista;
   },
 
   /** Marca una etapa como propia mientras la nube la confirma. */
@@ -71,6 +74,11 @@ export const CasoSocialModel = {
   getByStage(stage) {
     const list = this.getAll();
     return list.filter(c => c.etapa === stage);
+  },
+
+  /** ¿La persona tiene un caso social que aun no se cerro? */
+  tieneCasoAbierto(personaId) {
+    return tieneCasoAbierto(this.getAll(), personaId);
   },
 
   /**

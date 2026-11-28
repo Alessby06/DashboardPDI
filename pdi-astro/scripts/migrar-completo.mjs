@@ -8,6 +8,7 @@
 
 import { readFileSync } from 'node:fs';
 import { Surreal } from 'surrealdb';
+import { exigirPermiso } from './_guardas.mjs';
 
 // 1. Cargar variables de entorno desde .env
 const env = {};
@@ -17,6 +18,24 @@ for (const linea of readFileSync('.env', 'utf8').split(/\r?\n/)) {
 }
 
 console.log('[Migración] Conectando a SurrealDB Cloud:', env.PUBLIC_SURREAL_URL);
+
+const apply = process.argv.includes('--apply');
+if (!apply) {
+  console.log('[migrar-completo] dry-run: borraria persona, caso_social, sede, voluntario, inscripcion y tamizaje_hemoglobina.');
+  console.log('Usa --apply con PDI_ALLOW_DESTRUCTIVE=1 y PDI_BACKUP=<export reciente>.');
+  process.exit(0);
+}
+const permiso = exigirPermiso({
+  apply: true,
+  backup: process.env.PDI_BACKUP || '',
+  env: process.env,
+  ns: env.PUBLIC_SURREAL_NS,
+  db: env.PUBLIC_SURREAL_DB,
+});
+if (!permiso.ok) {
+  console.error(`[migrar-completo] Rechazado (${permiso.motivo}): ${permiso.detalle}`);
+  process.exit(2);
+}
 
 // 2. Importar fixtures oficiales
 const { defaultBeneficiarios } = await import('../src/data/fixtures/beneficiarios.js');

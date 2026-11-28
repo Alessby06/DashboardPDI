@@ -1,10 +1,29 @@
 import { readFileSync } from 'node:fs';
 import { Surreal } from 'surrealdb';
+import { exigirPermiso } from './_guardas.mjs';
 
 const env = {};
 for (const l of readFileSync('.env', 'utf8').split(/\r?\n/)) {
   const m = l.match(/^([A-Z_]+)=(.*)$/);
   if (m) env[m[1]] = m[2].trim().replace(/^"|"$/g, '');
+}
+
+const apply = process.argv.includes('--apply');
+if (!apply) {
+  console.log('[seed-apoderados] dry-run: borraria persona_vinculada y la recrearia desde el fixture.');
+  console.log('Usa --apply con PDI_ALLOW_DESTRUCTIVE=1 y PDI_BACKUP=<export reciente>.');
+  process.exit(0);
+}
+const permiso = exigirPermiso({
+  apply: true,
+  backup: process.env.PDI_BACKUP || '',
+  env: process.env,
+  ns: env.PUBLIC_SURREAL_NS,
+  db: env.PUBLIC_SURREAL_DB,
+});
+if (!permiso.ok) {
+  console.error(`[seed-apoderados] Rechazado (${permiso.motivo}): ${permiso.detalle}`);
+  process.exit(2);
 }
 
 const db = new Surreal();

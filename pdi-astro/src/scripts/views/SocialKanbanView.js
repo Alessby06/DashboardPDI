@@ -407,6 +407,7 @@ export const SocialKanbanView = {
       card.innerHTML = `
         <div class="kanban-card-header-row">
           <strong class="kanban-card-title" title="${escapar(c.usuario)}">${escapar(c.usuario)}</strong>
+          ${c.sinExpediente ? `<span class="kanban-card-alerta" data-sin-expediente="1" title="La persona no tiene inscripción activa en el padrón">Sin expediente</span>` : ""}
           ${marcaEstado(escapar(c.urgencia), TONO_URGENCIA[c.urgencia] || 'idle')}
         </div>
         <div class="kanban-card-meta">

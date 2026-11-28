@@ -2,6 +2,7 @@
 // Uso: node scripts/migrar-fixtures.mjs
 import { readFileSync } from 'node:fs';
 import { Surreal } from 'surrealdb';
+import { exigirPermiso } from './_guardas.mjs';
 
 // Lee .env manualmente (sin dependencia de dotenv)
 const env = {};
@@ -14,6 +15,24 @@ const { defaultBeneficiarios } = await import('../src/data/fixtures/beneficiario
 const { defaultSedes } = await import('../src/data/fixtures/sedes.js');
 const { defaultVoluntarios } = await import('../src/data/fixtures/voluntarios.js');
 const { defaultCasosSociales } = await import('../src/data/fixtures/casos-sociales.js');
+
+const apply = process.argv.includes('--apply');
+if (!apply) {
+  console.log('[migrar-fixtures] dry-run: borraria inscripcion, caso_social, evento_caso, evaluacion_socioeconomica, aporte, atencion_usuario, persona_rol, persona, sede e institucion.');
+  console.log('Usa --apply con PDI_ALLOW_DESTRUCTIVE=1 y PDI_BACKUP=<export reciente>.');
+  process.exit(0);
+}
+const permiso = exigirPermiso({
+  apply: true,
+  backup: process.env.PDI_BACKUP || '',
+  env: process.env,
+  ns: env.PUBLIC_SURREAL_NS,
+  db: env.PUBLIC_SURREAL_DB,
+});
+if (!permiso.ok) {
+  console.error(`[migrar-fixtures] Rechazado (${permiso.motivo}): ${permiso.detalle}`);
+  process.exit(2);
+}
 
 const db = new Surreal();
 await db.connect(env.PUBLIC_SURREAL_URL);
