@@ -1036,3 +1036,25 @@ body.pdi-editando #view-expediente .pdi-select:not(.is-disabled) .pdi-select-tri
   background: var(--surface-1);
   border-color: var(--border-medium);
 }
+
+/* Transición suave al entrar/salir de modo edición en expediente */
+#view-expediente .form-control,
+#view-expediente .pdi-select-trigger {
+  transition: background-color var(--dur-fast) var(--ease-out),
+              border-color var(--dur-fast) var(--ease-out);
+}
+
+@keyframes expSaveBtnIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+body.pdi-editando #btnSaveExpChanges {
+  animation: expSaveBtnIn var(--dur-fast) var(--ease-out) both;
+}
