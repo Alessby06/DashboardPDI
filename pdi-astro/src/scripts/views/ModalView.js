@@ -50,6 +50,20 @@ function conectarDialogoFicha() {
   if (dialogoFichaListo) return;
   dialogoFichaListo = true;
 
+  document.addEventListener("click", (evento) => {
+    const wrap = document.getElementById("wrapFichaBorradorInfo");
+    const pop = document.getElementById("popoverFichaBorrador");
+    const btn = document.getElementById("btnFichaBorradorInfo");
+    if (!wrap || !pop || !btn) return;
+    if (btn.contains(evento.target)) {
+      const abierto = pop.classList.toggle("open");
+      btn.setAttribute("aria-expanded", abierto ? "true" : "false");
+    } else if (!wrap.contains(evento.target) && pop.classList.contains("open")) {
+      pop.classList.remove("open");
+      btn.setAttribute("aria-expanded", "false");
+    }
+  });
+
   document.addEventListener("keydown", (evento) => {
     const modal = document.getElementById("modalNuevoUsuario");
     if (!modal || !modal.classList.contains("open")) return;
@@ -160,6 +174,11 @@ export const ModalView = {
       // Guardar o cerrar sin trabajo pendiente no deja borrador que restaurar.
       firmaBorrador = null;
     }
+
+    const popBorrador = document.getElementById("popoverFichaBorrador");
+    const btnBorrador = document.getElementById("btnFichaBorradorInfo");
+    if (popBorrador) popBorrador.classList.remove("open");
+    if (btnBorrador) btnBorrador.setAttribute("aria-expanded", "false");
 
     modal.classList.remove("open");
 
