@@ -1093,7 +1093,7 @@ export const ExpedienteView = {
             <div class="form-group retiro-person-field">
               <label>DNI (8 dígitos)</label>
               <input type="text" class="form-control" data-retiro-campo="dni" data-tipo="dni" maxlength="8" inputmode="numeric"
-                value="${escapar(p.dni || "")}">
+                value="${escapar(String(p.dni || "").replace(/\D/g, "").slice(0, 8))}">
             </div>
             <div class="form-group retiro-person-field">
               <label>Parentesco</label>
@@ -1104,7 +1104,7 @@ export const ExpedienteView = {
             <div class="form-group retiro-person-field">
               <label>Teléfono</label>
               <input type="text" class="form-control" data-retiro-campo="telefono" data-tipo="telefono" maxlength="9" inputmode="numeric"
-                value="${escapar(p.telefono || "")}">
+                value="${escapar(String(p.telefono || "").replace(/\D/g, "").slice(0, 9))}">
             </div>
           </div>
         </div>

@@ -61,24 +61,35 @@ export function etiquetaTipo(tipo) {
   return "";
 }
 
-function limpiar(valor, regla) {
-  return Array.from(valor).filter((caracter) => regla.permite.test(caracter)).join("");
+function limpiar(valor, regla, tipo) {
+  let limpio = Array.from(valor).filter((caracter) => regla.permite.test(caracter)).join("");
+  if (tipo === "celular" || tipo === "telefono") {
+    limpio = limpio.replace(/^[^9]+/, "");
+  }
+  if (regla.max && limpio.length > regla.max) {
+    limpio = limpio.slice(0, regla.max);
+  }
+  return limpio;
 }
 
 /** Aplica inputmode y maxlength a un campo, aunque se haya dibujado después. */
 function aplicarAtributos(campo) {
-  const regla = REGLAS[campo.dataset.tipo];
+  const tipo = campo.dataset.tipo;
+  const regla = REGLAS[tipo];
   if (!regla) return null;
   if (!campo.getAttribute("inputmode")) campo.setAttribute("inputmode", regla.inputmode);
   if (!campo.getAttribute("maxlength") && regla.max) {
     campo.setAttribute("maxlength", String(regla.max));
+  }
+  if (tipo === "dni" || tipo === "celular" || tipo === "telefono") {
+    if (campo.value) limpiarCampo(campo, regla);
   }
   return regla;
 }
 
 function limpiarCampo(campo, regla) {
   const valor = campo.value;
-  const limpio = limpiar(valor, regla);
+  const limpio = limpiar(valor, regla, campo.dataset.tipo);
   if (limpio === valor) return;
 
   // El cursor se queda donde estaba, contando solo los caracteres validos.
