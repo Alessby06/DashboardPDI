@@ -97,6 +97,7 @@ export const DashboardView = {
     }
     const casos = window.PDI?.CasoSocialModel?.getAll?.() || [];
     const casosActivos = casos.filter(c => c && c.etapa !== "cerrado").length;
+    const casosSinExpediente = casos.filter(c => c && c.sinExpediente).length;
     const personasAsp = new Set(
       casos
         .filter(c => c && c.etapa !== "cerrado")
@@ -221,7 +222,10 @@ export const DashboardView = {
         kpiCasosAspSub.textContent = "Cargando seguimiento…";
       } else {
         const ninos = usuariosAsp.length;
-        kpiCasosAspSub.innerHTML = `<strong>${ninos} ${ninos === 1 ? "usuario" : "usuarios"}</strong> en acompañamiento · <strong>${casosActivos} ${casosActivos === 1 ? "caso" : "casos"}</strong> abiertos`;
+        const alerta = casosSinExpediente > 0
+          ? ` · <strong>${casosSinExpediente} ${casosSinExpediente === 1 ? "caso sin expediente" : "casos sin expediente"}</strong>`
+          : "";
+        kpiCasosAspSub.innerHTML = `<strong>${ninos} ${ninos === 1 ? "usuario" : "usuarios"}</strong> en acompañamiento · <strong>${casosActivos} ${casosActivos === 1 ? "caso" : "casos"}</strong> abiertos${alerta}`;
       }
     }
 
