@@ -165,11 +165,6 @@ export const ModalView = {
       firmaBorrador = helper && helper.hasSignature && helper.hasSignature()
         ? helper.toDataURL()
         : null;
-      window.showToast?.(
-        "Borrador guardado",
-        "Al reabrir la ficha seguirá como lo dejaste.",
-        "info",
-      );
     } else {
       // Guardar o cerrar sin trabajo pendiente no deja borrador que restaurar.
       firmaBorrador = null;
