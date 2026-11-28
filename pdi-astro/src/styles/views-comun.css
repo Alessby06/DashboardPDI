@@ -2510,8 +2510,10 @@ html.pdi-cambiando-tema::view-transition-new(root) {
   cursor: pointer;
 }
 
-.croquis-fachada-menu-item:hover {
-  background: var(--surface-2);
+@media (hover: hover) and (pointer: fine) {
+  .croquis-fachada-menu-item:hover {
+    background: var(--surface-2);
+  }
 }
 
 .croquis-fachada-menu-item--danger {
