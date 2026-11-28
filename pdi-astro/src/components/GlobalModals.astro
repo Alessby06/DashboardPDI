@@ -1609,7 +1609,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
           <div style="background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px 14px;">
             <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-dim); margin-bottom: 4px;">Teléfono de Contacto</div>
-            <div style="font-size: 13px; color: var(--text-main); font-weight: 600;" id="fichaVolCelular">987-342-119</div>
+            <div style="font-size: 13px; color: var(--text-main); font-weight: 600;" id="fichaVolCelular">987342119</div>
           </div>
           <div style="background: var(--surface-1); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px 14px;">
             <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-dim); margin-bottom: 4px;">Edad / Cumpleaños</div>
@@ -2036,7 +2036,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
           <div class="colab-form-grid-2">
             <div>
               <label for="colabDni" class="colab-form-label">DNI</label>
-              <input type="text" id="colabDni" maxlength="8" class="form-control" placeholder="8 dígitos" />
+              <input type="text" id="colabDni" data-tipo="dni" inputmode="numeric" maxlength="8" class="form-control" placeholder="8 dígitos" />
             </div>
             <div>
               <label for="colabDistrito" class="colab-form-label">Distrito *</label>
@@ -2052,7 +2052,7 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
           <div class="colab-form-grid-2">
             <div>
               <label for="colabCelular" class="colab-form-label">Celular / WhatsApp (9 dígitos)</label>
-              <input type="tel" id="colabCelular" maxlength="9" placeholder="Ej. 987654321" class="form-control" />
+              <input type="tel" id="colabCelular" data-tipo="celular" inputmode="numeric" maxlength="9" placeholder="Ej. 987654321" class="form-control" />
             </div>
             <div>
               <label for="colabTelefonoFijo" class="colab-form-label">Teléfono Fijo de Secretaría (7 dígitos)</label>
@@ -2225,8 +2225,9 @@ import ModalFichaA1Oficial from './ModalFichaA1Oficial.astro';
                 id="ctaTelefono"
                 name="telefono"
                 type="tel"
+                data-tipo="celular"
                 inputmode="numeric"
-                maxlength="16"
+                maxlength="9"
                 autocomplete="off"
                 placeholder="987654321"
                 aria-describedby="ctaTelefonoHint ctaTelefonoError"

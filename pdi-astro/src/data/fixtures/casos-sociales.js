@@ -27,7 +27,7 @@ export const defaultCasosSociales = [
     quienDeriva: {
       nombre: "Lic. Miriam Soto Paredes",
       cargo: "Facilitadora Nutricional",
-      telefono: "987-223-114"
+      telefono: "987223114"
     },
     situacionEncontrada: "Hb 9.6 g/dL (Anemia Moderada). Cuidadora principal es abuela Gladys Diaz (64 años) sin empleo formal ni pensión; alto riesgo de deserción alimentaria.",
     accionesPrevias: "Prescripción de sulfato ferroso y primera visita domiciliaria preliminar en El Progreso.",
@@ -50,7 +50,7 @@ export const defaultCasosSociales = [
     quienDeriva: {
       nombre: "Lic. Miriam Soto Paredes",
       cargo: "Facilitadora Nutricional",
-      telefono: "987-223-114"
+      telefono: "987223114"
     },
     situacionEncontrada: "Hb 9.8 g/dL (Anemia Moderada). Hogar monoparental con madre Karina Córdova a cargo de 3 dependientes en vivienda precaria de madera sin red de agua.",
     accionesPrevias: "Sesión demostrativa de alimentos ricos en hierro y entrega de suplementos ferrosos.",
@@ -73,7 +73,7 @@ export const defaultCasosSociales = [
     quienDeriva: {
       nombre: "Lic. Carmen Vargas",
       cargo: "Trabajadora Social ASP",
-      telefono: "945-667-889"
+      telefono: "945667889"
     },
     situacionEncontrada: "Cuidadora Sonia Vilchez en desempleo prolongado. Solicita canasta de contingencia y exoneración de aporte simbólico.",
     accionesPrevias: "Evaluación preliminar de balance de ingresos y encuesta de vulnerabilidad.",
@@ -96,7 +96,7 @@ export const defaultCasosSociales = [
     quienDeriva: {
       nombre: "Prof. Delia Morales",
       cargo: "Promotora Educativa Casitas",
-      telefono: "912-334-556"
+      telefono: "912334556"
     },
     situacionEncontrada: "Vivienda precaria con piso de tierra y hacinamiento en Comité 12 de Año Nuevo. Se realiza evaluación socioeconómica de 6 dimensiones.",
     accionesPrevias: "Visita domiciliaria preliminar realizada y aplicación de ficha socioeconómica en curso.",
@@ -119,7 +119,7 @@ export const defaultCasosSociales = [
     quienDeriva: {
       nombre: "Lic. Carmen Vargas",
       cargo: "Trabajadora Social ASP",
-      telefono: "945-667-889"
+      telefono: "945667889"
     },
     situacionEncontrada: "Madre Patricia Huamán con tratamiento médico crónico. En evaluación para subsidio nutricional y acompañamiento pastoral.",
     accionesPrevias: "Coordinación con posta médica Santa Rosa para verificación de recetas y atenciones.",
@@ -142,7 +142,7 @@ export const defaultCasosSociales = [
     quienDeriva: {
       nombre: "Prof. Delia Morales",
       cargo: "Promotora Educativa Casitas",
-      telefono: "912-334-556"
+      telefono: "912334556"
     },
     situacionEncontrada: "Madre Miriam Morales solicita reconsideración para exoneración total debido al cese laboral del cónyuge.",
     accionesPrevias: "Recepción de solicitud escrita y programación de visita domiciliaria de constatación.",
@@ -165,7 +165,7 @@ export const defaultCasosSociales = [
     quienDeriva: {
       nombre: "Lic. Carmen Vargas",
       cargo: "Trabajadora Social ASP",
-      telefono: "945-667-889"
+      telefono: "945667889"
     },
     situacionEncontrada: "Presunto abandono económico paterno y riesgo de vulneración de derechos de alimentos del usuario.",
     accionesPrevias: "Derivación mediante Oficio Oficial a DEMUNA Carabayllo y asignación de Canasta Familiar Banco BTF.",
@@ -188,7 +188,7 @@ export const defaultCasosSociales = [
     quienDeriva: {
       nombre: "Lic. Miriam Soto Paredes",
       cargo: "Facilitadora Nutricional",
-      telefono: "987-223-114"
+      telefono: "987223114"
     },
     situacionEncontrada: "Ingresó con anemia leve y vulnerabilidad económica. Madre Carmen Ramos completó sesiones demostrativas y el usuario recuperó niveles normales de hemoglobina (Hb 11.6 g/dL).",
     accionesPrevias: "Cumplió esquema de suplementación y asistencia perfecta al comedor.",
@@ -211,7 +211,7 @@ export const defaultCasosSociales = [
     quienDeriva: {
       nombre: "Prof. Delia Morales",
       cargo: "Promotora Educativa Casitas",
-      telefono: "912-334-556"
+      telefono: "912334556"
     },
     situacionEncontrada: "Presentaba rezago en lectoescritura al inicio de año. Culminó módulo de refuerzo escolar con materiales Faber-Castell con 96% de asistencia.",
     accionesPrevias: "Tutoría personalizada semanal y entrega de kit de útiles escolares.",

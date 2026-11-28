@@ -46,8 +46,8 @@ export const defaultBeneficiarios = [
     "apoderado": "Rosa Quispe Huamán",
     "parentesco": "Madre",
     "apoderadoDni": "41982341",
-    "telefono": "987-654-321",
-    "telefonoAlt": "912-883-112",
+    "telefono": "987654321",
+    "telefonoAlt": "912883112",
     "estado": "Activo",
     "hb": 10.4,
     "peso": 14.2,
@@ -61,13 +61,13 @@ export const defaultBeneficiarios = [
         "nombre": "Rosa Quispe Huamán",
         "dni": "41982341",
         "parentesco": "Madre",
-        "telefono": "987-654-321"
+        "telefono": "987654321"
       },
       {
         "nombre": "Carlos Flores Mendoza",
         "dni": "09823412",
         "parentesco": "Padre",
-        "telefono": "976-112-445"
+        "telefono": "976112445"
       }
     ],
     "coordenadas": {
@@ -112,8 +112,8 @@ export const defaultBeneficiarios = [
     "apoderado": "Carmen Ramos",
     "parentesco": "Madre",
     "apoderadoDni": "42891044",
-    "telefono": "912-345-678",
-    "telefonoAlt": "923-456-789",
+    "telefono": "912345678",
+    "telefonoAlt": "923456789",
     "estado": "Activo",
     "hb": 11.6,
     "peso": 16.5,
@@ -127,7 +127,7 @@ export const defaultBeneficiarios = [
         "nombre": "Carmen Ramos",
         "dni": "42891044",
         "parentesco": "Madre",
-        "telefono": "912-345-678"
+        "telefono": "912345678"
       }
     ],
     "consentimientos": {
@@ -168,8 +168,8 @@ export const defaultBeneficiarios = [
     "apoderado": "Gladys Diaz",
     "parentesco": "Abuela",
     "apoderadoDni": "08941233",
-    "telefono": "976-543-210",
-    "telefonoAlt": "987-112-990",
+    "telefono": "976543210",
+    "telefonoAlt": "987112990",
     "estado": "Activo",
     "hb": 9.6,
     "peso": 12.8,
@@ -183,7 +183,7 @@ export const defaultBeneficiarios = [
         "nombre": "Gladys Diaz",
         "dni": "08941233",
         "parentesco": "Abuela",
-        "telefono": "976-543-210"
+        "telefono": "976543210"
       }
     ],
     "consentimientos": {
@@ -223,8 +223,8 @@ export const defaultBeneficiarios = [
     "apoderado": "Jorge Alvarez",
     "parentesco": "Padre",
     "apoderadoDni": "40192837",
-    "telefono": "945-678-123",
-    "telefonoAlt": "956-789-012",
+    "telefono": "945678123",
+    "telefonoAlt": "956789012",
     "estado": "Activo",
     "hb": 12.2,
     "peso": 19.4,
@@ -238,7 +238,7 @@ export const defaultBeneficiarios = [
         "nombre": "Jorge Alvarez",
         "dni": "40192837",
         "parentesco": "Padre",
-        "telefono": "945-678-123"
+        "telefono": "945678123"
       }
     ],
     "consentimientos": {
@@ -278,8 +278,8 @@ export const defaultBeneficiarios = [
     "apoderado": "Elena Ruiz",
     "parentesco": "Madre",
     "apoderadoDni": "45019284",
-    "telefono": "934-567-890",
-    "telefonoAlt": "945-678-901",
+    "telefono": "934567890",
+    "telefonoAlt": "945678901",
     "estado": "Activo",
     "hb": 10.2,
     "peso": 14.8,
@@ -293,7 +293,7 @@ export const defaultBeneficiarios = [
         "nombre": "Elena Ruiz",
         "dni": "45019284",
         "parentesco": "Madre",
-        "telefono": "934-567-890"
+        "telefono": "934567890"
       }
     ],
     "consentimientos": {
@@ -334,8 +334,8 @@ export const defaultBeneficiarios = [
     "apoderado": "Patricia Huamán Soto",
     "parentesco": "Madre",
     "apoderadoDni": "45129834",
-    "telefono": "987-112-334",
-    "telefonoAlt": "998-776-554",
+    "telefono": "987112334",
+    "telefonoAlt": "998776554",
     "estado": "Activo",
     "hb": 11.4,
     "peso": 17.1,
@@ -349,7 +349,7 @@ export const defaultBeneficiarios = [
         "nombre": "Patricia Huamán Soto",
         "dni": "45129834",
         "parentesco": "Madre",
-        "telefono": "987-112-334"
+        "telefono": "987112334"
       }
     ],
     "consentimientos": {
@@ -389,8 +389,8 @@ export const defaultBeneficiarios = [
     "apoderado": "Miriam Morales Vega",
     "parentesco": "Madre",
     "apoderadoDni": "43219087",
-    "telefono": "913-445-566",
-    "telefonoAlt": "924-556-677",
+    "telefono": "913445566",
+    "telefonoAlt": "924556677",
     "estado": "Activo",
     "hb": 10.7,
     "peso": 15.2,
@@ -404,13 +404,13 @@ export const defaultBeneficiarios = [
         "nombre": "Miriam Morales Vega",
         "dni": "43219087",
         "parentesco": "Madre",
-        "telefono": "913-445-566"
+        "telefono": "913445566"
       },
       {
         "nombre": "Pedro Rojas Paucar",
         "dni": "10234567",
         "parentesco": "Padre",
-        "telefono": "981-223-344"
+        "telefono": "981223344"
       }
     ],
     "consentimientos": {
@@ -450,8 +450,8 @@ export const defaultBeneficiarios = [
     "apoderado": "Karina Córdova Quispe",
     "parentesco": "Madre",
     "apoderadoDni": "46781234",
-    "telefono": "935-667-788",
-    "telefonoAlt": "946-778-899",
+    "telefono": "935667788",
+    "telefonoAlt": "946778899",
     "estado": "Activo",
     "hb": 9.8,
     "peso": 12.4,
@@ -465,7 +465,7 @@ export const defaultBeneficiarios = [
         "nombre": "Karina Córdova Quispe",
         "dni": "46781234",
         "parentesco": "Madre",
-        "telefono": "935-667-788"
+        "telefono": "935667788"
       }
     ],
     "consentimientos": {
@@ -505,8 +505,8 @@ export const defaultBeneficiarios = [
     "apoderado": "Victor Huamán Paredes",
     "parentesco": "Padre",
     "apoderadoDni": "41238901",
-    "telefono": "956-778-899",
-    "telefonoAlt": "967-889-900",
+    "telefono": "956778899",
+    "telefonoAlt": "967889900",
     "estado": "Activo",
     "hb": 11.9,
     "peso": 17.5,
@@ -520,7 +520,7 @@ export const defaultBeneficiarios = [
         "nombre": "Victor Huamán Paredes",
         "dni": "41238901",
         "parentesco": "Padre",
-        "telefono": "956-778-899"
+        "telefono": "956778899"
       }
     ],
     "consentimientos": {
@@ -561,8 +561,8 @@ export const defaultBeneficiarios = [
     "apoderado": "Sonia Vilchez Romero",
     "parentesco": "Madre",
     "apoderadoDni": "44567890",
-    "telefono": "947-889-900",
-    "telefonoAlt": "958-990-011",
+    "telefono": "947889900",
+    "telefonoAlt": "958990011",
     "estado": "Activo",
     "hb": 10.3,
     "peso": 14.5,
@@ -576,7 +576,7 @@ export const defaultBeneficiarios = [
         "nombre": "Sonia Vilchez Romero",
         "dni": "44567890",
         "parentesco": "Madre",
-        "telefono": "947-889-900"
+        "telefono": "947889900"
       }
     ],
     "consentimientos": {
@@ -616,8 +616,8 @@ export const defaultBeneficiarios = [
     "apoderado": "Luz Cruz Mamani",
     "parentesco": "Madre",
     "apoderadoDni": "42345678",
-    "telefono": "968-990-011",
-    "telefonoAlt": "979-001-122",
+    "telefono": "968990011",
+    "telefonoAlt": "979001122",
     "estado": "Activo",
     "hb": 12.1,
     "peso": 20.2,
@@ -631,7 +631,7 @@ export const defaultBeneficiarios = [
         "nombre": "Luz Cruz Mamani",
         "dni": "42345678",
         "parentesco": "Madre",
-        "telefono": "968-990-011"
+        "telefono": "968990011"
       }
     ],
     "consentimientos": {
@@ -671,8 +671,8 @@ export const defaultBeneficiarios = [
     "apoderado": "Mercedes Espinoza Loayza",
     "parentesco": "Tía",
     "apoderadoDni": "43456789",
-    "telefono": "978-001-122",
-    "telefonoAlt": "989-112-233",
+    "telefono": "978001122",
+    "telefonoAlt": "989112233",
     "estado": "Activo",
     "hb": 10.1,
     "peso": 13.0,
@@ -686,7 +686,7 @@ export const defaultBeneficiarios = [
         "nombre": "Mercedes Espinoza Loayza",
         "dni": "43456789",
         "parentesco": "Tía",
-        "telefono": "978-001-122"
+        "telefono": "978001122"
       }
     ],
     "consentimientos": {
@@ -727,8 +727,8 @@ export const defaultBeneficiarios = [
     "apoderado": "Jessica Ramos Palomino",
     "parentesco": "Madre",
     "apoderadoDni": "44678901",
-    "telefono": "989-112-233",
-    "telefonoAlt": "990-223-344",
+    "telefono": "989112233",
+    "telefonoAlt": "990223344",
     "estado": "Activo",
     "hb": 11.5,
     "peso": 16.8,
@@ -742,7 +742,7 @@ export const defaultBeneficiarios = [
         "nombre": "Jessica Ramos Palomino",
         "dni": "44678901",
         "parentesco": "Madre",
-        "telefono": "989-112-233"
+        "telefono": "989112233"
       }
     ],
     "consentimientos": {
@@ -782,8 +782,8 @@ export const defaultBeneficiarios = [
     "apoderado": "Gloria Tello Huamaní",
     "parentesco": "Abuela",
     "apoderadoDni": "09123456",
-    "telefono": "990-223-344",
-    "telefonoAlt": "911-334-455",
+    "telefono": "990223344",
+    "telefonoAlt": "911334455",
     "estado": "Activo",
     "hb": 10.5,
     "peso": 15.0,
@@ -797,7 +797,7 @@ export const defaultBeneficiarios = [
         "nombre": "Gloria Tello Huamaní",
         "dni": "09123456",
         "parentesco": "Abuela",
-        "telefono": "990-223-344"
+        "telefono": "990223344"
       }
     ],
     "consentimientos": {
@@ -837,8 +837,8 @@ export const defaultBeneficiarios = [
     "apoderado": "Raúl Soto Mendoza",
     "parentesco": "Padre",
     "apoderadoDni": "40987654",
-    "telefono": "911-334-455",
-    "telefonoAlt": "922-445-566",
+    "telefono": "911334455",
+    "telefonoAlt": "922445566",
     "estado": "Activo",
     "hb": 12.4,
     "peso": 19.8,
@@ -852,7 +852,7 @@ export const defaultBeneficiarios = [
         "nombre": "Raúl Soto Mendoza",
         "dni": "40987654",
         "parentesco": "Padre",
-        "telefono": "911-334-455"
+        "telefono": "911334455"
       }
     ],
     "consentimientos": {
