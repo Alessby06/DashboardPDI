@@ -95,6 +95,21 @@ export function conectarHoja({
     animacion = null;
   };
 
+  /**
+   * Si la hoja se vuelve a abrir mientras termina la salida, la animación de
+   * cierre deja de aplicar: la persona ya pidió que vuelva. Se cancela antes
+   * de pintar, así no se ve un fotograma fuera de sitio.
+   */
+  const telonDeEstado = telon || hoja;
+  if (typeof MutationObserver === "function") {
+    new MutationObserver(() => {
+      if (!abierta()) return;
+      detenerAnimacion();
+      limpiar();
+      if (telon) telon.style.removeProperty("visibility");
+    }).observe(telonDeEstado, { attributes: true, attributeFilter: ["class"] });
+  }
+
   /** Suelta con inercia, igual que la hoja de filtros: la duración sale de lo
    * que queda por recorrer y de la velocidad con la que soltó el dedo. */
   const soltarConInercia = (total, cerrarPorGesto) => {
@@ -116,25 +131,24 @@ export function conectarHoja({
       { duration: duracion, easing: cerrarPorGesto ? easeCierre : easeVuelta, fill: "forwards" }
     );
 
+    if (cerrarPorGesto) {
+      // El estado cerrado se aplica ya, no al terminar la animación. Antes el
+      // velo seguía en `.open` durante toda la salida y se comía el primer
+      // toque de quien volvía a abrir la hoja; parecía que los botones no
+      // respondían durante un segundo. La animación que acaba de arrancar es
+      // solo el movimiento visual. El velo se mantiene visible —sin recibir
+      // toques, porque ya no tiene `.open`— hasta que la hoja termina de bajar.
+      if (telon) telon.style.visibility = "visible";
+      accion({ porGesto: true });
+    }
+
     let terminado = false;
     const terminar = () => {
       if (terminado) return;
       terminado = true;
-      // Primero el estado (quita .open), luego los estilos: la hoja ya está
-      // en el punto final y no hay salto al soltar la animación.
-      if (cerrarPorGesto) {
-        // El gesto ya dejó la hoja fuera; el estado cerrado se aplica sin
-        // transición para que no reaparezca un fotograma al soltar.
-        detenerAnimacion();
-        hoja.classList.add("pdi-sin-transicion");
-        accion({ porGesto: true });
-        limpiar();
-        void hoja.offsetWidth;
-        hoja.classList.remove("pdi-sin-transicion");
-        return;
-      }
       limpiar();
       detenerAnimacion();
+      if (cerrarPorGesto && telon) telon.style.removeProperty("visibility");
     };
     animacion.finished.then(terminar, () => { /* interrumpida por otro gesto */ });
     // Respaldo por si la pestaña se congela a mitad de la animación.
