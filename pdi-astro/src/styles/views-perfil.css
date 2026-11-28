@@ -507,17 +507,30 @@ html[data-theme="dark"] .perfil-btn--danger {
 
 .perfil-clave-wrap {
   position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
 }
 
 .perfil-clave-wrap input {
+  grid-area: 1 / 1;
   padding-right: 46px;
 }
 
+/* Edge dibuja su propio ojo al enfocar el campo; se oculta para no duplicar
+   el botón de la aplicación. */
+.perfil-clave-wrap input::-ms-reveal,
+.perfil-clave-wrap input::-ms-clear {
+  display: none;
+}
+
 .perfil-clave-toggle {
-  position: absolute;
-  top: 50%;
-  right: 3px;
-  transform: translateY(-50%);
+  grid-area: 1 / 1;
+  justify-self: end;
+  align-self: center;
+  position: static;
+  transform: none;
+  margin-right: 3px;
   display: grid;
   place-items: center;
   width: 34px;
