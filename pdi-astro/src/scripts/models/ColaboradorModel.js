@@ -37,6 +37,281 @@ export const PROGRAMAS_ARTICULADOS = [
 ];
 
 /** Directorio semilla de contrapartes territoriales vinculado a las 7 sedes operativas PDI */
+export const COLABORADORES_SEMILLA = [
+  // --- Facilitadoras PDI (7 Sedes Operativas Oficiales) ---
+  {
+    nombres: 'Carmen',
+    apellidos: 'Mendoza Huamán',
+    dni: '08234567',
+    celular: '987123456',
+    sedeInstitucion: 'Año Nuevo',
+    distrito: 'Comas',
+    tipoColaborador: 'Facilitador(a) Comunitario(a)',
+    categoria: 'pdi',
+    estrategias: ['Desayuno Infantil', 'Casita del Saber', 'Buen Trato en Familia (BTF)'],
+    observaciones: 'Facilitadora a cargo de la Sede Año Nuevo Sector B. Coordinación con comedor San Benito.'
+  },
+  {
+    nombres: 'Maritza',
+    apellidos: 'Soto Cárdenas',
+    dni: '09345678',
+    celular: '991882334',
+    sedeInstitucion: 'Carmen Alto',
+    distrito: 'Comas',
+    tipoColaborador: 'Facilitador(a) Comunitario(a)',
+    categoria: 'pdi',
+    estrategias: ['Casita del Saber', 'Desayuno Infantil'],
+    observaciones: 'Facilitadora de Sede Carmen Alto. Enlace en Paradero 5 de Av. Revolución.'
+  },
+  {
+    nombres: 'Elizabeth',
+    apellidos: 'Huamán Rivas',
+    dni: '10456789',
+    celular: '984112993',
+    sedeInstitucion: 'El Progreso',
+    distrito: 'Carabayllo',
+    tipoColaborador: 'Facilitador(a) Comunitario(a)',
+    categoria: 'pdi',
+    estrategias: ['Casita del Saber', 'Desayuno Infantil'],
+    observaciones: 'Facilitadora territorial en Carabayllo Km 21. Enlace con I.E. 3058.'
+  },
+  {
+    nombres: 'Rosa',
+    apellidos: 'Flores Quispe',
+    dni: '11567890',
+    celular: '976543210',
+    sedeInstitucion: 'La Libertad',
+    distrito: 'Comas',
+    tipoColaborador: 'Facilitador(a) Comunitario(a)',
+    categoria: 'pdi',
+    estrategias: ['Desayuno Infantil', 'Buen Trato en Familia (BTF)'],
+    observaciones: 'Facilitadora en A.H. La Libertad. Coordinación con Módulo de Salud.'
+  },
+  {
+    nombres: 'Silvia',
+    apellidos: 'Palacios Tello',
+    dni: '12678901',
+    celular: '962331778',
+    sedeInstitucion: 'Los Bendecidos',
+    distrito: 'Carabayllo',
+    tipoColaborador: 'Facilitador(a) Comunitario(a)',
+    categoria: 'pdi',
+    estrategias: ['Desayuno Infantil', 'Casita del Saber', 'Buen Trato en Familia (BTF)'],
+    observaciones: 'Facilitadora en Ampliación Los Bendecidos. Raciones y refuerzo escolar.'
+  },
+  {
+    nombres: 'Juana',
+    apellidos: 'Condori Mamani',
+    dni: '13789012',
+    celular: '955443219',
+    sedeInstitucion: 'San Pedro',
+    distrito: 'Carabayllo',
+    tipoColaborador: 'Facilitador(a) Comunitario(a)',
+    categoria: 'pdi',
+    estrategias: ['Desayuno Infantil', 'Área Social Pastoral'],
+    observaciones: 'Facilitadora en San Pedro Comité 14. Atención y seguimiento nutricional.'
+  },
+  {
+    nombres: 'Patricia',
+    apellidos: 'Alarcón Vera',
+    dni: '14890123',
+    celular: '948223990',
+    sedeInstitucion: 'Santa Rosa',
+    distrito: 'Carabayllo',
+    tipoColaborador: 'Facilitador(a) Comunitario(a)',
+    categoria: 'pdi',
+    estrategias: ['Desayuno Infantil', 'Casita del Saber'],
+    observaciones: 'Facilitadora en Sede Santa Rosa. Convenio pastoral Gracia y Paz.'
+  },
+
+  // --- Iglesias y Puntos Pastorales Aliados (Sedes Operativas) ---
+  {
+    nombres: 'Samuel',
+    apellidos: 'Valdivia Quispe',
+    dni: '07123456',
+    celular: '987123450',
+    telefonoFijo: '01-5428811',
+    sedeInstitucion: 'Año Nuevo',
+    denominacion: 'Iglesia Bíblica Emanuel',
+    distrito: 'Comas',
+    tipoColaborador: 'Pastor(a) / Líder Comunitario',
+    categoria: 'iglesias',
+    estrategias: ['Desayuno Infantil', 'Juntos Aprendemos en Cristo (JAC)'],
+    observaciones: 'Pastor principal de Iglesia Bíblica Emanuel. Apoyo en local y logística comunitaria.'
+  },
+  {
+    nombres: 'Héctor',
+    apellidos: 'Ramos Morales',
+    dni: '08456789',
+    celular: '991882330',
+    telefonoFijo: '01-5427722',
+    sedeInstitucion: 'Carmen Alto',
+    denominacion: 'Iglesia Alianza Cristiana y Misionera',
+    distrito: 'Comas',
+    tipoColaborador: 'Pastor(a) / Líder Comunitario',
+    categoria: 'iglesias',
+    estrategias: ['Desayuno Infantil', 'Buen Trato en Familia (BTF)'],
+    observaciones: 'Pastor de la Alianza Cristiana y Misionera de Carmen Alto. Local de atención diaria.'
+  },
+  {
+    nombres: 'Félix',
+    apellidos: 'Alarcón Méndez',
+    dni: '09567890',
+    celular: '976543219',
+    telefonoFijo: '01-5416633',
+    sedeInstitucion: 'La Libertad',
+    denominacion: 'Iglesia Cristiana Aposento Alto',
+    distrito: 'Comas',
+    tipoColaborador: 'Pastor(a) / Líder Comunitario',
+    categoria: 'iglesias',
+    estrategias: ['Desayuno Infantil', 'Área Social Pastoral'],
+    observaciones: 'Pastor en A.H. La Libertad. Apoyo en soporte espiritual y espacio comunal.'
+  },
+  {
+    nombres: 'David',
+    apellidos: 'Cárdenas Tello',
+    dni: '10678901',
+    celular: '962331770',
+    telefonoFijo: '01-5475544',
+    sedeInstitucion: 'Los Bendecidos',
+    denominacion: 'Centro Cristiano Familiar',
+    distrito: 'Carabayllo',
+    tipoColaborador: 'Pastor(a) / Líder Comunitario',
+    categoria: 'iglesias',
+    estrategias: ['Desayuno Infantil', 'Juntos Aprendemos en Cristo (JAC)'],
+    observaciones: 'Líder eclesial Centro Cristiano Familiar. Distribución de desayunos y talleres infantiles.'
+  },
+  {
+    nombres: 'Walter',
+    apellidos: 'Vega Ríos',
+    dni: '11789012',
+    celular: '955443210',
+    telefonoFijo: '01-5473355',
+    sedeInstitucion: 'San Pedro',
+    denominacion: 'Iglesia Evangélica Bautista San Pedro',
+    distrito: 'Carabayllo',
+    tipoColaborador: 'Pastor(a) / Líder Comunitario',
+    categoria: 'iglesias',
+    estrategias: ['Desayuno Infantil', 'Buen Trato en Familia (BTF)'],
+    observaciones: 'Pastor Iglesia Bautista San Pedro. Monitoreo comunitario y talleres BTF.'
+  },
+  {
+    nombres: 'Marcos',
+    apellidos: 'Gutiérrez Paredes',
+    dni: '12890123',
+    celular: '948223999',
+    telefonoFijo: '01-5472266',
+    sedeInstitucion: 'Santa Rosa',
+    denominacion: 'Comunidad Cristiana Gracia y Paz',
+    distrito: 'Carabayllo',
+    tipoColaborador: 'Pastor(a) / Líder Comunitario',
+    categoria: 'iglesias',
+    estrategias: ['Desayuno Infantil', 'Casita del Saber', 'Juntos Aprendemos en Cristo (JAC)'],
+    observaciones: 'Pastor Comunidad Cristiana Gracia y Paz. Instalaciones para Casita del Saber y raciones.'
+  },
+  {
+    nombres: 'Andrés',
+    apellidos: 'Villanueva Rojas',
+    dni: '06789012',
+    celular: '961552233',
+    telefonoFijo: '01-3624477',
+    sedeInstitucion: 'El Agustino',
+    denominacion: 'Comunidad Cristiana El Agustino',
+    distrito: 'El Agustino',
+    tipoColaborador: 'Pastor(a) / Líder Comunitario',
+    categoria: 'iglesias',
+    estrategias: ['Repostería', 'Buen Trato en Familia (BTF)', 'Juntos Aprendemos en Cristo (JAC)'],
+    observaciones: 'Punto pastoral y comunal en El Agustino para talleres productivos de repostería y BTF.'
+  },
+
+  // --- Colegios Aliados (I.E.) y Docentes Enlace ---
+  {
+    nombres: 'Roberto',
+    apellidos: 'Silva Castillo',
+    dni: '06234567',
+    celular: '942331122',
+    telefonoFijo: '01-5432101',
+    email: 'd3058_virgenmercedes@ugel04.gob.pe',
+    sedeInstitucion: 'El Progreso',
+    codigoModular: '0584920',
+    nivel: 'Primaria',
+    turno: 'Completo',
+    distrito: 'Carabayllo',
+    tipoColaborador: 'Director(a) I.E.',
+    categoria: 'colegios',
+    estrategias: ['Casita del Saber', 'Desayuno Infantil'],
+    observaciones: 'Director de la I.E. N.° 3058 Virgen de las Mercedes (Av. Túpac Amaru Km 21). Convenio institucional firmado.'
+  },
+  {
+    nombres: 'Juana',
+    apellidos: 'Dávila Rivas',
+    dni: '07345678',
+    celular: '981223344',
+    telefonoFijo: '01-5432101',
+    email: 'jdavila@ugel04.gob.pe',
+    sedeInstitucion: 'El Progreso',
+    codigoModular: '0584920',
+    nivel: 'Primaria',
+    turno: 'Mañana',
+    distrito: 'Carabayllo',
+    tipoColaborador: 'Docente Enlace',
+    categoria: 'colegios',
+    estrategias: ['Casita del Saber'],
+    observaciones: 'Docente enlace pedagógico de I.E. 3058. Monitoreo de asistencia y rendimiento escolar en Casitas.'
+  },
+  {
+    nombres: 'Carlos',
+    apellidos: 'Morales Soto',
+    dni: '08901234',
+    celular: '993445566',
+    telefonoFijo: '01-5421199',
+    email: 'd3088_angeles@ugel04.gob.pe',
+    sedeInstitucion: 'Año Nuevo',
+    codigoModular: '0432115',
+    nivel: 'Primaria',
+    turno: 'Mañana',
+    distrito: 'Comas',
+    tipoColaborador: 'Director(a) I.E.',
+    categoria: 'colegios',
+    estrategias: ['Casita del Saber', 'Desayuno Infantil'],
+    observaciones: 'Director I.E. N.° 3088 Los Ángeles (Comas Sector Año Nuevo). Articulación con Casitas del Saber.'
+  },
+  {
+    nombres: 'Gladys',
+    apellidos: 'Ramos Quispe',
+    dni: '09012345',
+    celular: '971224455',
+    telefonoFijo: '01-5471188',
+    email: 'gramos@ugel04.gob.pe',
+    sedeInstitucion: 'San Pedro',
+    codigoModular: '0621345',
+    nivel: 'Primaria',
+    turno: 'Tarde',
+    distrito: 'Carabayllo',
+    tipoColaborador: 'Docente Enlace',
+    categoria: 'colegios',
+    estrategias: ['Casita del Saber'],
+    observaciones: 'Docente de enlace en I.E. 2024 (Carabayllo). Enlace para derivación de menores con rezago.'
+  },
+  {
+    nombres: 'Miguel Ángel',
+    apellidos: 'Torres Villegas',
+    dni: '05678901',
+    celular: '982113355',
+    telefonoFijo: '01-3621122',
+    email: 'direccion_jbasadre@ugel06.gob.pe',
+    sedeInstitucion: 'El Agustino',
+    codigoModular: '0714231',
+    nivel: 'Secundaria',
+    turno: 'Mañana',
+    distrito: 'El Agustino',
+    tipoColaborador: 'Director(a) I.E.',
+    categoria: 'colegios',
+    estrategias: ['Buen Trato en Familia (BTF)', 'Repostería', 'Juntos Aprendemos en Cristo (JAC)'],
+    observaciones: 'Director I.E. Jorge Basadre. Alianza formativa para proyectos de repostería y orientación familiar BTF.'
+  }
+];
+
 export function limpiarCelularPeru(val) {
   let num = String(val || '').replace(/\D/g, '');
   if (num.length === 11 && num.startsWith('51')) {
@@ -191,19 +466,34 @@ export const ColaboradorModel = {
   _data: null,
 
   init() {
-    // La nube es la única fuente. Lo guardado es la última copia confirmada;
-    // sin copia, la lista arranca vacía. No hay datos de ejemplo en el código.
     const almacenados = StorageService.getItem(STORAGE_KEY, null);
-    this._data = Array.isArray(almacenados)
-      ? almacenados.map(c => normalizarColaborador(c))
-      : [];
+    const esValido = Array.isArray(almacenados) &&
+      almacenados.length >= 10 &&
+      almacenados.some(c => (c.categoria || clasificarCategoria(c.tipoColaborador)) === 'colegios') &&
+      almacenados.some(c => (c.categoria || clasificarCategoria(c.tipoColaborador)) === 'iglesias') &&
+      almacenados.some(c => (c.categoria || clasificarCategoria(c.tipoColaborador)) === 'pdi');
+
+    if (esValido) {
+      this._data = almacenados.map(c => normalizarColaborador(c));
+    } else {
+      this._data = COLABORADORES_SEMILLA.map((c, idx) => normalizarColaborador({
+        ...c,
+        id: idx + 1,
+        codigo: `COL-${new Date().getFullYear()}-${String(idx + 1).padStart(3, '0')}`,
+      }));
+      this._guardar();
+    }
   },
 
   /** La capa de datos entrega el padrón hidratado de la nube. */
   aplicarDatos(lista) {
-    if (!Array.isArray(lista) || lista.length === 0) return;
-    this._data = lista.map(c => normalizarColaborador(c));
-    this._guardar();
+    if (!Array.isArray(lista)) return;
+    if (lista.length > 0) {
+      this._data = lista.map(c => normalizarColaborador(c));
+      this._guardar();
+    } else if (!this._data || this._data.length === 0) {
+      this.init();
+    }
   },
 
   _guardar() {

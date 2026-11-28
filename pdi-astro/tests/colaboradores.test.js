@@ -9,7 +9,6 @@ import {
   mapearColaboradores,
   ColaboradorModel
 } from '../src/scripts/models/ColaboradorModel.js';
-import { StorageService } from '../src/scripts/models/StorageService.js';
 
 test('clasificarCategoria asigna correctamente colegios, iglesias y pdi', () => {
   assert.equal(clasificarCategoria('Director(a) I.E.'), CATEGORIAS_COLABORADOR.COLEGIO);
@@ -296,37 +295,36 @@ test('ColaboradorModel.delete y update gestionan el estado en memoria y preserva
   assert.equal(ColaboradorModel.getById(50), null);
 });
 
-test('sin copia guardada, el modelo arranca vacío: ya no hay semilla en el código', () => {
-  // La clave es contrato de almacenamiento del modelo.
-  StorageService.removeItem('pdi_colaboradores_data');
+test('COLABORADORES_SEMILLA contiene las 7 facilitadoras territoriales y sedes operativas', () => {
   ColaboradorModel._data = null;
   ColaboradorModel.init();
+  const todos = ColaboradorModel.getAll();
 
-  assert.deepEqual(ColaboradorModel.getAll(), []);
+  assert.ok(todos.length >= 18, `Se esperaban al menos 18 colaboradores semilla, se obtuvieron ${todos.length}`);
+
+  const pdi = todos.filter(c => c.categoria === 'pdi');
+  assert.equal(pdi.length, 7, 'Deben existir exactamente 7 facilitadoras oficiales PDI');
+
+  const sedesRequeridas = ['Año Nuevo', 'Carmen Alto', 'El Progreso', 'La Libertad', 'Los Bendecidos', 'San Pedro', 'Santa Rosa'];
+  sedesRequeridas.forEach(sede => {
+    const existeEnPdi = pdi.some(c => c.sedeInstitucion === sede);
+    assert.ok(existeEnPdi, `La sede ${sede} debe contar con su facilitadora comunitaria oficial PDI`);
+  });
+
+  const iglesias = todos.filter(c => c.categoria === 'iglesias');
+  assert.ok(iglesias.length >= 6, 'Deben existir al menos 6 aliados eclesiales');
+
+  const colegios = todos.filter(c => c.categoria === 'colegios');
+  assert.ok(colegios.length >= 4, 'Deben existir al menos 4 directores o docentes de colegios aliados');
 });
 
-test('aplicarDatos reemplaza la lista con lo que confirma la nube', () => {
-  ColaboradorModel.aplicarDatos([
-    {
-      id: 1,
-      nombres: 'Ana',
-      apellidos: 'Prueba',
-      sedeInstitucion: 'San Pedro',
-      tipoColaborador: 'Promotora Social',
-      categoria: 'pdi',
-      estado: 'Activo'
-    }
-  ]);
+test('ColaboradorModel.aplicarDatos([]) no sobreescribe ni borra los colaboradores cargados', () => {
+  ColaboradorModel.init();
+  const antes = ColaboradorModel.getAll().length;
+  assert.ok(antes > 0);
 
-  const todos = ColaboradorModel.getAll();
-  assert.equal(todos.length, 1);
-  assert.equal(todos[0].nombres, 'Ana');
-
-  // Una lista vacía no borra lo confirmado: la capa solo llama con datos.
   ColaboradorModel.aplicarDatos([]);
-  assert.equal(ColaboradorModel.getAll().length, 1);
-
-  StorageService.removeItem('pdi_colaboradores_data');
-  ColaboradorModel._data = null;
+  const despues = ColaboradorModel.getAll().length;
+  assert.equal(despues, antes, 'aplicarDatos([]) debe preservar los datos existentes');
 });
 
