@@ -1665,7 +1665,7 @@ body[data-page="dashboard"] #mainContent {
 
   .dash-prioridad:not([hidden]):first-of-type .dash-prioridad-link {
     display: grid;
-    grid-template-columns: 64px minmax(0, 1fr) 16px;
+    grid-template-columns: 48px minmax(0, 1fr) 16px;
     grid-template-areas:
       "count area go"
       "count title go"
@@ -1694,8 +1694,8 @@ body[data-page="dashboard"] #mainContent {
     grid-area: count;
     display: flex;
     flex-direction: column;
-    align-self: start;
-    align-items: flex-start;
+    align-self: center;
+    align-items: center;
     gap: 2px;
     margin: 0;
   }
@@ -1747,8 +1747,8 @@ body[data-page="dashboard"] #mainContent {
     grid-area: count;
     display: flex;
     flex-direction: column;
-    align-self: start;
-    align-items: flex-start;
+    align-self: center;
+    align-items: center;
     gap: 1px;
     margin: 0;
   }
