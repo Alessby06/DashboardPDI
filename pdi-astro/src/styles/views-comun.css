@@ -241,6 +241,10 @@
         align-items: flex-end;
         justify-content: center;
         overflow: hidden;
+        /* El desenfoque del velo se paga en cada frame en móviles medios.
+           La hoja ya tiene su propio contraste; el velo queda sólido. */
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
       }
 
       /* Bottom sheet de formulario: casi toda la pantalla porque el punto

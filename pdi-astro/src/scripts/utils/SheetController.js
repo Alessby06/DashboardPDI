@@ -291,6 +291,62 @@ function conectarEscape() {
   });
 }
 
+let fondoListo = false;
+
+/**
+ * En móvil, tocar el velo cierra la hoja. Se hace en captura para que el
+ * cierre pase por la X canónica de cada ficha (borradores, inert, foco) y no
+ * por el `remove("open")` suelto de cada vista. En escritorio el drawer
+ * conserva su X y su comportamiento.
+ */
+function conectarFondo() {
+  if (fondoListo) return;
+  fondoListo = true;
+  document.addEventListener("click", (evento) => {
+    if (!esMovil()) return;
+    const telon = evento.target.closest?.(".modal-backdrop.drawer");
+    if (!telon || evento.target !== telon || !telon.classList.contains("open")) return;
+    evento.preventDefault();
+    evento.stopPropagation();
+    const caja = telon.querySelector(".modal-box");
+    const cerrar = caja ? cerradores.get(caja) : null;
+    if (typeof cerrar === "function") {
+      cerrar({ porGesto: true });
+      return;
+    }
+    const x = telon.querySelector(".btn-close-modal");
+    if (x) x.click();
+    else telon.classList.remove("open");
+  }, true);
+}
+
+let cierresListo = false;
+
+/**
+ * La X desaparece del móvil: el cierre táctil es el velo o el arrastre, y el
+ * de teclado, Escape. Se oculta con estilo inline para ganar a las reglas de
+ * cada ficha sin añadir un `!important` al presupuesto de la hoja.
+ */
+function sincronizarCierres() {
+  const movil = esMovil();
+  document.querySelectorAll(".modal-backdrop.drawer .btn-close-modal").forEach((boton) => {
+    if (movil) boton.style.display = "none";
+    else boton.style.removeProperty("display");
+  });
+}
+
+function conectarCierres() {
+  if (cierresListo) {
+    sincronizarCierres();
+    return;
+  }
+  cierresListo = true;
+  const mq = window.matchMedia("(max-width: 768px)");
+  if (mq.addEventListener) mq.addEventListener("change", sincronizarCierres);
+  else mq.addListener(sincronizarCierres);
+  sincronizarCierres();
+}
+
 let observadorFondo = null;
 const observadosFondo = new WeakSet();
 
@@ -365,6 +421,8 @@ function conectarTeclado() {
 export function iniciarSheets() {
   document.querySelectorAll(".modal-backdrop.drawer .sheet-grab").forEach(engancharAsaDeModal);
   conectarEscape();
+  conectarFondo();
+  conectarCierres();
   observarFondo();
   conectarTeclado();
 }
